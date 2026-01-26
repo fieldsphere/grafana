@@ -24,7 +24,23 @@ export const ThemeProvider = ({ children, value }: { children: React.ReactNode; 
 
   useEffect(() => {
     const otherMode = theme.colors.mode === 'dark' ? 'light' : 'dark';
-    preloadThemeCss(otherMode);
+
+    const schedule =
+      // @ts-expect-error - not in all TS lib DOM targets
+      typeof window.requestIdleCallback === 'function'
+        ? // @ts-expect-error - not in all TS lib DOM targets
+          window.requestIdleCallback
+        : (cb: () => void) => window.setTimeout(cb, 0);
+
+    const cancel =
+      // @ts-expect-error - not in all TS lib DOM targets
+      typeof window.cancelIdleCallback === 'function'
+        ? // @ts-expect-error - not in all TS lib DOM targets
+          window.cancelIdleCallback
+        : (id: number) => window.clearTimeout(id);
+
+    const id = schedule(() => preloadThemeCss(otherMode));
+    return () => cancel(id);
   }, [theme.colors.mode]);
 
   useEffect(() => {

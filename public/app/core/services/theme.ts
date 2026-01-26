@@ -45,9 +45,8 @@ function ensureThemeStylesheet(mode: ThemeMode): HTMLLinkElement | null {
   link.rel = 'stylesheet';
   link.href = href;
   link.dataset.grafanaThemeMode = mode;
-  // Use a non-screen media type so the browser still fetches + parses the stylesheet,
-  // but doesn't apply it to the current view.
-  link.media = 'print';
+  // Start in a non-applied state; caller decides when to apply.
+  link.media = 'not all';
   document.head.insertBefore(link, document.head.firstChild);
   return link;
 }
@@ -56,7 +55,7 @@ export function preloadThemeCss(mode: ThemeMode) {
   // Ensure the stylesheet exists and is fetched+parsed without applying.
   const link = ensureThemeStylesheet(mode);
   if (link) {
-    link.media = 'print';
+    link.media = 'not all';
   }
 }
 
@@ -81,12 +80,12 @@ export async function changeTheme(themeId: string, runtimeOnly?: boolean) {
 
       if (newCssLink.sheet) {
         newCssLink.media = 'all';
-        oldCssLink.media = 'print';
+        oldCssLink.media = 'not all';
       } else {
-        newCssLink.media = 'print';
+        newCssLink.media = 'not all';
         newCssLink.onload = () => {
           newCssLink.media = 'all';
-          oldCssLink.media = 'print';
+          oldCssLink.media = 'not all';
         };
       }
     }
