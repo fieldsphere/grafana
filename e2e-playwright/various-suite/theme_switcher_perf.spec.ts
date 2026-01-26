@@ -86,7 +86,12 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
   });
   const switchExperimentalMsGauge = new prom.Gauge({
     name: 'fe_theme_switcher_switch_experimental_ms',
-    help: 'Time from selecting one experimental theme to another to UI idle, in milliseconds',
+    help: 'Time from selecting an experimental theme to another (cold path), in milliseconds',
+    registers: [promRegistry],
+  });
+  const switchExperimentalWarmMsGauge = new prom.Gauge({
+    name: 'fe_theme_switcher_switch_experimental_warm_ms',
+    help: 'Time switching back to an already-applied experimental theme, in milliseconds',
     registers: [promRegistry],
   });
   const switchMaxLongTaskMsGauge = new prom.Gauge({
@@ -152,9 +157,16 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
       await page.getByRole('radio', { name: new RegExp(found[1], 'i') }).click();
     });
     switchExperimentalMsGauge.set(experimentalSwitch.durationMs);
+
+    // Switching back to a previously-applied theme should be fast if theme objects and style caches are reused.
+    const experimentalWarmSwitch = await measureThemeInteractionToIdle(page, async () => {
+      await page.getByRole('radio', { name: new RegExp(found[0], 'i') }).click();
+    });
+    switchExperimentalWarmMsGauge.set(experimentalWarmSwitch.durationMs);
   } else {
     // If experimental themes aren't available, record a sentinel value.
     switchExperimentalMsGauge.set(-1);
+    switchExperimentalWarmMsGauge.set(-1);
   }
 
   const toLight = await measureThemeInteractionToIdle(page, async () => {
