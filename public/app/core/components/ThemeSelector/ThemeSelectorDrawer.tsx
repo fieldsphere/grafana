@@ -1,4 +1,5 @@
 import { css } from '@emotion/css';
+import { useCallback, useMemo } from 'react';
 
 import { GrafanaTheme2, ThemeRegistryItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
@@ -15,16 +16,24 @@ interface Props {
 
 export function ThemeSelectorDrawer({ onClose }: Props) {
   const styles = useStyles2(getStyles);
-  const themes = getSelectableThemes();
+  const themes = useMemo(() => getSelectableThemes(), []);
   const currentTheme = useTheme2();
 
-  const onChange = (theme: ThemeRegistryItem) => {
+  const onChange = useCallback((theme: ThemeRegistryItem) => {
     reportInteraction('grafana_preferences_theme_changed', {
       toTheme: theme.id,
       preferenceType: 'theme_drawer',
     });
     changeTheme(theme.id, false);
-  };
+  }, []);
+
+  const onSelectHandlers = useMemo(() => {
+    const handlers = new Map<string, () => void>();
+    for (const theme of themes) {
+      handlers.set(theme.id, () => onChange(theme));
+    }
+    return handlers;
+  }, [themes, onChange]);
 
   const subTitle = (
     <Trans i18nKey="shared-preferences.fields.theme-description">
@@ -52,7 +61,7 @@ export function ThemeSelectorDrawer({ onClose }: Props) {
             themeOption={themeOption}
             isExperimental={themeOption.isExtra}
             key={themeOption.id}
-            onSelect={() => onChange(themeOption)}
+            onSelect={onSelectHandlers.get(themeOption.id) ?? (() => onChange(themeOption))}
             isSelected={currentTheme.name === themeOption.name}
           />
         ))}

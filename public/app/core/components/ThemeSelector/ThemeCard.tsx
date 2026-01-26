@@ -1,8 +1,9 @@
 import { css } from '@emotion/css';
+import { memo, useMemo } from 'react';
 
-import { FeatureState, GrafanaTheme2, ThemeRegistryItem } from '@grafana/data';
+import { FeatureState, GrafanaTheme2, ThemeContext, ThemeRegistryItem } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { FeatureBadge, RadioButtonDot, useStyles2 } from '@grafana/ui';
+import { FeatureBadge, RadioButtonDot } from '@grafana/ui';
 
 import { ThemePreview } from '../Theme/ThemePreview';
 
@@ -13,33 +14,35 @@ interface ThemeCardProps {
   onSelect: () => void;
 }
 
-export function ThemeCard({ themeOption, isExperimental, isSelected, onSelect }: ThemeCardProps) {
-  const theme = themeOption.build();
+export const ThemeCard = memo(function ThemeCard({ themeOption, isExperimental, isSelected, onSelect }: ThemeCardProps) {
+  const theme = useMemo(() => themeOption.build(), [themeOption]);
   const label = getTranslatedThemeName(themeOption);
-  const styles = useStyles2(getStyles);
+  const styles = useMemo(() => getStyles(theme), [theme]);
 
   return (
-    // this is a convenience for mouse users. keyboard/screen reader users will use the radio button
-    // eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events
-    <div className={styles.card} onClick={onSelect}>
-      <div className={styles.header}>
-        <RadioButtonDot
-          id={`theme-${theme.name}`}
-          name={'theme'}
-          label={label}
-          onClick={(event) => {
-            // prevent propagation so that onSelect is only called once when clicking the radio button
-            event.stopPropagation();
-          }}
-          onChange={onSelect}
-          checked={isSelected}
-        />
-        {isExperimental && <FeatureBadge featureState={FeatureState.experimental} />}
+    <ThemeContext.Provider value={theme}>
+      {/* this is a convenience for mouse users. keyboard/screen reader users will use the radio button */}
+      {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions,jsx-a11y/click-events-have-key-events */}
+      <div className={styles.card} onClick={onSelect}>
+        <div className={styles.header}>
+          <RadioButtonDot
+            id={`theme-${theme.name}`}
+            name={'theme'}
+            label={label}
+            onClick={(event) => {
+              // prevent propagation so that onSelect is only called once when clicking the radio button
+              event.stopPropagation();
+            }}
+            onChange={onSelect}
+            checked={isSelected}
+          />
+          {isExperimental && <FeatureBadge featureState={FeatureState.experimental} />}
+        </div>
+        <ThemePreview theme={theme} />
       </div>
-      <ThemePreview theme={theme} />
-    </div>
+    </ThemeContext.Provider>
   );
-}
+});
 
 const getStyles = (theme: GrafanaTheme2) => {
   return {

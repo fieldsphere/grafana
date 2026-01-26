@@ -1,7 +1,15 @@
 import { getBuiltInThemes } from '@grafana/data';
 import { config } from '@grafana/runtime';
 
+let cachedThemes: ReturnType<typeof getBuiltInThemes> | null = null;
+let cachedKey: string | null = null;
+
 export function getSelectableThemes() {
+  const key = config.featureToggles.grafanaconThemes ? 'grafanaconThemes:on' : 'grafanaconThemes:off';
+  if (cachedThemes && cachedKey === key) {
+    return cachedThemes;
+  }
+
   const allowedExtraThemes = [];
 
   if (config.featureToggles.grafanaconThemes) {
@@ -12,5 +20,7 @@ export function getSelectableThemes() {
     allowedExtraThemes.push('gloom');
   }
 
-  return getBuiltInThemes(allowedExtraThemes);
+  cachedThemes = getBuiltInThemes(allowedExtraThemes);
+  cachedKey = key;
+  return cachedThemes;
 }

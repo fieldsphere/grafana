@@ -1,4 +1,5 @@
 import { css, cx } from '@emotion/css';
+import { memo } from 'react';
 
 import { GrafanaTheme2, ThemeContext } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
@@ -10,13 +11,13 @@ interface ThemePreviewProps {
   theme: GrafanaTheme2;
 }
 
-export function ThemePreview({ theme }: ThemePreviewProps) {
+export const ThemePreview = memo(function ThemePreview({ theme }: ThemePreviewProps) {
   return (
     <ThemeContext.Provider value={theme}>
       <ThemePreviewWithContext />
     </ThemeContext.Provider>
   );
-}
+});
 
 function ThemePreviewWithContext() {
   const styles = useStyles2(getStyles);
