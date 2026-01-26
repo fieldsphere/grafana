@@ -24,8 +24,11 @@ export function ThemeSelectorDrawer({ onClose }: Props) {
       toTheme: theme.id,
       preferenceType: 'theme_drawer',
     });
-    changeTheme(theme.id, false);
-  }, []);
+    // Close first so the drawer unmounts before the expensive theme update runs.
+    // This improves perceived responsiveness when switching themes.
+    onClose();
+    requestAnimationFrame(() => changeTheme(theme.id, false));
+  }, [onClose]);
 
   const onSelectHandlers = useMemo(() => {
     const handlers = new Map<string, () => void>();
