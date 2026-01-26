@@ -1,6 +1,7 @@
 import { PanelPlugin } from '@grafana/data';
 
 import { config } from '../config';
+
 import { createMonitoringLogger } from './logging';
 
 const pluginLogger = createMonitoringLogger('runtime.plugin_css');

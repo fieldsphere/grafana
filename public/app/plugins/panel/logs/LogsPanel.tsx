@@ -502,7 +502,7 @@ export const LogsPanel = ({
         series: newSeries,
       });
     },
-    [data.request, dataSourcesMap, id, onNewLogsReceived, panelData, timeZone]
+    [app, data.request, dataSourcesMap, id, onNewLogsReceived, panelData, timeZone]
   );
 
   const renderCommonLabels = () => (
