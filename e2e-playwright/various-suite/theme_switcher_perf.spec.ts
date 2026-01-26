@@ -84,6 +84,11 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
     help: 'Time from selecting Light to UI idle, in milliseconds',
     registers: [promRegistry],
   });
+  const switchExperimentalMsGauge = new prom.Gauge({
+    name: 'fe_theme_switcher_switch_experimental_ms',
+    help: 'Time from selecting one experimental theme to another to UI idle, in milliseconds',
+    registers: [promRegistry],
+  });
   const switchMaxLongTaskMsGauge = new prom.Gauge({
     name: 'fe_theme_switcher_switch_max_longtask_ms',
     help: 'Max single long task duration observed during theme switches, in milliseconds',
@@ -123,6 +128,37 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
 
   switchToDarkMsGauge.set(toDark.durationMs);
   switchToLightMsGauge.set(toLight.durationMs);
+
+  // Switch between two experimental themes (same-mode switch; avoids CSS swap and isolates React/theme work).
+  const experimentalNameMatchers: Array<{ name: string; re: RegExp }> = [
+    { name: 'Tron', re: /tron/i },
+    { name: 'Gloom', re: /gloom/i },
+    { name: 'Desert Bloom', re: /desert\s*bloom/i },
+    { name: 'Gilded Grove', re: /gilded\s*grove/i },
+    { name: 'Sapphire Dusk', re: /sapphire\s*dusk/i },
+  ];
+
+  const found: string[] = [];
+  for (const matcher of experimentalNameMatchers) {
+    const count = await page.getByRole('radio', { name: matcher.re }).count();
+    if (count > 0) {
+      found.push(matcher.name);
+    }
+    if (found.length >= 2) {
+      break;
+    }
+  }
+
+  if (found.length >= 2) {
+    const experimentalSwitch = await measureThemeInteractionToIdle(page, async () => {
+      await page.getByRole('radio', { name: new RegExp(found[0], 'i') }).click();
+      await page.getByRole('radio', { name: new RegExp(found[1], 'i') }).click();
+    });
+    switchExperimentalMsGauge.set(experimentalSwitch.durationMs);
+  } else {
+    // If experimental themes aren't available, record a sentinel value.
+    switchExperimentalMsGauge.set(-1);
+  }
 
   const maxLongTaskMs = Math.max(toDark.maxLongTaskMs, toLight.maxLongTaskMs);
   const totalLongTaskMs = toDark.totalLongTaskMs + toLight.totalLongTaskMs;
