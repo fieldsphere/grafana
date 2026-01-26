@@ -20,6 +20,16 @@ export interface ThemeRegistryItem extends RegistryItem {
   build: () => GrafanaTheme2;
 }
 
+function memoizeThemeBuild(build: () => GrafanaTheme2): () => GrafanaTheme2 {
+  let cached: GrafanaTheme2 | undefined;
+  return () => {
+    if (!cached) {
+      cached = build();
+    }
+    return cached;
+  };
+}
+
 const extraThemes: { [key: string]: unknown } = {
   aubergine,
   debug,
@@ -71,8 +81,8 @@ export function getBuiltInThemes(allowedExtras: string[]) {
 const themeRegistry = new Registry<ThemeRegistryItem>(() => {
   return [
     { id: 'system', name: 'System preference', build: getSystemPreferenceTheme },
-    { id: 'dark', name: 'Dark', build: () => createTheme({ colors: { mode: 'dark' } }) },
-    { id: 'light', name: 'Light', build: () => createTheme({ colors: { mode: 'light' } }) },
+    { id: 'dark', name: 'Dark', build: memoizeThemeBuild(() => createTheme({ colors: { mode: 'dark' } })) },
+    { id: 'light', name: 'Light', build: memoizeThemeBuild(() => createTheme({ colors: { mode: 'light' } })) },
   ];
 });
 
@@ -85,7 +95,7 @@ for (const [name, json] of Object.entries(extraThemes)) {
     themeRegistry.register({
       id: theme.id,
       name: theme.name,
-      build: () => createTheme(theme),
+      build: memoizeThemeBuild(() => createTheme(theme)),
       isExtra: true,
     });
   }
