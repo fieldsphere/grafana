@@ -86,7 +86,7 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
   });
   const switchExperimentalMsGauge = new prom.Gauge({
     name: 'fe_theme_switcher_switch_experimental_ms',
-    help: 'Time from selecting an experimental theme to UI idle, in milliseconds',
+    help: 'Time from selecting an experimental theme to another (cold path), in milliseconds',
     registers: [promRegistry],
   });
   const switchExperimentalWarmMsGauge = new prom.Gauge({
@@ -114,30 +114,23 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
   // Wait for the top navigation to be ready.
   await expect(page.getByTestId('data-testid Nav toolbar')).toBeVisible();
 
-  const openThemeDrawer = async () => {
-    await page.getByRole('button', { name: 'Profile' }).click();
-    await page.getByRole('menuitem', { name: 'Change theme' }).click();
-    await expect(page.getByRole('heading', { name: 'Change theme' })).toBeVisible();
-  };
-
   // Open the profile menu and click "Change theme" (requires grafanaconThemes to be enabled).
   const openDrawerRes = await measureThemeInteractionToIdle(page, async () => {
-    await openThemeDrawer();
+    await page.getByRole('button', { name: 'Profile' }).click();
+    await page.getByRole('menuitem', { name: 'Change theme' }).click();
   });
 
+  await expect(page.getByRole('heading', { name: 'Change theme' })).toBeVisible();
   openDrawerMsGauge.set(openDrawerRes.durationMs);
 
   // Switch themes by interacting with the radio buttons.
-  // The drawer closes on selection, so re-open it for each switch measurement.
-  await openThemeDrawer();
   const toDark = await measureThemeInteractionToIdle(page, async () => {
     await page.getByRole('radio', { name: 'Dark' }).click();
   });
 
   switchToDarkMsGauge.set(toDark.durationMs);
 
-  // Switch between experimental themes while in Dark mode.
-  await openThemeDrawer();
+  // Switch between two experimental themes while in Dark mode (same-mode switch; avoids CSS swap and isolates React/theme work).
   const experimentalNameMatchers: Array<{ name: string; re: RegExp }> = [
     { name: 'Tron', re: /tron/i },
     { name: 'Gloom', re: /gloom/i },
@@ -158,17 +151,14 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
   }
 
   if (found.length >= 2) {
-    // First click sets a baseline theme without measuring (drawer closes on select).
+    // First click sets a baseline theme without measuring.
     await page.getByRole('radio', { name: new RegExp(found[0], 'i') }).click();
-
-    await openThemeDrawer();
     const experimentalSwitch = await measureThemeInteractionToIdle(page, async () => {
       await page.getByRole('radio', { name: new RegExp(found[1], 'i') }).click();
     });
     switchExperimentalMsGauge.set(experimentalSwitch.durationMs);
 
     // Switching back to a previously-applied theme should be fast if theme objects and style caches are reused.
-    await openThemeDrawer();
     const experimentalWarmSwitch = await measureThemeInteractionToIdle(page, async () => {
       await page.getByRole('radio', { name: new RegExp(found[0], 'i') }).click();
     });
@@ -179,7 +169,6 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
     switchExperimentalWarmMsGauge.set(-1);
   }
 
-  await openThemeDrawer();
   const toLight = await measureThemeInteractionToIdle(page, async () => {
     await page.getByRole('radio', { name: 'Light' }).click();
   });
