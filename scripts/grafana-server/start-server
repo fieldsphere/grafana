@@ -12,7 +12,11 @@ fi
 
 ./scripts/grafana-server/kill-server
 
-docker ps -q --filter "name=grafana-image-renderer" | xargs docker stop || true
+if command -v docker >/dev/null 2>&1; then
+  docker ps -q --filter "name=grafana-image-renderer" | xargs docker stop || true
+else
+  echo "docker not found, skipping image renderer cleanup"
+fi
 
 mkdir $RUNDIR
 
@@ -55,6 +59,13 @@ if [ -d "./e2e-playwright/test-plugins" ]; then
 # when running in CI
 elif [ -d "../e2e-playwright/test-plugins" ]; then
   cp -r "../e2e-playwright/test-plugins" "$RUNDIR/data/plugins"
+fi
+
+if [ "$START_IMAGE_RENDERER" ]; then
+  if ! command -v docker >/dev/null 2>&1; then
+    echo "docker not found, skipping image renderer startup"
+    START_IMAGE_RENDERER=""
+  fi
 fi
 
 if [ "$START_IMAGE_RENDERER" ]; then
