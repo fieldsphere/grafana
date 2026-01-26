@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { startTransition, useEffect, useState } from 'react';
 import * as React from 'react';
 import { SkeletonTheme } from 'react-loading-skeleton';
 
@@ -15,14 +15,14 @@ export const ThemeProvider = ({ children, value }: { children: React.ReactNode; 
   useEffect(() => {
     const sub = appEvents.subscribe(ThemeChangedEvent, (event) => {
       config.theme2 = event.payload;
-      setTheme(event.payload);
+      startTransition(() => setTheme(event.payload));
     });
 
     return () => sub.unsubscribe();
   }, []);
 
   useEffect(() => {
-    setTheme(value);
+    startTransition(() => setTheme(value));
   }, [value]);
 
   return (
