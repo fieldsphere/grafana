@@ -122,14 +122,10 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
   const toDark = await measureThemeInteractionToIdle(page, async () => {
     await page.getByRole('radio', { name: 'Dark' }).click();
   });
-  const toLight = await measureThemeInteractionToIdle(page, async () => {
-    await page.getByRole('radio', { name: 'Light' }).click();
-  });
 
   switchToDarkMsGauge.set(toDark.durationMs);
-  switchToLightMsGauge.set(toLight.durationMs);
 
-  // Switch between two experimental themes (same-mode switch; avoids CSS swap and isolates React/theme work).
+  // Switch between two experimental themes while in Dark mode (same-mode switch; avoids CSS swap and isolates React/theme work).
   const experimentalNameMatchers: Array<{ name: string; re: RegExp }> = [
     { name: 'Tron', re: /tron/i },
     { name: 'Gloom', re: /gloom/i },
@@ -150,8 +146,9 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
   }
 
   if (found.length >= 2) {
+    // First click sets a baseline theme without measuring.
+    await page.getByRole('radio', { name: new RegExp(found[0], 'i') }).click();
     const experimentalSwitch = await measureThemeInteractionToIdle(page, async () => {
-      await page.getByRole('radio', { name: new RegExp(found[0], 'i') }).click();
       await page.getByRole('radio', { name: new RegExp(found[1], 'i') }).click();
     });
     switchExperimentalMsGauge.set(experimentalSwitch.durationMs);
@@ -159,6 +156,12 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
     // If experimental themes aren't available, record a sentinel value.
     switchExperimentalMsGauge.set(-1);
   }
+
+  const toLight = await measureThemeInteractionToIdle(page, async () => {
+    await page.getByRole('radio', { name: 'Light' }).click();
+  });
+
+  switchToLightMsGauge.set(toLight.durationMs);
 
   const maxLongTaskMs = Math.max(toDark.maxLongTaskMs, toLight.maxLongTaskMs);
   const totalLongTaskMs = toDark.totalLongTaskMs + toLight.totalLongTaskMs;
