@@ -135,6 +135,7 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
 
   const firstSwitch = await measureThemeInteractionToIdle(page, async () => {
     await page.getByRole('radio', { name: targetMode }).click();
+    await expect(page.getByRole('heading', { name: 'Change theme' })).toBeHidden();
   });
 
   if (targetMode === 'Dark') {
@@ -146,6 +147,7 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
   await openThemeDrawer();
   const secondSwitch = await measureThemeInteractionToIdle(page, async () => {
     await page.getByRole('radio', { name: darkChecked ? 'Dark' : 'Light' }).click();
+    await expect(page.getByRole('heading', { name: 'Change theme' })).toBeHidden();
   });
 
   if (targetMode === 'Dark') {
@@ -181,6 +183,7 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
     await openThemeDrawer();
     const experimentalSwitch = await measureThemeInteractionToIdle(page, async () => {
       await page.getByRole('radio', { name: new RegExp(found[1], 'i') }).click();
+      await expect(page.getByRole('heading', { name: 'Change theme' })).toBeHidden();
     });
     switchExperimentalMsGauge.set(experimentalSwitch.durationMs);
 
@@ -188,6 +191,7 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
     await openThemeDrawer();
     const experimentalWarmSwitch = await measureThemeInteractionToIdle(page, async () => {
       await page.getByRole('radio', { name: new RegExp(found[0], 'i') }).click();
+      await expect(page.getByRole('heading', { name: 'Change theme' })).toBeHidden();
     });
     switchExperimentalWarmMsGauge.set(experimentalWarmSwitch.durationMs);
   } else {
