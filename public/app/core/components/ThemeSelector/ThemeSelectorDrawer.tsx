@@ -1,6 +1,5 @@
 import { css } from '@emotion/css';
 import { useCallback, useMemo } from 'react';
-import { flushSync } from 'react-dom';
 
 import { GrafanaTheme2, ThemeRegistryItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
@@ -27,7 +26,7 @@ export function ThemeSelectorDrawer({ onClose }: Props) {
     });
     // Close first so the drawer unmounts before the expensive theme update runs.
     // This improves perceived responsiveness when switching themes.
-    flushSync(() => onClose());
+    onClose();
     requestAnimationFrame(() => changeTheme(theme.id, false));
   }, [onClose]);
 
