@@ -16,6 +16,7 @@ import { GrafanaContext } from './core/context/GrafanaContext';
 import { GrafanaRouteWrapper } from './core/navigation/GrafanaRoute';
 import { RouteDescriptor } from './core/navigation/types';
 import { ThemeProvider } from './core/utils/ConfigProvider';
+import { warmThemeCssCache } from './core/services/theme';
 import { LiveConnectionWarning } from './features/live/LiveConnectionWarning';
 import { ExtensionRegistriesProvider } from './features/plugins/extensions/ExtensionRegistriesContext';
 import { pluginExtensionRegistries } from './features/plugins/extensions/registry/setup';
@@ -58,6 +59,7 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
   async componentDidMount() {
     this.setState({ ready: true });
     this.removePreloader();
+    warmThemeCssCache();
 
     // clear any old icon caches
     const cacheKeys = (await window.caches?.keys()) ?? [];

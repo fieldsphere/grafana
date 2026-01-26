@@ -6,6 +6,58 @@ import { contextSrv } from '../services/context_srv';
 
 import { PreferencesService } from './PreferencesService';
 
+function scheduleIdle(cb: () => void) {
+  // requestIdleCallback is best-effort and not supported in all browsers.
+  // Fallback ensures we still warm the cache shortly after mount.
+  if ('requestIdleCallback' in window) {
+    // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+    (window as unknown as { requestIdleCallback: (fn: () => void, opts?: { timeout: number }) => void }).requestIdleCallback(
+      cb,
+      { timeout: 5000 }
+    );
+    return;
+  }
+
+  window.setTimeout(cb, 0);
+}
+
+function canUseLinkRel(rel: string): boolean {
+  const link = document.createElement('link');
+  // relList.supports isn't implemented in all browsers.
+  return Boolean(link.relList?.supports?.(rel));
+}
+
+/**
+ * Warms the HTTP cache for the opposite theme CSS file so that the first theme switch doesn't have
+ * to pay the network + parse cost.
+ */
+export function warmThemeCssCache() {
+  const currentMode = config.theme2.colors.mode;
+  const otherMode = currentMode === 'dark' ? 'light' : 'dark';
+  const href = config.bootData.assets[otherMode];
+
+  if (!href) {
+    return;
+  }
+
+  scheduleIdle(() => {
+    const existing = Array.from(
+      document.querySelectorAll<HTMLLinkElement>(`link[data-grafana-theme-warm="${otherMode}"]`)
+    ).some((link) => link.getAttribute('href') === href);
+    if (existing) {
+      return;
+    }
+
+    const link = document.createElement('link');
+    // Prefer prefetch to avoid competing with initial render; fallback to preload if unsupported.
+    link.rel = canUseLinkRel('prefetch') ? 'prefetch' : 'preload';
+    link.as = 'style';
+    link.href = href;
+    link.dataset.grafanaThemeWarm = otherMode;
+    document.head.appendChild(link);
+  });
+}
+
 export async function changeTheme(themeId: string, runtimeOnly?: boolean) {
   const oldTheme = config.theme2;
 
