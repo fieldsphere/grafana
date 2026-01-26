@@ -24,8 +24,11 @@ export function ThemeSelectorDrawer({ onClose }: Props) {
       toTheme: theme.id,
       preferenceType: 'theme_drawer',
     });
-    changeTheme(theme.id, false);
-  }, []);
+    // Close the drawer first so we reduce work during the theme swap (especially when swapping light/dark CSS).
+    // Defer the actual theme application to the next task so React can commit the drawer close.
+    onClose();
+    setTimeout(() => changeTheme(theme.id, false), 0);
+  }, [onClose]);
 
   const onSelectHandlers = useMemo(() => {
     const handlers = new Map<string, () => void>();
