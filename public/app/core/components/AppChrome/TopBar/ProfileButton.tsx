@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { cloneDeep } from 'lodash';
 import { useToggle } from 'react-use';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { GrafanaTheme2, NavModelItem } from '@grafana/data';
 import { t } from '@grafana/i18n';
@@ -25,6 +25,7 @@ export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
   const node = enrichWithInteractionTracking(cloneDeep(profileNode), false);
   const [showNewsDrawer, onToggleShowNewsDrawer] = useToggle(false);
   const [showThemeDrawer, setShowThemeDrawer] = useState(false);
+  const handleCloseThemeDrawer = useCallback(() => setShowThemeDrawer(false), []);
 
   if (!node) {
     return null;
@@ -76,7 +77,7 @@ export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
         />
       </Dropdown>
       {showNewsDrawer && <NewsContainer onClose={onToggleShowNewsDrawer} />}
-      {showThemeDrawer && <ThemeSelectorDrawer onClose={() => setShowThemeDrawer(false)} />}
+      {showThemeDrawer && <ThemeSelectorDrawer onClose={handleCloseThemeDrawer} />}
     </>
   );
 }
