@@ -12,7 +12,9 @@ fi
 
 ./scripts/grafana-server/kill-server
 
-docker ps -q --filter "name=grafana-image-renderer" | xargs docker stop || true
+if command -v docker >/dev/null 2>&1; then
+  docker ps -q --filter "name=grafana-image-renderer" | xargs docker stop || true
+fi
 
 mkdir $RUNDIR
 
