@@ -202,6 +202,14 @@ module.exports = [
       ],
     },
   },
+  {
+    name: 'grafana/no-console',
+    files: ['**/*.{ts,tsx,js,jsx}'],
+    ignores: [...commonTestIgnores, ...enterpriseIgnores],
+    rules: {
+      'no-console': ['warn', { allow: ['warn', 'error'] }],
+    },
+  },
 
   {
     name: 'grafana/no-extensions-imports',

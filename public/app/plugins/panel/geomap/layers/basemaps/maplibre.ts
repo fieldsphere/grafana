@@ -3,6 +3,7 @@ import LayerGroup from 'ol/layer/Group';
 import { apply } from 'ol-mapbox-style';
 
 import { MapLayerRegistryItem, MapLayerOptions, GrafanaTheme2, EventBus } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 // MapLibre Style Specification constants
 const LAYER_TYPE_BACKGROUND = 'background';
@@ -14,6 +15,7 @@ export interface MaplibreConfig {
 }
 
 const sampleURL = 'https://tiles.stadiamaps.com/styles/alidade_smooth.json';
+const mapLibreLogger = createMonitoringLogger('plugins.panel.geomap');
 
 export const defaultMaplibreConfig: MaplibreConfig = {
   url: sampleURL,
@@ -63,13 +65,19 @@ export const maplibreLayer: MapLayerRegistryItem<MaplibreConfig> = {
       const loadStyle = async () => {
         try {
           if (!cfg.url) {
-            console.warn('No URL provided for MapLibre style, layer will be empty');
+            mapLibreLogger.logWarning('No URL provided for MapLibre style', {
+              url: cfg.url,
+            });
             return;
           }
 
           const res = await fetch(cfg.url);
           if (!res.ok) {
-            console.warn(`Failed to load MapLibre style from ${cfg.url}: ${res.status} ${res.statusText}`);
+            mapLibreLogger.logWarning('Failed to load MapLibre style', {
+              url: cfg.url,
+              status: res.status,
+              statusText: res.statusText,
+            });
             // Try fallback approach
             await tryFallbackApply();
             return;
@@ -90,7 +98,11 @@ export const maplibreLayer: MapLayerRegistryItem<MaplibreConfig> = {
           await apply(layer, style, { styleUrl: cfg.url, accessToken: cfg.accessToken });
           applyNoRepeat();
         } catch (error) {
-          console.warn('Failed to parse or apply MapLibre style JSON:', error);
+          const err = error instanceof Error ? error : new Error(String(error));
+          mapLibreLogger.logWarning('Failed to parse or apply MapLibre style JSON', {
+            url: cfg.url,
+            errorMessage: err.message,
+          });
           // Try fallback approach
           await tryFallbackApply();
         }
@@ -99,13 +111,19 @@ export const maplibreLayer: MapLayerRegistryItem<MaplibreConfig> = {
       const tryFallbackApply = async () => {
         try {
           if (!cfg.url) {
-            console.warn('No URL available for MapLibre fallback, layer will be empty');
+            mapLibreLogger.logWarning('No URL available for MapLibre fallback', {
+              url: cfg.url,
+            });
             return;
           }
           await apply(layer, cfg.url, { accessToken: cfg.accessToken });
           applyNoRepeat();
         } catch (fallbackError) {
-          console.warn('Failed to load MapLibre style from both JSON and direct URL approaches:', fallbackError);
+          const err = fallbackError instanceof Error ? fallbackError : new Error(String(fallbackError));
+          mapLibreLogger.logWarning('Failed to load MapLibre style from JSON and URL', {
+            url: cfg.url,
+            errorMessage: err.message,
+          });
         }
       };
 
