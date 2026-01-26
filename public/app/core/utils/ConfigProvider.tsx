@@ -6,6 +6,7 @@ import { GrafanaTheme2, ThemeContext } from '@grafana/data';
 import { ThemeChangedEvent, config } from '@grafana/runtime';
 
 import { appEvents } from '../app_events';
+import { preloadThemeCss } from '../services/theme';
 
 import 'react-loading-skeleton/dist/skeleton.css';
 
@@ -20,6 +21,27 @@ export const ThemeProvider = ({ children, value }: { children: React.ReactNode; 
 
     return () => sub.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const otherMode = theme.colors.mode === 'dark' ? 'light' : 'dark';
+
+    const schedule =
+      // @ts-expect-error - not in all TS lib DOM targets
+      typeof window.requestIdleCallback === 'function'
+        ? // @ts-expect-error - not in all TS lib DOM targets
+          window.requestIdleCallback
+        : (cb: () => void) => window.setTimeout(cb, 0);
+
+    const cancel =
+      // @ts-expect-error - not in all TS lib DOM targets
+      typeof window.cancelIdleCallback === 'function'
+        ? // @ts-expect-error - not in all TS lib DOM targets
+          window.cancelIdleCallback
+        : (id: number) => window.clearTimeout(id);
+
+    const id = schedule(() => preloadThemeCss(otherMode));
+    return () => cancel(id);
+  }, [theme.colors.mode]);
 
   useEffect(() => {
     setTheme(value);
