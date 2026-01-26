@@ -1,16 +1,50 @@
-import { getThemeById } from '@grafana/data';
-import { config } from '@grafana/runtime';
+jest.mock('@grafana/runtime', () => {
+  return {
+    ThemeChangedEvent: class ThemeChangedEvent {},
+    config: {
+      theme2: { colors: { mode: 'dark' } },
+      bootData: {
+        assets: {
+          dark: '/public/build/grafana.dark.css',
+          light: '/public/build/grafana.light.css',
+        },
+      },
+    },
+  };
+});
 
-import { warmThemeCssCache } from './theme';
+jest.mock('../app_events', () => ({
+  appEvents: {
+    publish: jest.fn(),
+    subscribe: jest.fn(),
+  },
+}));
+
+jest.mock('../services/context_srv', () => ({
+  contextSrv: {
+    isSignedIn: false,
+  },
+}));
+
+jest.mock('./PreferencesService', () => ({
+  PreferencesService: jest.fn(),
+}));
+
+jest.mock('@grafana/data/internal', () => ({
+  getThemeById: jest.fn(),
+}));
+
+// Use require to ensure mocks above apply before importing the module under test.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { config } = require('@grafana/runtime');
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { warmThemeCssCache } = require('./theme');
 
 describe('warmThemeCssCache', () => {
   beforeEach(() => {
     jest.useFakeTimers();
     document.head.innerHTML = '';
-
-    config.theme2 = getThemeById('dark');
-    config.bootData.assets.dark = '/public/build/grafana.dark.css';
-    config.bootData.assets.light = '/public/build/grafana.light.css';
+    config.theme2.colors.mode = 'dark';
   });
 
   afterEach(() => {
