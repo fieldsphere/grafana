@@ -129,6 +129,14 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
 
   // Switch themes by interacting with the radio buttons.
   // The drawer closes on selection, so re-open it for each switch measurement.
+  // Start with switching to Light to ensure the selection actually changes.
+  await openThemeDrawer();
+  const toLight = await measureThemeInteractionToIdle(page, async () => {
+    await page.getByRole('radio', { name: 'Light' }).click();
+  });
+
+  switchToLightMsGauge.set(toLight.durationMs);
+
   await openThemeDrawer();
   const toDark = await measureThemeInteractionToIdle(page, async () => {
     await page.getByRole('radio', { name: 'Dark' }).click();
@@ -178,13 +186,6 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
     switchExperimentalMsGauge.set(-1);
     switchExperimentalWarmMsGauge.set(-1);
   }
-
-  await openThemeDrawer();
-  const toLight = await measureThemeInteractionToIdle(page, async () => {
-    await page.getByRole('radio', { name: 'Light' }).click();
-  });
-
-  switchToLightMsGauge.set(toLight.durationMs);
 
   const maxLongTaskMs = Math.max(toDark.maxLongTaskMs, toLight.maxLongTaskMs);
   const totalLongTaskMs = toDark.totalLongTaskMs + toLight.totalLongTaskMs;
