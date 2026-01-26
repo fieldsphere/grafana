@@ -101,7 +101,8 @@ test('theme-switcher-snappiness', { tag: ['@performance'] }, async ({ page }) =>
   });
 
   await page.goto('/');
-  await expect(page.getByTestId('data-testid header-container')).toBeVisible();
+  // Wait for the top navigation to be ready.
+  await expect(page.getByTestId('data-testid Nav toolbar')).toBeVisible();
 
   // Open the profile menu and click "Change theme" (requires grafanaconThemes to be enabled).
   const openDrawerRes = await measureThemeInteractionToIdle(page, async () => {
