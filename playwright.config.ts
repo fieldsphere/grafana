@@ -52,6 +52,7 @@ export default defineConfig<PluginOptions>({
     webServer: {
       command: 'yarn e2e:plugin:build && ./e2e-playwright/start-server',
       url: DEFAULT_URL,
+      timeout: 180_000,
       stdout: 'pipe',
       stderr: 'pipe',
     },
