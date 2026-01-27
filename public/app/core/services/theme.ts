@@ -27,11 +27,17 @@ function canUseLinkRel(rel: string): boolean {
   return Boolean(link.relList?.supports?.(rel));
 }
 
+export type ThemeCssWarmupPriority = 'idle-prefetch' | 'preload';
+
+export interface ThemeCssWarmupOptions {
+  priority?: ThemeCssWarmupPriority;
+}
+
 /**
  * Warms the HTTP cache for the opposite theme CSS file so that the first theme switch doesn't have
  * to pay the network + parse cost.
  */
-export function warmThemeCssCache() {
+export function warmThemeCssCache(options: ThemeCssWarmupOptions = {}) {
   const currentMode = config.theme2.colors.mode;
   const otherMode = currentMode === 'dark' ? 'light' : 'dark';
   const href = config.bootData.assets[otherMode];
@@ -40,7 +46,7 @@ export function warmThemeCssCache() {
     return;
   }
 
-  scheduleIdle(() => {
+  const doWarm = () => {
     const existing = Array.from(
       document.querySelectorAll<HTMLLinkElement>(`link[data-grafana-theme-warm="${otherMode}"]`)
     ).some((link) => link.getAttribute('href') === href);
@@ -49,13 +55,24 @@ export function warmThemeCssCache() {
     }
 
     const link = document.createElement('link');
-    // Prefer prefetch to avoid competing with initial render; fallback to preload if unsupported.
-    link.rel = canUseLinkRel('prefetch') ? 'prefetch' : 'preload';
+    if (options.priority === 'preload') {
+      link.rel = 'preload';
+    } else {
+      // Prefer prefetch to avoid competing with initial render; fallback to preload if unsupported.
+      link.rel = canUseLinkRel('prefetch') ? 'prefetch' : 'preload';
+    }
     link.as = 'style';
     link.href = href;
     link.dataset.grafanaThemeWarm = otherMode;
     document.head.appendChild(link);
-  });
+  };
+
+  if (options.priority === 'preload') {
+    doWarm();
+    return;
+  }
+
+  scheduleIdle(doWarm);
 }
 
 export async function changeTheme(themeId: string, runtimeOnly?: boolean) {

@@ -65,6 +65,14 @@ describe('warmThemeCssCache', () => {
     expect(link.dataset.grafanaThemeWarm).toBe('light');
   });
 
+  it('can eagerly preload when requested', () => {
+    warmThemeCssCache({ priority: 'preload' });
+
+    const links = document.head.querySelectorAll<HTMLLinkElement>('link[data-grafana-theme-warm]');
+    expect(links).toHaveLength(1);
+    expect(links[0].rel).toBe('preload');
+  });
+
   it('does not add duplicate links for the same href', () => {
     warmThemeCssCache();
     jest.runOnlyPendingTimers();

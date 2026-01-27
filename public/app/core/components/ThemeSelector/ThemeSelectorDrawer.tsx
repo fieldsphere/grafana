@@ -1,10 +1,11 @@
 import { css } from '@emotion/css';
+import { useEffect } from 'react';
 
 import { GrafanaTheme2, ThemeRegistryItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
 import { Drawer, TextLink, useStyles2, useTheme2 } from '@grafana/ui';
-import { changeTheme } from 'app/core/services/theme';
+import { changeTheme, warmThemeCssCache } from 'app/core/services/theme';
 
 import { ThemeCard } from './ThemeCard';
 import { getSelectableThemes } from './getSelectableThemes';
@@ -17,6 +18,11 @@ export function ThemeSelectorDrawer({ onClose }: Props) {
   const styles = useStyles2(getStyles);
   const themes = getSelectableThemes();
   const currentTheme = useTheme2();
+
+  useEffect(() => {
+    // User intent: they're looking at themes, so make the first switch as fast as possible.
+    warmThemeCssCache({ priority: 'preload' });
+  }, []);
 
   const onChange = (theme: ThemeRegistryItem) => {
     reportInteraction('grafana_preferences_theme_changed', {
