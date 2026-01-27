@@ -450,7 +450,6 @@ export {
   useStyles,
   useStyles2,
   mockThemeContext,
-	warmStyleCacheForTheme,
 } from './themes/ThemeContext';
 export { getTheme, mockTheme } from './themes/getTheme';
 export { stylesFactory } from './themes/stylesFactory';

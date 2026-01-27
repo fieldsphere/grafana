@@ -19,19 +19,10 @@ let ThemeContextMock: React.Context<GrafanaTheme2> | null = null;
 
 // Used by useStyles()
 export const memoizedStyleCreators = new WeakMap();
-const stableStyleCreatorsV1 = new Set<StyleCreator>();
-const stableStyleCreatorsV2 = new Set<StyleCreator>();
-const styleCreatorUsageCountsV1 = new WeakMap<StyleCreator, number>();
-const styleCreatorUsageCountsV2 = new WeakMap<StyleCreator, number>();
-const styleCreatorArgsRegistryV1 = new Map<StyleCreator, unknown[][]>();
-const styleCreatorArgsRegistryV2 = new Map<StyleCreator, unknown[][]>();
-const maxStyleArgSets = 10;
-
-type StyleCreator = (...args: unknown[]) => unknown;
 
 /** @deprecated use withTheme2 */
 /** @public */
-export const withTheme = <P extends Themeable>(Component: React.ComponentType<P>) => {
+export const withTheme = <P extends Themeable, S extends {} = {}>(Component: React.ComponentType<P>) => {
   const WithTheme: React.FunctionComponent<Subtract<P, Themeable>> = (props) => {
     /**
      * If theme context is mocked, let's use it instead of the original context
@@ -45,11 +36,13 @@ export const withTheme = <P extends Themeable>(Component: React.ComponentType<P>
   };
 
   WithTheme.displayName = `WithTheme(${Component.displayName})`;
-  return hoistNonReactStatics(WithTheme, Component);
+  hoistNonReactStatics(WithTheme, Component);
+  type Hoisted = typeof WithTheme & S;
+  return WithTheme as Hoisted;
 };
 
 /** @alpha */
-export const withTheme2 = <P extends Themeable2>(Component: React.ComponentType<P>) => {
+export const withTheme2 = <P extends Themeable2, S extends {} = {}>(Component: React.ComponentType<P>) => {
   const WithTheme: React.FunctionComponent<Subtract<P, Themeable2>> = (props) => {
     /**
      * If theme context is mocked, let's use it instead of the original context
@@ -63,7 +56,9 @@ export const withTheme2 = <P extends Themeable2>(Component: React.ComponentType<
   };
 
   WithTheme.displayName = `WithTheme(${Component.displayName})`;
-  return hoistNonReactStatics(WithTheme, Component);
+  hoistNonReactStatics(WithTheme, Component);
+  type Hoisted = typeof WithTheme & S;
+  return WithTheme as Hoisted;
 };
 
 /** @deprecated use useTheme2 */
@@ -95,8 +90,6 @@ export function useStyles<T>(getStyles: (theme: GrafanaTheme) => T) {
     memoizedStyleCreator = stylesFactory(getStyles);
     memoizedStyleCreators.set(getStyles, memoizedStyleCreator);
   }
-
-	registerStyleUsage(getStyles, [], styleCreatorUsageCountsV1, stableStyleCreatorsV1, styleCreatorArgsRegistryV1);
 
   return memoizedStyleCreator(theme);
 }
@@ -139,14 +132,6 @@ export function useStyles2<T extends unknown[], CSSReturnValue>(
     memoizedStyleCreators.set(getStyles, memoizedStyleCreator);
   }
 
-	registerStyleUsage(
-		getStyles,
-		additionalArguments,
-		styleCreatorUsageCountsV2,
-		stableStyleCreatorsV2,
-		styleCreatorArgsRegistryV2
-	);
-
   return memoizedStyleCreator(theme, ...additionalArguments);
 }
 
@@ -154,74 +139,10 @@ export function useStyles2<T extends unknown[], CSSReturnValue>(
  * Enables theme context mocking
  */
 /** @public */
-export const mockThemeContext = (theme: GrafanaTheme2) => {
-  ThemeContextMock = React.createContext(theme);
+export const mockThemeContext = (theme: Partial<GrafanaTheme2>) => {
+  ThemeContextMock = React.createContext(theme as GrafanaTheme2);
 
   return () => {
     ThemeContextMock = null;
   };
 };
-
-export function warmStyleCacheForTheme(theme: GrafanaTheme2) {
-	warmStyleCache(theme, stableStyleCreatorsV2, styleCreatorArgsRegistryV2);
-	warmStyleCache(theme.v1, stableStyleCreatorsV1, styleCreatorArgsRegistryV1);
-}
-
-function registerStyleUsage(
-	getStyles: StyleCreator,
-	additionalArguments: unknown[],
-	usageCounts: WeakMap<StyleCreator, number>,
-	stableCreators: Set<StyleCreator>,
-	argsRegistry: Map<StyleCreator, unknown[][]>
-) {
-	const currentCount = usageCounts.get(getStyles) ?? 0;
-	const nextCount = currentCount + 1;
-	usageCounts.set(getStyles, nextCount);
-
-	if (nextCount < 2) {
-		return;
-	}
-
-	if (!stableCreators.has(getStyles)) {
-		stableCreators.add(getStyles);
-	}
-
-	const argsList = argsRegistry.get(getStyles) ?? [];
-	if (!argsList.some((args) => areArgsEqual(args, additionalArguments))) {
-		argsList.push([...additionalArguments]);
-		if (argsList.length > maxStyleArgSets) {
-			argsList.shift();
-		}
-		argsRegistry.set(getStyles, argsList);
-	}
-}
-
-function warmStyleCache(
-	theme: GrafanaTheme | GrafanaTheme2,
-	stableCreators: Set<StyleCreator>,
-	argsRegistry: Map<StyleCreator, unknown[][]>
-) {
-	for (const getStyles of stableCreators) {
-		const memoizedStyleCreator = memoizedStyleCreators.get(getStyles);
-		if (!memoizedStyleCreator) {
-			continue;
-		}
-
-		const argsList = argsRegistry.get(getStyles);
-		if (!argsList || argsList.length === 0) {
-			memoizedStyleCreator(theme);
-			continue;
-		}
-
-		for (const args of argsList) {
-			memoizedStyleCreator(theme, ...args);
-		}
-	}
-}
-
-function areArgsEqual(left: unknown[], right: unknown[]) {
-	if (left.length !== right.length) {
-		return false;
-	}
-	return left.every((value, index) => Object.is(value, right[index]));
-}

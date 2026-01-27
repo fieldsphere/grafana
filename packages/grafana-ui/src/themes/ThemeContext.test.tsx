@@ -3,7 +3,7 @@ import { render, renderHook } from '@testing-library/react';
 
 import { createTheme, GrafanaTheme2 } from '@grafana/data';
 
-import { mockThemeContext, useStyles2, warmStyleCacheForTheme } from './ThemeContext';
+import { mockThemeContext, useStyles2 } from './ThemeContext';
 
 describe('useStyles', () => {
   it('memoizes the passed in function correctly', () => {
@@ -69,25 +69,4 @@ describe('useStyles', () => {
 
     render(<Dummy />);
   });
-
-	it('prewarms memoized styles for a new theme', () => {
-		const getStyles = jest.fn(() => ({ row: 'row-class-name' }));
-		const { rerender } = renderHook(() => useStyles2(getStyles));
-
-		expect(getStyles).toHaveBeenCalledTimes(1);
-
-		// Second render registers the style creator as stable without recomputing styles.
-		rerender();
-		expect(getStyles).toHaveBeenCalledTimes(1);
-
-		const nextTheme = createTheme({ colors: { mode: 'light' } });
-		warmStyleCacheForTheme(nextTheme);
-		expect(getStyles).toHaveBeenCalledTimes(2);
-
-		const restoreThemeContext = mockThemeContext(nextTheme);
-		rerender();
-		expect(getStyles).toHaveBeenCalledTimes(2);
-
-		restoreThemeContext();
-	});
 });
