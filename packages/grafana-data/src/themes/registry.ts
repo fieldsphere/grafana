@@ -36,12 +36,31 @@ const extraThemes: { [key: string]: unknown } = {
 };
 
 /**
+ * Cache for built theme objects.
+ * This ensures that getThemeById returns the same object reference for the same theme ID,
+ * enabling memoization in useStyles2 to work correctly and avoid expensive style recalculations.
+ */
+const builtThemeCache = new Map<string, GrafanaTheme2>();
+
+/**
  * @internal
  * Only for internal use, never use this from a plugin
  **/
 export function getThemeById(id: string): GrafanaTheme2 {
-  const theme = themeRegistry.getIfExists(id) ?? themeRegistry.get('dark');
-  return theme.build();
+  const registryItem = themeRegistry.getIfExists(id) ?? themeRegistry.get('dark');
+
+  // 'system' theme must always re-evaluate since OS preference may change
+  if (registryItem.id === 'system') {
+    return registryItem.build();
+  }
+
+  const cacheKey = registryItem.id;
+  let theme = builtThemeCache.get(cacheKey);
+  if (!theme) {
+    theme = registryItem.build();
+    builtThemeCache.set(cacheKey, theme);
+  }
+  return theme;
 }
 
 /**
