@@ -6,6 +6,8 @@ import { contextSrv } from '../services/context_srv';
 
 import { PreferencesService } from './PreferencesService';
 
+const preloadedThemeModes = new Set<string>();
+
 export async function changeTheme(themeId: string, runtimeOnly?: boolean) {
   const oldTheme = config.theme2;
 
@@ -53,4 +55,28 @@ export async function changeTheme(themeId: string, runtimeOnly?: boolean) {
 export async function toggleTheme(runtimeOnly: boolean) {
   const currentTheme = config.theme2;
   changeTheme(currentTheme.isDark ? 'light' : 'dark', runtimeOnly);
+}
+
+export function preloadThemeCss(mode: 'light' | 'dark') {
+  if (preloadedThemeModes.has(mode)) {
+    return;
+  }
+
+  const href = config.bootData.assets[mode];
+  if (!href) {
+    return;
+  }
+
+  if (document.querySelector(`link[href="${href}"]`)) {
+    preloadedThemeModes.add(mode);
+    return;
+  }
+
+  const preloadLink = document.createElement('link');
+  preloadLink.rel = 'preload';
+  preloadLink.as = 'style';
+  preloadLink.href = href;
+  preloadLink.setAttribute('data-theme-preload', mode);
+  document.head.appendChild(preloadLink);
+  preloadedThemeModes.add(mode);
 }
