@@ -49,6 +49,15 @@ const getCachedTheme = (themeId: string, build: () => GrafanaTheme2) => {
   return builtTheme;
 };
 
+const withCachedBuild = (item: Omit<ThemeRegistryItem, 'build'> & { build: () => GrafanaTheme2 }): ThemeRegistryItem => {
+  const buildTheme = item.build;
+
+  return {
+    ...item,
+    build: () => getCachedTheme(item.id, buildTheme),
+  };
+};
+
 /**
  * @internal
  * Only for internal use, never use this from a plugin
@@ -84,9 +93,9 @@ export function getBuiltInThemes(allowedExtras: string[]) {
 
 const themeRegistry = new Registry<ThemeRegistryItem>(() => {
   return [
-    { id: 'system', name: 'System preference', build: () => getCachedTheme('system', getSystemPreferenceTheme) },
-    { id: 'dark', name: 'Dark', build: () => getCachedTheme('dark', () => createTheme({ colors: { mode: 'dark' } })) },
-    { id: 'light', name: 'Light', build: () => getCachedTheme('light', () => createTheme({ colors: { mode: 'light' } })) },
+    withCachedBuild({ id: 'system', name: 'System preference', build: getSystemPreferenceTheme }),
+    withCachedBuild({ id: 'dark', name: 'Dark', build: () => createTheme({ colors: { mode: 'dark' } }) }),
+    withCachedBuild({ id: 'light', name: 'Light', build: () => createTheme({ colors: { mode: 'light' } }) }),
   ];
 });
 
@@ -96,12 +105,14 @@ for (const [name, json] of Object.entries(extraThemes)) {
     console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
   } else {
     const theme = result.data;
-    themeRegistry.register({
-      id: theme.id,
-      name: theme.name,
-      build: () => getCachedTheme(theme.id, () => createTheme(theme)),
-      isExtra: true,
-    });
+    themeRegistry.register(
+      withCachedBuild({
+        id: theme.id,
+        name: theme.name,
+        build: () => createTheme(theme),
+        isExtra: true,
+      })
+    );
   }
 }
 
