@@ -178,14 +178,7 @@ function registerStyleUsage(
 	const nextCount = currentCount + 1;
 	usageCounts.set(getStyles, nextCount);
 
-	if (nextCount < 2) {
-		return;
-	}
-
-	if (!stableCreators.has(getStyles)) {
-		stableCreators.add(getStyles);
-	}
-
+	// Register arguments even on first render to ensure they're tracked for prewarming
 	const argsList = argsRegistry.get(getStyles) ?? [];
 	if (!argsList.some((args) => areArgsEqual(args, additionalArguments))) {
 		argsList.push([...additionalArguments]);
@@ -193,6 +186,15 @@ function registerStyleUsage(
 			argsList.shift();
 		}
 		argsRegistry.set(getStyles, argsList);
+	}
+
+	// Only mark as stable after second render
+	if (nextCount < 2) {
+		return;
+	}
+
+	if (!stableCreators.has(getStyles)) {
+		stableCreators.add(getStyles);
 	}
 }
 
