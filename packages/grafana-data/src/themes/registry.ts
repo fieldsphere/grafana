@@ -43,6 +43,11 @@ const themeCache = new Map<string, GrafanaTheme2>();
  **/
 export function getThemeById(id: string): GrafanaTheme2 {
   const theme = themeRegistry.getIfExists(id) ?? themeRegistry.get('dark');
+  if (theme.id === 'system') {
+    // system preference should always reflect the current OS setting
+    return theme.build();
+  }
+
   const cacheKey = theme.id;
   const cachedTheme = themeCache.get(cacheKey);
 

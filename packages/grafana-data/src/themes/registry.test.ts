@@ -21,4 +21,41 @@ describe('getThemeById', () => {
 
     expect(fallbackTheme).toBe(darkTheme);
   });
+
+  describe('system preference', () => {
+    const originalMatchMedia = window.matchMedia;
+
+    afterEach(() => {
+      window.matchMedia = originalMatchMedia;
+    });
+
+    function mockSystemPreference(matchesDark: boolean) {
+      window.matchMedia = jest.fn().mockImplementation((query: string) => {
+        return {
+          matches: matchesDark,
+          media: query,
+          addEventListener: jest.fn(),
+          removeEventListener: jest.fn(),
+          addListener: jest.fn(),
+          removeListener: jest.fn(),
+          onchange: null,
+          dispatchEvent: jest.fn(),
+        } as MediaQueryList;
+      }) as unknown as typeof window.matchMedia;
+    }
+
+    it('reflects the current system preference on each call', () => {
+      mockSystemPreference(true);
+      const systemDark = getThemeById('system');
+      const expectedDark = getThemeById('dark');
+
+      mockSystemPreference(false);
+      const systemLight = getThemeById('system');
+      const expectedLight = getThemeById('light');
+
+      expect(systemDark).toBe(expectedDark);
+      expect(systemLight).toBe(expectedLight);
+      expect(systemLight).not.toBe(systemDark);
+    });
+  });
 });
