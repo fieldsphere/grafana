@@ -1,4 +1,4 @@
-import { getThemeById } from './registry';
+import { getBuiltInThemes, getThemeById } from './registry';
 
 describe('getThemeById', () => {
   it('returns the same instance for repeated lookups', () => {
@@ -20,5 +20,16 @@ describe('getThemeById', () => {
     const darkTheme = getThemeById('dark');
 
     expect(fallbackTheme).toBe(darkTheme);
+  });
+
+  it('reuses cached themes from registry items', () => {
+    const themes = getBuiltInThemes([]);
+    const darkThemeItem = themes.find((theme) => theme.id === 'dark');
+
+    expect(darkThemeItem).toBeDefined();
+    const first = darkThemeItem!.build();
+    const second = darkThemeItem!.build();
+
+    expect(second).toBe(first);
   });
 });

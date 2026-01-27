@@ -37,22 +37,25 @@ const extraThemes: { [key: string]: unknown } = {
 
 const themeCache = new Map<string, GrafanaTheme2>();
 
+const getCachedTheme = (themeId: string, build: () => GrafanaTheme2) => {
+  const cachedTheme = themeCache.get(themeId);
+
+  if (cachedTheme) {
+    return cachedTheme;
+  }
+
+  const builtTheme = build();
+  themeCache.set(themeId, builtTheme);
+  return builtTheme;
+};
+
 /**
  * @internal
  * Only for internal use, never use this from a plugin
  **/
 export function getThemeById(id: string): GrafanaTheme2 {
   const theme = themeRegistry.getIfExists(id) ?? themeRegistry.get('dark');
-  const cacheKey = theme.id;
-  const cachedTheme = themeCache.get(cacheKey);
-
-  if (cachedTheme) {
-    return cachedTheme;
-  }
-
-  const builtTheme = theme.build();
-  themeCache.set(cacheKey, builtTheme);
-  return builtTheme;
+  return theme.build();
 }
 
 /**
@@ -81,9 +84,9 @@ export function getBuiltInThemes(allowedExtras: string[]) {
 
 const themeRegistry = new Registry<ThemeRegistryItem>(() => {
   return [
-    { id: 'system', name: 'System preference', build: getSystemPreferenceTheme },
-    { id: 'dark', name: 'Dark', build: () => createTheme({ colors: { mode: 'dark' } }) },
-    { id: 'light', name: 'Light', build: () => createTheme({ colors: { mode: 'light' } }) },
+    { id: 'system', name: 'System preference', build: () => getCachedTheme('system', getSystemPreferenceTheme) },
+    { id: 'dark', name: 'Dark', build: () => getCachedTheme('dark', () => createTheme({ colors: { mode: 'dark' } })) },
+    { id: 'light', name: 'Light', build: () => getCachedTheme('light', () => createTheme({ colors: { mode: 'light' } })) },
   ];
 });
 
@@ -96,7 +99,7 @@ for (const [name, json] of Object.entries(extraThemes)) {
     themeRegistry.register({
       id: theme.id,
       name: theme.name,
-      build: () => createTheme(theme),
+      build: () => getCachedTheme(theme.id, () => createTheme(theme)),
       isExtra: true,
     });
   }
