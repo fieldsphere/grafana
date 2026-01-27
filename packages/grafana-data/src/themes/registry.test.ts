@@ -28,6 +28,23 @@ describe('getThemeById', () => {
 		expect(theme1.name).toBe('Synthwave');
 	});
 
+	it('enables memoization by returning stable theme references', () => {
+		const switches = ['dark', 'light', 'dark', 'light'];
+		const cache = new Map<object, boolean>();
+		let computeCount = 0;
+
+		for (const themeId of switches) {
+			const theme = getThemeById(themeId);
+			if (!cache.has(theme)) {
+				computeCount += 1;
+				cache.set(theme, true);
+			}
+		}
+
+		// Only two unique themes should be computed.
+		expect(computeCount).toBe(2);
+	});
+
 	it('falls back to dark theme for unknown ID', () => {
 		const theme = getThemeById('nonexistent-theme-id');
 		expect(theme.colors.mode).toBe('dark');
