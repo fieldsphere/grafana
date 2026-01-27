@@ -35,13 +35,24 @@ const extraThemes: { [key: string]: unknown } = {
   zen,
 };
 
+const themeCache = new Map<string, GrafanaTheme2>();
+
 /**
  * @internal
  * Only for internal use, never use this from a plugin
  **/
 export function getThemeById(id: string): GrafanaTheme2 {
   const theme = themeRegistry.getIfExists(id) ?? themeRegistry.get('dark');
-  return theme.build();
+  const cacheKey = theme.id;
+  const cachedTheme = themeCache.get(cacheKey);
+
+  if (cachedTheme) {
+    return cachedTheme;
+  }
+
+  const builtTheme = theme.build();
+  themeCache.set(cacheKey, builtTheme);
+  return builtTheme;
 }
 
 /**
