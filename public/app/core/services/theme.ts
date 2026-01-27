@@ -33,6 +33,8 @@ export async function changeTheme(themeId: string, runtimeOnly?: boolean) {
           link.remove();
         }
       }
+
+      preloadedThemeModes.delete(oldTheme.colors.mode);
     };
     document.head.insertBefore(newCssLink, document.head.firstChild);
   }
