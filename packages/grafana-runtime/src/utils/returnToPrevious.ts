@@ -1,8 +1,6 @@
-import { createMonitoringLogger } from './logging';
+import { runtimeHookLogger } from './runtimeHooksLogging';
 
 type ReturnToPreviousHook = () => (title: string, href?: string) => void;
-
-const runtimeHookLogger = createMonitoringLogger('runtime.hooks');
 
 let rtpHook: ReturnToPreviousHook | undefined = undefined;
 

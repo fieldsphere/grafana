@@ -19,16 +19,14 @@ import {
   StreamingDataFrame,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { config, createMonitoringLogger, getGrafanaLiveSrv } from '@grafana/runtime';
-import { Alert, createLogger, CustomScrollbar, JSONFormatter, stylesFactory } from '@grafana/ui';
+import { config, getGrafanaLiveSrv } from '@grafana/runtime';
+import { Alert, CustomScrollbar, JSONFormatter, stylesFactory } from '@grafana/ui';
 
 import { TablePanel } from '../table/TablePanel';
 
+import { livePanelLogger, livePanelDebugLogger } from './logging';
 import { LivePublish } from './LivePublish';
 import { LivePanelOptions, MessageDisplayMode, MessagePublishMode } from './types';
-
-const livePanelLogger = createMonitoringLogger('plugins.panel.live');
-const livePanelDebugLogger = createLogger('plugins.panel.live');
 
 interface Props extends PanelProps<LivePanelOptions> {}
 

@@ -1,8 +1,6 @@
-import { createMonitoringLogger } from './logging';
+import { runtimeHookLogger } from './runtimeHooksLogging';
 
 type MegaMenuOpenHook = () => Readonly<[boolean, (open: boolean, persist?: boolean) => void]>;
-
-const runtimeHookLogger = createMonitoringLogger('runtime.hooks');
 
 let megaMenuOpenHook: MegaMenuOpenHook | undefined = undefined;
 

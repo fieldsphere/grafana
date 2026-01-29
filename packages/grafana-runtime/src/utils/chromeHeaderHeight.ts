@@ -1,8 +1,6 @@
-import { createMonitoringLogger } from './logging';
+import { runtimeHookLogger } from './runtimeHooksLogging';
 
 type ChromeHeaderHeightHook = () => number;
-
-const runtimeHookLogger = createMonitoringLogger('runtime.hooks');
 
 let chromeHeaderHeightHook: ChromeHeaderHeightHook | undefined = undefined;
 

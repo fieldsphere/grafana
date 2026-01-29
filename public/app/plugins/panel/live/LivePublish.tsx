@@ -2,13 +2,11 @@ import { useMemo } from 'react';
 
 import { LiveChannelAddress, isValidLiveChannelAddress } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { createMonitoringLogger, getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
-import { Button, CodeEditor, createLogger } from '@grafana/ui';
+import { getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
+import { Button, CodeEditor } from '@grafana/ui';
 
+import { livePanelLogger as livePublishLogger, livePanelDebugLogger as livePublishDebugLogger } from './logging';
 import { MessagePublishMode } from './types';
-
-const livePublishLogger = createMonitoringLogger('plugins.panel.live');
-const livePublishDebugLogger = createLogger('plugins.panel.live');
 
 interface Props {
   height: number;
