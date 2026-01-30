@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "rootDir": ".",
+    "declaration": true,
+    "baseUrl": ".",
+    "paths": {
+      "@fixtures/*": ["./e2e/fixtures/*"],
+      "@pages/*": ["./e2e/pages/*"],
+      "@utils/*": ["./e2e/utils/*"]
+    }
+  },
+  "include": ["e2e/**/*.ts", "playwright.config.ts"],
+  "exclude": ["node_modules", "dist", "test-results", "playwright-report"]
+}
