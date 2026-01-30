@@ -341,6 +341,23 @@ Reports include:
 2. Verify test user credentials
 3. Run global setup manually: `npx playwright test --project=setup`
 
+## Directory Size
+
+This directory and its contents have the following disk footprint (via `du -h`):
+
+```text
+16K     e2e/fixtures
+4.0K    e2e/.auth
+44K     e2e/pages
+44K     e2e/tests/cart
+44K     e2e/tests/checkout
+36K     e2e/tests/account
+136K    e2e/tests
+32K     e2e/utils
+244K    e2e
+276K    hydrogen-storefront/
+```
+
 ## License
 
 MIT
