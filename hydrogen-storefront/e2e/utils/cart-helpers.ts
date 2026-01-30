@@ -58,7 +58,7 @@ export async function clearCart(page: Page): Promise<void> {
  * Use this for faster cart reset when API calls are not needed.
  */
 export async function clearCartStorage(context: BrowserContext): Promise<void> {
-  await context.addCookies([]);
+  await context.clearCookies();
   
   // Clear localStorage cart data
   const pages = context.pages();

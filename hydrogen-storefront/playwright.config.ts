@@ -114,7 +114,7 @@ export const baseConfig: PlaywrightTestConfig = {
       name: 'teardown',
       testDir: './e2e',
       testMatch: /global-teardown\.ts/,
-      dependencies: ['cart', 'account-authenticated', 'checkout-guest', 'checkout-authenticated'],
+      dependencies: ['cart', 'account-unauthenticated', 'account-authenticated', 'checkout-guest', 'checkout-authenticated', 'mobile-chrome'],
     },
   ],
 };
