@@ -2,6 +2,10 @@ import { PanelPlugin } from '@grafana/data';
 
 import { config } from '../config';
 
+import { createMonitoringLogger } from './logging';
+
+const pluginLogger = createMonitoringLogger('runtime.plugin_css');
+
 /**
  * Option to specify a plugin css that should be applied for the dark
  * and the light theme.
@@ -25,7 +29,11 @@ export async function loadPluginCss(options: PluginCssOptions): Promise<System.M
     const cssPath = config.bootData.user.theme === 'light' ? options.light : options.dark;
     return window.System.import(cssPath);
   } catch (err) {
-    console.error(err);
+    const error = err instanceof Error ? err : new Error(String(err));
+    pluginLogger.logError(error, {
+      lightCssPath: options.light,
+      darkCssPath: options.dark,
+    });
   }
 }
 
