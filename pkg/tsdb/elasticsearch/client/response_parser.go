@@ -124,6 +124,10 @@ func (p *responseParser) streamMultiSearchResponse(body io.Reader, msr *MultiSea
 			if err != nil {
 				return err
 			}
+		} else if tok == "error" {
+			if err := dec.Decode(&msr.Error); err != nil {
+				return err
+			}
 		} else {
 			err := skipUnknownField(dec)
 			if err != nil {

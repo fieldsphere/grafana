@@ -96,7 +96,11 @@ func (e *elasticsearchDataQuery) execute() (*backend.QueryDataResponse, error) {
 	}
 
 	if res.Status >= 400 {
-		statusErr := fmt.Errorf("unexpected status code: %d", res.Status)
+		errMessage := getErrorStringFromElasticError(res.Error)
+		if errMessage == "" {
+			errMessage = fmt.Sprintf("unexpected status code: %d", res.Status)
+		}
+		statusErr := errors.New(errMessage)
 		if backend.ErrorSourceFromHTTPStatus(res.Status) == backend.ErrorSourceDownstream {
 			response.Responses[e.dataQueries[0].RefID] = backend.ErrorResponseWithErrorSource(backend.DownstreamError(statusErr))
 		} else {

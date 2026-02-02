@@ -28,8 +28,10 @@ func newPostgresMacroEngine(timescaledb bool) sqleng.SQLMacroEngine {
 }
 
 func (m *postgresMacroEngine) Interpolate(query *backend.DataQuery, timeRange backend.TimeRange, sql string) (string, error) {
-	// TODO: Handle error
-	rExp, _ := regexp.Compile(sExpr)
+	rExp, err := regexp.Compile(sExpr)
+	if err != nil {
+		return "", err
+	}
 	var macroError error
 
 	sql = m.ReplaceAllStringSubmatchFunc(rExp, sql, func(groups []string) string {

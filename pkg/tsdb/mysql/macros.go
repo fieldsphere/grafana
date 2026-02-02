@@ -37,8 +37,10 @@ func (m *mySQLMacroEngine) Interpolate(query *backend.DataQuery, timeRange backe
 		return "", fmt.Errorf("invalid query - %s", m.userError)
 	}
 
-	// TODO: Handle error
-	rExp, _ := regexp.Compile(sExpr)
+	rExp, err := regexp.Compile(sExpr)
+	if err != nil {
+		return "", err
+	}
 	var macroError error
 
 	sql = m.ReplaceAllStringSubmatchFunc(rExp, sql, func(groups []string) string {

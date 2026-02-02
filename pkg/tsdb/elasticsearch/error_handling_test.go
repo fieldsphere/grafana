@@ -42,8 +42,7 @@ func TestErrorAvgMissingField(t *testing.T) {
 	result, err := queryDataTestWithResponseCode(query, 400, response)
 	require.NoError(t, err)
 
-	// FIXME: we should return the received error message
-	require.Equal(t, "unexpected status code: 400", result.response.Responses["A"].Error.Error())
+	require.Equal(t, "Required one of fields [field, script], but none were specified.", result.response.Responses["A"].Error.Error())
 	require.Equal(t, backend.ErrorSourceDownstream, result.response.Responses["A"].ErrorSource)
 }
 
@@ -71,8 +70,7 @@ func TestErrorAvgMissingFieldNoDetailedErrors(t *testing.T) {
 	result, err := queryDataTestWithResponseCode(query, 400, response)
 	require.NoError(t, err)
 
-	// FIXME: we should return the received error message
-	require.Equal(t, "unexpected status code: 400", result.response.Responses["A"].Error.Error())
+	require.Equal(t, "No ElasticsearchException found", result.response.Responses["A"].Error.Error())
 }
 
 func TestErrorTooManyDateHistogramBuckets(t *testing.T) {

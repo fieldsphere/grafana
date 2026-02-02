@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
@@ -132,24 +133,37 @@ func parseResponse(ctx context.Context, responses []*es.SearchResponse, targets 
 
 // getErrorFromElasticResponse extracts error message from Elasticsearch error response
 func getErrorFromElasticResponse(response *es.SearchResponse) string {
-	var errorString string
-	json := simplejson.NewFromAny(response.Error)
-	reason := json.Get("reason").MustString()
-	rootCauseReason := json.Get("root_cause").GetIndex(0).Get("reason").MustString()
-	causedByReason := json.Get("caused_by").Get("reason").MustString()
+	errorString := getErrorStringFromElasticError(response.Error)
+	if errorString == "" {
+		return "Unknown elasticsearch error response"
+	}
+	return errorString
+}
+
+func getErrorStringFromElasticError(err any) string {
+	if err == nil {
+		return ""
+	}
+
+	if errString, ok := err.(string); ok {
+		return strings.TrimSpace(errString)
+	}
+
+	json := simplejson.NewFromAny(err)
+	reason := strings.TrimSpace(json.Get("reason").MustString())
+	rootCauseReason := strings.TrimSpace(json.Get("root_cause").GetIndex(0).Get("reason").MustString())
+	causedByReason := strings.TrimSpace(json.Get("caused_by").Get("reason").MustString())
 
 	switch {
 	case rootCauseReason != "":
-		errorString = rootCauseReason
+		return rootCauseReason
 	case reason != "":
-		errorString = reason
+		return reason
 	case causedByReason != "":
-		errorString = causedByReason
+		return causedByReason
 	default:
-		errorString = "Unknown elasticsearch error response"
+		return ""
 	}
-
-	return errorString
 }
 
 // setPreferredVisType sets the preferred visualization type for a frame
