@@ -163,8 +163,14 @@ export function runRequest(
     }),
     // handle errors
     catchError((err) => {
-      console.error('runRequest.catchError', err);
-      queryLogger.logError(err);
+      const error = err instanceof Error ? err : new Error(String(err));
+      queryLogger.logError(error, {
+        requestId: request.requestId,
+        panelId: request.panelId,
+        dashboardUID: request.dashboardUID,
+        app: request.app,
+        targetsCount: request.targets.length,
+      });
       return of({
         ...state.panelData,
         state: LoadingState.Error,

@@ -1,4 +1,8 @@
+import { createMonitoringLogger } from './logging';
+
 type MegaMenuOpenHook = () => Readonly<[boolean, (open: boolean, persist?: boolean) => void]>;
+
+const runtimeHookLogger = createMonitoringLogger('runtime.hooks');
 
 let megaMenuOpenHook: MegaMenuOpenHook | undefined = undefined;
 
@@ -15,7 +19,7 @@ export const useMegaMenuOpen: MegaMenuOpenHook = () => {
     if (process.env.NODE_ENV !== 'production') {
       throw new Error('useMegaMenuOpen hook not found in @grafana/runtime');
     }
-    return [false, () => console.error('MegaMenuOpen hook not found')];
+    return [false, () => runtimeHookLogger.logError(new Error('MegaMenuOpen hook not found'))];
   }
 
   return megaMenuOpenHook();

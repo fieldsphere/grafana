@@ -13,11 +13,21 @@ import {
   StreamingDataFrame,
 } from '@grafana/data';
 import { getStreamingFrameOptions } from '@grafana/data/internal';
-import { LiveDataStreamOptions, StreamingFrameAction, StreamingFrameOptions, toDataQueryError } from '@grafana/runtime';
+import {
+  createMonitoringLogger,
+  LiveDataStreamOptions,
+  StreamingFrameAction,
+  StreamingFrameOptions,
+  toDataQueryError,
+} from '@grafana/runtime';
+import { createLogger } from '@grafana/ui';
 
 import { StreamingResponseDataType } from '../data/utils';
 
 import { DataStreamSubscriptionKey, StreamingDataQueryResponse } from './service';
+
+const liveStreamLogger = createMonitoringLogger('live.stream');
+const liveStreamDebugLogger = createLogger('live.stream');
 
 const bufferIfNot =
   (canEmitObservable: Observable<boolean>) =>
@@ -149,7 +159,10 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onError = (err: unknown) => {
-    console.log('LiveQuery [error]', { err }, this.deps.channelId);
+    const error = err instanceof Error ? err : new Error(String(err));
+    liveStreamLogger.logError(error, {
+      channelId: this.deps.channelId,
+    });
     this.stream.next({
       type: InternalStreamMessageType.Error,
       error: toDataQueryError(err),
@@ -158,7 +171,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onComplete = () => {
-    console.log('LiveQuery [complete]', this.deps.channelId);
+    liveStreamDebugLogger.logger('complete', false, { channelId: this.deps.channelId });
     this.shutdown();
   };
 
@@ -275,7 +288,10 @@ export class LiveDataStream<T = unknown> {
       }
 
       if (!messages.length) {
-        console.warn(`expected to find at least one non error message ${messages.map(({ type }) => type)}`);
+        liveStreamLogger.logWarning('Expected at least one non-error message', {
+          channelId: this.deps.channelId,
+          messageTypes: messages.map(({ type }) => type),
+        });
         // send empty frame
         return {
           key: subKey,
@@ -353,7 +369,10 @@ export class LiveDataStream<T = unknown> {
 
         const newValueSameSchemaMessages = filterMessages(messages, InternalStreamMessageType.NewValuesSameSchema);
         if (newValueSameSchemaMessages.length !== messages.length) {
-          console.warn(`unsupported message type ${messages.map(({ type }) => type)}`);
+          liveStreamLogger.logWarning('Unsupported message type', {
+            channelId: this.deps.channelId,
+            messageTypes: messages.map(({ type }) => type),
+          });
         }
 
         return getNewValuesSameSchemaResponseData(newValueSameSchemaMessages);

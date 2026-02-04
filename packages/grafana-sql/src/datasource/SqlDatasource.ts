@@ -33,6 +33,7 @@ import { ResponseParser } from '../ResponseParser';
 import { SqlQueryEditorLazy } from '../components/QueryEditorLazy';
 import { MACRO_NAMES } from '../constants';
 import { DB, SQLQuery, SQLOptions, SqlQueryModel, QueryFormat, SQLDialect } from '../types';
+import { sqlPluginLogger } from '../utils/logging';
 import migrateAnnotation from '../utils/migration';
 
 export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLOptions> {
@@ -215,7 +216,12 @@ export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLO
     try {
       response = await this.runMetaQuery(interpolatedQuery, range);
     } catch (error) {
-      console.error(error);
+      const err = error instanceof Error ? error : new Error(String(error));
+      sqlPluginLogger.logError(err, {
+        datasourceUid: this.uid,
+        refId,
+        rawSqlLength: rawSql.length,
+      });
       throw new Error('error when executing the sql query');
     }
     return this.getResponseParser().transformMetricFindResponse(response);
