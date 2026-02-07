@@ -195,9 +195,9 @@ func doInstallPlugin(ctx context.Context, pluginID, version string, o pluginInst
 func uninstallPlugin(_ context.Context, pluginID string, c utils.CommandLine) error {
 	for _, bundle := range services.GetLocalPlugins(c.PluginDirectory()) {
 		if bundle.Primary.JSONData.ID == pluginID {
-			logger.Infof("Removing plugin: %v\n", pluginID)
+			logger.Info("removing plugin", "plugin", pluginID)
 			if remover, ok := bundle.Primary.FS.(plugins.FSRemover); ok {
-				logger.Debugf("Removing directory %v\n\n", bundle.Primary.FS.Base())
+				logger.Debug("removing directory", "directory", bundle.Primary.FS.Base())
 				if err := remover.Remove(); err != nil {
 					return err
 				}

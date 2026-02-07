@@ -56,7 +56,7 @@ func upgradeAllCommand(c utils.CommandLine) error {
 
 	ctx := context.Background()
 	for _, p := range pluginsToUpgrade {
-		logger.Infof("Updating %v \n", p.JSONData.ID)
+		logger.Info("updating plugin", "plugin", p.JSONData.ID)
 
 		err = installPlugin(ctx, p.JSONData.ID, "", newInstallPluginOpts(c))
 		if err != nil {
