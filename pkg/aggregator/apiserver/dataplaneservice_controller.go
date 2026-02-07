@@ -67,7 +67,7 @@ func NewDataPlaneServiceRegistrationController(dataPlaneServiceInformer informer
 	})
 
 	if err != nil {
-		klog.Errorf("Failed to register event handler for DataPlaneService: %v", err)
+		klog.Error("Failed to register event handler for DataPlaneService", "error", err)
 	}
 
 	c.syncFn = c.sync
@@ -156,7 +156,7 @@ func (c *DataPlaneServiceRegistrationController) processNextWorkItem() bool {
 func (c *DataPlaneServiceRegistrationController) enqueueInternal(obj *v0alpha1.DataPlaneService) {
 	key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(obj)
 	if err != nil {
-		klog.Errorf("Couldn't get key for object %#v: %v", obj, err)
+		klog.Error("Couldn't get key for object", "object", obj, "error", err)
 		return
 	}
 
@@ -165,13 +165,13 @@ func (c *DataPlaneServiceRegistrationController) enqueueInternal(obj *v0alpha1.D
 
 func (c *DataPlaneServiceRegistrationController) addDataPlaneService(obj interface{}) {
 	castObj := obj.(*v0alpha1.DataPlaneService)
-	klog.V(4).Infof("Adding %s", castObj.Name)
+	klog.V(4).Info("Adding", "name", castObj.Name)
 	c.enqueueInternal(castObj)
 }
 
 func (c *DataPlaneServiceRegistrationController) updateDataPlaneService(obj, _ interface{}) {
 	castObj := obj.(*v0alpha1.DataPlaneService)
-	klog.V(4).Infof("Updating %s", castObj.Name)
+	klog.V(4).Info("Updating", "name", castObj.Name)
 	c.enqueueInternal(castObj)
 }
 
@@ -180,16 +180,16 @@ func (c *DataPlaneServiceRegistrationController) deleteDataPlaneService(obj inte
 	if !ok {
 		tombstone, ok := obj.(cache.DeletedFinalStateUnknown)
 		if !ok {
-			klog.Errorf("Couldn't get object from tombstone %#v", obj)
+			klog.Error("Couldn't get object from tombstone", "object", obj)
 			return
 		}
 		castObj, ok = tombstone.Obj.(*v0alpha1.DataPlaneService)
 		if !ok {
-			klog.Errorf("Tombstone contained object that is not expected %#v", obj)
+			klog.Error("Tombstone contained object that is not expected", "object", obj)
 			return
 		}
 	}
-	klog.V(4).Infof("Deleting %q", castObj.Name)
+	klog.V(4).Info("Deleting", "name", castObj.Name)
 	c.enqueueInternal(castObj)
 }
 
