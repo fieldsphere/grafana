@@ -35,16 +35,16 @@ func (session *Session) queryRows(sqlStr string, args ...any) (*core.Rows, error
 			defer func() {
 				execDuration := time.Since(b4ExecTime)
 				if len(args) > 0 {
-					session.engine.logger.Infof("[SQL] %s %#v - took: %v", sqlStr, args, execDuration)
+					session.engine.logger.Info("[SQL]", "sql", sqlStr, "args", args, "took", execDuration)
 				} else {
-					session.engine.logger.Infof("[SQL] %s - took: %v", sqlStr, execDuration)
+					session.engine.logger.Info("[SQL]", "sql", sqlStr, "took", execDuration)
 				}
 			}()
 		} else {
 			if len(args) > 0 {
-				session.engine.logger.Infof("[SQL] %v %#v", sqlStr, args)
+				session.engine.logger.Info("[SQL]", "sql", sqlStr, "args", args)
 			} else {
-				session.engine.logger.Infof("[SQL] %v", sqlStr)
+				session.engine.logger.Info("[SQL]", "sql", sqlStr)
 			}
 		}
 	}
@@ -156,16 +156,16 @@ func (session *Session) exec(sqlStr string, args ...any) (sql.Result, error) {
 			defer func() {
 				execDuration := time.Since(b4ExecTime)
 				if len(args) > 0 {
-					session.engine.logger.Infof("[SQL] %s %#v - took: %v", sqlStr, args, execDuration)
+					session.engine.logger.Info("[SQL]", "sql", sqlStr, "args", args, "took", execDuration)
 				} else {
-					session.engine.logger.Infof("[SQL] %s - took: %v", sqlStr, execDuration)
+					session.engine.logger.Info("[SQL]", "sql", sqlStr, "took", execDuration)
 				}
 			}()
 		} else {
 			if len(args) > 0 {
-				session.engine.logger.Infof("[SQL] %v %#v", sqlStr, args)
+				session.engine.logger.Info("[SQL]", "sql", sqlStr, "args", args)
 			} else {
-				session.engine.logger.Infof("[SQL] %v", sqlStr)
+				session.engine.logger.Info("[SQL]", "sql", sqlStr)
 			}
 		}
 	}

@@ -674,9 +674,9 @@ func (b *Base) ForUpdateSql(query string) string {
 func (b *Base) LogSQL(sql string, args []interface{}) {
 	if b.logger != nil && b.logger.IsShowSQL() {
 		if len(args) > 0 {
-			b.logger.Infof("[SQL] %v %v", sql, args)
+			b.logger.Info("[SQL]", "sql", sql, "args", args)
 		} else {
-			b.logger.Infof("[SQL] %v", sql)
+			b.logger.Info("[SQL]", "sql", sql)
 		}
 	}
 }

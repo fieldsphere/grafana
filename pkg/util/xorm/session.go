@@ -581,7 +581,7 @@ func (session *Session) slice2Bean(scanResults []any, fields []string, bean any,
 					z, _ := t.Zone()
 					// set new location if database don't save timezone or give an incorrect timezone
 					if len(z) == 0 || t.Year() == 0 || t.Location().String() != dbTZ.String() { // !nashtsai! HACK tmp work around for lib/pq doesn't properly time with location
-						session.engine.logger.Debugf("empty zone key[%v] : %v | zone: %v | location: %+v\n", key, t, z, *t.Location())
+						session.engine.logger.Debug("empty zone", "key", key, "time", t, "zone", z, "location", *t.Location())
 						t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(),
 							t.Minute(), t.Second(), t.Nanosecond(), dbTZ)
 					}
@@ -789,9 +789,9 @@ func (session *Session) saveLastSQL(sql string, args ...any) {
 func (session *Session) logSQL(sqlStr string, sqlArgs ...any) {
 	if session.showSQL && !session.engine.showExecTime {
 		if len(sqlArgs) > 0 {
-			session.engine.logger.Infof("[SQL] %v %#v", sqlStr, sqlArgs)
+			session.engine.logger.Info("[SQL]", "sql", sqlStr, "args", sqlArgs)
 		} else {
-			session.engine.logger.Infof("[SQL] %v", sqlStr)
+			session.engine.logger.Info("[SQL]", "sql", sqlStr)
 		}
 	}
 }
