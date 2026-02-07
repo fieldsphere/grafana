@@ -57,7 +57,7 @@ func ToUnifiedStorage(c utils.CommandLine, cfg *setting.Cfg, sqlStore db.DB) err
 			const minInterval = time.Second
 			shouldPrint := count < 1 || time.Since(last) > minInterval
 			if shouldPrint {
-				logger.Info(fmt.Sprintf("[%4d] %s", count, msg))
+				logger.Info("Migration progress", "count", count, "message", msg)
 				last = time.Now()
 			}
 		},
