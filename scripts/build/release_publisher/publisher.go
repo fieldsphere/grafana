@@ -6,9 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -271,8 +272,7 @@ func (p *publisher) postRequest(url string, obj any, desc string) error {
 	}
 
 	if p.dryRun {
-		log.Printf("POST to %s:\n", p.apiURL(url))
-		log.Println(string(jsonBytes))
+		slog.Info("POST request (dry run)", "url", p.apiURL(url), "body", string(jsonBytes))
 		return nil
 	}
 
@@ -289,7 +289,7 @@ func (p *publisher) postRequest(url string, obj any, desc string) error {
 	}
 
 	if res.StatusCode == http.StatusOK {
-		log.Printf("Action: %s \t OK", desc)
+		slog.Info("Action completed successfully", "action", desc)
 		return nil
 	}
 
@@ -301,11 +301,10 @@ func (p *publisher) postRequest(url string, obj any, desc string) error {
 		}
 
 		if strings.Contains(string(body), "already exists") || strings.Contains(string(body), "Nothing to update") {
-			log.Printf("Action: %s \t Already exists", desc)
+			slog.Info("Action skipped, already exists", "action", desc)
 		} else {
-			log.Printf("Action: %s \t Failed - Status: %v", desc, res.Status)
-			log.Printf("Resp: %s", body)
-			log.Fatalf("Quitting")
+			slog.Error("Action failed", "action", desc, "status", res.Status, "response", string(body))
+			os.Exit(1)
 		}
 	}
 

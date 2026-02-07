@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"path"
@@ -92,10 +92,10 @@ func saveDump(data []byte) {
 		}
 		name = path.Join(dumpDir, fmt.Sprintf("%d_%04d.json", ts, i))
 	}
-	log.Printf("saving dump to %s", name)
+	slog.Info("Saving dump", "path", name)
 	err := os.WriteFile(name, data, os.ModePerm)
 	if err != nil {
-		log.Printf("cannot save to file %s: %s\n", name, err)
+		slog.Error("Cannot save to file", "path", name, "error", err)
 	}
 }
 
@@ -106,7 +106,8 @@ func main() {
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(dumpDir, os.ModePerm)
 		if err != nil {
-			log.Panicf("can't create directory '%s'", dumpDir)
+			slog.Error("Can't create directory", "path", dumpDir)
+			panic(err)
 		}
 	}
 
@@ -114,10 +115,11 @@ func main() {
 		//create your file with desired read/write permissions
 		f, err := os.OpenFile(logFileName, os.O_WRONLY|os.O_CREATE|os.O_APPEND, os.ModePerm)
 		if err != nil {
-			log.Fatal(err)
+			slog.Error("Failed to open log file", "path", logFileName, "error", err)
+			os.Exit(1)
 		}
 		defer f.Close()
-		log.SetOutput(f)
+		slog.SetDefault(slog.New(slog.NewTextHandler(f, nil)))
 	}
 
 	waitDuration := time.Duration(waitSeconds) * time.Second
@@ -127,21 +129,21 @@ func main() {
 	})
 
 	http.HandleFunc("/listen", func(w http.ResponseWriter, r *http.Request) {
-		log.Printf("got submission from: %s\n", r.RemoteAddr)
+		slog.Info("Received submission", "remoteAddr", r.RemoteAddr)
 		b, err := io.ReadAll(r.Body)
 		if err != nil {
-			log.Println(err)
+			slog.Error("Failed to read request body", "error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
 		saveDump(b)
 		v := Data{}
 		if err := json.Unmarshal(b, &v); err != nil {
-			log.Println(err)
+			slog.Error("Failed to unmarshal data", "error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		fmt.Printf("receiver: %s, status: %s\n", v.Receiver, v.Status)
+		slog.Info("Received alert data", "receiver", v.Receiver, "status", v.Status)
 		updateFingerprints(v)
 		<-time.After(waitDuration)
 	})
@@ -152,15 +154,14 @@ func main() {
 			return json.Marshal(fingerprints)
 		}()
 		if err != nil {
-			log.Println(err)
+			slog.Error("Failed to marshal fingerprints", "error", err)
 			w.WriteHeader(http.StatusInternalServerError)
 			return
 		}
 		w.Header().Add("Content-Type", "application/json")
 		w.Write(b)
 	})
-	log.Println("Listening")
-	log.Printf("Wait Duration %v\n", waitDuration)
+	slog.Info("Listening", "addr", "0.0.0.0:8080", "waitDuration", waitDuration)
 	http.ListenAndServe("0.0.0.0:8080", nil)
 }
 

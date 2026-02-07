@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
 	"strings"
 	"sync"
@@ -69,17 +69,17 @@ func NewNotificationHandler() *NotificationHandler {
 func (ah *NotificationHandler) Notify(w http.ResponseWriter, r *http.Request) {
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Println(err)
+		slog.Error("Failed to read request body", "error", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	n := Notification{}
 	if err := json.Unmarshal(b, &n); err != nil {
-		log.Println(err)
+		slog.Error("Failed to unmarshal notification", "error", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	log.Printf("got notification from: %s. a: %v", r.RemoteAddr, n)
+	slog.Info("Received notification", "remoteAddr", r.RemoteAddr, "notification", n)
 
 	ah.m.Lock()
 	defer ah.m.Unlock()
@@ -121,15 +121,15 @@ func (ah *NotificationHandler) GetNotifications(w http.ResponseWriter, _ *http.R
 		w.WriteHeader(http.StatusInternalServerError)
 		//nolint:errcheck
 		w.Write([]byte(`{"error":"failed to marshal alerts"}`))
-		log.Printf("failed to marshal alerts: %v\n", err)
+		slog.Error("Failed to marshal alerts", "error", err)
 		return
 	}
 
-	log.Printf("requested current state\n%v\n", string(res))
+	slog.Info("Requested current state", "state", string(res))
 
 	_, err = w.Write(res)
 	if err != nil {
-		log.Printf("failed to write response: %v\n", err)
+		slog.Error("Failed to write response", "error", err)
 	}
 }
 
@@ -143,7 +143,7 @@ func main() {
 	http.HandleFunc("/notify", ah.Notify)
 	http.HandleFunc("/notifications", ah.GetNotifications)
 
-	log.Println("Listening")
+	slog.Info("Listening", "addr", "0.0.0.0:8080")
 	//nolint:errcheck
 	http.ListenAndServe("0.0.0.0:8080", nil)
 }
