@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -18,11 +19,14 @@ func hello(w http.ResponseWriter, r *http.Request) {
 	line := fmt.Sprintf("webbhook: -> %s", safeBody)
 	fmt.Println(line)
 	if _, err := io.WriteString(w, line); err != nil {
-		log.Printf("Failed to write: %v", err)
+		slog.Error("Failed to write response", "error", err)
 	}
 }
 
 func main() {
 	http.HandleFunc("/", hello)
-	log.Fatal(http.ListenAndServe(":3010", nil))
+	if err := http.ListenAndServe(":3010", nil); err != nil {
+		slog.Error("Server failed", "error", err)
+		os.Exit(1)
+	}
 }
