@@ -66,13 +66,13 @@ func NewTestPrettyLogger() *TestPrettyLogger {
 	return &TestPrettyLogger{}
 }
 
-func (f *TestPrettyLogger) Successf(_ string, _ ...any) {}
-func (f *TestPrettyLogger) Failuref(_ string, _ ...any) {}
-func (f *TestPrettyLogger) Info(_ ...any)               {}
-func (f *TestPrettyLogger) Infof(_ string, _ ...any)    {}
-func (f *TestPrettyLogger) Debug(_ ...any)              {}
-func (f *TestPrettyLogger) Debugf(_ string, _ ...any)   {}
-func (f *TestPrettyLogger) Warn(_ ...any)               {}
-func (f *TestPrettyLogger) Warnf(_ string, _ ...any)    {}
-func (f *TestPrettyLogger) Error(_ ...any)              {}
-func (f *TestPrettyLogger) Errorf(_ string, _ ...any)   {}
+func (f *TestPrettyLogger) Successf(_ string, _ ...any)  {}
+func (f *TestPrettyLogger) Failuref(_ string, _ ...any)  {}
+func (f *TestPrettyLogger) Info(_ string, _ ...any)      {}
+func (f *TestPrettyLogger) Infof(_ string, _ ...any)     {}
+func (f *TestPrettyLogger) Debug(_ string, _ ...any)     {}
+func (f *TestPrettyLogger) Debugf(_ string, _ ...any)    {}
+func (f *TestPrettyLogger) Warn(_ string, _ ...any)      {}
+func (f *TestPrettyLogger) Warnf(_ string, _ ...any)     {}
+func (f *TestPrettyLogger) Error(_ string, _ ...any)     {}
+func (f *TestPrettyLogger) Errorf(_ string, _ ...any)    {}
