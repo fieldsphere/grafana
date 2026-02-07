@@ -45,7 +45,7 @@ func WrapHandler(handler http.Handler) func(req *http.Request) (*http.Response, 
 			defer cancel()
 			handler.ServeHTTP(w, req)
 			if err := w.CloseWriter(); err != nil {
-				klog.Errorf("error closing writer: %v", err)
+				klog.Error("error closing writer", "error", err)
 			}
 		}()
 
