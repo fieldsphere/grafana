@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 
@@ -19,7 +19,7 @@ func EndToEndTests(c *cli.Context) error {
 		video = c.String("video")
 	)
 
-	log.Printf("Running Grafana e2e tests")
+	slog.Info("running Grafana e2e tests")
 
 	port := c.Int("port")
 	env := append(os.Environ(), fmt.Sprintf("PORT=%d", port))
@@ -30,7 +30,7 @@ func EndToEndTests(c *cli.Context) error {
 
 	var err error
 	for i := 0; i < tries; i++ {
-		log.Printf("Running e2e test suite attempt #%d", i+1)
+		slog.Info("running e2e test suite", "attempt", i+1)
 		//nolint:gosec
 		cmd := exec.Command("./e2e/run-suite", suite, video)
 		cmd.Env = env
@@ -41,7 +41,7 @@ func EndToEndTests(c *cli.Context) error {
 			break
 		}
 
-		log.Printf("Running the test suite failed: %s", err)
+		slog.Error("running the test suite failed", "error", err)
 	}
 	if err != nil {
 		return cli.Exit(fmt.Sprintf("e2e tests failed: %s", err), 1)

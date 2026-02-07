@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"os/exec"
 	"strings"
@@ -12,12 +12,12 @@ import (
 
 // LookupGitHubToken will try to find a GitHub access token that can then be used for various API calls but also cloning of private repositories.
 func LookupGitHubToken(ctx context.Context) (string, error) {
-	log.Print("Looking for a GitHub token")
+	slog.Debug("looking for a GitHub token")
 
 	// First try: Check if it's in the environment. This can override everything!
 	token := os.Getenv("GITHUB_TOKEN")
 	if token != "" {
-		log.Print("Using GitHub token provided via environment variable")
+		slog.Debug("using GitHub token provided via environment variable")
 		return token, nil
 	}
 
@@ -35,10 +35,10 @@ func LookupGitHubToken(ctx context.Context) (string, error) {
 	cmd.Stderr = &errData
 
 	if err := cmd.Run(); err != nil {
-		log.Printf("Querying gh for an access token failed: %s", errData.String())
+		slog.Error("querying gh for an access token failed", "stderr", errData.String())
 		return "", fmt.Errorf("lookup in gh failed: %w", err)
 	}
 
-	log.Print("Using GitHub token provided via gh")
+	slog.Debug("using GitHub token provided via gh")
 	return strings.TrimSpace(data.String()), nil
 }
