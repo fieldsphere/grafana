@@ -2,7 +2,7 @@ package backend
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"path"
 	"strings"
 
@@ -114,7 +114,7 @@ func Build(
 		cmd := GoBuildCommand(out, ldflags, opts.Tags, pkgPath)
 
 		script := fmt.Sprintf(`if [ -d %s ]; then %s; fi`, pkgPath, strings.Join(cmd, " "))
-		log.Printf("Building with command '%s'", script)
+		slog.Debug("building backend binary", "command", script)
 
 		builder = builder.
 			WithExec([]string{"/bin/sh", "-c", script})
