@@ -48,7 +48,7 @@ func (fs *FS) Extract(ctx context.Context, pluginID string, dirNameFunc DirNameG
 		return nil, fmt.Errorf("%v: %w", "failed to convert to plugin DTO", err)
 	}
 
-	fs.log.Successf("Downloaded and extracted %s v%s zip successfully to %s", pluginJSON.ID, pluginJSON.Info.Version, pluginDir)
+	fs.log.Info("Downloaded and extracted plugin successfully", "pluginId", pluginJSON.ID, "version", pluginJSON.Info.Version, "path", pluginDir)
 
 	deps := make([]*Dependency, 0, len(pluginJSON.Dependencies.Plugins))
 	for _, plugin := range pluginJSON.Dependencies.Plugins {
@@ -69,7 +69,7 @@ func (fs *FS) extractFiles(_ context.Context, pluginArchive *zip.ReadCloser, plu
 	pluginDirName := dirNameFunc(pluginID)
 	installDir := filepath.Join(fs.pluginsDir, pluginDirName)
 	if _, err := os.Stat(installDir); !os.IsNotExist(err) {
-		fs.log.Debugf("Removing existing installation of plugin %s", installDir)
+		fs.log.Debug("Removing existing installation of plugin", "path", installDir)
 		err = os.RemoveAll(installDir)
 		if err != nil {
 			return "", err
