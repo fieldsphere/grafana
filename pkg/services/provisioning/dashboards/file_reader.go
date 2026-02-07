@@ -87,7 +87,7 @@ func (fr *FileReader) pollChanges(ctx context.Context) {
 		if err == nil {
 			return // finished
 		}
-		fr.log.Warn("error watching folder: %w", err)
+		fr.log.Warn("Error watching folder", "error", err)
 		interval = 30
 	}
 
@@ -289,7 +289,7 @@ func (fr *FileReader) saveDashboard(ctx context.Context, path string, folderID i
 
 	jsonFile, err := fr.readDashboardFromFile(path, resolvedFileInfo.ModTime(), folderID, folderUID)
 	if err != nil {
-		fr.log.Error("failed to load dashboard from ", "file", path, "error", err)
+		fr.log.Error("Failed to load dashboard from file", "file", path, "error", err)
 		return provisioningMetadata, nil
 	}
 
