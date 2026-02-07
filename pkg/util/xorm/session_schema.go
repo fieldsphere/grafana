@@ -18,7 +18,7 @@ func (session *Session) Ping() error {
 		defer session.Close()
 	}
 
-	session.engine.logger.Infof("PING DATABASE %v", session.engine.DriverName())
+	session.engine.logger.Info("PING DATABASE", "driver", session.engine.DriverName())
 	return session.DB().PingContext(session.ctx)
 }
 
@@ -314,32 +314,27 @@ func (session *Session) Sync2(beans ...any) error {
 					// currently only support mysql & postgres
 					if engine.dialect.DBType() == core.MYSQL ||
 						engine.dialect.DBType() == core.POSTGRES {
-						engine.logger.Infof("Table %s column %s change type from %s to %s\n",
-							tbNameWithSchema, col.Name, curType, expectedType)
+						engine.logger.Info("Table column change type", "table", tbNameWithSchema, "column", col.Name, "fromType", curType, "toType", expectedType)
 						_, err = session.exec(engine.dialect.ModifyColumnSql(tbNameWithSchema, col))
 					} else {
-						engine.logger.Warnf("Table %s column %s db type is %s, struct type is %s\n",
-							tbNameWithSchema, col.Name, curType, expectedType)
+						engine.logger.Warn("Table column type mismatch", "table", tbNameWithSchema, "column", col.Name, "dbType", curType, "structType", expectedType)
 					}
 				} else if strings.HasPrefix(curType, core.Varchar) && strings.HasPrefix(expectedType, core.Varchar) {
 					if engine.dialect.DBType() == core.MYSQL {
 						if oriCol.Length < col.Length {
-							engine.logger.Infof("Table %s column %s change type from varchar(%d) to varchar(%d)\n",
-								tbNameWithSchema, col.Name, oriCol.Length, col.Length)
+							engine.logger.Info("Table column change varchar length", "table", tbNameWithSchema, "column", col.Name, "fromLength", oriCol.Length, "toLength", col.Length)
 							_, err = session.exec(engine.dialect.ModifyColumnSql(tbNameWithSchema, col))
 						}
 					}
 				} else {
 					if !(strings.HasPrefix(curType, expectedType) && curType[len(expectedType)] == '(') {
-						engine.logger.Warnf("Table %s column %s db type is %s, struct type is %s",
-							tbNameWithSchema, col.Name, curType, expectedType)
+						engine.logger.Warn("Table column type mismatch", "table", tbNameWithSchema, "column", col.Name, "dbType", curType, "structType", expectedType)
 					}
 				}
 			} else if expectedType == core.Varchar {
 				if engine.dialect.DBType() == core.MYSQL {
 					if oriCol.Length < col.Length {
-						engine.logger.Infof("Table %s column %s change type from varchar(%d) to varchar(%d)\n",
-							tbNameWithSchema, col.Name, oriCol.Length, col.Length)
+						engine.logger.Info("Table column change varchar length", "table", tbNameWithSchema, "column", col.Name, "fromLength", oriCol.Length, "toLength", col.Length)
 						_, err = session.exec(engine.dialect.ModifyColumnSql(tbNameWithSchema, col))
 					}
 				}
@@ -352,13 +347,11 @@ func (session *Session) Sync2(beans ...any) error {
 					((strings.EqualFold(col.Default, "true") && oriCol.Default == "1") ||
 						(strings.EqualFold(col.Default, "false") && oriCol.Default == "0")):
 				default:
-					engine.logger.Warnf("Table %s Column %s db default is %s, struct default is %s",
-						tbName, col.Name, oriCol.Default, col.Default)
+					engine.logger.Warn("Table column default mismatch", "table", tbName, "column", col.Name, "dbDefault", oriCol.Default, "structDefault", col.Default)
 				}
 			}
 			if col.Nullable != oriCol.Nullable {
-				engine.logger.Warnf("Table %s Column %s db nullable is %v, struct nullable is %v",
-					tbName, col.Name, oriCol.Nullable, col.Nullable)
+				engine.logger.Warn("Table column nullable mismatch", "table", tbName, "column", col.Name, "dbNullable", oriCol.Nullable, "structNullable", col.Nullable)
 			}
 
 			if err != nil {
@@ -423,7 +416,7 @@ func (session *Session) Sync2(beans ...any) error {
 		// check all the columns which removed from struct fields but left on database tables.
 		for _, colName := range oriTable.ColumnsSeq() {
 			if table.GetColumn(colName) == nil {
-				engine.logger.Warnf("Table %s has column %s but struct has not related field", engine.TableName(oriTable.Name, true), colName)
+				engine.logger.Warn("Table has column without related struct field", "table", engine.TableName(oriTable.Name, true), "column", colName)
 			}
 		}
 	}
