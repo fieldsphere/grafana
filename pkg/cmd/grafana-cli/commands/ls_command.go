@@ -3,8 +3,6 @@ package commands
 import (
 	"errors"
 
-	"github.com/fatih/color"
-
 	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
 	"github.com/grafana/grafana/pkg/cmd/grafana-cli/services"
 	"github.com/grafana/grafana/pkg/cmd/grafana-cli/utils"
@@ -19,7 +17,7 @@ var validateLsCommand = func(pluginDir string) error {
 		return errMissingPathFlag
 	}
 
-	logger.Debug("plugindir: " + pluginDir + "\n")
+	logger.Debug("validating plugin directory", "pluginDir", pluginDir)
 	pluginDirInfo, err := services.IoHelper.Stat(pluginDir)
 	if err != nil {
 		return err
@@ -47,8 +45,7 @@ func lsCommand(c utils.CommandLine) error {
 	}
 
 	for _, plugin := range plugins {
-		logger.Infof("%s %s %s\n", plugin.Primary.JSONData.ID,
-			color.YellowString("@"), plugin.Primary.JSONData.Info.Version)
+		logger.Info("installed plugin", "id", plugin.Primary.JSONData.ID, "version", plugin.Primary.JSONData.Info.Version)
 	}
 
 	return nil

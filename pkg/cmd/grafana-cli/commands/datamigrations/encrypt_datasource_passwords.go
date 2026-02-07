@@ -39,20 +39,20 @@ func EncryptDatasourcePasswords(c utils.CommandLine, cfg *setting.Cfg, sqlStore 
 			return err
 		}
 
-		logger.Info("\n")
+		logger.Info("")
 		if passwordsUpdated > 0 {
-			logger.Infof("%s Encrypted password field for %d datasources \n", color.GreenString("✔"), passwordsUpdated)
+			logger.Info("encrypted password field for datasources", "status", color.GreenString("✔"), "count", passwordsUpdated)
 		}
 
 		if basicAuthUpdated > 0 {
-			logger.Infof("%s Encrypted basic_auth_password field for %d datasources \n", color.GreenString("✔"), basicAuthUpdated)
+			logger.Info("encrypted basic_auth_password field for datasources", "status", color.GreenString("✔"), "count", basicAuthUpdated)
 		}
 
 		if passwordsUpdated == 0 && basicAuthUpdated == 0 {
-			logger.Infof("%s All datasources secrets are already encrypted\n", color.GreenString("✔"))
+			logger.Info("all datasources secrets are already encrypted", "status", color.GreenString("✔"))
 		}
 
-		logger.Info("\n")
+		logger.Info("")
 
 		logger.Warn("Warning: Datasource provisioning files need to be manually changed to prevent overwriting of " +
 			"the data during provisioning. See https://grafana.com/docs/installation/upgrading/#upgrading-to-v6-2 for " +

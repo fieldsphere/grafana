@@ -18,7 +18,7 @@ func listRemoteCommand(c utils.CommandLine) error {
 		if len(p.Versions) > 0 {
 			ver := latestSupportedVersion(p)
 			if ver != nil {
-				logger.Infof("id: %v version: %s\n", p.ID, ver.Version)
+				logger.Info("plugin found", "id", p.ID, "version", ver.Version)
 			}
 		}
 	}

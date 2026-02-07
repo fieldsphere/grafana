@@ -15,7 +15,7 @@ import (
 )
 
 func GetPluginInfoFromRepo(pluginId, repoUrl string) (models.Plugin, error) {
-	logger.Debugf("getting plugin metadata from: %v pluginId: %v \n", repoUrl, pluginId)
+	logger.Debug("getting plugin metadata", "repoUrl", repoUrl, "pluginId", pluginId)
 	body, err := sendRequestGetBytes(HttpClient, repoUrl, "repo", pluginId)
 	if err != nil {
 		if errors.Is(err, ErrNotFoundError) {
@@ -28,7 +28,7 @@ func GetPluginInfoFromRepo(pluginId, repoUrl string) (models.Plugin, error) {
 	var data models.Plugin
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		logger.Info("Failed to unmarshal plugin repo response error:", err)
+		logger.Info("failed to unmarshal plugin repo response", "error", err)
 		return models.Plugin{}, err
 	}
 
@@ -39,14 +39,14 @@ func ListAllPlugins(repoUrl string) (models.PluginRepo, error) {
 	body, err := sendRequestGetBytes(HttpClient, repoUrl, "repo")
 
 	if err != nil {
-		logger.Info("Failed to send request", "error", err)
+		logger.Info("failed to send request", "error", err)
 		return models.PluginRepo{}, fmt.Errorf("%v: %w", "Failed to send request", err)
 	}
 
 	var data models.PluginRepo
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		logger.Info("Failed to unmarshal plugin repo response error:", err)
+		logger.Info("failed to unmarshal plugin repo response", "error", err)
 		return models.PluginRepo{}, err
 	}
 
