@@ -144,7 +144,7 @@ func (s *SocialAzureAD) UserInfo(ctx context.Context, client *http.Client, token
 		return nil, fmt.Errorf("failed to extract groups: %w", err)
 	}
 
-	s.log.Debug("AzureAD OAuth: extracted groups", "email", email, "groups", fmt.Sprintf("%v", groups))
+	s.log.Debug("AzureAD OAuth: extracted groups", "email", email, "groups", groups)
 
 	userInfo := &social.BasicUserInfo{
 		Id:     claims.ID,
@@ -168,7 +168,7 @@ func (s *SocialAzureAD) UserInfo(ctx context.Context, client *http.Client, token
 			return nil, errRoleAttributeStrictViolation.Errorf("could not evaluate any valid roles using IdP provided data")
 		}
 
-		s.log.Debug("AzureAD OAuth: mapped org roles", "email", email, "roles", fmt.Sprintf("%v", userInfo.OrgRoles))
+		s.log.Debug("AzureAD OAuth: mapped org roles", "email", email, "roles", userInfo.OrgRoles)
 	}
 
 	if s.info.AllowAssignGrafanaAdmin && s.info.SkipOrgRoleSync {
@@ -538,7 +538,7 @@ func (s *SocialAzureAD) groupsGraphAPIURL(claims *azureClaims, token *oauth2.Tok
 	// First check if an endpoint was specified in the claims
 	if claims.ClaimNames.Groups != "" {
 		endpoint = claims.ClaimSources[claims.ClaimNames.Groups].Endpoint
-		s.log.Debug(fmt.Sprintf("endpoint to fetch groups specified in the claims: %s", endpoint))
+		s.log.Debug("Endpoint to fetch groups specified in the claims", "endpoint", endpoint)
 	}
 
 	// If no endpoint was specified or if the endpoints provided in _claim_source is pointing to the deprecated
@@ -561,7 +561,7 @@ func (s *SocialAzureAD) groupsGraphAPIURL(claims *azureClaims, token *oauth2.Tok
 		}
 
 		endpoint = fmt.Sprintf("https://graph.microsoft.com/v1.0/%s/users/%s/getMemberObjects", tenantID, claims.ID)
-		s.log.Debug(fmt.Sprintf("handcrafted endpoint to fetch groups: %s", endpoint))
+		s.log.Debug("Handcrafted endpoint to fetch groups", "endpoint", endpoint)
 	}
 	return endpoint, nil
 }

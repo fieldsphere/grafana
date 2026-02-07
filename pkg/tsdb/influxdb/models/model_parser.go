@@ -69,7 +69,7 @@ func QueryParse(query backend.DataQuery, logger log.Logger) (*Query, error) {
 	if useRawQuery {
 		statement, err = influxql.ParseStatement(rawQuery)
 		if err != nil {
-			logger.Debug(fmt.Sprintf("Couldn't parse raw query: %v", err), "rawQuery", rawQuery)
+			logger.Debug("Could not parse raw query", "error", err, "rawQuery", rawQuery)
 		}
 	}
 

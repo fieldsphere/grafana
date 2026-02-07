@@ -36,7 +36,7 @@ func (cr *rulesConfigReader) readConfig(ctx context.Context, path string) ([]*Al
 	for _, file := range files {
 		cr.log.Debug("parsing alerting provisioning file", "path", path, "file.Name", file.Name())
 		if !cr.isYAML(file.Name()) && !cr.isJSON(file.Name()) {
-			cr.log.Warn(fmt.Sprintf("file has invalid suffix '%s' (.yaml,.yml,.json accepted), skipping", file.Name()))
+			cr.log.Warn("File has invalid suffix, skipping", "file", file.Name(), "accepted", ".yaml,.yml,.json")
 			continue
 		}
 		alertFileV1, err := cr.parseConfig(path, file)

@@ -1051,7 +1051,7 @@ func (cfg *Cfg) loadConfiguration(args CommandLineArgs) (*ini.File, error) {
 		return nil, err
 	}
 
-	cfg.Logger.Info(fmt.Sprintf("Starting %s", ApplicationName), "version", BuildVersion, "commit", BuildCommit, "branch", BuildBranch, "compiled", time.Unix(BuildStamp, 0))
+	cfg.Logger.Info("Starting application", "name", ApplicationName, "version", BuildVersion, "commit", BuildCommit, "branch", BuildBranch, "compiled", time.Unix(BuildStamp, 0))
 
 	return parsedFile, err
 }
@@ -1528,27 +1528,27 @@ func (cfg *Cfg) handleAWSConfig() {
 	// Also set environment variables that can be used by core plugins
 	err := os.Setenv(awsds.AssumeRoleEnabledEnvVarKeyName, strconv.FormatBool(cfg.AWSAssumeRoleEnabled))
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.AssumeRoleEnabledEnvVarKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "var", awsds.AssumeRoleEnabledEnvVarKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.AllowedAuthProvidersEnvVarKeyName, allowedAuthProviders)
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.AllowedAuthProvidersEnvVarKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "var", awsds.AllowedAuthProvidersEnvVarKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.ListMetricsPageLimitKeyName, strconv.Itoa(cfg.AWSListMetricsPageLimit))
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.ListMetricsPageLimitKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "var", awsds.ListMetricsPageLimitKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.GrafanaAssumeRoleExternalIdKeyName, cfg.AWSExternalId)
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.GrafanaAssumeRoleExternalIdKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "var", awsds.GrafanaAssumeRoleExternalIdKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.SessionDurationEnvVarKeyName, cfg.AWSSessionDuration)
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.SessionDurationEnvVarKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "var", awsds.SessionDurationEnvVarKeyName, "error", err)
 	}
 }
 
