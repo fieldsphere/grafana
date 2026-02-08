@@ -93,7 +93,7 @@ export class FetchQueue {
     logDebug('FetchQueue state', {
       noOfStarted: update.noOfInProgress,
       noOfNotStarted: update.noOfPending,
-      state: entriesWithoutOptions,
+      state: JSON.stringify(entriesWithoutOptions),
     });
   };
 }

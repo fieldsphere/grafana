@@ -144,7 +144,7 @@ export async function getAllSuggestions(data?: PanelData): Promise<SuggestionsRe
     } catch (e) {
       logWarning(`error when loading suggestions from plugin "${plugin.meta.id}"`, {
         pluginId: plugin.meta.id,
-        error: e instanceof Error ? e : new Error(String(e)),
+        error: e instanceof Error ? e.message : String(e),
       });
       pluginSuggestionsError = true;
     }

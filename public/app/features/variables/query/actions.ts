@@ -109,10 +109,10 @@ export const changeQueryVariableDataSource = (
         )
       );
     } catch (err) {
-      logError(err instanceof Error ? err : new Error(String(err)), {
-        message: 'Failed to change query variable data source',
-        identifier,
-      });
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          message: 'Failed to change query variable data source',
+          identifier: JSON.stringify(identifier),
+        });
     }
   };
 };

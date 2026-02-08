@@ -105,7 +105,7 @@ export const Permissions = ({
     logDebug('Permission onChange', {
       resource,
       resourceId,
-      item,
+      item: JSON.stringify(item),
       permission,
     });
     if (item.permission === permission) {

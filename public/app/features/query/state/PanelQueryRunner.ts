@@ -258,7 +258,7 @@ export class PanelQueryRunner {
       }),
       catchError((err) => {
         logWarning('Error running transformation', {
-          error: err instanceof Error ? err : new Error(String(err)),
+          error: err instanceof Error ? err.message : String(err),
         });
         return of({
           ...data,

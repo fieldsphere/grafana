@@ -100,6 +100,7 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
       logError(error instanceof Error ? error : new Error(String(error)), {
         message: 'Failed to load node',
         scopeNodeId,
+        errorMessage: error instanceof Error ? error.message : String(error),
       });
       return undefined;
     }
@@ -110,7 +111,7 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
     if (visited.has(scopeNodeId)) {
       logError(new Error('Circular reference detected in node path'), {
         scopeNodeId,
-        visited: Array.from(visited),
+        visited: JSON.stringify(Array.from(visited)),
       });
       return [];
     }
@@ -443,7 +444,7 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
       if (!Array.isArray(fetchedScopes)) {
         logError(new Error('Expected fetchedScopes to be an array'), {
           actualType: typeof fetchedScopes,
-          scopeIds: scopes.map((s) => s.scopeId),
+          scopeIds: JSON.stringify(scopes.map((s) => s.scopeId)),
         });
         this.updateState({ scopes: newScopesState, loading: false });
         return;
@@ -655,7 +656,8 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
       } catch (error) {
         logError(error instanceof Error ? error : new Error(String(error)), {
           message: 'Failed to expand to selected scope',
-          selectedScopes: this.state.selectedScopes,
+          selectedScopes: JSON.stringify(this.state.selectedScopes),
+          errorMessage: error instanceof Error ? error.message : String(error),
         });
       }
     }
@@ -742,6 +744,7 @@ function parseScopesFromLocalStorage(content: string | undefined): RecentScope[]
     logError(e instanceof Error ? e : new Error(String(e)), {
       message: 'Failed to parse recent scopes',
       content,
+      errorMessage: e instanceof Error ? e.message : String(e),
     });
     return [];
   }

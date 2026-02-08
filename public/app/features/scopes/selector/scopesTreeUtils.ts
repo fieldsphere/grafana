@@ -128,7 +128,7 @@ export const insertPathNodesIntoTree = (tree: TreeNode, path: ScopeNode[]) => {
       if (!childNodeName) {
         logWarning('Failed to insert full path into tree. Did not find child to' + stringPath[index], {
           pathIndex: index,
-          stringPath,
+          stringPath: JSON.stringify(stringPath),
         });
         treeNode.childrenLoaded = treeNode.childrenLoaded ?? false;
         return;

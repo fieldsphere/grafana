@@ -157,7 +157,7 @@ export class LiveDataStream<T = unknown> {
 
   private onError = (err: unknown) => {
     logInfo('LiveQuery [error]', {
-      error: err instanceof Error ? err : new Error(String(err)),
+      error: err instanceof Error ? err.message : String(err),
       channelId: this.deps.channelId,
     });
     this.stream.next({

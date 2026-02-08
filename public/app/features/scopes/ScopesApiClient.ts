@@ -96,7 +96,7 @@ export class ScopesApiClient {
       const errorMessage = getMessageFromError(err);
       logError(err instanceof Error ? err : new Error(String(err)), {
         message: 'Failed to fetch multiple scopes',
-        scopeIds: scopesIds,
+        scopeIds: JSON.stringify(scopesIds),
         errorMessage,
       });
       return [];
@@ -122,7 +122,7 @@ export class ScopesApiClient {
       if ('error' in result) {
         const errorMessage = getMessageFromError(result.error);
         logError(new Error(`Failed to fetch multiple scope nodes: ${errorMessage}`), {
-          nodeNames: names,
+          nodeNames: JSON.stringify(names),
           errorMessage,
         });
       }
@@ -132,7 +132,7 @@ export class ScopesApiClient {
       const errorMessage = getMessageFromError(err);
       logError(err instanceof Error ? err : new Error(String(err)), {
         message: 'Failed to fetch multiple scope nodes',
-        nodeNames: names,
+        nodeNames: JSON.stringify(names),
         errorMessage,
       });
       return [];
@@ -247,7 +247,7 @@ export class ScopesApiClient {
       if ('error' in result) {
         const errorMessage = getMessageFromError(result.error);
         logError(new Error(`Failed to fetch dashboards for scopes: ${errorMessage}`), {
-          scopeNames,
+          scopeNames: JSON.stringify(scopeNames),
           errorMessage,
         });
       }
@@ -257,7 +257,7 @@ export class ScopesApiClient {
       const errorMessage = getMessageFromError(err);
       logError(err instanceof Error ? err : new Error(String(err)), {
         message: 'Failed to fetch dashboards for scopes',
-        scopeNames,
+        scopeNames: JSON.stringify(scopeNames),
         errorMessage,
       });
       return [];
@@ -290,7 +290,7 @@ export class ScopesApiClient {
       if ('error' in result) {
         const errorMessage = getMessageFromError(result.error);
         logError(new Error(`Failed to fetch scope navigations for scopes: ${errorMessage}`), {
-          scopeNames,
+          scopeNames: JSON.stringify(scopeNames),
           errorMessage,
         });
       }
@@ -300,7 +300,7 @@ export class ScopesApiClient {
       const errorMessage = getMessageFromError(err);
       logError(err instanceof Error ? err : new Error(String(err)), {
         message: 'Failed to fetch scope navigations for scopes',
-        scopeNames,
+        scopeNames: JSON.stringify(scopeNames),
         errorMessage,
       });
       return [];

@@ -86,7 +86,7 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
 export function writePerformanceGroupLog(logger: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
     if (data) {
-      logDebug(`${message}`, { logger, data });
+      logDebug(`${message}`, { logger, data: JSON.stringify(data) });
     } else {
       logDebug(message, { logger });
     }
@@ -116,7 +116,11 @@ export function createPerformanceMark(name: string, timestamp?: number): void {
       }
     }
   } catch (error) {
-    logError(error instanceof Error ? error : new Error(String(error)), { source: 'performance-mark', name, timestamp });
+    const context: Record<string, string> = { source: 'performance-mark', name };
+    if (timestamp !== undefined) {
+      context.timestamp = String(timestamp);
+    }
+    logError(error instanceof Error ? error : new Error(String(error)), context);
   }
 }
 

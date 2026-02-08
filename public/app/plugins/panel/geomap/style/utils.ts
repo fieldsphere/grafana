@@ -146,7 +146,7 @@ function getRGBFromRGBString(rgbString: string): ColorValue | null {
     } else {
       logWarning('Unsupported color format', {
         rgbString,
-        matchCount: matches.length,
+        matchCount: String(matches.length),
       });
     }
   } else {

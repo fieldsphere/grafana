@@ -33,8 +33,8 @@ export class LegacyVariableWrapper implements FormatVariable {
     }
 
     logDebug('LegacyVariableWrapper: unexpected text type', {
-      text,
-      value,
+      text: JSON.stringify(text),
+      value: JSON.stringify(value),
       variableName: this.state.name,
     });
     return String(text);

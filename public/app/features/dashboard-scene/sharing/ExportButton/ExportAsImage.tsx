@@ -48,7 +48,7 @@ function ExportAsImageRenderer({ model }: SceneComponentProps<ExportAsImage>) {
 
       return result.blob;
     } catch (error) {
-      logError(error instanceof Error ? error : new Error('Error exporting image'), { error });
+      logError(error instanceof Error ? error : new Error('Error exporting image'), { error: JSON.stringify(error) });
       DashboardInteractions.generateDashboardImageClicked({
         scale: config.rendererDefaultImageScale || 1,
         shareResource: 'dashboard',

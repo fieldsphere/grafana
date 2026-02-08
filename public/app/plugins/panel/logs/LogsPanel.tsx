@@ -32,7 +32,7 @@ import {
   transformDataFrame,
 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { config, getAppEvents } from '@grafana/runtime';
+import { config, getAppEvents, logError, logWarning } from '@grafana/runtime';
 import { ScrollContainer, usePanelContext, useStyles2 } from '@grafana/ui';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { getFieldLinksForExplore } from 'app/features/explore/utils/links';

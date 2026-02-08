@@ -72,7 +72,7 @@ export const maplibreLayer: MapLayerRegistryItem<MaplibreConfig> = {
           if (!res.ok) {
             logWarning('Failed to load MapLibre style', {
               url: cfg.url,
-              status: res.status,
+              status: String(res.status),
               statusText: res.statusText,
             });
             // Try fallback approach

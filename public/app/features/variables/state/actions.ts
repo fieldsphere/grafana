@@ -810,7 +810,7 @@ export const onTimeRangeUpdated =
     } catch (error) {
       logError(error instanceof Error ? error : new Error(String(error)), {
         message: 'Template variable service failed',
-        variableIds,
+        variableIds: JSON.stringify(variableIds),
       });
       dispatch(notifyApp(createVariableErrorNotification('Template variable service failed', error)));
     }
@@ -1041,7 +1041,7 @@ export const updateOptions =
       if (!rethrow) {
         logError(error instanceof Error ? error : new Error(String(error)), {
           message: 'Error updating options',
-          identifier,
+          identifier: JSON.stringify(identifier),
         });
         dispatch(notifyApp(createVariableErrorNotification('Error updating options:', error, identifier)));
       }
@@ -1124,7 +1124,7 @@ export function upgradeLegacyQueries(
       dispatch(notifyApp(createVariableErrorNotification('Failed to upgrade legacy queries', err)));
       logError(err instanceof Error ? err : new Error(String(err)), {
         message: 'Failed to upgrade legacy queries',
-        identifier,
+        identifier: JSON.stringify(identifier),
       });
     }
   };

@@ -1,8 +1,16 @@
-import { faro, LogContext, LogLevel } from '@grafana/faro-web-sdk';
+import { faro, LogContext as FaroLogContext, LogLevel } from '@grafana/faro-web-sdk';
 
 import { config } from '../config';
 
 export { LogLevel };
+
+/**
+ * Context type for structured logging.
+ * Values can be strings, numbers, booleans, or undefined.
+ * Non-string values are automatically converted to strings when sent to Faro.
+ * @public
+ */
+export type LogContext = Record<string, string | number | boolean | undefined>;
 
 /**
  * Configuration for structured logging behavior
@@ -32,6 +40,22 @@ export function configureLogging(newConfig: Partial<LoggingConfig>): void {
 }
 
 /**
+ * Converts a LogContext to FaroLogContext by stringifying all values
+ */
+function toFaroContext(contexts?: LogContext): FaroLogContext | undefined {
+  if (!contexts) {
+    return undefined;
+  }
+  const result: FaroLogContext = {};
+  for (const [key, value] of Object.entries(contexts)) {
+    if (value !== undefined) {
+      result[key] = String(value);
+    }
+  }
+  return result;
+}
+
+/**
  * Formats context for console output
  */
 function formatContextForConsole(contexts?: LogContext): string {
@@ -49,7 +73,7 @@ export function logInfo(message: string, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushLog([message], {
       level: LogLevel.INFO,
-      context: contexts,
+      context: toFaroContext(contexts),
     });
   }
 
@@ -68,7 +92,7 @@ export function logWarning(message: string, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushLog([message], {
       level: LogLevel.WARN,
-      context: contexts,
+      context: toFaroContext(contexts),
     });
   }
 
@@ -87,7 +111,7 @@ export function logDebug(message: string, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushLog([message], {
       level: LogLevel.DEBUG,
-      context: contexts,
+      context: toFaroContext(contexts),
     });
   }
 
@@ -105,7 +129,7 @@ export function logDebug(message: string, contexts?: LogContext) {
 export function logError(err: Error, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushError(err, {
-      context: contexts,
+      context: toFaroContext(contexts),
     });
   }
 
@@ -128,7 +152,7 @@ export function logMeasurement(type: string, values: MeasurementValues, context?
         type,
         values,
       },
-      { context: context }
+      { context: toFaroContext(context) }
     );
   }
 

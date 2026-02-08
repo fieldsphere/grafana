@@ -1,5 +1,5 @@
 import { UrlQueryMap, getTimeZone, getDefaultTimeRange, dateMath } from '@grafana/data';
-import { locationService, logWarning, logDebug } from '@grafana/runtime';
+import { locationService, logWarning } from '@grafana/runtime';
 import { getFolderByUidFacade } from 'app/api/clients/folder/v1beta1/hooks';
 import { updateNavIndex } from 'app/core/reducers/navModel';
 import { buildNavModel } from 'app/features/folders/state/navModel';

@@ -219,7 +219,7 @@ export function runWatchStream(
       .subscribe({
         next: (chunk) => {
           if (!chunk.data || !chunk.ok) {
-            logInfo('Chunk missing data', { chunk });
+            logInfo('Chunk missing data', { chunkInfo: JSON.stringify(chunk) });
             return;
           }
           decoder
@@ -240,13 +240,13 @@ export function runWatchStream(
                     state: LoadingState.Streaming,
                   });
                 } catch (err) {
-                  logWarning('Error parsing line', { line, error: err });
+                  logWarning('Error parsing line', { line, error: err instanceof Error ? err.message : String(err) });
                 }
               }
             });
         },
         error: (err) => {
-          logWarning('Error in stream', { streamId, error: err });
+          logWarning('Error in stream', { streamId, error: err instanceof Error ? err.message : String(err) });
         },
         complete: () => {
           logInfo('Complete stream', { streamId });

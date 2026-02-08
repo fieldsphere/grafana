@@ -151,7 +151,7 @@ export function transformSceneToSaveModelSchemaV2(scene: DashboardScene, isSnaps
     throw new Error('Error we could transform the dashboard to schema v2: ' + dashboardSchemaV2);
   } catch (reason) {
     const error = reason instanceof Error ? reason : new Error(String(reason));
-    logError(error, { dashboardSchemaV2 });
+    logError(error, { dashboardSchemaV2: JSON.stringify(dashboardSchemaV2) });
     throw new Error('Error transforming dashboard to schema v2: ' + reason);
   }
 }

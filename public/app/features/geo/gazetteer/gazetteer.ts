@@ -202,7 +202,7 @@ export async function getGazetteer(path?: string): Promise<Gazetteer> {
     } catch (err) {
       logWarning('Error loading placename lookup', {
         path,
-        error: err instanceof Error ? err : new Error(String(err)),
+        error: err instanceof Error ? err.message : String(err),
       });
       lookup = {
         path,

@@ -13,7 +13,7 @@ export class PanelModelCompatibilityWrapper implements PanelModel {
 
     if (isNaN(id)) {
       logError(new Error('VizPanel key could not be translated to a legacy numeric panel id'), {
-        vizPanel: this._vizPanel,
+        vizPanel: JSON.stringify(this._vizPanel),
       });
       return 0;
     }

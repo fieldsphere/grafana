@@ -83,7 +83,7 @@ export class CentrifugeLiveChannel<T = any> {
       } catch (err) {
         logInfo('publish error', {
           address: this.addr,
-          error: err instanceof Error ? err : new Error(String(err)),
+          error: err instanceof Error ? err.message : String(err),
         });
         this.currentStatus.error = err;
         this.currentStatus.timestamp = Date.now();

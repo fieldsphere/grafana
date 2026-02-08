@@ -107,7 +107,7 @@ export function buildVisualQueryFromString(expr: string): Context {
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    logError(err instanceof Error ? err : new Error(String(err)), {
+    logError(err instanceof Error ? err : new Error(globalThis.String(err)), {
       message: 'Error handling expression',
     });
     if (err instanceof Error) {

@@ -115,7 +115,7 @@ export default function transformTraceData(data: TraceResponse | undefined): Tra
     // make sure span IDs are unique
     const idCount = spanIdCounts.get(spanID);
     if (idCount != null) {
-      logWarning(`Dupe spanID, ${idCount + 1} x ${spanID}`, { spanID, span, existingSpan: spanMap.get(spanID) });
+      logWarning(`Dupe spanID, ${idCount + 1} x ${spanID}`, { spanID, span: JSON.stringify(span), existingSpan: JSON.stringify(spanMap.get(spanID)) });
       if (_isEqual(span, spanMap.get(spanID))) {
         logWarning('two spans with same ID have `isEqual(...) === true`', { spanID });
       }

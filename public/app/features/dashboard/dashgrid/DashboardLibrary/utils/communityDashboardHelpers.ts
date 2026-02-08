@@ -1,6 +1,6 @@
 import { PanelModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { locationService } from '@grafana/runtime';
+import { locationService, logWarning, logError } from '@grafana/runtime';
 import { createErrorNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { DataSourceInput, DashboardJson } from 'app/features/manage-dashboards/types';

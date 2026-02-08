@@ -55,7 +55,7 @@ export const HeatmapPanel = (props: HeatmapPanelProps) => {
       });
     } catch (ex) {
       logError(ex instanceof Error ? ex : new Error(String(ex)), {
-        panelId: id,
+        panelId: String(id),
         source: 'prepareHeatmapData',
       });
       return { warning: `${ex}` };

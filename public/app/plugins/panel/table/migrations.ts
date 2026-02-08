@@ -25,7 +25,7 @@ export const tableMigrationHandler = (panel: PanelModel<Options>): Partial<Optio
   // Table was saved as an angular table, lets just swap to the 'table-old' panel
   if (!panel.pluginVersion && 'columns' in panel) {
     logInfo('Was angular table', {
-      panelId: panel.id,
+      panelId: String(panel.id),
     });
   }
 
