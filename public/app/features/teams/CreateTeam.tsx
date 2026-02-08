@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 
 import { NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { locationService } from '@grafana/runtime';
+import { createMonitoringLogger, locationService } from '@grafana/runtime';
 import { Button, Field, Input, FieldSet, Stack } from '@grafana/ui';
 import { extractErrorMessage } from 'app/api/utils';
 import { Page } from 'app/core/components/Page/Page';
@@ -15,6 +15,8 @@ import { Role } from 'app/types/accessControl';
 import { TeamDTO } from 'app/types/teams';
 
 import { useCreateTeam } from './hooks';
+
+const logger = createMonitoringLogger('grafana.features.teams');
 
 const pageNav: NavModelItem = {
   icon: 'users-alt',
@@ -58,7 +60,7 @@ const CreateTeam = (): JSX.Element => {
       }
     } catch (e) {
       notifyApp.error(t('teams.create-team.failed-to-create', 'Failed to create team'));
-      console.error(e);
+      logger.logError(e);
     }
   };
 

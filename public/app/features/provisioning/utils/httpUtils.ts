@@ -1,7 +1,9 @@
 import { t } from '@grafana/i18n';
-import { isFetchError } from '@grafana/runtime';
+import { createMonitoringLogger, isFetchError } from '@grafana/runtime';
 
 import { HttpError, isHttpError } from '../guards';
+
+const logger = createMonitoringLogger('grafana.features.provisioning.utils');
 
 export interface RepositoryInfo {
   owner: string;
@@ -69,7 +71,7 @@ export async function makeApiRequest(request: ApiRequest) {
 
   if (!response.ok) {
     const errorData = await response.text();
-    console.error('API Error Response:', errorData);
+    logger.logError('API Error Response:', errorData);
     const error: HttpError = new Error(
       t('provisioning.http-utils.http-error', 'HTTP {{status}}: {{statusText}}', {
         status: response.status,

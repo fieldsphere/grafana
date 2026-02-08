@@ -1,4 +1,5 @@
 import { DataFrameView, IconName, fuzzySearch } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { DashboardViewItemWithUIItems } from 'app/features/browse-dashboards/types';
 import { isSharedWithMe } from 'app/features/browse-dashboards/utils/dashboards';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
@@ -6,6 +7,8 @@ import { DashboardDataDTO } from 'app/types/dashboard';
 
 import { AnnoKeyFolder, ResourceList } from '../../apiserver/types';
 import { DashboardSearchHit, DashboardSearchItemType, DashboardViewItem, DashboardViewItemKind } from '../types';
+
+const logger = createMonitoringLogger('grafana.features.search.service');
 
 import { DashboardQueryResult, SearchQuery, SearchResultMeta } from './types';
 import { SearchHit } from './unified';
@@ -34,7 +37,7 @@ async function getCurrentFolderUID(): Promise<string | undefined> {
     }
     return Promise.resolve(dash?.meta?.folderUid);
   } catch (e) {
-    console.error(e);
+    logger.logError(e);
   }
   return undefined;
 }

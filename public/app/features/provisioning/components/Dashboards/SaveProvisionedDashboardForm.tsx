@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom-v5-compat';
 
 import { AppEvents, locationUtil } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { getAppEvents, locationService, reportInteraction } from '@grafana/runtime';
+import { createMonitoringLogger, getAppEvents, locationService, reportInteraction } from '@grafana/runtime';
 import { Dashboard } from '@grafana/schema';
 import { Button, Field, Input, Stack, TextArea, Switch } from '@grafana/ui';
 import { RepositoryView, Unstructured } from 'app/api/clients/provisioning/v0alpha1';
@@ -28,6 +28,8 @@ import { ProvisioningAwareFolderPicker } from '../Shared/ProvisioningAwareFolder
 import { RepoInvalidStateBanner } from '../Shared/RepoInvalidStateBanner';
 import { ResourceEditFormSharedFields } from '../Shared/ResourceEditFormSharedFields';
 import { getProvisionedMeta } from '../utils/getProvisionedMeta';
+
+const logger = createMonitoringLogger('grafana.features.provisioning.components.Dashboards');
 
 import { SaveProvisionedDashboardProps } from './SaveProvisionedDashboard';
 
@@ -178,7 +180,7 @@ export function SaveProvisionedDashboardForm({
   }: ProvisionedDashboardFormData) => {
     // Validate required fields
     if (!repo || !path) {
-      console.error('Missing required fields for saving:', { repo, path });
+      logger.logError('Missing required fields for saving:', { repo, path });
       return;
     }
 
