@@ -2,7 +2,9 @@ import { useMemo } from 'react';
 
 import { ActionType, DataSourceInstanceSettings } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, getDataSourceSrv } from '@grafana/runtime';
+import { config, createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('grafana.features.actions.ConnectionPicker');
 import { Select } from '@grafana/ui';
 
 import { INFINITY_DATASOURCE_TYPE } from './utils';
@@ -78,7 +80,7 @@ export const ConnectionPicker = ({ actionType, datasourceUid, onChange }: Connec
       if (selectedDatasource) {
         onChange(selectedDatasource);
       } else {
-        console.error('ConnectionPicker: Could not find datasource with UID:', selectedValue);
+        logger.logError('ConnectionPicker: Could not find datasource with UID:', selectedValue);
       }
     }
   };
