@@ -30,8 +30,11 @@ import {
 } from '@grafana/schema';
 
 import { getTextColorForAlphaBackground } from '../../../utils/colors';
+import { createLogger } from '../../../utils/logger';
 import { TableCellInspectorMode } from '../TableCellInspector';
 import { TableCellOptions } from '../types';
+
+const logger = createLogger('grafana-ui.TableNG.utils');
 
 import { inferPills } from './Cells/PillCell';
 import { AutoCellRenderer, getAutoRendererDisplayMode, getCellRenderer } from './Cells/renderers';
@@ -1101,7 +1104,11 @@ export function parseStyleJson(rawValue: unknown): CSSProperties | void {
       }
     } catch (e) {
       if (!warnedAboutStyleJsonSet.has(rawValue)) {
-        console.error(`encountered invalid cell style JSON: ${rawValue}`, e);
+        logger.error(
+          `encountered invalid cell style JSON: ${rawValue}`,
+          e instanceof Error ? e : new Error(String(e)),
+          { rawValue }
+        );
         warnedAboutStyleJsonSet.add(rawValue);
       }
     }

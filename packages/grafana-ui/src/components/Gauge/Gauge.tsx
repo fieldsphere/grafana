@@ -16,7 +16,10 @@ import {
 import { VizTextDisplayOptions, VizOrientation, Threshold } from '@grafana/schema';
 
 import { calculateFontSize } from '../../utils/measureText';
+import { createLogger } from '../../utils/logger';
 import { clearButtonStyles } from '../Button/Button';
+
+const logger = createLogger('grafana-ui.Gauge');
 
 import { calculateGaugeAutoProps, DEFAULT_THRESHOLDS, getFormattedThresholds } from './utils';
 
@@ -158,7 +161,9 @@ export class Gauge extends PureComponent<Props> {
         $.plot(this.canvasElement, [plotSeries], options);
       }
     } catch (err) {
-      console.error('Gauge rendering error', err, options, value);
+      logger.error('Gauge rendering error', err instanceof Error ? err : new Error(String(err)), {
+        value: formattedValueToString(value),
+      });
     }
   }
 
