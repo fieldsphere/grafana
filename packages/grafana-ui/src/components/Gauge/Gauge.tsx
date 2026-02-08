@@ -161,8 +161,8 @@ export class Gauge extends PureComponent<Props> {
     } catch (err) {
       logError(err instanceof Error ? err : new Error(String(err)), {
         message: 'Gauge rendering error',
-        options,
-        value,
+        options: JSON.stringify(options),
+        value: JSON.stringify(value),
       });
     }
   }

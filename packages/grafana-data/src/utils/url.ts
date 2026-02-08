@@ -218,8 +218,6 @@ export const urlUtil = {
   serializeParams,
 };
 
-import { logWarning } from '@grafana/runtime';
-
 /**
  * Create an string that is used in URL to represent the Explore state. This is basically just a stringified json
  * that is used as a state of a single Explore pane so it does not represent full Explore URL so some properties

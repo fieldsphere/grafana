@@ -373,8 +373,8 @@ export class Graph extends PureComponent<GraphProps, GraphState> {
     } catch (err) {
       logError(err instanceof Error ? err : new Error(String(err)), {
         message: 'Graph rendering error',
-        flotOptions,
-        series,
+        flotOptions: JSON.stringify(flotOptions),
+        series: JSON.stringify(series),
       });
       throw new Error('Error rendering panel');
     }

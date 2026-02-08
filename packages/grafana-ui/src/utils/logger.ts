@@ -7,7 +7,7 @@ type Args = Parameters<typeof console.log>;
 /**
  * @internal
  * */
-const throttledLog = throttle((message: string, contexts?: { additionalArgs?: unknown[] }) => {
+const throttledLog = throttle((message: string, contexts?: { additionalArgs?: string }) => {
   logDebug(message, contexts);
 }, 500);
 
@@ -35,7 +35,7 @@ export const createLogger = (name: string): Logger => {
         return;
       }
       const message = `[${name}: ${id}]: ${String(t[0] ?? '')}`;
-      const contexts = t.length > 1 ? { additionalArgs: t.slice(1) } : undefined;
+      const contexts = t.length > 1 ? { additionalArgs: JSON.stringify(t.slice(1)) } : undefined;
       if (throttle) {
         throttledLog(message, contexts);
       } else {

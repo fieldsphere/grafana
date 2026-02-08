@@ -37,13 +37,13 @@ export const StatsPicker = memo<Props>(
       if (current.length !== stats.length) {
         const found = current.map((v) => v.id);
         const notFound = difference(stats, found);
-        logWarning('Unknown stats', { notFound, stats });
+        logWarning('Unknown stats', { notFound: JSON.stringify(notFound), stats: JSON.stringify(stats) });
         onChange(current.map((stat) => stat.id));
       }
 
       // Make sure there is only one
       if (!allowMultiple && stats.length > 1) {
-        logWarning('Removing extra stat', { stats });
+        logWarning('Removing extra stat', { stats: JSON.stringify(stats) });
         onChange([stats[0]]);
       }
 
