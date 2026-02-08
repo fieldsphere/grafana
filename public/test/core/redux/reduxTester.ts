@@ -118,6 +118,7 @@ export const reduxTester = <State>(args?: ReduxTesterArguments<State>): ReduxTes
 
   const thenDispatchedActionsShouldEqual = (...actions: AnyAction[]): ReduxTesterWhen<State> => {
     if (debug) {
+      // eslint-disable-next-line no-console
       console.log('Dispatched Actions', JSON.stringify(dispatchedActions, null, 2));
     }
 
@@ -133,6 +134,7 @@ export const reduxTester = <State>(args?: ReduxTesterArguments<State>): ReduxTes
     predicate: (dispatchedActions: AnyAction[]) => boolean
   ): ReduxTesterWhen<State> => {
     if (debug) {
+      // eslint-disable-next-line no-console
       console.log('Dispatched Actions', JSON.stringify(dispatchedActions, null, 2));
     }
 
@@ -142,6 +144,7 @@ export const reduxTester = <State>(args?: ReduxTesterArguments<State>): ReduxTes
 
   const thenNoActionsWhereDispatched = (): ReduxTesterWhen<State> => {
     if (debug) {
+      // eslint-disable-next-line no-console
       console.log('Dispatched Actions', JSON.stringify(dispatchedActions, null, 2));
     }
 

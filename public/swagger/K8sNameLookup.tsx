@@ -41,11 +41,13 @@ export function K8sNameLookup(props: Props) {
           },
         });
         if (!response.ok) {
+          // eslint-disable-next-line no-console
           console.warn('error loading names');
           setLoading(false);
           return;
         }
         const table = await response.json();
+        // eslint-disable-next-line no-console
         console.log('LIST', url, table);
         const options: Array<SelectableValue<string>> = [];
         if (table.rows?.length) {

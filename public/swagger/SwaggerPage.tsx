@@ -55,6 +55,7 @@ export const Page = () => {
   const namespace = useAsync(async () => {
     const response = await fetch('api/frontend/settings');
     if (!response.ok) {
+      // eslint-disable-next-line no-console
       console.warn('No settings found');
       return 'default';
     }
@@ -65,6 +66,7 @@ export const Page = () => {
   useAsync(async () => {
     const response = await fetch('api/user');
     if (!response.ok) {
+      // eslint-disable-next-line no-console
       console.warn('No user found, show login button');
       return;
     }
