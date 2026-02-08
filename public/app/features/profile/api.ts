@@ -1,14 +1,16 @@
-import { getBackendSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getBackendSrv } from '@grafana/runtime';
 import { Team } from 'app/types/teams';
 import { UserDTO, UserOrg, UserSession } from 'app/types/user';
 
 import { ChangePasswordFields, ProfileUpdateFields } from './types';
 
+const logger = createMonitoringLogger('grafana.features.profile');
+
 async function changePassword(payload: ChangePasswordFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user/password', payload);
   } catch (err) {
-    console.error(err);
+    logger.logError(err);
   }
 }
 
@@ -42,7 +44,7 @@ async function updateUserProfile(payload: ProfileUpdateFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user', payload);
   } catch (err) {
-    console.error(err);
+    logger.logError(err);
   }
 }
 

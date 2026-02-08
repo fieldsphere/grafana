@@ -15,12 +15,14 @@ import {
   type PluginExtensionAddedLinkConfig,
   urlUtil,
 } from '@grafana/data';
-import { reportInteraction, config } from '@grafana/runtime';
+import { reportInteraction, config, createMonitoringLogger } from '@grafana/runtime';
 import { getAppPluginMetas } from '@grafana/runtime/internal';
 import { Modal } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { isRecord } from 'app/core/utils/isRecord';
 import { getPluginSettings } from 'app/features/plugins/pluginSettings';
+
+const logger = createMonitoringLogger('grafana.features.plugins.extensions.utils');
 import {
   CloseExtensionSidebarEvent,
   OpenExtensionSidebarEvent,
@@ -49,7 +51,7 @@ export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
       return fn(...args);
     } catch (e) {
       if (e instanceof Error) {
-        console.warn(`${errorMessagePrefix}${e.message}`);
+        logger.logWarning(`${errorMessagePrefix}${e.message}`, { error: e.message, stack: e.stack });
       }
     }
   };

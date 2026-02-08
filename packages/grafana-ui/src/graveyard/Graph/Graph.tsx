@@ -10,6 +10,9 @@ import { TooltipDisplayMode } from '@grafana/schema';
 
 import { VizTooltipProps, VizTooltipContentProps, ActiveDimensions, VizTooltip } from '../../components/VizTooltip';
 import { FlotPosition } from '../../components/VizTooltip/VizTooltip';
+import { createLogger } from '../../utils/logger';
+
+const logger = createLogger('grafana-ui.Graph');
 
 import { GraphContextMenu, GraphContextMenuProps, ContextDimensions } from './GraphContextMenu';
 import { GraphTooltip } from './GraphTooltip/GraphTooltip';
@@ -370,7 +373,9 @@ export class Graph extends PureComponent<GraphProps, GraphState> {
         flotOptions
       );
     } catch (err) {
-      console.error('Graph rendering error', err, flotOptions, series);
+      logger.error('Graph rendering error', err instanceof Error ? err : new Error(String(err)), {
+        seriesCount: series.length,
+      });
       throw new Error('Error rendering panel');
     }
   }

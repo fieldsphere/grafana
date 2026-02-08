@@ -1,8 +1,10 @@
 import { Subscription } from 'rxjs';
 
 import { DataSourceRef } from '@grafana/data';
-import { getDataSourceSrv, toDataQueryError } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv, toDataQueryError } from '@grafana/runtime';
 import { ThunkResult } from 'app/types/store';
+
+const logger = createMonitoringLogger('grafana.features.variables.query');
 
 import { getVariableQueryEditor } from '../editor/getVariableQueryEditor';
 import { addVariableEditorError, changeVariableEditorExtended, removeVariableEditorError } from '../editor/reducer';
@@ -109,7 +111,7 @@ export const changeQueryVariableDataSource = (
         )
       );
     } catch (err) {
-      console.error(err);
+      logger.logError('Error changing query variable datasource', err);
     }
   };
 };

@@ -5,6 +5,9 @@ import {
   QueryBuilderOperation,
   VisualQueryBinary,
 } from '@grafana/plugin-ui';
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('grafana.plugins.datasource.loki');
 
 import { operationDefinitions } from './operations';
 import { LokiOperationId, LokiQueryPattern, LokiQueryPatternType, LokiVisualQueryOperationCategory } from './types';
@@ -30,7 +33,7 @@ export class LokiQueryModeller extends QueryModellerBase {
       }
       const def = this.operationsRegistry.getIfExists(operation.id);
       if (!def) {
-        console.error(`Could not find operation ${operation.id} in the registry`);
+        logger.logError(`Could not find operation ${operation.id} in the registry`);
         continue;
       }
       queryString = def.renderer(operation, def, queryString);

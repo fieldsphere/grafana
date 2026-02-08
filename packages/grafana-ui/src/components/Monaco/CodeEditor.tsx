@@ -6,7 +6,10 @@ import { GrafanaTheme2, monacoLanguageRegistry } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
 import { withTheme2 } from '../../themes/ThemeContext';
+import { createLogger } from '../../utils/logger';
 import { Themeable2 } from '../../types/theme';
+
+const logger = createLogger('grafana-ui.CodeEditor');
 
 import { ReactMonacoEditorLazy } from './ReactMonacoEditorLazy';
 import { registerSuggestions } from './suggestions';
@@ -43,7 +46,7 @@ class UnthemedCodeEditor extends PureComponent<Props> {
       }
 
       if (!this.monaco) {
-        console.warn('Monaco instance not loaded yet');
+        logger.warn('Monaco instance not loaded yet');
         return;
       }
 

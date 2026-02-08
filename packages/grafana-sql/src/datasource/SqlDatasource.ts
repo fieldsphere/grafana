@@ -27,6 +27,7 @@ import {
   toDataQueryResponse,
   TemplateSrv,
   reportInteraction,
+  createMonitoringLogger,
 } from '@grafana/runtime';
 
 import { ResponseParser } from '../ResponseParser';
@@ -34,6 +35,8 @@ import { SqlQueryEditorLazy } from '../components/QueryEditorLazy';
 import { MACRO_NAMES } from '../constants';
 import { DB, SQLQuery, SQLOptions, SqlQueryModel, QueryFormat, SQLDialect } from '../types';
 import migrateAnnotation from '../utils/migration';
+
+const logger = createMonitoringLogger('grafana-sql.datasource');
 
 export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLOptions> {
   uid: string;
@@ -215,7 +218,7 @@ export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLO
     try {
       response = await this.runMetaQuery(interpolatedQuery, range);
     } catch (error) {
-      console.error(error);
+      logger.logError(error instanceof Error ? error : new Error(String(error)));
       throw new Error('error when executing the sql query');
     }
     return this.getResponseParser().transformMetricFindResponse(response);

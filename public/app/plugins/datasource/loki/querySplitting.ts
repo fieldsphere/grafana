@@ -173,7 +173,7 @@ export function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        logger.logError(e);
         shouldStop = true;
         return false;
       }

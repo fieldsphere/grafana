@@ -7,7 +7,7 @@ import { firstValueFrom } from 'rxjs';
 import { AppEvents, PanelData, SelectableValue, LoadingState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { locationService } from '@grafana/runtime';
+import { createMonitoringLogger, locationService } from '@grafana/runtime';
 import { Button, CodeEditor, Field, Select, useStyles2 } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { DashboardModel } from 'app/features/dashboard/state/DashboardModel';
@@ -16,6 +16,8 @@ import { PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { getPanelDataFrames } from '../dashboard/components/HelpWizard/utils';
 import { getPanelInspectorStyles2 } from '../inspector/styles';
 import { reportPanelInspectInteraction } from '../search/page/reporting';
+
+const logger = createMonitoringLogger('grafana.features.inspector');
 
 import { InspectTab } from './types';
 import { getPrettyJSON } from './utils/utils';
@@ -104,7 +106,7 @@ export function InspectJSONTab({ panel, dashboard, data, onClose }: Props) {
           appEvents.emit(AppEvents.alertSuccess, ['Panel model updated']);
         }
       } catch (err) {
-        console.error('Error applying updates', err);
+        logger.logError('Error applying updates', err);
         appEvents.emit(AppEvents.alertError, ['Invalid JSON text']);
       }
 

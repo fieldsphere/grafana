@@ -2,6 +2,7 @@
 import { isArray, isBoolean, isNumber, isString } from 'lodash';
 
 import { isDateTime } from '../datetime/moment_wrapper';
+import { logWarning } from '../utils/logger';
 import { fieldIndexComparer } from '../field/fieldComparers';
 import { getFieldDisplayName } from '../field/fieldState';
 import { Column, LoadingState, TableData, TimeSeries, TimeSeriesValue } from '../types/data';
@@ -340,7 +341,7 @@ export function toDataFrame(data: any): DataFrame {
     return arrayToDataFrame(data);
   }
 
-  console.warn('Can not convert', data);
+  logWarning('grafana-data.processDataFrame', 'Can not convert data', { dataType: typeof data });
   throw new Error('Unsupported data format');
 }
 

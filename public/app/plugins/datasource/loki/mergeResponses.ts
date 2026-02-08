@@ -11,6 +11,9 @@ import {
   QueryResultMetaStat,
   shallowCompare,
 } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('grafana.plugins.datasource.loki');
 
 import { LOADING_FRAME_NAME } from './querySplitting';
 
@@ -142,7 +145,7 @@ export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const sourceIdField = source.fields.find((field) => field.type === FieldType.string && field.name === 'id');
 
   if (!destTimeField || !sourceTimeField) {
-    console.error(new Error(`Time fields not found in the data frames`));
+    logger.logError(new Error(`Time fields not found in the data frames`));
     return;
   }
 

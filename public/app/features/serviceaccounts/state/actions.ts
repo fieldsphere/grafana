@@ -1,6 +1,6 @@
 import { debounce } from 'lodash';
 
-import { getBackendSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getBackendSrv } from '@grafana/runtime';
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -8,6 +8,8 @@ import { ServiceAccountDTO, ServiceAccountStateFilter } from 'app/types/servicea
 import { ThunkResult } from 'app/types/store';
 
 import { ServiceAccountToken } from '../components/CreateTokenModal';
+
+const logger = createMonitoringLogger('grafana.features.serviceaccounts.state');
 
 import {
   acOptionsLoaded,
@@ -31,7 +33,7 @@ export function fetchACOptions(): ThunkResult<void> {
         dispatch(acOptionsLoaded(options));
       }
     } catch (error) {
-      console.error(error);
+      logger.logError(error);
     }
   };
 }
@@ -76,7 +78,7 @@ export function fetchServiceAccounts(
         dispatch(serviceAccountsFetched(result));
       }
     } catch (error) {
-      console.error(error);
+      logger.logError(error);
     } finally {
       dispatch(serviceAccountsFetchEnd());
     }

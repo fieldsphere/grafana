@@ -5,7 +5,9 @@ import * as React from 'react';
 import { FixedSizeList } from 'react-window';
 
 import { CoreApp, GrafanaTheme2, TimeRange } from '@grafana/data';
-import { reportInteraction } from '@grafana/runtime';
+import { createMonitoringLogger, reportInteraction } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('grafana.plugins.datasource.loki');
 import {
   Button,
   HighlightPart,
@@ -376,7 +378,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
       const values: FacettableValue[] = rawValues.map((value) => ({ name: value }));
       this.updateLabelState(name, { values, loading: false });
     } catch (error) {
-      console.error(error);
+      logger.logError(error);
     }
   }
 
@@ -404,7 +406,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
         this.updateLabelState(lastFacetted, { loading: false });
       }
     } catch (error) {
-      console.error(error);
+      logger.logError(error);
     }
   }
 

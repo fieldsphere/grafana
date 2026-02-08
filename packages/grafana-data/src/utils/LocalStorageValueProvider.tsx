@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 import * as React from 'react';
 
 import { store } from './store';
+import { createDataLogger } from '../utils/logger';
+
+const logger = createDataLogger('grafana-data.LocalStorageValueProvider');
 
 export interface Props<T> {
   storageKey: string;
@@ -32,7 +35,7 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.setObject(storageKey, value);
     } catch (error) {
-      console.error(error);
+      logger.error('Failed to save value to store', error instanceof Error ? error : undefined, { storageKey });
     }
     setState({ value });
   };
@@ -41,7 +44,7 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.delete(storageKey);
     } catch (error) {
-      console.log(error);
+      logger.error('Failed to delete value from store', error instanceof Error ? error : undefined, { storageKey });
     }
     setState({ value: defaultValue });
   };

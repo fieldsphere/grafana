@@ -8,6 +8,10 @@ import 'jquery';
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('grafana.bootstrap');
+
 import {
   locationUtil,
   monacoLanguageRegistry,
@@ -145,7 +149,7 @@ export class GrafanaApp {
         try {
           await initOpenFeature();
         } catch (err) {
-          console.error('Failed to initialize OpenFeature provider', err);
+          logger.logError(err, { message: 'Failed to initialize OpenFeature provider' });
         }
       }
 
@@ -284,7 +288,7 @@ export class GrafanaApp {
       try {
         cleanupOldExpandedFolders();
       } catch (err) {
-        console.warn('Failed to clean up old expanded folders', err);
+        logger.logWarning(err, { message: 'Failed to clean up old expanded folders' });
       }
 
       this.context = {
@@ -314,7 +318,7 @@ export class GrafanaApp {
 
       await postInitTasks();
     } catch (error) {
-      console.error('Failed to start Grafana', error);
+      logger.logError(error, { message: 'Failed to start Grafana' });
       window.__grafana_load_failed();
     } finally {
       stopMeasure('frontend_app_init');

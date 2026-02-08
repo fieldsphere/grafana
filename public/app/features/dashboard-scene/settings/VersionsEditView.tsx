@@ -1,9 +1,12 @@
 import * as React from 'react';
 
 import { PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase, sceneGraph } from '@grafana/scenes';
 import { Spinner, Stack } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
+
+const logger = createMonitoringLogger('grafana.features.dashboard-scene.settings.VersionsEditView');
 import { Resource } from 'app/features/apiserver/types';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
 import {
@@ -108,7 +111,7 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => logger.logDebug(err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

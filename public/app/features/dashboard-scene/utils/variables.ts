@@ -1,5 +1,5 @@
 import { AdHocVariableFilter, TypedVariableModel } from '@grafana/data';
-import { config, getDataSourceSrv } from '@grafana/runtime';
+import { config, getDataSourceSrv, createMonitoringLogger } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   ConstantVariable,
@@ -16,6 +16,8 @@ import {
 } from '@grafana/scenes';
 import { DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 
+const logger = createMonitoringLogger('grafana.features.dashboard-scene.utils.variables');
+
 import { SnapshotVariable } from '../serialization/custom-variables/SnapshotVariable';
 
 import { getCurrentValueForOldIntervalModel, getIntervalsFromQueryString } from './utils';
@@ -28,7 +30,7 @@ export function createVariablesForDashboard(oldModel: DashboardModel) {
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        logger.logError(err);
         return null;
       }
     })
@@ -74,7 +76,7 @@ export function createVariablesForSnapshot(oldModel: DashboardModel) {
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        logger.logError(err);
         return null;
       }
     })

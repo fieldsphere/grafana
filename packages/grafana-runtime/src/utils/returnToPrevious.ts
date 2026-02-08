@@ -16,6 +16,7 @@ export const useReturnToPrevious: ReturnToPreviousHook = () => {
     if (process.env.NODE_ENV !== 'production') {
       throw new Error('useReturnToPrevious hook not found in @grafana/runtime');
     }
+    // eslint-disable-next-line no-console
     return () => console.error('ReturnToPrevious hook not found');
   }
 

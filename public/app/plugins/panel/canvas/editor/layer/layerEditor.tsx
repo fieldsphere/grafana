@@ -2,7 +2,10 @@ import { get as lodashGet } from 'lodash';
 
 import { NestedPanelOptions, NestedValueAccess } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { ElementState } from 'app/features/canvas/runtime/element';
+
+const logger = createMonitoringLogger('grafana.plugins.panel.canvas');
 import { FrameState } from 'app/features/canvas/runtime/frame';
 import { Scene } from 'app/features/canvas/runtime/scene';
 import { setOptionImmutably } from 'app/features/dashboard/components/PanelEditor/utils';
@@ -53,7 +56,7 @@ export function getLayerEditor(opts: InstanceState): NestedPanelOptions<LayerEdi
       },
       onChange: (path, value) => {
         if (path === 'type' && value) {
-          console.warn('unable to change layer type');
+          logger.logWarning('unable to change layer type');
           return;
         }
         const c = setOptionImmutably(options, path, value);

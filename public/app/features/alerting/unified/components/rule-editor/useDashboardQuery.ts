@@ -1,8 +1,11 @@
 import memoizeOne from 'memoize-one';
 import { useEffect, useState } from 'react';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Spec as DashboardV2Spec } from '@grafana/schema/dist/esm/schema/dashboard/v2';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
+
+const logger = createMonitoringLogger('grafana.features.alerting.unified.components.rule-editor.useDashboardQuery');
 import { DashboardWithAccessInfo } from 'app/features/dashboard/api/types';
 import { isDashboardV2Resource } from 'app/features/dashboard/api/utils';
 import { DashboardDTO } from 'app/types/dashboard';
@@ -36,7 +39,7 @@ export function useDashboardQuery(dashboardUid?: string) {
           } else if (isDashboardV2Resource(dashboardDTO)) {
             setDashboard(dashboardDTO);
           } else {
-            console.error('Something went wrong, unexpected dashboard format');
+            logger.logError('Something went wrong, unexpected dashboard format');
           }
           setIsFetching(false);
         });

@@ -268,6 +268,7 @@ export const printGraph = (g: Graph) => {
     if (!inputEdges) {
       inputEdges = '<none>';
     }
+    // eslint-disable-next-line no-console
     console.log(`${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
   });
 };

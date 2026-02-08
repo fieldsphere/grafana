@@ -63,6 +63,7 @@ export const WrappedPlugins = function () {
           if (mime) {
             v = mime.get('schema').toJS();
           }
+          // eslint-disable-next-line no-console
           console.log('RequestBody', v, mime, props);
         }
         // console.log('RequestBody PROPS', props);
@@ -75,6 +76,7 @@ export const WrappedPlugins = function () {
 
       modelExample: (Original: React.ElementType) => (props: UntypedProps) => {
         if (props.isExecute && props.schema) {
+          // eslint-disable-next-line no-console
           console.log('modelExample PROPS', props);
           return (
             <SchemaContext.Provider value={props.schema.toJS()}>
@@ -128,6 +130,7 @@ export const WrappedPlugins = function () {
                     },
                   });
                 };
+                // eslint-disable-next-line no-console
                 console.log('CodeEditor', schema);
 
                 return (

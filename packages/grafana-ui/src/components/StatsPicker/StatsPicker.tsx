@@ -3,7 +3,10 @@ import { memo, useEffect } from 'react';
 
 import { fieldReducers, SelectableValue, FieldReducerInfo } from '@grafana/data';
 
+import { createLogger } from '../../utils/logger';
 import { Select } from '../Select/Select';
+
+const logger = createLogger('grafana-ui.StatsPicker');
 
 export interface Props {
   placeholder?: string;
@@ -36,13 +39,13 @@ export const StatsPicker = memo<Props>(
       if (current.length !== stats.length) {
         const found = current.map((v) => v.id);
         const notFound = difference(stats, found);
-        console.warn('Unknown stats', notFound, stats);
+        logger.warn('Unknown stats', { notFound: notFound.join(', '), stats: stats.join(', ') });
         onChange(current.map((stat) => stat.id));
       }
 
       // Make sure there is only one
       if (!allowMultiple && stats.length > 1) {
-        console.warn('Removing extra stat', stats);
+        logger.warn('Removing extra stat', { stats: stats.join(', ') });
         onChange([stats[0]]);
       }
 

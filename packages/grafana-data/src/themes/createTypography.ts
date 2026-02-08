@@ -3,6 +3,7 @@
 // Copyright (c) 2014 Call-Em-All
 import { z } from 'zod';
 
+import { logError } from '../utils/logger';
 import { ThemeColors } from './createColors';
 
 /** @beta */
@@ -76,11 +77,11 @@ export function createTypography(colors: ThemeColors, typographyInput: ThemeTypo
 
   if (process.env.NODE_ENV !== 'production') {
     if (typeof fontSize !== 'number') {
-      console.error('Grafana-UI: `fontSize` is required to be a number.');
+      logError('grafana-data.themes.createTypography', 'fontSize is required to be a number');
     }
 
     if (typeof htmlFontSize !== 'number') {
-      console.error('Grafana-UI: `htmlFontSize` is required to be a number.');
+      logError('grafana-data.themes.createTypography', 'htmlFontSize is required to be a number');
     }
   }
 

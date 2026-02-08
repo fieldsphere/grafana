@@ -13,12 +13,14 @@ import {
 } from '@grafana/data';
 import { FilterFieldsByNameTransformerOptions } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
-import { getTemplateSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getTemplateSrv } from '@grafana/runtime';
 import { Input, FilterPill, InlineFieldRow, InlineField, InlineSwitch, Select } from '@grafana/ui';
 
 import { getTransformationContent } from '../docs/getTransformationContent';
 import darkImage from '../images/dark/filterFieldsByName.svg';
 import lightImage from '../images/light/filterFieldsByName.svg';
+
+const logger = createMonitoringLogger('grafana.features.transformers.editors');
 
 interface FilterByNameTransformerEditorProps extends TransformerUIProps<FilterFieldsByNameTransformerOptions> {}
 
@@ -102,7 +104,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        logger.logError(error);
       }
     }
 

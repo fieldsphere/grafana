@@ -47,6 +47,7 @@ import {
   TemplateSrv,
   getTemplateSrv,
   config,
+  createMonitoringLogger,
 } from '@grafana/runtime';
 
 import { IndexPattern, intervalMap } from './IndexPattern';
@@ -84,6 +85,8 @@ import {
   QueryType,
 } from './types';
 import { getScriptValue, isTimeSeriesQuery } from './utils';
+
+const logger = createMonitoringLogger('grafana.plugins.datasource.elasticsearch');
 
 export const REF_ID_STARTER_LOG_VOLUME = 'log-volume-';
 export const REF_ID_STARTER_LOG_SAMPLE = 'log-sample-';
@@ -1172,12 +1175,12 @@ export class ElasticDatasource
         try {
           return new SemVer(versionNumber);
         } catch (error) {
-          console.error(error);
+          logger.logError(error);
           return null;
         }
       },
       (error) => {
-        console.error(error);
+        logger.logError(error);
         return null;
       }
     );

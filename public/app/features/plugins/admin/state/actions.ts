@@ -2,9 +2,11 @@ import { createAction, createAsyncThunk, Update } from '@reduxjs/toolkit';
 import { from, forkJoin, timeout, lastValueFrom, catchError, of } from 'rxjs';
 
 import { PanelPlugin, PluginError } from '@grafana/data';
-import { config, getBackendSrv, isFetchError } from '@grafana/runtime';
+import { config, getBackendSrv, isFetchError, createMonitoringLogger } from '@grafana/runtime';
 import { importPanelPlugin } from 'app/features/plugins/importPanelPlugin';
 import { StoreState, ThunkResult } from 'app/types/store';
+
+const logger = createMonitoringLogger('grafana.features.plugins.admin.state.actions');
 
 import { clearPluginInfoInCache } from '../../loader/pluginInfoCache';
 import {
@@ -38,7 +40,7 @@ export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, t
     const remote$ = from(getRemotePlugins()).pipe(
       catchError((err) => {
         thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchRemote/rejected` });
-        console.error(err);
+        logger.logError(err instanceof Error ? err : new Error(String(err)), {});
         return of([]);
       })
     );
@@ -113,7 +115,9 @@ export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, t
           }
         },
         (error) => {
-          console.log(error);
+          logger.logDebug('Error fetching plugins', {
+            error: error instanceof Error ? error.message : String(error),
+          });
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchLocal/rejected` });
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchRemote/rejected` });
           return thunkApi.rejectWithValue('Unknown error.');
@@ -227,7 +231,7 @@ export const install = createAsyncThunk<
 
     return { id, changes };
   } catch (e) {
-    console.error(e);
+    logger.logError(e instanceof Error ? e : new Error(String(e)), { pluginId: id });
     if (isFetchError(e)) {
       // add id to identify errors in multiple requests
       e.data.id = id;
@@ -254,7 +258,7 @@ export const uninstall = createAsyncThunk<Update<CatalogPlugin, string>, string>
         changes: { isInstalled: false, installedVersion: undefined, isFullyInstalled: false },
       };
     } catch (e) {
-      console.error(e);
+      logger.logError(e instanceof Error ? e : new Error(String(e)), { pluginId: id });
 
       return thunkApi.rejectWithValue('Unknown error.');
     }

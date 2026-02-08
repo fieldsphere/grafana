@@ -2,7 +2,7 @@ import * as H from 'history';
 
 import { CoreApp, DataQueryRequest, FieldConfig, locationUtil, NavIndex, NavModelItem, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, locationService, RefreshEvent } from '@grafana/runtime';
+import { config, locationService, RefreshEvent, createMonitoringLogger } from '@grafana/runtime';
 import {
   sceneGraph,
   SceneObject,
@@ -15,6 +15,8 @@ import {
   SceneVariableDependencyConfigLike,
   VizPanel,
 } from '@grafana/scenes';
+
+const logger = createMonitoringLogger('grafana.features.dashboard-scene.scene.DashboardScene');
 import { Dashboard, DashboardLink, LibraryPanel } from '@grafana/schema';
 import { Spec as DashboardV2Spec } from '@grafana/schema/dist/esm/schema/dashboard/v2';
 import { appEvents } from 'app/core/app_events';
@@ -324,7 +326,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
 
   public exitEditMode({ skipConfirm, restoreInitialState }: { skipConfirm: boolean; restoreInitialState?: boolean }) {
     if (!this.canDiscard()) {
-      console.error('Trying to discard back to a state that does not exist, initialState undefined');
+      logger.logError('Trying to discard back to a state that does not exist, initialState undefined');
       return;
     }
 
@@ -426,7 +428,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
    */
   public discardChangesAndKeepEditing() {
     if (!this.canDiscard()) {
-      console.error('Trying to discard back to a state that does not exist, initialState undefined');
+      logger.logError('Trying to discard back to a state that does not exist, initialState undefined');
       return;
     }
 
@@ -627,7 +629,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
         clearClipboard();
         store.set(LS_PANEL_COPY_KEY, JSON.stringify({ elements, gridItem: gridItemKind }));
       } else {
-        console.error('Trying to copy a panel that is not DashboardGridItem child');
+        logger.logError('Trying to copy a panel that is not DashboardGridItem child');
         throw new Error('Trying to copy a panel that is not DashboardGridItem child');
       }
       return;
@@ -640,7 +642,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
     let gridItem = vizPanel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Trying to copy a panel that is not DashboardGridItem child');
+      logger.logError('Trying to copy a panel that is not DashboardGridItem child');
       throw new Error('Trying to copy a panel that is not DashboardGridItem child');
     }
 
@@ -790,7 +792,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
 
       appEvents.emit('alert-success', ['Panel styles applied.']);
     } catch (e) {
-      console.error('Error pasting panel styles:', e);
+      logger.logError('Error pasting panel styles:', e);
       appEvents.emit('alert-error', ['Error pasting panel styles.']);
       DashboardInteractions.panelStylesMenuClicked(
         'paste',
@@ -823,7 +825,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
       return;
     }
 
-    console.error('Trying to unlink a lib panel in a layout that is not DashboardGridItem or AutoGridItem');
+    logger.logError('Trying to unlink a lib panel in a layout that is not DashboardGridItem or AutoGridItem');
   }
 
   public showModal(modal: SceneObject) {
@@ -850,7 +852,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
         },
       });
     } catch (err) {
-      console.error('Failed to star dashboard', err);
+      logger.logError('Failed to star dashboard', err);
     }
   }
 

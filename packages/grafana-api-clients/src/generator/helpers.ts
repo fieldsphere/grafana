@@ -71,11 +71,13 @@ export const runGenerateApis =
         command = 'yarn workspace @grafana/api-clients generate-apis';
       }
 
+      // eslint-disable-next-line no-console
       console.log(`⏳ Running ${command} to generate endpoints...`);
       execSync(command, { stdio: 'inherit', cwd: basePath });
       return '✅ API endpoints generated successfully!';
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
+      // eslint-disable-next-line no-console
       console.error('❌ Failed to generate API endpoints:', errorMessage);
       return '❌ Failed to generate API endpoints. See error above.';
     }
@@ -85,6 +87,7 @@ export const formatFiles =
   (basePath: string): PlopActionFunction =>
   (_, config) => {
     if (!config || !Array.isArray(config.files)) {
+      // eslint-disable-next-line no-console
       console.error('Invalid config passed to formatFiles action');
       return '❌ Formatting failed: Invalid configuration';
     }
@@ -94,26 +97,31 @@ export const formatFiles =
     try {
       const filesList = filesToFormat.map((file: string) => `"${file}"`).join(' ');
 
+      // eslint-disable-next-line no-console
       console.log('🧹 Running ESLint on generated/modified files...');
       try {
         execSync(`yarn eslint --fix ${filesList}`, { cwd: basePath });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
+        // eslint-disable-next-line no-console
         console.warn(`⚠️ Warning: ESLint encountered issues: ${errorMessage}`);
       }
 
+      // eslint-disable-next-line no-console
       console.log('🧹 Running Prettier on generated/modified files...');
       try {
         // '--ignore-path' is necessary so the gitignored files ('local/' folder) can still be formatted
         execSync(`yarn prettier --write ${filesList} --ignore-path=./.prettierignore`, { cwd: basePath });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
+        // eslint-disable-next-line no-console
         console.warn(`⚠️ Warning: Prettier encountered issues: ${errorMessage}`);
       }
 
       return '✅ Files linted and formatted successfully!';
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
+      // eslint-disable-next-line no-console
       console.error('⚠️ Warning: Formatting operations failed:', errorMessage);
       return '⚠️ Warning: Formatting operations failed.';
     }
@@ -163,6 +171,7 @@ export const updatePackageJsonExports =
       return `✅ Added export for ${newExportKey} to package.json`;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
+      // eslint-disable-next-line no-console
       console.error('❌ Failed to update package.json exports:', errorMessage);
       return '❌ Failed to update package.json exports. See error above.';
     }

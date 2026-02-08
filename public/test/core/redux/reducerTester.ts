@@ -82,6 +82,7 @@ export const reducerTester = <State>(): Given<State> => {
 
   const thenStateShouldEqual = (state: State): When<State> => {
     if (showDebugOutput) {
+      // eslint-disable-next-line no-console
       console.log(JSON.stringify(resultingState, null, 2));
     }
     expect(resultingState).toEqual(state);
@@ -91,6 +92,7 @@ export const reducerTester = <State>(): Given<State> => {
 
   const thenStatePredicateShouldEqual = (predicate: (resultingState: State) => boolean): When<State> => {
     if (showDebugOutput) {
+      // eslint-disable-next-line no-console
       console.log(JSON.stringify(resultingState, null, 2));
     }
     expect(predicate(resultingState)).toBe(true);

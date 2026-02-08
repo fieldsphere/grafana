@@ -13,12 +13,15 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { FrameGeometrySourceMode } from '@grafana/schema';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { useTheme2 } from '@grafana/ui';
 import { addLocationFields } from 'app/features/geo/editor/locationEditor';
 
 import { getTransformationContent } from '../docs/getTransformationContent';
 import darkImage from '../images/dark/spatial.svg';
 import lightImage from '../images/light/spatial.svg';
+
+const logger = createMonitoringLogger('grafana.features.transformers.spatial');
 
 import { SpatialCalculation, SpatialOperation, SpatialAction, SpatialTransformOptions } from './models.gen';
 import { getDefaultOptions, getTransformerOptionPane } from './optionsHelper';
@@ -138,7 +141,7 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     if (!props.options.source?.mode) {
       const opts = getDefaultOptions(supplier);
       props.onChange({ ...opts, ...props.options });
-      console.log('geometry useEffect', opts);
+      logger.logDebug('geometry useEffect', { opts });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

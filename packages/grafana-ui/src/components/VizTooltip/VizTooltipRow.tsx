@@ -6,8 +6,11 @@ import * as React from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
 
 import { useStyles2 } from '../../themes/ThemeContext';
+import { createLogger } from '../../utils/logger';
 import { InlineToast } from '../InlineToast/InlineToast';
 import { Tooltip } from '../Tooltip/Tooltip';
+
+const logger = createLogger('grafana-ui.VizTooltipRow');
 
 import { ColorIndicatorPosition, VizTooltipColorIndicator } from './VizTooltipColorIndicator';
 import { ColorPlacement, VizTooltipItem } from './types';
@@ -112,7 +115,7 @@ export const VizTooltipRow = ({
         setShowCopySuccess(true);
       }
     } catch (err) {
-      console.error('Unable to copy to clipboard', err);
+      logger.error('Unable to copy to clipboard', err instanceof Error ? err : new Error(String(err)));
     }
 
     textarea.remove();

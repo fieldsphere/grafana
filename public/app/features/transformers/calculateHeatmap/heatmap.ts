@@ -25,7 +25,11 @@ import {
   HeatmapCalculationOptions,
 } from '@grafana/schema';
 
+import { createMonitoringLogger } from '@grafana/runtime';
+
 import { convertDurationToMilliseconds, niceLinearIncrs, niceTimeIncrs } from './utils';
+
+const logger = createMonitoringLogger('grafana.features.transformers.calculateHeatmap');
 
 export interface HeatmapTransformerOptions extends HeatmapCalculationOptions {
   /** the raw values will still exist in results after transformation */
@@ -592,7 +596,7 @@ function heatmap(xs: number[], ys: number[], opts?: HeatmapOpts) {
     yBinIncr = yIncrs[Math.max(yIncrIdx, 0)];
   }
 
-  // console.log({
+  // logger.logDebug({
   //   yBinIncr,
   //   xBinIncr,
   // });

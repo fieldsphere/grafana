@@ -1,4 +1,5 @@
 import { Registry, RegistryItem } from '../utils/Registry';
+import { logError } from '../utils/logger';
 
 import { createTheme, NewThemeOptionsSchema } from './createTheme';
 import aubergine from './themeDefinitions/aubergine.json';
@@ -79,7 +80,7 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
 for (const [name, json] of Object.entries(extraThemes)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    logError('grafana-data.themes.registry', `Invalid theme definition for theme ${name}: ${result.error.message}`);
   } else {
     const theme = result.data;
     themeRegistry.register({

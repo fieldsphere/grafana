@@ -33,6 +33,7 @@ import {
   getBackendSrv,
   getTemplateSrv,
   TemplateSrv,
+  createMonitoringLogger,
 } from '@grafana/runtime';
 import { QueryFormat, SQLQuery } from '@grafana/sql';
 import config from 'app/core/config';
@@ -49,6 +50,8 @@ import { buildRawQuery, removeRegexWrapper } from './queryUtils';
 import ResponseParser from './response_parser';
 import { DEFAULT_POLICY, InfluxOptions, InfluxQuery, InfluxVariableQuery, InfluxVersion } from './types';
 import { InfluxVariableSupport } from './variables';
+
+const logger = createMonitoringLogger('grafana.plugins.datasource.influxdb');
 
 export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery, InfluxOptions> {
   type: string;
@@ -388,7 +391,7 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
         // then put inside parenthesis.
         return typeof value === 'string' ? escapeRegex(value) : `(${value.map((v) => escapeRegex(v)).join('|')})`;
       } catch (e) {
-        console.warn(`Supplied match is not valid regex: ${match}`);
+        logger.logWarning(`Supplied match is not valid regex: ${match}`);
       }
     }
 

@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import {
   EchoBackend,
   EchoEventType,
@@ -16,11 +15,13 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
 
   addEvent = (e: PageviewEchoEvent) => {
     if (isPageviewEvent(e)) {
+      // eslint-disable-next-line no-console
       console.log('[EchoSrv:pageview]', e.payload.page);
     }
 
     if (isInteractionEvent(e)) {
       const eventName = e.payload.interactionName;
+      // eslint-disable-next-line no-console
       console.log('[EchoSrv:event]', eventName, e.payload.properties);
 
       // Warn for non-scalar property values. We're not yet making this a hard a
@@ -32,6 +33,7 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
       });
 
       if (invalidTypeProperties.length > 0) {
+        // eslint-disable-next-line no-console
         console.warn(
           'Event',
           eventName,
@@ -42,6 +44,7 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
     }
 
     if (isExperimentViewEvent(e)) {
+      // eslint-disable-next-line no-console
       console.log('[EchoSrv:experiment]', e.payload);
     }
   };

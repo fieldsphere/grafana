@@ -147,7 +147,7 @@ export class PanelDataQueriesTab extends SceneObjectBase<PanelDataQueriesTabStat
         });
       }
 
-      console.error(err);
+      logger.logError(err);
     }
   }
 

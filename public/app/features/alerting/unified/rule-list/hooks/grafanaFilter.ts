@@ -1,6 +1,9 @@
 import { attempt, isError } from 'lodash';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { PromRuleDTO, PromRuleGroupDTO } from 'app/types/unified-alerting-dto';
+
+const logger = createMonitoringLogger('grafana.features.alerting.unified.rule-list.hooks.grafanaFilter');
 
 import { GrafanaPromRulesOptions } from '../../api/prometheusApi';
 import { shouldUseBackendFilters, shouldUseFullyCompatibleBackendFilters } from '../../featureToggles';
@@ -151,7 +154,7 @@ function labelMatchersToBackendFormat(labels: string[]): string[] {
     const result = attempt(() => JSON.stringify(parseMatcher(label)));
 
     if (isError(result)) {
-      console.warn('Failed to parse label matcher:', label, result);
+      logger.logWarning('Failed to parse label matcher:', label, result);
     } else {
       acc.push(result);
     }
