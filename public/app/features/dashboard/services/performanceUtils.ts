@@ -1,5 +1,6 @@
 import { store } from '@grafana/data';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
+import { logDebug, logError } from '@grafana/runtime';
 
 /**
  * Utility function to register a performance observer with the global tracker
@@ -85,11 +86,9 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
 export function writePerformanceGroupLog(logger: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
     if (data) {
-      // eslint-disable-next-line no-console
-      console.log(message, data);
+      logDebug(`${message}`, { logger, data });
     } else {
-      // eslint-disable-next-line no-console
-      console.log(message);
+      logDebug(message, { logger });
     }
   }
 }
@@ -117,7 +116,7 @@ export function createPerformanceMark(name: string, timestamp?: number): void {
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
+    logError(error instanceof Error ? error : new Error(String(error)), { source: 'performance-mark', name, timestamp });
   }
 }
 
@@ -134,6 +133,6 @@ export function createPerformanceMeasure(name: string, startMark: string, endMar
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
+    logError(error instanceof Error ? error : new Error(String(error)), { source: 'performance-measure', name, startMark, endMark });
   }
 }

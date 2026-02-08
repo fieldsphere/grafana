@@ -91,7 +91,10 @@ export async function updateLayer(panel: GeomapPanel, uid: string, newOptions: M
     // initialize with new data
     applyLayerFilter(info.handler, newOptions, panel.props.data);
   } catch (err) {
-    console.warn('ERROR', err); // eslint-disable-line no-console
+    logWarning('Error updating layer', {
+      error: err instanceof Error ? err.message : String(err),
+      layerUid: uid,
+    });
     return false;
   }
 

@@ -5,6 +5,43 @@ import { config } from '../config';
 export { LogLevel };
 
 /**
+ * Configuration for structured logging behavior
+ */
+export interface LoggingConfig {
+  /** Whether to output logs to the browser console */
+  consoleOutput: boolean;
+}
+
+/**
+ * Default logging configuration
+ * Console output is enabled in development mode by default
+ */
+const defaultLoggingConfig: LoggingConfig = {
+  consoleOutput: typeof process !== 'undefined' && process.env.NODE_ENV === 'development',
+};
+
+let loggingConfig: LoggingConfig = { ...defaultLoggingConfig };
+
+/**
+ * Configure the structured logging behavior
+ * @param config - Logging configuration options
+ * @public
+ */
+export function configureLogging(newConfig: Partial<LoggingConfig>): void {
+  loggingConfig = { ...loggingConfig, ...newConfig };
+}
+
+/**
+ * Formats context for console output
+ */
+function formatContextForConsole(contexts?: LogContext): string {
+  if (!contexts || Object.keys(contexts).length === 0) {
+    return '';
+  }
+  return ` ${JSON.stringify(contexts)}`;
+}
+
+/**
  * Log a message at INFO level
  * @public
  */
@@ -14,6 +51,11 @@ export function logInfo(message: string, contexts?: LogContext) {
       level: LogLevel.INFO,
       context: contexts,
     });
+  }
+
+  if (loggingConfig.consoleOutput) {
+    // eslint-disable-next-line no-console
+    console.info(`[INFO]${contexts?.source ? ` [${contexts.source}]` : ''} ${message}${formatContextForConsole(contexts)}`);
   }
 }
 
@@ -29,6 +71,11 @@ export function logWarning(message: string, contexts?: LogContext) {
       context: contexts,
     });
   }
+
+  if (loggingConfig.consoleOutput) {
+    // eslint-disable-next-line no-console
+    console.warn(`[WARN]${contexts?.source ? ` [${contexts.source}]` : ''} ${message}${formatContextForConsole(contexts)}`);
+  }
 }
 
 /**
@@ -43,6 +90,11 @@ export function logDebug(message: string, contexts?: LogContext) {
       context: contexts,
     });
   }
+
+  if (loggingConfig.consoleOutput) {
+    // eslint-disable-next-line no-console
+    console.debug(`[DEBUG]${contexts?.source ? ` [${contexts.source}]` : ''} ${message}${formatContextForConsole(contexts)}`);
+  }
 }
 
 /**
@@ -55,6 +107,11 @@ export function logError(err: Error, contexts?: LogContext) {
     faro.api.pushError(err, {
       context: contexts,
     });
+  }
+
+  if (loggingConfig.consoleOutput) {
+    // eslint-disable-next-line no-console
+    console.error(`[ERROR]${contexts?.source ? ` [${contexts.source}]` : ''} ${err.message}${formatContextForConsole(contexts)}`, err);
   }
 }
 
@@ -73,6 +130,11 @@ export function logMeasurement(type: string, values: MeasurementValues, context?
       },
       { context: context }
     );
+  }
+
+  if (loggingConfig.consoleOutput) {
+    // eslint-disable-next-line no-console
+    console.info(`[MEASUREMENT]${context?.source ? ` [${context.source}]` : ''} ${type}`, values, context);
   }
 }
 

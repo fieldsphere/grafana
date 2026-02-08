@@ -318,7 +318,7 @@ export class DashboardExporter {
 
       return newObj;
     } catch (err) {
-      console.error('Export failed:', err);
+      logError(err instanceof Error ? err : new Error(String(err)), { source: 'dashboard-exporter' });
       return {
         error: err,
       };

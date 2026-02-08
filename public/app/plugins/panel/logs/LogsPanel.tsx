@@ -862,7 +862,9 @@ export async function requestMoreLogs(
   for (const uid in targetGroups) {
     const dataSource = dataSourcesMap.get(panelData.request.targets[0].refId);
     if (!dataSource) {
-      console.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
+      logWarning('Could not resolve data source for target', {
+        refId: panelData.request.targets[0].refId,
+      });
       continue;
     }
     dataRequests.push(

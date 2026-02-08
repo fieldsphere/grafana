@@ -216,7 +216,6 @@ export class RowItem
         layout.setState({ children: newChildren });
       } else {
         const warningMessage = 'Grid item has unexpected parent type';
-        console.warn(warningMessage);
         logWarning(warningMessage);
       }
     }
@@ -231,7 +230,6 @@ export class RowItem
       layout.addGridItem(gridItem);
     } else {
       const warningMessage = 'Layout manager does not support addGridItem';
-      console.warn(warningMessage);
       logWarning(warningMessage);
     }
     this.setIsDropTarget(false);

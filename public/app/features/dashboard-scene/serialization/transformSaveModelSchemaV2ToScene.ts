@@ -1,6 +1,6 @@
 import { uniqueId } from 'lodash';
 
-import { config, getDataSourceSrv } from '@grafana/runtime';
+import { config, getDataSourceSrv, logError } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   behaviors,
@@ -287,7 +287,7 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec) {
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        logError(err instanceof Error ? err : new Error(String(err)));
         return null;
       }
     })
@@ -562,7 +562,7 @@ export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVar
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        logError(err instanceof Error ? err : new Error(String(err)));
         return null;
       }
     })

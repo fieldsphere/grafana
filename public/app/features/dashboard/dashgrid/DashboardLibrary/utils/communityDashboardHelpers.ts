@@ -150,7 +150,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
   try {
     panelJson = JSON.stringify(panelWithoutSanitizedFields);
   } catch (e) {
-    console.warn('Failed to stringify panel', e);
+    logWarning('Failed to stringify panel', { error: e instanceof Error ? e.message : String(e) });
     return true;
   }
 
@@ -181,7 +181,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousValue = valuePatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in value');
+      logWarning('Panel contains JavaScript code in value', { panelId: panel.id });
       return true;
     }
     return false;
@@ -189,7 +189,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousKey = keyPatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in key');
+      logWarning('Panel contains JavaScript code in key', { panelId: panel.id });
       return true;
     }
     return false;
@@ -301,7 +301,7 @@ export async function onUseCommunityDashboard({
       }
     }
   } catch (err) {
-    console.error('Error loading community dashboard:', err);
+    logError(err instanceof Error ? err : new Error(String(err)), { source: 'community-dashboard-loader' });
     dispatch(
       notifyApp(
         createErrorNotification(t('dashboard-library.community-error-title', 'Error loading community dashboard'))

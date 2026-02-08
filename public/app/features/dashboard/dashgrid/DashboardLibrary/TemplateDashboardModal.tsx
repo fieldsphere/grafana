@@ -5,7 +5,7 @@ import { useAsync } from 'react-use';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { getBackendSrv, getDataSourceSrv, locationService } from '@grafana/runtime';
+import { getBackendSrv, getDataSourceSrv, locationService, logError } from '@grafana/runtime';
 import { Box, Grid, Modal, Text, useStyles2 } from '@grafana/ui';
 
 import { DASHBOARD_LIBRARY_ROUTES } from '../types';
@@ -87,7 +87,7 @@ export const TemplateDashboardModal = () => {
 
       return response.items;
     } catch (error) {
-      console.error('Error loading template dashboards ', error);
+      logError(error instanceof Error ? error : new Error(String(error)), { source: 'template-dashboards' });
       return [];
     }
   }, [isOpen]);
