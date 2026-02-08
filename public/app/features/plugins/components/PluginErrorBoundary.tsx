@@ -35,7 +35,7 @@ export class PluginErrorBoundary extends React.Component<PluginErrorBoundaryProp
     } else {
       logError(error, {
         pluginId: this.context?.meta.id,
-        componentStack: info.componentStack,
+        componentStack: info.componentStack ?? undefined,
       });
     }
 

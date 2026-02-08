@@ -1133,7 +1133,9 @@ function getVariablesV1(vars: DashboardV2Spec['variables']): VariableModel[] {
         break;
       default:
         // do not throw error, just log it
-        logError(new Error(`Variable transformation not implemented: ${v.kind}`), { variableKind: v.kind, variable: JSON.stringify(v) });
+        // Cast v to unknown to access kind property since TypeScript thinks this is unreachable
+        const unknownVar = v as unknown as { kind?: string };
+        logError(new Error(`Variable transformation not implemented: ${unknownVar.kind ?? 'unknown'}`), { variableKind: unknownVar.kind ?? 'unknown', variable: JSON.stringify(v) });
     }
   }
   return variables;

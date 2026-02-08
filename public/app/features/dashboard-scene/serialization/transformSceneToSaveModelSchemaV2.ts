@@ -539,7 +539,7 @@ function getAnnotations(state: DashboardSceneState, dsReferencesMapping?: DSRefe
         new Error(
           'Misconfigured AnnotationsDataLayer: Data source is required for annotations. Resolving default data source'
         ),
-        { layer, layerDs }
+        { layer: JSON.stringify(layer.state), layerDs: JSON.stringify(layerDs) }
       );
     }
 
