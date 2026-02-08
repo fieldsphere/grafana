@@ -1,7 +1,10 @@
 import { NavModel, NavModelItem } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('grafana.core.errorModels');
 
 export function getExceptionNav(error: unknown): NavModel {
-  console.error(error);
+  logger.logError(error instanceof Error ? error : new Error(String(error)));
   return getWarningNav('Exception thrown', 'See console for details');
 }
 

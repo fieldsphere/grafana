@@ -1,8 +1,10 @@
 import { memo, useState, useCallback, type JSX } from 'react';
 
 import { t } from '@grafana/i18n';
-import { FetchError, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
+import { createMonitoringLogger, FetchError, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
 import config from 'app/core/config';
+
+const logger = createMonitoringLogger('grafana.core.LoginCtrl');
 
 import { LoginDTO, AuthNRedirectDTO } from './types';
 
@@ -107,7 +109,9 @@ export const LoginCtrl = memo(({ resetCode, children }: Props) => {
           .then(() => {
             toGrafana();
           })
-          .catch((err) => console.error(err));
+          .catch((err) => {
+            logger.logError(err instanceof Error ? err : new Error(String(err)));
+          });
       }
     },
     [resetCode, toGrafana]

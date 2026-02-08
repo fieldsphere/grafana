@@ -1,9 +1,12 @@
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { useListTeamRolesQuery, useSetTeamRolesMutation } from 'app/api/clients/roles';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction, Role } from 'app/types/accessControl';
+
+const logger = createMonitoringLogger('grafana.core.TeamRolePicker');
 
 import { RolePicker } from './RolePicker';
 
@@ -79,7 +82,9 @@ export const TeamRolePicker = ({
           },
         }).unwrap();
       } catch (error) {
-        console.error('Error updating team roles', error);
+        logger.logError(error instanceof Error ? error : new Error(String(error)), {
+          message: 'Error updating team roles',
+        });
       }
     } else if (onApplyRoles) {
       onApplyRoles(newRoles);
