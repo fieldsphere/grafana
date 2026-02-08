@@ -1,3 +1,5 @@
+import { logError } from '@grafana/runtime';
+
 import impressionSrv from 'app/core/services/impression_srv';
 import { getGrafanaSearcher } from 'app/features/search/service/searcher';
 import { DashboardQueryResult } from 'app/features/search/service/types';
@@ -30,7 +32,7 @@ export async function getRecentlyViewedDashboards(maxItems = 5): Promise<Dashboa
     dashboards.sort((a, b) => order(a.uid) - order(b.uid));
     return dashboards;
   } catch (error) {
-    console.error('Failed to load recently viewed dashboards', error);
+    logError(error instanceof Error ? error : new Error(String(error)), { context: 'getRecentlyViewedDashboards' });
     return [];
   }
 }
