@@ -20,6 +20,7 @@ export function isMigrationHandler(object: unknown): object is MigrationHandler 
 
 async function postMigrateRequest<TQuery extends DataQuery>(queries: TQuery[]): Promise<TQuery[]> {
   if (!(config.featureToggles.grafanaAPIServerWithExperimentalAPIs || config.featureToggles.datasourceAPIServers)) {
+    // eslint-disable-next-line no-console
     console.warn('migrateQuery is only available with the experimental API server');
     return queries;
   }

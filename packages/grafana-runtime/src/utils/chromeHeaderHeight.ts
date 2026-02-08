@@ -11,6 +11,7 @@ export const useChromeHeaderHeight = () => {
     if (process.env.NODE_ENV !== 'production') {
       throw new Error('useChromeHeaderHeight hook not found in @grafana/runtime');
     }
+    // eslint-disable-next-line no-console
     console.error('useChromeHeaderHeight hook not found');
   }
 

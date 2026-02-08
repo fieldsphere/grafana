@@ -25,6 +25,7 @@ export async function loadPluginCss(options: PluginCssOptions): Promise<System.M
     const cssPath = config.bootData.user.theme === 'light' ? options.light : options.dark;
     return window.System.import(cssPath);
   } catch (err) {
+    // eslint-disable-next-line no-console
     console.error(err);
   }
 }
