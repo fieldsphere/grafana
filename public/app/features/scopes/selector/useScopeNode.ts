@@ -1,6 +1,9 @@
 import { useEffect, useState } from 'react';
 
 import { ScopeNode } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('grafana.features.scopes.selector.useScopeNode');
 
 import { useScopesServices } from '../ScopesContextProvider';
 
@@ -21,7 +24,7 @@ export function useScopeNode(scopeNodeId?: string) {
         const node = await scopesSelectorService.getScopeNode(scopeNodeId);
         setNode(node);
       } catch (error) {
-        console.error('Failed to load node', error);
+        logger.logError('Failed to load node', { error });
       } finally {
         setIsLoading(false);
       }
