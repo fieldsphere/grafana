@@ -7,7 +7,7 @@ import {
 import { generatedAPI as legacyUserAPI } from '@grafana/api-clients/rtkq/legacy/user';
 import { DataFrame, DataFrameView, getDisplayProcessor, SelectableValue, toDataFrame } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, getBackendSrv } from '@grafana/runtime';
+import { config, getBackendSrv, logDebug } from '@grafana/runtime';
 import { generatedAPI, ListStarsApiResponse } from 'app/api/clients/collections/v1alpha1';
 import { getAPIBaseURL } from 'app/api/utils';
 import { TermCount } from 'app/core/components/TagFilter/TagFilter';
@@ -193,11 +193,18 @@ export class UnifiedSearcher implements GrafanaSearcher {
         const resp = await this.fetchResponse(nextPageUrl);
         const frame = toDashboardResults(resp, query.sort ?? '');
         if (!frame) {
-          console.log('no results', frame);
+          logDebug('No results from search query', {
+            context: 'Unified searcher',
+            offset,
+          });
           return;
         }
         if (frame.fields.length !== view.dataFrame.fields.length) {
-          console.log('invalid shape', frame, view.dataFrame);
+          logDebug('Invalid frame shape in search results', {
+            context: 'Unified searcher',
+            expectedFields: view.dataFrame.fields.length,
+            actualFields: frame.fields.length,
+          });
           return;
         }
 

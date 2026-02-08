@@ -41,6 +41,8 @@ import {
   setCorrelationsService,
   setPluginFunctionsHook,
   setMegaMenuOpenHook,
+  logError,
+  logWarning,
 } from '@grafana/runtime';
 import {
   initOpenFeature,
@@ -145,7 +147,9 @@ export class GrafanaApp {
         try {
           await initOpenFeature();
         } catch (err) {
-          console.error('Failed to initialize OpenFeature provider', err);
+          logError(err instanceof Error ? err : new Error('Failed to initialize OpenFeature provider'), {
+            context: 'OpenFeature initialization',
+          });
         }
       }
 
@@ -284,7 +288,9 @@ export class GrafanaApp {
       try {
         cleanupOldExpandedFolders();
       } catch (err) {
-        console.warn('Failed to clean up old expanded folders', err);
+        logWarning('Failed to clean up old expanded folders', {
+          error: err instanceof Error ? err.message : String(err),
+        });
       }
 
       this.context = {
@@ -314,7 +320,9 @@ export class GrafanaApp {
 
       await postInitTasks();
     } catch (error) {
-      console.error('Failed to start Grafana', error);
+      logError(error instanceof Error ? error : new Error('Failed to start Grafana'), {
+        context: 'Grafana app initialization',
+      });
       window.__grafana_load_failed();
     } finally {
       stopMeasure('frontend_app_init');

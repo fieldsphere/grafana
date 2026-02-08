@@ -1,5 +1,5 @@
 import { t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
+import { config, logWarning } from '@grafana/runtime';
 import { DashboardLink } from '@grafana/schema';
 import { provisioningAPIv0alpha1, RepositoryView } from 'app/api/clients/provisioning/v0alpha1';
 import {
@@ -83,7 +83,9 @@ export async function buildSourceLink(annotations: ObjectMeta['annotations']): P
       keepTime: false,
     };
   } catch (e) {
-    console.warn('Failed to fetch repository info for source link:', e);
+    logWarning('Failed to fetch repository info for source link', {
+      error: e instanceof Error ? e.message : String(e),
+    });
     return undefined;
   }
 }

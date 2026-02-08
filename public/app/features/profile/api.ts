@@ -1,4 +1,4 @@
-import { getBackendSrv } from '@grafana/runtime';
+import { getBackendSrv, logError } from '@grafana/runtime';
 import { Team } from 'app/types/teams';
 import { UserDTO, UserOrg, UserSession } from 'app/types/user';
 
@@ -8,7 +8,9 @@ async function changePassword(payload: ChangePasswordFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user/password', payload);
   } catch (err) {
-    console.error(err);
+    logError(err instanceof Error ? err : new Error('Failed to change password'), {
+      context: 'Change password',
+    });
   }
 }
 
@@ -42,7 +44,9 @@ async function updateUserProfile(payload: ProfileUpdateFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user', payload);
   } catch (err) {
-    console.error(err);
+    logError(err instanceof Error ? err : new Error('Failed to update user profile'), {
+      context: 'Update user profile',
+    });
   }
 }
 

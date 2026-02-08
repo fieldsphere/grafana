@@ -34,7 +34,9 @@ async function getCurrentFolderUID(): Promise<string | undefined> {
     }
     return Promise.resolve(dash?.meta?.folderUid);
   } catch (e) {
-    console.error(e);
+    logError(e instanceof Error ? e : new Error('Failed to get current folder UID'), {
+      context: 'Get current folder UID',
+    });
   }
   return undefined;
 }

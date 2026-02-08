@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom-v5-compat';
 
 import { AppEvents, locationUtil } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { getAppEvents, locationService, reportInteraction } from '@grafana/runtime';
+import { getAppEvents, locationService, reportInteraction, logError } from '@grafana/runtime';
 import { Dashboard } from '@grafana/schema';
 import { Button, Field, Input, Stack, TextArea, Switch } from '@grafana/ui';
 import { RepositoryView, Unstructured } from 'app/api/clients/provisioning/v0alpha1';
@@ -178,7 +178,11 @@ export function SaveProvisionedDashboardForm({
   }: ProvisionedDashboardFormData) => {
     // Validate required fields
     if (!repo || !path) {
-      console.error('Missing required fields for saving:', { repo, path });
+      logError(new Error('Missing required fields for saving'), {
+        context: 'Save provisioned dashboard',
+        repo,
+        path,
+      });
       return;
     }
 
