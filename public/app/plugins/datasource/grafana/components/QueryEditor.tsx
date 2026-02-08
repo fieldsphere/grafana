@@ -2,7 +2,7 @@ import pluralize from 'pluralize';
 import * as React from 'react';
 
 import { QueryEditorProps, SelectableValue, rangeUtil, DataQueryRequest, Field } from '@grafana/data';
-import { config, getDataSourceSrv } from '@grafana/runtime';
+import { config, getDataSourceSrv, createMonitoringLogger } from '@grafana/runtime';
 import {
   InlineField,
   Select,
@@ -21,6 +21,8 @@ import { GrafanaDatasource } from '../datasource';
 import { defaultQuery, GrafanaQuery, GrafanaQueryType } from '../types';
 
 import { RandomWalkEditor } from './RandomWalkEditor';
+
+const logger = createMonitoringLogger('grafana.plugins.datasource.grafana');
 
 interface Props extends QueryEditorProps<GrafanaDatasource, GrafanaQuery>, Themeable2 {}
 
@@ -142,7 +144,7 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         try {
           buffer = rangeUtil.intervalToSeconds(txt) * 1000;
         } catch (err) {
-          console.warn('ERROR', err);
+          logger.logWarning('ERROR', err);
         }
       }
       onChange({

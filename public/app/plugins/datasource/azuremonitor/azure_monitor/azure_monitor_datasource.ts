@@ -2,7 +2,7 @@ import { find } from 'lodash';
 
 import { AzureCredentials } from '@grafana/azure-sdk';
 import { ScopedVars } from '@grafana/data';
-import { DataSourceWithBackend, getTemplateSrv, TemplateSrv } from '@grafana/runtime';
+import { DataSourceWithBackend, getTemplateSrv, TemplateSrv, createMonitoringLogger } from '@grafana/runtime';
 
 import { getCredentials } from '../credentials';
 import { AzureMetricQuery, AzureQueryType } from '../dataquery.gen';
@@ -32,6 +32,8 @@ import migrateQuery from '../utils/migrateQuery';
 
 import ResponseParser from './response_parser';
 import UrlBuilder from './url_builder';
+
+const logger = createMonitoringLogger('grafana.plugins.datasource.azuremonitor');
 
 const defaultDropdownValue = 'select';
 
@@ -218,7 +220,7 @@ export default class AzureMonitorDatasource extends DataSourceWithBackend<
         return result;
       })
       .catch((reason) => {
-        console.error(`Failed to get metric namespaces: ${reason}`);
+        logger.logError(`Failed to get metric namespaces: ${reason}`);
         return [];
       });
   }
