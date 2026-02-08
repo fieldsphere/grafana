@@ -5,7 +5,44 @@ import { config } from '../config';
 export { LogLevel };
 
 /**
+ * Structured log context type - can contain any string key-value pairs
+ * @public
+ */
+export type { LogContext };
+
+/**
+ * Check if we're in development mode
+ * @internal
+ */
+function isDevelopment(): boolean {
+  return process.env.NODE_ENV !== 'production';
+}
+
+/**
+ * Check if console logging is enabled in development
+ * @internal
+ */
+function isDevLoggingEnabled(): boolean {
+  if (typeof window !== 'undefined') {
+    return window.localStorage?.getItem('grafana.debug') === 'true' || isDevelopment();
+  }
+  return isDevelopment();
+}
+
+/**
+ * Format context for console output
+ * @internal
+ */
+function formatContext(contexts?: LogContext): string {
+  if (!contexts || Object.keys(contexts).length === 0) {
+    return '';
+  }
+  return ` ${JSON.stringify(contexts)}`;
+}
+
+/**
  * Log a message at INFO level
+ * Logs to Faro in production, and to console in development
  * @public
  */
 export function logInfo(message: string, contexts?: LogContext) {
@@ -14,12 +51,15 @@ export function logInfo(message: string, contexts?: LogContext) {
       level: LogLevel.INFO,
       context: contexts,
     });
+  } else if (isDevLoggingEnabled()) {
+    // eslint-disable-next-line no-console
+    console.info(`[INFO]${formatContext(contexts)} ${message}`);
   }
 }
 
 /**
  * Log a message at WARNING level
- *
+ * Logs to Faro in production, and to console in development
  * @public
  */
 export function logWarning(message: string, contexts?: LogContext) {
@@ -28,12 +68,15 @@ export function logWarning(message: string, contexts?: LogContext) {
       level: LogLevel.WARN,
       context: contexts,
     });
+  } else if (isDevLoggingEnabled()) {
+    // eslint-disable-next-line no-console
+    console.warn(`[WARN]${formatContext(contexts)} ${message}`);
   }
 }
 
 /**
  * Log a message at DEBUG level
- *
+ * Logs to Faro in production, and to console in development
  * @public
  */
 export function logDebug(message: string, contexts?: LogContext) {
@@ -42,12 +85,15 @@ export function logDebug(message: string, contexts?: LogContext) {
       level: LogLevel.DEBUG,
       context: contexts,
     });
+  } else if (isDevLoggingEnabled()) {
+    // eslint-disable-next-line no-console
+    console.debug(`[DEBUG]${formatContext(contexts)} ${message}`);
   }
 }
 
 /**
  * Log an error
- *
+ * Logs to Faro in production, and to console in development
  * @public
  */
 export function logError(err: Error, contexts?: LogContext) {
@@ -55,12 +101,15 @@ export function logError(err: Error, contexts?: LogContext) {
     faro.api.pushError(err, {
       context: contexts,
     });
+  } else if (isDevLoggingEnabled()) {
+    // eslint-disable-next-line no-console
+    console.error(`[ERROR]${formatContext(contexts)}`, err);
   }
 }
 
 /**
  * Log a measurement
- *
+ * Logs to Faro in production, and to console in development
  * @public
  */
 export type MeasurementValues = Record<string, number>;
@@ -73,6 +122,9 @@ export function logMeasurement(type: string, values: MeasurementValues, context?
       },
       { context: context }
     );
+  } else if (isDevLoggingEnabled()) {
+    // eslint-disable-next-line no-console
+    console.info(`[MEASUREMENT] ${type}${formatContext(context)}`, values);
   }
 }
 
@@ -86,6 +138,7 @@ export interface MonitoringLogger {
 /**
  * Creates a monitoring logger with five levels of logging methods: `logDebug`, `logInfo`, `logWarning`, `logError`, and `logMeasurement`.
  * These methods use `faro.api.pushX` web SDK methods to report these logs or errors to the Faro collector.
+ * In development mode (when Faro is not enabled), logs are output to the console with structured formatting.
  *
  * @param {string} source - Identifier for the source of the log messages.
  * @param {LogContext} [defaultContext] - Context to be included in every log message.
