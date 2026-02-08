@@ -1,8 +1,11 @@
 import { SelectableValue, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { TermCount } from 'app/core/components/TagFilter/TagFilter';
 import { SEARCH_SELECTED_SORT } from 'app/features/search/constants';
 import { SearchState } from 'app/features/search/types';
+
+const logger = createMonitoringLogger('grafana.features.browse-dashboards.api');
 
 import { deletedDashboardsCache } from '../../search/service/deletedDashboardsCache';
 import { initialState, SearchStateManager } from '../../search/state/SearchStateManager';
@@ -65,7 +68,7 @@ export class TrashStateManager extends SearchStateManager {
 
       return termCounts.sort((a, b) => b.count - a.count);
     } catch (error) {
-      console.error('Failed to get tags from deleted dashboards:', error);
+      logger.logError('Failed to get tags from deleted dashboards', error);
       return [];
     }
   };

@@ -6,8 +6,10 @@ import { useRef, useState } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { config, getBackendSrv } from '@grafana/runtime';
+import { config, createMonitoringLogger, getBackendSrv } from '@grafana/runtime';
 import { Button, useStyles2 } from '@grafana/ui';
+
+const logger = createMonitoringLogger('grafana.features.dimensions.editors');
 
 import { MediaType, PickerTabType, ResourceFolderName } from '../types';
 
@@ -129,7 +131,7 @@ export const ResourcePickerPopover = (props: Props) => {
                           .then(() => onChange(`${config.appUrl}api/storage/read/${data.path}`))
                           .then(() => hidePopper?.());
                       })
-                      .catch((err) => console.error(err));
+                      .catch((err) => logger.logError('Error uploading file', err));
                   } else {
                     onChange(newValue);
                     hidePopper?.();

@@ -1,7 +1,10 @@
 import { debounce, trim } from 'lodash';
 
 import { isEmptyObject, containsSearchFilter, VariableWithOptions, VariableOption } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { StoreState, ThunkDispatch, ThunkResult } from 'app/types/store';
+
+const logger = createMonitoringLogger('grafana.features.variables.pickers.OptionsPicker');
 
 import { variableAdapters } from '../../adapters';
 import { hasOptions } from '../../guard';
@@ -180,7 +183,7 @@ const searchForOptions = async (
 
     dispatch(toKeyedAction(key, updateOptionsFromSearch(updated.options)));
   } catch (error) {
-    console.error(error);
+    logger.logError('Error searching for options', error);
   }
 };
 

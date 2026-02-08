@@ -2,8 +2,11 @@ import { PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
 import { AdHocVariableModel, DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { AdHocVariableForm } from 'app/features/dashboard-scene/settings/variables/components/AdHocVariableForm';
 import { StoreState } from 'app/types/store';
+
+const logger = createMonitoringLogger('grafana.features.variables.adhoc');
 
 import { initialVariableEditorState } from '../editor/reducer';
 import { getAdhocVariableEditorState } from '../editor/selectors';
@@ -17,7 +20,7 @@ const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
 
   if (!rootStateKey) {
-    console.error('AdHocVariableEditor: variable has no rootStateKey');
+    logger.logError('AdHocVariableEditor: variable has no rootStateKey');
     return {
       extended: getAdhocVariableEditorState(initialVariableEditorState),
     };
@@ -44,7 +47,7 @@ export class AdHocVariableEditorUnConnected extends PureComponent<Props> {
   componentDidMount() {
     const { rootStateKey } = this.props.variable;
     if (!rootStateKey) {
-      console.error('AdHocVariableEditor: variable has no rootStateKey');
+      logger.logError('AdHocVariableEditor: variable has no rootStateKey');
       return;
     }
   }
