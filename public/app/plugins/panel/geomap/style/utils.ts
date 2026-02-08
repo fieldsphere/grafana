@@ -1,5 +1,7 @@
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 import { TextDimensionMode } from '@grafana/schema';
+
+const logger = createMonitoringLogger('grafana.plugins.panel.geomap');
 
 import { getMarkerMaker } from './markers';
 import {
@@ -106,7 +108,7 @@ export function getRGBValues(colorString: string): ColorValue | null {
 
   // Handle other color formats if needed
   else {
-    console.warn(`Unsupported color format: ${colorString}`);
+    logger.logWarning(`Unsupported color format: ${colorString}`);
   }
   return null;
 }
@@ -142,10 +144,10 @@ function getRGBFromRGBString(rgbString: string): ColorValue | null {
         a: parseFloat(matches[3]), // Using parseFloat for alpha as it can be decimal (0-1)
       };
     } else {
-      console.warn(`Unsupported color format: ${rgbString}`);
+      logger.logWarning(`Unsupported color format: ${rgbString}`);
     }
   } else {
-    console.warn(`Unsupported color format: ${rgbString}`);
+    logger.logWarning(`Unsupported color format: ${rgbString}`);
   }
   return null;
 }

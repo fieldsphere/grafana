@@ -12,6 +12,9 @@ import {
   ByNamesMatcherMode,
 } from '@grafana/data';
 import { ReduceTransformerOptions } from '@grafana/data/internal';
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('grafana.plugins.panel.table');
 
 import { Options } from './panelcfg.gen';
 
@@ -23,7 +26,7 @@ import { Options } from './panelcfg.gen';
 export const tableMigrationHandler = (panel: PanelModel<Options>): Partial<Options> => {
   // Table was saved as an angular table, lets just swap to the 'table-old' panel
   if (!panel.pluginVersion && 'columns' in panel) {
-    console.log('Was angular table', panel);
+    logger.logDebug('Was angular table', panel);
   }
 
   migrateTextWrapToFieldLevel(panel);

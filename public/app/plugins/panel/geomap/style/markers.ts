@@ -3,8 +3,10 @@ import type { FlatStyle } from 'ol/style/flat';
 import tinycolor from 'tinycolor2';
 
 import { Registry, RegistryItem, textUtil } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 import { getPublicOrAbsoluteUrl } from 'app/features/dimensions/resource';
+
+const logger = createMonitoringLogger('grafana.plugins.panel.geomap');
 
 import { defaultStyleConfig, DEFAULT_SIZE, StyleConfigValues, StyleMaker } from './types';
 import { getDisplacement } from './utils';
@@ -297,7 +299,7 @@ async function prepareSVG(url: string, size?: number, backgroundOpacity?: number
       return `data:image/svg+xml,${svgURI}`;
     })
     .catch((error) => {
-      console.error(error); // eslint-disable-line no-console
+      logger.logError(error);
       return '';
     });
 }
