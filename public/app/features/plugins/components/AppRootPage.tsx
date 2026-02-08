@@ -15,7 +15,7 @@ import {
   PluginContextProvider,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { config, locationSearchToObject } from '@grafana/runtime';
+import { config, locationSearchToObject, createMonitoringLogger } from '@grafana/runtime';
 import { Alert, ErrorWithStack } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { Page } from 'app/core/components/Page/Page';
@@ -36,6 +36,8 @@ import {
 import { pluginImporter } from '../importer/pluginImporter';
 import { getPluginSettings } from '../pluginSettings';
 import { buildPluginSectionNav, pluginsLogger } from '../utils';
+
+const logger = createMonitoringLogger('grafana.features.plugins.components.AppRootPage');
 
 import { PluginErrorBoundary } from './PluginErrorBoundary';
 import { buildPluginPageContext, PluginPageContext } from './PluginPageContext';
@@ -249,7 +251,7 @@ async function loadAppPlugin(pluginId: string, dispatch: React.Dispatch<AnyActio
     );
     const error = err instanceof Error ? err : new Error(getMessageFromError(err));
     pluginsLogger.logError(error);
-    console.error(error);
+    logger.logError(error, { pluginId });
   }
 }
 
