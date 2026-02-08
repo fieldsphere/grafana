@@ -252,7 +252,7 @@ export class DefaultGridLayoutManager
   public duplicatePanel(vizPanel: VizPanel) {
     const gridItem = vizPanel.parent;
     if (!(gridItem instanceof DashboardGridItem)) {
-      logger.logError('Trying to duplicate a panel that is not inside a DashboardGridItem');
+      logger.logError(new Error('Trying to duplicate a panel that is not inside a DashboardGridItem'));
       return;
     }
 

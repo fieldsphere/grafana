@@ -41,7 +41,7 @@ export const ControlledLogsTable = ({
   const styles = useStyles2(getStyles);
 
   if (!splitOpen || !width || !updatePanelState) {
-    logger.logError('<ControlledLogsTable>: Missing required props.');
+    logger.logError(new Error('<ControlledLogsTable>: Missing required props.'));
     return;
   }
 

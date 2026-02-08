@@ -235,7 +235,7 @@ export class AutoGridLayoutManager
   public duplicatePanel(panel: VizPanel) {
     const gridItem = panel.parent;
     if (!(gridItem instanceof AutoGridItem)) {
-      logger.logError('Trying to duplicate a panel that is not inside a DashboardGridItem');
+      logger.logError(new Error('Trying to duplicate a panel that is not inside a DashboardGridItem'));
       return;
     }
 

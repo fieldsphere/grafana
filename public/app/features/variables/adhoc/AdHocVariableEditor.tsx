@@ -20,7 +20,7 @@ const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
 
   if (!rootStateKey) {
-    logger.logError('AdHocVariableEditor: variable has no rootStateKey');
+    logger.logError(new Error('AdHocVariableEditor: variable has no rootStateKey'));
     return {
       extended: getAdhocVariableEditorState(initialVariableEditorState),
     };
@@ -47,7 +47,7 @@ export class AdHocVariableEditorUnConnected extends PureComponent<Props> {
   componentDidMount() {
     const { rootStateKey } = this.props.variable;
     if (!rootStateKey) {
-      logger.logError('AdHocVariableEditor: variable has no rootStateKey');
+      logger.logError(new Error('AdHocVariableEditor: variable has no rootStateKey'));
       return;
     }
   }

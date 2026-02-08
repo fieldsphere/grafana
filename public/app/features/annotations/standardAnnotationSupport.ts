@@ -229,7 +229,7 @@ export function getAnnotationsFromData(
       }
 
       if (!hasTime || !hasText) {
-        logger.logError('Cannot process annotation fields. No time or text present.');
+        logger.logError(new Error('Cannot process annotation fields. No time or text present.'));
         return [];
       }
 

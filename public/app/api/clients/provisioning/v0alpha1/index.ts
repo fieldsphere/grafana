@@ -250,7 +250,7 @@ export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
             dispatch(clearFolders(childrenKeys));
           }
         } catch (e) {
-          logger.logError(e, { message: 'Error in getRepositoryJobsWithPath' });
+          logger.logError(e instanceof Error ? e : new Error(String(e)), { message: 'Error in getRepositoryJobsWithPath' });
         }
       },
     },

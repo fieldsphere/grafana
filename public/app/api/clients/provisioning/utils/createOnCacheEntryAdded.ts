@@ -61,7 +61,7 @@ export function createOnCacheEntryAdded<Spec, Status>(resourceName: string) {
         });
       });
     } catch (error) {
-      logger.logError(error, { message: 'Error in onCacheEntryAdded' });
+      logger.logError(error instanceof Error ? error : new Error(String(error)), { message: 'Error in onCacheEntryAdded' });
       return;
     }
 

@@ -77,7 +77,7 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
     if (preloader) {
       preloader.remove();
     } else {
-      logger.logWarning({ message: 'Preloader element not found' });
+      logger.logWarning('Preloader element not found');
     }
   }
 

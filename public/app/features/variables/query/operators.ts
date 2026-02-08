@@ -113,7 +113,7 @@ export function updateOptionsState(args: {
       map((results) => {
         const { variable, dispatch, getTemplatedRegexFunc } = args;
         if (!variable.rootStateKey) {
-          logger.logError('updateOptionsState: variable.rootStateKey is not defined');
+          logger.logError(new Error('updateOptionsState: variable.rootStateKey is not defined'));
           return;
         }
         const templatedRegex = getTemplatedRegexFunc(variable);

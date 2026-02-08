@@ -12,7 +12,7 @@ export async function updateNavModel(folderUid: string) {
     const folder = await getFolderByUidFacade(folderUid);
     store.dispatch(updateNavIndex(buildNavModel(folder)));
   } catch (err) {
-    logger.logWarning('Error fetching parent folder', folderUid, 'for dashboard', err);
+    logger.logWarning('Error fetching parent folder for dashboard', { folderUid, error: String(err) });
   }
 }
 

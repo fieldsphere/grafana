@@ -154,7 +154,7 @@ function labelMatchersToBackendFormat(labels: string[]): string[] {
     const result = attempt(() => JSON.stringify(parseMatcher(label)));
 
     if (isError(result)) {
-      logger.logWarning('Failed to parse label matcher:', label, result);
+      logger.logWarning('Failed to parse label matcher', { label, error: String(result) });
     } else {
       acc.push(result);
     }

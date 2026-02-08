@@ -94,12 +94,12 @@ export class RowRepeaterBehavior extends SceneObjectBase<RowRepeaterBehaviorStat
     const variable = sceneGraph.lookupVariable(this.state.variableName, this.parent?.parent!);
 
     if (!variable) {
-      logger.logError('RepeatedRowBehavior: Variable not found');
+      logger.logError(new Error('RepeatedRowBehavior: Variable not found'));
       return;
     }
 
     if (!(variable instanceof MultiValueVariable)) {
-      logger.logError('RepeatedRowBehavior: Variable is not a MultiValueVariable');
+      logger.logError(new Error('RepeatedRowBehavior: Variable is not a MultiValueVariable'));
       return;
     }
 

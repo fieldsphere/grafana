@@ -81,7 +81,7 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        logger.logError('Error loading options');
+        logger.logError(new Error('Error loading options'));
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

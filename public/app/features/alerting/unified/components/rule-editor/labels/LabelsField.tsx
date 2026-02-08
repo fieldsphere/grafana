@@ -185,7 +185,7 @@ export function useCombinedLabels(
               opsValues = result.values.map((value) => value.name);
             }
           } catch (error) {
-            logger.logError('Failed to fetch label values for key:', key, error);
+            logger.logError(error instanceof Error ? error : new Error(String(error)), { message: 'Failed to fetch label values for key', key });
           }
         }
 

@@ -168,7 +168,7 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
     const gridItem = panel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      logger.logError('Cannot update layout: panel parent is not a DashboardGridItem');
+      logger.logError(new Error('Cannot update layout: panel parent is not a DashboardGridItem'));
       return;
     }
 

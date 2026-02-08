@@ -370,10 +370,10 @@ export function getLogLevelInfo(dataFrame: DataFrame, allDataFrames: DataFrame[]
   const valueField = fieldCache.getFirstFieldOfType(FieldType.number);
 
   if (!timeField) {
-    logger.logError('Time field missing in data frame');
+    logger.logError(new Error('Time field missing in data frame'));
   }
   if (!valueField) {
-    logger.logError('Value field missing in data frame');
+    logger.logError(new Error('Value field missing in data frame'));
   }
 
   const level = valueField ? getFieldDisplayName(valueField, dataFrame, allDataFrames) : 'logs';

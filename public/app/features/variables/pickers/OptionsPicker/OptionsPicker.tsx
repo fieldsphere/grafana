@@ -50,7 +50,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
   const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
     const { rootStateKey } = ownProps.variable;
     if (!rootStateKey) {
-      logger.logError('OptionPickerFactory: variable has no rootStateKey');
+      logger.logError(new Error('OptionPickerFactory: variable has no rootStateKey'));
       return {
         picker: initialOptionPickerState,
       };
@@ -72,7 +72,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
       this.props.openOptions(toKeyedVariableIdentifier(this.props.variable), this.props.onVariableChange);
     onHideOptions = () => {
       if (!this.props.variable.rootStateKey) {
-        logger.logError('Variable has no rootStateKey');
+        logger.logError(new Error('Variable has no rootStateKey'));
         return;
       }
 
@@ -106,7 +106,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
 
     onNavigate = (key: NavigationKey, clearOthers: boolean) => {
       if (!this.props.variable.rootStateKey) {
-        logger.logError('Variable has no rootStateKey');
+        logger.logError(new Error('Variable has no rootStateKey'));
         return;
       }
 

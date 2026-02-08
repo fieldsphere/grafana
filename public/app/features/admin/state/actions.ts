@@ -52,7 +52,7 @@ export function loadAdminUserPage(userUid: string): ThunkResult<void> {
       }
       dispatch(userAdminPageLoadedAction(true));
     } catch (error) {
-      logger.logError(error);
+      logger.logError(error instanceof Error ? error : new Error(String(error)));
 
       if (isFetchError(error)) {
         const userError = {
@@ -302,7 +302,7 @@ export function fetchUsers(): ThunkResult<void> {
       dispatch(usersFetched(result));
     } catch (error) {
       usersFetchEnd();
-      logger.logError(error);
+      logger.logError(error instanceof Error ? error : new Error(String(error)));
     }
   };
 }
@@ -368,7 +368,7 @@ export function fetchUsersAnonymousDevices(): ThunkResult<void> {
       const result = await getBackendSrv().get(url);
       dispatch(usersAnonymousDevicesFetched(result));
     } catch (error) {
-      logger.logError(error);
+      logger.logError(error instanceof Error ? error : new Error(String(error)));
     }
   };
 }

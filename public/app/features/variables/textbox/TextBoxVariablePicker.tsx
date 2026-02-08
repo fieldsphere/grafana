@@ -26,7 +26,7 @@ export function TextBoxVariablePicker({ variable, onVariableChange, readOnly }: 
 
   const updateVariable = useCallback(() => {
     if (!variable.rootStateKey) {
-      logger.logError('Cannot update variable without rootStateKey');
+      logger.logError(new Error('Cannot update variable without rootStateKey'));
       return;
     }
 

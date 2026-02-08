@@ -80,7 +80,7 @@ export const ConnectionPicker = ({ actionType, datasourceUid, onChange }: Connec
       if (selectedDatasource) {
         onChange(selectedDatasource);
       } else {
-        logger.logError('ConnectionPicker: Could not find datasource with UID:', selectedValue);
+        logger.logWarning('ConnectionPicker: Could not find datasource', { uid: selectedValue });
       }
     }
   };

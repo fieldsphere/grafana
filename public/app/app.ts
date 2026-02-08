@@ -149,7 +149,7 @@ export class GrafanaApp {
         try {
           await initOpenFeature();
         } catch (err) {
-          logger.logError(err, { message: 'Failed to initialize OpenFeature provider' });
+          logger.logError(err instanceof Error ? err : new Error(String(err)), { message: 'Failed to initialize OpenFeature provider' });
         }
       }
 
@@ -288,7 +288,7 @@ export class GrafanaApp {
       try {
         cleanupOldExpandedFolders();
       } catch (err) {
-        logger.logWarning(err, { message: 'Failed to clean up old expanded folders' });
+        logger.logWarning('Failed to clean up old expanded folders', { error: String(err) });
       }
 
       this.context = {
@@ -318,7 +318,7 @@ export class GrafanaApp {
 
       await postInitTasks();
     } catch (error) {
-      logger.logError(error, { message: 'Failed to start Grafana' });
+      logger.logError(error instanceof Error ? error : new Error(String(error)), { message: 'Failed to start Grafana' });
       window.__grafana_load_failed();
     } finally {
       stopMeasure('frontend_app_init');

@@ -153,7 +153,7 @@ export class DashboardGridItem
       });
 
     if (!(variable instanceof MultiValueVariable)) {
-      logger.logError('DashboardGridItem: Variable is not a MultiValueVariable');
+      logger.logError(new Error('DashboardGridItem: Variable is not a MultiValueVariable'));
       return;
     }
 

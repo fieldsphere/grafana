@@ -122,7 +122,7 @@ export const getActions = (
                   appEvents.emit(AppEvents.alertError, [
                     'An error has occurred. Check console output for more details.',
                   ]);
-                  logger.logError(error);
+                  logger.logError(error instanceof Error ? error : new Error(String(error)));
                 },
                 complete: () => {
                   appEvents.emit(AppEvents.alertSuccess, ['API call was successful']);
@@ -130,7 +130,7 @@ export const getActions = (
               });
           } catch (error) {
             appEvents.emit(AppEvents.alertError, ['An error has occurred. Check console output for more details.']);
-            logger.logError(error);
+            logger.logError(error instanceof Error ? error : new Error(String(error)));
             return;
           }
         },

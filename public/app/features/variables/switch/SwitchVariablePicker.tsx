@@ -15,7 +15,7 @@ export function SwitchVariablePicker({ variable, onVariableChange }: Props): Rea
   const updateVariable = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       if (!variable.rootStateKey) {
-        logger.logError('Cannot update variable without rootStateKey');
+        logger.logError(new Error('Cannot update variable without rootStateKey'));
         return;
       }
 

@@ -39,7 +39,7 @@ export function useDashboardQuery(dashboardUid?: string) {
           } else if (isDashboardV2Resource(dashboardDTO)) {
             setDashboard(dashboardDTO);
           } else {
-            logger.logError('Something went wrong, unexpected dashboard format');
+            logger.logError(new Error('Something went wrong, unexpected dashboard format'));
           }
           setIsFetching(false);
         });

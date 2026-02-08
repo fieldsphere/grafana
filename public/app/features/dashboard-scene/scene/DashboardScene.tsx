@@ -326,7 +326,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
 
   public exitEditMode({ skipConfirm, restoreInitialState }: { skipConfirm: boolean; restoreInitialState?: boolean }) {
     if (!this.canDiscard()) {
-      logger.logError('Trying to discard back to a state that does not exist, initialState undefined');
+      logger.logError(new Error('Trying to discard back to a state that does not exist, initialState undefined'));
       return;
     }
 
@@ -428,7 +428,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
    */
   public discardChangesAndKeepEditing() {
     if (!this.canDiscard()) {
-      logger.logError('Trying to discard back to a state that does not exist, initialState undefined');
+      logger.logError(new Error('Trying to discard back to a state that does not exist, initialState undefined'));
       return;
     }
 
@@ -629,7 +629,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
         clearClipboard();
         store.set(LS_PANEL_COPY_KEY, JSON.stringify({ elements, gridItem: gridItemKind }));
       } else {
-        logger.logError('Trying to copy a panel that is not DashboardGridItem child');
+        logger.logError(new Error('Trying to copy a panel that is not DashboardGridItem child'));
         throw new Error('Trying to copy a panel that is not DashboardGridItem child');
       }
       return;
@@ -642,7 +642,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
     let gridItem = vizPanel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      logger.logError('Trying to copy a panel that is not DashboardGridItem child');
+      logger.logError(new Error('Trying to copy a panel that is not DashboardGridItem child'));
       throw new Error('Trying to copy a panel that is not DashboardGridItem child');
     }
 
@@ -825,7 +825,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
       return;
     }
 
-    logger.logError('Trying to unlink a lib panel in a layout that is not DashboardGridItem or AutoGridItem');
+    logger.logError(new Error('Trying to unlink a lib panel in a layout that is not DashboardGridItem or AutoGridItem'));
   }
 
   public showModal(modal: SceneObject) {
