@@ -1,4 +1,5 @@
 import { DataTransformerConfig, FieldConfigSource, getPanelOptionsWithDefaults } from '@grafana/data';
+import { logError } from '@grafana/runtime';
 import { PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { getLibraryPanel } from 'app/features/library-panels/state/api';
 import { LibraryElementDTO } from 'app/features/library-panels/types';
@@ -165,7 +166,7 @@ export function loadLibraryPanelAndUpdate(panel: PanelModel): ThunkResult<void> 
 
       await dispatch(initPanelState(panel));
     } catch (ex) {
-      console.log('ERROR: ', ex);
+      logError(ex instanceof Error ? ex : new Error(String(ex)), { uid, message: 'Unable to load library panel' });
       dispatch(
         panelModelAndPluginReady({
           key: panel.key,

@@ -1,3 +1,4 @@
+import { logWarning } from '@grafana/runtime';
 import { ComponentType } from 'react';
 
 import { KeyValue } from './data';
@@ -259,7 +260,7 @@ export class GrafanaPlugin<T extends PluginMeta = PluginMeta> {
    * @deprecated -- this is no longer necessary and will be removed
    */
   setChannelSupport() {
-    console.warn('[deprecation] plugin is using ignored option: setChannelSupport', this.meta);
+    logWarning('[deprecation] plugin is using ignored option: setChannelSupport', { meta: JSON.stringify(this.meta) });
     return this;
   }
 

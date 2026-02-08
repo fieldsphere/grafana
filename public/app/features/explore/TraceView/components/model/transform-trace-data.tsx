@@ -16,6 +16,7 @@ import { isEqual as _isEqual } from 'lodash';
 
 // @ts-ignore
 import { TraceKeyValuePair } from '@grafana/data';
+import { logWarning } from '@grafana/runtime';
 
 import { getTraceSpanIdsAsTree } from '../selectors/trace';
 import { TraceResponse, Trace, TraceSpan, TraceProcess } from '../types/trace';
@@ -114,11 +115,9 @@ export default function transformTraceData(data: TraceResponse | undefined): Tra
     // make sure span IDs are unique
     const idCount = spanIdCounts.get(spanID);
     if (idCount != null) {
-      // eslint-disable-next-line no-console
-      console.warn(`Dupe spanID, ${idCount + 1} x ${spanID}`, span, spanMap.get(spanID));
+      logWarning(`Dupe spanID, ${idCount + 1} x ${spanID}`, { spanID, span: JSON.stringify(span), existingSpan: JSON.stringify(spanMap.get(spanID)) });
       if (_isEqual(span, spanMap.get(spanID))) {
-        // eslint-disable-next-line no-console
-        console.warn('\t two spans with same ID have `isEqual(...) === true`');
+        logWarning('two spans with same ID have `isEqual(...) === true`', { spanID });
       }
       spanIdCounts.set(spanID, idCount + 1);
       spanID = `${spanID}_${idCount}`;

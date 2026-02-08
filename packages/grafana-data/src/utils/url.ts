@@ -2,6 +2,8 @@
  * @preserve jquery-param (c) 2015 KNOWLEDGECODE | MIT
  */
 
+import { logWarning } from '@grafana/runtime';
+
 import { isDateTime } from '../datetime/moment_wrapper';
 import { ExploreUrlState, URLRange } from '../types/explore';
 import { RawTimeRange } from '../types/time';
@@ -226,7 +228,7 @@ export const urlUtil = {
  */
 export function serializeStateToUrlParam(urlState: Partial<ExploreUrlState>, compact?: boolean): string {
   if (compact !== undefined) {
-    console.warn('`compact` parameter is deprecated and will be removed in a future release');
+    logWarning('`compact` parameter is deprecated and will be removed in a future release');
   }
   return JSON.stringify(urlState);
 }

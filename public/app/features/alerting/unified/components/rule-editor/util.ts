@@ -8,7 +8,7 @@ import {
   ThresholdsMode,
   isTimeSeriesFrames,
 } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, logError } from '@grafana/runtime';
 import { GraphThresholdsStyleMode } from '@grafana/schema';
 import { EvalFunction } from 'app/features/alerting/state/alertDef';
 import { isExpressionQuery } from 'app/features/expressions/guards';
@@ -210,7 +210,7 @@ export function getThresholdsForQueries(queries: AlertQuery[], condition: string
           }
         });
       } catch (err) {
-        console.error('Failed to parse thresholds', err);
+        logError(err instanceof Error ? err : new Error(String(err)), { source: 'getThresholdsForQueries' });
         return;
       }
     });

@@ -13,7 +13,7 @@ import {
 } from '@grafana/data';
 import { FilterFieldsByNameTransformerOptions } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
-import { getTemplateSrv } from '@grafana/runtime';
+import { getTemplateSrv, logError } from '@grafana/runtime';
 import { Input, FilterPill, InlineFieldRow, InlineField, InlineSwitch, Select } from '@grafana/ui';
 
 import { getTransformationContent } from '../docs/getTransformationContent';
@@ -102,7 +102,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        logError(error instanceof Error ? error : new Error(String(error)));
       }
     }
 

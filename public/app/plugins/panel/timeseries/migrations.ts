@@ -41,6 +41,7 @@ import { DashboardAnnotationsDataLayer } from 'app/features/dashboard-scene/scen
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { dashboardSceneGraph } from 'app/features/dashboard-scene/utils/dashboardSceneGraph';
 import { GrafanaQuery, GrafanaQueryType } from 'app/plugins/datasource/grafana/types';
+import { logInfo } from '@grafana/runtime';
 
 import { defaultGraphConfig } from './config';
 import { Options } from './panelcfg.gen';
@@ -283,7 +284,11 @@ export function graphToTimeseriesOptions(angular: any): {
             });
             break;
           default:
-            console.log('Ignore override migration:', seriesOverride.alias, p, v);
+            logInfo('Ignore override migration', {
+              alias: seriesOverride.alias,
+              property: p,
+              value: String(v),
+            });
         }
       }
       if (dashOverride) {

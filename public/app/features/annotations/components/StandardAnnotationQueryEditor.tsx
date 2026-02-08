@@ -11,6 +11,7 @@ import {
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
+import { logError } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
 import { Alert, AlertVariant, Button, Space, Spinner } from '@grafana/ui';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
@@ -260,7 +261,9 @@ export default class StandardAnnotationQueryEditor extends PureComponent<Props, 
       this.setState({ skipNextVerification: true });
       onChange(preparedAnnotation);
     } catch (error) {
-      console.error('Failed to replace annotation query:', error);
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        message: 'Failed to replace annotation query',
+      });
       // On error, reset the replacing state but don't change the annotation
     }
   };

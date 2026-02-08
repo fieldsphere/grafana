@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs';
 
 import { DataSourceRef } from '@grafana/data';
-import { getDataSourceSrv, toDataQueryError } from '@grafana/runtime';
+import { getDataSourceSrv, logError, toDataQueryError } from '@grafana/runtime';
 import { ThunkResult } from 'app/types/store';
 
 import { getVariableQueryEditor } from '../editor/getVariableQueryEditor';
@@ -109,7 +109,10 @@ export const changeQueryVariableDataSource = (
         )
       );
     } catch (err) {
-      console.error(err);
+        logError(err instanceof Error ? err : new Error(String(err)), {
+          message: 'Failed to change query variable data source',
+          identifier: JSON.stringify(identifier),
+        });
     }
   };
 };

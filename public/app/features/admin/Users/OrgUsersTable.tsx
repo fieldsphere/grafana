@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { OrgRole } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
+import { config, logError } from '@grafana/runtime';
 import {
   Avatar,
   Box,
@@ -79,7 +79,9 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        logError(e instanceof Error ? e : new Error(String(e)), {
+          message: 'Error loading options',
+        });
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

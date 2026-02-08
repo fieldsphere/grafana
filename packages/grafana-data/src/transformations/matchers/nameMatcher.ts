@@ -1,3 +1,5 @@
+import { logError } from '@grafana/runtime';
+
 import { getFieldDisplayName } from '../../field/fieldState';
 import { stringToJsRegex } from '../../text/string';
 import { DataFrame, Field, FieldType, TIME_SERIES_VALUE_FIELD_NAME } from '../../types/dataFrame';
@@ -201,7 +203,7 @@ const patternToRegex = (pattern?: string): RegExp | undefined => {
   try {
     return stringToJsRegex(pattern);
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)));
     return undefined;
   }
 };

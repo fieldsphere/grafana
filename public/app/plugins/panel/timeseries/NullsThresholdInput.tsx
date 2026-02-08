@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { rangeUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { logWarning } from '@grafana/runtime';
 import { Input } from '@grafana/ui';
 
 export enum InputPrefix {
@@ -31,7 +32,9 @@ export const NullsThresholdInput = ({ value, onChange, inputPrefix, isTime }: Pr
           val = Number(txt);
         }
       } catch (err) {
-        console.warn('ERROR', err);
+        logWarning('Error parsing threshold input', {
+          error: err instanceof Error ? err.message : String(err),
+        });
       }
     }
     onChange(val);

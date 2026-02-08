@@ -4,6 +4,7 @@ import { ReactElement, useMemo } from 'react';
 import { DataFrame, MatcherConfig, SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { SceneDataProvider } from '@grafana/scenes';
+import { logWarning } from '@grafana/runtime';
 import { InlineField, InlineFieldRow, MultiSelect } from '@grafana/ui';
 
 export type LogFilter = {
@@ -98,7 +99,9 @@ function useLogFilters(
 
   return useMemo(() => {
     if (data && data?.series.length > 1) {
-      console.warn('LogViewFilter does not support multiple series in query result.');
+      logWarning('LogViewFilter does not support multiple series in query result.', {
+        seriesCount: data.series.length,
+      });
     }
 
     const frame = data?.series[0];

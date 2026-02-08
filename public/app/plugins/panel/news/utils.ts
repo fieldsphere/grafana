@@ -1,4 +1,5 @@
 import { FieldType, DataFrame, dateTime } from '@grafana/data';
+import { logWarning } from '@grafana/runtime';
 
 import { Feed } from './types';
 
@@ -23,7 +24,10 @@ export function feedToDataFrame(feed: Feed): DataFrame {
         content.push(body);
       }
     } catch (err) {
-      console.warn('Error reading news item:', err, item);
+      logWarning('Error reading news item', {
+        error: err instanceof Error ? err.message : String(err),
+        itemTitle: item.title,
+      });
     }
   }
 

@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import { LoadingState, VariableOption, VariableWithMultiSupport, VariableWithOptions } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
+import { logError } from '@grafana/runtime';
 import { ClickOutsideWrapper } from '@grafana/ui';
 import { StoreState, ThunkDispatch } from 'app/types/store';
 
@@ -47,7 +48,10 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
   const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
     const { rootStateKey } = ownProps.variable;
     if (!rootStateKey) {
-      console.error('OptionPickerFactory: variable has no rootStateKey');
+      logError(new Error('OptionPickerFactory: variable has no rootStateKey'), {
+        variableId: ownProps.variable.id,
+        variableName: ownProps.variable.name,
+      });
       return {
         picker: initialOptionPickerState,
       };
@@ -69,7 +73,10 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
       this.props.openOptions(toKeyedVariableIdentifier(this.props.variable), this.props.onVariableChange);
     onHideOptions = () => {
       if (!this.props.variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        logError(new Error('Variable has no rootStateKey'), {
+          variableId: this.props.variable.id,
+          variableName: this.props.variable.name,
+        });
         return;
       }
 
@@ -103,7 +110,10 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
 
     onNavigate = (key: NavigationKey, clearOthers: boolean) => {
       if (!this.props.variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        logError(new Error('Variable has no rootStateKey'), {
+          variableId: this.props.variable.id,
+          variableName: this.props.variable.name,
+        });
         return;
       }
 

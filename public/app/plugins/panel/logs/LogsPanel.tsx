@@ -32,7 +32,7 @@ import {
   transformDataFrame,
 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { config, getAppEvents } from '@grafana/runtime';
+import { config, getAppEvents, logError, logWarning } from '@grafana/runtime';
 import { ScrollContainer, usePanelContext, useStyles2 } from '@grafana/ui';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { getFieldLinksForExplore } from 'app/features/explore/utils/links';
@@ -483,7 +483,9 @@ export const LogsPanel = ({
           newSeries = await lastValueFrom(transformDataFrame(panel?.transformations, newSeries));
         }
       } catch (e) {
-        console.error(e);
+        logError(e instanceof Error ? e : new Error(String(e)), {
+          panelId: id,
+        });
       } finally {
         setInfiniteScrolling(false);
         loadingRef.current = false;
@@ -802,7 +804,9 @@ function getLogsPanelState(): LogsPermalinkUrlState | undefined {
     try {
       return JSON.parse(panelStateEncoded[0]);
     } catch (e) {
-      console.error('error parsing logsPanelState', e);
+      logError(e instanceof Error ? e : new Error(String(e)), {
+        source: 'getLogsPanelState',
+      });
     }
   }
 
@@ -862,7 +866,9 @@ export async function requestMoreLogs(
   for (const uid in targetGroups) {
     const dataSource = dataSourcesMap.get(panelData.request.targets[0].refId);
     if (!dataSource) {
-      console.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
+      logWarning('Could not resolve data source for target', {
+        refId: panelData.request.targets[0].refId,
+      });
       continue;
     }
     dataRequests.push(

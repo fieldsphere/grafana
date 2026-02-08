@@ -11,6 +11,7 @@ import {
   QueryResultMetaStat,
   shallowCompare,
 } from '@grafana/data';
+import { logError } from '@grafana/runtime';
 
 import { LOADING_FRAME_NAME } from './querySplitting';
 
@@ -142,7 +143,9 @@ export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const sourceIdField = source.fields.find((field) => field.type === FieldType.string && field.name === 'id');
 
   if (!destTimeField || !sourceTimeField) {
-    console.error(new Error(`Time fields not found in the data frames`));
+    logError(new Error(`Time fields not found in the data frames`), {
+      message: 'Time fields not found in the data frames',
+    });
     return;
   }
 

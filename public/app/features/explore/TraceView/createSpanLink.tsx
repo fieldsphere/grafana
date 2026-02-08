@@ -21,7 +21,7 @@ import {
   TraceToLogsTag,
 } from '@grafana/o11y-ds-frontend';
 import { PromQuery } from '@grafana/prometheus';
-import { getTemplateSrv } from '@grafana/runtime';
+import { getTemplateSrv, logError } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
 import { Icon } from '@grafana/ui';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
@@ -123,7 +123,7 @@ export function createSpanLinkFactory({
         spanLinks.push.apply(spanLinks, newSpanLinks);
       } catch (error) {
         // It's fairly easy to crash here for example if data source defines wrong interpolation in the data link
-        console.error(error);
+        logError(error instanceof Error ? error : new Error(String(error)));
         return spanLinks;
       }
     }

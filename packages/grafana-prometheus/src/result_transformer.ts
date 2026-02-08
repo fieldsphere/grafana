@@ -18,7 +18,7 @@ import {
   TIME_SERIES_TIME_FIELD_NAME,
   TIME_SERIES_VALUE_FIELD_NAME,
 } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { getDataSourceSrv, logError } from '@grafana/runtime';
 
 import { ExemplarTraceIdDestination, PromMetric, PromQuery, PromValue } from './types';
 
@@ -419,7 +419,8 @@ export function sortSeriesByLabel(s1: DataFrame, s2: DataFrame): number {
     le2 = parseSampleValue(s2.fields[1].state?.displayName ?? s2.name ?? s2.fields[1].name);
   } catch (err) {
     // fail if not integer. might happen with bad queries
-    console.error(err);
+    const error = err instanceof Error ? err : new Error('Failed to parse sample value for sorting');
+    logError(error);
     return 0;
   }
 

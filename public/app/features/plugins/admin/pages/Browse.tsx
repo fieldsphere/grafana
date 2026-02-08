@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom-v5-compat';
 
 import { SelectableValue, GrafanaTheme2, PluginType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { locationSearchToObject } from '@grafana/runtime';
+import { locationSearchToObject, logError } from '@grafana/runtime';
 import { Select, RadioButtonGroup, useStyles2, Tooltip, Field, TextLink } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { getNavModel } from 'app/core/selectors/navModel';
@@ -72,7 +72,10 @@ export default function Browse() {
 
   // How should we handle errors?
   if (error) {
-    console.error(error.message);
+    const errorObj = error instanceof Error ? error : new Error(error.message);
+    logError(errorObj, {
+      context: 'Browse',
+    });
     return null;
   }
 

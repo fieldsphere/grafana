@@ -16,7 +16,10 @@ export {
   logError,
   createMonitoringLogger,
   logMeasurement,
+  configureLogging,
   type MonitoringLogger,
+  type LoggingConfig,
+  type LogContext,
 } from './utils/logging';
 export {
   DataSourceWithBackend,

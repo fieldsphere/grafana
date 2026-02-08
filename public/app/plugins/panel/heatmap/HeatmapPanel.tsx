@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { useMemo, useRef, useState } from 'react';
 
 import { DashboardCursorSync, PanelProps, TimeRange } from '@grafana/data';
-import { PanelDataErrorView } from '@grafana/runtime';
+import { PanelDataErrorView, logError } from '@grafana/runtime';
 import { ScaleDistributionConfig } from '@grafana/schema';
 import {
   TooltipPlugin2,
@@ -54,7 +54,10 @@ export const HeatmapPanel = (props: HeatmapPanelProps) => {
         timeRange,
       });
     } catch (ex) {
-      console.error(ex);
+      logError(ex instanceof Error ? ex : new Error(String(ex)), {
+        panelId: String(id),
+        source: 'prepareHeatmapData',
+      });
       return { warning: `${ex}` };
     }
   }, [data.series, data.annotations, options, palette, theme, replaceVariables, timeRange]);

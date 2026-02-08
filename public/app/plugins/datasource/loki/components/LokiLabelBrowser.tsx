@@ -5,7 +5,7 @@ import * as React from 'react';
 import { FixedSizeList } from 'react-window';
 
 import { CoreApp, GrafanaTheme2, TimeRange } from '@grafana/data';
-import { reportInteraction } from '@grafana/runtime';
+import { reportInteraction, logError } from '@grafana/runtime';
 import {
   Button,
   HighlightPart,
@@ -376,7 +376,10 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
       const values: FacettableValue[] = rawValues.map((value) => ({ name: value }));
       this.updateLabelState(name, { values, loading: false });
     } catch (error) {
-      console.error(error);
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        message: 'Error fetching label values',
+        labelName: name,
+      });
     }
   }
 
@@ -404,7 +407,10 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
         this.updateLabelState(lastFacetted, { loading: false });
       }
     } catch (error) {
-      console.error(error);
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        message: 'Error fetching series labels',
+        selector,
+      });
     }
   }
 

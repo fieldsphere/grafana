@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom-v5-compat';
 
 import { AppEvents } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { getAppEvents, reportInteraction } from '@grafana/runtime';
+import { getAppEvents, reportInteraction, logError } from '@grafana/runtime';
 import { Button, Drawer, Stack } from '@grafana/ui';
 import { Job, RepositoryView, useDeleteRepositoryFilesWithPathMutation } from 'app/api/clients/provisioning/v0alpha1';
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
@@ -76,7 +76,10 @@ export function DeleteProvisionedDashboardForm({
 
   const handleSubmitForm = async ({ repo, path, comment }: ProvisionedDashboardFormData) => {
     if (!repo || !repository) {
-      console.error('Missing required repository for deletion:', { repo });
+      logError(new Error('Missing required repository for deletion'), {
+        context: 'Delete provisioned dashboard',
+        repo,
+      });
       return;
     }
 

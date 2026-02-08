@@ -30,6 +30,7 @@ import {
   DataSourceWithBackend,
   getDataSourceSrv,
   getTemplateSrv,
+  logWarning,
   reportInteraction,
   TemplateSrv,
 } from '@grafana/runtime';
@@ -295,7 +296,9 @@ export class TempoDatasource extends DataSourceWithBackend<TempoQuery, TempoJson
 
       return false;
     } catch (error) {
-      console.warn('Failed to check for native histograms:', error);
+      logWarning('Failed to check for native histograms', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return false;
     }
   }

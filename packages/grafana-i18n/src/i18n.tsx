@@ -3,6 +3,8 @@ import LanguageDetector, { DetectorOptions } from 'i18next-browser-languagedetec
 // eslint-disable-next-line no-restricted-imports
 import { initReactI18next, setDefaults, setI18n, Trans as I18NextTrans, getI18n } from 'react-i18next';
 
+import { logWarning, logError } from '@grafana/runtime';
+
 import { DEFAULT_LANGUAGE, PSEUDO_LOCALE } from './constants';
 import { initRegionalFormat } from './dates';
 import { LANGUAGES } from './languages';
@@ -43,7 +45,11 @@ export async function loadNamespacedResources(namespace: string, language: strin
         const resources = await loader(resolvedLanguage);
         addResourceBundle(resolvedLanguage, namespace, resources);
       } catch (error) {
-        console.error(`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, error);
+        const errorObj = error instanceof Error ? error : new Error(String(error));
+        logError(errorObj, {
+          namespace,
+          language: resolvedLanguage,
+        });
       }
     })
   );
@@ -201,7 +207,7 @@ export const t: TFunction = (id: string, defaultMessage: string, values?: Record
   initDefaultI18nInstance();
   if (!tFunc) {
     if (process.env.NODE_ENV !== 'test') {
-      console.warn(
+      logWarning(
         't() was called before i18n was initialized. This is probably caused by calling t() in the root module scope, instead of lazily on render'
       );
     }

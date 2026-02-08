@@ -1,8 +1,69 @@
-import { faro, LogContext, LogLevel } from '@grafana/faro-web-sdk';
+import { faro, LogContext as FaroLogContext, LogLevel } from '@grafana/faro-web-sdk';
 
 import { config } from '../config';
 
 export { LogLevel };
+
+/**
+ * Context type for structured logging.
+ * Values can be strings, numbers, booleans, or undefined.
+ * Non-string values are automatically converted to strings when sent to Faro.
+ * @public
+ */
+export type LogContext = Record<string, string | number | boolean | undefined>;
+
+/**
+ * Configuration for structured logging behavior
+ */
+export interface LoggingConfig {
+  /** Whether to output logs to the browser console */
+  consoleOutput: boolean;
+}
+
+/**
+ * Default logging configuration
+ * Console output is enabled in development mode by default
+ */
+const defaultLoggingConfig: LoggingConfig = {
+  consoleOutput: typeof process !== 'undefined' && process.env.NODE_ENV === 'development',
+};
+
+let loggingConfig: LoggingConfig = { ...defaultLoggingConfig };
+
+/**
+ * Configure the structured logging behavior
+ * @param config - Logging configuration options
+ * @public
+ */
+export function configureLogging(newConfig: Partial<LoggingConfig>): void {
+  loggingConfig = { ...loggingConfig, ...newConfig };
+}
+
+/**
+ * Converts a LogContext to FaroLogContext by stringifying all values
+ */
+function toFaroContext(contexts?: LogContext): FaroLogContext | undefined {
+  if (!contexts) {
+    return undefined;
+  }
+  const result: FaroLogContext = {};
+  for (const [key, value] of Object.entries(contexts)) {
+    if (value !== undefined) {
+      result[key] = String(value);
+    }
+  }
+  return result;
+}
+
+/**
+ * Formats context for console output
+ */
+function formatContextForConsole(contexts?: LogContext): string {
+  if (!contexts || Object.keys(contexts).length === 0) {
+    return '';
+  }
+  return ` ${JSON.stringify(contexts)}`;
+}
 
 /**
  * Log a message at INFO level
@@ -12,8 +73,13 @@ export function logInfo(message: string, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushLog([message], {
       level: LogLevel.INFO,
-      context: contexts,
+      context: toFaroContext(contexts),
     });
+  }
+
+  if (loggingConfig.consoleOutput) {
+    // eslint-disable-next-line no-console
+    console.info(`[INFO]${contexts?.source ? ` [${contexts.source}]` : ''} ${message}${formatContextForConsole(contexts)}`);
   }
 }
 
@@ -26,8 +92,13 @@ export function logWarning(message: string, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushLog([message], {
       level: LogLevel.WARN,
-      context: contexts,
+      context: toFaroContext(contexts),
     });
+  }
+
+  if (loggingConfig.consoleOutput) {
+    // eslint-disable-next-line no-console
+    console.warn(`[WARN]${contexts?.source ? ` [${contexts.source}]` : ''} ${message}${formatContextForConsole(contexts)}`);
   }
 }
 
@@ -40,8 +111,13 @@ export function logDebug(message: string, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushLog([message], {
       level: LogLevel.DEBUG,
-      context: contexts,
+      context: toFaroContext(contexts),
     });
+  }
+
+  if (loggingConfig.consoleOutput) {
+    // eslint-disable-next-line no-console
+    console.debug(`[DEBUG]${contexts?.source ? ` [${contexts.source}]` : ''} ${message}${formatContextForConsole(contexts)}`);
   }
 }
 
@@ -53,8 +129,13 @@ export function logDebug(message: string, contexts?: LogContext) {
 export function logError(err: Error, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushError(err, {
-      context: contexts,
+      context: toFaroContext(contexts),
     });
+  }
+
+  if (loggingConfig.consoleOutput) {
+    // eslint-disable-next-line no-console
+    console.error(`[ERROR]${contexts?.source ? ` [${contexts.source}]` : ''} ${err.message}${formatContextForConsole(contexts)}`, err);
   }
 }
 
@@ -71,8 +152,13 @@ export function logMeasurement(type: string, values: MeasurementValues, context?
         type,
         values,
       },
-      { context: context }
+      { context: toFaroContext(context) }
     );
+  }
+
+  if (loggingConfig.consoleOutput) {
+    // eslint-disable-next-line no-console
+    console.info(`[MEASUREMENT]${context?.source ? ` [${context.source}]` : ''} ${type}`, values, context);
   }
 }
 

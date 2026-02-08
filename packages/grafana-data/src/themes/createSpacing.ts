@@ -1,6 +1,7 @@
 // Code based on Material UI
 // The MIT License (MIT)
 // Copyright (c) 2014 Call-Em-All
+import { logError } from '@grafana/runtime';
 import { z } from 'zod';
 
 /** @internal */
@@ -52,7 +53,7 @@ export function createSpacing(options: ThemeSpacingOptions = {}): ThemeSpacing {
 
     if (process.env.NODE_ENV !== 'production') {
       if (typeof value !== 'number') {
-        console.error(`Expected spacing argument to be a number or a string, got ${value}.`);
+        logError(new Error(`Expected spacing argument to be a number or a string, got ${value}.`));
       }
     }
     return value * gridSize;
@@ -61,7 +62,7 @@ export function createSpacing(options: ThemeSpacingOptions = {}): ThemeSpacing {
   const spacing = (...args: Array<number | string>): string => {
     if (process.env.NODE_ENV !== 'production') {
       if (!(args.length <= 4)) {
-        console.error(`Too many arguments provided, expected between 0 and 4, got ${args.length}`);
+        logError(new Error(`Too many arguments provided, expected between 0 and 4, got ${args.length}`));
       }
     }
 

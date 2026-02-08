@@ -11,6 +11,7 @@ import {
   VariableValueSingle,
   VizPanel,
 } from '@grafana/scenes';
+import { logError } from '@grafana/runtime';
 import { OptionsPaneCategoryDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategoryDescriptor';
 
 import { ConditionalRenderingGroup } from '../../conditional-rendering/group/ConditionalRenderingGroup';
@@ -91,7 +92,7 @@ export class AutoGridItem extends SceneObjectBase<AutoGridItemState> implements 
       });
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('DashboardGridItem: Variable is not a MultiValueVariable');
+      logError(new Error('DashboardGridItem: Variable is not a MultiValueVariable'));
       return;
     }
 

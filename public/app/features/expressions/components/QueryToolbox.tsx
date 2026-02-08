@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState, type JSX } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { logError } from '@grafana/runtime';
 import { IconButton, useStyles2, Stack, InlineToast, Tooltip, Icon } from '@grafana/ui';
 
 import { SqlExpressionQuery } from '../types';
@@ -39,7 +40,7 @@ export const QueryToolbox = ({ onFormatCode, onExpand, isExpanded, query }: Quer
       await navigator.clipboard.writeText(query.expression ?? '');
       setShowCopySuccess(true);
     } catch (e) {
-      console.error(e);
+      logError(e instanceof Error ? e : new Error(String(e)));
     }
   }, [query.expression]);
 

@@ -1,12 +1,14 @@
 import { throttle } from 'lodash';
 
+import { logDebug } from '@grafana/runtime';
+
 type Args = Parameters<typeof console.log>;
 
 /**
  * @internal
  * */
-const throttledLog = throttle((...t: Args) => {
-  console.log(...t);
+const throttledLog = throttle((message: string, contexts?: { additionalArgs?: string }) => {
+  logDebug(message, contexts);
 }, 500);
 
 /**
@@ -32,8 +34,13 @@ export const createLogger = (name: string): Logger => {
       if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test' || !loggingEnabled) {
         return;
       }
-      const fn = throttle ? throttledLog : console.log;
-      fn(`[${name}: ${id}]:`, ...t);
+      const message = `[${name}: ${id}]: ${String(t[0] ?? '')}`;
+      const contexts = t.length > 1 ? { additionalArgs: JSON.stringify(t.slice(1)) } : undefined;
+      if (throttle) {
+        throttledLog(message, contexts);
+      } else {
+        logDebug(message, contexts);
+      }
     },
     enable: () => (loggingEnabled = true),
     disable: () => (loggingEnabled = false),

@@ -1,5 +1,5 @@
 import { t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
+import { config, logError } from '@grafana/runtime';
 import {
   SceneComponentProps,
   SceneObject,
@@ -233,7 +233,7 @@ export class AutoGridLayoutManager
   public duplicatePanel(panel: VizPanel) {
     const gridItem = panel.parent;
     if (!(gridItem instanceof AutoGridItem)) {
-      console.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
+      logError(new Error('Trying to duplicate a panel that is not inside a DashboardGridItem'));
       return;
     }
 

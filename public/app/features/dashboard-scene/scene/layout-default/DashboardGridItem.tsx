@@ -14,6 +14,7 @@ import {
   VariableValueSingle,
   SceneGridRow,
 } from '@grafana/scenes';
+import { logError } from '@grafana/runtime';
 import { GRID_COLUMN_COUNT } from 'app/core/constants';
 import { OptionsPaneCategoryDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategoryDescriptor';
 
@@ -150,7 +151,7 @@ export class DashboardGridItem
       });
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('DashboardGridItem: Variable is not a MultiValueVariable');
+      logError(new Error('DashboardGridItem: Variable is not a MultiValueVariable'));
       return;
     }
 

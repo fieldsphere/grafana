@@ -354,7 +354,6 @@ export class V2DashboardSerializer
           }
         } else {
           const warningMsg = 'Dashboard serializer: Undefined variable found in dashboard save model, ignoring it';
-          console.warn(warningMsg);
           logWarning(warningMsg);
         }
       }

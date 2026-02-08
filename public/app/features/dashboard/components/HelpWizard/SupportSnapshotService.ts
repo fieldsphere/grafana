@@ -2,6 +2,7 @@ import saveAs from 'file-saver';
 
 import { dateTimeFormat, formattedValueToString, getValueFormat, SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { logInfo } from '@grafana/runtime';
 import { SceneObject } from '@grafana/scenes';
 import { StateManagerBase } from 'app/core/services/StateManagerBase';
 import { Randomize } from 'app/features/dashboard-scene/inspect/HelpWizard/randomizer';
@@ -88,7 +89,7 @@ export class SupportSnapshotService extends StateManagerBase<SupportSnapshotStat
       const dash = createDashboardSceneFromDashboardModel(oldModel, snapshot);
       scene = dash.state.body; // skip the wrappers
     } catch (ex) {
-      console.log('Error creating scene:', ex);
+      logInfo('Error creating scene for support snapshot', { error: ex instanceof Error ? ex.message : String(ex) });
     }
 
     this.setState({ snapshot, snapshotText, markdownText, snapshotSize, snapshotUpdate: snapshotUpdate + 1, scene });

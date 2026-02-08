@@ -3,6 +3,7 @@ import { memo, useEffect, useMemo, useState } from 'react';
 import { usePrevious } from 'react-use';
 
 import { DataSourceApi, getDefaultTimeRange, LoadingState, PanelData, SelectableValue, TimeRange } from '@grafana/data';
+import { logError } from '@grafana/runtime';
 import {
   EditorRow,
   LabelFilters,
@@ -126,7 +127,11 @@ export const LokiQueryBuilder = memo<Props>(({ datasource, query, onChange, onRu
         Math.abs(timeRange.from.valueOf() - prevTimeRange.from.valueOf()) > TIME_SPAN_TO_TRIGGER_SAMPLES);
     const updateBasedOnChangedQuery = !isEqual(prevQuery, query);
     if (updateBasedOnChangedTimeRange || updateBasedOnChangedQuery) {
-      onGetSampleData().catch(console.error);
+      onGetSampleData().catch((error) => {
+        logError(error instanceof Error ? error : new Error(String(error)), {
+          message: 'Error getting sample data',
+        });
+      });
     }
   }, [datasource, query, timeRange, prevQuery, prevTimeRange]);
 

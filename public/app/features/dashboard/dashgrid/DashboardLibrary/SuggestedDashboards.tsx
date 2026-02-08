@@ -5,7 +5,7 @@ import { useAsync, useAsyncFn } from 'react-use';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { getDataSourceSrv, locationService } from '@grafana/runtime';
+import { getDataSourceSrv, locationService, logError } from '@grafana/runtime';
 import { Button, useStyles2, Grid, Alert } from '@grafana/ui';
 import { PluginDashboard } from 'app/types/plugins';
 
@@ -136,7 +136,7 @@ export const SuggestedDashboards = ({ datasourceUid }: Props) => {
 
       return { dashboards: mixed, hasMoreDashboards };
     } catch (error) {
-      console.error('Error loading suggested dashboards', error);
+      logError(error instanceof Error ? error : new Error(String(error)), { source: 'suggested-dashboards' });
       return { dashboards: [], hasMoreDashboards: false };
     }
   }, [datasourceUid]);

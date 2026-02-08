@@ -27,6 +27,7 @@ import {
   toDataQueryResponse,
   TemplateSrv,
   reportInteraction,
+  logError,
 } from '@grafana/runtime';
 
 import { ResponseParser } from '../ResponseParser';
@@ -215,7 +216,8 @@ export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLO
     try {
       response = await this.runMetaQuery(interpolatedQuery, range);
     } catch (error) {
-      console.error(error);
+      const err = error instanceof Error ? error : new Error('error when executing the sql query');
+      logError(err);
       throw new Error('error when executing the sql query');
     }
     return this.getResponseParser().transformMetricFindResponse(response);

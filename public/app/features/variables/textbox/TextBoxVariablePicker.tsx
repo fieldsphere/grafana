@@ -2,6 +2,7 @@ import { ChangeEvent, FocusEvent, KeyboardEvent, ReactElement, useCallback, useE
 
 import { TextBoxVariableModel, isEmptyObject } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { logError } from '@grafana/runtime';
 import { Input } from '@grafana/ui';
 import { useDispatch } from 'app/types/store';
 
@@ -23,7 +24,10 @@ export function TextBoxVariablePicker({ variable, onVariableChange, readOnly }: 
 
   const updateVariable = useCallback(() => {
     if (!variable.rootStateKey) {
-      console.error('Cannot update variable without rootStateKey');
+      logError(new Error('Cannot update variable without rootStateKey'), {
+        variableId: variable.id,
+        variableName: variable.name,
+      });
       return;
     }
 

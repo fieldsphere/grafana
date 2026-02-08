@@ -1,3 +1,4 @@
+import { logError, logInfo } from '@grafana/runtime';
 import { useEffect, useState } from 'react';
 import * as React from 'react';
 
@@ -32,7 +33,7 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.setObject(storageKey, value);
     } catch (error) {
-      console.error(error);
+      logError(error instanceof Error ? error : new Error(String(error)));
     }
     setState({ value });
   };
@@ -41,7 +42,7 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.delete(storageKey);
     } catch (error) {
-      console.log(error);
+      logInfo(String(error));
     }
     setState({ value: defaultValue });
   };
