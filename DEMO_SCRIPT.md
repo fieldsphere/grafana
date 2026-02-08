@@ -106,30 +106,33 @@ Cursor recognizes this maps to the issue-tracker skill, runs the `gh` CLI, and p
 
 ### Transition to Act 3
 
-> Now let's put this all together. I'm going to pull up one of those issues we just saw -- the structured logging inconsistency -- and use Plan Mode to attack it.
+> Now let's put this all together. I identified issue #12 from that backlog -- the structured logging inconsistency. I'm going to open a fresh chat in Plan Mode and hand the agent that issue directly.
 
 ---
 
 ## Act 3: Plan Mode -- Logging Issue (#12) (~8 min)
 
-**Goal:** Show the full Plan Mode workflow. Introduce model selection (plan with a reasoning model, execute with a faster model).
+**Goal:** Show the full Plan Mode workflow. Demonstrate issue-to-fix continuity from Act 2. Introduce model selection (plan with a reasoning model, execute with a faster model).
 
 **Issue:** #12 -- "Inconsistent logging. Update all logging to structured logging."
 
 ### Verbal Setup
 
-> When you're working with AI coding agents, there's a common frustration. You describe what you want, the agent goes off and starts making changes, and then you realize it misunderstood your intent. Now you're spending time undoing work or course correcting.
+> I'm opening a new chat here, and that's intentional. I triaged the backlog in one session, now I'm starting a focused session to fix a specific issue. That's how this works in practice -- you don't need to re-explain the problem to the agent. I'm going to reference the issue directly and let the agent pull the context it needs.
 >
-> Plan mode solves this by creating a checkpoint between your prompt and the agent's execution. First, it lets you align your intent. Before the agent touches any code, it shows you exactly what it understood and what it plans to do. You review the plan and only then does execution begin. Misunderstandings get caught early, not after the agent has already edited 20 files.
+> And I'm starting in Plan Mode. When you're working with AI coding agents, there's a common frustration: you describe what you want, the agent goes off and starts making changes, and then you realize it misunderstood your intent. Now you're spending time undoing work or course correcting.
 >
-> Second, this actually saves tokens. When an agent has a clear, reviewed plan, it executes more efficiently. Fewer exploration loops, less refactoring -- that translates directly into lower costs and faster completions.
+> Plan Mode solves this by creating a checkpoint between your prompt and the agent's execution. Before the agent touches any code, it shows you exactly what it understood and what it plans to do. You review the plan and only then does execution begin. Misunderstandings get caught early, not after the agent has already edited 20 files.
+>
+> It also saves tokens. When an agent has a clear, reviewed plan, it executes more efficiently. Fewer exploration loops, less refactoring -- that translates directly into lower costs and faster completions.
 
 ### Actions in Cursor
 
-1. **Switch to Plan Mode** (dropdown or Cmd+Period)
-2. **Paste the prompt:**
+1. **Open a new chat** (Cmd+N)
+2. **Switch to Plan Mode** (dropdown or Cmd+Period)
+3. **Paste the prompt:**
 
-> We have inconsistent logging across the codebase. Some places use structured logging with key-value pairs, which is what we want, but other places use fmt.Sprintf or format strings that Grafana's logging library doesn't interpret. Find all instances and fix them to use proper structured logging.
+> Fix issue #12. The logging is inconsistent across the codebase -- some places use structured logging with key-value pairs, which is what we want, but others use fmt.Sprintf or format strings that Grafana's logging library doesn't interpret. Find all instances and fix them to use proper structured logging.
 
 3. **While the agent plans (~30-60 sec)** -- narrate or engage audience (see talk tracks below)
 4. **Review the plan** -- the agent should identify two problem types:
