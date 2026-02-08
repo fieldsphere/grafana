@@ -1133,7 +1133,7 @@ function getVariablesV1(vars: DashboardV2Spec['variables']): VariableModel[] {
         break;
       default:
         // do not throw error, just log it
-        logError(new Error(`Variable transformation not implemented: ${v.kind}`), { variableKind: v.kind });
+        logError(new Error(`Variable transformation not implemented: ${v.kind}`), { variableKind: v.kind, variable: JSON.stringify(v) });
     }
   }
   return variables;
