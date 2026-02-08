@@ -2,9 +2,11 @@ import { ChangeEvent } from 'react';
 
 import { PageLayoutType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase, behaviors, sceneGraph } from '@grafana/scenes';
 import { TimeZone } from '@grafana/schema';
+
+const logger = createMonitoringLogger('grafana.features.dashboard-scene.settings.GeneralSettingsEditView');
 import {
   Box,
   CollapsableSection,
@@ -149,7 +151,7 @@ export class GeneralSettingsEditView
       const liveNow = this.getLiveNowTimer();
       enable ? liveNow.enable() : liveNow.disable();
     } catch (err) {
-      console.error(err);
+      logger.logError(err);
     }
   };
 

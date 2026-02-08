@@ -1,5 +1,5 @@
 import { getNextRefId } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 import {
   SceneDataProvider,
   SceneDataQuery,
@@ -10,6 +10,8 @@ import {
   VizPanelMenu,
   VizPanelState,
 } from '@grafana/scenes';
+
+const logger = createMonitoringLogger('grafana.features.dashboard-scene.serialization.layoutSerializers.utils');
 import { DataSourceRef } from '@grafana/schema/dist/esm/index.gen';
 import {
   Spec as DashboardV2Spec,
@@ -353,15 +355,15 @@ export function getDataSourceForQuery(querySpecDS: DataSourceRef | undefined | n
 
   if (bestGuess) {
     return { uid: bestGuess.uid, type: bestGuess.meta.id };
-  } else if (dsList && dsList[defaultDatasource]) {
-    // Fallback to default datasource even if type doesn't match
-    // In the datasource list from bootData "id" is the type and the uid could be uid or the name
-    // in cases like grafana, dashboard or mixed datasource
+    } else if (dsList && dsList[defaultDatasource]) {
+      // Fallback to default datasource even if type doesn't match
+      // In the datasource list from bootData "id" is the type and the uid could be uid or the name
+      // in cases like grafana, dashboard or mixed datasource
 
-    console.warn(
-      `Could not find datasource for query kind ${queryKind}, defaulting to ${dsList[defaultDatasource].meta.id}`
-    );
-    return {
+      logger.logWarning(
+        `Could not find datasource for query kind ${queryKind}, defaulting to ${dsList[defaultDatasource].meta.id}`
+      );
+      return {
       uid: dsList[defaultDatasource].uid || dsList[defaultDatasource].name,
       type: dsList[defaultDatasource].meta.id,
     };
