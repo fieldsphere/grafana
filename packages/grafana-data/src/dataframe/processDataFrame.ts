@@ -1,4 +1,5 @@
 // Libraries
+import { logWarning } from '@grafana/runtime';
 import { isArray, isBoolean, isNumber, isString } from 'lodash';
 
 import { isDateTime } from '../datetime/moment_wrapper';
@@ -340,7 +341,7 @@ export function toDataFrame(data: any): DataFrame {
     return arrayToDataFrame(data);
   }
 
-  console.warn('Can not convert', data);
+  logWarning('Can not convert', { data });
   throw new Error('Unsupported data format');
 }
 

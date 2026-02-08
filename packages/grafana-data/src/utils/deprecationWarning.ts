@@ -1,3 +1,5 @@
+import { logWarning } from '@grafana/runtime';
+
 import { KeyValue } from '../types/data';
 
 // Avoid writing the warning message more than once every 10s
@@ -11,7 +13,7 @@ export const deprecationWarning = (file: string, oldName: string, newName?: stri
   const now = Date.now();
   const last = history[message];
   if (!last || now - last > 10000) {
-    console.warn(message);
+    logWarning(message);
     history[message] = now;
   }
 };

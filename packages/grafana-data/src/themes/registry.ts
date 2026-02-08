@@ -1,3 +1,5 @@
+import { logError } from '@grafana/runtime';
+
 import { Registry, RegistryItem } from '../utils/Registry';
 
 import { createTheme, NewThemeOptionsSchema } from './createTheme';
@@ -79,7 +81,7 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
 for (const [name, json] of Object.entries(extraThemes)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    logError(new Error(`Invalid theme definition for theme ${name}: ${result.error.message}`));
   } else {
     const theme = result.data;
     themeRegistry.register({
