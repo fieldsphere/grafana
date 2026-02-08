@@ -257,6 +257,8 @@ export class Graph {
   }
 }
 
+import { logDebug } from '@grafana/runtime';
+
 export const printGraph = (g: Graph) => {
   Object.keys(g.nodes).forEach((name) => {
     const n = g.nodes[name];
@@ -268,7 +270,7 @@ export const printGraph = (g: Graph) => {
     if (!inputEdges) {
       inputEdges = '<none>';
     }
-    console.log(`${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
+    logDebug(`${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
   });
 };
 

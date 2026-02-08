@@ -159,7 +159,9 @@ export const safeStringifyValue = (value: unknown, space?: number) => {
   try {
     return JSON.stringify(value, null, space);
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      message: 'Failed to stringify value',
+    });
   }
 
   return '';
@@ -232,7 +234,9 @@ export async function ensureQueries(
         try {
           await getDataSourceSrv().get(query.datasource.uid);
         } catch {
-          console.error(`One of the queries has a datasource that is no longer available and was removed.`);
+          logError(new Error('One of the queries has a datasource that is no longer available and was removed.'), {
+            message: 'Datasource validation failed',
+          });
           validDS = false;
         }
       }
