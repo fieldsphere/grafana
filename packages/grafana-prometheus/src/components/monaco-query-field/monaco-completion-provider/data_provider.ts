@@ -1,10 +1,13 @@
 import { HistoryItem, TimeRange } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { DEFAULT_COMPLETION_LIMIT, METRIC_LABEL } from '../../../constants';
 import { type PrometheusLanguageProviderInterface } from '../../../language_provider';
 import { removeQuotesIfExist } from '../../../language_utils';
 import { PromQuery } from '../../../types';
 import { escapeForUtf8Support, isValidLegacyName } from '../../../utf8_support';
+
+const logger = createMonitoringLogger('grafana-prometheus.monaco-completion-provider');
 
 export const CODE_MODE_SUGGESTIONS_INCOMPLETE_EVENT = 'codeModeSuggestionsIncomplete';
 
@@ -80,7 +83,9 @@ export class DataProvider {
 
       return Array.isArray(result) ? result : [];
     } catch (error) {
-      console.warn('Failed to query metric names:', error);
+      logger.logWarning('Failed to query metric names', {
+        error: error instanceof Error ? error.message : String(error),
+      });
       return [];
     }
   };
