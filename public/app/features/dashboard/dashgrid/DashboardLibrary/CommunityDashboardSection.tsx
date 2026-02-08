@@ -5,7 +5,7 @@ import { useAsyncFn, useAsyncRetry, useDebounce } from 'react-use';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import { Button, useStyles2, Stack, Grid, EmptyState, Alert, FilterInput, Box } from '@grafana/ui';
 
 import { DashboardCard } from './DashboardCard';
@@ -97,7 +97,7 @@ export const CommunityDashboardSection = ({ onShowMapping, datasourceType }: Pro
         datasourceType: ds.type,
       };
     } catch (err) {
-      console.error('Error loading community dashboards', err);
+      logger.logError('Error loading community dashboards', { error: err });
       throw err;
     }
   }, [datasourceUid, debouncedSearchQuery]);

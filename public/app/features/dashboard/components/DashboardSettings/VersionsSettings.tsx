@@ -1,6 +1,7 @@
 import { PureComponent } from 'react';
 import * as React from 'react';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Spinner, Stack } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { Resource } from 'app/features/apiserver/types';
@@ -17,6 +18,8 @@ import { VersionHistoryComparison } from '../VersionHistory/VersionHistoryCompar
 import { VersionHistoryTable } from '../VersionHistory/VersionHistoryTable';
 
 import { SettingsPageProps } from './types';
+
+const logger = createMonitoringLogger('grafana.features.dashboard.VersionsSettings');
 
 interface Props extends SettingsPageProps {}
 
@@ -69,7 +72,7 @@ export class VersionsSettings extends PureComponent<Props, State> {
         // Update the continueToken for the next request, if available
         this.continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => logger.logDebug('Error loading versions', { error: err }))
       .finally(() => this.setState({ isAppending: false }));
   };
 
