@@ -1,5 +1,6 @@
 import { SyntaxNode, Tree } from '@lezer/common';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import {
   Aggregate,
   And,
@@ -22,6 +23,8 @@ import {
   String as StringNode,
   TraceQL,
 } from '@grafana/lezer-traceql';
+
+const logger = createMonitoringLogger('grafana.plugins.datasource.tempo');
 
 type Direction = 'parent' | 'firstChild' | 'lastChild' | 'nextSibling' | 'prevSibling';
 type NodeType = number;
@@ -444,7 +447,7 @@ function resolveNewSpansetExpression(node: SyntaxNode, text: string, offset: num
       previousNode = previousNode!.nextSibling;
     }
   } catch (error) {
-    console.error('Unexpected error while searching for previous node', error);
+    logger.logError('Unexpected error while searching for previous node', error);
   }
 
   if (previousNode?.type.id === And || previousNode?.type.id === Or) {

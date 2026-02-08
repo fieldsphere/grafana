@@ -1,4 +1,7 @@
 import { monacoTypes } from '@grafana/ui';
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('grafana.plugins.datasource.loki');
 
 // this thing here is a workaround in a way.
 // what we want to achieve, is that when the autocomplete-window
@@ -81,7 +84,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      logger.logDebug('logStorage: not implemented');
     },
 
     migrate: (): Promise<void> => {

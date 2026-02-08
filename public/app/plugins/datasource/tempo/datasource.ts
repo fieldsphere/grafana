@@ -27,12 +27,15 @@ import {
 import { NodeGraphOptions, SpanBarOptions, TraceToLogsOptions } from '@grafana/o11y-ds-frontend';
 import {
   config,
+  createMonitoringLogger,
   DataSourceWithBackend,
   getDataSourceSrv,
   getTemplateSrv,
   reportInteraction,
   TemplateSrv,
 } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('grafana.plugins.datasource.tempo');
 import { BarGaugeDisplayMode, TableCellDisplayMode, VariableFormatID } from '@grafana/schema';
 
 import { interpolateFilters } from './SearchTraceQLEditor/utils';
@@ -295,7 +298,7 @@ export class TempoDatasource extends DataSourceWithBackend<TempoQuery, TempoJson
 
       return false;
     } catch (error) {
-      console.warn('Failed to check for native histograms:', error);
+      logger.logWarning('Failed to check for native histograms:', error);
       return false;
     }
   }

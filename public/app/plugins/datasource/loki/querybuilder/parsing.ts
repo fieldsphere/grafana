@@ -55,6 +55,7 @@ import {
 } from '@grafana/lezer-logql';
 import { QueryBuilderLabelFilter, QueryBuilderOperation, QueryBuilderOperationParamValue } from '@grafana/plugin-ui';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { binaryScalarDefs } from './binaryScalarOperations';
 import { checkParamsAreValid, getDefinitionById } from './operations';
 import {
@@ -67,6 +68,8 @@ import {
   replaceVariables,
 } from './parsingUtils';
 import { LokiOperationId, LokiVisualQuery, LokiVisualQueryBinary } from './types';
+
+const logger = createMonitoringLogger('grafana.plugins.datasource.loki');
 
 interface Context {
   query: LokiVisualQuery;
@@ -105,7 +108,7 @@ export function buildVisualQueryFromString(expr: string): Context {
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    logger.logError(err);
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,
