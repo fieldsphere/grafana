@@ -27,6 +27,7 @@ import {
 } from '@prometheus-io/lezer-promql';
 
 import { t } from '@grafana/i18n';
+import { logError } from '@grafana/runtime';
 
 import { binaryScalarOperatorToOperatorName } from './binaryScalarOperations';
 import {
@@ -72,7 +73,7 @@ export function buildVisualQueryFromString(expr: string): Omit<Context, 'replace
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    logError(err instanceof Error ? err : new Error(String(err)));
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,
