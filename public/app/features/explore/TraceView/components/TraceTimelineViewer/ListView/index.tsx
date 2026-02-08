@@ -14,6 +14,10 @@
 
 import * as React from 'react';
 
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('grafana.features.explore.trace-timeline-viewer-list-view');
+
 import TNil from '../../types/TNil';
 
 import Positions from './Positions';
@@ -387,8 +391,7 @@ export default class ListView extends React.Component<TListViewProps> {
         // use `.getAttribute(...)` instead of `.dataset` for jest / JSDOM
         const itemKey = node.getAttribute('data-item-key');
         if (!itemKey) {
-          // eslint-disable-next-line no-console
-          console.warn('itemKey not found');
+          logger.logWarning('itemKey not found');
           continue;
         }
         // measure the first child, if it's available, otherwise the node itself

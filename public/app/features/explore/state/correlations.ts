@@ -1,13 +1,15 @@
 import { Observable } from 'rxjs';
 
 import { DataLinkTransformationConfig } from '@grafana/data';
-import { CorrelationData, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
+import { CorrelationData, createMonitoringLogger, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import { createErrorNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { CreateCorrelationParams } from 'app/features/correlations/types';
 import { getCorrelationsBySourceUIDs, createCorrelation, generateDefaultLabel } from 'app/features/correlations/utils';
 import { store } from 'app/store/store';
 import { ThunkResult } from 'app/types/store';
+
+const logger = createMonitoringLogger('grafana.features.explore.state-correlations');
 
 import { saveCorrelationsAction } from './explorePane';
 import { splitClose } from './main';
@@ -99,7 +101,7 @@ export function saveCurrentCorrelation(
         })
         .catch((err) => {
           dispatch(notifyApp(createErrorNotification('Error creating correlation', err)));
-          console.error(err);
+          logger.logError(err);
         });
     }
   };

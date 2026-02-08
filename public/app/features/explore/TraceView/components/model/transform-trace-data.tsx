@@ -12,7 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { isEqual as _isEqual } from 'lodash';
+
+const logger = createMonitoringLogger('grafana.features.explore.transform-trace-data');
 
 // @ts-ignore
 import { TraceKeyValuePair } from '@grafana/data';
@@ -114,11 +117,9 @@ export default function transformTraceData(data: TraceResponse | undefined): Tra
     // make sure span IDs are unique
     const idCount = spanIdCounts.get(spanID);
     if (idCount != null) {
-      // eslint-disable-next-line no-console
-      console.warn(`Dupe spanID, ${idCount + 1} x ${spanID}`, span, spanMap.get(spanID));
+      logger.logWarning(`Dupe spanID, ${idCount + 1} x ${spanID}`, span, spanMap.get(spanID));
       if (_isEqual(span, spanMap.get(spanID))) {
-        // eslint-disable-next-line no-console
-        console.warn('\t two spans with same ID have `isEqual(...) === true`');
+        logger.logWarning('\t two spans with same ID have `isEqual(...) === true`');
       }
       spanIdCounts.set(spanID, idCount + 1);
       spanID = `${spanID}_${idCount}`;
