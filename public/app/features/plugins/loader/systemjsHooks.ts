@@ -1,5 +1,5 @@
 import { PluginLoadingStrategy } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, logWarning } from '@grafana/runtime';
 
 import { transformPluginSourceForCDN } from '../cdn/utils';
 
@@ -102,7 +102,9 @@ export function decorateSystemJSResolve(
       const url = originalResolve.apply(this, [resolvedUrl, parentUrl]);
       return resolvePluginUrlWithCache(url);
     }
-    console.warn(`SystemJS: failed to resolve '${id}'`);
+    logWarning(`SystemJS: failed to resolve '${id}'`, {
+      moduleId: id,
+    });
     return id;
   }
 }

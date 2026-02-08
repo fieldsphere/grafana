@@ -20,7 +20,7 @@ import {
   VariableRefresh,
   VariableWithOptions,
 } from '@grafana/data';
-import { config, locationService, logWarning } from '@grafana/runtime';
+import { config, locationService, logError, logWarning } from '@grafana/runtime';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { contextSrv } from 'app/core/services/context_srv';
 import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
@@ -808,7 +808,10 @@ export const onTimeRangeUpdated =
       await Promise.all(promises);
       dependencies.events.publish(new VariablesTimeRangeProcessDone({ variableIds }));
     } catch (error) {
-      console.error(error);
+      logError(error instanceof Error ? error : new Error(String(error)), {
+        message: 'Template variable service failed',
+        variableIds,
+      });
       dispatch(notifyApp(createVariableErrorNotification('Template variable service failed', error)));
     }
   };
@@ -962,7 +965,10 @@ export const initVariablesTransaction =
       dispatch(toKeyedAction(uid, variablesCompleteTransaction({ uid })));
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Templating init failed', err)));
-      console.error(err);
+      logError(err instanceof Error ? err : new Error(String(err)), {
+        message: 'Templating init failed',
+        urlUid,
+      });
     }
   };
 
@@ -1033,7 +1039,10 @@ export const updateOptions =
       dispatch(toKeyedAction(rootStateKey, variableStateFailed(toVariablePayload(identifier, { error }))));
 
       if (!rethrow) {
-        console.error(error);
+        logError(error instanceof Error ? error : new Error(String(error)), {
+          message: 'Error updating options',
+          identifier,
+        });
         dispatch(notifyApp(createVariableErrorNotification('Error updating options:', error, identifier)));
       }
 
@@ -1113,7 +1122,10 @@ export function upgradeLegacyQueries(
       );
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Failed to upgrade legacy queries', err)));
-      console.error(err);
+      logError(err instanceof Error ? err : new Error(String(err)), {
+        message: 'Failed to upgrade legacy queries',
+        identifier,
+      });
     }
   };
 }

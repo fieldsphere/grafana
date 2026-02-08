@@ -3,6 +3,7 @@ import * as React from 'react';
 import SVG from 'react-inlinesvg';
 
 import { GrafanaTheme2, isIconName } from '@grafana/data';
+import { logWarning } from '@grafana/runtime';
 
 import { useStyles2 } from '../../themes/ThemeContext';
 import { IconName, IconType, IconSize } from '../../types/icon';
@@ -53,7 +54,7 @@ export const Icon = React.memo(
       const styles = useStyles2(getIconStyles);
 
       if (!isIconName(name)) {
-        console.warn('Icon component passed an invalid icon name', name);
+        logWarning('Icon component passed an invalid icon name', { name });
       }
 
       // handle the deprecated 'fa fa-spinner'

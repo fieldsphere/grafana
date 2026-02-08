@@ -55,6 +55,8 @@ import {
 } from '@grafana/lezer-logql';
 import { QueryBuilderLabelFilter, QueryBuilderOperation, QueryBuilderOperationParamValue } from '@grafana/plugin-ui';
 
+import { logError } from '@grafana/runtime';
+
 import { binaryScalarDefs } from './binaryScalarOperations';
 import { checkParamsAreValid, getDefinitionById } from './operations';
 import {
@@ -105,7 +107,9 @@ export function buildVisualQueryFromString(expr: string): Context {
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    logError(err instanceof Error ? err : new Error(String(err)), {
+      message: 'Error handling expression',
+    });
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

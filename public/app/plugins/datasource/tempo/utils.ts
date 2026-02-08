@@ -1,5 +1,5 @@
 import { DataSourceApi, parseDuration } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { getDataSourceSrv, logError } from '@grafana/runtime';
 
 import { generateId } from './SearchTraceQLEditor/TagsInput';
 import { TraceqlFilter, TraceqlSearchScope } from './dataquery.gen';
@@ -32,7 +32,10 @@ export async function getDS(uid?: string): Promise<DataSourceApi | undefined> {
   try {
     return await dsSrv.get(uid);
   } catch (error) {
-    console.error('Failed to load data source', error);
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      message: 'Failed to load data source',
+      uid,
+    });
     return undefined;
   }
 }

@@ -4,6 +4,7 @@ import { PureComponent } from 'react';
 
 import { GrafanaTheme2, monacoLanguageRegistry } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
+import { logWarning } from '@grafana/runtime';
 
 import { withTheme2 } from '../../themes/ThemeContext';
 import { Themeable2 } from '../../types/theme';
@@ -43,7 +44,7 @@ class UnthemedCodeEditor extends PureComponent<Props> {
       }
 
       if (!this.monaco) {
-        console.warn('Monaco instance not loaded yet');
+        logWarning('Monaco instance not loaded yet');
         return;
       }
 

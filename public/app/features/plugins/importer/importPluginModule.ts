@@ -1,6 +1,6 @@
 import { DEFAULT_LANGUAGE } from '@grafana/i18n';
 import { getResolvedLanguage } from '@grafana/i18n/internal';
-import { config } from '@grafana/runtime';
+import { config, logError } from '@grafana/runtime';
 
 import builtInPlugins, { isBuiltinPluginPath } from '../built_in_plugins';
 import { registerPluginInfoInCache } from '../loader/pluginInfoCache';
@@ -68,7 +68,17 @@ export async function importPluginModule({
 
   return SystemJS.import(modulePath).catch((e) => {
     let error = new Error('Could not load plugin', { cause: e });
-    console.error(error);
+    logError(error, {
+      path,
+      pluginId,
+      pluginVersion: version ?? '',
+      expectedHash: moduleHash ?? '',
+      loadingStrategy: loadingStrategy.toString(),
+      sriChecksEnabled: String(Boolean(config.featureToggles.pluginsSriChecks)),
+      originalErrorMessage: e.originalErr?.message || '',
+      originalErrorStack: e.originalErr?.stack || '',
+      systemJSOriginalErr: e.originalErr?.message || '',
+    });
     pluginsLogger.logError(error, {
       path,
       pluginId,

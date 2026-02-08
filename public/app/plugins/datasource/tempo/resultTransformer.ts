@@ -24,7 +24,7 @@ import {
   TraceSpanRow,
 } from '@grafana/data';
 import { createNodeGraphFrames, TraceToProfilesData } from '@grafana/o11y-ds-frontend';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { getDataSourceSrv, logError } from '@grafana/runtime';
 
 import { SearchTableType } from './dataquery.gen';
 import { Span, SpanAttributes, Spanset, TempoJsonData, TraceSearchMetadata } from './types';
@@ -189,7 +189,9 @@ export function transformFromOTLP(
       }
     }
   } catch (error) {
-    console.error(error);
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      message: 'Error transforming trace data from OTLP',
+    });
     return { error: { message: 'JSON is not valid OpenTelemetry format: ' + error }, data: [] };
   }
 

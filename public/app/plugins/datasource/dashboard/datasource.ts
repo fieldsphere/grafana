@@ -20,6 +20,7 @@ import {
   DataSourceGetDrilldownsApplicabilityOptions,
   DrilldownsApplicability,
 } from '@grafana/data';
+import { logWarning } from '@grafana/runtime';
 import { isSceneObject, SceneDataProvider, SceneDataTransformer, SceneObject } from '@grafana/scenes';
 import {
   activateSceneObjectAndParentTree,
@@ -270,7 +271,12 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         options: { value: filter.value },
       });
     } catch (error) {
-      console.warn('Failed to create value matcher for filter:', filter, error);
+      logWarning('Failed to create value matcher for filter', {
+        filter: filter.key,
+        operator: filter.operator,
+        value: filter.value,
+        error: error instanceof Error ? error.message : String(error),
+      });
       return null;
     }
   }

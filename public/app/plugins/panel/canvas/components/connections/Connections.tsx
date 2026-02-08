@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { BehaviorSubject } from 'rxjs';
 
-import { config } from '@grafana/runtime';
+import { config, logDebug } from '@grafana/runtime';
 import { CanvasConnection, ConnectionCoordinates, ConnectionPath } from 'app/features/canvas/element';
 import { ElementState } from 'app/features/canvas/runtime/element';
 import { Scene } from 'app/features/canvas/runtime/scene';
@@ -131,7 +131,7 @@ export class Connections {
     let element: ElementState | undefined = this.findElementTarget(event.target);
 
     if (!element) {
-      console.log('no element');
+      logDebug('No element found for connection target');
       return;
     }
 
@@ -140,7 +140,7 @@ export class Connections {
     } else {
       this.connectionSource = element;
       if (!this.connectionSource) {
-        console.log('no connection source');
+        logDebug('No connection source found');
         return;
       }
     }

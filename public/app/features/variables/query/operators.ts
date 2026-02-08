@@ -10,6 +10,7 @@ import {
   PanelData,
   QueryVariableModel,
 } from '@grafana/data';
+import { logError } from '@grafana/runtime';
 import { ThunkDispatch } from 'app/types/store';
 
 import { validateVariableSelectionState } from '../state/actions';
@@ -110,7 +111,10 @@ export function updateOptionsState(args: {
       map((results) => {
         const { variable, dispatch, getTemplatedRegexFunc } = args;
         if (!variable.rootStateKey) {
-          console.error('updateOptionsState: variable.rootStateKey is not defined');
+          logError(new Error('updateOptionsState: variable.rootStateKey is not defined'), {
+            variableId: variable.id,
+            variableName: variable.name,
+          });
           return;
         }
         const templatedRegex = getTemplatedRegexFunc(variable);

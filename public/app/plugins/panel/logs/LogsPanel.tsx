@@ -483,7 +483,9 @@ export const LogsPanel = ({
           newSeries = await lastValueFrom(transformDataFrame(panel?.transformations, newSeries));
         }
       } catch (e) {
-        console.error(e);
+        logError(e instanceof Error ? e : new Error(String(e)), {
+          panelId: id,
+        });
       } finally {
         setInfiniteScrolling(false);
         loadingRef.current = false;
@@ -802,7 +804,9 @@ function getLogsPanelState(): LogsPermalinkUrlState | undefined {
     try {
       return JSON.parse(panelStateEncoded[0]);
     } catch (e) {
-      console.error('error parsing logsPanelState', e);
+      logError(e instanceof Error ? e : new Error(String(e)), {
+        source: 'getLogsPanelState',
+      });
     }
   }
 

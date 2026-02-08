@@ -15,6 +15,8 @@
 import { uniq as _uniq } from 'lodash';
 import memoize from 'lru-memoize';
 
+import { logError } from '@grafana/runtime';
+
 import { Trace } from '../types/trace';
 import { getConfigValue } from '../utils/config/get-config';
 
@@ -111,8 +113,10 @@ export function processLinkPattern(pattern: any): ProcessedLinkPattern | null {
       parameters: _uniq(url.parameters.concat(text.parameters)),
     };
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(`Ignoring invalid link pattern: ${error}`, pattern);
+    logError(error instanceof Error ? error : new Error(String(error)), {
+      message: `Ignoring invalid link pattern: ${error}`,
+      pattern,
+    });
     return null;
   }
 }

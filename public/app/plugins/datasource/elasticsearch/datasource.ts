@@ -47,6 +47,7 @@ import {
   TemplateSrv,
   getTemplateSrv,
   config,
+  logError,
 } from '@grafana/runtime';
 
 import { IndexPattern, intervalMap } from './IndexPattern';
@@ -1172,12 +1173,16 @@ export class ElasticDatasource
         try {
           return new SemVer(versionNumber);
         } catch (error) {
-          console.error(error);
+          logError(error instanceof Error ? error : new Error(String(error)), {
+            message: 'Failed to parse Elasticsearch version',
+          });
           return null;
         }
       },
       (error) => {
-        console.error(error);
+        logError(error instanceof Error ? error : new Error(String(error)), {
+          message: 'Failed to get Elasticsearch version',
+        });
         return null;
       }
     );

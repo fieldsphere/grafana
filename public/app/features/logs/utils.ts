@@ -32,6 +32,7 @@ import {
   store,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { logError } from '@grafana/runtime';
 import { getConfig } from 'app/core/config';
 
 import { getLogsExtractFields } from '../explore/Logs/LogsTable';
@@ -367,10 +368,10 @@ export function getLogLevelInfo(dataFrame: DataFrame, allDataFrames: DataFrame[]
   const valueField = fieldCache.getFirstFieldOfType(FieldType.number);
 
   if (!timeField) {
-    console.error('Time field missing in data frame');
+    logError(new Error('Time field missing in data frame'));
   }
   if (!valueField) {
-    console.error('Value field missing in data frame');
+    logError(new Error('Value field missing in data frame'));
   }
 
   const level = valueField ? getFieldDisplayName(valueField, dataFrame, allDataFrames) : 'logs';

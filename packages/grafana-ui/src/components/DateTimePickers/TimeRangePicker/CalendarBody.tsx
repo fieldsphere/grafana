@@ -4,6 +4,7 @@ import Calendar, { CalendarType } from 'react-calendar';
 
 import { GrafanaTheme2, dateTimeParse, DateTime, TimeZone } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { logError } from '@grafana/runtime';
 
 import { useStyles2 } from '../../../themes/ThemeContext';
 import { Icon } from '../../Icon/Icon';
@@ -70,7 +71,8 @@ function useOnCalendarChange(onChange: (from: DateTime, to: DateTime) => void, t
   return useCallback<NonNullable<React.ComponentProps<typeof Calendar>['onChange']>>(
     (value) => {
       if (!Array.isArray(value)) {
-        return console.error('onCalendarChange: should be run in selectRange={true}');
+        logError(new Error('onCalendarChange: should be run in selectRange={true}'));
+        return;
       }
 
       if (value[0] && value[1]) {

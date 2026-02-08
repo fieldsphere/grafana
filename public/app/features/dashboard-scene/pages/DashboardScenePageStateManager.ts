@@ -753,7 +753,7 @@ export class DashboardScenePageStateManager extends DashboardScenePageStateManag
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          logDebug('not correct url correcting', { dashboardUrl, currentPath });
         }
       }
 
@@ -965,7 +965,7 @@ export class DashboardScenePageStateManagerV2 extends DashboardScenePageStateMan
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          logDebug('not correct url correcting', { dashboardUrl, currentPath });
         }
       }
       // Populate nav model in global store according to the folder

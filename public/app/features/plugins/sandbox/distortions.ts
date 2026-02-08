@@ -3,6 +3,7 @@ import DOMPurify from 'dompurify';
 import { cloneDeep, isFunction } from 'lodash';
 
 import { Monaco } from '@grafana/ui';
+import { logInfo } from '@grafana/runtime';
 
 import { loadScriptIntoSandbox } from './codeLoader';
 import { forbiddenElements } from './constants';
@@ -140,7 +141,9 @@ function distortConsole(distortions: DistortionMap) {
       const pluginId = meta.id;
 
       function sandboxLog(...args: unknown[]) {
-        console.log(`[plugin ${pluginId}]`, ...args);
+        logInfo(`[plugin ${pluginId}] ${args.map(String).join(' ')}`, {
+          pluginId,
+        });
       }
       return {
         log: sandboxLog,
@@ -170,7 +173,9 @@ function distortAlert(distortions: DistortionMap) {
     });
 
     return function (...args: unknown[]) {
-      console.log(`[plugin ${pluginId}]`, ...args);
+      logInfo(`[plugin ${pluginId}] ${args.map(String).join(' ')}`, {
+        pluginId,
+      });
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, 'alert');

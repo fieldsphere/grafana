@@ -1,5 +1,7 @@
 import { monacoTypes } from '@grafana/ui';
 
+import { logDebug } from '@grafana/runtime';
+
 // this thing here is a workaround in a way.
 // what we want to achieve, is that when the autocomplete-window
 // opens, the "second, extra popup" with the extra help,
@@ -81,7 +83,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      logDebug('logStorage: not implemented');
     },
 
     migrate: (): Promise<void> => {

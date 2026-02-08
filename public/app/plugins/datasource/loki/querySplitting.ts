@@ -13,7 +13,7 @@ import {
   store,
   TimeRange,
 } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, logError } from '@grafana/runtime';
 
 import { LokiQueryType, LokiQueryDirection } from './dataquery.gen';
 import { LokiDatasource } from './datasource';
@@ -173,7 +173,9 @@ export function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        logError(e instanceof Error ? e : new Error(String(e)), {
+          message: 'Error checking retriable error',
+        });
         shouldStop = true;
         return false;
       }

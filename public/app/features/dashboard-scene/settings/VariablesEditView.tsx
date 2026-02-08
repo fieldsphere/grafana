@@ -130,7 +130,7 @@ export class VariablesEditView extends SceneObjectBase<VariablesEditViewState> i
     }
     // check the index are within the variables array
     if (fromIndex < 0 || fromIndex >= variables.length || toIndex < 0 || toIndex >= variables.length) {
-      console.error('Invalid index');
+      logError(new Error('Invalid index'));
       return;
     }
     const updatedVariables = [...variables];
@@ -144,7 +144,7 @@ export class VariablesEditView extends SceneObjectBase<VariablesEditViewState> i
   public onEdit = (identifier: string) => {
     const variableIndex = this.getVariableIndex(identifier);
     if (variableIndex === -1) {
-      console.error('Variable not found');
+      logError(new Error('Variable not found'));
       return;
     }
     this.setState({ editIndex: variableIndex });

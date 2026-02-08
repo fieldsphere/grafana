@@ -32,6 +32,7 @@ import {
   FetchResponse,
   getBackendSrv,
   getTemplateSrv,
+  logWarning,
   TemplateSrv,
 } from '@grafana/runtime';
 import { QueryFormat, SQLQuery } from '@grafana/sql';
@@ -388,7 +389,10 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
         // then put inside parenthesis.
         return typeof value === 'string' ? escapeRegex(value) : `(${value.map((v) => escapeRegex(v)).join('|')})`;
       } catch (e) {
-        console.warn(`Supplied match is not valid regex: ${match}`);
+        logWarning(`Supplied match is not valid regex: ${match}`, {
+          match,
+          error: e instanceof Error ? e.message : String(e),
+        });
       }
     }
 
