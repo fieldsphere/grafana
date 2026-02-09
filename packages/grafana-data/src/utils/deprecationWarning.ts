@@ -1,8 +1,8 @@
-import { createStructuredLogger } from '@grafana/runtime';
-
 import { KeyValue } from '../types/data';
 
-const logger = createStructuredLogger('DeprecationWarning');
+import { createInternalLogger } from './logger';
+
+const logger = createInternalLogger('DeprecationWarning');
 
 // Avoid writing the warning message more than once every 10s
 const history: KeyValue<number> = {};

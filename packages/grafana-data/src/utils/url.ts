@@ -2,13 +2,13 @@
  * @preserve jquery-param (c) 2015 KNOWLEDGECODE | MIT
  */
 
-import { createStructuredLogger } from '@grafana/runtime';
-
 import { isDateTime } from '../datetime/moment_wrapper';
 import { ExploreUrlState, URLRange } from '../types/explore';
 import { RawTimeRange } from '../types/time';
 
-const logger = createStructuredLogger('UrlUtil');
+import { createInternalLogger } from './logger';
+
+const logger = createInternalLogger('UrlUtil');
 
 /**
  * Type to represent the value of a single query variable.

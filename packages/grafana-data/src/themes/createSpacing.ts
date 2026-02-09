@@ -3,9 +3,9 @@
 // Copyright (c) 2014 Call-Em-All
 import { z } from 'zod';
 
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger } from '../utils/logger';
 
-const logger = createStructuredLogger('ThemeSpacing');
+const logger = createInternalLogger('ThemeSpacing');
 
 /** @internal */
 export const ThemeSpacingOptionsSchema = z.object({

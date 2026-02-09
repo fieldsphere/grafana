@@ -1,7 +1,6 @@
 import { ComponentType } from 'react';
 
-import { createStructuredLogger } from '@grafana/runtime';
-
+import { createInternalLogger } from '../utils/logger';
 import { throwIfAngular } from '../utils/throwIfAngular';
 
 import { KeyValue } from './data';
@@ -14,7 +13,7 @@ import {
   PluginExtensionAddedFunctionConfig,
 } from './pluginExtensions';
 
-const logger = createStructuredLogger('AppPlugin');
+const logger = createInternalLogger('AppPlugin');
 
 /**
  * @public

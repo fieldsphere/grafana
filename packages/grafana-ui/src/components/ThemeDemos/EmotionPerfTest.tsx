@@ -4,14 +4,13 @@ import { css, cx } from '@emotion/css';
 import classnames from 'classnames';
 import React, { Profiler, ProfilerOnRenderCallback, useState, FC } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger, GrafanaTheme2 } from '@grafana/data';
 
 import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
 import { Button } from '../Button/Button';
 import { Stack } from '../Layout/Stack/Stack';
 
-const logger = createStructuredLogger('EmotionPerfTest');
+const logger = createInternalLogger('EmotionPerfTest');
 
 export function EmotionPerfTest() {
   logger.info('NODE_ENV', { nodeEnv: process.env.NODE_ENV });

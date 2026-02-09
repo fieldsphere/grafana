@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react';
 import * as React from 'react';
 
-import { createStructuredLogger } from '@grafana/runtime';
-
+import { createInternalLogger } from './logger';
 import { store } from './store';
 
-const logger = createStructuredLogger('LocalStorageValueProvider');
+const logger = createInternalLogger('LocalStorageValueProvider');
 
 export interface Props<T> {
   storageKey: string;
@@ -47,7 +46,7 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.delete(storageKey);
     } catch (error) {
-      logger.info('Failed to delete from store', { storageKey, error: String(error) });
+      logger.warn('Failed to delete from store', { storageKey, error: String(error) });
     }
     setState({ value: defaultValue });
   };

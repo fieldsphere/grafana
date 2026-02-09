@@ -1,5 +1,3 @@
-import { createStructuredLogger } from '@grafana/runtime';
-
 import { getFieldDisplayName } from '../../field/fieldState';
 import { stringToJsRegex } from '../../text/string';
 import { DataFrame, Field, FieldType, TIME_SERIES_VALUE_FIELD_NAME } from '../../types/dataFrame';
@@ -7,7 +5,9 @@ import { FieldMatcher, FieldMatcherInfo, FrameMatcherInfo } from '../../types/tr
 
 import { FieldMatcherID, FrameMatcherID } from './ids';
 
-const logger = createStructuredLogger('NameMatcher');
+import { createInternalLogger } from '../../utils/logger';
+
+const logger = createInternalLogger('NameMatcher');
 
 export interface RegexpOrNamesMatcherOptions {
   pattern?: string;

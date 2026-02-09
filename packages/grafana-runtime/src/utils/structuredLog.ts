@@ -162,6 +162,27 @@ function outputToConsole(entry: LogEntry, jsonOutput: boolean): void {
 }
 
 /**
+ * Converts a value to a string for Faro context.
+ * Faro's LogContext expects Record<string, string>.
+ */
+function toFaroString(value: unknown): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (value === null || value === undefined) {
+    return '';
+  }
+  if (typeof value === 'object') {
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  }
+  return String(value);
+}
+
+/**
  * Pushes log entry to Faro monitoring if enabled
  */
 function pushToFaro(entry: LogEntry): void {
@@ -170,10 +191,15 @@ function pushToFaro(entry: LogEntry): void {
   }
 
   try {
-    const faroContext = {
+    // Convert all context values to strings for Faro compatibility
+    const faroContext: Record<string, string> = {
       logger: entry.logger,
-      ...entry.context,
     };
+    if (entry.context) {
+      for (const [key, value] of Object.entries(entry.context)) {
+        faroContext[key] = toFaroString(value);
+      }
+    }
 
     if (entry.level === LogLevel.ERROR && entry.error) {
       const error = new Error(entry.error.message);

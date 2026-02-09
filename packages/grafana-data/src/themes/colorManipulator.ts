@@ -4,9 +4,9 @@
 
 import tinycolor from 'tinycolor2';
 
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger } from '../utils/logger';
 
-const logger = createStructuredLogger('ColorManipulator');
+const logger = createInternalLogger('ColorManipulator');
 
 /**
  * Returns a number whose value is limited to the given range.

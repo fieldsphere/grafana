@@ -1,6 +1,6 @@
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger } from '../utils/logger';
 
-const logger = createStructuredLogger('ArrayVector');
+const logger = createInternalLogger('ArrayVector');
 
 const notice = 'ArrayVector is deprecated and will be removed in Grafana 11. Please use plain arrays for field.values.';
 let notified = false;

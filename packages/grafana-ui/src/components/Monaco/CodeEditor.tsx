@@ -2,9 +2,8 @@ import { css, cx } from '@emotion/css';
 import type * as monacoType from 'monaco-editor/esm/vs/editor/editor.api';
 import { PureComponent } from 'react';
 
-import { GrafanaTheme2, monacoLanguageRegistry } from '@grafana/data';
+import { createInternalLogger, GrafanaTheme2, monacoLanguageRegistry } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import { createStructuredLogger } from '@grafana/runtime';
 
 import { withTheme2 } from '../../themes/ThemeContext';
 import { Themeable2 } from '../../types/theme';
@@ -13,7 +12,7 @@ import { ReactMonacoEditorLazy } from './ReactMonacoEditorLazy';
 import { registerSuggestions } from './suggestions';
 import { CodeEditorProps, Monaco, MonacoEditor as MonacoEditorType, MonacoOptions } from './types';
 
-const logger = createStructuredLogger('CodeEditor');
+const logger = createInternalLogger('CodeEditor');
 
 type Props = CodeEditorProps & Themeable2;
 

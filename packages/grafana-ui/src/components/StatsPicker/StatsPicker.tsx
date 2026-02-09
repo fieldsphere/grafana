@@ -1,12 +1,11 @@
 import { difference } from 'lodash';
 import { memo, useEffect } from 'react';
 
-import { fieldReducers, SelectableValue, FieldReducerInfo } from '@grafana/data';
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger, fieldReducers, SelectableValue, FieldReducerInfo } from '@grafana/data';
 
 import { Select } from '../Select/Select';
 
-const logger = createStructuredLogger('StatsPicker');
+const logger = createInternalLogger('StatsPicker');
 
 export interface Props {
   placeholder?: string;

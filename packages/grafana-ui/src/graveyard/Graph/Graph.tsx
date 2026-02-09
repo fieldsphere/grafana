@@ -5,8 +5,7 @@ import { PureComponent, type JSX } from 'react';
 import * as React from 'react';
 
 // Types
-import { TimeRange, GraphSeriesXY, TimeZone, createDimension } from '@grafana/data';
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger, TimeRange, GraphSeriesXY, TimeZone, createDimension } from '@grafana/data';
 import { TooltipDisplayMode } from '@grafana/schema';
 
 import { VizTooltipProps, VizTooltipContentProps, ActiveDimensions, VizTooltip } from '../../components/VizTooltip';
@@ -18,7 +17,7 @@ import { GraphDimensions } from './GraphTooltip/types';
 import { FlotItem } from './types';
 import { graphTimeFormat, graphTickFormatter } from './utils';
 
-const logger = createStructuredLogger('Graph');
+const logger = createInternalLogger('Graph');
 
 /** @deprecated */
 export interface GraphProps {

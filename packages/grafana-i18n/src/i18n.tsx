@@ -3,14 +3,13 @@ import LanguageDetector, { DetectorOptions } from 'i18next-browser-languagedetec
 // eslint-disable-next-line no-restricted-imports
 import { initReactI18next, setDefaults, setI18n, Trans as I18NextTrans, getI18n } from 'react-i18next';
 
-import { createStructuredLogger } from '@grafana/runtime';
-
 import { DEFAULT_LANGUAGE, PSEUDO_LOCALE } from './constants';
 import { initRegionalFormat } from './dates';
 import { LANGUAGES } from './languages';
+import { createInternalLogger } from './logger';
 import { ResourceLoader, Resources, TFunction, TransProps, TransType } from './types';
 
-const logger = createStructuredLogger('I18n');
+const logger = createInternalLogger('I18n');
 
 let tFunc: I18NextTFunction<string[], undefined> | undefined;
 let transComponent: TransType;

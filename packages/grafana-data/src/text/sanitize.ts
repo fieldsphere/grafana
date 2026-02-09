@@ -2,9 +2,9 @@ import { sanitizeUrl as braintreeSanitizeUrl } from '@braintree/sanitize-url';
 import DOMPurify from 'dompurify';
 import * as xss from 'xss';
 
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger } from '../utils/logger';
 
-const logger = createStructuredLogger('Sanitize');
+const logger = createInternalLogger('Sanitize');
 
 const XSSWL = Object.keys(xss.whiteList).reduce<xss.IWhiteList>((acc, element) => {
   acc[element] = xss.whiteList[element]?.concat(['class', 'style']);

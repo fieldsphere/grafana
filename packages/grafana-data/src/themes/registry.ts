@@ -1,5 +1,4 @@
-import { createStructuredLogger } from '@grafana/runtime';
-
+import { createInternalLogger } from '../utils/logger';
 import { Registry, RegistryItem } from '../utils/Registry';
 
 import { createTheme, NewThemeOptionsSchema } from './createTheme';
@@ -17,7 +16,7 @@ import victorian from './themeDefinitions/victorian.json';
 import zen from './themeDefinitions/zen.json';
 import { GrafanaTheme2 } from './types';
 
-const logger = createStructuredLogger('ThemeRegistry');
+const logger = createInternalLogger('ThemeRegistry');
 
 export interface ThemeRegistryItem extends RegistryItem {
   isExtra?: boolean;

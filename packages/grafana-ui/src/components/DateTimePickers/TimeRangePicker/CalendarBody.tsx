@@ -2,9 +2,8 @@ import { css } from '@emotion/css';
 import { useCallback } from 'react';
 import Calendar, { CalendarType } from 'react-calendar';
 
-import { GrafanaTheme2, dateTimeParse, DateTime, TimeZone } from '@grafana/data';
+import { createInternalLogger, GrafanaTheme2, dateTimeParse, DateTime, TimeZone } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { createStructuredLogger } from '@grafana/runtime';
 
 import { useStyles2 } from '../../../themes/ThemeContext';
 import { Icon } from '../../Icon/Icon';
@@ -13,7 +12,7 @@ import { adjustDateForReactCalendar } from '../utils/adjustDateForReactCalendar'
 
 import { TimePickerCalendarProps } from './TimePickerCalendar';
 
-const logger = createStructuredLogger('CalendarBody');
+const logger = createInternalLogger('CalendarBody');
 
 const weekStartMap: Record<WeekStart, CalendarType> = {
   saturday: 'islamic',

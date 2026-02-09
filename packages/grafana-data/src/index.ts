@@ -264,6 +264,8 @@ export * as arrayUtils from './utils/arrayUtils';
 export { store, Store } from './utils/store';
 export { LocalStorageValueProvider } from './utils/LocalStorageValueProvider';
 export { throwIfAngular } from './utils/throwIfAngular';
+/** @internal */
+export { createInternalLogger, type InternalLogger } from './utils/logger';
 export { fuzzySearch } from './utils/fuzzySearch';
 
 // Transformations

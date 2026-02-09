@@ -3,8 +3,7 @@ import clsx from 'clsx';
 import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger, GrafanaTheme2 } from '@grafana/data';
 
 import { useStyles2 } from '../../themes/ThemeContext';
 import { InlineToast } from '../InlineToast/InlineToast';
@@ -13,7 +12,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import { ColorIndicatorPosition, VizTooltipColorIndicator } from './VizTooltipColorIndicator';
 import { ColorPlacement, VizTooltipItem } from './types';
 
-const logger = createStructuredLogger('VizTooltipRow');
+const logger = createInternalLogger('VizTooltipRow');
 
 interface VizTooltipRowProps extends Omit<VizTooltipItem, 'value'> {
   value: string | number | null | ReactNode;

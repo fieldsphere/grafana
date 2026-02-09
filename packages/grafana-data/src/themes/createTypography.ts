@@ -3,11 +3,11 @@
 // Copyright (c) 2014 Call-Em-All
 import { z } from 'zod';
 
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger } from '../utils/logger';
 
 import { ThemeColors } from './createColors';
 
-const logger = createStructuredLogger('ThemeTypography');
+const logger = createInternalLogger('ThemeTypography');
 
 /** @beta */
 export interface ThemeTypography extends ThemeTypographyVariantTypes {

@@ -1,6 +1,6 @@
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger } from './logger';
 
-const logger = createStructuredLogger('Store');
+const logger = createInternalLogger('Store');
 
 type StoreValue = string | number | boolean | null;
 type StoreSubscriber = () => void;

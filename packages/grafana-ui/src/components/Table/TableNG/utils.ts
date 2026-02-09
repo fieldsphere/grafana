@@ -8,6 +8,7 @@ import tinycolor from 'tinycolor2';
 import { Count, varPreLine } from 'uwrap';
 
 import {
+  createInternalLogger,
   FieldType,
   Field,
   formattedValueToString,
@@ -21,7 +22,6 @@ import {
   FieldSparkline,
   DecimalCount,
 } from '@grafana/data';
-import { createStructuredLogger } from '@grafana/runtime';
 import {
   BarGaugeDisplayMode,
   FieldTextAlignment,
@@ -47,7 +47,7 @@ import {
   MeasureCellHeightEntry,
 } from './types';
 
-const logger = createStructuredLogger('TableNGUtils');
+const logger = createInternalLogger('TableNGUtils');
 
 /* ---------------------------- Cell calculations --------------------------- */
 export type CellNumLinesCalculator = (text: string, cellWidth: number) => number;

@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import * as React from 'react';
 
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger } from '@grafana/data';
 
 import { measureText } from '../../utils/measureText';
 
-const logger = createStructuredLogger('AutoSizeInput');
+const logger = createInternalLogger('AutoSizeInput');
 
 import { AutoSizeInputContext } from './AutoSizeInputContext';
 import { Input, Props as InputProps } from './Input';

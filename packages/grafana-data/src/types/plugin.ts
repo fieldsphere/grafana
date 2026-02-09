@@ -1,11 +1,11 @@
 import { ComponentType } from 'react';
 
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger } from '../utils/logger';
 
 import { KeyValue } from './data';
 import { IconName } from './icon';
 
-const logger = createStructuredLogger('GrafanaPlugin');
+const logger = createInternalLogger('GrafanaPlugin');
 
 /** Describes plugins life cycle status */
 export enum PluginState {

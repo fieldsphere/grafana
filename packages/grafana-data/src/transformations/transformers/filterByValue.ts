@@ -1,16 +1,15 @@
 import { map } from 'rxjs/operators';
 
-import { createStructuredLogger } from '@grafana/runtime';
-
 import { getFieldDisplayName } from '../../field/fieldState';
 import { DataFrame, Field } from '../../types/dataFrame';
 import { DataTransformerInfo, MatcherConfig } from '../../types/transformations';
+import { createInternalLogger } from '../../utils/logger';
 import { getValueMatcher } from '../matchers';
 
 import { DataTransformerID } from './ids';
 import { noopTransformer } from './noop';
 
-const logger = createStructuredLogger('FilterByValue');
+const logger = createInternalLogger('FilterByValue');
 
 export enum FilterByValueType {
   exclude = 'exclude',

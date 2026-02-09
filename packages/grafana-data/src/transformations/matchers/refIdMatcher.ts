@@ -1,12 +1,11 @@
-import { createStructuredLogger } from '@grafana/runtime';
-
 import { escapeStringForRegex, stringStartsAsRegEx, stringToJsRegex } from '../../text/string';
 import { DataFrame } from '../../types/dataFrame';
 import { FrameMatcherInfo } from '../../types/transformations';
+import { createInternalLogger } from '../../utils/logger';
 
 import { FrameMatcherID } from './ids';
 
-const logger = createStructuredLogger('RefIdMatcher');
+const logger = createInternalLogger('RefIdMatcher');
 
 // General Field matcher
 const refIdMatcher: FrameMatcherInfo<string> = {

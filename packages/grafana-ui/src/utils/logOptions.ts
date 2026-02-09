@@ -1,6 +1,6 @@
-import { createStructuredLogger } from '@grafana/runtime';
+import { createInternalLogger } from '@grafana/data';
 
-const logger = createStructuredLogger('LogOptions');
+const logger = createInternalLogger('LogOptions');
 
 /**
  * This function logs a warning if the amount of items exceeds the recommended amount.

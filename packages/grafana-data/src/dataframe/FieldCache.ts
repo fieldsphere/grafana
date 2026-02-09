@@ -1,10 +1,9 @@
-import { createStructuredLogger } from '@grafana/runtime';
-
 import { DataFrame, Field, FieldType } from '../types/dataFrame';
+import { createInternalLogger } from '../utils/logger';
 
 import { guessFieldTypeForField } from './processDataFrame';
 
-const logger = createStructuredLogger('FieldCache');
+const logger = createInternalLogger('FieldCache');
 
 export interface FieldWithIndex extends Field {
   index: number;
