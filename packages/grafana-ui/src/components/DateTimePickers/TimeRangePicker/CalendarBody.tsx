@@ -4,6 +4,7 @@ import Calendar, { CalendarType } from 'react-calendar';
 
 import { GrafanaTheme2, dateTimeParse, DateTime, TimeZone } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createStructuredLogger } from '@grafana/runtime';
 
 import { useStyles2 } from '../../../themes/ThemeContext';
 import { Icon } from '../../Icon/Icon';
@@ -11,6 +12,8 @@ import { getWeekStart, WeekStart } from '../WeekStartPicker';
 import { adjustDateForReactCalendar } from '../utils/adjustDateForReactCalendar';
 
 import { TimePickerCalendarProps } from './TimePickerCalendar';
+
+const logger = createStructuredLogger('CalendarBody');
 
 const weekStartMap: Record<WeekStart, CalendarType> = {
   saturday: 'islamic',
@@ -70,7 +73,8 @@ function useOnCalendarChange(onChange: (from: DateTime, to: DateTime) => void, t
   return useCallback<NonNullable<React.ComponentProps<typeof Calendar>['onChange']>>(
     (value) => {
       if (!Array.isArray(value)) {
-        return console.error('onCalendarChange: should be run in selectRange={true}');
+        logger.error('onCalendarChange: should be run in selectRange={true}', new Error('Invalid calendar value type'));
+        return;
       }
 
       if (value[0] && value[1]) {

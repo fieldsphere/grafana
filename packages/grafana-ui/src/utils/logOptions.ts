@@ -1,3 +1,7 @@
+import { createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('LogOptions');
+
 /**
  * This function logs a warning if the amount of items exceeds the recommended amount.
  *
@@ -12,8 +16,7 @@ export function logOptions(
   ariaLabelledBy: string | undefined
 ): void {
   if (amount > recommendedAmount) {
-    const msg = `[Combobox] Items exceed the recommended amount ${recommendedAmount}.`;
-    console.warn(msg, {
+    logger.warn(`[Combobox] Items exceed the recommended amount ${recommendedAmount}.`, {
       itemsCount: '' + amount,
       recommendedAmount: '' + recommendedAmount,
       'aria-labelledby': ariaLabelledBy ?? '',

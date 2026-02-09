@@ -21,6 +21,7 @@ import {
   FieldSparkline,
   DecimalCount,
 } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 import {
   BarGaugeDisplayMode,
   FieldTextAlignment,
@@ -45,6 +46,8 @@ import {
   MeasureCellHeight,
   MeasureCellHeightEntry,
 } from './types';
+
+const logger = createStructuredLogger('TableNGUtils');
 
 /* ---------------------------- Cell calculations --------------------------- */
 export type CellNumLinesCalculator = (text: string, cellWidth: number) => number;
@@ -1101,7 +1104,7 @@ export function parseStyleJson(rawValue: unknown): CSSProperties | void {
       }
     } catch (e) {
       if (!warnedAboutStyleJsonSet.has(rawValue)) {
-        console.error(`encountered invalid cell style JSON: ${rawValue}`, e);
+        logger.error(`encountered invalid cell style JSON: ${rawValue}`, e instanceof Error ? e : new Error(String(e)));
         warnedAboutStyleJsonSet.add(rawValue);
       }
     }

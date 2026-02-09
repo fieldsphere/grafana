@@ -6,6 +6,7 @@ import * as React from 'react';
 
 // Types
 import { TimeRange, GraphSeriesXY, TimeZone, createDimension } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 import { TooltipDisplayMode } from '@grafana/schema';
 
 import { VizTooltipProps, VizTooltipContentProps, ActiveDimensions, VizTooltip } from '../../components/VizTooltip';
@@ -16,6 +17,8 @@ import { GraphTooltip } from './GraphTooltip/GraphTooltip';
 import { GraphDimensions } from './GraphTooltip/types';
 import { FlotItem } from './types';
 import { graphTimeFormat, graphTickFormatter } from './utils';
+
+const logger = createStructuredLogger('Graph');
 
 /** @deprecated */
 export interface GraphProps {
@@ -370,7 +373,10 @@ export class Graph extends PureComponent<GraphProps, GraphState> {
         flotOptions
       );
     } catch (err) {
-      console.error('Graph rendering error', err, flotOptions, series);
+      logger.error('Graph rendering error', err instanceof Error ? err : new Error(String(err)), {
+        flotOptions: JSON.stringify(flotOptions),
+        seriesCount: series.length,
+      });
       throw new Error('Error rendering panel');
     }
   }
