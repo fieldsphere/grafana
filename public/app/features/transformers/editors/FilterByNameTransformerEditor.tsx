@@ -13,8 +13,10 @@ import {
 } from '@grafana/data';
 import { FilterFieldsByNameTransformerOptions } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
-import { getTemplateSrv } from '@grafana/runtime';
+import { createStructuredLogger, getTemplateSrv } from '@grafana/runtime';
 import { Input, FilterPill, InlineFieldRow, InlineField, InlineSwitch, Select } from '@grafana/ui';
+
+const logger = createStructuredLogger('FilterByNameTransformerEditor');
 
 import { getTransformationContent } from '../docs/getTransformationContent';
 import darkImage from '../images/dark/filterFieldsByName.svg';
@@ -102,7 +104,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        logger.error('Failed to parse regex pattern', error instanceof Error ? error : undefined, { pattern: options.include?.pattern });
       }
     }
 

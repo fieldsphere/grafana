@@ -1,5 +1,7 @@
 import { t } from '@grafana/i18n';
-import { isFetchError } from '@grafana/runtime';
+import { createStructuredLogger, isFetchError } from '@grafana/runtime';
+
+const logger = createStructuredLogger('ProvisioningHttpUtils');
 
 import { HttpError, isHttpError } from '../guards';
 
@@ -69,7 +71,7 @@ export async function makeApiRequest(request: ApiRequest) {
 
   if (!response.ok) {
     const errorData = await response.text();
-    console.error('API Error Response:', errorData);
+    logger.error('API Error Response', undefined, { errorData, status: response.status });
     const error: HttpError = new Error(
       t('provisioning.http-utils.http-error', 'HTTP {{status}}: {{statusText}}', {
         status: response.status,

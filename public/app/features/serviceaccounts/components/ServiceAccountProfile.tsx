@@ -3,7 +3,10 @@ import { useEffect, useState, type JSX } from 'react';
 
 import { GrafanaTheme2, OrgRole, TimeZone, dateTimeFormat } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
+import { createStructuredLogger } from '@grafana/runtime';
 import { Label, TextLink, useStyles2 } from '@grafana/ui';
+
+const logger = createStructuredLogger('ServiceAccountProfile');
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction, Role } from 'app/types/accessControl';
@@ -39,7 +42,7 @@ export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Pr
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options for service account');
+        logger.error('Error loading options for service account', e instanceof Error ? e : undefined, { orgId: serviceAccount.orgId });
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

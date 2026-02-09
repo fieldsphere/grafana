@@ -1,5 +1,7 @@
 import { t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
+import { config, createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('SourceLink');
 import { DashboardLink } from '@grafana/schema';
 import { provisioningAPIv0alpha1, RepositoryView } from 'app/api/clients/provisioning/v0alpha1';
 import {
@@ -83,7 +85,7 @@ export async function buildSourceLink(annotations: ObjectMeta['annotations']): P
       keepTime: false,
     };
   } catch (e) {
-    console.warn('Failed to fetch repository info for source link:', e);
+    logger.warn('Failed to fetch repository info for source link', { error: e instanceof Error ? e.message : String(e) });
     return undefined;
   }
 }
