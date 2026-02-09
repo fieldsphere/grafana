@@ -27,7 +27,16 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 import { AppEvents, DataQueryErrorType, deprecationWarning } from '@grafana/data';
-import { BackendSrv as BackendService, BackendSrvRequest, config, FetchError, FetchResponse } from '@grafana/runtime';
+import {
+  BackendSrv as BackendService,
+  BackendSrvRequest,
+  config,
+  createStructuredLogger,
+  FetchError,
+  FetchResponse,
+} from '@grafana/runtime';
+
+const logger = createStructuredLogger('BackendSrv');
 import { appEvents } from 'app/core/app_events';
 import { getConfig } from 'app/core/config';
 import { getSessionExpiry, hasSessionExpiry } from 'app/core/utils/auth';
@@ -111,7 +120,7 @@ export class BackendSrv implements BackendService {
       const result = await fp.get();
       this.deviceID = result.visitorId;
     } catch (error) {
-      console.error(error);
+      logger.error('Failed to initialize device ID', error instanceof Error ? error : undefined);
     }
   }
 
@@ -236,7 +245,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            logger.error('Chunked request error', e instanceof Error ? e : undefined, { requestId });
             observer.error(e);
           }); // from abort
       },

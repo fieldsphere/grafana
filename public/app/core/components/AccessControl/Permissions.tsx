@@ -6,7 +6,10 @@ import useAsyncFn from 'react-use/lib/useAsyncFn';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
+import { createStructuredLogger } from '@grafana/runtime';
 import { Text, Box, Button, useStyles2, LoadingPlaceholder } from '@grafana/ui';
+
+const logger = createStructuredLogger('Permissions');
 import { SlideDown } from 'app/core/components/Animations/SlideDown';
 import { getBackendSrv } from 'app/core/services/backend_srv';
 import { DescendantCount } from 'app/features/browse-dashboards/components/BrowseActions/DescendantCount';
@@ -101,7 +104,7 @@ export const Permissions = ({
   };
 
   const onChange = (item: ResourcePermission, permission: string) => {
-    console.log('onChange', item, permission);
+    logger.debug('Permission onChange', { itemId: item.userUid || item.teamUid || item.builtInRole, permission });
     if (item.permission === permission) {
       return;
     }
@@ -247,7 +250,7 @@ const getDescription = async (resource: string): Promise<Description> => {
   try {
     return await getBackendSrv().get(`/api/access-control/${resource}/description`);
   } catch (e) {
-    console.error('failed to load resource description: ', e);
+    logger.error('Failed to load resource description', e instanceof Error ? e : undefined, { resource });
     return INITIAL_DESCRIPTION;
   }
 };
