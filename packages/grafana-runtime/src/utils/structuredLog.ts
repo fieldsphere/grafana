@@ -27,11 +27,19 @@ export enum LogLevel {
 }
 
 /**
+ * Context value type for structured logging
+ * Accepts any JSON-serializable value
+ * @public
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type LogContextValue = any;
+
+/**
  * Context object for structured logging
  * @public
  */
 export interface LogContext {
-  [key: string]: string | number | boolean | undefined | null;
+  [key: string]: LogContextValue;
 }
 
 /**

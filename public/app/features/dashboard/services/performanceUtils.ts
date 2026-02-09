@@ -85,12 +85,14 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
 /**
  * Write a performance log within a group (follows writePerformanceLog pattern)
  */
-export function writePerformanceGroupLog(logger: string, message: string, data?: unknown): void {
+export function writePerformanceGroupLog(loggerName: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
     if (data) {
-      logger.debug(message, data);
+      // eslint-disable-next-line no-console
+      console.log(`${loggerName}: ${message}`, data);
     } else {
-      logger.debug(message);
+      // eslint-disable-next-line no-console
+      console.log(`${loggerName}: ${message}`);
     }
   }
 }

@@ -61,7 +61,7 @@ export class VariablesEditView extends SceneObjectBase<VariablesEditViewState> i
 
     if (!variable) {
       // Handle the case where the variable is not found
-      logger.error('Variable not found', { identifier });
+      logger.error('Variable not found', { variableIndex });
       return;
     }
 
@@ -170,7 +170,7 @@ export class VariablesEditView extends SceneObjectBase<VariablesEditViewState> i
 
     if (!variable) {
       // Handle the case where the variable is not found
-      logger.error('Variable not found', { identifier });
+      logger.error('Variable not found', { variableIndex });
       return;
     }
 

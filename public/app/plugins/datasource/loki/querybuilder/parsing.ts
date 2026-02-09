@@ -108,7 +108,7 @@ export function buildVisualQueryFromString(expr: string): Context {
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    logger.error('Error parsing query', err instanceof Error ? err : new Error(String(err)));
+    logger.error('Error parsing query', err instanceof Error ? err : new Error(err?.toString?.() ?? 'Unknown error'));
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

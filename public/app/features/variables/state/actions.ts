@@ -964,7 +964,7 @@ export const initVariablesTransaction =
       dispatch(toKeyedAction(uid, variablesCompleteTransaction({ uid })));
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Templating init failed', err)));
-      logger.error('Templating init failed', err instanceof Error ? err : undefined, { uid });
+      logger.error('Templating init failed', err instanceof Error ? err : undefined, { urlUid });
     }
   };
 

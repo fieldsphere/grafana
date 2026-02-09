@@ -27,6 +27,7 @@ export {
   error,
   LogLevel,
   type LogContext,
+  type LogContextValue,
   type LogEntry,
   type StructuredLogger,
   type StructuredLoggerOptions,
