@@ -2,8 +2,11 @@ import { FormEvent, PureComponent } from 'react';
 import { connect, ConnectedProps } from 'react-redux';
 
 import { DataSourceVariableModel, SelectableValue, VariableWithMultiSupport } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 import { DataSourceVariableForm } from 'app/features/dashboard-scene/settings/variables/components/DataSourceVariableForm';
 import { StoreState } from 'app/types/store';
+
+const logger = createStructuredLogger('DataSourceVariableEditor');
 
 import { initialVariableEditorState } from '../editor/reducer';
 import { getDatasourceVariableEditorState } from '../editor/selectors';
@@ -19,7 +22,7 @@ const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
     variable: { rootStateKey },
   } = ownProps;
   if (!rootStateKey) {
-    console.error('DataSourceVariableEditor: variable has no rootStateKey');
+    logger.error('DataSourceVariableEditor: variable has no rootStateKey');
     return {
       extended: getDatasourceVariableEditorState(initialVariableEditorState),
     };
@@ -46,7 +49,7 @@ export class DataSourceVariableEditorUnConnected extends PureComponent<Props> {
   componentDidMount() {
     const { rootStateKey } = this.props.variable;
     if (!rootStateKey) {
-      console.error('DataSourceVariableEditor: variable has no rootStateKey');
+      logger.error('DataSourceVariableEditor: variable has no rootStateKey');
       return;
     }
 

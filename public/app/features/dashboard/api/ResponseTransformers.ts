@@ -1,5 +1,7 @@
 import { MetricFindValue, TypedVariableModel, AnnotationQuery } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('ResponseTransformers');
 import {
   DataQuery,
   DataSourceRef,
@@ -706,9 +708,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         let query = v.query || {};
 
         if (typeof query === 'string') {
-          console.warn(
-            'Query variable query is a string which is deprecated in the schema v2. It should extend DataQuery'
-          );
+          logger.warn('Query variable query is a string which is deprecated in the schema v2. It should extend DataQuery');
           query = {
             [LEGACY_STRING_VALUE_KEY]: query,
           };
@@ -919,7 +919,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v.type}`);
+        logger.error('Variable transformation not implemented', { variableType: v.type });
     }
   }
   return variables;
@@ -1132,7 +1132,7 @@ function getVariablesV1(vars: DashboardV2Spec['variables']): VariableModel[] {
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v}`);
+        logger.error('Variable transformation not implemented', { variable: v });
     }
   }
   return variables;

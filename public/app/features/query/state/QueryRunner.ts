@@ -15,7 +15,9 @@ import {
   DataSourceRef,
   preProcessPanelData,
 } from '@grafana/data';
-import { getTemplateSrv } from '@grafana/runtime';
+import { createStructuredLogger, getTemplateSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('QueryRunner');
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 
 import { getNextRequestId } from './PanelQueryRunner';
@@ -113,7 +115,7 @@ export class QueryRunner implements QueryRunnerSrv {
             },
           });
         },
-        error: (error) => console.error('PanelQueryRunner Error', error),
+        error: (error) => logger.error('PanelQueryRunner Error', error instanceof Error ? error : undefined),
       });
   }
 

@@ -9,7 +9,9 @@ import {
   userHasPermissionInMetadata,
   userHasAnyPermission,
 } from '@grafana/data';
-import { featureEnabled, getBackendSrv } from '@grafana/runtime';
+import { createStructuredLogger, featureEnabled, getBackendSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('ContextSrv');
 import { getSessionExpiry } from 'app/core/utils/auth';
 import { UserPermission, AccessControlAction } from 'app/types/accessControl';
 import { CurrentUserInternal } from 'app/types/config';
@@ -112,7 +114,7 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      logger.error('Failed to fetch user permissions', e instanceof Error ? e : undefined);
     }
   }
 
@@ -262,7 +264,7 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        logger.error('Failed to rotate token', e instanceof Error ? e : undefined);
       });
   }
 }

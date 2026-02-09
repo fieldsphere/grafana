@@ -3,10 +3,14 @@ import LanguageDetector, { DetectorOptions } from 'i18next-browser-languagedetec
 // eslint-disable-next-line no-restricted-imports
 import { initReactI18next, setDefaults, setI18n, Trans as I18NextTrans, getI18n } from 'react-i18next';
 
+import { createStructuredLogger } from '@grafana/runtime';
+
 import { DEFAULT_LANGUAGE, PSEUDO_LOCALE } from './constants';
 import { initRegionalFormat } from './dates';
 import { LANGUAGES } from './languages';
 import { ResourceLoader, Resources, TFunction, TransProps, TransType } from './types';
+
+const logger = createStructuredLogger('I18n');
 
 let tFunc: I18NextTFunction<string[], undefined> | undefined;
 let transComponent: TransType;
@@ -43,7 +47,7 @@ export async function loadNamespacedResources(namespace: string, language: strin
         const resources = await loader(resolvedLanguage);
         addResourceBundle(resolvedLanguage, namespace, resources);
       } catch (error) {
-        console.error(`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, error);
+        logger.error('Error loading resources', error instanceof Error ? error : undefined, { namespace, language: resolvedLanguage });
       }
     })
   );
@@ -201,9 +205,7 @@ export const t: TFunction = (id: string, defaultMessage: string, values?: Record
   initDefaultI18nInstance();
   if (!tFunc) {
     if (process.env.NODE_ENV !== 'test') {
-      console.warn(
-        't() was called before i18n was initialized. This is probably caused by calling t() in the root module scope, instead of lazily on render'
-      );
+      logger.warn('t() was called before i18n was initialized. This is probably caused by calling t() in the root module scope, instead of lazily on render');
     }
 
     if (process.env.NODE_ENV === 'development') {

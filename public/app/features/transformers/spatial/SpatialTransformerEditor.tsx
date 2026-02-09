@@ -12,8 +12,11 @@ import {
   TransformerCategory,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createStructuredLogger } from '@grafana/runtime';
 import { FrameGeometrySourceMode } from '@grafana/schema';
 import { useTheme2 } from '@grafana/ui';
+
+const logger = createStructuredLogger('SpatialTransformerEditor');
 import { addLocationFields } from 'app/features/geo/editor/locationEditor';
 
 import { getTransformationContent } from '../docs/getTransformationContent';
@@ -138,7 +141,7 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     if (!props.options.source?.mode) {
       const opts = getDefaultOptions(supplier);
       props.onChange({ ...opts, ...props.options });
-      console.log('geometry useEffect', opts);
+      logger.info('Geometry useEffect applied default options', { options: opts });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

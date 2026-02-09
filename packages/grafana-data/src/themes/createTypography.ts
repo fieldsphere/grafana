@@ -3,7 +3,11 @@
 // Copyright (c) 2014 Call-Em-All
 import { z } from 'zod';
 
+import { createStructuredLogger } from '@grafana/runtime';
+
 import { ThemeColors } from './createColors';
+
+const logger = createStructuredLogger('ThemeTypography');
 
 /** @beta */
 export interface ThemeTypography extends ThemeTypographyVariantTypes {
@@ -76,11 +80,15 @@ export function createTypography(colors: ThemeColors, typographyInput: ThemeTypo
 
   if (process.env.NODE_ENV !== 'production') {
     if (typeof fontSize !== 'number') {
-      console.error('Grafana-UI: `fontSize` is required to be a number.');
+      logger.error('`fontSize` is required to be a number', new Error('Invalid fontSize type'), {
+        receivedType: typeof fontSize,
+      });
     }
 
     if (typeof htmlFontSize !== 'number') {
-      console.error('Grafana-UI: `htmlFontSize` is required to be a number.');
+      logger.error('`htmlFontSize` is required to be a number', new Error('Invalid htmlFontSize type'), {
+        receivedType: typeof htmlFontSize,
+      });
     }
   }
 

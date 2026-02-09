@@ -1,5 +1,7 @@
 import { getNextRefId } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('LayoutSerializerUtils');
 import {
   SceneDataProvider,
   SceneDataQuery,
@@ -358,9 +360,10 @@ export function getDataSourceForQuery(querySpecDS: DataSourceRef | undefined | n
     // In the datasource list from bootData "id" is the type and the uid could be uid or the name
     // in cases like grafana, dashboard or mixed datasource
 
-    console.warn(
-      `Could not find datasource for query kind ${queryKind}, defaulting to ${dsList[defaultDatasource].meta.id}`
-    );
+    logger.warn('Could not find datasource for query kind, defaulting', {
+      queryKind,
+      defaultDatasource: dsList[defaultDatasource].meta.id,
+    });
     return {
       uid: dsList[defaultDatasource].uid || dsList[defaultDatasource].name,
       type: dsList[defaultDatasource].meta.id,

@@ -1,9 +1,12 @@
 import type { JSX } from 'react';
 
 import { SelectableValue } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 import { AccessoryButton } from '@grafana/plugin-ui';
 
 import { InfluxQueryTag } from '../../../../../types';
+
+const logger = createStructuredLogger('InfluxDBTagsSection');
 import { adjustOperatorIfNeeded, getCondition, getOperator } from '../utils/tagUtils';
 import { toSelectableValue } from '../utils/toSelectableValue';
 
@@ -54,7 +57,7 @@ const Tag = ({ tag, isFirst, onRemove, onChange, getTagKeyOptions, getTagValueOp
         // to avoid it, we catch any potential errors coming from `getTagKeyOptions`,
         // log the error, and pretend that the list of options is an empty list.
         // this way the remove-item option can always be added to the list.
-        console.error(err);
+        logger.error('Error fetching tag key options', err instanceof Error ? err : new Error(String(err)));
         return [];
       })
       .then((tags) => tags.map(toSelectableValue));

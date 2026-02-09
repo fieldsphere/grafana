@@ -1,6 +1,8 @@
 import { debounce } from 'lodash';
 
-import { getBackendSrv } from '@grafana/runtime';
+import { createStructuredLogger, getBackendSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('ServiceAccountActions');
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -31,7 +33,7 @@ export function fetchACOptions(): ThunkResult<void> {
         dispatch(acOptionsLoaded(options));
       }
     } catch (error) {
-      console.error(error);
+      logger.error('Failed to fetch AC options', error instanceof Error ? error : undefined);
     }
   };
 }
@@ -76,7 +78,7 @@ export function fetchServiceAccounts(
         dispatch(serviceAccountsFetched(result));
       }
     } catch (error) {
-      console.error(error);
+      logger.error('Failed to fetch service accounts', error instanceof Error ? error : undefined);
     } finally {
       dispatch(serviceAccountsFetchEnd());
     }

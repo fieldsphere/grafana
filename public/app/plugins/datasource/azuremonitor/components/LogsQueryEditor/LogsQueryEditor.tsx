@@ -3,8 +3,10 @@ import { useEffect, useState } from 'react';
 import { PanelData, TimeRange } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { EditorFieldGroup, EditorRow, EditorRows } from '@grafana/plugin-ui';
-import { config, getTemplateSrv } from '@grafana/runtime';
+import { config, createStructuredLogger, getTemplateSrv } from '@grafana/runtime';
 import { Alert, LinkButton, Space, Text, TextLink } from '@grafana/ui';
+
+const logger = createStructuredLogger('AzureLogsQueryEditor');
 
 import { LogsEditorMode, ResultFormat } from '../../dataquery.gen';
 import Datasource from '../../datasource';
@@ -193,11 +195,11 @@ const LogsQueryEditor = ({
           setDataIngestedWarning(null);
         }
       } catch (err) {
-        console.error(err);
+        logger.error('Error checking basic logs usage', err instanceof Error ? err : new Error(String(err)));
       }
     };
 
-    getBasicLogsUsage(query).catch((err) => console.error(err));
+    getBasicLogsUsage(query).catch((err) => logger.error('Error in getBasicLogsUsage', err instanceof Error ? err : new Error(String(err))));
   }, [datasource.azureLogAnalyticsDatasource, query, showBasicLogsToggle, from, to]);
   let portalLinkButton = null;
 

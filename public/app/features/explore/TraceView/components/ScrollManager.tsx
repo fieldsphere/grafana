@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { createStructuredLogger } from '@grafana/runtime';
+
 import TNil from './types/TNil';
+
+const logger = createStructuredLogger('ScrollManager');
 import { TraceSpan, TraceSpanReference, Trace } from './types/trace';
 
 /**
@@ -105,8 +109,7 @@ export default class ScrollManager {
     const isUp = direction < 0;
     const position = xrs.getRowPosition(rowIndex);
     if (!position) {
-      // eslint-disable-next-line no-console
-      console.warn('Invalid row index');
+      logger.warn('Invalid row index', { rowIndex });
       return;
     }
     let { y } = position;

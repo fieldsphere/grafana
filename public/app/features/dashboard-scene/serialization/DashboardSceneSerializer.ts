@@ -1,4 +1,6 @@
-import { logWarning } from '@grafana/runtime';
+import { createStructuredLogger, logWarning } from '@grafana/runtime';
+
+const logger = createStructuredLogger('DashboardSceneSerializer');
 import { Dashboard } from '@grafana/schema';
 import { Spec as DashboardV2Spec } from '@grafana/schema/dist/esm/schema/dashboard/v2';
 import { AnnoKeyDashboardSnapshotOriginalUrl, ObjectMeta } from 'app/features/apiserver/types';
@@ -354,7 +356,7 @@ export class V2DashboardSerializer
           }
         } else {
           const warningMsg = 'Dashboard serializer: Undefined variable found in dashboard save model, ignoring it';
-          console.warn(warningMsg);
+          logger.warn(warningMsg);
           logWarning(warningMsg);
         }
       }

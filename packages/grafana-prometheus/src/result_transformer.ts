@@ -18,7 +18,9 @@ import {
   TIME_SERIES_TIME_FIELD_NAME,
   TIME_SERIES_VALUE_FIELD_NAME,
 } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createStructuredLogger, getDataSourceSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('PrometheusResultTransformer');
 
 import { ExemplarTraceIdDestination, PromMetric, PromQuery, PromValue } from './types';
 
@@ -419,7 +421,10 @@ export function sortSeriesByLabel(s1: DataFrame, s2: DataFrame): number {
     le2 = parseSampleValue(s2.fields[1].state?.displayName ?? s2.name ?? s2.fields[1].name);
   } catch (err) {
     // fail if not integer. might happen with bad queries
-    console.error(err);
+    logger.error('Failed to sort series by label', err instanceof Error ? err : undefined, {
+      s1Name: s1.name,
+      s2Name: s2.name,
+    });
     return 0;
   }
 

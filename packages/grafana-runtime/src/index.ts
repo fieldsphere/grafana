@@ -19,6 +19,20 @@ export {
   type MonitoringLogger,
 } from './utils/logging';
 export {
+  createStructuredLogger,
+  getLogger,
+  debug,
+  info,
+  warn,
+  error,
+  LogLevel,
+  type LogContext,
+  type LogContextValue,
+  type LogEntry,
+  type StructuredLogger,
+  type StructuredLoggerOptions,
+} from './utils/structuredLog';
+export {
   DataSourceWithBackend,
   HealthCheckError,
   type HealthCheckResult,

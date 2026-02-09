@@ -3,7 +3,10 @@ import { useCallback, useEffect, useRef, useState, type JSX } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createStructuredLogger } from '@grafana/runtime';
 import { IconButton, useStyles2, Stack, InlineToast, Tooltip, Icon } from '@grafana/ui';
+
+const logger = createStructuredLogger('QueryToolbox');
 
 import { SqlExpressionQuery } from '../types';
 
@@ -39,7 +42,7 @@ export const QueryToolbox = ({ onFormatCode, onExpand, isExpanded, query }: Quer
       await navigator.clipboard.writeText(query.expression ?? '');
       setShowCopySuccess(true);
     } catch (e) {
-      console.error(e);
+      logger.error('Failed to copy to clipboard', e instanceof Error ? e : undefined);
     }
   }, [query.expression]);
 

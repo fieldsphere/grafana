@@ -1,5 +1,7 @@
 import { AdHocVariableFilter, TypedVariableModel } from '@grafana/data';
-import { config, getDataSourceSrv } from '@grafana/runtime';
+import { config, createStructuredLogger, getDataSourceSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('DashboardSceneVariables');
 import {
   AdHocFiltersVariable,
   ConstantVariable,
@@ -28,7 +30,7 @@ export function createVariablesForDashboard(oldModel: DashboardModel) {
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        logger.error('Failed to create scene variable', err);
         return null;
       }
     })
@@ -74,7 +76,7 @@ export function createVariablesForSnapshot(oldModel: DashboardModel) {
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        logger.error('Failed to create snapshot variable', err);
         return null;
       }
     })

@@ -1,6 +1,8 @@
 import { DataQuery, locationUtil, setWeekStart, DashboardLoadedEvent, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, isFetchError, locationService } from '@grafana/runtime';
+import { config, createStructuredLogger, isFetchError, locationService } from '@grafana/runtime';
+
+const logger = createStructuredLogger('InitDashboard');
 import { appEvents } from 'app/core/app_events';
 import { createErrorNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
@@ -109,7 +111,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            logger.debug('Correcting dashboard URL', { dashboardUrl, currentPath });
           }
         }
         return dashDTO;
@@ -138,7 +140,7 @@ async function fetchDashboard(
         error: err,
       })
     );
-    console.error(err);
+    logger.error('Failed to fetch dashboard', err);
     return null;
   }
 }
@@ -206,7 +208,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
           error: err,
         })
       );
-      console.error(err);
+      logger.error('Failed to create dashboard model', err);
       return;
     }
 
@@ -264,7 +266,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
       if (err instanceof Error) {
         dispatch(notifyApp(createErrorNotification('Dashboard init failed', err)));
       }
-      console.error(err);
+      logger.error('Dashboard init failed', err);
     }
 
     // send open dashboard event

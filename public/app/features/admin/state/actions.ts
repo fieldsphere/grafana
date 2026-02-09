@@ -1,7 +1,9 @@
 import { debounce } from 'lodash';
 
 import { dateTimeFormatTimeAgo } from '@grafana/data';
-import { featureEnabled, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
+import { createStructuredLogger, featureEnabled, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
+
+const logger = createStructuredLogger('AdminActions');
 import { FetchDataArgs } from '@grafana/ui';
 import config from 'app/core/config';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -50,7 +52,7 @@ export function loadAdminUserPage(userUid: string): ThunkResult<void> {
       }
       dispatch(userAdminPageLoadedAction(true));
     } catch (error) {
-      console.error(error);
+      logger.error('Failed to load admin user page', error instanceof Error ? error : undefined, { userUid });
 
       if (isFetchError(error)) {
         const userError = {
@@ -300,7 +302,7 @@ export function fetchUsers(): ThunkResult<void> {
       dispatch(usersFetched(result));
     } catch (error) {
       usersFetchEnd();
-      console.error(error);
+      logger.error('Failed to fetch users', error instanceof Error ? error : undefined);
     }
   };
 }
@@ -366,7 +368,7 @@ export function fetchUsersAnonymousDevices(): ThunkResult<void> {
       const result = await getBackendSrv().get(url);
       dispatch(usersAnonymousDevicesFetched(result));
     } catch (error) {
-      console.error(error);
+      logger.error('Failed to fetch anonymous devices', error instanceof Error ? error : undefined);
     }
   };
 }

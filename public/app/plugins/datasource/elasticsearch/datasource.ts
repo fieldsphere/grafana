@@ -47,7 +47,10 @@ import {
   TemplateSrv,
   getTemplateSrv,
   config,
+  createStructuredLogger,
 } from '@grafana/runtime';
+
+const logger = createStructuredLogger('ElasticsearchDataSource');
 
 import { IndexPattern, intervalMap } from './IndexPattern';
 import LanguageProvider from './LanguageProvider';
@@ -1172,12 +1175,12 @@ export class ElasticDatasource
         try {
           return new SemVer(versionNumber);
         } catch (error) {
-          console.error(error);
+          logger.error('Error parsing database version', error instanceof Error ? error : new Error(String(error)), { versionNumber });
           return null;
         }
       },
       (error) => {
-        console.error(error);
+        logger.error('Error fetching database version', error instanceof Error ? error : new Error(String(error)));
         return null;
       }
     );

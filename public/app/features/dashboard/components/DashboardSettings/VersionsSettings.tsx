@@ -1,7 +1,10 @@
 import { PureComponent } from 'react';
 import * as React from 'react';
 
+import { createStructuredLogger } from '@grafana/runtime';
 import { Spinner, Stack } from '@grafana/ui';
+
+const logger = createStructuredLogger('VersionsSettings');
 import { Page } from 'app/core/components/Page/Page';
 import { Resource } from 'app/features/apiserver/types';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
@@ -69,7 +72,7 @@ export class VersionsSettings extends PureComponent<Props, State> {
         // Update the continueToken for the next request, if available
         this.continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => logger.error('Failed to fetch dashboard versions', err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

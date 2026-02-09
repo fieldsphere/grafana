@@ -1,3 +1,5 @@
+import { createStructuredLogger } from '@grafana/runtime';
+
 import { Registry, RegistryItem } from '../utils/Registry';
 
 import { createTheme, NewThemeOptionsSchema } from './createTheme';
@@ -14,6 +16,8 @@ import tron from './themeDefinitions/tron.json';
 import victorian from './themeDefinitions/victorian.json';
 import zen from './themeDefinitions/zen.json';
 import { GrafanaTheme2 } from './types';
+
+const logger = createStructuredLogger('ThemeRegistry');
 
 export interface ThemeRegistryItem extends RegistryItem {
   isExtra?: boolean;
@@ -79,7 +83,7 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
 for (const [name, json] of Object.entries(extraThemes)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    logger.error('Invalid theme definition', new Error(result.error.message), { themeName: name });
   } else {
     const theme = result.data;
     themeRegistry.register({

@@ -4,6 +4,7 @@ import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 
 import { useStyles2 } from '../../themes/ThemeContext';
 import { InlineToast } from '../InlineToast/InlineToast';
@@ -11,6 +12,8 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 import { ColorIndicatorPosition, VizTooltipColorIndicator } from './VizTooltipColorIndicator';
 import { ColorPlacement, VizTooltipItem } from './types';
+
+const logger = createStructuredLogger('VizTooltipRow');
 
 interface VizTooltipRowProps extends Omit<VizTooltipItem, 'value'> {
   value: string | number | null | ReactNode;
@@ -112,7 +115,7 @@ export const VizTooltipRow = ({
         setShowCopySuccess(true);
       }
     } catch (err) {
-      console.error('Unable to copy to clipboard', err);
+      logger.error('Unable to copy to clipboard', err instanceof Error ? err : new Error(String(err)));
     }
 
     textarea.remove();

@@ -1,7 +1,9 @@
 import { omit } from 'lodash';
 
 import { AnnotationQuery, isEmptyObject, TimeRange } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('TransformSceneToSaveModelSchemaV2');
 import {
   behaviors,
   dataLayers,
@@ -150,7 +152,7 @@ export function transformSceneToSaveModelSchemaV2(scene: DashboardScene, isSnaps
     // should never reach this point, validation should throw an error
     throw new Error('Error we could transform the dashboard to schema v2: ' + dashboardSchemaV2);
   } catch (reason) {
-    console.error('Error transforming dashboard to schema v2: ' + reason, dashboardSchemaV2);
+    logger.error('Error transforming dashboard to schema v2', reason as Error, { dashboardSchemaV2 });
     throw new Error('Error transforming dashboard to schema v2: ' + reason);
   }
 }
@@ -534,10 +536,10 @@ function getAnnotations(state: DashboardSceneState, dsReferencesMapping?: DSRefe
       // for layers created for v2 schema. See transform transformSaveModelSchemaV2ToScene.ts.
       // In this case we will resolve default data source
       layerDs = getDefaultDataSourceRef();
-      console.error(
+      logger.error(
         'Misconfigured AnnotationsDataLayer: Data source is required for annotations. Resolving default data source',
-        layer,
-        layerDs
+        undefined,
+        { layer, layerDs }
       );
     }
 

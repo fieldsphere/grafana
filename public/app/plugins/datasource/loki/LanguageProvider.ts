@@ -2,7 +2,9 @@ import { flatten } from 'lodash';
 import { LRUCache } from 'lru-cache';
 
 import { AbstractQuery, getDefaultTimeRange, KeyValue, LanguageProvider, ScopedVars, TimeRange } from '@grafana/data';
-import { BackendSrvRequest, config } from '@grafana/runtime';
+import { BackendSrvRequest, config, createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('LokiLanguageProvider');
 
 import { LokiQueryType } from './dataquery.gen';
 import { DEFAULT_MAX_LINES_SAMPLE, LokiDatasource } from './datasource';
@@ -56,7 +58,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
       if (throwError) {
         throw error;
       } else {
-        console.error(error);
+        logger.error('Request error', error instanceof Error ? error : new Error(String(error)));
       }
     }
 
@@ -286,7 +288,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         const data = await this.request(url, params, true, requestOptions);
         resolve(data);
       } catch (error) {
-        console.error('error', error);
+        logger.error('Error fetching label values', error instanceof Error ? error : new Error(String(error)));
         reject(error);
       }
     });
@@ -367,7 +369,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         if (queryOptions?.throwError) {
           reject(error);
         } else {
-          console.error(error);
+          logger.error('Error getting series labels', error instanceof Error ? error : new Error(String(error)));
           resolve([]);
         }
       }
@@ -437,7 +439,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
           resolve(labelValues);
         }
       } catch (error) {
-        console.error(error);
+        logger.error('Error fetching detected label values', error instanceof Error ? error : new Error(String(error)));
         resolve([]);
       }
     });

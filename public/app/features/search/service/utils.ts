@@ -1,5 +1,8 @@
 import { DataFrameView, IconName, fuzzySearch } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 import { DashboardViewItemWithUIItems } from 'app/features/browse-dashboards/types';
+
+const logger = createStructuredLogger('SearchUtils');
 import { isSharedWithMe } from 'app/features/browse-dashboards/utils/dashboards';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { DashboardDataDTO } from 'app/types/dashboard';
@@ -34,7 +37,7 @@ async function getCurrentFolderUID(): Promise<string | undefined> {
     }
     return Promise.resolve(dash?.meta?.folderUid);
   } catch (e) {
-    console.error(e);
+    logger.error('Failed to get current folder UID', e instanceof Error ? e : undefined);
   }
   return undefined;
 }

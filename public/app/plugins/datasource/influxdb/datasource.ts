@@ -28,12 +28,15 @@ import {
 } from '@grafana/data';
 import {
   BackendDataSourceResponse,
+  createStructuredLogger,
   DataSourceWithBackend,
   FetchResponse,
   getBackendSrv,
   getTemplateSrv,
   TemplateSrv,
 } from '@grafana/runtime';
+
+const logger = createStructuredLogger('InfluxDBDataSource');
 import { QueryFormat, SQLQuery } from '@grafana/sql';
 import config from 'app/core/config';
 
@@ -388,7 +391,7 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
         // then put inside parenthesis.
         return typeof value === 'string' ? escapeRegex(value) : `(${value.map((v) => escapeRegex(v)).join('|')})`;
       } catch (e) {
-        console.warn(`Supplied match is not valid regex: ${match}`);
+        logger.warn('Supplied match is not valid regex', { match });
       }
     }
 

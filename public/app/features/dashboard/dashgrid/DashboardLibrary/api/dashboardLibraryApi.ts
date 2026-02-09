@@ -1,4 +1,6 @@
-import { getBackendSrv } from '@grafana/runtime';
+import { createStructuredLogger, getBackendSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('DashboardLibraryApi');
 import { DashboardJson } from 'app/features/manage-dashboards/types';
 import { PluginDashboard } from 'app/types/plugins';
 
@@ -109,7 +111,7 @@ export async function fetchCommunityDashboards(
   }
 
   // Fallback for unexpected response format
-  console.warn('Unexpected API response format from Grafana.com:', result);
+  logger.warn('Unexpected API response format from Grafana.com', { result });
   return {
     page: params.page,
     pages: 1,
@@ -134,7 +136,7 @@ export async function fetchProvisionedDashboards(datasourceType: string): Promis
     });
     return Array.isArray(dashboards) ? dashboards : [];
   } catch (error) {
-    console.error('Error loading provisioned dashboards', error);
+    logger.error('Error loading provisioned dashboards', error);
     return [];
   }
 }
@@ -147,9 +149,13 @@ const filterNonSafeDashboards = (dashboards: GnetDashboard[]): GnetDashboard[] =
     const hasLowDownloads = typeof item.downloads === 'number' && item.downloads < MIN_DOWNLOADS_FILTER;
 
     if (hasUnsafePanelTypes || hasLowDownloads) {
-      console.warn(
-        `Community dashboard ${item.id} ${item.name} filtered out due to low downloads ${item.downloads} or panel types ${item.panelTypeSlugs?.join(', ')} that can embed JavaScript`
-      );
+      logger.warn('Community dashboard filtered out', {
+        dashboardId: item.id,
+        dashboardName: item.name,
+        downloads: item.downloads,
+        panelTypes: item.panelTypeSlugs?.join(', '),
+        reason: hasLowDownloads ? 'low downloads' : 'unsafe panel types',
+      });
       return false;
     }
     return true;

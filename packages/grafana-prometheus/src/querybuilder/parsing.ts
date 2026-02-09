@@ -27,6 +27,9 @@ import {
 } from '@prometheus-io/lezer-promql';
 
 import { t } from '@grafana/i18n';
+import { createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('PromQLParsing');
 
 import { binaryScalarOperatorToOperatorName } from './binaryScalarOperations';
 import {
@@ -72,7 +75,7 @@ export function buildVisualQueryFromString(expr: string): Omit<Context, 'replace
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    logger.error('Failed to parse PromQL expression', err instanceof Error ? err : undefined, { expr });
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

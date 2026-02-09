@@ -13,9 +13,11 @@ import {
   store,
   TimeRange,
 } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createStructuredLogger } from '@grafana/runtime';
 
 import { LokiQueryType, LokiQueryDirection } from './dataquery.gen';
+
+const logger = createStructuredLogger('LokiQuerySplitting');
 import { LokiDatasource } from './datasource';
 import { splitTimeRange as splitLogsTimeRange } from './logsTimeSplitting';
 import { combineResponses } from './mergeResponses';
@@ -173,7 +175,7 @@ export function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        logger.error('Query splitting error', e instanceof Error ? e : new Error(String(e)));
         shouldStop = true;
         return false;
       }

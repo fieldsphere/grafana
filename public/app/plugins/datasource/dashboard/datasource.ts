@@ -20,6 +20,7 @@ import {
   DataSourceGetDrilldownsApplicabilityOptions,
   DrilldownsApplicability,
 } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 import { isSceneObject, SceneDataProvider, SceneDataTransformer, SceneObject } from '@grafana/scenes';
 import {
   activateSceneObjectAndParentTree,
@@ -28,6 +29,8 @@ import {
 } from 'app/features/dashboard-scene/utils/utils';
 
 import { MIXED_REQUEST_PREFIX } from '../mixed/MixedDataSource';
+
+const logger = createStructuredLogger('DashboardDataSource');
 
 import { DashboardQuery } from './types';
 
@@ -270,7 +273,7 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         options: { value: filter.value },
       });
     } catch (error) {
-      console.warn('Failed to create value matcher for filter:', filter, error);
+      logger.warn('Failed to create value matcher for filter', { filter, error });
       return null;
     }
   }

@@ -17,8 +17,10 @@ import victorian from '@grafana/data/themes/definitions/victorian.json';
 import zen from '@grafana/data/themes/definitions/zen.json';
 import themeJsonSchema from '@grafana/data/themes/schema.generated.json';
 import { t } from '@grafana/i18n';
-import { useChromeHeaderHeight } from '@grafana/runtime';
+import { createStructuredLogger, useChromeHeaderHeight } from '@grafana/runtime';
 import { CodeEditor, Combobox, Field, Stack, useStyles2 } from '@grafana/ui';
+
+const logger = createStructuredLogger('ThemePlayground');
 import { ThemeDemo } from '@grafana/ui/internal';
 import { Page } from 'app/core/components/Page/Page';
 
@@ -65,7 +67,7 @@ const experimentalDefinitions: Record<string, unknown> = {
 for (const [name, json] of Object.entries(experimentalDefinitions)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    logger.error('Invalid theme definition', undefined, { themeName: name, error: result.error.message });
   } else {
     themeMap[result.data.id] = result.data;
   }

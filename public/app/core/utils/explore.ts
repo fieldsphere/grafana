@@ -24,7 +24,9 @@ import {
   toURLRange,
   urlUtil,
 } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createStructuredLogger, getDataSourceSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('Explore');
 import { RefreshPicker } from '@grafana/ui';
 import { ExpressionDatasourceUID } from 'app/features/expressions/types';
 import { QueryOptions, QueryTransaction } from 'app/types/explore';
@@ -159,7 +161,7 @@ export const safeStringifyValue = (value: unknown, space?: number) => {
   try {
     return JSON.stringify(value, null, space);
   } catch (error) {
-    console.error(error);
+    logger.error('Failed to stringify value', error instanceof Error ? error : undefined);
   }
 
   return '';
@@ -232,7 +234,9 @@ export async function ensureQueries(
         try {
           await getDataSourceSrv().get(query.datasource.uid);
         } catch {
-          console.error(`One of the queries has a datasource that is no longer available and was removed.`);
+          logger.error('One of the queries has a datasource that is no longer available and was removed', undefined, {
+            datasourceUid: query.datasource.uid,
+          });
           validDS = false;
         }
       }

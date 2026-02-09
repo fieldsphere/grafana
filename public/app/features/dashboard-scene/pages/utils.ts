@@ -1,5 +1,7 @@
 import { UrlQueryMap, getTimeZone, getDefaultTimeRange, dateMath } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
+import { createStructuredLogger, locationService } from '@grafana/runtime';
+
+const logger = createStructuredLogger('DashboardScenePageUtils');
 import { getFolderByUidFacade } from 'app/api/clients/folder/v1beta1/hooks';
 import { updateNavIndex } from 'app/core/reducers/navModel';
 import { buildNavModel } from 'app/features/folders/state/navModel';
@@ -10,7 +12,7 @@ export async function updateNavModel(folderUid: string) {
     const folder = await getFolderByUidFacade(folderUid);
     store.dispatch(updateNavIndex(buildNavModel(folder)));
   } catch (err) {
-    console.warn('Error fetching parent folder', folderUid, 'for dashboard', err);
+    logger.warn('Error fetching parent folder for dashboard', { folderUid, error: err });
   }
 }
 

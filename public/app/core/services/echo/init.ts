@@ -1,4 +1,6 @@
-import { config, registerEchoBackend, setEchoSrv } from '@grafana/runtime';
+import { config, createStructuredLogger, registerEchoBackend, setEchoSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('EchoSrvInit');
 import { reportMetricPerformanceMark } from 'app/core/utils/metrics';
 
 import { contextSrv } from '../context_srv';
@@ -28,43 +30,43 @@ export async function initEchoSrv() {
   try {
     await initPerformanceBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Performance backend', error);
+    logger.error('Error initializing EchoSrv Performance backend', error instanceof Error ? error : undefined);
   }
 
   try {
     await initFaroBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Faro backend', error);
+    logger.error('Error initializing EchoSrv Faro backend', error instanceof Error ? error : undefined);
   }
 
   try {
     await initGoogleAnalyticsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalytics backend', error);
+    logger.error('Error initializing EchoSrv GoogleAnalytics backend', error instanceof Error ? error : undefined);
   }
 
   try {
     await initGoogleAnalaytics4Backend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalaytics4 backend', error);
+    logger.error('Error initializing EchoSrv GoogleAnalytics4 backend', error instanceof Error ? error : undefined);
   }
 
   try {
     await initRudderstackBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Rudderstack backend', error);
+    logger.error('Error initializing EchoSrv Rudderstack backend', error instanceof Error ? error : undefined);
   }
 
   try {
     await initAzureAppInsightsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv AzureAppInsights backend', error);
+    logger.error('Error initializing EchoSrv AzureAppInsights backend', error instanceof Error ? error : undefined);
   }
 
   try {
     await initConsoleBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Console backend', error);
+    logger.error('Error initializing EchoSrv Console backend', error instanceof Error ? error : undefined);
   }
 }
 

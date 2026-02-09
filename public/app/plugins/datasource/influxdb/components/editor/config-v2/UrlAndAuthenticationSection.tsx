@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { firstValueFrom } from 'rxjs';
 
 import { onUpdateDatasourceJsonDataOptionSelect, onUpdateDatasourceOption } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
+import { createStructuredLogger, getBackendSrv } from '@grafana/runtime';
 import {
   Box,
   CollapsableSection,
@@ -21,6 +21,8 @@ import {
 import { InfluxVersion } from '../../../types';
 
 import { AdvancedHttpSettings } from './AdvancedHttpSettings';
+
+const logger = createStructuredLogger('InfluxDBUrlAndAuth');
 import { AuthSettings } from './AuthSettings';
 import { CONFIG_SECTION_HEADERS, CONTAINER_MIN_WIDTH } from './constants';
 import {
@@ -104,7 +106,7 @@ export const UrlAndAuthenticationSection = (props: Props) => {
         }
       }
     } catch (err) {
-      console.error('Failed to get InfluxDB version:', err);
+      logger.error('Failed to get InfluxDB version', err instanceof Error ? err : new Error(String(err)));
     }
 
     return { product: undefined, version: undefined };

@@ -1,6 +1,7 @@
 import { isEqual } from 'lodash';
 import React from 'react';
 
+import { createStructuredLogger } from '@grafana/runtime';
 import {
   CustomVariable,
   MultiValueVariable,
@@ -11,6 +12,8 @@ import {
   VariableValueSingle,
   VizPanel,
 } from '@grafana/scenes';
+
+const logger = createStructuredLogger('AutoGridItem');
 import { OptionsPaneCategoryDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategoryDescriptor';
 
 import { ConditionalRenderingGroup } from '../../conditional-rendering/group/ConditionalRenderingGroup';
@@ -91,7 +94,7 @@ export class AutoGridItem extends SceneObjectBase<AutoGridItemState> implements 
       });
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('DashboardGridItem: Variable is not a MultiValueVariable');
+      logger.error('AutoGridItem: Variable is not a MultiValueVariable', { variableName: this.state.variableName });
       return;
     }
 

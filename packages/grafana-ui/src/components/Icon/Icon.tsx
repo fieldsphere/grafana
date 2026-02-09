@@ -3,12 +3,15 @@ import * as React from 'react';
 import SVG from 'react-inlinesvg';
 
 import { GrafanaTheme2, isIconName } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 
 import { useStyles2 } from '../../themes/ThemeContext';
 import { IconName, IconType, IconSize } from '../../types/icon';
 import { spin } from '../../utils/keyframes';
 
 import { getIconPath, getSvgSize } from './utils';
+
+const logger = createStructuredLogger('Icon');
 
 export interface IconProps extends Omit<React.SVGProps<SVGElement>, 'onLoad' | 'onError' | 'ref'> {
   name: IconName;
@@ -53,7 +56,7 @@ export const Icon = React.memo(
       const styles = useStyles2(getIconStyles);
 
       if (!isIconName(name)) {
-        console.warn('Icon component passed an invalid icon name', name);
+        logger.warn('Icon component passed an invalid icon name', { name });
       }
 
       // handle the deprecated 'fa fa-spinner'

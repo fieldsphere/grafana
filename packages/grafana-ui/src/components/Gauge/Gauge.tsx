@@ -13,12 +13,15 @@ import {
   FieldColorModeId,
   FALLBACK_COLOR,
 } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 import { VizTextDisplayOptions, VizOrientation, Threshold } from '@grafana/schema';
 
 import { calculateFontSize } from '../../utils/measureText';
 import { clearButtonStyles } from '../Button/Button';
 
 import { calculateGaugeAutoProps, DEFAULT_THRESHOLDS, getFormattedThresholds } from './utils';
+
+const logger = createStructuredLogger('Gauge');
 
 export interface Props {
   height: number;
@@ -158,7 +161,10 @@ export class Gauge extends PureComponent<Props> {
         $.plot(this.canvasElement, [plotSeries], options);
       }
     } catch (err) {
-      console.error('Gauge rendering error', err, options, value);
+      logger.error('Gauge rendering error', err instanceof Error ? err : new Error(String(err)), {
+        options: JSON.stringify(options),
+        value: JSON.stringify(value),
+      });
     }
   }
 

@@ -1,6 +1,9 @@
 import { PanelPlugin } from '@grafana/data';
 
 import { config } from '../config';
+import { createStructuredLogger } from './structuredLog';
+
+const logger = createStructuredLogger('PluginCss');
 
 /**
  * Option to specify a plugin css that should be applied for the dark
@@ -25,7 +28,7 @@ export async function loadPluginCss(options: PluginCssOptions): Promise<System.M
     const cssPath = config.bootData.user.theme === 'light' ? options.light : options.dark;
     return window.System.import(cssPath);
   } catch (err) {
-    console.error(err);
+    logger.error('Failed to load plugin CSS', err);
   }
 }
 

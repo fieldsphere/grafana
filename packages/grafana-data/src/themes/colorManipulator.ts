@@ -4,6 +4,10 @@
 
 import tinycolor from 'tinycolor2';
 
+import { createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('ColorManipulator');
+
 /**
  * Returns a number whose value is limited to the given range.
  * @param value The value to be clamped
@@ -15,7 +19,11 @@ import tinycolor from 'tinycolor2';
 function clamp(value: number, min = 0, max = 1) {
   if (process.env.NODE_ENV !== 'production') {
     if (value < min || value > max) {
-      console.error(`The value provided ${value} is out of range [${min}, ${max}].`);
+      logger.error('The value provided is out of range', new Error('Value out of range'), {
+        value,
+        min,
+        max,
+      });
     }
   }
 

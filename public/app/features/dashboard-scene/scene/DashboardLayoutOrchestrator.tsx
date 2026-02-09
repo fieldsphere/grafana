@@ -3,7 +3,9 @@ import { PointerEvent as ReactPointerEvent } from 'react';
 import { createPortal } from 'react-dom';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { logWarning } from '@grafana/runtime';
+import { createStructuredLogger, logWarning } from '@grafana/runtime';
+
+const logger = createStructuredLogger('DashboardLayoutOrchestrator');
 import {
   sceneGraph,
   SceneComponentProps,
@@ -203,7 +205,7 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
             }
           } else {
             const warningMessage = 'No grid item to drag';
-            console.warn(warningMessage);
+            logger.warn(warningMessage);
             logWarning(warningMessage);
           }
         });

@@ -4,6 +4,7 @@ import { PureComponent } from 'react';
 
 import { GrafanaTheme2, monacoLanguageRegistry } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
+import { createStructuredLogger } from '@grafana/runtime';
 
 import { withTheme2 } from '../../themes/ThemeContext';
 import { Themeable2 } from '../../types/theme';
@@ -11,6 +12,8 @@ import { Themeable2 } from '../../types/theme';
 import { ReactMonacoEditorLazy } from './ReactMonacoEditorLazy';
 import { registerSuggestions } from './suggestions';
 import { CodeEditorProps, Monaco, MonacoEditor as MonacoEditorType, MonacoOptions } from './types';
+
+const logger = createStructuredLogger('CodeEditor');
 
 type Props = CodeEditorProps & Themeable2;
 
@@ -43,7 +46,7 @@ class UnthemedCodeEditor extends PureComponent<Props> {
       }
 
       if (!this.monaco) {
-        console.warn('Monaco instance not loaded yet');
+        logger.warn('Monaco instance not loaded yet');
         return;
       }
 
