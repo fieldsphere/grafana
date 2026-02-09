@@ -31,6 +31,7 @@ import {
 import {
   BackendSrvRequest,
   config,
+  createStructuredLogger,
   DataSourceWithBackend,
   FetchResponse,
   getBackendSrv,
@@ -38,6 +39,8 @@ import {
   isFetchError,
   TemplateSrv,
 } from '@grafana/runtime';
+
+const logger = createStructuredLogger('PrometheusDatasource');
 
 import { addLabelToQuery } from './add_label_to_query';
 import { PrometheusAnnotationSupport } from './annotations';
@@ -172,8 +175,7 @@ export class PrometheusDatasource
         this.ruleMappings = extractRuleMappingFromGroups(ruleGroups);
       }
     } catch (err) {
-      console.log('Rules API is experimental. Ignore next error.');
-      console.error(err);
+      logger.warn('Rules API request failed (experimental API)', { error: err instanceof Error ? err.message : String(err) });
     }
   }
 
@@ -352,7 +354,7 @@ export class PrometheusDatasource
       } catch (err) {
         // If status code of error is Method Not Allowed (405) and HTTP method is POST, retry with GET
         if (this.httpMethod === 'POST' && isFetchError(err) && (err.status === 405 || err.status === 400)) {
-          console.warn(`Couldn't use configured POST HTTP method for this request. Trying to use GET method instead.`);
+          logger.warn('POST HTTP method not supported, falling back to GET', { url, status: err.status });
         } else {
           throw err;
         }

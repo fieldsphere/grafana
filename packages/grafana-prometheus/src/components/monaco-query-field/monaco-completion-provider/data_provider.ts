@@ -1,4 +1,7 @@
 import { HistoryItem, TimeRange } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('PrometheusDataProvider');
 
 import { DEFAULT_COMPLETION_LIMIT, METRIC_LABEL } from '../../../constants';
 import { type PrometheusLanguageProviderInterface } from '../../../language_provider';
@@ -80,7 +83,7 @@ export class DataProvider {
 
       return Array.isArray(result) ? result : [];
     } catch (error) {
-      console.warn('Failed to query metric names:', error);
+      logger.warn('Failed to query metric names', { error: error instanceof Error ? error.message : String(error), searchTerm });
       return [];
     }
   };
