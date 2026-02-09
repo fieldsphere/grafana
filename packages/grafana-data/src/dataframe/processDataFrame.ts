@@ -1,6 +1,8 @@
 // Libraries
 import { isArray, isBoolean, isNumber, isString } from 'lodash';
 
+import { createStructuredLogger } from '@grafana/runtime';
+
 import { isDateTime } from '../datetime/moment_wrapper';
 import { fieldIndexComparer } from '../field/fieldComparers';
 import { getFieldDisplayName } from '../field/fieldState';
@@ -22,6 +24,8 @@ import { PanelData } from '../types/panel';
 
 import { arrayToDataFrame } from './ArrayDataFrame';
 import { dataFrameFromJSON } from './DataFrameJSON';
+
+const logger = createStructuredLogger('ProcessDataFrame');
 
 function convertTableToDataFrame(table: TableData): DataFrame {
   const fields = table.columns.map((c) => {
@@ -340,7 +344,7 @@ export function toDataFrame(data: any): DataFrame {
     return arrayToDataFrame(data);
   }
 
-  console.warn('Can not convert', data);
+  logger.warn('Cannot convert data to DataFrame', { dataType: typeof data });
   throw new Error('Unsupported data format');
 }
 

@@ -1,8 +1,12 @@
+import { createStructuredLogger } from '@grafana/runtime';
+
 import { escapeStringForRegex, stringStartsAsRegEx, stringToJsRegex } from '../../text/string';
 import { DataFrame } from '../../types/dataFrame';
 import { FrameMatcherInfo } from '../../types/transformations';
 
 import { FrameMatcherID } from './ids';
+
+const logger = createStructuredLogger('RefIdMatcher');
 
 // General Field matcher
 const refIdMatcher: FrameMatcherInfo<string> = {
@@ -19,7 +23,7 @@ const refIdMatcher: FrameMatcherInfo<string> = {
         regex = stringToJsRegex(pattern);
       } catch (error) {
         if (error instanceof Error) {
-          console.warn(error.message);
+          logger.warn('Failed to parse regex pattern', { pattern, errorMessage: error.message });
         }
       }
     }
