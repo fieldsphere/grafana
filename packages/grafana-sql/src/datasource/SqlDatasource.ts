@@ -20,6 +20,7 @@ import {
 import { EditorMode } from '@grafana/plugin-ui';
 import {
   BackendDataSourceResponse,
+  createStructuredLogger,
   DataSourceWithBackend,
   FetchResponse,
   getBackendSrv,
@@ -28,6 +29,8 @@ import {
   TemplateSrv,
   reportInteraction,
 } from '@grafana/runtime';
+
+const logger = createStructuredLogger('SqlDatasource');
 
 import { ResponseParser } from '../ResponseParser';
 import { SqlQueryEditorLazy } from '../components/QueryEditorLazy';
@@ -215,7 +218,7 @@ export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLO
     try {
       response = await this.runMetaQuery(interpolatedQuery, range);
     } catch (error) {
-      console.error(error);
+      logger.error('Error when executing SQL query', error);
       throw new Error('error when executing the sql query');
     }
     return this.getResponseParser().transformMetricFindResponse(response);
