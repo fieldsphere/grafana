@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 
 import { SelectableValue } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 import { Select } from '@grafana/ui';
+
+const logger = createStructuredLogger('K8sNameLookup');
 
 import { NamespaceContext, ResourceContext } from './plugins';
 
@@ -41,12 +44,12 @@ export function K8sNameLookup(props: Props) {
           },
         });
         if (!response.ok) {
-          console.warn('error loading names');
+          logger.warn('Error loading names', { url });
           setLoading(false);
           return;
         }
         const table = await response.json();
-        console.log('LIST', url, table);
+        logger.debug('List response received', { url, rowCount: table.rows?.length ?? 0 });
         const options: Array<SelectableValue<string>> = [];
         if (table.rows?.length) {
           for (const row of table.rows) {
