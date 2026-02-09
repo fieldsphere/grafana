@@ -273,7 +273,7 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         options: { value: filter.value },
       });
     } catch (error) {
-      console.warn('Failed to create value matcher for filter:', filter, error);
+      logger.warn('Failed to create value matcher for filter', { filter, error });
       return null;
     }
   }

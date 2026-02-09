@@ -1,6 +1,10 @@
 import { isString } from 'lodash';
 
+import { createStructuredLogger } from '@grafana/runtime';
+
 import { ALIGNMENT_PERIODS, SELECTORS } from './constants';
+
+const logger = createStructuredLogger('CloudMonitoringMetricFindQuery');
 import { ValueTypes, MetricFindQueryTypes } from './dataquery.gen';
 import CloudMonitoringDatasource from './datasource';
 import {
@@ -50,7 +54,7 @@ export default class CloudMonitoringMetricFindQuery {
           return [];
       }
     } catch (error) {
-      console.error(`Could not run CloudMonitoringMetricFindQuery ${query}`, error);
+      logger.error('Could not run CloudMonitoringMetricFindQuery', error instanceof Error ? error : new Error(String(error)), { query });
       return [];
     }
   }
