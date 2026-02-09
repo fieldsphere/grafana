@@ -3,6 +3,10 @@ import fs from 'fs';
 import { OpenAPIV3 } from 'openapi-types';
 import path from 'path';
 
+import { createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('APIClientGenerator');
+
 type PlopActionFunction = (
   answers: Record<string, unknown>,
   config?: Record<string, unknown>
@@ -76,7 +80,7 @@ export const runGenerateApis =
       return '✅ API endpoints generated successfully!';
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('❌ Failed to generate API endpoints:', errorMessage);
+      logger.error('Failed to generate API endpoints', error instanceof Error ? error : undefined, { errorMessage });
       return '❌ Failed to generate API endpoints. See error above.';
     }
   };
@@ -85,7 +89,7 @@ export const formatFiles =
   (basePath: string): PlopActionFunction =>
   (_, config) => {
     if (!config || !Array.isArray(config.files)) {
-      console.error('Invalid config passed to formatFiles action');
+      logger.error('Invalid config passed to formatFiles action');
       return '❌ Formatting failed: Invalid configuration';
     }
 
@@ -99,7 +103,7 @@ export const formatFiles =
         execSync(`yarn eslint --fix ${filesList}`, { cwd: basePath });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.warn(`⚠️ Warning: ESLint encountered issues: ${errorMessage}`);
+        logger.warn('ESLint encountered issues', { errorMessage });
       }
 
       console.log('🧹 Running Prettier on generated/modified files...');
@@ -108,13 +112,13 @@ export const formatFiles =
         execSync(`yarn prettier --write ${filesList} --ignore-path=./.prettierignore`, { cwd: basePath });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.warn(`⚠️ Warning: Prettier encountered issues: ${errorMessage}`);
+        logger.warn('Prettier encountered issues', { errorMessage });
       }
 
       return '✅ Files linted and formatted successfully!';
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('⚠️ Warning: Formatting operations failed:', errorMessage);
+      logger.error('Formatting operations failed', error instanceof Error ? error : undefined, { errorMessage });
       return '⚠️ Warning: Formatting operations failed.';
     }
   };
@@ -163,7 +167,7 @@ export const updatePackageJsonExports =
       return `✅ Added export for ${newExportKey} to package.json`;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('❌ Failed to update package.json exports:', errorMessage);
+      logger.error('Failed to update package.json exports', error instanceof Error ? error : undefined, { errorMessage });
       return '❌ Failed to update package.json exports. See error above.';
     }
   };
