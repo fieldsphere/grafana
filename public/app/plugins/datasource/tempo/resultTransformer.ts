@@ -24,7 +24,9 @@ import {
   TraceSpanRow,
 } from '@grafana/data';
 import { createNodeGraphFrames, TraceToProfilesData } from '@grafana/o11y-ds-frontend';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createStructuredLogger, getDataSourceSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('TempoResultTransformer');
 
 import { SearchTableType } from './dataquery.gen';
 import { Span, SpanAttributes, Spanset, TempoJsonData, TraceSearchMetadata } from './types';
@@ -189,7 +191,7 @@ export function transformFromOTLP(
       }
     }
   } catch (error) {
-    console.error(error);
+    logger.error('Invalid OpenTelemetry format', error instanceof Error ? error : new Error(String(error)));
     return { error: { message: 'JSON is not valid OpenTelemetry format: ' + error }, data: [] };
   }
 

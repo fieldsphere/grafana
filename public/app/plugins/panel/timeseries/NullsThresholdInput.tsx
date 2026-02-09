@@ -2,7 +2,10 @@ import * as React from 'react';
 
 import { rangeUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createStructuredLogger } from '@grafana/runtime';
 import { Input } from '@grafana/ui';
+
+const logger = createStructuredLogger('NullsThresholdInput');
 
 export enum InputPrefix {
   LessThan = 'lessthan',
@@ -31,7 +34,7 @@ export const NullsThresholdInput = ({ value, onChange, inputPrefix, isTime }: Pr
           val = Number(txt);
         }
       } catch (err) {
-        console.warn('ERROR', err);
+        logger.warn('Error parsing threshold input', { error: err });
       }
     }
     onChange(val);

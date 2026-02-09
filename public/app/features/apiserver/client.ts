@@ -1,7 +1,9 @@
 import { Observable, from, retry, catchError, filter, map, mergeMap } from 'rxjs';
 
 import { isLiveChannelMessageEvent, LiveChannelScope } from '@grafana/data';
-import { config, getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
+import { config, createStructuredLogger, getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('ApiserverClient');
 import { contextSrv } from 'app/core/services/context_srv';
 
 import { getAPINamespace } from '../../api/utils';
@@ -85,14 +87,14 @@ export class ScopedResourceClient<T = object, S = object, K = string> implements
           try {
             return JSON.parse(line);
           } catch (e) {
-            console.warn('Invalid JSON in watch stream:', e, line);
+            logger.warn('Invalid JSON in watch stream', { error: e instanceof Error ? e.message : String(e), line });
             return null;
           }
         }),
         filter((event): event is ResourceEvent<T, S, K> => event !== null),
         retry({ count: 3, delay: 1000 }),
         catchError((error) => {
-          console.error('Watch stream error:', error);
+          logger.error('Watch stream error', error instanceof Error ? error : undefined);
           throw error;
         })
       );

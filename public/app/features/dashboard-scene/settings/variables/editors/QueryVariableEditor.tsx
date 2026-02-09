@@ -4,7 +4,9 @@ import { useAsync } from 'react-use';
 import { DataSourceInstanceSettings, getDataSourceRef, SelectableValue, VariableRegexApplyTo } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createStructuredLogger, getDataSourceSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('QueryVariableEditor');
 import { QueryVariable, sceneGraph, SceneVariable } from '@grafana/scenes';
 import { VariableRefresh, VariableSort } from '@grafana/schema';
 import { Box, Button, Field, Modal } from '@grafana/ui';
@@ -133,7 +135,7 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
 
 export function getQueryVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof QueryVariable)) {
-    console.warn('getQueryVariableOptions: variable is not a QueryVariable');
+    logger.warn('getQueryVariableOptions: variable is not a QueryVariable');
     return [];
   }
 

@@ -1,7 +1,9 @@
 import { defaults, each, sortBy } from 'lodash';
 
 import { DataSourceRef, PanelPluginMeta, VariableOption, VariableRefresh } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createStructuredLogger, getDataSourceSrv } from '@grafana/runtime';
+
+const logger = createStructuredLogger('Exporters');
 import { Panel } from '@grafana/schema';
 import {
   Spec as DashboardV2Spec,
@@ -348,7 +350,7 @@ export async function makeExportableV1(dashboard: DashboardModel) {
 
     return newObj;
   } catch (err) {
-    console.error('Export failed:', err);
+    logger.error('Export failed', err as Error);
     return {
       error: err,
     };
@@ -370,7 +372,7 @@ async function convertLibraryPanelToInlinePanel(libraryPanelElement: LibraryPane
     inlinePanel.spec.id = id;
     return inlinePanel;
   } catch (error) {
-    console.error(`Failed to load library panel ${libraryPanel.uid}:`, error);
+    logger.error('Failed to load library panel', error as Error, { libraryPanelUid: libraryPanel.uid });
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     dispatch(
@@ -493,7 +495,7 @@ export async function makeExportableV2(dashboard: DashboardV2Spec, isSharingExte
 
     return dashboard;
   } catch (err) {
-    console.error('Export failed:', err);
+    logger.error('Export failed', err as Error);
     return {
       error: err,
     };

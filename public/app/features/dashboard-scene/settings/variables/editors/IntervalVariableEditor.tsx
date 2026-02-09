@@ -2,7 +2,10 @@ import { noop } from 'lodash';
 import { ChangeEvent, FormEvent } from 'react';
 
 import { SelectableValue } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 import { IntervalVariable, SceneVariable } from '@grafana/scenes';
+
+const logger = createStructuredLogger('IntervalVariableEditor');
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 import {
   getIntervalsFromQueryString,
@@ -65,7 +68,7 @@ export function IntervalVariableEditor({ variable, onRunQuery, inline }: Interva
 
 export function getIntervalVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof IntervalVariable)) {
-    console.warn('getIntervalVariableOptions: variable is not an IntervalVariable');
+    logger.warn('getIntervalVariableOptions: variable is not an IntervalVariable');
     return [];
   }
 

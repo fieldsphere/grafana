@@ -14,6 +14,9 @@ import {
   TimeRange,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('CreateSpanLink');
 import {
   TraceToProfilesOptions,
   TraceToMetricsOptions,
@@ -123,7 +126,7 @@ export function createSpanLinkFactory({
         spanLinks.push.apply(spanLinks, newSpanLinks);
       } catch (error) {
         // It's fairly easy to crash here for example if data source defines wrong interpolation in the data link
-        console.error(error);
+        logger.error('Error creating span link', error as Error);
         return spanLinks;
       }
     }

@@ -13,7 +13,9 @@ import {
   StreamingDataFrame,
 } from '@grafana/data';
 import { getStreamingFrameOptions } from '@grafana/data/internal';
-import { LiveDataStreamOptions, StreamingFrameAction, StreamingFrameOptions, toDataQueryError } from '@grafana/runtime';
+import { createStructuredLogger, LiveDataStreamOptions, StreamingFrameAction, StreamingFrameOptions, toDataQueryError } from '@grafana/runtime';
+
+const logger = createStructuredLogger('LiveDataStream');
 
 import { StreamingResponseDataType } from '../data/utils';
 
@@ -149,7 +151,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onError = (err: unknown) => {
-    console.log('LiveQuery [error]', { err }, this.deps.channelId);
+    logger.error('LiveQuery error', err instanceof Error ? err : undefined, { channelId: this.deps.channelId });
     this.stream.next({
       type: InternalStreamMessageType.Error,
       error: toDataQueryError(err),
@@ -158,7 +160,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onComplete = () => {
-    console.log('LiveQuery [complete]', this.deps.channelId);
+    logger.info('LiveQuery complete', { channelId: this.deps.channelId });
     this.shutdown();
   };
 
@@ -274,10 +276,10 @@ export class LiveDataStream<T = unknown> {
         };
       }
 
-      if (!messages.length) {
-        console.warn(`expected to find at least one non error message ${messages.map(({ type }) => type)}`);
-        // send empty frame
-        return {
+if (!messages.length) {
+          logger.warn('expected to find at least one non error message', { messageTypes: messages.map(({ type }) => type) });
+          // send empty frame
+          return {
           key: subKey,
           state: LoadingState.Streaming,
           data: [
@@ -353,7 +355,7 @@ export class LiveDataStream<T = unknown> {
 
         const newValueSameSchemaMessages = filterMessages(messages, InternalStreamMessageType.NewValuesSameSchema);
         if (newValueSameSchemaMessages.length !== messages.length) {
-          console.warn(`unsupported message type ${messages.map(({ type }) => type)}`);
+          logger.warn('unsupported message type', { messageTypes: messages.map(({ type }) => type) });
         }
 
         return getNewValuesSameSchemaResponseData(newValueSameSchemaMessages);

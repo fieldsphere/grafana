@@ -3,7 +3,9 @@ import { useEffect, useMemo, useState } from 'react';
 import { OrgRole } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
+import { config, createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('OrgUsersTable');
 import {
   Avatar,
   Box,
@@ -79,7 +81,7 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        logger.error('Error loading options', e instanceof Error ? e : undefined);
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

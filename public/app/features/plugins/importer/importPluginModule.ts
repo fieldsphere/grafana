@@ -1,6 +1,8 @@
 import { DEFAULT_LANGUAGE } from '@grafana/i18n';
 import { getResolvedLanguage } from '@grafana/i18n/internal';
-import { config } from '@grafana/runtime';
+import { config, createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('PluginModuleImporter');
 
 import builtInPlugins, { isBuiltinPluginPath } from '../built_in_plugins';
 import { registerPluginInfoInCache } from '../loader/pluginInfoCache';
@@ -68,7 +70,7 @@ export async function importPluginModule({
 
   return SystemJS.import(modulePath).catch((e) => {
     let error = new Error('Could not load plugin', { cause: e });
-    console.error(error);
+    logger.error('Could not load plugin', error, { pluginId, path });
     pluginsLogger.logError(error, {
       path,
       pluginId,

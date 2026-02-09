@@ -1,9 +1,11 @@
 import { css } from '@emotion/css';
 import { useEffect, useState } from 'react';
 
-import { config } from '@grafana/runtime';
+import { config, createStructuredLogger } from '@grafana/runtime';
 
 import { LogGroup } from '../../../dataquery.gen';
+
+const logger = createStructuredLogger('CloudWatchLogGroupsField');
 import { CloudWatchDatasource } from '../../../datasource';
 import { useAccountOptions } from '../../../hooks';
 import { DescribeLogGroupsRequest } from '../../../resources/types';
@@ -72,7 +74,7 @@ export const LogGroupsField = ({
           onChange([...logGroups, ...variables.map((v) => ({ name: v, arn: v }))]);
         })
         .catch((err) => {
-          console.error(err);
+          logger.error('Error loading log group selection', err instanceof Error ? err : new Error(String(err)));
         });
     }
   }, [datasource, legacyLogGroupNames, logGroups, onChange, region, loadingLogGroupsStarted]);

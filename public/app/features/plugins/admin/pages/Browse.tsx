@@ -4,7 +4,9 @@ import { useLocation } from 'react-router-dom-v5-compat';
 
 import { SelectableValue, GrafanaTheme2, PluginType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { locationSearchToObject } from '@grafana/runtime';
+import { createStructuredLogger, locationSearchToObject } from '@grafana/runtime';
+
+const logger = createStructuredLogger('PluginBrowse');
 import { Select, RadioButtonGroup, useStyles2, Tooltip, Field, TextLink } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { getNavModel } from 'app/core/selectors/navModel';
@@ -72,7 +74,7 @@ export default function Browse() {
 
   // How should we handle errors?
   if (error) {
-    console.error(error.message);
+    logger.error('Error loading plugins', undefined, { message: error.message });
     return null;
   }
 

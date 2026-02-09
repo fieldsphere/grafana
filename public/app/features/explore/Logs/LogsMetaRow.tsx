@@ -12,7 +12,9 @@ import {
   shallowCompare,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { config, reportInteraction } from '@grafana/runtime';
+import { config, createStructuredLogger, reportInteraction } from '@grafana/runtime';
+
+const logger = createStructuredLogger('LogsMetaRow');
 import { Button, Dropdown, Menu, ToolbarButton, useStyles2 } from '@grafana/ui';
 
 import { LogLabels, LogLabelsList, Props as LogLabelsProps } from '../../logs/components/LogLabels';
@@ -161,6 +163,6 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
   if (kind === LogsMetaKind.Error) {
     return <span className="logs-meta-item__error">{value.toString()}</span>;
   }
-  console.error(`Meta type ${typeof value} ${value} not recognized.`);
+  logger.error('Meta type not recognized', { metaType: typeof value, value });
   return <></>;
 }

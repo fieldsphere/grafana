@@ -1,5 +1,7 @@
 import { PluginLoadingStrategy } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('SystemJSHooks');
 
 import { transformPluginSourceForCDN } from '../cdn/utils';
 
@@ -102,7 +104,7 @@ export function decorateSystemJSResolve(
       const url = originalResolve.apply(this, [resolvedUrl, parentUrl]);
       return resolvePluginUrlWithCache(url);
     }
-    console.warn(`SystemJS: failed to resolve '${id}'`);
+    logger.warn('SystemJS: failed to resolve module', { id });
     return id;
   }
 }

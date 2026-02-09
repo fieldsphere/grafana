@@ -15,7 +15,9 @@ import {
   PluginContextProvider,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { config, locationSearchToObject } from '@grafana/runtime';
+import { config, createStructuredLogger, locationSearchToObject } from '@grafana/runtime';
+
+const appRootLogger = createStructuredLogger('AppRootPage');
 import { Alert, ErrorWithStack } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { Page } from 'app/core/components/Page/Page';
@@ -249,7 +251,7 @@ async function loadAppPlugin(pluginId: string, dispatch: React.Dispatch<AnyActio
     );
     const error = err instanceof Error ? err : new Error(getMessageFromError(err));
     pluginsLogger.logError(error);
-    console.error(error);
+    appRootLogger.error('Failed to load app plugin', error);
   }
 }
 

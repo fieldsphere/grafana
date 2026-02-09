@@ -5,7 +5,7 @@ import * as React from 'react';
 import { FixedSizeList } from 'react-window';
 
 import { CoreApp, GrafanaTheme2, TimeRange } from '@grafana/data';
-import { reportInteraction } from '@grafana/runtime';
+import { createStructuredLogger, reportInteraction } from '@grafana/runtime';
 import {
   Button,
   HighlightPart,
@@ -20,6 +20,8 @@ import {
 
 import LokiLanguageProvider from '../LanguageProvider';
 import { escapeLabelValueInExactSelector, escapeLabelValueInRegexSelector } from '../languageUtils';
+
+const logger = createStructuredLogger('LokiLabelBrowser');
 
 // Hard limit on labels to render
 const MAX_LABEL_COUNT = 1000;
@@ -376,7 +378,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
       const values: FacettableValue[] = rawValues.map((value) => ({ name: value }));
       this.updateLabelState(name, { values, loading: false });
     } catch (error) {
-      console.error(error);
+      logger.error('Error fetching label values', error instanceof Error ? error : new Error(String(error)), { labelName: name });
     }
   }
 
@@ -404,7 +406,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
         this.updateLabelState(lastFacetted, { loading: false });
       }
     } catch (error) {
-      console.error(error);
+      logger.error('Error fetching series', error instanceof Error ? error : new Error(String(error)), { selector });
     }
   }
 

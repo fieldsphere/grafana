@@ -1,7 +1,10 @@
 import * as React from 'react';
 
 import { PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase, sceneGraph } from '@grafana/scenes';
+
+const logger = createStructuredLogger('VersionsEditView');
 import { Spinner, Stack } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { Resource } from 'app/features/apiserver/types';
@@ -108,7 +111,7 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => logger.error('Failed to fetch more versions', err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

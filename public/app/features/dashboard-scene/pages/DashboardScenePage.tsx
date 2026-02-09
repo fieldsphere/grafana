@@ -3,7 +3,9 @@ import { Params, useParams } from 'react-router-dom-v5-compat';
 import { usePrevious } from 'react-use';
 
 import { PageLayoutType } from '@grafana/data';
-import { locationService } from '@grafana/runtime';
+import { createStructuredLogger, locationService } from '@grafana/runtime';
+
+const logger = createStructuredLogger('DashboardScenePage');
 import { UrlSyncContextProvider } from '@grafana/scenes';
 import { Box } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
@@ -111,7 +113,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
   // A bit tricky for transition to or from Home dashboard that does not have a uid in the url (but could have it in the dashboard model)
   // if prevMatch is undefined we are going from normal route to home route or vice versa
   if (type !== 'snapshot' && (!prevMatch || uid !== prevMatch?.params.uid)) {
-    console.log('skipping rendering');
+    logger.debug('Skipping rendering due to UID mismatch', { uid, prevUid: prevMatch?.params.uid });
     return null;
   }
 

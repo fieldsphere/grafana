@@ -54,8 +54,11 @@ import {
   OrFilter,
 } from '@grafana/lezer-logql';
 import { QueryBuilderLabelFilter, QueryBuilderOperation, QueryBuilderOperationParamValue } from '@grafana/plugin-ui';
+import { createStructuredLogger } from '@grafana/runtime';
 
 import { binaryScalarDefs } from './binaryScalarOperations';
+
+const logger = createStructuredLogger('LokiQueryParsing');
 import { checkParamsAreValid, getDefinitionById } from './operations';
 import {
   ErrorId,
@@ -105,7 +108,7 @@ export function buildVisualQueryFromString(expr: string): Context {
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    logger.error('Error parsing query', err instanceof Error ? err : new Error(String(err)));
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

@@ -1,8 +1,11 @@
 import ansicolor from 'ansicolor';
 
 import { BusEventWithPayload, GrafanaTheme2 } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/runtime';
 
 import { LogLineTimestampResolution } from './LogLine';
+
+const logger = createStructuredLogger('LogVirtualization');
 import { LOG_LINE_DETAILS_HEIGHT, LogLineDetailsMode } from './LogLineDetails';
 import { LogListFontSize } from './LogList';
 import { LogListModel } from './processing';
@@ -74,7 +77,7 @@ export class LogLineVirtualization {
     const domCharWidth = this.measureTextWidthWithDOM('e');
     const diff = domCharWidth - canvasCharWidth;
     if (diff >= 0.1) {
-      console.warn('Virtualized log list: falling back to DOM for measurement');
+      logger.warn('Virtualized log list: falling back to DOM for measurement');
       this.measurementMode = 'dom';
     }
   };

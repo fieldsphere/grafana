@@ -3,7 +3,9 @@ import { css, cx } from '@emotion/css';
 import { GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
+import { config, createStructuredLogger } from '@grafana/runtime';
+
+const logger = createStructuredLogger('DefaultGridLayoutManager');
 import {
   SceneObjectState,
   SceneGridLayout,
@@ -250,7 +252,7 @@ export class DefaultGridLayoutManager
   public duplicatePanel(vizPanel: VizPanel) {
     const gridItem = vizPanel.parent;
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
+      logger.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
       return;
     }
 
