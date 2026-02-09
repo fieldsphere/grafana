@@ -1,8 +1,26 @@
 import { faro, LogContext as FaroLogContext, LogLevel } from '@grafana/faro-web-sdk';
 
-import { config } from '../config';
-
 export { LogLevel };
+
+// Lazy getter for config to avoid circular dependency issues during module initialization.
+// config.ts imports from logging.ts, and logging.ts imports from config.ts.
+// During config.ts initialization, the config export is not yet assigned when logging
+// functions are called, so we need to defer the access to config.
+function getConfig() {
+  // Dynamic import to break circular dependency at module load time
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const configModule = require('../config');
+  return configModule.config;
+}
+
+function isGrafanaJavascriptAgentEnabled(): boolean {
+  try {
+    const cfg = getConfig();
+    return cfg?.grafanaJavascriptAgent?.enabled ?? false;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Context type for structured logging.
@@ -22,10 +40,11 @@ export interface LoggingConfig {
 
 /**
  * Default logging configuration
- * Console output is enabled in development mode by default
+ * Console output is enabled by default to ensure logs are not silently lost
+ * when Faro is not configured
  */
 const defaultLoggingConfig: LoggingConfig = {
-  consoleOutput: typeof process !== 'undefined' && process.env.NODE_ENV === 'development',
+  consoleOutput: true,
 };
 
 let loggingConfig: LoggingConfig = { ...defaultLoggingConfig };
@@ -70,7 +89,7 @@ function formatContextForConsole(contexts?: LogContext): string {
  * @public
  */
 export function logInfo(message: string, contexts?: LogContext) {
-  if (config.grafanaJavascriptAgent.enabled) {
+  if (isGrafanaJavascriptAgentEnabled()) {
     faro.api.pushLog([message], {
       level: LogLevel.INFO,
       context: toFaroContext(contexts),
@@ -89,7 +108,7 @@ export function logInfo(message: string, contexts?: LogContext) {
  * @public
  */
 export function logWarning(message: string, contexts?: LogContext) {
-  if (config.grafanaJavascriptAgent.enabled) {
+  if (isGrafanaJavascriptAgentEnabled()) {
     faro.api.pushLog([message], {
       level: LogLevel.WARN,
       context: toFaroContext(contexts),
@@ -108,7 +127,7 @@ export function logWarning(message: string, contexts?: LogContext) {
  * @public
  */
 export function logDebug(message: string, contexts?: LogContext) {
-  if (config.grafanaJavascriptAgent.enabled) {
+  if (isGrafanaJavascriptAgentEnabled()) {
     faro.api.pushLog([message], {
       level: LogLevel.DEBUG,
       context: toFaroContext(contexts),
@@ -127,7 +146,7 @@ export function logDebug(message: string, contexts?: LogContext) {
  * @public
  */
 export function logError(err: Error, contexts?: LogContext) {
-  if (config.grafanaJavascriptAgent.enabled) {
+  if (isGrafanaJavascriptAgentEnabled()) {
     faro.api.pushError(err, {
       context: toFaroContext(contexts),
     });
@@ -146,7 +165,7 @@ export function logError(err: Error, contexts?: LogContext) {
  */
 export type MeasurementValues = Record<string, number>;
 export function logMeasurement(type: string, values: MeasurementValues, context?: LogContext) {
-  if (config.grafanaJavascriptAgent.enabled) {
+  if (isGrafanaJavascriptAgentEnabled()) {
     faro.api.pushMeasurement(
       {
         type,

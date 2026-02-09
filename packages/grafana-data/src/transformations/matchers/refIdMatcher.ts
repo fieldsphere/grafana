@@ -1,5 +1,3 @@
-import { logWarning } from '@grafana/runtime';
-
 import { escapeStringForRegex, stringStartsAsRegEx, stringToJsRegex } from '../../text/string';
 import { DataFrame } from '../../types/dataFrame';
 import { FrameMatcherInfo } from '../../types/transformations';
@@ -21,7 +19,8 @@ const refIdMatcher: FrameMatcherInfo<string> = {
         regex = stringToJsRegex(pattern);
       } catch (error) {
         if (error instanceof Error) {
-          logWarning(error.message);
+          // eslint-disable-next-line no-console
+          console.warn(error.message);
         }
       }
     }

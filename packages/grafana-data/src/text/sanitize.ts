@@ -1,4 +1,3 @@
-import { logError } from '@grafana/runtime';
 import { sanitizeUrl as braintreeSanitizeUrl } from '@braintree/sanitize-url';
 import DOMPurify from 'dompurify';
 import * as xss from 'xss';
@@ -69,7 +68,8 @@ export function sanitize(unsanitizedString: string): string {
       ADD_ATTR: ['target'],
     });
   } catch (error) {
-    logError(new Error('String could not be sanitized'), { unsanitizedString });
+    // eslint-disable-next-line no-console
+    console.error('String could not be sanitized', unsanitizedString);
     return escapeHtml(unsanitizedString);
   } finally {
     DOMPurify.removeHook('afterSanitizeAttributes');
@@ -100,7 +100,8 @@ export function sanitizeTextPanelContent(unsanitizedString: string): string {
   try {
     return sanitizeTextPanelWhitelist.process(unsanitizedString);
   } catch (error) {
-    logError(new Error('String could not be sanitized'), { unsanitizedString });
+    // eslint-disable-next-line no-console
+    console.error('String could not be sanitized', unsanitizedString);
     return 'Text string could not be sanitized';
   }
 }

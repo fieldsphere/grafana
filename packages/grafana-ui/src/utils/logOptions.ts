@@ -1,5 +1,3 @@
-import { logWarning } from '@grafana/runtime';
-
 /**
  * This function logs a warning if the amount of items exceeds the recommended amount.
  *
@@ -15,9 +13,10 @@ export function logOptions(
 ): void {
   if (amount > recommendedAmount) {
     const msg = `[Combobox] Items exceed the recommended amount ${recommendedAmount}.`;
-    logWarning(msg, {
-      itemsCount: '' + amount,
-      recommendedAmount: '' + recommendedAmount,
+    // eslint-disable-next-line no-console
+    console.warn(msg, {
+      itemsCount: amount,
+      recommendedAmount: recommendedAmount,
       'aria-labelledby': ariaLabelledBy ?? '',
       id: id ?? '',
     });

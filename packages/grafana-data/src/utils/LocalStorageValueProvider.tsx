@@ -1,4 +1,3 @@
-import { logError, logInfo } from '@grafana/runtime';
 import { useEffect, useState } from 'react';
 import * as React from 'react';
 
@@ -33,7 +32,8 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.setObject(storageKey, value);
     } catch (error) {
-      logError(error instanceof Error ? error : new Error(String(error)));
+      // eslint-disable-next-line no-console
+      console.error(error);
     }
     setState({ value });
   };
@@ -42,7 +42,8 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.delete(storageKey);
     } catch (error) {
-      logInfo(String(error));
+      // eslint-disable-next-line no-console
+      console.info(String(error));
     }
     setState({ value: defaultValue });
   };

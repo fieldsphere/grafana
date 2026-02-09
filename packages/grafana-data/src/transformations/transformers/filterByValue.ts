@@ -1,4 +1,3 @@
-import { logWarning } from '@grafana/runtime';
 import { map } from 'rxjs/operators';
 
 import { getFieldDisplayName } from '../../field/fieldState';
@@ -140,7 +139,8 @@ const createFilterValueMatchers = (
     const fieldIndex = fieldIndexByName[filter.fieldName] ?? -1;
 
     if (fieldIndex < 0) {
-      logWarning(`[FilterByValue] Could not find index for field name: ${filter.fieldName}`);
+      // eslint-disable-next-line no-console
+      console.warn(`[FilterByValue] Could not find index for field name: ${filter.fieldName}`);
       return noop;
     }
 

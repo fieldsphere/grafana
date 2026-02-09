@@ -14,7 +14,6 @@ import {
   FALLBACK_COLOR,
 } from '@grafana/data';
 import { VizTextDisplayOptions, VizOrientation, Threshold } from '@grafana/schema';
-import { logError } from '@grafana/runtime';
 
 import { calculateFontSize } from '../../utils/measureText';
 import { clearButtonStyles } from '../Button/Button';
@@ -159,11 +158,8 @@ export class Gauge extends PureComponent<Props> {
         $.plot(this.canvasElement, [plotSeries], options);
       }
     } catch (err) {
-      logError(err instanceof Error ? err : new Error(String(err)), {
-        message: 'Gauge rendering error',
-        options: JSON.stringify(options),
-        value: JSON.stringify(value),
-      });
+      // eslint-disable-next-line no-console
+      console.error('Gauge rendering error', err, options, value);
     }
   }
 

@@ -1,5 +1,3 @@
-import { logWarning } from '@grafana/runtime';
-
 const notice = 'ArrayVector is deprecated and will be removed in Grafana 11. Please use plain arrays for field.values.';
 let notified = false;
 
@@ -37,7 +35,8 @@ export class ArrayVector<T = unknown> extends Array<T> {
     this.buffer = buffer ?? [];
 
     if (!notified) {
-      logWarning(notice);
+      // eslint-disable-next-line no-console
+      console.warn(notice);
       notified = true;
     }
   }

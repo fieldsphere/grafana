@@ -21,7 +21,6 @@ import {
   FieldSparkline,
   DecimalCount,
 } from '@grafana/data';
-import { logError } from '@grafana/runtime';
 import {
   BarGaugeDisplayMode,
   FieldTextAlignment,
@@ -1102,8 +1101,8 @@ export function parseStyleJson(rawValue: unknown): CSSProperties | void {
       }
     } catch (e) {
       if (!warnedAboutStyleJsonSet.has(rawValue)) {
-        const error = e instanceof Error ? e : new Error(`encountered invalid cell style JSON: ${rawValue}`);
-        logError(error, { rawValue: String(rawValue) });
+        // eslint-disable-next-line no-console
+        console.error(`encountered invalid cell style JSON: ${rawValue}`, e);
         warnedAboutStyleJsonSet.add(rawValue);
       }
     }

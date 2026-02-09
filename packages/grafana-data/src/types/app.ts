@@ -1,4 +1,3 @@
-import { logWarning } from '@grafana/runtime';
 import { ComponentType } from 'react';
 
 import { throwIfAngular } from '../utils/throwIfAngular';
@@ -94,10 +93,8 @@ export class AppPlugin<T extends KeyValue = KeyValue> extends GrafanaPlugin<AppP
           const exp = pluginExports[include.component];
 
           if (!exp) {
-            logWarning('App Page uses unknown component', {
-              component: include.component,
-              meta: JSON.stringify(this.meta),
-            });
+            // eslint-disable-next-line no-console
+            console.warn('App Page uses unknown component: ', include.component, this.meta);
             continue;
           }
         }
