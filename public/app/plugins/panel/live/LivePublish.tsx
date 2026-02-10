@@ -2,10 +2,13 @@ import { useMemo } from 'react';
 
 import { LiveChannelAddress, isValidLiveChannelAddress } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
-import { CodeEditor, Button } from '@grafana/ui';
+import { createMonitoringLogger, getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
+import { Button, CodeEditor, createLogger } from '@grafana/ui';
 
 import { MessagePublishMode } from './types';
+
+const livePublishLogger = createMonitoringLogger('plugins.panel.live');
+const livePublishDebugLogger = createLogger('plugins.panel.live');
 
 interface Props {
   height: number;
@@ -35,6 +38,9 @@ export function LivePublish({ height, mode, body, addr, onSave }: Props) {
     if (mode === MessagePublishMode.Influx) {
       if (addr?.scope !== 'stream') {
         alert('expected stream scope!');
+        livePublishLogger.logWarning('Invalid live publish scope', {
+          channel: addr,
+        });
         return;
       }
       return getBackendSrv().post(`api/live/push/${addr.stream}`, body);
@@ -42,11 +48,14 @@ export function LivePublish({ height, mode, body, addr, onSave }: Props) {
 
     if (!isValidLiveChannelAddress(addr)) {
       alert('invalid address');
+      livePublishLogger.logWarning('Invalid live publish address', {
+        channel: addr,
+      });
       return;
     }
 
     const rsp = await getGrafanaLiveSrv().publish(addr, body);
-    console.log('onPublishClicked (response from publish)', rsp);
+    livePublishDebugLogger.logger('publish-response', false, { response: rsp, channel: addr });
   };
 
   return (

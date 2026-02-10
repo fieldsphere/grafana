@@ -32,7 +32,7 @@ import {
   transformDataFrame,
 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { config, getAppEvents } from '@grafana/runtime';
+import { config, createMonitoringLogger, getAppEvents } from '@grafana/runtime';
 import { ScrollContainer, usePanelContext, useStyles2 } from '@grafana/ui';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { getFieldLinksForExplore } from 'app/features/explore/utils/links';
@@ -144,6 +144,7 @@ interface LogsPermalinkUrlState {
 }
 
 const noCommonLabels: Labels = {};
+const logsPanelLogger = createMonitoringLogger('plugins.panel.logs');
 
 export const LogsPanel = ({
   data,
@@ -484,7 +485,13 @@ export const LogsPanel = ({
           newSeries = await lastValueFrom(transformDataFrame(panel?.transformations, newSeries));
         }
       } catch (e) {
-        console.error(e);
+        const error = e instanceof Error ? e : new Error(String(e));
+        logsPanelLogger.logError(error, {
+          panelId: id,
+          requestId: panelData.request?.requestId,
+          dashboardUID: panelData.request?.dashboardUID,
+          app,
+        });
       } finally {
         setInfiniteScrolling(false);
         loadingRef.current = false;
@@ -496,7 +503,7 @@ export const LogsPanel = ({
         series: newSeries,
       });
     },
-    [data.request, dataSourcesMap, id, onNewLogsReceived, panelData, timeZone]
+    [app, data.request, dataSourcesMap, id, onNewLogsReceived, panelData, timeZone]
   );
 
   const renderCommonLabels = () => (
@@ -804,7 +811,10 @@ function getLogsPanelState(): LogsPermalinkUrlState | undefined {
     try {
       return JSON.parse(panelStateEncoded[0]);
     } catch (e) {
-      console.error('error parsing logsPanelState', e);
+      const error = e instanceof Error ? e : new Error(String(e));
+      logsPanelLogger.logWarning('Error parsing logs panel state', {
+        errorMessage: error.message,
+      });
     }
   }
 
@@ -864,7 +874,11 @@ export async function requestMoreLogs(
   for (const uid in targetGroups) {
     const dataSource = dataSourcesMap.get(panelData.request.targets[0].refId);
     if (!dataSource) {
-      console.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
+      logsPanelLogger.logWarning('Could not resolve data source for target', {
+        refId: panelData.request.targets[0].refId,
+        requestId: panelData.request.requestId,
+        dashboardUID: panelData.request.dashboardUID,
+      });
       continue;
     }
     dataRequests.push(
