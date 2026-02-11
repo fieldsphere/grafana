@@ -408,10 +408,10 @@ var (
 		},
 		{
 			Name:            "kubernetesCorrelations",
-			Description:     "Adds support for Kubernetes correlations",
+			Description:     "Routes correlation requests from /api to the /apis endpoint",
 			Stage:           FeatureStageExperimental,
 			Owner:           grafanaDataProSquad,
-			RequiresRestart: true,
+			RequiresRestart: true, // changes the API routing
 			Expression:      "false",
 		},
 		{
@@ -2137,11 +2137,12 @@ var (
 			Expression:  "false",
 		},
 		{
-			Name:        "kubernetesAnnotations",
-			Description: "Enables app platform API for annotations",
-			Stage:       FeatureStageExperimental,
-			Owner:       grafanaBackendServicesSquad,
-			Expression:  "false",
+			Name:            "kubernetesAnnotations",
+			Description:     "Routes annotation requests from /api to the /apis endpoint",
+			Stage:           FeatureStageExperimental,
+			Owner:           grafanaBackendServicesSquad,
+			RequiresRestart: true, // changes the API routing
+			Expression:      "false",
 		},
 		{
 			Name:        "awsDatasourcesHttpProxy",
