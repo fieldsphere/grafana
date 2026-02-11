@@ -10,6 +10,7 @@ import (
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/datasources"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -17,18 +18,39 @@ func (s *CorrelationsService) registerAPIEndpoints() {
 	uidScope := datasources.ScopeProvider.GetResourceScopeUID(ac.Parameter(":uid"))
 	authorize := ac.Middleware(s.AccessControl)
 
-	s.RouteRegister.Get("/api/datasources/correlations", middleware.ReqSignedIn, authorize(ac.EvalPermission(datasources.ActionRead)), routing.Wrap(s.getCorrelationsHandler))
+	// Check if K8s correlations feature is enabled
+	//nolint:staticcheck // not yet migrated to OpenFeature
+	if s.features != nil && s.features.IsEnabledGlobally(featuremgmt.FlagKubernetesCorrelations) {
+		// Use K8s Resource API handlers
+		k8sHandler := newCorrelationK8sHandler(s.cfg, s.clientConfigProvider, s.DataSourceService)
 
-	s.RouteRegister.Group("/api/datasources/uid/:uid/correlations", func(entities routing.RouteRegister) {
-		entities.Get("/", authorize(ac.EvalPermission(datasources.ActionRead)), routing.Wrap(s.getCorrelationsBySourceUIDHandler))
-		entities.Post("/", authorize(ac.EvalPermission(datasources.ActionWrite, uidScope)), routing.Wrap(s.createHandler))
+		s.RouteRegister.Get("/api/datasources/correlations", middleware.ReqSignedIn, authorize(ac.EvalPermission(datasources.ActionRead)), routing.Wrap(k8sHandler.getCorrelationsHandler))
 
-		entities.Group("/:correlationUID", func(entities routing.RouteRegister) {
-			entities.Get("/", authorize(ac.EvalPermission(datasources.ActionRead)), routing.Wrap(s.getCorrelationHandler))
-			entities.Delete("/", authorize(ac.EvalPermission(datasources.ActionWrite, uidScope)), routing.Wrap(s.deleteHandler))
-			entities.Patch("/", authorize(ac.EvalPermission(datasources.ActionWrite, uidScope)), routing.Wrap(s.updateHandler))
-		})
-	}, middleware.ReqSignedIn)
+		s.RouteRegister.Group("/api/datasources/uid/:uid/correlations", func(entities routing.RouteRegister) {
+			entities.Get("/", authorize(ac.EvalPermission(datasources.ActionRead)), routing.Wrap(k8sHandler.getCorrelationsBySourceUIDHandler))
+			entities.Post("/", authorize(ac.EvalPermission(datasources.ActionWrite, uidScope)), routing.Wrap(k8sHandler.createHandler))
+
+			entities.Group("/:correlationUID", func(entities routing.RouteRegister) {
+				entities.Get("/", authorize(ac.EvalPermission(datasources.ActionRead)), routing.Wrap(k8sHandler.getCorrelationHandler))
+				entities.Delete("/", authorize(ac.EvalPermission(datasources.ActionWrite, uidScope)), routing.Wrap(k8sHandler.deleteHandler))
+				entities.Patch("/", authorize(ac.EvalPermission(datasources.ActionWrite, uidScope)), routing.Wrap(k8sHandler.updateHandler))
+			})
+		}, middleware.ReqSignedIn)
+	} else {
+		// Use legacy handlers
+		s.RouteRegister.Get("/api/datasources/correlations", middleware.ReqSignedIn, authorize(ac.EvalPermission(datasources.ActionRead)), routing.Wrap(s.getCorrelationsHandler))
+
+		s.RouteRegister.Group("/api/datasources/uid/:uid/correlations", func(entities routing.RouteRegister) {
+			entities.Get("/", authorize(ac.EvalPermission(datasources.ActionRead)), routing.Wrap(s.getCorrelationsBySourceUIDHandler))
+			entities.Post("/", authorize(ac.EvalPermission(datasources.ActionWrite, uidScope)), routing.Wrap(s.createHandler))
+
+			entities.Group("/:correlationUID", func(entities routing.RouteRegister) {
+				entities.Get("/", authorize(ac.EvalPermission(datasources.ActionRead)), routing.Wrap(s.getCorrelationHandler))
+				entities.Delete("/", authorize(ac.EvalPermission(datasources.ActionWrite, uidScope)), routing.Wrap(s.deleteHandler))
+				entities.Patch("/", authorize(ac.EvalPermission(datasources.ActionWrite, uidScope)), routing.Wrap(s.updateHandler))
+			})
+		}, middleware.ReqSignedIn)
+	}
 }
 
 // swagger:route POST /datasources/uid/{sourceUID}/correlations datasources correlations createCorrelation

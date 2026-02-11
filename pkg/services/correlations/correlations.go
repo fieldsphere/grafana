@@ -9,7 +9,9 @@ import (
 	"github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
+	grafanaapiserver "github.com/grafana/grafana/pkg/services/apiserver"
 	"github.com/grafana/grafana/pkg/services/datasources"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/quota"
 	"github.com/grafana/grafana/pkg/setting"
 )
@@ -18,15 +20,27 @@ var (
 	logger = log.New("correlations")
 )
 
-func ProvideService(sqlStore db.DB, routeRegister routing.RouteRegister, ds datasources.DataSourceService, ac accesscontrol.AccessControl, bus bus.Bus, qs quota.Service, cfg *setting.Cfg,
+func ProvideService(
+	sqlStore db.DB,
+	routeRegister routing.RouteRegister,
+	ds datasources.DataSourceService,
+	ac accesscontrol.AccessControl,
+	bus bus.Bus,
+	qs quota.Service,
+	cfg *setting.Cfg,
+	features featuremgmt.FeatureToggles,
+	clientConfigProvider grafanaapiserver.DirectRestConfigProvider,
 ) (*CorrelationsService, error) {
 	s := &CorrelationsService{
-		SQLStore:          sqlStore,
-		RouteRegister:     routeRegister,
-		log:               logger,
-		DataSourceService: ds,
-		AccessControl:     ac,
-		QuotaService:      qs,
+		SQLStore:             sqlStore,
+		RouteRegister:        routeRegister,
+		log:                  logger,
+		DataSourceService:    ds,
+		AccessControl:        ac,
+		QuotaService:         qs,
+		features:             features,
+		cfg:                  cfg,
+		clientConfigProvider: clientConfigProvider,
 	}
 
 	s.registerAPIEndpoints()
@@ -61,12 +75,15 @@ type Service interface {
 }
 
 type CorrelationsService struct {
-	SQLStore          db.DB
-	RouteRegister     routing.RouteRegister
-	log               log.Logger
-	DataSourceService datasources.DataSourceService
-	AccessControl     accesscontrol.AccessControl
-	QuotaService      quota.Service
+	SQLStore             db.DB
+	RouteRegister        routing.RouteRegister
+	log                  log.Logger
+	DataSourceService    datasources.DataSourceService
+	AccessControl        accesscontrol.AccessControl
+	QuotaService         quota.Service
+	features             featuremgmt.FeatureToggles
+	cfg                  *setting.Cfg
+	clientConfigProvider grafanaapiserver.DirectRestConfigProvider
 }
 
 func (s CorrelationsService) CreateCorrelation(ctx context.Context, cmd CreateCorrelationCommand) (Correlation, error) {

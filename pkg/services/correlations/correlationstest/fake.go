@@ -20,6 +20,7 @@ func New(db db.DB, cfg *setting.Cfg, bus bus.Bus) *correlations.CorrelationsServ
 		},
 	}
 
-	correlationsSvc, _ := correlations.ProvideService(db, routing.NewRouteRegister(), ds, acimpl.ProvideAccessControl(featuremgmt.WithFeatures()), bus, quotatest.New(false, nil), cfg)
+	features := featuremgmt.WithFeatures()
+	correlationsSvc, _ := correlations.ProvideService(db, routing.NewRouteRegister(), ds, acimpl.ProvideAccessControl(features), bus, quotatest.New(false, nil), cfg, features, nil)
 	return correlationsSvc
 }
