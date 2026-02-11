@@ -74,34 +74,8 @@ func (ck8s *correlationK8sHandler) getCorrelationsHandler(c *contextmodel.ReqCon
 		}
 	}
 
-	// When no sourceUID filter is provided, use server-side pagination to avoid fetching all correlations into memory.
-	// When sourceUID filters are provided, use in-memory filtering to support multi-value OR semantics.
-	if len(sourceUIDSet) == 0 {
-		listOpts := v1.ListOptions{
-			Limit: limit,
-		}
-		list, err := client.List(c.Req.Context(), listOpts)
-		if err != nil {
-			return ck8s.handleError(err)
-		}
-
-		correlations := make([]Correlation, 0, len(list.Items))
-		for _, item := range list.Items {
-			corr := ck8s.unstructuredToLegacyCorrelation(item)
-			if corr != nil {
-				correlations = append(correlations, *corr)
-			}
-		}
-
-		return response.JSON(http.StatusOK, GetCorrelationsResponseBody{
-			Correlations: correlations,
-			TotalCount:   int64(len(correlations)),
-			Page:         page,
-			Limit:        limit,
-		})
-	}
-
-	// List all correlations and apply filters in-memory to support multi-value sourceUID filtering and page/offset pagination.
+	// List all correlations using K8s pagination with continue tokens to support offset-based pagination.
+	// When sourceUID filters are provided, apply in-memory filtering to support multi-value OR semantics.
 	listOpts := v1.ListOptions{
 		Limit: 1000, // chunk size for listing all items
 	}
@@ -120,12 +94,15 @@ func (ck8s *correlationK8sHandler) getCorrelationsHandler(c *contextmodel.ReqCon
 		}
 	}
 
-	// Convert to legacy format and apply sourceUID filters with OR semantics.
+	// Convert to legacy format and optionally apply sourceUID filters with OR semantics.
 	correlations := make([]Correlation, 0, len(items))
 	for _, item := range items {
 		corr := ck8s.unstructuredToLegacyCorrelation(item)
 		if corr != nil {
-			if _, ok := sourceUIDSet[corr.SourceUID]; ok {
+			// If sourceUID filters are provided, apply them; otherwise include all correlations
+			if len(sourceUIDSet) == 0 {
+				correlations = append(correlations, *corr)
+			} else if _, ok := sourceUIDSet[corr.SourceUID]; ok {
 				correlations = append(correlations, *corr)
 			}
 		}
