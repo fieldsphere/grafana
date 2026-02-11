@@ -179,6 +179,8 @@ func (ak8s *annotationK8sHandler) updateAnnotationHandler(c *contextmodel.ReqCon
 	spec["time"] = cmd.Time
 	if cmd.TimeEnd > 0 {
 		spec["timeEnd"] = cmd.TimeEnd
+	} else {
+		delete(spec, "timeEnd")
 	}
 	// Write tags when present in request, including empty slice to clear existing tags.
 	if cmd.Tags != nil {
