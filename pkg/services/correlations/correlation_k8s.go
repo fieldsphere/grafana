@@ -133,7 +133,7 @@ func (ck8s *correlationK8sHandler) getCorrelationsHandler(c *contextmodel.ReqCon
 
 	return response.JSON(http.StatusOK, GetCorrelationsResponseBody{
 		Correlations: pageCorrelations,
-		TotalCount:   int64(len(allCorrelations)),
+		TotalCount:   int64(len(correlations)),
 		Page:         page,
 		Limit:        limit,
 	})
