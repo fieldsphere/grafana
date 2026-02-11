@@ -54,7 +54,9 @@ func (ck8s *correlationK8sHandler) getCorrelationsHandler(c *contextmodel.ReqCon
 	}
 
 	// Build list options from query parameters
-	listOpts := v1.ListOptions{}
+	listOpts := v1.ListOptions{
+		Limit: 1000, // chunk size for listing all items
+	}
 
 	limit := c.QueryInt64("limit")
 	if limit <= 0 {
@@ -62,39 +64,77 @@ func (ck8s *correlationK8sHandler) getCorrelationsHandler(c *contextmodel.ReqCon
 	} else if limit > 1000 {
 		limit = 1000
 	}
-	listOpts.Limit = limit
+
+	page := c.QueryInt64("page")
+	if page <= 0 {
+		page = 1
+	}
 
 	// Apply source UID filters if provided
 	sourceUIDs := c.QueryStrings("sourceUID")
-	if len(sourceUIDs) > 0 {
-		// Field selectors for source filtering
-		fieldSelectors := []string{}
-		for _, sourceUID := range sourceUIDs {
-			fieldSelectors = append(fieldSelectors, fmt.Sprintf("spec.source.name=%s", sourceUID))
-		}
-		if len(fieldSelectors) > 0 {
-			listOpts.FieldSelector = joinFieldSelectors(fieldSelectors)
+	sourceUIDSet := map[string]struct{}{}
+	for _, uid := range sourceUIDs {
+		if uid != "" {
+			sourceUIDSet[uid] = struct{}{}
 		}
 	}
 
-	list, err := client.List(c.Req.Context(), listOpts)
-	if err != nil {
-		return ck8s.handleError(err)
+	// List all correlations and apply filters in-memory to support multi-value sourceUID filtering and page/offset pagination.
+	items := make([]unstructured.Unstructured, 0)
+	continueToken := ""
+	for {
+		listOpts.Continue = continueToken
+		list, err := client.List(c.Req.Context(), listOpts)
+		if err != nil {
+			return ck8s.handleError(err)
+		}
+		items = append(items, list.Items...)
+		continueToken = list.GetContinue()
+		if continueToken == "" {
+			break
+		}
 	}
 
 	// Convert to legacy format
-	correlations := make([]Correlation, 0, len(list.Items))
-	for _, item := range list.Items {
+	allCorrelations := make([]Correlation, 0, len(items))
+	for _, item := range items {
 		corr := ck8s.unstructuredToLegacyCorrelation(item)
 		if corr != nil {
-			correlations = append(correlations, *corr)
+			allCorrelations = append(allCorrelations, *corr)
 		}
 	}
 
+	// Apply optional sourceUID filters with OR semantics.
+	correlations := make([]Correlation, 0, len(allCorrelations))
+	if len(sourceUIDSet) > 0 {
+		for _, corr := range allCorrelations {
+			if _, ok := sourceUIDSet[corr.SourceUID]; ok {
+				correlations = append(correlations, corr)
+			}
+		}
+	} else {
+		correlations = allCorrelations
+	}
+
+	offset := limit * (page - 1)
+	if offset < 0 {
+		offset = 0
+	}
+
+	pageCorrelations := make([]Correlation, 0)
+	start := int(offset)
+	if start < len(correlations) {
+		end := start + int(limit)
+		if end > len(correlations) {
+			end = len(correlations)
+		}
+		pageCorrelations = correlations[start:end]
+	}
+
 	return response.JSON(http.StatusOK, GetCorrelationsResponseBody{
-		Correlations: correlations,
-		TotalCount:   int64(len(correlations)),
-		Page:         c.QueryInt64("page"),
+		Correlations: pageCorrelations,
+		TotalCount:   int64(len(allCorrelations)),
+		Page:         page,
 		Limit:        limit,
 	})
 }
@@ -225,6 +265,7 @@ func (ck8s *correlationK8sHandler) createHandler(c *contextmodel.ReqContext) res
 
 // deleteHandler routes DELETE /api/datasources/uid/:uid/correlations/:correlationUID to the Resource API
 func (ck8s *correlationK8sHandler) deleteHandler(c *contextmodel.ReqContext) response.Response {
+	sourceUID := web.Params(c.Req)[":uid"]
 	correlationUID := web.Params(c.Req)[":correlationUID"]
 	if correlationUID == "" {
 		return response.Error(http.StatusBadRequest, "Correlation UID is required", nil)
@@ -242,6 +283,11 @@ func (ck8s *correlationK8sHandler) deleteHandler(c *contextmodel.ReqContext) res
 			return response.Error(http.StatusNotFound, "Correlation not found", ErrCorrelationNotFound)
 		}
 		return ck8s.handleError(err)
+	}
+
+	existingSourceUID, _, err := unstructured.NestedString(existing.Object, "spec", "source", "name")
+	if err != nil || existingSourceUID == "" || existingSourceUID != sourceUID {
+		return response.Error(http.StatusNotFound, "Correlation not found", ErrCorrelationNotFound)
 	}
 
 	// Check if provisioned (read-only)
@@ -287,6 +333,11 @@ func (ck8s *correlationK8sHandler) updateHandler(c *contextmodel.ReqContext) res
 			return response.Error(http.StatusNotFound, "Correlation not found", ErrCorrelationNotFound)
 		}
 		return ck8s.handleError(err)
+	}
+
+	existingSourceUID, _, err := unstructured.NestedString(existing.Object, "spec", "source", "name")
+	if err != nil || existingSourceUID == "" || existingSourceUID != cmd.SourceUID {
+		return response.Error(http.StatusNotFound, "Correlation not found", ErrCorrelationNotFound)
 	}
 
 	// Check if provisioned (read-only)
@@ -542,17 +593,6 @@ func (ck8s *correlationK8sHandler) unstructuredToLegacyCorrelation(item unstruct
 	}
 
 	return corr
-}
-
-func joinFieldSelectors(selectors []string) string {
-	result := ""
-	for i, s := range selectors {
-		if i > 0 {
-			result += ","
-		}
-		result += s
-	}
-	return result
 }
 
 // MarshalJSON for json encoding - needed for proper serialization
