@@ -18,7 +18,6 @@ import (
 	grafanaapiserver "github.com/grafana/grafana/pkg/services/apiserver"
 	"github.com/grafana/grafana/pkg/services/apiserver/endpoints/request"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
-	"github.com/grafana/grafana/pkg/util/errhttp"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -167,15 +166,24 @@ func (ak8s *annotationK8sHandler) updateAnnotationHandler(c *contextmodel.ReqCon
 		return ak8s.handleError(err)
 	}
 
-	// Update the spec
-	spec := map[string]any{
-		"text": cmd.Text,
-		"time": cmd.Time,
+	// Get existing spec and apply updates, preserving fields not part of the update payload.
+	spec, _, err := unstructured.NestedMap(existing.Object, "spec")
+	if err != nil {
+		return response.Error(http.StatusInternalServerError, "Failed to get spec", err)
 	}
+	if spec == nil {
+		spec = map[string]any{}
+	}
+
+	spec["text"] = cmd.Text
+	spec["time"] = cmd.Time
 	if cmd.TimeEnd > 0 {
 		spec["timeEnd"] = cmd.TimeEnd
+	} else {
+		delete(spec, "timeEnd")
 	}
-	if len(cmd.Tags) > 0 {
+	// Write tags when present in request, including empty slice to clear existing tags.
+	if cmd.Tags != nil {
 		spec["tags"] = cmd.Tags
 	}
 
@@ -386,14 +394,4 @@ func joinFieldSelectors(selectors []string) string {
 		result += s
 	}
 	return result
-}
-
-func (ak8s *annotationK8sHandler) writeError(c *contextmodel.ReqContext, err error) {
-	//nolint:errorlint
-	statusError, ok := err.(*errors.StatusError)
-	if ok {
-		c.JsonApiErr(int(statusError.Status().Code), statusError.Status().Message, err)
-		return
-	}
-	errhttp.Write(c.Req.Context(), err, c.Resp)
 }
