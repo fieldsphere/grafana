@@ -326,6 +326,8 @@ function logConfigError(message: string, context?: Record<string, unknown>) {
     faro.api.pushError(new Error(message), {
       context: { source: configLogSource, ...context },
     });
+  } else {
+    console.error(`[${configLogSource}] ${message}`, context);
   }
 }
 
