@@ -196,7 +196,7 @@ func (hs *HTTPServer) tryAutoLogin(c *contextmodel.ReqContext) bool {
 			if hs.Features.IsEnabledGlobally(featuremgmt.FlagUseSessionStorageForRedirection) {
 				redirectUrl += hs.getRedirectToForAutoLogin(c)
 			}
-			c.Logger.Info("OAuth auto login enabled. Redirecting to " + redirectUrl)
+			c.Logger.Info("OAuth auto login enabled. Redirecting", "redirectUrl", redirectUrl)
 			c.Redirect(redirectUrl, 307)
 			return true
 		}
@@ -208,7 +208,7 @@ func (hs *HTTPServer) tryAutoLogin(c *contextmodel.ReqContext) bool {
 		if hs.Features.IsEnabledGlobally(featuremgmt.FlagUseSessionStorageForRedirection) {
 			redirectUrl += hs.getRedirectToForAutoLogin(c)
 		}
-		c.Logger.Info("SAML auto login enabled. Redirecting to " + redirectUrl)
+		c.Logger.Info("SAML auto login enabled. Redirecting", "redirectUrl", redirectUrl)
 		c.Redirect(redirectUrl, 307)
 		return true
 	}

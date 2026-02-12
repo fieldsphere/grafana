@@ -376,10 +376,10 @@ func setXScopeOrgIDHeader(req *http.Request, ctx context.Context) *http.Request 
 		logger.Debug("Tenant ID not present. Header not set")
 	} else if len(tenantids) > 1 {
 		// Loki supports multiple tenant IDs, but we should receive them from different contexts
-		logger.Error(strconv.Itoa(len(tenantids)) + " tenant IDs found. Header not set")
+		logger.Error("Multiple tenant IDs found. Header not set", "tenantIDCount", len(tenantids))
 	} else {
 		req.Header.Add("X-Scope-OrgID", tenantids[0])
-		logger.Debug("Tenant ID " + tenantids[0] + " added to Loki request")
+		logger.Debug("Tenant ID added to Loki request", "tenantID", tenantids[0])
 	}
 	return req
 }

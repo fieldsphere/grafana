@@ -91,9 +91,7 @@ func ProvideService(cfg *setting.Cfg, features featuremgmt.FeatureToggles, remot
 
 		u, err := url.Parse(rendererCallbackURL)
 		if err != nil {
-			logger.Warn("Image renderer callback url is not valid. " +
-				"Please provide a valid RendererCallbackUrl. " +
-				"Read more at https://grafana.com/docs/grafana/latest/administration/image_rendering/")
+			logger.Warn("Image renderer callback URL is not valid. Please provide a valid RendererCallbackUrl.", "docsURL", "https://grafana.com/docs/grafana/latest/administration/image_rendering/")
 			return nil, err
 		}
 		domain = u.Hostname()
@@ -199,9 +197,7 @@ func (rs *RenderingService) Run(ctx context.Context) error {
 		return nil
 	}
 
-	rs.log.Debug("No image renderer found/installed. " +
-		"For image rendering support please use the Grafana Image Renderer remote rendering service. " +
-		"Read more at https://grafana.com/docs/grafana/latest/administration/image_rendering/")
+	rs.log.Debug("No image renderer found/installed. Use the Grafana Image Renderer remote rendering service for image rendering support.", "docsURL", "https://grafana.com/docs/grafana/latest/administration/image_rendering/")
 
 	<-ctx.Done()
 	return nil
@@ -271,9 +267,7 @@ func (rs *RenderingService) render(ctx context.Context, renderType RenderType, o
 	logger := rs.log.FromContext(ctx)
 
 	if !rs.IsAvailable(ctx) {
-		logger.Warn("Could not render image, no image renderer found/installed. " +
-			"For image rendering support please use the Grafana Image Renderer remote rendering service. " +
-			"Read more at https://grafana.com/docs/grafana/latest/administration/image_rendering/")
+		logger.Warn("Could not render image: no image renderer found/installed. Use the Grafana Image Renderer remote rendering service for image rendering support.", "docsURL", "https://grafana.com/docs/grafana/latest/administration/image_rendering/")
 		if opts.ErrorRenderUnavailable {
 			return nil, ErrRenderUnavailable
 		}

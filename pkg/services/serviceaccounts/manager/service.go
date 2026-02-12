@@ -124,8 +124,7 @@ func (sa *ServiceAccountsService) Run(ctx context.Context) error {
 
 	// Enforce a minimum interval of 1 minute.
 	if sa.secretScanEnabled && sa.secretScanInterval < time.Minute {
-		sa.backgroundLog.Warn("Secret scan interval is too low, increasing to " +
-			defaultSecretScanInterval.String())
+		sa.backgroundLog.Warn("Secret scan interval is too low, increasing", "defaultSecretScanInterval", defaultSecretScanInterval.String())
 
 		sa.secretScanInterval = defaultSecretScanInterval
 	}

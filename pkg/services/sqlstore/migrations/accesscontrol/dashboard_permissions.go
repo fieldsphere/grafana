@@ -145,7 +145,7 @@ func (m dashboardPermissionsMigrator) migratePermissions(dashes []dashboard, acl
 		}
 	}
 
-	migrator.Logger.Debug(fmt.Sprintf("bulk-creating roles %v", rolesToCreate))
+	migrator.Logger.Debug("Bulk-creating roles", "roles", rolesToCreate)
 	createdRoles, err := m.bulkCreateRoles(rolesToCreate)
 	if err != nil {
 		return fmt.Errorf("failed to bulk-create roles: %w", err)
@@ -163,7 +163,7 @@ func (m dashboardPermissionsMigrator) migratePermissions(dashes []dashboard, acl
 func (m dashboardPermissionsMigrator) setPermissions(allRoles []*ac.Role, permissionMap map[int64]map[string][]*ac.Permission, migrator *migrator.Migrator) error {
 	now := time.Now()
 	for _, role := range allRoles {
-		migrator.Logger.Debug(fmt.Sprintf("setting permissions for role %s with ID %d in org %d", role.Name, role.ID, role.OrgID))
+		migrator.Logger.Debug("Setting permissions for role", "roleName", role.Name, "roleID", role.ID, "orgID", role.OrgID)
 		if _, err := m.sess.Exec("DELETE FROM permission WHERE role_id = ? AND (action LIKE ? OR action LIKE ?)", role.ID, "dashboards%", "folders%"); err != nil {
 			return fmt.Errorf("failed to clear dashboard and folder permissions for role: %w", err)
 		}
@@ -180,7 +180,7 @@ func (m dashboardPermissionsMigrator) setPermissions(allRoles []*ac.Role, permis
 		}
 
 		err := batch(len(permissions), batchSize, func(start, end int) error {
-			migrator.Logger.Debug(fmt.Sprintf("inserting permissions %v", permissions[start:end]))
+			migrator.Logger.Debug("Inserting permissions", "permissions", permissions[start:end])
 			if _, err := m.sess.InsertMulti(permissions[start:end]); err != nil {
 				return fmt.Errorf("failed to create permissions for role: %w", err)
 			}

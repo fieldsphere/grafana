@@ -3,7 +3,6 @@ package influxql
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"path"
@@ -44,7 +43,7 @@ func Query(ctx context.Context, tracer trace.Tracer, dsInfo *models.DatasourceIn
 	if config.FeatureToggles().IsEnabled("influxdbRunQueriesInParallel") {
 		concurrentQueryCount, err := req.PluginContext.GrafanaConfig.ConcurrentQueryCount()
 		if err != nil {
-			logger.Debug(fmt.Sprintf("Concurrent Query Count read/parse error: %v", err), "influxdbRunQueriesInParallel")
+			logger.Debug("Concurrent query count read/parse error", "error", err, "feature", "influxdbRunQueriesInParallel")
 			concurrentQueryCount = 10
 		}
 

@@ -489,6 +489,38 @@ func writestring(m fluent.Matcher) {
 		Suggest("$w.Write($b)")
 }
 
+func structuredlogging(m fluent.Matcher) {
+	isStructuredLogger := m["logger"].Type.Implements("github.com/grafana/grafana/pkg/infra/log.Logger") ||
+		m["logger"].Type.Implements("github.com/grafana/grafana/pkg/plugins/log.Logger")
+
+	m.Match(
+		`$logger.Info(fmt.Sprintf($fmt, $*args))`,
+		`$logger.Warn(fmt.Sprintf($fmt, $*args))`,
+		`$logger.Error(fmt.Sprintf($fmt, $*args))`,
+		`$logger.Debug(fmt.Sprintf($fmt, $*args))`,
+	).
+		Where(isStructuredLogger).
+		Report("use a static log message and key/value context instead of fmt.Sprintf")
+
+	m.Match(
+		`$logger.Info($msg, $*args)`,
+		`$logger.Warn($msg, $*args)`,
+		`$logger.Error($msg, $*args)`,
+		`$logger.Debug($msg, $*args)`,
+	).
+		Where(isStructuredLogger && m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Report("printf-style format verbs are not supported in structured logger methods; move dynamic values to key/value fields")
+
+	m.Match(
+		`$logger.Info($left + $right, $*args)`,
+		`$logger.Warn($left + $right, $*args)`,
+		`$logger.Error($left + $right, $*args)`,
+		`$logger.Debug($left + $right, $*args)`,
+	).
+		Where(isStructuredLogger).
+		Report("avoid string concatenation in structured log messages; use key/value fields")
+}
+
 func badlock(m fluent.Matcher) {
 	// Shouldn't give many false positives without type filter
 	// as Lock+Unlock pairs in combination with defer gives us pretty

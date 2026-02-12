@@ -192,7 +192,7 @@ func (p *EnvVarsProvider) pluginSettingsEnvVars(pluginID string) []string {
 
 func (p *EnvVarsProvider) envVar(key, value string) string {
 	if strings.Contains(value, "\x00") {
-		p.logger.Error("Variable with key '%s' contains NUL", key)
+		p.logger.Error("Variable contains NUL", "key", key)
 	}
 	return fmt.Sprintf("%s=%s", key, value)
 }

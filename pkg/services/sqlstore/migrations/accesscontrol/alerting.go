@@ -56,7 +56,7 @@ func (m *alertingMigrator) migrateNotificationActions() error {
 	now := time.Now()
 	for roleID, add := range groupByRoleID {
 		if !add {
-			m.migrator.Logger.Info(fmt.Sprintf("skip adding action %s to role ID %d because it is already there", accesscontrol.ActionAlertingNotificationsWrite, roleID))
+			m.migrator.Logger.Info("Skip adding action to role because it is already there", "action", accesscontrol.ActionAlertingNotificationsWrite, "roleID", roleID)
 			continue
 		}
 		toAdd = append(toAdd, accesscontrol.Permission{
@@ -73,7 +73,7 @@ func (m *alertingMigrator) migrateNotificationActions() error {
 		if err != nil {
 			return fmt.Errorf("failed to insert new permissions:%w", err)
 		}
-		m.migrator.Logger.Debug(fmt.Sprintf("updated %d of %d roles with new permission %s", added, len(toAdd), accesscontrol.ActionAlertingNotificationsWrite))
+		m.migrator.Logger.Debug("Updated roles with new permission", "updatedRoles", added, "targetRoles", len(toAdd), "action", accesscontrol.ActionAlertingNotificationsWrite)
 	}
 
 	if len(toDelete) > 0 {
@@ -201,7 +201,7 @@ func (m *scopedReceiverTestingPermissions) Exec(sess *xorm.Session, mg *migrator
 	_, err := sess.InsertMulti(&permissionsToCreate)
 	if err == nil {
 		for id, ids := range rolesAffected {
-			mg.Logger.Debug(fmt.Sprintf("Added permission '%s' to managed role", accesscontrol.ActionAlertingReceiversTestCreate), "roleID", id, "identifiers", ids)
+			mg.Logger.Debug("Added permission to managed role", "action", accesscontrol.ActionAlertingReceiversTestCreate, "roleID", id, "identifiers", ids)
 		}
 	}
 	return err

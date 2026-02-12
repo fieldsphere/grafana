@@ -927,7 +927,7 @@ func (b *DashboardsAPIBuilder) GetOpenAPIDefinitions() common.GetOpenAPIDefiniti
 					Kind:    kind.Kind,
 				}, ref, pkgPrefix)
 				if err != nil {
-					logging.DefaultLogger.Error("unable to generate openAPI for kind %s: %w", kind.Kind, err)
+					logging.DefaultLogger.Error("Unable to generate OpenAPI for kind", "kind", kind.Kind, "error", err)
 					continue
 				}
 				maps.Copy(defs, oapi)

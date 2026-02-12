@@ -71,7 +71,7 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 					ctx = event.AddMetaToContext(ctx)
 					ctx = append(ctx, measurementName, measurementValue)
 					ctx = append(ctx, "kind", "measurement", "original_timestamp", measurementEntry.Timestamp)
-					frontendLogger.Info("Measurement: "+measurementEntry.Type, ctx...)
+					frontendLogger.Info("Measurement", append(ctx, "measurementType", measurementEntry.Type)...)
 				}
 			}
 		}
