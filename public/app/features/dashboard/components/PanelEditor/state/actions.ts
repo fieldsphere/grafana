@@ -1,6 +1,7 @@
 import { pick } from 'lodash';
 
 import { store } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { removePanel } from 'app/features/dashboard/utils/panel';
 import { cleanUpPanelState } from 'app/features/panel/state/actions';
 import { panelModelAndPluginReady } from 'app/features/panel/state/reducers';
@@ -17,6 +18,8 @@ import {
   setPanelEditorUIState,
   updateEditorInitState,
 } from './reducers';
+
+const logger = createMonitoringLogger('features.dashboard.panel-editor.actions');
 
 export function initPanelEditor(sourcePanel: PanelModel, dashboard: DashboardModel): ThunkResult<void> {
   return async (dispatch) => {
@@ -171,7 +174,14 @@ export function updatePanelEditorUIState(uiState: Partial<PanelEditorUIState>): 
     try {
       store.setObject(PANEL_EDITOR_UI_STATE_STORAGE_KEY, nextState);
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'updatePanelEditorUIState' });
+      } else {
+        logger.logWarning('Failed to persist panel editor UI state', {
+          operation: 'updatePanelEditorUIState',
+          error: String(error),
+        });
+      }
     }
   };
 }

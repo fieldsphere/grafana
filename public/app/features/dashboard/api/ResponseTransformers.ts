@@ -1,5 +1,5 @@
 import { MetricFindValue, TypedVariableModel, AnnotationQuery } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 import {
   DataQuery,
   DataSourceRef,
@@ -82,6 +82,8 @@ import { DashboardDataDTO, DashboardDTO } from 'app/types/dashboard';
 
 import { DashboardWithAccessInfo } from './types';
 import { isDashboardResource, isDashboardV0Spec, isDashboardV2Resource, isDashboardV2Spec } from './utils';
+
+const logger = createMonitoringLogger('features.dashboard.response-transformers');
 
 export function ensureV2Response(
   dto: DashboardDTO | DashboardWithAccessInfo<DashboardDataDTO> | DashboardWithAccessInfo<DashboardV2Spec>
@@ -706,8 +708,9 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         let query = v.query || {};
 
         if (typeof query === 'string') {
-          console.warn(
-            'Query variable query is a string which is deprecated in the schema v2. It should extend DataQuery'
+          logger.logWarning(
+            'Query variable query is a string which is deprecated in schema v2. It should extend DataQuery.',
+            { variableName: v.name }
           );
           query = {
             [LEGACY_STRING_VALUE_KEY]: query,
@@ -919,7 +922,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v.type}`);
+        logger.logWarning('Variable transformation not implemented', { variableType: v.type, variableName: v.name });
     }
   }
   return variables;
@@ -1132,7 +1135,10 @@ function getVariablesV1(vars: DashboardV2Spec['variables']): VariableModel[] {
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v}`);
+        logger.logWarning('Variable transformation not implemented', {
+          variableKind: v.kind,
+          variableName: v.spec.name,
+        });
     }
   }
   return variables;
