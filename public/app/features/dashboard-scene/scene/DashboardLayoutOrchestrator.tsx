@@ -3,7 +3,7 @@ import { PointerEvent as ReactPointerEvent } from 'react';
 import { createPortal } from 'react-dom';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { logWarning } from '@grafana/runtime';
+import { createMonitoringLogger, logWarning } from '@grafana/runtime';
 import {
   sceneGraph,
   SceneComponentProps,
@@ -33,6 +33,7 @@ import {
 } from './types/DashboardDropTarget';
 
 const TAB_ACTIVATION_DELAY_MS = 600;
+const logger = createMonitoringLogger('features.dashboard-scene.layout-orchestrator');
 
 interface DashboardLayoutOrchestratorState extends SceneObjectState {
   /** Grid item currently being dragged */
@@ -203,7 +204,7 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
             }
           } else {
             const warningMessage = 'No grid item to drag';
-            console.warn(warningMessage);
+            logger.logWarning(warningMessage);
             logWarning(warningMessage);
           }
         });
