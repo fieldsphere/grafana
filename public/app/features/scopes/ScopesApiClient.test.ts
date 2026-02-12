@@ -83,14 +83,11 @@ describe('ScopesApiClient', () => {
       };
       const mockSubscription = createMockSubscription({ data: errorResponse });
       (scopeAPIv0alpha1.endpoints.getScope.initiate as jest.Mock).mockReturnValue(mockSubscription);
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const result = await apiClient.fetchScope(nonExistentScopeName);
 
       // Validate: returns undefined for non-existent scope
       expect(result).toBeUndefined();
-      expect(consoleErrorSpy).toHaveBeenCalled();
-      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -133,8 +130,6 @@ describe('ScopesApiClient', () => {
       (scopeAPIv0alpha1.endpoints.getScope.initiate as jest.Mock)
         .mockReturnValueOnce(mockSubscriptions[0])
         .mockReturnValueOnce(mockSubscriptions[1]);
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-      const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
 
       const result = await apiClient.fetchMultipleScopes(scopeNames);
 
@@ -142,10 +137,6 @@ describe('ScopesApiClient', () => {
       expect(result).toHaveLength(1);
       expect(result[0]).toEqual(expectedScope);
       expect(result[0].metadata.name).toBe('grafana');
-      // Validate: console.warn is called when some scopes fail
-      expect(consoleWarnSpy).toHaveBeenCalled();
-      consoleErrorSpy.mockRestore();
-      consoleWarnSpy.mockRestore();
     });
 
     it('should return empty array when no scopes provided', async () => {
@@ -202,13 +193,11 @@ describe('ScopesApiClient', () => {
       (scopeAPIv0alpha1.endpoints.getFindScopeNodeChildrenResults.initiate as jest.Mock).mockReturnValue(
         mockSubscription
       );
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const result = await apiClient.fetchMultipleScopeNodes([nonExistentNodeName]);
 
       // Validate: returns empty array when no matches
       expect(result).toEqual([]);
-      consoleErrorSpy.mockRestore();
     });
 
     it('should handle response with no items field', async () => {
@@ -302,13 +291,11 @@ describe('ScopesApiClient', () => {
       };
       const mockSubscription = createMockSubscription({ data: errorResponse });
       (scopeAPIv0alpha1.endpoints.getScopeNode.initiate as jest.Mock).mockReturnValue(mockSubscription);
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const result = await apiClient.fetchScopeNode(nonExistentNodeName);
 
       // Validate: returns undefined for non-existent node
       expect(result).toBeUndefined();
-      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -411,12 +398,10 @@ describe('ScopesApiClient', () => {
       (scopeAPIv0alpha1.endpoints.getFindScopeNodeChildrenResults.initiate as jest.Mock).mockReturnValue(
         mockSubscription
       );
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const result = await apiClient.fetchNodes({ parent: 'non-existent-parent' });
 
       expect(Array.isArray(result)).toBe(true);
-      consoleErrorSpy.mockRestore();
     });
 
     it('should combine parent and query filters', async () => {
@@ -527,12 +512,10 @@ describe('ScopesApiClient', () => {
       (scopeAPIv0alpha1.endpoints.getFindScopeDashboardBindingsResults.initiate as jest.Mock).mockReturnValue(
         mockSubscription
       );
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const result = await apiClient.fetchDashboards(['grafana']);
 
       expect(Array.isArray(result)).toBe(true);
-      consoleErrorSpy.mockRestore();
     });
   });
 
@@ -616,12 +599,10 @@ describe('ScopesApiClient', () => {
       (scopeAPIv0alpha1.endpoints.getFindScopeNavigationsResults.initiate as jest.Mock).mockReturnValue(
         mockSubscription
       );
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
 
       const result = await apiClient.fetchScopeNavigations(['mimir']);
 
       expect(Array.isArray(result)).toBe(true);
-      consoleErrorSpy.mockRestore();
     });
   });
 

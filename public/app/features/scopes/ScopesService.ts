@@ -2,11 +2,13 @@ import { isEqual } from 'lodash';
 import { BehaviorSubject, Observable, combineLatest, Subscription } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
 
-import { LocationService, ScopesContextValue, ScopesContextValueState } from '@grafana/runtime';
+import { createMonitoringLogger, LocationService, ScopesContextValue, ScopesContextValueState } from '@grafana/runtime';
 
 import { ScopesDashboardsService } from './dashboards/ScopesDashboardsService';
 import { deserializeFolderPath, serializeFolderPath } from './dashboards/scopeNavgiationUtils';
 import { ScopesSelectorService } from './selector/ScopesSelectorService';
+
+const logger = createMonitoringLogger('features.scopes.service');
 
 export interface State {
   enabled: boolean;
@@ -93,7 +95,15 @@ export class ScopesService implements ScopesContextValue {
     const nodeToPreload = scopeNodeId;
     if (nodeToPreload) {
       this.selectorService.resolvePathToRoot(nodeToPreload, this.selectorService.state.tree!).catch((error) => {
-        console.error('Failed to pre-load node path', error);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'constructor.preloadNodePath', scopeNodeId: nodeToPreload });
+        } else {
+          logger.logWarning('Failed to pre-load node path', {
+            operation: 'constructor.preloadNodePath',
+            scopeNodeId: nodeToPreload,
+            error: String(error),
+          });
+        }
       });
     }
 
