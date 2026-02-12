@@ -226,9 +226,7 @@ describe('Plugin Extensions / Utils', () => {
   });
 
   describe('handleErrorsInFn()', () => {
-    test('should catch errors thrown by the provided function and print them as console warnings', () => {
-      global.console.warn = jest.fn();
-
+    test('should catch errors thrown by the provided function and log warnings', () => {
       expect(() => {
         const fn = handleErrorsInFn((foo: string) => {
           throw new Error('Error: ' + foo);
@@ -237,7 +235,7 @@ describe('Plugin Extensions / Utils', () => {
         fn('TEST');
 
         // Logs the errors
-        expect(console.warn).toHaveBeenCalledWith('Error: TEST');
+        expect(log.warning).toHaveBeenCalledWith('Error: TEST');
       }).not.toThrow();
     });
   });

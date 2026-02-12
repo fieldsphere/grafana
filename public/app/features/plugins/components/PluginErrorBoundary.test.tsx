@@ -5,6 +5,7 @@ import { PluginMeta, PluginType, PluginContext } from '@grafana/data';
 import { getMockPlugin } from '@grafana/data/test';
 
 import { PluginErrorBoundary } from './PluginErrorBoundary';
+import { pluginsLogger } from '../utils';
 
 const ThrowingComponent = ({ shouldThrow }: { shouldThrow: boolean }) => {
   if (shouldThrow) {
@@ -44,13 +45,16 @@ const renderWithPluginContext = ({
 };
 
 describe('PluginErrorBoundary', () => {
+  let loggerErrorSpy: jest.SpyInstance;
   let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
+    loggerErrorSpy = jest.spyOn(pluginsLogger, 'logError').mockImplementation(() => {});
     consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
   });
 
   afterEach(() => {
+    loggerErrorSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   });
 
@@ -88,18 +92,16 @@ describe('PluginErrorBoundary', () => {
     );
   });
 
-  it('should log error to console with plugin ID when no onError callback is provided', () => {
+  it('should log error with plugin ID when no onError callback is provided', () => {
     const mockPluginMeta = getMockPlugin({ id: 'my-test-plugin', type: PluginType.datasource });
 
     renderWithPluginContext({ children: <ThrowingComponent shouldThrow={true} />, pluginMeta: mockPluginMeta });
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Plugin "my-test-plugin" failed to load:',
-      expect.objectContaining({ message: 'Test error message' }),
-      expect.objectContaining({
-        componentStack: expect.any(String),
-      })
-    );
+    expect(loggerErrorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'Test error message' }), {
+      operation: 'PluginErrorBoundary.componentDidCatch',
+      pluginId: 'my-test-plugin',
+      componentStack: expect.any(String),
+    });
   });
 
   it('should handle error when plugin context is not available', () => {
@@ -109,13 +111,11 @@ describe('PluginErrorBoundary', () => {
       </PluginErrorBoundary>
     );
 
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      'Plugin "undefined" failed to load:',
-      expect.objectContaining({ message: 'Test error message' }),
-      expect.objectContaining({
-        componentStack: expect.any(String),
-      })
-    );
+    expect(loggerErrorSpy).toHaveBeenCalledWith(expect.objectContaining({ message: 'Test error message' }), {
+      operation: 'PluginErrorBoundary.componentDidCatch',
+      pluginId: 'unknown',
+      componentStack: expect.any(String),
+    });
   });
 
   it('should update state correctly when error occurs', () => {
