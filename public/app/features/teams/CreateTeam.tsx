@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 
 import { NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { locationService } from '@grafana/runtime';
+import { createMonitoringLogger, locationService } from '@grafana/runtime';
 import { Button, Field, Input, FieldSet, Stack } from '@grafana/ui';
 import { extractErrorMessage } from 'app/api/utils';
 import { Page } from 'app/core/components/Page/Page';
@@ -22,6 +22,8 @@ const pageNav: NavModelItem = {
   text: 'New team',
   subTitle: 'Create a new team. Teams let you grant permissions to a group of users.',
 };
+
+const logger = createMonitoringLogger('features.teams.create-team');
 
 const CreateTeam = (): JSX.Element => {
   const currentOrgId = contextSrv.user.orgId;
@@ -58,7 +60,11 @@ const CreateTeam = (): JSX.Element => {
       }
     } catch (e) {
       notifyApp.error(t('teams.create-team.failed-to-create', 'Failed to create team'));
-      console.error(e);
+      if (e instanceof Error) {
+        logger.logError(e, { operation: 'createTeam' });
+      } else {
+        logger.logWarning('Failed to create team', { operation: 'createTeam', error: String(e) });
+      }
     }
   };
 

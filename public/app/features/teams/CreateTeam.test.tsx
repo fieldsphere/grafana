@@ -66,7 +66,6 @@ describe('Create team', () => {
   });
 
   it('prevents creation of duplicate team name', async () => {
-    jest.spyOn(console, 'error').mockImplementation();
     const { user } = await setup();
     await attemptCreateTeam(user, MOCK_TEAMS[0].spec.title);
 
