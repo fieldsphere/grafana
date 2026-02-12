@@ -1,6 +1,6 @@
 import { uniqueId } from 'lodash';
 
-import { config, getDataSourceSrv } from '@grafana/runtime';
+import { config, createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   behaviors,
@@ -88,6 +88,7 @@ import {
 import { LEGACY_STRING_VALUE_KEY } from './transformToV2TypesUtils';
 
 const DEFAULT_DATASOURCE = 'default';
+const logger = createMonitoringLogger('features.dashboard-scene.deserialize-from-v2');
 
 export type TypedVariableModelV2 =
   | QueryVariableKind
@@ -280,7 +281,16 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec) {
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'createVariablesForDashboard', variableName: v.spec.name, kind: v.kind });
+        } else {
+          logger.logWarning('Failed to create scene variable from v2 model', {
+            operation: 'createVariablesForDashboard',
+            variableName: v.spec.name,
+            kind: v.kind,
+            error: String(err),
+          });
+        }
         return null;
       }
     })
@@ -555,7 +565,16 @@ export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVar
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'createVariablesForSnapshot', variableName: v.spec.name, kind: v.kind });
+        } else {
+          logger.logWarning('Failed to create snapshot variable from v2 model', {
+            operation: 'createVariablesForSnapshot',
+            variableName: v.spec.name,
+            kind: v.kind,
+            error: String(err),
+          });
+        }
         return null;
       }
     })
