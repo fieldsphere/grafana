@@ -9,7 +9,10 @@ export const defaultTrustedTypesPolicy = {
     if (!CSP_REPORT_ONLY_ENABLED) {
       return string.replace(/<script/gi, '&lt;script');
     }
-    logger.logWarning('HTML not sanitized with Trusted Types', { string, source, sink });
+    const warningData = { string, source, sink };
+    logger.logWarning('HTML not sanitized with Trusted Types', warningData);
+    // Always log to console in report-only mode, regardless of Faro configuration
+    console.warn('[Trusted Types] HTML not sanitized', warningData);
     return string;
   },
   createScript: (string: string) => string,
@@ -17,7 +20,10 @@ export const defaultTrustedTypesPolicy = {
     if (!CSP_REPORT_ONLY_ENABLED) {
       return textUtil.sanitizeUrl(string);
     }
-    logger.logWarning('ScriptURL not sanitized with Trusted Types', { string, source, sink });
+    const warningData = { string, source, sink };
+    logger.logWarning('ScriptURL not sanitized with Trusted Types', warningData);
+    // Always log to console in report-only mode, regardless of Faro configuration
+    console.warn('[Trusted Types] ScriptURL not sanitized', warningData);
     return string;
   },
 };

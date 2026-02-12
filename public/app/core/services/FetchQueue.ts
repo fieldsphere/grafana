@@ -92,10 +92,14 @@ export class FetchQueue {
       []
     );
 
-    logger.logDebug('FetchQueue state updated', {
+    const logData = {
       noOfInProgress: update.noOfInProgress,
       noOfPending: update.noOfPending,
       state: entriesWithoutOptions,
-    });
+    };
+
+    logger.logDebug('FetchQueue state updated', logData);
+    // Always log to console when debug is enabled, regardless of Faro configuration
+    console.log('[FetchQueue] state updated', logData);
   };
 }
