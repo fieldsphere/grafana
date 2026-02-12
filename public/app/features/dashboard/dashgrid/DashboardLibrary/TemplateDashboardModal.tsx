@@ -5,7 +5,7 @@ import { useAsync } from 'react-use';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { getBackendSrv, getDataSourceSrv, locationService } from '@grafana/runtime';
+import { createMonitoringLogger, getBackendSrv, getDataSourceSrv, locationService } from '@grafana/runtime';
 import { Box, Grid, Modal, Text, useStyles2 } from '@grafana/ui';
 
 import { DASHBOARD_LIBRARY_ROUTES } from '../types';
@@ -27,6 +27,8 @@ const SourceEntryPointMap: Record<string, SourceEntryPoint> = {
   commandPalette: TemplateDashboardSourceEntryPoint.COMMAND_PALETTE,
   createNewButton: TemplateDashboardSourceEntryPoint.BROWSE_DASHBOARDS_PAGE,
 };
+
+const logger = createMonitoringLogger('features.dashboard.library.template-modal');
 
 export const TemplateDashboardModal = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -87,7 +89,14 @@ export const TemplateDashboardModal = () => {
 
       return response.items;
     } catch (error) {
-      console.error('Error loading template dashboards ', error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'loadTemplateDashboards' });
+      } else {
+        logger.logWarning('Error loading template dashboards', {
+          operation: 'loadTemplateDashboards',
+          error: String(error),
+        });
+      }
       return [];
     }
   }, [isOpen]);

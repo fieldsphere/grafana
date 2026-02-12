@@ -5,7 +5,7 @@ import { useAsync, useAsyncFn } from 'react-use';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { getDataSourceSrv, locationService } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv, locationService } from '@grafana/runtime';
 import { Button, useStyles2, Grid, Alert } from '@grafana/ui';
 import { PluginDashboard } from 'app/types/plugins';
 
@@ -50,6 +50,7 @@ const DEFAULT_SORT_ORDER = 'downloads';
 const DEFAULT_SORT_DIRECTION = 'desc';
 const INCLUDE_SCREENSHOTS = true;
 const INCLUDE_LOGO = true;
+const logger = createMonitoringLogger('features.dashboard.library.suggested-dashboards');
 
 export const SuggestedDashboards = ({ datasourceUid }: Props) => {
   const styles = useStyles2(getStyles);
@@ -136,7 +137,15 @@ export const SuggestedDashboards = ({ datasourceUid }: Props) => {
 
       return { dashboards: mixed, hasMoreDashboards };
     } catch (error) {
-      console.error('Error loading suggested dashboards', error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'loadSuggestedDashboards', datasourceUid });
+      } else {
+        logger.logWarning('Error loading suggested dashboards', {
+          operation: 'loadSuggestedDashboards',
+          datasourceUid,
+          error: String(error),
+        });
+      }
       return { dashboards: [], hasMoreDashboards: false };
     }
   }, [datasourceUid]);

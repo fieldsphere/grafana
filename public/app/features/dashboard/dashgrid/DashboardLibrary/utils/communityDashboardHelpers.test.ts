@@ -15,6 +15,16 @@ import {
   onUseCommunityDashboard,
 } from './communityDashboardHelpers';
 
+jest.mock('@grafana/runtime', () => ({
+  ...jest.requireActual('@grafana/runtime'),
+  createMonitoringLogger: () => ({
+    logWarning: jest.fn(),
+    logError: (error: unknown) => console.error('Error loading community dashboard:', error),
+    logInfo: jest.fn(),
+    logDebug: jest.fn(),
+  }),
+}));
+
 jest.mock('../api/dashboardLibraryApi', () => ({
   fetchCommunityDashboard: jest.fn(),
 }));
