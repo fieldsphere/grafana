@@ -2,7 +2,7 @@ import * as H from 'history';
 
 import { CoreApp, DataQueryRequest, FieldConfig, locationUtil, NavIndex, NavModelItem, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, locationService, RefreshEvent } from '@grafana/runtime';
+import { config, createMonitoringLogger, locationService, RefreshEvent } from '@grafana/runtime';
 import {
   sceneGraph,
   SceneObject,
@@ -161,6 +161,8 @@ export interface DashboardSceneState extends SceneObjectState {
   /** Manages dragging/dropping of layout items */
   layoutOrchestrator?: DashboardLayoutOrchestrator;
 }
+
+const logger = createMonitoringLogger('features.dashboard-scene.dashboard-scene');
 
 export class DashboardScene extends SceneObjectBase<DashboardSceneState> implements LayoutParent {
   static Component = DashboardSceneRenderer;
@@ -321,7 +323,9 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
 
   public exitEditMode({ skipConfirm, restoreInitialState }: { skipConfirm: boolean; restoreInitialState?: boolean }) {
     if (!this.canDiscard()) {
-      console.error('Trying to discard back to a state that does not exist, initialState undefined');
+      logger.logWarning('Trying to discard back to a state that does not exist, initialState undefined', {
+        operation: 'exitEditMode',
+      });
       return;
     }
 
@@ -423,7 +427,9 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
    */
   public discardChangesAndKeepEditing() {
     if (!this.canDiscard()) {
-      console.error('Trying to discard back to a state that does not exist, initialState undefined');
+      logger.logWarning('Trying to discard back to a state that does not exist, initialState undefined', {
+        operation: 'discardChangesAndKeepEditing',
+      });
       return;
     }
 
@@ -624,7 +630,10 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
         clearClipboard();
         store.set(LS_PANEL_COPY_KEY, JSON.stringify({ elements, gridItem: gridItemKind }));
       } else {
-        console.error('Trying to copy a panel that is not DashboardGridItem child');
+        logger.logWarning('Trying to copy a panel that is not DashboardGridItem child', {
+          operation: 'copyPanel',
+          panelKey: vizPanel.state.key,
+        });
         throw new Error('Trying to copy a panel that is not DashboardGridItem child');
       }
       return;
@@ -637,7 +646,10 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
     let gridItem = vizPanel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Trying to copy a panel that is not DashboardGridItem child');
+      logger.logWarning('Trying to copy a panel that is not DashboardGridItem child', {
+        operation: 'copyPanel',
+        panelKey: vizPanel.state.key,
+      });
       throw new Error('Trying to copy a panel that is not DashboardGridItem child');
     }
 
@@ -787,7 +799,11 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
 
       appEvents.emit('alert-success', ['Panel styles applied.']);
     } catch (e) {
-      console.error('Error pasting panel styles:', e);
+      if (e instanceof Error) {
+        logger.logError(e, { operation: 'pastePanelStyles' });
+      } else {
+        logger.logWarning('Error pasting panel styles', { operation: 'pastePanelStyles', error: String(e) });
+      }
       appEvents.emit('alert-error', ['Error pasting panel styles.']);
       DashboardInteractions.panelStylesMenuClicked(
         'paste',
@@ -820,7 +836,9 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
       return;
     }
 
-    console.error('Trying to unlink a lib panel in a layout that is not DashboardGridItem or AutoGridItem');
+    logger.logWarning('Trying to unlink a lib panel in a layout that is not DashboardGridItem or AutoGridItem', {
+      operation: 'unlinkLibraryPanel',
+    });
   }
 
   public showModal(modal: SceneObject) {
@@ -847,7 +865,16 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
         },
       });
     } catch (err) {
-      console.error('Failed to star dashboard', err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'onStarDashboard', uid, isStarred });
+      } else {
+        logger.logWarning('Failed to star dashboard', {
+          operation: 'onStarDashboard',
+          uid,
+          isStarred,
+          error: String(err),
+        });
+      }
     }
   }
 

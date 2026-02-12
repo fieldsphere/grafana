@@ -3,7 +3,7 @@ import { useCallback, useMemo } from 'react';
 import { CoreApp, DataSourceApi, DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
-import { config, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
+import { config, createMonitoringLogger, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import {
   SceneComponentProps,
   SceneDataQuery,
@@ -44,6 +44,8 @@ import { getUpdatedHoverHeader } from '../getPanelFrameOptions';
 
 import { PanelDataPaneTab, PanelDataTabHeaderProps, TabId } from './types';
 import { hasBackendDatasource } from './utils';
+
+const logger = createMonitoringLogger('features.dashboard-scene.panel-data-queries-tab');
 
 interface PanelDataQueriesTabState extends SceneObjectState {
   datasource?: DataSourceApi;
@@ -147,8 +149,14 @@ export class PanelDataQueriesTab extends SceneObjectBase<PanelDataQueriesTabStat
           datasource: getDataSourceRef(dsSettings),
         });
       }
-
-      console.error(err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'loadDataSource' });
+      } else {
+        logger.logWarning('Failed to load datasource in panel data queries tab', {
+          operation: 'loadDataSource',
+          error: String(err),
+        });
+      }
     }
   }
 

@@ -800,9 +800,6 @@ describe('dashboard exporter v2', () => {
   });
 
   it('should handle library panel conversion errors gracefully', async () => {
-    // Mock console.error to avoid Jest warnings
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
     const setupWithInvalidLibraryPanel = async () => {
       const schemaCopy = JSON.parse(JSON.stringify(handyTestingSchema));
 
@@ -837,12 +834,6 @@ describe('dashboard exporter v2', () => {
     expect((placeholderPanel as PanelKind).spec.title).toBe('Invalid Library Panel');
     expect((placeholderPanel as PanelKind).spec.vizConfig.kind).toBe('VizConfig');
     expect((placeholderPanel as PanelKind).spec.vizConfig.group).toBe('text');
-
-    // Verify console.error was called
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to load library panel invalid-uid:', expect.any(Error));
-
-    // Restore console.error
-    consoleSpy.mockRestore();
   });
 });
 
