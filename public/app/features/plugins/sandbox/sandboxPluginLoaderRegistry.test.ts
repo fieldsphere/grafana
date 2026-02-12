@@ -14,6 +14,13 @@ import {
 } from './sandboxPluginLoaderRegistry';
 
 jest.mock('@grafana/runtime', () => ({
+  createMonitoringLogger: () => ({
+    logError: jest.fn(),
+    logWarning: jest.fn(),
+    logInfo: jest.fn(),
+    logDebug: jest.fn(),
+    logTrace: jest.fn(),
+  }),
   config: {
     buildInfo: { env: 'production' },
     enableFrontendSandboxForPlugins: [],
