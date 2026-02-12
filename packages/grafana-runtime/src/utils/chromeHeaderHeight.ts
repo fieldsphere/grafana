@@ -1,3 +1,4 @@
+import { config } from '../config';
 import { createMonitoringLogger } from './logging';
 
 type ChromeHeaderHeightHook = () => number;
@@ -15,6 +16,9 @@ export const useChromeHeaderHeight = () => {
       throw new Error('useChromeHeaderHeight hook not found in @grafana/runtime');
     }
     logger.logWarning('useChromeHeaderHeight hook not found');
+    if (!config.grafanaJavascriptAgent.enabled) {
+      console.error('useChromeHeaderHeight hook not found');
+    }
   }
 
   return chromeHeaderHeightHook?.();

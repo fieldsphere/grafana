@@ -1,3 +1,4 @@
+import { config } from '../config';
 import { createMonitoringLogger } from './logging';
 
 type ReturnToPreviousHook = () => (title: string, href?: string) => void;
@@ -19,11 +20,15 @@ export const useReturnToPrevious: ReturnToPreviousHook = () => {
     if (process.env.NODE_ENV !== 'production') {
       throw new Error('useReturnToPrevious hook not found in @grafana/runtime');
     }
-    return (title: string, href?: string) =>
+    return (title: string, href?: string) => {
       logger.logWarning('ReturnToPrevious hook not found', {
         title,
         href,
       });
+      if (!config.grafanaJavascriptAgent.enabled) {
+        console.error('ReturnToPrevious hook not found', { title, href });
+      }
+    };
   }
 
   return rtpHook();

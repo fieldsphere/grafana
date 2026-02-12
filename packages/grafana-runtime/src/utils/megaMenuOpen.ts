@@ -1,3 +1,4 @@
+import { config } from '../config';
 import { createMonitoringLogger } from './logging';
 
 type MegaMenuOpenHook = () => Readonly<[boolean, (open: boolean, persist?: boolean) => void]>;
@@ -22,6 +23,9 @@ export const useMegaMenuOpen: MegaMenuOpenHook = () => {
       false,
       (open: boolean, persist?: boolean) => {
         logger.logWarning('MegaMenuOpen hook not found', { open, persist });
+        if (!config.grafanaJavascriptAgent.enabled) {
+          console.error('MegaMenuOpen hook not found', { open, persist });
+        }
       },
     ];
   }
