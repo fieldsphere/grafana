@@ -16,6 +16,11 @@ jest.mock('@grafana/runtime', () => {
   return {
     ...actual,
     getAppEvents: jest.fn(),
+    createMonitoringLogger: () => ({
+      logError: jest.fn(),
+      logWarning: jest.fn(),
+      logDebug: jest.fn(),
+    }),
     locationService: {
       partial: jest.fn(),
     },

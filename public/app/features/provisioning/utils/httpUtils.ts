@@ -1,5 +1,5 @@
 import { t } from '@grafana/i18n';
-import { isFetchError } from '@grafana/runtime';
+import { createMonitoringLogger, isFetchError } from '@grafana/runtime';
 
 import { HttpError, isHttpError } from '../guards';
 
@@ -16,6 +16,7 @@ export interface ApiRequest {
 const githubUrlRegex = /^https:\/\/github\.com\/([^\/]+)\/([^\/]+)\/?$/;
 const gitlabUrlRegex = /^https:\/\/gitlab\.com\/([^\/]+)\/([^\/]+)\/?$/;
 const bitbucketUrlRegex = /^https:\/\/bitbucket\.org\/([^\/]+)\/([^\/]+)\/?$/;
+const logger = createMonitoringLogger('features.provisioning.http-utils');
 
 export function parseRepositoryUrl(url: string, type: string): RepositoryInfo | null {
   let match: RegExpMatchArray | null = null;
@@ -69,7 +70,7 @@ export async function makeApiRequest(request: ApiRequest) {
 
   if (!response.ok) {
     const errorData = await response.text();
-    console.error('API Error Response:', errorData);
+    logger.logWarning('API request failed', { operation: 'makeApiRequest', url: request.url, errorData });
     const error: HttpError = new Error(
       t('provisioning.http-utils.http-error', 'HTTP {{status}}: {{statusText}}', {
         status: response.status,
