@@ -1,5 +1,13 @@
 import { DataSourceInstanceSettings, DataSourcePluginMeta, DataSourceJsonData } from '@grafana/data';
 
+const mockLogWarning = jest.fn();
+
+jest.mock('./logging', () => ({
+  createMonitoringLogger: () => ({
+    logWarning: mockLogWarning,
+  }),
+}));
+
 import { isQueryServiceCompatible } from './qscheck';
 
 interface TestJsonData extends DataSourceJsonData {
@@ -23,13 +31,8 @@ type TestCase = {
 };
 
 describe('qscheck', () => {
-  let consoleErrorSpy: jest.SpyInstance;
-
   beforeEach(() => {
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
-  });
-  afterEach(() => {
-    consoleErrorSpy.mockRestore();
+    mockLogWarning.mockReset();
   });
 
   const testCases: TestCase[] = [
@@ -322,7 +325,7 @@ describe('qscheck', () => {
 
       const result = isQueryServiceCompatible(settings, t.flag);
       expect(result).toBe(t.expected);
-      expect(consoleErrorSpy).toHaveBeenCalledTimes(t.errorLogs);
+      expect(mockLogWarning).toHaveBeenCalledTimes(t.errorLogs);
     });
   });
 });
