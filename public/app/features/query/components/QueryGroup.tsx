@@ -14,7 +14,7 @@ import {
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { getDataSourceSrv, locationService } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv, locationService } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
 import { Button, InlineFormLabel, Modal, ScrollContainer, Stack, stylesFactory } from '@grafana/ui';
 import { PluginHelp } from 'app/core/components/PluginHelp/PluginHelp';
@@ -34,6 +34,8 @@ import { updateQueries } from '../state/updateQueries';
 import { GroupActionComponents } from './QueryActionComponent';
 import { QueryEditorRows } from './QueryEditorRows';
 import { QueryGroupOptionsEditor } from './QueryGroupOptions';
+
+const logger = createMonitoringLogger('features.query.query-group');
 
 export interface Props {
   queryRunner: PanelQueryRunner;
@@ -122,7 +124,14 @@ export class QueryGroup extends PureComponent<Props, State> {
         defaultDataSource,
       });
     } catch (error) {
-      console.error('failed to load data source', error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'setNewQueriesAndDatasource' });
+      } else {
+        logger.logWarning('Failed to load data source', {
+          operation: 'setNewQueriesAndDatasource',
+          error: String(error),
+        });
+      }
     }
   }
 

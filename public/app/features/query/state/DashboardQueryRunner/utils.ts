@@ -2,13 +2,15 @@ import { cloneDeep } from 'lodash';
 import { Observable, of } from 'rxjs';
 
 import { AnnotationEvent, AnnotationQuery, DataFrame, DataFrameView, DataSourceApi } from '@grafana/data';
-import { config, toDataQueryError } from '@grafana/runtime';
+import { config, createMonitoringLogger, toDataQueryError } from '@grafana/runtime';
 import { dispatch } from 'app/store/store';
 
 import { createErrorNotification } from '../../../../core/copy/appNotification';
 import { notifyApp } from '../../../../core/reducers/appNotification';
 
 import { DashboardQueryRunnerWorkerResult } from './types';
+
+const logger = createMonitoringLogger('features.query.dashboard-query-runner-utils');
 
 export function handleAnnotationQueryRunnerError(err: any): Observable<AnnotationEvent[]> {
   if (err.cancelled) {
@@ -38,7 +40,7 @@ export function handleDashboardQueryRunnerWorkerError(err: any): Observable<Dash
 
 function notifyWithError(title: string, err: any) {
   const error = toDataQueryError(err);
-  console.error('handleAnnotationQueryRunnerError', error);
+  logger.logError(error, { operation: 'notifyWithError', title });
   const notification = createErrorNotification(title, error.message);
   dispatch(notifyApp(notification));
 }
