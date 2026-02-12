@@ -1,4 +1,5 @@
 import { attempt, isError } from 'lodash';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { PromRuleDTO, PromRuleGroupDTO } from 'app/types/unified-alerting-dto';
 
@@ -24,6 +25,8 @@ import {
   ruleNameFilter,
   ruleTypeFilter,
 } from './filterPredicates';
+
+const logger = createMonitoringLogger('features.alerting.rule-list.grafana-filter');
 
 /**
  * Determines if client-side filtering is needed for Grafana-managed rules.
@@ -151,7 +154,7 @@ function labelMatchersToBackendFormat(labels: string[]): string[] {
     const result = attempt(() => JSON.stringify(parseMatcher(label)));
 
     if (isError(result)) {
-      console.warn('Failed to parse label matcher:', label, result);
+      logger.logWarning('Failed to parse label matcher', { label, error: result.message });
     } else {
       acc.push(result);
     }

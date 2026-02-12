@@ -3,7 +3,7 @@ import { useCallback } from 'react';
 
 import { DataSourceInstanceSettings } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import { ComboboxOption } from '@grafana/ui';
 import { GrafanaPromRuleGroupDTO } from 'app/types/unified-alerting-dto';
 
@@ -15,6 +15,8 @@ const collator = new Intl.Collator();
 function getExternalRuleDataSources() {
   return getRulesDataSources().filter((ds: DataSourceInstanceSettings) => !!ds?.url);
 }
+
+const logger = createMonitoringLogger('features.alerting.rule-filter-autocomplete');
 
 const NAMESPACE_THRESHOLD_LIMIT = 500;
 const MIN_GROUP_SEARCH_CHARACTERS = 3;
@@ -161,7 +163,11 @@ export function useNamespaceAndGroupOptions(): {
 
         return options;
       } catch (error) {
-        console.error('Error fetching groups:', error);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'groupOptions' });
+        } else {
+          logger.logWarning('Error fetching groups', { operation: 'groupOptions', error: String(error) });
+        }
         return [createInfoOption(t('alerting.rules-filter.group-search-error', 'Error searching groups'))];
       }
     },
