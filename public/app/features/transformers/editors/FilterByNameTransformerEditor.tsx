@@ -13,7 +13,7 @@ import {
 } from '@grafana/data';
 import { FilterFieldsByNameTransformerOptions } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
-import { getTemplateSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getTemplateSrv } from '@grafana/runtime';
 import { Input, FilterPill, InlineFieldRow, InlineField, InlineSwitch, Select } from '@grafana/ui';
 
 import { getTransformationContent } from '../docs/getTransformationContent';
@@ -37,6 +37,8 @@ interface FieldNameInfo {
   name: string;
   count: number;
 }
+
+const logger = createMonitoringLogger('features.transformers.filter-by-name-editor');
 export class FilterByNameTransformerEditor extends React.PureComponent<
   FilterByNameTransformerEditorProps,
   FilterByNameTransformerEditorState
@@ -102,7 +104,15 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'initByNames', pattern: options.include.pattern });
+        } else {
+          logger.logWarning('Invalid include pattern', {
+            operation: 'initByNames',
+            pattern: options.include.pattern,
+            error: String(error),
+          });
+        }
       }
     }
 
