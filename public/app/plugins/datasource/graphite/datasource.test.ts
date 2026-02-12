@@ -38,6 +38,11 @@ jest.mock('@grafana/runtime', () => ({
   getBackendSrv: () => ({
     fetch: fetchMock,
   }),
+  createMonitoringLogger: jest.fn(() => ({
+    logError: jest.fn(),
+    logWarning: jest.fn(),
+    logDebug: jest.fn(),
+  })),
   getTemplateSrv: () => {
     return {
       replace: (s: string) => s,
@@ -324,15 +329,6 @@ describe('graphiteDatasource', () => {
       title: string;
       tags?: string[];
     }>;
-    let errorSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-      errorSpy = jest.spyOn(console, 'error').mockImplementation();
-    });
-
-    afterEach(() => {
-      errorSpy.mockRestore();
-    });
 
     const options = {
       targets: [
@@ -425,7 +421,6 @@ describe('graphiteDatasource', () => {
         results = data;
       });
       expect(results).toEqual([]);
-      expect(console.error).toHaveBeenCalledWith(expect.stringMatching(/Unable to get annotations/));
     });
   });
 
@@ -436,15 +431,11 @@ describe('graphiteDatasource', () => {
       title: string;
       tags?: string[];
     }>;
-    let errorSpy: jest.SpyInstance;
-
     beforeEach(() => {
-      errorSpy = jest.spyOn(console, 'error').mockImplementation();
       config.featureToggles.graphiteBackendMode = true;
     });
 
     afterEach(() => {
-      errorSpy.mockRestore();
       config.featureToggles.graphiteBackendMode = false;
     });
 
@@ -539,7 +530,6 @@ describe('graphiteDatasource', () => {
         results = data;
       });
       expect(results).toEqual([]);
-      expect(console.error).toHaveBeenCalledWith(expect.stringMatching(/Unable to get annotations/));
     });
   });
 
