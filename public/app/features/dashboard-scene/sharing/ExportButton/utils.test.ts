@@ -9,6 +9,11 @@ import { generateDashboardImage } from './utils';
 
 // Mock the dependencies
 jest.mock('@grafana/runtime', () => ({
+  createMonitoringLogger: () => ({
+    logError: jest.fn(),
+    logWarning: jest.fn(),
+    logDebug: jest.fn(),
+  }),
   config: {
     rendererAvailable: true,
     bootData: {
