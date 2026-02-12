@@ -2,6 +2,7 @@ import { get as lodashGet } from 'lodash';
 
 import { NestedPanelOptions, NestedValueAccess } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { CanvasElementOptions } from 'app/features/canvas/element';
 import {
   canvasElementRegistry,
@@ -17,6 +18,8 @@ import { getElementTypes } from '../../utils';
 import { optionBuilder } from '../options';
 
 import { PlacementEditor } from './PlacementEditor';
+
+const logger = createMonitoringLogger('plugins.panel.canvas.element-editor');
 
 export interface CanvasEditorOptions {
   element: ElementState;
@@ -45,7 +48,10 @@ export function getElementEditor(opts: CanvasEditorOptions): NestedPanelOptions<
         if (path === 'type' && value) {
           const layer = canvasElementRegistry.getIfExists(value);
           if (!layer) {
-            console.warn('layer does not exist', value);
+            logger.logWarning('Layer does not exist', {
+              operation: 'getElementEditor.values.onChange',
+              layerType: String(value),
+            });
             return;
           }
           options = {
