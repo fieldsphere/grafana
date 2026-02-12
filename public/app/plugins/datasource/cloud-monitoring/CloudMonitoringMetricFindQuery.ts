@@ -1,4 +1,5 @@
 import { isString } from 'lodash';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { ALIGNMENT_PERIODS, SELECTORS } from './constants';
 import { ValueTypes, MetricFindQueryTypes } from './dataquery.gen';
@@ -11,6 +12,8 @@ import {
   getMetricTypesByService,
 } from './functions';
 import { CloudMonitoringVariableQuery, MetricDescriptor } from './types/types';
+
+const logger = createMonitoringLogger('plugins.datasource.cloud-monitoring.metric-find-query');
 
 export default class CloudMonitoringMetricFindQuery {
   constructor(private datasource: CloudMonitoringDatasource) {}
@@ -50,7 +53,15 @@ export default class CloudMonitoringMetricFindQuery {
           return [];
       }
     } catch (error) {
-      console.error(`Could not run CloudMonitoringMetricFindQuery ${query}`, error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'execute', selectedQueryType: query.selectedQueryType });
+      } else {
+        logger.logWarning('Could not run CloudMonitoring metric find query', {
+          operation: 'execute',
+          selectedQueryType: query.selectedQueryType,
+          error: String(error),
+        });
+      }
       return [];
     }
   }

@@ -2,7 +2,7 @@ import pluralize from 'pluralize';
 import * as React from 'react';
 
 import { QueryEditorProps, SelectableValue, rangeUtil, DataQueryRequest, Field } from '@grafana/data';
-import { config, getDataSourceSrv } from '@grafana/runtime';
+import { config, createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import {
   InlineField,
   Select,
@@ -25,6 +25,7 @@ import { RandomWalkEditor } from './RandomWalkEditor';
 interface Props extends QueryEditorProps<GrafanaDatasource, GrafanaQuery>, Themeable2 {}
 
 const labelWidth = 12;
+const logger = createMonitoringLogger('plugins.datasource.grafana.query-editor');
 
 interface State {
   channels: Array<SelectableValue<string>>;
@@ -142,7 +143,15 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         try {
           buffer = rangeUtil.intervalToSeconds(txt) * 1000;
         } catch (err) {
-          console.warn('ERROR', err);
+          if (err instanceof Error) {
+            logger.logError(err, { operation: 'checkAndUpdateValue', key });
+          } else {
+            logger.logWarning('Failed to parse Grafana datasource buffer interval', {
+              operation: 'checkAndUpdateValue',
+              key,
+              error: String(err),
+            });
+          }
         }
       }
       onChange({
