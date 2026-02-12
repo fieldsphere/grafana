@@ -12,7 +12,7 @@ import {
   shallowCompare,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { config, reportInteraction } from '@grafana/runtime';
+import { config, createMonitoringLogger, reportInteraction } from '@grafana/runtime';
 import { Button, Dropdown, Menu, ToolbarButton, useStyles2 } from '@grafana/ui';
 
 import { LogLabels, LogLabelsList, Props as LogLabelsProps } from '../../logs/components/LogLabels';
@@ -21,6 +21,8 @@ import { MetaInfoText, MetaItemProps } from '../MetaInfoText';
 
 import { LogsVisualisationType } from './Logs';
 import { SETTINGS_KEYS } from './utils/logs';
+
+const logger = createMonitoringLogger('features.explore.logs-meta-row');
 
 const getStyles = () => ({
   metaContainer: css({
@@ -161,6 +163,6 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
   if (kind === LogsMetaKind.Error) {
     return <span className="logs-meta-item__error">{value.toString()}</span>;
   }
-  console.error(`Meta type ${typeof value} ${value} not recognized.`);
+  logger.logWarning('Meta type not recognized', { valueType: typeof value, value: String(value), kind });
   return <></>;
 }

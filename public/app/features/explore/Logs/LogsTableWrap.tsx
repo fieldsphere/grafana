@@ -16,7 +16,7 @@ import {
   AbsoluteTimeRange,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { reportInteraction } from '@grafana/runtime';
+import { createMonitoringLogger, reportInteraction } from '@grafana/runtime';
 import { getDragStyles, InlineField, Select, useStyles2 } from '@grafana/ui';
 import { FIELD_SELECTOR_MIN_WIDTH } from 'app/features/logs/components/fieldSelector/FieldSelector';
 import { reportInteractionOnce } from 'app/features/logs/components/panel/analytics';
@@ -27,6 +27,8 @@ import { parseLogsFrame } from '../../logs/logsFrame';
 
 import { LogsTable } from './LogsTable';
 import { SETTING_KEY_ROOT } from './utils/logs';
+
+const logger = createMonitoringLogger('features.explore.logs-table-wrap');
 
 interface Props {
   logsFrames: DataFrame[];
@@ -385,7 +387,10 @@ export function LogsTableWrap(props: Props) {
   // Toggle a column on or off when the user interacts with an element in the multi-select sidebar
   const toggleColumn = (columnName: FieldName) => {
     if (!columnsWithMeta || !(columnName in columnsWithMeta)) {
-      console.warn('failed to get column', columnsWithMeta);
+      logger.logWarning('Failed to get column', {
+        columnName,
+        availableColumns: columnsWithMeta ? Object.keys(columnsWithMeta) : [],
+      });
       return;
     }
 

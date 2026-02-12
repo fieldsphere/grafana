@@ -21,7 +21,7 @@ import {
   URLRange,
   URLRangeValue,
 } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import { DataQuery, DataSourceJsonData, DataSourceRef, TimeZone } from '@grafana/schema';
 import { getLocalRichHistoryStorage } from 'app/core/history/richHistoryStorageProvider';
 import { SortOrder } from 'app/core/utils/richHistoryTypes';
@@ -36,6 +36,7 @@ import { loadSupplementaryQueries } from '../utils/supplementaryQueries';
 import { DEFAULT_RANGE } from './constants';
 
 export const MAX_HISTORY_AUTOCOMPLETE_ITEMS = 100;
+const logger = createMonitoringLogger('features.explore.state.utils');
 
 const GRAPH_STYLE_KEY = 'grafana.explore.style.graph';
 export const storeGraphStyle = (graphStyle: string): void => {
@@ -118,7 +119,15 @@ export async function loadAndInitDatasource(
       instance.init();
     } catch (err) {
       // TODO: should probably be handled better
-      console.error(err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'initializeDatasourceAndHistory', datasourceName: instance.name });
+      } else {
+        logger.logWarning('Datasource init failed', {
+          operation: 'initializeDatasourceAndHistory',
+          datasourceName: instance.name,
+          error: String(err),
+        });
+      }
     }
   }
 
