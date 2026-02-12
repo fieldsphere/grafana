@@ -333,8 +333,10 @@ export class GrafanaApp {
     } catch (error) {
       if (error instanceof Error) {
         logger.logError(error, { operation: 'GrafanaApp.init' });
+        console.error('Failed to start Grafana:', error);
       } else {
         logger.logWarning('Failed to start Grafana', { operation: 'GrafanaApp.init', error: String(error) });
+        console.error('Failed to start Grafana:', error);
       }
       window.__grafana_load_failed();
     } finally {
