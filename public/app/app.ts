@@ -21,6 +21,7 @@ import {
 import { DEFAULT_LANGUAGE } from '@grafana/i18n';
 import { initializeI18n, loadNamespacedResources } from '@grafana/i18n/internal';
 import {
+  createMonitoringLogger,
   locationService,
   setBackendSrv,
   setDataSourceSrv,
@@ -127,6 +128,8 @@ const extensionsExports = extensionsIndex.keys().map((key) => {
   return extensionsIndex(key);
 });
 
+const logger = createMonitoringLogger('app.bootstrap');
+
 export class GrafanaApp {
   context!: GrafanaContextType;
 
@@ -145,7 +148,14 @@ export class GrafanaApp {
         try {
           await initOpenFeature();
         } catch (err) {
-          console.error('Failed to initialize OpenFeature provider', err);
+          if (err instanceof Error) {
+            logger.logError(err, { operation: 'initOpenFeature' });
+          } else {
+            logger.logWarning('Failed to initialize OpenFeature provider', {
+              operation: 'initOpenFeature',
+              error: String(err),
+            });
+          }
         }
       }
 
@@ -284,7 +294,14 @@ export class GrafanaApp {
       try {
         cleanupOldExpandedFolders();
       } catch (err) {
-        console.warn('Failed to clean up old expanded folders', err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'cleanupOldExpandedFolders' });
+        } else {
+          logger.logWarning('Failed to clean up old expanded folders', {
+            operation: 'cleanupOldExpandedFolders',
+            error: String(err),
+          });
+        }
       }
 
       this.context = {
@@ -314,7 +331,11 @@ export class GrafanaApp {
 
       await postInitTasks();
     } catch (error) {
-      console.error('Failed to start Grafana', error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'GrafanaApp.init' });
+      } else {
+        logger.logWarning('Failed to start Grafana', { operation: 'GrafanaApp.init', error: String(error) });
+      }
       window.__grafana_load_failed();
     } finally {
       stopMeasure('frontend_app_init');

@@ -1,7 +1,7 @@
 import { debounce } from 'lodash';
 
 import { dateTimeFormatTimeAgo } from '@grafana/data';
-import { featureEnabled, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
+import { createMonitoringLogger, featureEnabled, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
 import { FetchDataArgs } from '@grafana/ui';
 import config from 'app/core/config';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -36,6 +36,8 @@ import {
   anonPageChanged,
   anonQueryChanged,
 } from './reducers';
+
+const logger = createMonitoringLogger('features.admin.state-actions');
 // UserAdminPage
 
 export function loadAdminUserPage(userUid: string): ThunkResult<void> {
@@ -50,7 +52,15 @@ export function loadAdminUserPage(userUid: string): ThunkResult<void> {
       }
       dispatch(userAdminPageLoadedAction(true));
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'loadAdminUserPage', userUid });
+      } else {
+        logger.logWarning('Failed to load admin user page', {
+          operation: 'loadAdminUserPage',
+          userUid,
+          error: String(error),
+        });
+      }
 
       if (isFetchError(error)) {
         const userError = {
@@ -300,7 +310,11 @@ export function fetchUsers(): ThunkResult<void> {
       dispatch(usersFetched(result));
     } catch (error) {
       usersFetchEnd();
-      console.error(error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'fetchUsers' });
+      } else {
+        logger.logWarning('Failed to fetch users', { operation: 'fetchUsers', error: String(error) });
+      }
     }
   };
 }
@@ -366,7 +380,14 @@ export function fetchUsersAnonymousDevices(): ThunkResult<void> {
       const result = await getBackendSrv().get(url);
       dispatch(usersAnonymousDevicesFetched(result));
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'fetchUsersAnonymousDevices' });
+      } else {
+        logger.logWarning('Failed to fetch anonymous devices', {
+          operation: 'fetchUsersAnonymousDevices',
+          error: String(error),
+        });
+      }
     }
   };
 }
@@ -409,7 +430,7 @@ export function changeAnonPage(page: number): ThunkResult<void> {
 //       dispatch(usersAnonymousDevicesFetched({ devices: result }));
 //     } catch (error) {
 //       usersFetchEnd();
-//       console.error(error);
+//       logger.logError(error as Error, { operation: 'fetchUsersAnonymousDevicesLegacy' });
 //     }
 //   };
 // }

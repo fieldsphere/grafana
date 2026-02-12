@@ -1,4 +1,4 @@
-import { getBackendSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getBackendSrv } from '@grafana/runtime';
 
 interface AnonServerStat {
   activeDevices?: number;
@@ -24,11 +24,17 @@ export interface ServerStat extends AnonServerStat {
   viewers: number;
 }
 
+const logger = createMonitoringLogger('features.admin.state-apis');
+
 export const getServerStats = async (): Promise<ServerStat | null> => {
   return getBackendSrv()
     .get('api/admin/stats')
     .catch((err) => {
-      console.error(err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'getServerStats' });
+      } else {
+        logger.logWarning('Failed to get server stats', { operation: 'getServerStats', error: String(err) });
+      }
       return null;
     });
 };

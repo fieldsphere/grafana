@@ -1,6 +1,6 @@
 import { debounce } from 'lodash';
 
-import { getBackendSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getBackendSrv } from '@grafana/runtime';
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
@@ -22,6 +22,7 @@ import {
 } from './reducers';
 
 const BASE_URL = `/api/serviceaccounts`;
+const logger = createMonitoringLogger('features.serviceaccounts.state-actions');
 
 export function fetchACOptions(): ThunkResult<void> {
   return async (dispatch) => {
@@ -31,7 +32,14 @@ export function fetchACOptions(): ThunkResult<void> {
         dispatch(acOptionsLoaded(options));
       }
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'fetchACOptions' });
+      } else {
+        logger.logWarning('Failed to fetch access control options', {
+          operation: 'fetchACOptions',
+          error: String(error),
+        });
+      }
     }
   };
 }
@@ -76,7 +84,14 @@ export function fetchServiceAccounts(
         dispatch(serviceAccountsFetched(result));
       }
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'fetchServiceAccounts' });
+      } else {
+        logger.logWarning('Failed to fetch service accounts', {
+          operation: 'fetchServiceAccounts',
+          error: String(error),
+        });
+      }
     } finally {
       dispatch(serviceAccountsFetchEnd());
     }
