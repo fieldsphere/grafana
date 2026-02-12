@@ -10,11 +10,13 @@ import {
   transformDataFrame,
   useDataLinksContext,
 } from '@grafana/data';
-import { getTemplateSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getTemplateSrv } from '@grafana/runtime';
 import { useTheme2 } from '@grafana/ui';
 import { replaceVariables } from '@grafana-plugins/loki/querybuilder/parsingUtils';
 
 import { extractLogsFieldsTransform } from '../transforms/extractLogsFieldsTransform';
+
+const logger = createMonitoringLogger('plugins.panel.logstable.extract-fields');
 
 interface Props {
   rawTableFrame: DataFrame | null;
@@ -56,7 +58,14 @@ export function useExtractFields({ rawTableFrame, fieldConfig, timeZone }: Props
         }
       })
       .catch((err) => {
-        console.error('LogsTable: Extract fields transform error', err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'useExtractFields.extractFields' });
+        } else {
+          logger.logWarning('LogsTable extract fields transform error', {
+            operation: 'useExtractFields.extractFields',
+            error: String(err),
+          });
+        }
       });
     // @todo hook re-renders unexpectedly when data frame isn't changing if we add `rawTableFrame` as dependency, so we check for changes in the timestamps instead
     // eslint-disable-next-line react-hooks/exhaustive-deps
