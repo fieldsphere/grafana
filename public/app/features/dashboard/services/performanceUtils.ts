@@ -87,11 +87,11 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
  */
 export function writePerformanceGroupLog(loggerName: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
+    // eslint-disable-next-line no-console
     if (data) {
-      // Keep grouped output but route data through structured logger
-      logger.logDebug(message, { group: loggerName, data });
+      console.log(`${loggerName}: ${message}`, data);
     } else {
-      logger.logDebug(message, { group: loggerName });
+      console.log(`${loggerName}: ${message}`);
     }
   }
 }
