@@ -4,6 +4,7 @@ import type {
   PluginExtensionExposedComponentConfig,
   PluginExtensionAddedComponentConfig,
 } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { contextSrv } from 'app/core/services/context_srv';
 import { getPluginSettings } from 'app/features/plugins/pluginSettings';
 
@@ -16,6 +17,8 @@ export type PluginPreloadResult = {
   addedComponentConfigs?: PluginExtensionAddedComponentConfig[];
   addedLinkConfigs?: PluginExtensionAddedLinkConfig[];
 };
+
+const logger = createMonitoringLogger('features.plugins.preloader');
 
 const preloadPromises = new Map<string, Promise<void>>();
 
@@ -46,6 +49,15 @@ async function preload(config: AppPluginConfig): Promise<void> {
       return;
     }
 
-    console.error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'preload', pluginPath: config.path, pluginVersion: config.version });
+    } else {
+      logger.logWarning('Failed to preload plugin', {
+        operation: 'preload',
+        pluginPath: config.path,
+        pluginVersion: config.version,
+        error: String(error),
+      });
+    }
   }
 }

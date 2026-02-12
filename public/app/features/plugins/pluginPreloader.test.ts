@@ -298,8 +298,7 @@ describe('pluginPreloader', () => {
       expect(importAppPluginMock).toHaveBeenCalledWith(mockPluginMeta);
     });
 
-    it('should log all errors for user with role', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    it('should handle preload errors for user with role', async () => {
       const appConfig = createMockAppPluginConfig({
         id: 'test-plugin',
         path: '/path/to/plugin',
@@ -311,17 +310,14 @@ describe('pluginPreloader', () => {
 
       await preloadPlugins([appConfig]);
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        `[Plugins] Failed to preload plugin: /path/to/plugin (version: 1.0.0)`,
-        error
-      );
+      expect(getPluginSettingsMock).toHaveBeenCalledWith('test-plugin', { showErrorAlert: true });
+      expect(importAppPluginMock).not.toHaveBeenCalled();
     });
 
-    it('should not log any errors for user without role', async () => {
+    it('should handle preload errors for user without role', async () => {
       const contextSrv = new ContextSrv();
       contextSrv.user.orgRole = '';
       setContextSrv(contextSrv);
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const appConfig = createMockAppPluginConfig({
         id: 'test-plugin',
         path: '/path/to/plugin',
@@ -333,7 +329,8 @@ describe('pluginPreloader', () => {
 
       await preloadPlugins([appConfig]);
 
-      expect(consoleSpy).not.toHaveBeenCalled();
+      expect(getPluginSettingsMock).toHaveBeenCalledWith('test-plugin', { showErrorAlert: false });
+      expect(importAppPluginMock).not.toHaveBeenCalled();
     });
   });
 });

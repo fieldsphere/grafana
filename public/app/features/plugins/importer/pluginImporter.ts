@@ -54,7 +54,15 @@ const panelPluginPostImport: PostImportStrategy<PanelPlugin, PanelPluginMeta> = 
     throw new Error('missing export: plugin');
   } catch (error) {
     // TODO, maybe a different error plugin
-    console.warn('Error loading panel plugin: ' + meta.id, error);
+    if (error instanceof Error) {
+      pluginsLogger.logWarning('Error loading panel plugin', {
+        pluginId: meta.id,
+        error: error.message,
+        stack: error.stack ?? '',
+      });
+    } else {
+      pluginsLogger.logWarning('Error loading panel plugin', { pluginId: meta.id, error: String(error) });
+    }
     return getPanelPluginLoadError(meta, error);
   }
 };

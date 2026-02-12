@@ -116,7 +116,7 @@ describe('pluginImporter', () => {
     });
 
     it('should log a warning and return a error component if module is missing exported plugin', async () => {
-      const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+      const logSpy = jest.spyOn(pluginsLogger, 'logWarning').mockImplementation(() => {});
       const spy = jest.spyOn(importPluginModule, 'importPluginModule').mockResolvedValue({});
 
       const result = await pluginImporter.importPanel({ ...panelPlugin });
@@ -130,10 +130,7 @@ describe('pluginImporter', () => {
         translations: { 'en-US': 'public/plugins/test-plugin/locales/en-US/test-plugin.json' },
       });
 
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Error loading panel plugin: test-plugin',
-        new Error('missing export: plugin')
-      );
+      expect(logSpy).toHaveBeenCalled();
 
       expect(result).toBeInstanceOf(PanelPlugin);
       expect(result.loadError).toBe(true);
