@@ -1,6 +1,7 @@
 import { Cron } from 'croner';
 
 import { AbsoluteTimeRange, TimeRange, durationToMilliseconds, parseDuration } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 export type TimeRegionMode = null | 'cron';
 export interface TimeRegionConfig {
@@ -19,6 +20,7 @@ export interface TimeRegionConfig {
 }
 
 const secsInDay = 24 * 3600;
+const logger = createMonitoringLogger('core.utils.time-regions');
 
 function getDurationSecs(
   fromDay: number,
@@ -160,7 +162,16 @@ export function calculateTimesWithin(cfg: TimeRegionConfig, tRange: TimeRange): 
     }
   } catch (e) {
     // invalid expression
-    console.error(e);
+    if (e instanceof Error) {
+      logger.logError(e, { operation: 'calculateTimesWithin', cronExpr, timezone: tz });
+      return ranges;
+    }
+    logger.logWarning('Invalid time region expression', {
+      operation: 'calculateTimesWithin',
+      cronExpr,
+      timezone: tz,
+      error: String(e),
+    });
   }
 
   return ranges;
