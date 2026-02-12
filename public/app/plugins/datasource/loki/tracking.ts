@@ -1,6 +1,6 @@
 import { CoreApp, DashboardLoadedEvent, DataQueryRequest, DataQueryResponse } from '@grafana/data';
 import { QueryEditorMode } from '@grafana/plugin-ui';
-import { reportInteraction, config } from '@grafana/runtime';
+import { createMonitoringLogger, reportInteraction, config } from '@grafana/runtime';
 
 import { LokiQueryType } from './dataquery.gen';
 import {
@@ -14,6 +14,8 @@ import pluginJson from './plugin.json';
 import { getNormalizedLokiQuery, isLogsQuery, obfuscate } from './queryUtils';
 import { variableRegex } from './querybuilder/parsingUtils';
 import { LokiGroupedRequest, LokiQuery } from './types';
+
+const logger = createMonitoringLogger('plugins.datasource.loki.tracking');
 
 type LokiOnDashboardLoadedTrackingEvent = {
   grafana_version?: string;
@@ -97,7 +99,14 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_loki_dashboard_loaded', event);
   } catch (error) {
-    console.error('error in loki tracking handler', error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'onDashboardLoadedHandler' });
+    } else {
+      logger.logWarning('Error in loki tracking handler', {
+        operation: 'onDashboardLoadedHandler',
+        error: String(error),
+      });
+    }
   }
 };
 
