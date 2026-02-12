@@ -1,8 +1,18 @@
 import { NavModel, NavModelItem } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('core.navigation.error-models');
 
 export function getExceptionNav(error: unknown): NavModel {
-  console.error(error);
-  return getWarningNav('Exception thrown', 'See console for details');
+  if (error instanceof Error) {
+    logger.logError(error, { operation: 'getExceptionNav' });
+  } else {
+    logger.logWarning('Unexpected exception in navigation model', {
+      operation: 'getExceptionNav',
+      error: String(error),
+    });
+  }
+  return getWarningNav('Exception thrown', 'See logs for details');
 }
 
 export function getNotFoundNav(): NavModel {
