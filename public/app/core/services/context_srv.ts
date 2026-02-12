@@ -9,7 +9,7 @@ import {
   userHasPermissionInMetadata,
   userHasAnyPermission,
 } from '@grafana/data';
-import { featureEnabled, getBackendSrv } from '@grafana/runtime';
+import { createMonitoringLogger, featureEnabled, getBackendSrv } from '@grafana/runtime';
 import { getSessionExpiry } from 'app/core/utils/auth';
 import { UserPermission, AccessControlAction } from 'app/types/accessControl';
 import { CurrentUserInternal } from 'app/types/config';
@@ -20,6 +20,7 @@ import config from '../../core/config';
 // NOTE: this is defined here rather than TimeSrv so we avoid circular dependencies
 export const AutoRefreshInterval = 'auto';
 export const RedirectToUrlKey = 'redirectTo';
+const logger = createMonitoringLogger('core.services.context');
 
 export class User implements Omit<CurrentUserInternal, 'lightTheme'> {
   isSignedIn: boolean;
@@ -112,7 +113,14 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      if (e instanceof Error) {
+        logger.logError(e, { operation: 'fetchUserPermissions' });
+        return;
+      }
+      logger.logWarning('Failed to fetch user permissions', {
+        operation: 'fetchUserPermissions',
+        error: String(e),
+      });
     }
   }
 
@@ -262,7 +270,14 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        if (e instanceof Error) {
+          logger.logError(e, { operation: 'rotateToken' });
+          return;
+        }
+        logger.logWarning('Failed to rotate token', {
+          operation: 'rotateToken',
+          error: String(e),
+        });
       });
   }
 }
