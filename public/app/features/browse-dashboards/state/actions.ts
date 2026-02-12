@@ -1,11 +1,14 @@
 import { GENERAL_FOLDER_UID } from 'app/features/search/constants';
 import { DashboardViewItem, DashboardViewItemKind } from 'app/features/search/types';
 import { createAsyncThunk } from 'app/types/store';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { listDashboards, listFolders, PAGE_SIZE } from '../api/services';
 import { DashboardViewItemWithUIItems, UIDashboardViewItem } from '../types';
 
 import { findItem } from './utils';
+
+const logger = createMonitoringLogger('features.browse-dashboards.state-actions');
 
 interface FetchNextChildrenPageArgs {
   parentUID: string | undefined;
@@ -114,7 +117,7 @@ export const fetchNextChildrenPage = createAsyncThunk(
       fetchKind = 'folder';
     } else if (collection.lastFetchedKind === 'dashboard' && !collection.lastKindHasMoreItems) {
       // There's nothing to load at all
-      console.warn(`fetchNextChildrenPage called for ${uid} but that collection is fully loaded`);
+      logger.logWarning('fetchNextChildrenPage called but collection is fully loaded', { uid });
       // return;
     } else if (collection.lastFetchedKind === 'folder' && collection.lastKindHasMoreItems) {
       // Load additional pages of folders
