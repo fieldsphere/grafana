@@ -602,8 +602,6 @@ describe('loadPlugins', () => {
   });
 
   it('should swallow errors when failing to load core plugins', async () => {
-    jest.spyOn(console, 'error').mockImplementation();
-
     const _importPanel = pluginImporter.importPanel;
     jest.spyOn(pluginImporter, 'importPanel').mockImplementation(async (meta) => {
       if (meta.id === 'timeseries') {
@@ -621,8 +619,6 @@ describe('loadPlugins', () => {
   });
 
   it('should swallow errors when failing to load external plugins', async () => {
-    jest.spyOn(console, 'error').mockImplementation();
-
     const panelIds = ['non-existent-panel'];
     const { plugins, hasErrors } = await loadPlugins(panelIds);
 

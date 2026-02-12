@@ -1,4 +1,5 @@
 import { DataTransformerConfig, FieldConfigSource, getPanelOptionsWithDefaults } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { getLibraryPanel } from 'app/features/library-panels/state/api';
 import { LibraryElementDTO } from 'app/features/library-panels/types';
@@ -8,6 +9,8 @@ import { DashboardPanelsChangedEvent, PanelOptionsChangedEvent, PanelQueriesChan
 import { ThunkResult } from 'app/types/store';
 
 import { changePanelKey, panelModelAndPluginReady, removePanel } from './reducers';
+
+const logger = createMonitoringLogger('features.panel.state-actions');
 
 export function initPanelState(panel: PanelModel): ThunkResult<Promise<void>> {
   return async (dispatch, getStore) => {
@@ -165,7 +168,15 @@ export function loadLibraryPanelAndUpdate(panel: PanelModel): ThunkResult<void> 
 
       await dispatch(initPanelState(panel));
     } catch (ex) {
-      console.log('ERROR: ', ex);
+      if (ex instanceof Error) {
+        logger.logError(ex, { operation: 'loadLibraryPanelAndUpdate', libraryPanelUid: uid });
+      } else {
+        logger.logWarning('Failed to load library panel and update', {
+          operation: 'loadLibraryPanelAndUpdate',
+          libraryPanelUid: uid,
+          error: String(ex),
+        });
+      }
       dispatch(
         panelModelAndPluginReady({
           key: panel.key,
