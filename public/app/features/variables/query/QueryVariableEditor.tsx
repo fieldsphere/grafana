@@ -9,6 +9,7 @@ import {
   VariableRefresh,
   VariableSort,
 } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { QueryVariableEditorForm } from 'app/features/dashboard-scene/settings/variables/components/QueryVariableForm';
 import { StoreState } from 'app/types/store';
 
@@ -22,10 +23,12 @@ import { toKeyedVariableIdentifier } from '../utils';
 
 import { changeQueryVariableDataSource, changeQueryVariableQuery, initQueryVariableEditor } from './actions';
 
+const logger = createMonitoringLogger('features.variables.query-variable-editor');
+
 const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
   if (!rootStateKey) {
-    console.error('QueryVariableEditor: variable has no rootStateKey');
+    logger.logWarning('QueryVariableEditor: variable has no rootStateKey', { variableName: ownProps.variable.name });
     return {
       extended: getQueryVariableEditorState(initialVariableEditorState),
     };

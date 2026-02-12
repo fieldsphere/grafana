@@ -4,6 +4,7 @@ import { connect, ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import { LoadingState, VariableOption, VariableWithMultiSupport, VariableWithOptions } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { selectors } from '@grafana/e2e-selectors';
 import { ClickOutsideWrapper } from '@grafana/ui';
 import { StoreState, ThunkDispatch } from 'app/types/store';
@@ -23,6 +24,8 @@ import { NavigationKey, VariablePickerProps } from '../types';
 
 import { commitChangesToVariable, filterOrSearchOptions, navigateOptions, openOptions } from './actions';
 import { initialOptionPickerState, OptionsPickerState, toggleAllOptions, toggleOption } from './reducer';
+
+const logger = createMonitoringLogger('features.variables.options-picker');
 
 export const optionPickerFactory = <Model extends VariableWithOptions | VariableWithMultiSupport>(): ComponentType<
   VariablePickerProps<Model>
@@ -47,7 +50,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
   const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
     const { rootStateKey } = ownProps.variable;
     if (!rootStateKey) {
-      console.error('OptionPickerFactory: variable has no rootStateKey');
+      logger.logWarning('OptionPickerFactory: variable has no rootStateKey', { variableName: ownProps.variable.name });
       return {
         picker: initialOptionPickerState,
       };
@@ -69,7 +72,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
       this.props.openOptions(toKeyedVariableIdentifier(this.props.variable), this.props.onVariableChange);
     onHideOptions = () => {
       if (!this.props.variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        logger.logWarning('Variable has no rootStateKey', { operation: 'onHideOptions', variableName: this.props.variable.name });
         return;
       }
 
@@ -103,7 +106,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
 
     onNavigate = (key: NavigationKey, clearOthers: boolean) => {
       if (!this.props.variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        logger.logWarning('Variable has no rootStateKey', { operation: 'onNavigate', variableName: this.props.variable.name });
         return;
       }
 
