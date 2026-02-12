@@ -7,11 +7,13 @@ import {
   ScopedVars,
   TimeRange,
 } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 
 import { AwsUrl, encodeUrl } from '../aws_url';
 import { CloudWatchLogsQuery } from '../dataquery.gen';
 import { CloudWatchQuery } from '../types';
+
+const logger = createMonitoringLogger('plugins.datasource.cloudwatch.datalinks');
 
 type ReplaceFn = (
   target?: string,
@@ -66,7 +68,15 @@ async function createInternalXrayLink(datasourceUid: string, region: string): Pr
   try {
     ds = await getDataSourceSrv().get(datasourceUid);
   } catch (e) {
-    console.error('Could not load linked xray data source, it was probably deleted after it was linked', e);
+    if (e instanceof Error) {
+      logger.logError(e, { operation: 'createInternalXrayLink', datasourceUid });
+    } else {
+      logger.logWarning('Could not load linked xray data source', {
+        operation: 'createInternalXrayLink',
+        datasourceUid,
+        error: String(e),
+      });
+    }
     return undefined;
   }
 
