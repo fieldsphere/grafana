@@ -9,7 +9,7 @@ export const defaultTrustedTypesPolicy = {
     if (!CSP_REPORT_ONLY_ENABLED) {
       return string.replace(/<script/gi, '&lt;script');
     }
-    logger.logWarning('HTML not sanitized with Trusted Types', { string, source, sink });
+    logger.logWarning('HTML not sanitized with Trusted Types', { source, sink });
     return string;
   },
   createScript: (string: string) => string,
@@ -17,7 +17,7 @@ export const defaultTrustedTypesPolicy = {
     if (!CSP_REPORT_ONLY_ENABLED) {
       return textUtil.sanitizeUrl(string);
     }
-    logger.logWarning('ScriptURL not sanitized with Trusted Types', { string, source, sink });
+    logger.logWarning('ScriptURL not sanitized with Trusted Types', { source, sink });
     return string;
   },
 };
