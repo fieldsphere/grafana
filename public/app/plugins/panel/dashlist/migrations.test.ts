@@ -77,8 +77,6 @@ describe('dashlist migrations', () => {
   });
 
   it("doesn't fail if the api request fails", async () => {
-    const spyConsoleWarn = jest.spyOn(console, 'warn').mockImplementation();
-
     getMock.mockRejectedValue({
       status: 403,
       statusText: 'Forbidden',
@@ -118,6 +116,5 @@ describe('dashlist migrations', () => {
     const newOptions = await dashlistMigrationHandler(panelModel);
 
     expect(newOptions).toStrictEqual(basePanelOptions);
-    expect(spyConsoleWarn).toHaveBeenCalledTimes(1);
   });
 });

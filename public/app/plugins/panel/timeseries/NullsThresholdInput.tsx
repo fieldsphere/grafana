@@ -2,7 +2,10 @@ import * as React from 'react';
 
 import { rangeUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Input } from '@grafana/ui';
+
+const logger = createMonitoringLogger('plugins.panel.timeseries.nulls-threshold-input');
 
 export enum InputPrefix {
   LessThan = 'lessthan',
@@ -31,7 +34,15 @@ export const NullsThresholdInput = ({ value, onChange, inputPrefix, isTime }: Pr
           val = Number(txt);
         }
       } catch (err) {
-        console.warn('ERROR', err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'NullsThresholdInput.checkAndUpdate', input: txt });
+        } else {
+          logger.logWarning('Failed to parse nulls threshold input', {
+            operation: 'NullsThresholdInput.checkAndUpdate',
+            input: txt,
+            error: String(err),
+          });
+        }
       }
     }
     onChange(val);

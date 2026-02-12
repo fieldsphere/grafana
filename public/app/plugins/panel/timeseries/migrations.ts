@@ -34,6 +34,7 @@ import {
   AnnotationQuery,
   ComparisonOperation,
 } from '@grafana/schema';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { TimeRegionConfig } from 'app/core/utils/timeRegions';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
@@ -43,6 +44,8 @@ import { dashboardSceneGraph } from 'app/features/dashboard-scene/utils/dashboar
 import { GrafanaQuery, GrafanaQueryType } from 'app/plugins/datasource/grafana/types';
 
 import { defaultGraphConfig } from './config';
+
+const logger = createMonitoringLogger('plugins.panel.timeseries.migrations');
 import { Options } from './panelcfg.gen';
 
 let dashboardRefreshDebouncer: ReturnType<typeof setTimeout> | null = null;
@@ -283,7 +286,11 @@ export function graphToTimeseriesOptions(angular: any): {
             });
             break;
           default:
-            console.log('Ignore override migration:', seriesOverride.alias, p, v);
+            logger.logDebug('Ignoring unsupported timeseries override migration property', {
+              operation: 'graphPanelChangedHandler',
+              alias: seriesOverride.alias,
+              property: p,
+            });
         }
       }
       if (dashOverride) {
