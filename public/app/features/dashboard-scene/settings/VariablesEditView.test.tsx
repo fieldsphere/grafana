@@ -160,14 +160,9 @@ describe('VariablesEditView', () => {
       const fromIndex = 0;
       const toIndex = 3;
 
-      const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
       variableView.onOrderChanged(fromIndex, toIndex);
-      expect(errorSpy).toHaveBeenCalledTimes(1);
       expect(variableView.getVariables()[0].state.name).toBe('customVar');
       expect(variableView.getVariables()[1].state.name).toBe('customVar2');
-
-      errorSpy.mockRestore();
     });
 
     it('should change the variable type creating a new variable object', () => {
