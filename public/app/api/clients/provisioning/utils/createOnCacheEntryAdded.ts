@@ -1,5 +1,6 @@
 import { Subscription } from 'rxjs';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { ScopedResourceClient } from 'app/features/apiserver/client';
 import { ListOptions, GeneratedResourceList as ResourceList } from 'app/features/apiserver/types';
 
@@ -8,6 +9,8 @@ import { ListOptions, GeneratedResourceList as ResourceList } from 'app/features
  * and updates the cache accordingly.
  */
 export function createOnCacheEntryAdded<Spec, Status>(resourceName: string) {
+  const logger = createMonitoringLogger('api.clients.provisioning.cache-entry');
+
   return async function onCacheEntryAdded<List extends ResourceList<Spec, Status>>(
     arg: ListOptions | undefined,
     {
@@ -57,7 +60,15 @@ export function createOnCacheEntryAdded<Spec, Status>(resourceName: string) {
         });
       });
     } catch (error) {
-      console.error('Error in onCacheEntryAdded:', error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'onCacheEntryAdded', resourceName });
+      } else {
+        logger.logWarning('Error in onCacheEntryAdded', {
+          operation: 'onCacheEntryAdded',
+          resourceName,
+          error: String(error),
+        });
+      }
       return;
     }
 

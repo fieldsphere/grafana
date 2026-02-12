@@ -10,7 +10,7 @@ import {
   type Status,
 } from '@grafana/api-clients/rtkq/provisioning/v0alpha1';
 import { t } from '@grafana/i18n';
-import { isFetchError } from '@grafana/runtime';
+import { createMonitoringLogger, isFetchError } from '@grafana/runtime';
 import { clearFolders } from 'app/features/browse-dashboards/state/slice';
 import { getState } from 'app/store/store';
 import { ThunkDispatch } from 'app/types/store';
@@ -21,6 +21,8 @@ import { PAGE_SIZE } from '../../../../features/browse-dashboards/api/services';
 import { refetchChildren } from '../../../../features/browse-dashboards/state/actions';
 import { handleError } from '../../../utils';
 import { createOnCacheEntryAdded } from '../utils/createOnCacheEntryAdded';
+
+const logger = createMonitoringLogger('api.clients.provisioning.v0alpha1');
 
 const handleProvisioningFormError = (e: unknown, dispatch: ThunkDispatch, title: string) => {
   if (typeof e === 'object' && e && 'error' in e && isFetchError(e.error)) {
@@ -248,7 +250,14 @@ export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
             dispatch(clearFolders(childrenKeys));
           }
         } catch (e) {
-          console.error('Error in getRepositoryJobsWithPath:', e);
+          if (e instanceof Error) {
+            logger.logError(e, { operation: 'getRepositoryJobsWithPath.onQueryStarted' });
+          } else {
+            logger.logWarning('Error in getRepositoryJobsWithPath', {
+              operation: 'getRepositoryJobsWithPath.onQueryStarted',
+              error: String(e),
+            });
+          }
         }
       },
     },
