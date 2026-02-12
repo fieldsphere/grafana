@@ -1,11 +1,14 @@
 import { useRegisterActions } from 'kbar';
 import { useEffect, useMemo, useState } from 'react';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { CommandPaletteAction } from '../types';
 
 import { getRecentDashboardActions } from './dashboardActions';
 import { useStaticActions } from './staticActions';
 import useExtensionActions from './useExtensionActions';
+
+const logger = createMonitoringLogger('features.command-palette.actions');
 
 /**
  * Register navigation actions to different parts of grafana or some preferences stuff like themes.
@@ -27,7 +30,14 @@ export function useRegisterRecentDashboardsActions() {
     getRecentDashboardActions()
       .then((recentDashboardActions) => setRecentDashboardActions(recentDashboardActions))
       .catch((err) => {
-        console.error('Error loading recent dashboard actions', err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'useRegisterRecentDashboardsActions' });
+          return;
+        }
+        logger.logWarning('Error loading recent dashboard actions', {
+          operation: 'useRegisterRecentDashboardsActions',
+          error: String(err),
+        });
       });
   }, []);
 

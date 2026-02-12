@@ -16,6 +16,10 @@ jest.mock('@grafana/runtime', () => ({
     put: putMock,
     delete: deleteMock,
   }),
+  createMonitoringLogger: () => ({
+    logWarning: jest.fn(),
+    logError: jest.fn(),
+  }),
   config: {
     ...jest.requireActual('@grafana/runtime').config,
     panels: {

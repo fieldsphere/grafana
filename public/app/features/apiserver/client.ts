@@ -1,7 +1,7 @@
 import { Observable, from, retry, catchError, filter, map, mergeMap } from 'rxjs';
 
 import { isLiveChannelMessageEvent, LiveChannelScope } from '@grafana/data';
-import { config, getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
+import { config, createMonitoringLogger, getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
 import { contextSrv } from 'app/core/services/context_srv';
 
 import { getAPINamespace } from '../../api/utils';
@@ -23,6 +23,8 @@ import {
   ResourceClientWriteParams,
   GroupVersionResource,
 } from './types';
+
+const logger = createMonitoringLogger('features.apiserver.client');
 
 export class ScopedResourceClient<T = object, S = object, K = string> implements ResourceClient<T, S, K> {
   readonly url: string;
@@ -85,14 +87,18 @@ export class ScopedResourceClient<T = object, S = object, K = string> implements
           try {
             return JSON.parse(line);
           } catch (e) {
-            console.warn('Invalid JSON in watch stream:', e, line);
+            logger.logWarning('Invalid JSON in watch stream', { line, error: String(e) });
             return null;
           }
         }),
         filter((event): event is ResourceEvent<T, S, K> => event !== null),
         retry({ count: 3, delay: 1000 }),
         catchError((error) => {
-          console.error('Watch stream error:', error);
+          if (error instanceof Error) {
+            logger.logError(error, { operation: 'watch', url: this.url });
+          } else {
+            logger.logWarning('Watch stream error', { operation: 'watch', url: this.url, error: String(error) });
+          }
           throw error;
         })
       );
