@@ -24,7 +24,7 @@ import {
   toURLRange,
   urlUtil,
 } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import { RefreshPicker } from '@grafana/ui';
 import { ExpressionDatasourceUID } from 'app/features/expressions/types';
 import { QueryOptions, QueryTransaction } from 'app/types/explore';
@@ -35,6 +35,7 @@ export const DEFAULT_UI_STATE = {
 
 export const ID_ALPHABET = '0123456789abcdefghijklmnopqrstuvwxyz';
 const nanoid = customAlphabet(ID_ALPHABET, 3);
+const logger = createMonitoringLogger('core.utils.explore');
 
 const LAST_USED_DATASOURCE_KEY = 'grafana.explore.datasource';
 const lastUsedDatasourceKeyForOrgId = (orgId: number) => `${LAST_USED_DATASOURCE_KEY}.${orgId}`;
@@ -159,7 +160,11 @@ export const safeStringifyValue = (value: unknown, space?: number) => {
   try {
     return JSON.stringify(value, null, space);
   } catch (error) {
-    console.error(error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'safeStringifyValue' });
+      return '';
+    }
+    logger.logWarning('Failed to stringify value', { operation: 'safeStringifyValue', error: String(error) });
   }
 
   return '';
@@ -232,7 +237,9 @@ export async function ensureQueries(
         try {
           await getDataSourceSrv().get(query.datasource.uid);
         } catch {
-          console.error(`One of the queries has a datasource that is no longer available and was removed.`);
+          logger.logWarning('Query datasource is no longer available and was removed', {
+            datasourceUID: query.datasource.uid,
+          });
           validDS = false;
         }
       }
