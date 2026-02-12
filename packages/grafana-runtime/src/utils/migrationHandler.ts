@@ -5,6 +5,9 @@ import { config } from '../config';
 import { getBackendSrv } from '../services';
 
 import { DataSourceWithBackend } from './DataSourceWithBackend';
+import { createMonitoringLogger } from './logging';
+
+const logger = createMonitoringLogger('runtime.migration-handler');
 
 /**
  * @alpha Experimental: Plugins implementing MigrationHandler interface will automatically have their queries migrated.
@@ -20,7 +23,7 @@ export function isMigrationHandler(object: unknown): object is MigrationHandler 
 
 async function postMigrateRequest<TQuery extends DataQuery>(queries: TQuery[]): Promise<TQuery[]> {
   if (!(config.featureToggles.grafanaAPIServerWithExperimentalAPIs || config.featureToggles.datasourceAPIServers)) {
-    console.warn('migrateQuery is only available with the experimental API server');
+    logger.logWarning('migrateQuery is only available with the experimental API server');
     return queries;
   }
 
