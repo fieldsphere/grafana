@@ -2,7 +2,7 @@ import { flatten } from 'lodash';
 import { LRUCache } from 'lru-cache';
 
 import { AbstractQuery, getDefaultTimeRange, KeyValue, LanguageProvider, ScopedVars, TimeRange } from '@grafana/data';
-import { BackendSrvRequest, config } from '@grafana/runtime';
+import { BackendSrvRequest, config, createMonitoringLogger } from '@grafana/runtime';
 
 import { LokiQueryType } from './dataquery.gen';
 import { DEFAULT_MAX_LINES_SAMPLE, LokiDatasource } from './datasource';
@@ -19,6 +19,7 @@ import { DetectedFieldsResult, LabelType, LokiQuery, ParserAndLabelKeysResult } 
 const NS_IN_MS = 1000000;
 const EMPTY_SELECTOR = '{}';
 const HIDDEN_LABELS = ['__aggregated_metric__', '__tenant_id__', '__stream_shard__'];
+const logger = createMonitoringLogger('plugins.datasource.loki.language-provider');
 
 export default class LokiLanguageProvider extends LanguageProvider {
   labelKeys: string[];
@@ -56,7 +57,15 @@ export default class LokiLanguageProvider extends LanguageProvider {
       if (throwError) {
         throw error;
       } else {
-        console.error(error);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'request', url });
+        } else {
+          logger.logWarning('Loki metadata request failed', {
+            operation: 'request',
+            url,
+            error: String(error),
+          });
+        }
       }
     }
 
@@ -286,7 +295,15 @@ export default class LokiLanguageProvider extends LanguageProvider {
         const data = await this.request(url, params, true, requestOptions);
         resolve(data);
       } catch (error) {
-        console.error('error', error);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'fetchDetectedFields', url });
+        } else {
+          logger.logWarning('Error fetching detected fields', {
+            operation: 'fetchDetectedFields',
+            url,
+            error: String(error),
+          });
+        }
         reject(error);
       }
     });
@@ -367,7 +384,15 @@ export default class LokiLanguageProvider extends LanguageProvider {
         if (queryOptions?.throwError) {
           reject(error);
         } else {
-          console.error(error);
+          if (error instanceof Error) {
+            logger.logError(error, { operation: 'fetchDetectedLabelValues', url });
+          } else {
+            logger.logWarning('Error fetching detected label values', {
+              operation: 'fetchDetectedLabelValues',
+              url,
+              error: String(error),
+            });
+          }
           resolve([]);
         }
       }
@@ -437,7 +462,15 @@ export default class LokiLanguageProvider extends LanguageProvider {
           resolve(labelValues);
         }
       } catch (error) {
-        console.error(error);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'fetchLabelValues', url });
+        } else {
+          logger.logWarning('Error fetching label values', {
+            operation: 'fetchLabelValues',
+            url,
+            error: String(error),
+          });
+        }
         resolve([]);
       }
     });

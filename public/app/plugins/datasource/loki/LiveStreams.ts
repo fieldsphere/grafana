@@ -3,9 +3,12 @@ import { finalize, map, retryWhen, mergeMap } from 'rxjs/operators';
 import { webSocket } from 'rxjs/webSocket';
 
 import { DataFrame, FieldType, KeyValue, CircularDataFrame } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { appendResponseToBufferedData } from './liveStreamsResultTransformer';
 import { LokiTailResponse } from './types';
+
+const logger = createMonitoringLogger('plugins.datasource.loki.live-streams');
 
 /**
  * Maps directly to a query in the UI (refId is key)
@@ -53,9 +56,11 @@ export class LiveStreams {
             if (error.code === 1006 && retryAttempt < 30) {
               if (retryAttempt > 10) {
                 // If more than 10 times retried, consol.warn, but keep reconnecting
-                console.warn(
-                  `Websocket connection is being disrupted. We keep reconnecting but consider starting new live tailing again. Error: ${error.reason}`
-                );
+                logger.logWarning('WebSocket connection is disrupted and reconnecting', {
+                  operation: 'getStream.retryWhen',
+                  retryAttempt,
+                  reason: error.reason,
+                });
               }
               // Retry every 5s
               return timer(retryInterval);
