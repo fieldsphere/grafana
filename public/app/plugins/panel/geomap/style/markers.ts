@@ -3,11 +3,13 @@ import type { FlatStyle } from 'ol/style/flat';
 import tinycolor from 'tinycolor2';
 
 import { Registry, RegistryItem, textUtil } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 import { getPublicOrAbsoluteUrl } from 'app/features/dimensions/resource';
 
 import { defaultStyleConfig, DEFAULT_SIZE, StyleConfigValues, StyleMaker } from './types';
 import { getDisplacement } from './utils';
+
+const logger = createMonitoringLogger('plugins.panel.geomap.markers');
 
 interface SymbolMaker extends RegistryItem {
   aliasIds: string[];
@@ -297,7 +299,15 @@ async function prepareSVG(url: string, size?: number, backgroundOpacity?: number
       return `data:image/svg+xml,${svgURI}`;
     })
     .catch((error) => {
-      console.error(error); // eslint-disable-line no-console
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'prepareSVG', url });
+      } else {
+        logger.logWarning('Failed to render marker SVG', {
+          operation: 'prepareSVG',
+          url,
+          error: String(error),
+        });
+      }
       return '';
     });
 }

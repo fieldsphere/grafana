@@ -89,19 +89,10 @@ describe('getWebGLStyle', () => {
   });
 
   it('handles fetch error gracefully', async () => {
-    // Mock console.error to suppress output and verify it's called
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-
     (getPublicOrAbsoluteUrl as jest.Mock).mockReturnValue('error.svg');
     global.fetch = jest.fn(() => Promise.reject(new Error('Fetch failed')));
     const result = await getWebGLStyle('error.svg');
     expect(result['icon-src']).toBe(''); // Empty SVG
-
-    // Verify console.error was called with the expected error
-    expect(consoleErrorSpy).toHaveBeenCalledWith(new Error('Fetch failed'));
-
-    // Clean up the spy
-    consoleErrorSpy.mockRestore();
   });
 });
 

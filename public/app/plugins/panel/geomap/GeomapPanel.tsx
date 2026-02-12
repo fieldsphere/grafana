@@ -16,7 +16,7 @@ import { Subscription } from 'rxjs';
 
 import { DataHoverEvent, PanelData, PanelProps } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 import { PanelContext, PanelContextRoot } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { VariablesChanged } from 'app/features/variables/types';
@@ -47,6 +47,7 @@ import { centerPointRegistry, MapCenterID } from './view';
 
 // Allows multiple panels to share the same view instance
 let sharedView: View | undefined = undefined;
+const logger = createMonitoringLogger('plugins.panel.geomap');
 
 type Props = PanelProps<Options>;
 interface State extends OverlayProps {
@@ -260,7 +261,11 @@ export class GeomapPanel extends Component<Props, State> {
         layers.push(await initLayer(this, map, lyr, false));
       }
     } catch (ex) {
-      console.error('error loading layers', ex);
+      if (ex instanceof Error) {
+        logger.logError(ex, { operation: 'initMapAsync' });
+      } else {
+        logger.logWarning('Error loading geomap layers', { operation: 'initMapAsync', error: String(ex) });
+      }
     }
 
     for (const lyr of layers) {
