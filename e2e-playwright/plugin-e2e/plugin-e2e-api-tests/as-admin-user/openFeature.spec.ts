@@ -46,7 +46,7 @@ test(
         expect(testFlagFalse.variant).toBe('playwright-override');
       }
     } catch {
-      console.log('OFREP endpoint not called - OpenFeature may not be enabled');
+      process.stdout.write('OFREP endpoint not called - OpenFeature may not be enabled\n');
     }
   }
 );
@@ -92,7 +92,7 @@ test(
       expect(testFlagFalse?.value).toBe(false);
       expect(testFlagFalse?.variant).toBe('playwright-override');
     } catch {
-      console.log('OFREP endpoint not called - OpenFeature may not be enabled');
+      process.stdout.write('OFREP endpoint not called - OpenFeature may not be enabled\n');
     }
   }
 );

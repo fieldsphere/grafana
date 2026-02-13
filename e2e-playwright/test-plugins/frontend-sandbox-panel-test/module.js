@@ -127,20 +127,20 @@ define(['react', '@grafana/data'], function (React, grafanaData) {
     const globalTests = [
       function () {
         try {
-          console.log(window.Prism.languages);
+          void window.Prism.languages;
           return 'Prism';
         } catch (e) {}
       },
       function () {
         try {
-          console.log(window.jQuery.fn.jquery);
-          console.log(window.$.fn.jquery);
+          void window.jQuery.fn.jquery;
+          void window.$.fn.jquery;
           return 'jQuery';
         } catch (e) {}
       },
       function () {
         try {
-          console.log(window.locationSandbox);
+          void window.locationSandbox;
           return 'location';
         } catch (e) {}
       },
