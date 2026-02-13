@@ -9,8 +9,10 @@ import (
 	"strconv"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
+	"github.com/grafana/grafana/pkg/infra/log"
 )
+
+var logger = log.New("tsdb.mssql.kerberos")
 
 type KerberosLookup struct {
 	User                    string `json:"user"`
@@ -70,7 +72,7 @@ func Krb5ParseAuthCredentials(host string, port string, db string, user string, 
 	if krb5CCLookupFile != "" {
 		krb5CacheCredsFile = getCredentialCacheFromLookup(krb5CCLookupFile, host, port, db, user)
 		if krb5CacheCredsFile == "" {
-			logger.Error("No valid credential cache file found in lookup.")
+			logger.Error("No valid credential cache file found in lookup")
 			return ""
 		}
 	}
@@ -104,16 +106,16 @@ func Krb5ParseAuthCredentials(host string, port string, db string, user string, 
 }
 
 func getCredentialCacheFromLookup(lookupFile string, host string, port string, dbName string, user string) string {
-	logger.Infof("reading credential cache lookup: %s", lookupFile)
+	logger.Info("reading credential cache lookup", "lookupFile", lookupFile)
 	content, err := os.ReadFile(filepath.Clean(lookupFile))
 	if err != nil {
-		logger.Errorf("error reading: %s, %v", lookupFile, err)
+		logger.Error("error reading credential cache lookup", "lookupFile", lookupFile, "error", err)
 		return ""
 	}
 	var lookups []KerberosLookup
 	err = json.Unmarshal(content, &lookups)
 	if err != nil {
-		logger.Errorf("error parsing: %s, %v", lookupFile, err)
+		logger.Error("error parsing credential cache lookup", "lookupFile", lookupFile, "error", err)
 		return ""
 	}
 	// find cache file
@@ -122,10 +124,10 @@ func getCredentialCacheFromLookup(lookupFile string, host string, port string, d
 			item.Address = host + ":0"
 		}
 		if item.Address == host+":"+port && item.DBName == dbName && item.User == user {
-			logger.Infof("matched: %+v", item)
+			logger.Info("matched credential cache lookup", "item", item)
 			return item.CredentialCacheFilename
 		}
 	}
-	logger.Errorf("no match found for %s", host+":"+port)
+	logger.Error("no match found for credential cache lookup", "address", host+":"+port)
 	return ""
 }

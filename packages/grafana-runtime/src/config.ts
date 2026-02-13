@@ -309,6 +309,13 @@ function logConfigInfo(message: string, context?: Record<string, unknown>) {
       level: LogLevel.INFO,
       context: { source: configLogSource, ...context },
     });
+  } else {
+    // Fallback to console.log when Faro agent is not enabled to preserve developer debugging information
+    if (context) {
+      console.log(`[${configLogSource}] ${message}`, context);
+    } else {
+      console.log(`[${configLogSource}] ${message}`);
+    }
   }
 }
 
@@ -318,6 +325,13 @@ function logConfigWarning(message: string, context?: Record<string, unknown>) {
       level: LogLevel.WARN,
       context: { source: configLogSource, ...context },
     });
+  } else {
+    // Fallback to console.warn when Faro agent is not enabled to preserve developer debugging information
+    if (context) {
+      console.warn(`[${configLogSource}] ${message}`, context);
+    } else {
+      console.warn(`[${configLogSource}] ${message}`);
+    }
   }
 }
 
