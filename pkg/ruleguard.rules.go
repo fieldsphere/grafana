@@ -487,6 +487,7 @@ func structuredlogging(m fluent.Matcher) {
 	isStructuredLogger := m["logger"].Type.Implements("github.com/grafana/grafana/pkg/infra/log.Logger") ||
 		m["logger"].Type.Implements("github.com/grafana/grafana/pkg/plugins/log.Logger") ||
 		m["logger"].Type.Implements("github.com/grafana/grafana-app-sdk/logging.Logger") ||
+		m["logger"].Type.Implements("github.com/grafana/grafana/pkg/util/xorm/core.ILogger") ||
 		m["logger"].Type.Implements("github.com/grafana/grafana-plugin-sdk-go/backend.Logger") ||
 		m["logger"].Type.Is("*log/slog.Logger") ||
 		m["logger"].Type.Is("log/slog.Logger")
