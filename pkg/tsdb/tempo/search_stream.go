@@ -67,7 +67,7 @@ func (s *Service) runSearchStream(ctx context.Context, req *backend.RunStreamReq
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		s.logger.Error("Error Search()", "err", err)
+		s.logger.Error("Error Search()", "error", err)
 		if backend.IsDownstreamHTTPError(err) {
 			return backend.DownstreamError(err)
 		}
@@ -102,7 +102,7 @@ func (s *Service) processStream(ctx context.Context, stream tempopb.StreamingQue
 			break
 		}
 		if err != nil {
-			s.logger.Error("Error receiving message", "err", err)
+			s.logger.Error("Error receiving message", "error", err)
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
 			return err

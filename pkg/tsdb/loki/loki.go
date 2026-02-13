@@ -146,7 +146,7 @@ func callResource(ctx context.Context, req *backend.CallResourceRequest, sender 
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
-			plog.FromContext(ctx).Error("Failed to get suggestions from loki", "err", err)
+			plog.FromContext(ctx).Error("Failed to get suggestions from loki", "error", err)
 			return err
 		}
 	} else {
@@ -154,7 +154,7 @@ func callResource(ctx context.Context, req *backend.CallResourceRequest, sender 
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
-			plog.Error("Failed resource call from loki", "err", err, "url", lokiURL)
+			plog.Error("Failed resource call from loki", "error", err, "url", lokiURL)
 			return err
 		}
 	}
@@ -184,7 +184,7 @@ func (s *Service) QueryData(ctx context.Context, req *backend.QueryDataRequest) 
 	_, fromAlert := req.Headers[fromAlertHeaderName]
 	logger := s.logger.FromContext(ctx).With("fromAlert", fromAlert)
 	if err != nil {
-		logger.Debug("Failed to get data source info", "err", err)
+		logger.Debug("Failed to get data source info", "error", err)
 		return nil, err
 	}
 

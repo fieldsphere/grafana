@@ -38,7 +38,7 @@ func ProvideService() *Service {
 	var err error
 	s.sims, err = sims.NewSimulationEngine()
 	if err != nil {
-		s.logger.Error("Unable to initialize SimulationEngine", "err", err)
+		s.logger.Error("Unable to initialize SimulationEngine", "error", err)
 	}
 
 	s.registerScenarios()

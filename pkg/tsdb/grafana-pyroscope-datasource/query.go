@@ -102,7 +102,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 			if err != nil {
 				span.RecordError(err)
 				span.SetStatus(codes.Error, err.Error())
-				logger.Error("Querying SelectSeries()", "err", err, "function", logEntrypoint())
+				logger.Error("Querying SelectSeries()", "error", err, "function", logEntrypoint())
 				return err
 			}
 			// add the frames to the response.
@@ -113,7 +113,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 			if err != nil {
 				span.RecordError(err)
 				span.SetStatus(codes.Error, err.Error())
-				logger.Error("Querying SelectSeries()", "err", err, "function", logEntrypoint())
+				logger.Error("Querying SelectSeries()", "error", err, "function", logEntrypoint())
 				return err
 			}
 			response.Frames = append(response.Frames, frames...)
@@ -131,7 +131,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 				if err != nil {
 					span.RecordError(err)
 					span.SetStatus(codes.Error, err.Error())
-					logger.Error("Error GetSpanProfile()", "err", err, "function", logEntrypoint())
+					logger.Error("Error GetSpanProfile()", "error", err, "function", logEntrypoint())
 					return err
 				}
 				profileResp = prof
@@ -141,7 +141,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 				if err != nil {
 					span.RecordError(err)
 					span.SetStatus(codes.Error, err.Error())
-					logger.Error("Error GetProfile()", "err", err, "function", logEntrypoint())
+					logger.Error("Error GetProfile()", "error", err, "function", logEntrypoint())
 					return err
 				}
 				profileResp = prof
