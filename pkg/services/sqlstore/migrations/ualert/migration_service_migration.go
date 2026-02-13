@@ -47,7 +47,7 @@ func (c migrationLogToKVStore) Exec(sess *xorm.Session, mg *migrator.Migrator) e
 		Updated:   now,
 	}
 	if _, errCreate := sess.Table("kv_store").Insert(&entry); errCreate != nil {
-		mg.Logger.Error("failed to insert migration status to kvstore", "err", errCreate)
+		mg.Logger.Error("failed to insert migration status to kvstore", "error", errCreate)
 		return fmt.Errorf("failed to insert migration status to kvstore: %w", errCreate)
 	}
 	return nil

@@ -159,7 +159,7 @@ func (ss *SecretsStoreImpl) ReEncryptDataKeys(
 					"id", k.Id,
 					"label", k.Label,
 					"provider", k.Provider,
-					"err", err,
+					"error", err,
 				)
 				return nil
 			}
@@ -176,7 +176,7 @@ func (ss *SecretsStoreImpl) ReEncryptDataKeys(
 					"id", k.Id,
 					"label", k.Label,
 					"provider", k.Provider,
-					"err", err,
+					"error", err,
 				)
 				return nil
 			}
@@ -187,7 +187,7 @@ func (ss *SecretsStoreImpl) ReEncryptDataKeys(
 					"id", k.Id,
 					"label", k.Label,
 					"provider", k.Provider,
-					"err", err,
+					"error", err,
 				)
 				return nil
 			}

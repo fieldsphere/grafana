@@ -72,7 +72,7 @@ func (c createOrgMigratedKVStoreEntries) Exec(sess *xorm.Session, mg *migrator.M
 		Key:   &typeKey,
 		Value: string(val),
 	}); err != nil {
-		mg.Logger.Error("failed to rename org migrated status in kvstore", "err", err)
+		mg.Logger.Error("failed to rename org migrated status in kvstore", "error", err)
 		return err
 	}
 
@@ -99,7 +99,7 @@ func (c createOrgMigratedKVStoreEntries) Exec(sess *xorm.Session, mg *migrator.M
 			Updated:   migrated.Updated,
 		}
 		if _, errCreate := sess.Table("kv_store").Insert(&entry); errCreate != nil {
-			mg.Logger.Error("failed to insert org migration status to kvstore", "err", errCreate)
+			mg.Logger.Error("failed to insert org migration status to kvstore", "error", errCreate)
 			return fmt.Errorf("failed to insert org migration status to kvstore: %w", errCreate)
 		}
 	}
@@ -154,7 +154,7 @@ func (c addBackAnyOrgMigratedEntry) Exec(sess *xorm.Session, mg *migrator.Migrat
 		Created:   now,
 		Updated:   now,
 	}); err != nil {
-		mg.Logger.Error("failed to insert orgid=0 migrated status in kvstore", "err", err)
+		mg.Logger.Error("failed to insert orgid=0 migrated status in kvstore", "error", err)
 		return err
 	}
 	return nil
