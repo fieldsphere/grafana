@@ -13,6 +13,10 @@ import (
 	"github.com/grafana/grafana/pkg/services/supportbundles"
 )
 
+func writeSupportBundlef(buf *bytes.Buffer, format string, args ...any) {
+	buf.WriteString(fmt.Sprintf(format, args...))
+}
+
 func (ss *SocialService) registerSupportBundleCollectors(bundleRegistry supportbundles.Service) {
 	for name, connector := range ss.socialMap {
 		bundleRegistry.RegisterSupportItemCollector(supportbundles.Collector{
@@ -31,9 +35,7 @@ func (ss *SocialService) supportBundleCollectorFn(name string, sc social.SocialC
 	return func(ctx context.Context) (*supportbundles.SupportItem, error) {
 		bWriter := bytes.NewBuffer(nil)
 
-		if _, err := fmt.Fprintf(bWriter, "# OAuth %s information\n\n", name); err != nil {
-			return nil, err
-		}
+		writeSupportBundlef(bWriter, "# OAuth %s information\n\n", name)
 
 		if _, err := bWriter.WriteString("## Parsed Configuration\n\n"); err != nil {
 			return nil, err
@@ -44,7 +46,7 @@ func (ss *SocialService) supportBundleCollectorFn(name string, sc social.SocialC
 		bWriter.WriteString("```toml\n")
 		errM := toml.NewEncoder(bWriter).Encode(oinfo)
 		if errM != nil {
-			fmt.Fprintf(bWriter,
+			writeSupportBundlef(bWriter,
 				"Unable to encode OAuth configuration  \n Err: %s", errM)
 		}
 		bWriter.WriteString("```\n\n")
@@ -66,7 +68,7 @@ func (ss *SocialService) healthCheckSocialConnector(ctx context.Context, name st
 	bWriter.WriteString("## Health checks\n\n")
 	client, err := ss.GetOAuthHttpClient(name)
 	if err != nil {
-		fmt.Fprintf(bWriter, "Unable to create HTTP client  \n Err: %s\n", err)
+		writeSupportBundlef(bWriter, "Unable to create HTTP client  \n Err: %s\n", err)
 		return
 	}
 
@@ -81,12 +83,14 @@ func healthCheckEndpoint(client *http.Client, bWriter *bytes.Buffer, endpointNam
 		return
 	}
 
-	fmt.Fprintf(bWriter, "### %s URL\n\n", endpointName)
+	writeSupportBundlef(bWriter, "### %s URL\n\n", endpointName)
 	resp, err := client.Get(url)
-	_ = resp.Body.Close()
 	if err != nil {
-		fmt.Fprintf(bWriter, "Unable to GET %s URL  \n Err: %s\n\n", endpointName, err)
+		writeSupportBundlef(bWriter, "Unable to GET %s URL  \n Err: %s\n\n", endpointName, err)
 	} else {
-		fmt.Fprintf(bWriter, "Able to reach %s URL. Status Code does not need to be 200.\n Retrieved Status Code: %d \n\n", endpointName, resp.StatusCode)
+		if resp.Body != nil {
+			_ = resp.Body.Close()
+		}
+		writeSupportBundlef(bWriter, "Able to reach %s URL. Status Code does not need to be 200.\n Retrieved Status Code: %d \n\n", endpointName, resp.StatusCode)
 	}
 }
