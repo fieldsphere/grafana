@@ -284,7 +284,7 @@ func (s *Service) getCachedUserPermissions(ctx context.Context, user identity.Re
 		return nil, err
 	}
 	permissions = append(permissions, userManagedPermissions...)
-	span.SetAttributes(attribute.Int("num_permissions", len(permissions)))
+	span.SetAttributes(attribute.Int("numPermissions", len(permissions)))
 
 	return permissions, nil
 }
@@ -340,7 +340,7 @@ func (s *Service) getCachedPermissions(ctx context.Context, key string, getPermi
 	if !options.ReloadCache {
 		permissions, ok := s.cache.Get(key)
 		if ok {
-			span.SetAttributes(attribute.Int("num_permissions_cached", len(permissions.([]accesscontrol.Permission))))
+			span.SetAttributes(attribute.Int("numPermissionsCached", len(permissions.([]accesscontrol.Permission))))
 			metrics.MAccessPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheHit).Inc()
 			return permissions.([]accesscontrol.Permission), nil
 		}
@@ -349,7 +349,7 @@ func (s *Service) getCachedPermissions(ctx context.Context, key string, getPermi
 	span.AddEvent("cache miss")
 	metrics.MAccessPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheMiss).Inc()
 	permissions, err := getPermissionsFn(ctx)
-	span.SetAttributes(attribute.Int("num_permissions_fetched", len(permissions)))
+	span.SetAttributes(attribute.Int("numPermissionsFetched", len(permissions)))
 	if err != nil {
 		return nil, err
 	}
@@ -377,7 +377,7 @@ func (s *Service) getCachedTeamsPermissions(ctx context.Context, user identity.R
 			teamPermissions, ok := s.cache.Get(key)
 			if ok {
 				metrics.MAccessPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheHit).Inc()
-				span.SetAttributes(attribute.Int("num_permissions_cached", len(teamPermissions.([]accesscontrol.Permission))))
+				span.SetAttributes(attribute.Int("numPermissionsCached", len(teamPermissions.([]accesscontrol.Permission))))
 				permissions = append(permissions, teamPermissions.([]accesscontrol.Permission)...)
 			} else {
 				miss = append(miss, teamID)
@@ -392,7 +392,7 @@ func (s *Service) getCachedTeamsPermissions(ctx context.Context, user identity.R
 		span.AddEvent("cache miss")
 		metrics.MAccessPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheMiss).Inc()
 		teamsPermissions, err := s.getTeamsPermissions(ctx, miss, orgID)
-		span.SetAttributes(attribute.Int("num_permissions_fetched", len(teamsPermissions)))
+		span.SetAttributes(attribute.Int("numPermissionsFetched", len(teamsPermissions)))
 		if err != nil {
 			return nil, err
 		}

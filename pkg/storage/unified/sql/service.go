@@ -443,7 +443,7 @@ func (f *authenticatorWithFallback) Authenticate(ctx context.Context) (context.C
 	defer span.End()
 
 	// Try to authenticate with the new authenticator first
-	span.SetAttributes(attribute.Bool("fallback_used", false))
+	span.SetAttributes(attribute.Bool("fallbackUsed", false))
 	newCtx, err := f.authenticator(ctx)
 	if err == nil {
 		// fallback not used, authentication successful
@@ -452,7 +452,7 @@ func (f *authenticatorWithFallback) Authenticate(ctx context.Context) (context.C
 	}
 
 	// In case of error, fallback to the legacy authenticator
-	span.SetAttributes(attribute.Bool("fallback_used", true))
+	span.SetAttributes(attribute.Bool("fallbackUsed", true))
 	newCtx, err = f.fallback(ctx)
 	if newCtx != nil {
 		newCtx = resource.WithFallback(newCtx)

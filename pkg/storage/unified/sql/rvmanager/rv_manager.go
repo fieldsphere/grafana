@@ -177,7 +177,7 @@ func (m *ResourceVersionManager) ExecWithRV(ctx context.Context, key *resourcepb
 		}
 		span.SetAttributes(
 			attribute.String("guid", res.guid),
-			attribute.Int64("resource_version", res.rv),
+			attribute.Int64("resourceVersion", res.rv),
 		)
 		span.AddLink(res.batchTraceLink)
 
@@ -235,7 +235,7 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 
 	// Add batch size attribute
 	span.SetAttributes(
-		attribute.Int("batch_size", len(batch)),
+		attribute.Int("batchSize", len(batch)),
 		attribute.String("group", group),
 		attribute.String("resource", resource),
 	)
@@ -268,7 +268,7 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 			guid, err := batch[i].fn(tx)
 			if err != nil {
 				span.AddEvent("batch_operation_failed", trace.WithAttributes(
-					attribute.Int("operation_index", i),
+					attribute.Int("operationIndex", i),
 					attribute.String("error", err.Error()),
 				))
 				return err
@@ -290,7 +290,7 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 			return fmt.Errorf("failed to increment resource version: %w", err)
 		}
 		span.AddEvent("resource_version_locked", trace.WithAttributes(
-			attribute.Int64("initial_rv", rv),
+			attribute.Int64("initialRV", rv),
 		))
 
 		rvUpdateTimer := prometheus.NewTimer(prometheus.ObserverFunc(func(v float64) {

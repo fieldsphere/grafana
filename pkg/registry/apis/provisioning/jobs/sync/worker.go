@@ -88,7 +88,7 @@ func (r *SyncWorker) Process(ctx context.Context, repo repository.Repository, jo
 		r.metrics.RecordJob(string(provisioning.JobActionPull), outcome, totalChangesMade, time.Since(start).Seconds())
 		span.SetAttributes(
 			attribute.String("outcome", outcome),
-			attribute.Int("changes_made", totalChangesMade),
+			attribute.Int("changesMade", totalChangesMade),
 		)
 	}()
 

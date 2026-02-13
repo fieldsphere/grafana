@@ -301,8 +301,8 @@ func GroupScopesByActionContext(ctx context.Context, permissions []Permission) m
 	}
 
 	span.SetAttributes(
-		attribute.Int("unique_actions", numActions),
-		attribute.Float64("avg_scopes_per_action", float64(len(permissions))/float64(numActions)),
+		attribute.Int("uniqueActions", numActions),
+		attribute.Float64("avgScopesPerAction", float64(len(permissions))/float64(numActions)),
 	)
 
 	return m

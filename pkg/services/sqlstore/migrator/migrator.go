@@ -278,7 +278,7 @@ func (mg *Migrator) run(ctx context.Context) (err error) {
 		if exists {
 			logger.Debug("Skipping migration: Already executed", "id", m.Id())
 			span.AddEvent("Skipping migration: Already executed",
-				trace.WithAttributes(attribute.String("migration_id", m.Id())),
+				trace.WithAttributes(attribute.String("migrationID", m.Id())),
 			)
 			migrationsSkipped++
 			continue
@@ -309,7 +309,7 @@ func (mg *Migrator) run(ctx context.Context) (err error) {
 
 func (mg *Migrator) doMigration(ctx context.Context, m Migration) error {
 	ctx, span := tracer.Start(ctx, "Migrator.doMigration", trace.WithAttributes(
-		attribute.String("migration_id", m.Id()),
+		attribute.String("migrationID", m.Id()),
 	))
 	defer span.End()
 

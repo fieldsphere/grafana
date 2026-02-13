@@ -37,7 +37,7 @@ func (a *SyncStatePersister) Sync(ctx context.Context, span trace.Span, _ ngMode
 	if len(staleStates) > 0 {
 		a.deleteAlertStates(ctx, staleStates)
 		span.AddEvent("deleted stale states", trace.WithAttributes(
-			attribute.Int64("state_transitions", int64(len(staleStates))),
+			attribute.Int64("stateTransitions", int64(len(staleStates))),
 		))
 	}
 

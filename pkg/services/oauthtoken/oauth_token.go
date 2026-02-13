@@ -448,7 +448,7 @@ func (o *Service) tryGetOrRefreshOAuthToken(ctx context.Context, persistedToken 
 	o.tokenRefreshDuration.WithLabelValues(tokenRefreshMetadata.AuthModule, fmt.Sprintf("%t", err == nil)).Observe(duration.Seconds())
 
 	if refreshErr != nil {
-		span.SetAttributes(attribute.Bool("token_refreshed", false))
+		span.SetAttributes(attribute.Bool("tokenRefreshed", false))
 		ctxLogger.Error("Failed to retrieve oauth access token",
 			"provider", tokenRefreshMetadata.AuthModule, "error", refreshErr)
 
@@ -460,7 +460,7 @@ func (o *Service) tryGetOrRefreshOAuthToken(ctx context.Context, persistedToken 
 		return nil, refreshErr
 	}
 
-	span.SetAttributes(attribute.Bool("token_refreshed", true))
+	span.SetAttributes(attribute.Bool("tokenRefreshed", true))
 
 	// If the tokens are not the same, update the entry in the DB
 	if !tokensEq(persistedToken, token) {

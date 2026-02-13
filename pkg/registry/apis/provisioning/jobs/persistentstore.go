@@ -373,7 +373,7 @@ func (s *persistentStore) ListExpiredJobs(ctx context.Context, expiredBefore tim
 		result[i] = &jobList.Items[i]
 	}
 
-	span.SetAttributes(attribute.Int("jobs_found", len(result)))
+	span.SetAttributes(attribute.Int("jobsFound", len(result)))
 	logger.Debug("found expired jobs", "count", len(result))
 
 	return result, nil

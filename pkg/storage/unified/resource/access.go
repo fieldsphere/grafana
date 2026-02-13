@@ -110,7 +110,7 @@ func (c authzLimitedClient) Check(ctx context.Context, id claims.AuthInfo, req c
 		attribute.String("name", req.Name),
 		attribute.String("verb", req.Verb),
 		attribute.String("folder", folder),
-		attribute.Bool("fallback_used", FallbackUsed(ctx)),
+		attribute.Bool("fallbackUsed", FallbackUsed(ctx)),
 	))
 	defer span.End()
 
@@ -161,7 +161,7 @@ func (c authzLimitedClient) Compile(ctx context.Context, id claims.AuthInfo, req
 		attribute.String("resource", req.Resource),
 		attribute.String("namespace", req.Namespace),
 		attribute.String("verb", req.Verb),
-		attribute.Bool("fallback_used", fallbackUsed),
+		attribute.Bool("fallbackUsed", fallbackUsed),
 	))
 	defer span.End()
 	if fallbackUsed {

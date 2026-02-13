@@ -59,7 +59,7 @@ func IncrementalSync(ctx context.Context, repo repository.Versioned, previousRef
 
 	if len(affectedFolders) > 0 {
 		cleanupStart := time.Now()
-		span.AddEvent("checking if impacted folders should be deleted", trace.WithAttributes(attribute.Int("affected_folders", len(affectedFolders))))
+		span.AddEvent("checking if impacted folders should be deleted", trace.WithAttributes(attribute.Int("affectedFolders", len(affectedFolders))))
 		err := cleanupOrphanedFolders(ctx, repo, affectedFolders, repositoryResources, tracer, progress)
 		metrics.RecordIncrementalSyncPhase(jobs.IncrementalSyncPhaseCleanup, time.Since(cleanupStart))
 		if err != nil {

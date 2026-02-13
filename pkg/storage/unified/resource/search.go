@@ -666,7 +666,7 @@ func (s *searchServer) init(ctx context.Context) error {
 		return err
 	}
 
-	span.AddEvent("namespaces indexed", trace.WithAttributes(attribute.Int("namespaced_indexed", totalBatchesIndexed)))
+	span.AddEvent("namespaces indexed", trace.WithAttributes(attribute.Int("namespacesIndexed", totalBatchesIndexed)))
 
 	subctx, cancel := context.WithCancel(origCtx)
 
