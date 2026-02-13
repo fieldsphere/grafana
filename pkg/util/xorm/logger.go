@@ -5,9 +5,10 @@
 package xorm
 
 import (
+	"context"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 
 	"github.com/grafana/grafana/pkg/util/xorm/core"
 )
@@ -15,7 +16,6 @@ import (
 // default log options
 const (
 	DEFAULT_LOG_PREFIX = "[xorm]"
-	DEFAULT_LOG_FLAG   = log.Ldate | log.Lmicroseconds
 	DEFAULT_LOG_LEVEL  = core.LOG_DEBUG
 )
 
@@ -66,10 +66,7 @@ func (DiscardLogger) IsShowSQL() bool {
 
 // SimpleLogger is the default implment of core.ILogger
 type SimpleLogger struct {
-	DEBUG   *log.Logger
-	ERR     *log.Logger
-	INFO    *log.Logger
-	WARN    *log.Logger
+	logger  *slog.Logger
 	level   core.LogLevel
 	showSQL bool
 }
@@ -78,68 +75,70 @@ var _ core.ILogger = &SimpleLogger{}
 
 // NewSimpleLogger use a special io.Writer as logger output
 func NewSimpleLogger(out io.Writer) *SimpleLogger {
+	baseLogger := slog.New(slog.NewTextHandler(out, &slog.HandlerOptions{})).With("logger", DEFAULT_LOG_PREFIX)
 	return &SimpleLogger{
-		DEBUG: log.New(out, fmt.Sprintf("%s [debug] ", DEFAULT_LOG_PREFIX), DEFAULT_LOG_FLAG),
-		ERR:   log.New(out, fmt.Sprintf("%s [error] ", DEFAULT_LOG_PREFIX), DEFAULT_LOG_FLAG),
-		INFO:  log.New(out, fmt.Sprintf("%s [info]  ", DEFAULT_LOG_PREFIX), DEFAULT_LOG_FLAG),
-		WARN:  log.New(out, fmt.Sprintf("%s [warn]  ", DEFAULT_LOG_PREFIX), DEFAULT_LOG_FLAG),
-		level: DEFAULT_LOG_LEVEL,
+		logger: baseLogger,
+		level:  DEFAULT_LOG_LEVEL,
 	}
+}
+
+func (s *SimpleLogger) emit(level slog.Level, message string) {
+	s.logger.Log(context.Background(), level, "XORM log event", "message", message)
 }
 
 // Error implement core.ILogger
 func (s *SimpleLogger) Error(v ...any) {
 	if s.level <= core.LOG_ERR {
-		s.ERR.Output(2, fmt.Sprint(v...))
+		s.emit(slog.LevelError, fmt.Sprint(v...))
 	}
 }
 
 // Errorf implement core.ILogger
 func (s *SimpleLogger) Errorf(format string, v ...any) {
 	if s.level <= core.LOG_ERR {
-		s.ERR.Output(2, fmt.Sprintf(format, v...))
+		s.emit(slog.LevelError, fmt.Sprintf(format, v...))
 	}
 }
 
 // Debug implement core.ILogger
 func (s *SimpleLogger) Debug(v ...any) {
 	if s.level <= core.LOG_DEBUG {
-		s.DEBUG.Output(2, fmt.Sprint(v...))
+		s.emit(slog.LevelDebug, fmt.Sprint(v...))
 	}
 }
 
 // Debugf implement core.ILogger
 func (s *SimpleLogger) Debugf(format string, v ...any) {
 	if s.level <= core.LOG_DEBUG {
-		s.DEBUG.Output(2, fmt.Sprintf(format, v...))
+		s.emit(slog.LevelDebug, fmt.Sprintf(format, v...))
 	}
 }
 
 // Info implement core.ILogger
 func (s *SimpleLogger) Info(v ...any) {
 	if s.level <= core.LOG_INFO {
-		s.INFO.Output(2, fmt.Sprint(v...))
+		s.emit(slog.LevelInfo, fmt.Sprint(v...))
 	}
 }
 
 // Infof implement core.ILogger
 func (s *SimpleLogger) Infof(format string, v ...any) {
 	if s.level <= core.LOG_INFO {
-		s.INFO.Output(2, fmt.Sprintf(format, v...))
+		s.emit(slog.LevelInfo, fmt.Sprintf(format, v...))
 	}
 }
 
 // Warn implement core.ILogger
 func (s *SimpleLogger) Warn(v ...any) {
 	if s.level <= core.LOG_WARNING {
-		s.WARN.Output(2, fmt.Sprint(v...))
+		s.emit(slog.LevelWarn, fmt.Sprint(v...))
 	}
 }
 
 // Warnf implement core.ILogger
 func (s *SimpleLogger) Warnf(format string, v ...any) {
 	if s.level <= core.LOG_WARNING {
-		s.WARN.Output(2, fmt.Sprintf(format, v...))
+		s.emit(slog.LevelWarn, fmt.Sprintf(format, v...))
 	}
 }
 
