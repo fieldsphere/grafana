@@ -355,7 +355,7 @@ func (rc *RepositoryController) runHooks(ctx context.Context, repo repository.Re
 		return patchOperations, nil
 	}
 
-	logger.Info("handle repository spec update", "Generation", obj.Generation, "ObservedGeneration", obj.Status.ObservedGeneration)
+	logger.Info("handle repository spec update", "generation", obj.Generation, "observedGeneration", obj.Status.ObservedGeneration)
 	patchOperations, err := hooks.OnUpdate(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error running OnUpdate: %w", err)
@@ -589,7 +589,7 @@ func (rc *RepositoryController) process(item *queueItem) error {
 		logger.Info("repository blocked and over quota, skipping reconciliation")
 		return nil
 	case hasSpecChanged:
-		logger.Info("spec changed", "Generation", obj.Generation, "ObservedGeneration", obj.Status.ObservedGeneration)
+		logger.Info("spec changed", "generation", obj.Generation, "observedGeneration", obj.Status.ObservedGeneration)
 	case shouldResync:
 		logger.Info("sync interval triggered", "syncInterval", time.Duration(obj.Spec.Sync.IntervalSeconds)*time.Second, "syncStatus", obj.Status.Sync)
 	case shouldCheckHealth:

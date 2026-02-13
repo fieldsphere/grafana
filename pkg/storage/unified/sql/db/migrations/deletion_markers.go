@@ -92,7 +92,7 @@ func (m *deletionMarkerMigrator) Exec(sess *xorm.Session, mg *migrator.Migrator)
 					return err
 				}
 				if count == 1 {
-					logger.Info("Updated", "GUID", row.GUID)
+					logger.Info("Updated", "resourceGUID", row.GUID)
 				} else {
 					return fmt.Errorf("error updating")
 				}
@@ -103,7 +103,7 @@ func (m *deletionMarkerMigrator) Exec(sess *xorm.Session, mg *migrator.Migrator)
 				if err != nil {
 					return err
 				}
-				logger.Info("Removed", "GUID", row.GUID)
+				logger.Info("Removed", "resourceGUID", row.GUID)
 			}
 		}
 	}

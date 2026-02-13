@@ -49,7 +49,7 @@ func New(
 }
 
 func (r *Resource) Execute(ctx context.Context, req *backend.CallResourceRequest) (*backend.CallResourceResponse, error) {
-	r.log.FromContext(ctx).Debug("Sending resource query", "URL", req.URL)
+	r.log.FromContext(ctx).Debug("Sending resource query", "url", req.URL)
 	resp, err := r.promClient.QueryResource(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("error querying resource: %v", err)

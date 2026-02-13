@@ -118,7 +118,7 @@ func (provider *genericAccessTokenProvider) GetAccessToken() (string, error) {
 	}
 
 	tokenCache.cache[provider.getAccessTokenCacheKey()] = &token
-	logger.Info("Got new access token", "ExpiresOn", token.ExpiresOn)
+	logger.Info("Got new access token", "expiresOn", token.ExpiresOn)
 	return token.AccessToken, nil
 }
 

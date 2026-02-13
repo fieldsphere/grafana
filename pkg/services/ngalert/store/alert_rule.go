@@ -136,7 +136,7 @@ func (st DBstore) getLatestVersionOfRulesByUID(ctx context.Context, orgID int64,
 			rule := new(alertRuleVersion)
 			err = rows.Scan(rule)
 			if err != nil {
-				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "func", "getLatestVersionOfRulesByUID", "error", err)
+				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "function", "getLatestVersionOfRulesByUID", "error", err)
 				continue
 			}
 			result = append(result, *rule)
@@ -208,7 +208,7 @@ func (st DBstore) GetAlertRuleVersions(ctx context.Context, orgID int64, guid st
 			rule := new(alertRuleVersion)
 			err = rows.Scan(rule)
 			if err != nil {
-				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "func", "GetAlertRuleVersions", "error", err)
+				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "function", "GetAlertRuleVersions", "error", err)
 				continue
 			}
 			// skip version that has no diff with previous version
@@ -218,7 +218,7 @@ func (st DBstore) GetAlertRuleVersions(ctx context.Context, orgID int64, guid st
 			}
 			converted, err := alertRuleVersionToModelsAlertRuleVersion(*rule, st.Logger)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "GetAlertRuleVersions", "error", err, "versionID", rule.ID)
+				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "function", "GetAlertRuleVersions", "error", err, "versionID", rule.ID)
 				continue
 			}
 			previousVersion = rule
@@ -278,13 +278,13 @@ func (st DBstore) ListDeletedRules(ctx context.Context, orgID int64) ([]*ngmodel
 			rule := new(alertRuleVersion)
 			err = rows.Scan(rule)
 			if err != nil {
-				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "func", "GetAlertRuleVersions", "error", err)
+				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "function", "GetAlertRuleVersions", "error", err)
 				continue
 			}
 			// Note: Message is not returned as a message cannot be set when deleting rules.
 			converted, err := alertRuleToModelsAlertRule(alertRuleVersionToAlertRule(*rule), st.Logger)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "GetAlertRuleVersions", "error", err, "versionID", rule.ID)
+				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "function", "GetAlertRuleVersions", "error", err, "versionID", rule.ID)
 				continue
 			}
 			alertRules = append(alertRules, &converted)
@@ -668,14 +668,14 @@ func (st DBstore) ListAlertRulesByGroup(ctx context.Context, query *ngmodels.Lis
 			rule := new(alertRule)
 			err = rows.Scan(rule)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, ignoring it", "func", "ListAlertRulesByGroup", "error", err)
+				st.Logger.Error("Invalid rule found in DB store, ignoring it", "function", "ListAlertRulesByGroup", "error", err)
 				continue
 			}
 
 			converted, err := convertAlertRuleToModel(*rule, st.Logger, opts)
 
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "ListAlertRulesByGroup", "error", err)
+				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "function", "ListAlertRulesByGroup", "error", err)
 				continue
 			}
 
@@ -999,12 +999,12 @@ func (st DBstore) handleRuleRow(rows *xorm.Rows, query *ngmodels.ListAlertRulesE
 	rule := new(alertRule)
 	err := rows.Scan(rule)
 	if err != nil {
-		st.Logger.Error("Invalid rule found in DB store, ignoring it", "func", "ListAlertRules", "error", err)
+		st.Logger.Error("Invalid rule found in DB store, ignoring it", "function", "ListAlertRules", "error", err)
 		return nil, false
 	}
 	converted, err := alertRuleToModelsAlertRule(*rule, st.Logger)
 	if err != nil {
-		st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "ListAlertRules", "error", err)
+		st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "function", "ListAlertRules", "error", err)
 		return nil, false
 	}
 	if query.ReceiverName != "" { // remove false-positive hits from the result
@@ -1181,12 +1181,12 @@ func (st DBstore) GetAlertRulesForScheduling(ctx context.Context, query *ngmodel
 			rule := new(alertRule)
 			err = rows.Scan(rule)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, ignoring it", "func", "GetAlertRulesForScheduling", "error", err)
+				st.Logger.Error("Invalid rule found in DB store, ignoring it", "function", "GetAlertRulesForScheduling", "error", err)
 				continue
 			}
 			converted, err := alertRuleToModelsAlertRule(*rule, st.Logger)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, cannot convert it", "func", "GetAlertRulesForScheduling", "error", err)
+				st.Logger.Error("Invalid rule found in DB store, cannot convert it", "function", "GetAlertRulesForScheduling", "error", err)
 				continue
 			}
 			// MySQL (and potentially other databases) uses case-insensitive comparison.

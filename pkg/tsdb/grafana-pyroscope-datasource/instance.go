@@ -67,7 +67,7 @@ func (d *PyroscopeDatasource) CallResource(ctx context.Context, req *backend.Cal
 	ctxLogger := logger.FromContext(ctx)
 	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.pyroscope.CallResource", trace.WithAttributes(attribute.String("path", req.Path), attribute.String("method", req.Method)))
 	defer span.End()
-	ctxLogger.Debug("CallResource", "Path", req.Path, "Method", req.Method, "Body", req.Body, "function", logEntrypoint())
+	ctxLogger.Debug("CallResource", "path", req.Path, "method", req.Method, "body", req.Body, "function", logEntrypoint())
 	if req.Path == "profileTypes" {
 		return d.profileTypes(ctx, req, sender)
 	}

@@ -81,7 +81,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 				parsedInterval, err = gtime.ParseDuration(dsJson.MinStep)
 				if err != nil {
 					parsedInterval = time.Second * 15
-					logger.Error("Failed to parse the MinStep using default", "MinStep", dsJson.MinStep, "function", logEntrypoint())
+					logger.Error("Failed to parse the MinStep using default", "minStep", dsJson.MinStep, "function", logEntrypoint())
 				}
 			}
 			exemplarType := typesv1.ExemplarType_EXEMPLAR_TYPE_NONE
@@ -162,7 +162,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 					parsedInterval, err = gtime.ParseDuration(dsJson.MinStep)
 					if err != nil {
 						parsedInterval = time.Second * 15
-						logger.Error("Failed to parse the MinStep using default", "MinStep", dsJson.MinStep, "function", logEntrypoint())
+						logger.Error("Failed to parse the MinStep using default", "minStep", dsJson.MinStep, "function", logEntrypoint())
 					}
 				}
 				stepDuration := math.Max(query.Interval.Seconds(), parsedInterval.Seconds())

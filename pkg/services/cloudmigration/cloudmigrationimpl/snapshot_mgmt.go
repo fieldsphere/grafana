@@ -473,7 +473,7 @@ func (s *Service) getPlugins(ctx context.Context, signedInUser *user.SignedInUse
 		ac.EvalPermission(pluginaccesscontrol.ActionInstall),
 	))
 	if !userIsOrgAdmin && !hasAccess {
-		s.log.Info("user is not allowed to list non-core plugins", "UID", signedInUser.UserUID)
+		s.log.Info("user is not allowed to list non-core plugins", "userUID", signedInUser.UserUID)
 		return results, nil
 	}
 

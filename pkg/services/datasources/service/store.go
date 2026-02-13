@@ -208,7 +208,7 @@ func (ss *SqlStore) DeleteDataSource(ctx context.Context, cmd *datasources.Delet
 
 		if cmd.UpdateSecretFn != nil {
 			if err := cmd.UpdateSecretFn(); err != nil {
-				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "UID", cmd.UID, "name", cmd.Name, "orgID", cmd.OrgID)
+				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "datasourceUID", cmd.UID, "name", cmd.Name, "orgID", cmd.OrgID)
 				return err
 			}
 		}
@@ -433,7 +433,7 @@ func (ss *SqlStore) UpdateDataSource(ctx context.Context, cmd *datasources.Updat
 
 		if cmd.UpdateSecretFn != nil {
 			if err := cmd.UpdateSecretFn(); err != nil {
-				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "UID", cmd.UID, "name", cmd.Name, "type", cmd.Type, "orgID", cmd.OrgID)
+				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "datasourceUID", cmd.UID, "name", cmd.Name, "type", cmd.Type, "orgID", cmd.OrgID)
 				return err
 			}
 		}

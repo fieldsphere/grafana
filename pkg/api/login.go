@@ -293,7 +293,7 @@ func (hs *HTTPServer) loginUserWithUser(user *user.User, c *contextmodel.ReqCont
 	}
 	c.UserToken = userToken
 
-	hs.log.Info("Successful Login", "User", user.Email)
+	hs.log.Info("Successful Login", "userEmail", user.Email)
 	authn.WriteSessionCookie(c.Resp, hs.Cfg, userToken)
 	return nil
 }

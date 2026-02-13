@@ -576,7 +576,7 @@ func (hs *HTTPServer) hasPluginRequestedPermissions(c *contextmodel.ReqContext, 
 
 	// Log a warning if the user does not have the plugin requested permissions
 	if !hasAccess(evaluator) {
-		hs.log.Warn("Plugin installer has less permission than what the plugin requires.", "Permissions", evaluator.String())
+		hs.log.Warn("Plugin installer has less permission than what the plugin requires.", "permissions", evaluator.String())
 	}
 }
 
