@@ -54,9 +54,7 @@ func EncryptDatasourcePasswords(c utils.CommandLine, cfg *setting.Cfg, sqlStore 
 
 		logger.Info("\n")
 
-		logger.Warn("Warning: Datasource provisioning files need to be manually changed to prevent overwriting of " +
-			"the data during provisioning. See https://grafana.com/docs/installation/upgrading/#upgrading-to-v6-2 for " +
-			"details")
+		logger.Warn("Warning: Datasource provisioning files need to be manually changed to prevent overwriting of the data during provisioning. See https://grafana.com/docs/installation/upgrading/#upgrading-to-v6-2 for details")
 		return nil
 	})
 }
