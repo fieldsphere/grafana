@@ -23,7 +23,8 @@ func New(cfg app.Config) (app.App, error) {
 	// }
 	// exampleConfig, ok := cfg.SpecificConfig.(*LiveConfig)
 	// if ok {
-	// 	fmt.Printf("CONFIG: %+v. // %v\n", exampleConfig, client)
+	// 	_ = exampleConfig
+	// 	_ = client
 	// }
 
 	// This is the configuration for our App.

@@ -9,6 +9,7 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
@@ -247,7 +248,7 @@ func (c *Client) createScope(name string, cfg ScopeConfig) error {
 		return fmt.Errorf("failed to marshal scope: %w", err)
 	}
 
-	fmt.Printf("✓ Creating scope: %s\n", prefixedName)
+	slog.Info("Creating scope", "name", prefixedName)
 	return c.makeRequest("POST", "/scopes", body)
 }
 
@@ -311,7 +312,7 @@ func (c *Client) createScopeNode(name string, node TreeNode, parentName string) 
 		return fmt.Errorf("failed to marshal scope node: %w", err)
 	}
 
-	fmt.Printf("✓ Creating scope node: %s\n", prefixedName)
+	slog.Info("Creating scope node", "name", prefixedName)
 	return c.makeRequest("POST", "/scopenodes", body)
 }
 
@@ -363,7 +364,7 @@ func (c *Client) createScopeNavigation(name string, nav NavigationConfig) error 
 		return fmt.Errorf("failed to marshal scope navigation: %w", err)
 	}
 
-	fmt.Printf("✓ Creating scope navigation: %s\n", prefixedName)
+	slog.Info("Creating scope navigation", "name", prefixedName)
 	if err := c.makeRequest("POST", "/scopenavigations", body); err != nil {
 		return err
 	}
@@ -394,7 +395,7 @@ func (c *Client) createScopeNavigation(name string, nav NavigationConfig) error 
 			return fmt.Errorf("failed to marshal scope navigation status: %w", err)
 		}
 
-		fmt.Printf("  Updating status for: %s\n", prefixedName)
+		slog.Info("Updating scope navigation status", "name", prefixedName)
 		return c.makeRequest("PUT", fmt.Sprintf("/scopenavigations/%s/status", prefixedName), statusBody)
 	}
 
@@ -488,7 +489,7 @@ func (c *Client) createTreeNodes(children map[string]TreeNode, parentName string
 }
 
 func (c *Client) deleteResources() {
-	fmt.Println("Deleting all gdev-prefixed resources...")
+	slog.Info("Deleting all prefixed scope resources", "prefix", prefix)
 
 	// Delete scopes (silently handle errors if endpoints aren't available)
 	c.deleteResourceType("/scopes", "scope")
@@ -499,7 +500,7 @@ func (c *Client) deleteResources() {
 	// Delete scope navigations
 	c.deleteResourceType("/scopenavigations", "scope navigation")
 
-	fmt.Println("✓ Cleanup complete")
+	slog.Info("Scope resource cleanup complete")
 }
 
 func (c *Client) deleteResourceType(endpoint, resourceType string) {
@@ -547,7 +548,7 @@ func (c *Client) deleteResourceType(endpoint, resourceType string) {
 	deletedCount := 0
 	for _, item := range listResponse.Items {
 		if strings.HasPrefix(item.Metadata.Name, prefix+"-") {
-			fmt.Printf("  Deleting %s: %s\n", resourceType, item.Metadata.Name)
+			slog.Info("Deleting scope resource", "resourceType", resourceType, "name", item.Metadata.Name)
 			deleteURL := fmt.Sprintf("%s/%s", endpoint, item.Metadata.Name)
 			if err := c.makeRequest("DELETE", deleteURL, nil); err != nil {
 				// Silently skip deletion errors
@@ -571,45 +572,40 @@ func main() {
 
 	configData, err := os.ReadFile(*configFile)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error reading config file: %v\n", err)
+		slog.Error("Error reading config file", "path", *configFile, "error", err)
 		os.Exit(1)
 	}
 
 	var config Config
 	if err := yaml.Unmarshal(configData, &config); err != nil {
-		fmt.Fprintf(os.Stderr, "Error parsing config file: %v\n", err)
+		slog.Error("Error parsing config file", "path", *configFile, "error", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Loading configuration from: %s\n", *configFile)
-	fmt.Printf("Grafana URL: %s\n", *grafanaURL)
-	fmt.Printf("Namespace: %s\n", *namespace)
-	fmt.Printf("Prefix: %s\n\n", prefix)
+	slog.Info("Loading scopes configuration", "configFile", *configFile, "grafanaURL", *grafanaURL, "namespace", *namespace, "prefix", prefix)
 
 	// Create scopes
-	fmt.Println("Creating scopes...")
+	slog.Info("Creating scopes")
 	for name, scope := range config.Scopes {
 		if err := client.createScope(name, scope); err != nil {
-			fmt.Fprintf(os.Stderr, "Error creating scope %s: %v\n", name, err)
+			slog.Error("Error creating scope", "name", name, "error", err)
 			os.Exit(1)
 		}
 	}
-	fmt.Println()
 
 	// Create scope nodes (tree structure)
 	if len(config.Tree) > 0 {
-		fmt.Println("Creating scope nodes...")
+		slog.Info("Creating scope nodes")
 		if err := client.createTreeNodes(config.Tree, ""); err != nil {
-			fmt.Fprintf(os.Stderr, "Error creating scope nodes: %v\n", err)
+			slog.Error("Error creating scope nodes", "error", err)
 			os.Exit(1)
 		}
-		fmt.Println()
 	}
 
 	// Create scope navigations
 	// First, process navigation tree if provided
 	if len(config.NavigationTree) > 0 {
-		fmt.Println("Creating scope navigations from tree...")
+		slog.Info("Creating scope navigations from tree")
 		dashboardCounter := 0
 		for _, rootNode := range config.NavigationTree {
 			flatNavigations := treeToNavigations(rootNode, []string{}, &dashboardCounter)
@@ -619,25 +615,23 @@ func main() {
 					navWithName.Nav.Title = navWithName.Title
 				}
 				if err := client.createScopeNavigation(navWithName.Name, navWithName.Nav); err != nil {
-					fmt.Fprintf(os.Stderr, "Error creating scope navigation %s: %v\n", navWithName.Name, err)
+					slog.Error("Error creating scope navigation", "name", navWithName.Name, "error", err)
 					os.Exit(1)
 				}
 			}
 		}
-		fmt.Println()
 	}
 
 	// Also support flat navigations format for backward compatibility
 	if len(config.Navigations) > 0 {
-		fmt.Println("Creating scope navigations...")
+		slog.Info("Creating scope navigations")
 		for name, nav := range config.Navigations {
 			if err := client.createScopeNavigation(name, nav); err != nil {
-				fmt.Fprintf(os.Stderr, "Error creating scope navigation %s: %v\n", name, err)
+				slog.Error("Error creating scope navigation", "name", name, "error", err)
 				os.Exit(1)
 			}
 		}
-		fmt.Println()
 	}
 
-	fmt.Println("✓ All resources created successfully!")
+	slog.Info("All scope resources created successfully")
 }
