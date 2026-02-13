@@ -21,7 +21,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
-	"os"
+	"log/slog"
 	"reflect"
 	"strconv"
 	"strings"
@@ -767,11 +767,12 @@ func processStructLiteralProvider(fset *token.FileSet, typeName *types.TypeName)
 	}
 
 	pos := typeName.Pos()
-	fmt.Fprintf(os.Stderr,
-		"Warning: %v, see https://godoc.org/github.com/google/wire#Struct for more information.\n",
+	slog.Warn("Struct literal injection is deprecated",
+		"detail",
 		notePosition(fset.Position(pos),
 			fmt.Errorf("using struct literal to inject %s is deprecated and will be removed in the next release; use wire.Struct instead",
-				typeName.Type())))
+				typeName.Type())),
+		"moreInfo", "https://godoc.org/github.com/google/wire#Struct")
 	provider := &Provider{
 		Pkg:      typeName.Pkg(),
 		Name:     typeName.Name(),
