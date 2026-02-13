@@ -219,7 +219,7 @@ func (r *githubWebhookRepository) createWebhook(ctx context.Context) (WebhookCon
 	// HACK: GitHub does not return the secret, so we need to update it manually
 	hook.Secret = cfg.Secret
 
-	logging.FromContext(ctx).Info("webhook created", "url", cfg.URL, "id", hook.ID)
+	logging.FromContext(ctx).Info("webhook created", "url", cfg.URL, "webhookID", hook.ID)
 	return hook, nil
 }
 
@@ -289,15 +289,15 @@ func (r *githubWebhookRepository) deleteWebhook(ctx context.Context) error {
 		return fmt.Errorf("delete webhook: %w", err)
 	}
 	if errors.Is(err, ErrResourceNotFound) {
-		logger.Warn("webhook no longer exists", "url", r.config.Status.Webhook.URL, "id", id)
+		logger.Warn("webhook no longer exists", "url", r.config.Status.Webhook.URL, "webhookID", id)
 		return nil
 	}
 	if errors.Is(err, ErrUnauthorized) {
-		logger.Warn("webhook deletion failed. no longer authorized to delete this webhook", "url", r.config.Status.Webhook.URL, "id", id)
+		logger.Warn("webhook deletion failed. no longer authorized to delete this webhook", "url", r.config.Status.Webhook.URL, "webhookID", id)
 		return nil
 	}
 
-	logger.Info("webhook deleted", "url", r.config.Status.Webhook.URL, "id", id)
+	logger.Info("webhook deleted", "url", r.config.Status.Webhook.URL, "webhookID", id)
 	return nil
 }
 
