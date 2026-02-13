@@ -418,12 +418,12 @@ func (ecp *ContactPointService) decryptValueOrRedacted(decrypt bool, integration
 	return func(value string) string {
 		decodeValue, err := base64.StdEncoding.DecodeString(value)
 		if err != nil {
-			ecp.log.Warn("Failed to decode secret value from Base64", "error", err.Error(), "integrationUid", integrationUID)
+			ecp.log.Warn("Failed to decode secret value from Base64", "error", err, "integrationUid", integrationUID)
 			return ""
 		}
 		decryptedValue, err := ecp.encryptionService.Decrypt(context.Background(), decodeValue)
 		if err != nil {
-			ecp.log.Warn("Failed to decrypt secret value", "error", err.Error(), "integrationUid", integrationUID)
+			ecp.log.Warn("Failed to decrypt secret value", "error", err, "integrationUid", integrationUID)
 			return ""
 		}
 		if decrypt {

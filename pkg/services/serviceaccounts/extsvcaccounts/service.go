@@ -123,7 +123,7 @@ func (esa *ExtSvcAccountsService) GetExternalServiceNames(ctx context.Context) (
 		SignedInUser: extsvcuser(esa.defaultOrgID),
 	})
 	if err != nil {
-		ctxLogger.Error("Could not fetch external service accounts from store", "error", err.Error())
+		ctxLogger.Error("Could not fetch external service accounts from store", "error", err)
 		return nil, err
 	}
 	if sas == nil {
@@ -177,7 +177,7 @@ func (esa *ExtSvcAccountsService) SaveExternalService(ctx context.Context, cmd *
 		ctxLogger.Error("Could not get the external svc token",
 			"service", slug,
 			"saID", saID,
-			"error", err.Error())
+			"error", err)
 		return nil, err
 	}
 	return &extsvcauth.ExternalService{Name: slug, ID: slug, Secret: token}, nil
@@ -216,7 +216,7 @@ func (esa *ExtSvcAccountsService) RemoveExtSvcAccount(ctx context.Context, orgID
 		ctxLogger.Error("Error occurred while deleting service account",
 			"service", extSvcSlug,
 			"saID", saID,
-			"error", err.Error())
+			"error", err)
 		return err
 	}
 	esa.logger.Info("Deleted external service account", "service", extSvcSlug, "orgID", orgID)
@@ -252,7 +252,7 @@ func (esa *ExtSvcAccountsService) ManageExtSvcAccount(ctx context.Context, cmd *
 				ctxLogger.Error("Error occurred while deleting service account",
 					"service", cmd.ExtSvcSlug,
 					"saID", saID,
-					"error", err.Error())
+					"error", err)
 				return 0, err
 			}
 		}
@@ -477,7 +477,7 @@ func (esa *ExtSvcAccountsService) GetExtSvcCredentials(ctx context.Context, orgI
 		return nil, ErrCredentialsNotFound.Errorf("No credential found for in store %v", extSvcSlug)
 	}
 	if _, err := satokengen.Decode(token); err != nil {
-		ctxLogger.Error("Failed to decode token", "error", err.Error())
+		ctxLogger.Error("Failed to decode token", "error", err)
 		return nil, err
 	}
 	return &Credentials{Secret: token}, nil

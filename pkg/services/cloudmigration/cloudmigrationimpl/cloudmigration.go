@@ -842,7 +842,7 @@ func (s *Service) report(
 
 	id, err := s.getLocalEventId(ctx)
 	if err != nil {
-		s.log.Error("failed to report event", "type", t, "error", err.Error())
+		s.log.Error("failed to report event", "type", t, "error", err)
 		return
 	}
 

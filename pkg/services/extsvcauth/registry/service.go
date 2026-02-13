@@ -59,7 +59,7 @@ func (r *Registry) CleanUpOrphanedExternalServices(ctx context.Context) error {
 	errLock := r.serverLock.LockExecuteAndReleaseWithRetries(ctx, "ext-svc-clean-up", lockTimeConfig, func(ctx context.Context) {
 		extsvcs, err := r.retrieveExtSvcProviders(ctx)
 		if err != nil {
-			r.logger.Error("Could not retrieve external services from store", "error", err.Error())
+			r.logger.Error("Could not retrieve external services from store", "error", err)
 			errCleanUp = err
 			return
 		}

@@ -284,7 +284,7 @@ func (rc *RepositoryController) handleDelete(ctx context.Context, obj *provision
 
 func (rc *RepositoryController) updateDeleteStatus(ctx context.Context, obj *provisioning.Repository, err error) error {
 	logger := logging.FromContext(ctx)
-	logger.Info("updating repository status with deletion error", "error", err.Error())
+	logger.Info("updating repository status with deletion error", "error", err)
 	return rc.statusPatcher.Patch(ctx, obj, map[string]interface{}{
 		"op":    "replace",
 		"path":  "/status/deleteError",

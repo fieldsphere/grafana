@@ -242,7 +242,7 @@ func (srv *CleanUpService) deleteExpiredSnapshots(ctx context.Context) {
 	} else {
 		cmd := dashboardsnapshots.DeleteExpiredSnapshotsCommand{}
 		if err := srv.dashboardSnapshotService.DeleteExpiredSnapshots(ctx, &cmd); err != nil {
-			logger.Error("Failed to delete expired snapshots", "error", err.Error())
+			logger.Error("Failed to delete expired snapshots", "error", err)
 		} else {
 			logger.Debug("Deleted expired snapshots", "rows affected", cmd.DeletedRows)
 		}
@@ -256,13 +256,13 @@ func (srv *CleanUpService) deleteKubernetesExpiredSnapshots(ctx context.Context)
 	// Create the dynamic client for Kubernetes API
 	restConfig, err := srv.clientConfigProvider.GetRestConfig(ctx)
 	if err != nil {
-		logger.Error("Failed to get REST config for Kubernetes client", "error", err.Error())
+		logger.Error("Failed to get REST config for Kubernetes client", "error", err)
 		return
 	}
 
 	client, err := srv.dynamicClientFactory(restConfig)
 	if err != nil {
-		logger.Error("Failed to create Kubernetes client", "error", err.Error())
+		logger.Error("Failed to create Kubernetes client", "error", err)
 		return
 	}
 
@@ -277,7 +277,7 @@ func (srv *CleanUpService) deleteKubernetesExpiredSnapshots(ctx context.Context)
 	// List and delete expired snapshots across all namespaces
 	orgs, err := srv.orgService.Search(ctx, &org.SearchOrgsQuery{})
 	if err != nil {
-		logger.Error("Failed to list organizations", "error", err.Error())
+		logger.Error("Failed to list organizations", "error", err)
 		return
 	}
 
@@ -286,7 +286,7 @@ func (srv *CleanUpService) deleteKubernetesExpiredSnapshots(ctx context.Context)
 		namespaceMapper := request.GetNamespaceMapper(srv.Cfg)
 		snapshots, err := client.Resource(gvr).Namespace(namespaceMapper(o.ID)).List(ctx, v1.ListOptions{})
 		if err != nil {
-			logger.Error("Failed to list snapshots for org", "orgID", o.ID, "error", err.Error())
+			logger.Error("Failed to list snapshots for org", "orgID", o.ID, "error", err)
 			continue
 		}
 		// Check each snapshot for expiration
@@ -295,7 +295,7 @@ func (srv *CleanUpService) deleteKubernetesExpiredSnapshots(ctx context.Context)
 			var snapshot v0alpha1.Snapshot
 			err := runtime.DefaultUnstructuredConverter.FromUnstructured(item.Object, &snapshot)
 			if err != nil {
-				logger.Error("Failed to convert unstructured object to snapshot", "name", item.GetName(), "namespace", item.GetNamespace(), "error", err.Error())
+				logger.Error("Failed to convert unstructured object to snapshot", "name", item.GetName(), "namespace", item.GetNamespace(), "error", err)
 				continue
 			}
 
@@ -310,7 +310,7 @@ func (srv *CleanUpService) deleteKubernetesExpiredSnapshots(ctx context.Context)
 					if k8serrors.IsNotFound(err) {
 						logger.Debug("Snapshot already deleted", "name", name, "namespace", namespace)
 					} else {
-						logger.Error("Failed to delete expired snapshot", "name", name, "namespace", namespace, "error", err.Error())
+						logger.Error("Failed to delete expired snapshot", "name", name, "namespace", namespace, "error", err)
 					}
 				} else {
 					deletedCount++
@@ -327,7 +327,7 @@ func (srv *CleanUpService) deleteExpiredDashboardVersions(ctx context.Context) {
 	logger := srv.log.FromContext(ctx)
 	cmd := dashver.DeleteExpiredVersionsCommand{}
 	if err := srv.dashboardVersionService.DeleteExpired(ctx, &cmd); err != nil {
-		logger.Error("Failed to delete expired dashboard versions", "error", err.Error())
+		logger.Error("Failed to delete expired dashboard versions", "error", err)
 	} else {
 		logger.Debug("Deleted old/expired dashboard versions", "rows affected", cmd.DeletedRows)
 	}
@@ -339,7 +339,7 @@ func (srv *CleanUpService) deleteExpiredImages(ctx context.Context) {
 		return
 	}
 	if rowsAffected, err := srv.deleteExpiredImageService.DeleteExpired(ctx); err != nil {
-		logger.Error("Failed to delete expired images", "error", err.Error())
+		logger.Error("Failed to delete expired images", "error", err)
 	} else {
 		logger.Debug("Deleted expired images", "rows affected", rowsAffected)
 	}
@@ -354,7 +354,7 @@ func (srv *CleanUpService) expireOldUserInvites(ctx context.Context) {
 	}
 
 	if err := srv.tempUserService.ExpireOldUserInvites(ctx, &cmd); err != nil {
-		logger.Error("Problem expiring user invites", "error", err.Error())
+		logger.Error("Problem expiring user invites", "error", err)
 	} else {
 		logger.Debug("Expired user invites", "rows affected", cmd.NumExpired)
 	}
@@ -369,7 +369,7 @@ func (srv *CleanUpService) expireOldVerifications(ctx context.Context) {
 	}
 
 	if err := srv.tempUserService.ExpireOldVerifications(ctx, &cmd); err != nil {
-		logger.Error("Problem expiring email verifications", "error", err.Error())
+		logger.Error("Problem expiring email verifications", "error", err)
 	} else {
 		logger.Debug("Expired email verifications", "rows affected", cmd.NumExpired)
 	}
@@ -385,7 +385,7 @@ func (srv *CleanUpService) deleteStaleShortURLs(ctx context.Context) {
 			OlderThan: time.Now().Add(-time.Duration(srv.Cfg.ShortLinkExpiration*24) * time.Hour),
 		}
 		if err := srv.ShortURLService.DeleteStaleShortURLs(ctx, &cmd); err != nil {
-			logger.Error("Problem deleting stale short urls", "error", err.Error())
+			logger.Error("Problem deleting stale short urls", "error", err)
 		} else {
 			logger.Debug("Deleted short urls", "rows affected", cmd.NumDeleted)
 		}
@@ -399,13 +399,13 @@ func (srv *CleanUpService) deleteStaleKubernetesShortURLs(ctx context.Context) {
 	// Create the dynamic client for Kubernetes API
 	restConfig, err := srv.clientConfigProvider.GetRestConfig(ctx)
 	if err != nil {
-		logger.Error("Failed to get REST config for Kubernetes client", "error", err.Error())
+		logger.Error("Failed to get REST config for Kubernetes client", "error", err)
 		return
 	}
 
 	client, err := srv.dynamicClientFactory(restConfig)
 	if err != nil {
-		logger.Error("Failed to create Kubernetes client", "error", err.Error())
+		logger.Error("Failed to create Kubernetes client", "error", err)
 		return
 	}
 
@@ -420,7 +420,7 @@ func (srv *CleanUpService) deleteStaleKubernetesShortURLs(ctx context.Context) {
 	// List and delete expired shortURLs across all namespaces
 	orgs, err := srv.orgService.Search(ctx, &org.SearchOrgsQuery{})
 	if err != nil {
-		logger.Error("Failed to list organizations", "error", err.Error())
+		logger.Error("Failed to list organizations", "error", err)
 		return
 	}
 
@@ -429,7 +429,7 @@ func (srv *CleanUpService) deleteStaleKubernetesShortURLs(ctx context.Context) {
 		namespaceMapper := request.GetNamespaceMapper(srv.Cfg)
 		shortURLs, err := client.Resource(gvr).Namespace(namespaceMapper(o.ID)).List(ctx, v1.ListOptions{})
 		if err != nil {
-			logger.Error("Failed to list shortURLs", "error", err.Error())
+			logger.Error("Failed to list shortURLs", "error", err)
 			return
 		}
 		// Check each shortURL for expiration
@@ -438,7 +438,7 @@ func (srv *CleanUpService) deleteStaleKubernetesShortURLs(ctx context.Context) {
 			var shortURL v1beta1.ShortURL
 			err := runtime.DefaultUnstructuredConverter.FromUnstructured(item.Object, &shortURL)
 			if err != nil {
-				logger.Error("Failed to convert unstructured object to ShortURL", "name", item.GetName(), "namespace", item.GetNamespace(), "error", err.Error())
+				logger.Error("Failed to convert unstructured object to ShortURL", "name", item.GetName(), "namespace", item.GetNamespace(), "error", err)
 				continue
 			}
 
@@ -453,7 +453,7 @@ func (srv *CleanUpService) deleteStaleKubernetesShortURLs(ctx context.Context) {
 					if k8serrors.IsNotFound(err) {
 						logger.Debug("ShortURL already deleted", "name", name, "namespace", namespace)
 					} else {
-						logger.Error("Failed to delete expired shortURL", "name", name, "namespace", namespace, "error", err.Error())
+						logger.Error("Failed to delete expired shortURL", "name", name, "namespace", namespace, "error", err)
 					}
 				} else {
 					deletedCount++
@@ -473,7 +473,7 @@ func (srv *CleanUpService) deleteStaleQueryHistory(ctx context.Context) {
 	olderThan := time.Now().Add(-maxQueryHistoryLifetime).Unix()
 	rowsCount, err := srv.QueryHistoryService.DeleteStaleQueriesInQueryHistory(ctx, olderThan)
 	if err != nil {
-		logger.Error("Problem deleting stale query history", "error", err.Error())
+		logger.Error("Problem deleting stale query history", "error", err)
 	} else {
 		logger.Debug("Deleted stale query history", "rows affected", rowsCount)
 	}
@@ -482,7 +482,7 @@ func (srv *CleanUpService) deleteStaleQueryHistory(ctx context.Context) {
 	queryHistoryLimit := 200000
 	rowsCount, err = srv.QueryHistoryService.EnforceRowLimitInQueryHistory(ctx, queryHistoryLimit, false)
 	if err != nil {
-		logger.Error("Problem with enforcing row limit for query_history", "error", err.Error())
+		logger.Error("Problem with enforcing row limit for query_history", "error", err)
 	} else {
 		logger.Debug("Enforced row limit for query_history", "rows affected", rowsCount)
 	}
@@ -491,7 +491,7 @@ func (srv *CleanUpService) deleteStaleQueryHistory(ctx context.Context) {
 	queryHistoryStarLimit := 150000
 	rowsCount, err = srv.QueryHistoryService.EnforceRowLimitInQueryHistory(ctx, queryHistoryStarLimit, true)
 	if err != nil {
-		logger.Error("Problem with enforcing row limit for query_history_star", "error", err.Error())
+		logger.Error("Problem with enforcing row limit for query_history_star", "error", err)
 	} else {
 		logger.Debug("Enforced row limit for query_history_star", "rows affected", rowsCount)
 	}
