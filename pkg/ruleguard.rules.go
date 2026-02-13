@@ -485,7 +485,9 @@ func writestring(m fluent.Matcher) {
 
 func structuredlogging(m fluent.Matcher) {
 	isStructuredLogger := m["logger"].Type.Implements("github.com/grafana/grafana/pkg/infra/log.Logger") ||
-		m["logger"].Type.Implements("github.com/grafana/grafana/pkg/plugins/log.Logger")
+		m["logger"].Type.Implements("github.com/grafana/grafana/pkg/plugins/log.Logger") ||
+		m["logger"].Type.Is("*log/slog.Logger") ||
+		m["logger"].Type.Is("log/slog.Logger")
 
 	m.Match(
 		`$logger.Info(fmt.Sprintf($fmt, $*args))`,
@@ -517,6 +519,33 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger).
 		Report("avoid string concatenation in structured log messages; use key/value fields")
+
+	m.Match(
+		`slog.Info(fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`slog.Warn(fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`slog.Error(fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`slog.Debug(fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`slog.Info(fmt.Sprint($*args), $*attrs)`,
+		`slog.Warn(fmt.Sprint($*args), $*attrs)`,
+		`slog.Error(fmt.Sprint($*args), $*attrs)`,
+		`slog.Debug(fmt.Sprint($*args), $*attrs)`,
+	).Report("use a static slog message and key/value context instead of fmt formatting")
+
+	m.Match(
+		`slog.Info($msg, $*attrs)`,
+		`slog.Warn($msg, $*attrs)`,
+		`slog.Error($msg, $*attrs)`,
+		`slog.Debug($msg, $*attrs)`,
+	).
+		Where(m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Report("printf-style format verbs are not supported in slog methods; move dynamic values to key/value fields")
+
+	m.Match(
+		`slog.Info($left + $right, $*attrs)`,
+		`slog.Warn($left + $right, $*attrs)`,
+		`slog.Error($left + $right, $*attrs)`,
+		`slog.Debug($left + $right, $*attrs)`,
+	).Report("avoid string concatenation in slog messages; use key/value fields")
 }
 
 func unstructuredoutput(m fluent.Matcher) {
