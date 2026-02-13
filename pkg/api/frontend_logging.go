@@ -42,23 +42,23 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 				switch logEntry.LogLevel {
 				case frontendlogging.LogLevelDebug, frontendlogging.LogLevelTrace:
 					{
-						ctx = append(ctx, "original_log_level", logEntry.LogLevel)
-						frontendLogger.Debug(logEntry.Message, ctx...)
+						ctx = append(ctx, "original_log_level", logEntry.LogLevel, "frontend_log_message", logEntry.Message)
+						frontendLogger.Debug("Frontend javascript agent log entry", ctx...)
 					}
 				case frontendlogging.LogLevelError:
 					{
-						ctx = append(ctx, "original_log_level", logEntry.LogLevel)
-						frontendLogger.Error(logEntry.Message, ctx...)
+						ctx = append(ctx, "original_log_level", logEntry.LogLevel, "frontend_log_message", logEntry.Message)
+						frontendLogger.Error("Frontend javascript agent log entry", ctx...)
 					}
 				case frontendlogging.LogLevelWarning:
 					{
-						ctx = append(ctx, "original_log_level", logEntry.LogLevel)
-						frontendLogger.Warn(logEntry.Message, ctx...)
+						ctx = append(ctx, "original_log_level", logEntry.LogLevel, "frontend_log_message", logEntry.Message)
+						frontendLogger.Warn("Frontend javascript agent log entry", ctx...)
 					}
 				default:
 					{
-						ctx = append(ctx, "original_log_level", logEntry.LogLevel)
-						frontendLogger.Info(logEntry.Message, ctx...)
+						ctx = append(ctx, "original_log_level", logEntry.LogLevel, "frontend_log_message", logEntry.Message)
+						frontendLogger.Info("Frontend javascript agent log entry", ctx...)
 					}
 				}
 			}
@@ -82,8 +82,8 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 				exception := exception
 				transformedException := frontendlogging.TransformException(c.Req.Context(), &exception, store)
 				ctx = append(ctx, "kind", "exception", "type", transformedException.Type, "value", transformedException.Value, "stacktrace", transformedException.String())
-				ctx = append(ctx, "original_timestamp", exception.Timestamp)
-				frontendLogger.Error(exception.Message(), ctx...)
+				ctx = append(ctx, "original_timestamp", exception.Timestamp, "frontend_exception_message", exception.Message())
+				frontendLogger.Error("Frontend javascript agent exception", ctx...)
 			}
 		}
 		c.Resp.WriteHeader(http.StatusAccepted)
