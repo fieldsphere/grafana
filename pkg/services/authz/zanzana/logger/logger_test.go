@@ -56,3 +56,23 @@ func TestZanzanaLoggerAddsStructuredContext(t *testing.T) {
 		t.Fatalf("expected zanzana message fields, got %#v", ctx)
 	}
 }
+
+func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
+	args := zapFieldsToArgs(
+		[]zap.Field{
+			zap.Bool("enabled", true),
+			zap.Int("count", 3),
+			zap.String("scope", "global"),
+		},
+	)
+
+	expected := []any{"enabled", true, "count", int64(3), "scope", "global"}
+	if len(args) != len(expected) {
+		t.Fatalf("unexpected args length: got=%d want=%d (%#v)", len(args), len(expected), args)
+	}
+	for i := range expected {
+		if args[i] != expected[i] {
+			t.Fatalf("unexpected arg at index %d: got=%#v want=%#v (args=%#v)", i, args[i], expected[i], args)
+		}
+	}
+}

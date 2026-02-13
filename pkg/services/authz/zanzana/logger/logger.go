@@ -27,15 +27,14 @@ func New(logger log.Logger) *ZanzanaLogger {
 func zapFieldsToArgs(fields []zap.Field) []any {
 	// We need to pre-allocated space for key and value
 	args := make([]any, 0, len(fields)*2)
+	encoder := zapcore.NewMapObjectEncoder()
 	for _, f := range fields {
-		args = append(args, f.Key)
-		if f.Interface != nil {
-			args = append(args, f.Interface)
-		} else if f.String != "" {
-			args = append(args, f.String)
-		} else {
-			args = append(args, f.Integer)
+		f.AddTo(encoder)
+		value, ok := encoder.Fields[f.Key]
+		if !ok {
+			continue
 		}
+		args = append(args, f.Key, value)
 	}
 	return args
 }
