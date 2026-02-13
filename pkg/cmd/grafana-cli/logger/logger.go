@@ -2,7 +2,7 @@ package logger
 
 import (
 	"fmt"
-	"strings"
+	"log/slog"
 )
 
 var (
@@ -11,48 +11,40 @@ var (
 
 func Debug(args ...any) {
 	if debugmode {
-		fmt.Println(args...)
+		slog.Debug("Grafana CLI debug", "message", fmt.Sprint(args...))
 	}
 }
 
 func Debugf(fmtString string, args ...any) {
 	if debugmode {
-		fmt.Printf(addMissingNewline(fmtString), args...)
+		slog.Debug("Grafana CLI debug", "message", fmt.Sprintf(fmtString, args...))
 	}
 }
 
 func Error(args ...any) {
-	fmt.Println(args...)
+	slog.Error("Grafana CLI error", "message", fmt.Sprint(args...))
 }
 
 func Errorf(fmtString string, args ...any) {
-	fmt.Printf(addMissingNewline(fmtString), args...)
+	slog.Error("Grafana CLI error", "message", fmt.Sprintf(fmtString, args...))
 }
 
 func Info(args ...any) {
-	fmt.Println(args...)
+	slog.Info("Grafana CLI info", "message", fmt.Sprint(args...))
 }
 
 func Infof(fmtString string, args ...any) {
-	fmt.Printf(addMissingNewline(fmtString), args...)
+	slog.Info("Grafana CLI info", "message", fmt.Sprintf(fmtString, args...))
 }
 
 func Warn(args ...any) {
-	fmt.Println(args...)
+	slog.Warn("Grafana CLI warning", "message", fmt.Sprint(args...))
 }
 
 func Warnf(fmtString string, args ...any) {
-	fmt.Printf(addMissingNewline(fmtString), args...)
+	slog.Warn("Grafana CLI warning", "message", fmt.Sprintf(fmtString, args...))
 }
 
 func SetDebug(value bool) {
 	debugmode = value
-}
-
-func addMissingNewline(s string) string {
-	if strings.HasSuffix(s, "\n") {
-		return s
-	}
-
-	return s + "\n"
 }
