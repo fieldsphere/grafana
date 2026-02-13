@@ -886,6 +886,15 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(!m["arg"].Type.Is("string")).
 		Report("structured log attributes should start with a string key; pass key/value pairs instead of bare values")
+
+	m.Match(
+		`$logger.Debugf($*args)`,
+		`$logger.Infof($*args)`,
+		`$logger.Warnf($*args)`,
+		`$logger.Errorf($*args)`,
+	).
+		Where(isStructuredLogger).
+		Report("avoid formatted structured logger methods; use a stable message with key/value fields")
 }
 
 func unstructuredoutput(m fluent.Matcher) {
