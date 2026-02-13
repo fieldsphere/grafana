@@ -330,10 +330,10 @@ func (a *alertRule) Run() error {
 					fpStr := a.currentFingerprint.String()
 					utcTick := ctx.scheduledAt.UTC().Format(time.RFC3339Nano)
 					tracingCtx, span := a.tracer.Start(grafanaCtx, "alert rule execution", trace.WithAttributes(
-						attribute.String("rule_uid", ctx.rule.UID),
-						attribute.Int64("org_id", ctx.rule.OrgID),
-						attribute.Int64("rule_version", ctx.rule.Version),
-						attribute.String("rule_fingerprint", fpStr),
+						attribute.String("ruleUID", ctx.rule.UID),
+						attribute.Int64("orgID", ctx.rule.OrgID),
+						attribute.Int64("ruleVersion", ctx.rule.Version),
+						attribute.String("ruleFingerprint", fpStr),
 						attribute.String("tick", utcTick),
 					))
 					logger := logger.FromContext(tracingCtx)
@@ -484,7 +484,7 @@ func (a *alertRule) evaluate(ctx context.Context, e *Evaluation, span trace.Span
 			start := a.clock.Now()
 			alerts := a.send(ctx, logger, statesToSend)
 			span.AddEvent("results sent", trace.WithAttributes(
-				attribute.Int64("alerts_sent", int64(len(alerts.PostableAlerts))),
+				attribute.Int64("alertsSent", int64(len(alerts.PostableAlerts))),
 			))
 			sendDuration.Observe(a.clock.Now().Sub(start).Seconds())
 		},

@@ -302,9 +302,9 @@ func (st *Manager) ProcessEvalResults(
 ) StateTransitions {
 	utcTick := evaluatedAt.UTC().Format(time.RFC3339Nano)
 	ctx, span := st.tracer.Start(ctx, "alert rule state calculation", trace.WithAttributes(
-		attribute.String("rule_uid", alertRule.UID),
-		attribute.Int64("org_id", alertRule.OrgID),
-		attribute.Int64("rule_version", alertRule.Version),
+		attribute.String("ruleUID", alertRule.UID),
+		attribute.Int64("orgID", alertRule.OrgID),
+		attribute.Int64("ruleVersion", alertRule.Version),
 		attribute.String("tick", utcTick),
 		attribute.Int("results", len(results))))
 	defer span.End()
@@ -340,8 +340,8 @@ func (st *Manager) ProcessEvalResults(
 
 	missingSeriesStates, staleCount := st.processMissingSeriesStates(logger, evaluatedAt, alertRule, fn)
 	span.AddEvent("results processed", trace.WithAttributes(
-		attribute.Int("state_transitions", len(states)),
-		attribute.Int("stale_states", staleCount),
+		attribute.Int("stateTransitions", len(states)),
+		attribute.Int("staleStates", staleCount),
 	))
 
 	allChanges := StateTransitions(append(states, missingSeriesStates...))

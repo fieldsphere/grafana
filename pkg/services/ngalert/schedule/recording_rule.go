@@ -195,10 +195,10 @@ func (r *recordingRule) doEvaluate(ctx context.Context, ev *Evaluation) {
 	}
 
 	ctx, span := r.tracer.Start(ctx, "recording rule execution", trace.WithAttributes(
-		attribute.String("rule_uid", ev.rule.UID),
-		attribute.Int64("org_id", ev.rule.OrgID),
-		attribute.Int64("rule_version", ev.rule.Version),
-		attribute.String("rule_fingerprint", ev.Fingerprint().String()),
+		attribute.String("ruleUID", ev.rule.UID),
+		attribute.Int64("orgID", ev.rule.OrgID),
+		attribute.Int64("ruleVersion", ev.rule.Version),
+		attribute.String("ruleFingerprint", ev.Fingerprint().String()),
 		attribute.String("tick", ev.scheduledAt.UTC().Format(time.RFC3339Nano)),
 	))
 	defer span.End()

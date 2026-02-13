@@ -71,10 +71,10 @@ func NewService(
 
 func (nps *Service) GetManagedRoute(ctx context.Context, orgID int64, name string) (legacy_storage.ManagedRoute, error) {
 	ctx, span := nps.tracer.Start(ctx, "alerting.routes.get", trace.WithAttributes(
-		attribute.Int64("query_org_id", orgID),
-		attribute.String("query_name", name),
-		attribute.Bool("managed_routes_enabled", nps.managedRoutesEnabled()),
-		attribute.Bool("include_imported", nps.includeImported()),
+		attribute.Int64("queryOrgID", orgID),
+		attribute.String("queryName", name),
+		attribute.Bool("managedRoutesEnabled", nps.managedRoutesEnabled()),
+		attribute.Bool("includeImported", nps.includeImported()),
 	))
 	defer span.End()
 
@@ -100,7 +100,7 @@ func (nps *Service) GetManagedRoute(ctx context.Context, orgID int64, name strin
 	}
 
 	span.AddEvent("Loaded route", trace.WithAttributes(
-		attribute.String("concurrency_token", rev.ConcurrencyToken),
+		attribute.String("concurrencyToken", rev.ConcurrencyToken),
 	))
 
 	provenance, err := nps.provenanceStore.GetProvenance(ctx, route, orgID)
@@ -114,9 +114,9 @@ func (nps *Service) GetManagedRoute(ctx context.Context, orgID int64, name strin
 
 func (nps *Service) GetManagedRoutes(ctx context.Context, orgID int64) (legacy_storage.ManagedRoutes, error) {
 	ctx, span := nps.tracer.Start(ctx, "alerting.routes.getMany", trace.WithAttributes(
-		attribute.Int64("query_org_id", orgID),
-		attribute.Bool("managed_routes_enabled", nps.managedRoutesEnabled()),
-		attribute.Bool("include_imported", nps.includeImported()),
+		attribute.Int64("queryOrgID", orgID),
+		attribute.Bool("managedRoutesEnabled", nps.managedRoutesEnabled()),
+		attribute.Bool("includeImported", nps.includeImported()),
 	))
 	defer span.End()
 
@@ -148,7 +148,7 @@ func (nps *Service) GetManagedRoutes(ctx context.Context, orgID int64) (legacy_s
 			if exists := managedRoutes.Contains(importedRoute.Name); exists {
 				nps.log.FromContext(ctx).Warn("Imported route name conflicts with existing managed route. Skipping imported route.", "routeName", importedRoute.Name)
 				span.AddEvent("Skipped imported route due to name conflict", trace.WithAttributes(
-					attribute.String("route_name", importedRoute.Name),
+					attribute.String("routeName", importedRoute.Name),
 				))
 			} else {
 				managedRoutes = append(managedRoutes, importedRoute)
@@ -157,7 +157,7 @@ func (nps *Service) GetManagedRoutes(ctx context.Context, orgID int64) (legacy_s
 	}
 
 	span.AddEvent("Loaded routes", trace.WithAttributes(
-		attribute.String("concurrency_token", rev.ConcurrencyToken),
+		attribute.String("concurrencyToken", rev.ConcurrencyToken),
 		attribute.Int("count", len(managedRoutes)),
 	))
 
@@ -167,11 +167,11 @@ func (nps *Service) GetManagedRoutes(ctx context.Context, orgID int64) (legacy_s
 
 func (nps *Service) UpdateManagedRoute(ctx context.Context, orgID int64, name string, subtree definitions.Route, p models.Provenance, version string) (*legacy_storage.ManagedRoute, error) {
 	ctx, span := nps.tracer.Start(ctx, "alerting.routes.update", trace.WithAttributes(
-		attribute.Int64("query_org_id", orgID),
-		attribute.String("route_name", name),
-		attribute.String("route_version", version),
-		attribute.Bool("managed_routes_enabled", nps.managedRoutesEnabled()),
-		attribute.Bool("include_imported", nps.includeImported()),
+		attribute.Int64("queryOrgID", orgID),
+		attribute.String("routeName", name),
+		attribute.String("routeVersion", version),
+		attribute.Bool("managedRoutesEnabled", nps.managedRoutesEnabled()),
+		attribute.Bool("includeImported", nps.includeImported()),
 	))
 	// Backwards compatibility when managed routes FF is disabled. Only allow the default route.
 	if !nps.managedRoutesEnabled() && name != legacy_storage.UserDefinedRoutingTreeName {
@@ -200,9 +200,9 @@ func (nps *Service) UpdateManagedRoute(ctx context.Context, orgID int64, name st
 	}
 
 	span.AddEvent("Loaded current route", trace.WithAttributes(
-		attribute.String("concurrency_token", revision.ConcurrencyToken),
-		attribute.String("route_name", name),
-		attribute.String("route_version", existing.Version),
+		attribute.String("concurrencyToken", revision.ConcurrencyToken),
+		attribute.String("routeName", name),
+		attribute.String("routeVersion", existing.Version),
 	))
 
 	err = nps.checkOptimisticConcurrency(existing, version)
@@ -252,11 +252,11 @@ func (nps *Service) UpdateManagedRoute(ctx context.Context, orgID int64, name st
 
 func (nps *Service) DeleteManagedRoute(ctx context.Context, orgID int64, name string, p models.Provenance, version string) error {
 	ctx, span := nps.tracer.Start(ctx, "alerting.routes.delete", trace.WithAttributes(
-		attribute.Int64("query_org_id", orgID),
-		attribute.String("route_name", name),
-		attribute.String("route_version", version),
-		attribute.Bool("managed_routes_enabled", nps.managedRoutesEnabled()),
-		attribute.Bool("include_imported", nps.includeImported()),
+		attribute.Int64("queryOrgID", orgID),
+		attribute.String("routeName", name),
+		attribute.String("routeVersion", version),
+		attribute.Bool("managedRoutesEnabled", nps.managedRoutesEnabled()),
+		attribute.Bool("includeImported", nps.includeImported()),
 	))
 	defer span.End()
 
@@ -330,7 +330,7 @@ func (nps *Service) DeleteManagedRoute(ctx context.Context, orgID int64, name st
 		return err
 	}
 	span.AddEvent(fmt.Sprintf("%s route", action), trace.WithAttributes(
-		attribute.String("concurrency_token", revision.ConcurrencyToken),
+		attribute.String("concurrencyToken", revision.ConcurrencyToken),
 	))
 	nps.log.FromContext(ctx).Info("Managed route updated", "action", action, "name", name)
 	return nil
@@ -338,10 +338,10 @@ func (nps *Service) DeleteManagedRoute(ctx context.Context, orgID int64, name st
 
 func (nps *Service) CreateManagedRoute(ctx context.Context, orgID int64, name string, subtree definitions.Route, p models.Provenance) (*legacy_storage.ManagedRoute, error) {
 	ctx, span := nps.tracer.Start(ctx, "alerting.routes.create", trace.WithAttributes(
-		attribute.Int64("query_org_id", orgID),
-		attribute.String("route_name", name),
-		attribute.Bool("managed_routes_enabled", nps.managedRoutesEnabled()),
-		attribute.Bool("include_imported", nps.includeImported()),
+		attribute.Int64("queryOrgID", orgID),
+		attribute.String("routeName", name),
+		attribute.Bool("managedRoutesEnabled", nps.managedRoutesEnabled()),
+		attribute.Bool("includeImported", nps.includeImported()),
 	))
 	defer span.End()
 	// Backwards compatibility when managed routes FF is disabled. This is not allowed.
@@ -421,12 +421,12 @@ func (nps *Service) getImportedRoute(ctx context.Context, span trace.Span, revis
 	if err != nil {
 		nps.log.FromContext(ctx).Warn("Unable to include imported route. Skipping", "error", err)
 		span.RecordError(err, trace.WithAttributes(
-			attribute.String("concurrency_token", revision.ConcurrencyToken),
+			attribute.String("concurrencyToken", revision.ConcurrencyToken),
 		))
 		return nil
 	} else if result != nil {
 		span.AddEvent("Loaded imported route", trace.WithAttributes(
-			attribute.String("concurrency_token", revision.ConcurrencyToken),
+			attribute.String("concurrencyToken", revision.ConcurrencyToken),
 		))
 	}
 

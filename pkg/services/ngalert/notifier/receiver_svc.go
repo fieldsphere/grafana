@@ -128,9 +128,9 @@ func (rs *ReceiverService) GetReceiver(ctx context.Context, uid string, decrypt 
 		return nil, errors.New("user is required")
 	}
 	ctx, span := rs.tracer.Start(ctx, "alerting.receivers.get", trace.WithAttributes(
-		attribute.Int64("query_org_id", user.GetOrgID()),
-		attribute.String("query_uid", uid),
-		attribute.Bool("query_decrypt", decrypt),
+		attribute.Int64("queryOrgID", user.GetOrgID()),
+		attribute.String("queryUID", uid),
+		attribute.Bool("queryDecrypt", decrypt),
 	))
 	defer span.End()
 
@@ -158,7 +158,7 @@ func (rs *ReceiverService) GetReceiver(ctx context.Context, uid string, decrypt 
 	}
 
 	span.AddEvent("Loaded receiver", trace.WithAttributes(
-		attribute.String("concurrency_token", revision.ConcurrencyToken),
+		attribute.String("concurrencyToken", revision.ConcurrencyToken),
 	))
 
 	auth := rs.authz.AuthorizeReadDecrypted
@@ -188,11 +188,11 @@ func (rs *ReceiverService) GetReceiver(ctx context.Context, uid string, decrypt 
 // Receivers can be filtered by name, and secure settings are decrypted if requested and the user has access to do so.
 func (rs *ReceiverService) GetReceivers(ctx context.Context, q models.GetReceiversQuery, user identity.Requester) ([]*models.Receiver, error) {
 	ctx, span := rs.tracer.Start(ctx, "alerting.receivers.getMany", trace.WithAttributes(
-		attribute.Int64("query_org_id", q.OrgID),
-		attribute.StringSlice("query_names", q.Names),
-		attribute.Int("query_limit", q.Limit),
-		attribute.Int("query_offset", q.Offset),
-		attribute.Bool("query_decrypt", q.Decrypt),
+		attribute.Int64("queryOrgID", q.OrgID),
+		attribute.StringSlice("queryNames", q.Names),
+		attribute.Int("queryLimit", q.Limit),
+		attribute.Int("queryOffset", q.Offset),
+		attribute.Bool("queryDecrypt", q.Decrypt),
 	))
 	defer span.End()
 
@@ -217,7 +217,7 @@ func (rs *ReceiverService) GetReceivers(ctx context.Context, q models.GetReceive
 	}
 
 	span.AddEvent("Loaded receivers", trace.WithAttributes(
-		attribute.String("concurrency_token", revision.ConcurrencyToken),
+		attribute.String("concurrencyToken", revision.ConcurrencyToken),
 		attribute.Int("count", len(receivers)),
 	))
 
@@ -260,8 +260,8 @@ func (rs *ReceiverService) GetReceivers(ctx context.Context, q models.GetReceive
 // UID field currently does not exist, we assume the uid is a particular hashed value of the receiver name.
 func (rs *ReceiverService) DeleteReceiver(ctx context.Context, uid string, callerProvenance models.Provenance, version string, orgID int64, user identity.Requester) error {
 	ctx, span := rs.tracer.Start(ctx, "alerting.receivers.delete", trace.WithAttributes(
-		attribute.String("receiver_uid", uid),
-		attribute.String("receiver_version", version),
+		attribute.String("receiverUID", uid),
+		attribute.String("receiverVersion", version),
 	))
 	defer span.End()
 
@@ -359,7 +359,7 @@ func (rs *ReceiverService) CreateReceiver(ctx context.Context, r *models.Receive
 		return nil, err
 	}
 
-	span.AddEvent("Loaded Alertmanager configuration", trace.WithAttributes(attribute.String("concurrency_token", revision.ConcurrencyToken)))
+	span.AddEvent("Loaded Alertmanager configuration", trace.WithAttributes(attribute.String("concurrencyToken", revision.ConcurrencyToken)))
 
 	createdReceiver := r.Clone()
 	err = createdReceiver.Encrypt(rs.encryptor(ctx))
@@ -451,7 +451,7 @@ func (rs *ReceiverService) UpdateReceiver(ctx context.Context, r *models.Receive
 	}
 
 	span.AddEvent("Loaded current receiver", trace.WithAttributes(
-		attribute.String("concurrency_token", revision.ConcurrencyToken),
+		attribute.String("concurrencyToken", revision.ConcurrencyToken),
 		attribute.String("receiver", existing.Name),
 		attribute.String("uid", existing.UID),
 		attribute.String("version", existing.Version),
@@ -772,7 +772,7 @@ func (rs *ReceiverService) RenameReceiverInDependentResources(ctx context.Contex
 	ctx, span := rs.tracer.Start(ctx, "alerting.receivers.rename-dependent-resources", trace.WithAttributes(
 		attribute.String("oldName", oldName),
 		attribute.String("newName", newName),
-		attribute.String("receiver_provenance", string(receiverProvenance)),
+		attribute.String("receiverProvenance", string(receiverProvenance)),
 	))
 	defer span.End()
 
@@ -800,8 +800,8 @@ func (rs *ReceiverService) RenameReceiverInDependentResources(ctx context.Contex
 	if !canUpdate || len(invalidProvenance) > 0 {
 		err := makeErrReceiverDependentResourcesProvenance(updatedRouteCnt > 0, invalidProvenance)
 		span.RecordError(err, trace.WithAttributes(
-			attribute.Bool("invalid_route_provenance", canUpdate),
-			attribute.Int("invalid_rule_provenances", len(invalidProvenance)),
+			attribute.Bool("invalidRouteProvenance", canUpdate),
+			attribute.Int("invalidRuleProvenances", len(invalidProvenance)),
 		))
 		return err
 	}
@@ -824,11 +824,11 @@ func (rs *ReceiverService) getImportedReceivers(ctx context.Context, span trace.
 	if err != nil {
 		rs.log.FromContext(ctx).Warn("Unable to include imported receivers. Skipping", "error", err)
 		span.RecordError(err, trace.WithAttributes(
-			attribute.String("concurrency_token", revision.ConcurrencyToken),
+			attribute.String("concurrencyToken", revision.ConcurrencyToken),
 		))
 	} else if len(result) > 0 { // if the list is empty, then we do not have any imported configuration
 		span.AddEvent("Loaded importedReceivers receivers", trace.WithAttributes(
-			attribute.String("concurrency_token", revision.ConcurrencyToken),
+			attribute.String("concurrencyToken", revision.ConcurrencyToken),
 			attribute.Int("count", len(result)),
 		))
 	}
