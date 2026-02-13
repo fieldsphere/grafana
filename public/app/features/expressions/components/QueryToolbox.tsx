@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState, type JSX } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { IconButton, useStyles2, Stack, InlineToast, Tooltip, Icon } from '@grafana/ui';
 
 import { SqlExpressionQuery } from '../types';
@@ -15,6 +16,7 @@ interface QueryToolboxProps {
 }
 
 const SHOW_SUCCESS_DURATION = 2 * 1000;
+const logger = createMonitoringLogger('features.expressions.query-toolbox');
 
 export const QueryToolbox = ({ onFormatCode, onExpand, isExpanded, query }: QueryToolboxProps): JSX.Element => {
   const styles = useStyles2(getStyles);
@@ -39,7 +41,11 @@ export const QueryToolbox = ({ onFormatCode, onExpand, isExpanded, query }: Quer
       await navigator.clipboard.writeText(query.expression ?? '');
       setShowCopySuccess(true);
     } catch (e) {
-      console.error(e);
+      if (e instanceof Error) {
+        logger.logError(e, { operation: 'copyTextCallback' });
+      } else {
+        logger.logWarning('Failed to copy query text', { operation: 'copyTextCallback', error: String(e) });
+      }
     }
   }, [query.expression]);
 

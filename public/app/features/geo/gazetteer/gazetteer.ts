@@ -2,11 +2,14 @@ import { getCenter } from 'ol/extent';
 import { Geometry, Point } from 'ol/geom';
 
 import { DataFrame, Field, FieldType, KeyValue, toDataFrame } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { frameFromGeoJSON } from '../format/geojson';
 import { pointFieldFromLonLat, pointFieldFromGeohash } from '../format/utils';
 
 import { loadWorldmapPoints } from './worldmap';
+
+const logger = createMonitoringLogger('features.geo.gazetteer');
 
 export interface PlacenameInfo {
   point: () => Point | undefined; // lon, lat (WGS84)
@@ -199,7 +202,11 @@ export async function getGazetteer(path?: string): Promise<Gazetteer> {
       const data = await response.json();
       lookup = loadGazetteer(path, data);
     } catch (err) {
-      console.warn('Error loading placename lookup', path, err);
+      logger.logWarning('Error loading placename lookup', {
+        operation: 'getGazetteer',
+        path,
+        error: String(err),
+      });
       lookup = {
         path,
         error: 'Error loading URL',
