@@ -14,6 +14,8 @@ export function logInfo(message: string, contexts?: LogContext) {
       level: LogLevel.INFO,
       context: contexts,
     });
+  } else {
+    console.info(message, contexts);
   }
 }
 
@@ -28,6 +30,8 @@ export function logWarning(message: string, contexts?: LogContext) {
       level: LogLevel.WARN,
       context: contexts,
     });
+  } else {
+    console.warn(message, contexts);
   }
 }
 
@@ -42,6 +46,8 @@ export function logDebug(message: string, contexts?: LogContext) {
       level: LogLevel.DEBUG,
       context: contexts,
     });
+  } else {
+    console.debug(message, contexts);
   }
 }
 
@@ -55,6 +61,8 @@ export function logError(err: Error, contexts?: LogContext) {
     faro.api.pushError(err, {
       context: contexts,
     });
+  } else {
+    console.error(err, contexts);
   }
 }
 
