@@ -136,13 +136,13 @@ func (s *gPRCServerService) Run(ctx context.Context) error {
 		"address", s.cfg.Address,
 		"network", s.cfg.Network,
 		"tls", s.cfg.TLSConfig != nil,
-		"max_recv_msg_size", s.cfg.MaxRecvMsgSize,
-		"max_send_msg_size", s.cfg.MaxSendMsgSize,
-		"max_connection_age", s.cfg.MaxConnectionAge,
-		"max_connection_idle", s.cfg.MaxConnectionIdle,
-		"keepalive_time", s.cfg.KeepaliveTime,
-		"keepalive_timeout", s.cfg.KeepaliveTimeout,
-		"keepalive_min_time", s.cfg.KeepaliveMinTime)
+		"maxRecvMsgSize", s.cfg.MaxRecvMsgSize,
+		"maxSendMsgSize", s.cfg.MaxSendMsgSize,
+		"maxConnectionAge", s.cfg.MaxConnectionAge,
+		"maxConnectionIdle", s.cfg.MaxConnectionIdle,
+		"keepaliveTime", s.cfg.KeepaliveTime,
+		"keepaliveTimeout", s.cfg.KeepaliveTimeout,
+		"keepaliveMinTime", s.cfg.KeepaliveMinTime)
 
 	listener, err := net.Listen(s.cfg.Network, s.cfg.Address)
 	if err != nil {

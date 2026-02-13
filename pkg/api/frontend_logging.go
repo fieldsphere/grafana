@@ -58,27 +58,27 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 			for _, logEntry := range event.Logs {
 				var ctx = frontendlogging.CtxVector{}
 				ctx = event.AddMetaToContext(ctx)
-				ctx = append(ctx, "kind", "log", "original_timestamp", logEntry.Timestamp)
+				ctx = append(ctx, "kind", "log", "originalTimestamp", logEntry.Timestamp)
 				ctx = appendSortedFrontendContext(ctx, frontendlogging.KeyValToInterfaceMap(logEntry.KeyValContext()))
 				switch logEntry.LogLevel {
 				case frontendlogging.LogLevelDebug, frontendlogging.LogLevelTrace:
 					{
-						ctx = append(ctx, "original_log_level", logEntry.LogLevel, "frontend_log_message", logEntry.Message)
+						ctx = append(ctx, "originalLogLevel", logEntry.LogLevel, "frontendLogMessage", logEntry.Message)
 						frontendLogger.Debug("Frontend javascript agent log entry", ctx...)
 					}
 				case frontendlogging.LogLevelError:
 					{
-						ctx = append(ctx, "original_log_level", logEntry.LogLevel, "frontend_log_message", logEntry.Message)
+						ctx = append(ctx, "originalLogLevel", logEntry.LogLevel, "frontendLogMessage", logEntry.Message)
 						frontendLogger.Error("Frontend javascript agent log entry", ctx...)
 					}
 				case frontendlogging.LogLevelWarning:
 					{
-						ctx = append(ctx, "original_log_level", logEntry.LogLevel, "frontend_log_message", logEntry.Message)
+						ctx = append(ctx, "originalLogLevel", logEntry.LogLevel, "frontendLogMessage", logEntry.Message)
 						frontendLogger.Warn("Frontend javascript agent log entry", ctx...)
 					}
 				default:
 					{
-						ctx = append(ctx, "original_log_level", logEntry.LogLevel, "frontend_log_message", logEntry.Message)
+						ctx = append(ctx, "originalLogLevel", logEntry.LogLevel, "frontendLogMessage", logEntry.Message)
 						frontendLogger.Info("Frontend javascript agent log entry", ctx...)
 					}
 				}
@@ -92,7 +92,7 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 					var ctx = frontendlogging.CtxVector{}
 					ctx = event.AddMetaToContext(ctx)
 					ctx = append(ctx, measurementName, measurementValue)
-					ctx = append(ctx, "kind", "measurement", "original_timestamp", measurementEntry.Timestamp)
+					ctx = append(ctx, "kind", "measurement", "originalTimestamp", measurementEntry.Timestamp)
 					frontendLogger.Info("Measurement", append(ctx, "measurementType", measurementEntry.Type)...)
 				}
 			}
@@ -104,7 +104,7 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 				exception := exception
 				transformedException := frontendlogging.TransformException(c.Req.Context(), &exception, store)
 				ctx = append(ctx, "kind", "exception", "type", transformedException.Type, "value", transformedException.Value, "stacktrace", transformedException.String())
-				ctx = append(ctx, "original_timestamp", exception.Timestamp, "frontend_exception_message", exception.Message())
+				ctx = append(ctx, "originalTimestamp", exception.Timestamp, "frontendExceptionMessage", exception.Message())
 				frontendLogger.Error("Frontend javascript agent exception", ctx...)
 			}
 		}

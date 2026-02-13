@@ -22,7 +22,7 @@ func CSPMiddleware() web.Middleware {
 				return
 			}
 
-			logger.Debug("Applying CSP middleware", "enabled", requestConfig.CSPEnabled, "report_only_enabled", requestConfig.CSPReportOnlyEnabled)
+			logger.Debug("Applying CSP middleware", "enabled", requestConfig.CSPEnabled, "reportOnlyEnabled", requestConfig.CSPReportOnlyEnabled)
 
 			// Bail early if CSP is not enabled for this tenant
 			if !requestConfig.CSPEnabled && !requestConfig.CSPReportOnlyEnabled {

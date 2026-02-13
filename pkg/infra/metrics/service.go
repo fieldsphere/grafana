@@ -41,12 +41,12 @@ func normalizeGraphiteLogArgs(args ...any) []any {
 }
 
 func (lw *logWrapper) Warn(msg string, args ...any) {
-	context := append([]any{"graphite_message", msg}, normalizeGraphiteLogArgs(args...)...)
+	context := append([]any{"graphiteMessage", msg}, normalizeGraphiteLogArgs(args...)...)
 	lw.logger.Warn("Graphite bridge event", context...)
 }
 
 func (lw *logWrapper) Error(msg string, args ...any) {
-	context := append([]any{"graphite_message", msg}, normalizeGraphiteLogArgs(args...)...)
+	context := append([]any{"graphiteMessage", msg}, normalizeGraphiteLogArgs(args...)...)
 	lw.logger.Error("Graphite bridge event", context...)
 }
 

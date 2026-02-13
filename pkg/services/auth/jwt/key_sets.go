@@ -269,7 +269,7 @@ func (ks *keySetHTTP) getJWKS(ctx context.Context) (keySetJWKS, error) {
 			return jwks, err
 		}
 
-		ks.log.Debug("adding Authorization header", "token_len", len(token))
+		ks.log.Debug("adding Authorization header", "tokenLen", len(token))
 		req.Header.Set("Authorization", token)
 	}
 
