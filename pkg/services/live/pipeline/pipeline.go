@@ -25,7 +25,7 @@ import (
 const (
 	service     = "grafana"
 	environment = "dev"
-	id          = 1
+	instanceID  = 1
 )
 
 // tracerProvider returns an OpenTelemetry TracerProvider configured to use
@@ -46,7 +46,7 @@ func tracerProvider(url string) (*tracesdk.TracerProvider, error) {
 			semconv.SchemaURL,
 			semconv.ServiceNameKey.String(service),
 			attribute.String("environment", environment),
-			attribute.Int64("ID", id),
+			attribute.Int64("instanceID", instanceID),
 		)),
 	)
 	return tp, nil
