@@ -121,7 +121,7 @@ func (r *NormalResponse) writeLogLine(c *contextmodel.ReqContext) {
 	if errors.As(r.err, &gfErr) {
 		logger = gfErr.LogLevel.LogFunc(c.Logger)
 	}
-	logger(r.errMessage, "error", r.err, "remote_addr", c.RemoteAddr(), "traceID", traceID)
+	logger(r.errMessage, "error", r.err, "remoteAddr", c.RemoteAddr(), "traceID", traceID)
 }
 
 func (r *NormalResponse) SetHeader(key, value string) *NormalResponse {
