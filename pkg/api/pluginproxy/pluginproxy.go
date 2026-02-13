@@ -99,8 +99,8 @@ func (proxy *PluginProxy) HandleRequest() {
 	}
 
 	proxyErrorLogger := logger.New(
-		"userId", proxy.ctx.UserID,
-		"orgId", proxy.ctx.OrgID,
+		"userID", proxy.ctx.UserID,
+		"orgID", proxy.ctx.OrgID,
 		"uname", proxy.ctx.Login,
 		"path", proxy.ctx.Req.URL.Path,
 		"remote_addr", proxy.ctx.RemoteAddr(),
@@ -213,8 +213,8 @@ func (proxy PluginProxy) logRequest() {
 
 	ctxLogger := logger.FromContext(proxy.ctx.Req.Context())
 	ctxLogger.Info("Proxying incoming request",
-		"userid", proxy.ctx.UserID,
-		"orgid", proxy.ctx.OrgID,
+		"userID", proxy.ctx.UserID,
+		"orgID", proxy.ctx.OrgID,
 		"username", proxy.ctx.Login,
 		"app", proxy.ps.PluginID,
 		"uri", proxy.ctx.Req.RequestURI,
