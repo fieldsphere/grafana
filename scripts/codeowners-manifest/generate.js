@@ -10,6 +10,7 @@ const {
   FILENAMES_BY_CODEOWNER_JSON_PATH,
   CODEOWNERS_JSON_PATH,
 } = require('./constants.js');
+const { logCodeownersError, logCodeownersInfo } = require('./logging.js');
 
 /**
  * Generate codeowners manifest files from raw audit data
@@ -43,7 +44,10 @@ async function generateCodeownersManifest(
   let filenamesByCodeowner = new Map();
 
   lineReader.on('error', (error) => {
-    console.error('Error reading file:', error);
+    logCodeownersError('Error reading codeowners audit file', {
+      operation: 'generateCodeownersManifest.lineReader.error',
+      error: String(error),
+    });
     throw error;
   });
 
@@ -62,7 +66,11 @@ async function generateCodeownersManifest(
         filenamesByCodeowner.set(owner, filenames.concat(path));
       }
     } catch (parseError) {
-      console.error(`Error parsing line: ${line}`, parseError);
+      logCodeownersError('Error parsing raw audit line', {
+        operation: 'generateCodeownersManifest.lineReader.line',
+        line,
+        error: String(parseError),
+      });
       throw parseError;
     }
   });
@@ -79,19 +87,27 @@ async function generateCodeownersManifest(
 if (require.main === module) {
   (async () => {
     try {
-      console.log(`📋 Generating files ↔ teams manifests from ${RAW_AUDIT_JSONL_PATH} ...`);
+      logCodeownersInfo('Generating files to teams manifest', {
+        operation: 'main',
+        rawAuditPath: RAW_AUDIT_JSONL_PATH,
+      });
       await generateCodeownersManifest(
         RAW_AUDIT_JSONL_PATH,
         CODEOWNERS_JSON_PATH,
         CODEOWNERS_BY_FILENAME_JSON_PATH,
         FILENAMES_BY_CODEOWNER_JSON_PATH
       );
-      console.log('✅ Manifest files generated:');
-      console.log(`   • ${CODEOWNERS_JSON_PATH}`);
-      console.log(`   • ${CODEOWNERS_BY_FILENAME_JSON_PATH}`);
-      console.log(`   • ${FILENAMES_BY_CODEOWNER_JSON_PATH}`);
+      logCodeownersInfo('Manifest files generated', {
+        operation: 'main',
+        codeownersPath: CODEOWNERS_JSON_PATH,
+        byFilenamePath: CODEOWNERS_BY_FILENAME_JSON_PATH,
+        byCodeownerPath: FILENAMES_BY_CODEOWNER_JSON_PATH,
+      });
     } catch (e) {
-      console.error(e);
+      logCodeownersError('Error generating codeowners manifest files', {
+        operation: 'main',
+        error: String(e),
+      });
       process.exit(1);
     }
   })();
