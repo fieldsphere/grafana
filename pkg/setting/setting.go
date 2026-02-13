@@ -1424,7 +1424,7 @@ func (cfg *Cfg) parseINIFile(iniFile *ini.File) error {
 	if err != nil {
 		// if the proxy is misconfigured, disable it rather than crashing
 		cfg.SecureSocksDSProxy.Enabled = false
-		cfg.Logger.Error("secure_socks_datasource_proxy unable to start up", "err", err.Error())
+		cfg.Logger.Error("secure_socks_datasource_proxy unable to start up", "error", err)
 	}
 
 	if cfg.VerifyEmailEnabled && !cfg.Smtp.Enabled {
