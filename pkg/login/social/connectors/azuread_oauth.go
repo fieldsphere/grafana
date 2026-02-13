@@ -549,8 +549,8 @@ func (s *SocialAzureAD) SupportBundleContent(bf *bytes.Buffer) error {
 
 	bf.WriteString("## AzureAD specific configuration\n\n")
 	bf.WriteString("```ini\n")
-	fmt.Fprintf(bf, "allowed_groups = %v\n", s.info.AllowedGroups)
-	fmt.Fprintf(bf, "forceUseGraphAPI = %v\n", s.forceUseGraphAPI)
+	writeSupportBundleConfigLine(bf, "allowed_groups", s.info.AllowedGroups)
+	writeSupportBundleConfigLine(bf, "forceUseGraphAPI", s.forceUseGraphAPI)
 	bf.WriteString("```\n\n")
 
 	return s.getBaseSupportBundleContent(bf)
