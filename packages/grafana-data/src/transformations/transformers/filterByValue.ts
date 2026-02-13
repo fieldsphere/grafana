@@ -1,6 +1,7 @@
 import { map } from 'rxjs/operators';
 
 import { getFieldDisplayName } from '../../field/fieldState';
+import { logDataWarning } from '../../logging';
 import { DataFrame, Field } from '../../types/dataFrame';
 import { DataTransformerInfo, MatcherConfig } from '../../types/transformations';
 import { getValueMatcher } from '../matchers';
@@ -139,7 +140,10 @@ const createFilterValueMatchers = (
     const fieldIndex = fieldIndexByName[filter.fieldName] ?? -1;
 
     if (fieldIndex < 0) {
-      console.warn(`[FilterByValue] Could not find index for field name: ${filter.fieldName}`);
+      logDataWarning('Could not find index for field name', {
+        operation: 'createFilterValueMatchers',
+        fieldName: filter.fieldName,
+      });
       return noop;
     }
 

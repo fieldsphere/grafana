@@ -3,6 +3,7 @@
  */
 
 import { isDateTime } from '../datetime/moment_wrapper';
+import { logDataWarning } from '../logging';
 import { ExploreUrlState, URLRange } from '../types/explore';
 import { RawTimeRange } from '../types/time';
 
@@ -226,7 +227,9 @@ export const urlUtil = {
  */
 export function serializeStateToUrlParam(urlState: Partial<ExploreUrlState>, compact?: boolean): string {
   if (compact !== undefined) {
-    console.warn('`compact` parameter is deprecated and will be removed in a future release');
+    logDataWarning('`compact` parameter is deprecated and will be removed in a future release', {
+      operation: 'serializeStateToUrlParam',
+    });
   }
   return JSON.stringify(urlState);
 }

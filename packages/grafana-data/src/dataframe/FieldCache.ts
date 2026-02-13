@@ -1,3 +1,4 @@
+import { logDataWarning } from '../logging';
 import { DataFrame, Field, FieldType } from '../types/dataFrame';
 
 import { guessFieldTypeForField } from './processDataFrame';
@@ -36,7 +37,10 @@ export class FieldCache {
       });
 
       if (this.fieldByName[field.name]) {
-        console.warn('Duplicate field names in DataFrame: ', field.name);
+        logDataWarning('Duplicate field names in DataFrame', {
+          operation: 'FieldCache.constructor',
+          fieldName: field.name,
+        });
       } else {
         this.fieldByName[field.name] = { ...field, index: i };
       }
