@@ -125,11 +125,11 @@ func (pr *permissionRegistry) RegisterPluginScope(scope string) {
 	if len(scopeParts) > 2 {
 		attr := scopeParts[1]
 		pr.kindScopePrefix[kind] = kind + ":" + attr + ":"
-		pr.logger.Debug("registered scope prefix", "kind", kind, "scope_prefix", kind+":"+attr+":")
+		pr.logger.Debug("registered scope prefix", "kind", kind, "scopePrefix", kind+":"+attr+":")
 		return
 	}
 
-	pr.logger.Debug("registered scope prefix", "kind", kind, "scope_prefix", kind+":")
+	pr.logger.Debug("registered scope prefix", "kind", kind, "scopePrefix", kind+":")
 	pr.kindScopePrefix[kind] = kind + ":"
 }
 

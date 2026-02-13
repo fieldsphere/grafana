@@ -466,7 +466,7 @@ func (o *Service) tryGetOrRefreshOAuthToken(ctx context.Context, persistedToken 
 	if !tokensEq(persistedToken, token) {
 		if o.Cfg.Env == setting.Dev {
 			ctxLogger.Debug("Oauth got token",
-				"auth_module", usr.GetAuthenticatedBy(),
+				"authModule", usr.GetAuthenticatedBy(),
 				"expiry", fmt.Sprintf("%v", token.Expiry),
 				"access_token", fmt.Sprintf("%v", token.AccessToken),
 				"refresh_token", fmt.Sprintf("%v", token.RefreshToken),

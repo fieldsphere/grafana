@@ -77,14 +77,14 @@ type ReceiverPermissionsService struct {
 
 // SetDefaultPermissions sets the default permissions for a newly created receiver.
 func (r ReceiverPermissionsService) SetDefaultPermissions(ctx context.Context, orgID int64, user identity.Requester, uid string) {
-	r.log.Debug("Setting default permissions for receiver", "receiver_uid", uid)
+	r.log.Debug("Setting default permissions for receiver", "receiverUID", uid)
 	resourceId := models.ScopeReceiversProvider.GetResourceIDFromUID(uid)
 	permissions := defaultPermissions()
 	clearCache := false
 	if user != nil && user.IsIdentityType(claims.TypeUser, claims.TypeServiceAccount) {
 		userID, err := user.GetInternalID()
 		if err != nil {
-			r.log.Error("Could not make user admin", "receiver_uid", uid, "resource_id", resourceId, "id", user.GetID(), "error", err)
+			r.log.Error("Could not make user admin", "receiverUID", uid, "resourceID", resourceId, "id", user.GetID(), "error", err)
 		} else {
 			permissions = append(permissions, accesscontrol.SetResourcePermissionCommand{
 				UserID: userID, Permission: string(models.PermissionAdmin),
@@ -94,7 +94,7 @@ func (r ReceiverPermissionsService) SetDefaultPermissions(ctx context.Context, o
 	}
 
 	if _, err := r.SetPermissions(ctx, orgID, resourceId, permissions...); err != nil {
-		r.log.Error("Could not set default permissions", "receiver_uid", uid, "resource_id", resourceId, "id", "error", err)
+		r.log.Error("Could not set default permissions", "receiverUID", uid, "resourceID", resourceId, "id", "error", err)
 	}
 
 	if clearCache {
@@ -122,7 +122,7 @@ func copyPermissionUser(orgID int64) identity.Requester {
 // method to be used during receiver renaming that is necessitated by receiver uids being generated from the receiver
 // name.
 func (r ReceiverPermissionsService) CopyPermissions(ctx context.Context, orgID int64, user identity.Requester, oldUID, newUID string) (int, error) {
-	r.log.Debug("Copying permissions from receiver", "old_uid", oldUID, "new_uid", newUID)
+	r.log.Debug("Copying permissions from receiver", "oldUID", oldUID, "newUID", newUID)
 	oldResourceId := models.ScopeReceiversProvider.GetResourceIDFromUID(oldUID)
 	newResourceId := models.ScopeReceiversProvider.GetResourceIDFromUID(newUID)
 	currentPermissions, err := r.GetPermissions(ctx, copyPermissionUser(orgID), oldResourceId)

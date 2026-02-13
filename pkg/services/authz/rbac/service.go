@@ -204,13 +204,13 @@ func (s *Service) BatchCheck(ctx context.Context, req *authzv1.BatchCheckRequest
 	span.SetAttributes(
 		attribute.String("namespace", req.GetNamespace()),
 		attribute.String("subject", req.GetSubject()),
-		attribute.Int("check_count", len(checks)),
+		attribute.Int("checkCount", len(checks)),
 	)
 
 	ctxLogger := s.logger.FromContext(ctx).New(
 		"subject", req.GetSubject(),
 		"namespace", req.GetNamespace(),
-		"check_count", len(checks),
+		"checkCount", len(checks),
 	)
 	defer func(start time.Time) {
 		ctxLogger.Debug("BatchCheck execution time", "duration", time.Since(start).Milliseconds())
