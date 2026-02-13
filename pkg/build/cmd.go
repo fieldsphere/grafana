@@ -27,8 +27,8 @@ const (
 
 var binaries = []string{BackendBinary, ServerBinary, CLIBinary}
 
-func logError(message string, err error) int {
-	slog.Error(message, "error", err)
+func logError(operation string, err error) int {
+	slog.Error("Build command failed", "operation", operation, "error", err)
 
 	return 1
 }
@@ -45,12 +45,12 @@ func RunCmd() int {
 
 	wd, err := os.Getwd()
 	if err != nil {
-		return logError("Error getting working directory", err)
+		return logError("get working directory", err)
 	}
 
 	packageJSON, err := OpenPackageJSON(wd)
 	if err != nil {
-		return logError("Error opening package json", err)
+		return logError("open package json", err)
 	}
 
 	opts.version = packageJSON.Version
@@ -120,7 +120,7 @@ func RunCmd() int {
 
 		case "sha-dist":
 			if err := shaDir("dist"); err != nil {
-				return logError("error packaging dist directory", err)
+				return logError("package dist directory", err)
 			}
 
 		case "clean":
