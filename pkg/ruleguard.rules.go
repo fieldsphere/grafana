@@ -832,6 +832,14 @@ func unstructuredoutput(m fluent.Matcher) {
 	).
 		Where(m["logger"].Type.Is("*log.Logger") || m["logger"].Type.Is("log.Logger")).
 		Report("avoid stdlib *log.Logger print/fatal helpers; use structured logging and explicit exit handling where needed")
+
+	m.Match(
+		`klog.Infof($*args)`,
+		`klog.Warningf($*args)`,
+		`klog.Errorf($*args)`,
+		`klog.Fatalf($*args)`,
+		`klog.V($lvl).Infof($*args)`,
+	).Report("avoid klog printf-style helpers; use structured klog methods (InfoS/ErrorS) with key/value fields")
 }
 
 func badlock(m fluent.Matcher) {
