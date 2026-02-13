@@ -517,6 +517,8 @@ func structuredlogging(m fluent.Matcher) {
 
 func unstructuredoutput(m fluent.Matcher) {
 	m.Match(
+		`print($*args)`,
+		`println($*args)`,
 		`fmt.Print($*args)`,
 		`fmt.Printf($*args)`,
 		`fmt.Println($*args)`,
