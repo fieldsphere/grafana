@@ -966,7 +966,7 @@ func (s *Service) DeleteLegacy(ctx context.Context, cmd *folder.DeleteFolderComm
 
 		err = s.store.Delete(ctx, []string{cmd.UID}, cmd.OrgID)
 		if err != nil {
-			s.log.InfoContext(ctx, "failed deleting folder", "orgID", cmd.OrgID, "uid", cmd.UID, "error", err)
+			s.log.InfoContext(ctx, "failed deleting folder", "orgID", cmd.OrgID, "folderUID", cmd.UID, "error", err)
 			return err
 		}
 
@@ -1246,7 +1246,7 @@ func (s *Service) nestedFolderDelete(ctx context.Context, cmd *folder.DeleteFold
 	for _, f := range descendants {
 		descendantUIDs = append(descendantUIDs, f.UID)
 	}
-	s.log.InfoContext(ctx, "deleting legacy folder descendants", "orgID", cmd.OrgID, "uid", cmd.UID, "descendantsUIDs", strings.Join(descendantUIDs, ","))
+s.log.InfoContext(ctx, "deleting legacy folder descendants", "orgID", cmd.OrgID, "folderUID", cmd.UID, "descendantsUIDs", strings.Join(descendantUIDs, ","))
 
 	err = s.store.Delete(ctx, descendantUIDs, cmd.OrgID)
 	if err != nil {
