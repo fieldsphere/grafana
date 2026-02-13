@@ -17,6 +17,14 @@ type logWrapper struct {
 	impliedArgs []any
 }
 
+func wrapPluginLogArgs(msg, level string, args ...any) []any {
+	formattedArgs := formatArgs(args...)
+	context := make([]any, 0, len(formattedArgs)+4)
+	context = append(context, "plugin_message", msg, "plugin_log_level", level)
+	context = append(context, formattedArgs...)
+	return context
+}
+
 func formatArgs(args ...any) []any {
 	if len(args) == 0 || len(args)%2 != 0 {
 		return args
@@ -58,27 +66,27 @@ func (lw logWrapper) Log(level hclog.Level, msg string, args ...any) {
 
 // Emit a message and key/value pairs at the TRACE level
 func (lw logWrapper) Trace(msg string, args ...any) {
-	lw.Logger.Debug(msg, formatArgs(args...)...)
+	lw.Logger.Debug("Backend plugin log entry", wrapPluginLogArgs(msg, "trace", args...)...)
 }
 
 // Emit a message and key/value pairs at the DEBUG level
 func (lw logWrapper) Debug(msg string, args ...any) {
-	lw.Logger.Debug(msg, formatArgs(args...)...)
+	lw.Logger.Debug("Backend plugin log entry", wrapPluginLogArgs(msg, "debug", args...)...)
 }
 
 // Emit a message and key/value pairs at the INFO level
 func (lw logWrapper) Info(msg string, args ...any) {
-	lw.Logger.Info(msg, formatArgs(args...)...)
+	lw.Logger.Info("Backend plugin log entry", wrapPluginLogArgs(msg, "info", args...)...)
 }
 
 // Emit a message and key/value pairs at the WARN level
 func (lw logWrapper) Warn(msg string, args ...any) {
-	lw.Logger.Warn(msg, formatArgs(args...)...)
+	lw.Logger.Warn("Backend plugin log entry", wrapPluginLogArgs(msg, "warn", args...)...)
 }
 
 // Emit a message and key/value pairs at the ERROR level
 func (lw logWrapper) Error(msg string, args ...any) {
-	lw.Logger.Error(msg, formatArgs(args...)...)
+	lw.Logger.Error("Backend plugin log entry", wrapPluginLogArgs(msg, "error", args...)...)
 }
 
 // Indicate if TRACE logs would be emitted.
