@@ -271,7 +271,7 @@ func (esa *ExtSvcAccountsService) ManageExtSvcAccount(ctx context.Context, cmd *
 		SaID:        saID,
 	})
 	if errSave != nil {
-		ctxLogger.Error("Could not save service account", "service", cmd.ExtSvcSlug, "error", errSave.Error())
+		ctxLogger.Error("Could not save service account", "service", cmd.ExtSvcSlug, "error", errSave)
 		return 0, errSave
 	}
 	return saID, nil

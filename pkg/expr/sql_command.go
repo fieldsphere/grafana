@@ -129,7 +129,7 @@ func (gr *SQLCommand) Execute(ctx context.Context, now time.Time, vars mathexp.V
 			))
 			span.SetAttributes(attribute.String("error.category", errorType))
 			span.SetStatus(codes.Error, errorType)
-			gr.logger.Error("SQL command execution failed", "error", rsp.Error.Error(), "error_type", errorType)
+			gr.logger.Error("SQL command execution failed", "error", rsp.Error, "error_type", errorType)
 		}
 		span.End()
 

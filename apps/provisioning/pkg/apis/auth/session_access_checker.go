@@ -48,7 +48,7 @@ func (c *sessionAccessChecker) Check(ctx context.Context, req authlib.CheckReque
 		logger.Debug("failed to get requester",
 			"resource", req.Resource,
 			"verb", req.Verb,
-			"error", err.Error(),
+			"error", err,
 		)
 		return apierrors.NewUnauthorized(fmt.Sprintf("failed to get requester: %v", err))
 	}
@@ -82,7 +82,7 @@ func (c *sessionAccessChecker) Check(ctx context.Context, req authlib.CheckReque
 			logger.Debug("access check error (no fallback)",
 				"resource", req.Resource,
 				"verb", req.Verb,
-				"error", err.Error(),
+				"error", err,
 			)
 			return apierrors.NewForbidden(gr, req.Name, fmt.Errorf("%s.%s is forbidden: %w", req.Resource, req.Group, err))
 		}
@@ -116,7 +116,7 @@ func (c *sessionAccessChecker) Check(ctx context.Context, req authlib.CheckReque
 		logger.Debug("access check error (fallback failed)",
 			"resource", req.Resource,
 			"verb", req.Verb,
-			"error", err.Error(),
+			"error", err,
 			"fallbackRole", c.fallbackRole,
 			"orgRole", requester.GetOrgRole(),
 		)

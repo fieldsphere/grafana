@@ -528,7 +528,7 @@ func (s *SocialGenericOAuth) extractEmail(data *UserInfoJson) string {
 		if emailErr == nil {
 			return emailAddr.Address
 		}
-		s.log.Debug("Failed to parse e-mail address", "error", emailErr.Error())
+		s.log.Debug("Failed to parse e-mail address", "error", emailErr)
 	}
 
 	return ""

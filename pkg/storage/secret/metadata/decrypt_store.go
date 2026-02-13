@@ -104,7 +104,7 @@ func (s *decryptStorage) Decrypt(ctx context.Context, namespace xkube.Namespace,
 		} else {
 			span.SetStatus(codes.Error, "Decrypt failed")
 			span.RecordError(decryptErr)
-			args = append(args, "operation", "decrypt_secret_error", "error", decryptErr.Error(), "result", decryptResultLabel)
+			args = append(args, "operation", "decrypt_secret_error", "error", decryptErr, "result", decryptResultLabel)
 		}
 
 		logging.FromContext(ctx).Info("Secrets Audit Log", args...)
