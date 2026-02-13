@@ -229,7 +229,7 @@ func doBuild(binaryName, pkg string, opts BuildOpts) error {
 	if opts.libc != "" {
 		libcPart = fmt.Sprintf("/%s", opts.libc)
 	}
-	fmt.Printf("Targeting %s/%s%s\n", opts.goos, opts.goarch, libcPart)
+	slog.Info("Targeting build platform", "goos", opts.goos, "goarch", opts.goarch, "libc", opts.libc)
 
 	// Create an md5 checksum of the binary, to be included in the archive for
 	// automatic upgrades.
