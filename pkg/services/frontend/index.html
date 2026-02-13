@@ -176,7 +176,6 @@
             return;
           }
           hasFailedToBoot = true;
-          console.error('Failed to load Grafana', err);
           document.querySelector('.fs-variant-loader').classList.add('fs-hidden');
           document.querySelector('.fs-variant-error').classList.remove('fs-hidden');
 
@@ -187,9 +186,7 @@
             // no-store and ?ts=_ are used to ensure the request isn't cached.
             method: 'GET',
             cache: "no-store",
-          }).catch(err => {
-            console.error('Failed to report boot error to backend: ', err);
-          });
+          }).catch(() => {});
         };
 
         window.onload = function() {
@@ -305,7 +302,6 @@
                 }
               } catch (error) {
                 // Just ignore any errors in session rotation. The user can just log in again.
-                console.warn("Failed to rotate session", error);
               }
 
               try {
@@ -392,7 +388,6 @@
 
         window.__grafana_boot_data_promise = initGrafana()
         window.__grafana_boot_data_promise.catch((err) => {
-          console.error("__grafana_boot_data_promise rejected", err);
           window.__grafana_load_failed(err);
         });
       })();
