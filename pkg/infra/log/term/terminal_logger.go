@@ -52,9 +52,23 @@ func (l terminalLogger) Log(keyvals ...interface{}) error {
 	lvl := fmt.Sprintf("%-5s", strings.ToUpper(r.level.String()))
 
 	if r.color > 0 {
-		fmt.Fprintf(b, "\x1b[%dm%s\x1b[0m[%s] %s ", r.color, lvl, r.time.Format(termTimeFormat), r.msg) // lgtm[go/log-injection]
+		b.WriteString("\x1b[")
+		b.WriteString(strconv.Itoa(r.color))
+		b.WriteString("m")
+		b.WriteString(lvl)
+		b.WriteString("\x1b[0m[")
+		b.WriteString(r.time.Format(termTimeFormat))
+		b.WriteString("] ")
+		b.WriteString(r.msg)
+		b.WriteByte(' ')
 	} else {
-		fmt.Fprintf(b, "[%s] [%s] %s ", lvl, r.time.Format(termTimeFormat), r.msg) // lgtm[go/log-injection]
+		b.WriteString("[")
+		b.WriteString(lvl)
+		b.WriteString("] [")
+		b.WriteString(r.time.Format(termTimeFormat))
+		b.WriteString("] ")
+		b.WriteString(r.msg)
+		b.WriteByte(' ')
 	}
 
 	// try to justify the log output for short messages
@@ -170,7 +184,12 @@ func logfmt(buf *bytes.Buffer, ctx []interface{}, color int) {
 
 		// XXX: we should probably check that all of your key bytes aren't invalid
 		if color > 0 {
-			fmt.Fprintf(buf, "\x1b[%dm%s\x1b[0m=%s", color, k, v) // lgtm[go/log-injection]
+			buf.WriteString("\x1b[")
+			buf.WriteString(strconv.Itoa(color))
+			buf.WriteString("m")
+			buf.WriteString(k)
+			buf.WriteString("\x1b[0m=")
+			buf.WriteString(v)
 		} else {
 			buf.WriteString(k)
 			buf.WriteByte('=')
