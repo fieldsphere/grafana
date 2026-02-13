@@ -832,6 +832,15 @@ func structuredlogging(m fluent.Matcher) {
 	).Report("use a stable klog structured message and key/value fields instead of fmt formatting")
 
 	m.Match(
+		`klog.InfoS($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`klog.ErrorS($err, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`klog.InfoS($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`klog.ErrorS($err, $msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+	).Report("avoid fmt formatting in structured klog field values; pass typed values or separate fields")
+
+	m.Match(
 		`klog.InfoS($msg, $*kv)`,
 		`klog.V($lvl).InfoS($msg, $*kv)`,
 		`klog.ErrorS($err, $msg, $*kv)`,
