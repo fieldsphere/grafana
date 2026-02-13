@@ -156,7 +156,7 @@ func (rs *RenderingService) Run(ctx context.Context) error {
 
 		rs.getRemotePluginVersionWithRetry(func(version string, err error) {
 			if err != nil {
-				rs.log.Info("Couldn't get remote renderer version", "err", err)
+				rs.log.Info("Couldn't get remote renderer version", "error", err)
 			}
 
 			rs.log.Info("Backend rendering via external http server", "version", version)

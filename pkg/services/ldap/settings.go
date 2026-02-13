@@ -182,14 +182,14 @@ func readConfig(configFile string) (*ServersConfig, error) {
 		if server.MinTLSVersion != "" {
 			server.MinTLSVersionID, err = util.TlsNameToVersion(server.MinTLSVersion)
 			if err != nil {
-				logger.Error("Failed to set min TLS version. Ignoring", "err", err)
+				logger.Error("Failed to set min TLS version. Ignoring", "error", err)
 			}
 		}
 
 		if len(server.TLSCiphers) > 0 {
 			server.TLSCipherIDs, err = util.TlsCiphersToIDs(server.TLSCiphers)
 			if err != nil {
-				logger.Error("Unrecognized TLS Cipher(s). Ignoring", "err", err)
+				logger.Error("Unrecognized TLS Cipher(s). Ignoring", "error", err)
 			}
 		}
 
