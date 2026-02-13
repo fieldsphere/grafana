@@ -3,7 +3,6 @@ package cleanup
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io/fs"
 	"os"
 	"path"
@@ -101,6 +100,14 @@ type cleanUpJob struct {
 	fn   func(context.Context)
 }
 
+func cleanupJobNames(jobs []cleanUpJob) []string {
+	names := make([]string, 0, len(jobs))
+	for _, job := range jobs {
+		names = append(names, job.name)
+	}
+	return names
+}
+
 func (j cleanUpJob) String() string {
 	return strconv.Quote(j.name)
 }
@@ -148,7 +155,7 @@ func (srv *CleanUpService) clean(ctx context.Context) {
 	}
 
 	logger := srv.log.FromContext(ctx)
-	logger.Debug("Starting cleanup jobs", "jobs", fmt.Sprintf("%v", cleanupJobs))
+	logger.Debug("Starting cleanup jobs", "jobCount", len(cleanupJobs), "jobs", cleanupJobNames(cleanupJobs))
 
 	for _, j := range cleanupJobs {
 		if ctx.Err() != nil {
