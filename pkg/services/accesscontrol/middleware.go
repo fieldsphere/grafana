@@ -102,7 +102,7 @@ func deny(c *contextmodel.ReqContext, evaluator Evaluator, err error) {
 	} else {
 		c.Logger.Info(
 			"Access denied",
-			"id", c.GetID(),
+			"identityID", c.GetID(),
 			"accessErrorID", id,
 			"permissions", evaluator.GoString(),
 		)

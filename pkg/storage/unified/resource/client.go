@@ -190,7 +190,7 @@ func idTokenExtractor(ctx context.Context) (string, error) {
 	authLogger.FromContext(ctx).Warn(
 		"calling resource store as the service without id token or marking it as the service identity",
 		"subject", info.GetSubject(),
-		"uid", info.GetUID(),
+		"identityUID", info.GetUID(),
 	)
 
 	return "", nil
