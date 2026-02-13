@@ -1127,8 +1127,12 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.String($left + $right, $value)`,
 		`attribute.Int($left + $right, $value)`,
 		`attribute.Int64($left + $right, $value)`,
+		`attribute.IntSlice($left + $right, $value)`,
+		`attribute.Int64Slice($left + $right, $value)`,
 		`attribute.Bool($left + $right, $value)`,
+		`attribute.BoolSlice($left + $right, $value)`,
 		`attribute.Float64($left + $right, $value)`,
+		`attribute.Float64Slice($left + $right, $value)`,
 		`attribute.StringSlice($left + $right, $value)`,
 	).
 		Report("avoid dynamic concatenation for trace attribute keys; use stable string-literal keys and keep dynamic data in values")
@@ -1137,14 +1141,22 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.String(fmt.Sprintf($fmt, $*args), $value)`,
 		`attribute.Int(fmt.Sprintf($fmt, $*args), $value)`,
 		`attribute.Int64(fmt.Sprintf($fmt, $*args), $value)`,
+		`attribute.IntSlice(fmt.Sprintf($fmt, $*args), $value)`,
+		`attribute.Int64Slice(fmt.Sprintf($fmt, $*args), $value)`,
 		`attribute.Bool(fmt.Sprintf($fmt, $*args), $value)`,
+		`attribute.BoolSlice(fmt.Sprintf($fmt, $*args), $value)`,
 		`attribute.Float64(fmt.Sprintf($fmt, $*args), $value)`,
+		`attribute.Float64Slice(fmt.Sprintf($fmt, $*args), $value)`,
 		`attribute.StringSlice(fmt.Sprintf($fmt, $*args), $value)`,
 		`attribute.String(fmt.Sprint($*args), $value)`,
 		`attribute.Int(fmt.Sprint($*args), $value)`,
 		`attribute.Int64(fmt.Sprint($*args), $value)`,
+		`attribute.IntSlice(fmt.Sprint($*args), $value)`,
+		`attribute.Int64Slice(fmt.Sprint($*args), $value)`,
 		`attribute.Bool(fmt.Sprint($*args), $value)`,
+		`attribute.BoolSlice(fmt.Sprint($*args), $value)`,
 		`attribute.Float64(fmt.Sprint($*args), $value)`,
+		`attribute.Float64Slice(fmt.Sprint($*args), $value)`,
 		`attribute.StringSlice(fmt.Sprint($*args), $value)`,
 	).
 		Report("avoid fmt formatting for trace attribute keys; use stable string-literal keys and keep dynamic data in values")
@@ -1153,8 +1165,12 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.String($key, $value)`,
 		`attribute.Int($key, $value)`,
 		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
 		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
 		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
@@ -1164,8 +1180,12 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.String($key, $value)`,
 		`attribute.Int($key, $value)`,
 		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
 		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
 		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
@@ -1175,8 +1195,12 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.String($key, $value)`,
 		`attribute.Int($key, $value)`,
 		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
 		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
 		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
 		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$")).
@@ -1186,8 +1210,12 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.String($key, $value)`,
 		`attribute.Int($key, $value)`,
 		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
 		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
 		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z0-9.]*_[A-Za-z0-9_.]*\"$")).
