@@ -244,7 +244,7 @@ func (cmd *diffCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 		}); err == nil {
 			if diff != "" {
 				// Print the actual diff to stdout, not stderr.
-				_, _ = fmt.Fprintf(os.Stdout, "%s: diff from %s:\n%s\n", out.PkgPath, out.OutputPath, diff)
+				_, _ = os.Stdout.WriteString(fmt.Sprintf("%s: diff from %s:\n%s\n", out.PkgPath, out.OutputPath, diff))
 				hadDiff = true
 			}
 		} else {
@@ -304,15 +304,15 @@ func (cmd *showCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 		})
 		for i, k := range keys {
 			if i > 0 {
-				_, _ = fmt.Fprintln(os.Stdout)
+				_, _ = os.Stdout.WriteString("\n")
 			}
 			outGroups, imports := gather(info, k)
-			_, _ = fmt.Fprintln(os.Stdout, k)
+			_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", k))
 			for _, imp := range sortSet(imports) {
-				_, _ = fmt.Fprintf(os.Stdout, "\t%s\n", imp)
+				_, _ = os.Stdout.WriteString("\t" + imp + "\n")
 			}
 			for i := range outGroups {
-				_, _ = fmt.Fprintf(os.Stdout, "\tOutputs given %s:\n", outGroups[i].name)
+				_, _ = os.Stdout.WriteString(fmt.Sprintf("\tOutputs given %s:\n", outGroups[i].name))
 				out := make(map[string]token.Pos, outGroups[i].outputs.Len())
 				outGroups[i].outputs.Iterate(func(t types.Type, v interface{}) {
 					switch v := v.(type) {
@@ -327,8 +327,8 @@ func (cmd *showCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 					}
 				})
 				for _, t := range sortSet(out) {
-					_, _ = fmt.Fprintf(os.Stdout, "\t\t%s\n", t)
-					_, _ = fmt.Fprintf(os.Stdout, "\t\t\tat %v\n", info.Fset.Position(out[t]))
+					_, _ = os.Stdout.WriteString("\t\t" + t + "\n")
+					_, _ = os.Stdout.WriteString(fmt.Sprintf("\t\t\tat %v\n", info.Fset.Position(out[t])))
 				}
 			}
 		}
@@ -340,9 +340,9 @@ func (cmd *showCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 				}
 				return injectors[i].ImportPath < injectors[j].ImportPath
 			})
-			_, _ = fmt.Fprintln(os.Stdout, "\nInjectors:")
+			_, _ = os.Stdout.WriteString("\nInjectors:\n")
 			for _, in := range injectors {
-				_, _ = fmt.Fprintf(os.Stdout, "\t%v\n", in)
+				_, _ = os.Stdout.WriteString(fmt.Sprintf("\t%v\n", in))
 			}
 		}
 	}
