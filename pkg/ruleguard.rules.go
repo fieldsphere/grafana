@@ -1044,6 +1044,32 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`prefer "UID" acronym casing in structured log keys (for example "dashboardUID", "integrationUID")`)
 
 	m.Match(
+		`$logger.Info($msg, $*before, $key, $value, $*after)`,
+		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
+		`$logger.Error($msg, $*before, $key, $value, $*after)`,
+		`$logger.Debug($msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Info($msg, $*before, $key, $value, $*after)`,
+		`slog.Warn($msg, $*before, $key, $value, $*after)`,
+		`slog.Error($msg, $*before, $key, $value, $*after)`,
+		`slog.Debug($msg, $*before, $key, $value, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`klog.InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
+	).
+		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid)\"$")).
+		Report(`avoid all-lowercase "…id" structured log keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID"`)
+
+	m.Match(
 		`$logger.New($*before, $key, $value, $*after)`,
 		`$logger.With($*before, $key, $value, $*after)`,
 	).
@@ -1056,6 +1082,13 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
 		Report(`prefer "UID" acronym casing in structured logger context keys (for example "dashboardUID", "integrationUID")`)
+
+	m.Match(
+		`$logger.New($*before, $key, $value, $*after)`,
+		`$logger.With($*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid)\"$")).
+		Report(`avoid all-lowercase "…id" structured context keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID"`)
 
 	m.Match(
 		`$logger.Debugf($*args)`,
