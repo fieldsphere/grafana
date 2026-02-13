@@ -203,7 +203,7 @@ func (b *bleveBackend) getCachedIndex(key resource.NamespacedResource, now time.
 func (b *bleveBackend) closeIndex(idx *bleveIndex, key resource.NamespacedResource) {
 	err := idx.stopUpdaterAndCloseIndex()
 	if err != nil {
-		b.log.Error("failed to close index", "key", key, "err", err)
+		b.log.Error("failed to close index", "key", key, "error", err)
 	}
 
 	if b.indexMetrics != nil {
@@ -258,7 +258,7 @@ func (b *bleveBackend) runEvictExpiredOrUnownedIndexes(now time.Time) {
 	b.cacheMx.Unlock()
 
 	for key, err := range ownCheckErrors {
-		b.log.Warn("failed to check if index belongs to this instance", "key", key, "err", err)
+		b.log.Warn("failed to check if index belongs to this instance", "key", key, "error", err)
 	}
 
 	for key, idx := range unowned {
@@ -505,7 +505,7 @@ func (b *bleveBackend) BuildIndex(
 		start := time.Now()
 		listRV, err := builder(idx)
 		if err != nil {
-			logWithDetails.Error("Failed to build index", "err", err)
+			logWithDetails.Error("Failed to build index", "error", err)
 			if b.indexMetrics != nil {
 				b.indexMetrics.IndexBuildFailures.Inc()
 			}
@@ -513,7 +513,7 @@ func (b *bleveBackend) BuildIndex(
 		}
 		err = idx.updateResourceVersion(listRV)
 		if err != nil {
-			logWithDetails.Error("Failed to persist RV to index", "err", err, "rv", listRV)
+			logWithDetails.Error("Failed to persist RV to index", "error", err, "rv", listRV)
 			return nil, fmt.Errorf("failed to persist RV to index: %w", err)
 		}
 
@@ -561,7 +561,7 @@ func (b *bleveBackend) BuildIndex(
 
 		err := prev.stopUpdaterAndCloseIndex()
 		if err != nil {
-			logWithDetails.Error("failed to close previous index", "key", key, "err", err)
+			logWithDetails.Error("failed to close previous index", "key", key, "error", err)
 		}
 	}
 	if b.indexMetrics != nil {
@@ -676,16 +676,16 @@ func (b *bleveBackend) findPreviousFileBasedIndex(resourceDir string) (bleve.Ind
 			// On timeout, the file probably is locked by another process.
 			// This indicates a setup issue that should be fixed rather than worked around by creating a new index file.
 			if errors.Is(err, bolterrors.ErrTimeout) {
-				b.log.Error("index is locked by another process", "indexDir", indexDir, "err", err)
+				b.log.Error("index is locked by another process", "indexDir", indexDir, "error", err)
 				return nil, "", 0, fmt.Errorf("index is locked by another process: indexDir=%s, err=%w", indexDir, err)
 			}
-			b.log.Error("error opening index", "indexDir", indexDir, "err", err)
+			b.log.Error("error opening index", "indexDir", indexDir, "error", err)
 			continue
 		}
 
 		indexRV, err := getRV(idx)
 		if err != nil {
-			b.log.Error("error getting rv from index", "indexDir", indexDir, "err", err)
+			b.log.Error("error getting rv from index", "indexDir", indexDir, "error", err)
 			_ = idx.Close()
 			continue
 		}
@@ -710,7 +710,7 @@ func (b *bleveBackend) closeAllIndexes() {
 
 	for key, idx := range b.cache {
 		if err := idx.stopUpdaterAndCloseIndex(); err != nil {
-			b.log.Error("Failed to close index", "err", err)
+			b.log.Error("Failed to close index", "error", err)
 		}
 		delete(b.cache, key)
 
@@ -1589,7 +1589,7 @@ func (b *bleveIndex) updateIndexWithLatestModifications(ctx context.Context, req
 			b.updatedDocuments.Observe(float64(docs))
 		}
 	} else {
-		b.logger.Error("Updating of index finished with error", "duration", elapsed, "err", err)
+		b.logger.Error("Updating of index finished with error", "duration", elapsed, "error", err)
 	}
 	return listRV, err
 }

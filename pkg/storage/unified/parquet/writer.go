@@ -65,7 +65,7 @@ func (w *parquetWriter) ProcessBulk(ctx context.Context, setting resource.BulkSe
 
 	rsp, err := w.CloseWithResults()
 	if err != nil {
-		w.logger.Warn("error closing parquet file", "err", err)
+		w.logger.Warn("error closing parquet file", "error", err)
 	}
 	if rsp == nil {
 		rsp = &resourcepb.BulkResponse{}

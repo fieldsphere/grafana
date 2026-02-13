@@ -1335,7 +1335,7 @@ func (s *server) Watch(req *resourcepb.WatchRequest, srv resourcepb.ResourceStor
 			// Fallback to the broadcasterʼs view if the backend lookup fails.
 			// This preserves previous behaviour while still eliminating the
 			// common race in the majority of cases.
-			s.log.Warn("watch: failed to fetch current RV from backend, falling back to broadcaster", "err", err)
+			s.log.Warn("watch: failed to fetch current RV from backend, falling back to broadcaster", "error", err)
 			mostRecentRV = s.mostRecentRV.Load()
 		} else {
 			mostRecentRV = rv

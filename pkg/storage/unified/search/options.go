@@ -33,7 +33,7 @@ func NewSearchOptions(
 		if cfg.MinFileIndexBuildVersion != "" {
 			v, err := semver.NewVersion(cfg.MinFileIndexBuildVersion)
 			if err != nil {
-				cfg.Logger.Error("Failed to parse min_file_index_build_version, ignoring it.", "version", cfg.MinFileIndexBuildVersion, "err", err)
+				cfg.Logger.Error("Failed to parse min_file_index_build_version, ignoring it.", "version", cfg.MinFileIndexBuildVersion, "error", err)
 			} else {
 				minVersion = v
 			}
