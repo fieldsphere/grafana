@@ -202,7 +202,7 @@ const getChangeLogItems = async (name, owner, from, to) => {
 // ======================================================
 
 LOG(`Changelog action started`);
-console.log(process.argv);
+LOG(`CLI args: ${JSON.stringify(process.argv)}`);
 const ghtoken = process.env.GITHUB_TOKEN || process.env.INPUT_GITHUB_TOKEN;
 if (!ghtoken) {
   throw 'GITHUB_TOKEN is not set and "github_token" input is empty';
