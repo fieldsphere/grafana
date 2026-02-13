@@ -25,3 +25,5 @@ export {
 export { initPluginTranslations, t, Trans } from './i18n';
 export type { ResourceLoader, Resources, TFunction, TransProps } from './types';
 export { formatDate, formatDuration, formatDateRange, initRegionalFormat as initRegionalFormatForTests } from './dates';
+export { logError, logWarning, logDebug, logI18nError, logI18nWarning } from './logging';
+export type { LogContext } from './logging';

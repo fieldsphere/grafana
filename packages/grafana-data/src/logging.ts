@@ -1,17 +1,11 @@
-type LogContext = Record<string, unknown>;
+import { logError, logWarning, type LogContext } from '@grafana/i18n';
+
+export type { LogContext };
 
 export function logDataWarning(message: string, context?: LogContext): void {
-  if (context) {
-    console.warn(message, context);
-    return;
-  }
-  console.warn(message);
+  logWarning(message, context);
 }
 
 export function logDataError(message: string, context?: LogContext): void {
-  if (context) {
-    console.error(message, context);
-    return;
-  }
-  console.error(message);
+  logError(message, context);
 }
