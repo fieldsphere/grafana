@@ -61,7 +61,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.PluginDataType) {
 		plugins, err := s.getPlugins(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get plugins", "err", err)
+			s.log.Error("Failed to get plugins", "error", err)
 			return nil, err
 		}
 
@@ -79,7 +79,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.DatasourceDataType) {
 		dataSources, err := s.getDataSourceCommands(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get datasources", "err", err)
+			s.log.Error("Failed to get datasources", "error", err)
 			return nil, err
 		}
 
@@ -97,7 +97,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.DashboardDataType) || resourceTypes.Has(cloudmigration.FolderDataType) {
 		dashs, folders, err := s.getDashboardAndFolderCommands(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get dashboards and folders", "err", err)
+			s.log.Error("Failed to get dashboards and folders", "error", err)
 			return nil, err
 		}
 
@@ -144,7 +144,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.LibraryElementDataType) {
 		libraryElements, err := s.getLibraryElementsCommands(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get library elements", "err", err)
+			s.log.Error("Failed to get library elements", "error", err)
 			return nil, err
 		}
 
@@ -168,7 +168,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.MuteTimingType) {
 		muteTimings, err := s.getAlertMuteTimings(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert mute timings", "err", err)
+			s.log.Error("Failed to get alert mute timings", "error", err)
 			return nil, err
 		}
 
@@ -186,7 +186,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.NotificationTemplateType) {
 		notificationTemplates, err := s.getNotificationTemplates(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert notification templates", "err", err)
+			s.log.Error("Failed to get alert notification templates", "error", err)
 			return nil, err
 		}
 
@@ -204,7 +204,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.ContactPointType) {
 		contactPoints, err := s.getContactPoints(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert contact points", "err", err)
+			s.log.Error("Failed to get alert contact points", "error", err)
 			return nil, err
 		}
 
@@ -222,7 +222,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.NotificationPolicyType) {
 		notificationPolicies, err := s.getNotificationPolicies(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert notification policies", "err", err)
+			s.log.Error("Failed to get alert notification policies", "error", err)
 			return nil, err
 		}
 
@@ -241,7 +241,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.AlertRuleGroupType) {
 		alertRuleGroups, err := s.getAlertRuleGroups(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert rule groups", "err", err)
+			s.log.Error("Failed to get alert rule groups", "error", err)
 			return nil, err
 		}
 
@@ -259,7 +259,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.AlertRuleType) {
 		alertRules, err := s.getAlertRules(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert rules", "err", err)
+			s.log.Error("Failed to get alert rules", "error", err)
 			return nil, err
 		}
 
@@ -280,7 +280,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	// Obtain the names of parent elements for data types that have folders.
 	parentNamesByType, err := s.getParentNames(ctx, signedInUser, folderHierarchy)
 	if err != nil {
-		s.log.Error("Failed to get parent folder names", "err", err)
+		s.log.Error("Failed to get parent folder names", "error", err)
 	}
 
 	migrationData := &cloudmigration.MigrateDataRequest{
@@ -297,7 +297,7 @@ func (s *Service) getDataSourceCommands(ctx context.Context, signedInUser *user.
 
 	dataSources, err := s.dsService.GetDataSources(ctx, &datasources.GetDataSourcesQuery{OrgID: signedInUser.GetOrgID()})
 	if err != nil {
-		s.log.Error("Failed to get all datasources", "err", err)
+		s.log.Error("Failed to get all datasources", "error", err)
 		return nil, err
 	}
 
@@ -306,7 +306,7 @@ func (s *Service) getDataSourceCommands(ctx context.Context, signedInUser *user.
 		// Decrypt secure json to send raw credentials
 		decryptedData, err := s.secretsService.DecryptJsonData(ctx, dataSource.SecureJsonData)
 		if err != nil {
-			s.log.Error("Failed to decrypt secure json data", "err", err)
+			s.log.Error("Failed to decrypt secure json data", "error", err)
 			return nil, err
 		}
 		dataSourceCmd := datasources.AddDataSourceCommand{
@@ -936,7 +936,7 @@ func (s *Service) getFolderNamesForFolderUIDs(ctx context.Context, signedInUser 
 		WithFullpathUIDs: true,
 	})
 	if err != nil {
-		s.log.Error("Failed to obtain folders from folder UIDs", "err", err)
+		s.log.Error("Failed to obtain folders from folder UIDs", "error", err)
 		return nil, err
 	}
 
@@ -984,7 +984,7 @@ func (s *Service) getParentNames(
 	// Obtain folder names given a list of folderUIDs
 	foldersUIDsToFolderName, err := s.getFolderNamesForFolderUIDs(ctx, signedInUser, parentFolderUIDsSlice)
 	if err != nil {
-		s.log.Error("Failed to get parent folder names from folder UIDs", "err", err)
+		s.log.Error("Failed to get parent folder names from folder UIDs", "error", err)
 		return parentNamesByType, err
 	}
 
