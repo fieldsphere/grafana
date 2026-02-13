@@ -145,7 +145,8 @@ func TestFrontendLoggingEndpointGrafanaJavascriptAgent(t *testing.T) {
 				assertContextContains(t, logs, "user_email", errorEvent.Meta.User.Email)
 				assertContextContains(t, logs, "user_id", errorEvent.Meta.User.ID)
 				assertContextContains(t, logs, "original_timestamp", errorEvent.Exceptions[0].Timestamp)
-				assertContextContains(t, logs, "msg", `UserError: Please replace user and try again
+				assertContextContains(t, logs, "msg", "Frontend javascript agent exception")
+				assertContextContains(t, logs, "frontend_exception_message", `UserError: Please replace user and try again
   at foofn (foo.js:123:23)
   at barfn (bar.js:113:231)`)
 				assert.NotContains(t, logs, "context")
@@ -163,9 +164,9 @@ func TestFrontendLoggingEndpointGrafanaJavascriptAgent(t *testing.T) {
 		logGrafanaJavascriptAgentEventScenario(t, "Should log received log event", logEvent,
 			func(sc *scenarioContext, logs map[string]any, sourceMapReads []SourceMapReadRecord) {
 				assert.Equal(t, http.StatusAccepted, sc.resp.Code)
-				assert.Len(t, logs, 11)
 				assertContextContains(t, logs, "logger", "frontend")
-				assertContextContains(t, logs, "msg", "This is a test log message")
+				assertContextContains(t, logs, "msg", "Frontend javascript agent log entry")
+				assertContextContains(t, logs, "frontend_log_message", "This is a test log message")
 				assertContextContains(t, logs, "original_log_level", frontendlogging.LogLevel("info"))
 				assertContextContains(t, logs, "original_timestamp", ts)
 				assert.NotContains(t, logs, "stacktrace")
