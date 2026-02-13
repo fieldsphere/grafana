@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/grafana/grafana/pkg/build/wire"
 )
@@ -24,7 +25,7 @@ func main() {
 	// I'm on the fence as to whether this should be an error (versus an
 	// override). For now, I will make it an error that can be relaxed
 	// later.
-	fmt.Println(injectBar(40))
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", injectBar(40)))
 }
 
 type Foo int

@@ -19,12 +19,13 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"sync"
 )
 
 func main() {
 	injectFooBar()
-	fmt.Println(provideBarCalls)
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", provideBarCalls))
 }
 
 type Fooer interface {
