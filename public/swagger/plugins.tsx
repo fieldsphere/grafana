@@ -45,7 +45,6 @@ export const WrappedPlugins = function () {
             if (info.namespaced) {
               info.resource = path[6];
             }
-            // console.log('NAME (in path)', path, info);
             return (
               <ResourceContext.Provider value={info}>
                 <Original {...props} />
@@ -71,7 +70,6 @@ export const WrappedPlugins = function () {
             hasSchema: Boolean(v),
           });
         }
-        // console.log('RequestBody PROPS', props);
         return (
           <SchemaContext.Provider value={v}>
             <Original {...props} />
@@ -125,7 +123,6 @@ export const WrappedPlugins = function () {
             {(schema) => {
               if (schema) {
                 const val = props.value ?? props.defaultValue ?? '';
-                //console.log('JSON TextArea', props, info);
                 // Return a synthetic text area event
                 const cb = (txt: string) => {
                   props.onChange({
