@@ -3,7 +3,6 @@ package folderimpl
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -196,7 +195,6 @@ func TestIntegrationFolderServiceViaUnifiedStorage(t *testing.T) {
 
 		m[folder.Name] = folder
 
-		fmt.Printf("buf: %+v\n", folder)
 		folder.Kind = "Folder"
 		err = json.NewEncoder(w).Encode(folder)
 		require.NoError(t, err)

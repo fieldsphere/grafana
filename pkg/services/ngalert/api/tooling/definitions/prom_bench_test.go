@@ -79,7 +79,7 @@ func BenchmarkSortAlertsByImportance(b *testing.B) {
 					b.StopTimer()
 
 					if *showComparisons {
-						fmt.Printf("Number of comparisons (strategy: %s): %d\n", *topkStrategy, comparisons)
+						b.Logf("Number of comparisons (strategy: %s): %d", *topkStrategy, comparisons)
 					}
 				}
 			})
