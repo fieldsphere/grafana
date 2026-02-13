@@ -834,12 +834,16 @@ func unstructuredoutput(m fluent.Matcher) {
 		Report("avoid stdlib *log.Logger print/fatal helpers; use structured logging and explicit exit handling where needed")
 
 	m.Match(
+		`klog.Info($*args)`,
+		`klog.Warning($*args)`,
+		`klog.Error($*args)`,
+		`klog.V($lvl).Info($*args)`,
 		`klog.Infof($*args)`,
 		`klog.Warningf($*args)`,
 		`klog.Errorf($*args)`,
 		`klog.Fatalf($*args)`,
 		`klog.V($lvl).Infof($*args)`,
-	).Report("avoid klog printf-style helpers; use structured klog methods (InfoS/ErrorS) with key/value fields")
+	).Report("avoid unstructured klog helpers; use structured klog methods (InfoS/ErrorS) with key/value fields")
 }
 
 func badlock(m fluent.Matcher) {
