@@ -487,17 +487,11 @@ func buildQueryTail(query models.HistoryQuery) (string, error) {
 
 	if query.RuleUID != "" {
 		b.WriteString(" | ruleUID=")
-		_, err := fmt.Fprintf(&b, "%q", query.RuleUID)
-		if err != nil {
-			return "", err
-		}
+		b.WriteString(strconv.Quote(query.RuleUID))
 	}
 	if query.DashboardUID != "" {
 		b.WriteString(" | dashboardUID=")
-		_, err := fmt.Fprintf(&b, "%q", query.DashboardUID)
-		if err != nil {
-			return "", err
-		}
+		b.WriteString(strconv.Quote(query.DashboardUID))
 	}
 	if query.PanelID != 0 {
 		b.WriteString(" | panelID=")
@@ -505,17 +499,11 @@ func buildQueryTail(query models.HistoryQuery) (string, error) {
 	}
 	if query.Previous != "" {
 		b.WriteString(" | previous=~")
-		_, err := fmt.Fprintf(&b, "%q", "^"+regexp.QuoteMeta(query.Previous)+".*")
-		if err != nil {
-			return "", err
-		}
+		b.WriteString(strconv.Quote("^" + regexp.QuoteMeta(query.Previous) + ".*"))
 	}
 	if query.Current != "" {
 		b.WriteString(" | current=~")
-		_, err := fmt.Fprintf(&b, "%q", "^"+regexp.QuoteMeta(query.Current)+".*")
-		if err != nil {
-			return "", err
-		}
+		b.WriteString(strconv.Quote("^" + regexp.QuoteMeta(query.Current) + ".*"))
 	}
 
 	requiredSize := 0
@@ -531,10 +519,7 @@ func buildQueryTail(query models.HistoryQuery) (string, error) {
 		b.WriteString(" | labels_")
 		b.WriteString(k)
 		b.WriteString("=")
-		_, err := fmt.Fprintf(&b, "%q", query.Labels[k])
-		if err != nil {
-			return "", err
-		}
+		b.WriteString(strconv.Quote(query.Labels[k]))
 	}
 	return b.String(), nil
 }
