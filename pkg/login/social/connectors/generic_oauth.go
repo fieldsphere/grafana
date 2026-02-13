@@ -327,7 +327,7 @@ func (s *SocialGenericOAuth) extractRoleAndOrgs(userInfo *social.BasicUserInfo, 
 	if userInfo.Role == "" && !s.info.SkipOrgRoleSync {
 		role, grafanaAdmin, err := s.extractRoleAndAdminOptional(data.rawJSON, []string{})
 		if err != nil {
-			s.log.Warn("Failed to extract role", "err", err)
+			s.log.Warn("Failed to extract role", "error", err)
 		} else {
 			userInfo.Role = role
 			if s.info.AllowAssignGrafanaAdmin {
@@ -339,7 +339,7 @@ func (s *SocialGenericOAuth) extractRoleAndOrgs(userInfo *social.BasicUserInfo, 
 	if len(*externalOrgs) == 0 && !s.info.SkipOrgRoleSync {
 		orgs, err := s.extractOrgs(data.rawJSON)
 		if err != nil {
-			s.log.Warn("Failed to extract orgs", "err", err)
+			s.log.Warn("Failed to extract orgs", "error", err)
 			return err
 		}
 		*externalOrgs = orgs
@@ -353,7 +353,7 @@ func (s *SocialGenericOAuth) extractUserGroups(userInfo *social.BasicUserInfo, d
 	if len(userInfo.Groups) == 0 {
 		groups, err := s.extractGroups(data)
 		if err != nil {
-			s.log.Warn("Failed to extract groups", "err", err)
+			s.log.Warn("Failed to extract groups", "error", err)
 		} else if len(groups) > 0 {
 			s.log.Debug("Setting user info groups from extracted groups")
 			userInfo.Groups = groups

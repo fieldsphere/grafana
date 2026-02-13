@@ -333,7 +333,7 @@ func (s *SocialBase) cacheJWKS(ctx context.Context, cacheKey string, jwks *keySe
 	}
 
 	if err := s.cache.Set(ctx, cacheKey, jsonBuf.Bytes(), cacheExpiration); err != nil {
-		s.log.Warn("Failed to cache key set", "err", err)
+		s.log.Warn("Failed to cache key set", "error", err)
 	}
 
 	return nil
@@ -438,7 +438,7 @@ func (s *SocialBase) validateIDTokenSignatureWithURLs(ctx context.Context, clien
 				if expiry != 0 {
 					s.log.Debug("Caching key set", "kid", key.KeyID, "expiry", expiry)
 					if err := s.cacheJWKS(ctx, cacheKey, keyset, expiry); err != nil {
-						s.log.Warn("Failed to cache key set", "err", err)
+						s.log.Warn("Failed to cache key set", "error", err)
 					}
 				}
 
@@ -448,7 +448,7 @@ func (s *SocialBase) validateIDTokenSignatureWithURLs(ctx context.Context, clien
 				}
 				return rawJSON, nil
 			}
-			s.log.Debug("Failed to verify token with key", "kid", key.KeyID, "err", err)
+			s.log.Debug("Failed to verify token with key", "kid", key.KeyID, "error", err)
 		}
 	}
 

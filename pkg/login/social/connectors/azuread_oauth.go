@@ -486,7 +486,7 @@ func (s *SocialAzureAD) extractGroups(ctx context.Context, client *http.Client, 
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			s.log.Warn("AzureAD OAuth: failed to close response body", "err", err)
+			s.log.Warn("AzureAD OAuth: failed to close response body", "error", err)
 		}
 	}()
 
