@@ -148,14 +148,14 @@ func (proxy *DataSourceProxy) HandleRequest() {
 	proxy.ctx.Req = proxy.ctx.Req.WithContext(ctx)
 
 	span.SetAttributes(
-		attribute.String("datasource_name", proxy.ds.Name),
-		attribute.String("datasource_type", proxy.ds.Type),
+		attribute.String("datasourceName", proxy.ds.Name),
+		attribute.String("datasourceType", proxy.ds.Type),
 		attribute.String("user", proxy.ctx.Login),
-		attribute.Int64("org_id", proxy.ctx.OrgID),
+		attribute.Int64("orgID", proxy.ctx.OrgID),
 	)
 
-	proxy.addTraceFromHeaderValue(span, "X-Panel-Id", "panel_id")
-	proxy.addTraceFromHeaderValue(span, "X-Dashboard-Id", "dashboard_id")
+	proxy.addTraceFromHeaderValue(span, "X-Panel-Id", "panelID")
+	proxy.addTraceFromHeaderValue(span, "X-Dashboard-Id", "dashboardID")
 
 	proxy.tracer.Inject(ctx, proxy.ctx.Req.Header, span)
 

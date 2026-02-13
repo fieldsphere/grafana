@@ -263,7 +263,7 @@ func (s *Service) BatchCheck(ctx context.Context, req *authzv1.BatchCheckRequest
 		}
 	}
 
-	span.SetAttributes(attribute.Int("groups_processed", len(groups)))
+	span.SetAttributes(attribute.Int("groupsProcessed", len(groups)))
 
 	return &authzv1.BatchCheckResponse{Results: results}, nil
 }
@@ -680,7 +680,7 @@ func (s *Service) getUserPermissions(ctx context.Context, ns types.NamespaceInfo
 		}
 
 		s.permCache.Set(ctx, userPermKey, scopeMap)
-		span.SetAttributes(attribute.Int("num_permissions_fetched", len(permissions)))
+		span.SetAttributes(attribute.Int("numPermissionsFetched", len(permissions)))
 
 		return scopeMap, nil
 	})
@@ -783,7 +783,7 @@ func (s *Service) getUserTeams(ctx context.Context, ns types.NamespaceInfo, user
 		}
 	}
 	s.userTeamCache.Set(ctx, teamsCacheKey, teamIDs)
-	span.SetAttributes(attribute.Int("num_user_teams", len(teamIDs)))
+	span.SetAttributes(attribute.Int("numUserTeams", len(teamIDs)))
 
 	return teamIDs, nil
 }
@@ -811,7 +811,7 @@ func (s *Service) getUserBasicRole(ctx context.Context, ns types.NamespaceInfo, 
 
 func (s *Service) checkPermission(ctx context.Context, scopeMap map[string]bool, req *checkRequest) (bool, error) {
 	ctx, span := s.tracer.Start(ctx, "authz_direct_db.service.checkPermission", trace.WithAttributes(
-		attribute.Int("scope_count", len(scopeMap))))
+		attribute.Int("scopeCount", len(scopeMap))))
 	defer span.End()
 	ctxLogger := s.logger.FromContext(ctx)
 
@@ -942,7 +942,7 @@ func (s *Service) buildFolderTree(ctx context.Context, ns types.NamespaceInfo) (
 		if err != nil {
 			return nil, fmt.Errorf("could not get folders: %w", err)
 		}
-		span.SetAttributes(attribute.Int("num_folders", len(folders)))
+		span.SetAttributes(attribute.Int("numFolders", len(folders)))
 
 		tree := newFolderTree(folders)
 		if len(tree.Nodes) != len(folders) {
@@ -1007,7 +1007,7 @@ func (s *Service) listPermission(ctx context.Context, scopeMap map[string]bool, 
 		res.Zookie = &authzv1.Zookie{Timestamp: time.Now().Unix()}
 	}
 
-	span.SetAttributes(attribute.Int("num_folders", len(res.Folders)), attribute.Int("num_items", len(res.Items)))
+	span.SetAttributes(attribute.Int("numFolders", len(res.Folders)), attribute.Int("numItems", len(res.Items)))
 	return res, nil
 }
 

@@ -121,7 +121,7 @@ func (proxy *PluginProxy) HandleRequest() {
 
 	span.SetAttributes(
 		attribute.String("user", proxy.ctx.Login),
-		attribute.Int64("org_id", proxy.ctx.OrgID),
+		attribute.Int64("orgID", proxy.ctx.OrgID),
 	)
 
 	proxy.tracer.Inject(ctx, proxy.ctx.Req.Header, span)

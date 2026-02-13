@@ -222,7 +222,7 @@ func (dr *DashboardServiceImpl) cleanupOrganizationK8sDashboards(ctx context.Con
 
 	ctx, span := tracer.Start(ctx, "dashboards.service.cleanupK8sDashboardResources.org")
 	defer span.End()
-	span.SetAttributes(attribute.Int64("org_id", orgID))
+	span.SetAttributes(attribute.Int64("orgID", orgID))
 
 	ctx, _ = identity.WithServiceIdentity(ctx, orgID)
 
