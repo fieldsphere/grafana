@@ -775,6 +775,37 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isSlogLogger && !m["msg"].Text.Matches("^\".*\"$")).
 		Report("prefer a stable string-literal slog.Logger context message; move dynamic text into key/value fields")
+
+	m.Match(
+		`klog.InfoS(fmt.Sprintf($fmt, $*args), $*kv)`,
+		`klog.V($lvl).InfoS(fmt.Sprintf($fmt, $*args), $*kv)`,
+		`klog.InfoS(fmt.Sprint($*args), $*kv)`,
+		`klog.V($lvl).InfoS(fmt.Sprint($*args), $*kv)`,
+		`klog.ErrorS($err, fmt.Sprintf($fmt, $*args), $*kv)`,
+		`klog.ErrorS($err, fmt.Sprint($*args), $*kv)`,
+	).Report("use a stable klog structured message and key/value fields instead of fmt formatting")
+
+	m.Match(
+		`klog.InfoS($msg, $*kv)`,
+		`klog.V($lvl).InfoS($msg, $*kv)`,
+		`klog.ErrorS($err, $msg, $*kv)`,
+	).
+		Where(m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Report("printf-style format verbs are not supported in structured klog methods; move dynamic values to key/value fields")
+
+	m.Match(
+		`klog.InfoS($left + $right, $*kv)`,
+		`klog.V($lvl).InfoS($left + $right, $*kv)`,
+		`klog.ErrorS($err, $left + $right, $*kv)`,
+	).Report("avoid string concatenation in structured klog messages; use key/value fields")
+
+	m.Match(
+		`klog.InfoS($msg, $*kv)`,
+		`klog.V($lvl).InfoS($msg, $*kv)`,
+		`klog.ErrorS($err, $msg, $*kv)`,
+	).
+		Where(!m["msg"].Text.Matches("^\".*\"$")).
+		Report("prefer a stable string-literal klog message; move dynamic text into key/value fields")
 }
 
 func unstructuredoutput(m fluent.Matcher) {
