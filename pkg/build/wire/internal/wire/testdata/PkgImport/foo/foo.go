@@ -16,13 +16,14 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"example.com/bar"
 	"github.com/grafana/grafana/pkg/build/wire"
 )
 
 func main() {
-	fmt.Println(injectFooBar())
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", injectFooBar()))
 }
 
 type Foo int

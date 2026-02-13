@@ -17,6 +17,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 )
 
@@ -28,11 +29,11 @@ var (
 func main() {
 	_, cleanup, err := injectBaz()
 	if err == nil {
-		fmt.Println("<nil>")
+		_, _ = os.Stdout.WriteString("<nil>\n")
 	} else {
-		fmt.Println(strings.Contains(err.Error(), "bork!"))
+		_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", strings.Contains(err.Error(), "bork!")))
 	}
-	fmt.Println(cleanedFoo, cleanedBar, cleanup == nil)
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v %v %v\n", cleanedFoo, cleanedBar, cleanup == nil))
 }
 
 type Foo int

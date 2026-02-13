@@ -14,10 +14,13 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 func main() {
-	fmt.Println(injectStringer("Hello, World!"))
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", injectStringer("Hello, World!")))
 }
 
 type MyString string
