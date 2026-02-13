@@ -1,11 +1,35 @@
 package metrics
 
 import (
+	"errors"
+	"reflect"
 	"testing"
 
 	dto "github.com/prometheus/client_model/go"
 	"github.com/stretchr/testify/require"
 )
+
+func TestNormalizeGraphiteLogArgs(t *testing.T) {
+	t.Run("keeps structured key value args", func(t *testing.T) {
+		args := normalizeGraphiteLogArgs("operation", "write", "attempt", 1)
+		expected := []any{"operation", "write", "attempt", 1}
+		require.True(t, reflect.DeepEqual(expected, args))
+	})
+
+	t.Run("wraps odd args as graphite_args", func(t *testing.T) {
+		args := normalizeGraphiteLogArgs("operation", "write", errors.New("boom"))
+		expected := []any{"graphite_args", []any{"operation", "write", errors.New("boom")}}
+		require.Equal(t, expected[0], args[0])
+		require.Equal(t, "graphite_args", args[0])
+		require.Len(t, args, 2)
+	})
+
+	t.Run("wraps non string keys as graphite_args", func(t *testing.T) {
+		args := normalizeGraphiteLogArgs(10, "value")
+		require.Equal(t, "graphite_args", args[0])
+		require.Equal(t, []any{10, "value"}, args[1])
+	})
+}
 
 func TestGathererPrefixWrapper_Gather(t *testing.T) {
 	orig := &mockGatherer{}

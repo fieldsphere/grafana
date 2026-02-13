@@ -22,13 +22,31 @@ type logWrapper struct {
 	logger log.Logger
 }
 
+func normalizeGraphiteLogArgs(args ...any) []any {
+	if len(args) == 0 {
+		return nil
+	}
+
+	if len(args)%2 != 0 {
+		return []any{"graphite_args", args}
+	}
+
+	for i := 0; i < len(args); i += 2 {
+		if _, ok := args[i].(string); !ok {
+			return []any{"graphite_args", args}
+		}
+	}
+
+	return args
+}
+
 func (lw *logWrapper) Warn(msg string, args ...any) {
-	context := append([]any{"graphite_message", msg}, args...)
+	context := append([]any{"graphite_message", msg}, normalizeGraphiteLogArgs(args...)...)
 	lw.logger.Warn("Graphite bridge event", context...)
 }
 
 func (lw *logWrapper) Error(msg string, args ...any) {
-	context := append([]any{"graphite_message", msg}, args...)
+	context := append([]any{"graphite_message", msg}, normalizeGraphiteLogArgs(args...)...)
 	lw.logger.Error("Graphite bridge event", context...)
 }
 
