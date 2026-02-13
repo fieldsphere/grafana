@@ -3,6 +3,7 @@ import { resolve } from 'path';
 
 import { createTheme } from '@grafana/data';
 
+import { logScriptError } from '../logging';
 import { darkThemeVarsTemplate } from './themeTemplates/_variables.dark.scss.tmpl';
 import { lightThemeVarsTemplate } from './themeTemplates/_variables.light.scss.tmpl';
 import { commonThemeVarsTemplate } from './themeTemplates/_variables.scss.tmpl';
@@ -15,7 +16,11 @@ async function writeVariablesFile(path: string, data: string) {
   try {
     await writeFile(path, data);
   } catch (error) {
-    process.stderr.write(`\nWriting SASS variable files failed: ${String(error)}\n`);
+    logScriptError('Writing SASS variable file failed', {
+      operation: 'writeVariablesFile',
+      path,
+      error: String(error),
+    });
     process.exit(1);
   }
 }
@@ -28,7 +33,10 @@ async function generateSassVariableFiles() {
     await writeVariablesFile(lightThemeVariablesPath, lightThemeVarsTemplate(lightTheme));
     await writeVariablesFile(defaultThemeVariablesPath, commonThemeVarsTemplate(darkTheme));
   } catch (error) {
-    process.stderr.write(`\nWriting SASS variable files failed: ${String(error)}\n`);
+    logScriptError('Writing SASS variable files failed', {
+      operation: 'generateSassVariableFiles',
+      error: String(error),
+    });
     process.exit(1);
   }
 }
