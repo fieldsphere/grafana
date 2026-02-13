@@ -984,3 +984,20 @@ func TestSearchValidatesNegativeLimitAndOffset(t *testing.T) {
 		require.Equal(t, "offset cannot be negative", rsp.Error.Message)
 	})
 }
+
+func TestNormalizeSearchLogArgs(t *testing.T) {
+	t.Run("keeps key value args", func(t *testing.T) {
+		got := normalizeSearchLogArgs("namespace", "default", "limit", 10)
+		require.Equal(t, []any{"namespace", "default", "limit", 10}, got)
+	})
+
+	t.Run("wraps odd args", func(t *testing.T) {
+		got := normalizeSearchLogArgs("namespace", "default", 10)
+		require.Equal(t, "search_log_args", got[0])
+	})
+
+	t.Run("wraps non-string keys", func(t *testing.T) {
+		got := normalizeSearchLogArgs(1, "default")
+		require.Equal(t, "search_log_args", got[0])
+	})
+}

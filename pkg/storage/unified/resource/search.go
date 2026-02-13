@@ -320,17 +320,32 @@ func (s *searchServer) logStats(ctx context.Context, stats *SearchStats, span tr
 		"returnedDocuments", stats.returnedDocuments,
 		"resultsConversionTime", stats.resultsConversionTime,
 	}
-	args = append(args, params...)
+	args = append(args, normalizeSearchLogArgs(params...)...)
 
 	s.log.FromContext(ctx).Debug("Search stats", args...)
 
 	if span != nil {
 		attrs := make([]attribute.KeyValue, 0, len(args)/2)
-		for i := 0; i < len(args); i += 2 {
+		for i := 0; i+1 < len(args); i += 2 {
 			attrs = append(attrs, attribute.String(fmt.Sprint(args[i]), fmt.Sprint(args[i+1])))
 		}
 		span.AddEvent("search stats", trace.WithAttributes(attrs...))
 	}
+}
+
+func normalizeSearchLogArgs(params ...any) []any {
+	if len(params) == 0 {
+		return nil
+	}
+	if len(params)%2 != 0 {
+		return []any{"search_log_args", params}
+	}
+	for i := 0; i < len(params); i += 2 {
+		if _, ok := params[i].(string); !ok {
+			return []any{"search_log_args", params}
+		}
+	}
+	return params
 }
 
 func (s *searchServer) CountManagedObjects(ctx context.Context, req *resourcepb.CountManagedObjectsRequest) (*resourcepb.CountManagedObjectsResponse, error) {
