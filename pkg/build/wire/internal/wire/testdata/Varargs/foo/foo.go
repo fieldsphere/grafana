@@ -15,12 +15,12 @@
 package main
 
 import (
-	"fmt"
+	"os"
 	"strings"
 )
 
 func main() {
-	fmt.Println(injectedMessage("", "Hello,", "World!"))
+	_, _ = os.Stdout.WriteString(injectedMessage("", "Hello,", "World!") + "\n")
 }
 
 type title string
