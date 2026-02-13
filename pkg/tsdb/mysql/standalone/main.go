@@ -20,7 +20,7 @@ func main() {
 	// new datasource instance created using NewSampleDatasource factory.
 	logger := backend.NewLoggerWith("logger", "tsdb.mysql")
 	if err := datasource.Manage("mysql", mysql.NewInstanceSettings(logger), datasource.ManageOpts{}); err != nil {
-		log.DefaultLogger.Error(err.Error())
+		log.DefaultLogger.Error("Standalone datasource startup failed", "error", err)
 		os.Exit(1)
 	}
 }

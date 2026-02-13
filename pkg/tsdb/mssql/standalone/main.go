@@ -21,7 +21,7 @@ func main() {
 	// new datasource instance created using NewSampleDatasource factory.
 	logger := backend.NewLoggerWith("logger", "tsdb.mssql")
 	if err := datasource.Manage("mssql", mssql.NewInstanceSettings(logger), datasource.ManageOpts{}); err != nil {
-		log.DefaultLogger.Error(err.Error())
+		log.DefaultLogger.Error("Standalone datasource startup failed", "error", err)
 		os.Exit(1)
 	}
 }

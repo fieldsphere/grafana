@@ -17,7 +17,7 @@ func main() {
 	// ID). When datasource configuration changed Dispose method will be called and
 	// new datasource instance created using NewSampleDatasource factory.
 	if err := datasource.Manage("loki", NewDatasource, datasource.ManageOpts{}); err != nil {
-		log.DefaultLogger.Error(err.Error())
+		log.DefaultLogger.Error("Standalone datasource startup failed", "error", err)
 		os.Exit(1)
 	}
 }

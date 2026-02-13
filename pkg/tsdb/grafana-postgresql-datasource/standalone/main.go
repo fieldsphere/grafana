@@ -13,7 +13,7 @@ func main() {
 	// No need to pass logger name, it will be set by the plugin SDK
 	logger := backend.NewLoggerWith()
 	if err := datasource.Manage("grafana-postgresql-datasource", postgres.NewInstanceSettings(logger), datasource.ManageOpts{}); err != nil {
-		log.DefaultLogger.Error(err.Error())
+		log.DefaultLogger.Error("Standalone datasource startup failed", "error", err)
 		os.Exit(1)
 	}
 }
