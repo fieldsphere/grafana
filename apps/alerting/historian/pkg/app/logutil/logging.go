@@ -24,7 +24,7 @@ func (s *sdk2gkLogger) Log(keyvals ...interface{}) error {
 	)
 
 	if len(keyvals) == 0 {
-		s.logger.Info(eventMessage, "gokit_message", outMsg, "gokit_level", "info")
+		s.logger.Info(eventMessage, "gokitMessage", outMsg, "gokitLevel", "info")
 		return nil
 	}
 
@@ -39,7 +39,7 @@ func (s *sdk2gkLogger) Log(keyvals ...interface{}) error {
 			if msg, ok := v.(string); ok {
 				outMsg = msg
 			} else {
-				outKeyvals = append(outKeyvals, "gokit_raw_message", v)
+				outKeyvals = append(outKeyvals, "gokitRawMessage", v)
 			}
 			continue
 		}
@@ -53,19 +53,19 @@ func (s *sdk2gkLogger) Log(keyvals ...interface{}) error {
 		outKeyvals = append(outKeyvals, v)
 	}
 
-	eventKeyvals := append([]interface{}{"gokit_message", outMsg}, outKeyvals...)
+	eventKeyvals := append([]interface{}{"gokitMessage", outMsg}, outKeyvals...)
 
 	switch outLevel {
 	case level.DebugValue():
-		s.logger.Debug(eventMessage, append(eventKeyvals, "gokit_level", "debug")...)
+		s.logger.Debug(eventMessage, append(eventKeyvals, "gokitLevel", "debug")...)
 	case level.InfoValue():
-		s.logger.Info(eventMessage, append(eventKeyvals, "gokit_level", "info")...)
+		s.logger.Info(eventMessage, append(eventKeyvals, "gokitLevel", "info")...)
 	case level.WarnValue():
-		s.logger.Warn(eventMessage, append(eventKeyvals, "gokit_level", "warn")...)
+		s.logger.Warn(eventMessage, append(eventKeyvals, "gokitLevel", "warn")...)
 	case level.ErrorValue():
-		s.logger.Error(eventMessage, append(eventKeyvals, "gokit_level", "error")...)
+		s.logger.Error(eventMessage, append(eventKeyvals, "gokitLevel", "error")...)
 	default:
-		s.logger.Info(eventMessage, append(eventKeyvals, "gokit_level", outLevel)...)
+		s.logger.Info(eventMessage, append(eventKeyvals, "gokitLevel", outLevel)...)
 	}
 
 	return nil

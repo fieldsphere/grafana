@@ -43,7 +43,7 @@ func (s *healthCheckStep) Run(ctx context.Context, log logging.Logger, obj *advi
 	resp, err := s.HealthChecker.CheckHealth(ctx, ds)
 	if err != nil || (resp != nil && resp.Status != backend.HealthStatusOk) {
 		// Unable to check health check
-		log.Error("Failed to run health check", "datasource_uid", ds.UID, "error", err)
+		log.Error("Failed to run health check", "datasourceUID", ds.UID, "error", err)
 		if errors.Is(err, plugins.ErrMethodNotImplemented) || errors.Is(err, plugins.ErrPluginUnavailable) {
 			// The plugin does not support backend health checks
 			return nil, nil
