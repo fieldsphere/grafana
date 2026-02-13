@@ -2,7 +2,6 @@ package migrations
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/grafana/grafana/pkg/infra/kvstore"
 	"github.com/grafana/grafana/pkg/services/datasources"
@@ -40,7 +39,7 @@ func (s *DataSourceSecretMigrationService) Migrate(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	logger.Debug(fmt.Sprint("secret migration status is ", migrationStatus))
+	logger.Debug("Secret migration status loaded", "status", migrationStatus)
 
 	// Only migrate if it hasn't happened yet
 	if migrationStatus != compatibleSecretMigrationValue {
@@ -83,7 +82,7 @@ func (s *DataSourceSecretMigrationService) Migrate(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		logger.Debug(fmt.Sprint("set secret migration status to ", compatibleSecretMigrationValue))
+		logger.Debug("Secret migration status updated", "status", compatibleSecretMigrationValue)
 	}
 
 	return nil
