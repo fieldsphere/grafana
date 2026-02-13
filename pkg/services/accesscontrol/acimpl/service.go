@@ -11,6 +11,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 
 	claims "github.com/grafana/authlib/types"
 
@@ -299,10 +300,13 @@ func (s *Service) getCachedBasicRolesPermissions(ctx context.Context, user ident
 	span.SetAttributes(attribute.Int("roles", len(basicRoles)))
 	for _, role := range basicRoles {
 		perms, err := s.getCachedBasicRolePermissions(ctx, role, user.GetOrgID(), options)
-		span.SetAttributes(attribute.Int(fmt.Sprintf("role_%s_permissions", role), len(perms)))
 		if err != nil {
 			return nil, err
 		}
+		span.AddEvent("rolePermissionsLoaded", trace.WithAttributes(
+			attribute.String("role", role),
+			attribute.Int("permissionsCount", len(perms)),
+		))
 		permissions = append(permissions, perms...)
 	}
 	return permissions, nil

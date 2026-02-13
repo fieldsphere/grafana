@@ -327,7 +327,11 @@ func (s *searchServer) logStats(ctx context.Context, stats *SearchStats, span tr
 	if span != nil {
 		attrs := make([]attribute.KeyValue, 0, len(args)/2)
 		for i := 0; i+1 < len(args); i += 2 {
-			attrs = append(attrs, attribute.String(fmt.Sprint(args[i]), fmt.Sprint(args[i+1])))
+			key, ok := args[i].(string)
+			if !ok {
+				key = "searchLogArgs"
+			}
+			attrs = append(attrs, attribute.String(key, fmt.Sprint(args[i+1])))
 		}
 		span.AddEvent("search stats", trace.WithAttributes(attrs...))
 	}

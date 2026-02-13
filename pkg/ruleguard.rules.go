@@ -1124,6 +1124,22 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid snake_case structured context keys; use camelCase with canonical acronym casing`)
 
 	m.Match(
+		`attribute.String(fmt.Sprintf($fmt, $*args), $value)`,
+		`attribute.Int(fmt.Sprintf($fmt, $*args), $value)`,
+		`attribute.Int64(fmt.Sprintf($fmt, $*args), $value)`,
+		`attribute.Bool(fmt.Sprintf($fmt, $*args), $value)`,
+		`attribute.Float64(fmt.Sprintf($fmt, $*args), $value)`,
+		`attribute.StringSlice(fmt.Sprintf($fmt, $*args), $value)`,
+		`attribute.String(fmt.Sprint($*args), $value)`,
+		`attribute.Int(fmt.Sprint($*args), $value)`,
+		`attribute.Int64(fmt.Sprint($*args), $value)`,
+		`attribute.Bool(fmt.Sprint($*args), $value)`,
+		`attribute.Float64(fmt.Sprint($*args), $value)`,
+		`attribute.StringSlice(fmt.Sprint($*args), $value)`,
+	).
+		Report("avoid fmt formatting for trace attribute keys; use stable string-literal keys and keep dynamic data in values")
+
+	m.Match(
 		`attribute.String($key, $value)`,
 		`attribute.Int($key, $value)`,
 		`attribute.Int64($key, $value)`,
