@@ -999,6 +999,15 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`prefer "orgID" key naming in structured logs`)
 
 	m.Match(
+		`$logger.DebugContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
+		`$logger.InfoContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
+		`$logger.WarnContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
+		`$logger.ErrorContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
+	).
+		Where(isSlogLogger).
+		Report(`prefer "orgID" key naming in structured logs`)
+
+	m.Match(
 		`$logger.Info($msg, $*before, "pluginId", $value, $*after)`,
 		`$logger.Warn($msg, $*before, "pluginId", $value, $*after)`,
 		`$logger.Error($msg, $*before, "pluginId", $value, $*after)`,
@@ -1024,6 +1033,15 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`prefer "pluginID" key naming in structured logs`)
 
 	m.Match(
+		`$logger.DebugContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
+		`$logger.InfoContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
+		`$logger.WarnContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
+		`$logger.ErrorContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
+	).
+		Where(isSlogLogger).
+		Report(`prefer "pluginID" key naming in structured logs`)
+
+	m.Match(
 		`$logger.Info($msg, $*before, "stackId", $value, $*after)`,
 		`$logger.Warn($msg, $*before, "stackId", $value, $*after)`,
 		`$logger.Error($msg, $*before, "stackId", $value, $*after)`,
@@ -1046,6 +1064,15 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, "stackId", $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, "stackId", $value, $*after)`,
 	).
+		Report(`prefer "stackID" key naming in structured logs`)
+
+	m.Match(
+		`$logger.DebugContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
+		`$logger.InfoContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
+		`$logger.WarnContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
+		`$logger.ErrorContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
+	).
+		Where(isSlogLogger).
 		Report(`prefer "stackID" key naming in structured logs`)
 
 	m.Match(
