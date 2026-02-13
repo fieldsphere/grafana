@@ -564,8 +564,8 @@ func (srv *CleanUpService) cleanupStaleLBACRules(ctx context.Context) {
 
 	if totalCleaned > 0 {
 		logger.Info("Cleaned up stale team LBAC rules",
-			"datasources_processed", totalDataSources,
-			"total_rules_removed", totalCleaned)
+			"datasourcesProcessed", totalDataSources,
+			"totalRulesRemoved", totalCleaned)
 	}
 }
 

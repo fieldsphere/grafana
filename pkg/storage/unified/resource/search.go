@@ -680,7 +680,7 @@ func (s *searchServer) init(ctx context.Context) error {
 	go s.runPeriodicScanForIndexesToRebuild(subctx)
 
 	end := time.Now().Unix()
-	s.log.Info("search index initialized", "duration_secs", end-start, "total_docs", s.search.TotalDocs())
+	s.log.Info("search index initialized", "durationSecs", end-start, "totalDocs", s.search.TotalDocs())
 
 	return nil
 }

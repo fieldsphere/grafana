@@ -34,7 +34,7 @@ func (h *slogHandler) Enabled(_ context.Context, _ slog.Level) bool {
 // Handle implements slog.Handler.Handle.
 func (h *slogHandler) Handle(ctx context.Context, r slog.Record) error {
 	attrs := make([]any, 0, 2*r.NumAttrs()+4)
-	attrs = append(attrs, "slog_message", r.Message)
+	attrs = append(attrs, "slogMessage", r.Message)
 	fn := func(attr slog.Attr) bool {
 		attrs = append(attrs, attr.Key, attr.Value)
 		return true
@@ -44,13 +44,13 @@ func (h *slogHandler) Handle(ctx context.Context, r slog.Record) error {
 
 	switch level := r.Level; {
 	case level < slog.LevelInfo:
-		h.Debug("Slog adapter bridge event", append(attrs, "slog_level", "debug")...)
+		h.Debug("Slog adapter bridge event", append(attrs, "slogLevel", "debug")...)
 	case level < slog.LevelWarn:
-		h.Info("Slog adapter bridge event", append(attrs, "slog_level", "info")...)
+		h.Info("Slog adapter bridge event", append(attrs, "slogLevel", "info")...)
 	case level < slog.LevelError:
-		h.Warn("Slog adapter bridge event", append(attrs, "slog_level", "warn")...)
+		h.Warn("Slog adapter bridge event", append(attrs, "slogLevel", "warn")...)
 	default:
-		h.Error("Slog adapter bridge event", append(attrs, "slog_level", "error")...)
+		h.Error("Slog adapter bridge event", append(attrs, "slogLevel", "error")...)
 	}
 	return nil
 }
