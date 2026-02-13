@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 
@@ -218,12 +218,12 @@ func run(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	if code == 0 {
-		log.Printf("e2e tests passed with exit code %d", code)
+		slog.Info("E2E tests passed", "exitCode", code)
 	} else {
 		return fmt.Errorf("e2e tests failed with exit code %d", code)
 	}
 
-	log.Println("e2e tests completed successfully")
+	slog.Info("E2E tests completed successfully")
 	return nil
 }
 

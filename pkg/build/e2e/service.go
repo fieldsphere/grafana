@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -61,12 +61,12 @@ func WithYarnCache(c *dagger.Container, cache *dagger.CacheVolume) *dagger.Conta
 }
 
 func GrafanaService(ctx context.Context, d *dagger.Client, opts GrafanaServiceOpts) (*dagger.Service, error) {
-	log.Println("getting node version")
+	slog.Info("Getting node version")
 	nodeVersion, err := NodeVersion(d, opts.GrafanaDir.File(".nvmrc")).Stdout(ctx)
 	if err != nil {
 		return nil, err
 	}
-	log.Println("done getting node version")
+	slog.Info("Done getting node version")
 
 	src := WithYarnCache(
 		WithGrafanaFrontend(d.Container().From(NodeImage(nodeVersion)), opts.GrafanaDir),

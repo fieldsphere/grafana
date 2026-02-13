@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 
@@ -132,14 +132,14 @@ func run(ctx context.Context, cmd *cli.Command) error {
 	}
 
 	if code == 0 {
-		log.Printf("a11y tests passed with exit code %d", code)
+		slog.Info("A11y tests passed", "exitCode", code)
 	} else if noThresholdFail {
-		log.Printf("a11y tests failed with exit code %d, but noFail is true", code)
+		slog.Warn("A11y tests failed but noFail is true", "exitCode", code)
 	} else {
 		return fmt.Errorf("a11y tests failed with exit code %d", code)
 	}
 
-	log.Println("a11y tests completed successfully")
+	slog.Info("A11y tests completed successfully")
 	return nil
 }
 

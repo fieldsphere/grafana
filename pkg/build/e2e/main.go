@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"os/signal"
 	"path"
@@ -91,9 +91,7 @@ func run(ctx context.Context, cmd *cli.Command) error {
 
 	yarnCache := d.CacheVolume("yarn")
 
-	log.Println("grafana dir:", grafanaDir)
-	log.Println("targz:", targzPath)
-	log.Println("license path:", licensePath)
+	slog.Info("E2E run input paths", "grafanaDir", grafanaDir, "targz", targzPath, "licensePath", licensePath)
 
 	grafana := d.Host().Directory(".", dagger.HostDirectoryOpts{
 		Exclude: []string{"node_modules", "*.tar.gz"},
@@ -130,7 +128,7 @@ func run(ctx context.Context, cmd *cli.Command) error {
 		return fmt.Errorf("failed to get exit code of e2e test suite: %w", err)
 	}
 
-	log.Println("exit code:", code)
+	slog.Info("E2E suite exit code", "exitCode", code)
 
 	// No sync error; export the videos dir
 	if _, err := c.Directory(videosDir).Export(ctx, "videos"); err != nil {
@@ -139,13 +137,13 @@ func run(ctx context.Context, cmd *cli.Command) error {
 
 	if code != 0 {
 		if stdout, _ := c.Stdout(ctx); len(stdout) > 0 {
-			log.Printf("e2e test suite stdout:\n%s", stdout)
+			slog.Info("E2E test suite stdout", "stdout", stdout)
 		}
 
 		return fmt.Errorf("e2e tests failed with exit code %d", code)
 	}
 
-	log.Println("e2e tests completed successfully")
+	slog.Info("E2E tests completed successfully")
 	return nil
 }
 
