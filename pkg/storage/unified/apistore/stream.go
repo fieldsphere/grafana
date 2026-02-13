@@ -131,7 +131,7 @@ decode:
 			// apply any predicates not handled in storage
 			matches, err := d.predicate.Matches(obj)
 			if err != nil {
-				klog.Errorf("error matching object: %s", err)
+				klog.ErrorS(err, "Error matching modified object")
 				return watch.Error, nil, err
 			}
 
