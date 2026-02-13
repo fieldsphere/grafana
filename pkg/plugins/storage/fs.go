@@ -69,7 +69,7 @@ func (fs *FS) extractFiles(_ context.Context, pluginArchive *zip.ReadCloser, plu
 	pluginDirName := dirNameFunc(pluginID)
 	installDir := filepath.Join(fs.pluginsDir, pluginDirName)
 	if _, err := os.Stat(installDir); !os.IsNotExist(err) {
-		fs.log.Debugf("Removing existing installation of plugin %s", installDir)
+		fs.log.Debug("Removing existing plugin installation", "installDir", installDir)
 		err = os.RemoveAll(installDir)
 		if err != nil {
 			return "", err
