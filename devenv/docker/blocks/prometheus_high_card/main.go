@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"log/slog"
 	"math/rand/v2"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -117,7 +117,10 @@ func main() {
 		}
 	}()
 
-	fmt.Printf("Server started at :9111\n")
+	slog.Info("Prometheus high-cardinality metrics server started", "address", ":9111")
 
-	log.Fatal(http.ListenAndServe(":9111", nil))
+	if err := http.ListenAndServe(":9111", nil); err != nil {
+		slog.Error("Prometheus high-cardinality metrics server failed", "error", err)
+		os.Exit(1)
+	}
 }

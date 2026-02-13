@@ -3,8 +3,9 @@ package main
 import (
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -16,13 +17,16 @@ func hello(w http.ResponseWriter, r *http.Request) {
 
 	safeBody := strings.ReplaceAll(string(body), "\n", "")
 	line := fmt.Sprintf("webbhook: -> %s", safeBody)
-	fmt.Println(line)
+	slog.Info("Received webhook request", "body", safeBody)
 	if _, err := io.WriteString(w, line); err != nil {
-		log.Printf("Failed to write: %v", err)
+		slog.Error("Failed to write webhook response", "error", err)
 	}
 }
 
 func main() {
 	http.HandleFunc("/", hello)
-	log.Fatal(http.ListenAndServe(":3010", nil))
+	if err := http.ListenAndServe(":3010", nil); err != nil {
+		slog.Error("Alert webhook listener failed", "error", err)
+		os.Exit(1)
+	}
 }
