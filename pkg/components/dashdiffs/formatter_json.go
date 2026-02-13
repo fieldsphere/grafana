@@ -251,7 +251,7 @@ func (f *JSONFormatter) processItem(value any, deltas []diff.Delta, position dif
 
 				f.newLine(ChangeNil)
 				f.printKey(positionStr)
-				f.print("{")
+				f.appendText("{")
 				f.closeLine()
 				f.push(positionStr, len(o), false)
 				if err := f.processObject(o, matchedDelta.Deltas); err != nil {
@@ -261,7 +261,7 @@ func (f *JSONFormatter) processItem(value any, deltas []diff.Delta, position dif
 
 				f.pop()
 				f.newLine(ChangeNil)
-				f.print("}")
+				f.appendText("}")
 				f.printComma()
 				f.closeLine()
 
@@ -276,7 +276,7 @@ func (f *JSONFormatter) processItem(value any, deltas []diff.Delta, position dif
 
 				f.newLine(ChangeNil)
 				f.printKey(positionStr)
-				f.print("[")
+				f.appendText("[")
 				f.closeLine()
 				f.push(positionStr, len(a), true)
 				if err := f.processArray(a, matchedDelta.Deltas); err != nil {
@@ -286,7 +286,7 @@ func (f *JSONFormatter) processItem(value any, deltas []diff.Delta, position dif
 
 				f.pop()
 				f.newLine(ChangeNil)
-				f.print("]")
+				f.appendText("]")
 				f.printComma()
 				f.closeLine()
 
@@ -431,7 +431,7 @@ func (f *JSONFormatter) printValue(value any) {
 	}
 }
 
-func (f *JSONFormatter) print(a string) {
+func (f *JSONFormatter) appendText(a string) {
 	f.line.buffer.WriteString(a)
 }
 
@@ -440,7 +440,7 @@ func (f *JSONFormatter) printRecursive(name string, value any, change ChangeType
 	case map[string]any:
 		f.newLine(change)
 		f.printKey(name)
-		f.print("{")
+		f.appendText("{")
 		f.closeLine()
 
 		size := len(value)
@@ -453,14 +453,14 @@ func (f *JSONFormatter) printRecursive(name string, value any, change ChangeType
 		f.pop()
 
 		f.newLine(change)
-		f.print("}")
+		f.appendText("}")
 		f.printComma()
 		f.closeLine()
 
 	case []any:
 		f.newLine(change)
 		f.printKey(name)
-		f.print("[")
+		f.appendText("[")
 		f.closeLine()
 
 		size := len(value)
@@ -471,7 +471,7 @@ func (f *JSONFormatter) printRecursive(name string, value any, change ChangeType
 		f.pop()
 
 		f.newLine(change)
-		f.print("]")
+		f.appendText("]")
 		f.printComma()
 		f.closeLine()
 
