@@ -29,7 +29,7 @@ type stdioPrinter struct {
 }
 
 func (p stdioPrinter) Println(v ...any) {
-	_, _ = fmt.Fprintln(p.out, v...)
+	_, _ = io.WriteString(p.out, fmt.Sprintln(v...))
 }
 
 func parseModule(mod *modfile.Require) Module {
