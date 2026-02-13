@@ -145,6 +145,6 @@ func newTestWriter(size int, batchSize int) resource.BuildFn {
 
 func logVerbose(msg string) {
 	if verbose {
-		slog.Info(msg)
+		slog.Info("Bleve performance verbose log", "message", msg)
 	}
 }
