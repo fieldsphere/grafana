@@ -1,4 +1,5 @@
 import crowdinImport from '@crowdin/crowdin-api-client';
+import { logCrowdinError, logCrowdinInfo } from './logging';
 const TRANSLATED_CONNECTOR_DESCRIPTION = '{{tos_service_type: premium}}';
 const TRANSLATE_BY_VENDOR_WORKFLOW_TYPE = 'TranslateByVendor'
 
@@ -8,13 +9,17 @@ const crowdin = crowdinImport.default as typeof crowdinImport;
 
 const API_TOKEN = process.env.CROWDIN_PERSONAL_TOKEN;
 if (!API_TOKEN) {
-  console.error('Error: CROWDIN_PERSONAL_TOKEN environment variable is not set');
+  logCrowdinError('CROWDIN_PERSONAL_TOKEN environment variable is not set', {
+    operation: 'bootstrap'
+  });
   process.exit(1);
 }
 
 const PROJECT_ID = process.env.CROWDIN_PROJECT_ID ? parseInt(process.env.CROWDIN_PROJECT_ID, 10) : undefined;
 if (!PROJECT_ID) {
-  console.error('Error: CROWDIN_PROJECT_ID environment variable is not set');
+  logCrowdinError('CROWDIN_PROJECT_ID environment variable is not set', {
+    operation: 'bootstrap'
+  });
   process.exit(1);
 }
 
@@ -38,12 +43,21 @@ async function getLanguages(projectId: number) {
   try {
     const project = await projectsGroupsApi.getProject(projectId);
     const languages = project.data.targetLanguages;
-    console.log('Fetched languages successfully!');
+    logCrowdinInfo('Fetched Crowdin languages successfully', {
+      operation: 'getLanguages',
+      languageCount: languages.length
+    });
     return languages;
   } catch (error) {
-    console.error('Failed to fetch languages: ', error.message);
+    logCrowdinError('Failed to fetch Crowdin languages', {
+      operation: 'getLanguages',
+      error: error.message
+    });
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      logCrowdinError('Crowdin language fetch error details', {
+        operation: 'getLanguages',
+        details: JSON.stringify(error.response.data, null, 2)
+      });
     }
     process.exit(1);
   }
@@ -54,12 +68,21 @@ async function getFileIds(projectId: number) {
     const response = await sourceFilesApi.listProjectFiles(projectId);
     const files = response.data;
     const fileIds = files.map(file => file.data.id);
-    console.log('Fetched file ids successfully!');
+    logCrowdinInfo('Fetched Crowdin file IDs successfully', {
+      operation: 'getFileIds',
+      fileCount: fileIds.length
+    });
     return fileIds;
   } catch (error) {
-    console.error('Failed to fetch file IDs: ', error.message);
+    logCrowdinError('Failed to fetch Crowdin file IDs', {
+      operation: 'getFileIds',
+      error: error.message
+    });
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      logCrowdinError('Crowdin file ID fetch error details', {
+        operation: 'getFileIds',
+        details: JSON.stringify(error.response.data, null, 2)
+      });
     }
     process.exit(1);
   }
@@ -73,12 +96,21 @@ async function getWorkflowStepId(projectId: number) {
     if (!workflowStepId) {
       throw new Error(`Workflow step with type "${TRANSLATE_BY_VENDOR_WORKFLOW_TYPE}" not found`);
     }
-    console.log('Fetched workflow step ID successfully!');
+    logCrowdinInfo('Fetched Crowdin workflow step ID successfully', {
+      operation: 'getWorkflowStepId',
+      workflowStepId
+    });
     return workflowStepId;
   } catch (error) {
-    console.error('Failed to fetch workflow step ID: ', error.message);
+    logCrowdinError('Failed to fetch Crowdin workflow step ID', {
+      operation: 'getWorkflowStepId',
+      error: error.message
+    });
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      logCrowdinError('Crowdin workflow step fetch error details', {
+        operation: 'getWorkflowStepId',
+        details: JSON.stringify(error.response.data, null, 2)
+      });
     }
     process.exit(1);
   }
@@ -95,15 +127,28 @@ async function createTask(projectId: number, title: string, languageId: string, 
       fileIds,
     };
 
-    console.log(`Creating Crowdin task: "${title}" for language ${languageId}`);
+    logCrowdinInfo('Creating Crowdin task', {
+      operation: 'createTask',
+      title,
+      languageId
+    });
 
     const response = await tasksApi.addTask(projectId, taskParams);
-    console.log(`Task created successfully! Task ID: ${response.data.id}`);
+    logCrowdinInfo('Crowdin task created successfully', {
+      operation: 'createTask',
+      taskId: response.data.id
+    });
     return response.data;
   } catch (error) {
-    console.error('Failed to create Crowdin task: ', error.message);
+    logCrowdinError('Failed to create Crowdin task', {
+      operation: 'createTask',
+      error: error.message
+    });
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      logCrowdinError('Crowdin task creation error details', {
+        operation: 'createTask',
+        details: JSON.stringify(error.response.data, null, 2)
+      });
     }
     process.exit(1);
   }
