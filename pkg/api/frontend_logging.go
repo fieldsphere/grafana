@@ -2,6 +2,7 @@ package api
 
 import (
 	"net/http"
+	"sort"
 	"time"
 
 	"golang.org/x/time/rate"
@@ -16,6 +17,20 @@ var frontendLogger = log.New("frontend")
 type frontendLogMessageHandler func(hs *HTTPServer, c *web.Context)
 
 const grafanaJavascriptAgentEndpointPath = "/log-grafana-javascript-agent"
+
+func appendSortedFrontendContext(ctx frontendlogging.CtxVector, values map[string]any) frontendlogging.CtxVector {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		ctx = append(ctx, key, values[key])
+	}
+
+	return ctx
+}
 
 func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapStore) frontendLogMessageHandler {
 	return func(hs *HTTPServer, c *web.Context) {
@@ -35,10 +50,7 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 				var ctx = frontendlogging.CtxVector{}
 				ctx = event.AddMetaToContext(ctx)
 				ctx = append(ctx, "kind", "log", "original_timestamp", logEntry.Timestamp)
-
-				for k, v := range frontendlogging.KeyValToInterfaceMap(logEntry.KeyValContext()) {
-					ctx = append(ctx, k, v)
-				}
+				ctx = appendSortedFrontendContext(ctx, frontendlogging.KeyValToInterfaceMap(logEntry.KeyValContext()))
 				switch logEntry.LogLevel {
 				case frontendlogging.LogLevelDebug, frontendlogging.LogLevelTrace:
 					{
