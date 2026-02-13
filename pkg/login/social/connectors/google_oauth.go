@@ -171,7 +171,7 @@ func (s *SocialGoogle) UserInfo(ctx context.Context, client *http.Client, token 
 	if !s.info.SkipOrgRoleSync {
 		directlyMappedRole, grafanaAdmin, err := s.extractRoleAndAdminOptional(data.rawJSON, userInfo.Groups)
 		if err != nil {
-			s.log.Warn("Failed to extract role", "err", err)
+			s.log.Warn("Failed to extract role", "error", err)
 		}
 
 		if s.info.AllowAssignGrafanaAdmin {

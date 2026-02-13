@@ -346,7 +346,7 @@ func (s *SocialGithub) UserInfo(ctx context.Context, client *http.Client, token 
 		var grafanaAdmin bool
 		directlyMappedRole, grafanaAdmin, err = s.extractRoleAndAdminOptional(response.Body, userInfo.Groups)
 		if err != nil {
-			s.log.Warn("Failed to extract role", "err", err)
+			s.log.Warn("Failed to extract role", "error", err)
 		}
 
 		if s.info.AllowAssignGrafanaAdmin {

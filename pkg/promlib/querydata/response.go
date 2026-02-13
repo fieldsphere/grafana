@@ -22,7 +22,7 @@ import (
 func (s *QueryData) parseResponse(ctx context.Context, q *models.Query, res *http.Response) backend.DataResponse {
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			s.log.FromContext(ctx).Error("Failed to close response body", "err", err)
+			s.log.FromContext(ctx).Error("Failed to close response body", "error", err)
 		}
 	}()
 

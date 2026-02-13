@@ -126,13 +126,13 @@ func (s *SocialGitlab) getGroupsPage(ctx context.Context, client *http.Client, n
 
 	groupURL, err := url.JoinPath(s.info.ApiUrl, "/groups")
 	if err != nil {
-		s.log.Error("Error joining GitLab API URL", "err", err)
+		s.log.Error("Error joining GitLab API URL", "error", err)
 		return nil, nil
 	}
 
 	parsedUrl, err := url.Parse(groupURL)
 	if err != nil {
-		s.log.Error("Error parsing GitLab API URL", "err", err)
+		s.log.Error("Error parsing GitLab API URL", "error", err)
 		return nil, nil
 	}
 
@@ -144,7 +144,7 @@ func (s *SocialGitlab) getGroupsPage(ctx context.Context, client *http.Client, n
 
 	response, err := s.httpGet(ctx, client, parsedUrl.String())
 	if err != nil {
-		s.log.Error("Error getting groups from GitLab API", "err", err)
+		s.log.Error("Error getting groups from GitLab API", "error", err)
 		return nil, nil
 	}
 
@@ -153,7 +153,7 @@ func (s *SocialGitlab) getGroupsPage(ctx context.Context, client *http.Client, n
 	if respSizeString != "" {
 		foundSize, err := strconv.Atoi(respSizeString)
 		if err != nil {
-			s.log.Warn("Error parsing X-Total header from GitLab API", "err", err)
+			s.log.Warn("Error parsing X-Total header from GitLab API", "error", err)
 		} else {
 			respSize = foundSize
 		}
@@ -161,7 +161,7 @@ func (s *SocialGitlab) getGroupsPage(ctx context.Context, client *http.Client, n
 
 	groups := make([]Group, 0, respSize)
 	if err := json.Unmarshal(response.Body, &groups); err != nil {
-		s.log.Error("Error parsing JSON from GitLab API", "err", err)
+		s.log.Error("Error parsing JSON from GitLab API", "error", err)
 		return nil, nil
 	}
 
@@ -175,7 +175,7 @@ func (s *SocialGitlab) getGroupsPage(ctx context.Context, client *http.Client, n
 	if nextString != "" {
 		foundNext, err := strconv.Atoi(nextString)
 		if err != nil {
-			s.log.Warn("Error parsing X-Next-Page header from GitLab API", "err", err)
+			s.log.Warn("Error parsing X-Next-Page header from GitLab API", "error", err)
 		} else {
 			next = &foundNext
 		}
@@ -217,7 +217,7 @@ func (s *SocialGitlab) UserInfo(ctx context.Context, client *http.Client, token 
 	if !s.info.SkipOrgRoleSync {
 		directlyMappedRole, grafanaAdmin, err := s.extractRoleAndAdminOptional(data.raw, userInfo.Groups)
 		if err != nil {
-			s.log.Warn("Failed to extract role", "err", err)
+			s.log.Warn("Failed to extract role", "error", err)
 		}
 
 		if s.info.AllowAssignGrafanaAdmin {

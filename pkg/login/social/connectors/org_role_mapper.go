@@ -154,7 +154,7 @@ func (m *OrgRoleMapper) ParseOrgMappingSettings(ctx context.Context, mappings []
 
 		orgID, err := m.getOrgIDForInternalMapping(ctx, kv[1])
 		if err != nil {
-			m.logger.Warn("Could not fetch OrgID. Skipping.", "err", err, "mapping", fmt.Sprintf("%v", v), "org", kv[1])
+			m.logger.Warn("Could not fetch OrgID. Skipping.", "error", err, "mapping", fmt.Sprintf("%v", v), "org", kv[1])
 			if roleStrict {
 				// Return empty mapping if at least one org name cannot be resolved when roleStrict is enabled
 				return NewMappingConfiguration(map[string]map[int64]org.RoleType{}, roleStrict)
@@ -194,7 +194,7 @@ func (m *OrgRoleMapper) getOrgIDForInternalMapping(ctx context.Context, orgIdCfg
 
 		if getErr != nil {
 			// skip in case of error
-			m.logger.Warn("Could not fetch organization. Skipping.", "err", err, "org", orgIdCfg)
+			m.logger.Warn("Could not fetch organization. Skipping.", "error", err, "org", orgIdCfg)
 			return 0, getErr
 		}
 		orgID = int(res.ID)

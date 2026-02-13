@@ -60,7 +60,7 @@ func (rs *RenderingService) getRenderUserFromJWT(key string) *RenderUser {
 	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS512.Alg()}))
 
 	if err != nil || !tkn.Valid {
-		rs.log.Error("Could not get render user from JWT", "err", err)
+		rs.log.Error("Could not get render user from JWT", "error", err)
 		return nil
 	}
 
@@ -70,7 +70,7 @@ func (rs *RenderingService) getRenderUserFromJWT(key string) *RenderUser {
 func (rs *RenderingService) getRenderUserFromCache(ctx context.Context, key string) *RenderUser {
 	val, err := rs.RemoteCacheService.Get(ctx, fmt.Sprintf(renderKeyPrefix, key))
 	if err != nil {
-		rs.log.Error("Could not get render user from remote cache", "err", err)
+		rs.log.Error("Could not get render user from remote cache", "error", err)
 		return nil
 	}
 
@@ -79,7 +79,7 @@ func (rs *RenderingService) getRenderUserFromCache(ctx context.Context, key stri
 
 	err = gob.NewDecoder(buf).Decode(&ru)
 	if err != nil {
-		rs.log.Error("Could not decode render user from remote cache", "err", err)
+		rs.log.Error("Could not decode render user from remote cache", "error", err)
 		return nil
 	}
 

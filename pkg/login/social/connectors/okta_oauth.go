@@ -181,7 +181,7 @@ func (s *SocialOkta) UserInfo(ctx context.Context, client *http.Client, token *o
 	if !s.info.SkipOrgRoleSync {
 		directlyMappedRole, grafanaAdmin, err := s.extractRoleAndAdminOptional(data.rawJSON, groups)
 		if err != nil {
-			s.log.Warn("Failed to extract role", "err", err)
+			s.log.Warn("Failed to extract role", "error", err)
 		}
 
 		if s.info.AllowAssignGrafanaAdmin {
@@ -190,7 +190,7 @@ func (s *SocialOkta) UserInfo(ctx context.Context, client *http.Client, token *o
 
 		externalOrgs, err := s.extractOrgs(data.rawJSON)
 		if err != nil {
-			s.log.Warn("Failed to extract orgs", "err", err)
+			s.log.Warn("Failed to extract orgs", "error", err)
 			return nil, err
 		}
 

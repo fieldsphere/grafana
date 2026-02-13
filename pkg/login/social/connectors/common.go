@@ -89,7 +89,7 @@ func (s *SocialBase) httpGet(ctx context.Context, client *http.Client, url strin
 
 	defer func() {
 		if err := r.Body.Close(); err != nil {
-			s.log.Warn("Failed to close response body", "err", err)
+			s.log.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

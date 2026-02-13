@@ -123,7 +123,7 @@ func (rs *RenderingService) doRequestAndWriteToFile(ctx context.Context, renderT
 
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			logger.Warn("Failed to close response body", "err", err)
+			logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -211,7 +211,7 @@ func (rs *RenderingService) writeResponseToFile(ctx context.Context, resp *http.
 	defer func() {
 		if err := out.Close(); err != nil && !errors.Is(err, fs.ErrClosed) {
 			// We already close the file explicitly in the non-error path, so shouldn't be a problem
-			logger.Warn("Failed to close file", "path", filePath, "err", err)
+			logger.Warn("Failed to close file", "path", filePath, "error", err)
 		}
 	}()
 
@@ -242,7 +242,7 @@ func (rs *RenderingService) getRemotePluginVersionWithRetry(callback func(string
 				callback(version, err)
 				return
 			}
-			rs.log.Info("Couldn't get remote renderer version, retrying", "err", err, "try", try)
+			rs.log.Info("Couldn't get remote renderer version, retrying", "error", err, "try", try)
 
 			time.Sleep(remoteVersionFetchInterval)
 		}
@@ -265,7 +265,7 @@ func (rs *RenderingService) getRemotePluginVersion() (string, error) {
 
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			rs.log.Warn("Failed to close response body", "err", err)
+			rs.log.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -289,7 +289,7 @@ func (rs *RenderingService) getRemotePluginVersion() (string, error) {
 func (rs *RenderingService) refreshRemotePluginVersion() {
 	newVersion, err := rs.getRemotePluginVersion()
 	if err != nil {
-		rs.log.Info("Failed to refresh remote plugin version", "err", err)
+		rs.log.Info("Failed to refresh remote plugin version", "error", err)
 		return
 	}
 
