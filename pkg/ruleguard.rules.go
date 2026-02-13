@@ -488,6 +488,8 @@ func structuredlogging(m fluent.Matcher) {
 		m["logger"].Type.Implements("github.com/grafana/grafana/pkg/plugins/log.Logger") ||
 		m["logger"].Type.Is("*log/slog.Logger") ||
 		m["logger"].Type.Is("log/slog.Logger")
+	isSlogLogger := m["logger"].Type.Is("*log/slog.Logger") ||
+		m["logger"].Type.Is("log/slog.Logger")
 
 	m.Match(
 		`$logger.Info(fmt.Sprintf($fmt, $*args))`,
@@ -528,6 +530,46 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && !m["msg"].Text.Matches("^\".*\"$")).
 		Report("prefer a stable string-literal log message; move dynamic text into key/value fields")
+
+	m.Match(
+		`$logger.InfoCtx($ctx, fmt.Sprintf($fmt, $*args), $*fields)`,
+		`$logger.WarnCtx($ctx, fmt.Sprintf($fmt, $*args), $*fields)`,
+		`$logger.ErrorCtx($ctx, fmt.Sprintf($fmt, $*args), $*fields)`,
+		`$logger.DebugCtx($ctx, fmt.Sprintf($fmt, $*args), $*fields)`,
+		`$logger.InfoCtx($ctx, fmt.Sprint($*args), $*fields)`,
+		`$logger.WarnCtx($ctx, fmt.Sprint($*args), $*fields)`,
+		`$logger.ErrorCtx($ctx, fmt.Sprint($*args), $*fields)`,
+		`$logger.DebugCtx($ctx, fmt.Sprint($*args), $*fields)`,
+	).
+		Where(isStructuredLogger).
+		Report("use a static log message and key/value context instead of fmt formatting")
+
+	m.Match(
+		`$logger.InfoCtx($ctx, $msg, $*fields)`,
+		`$logger.WarnCtx($ctx, $msg, $*fields)`,
+		`$logger.ErrorCtx($ctx, $msg, $*fields)`,
+		`$logger.DebugCtx($ctx, $msg, $*fields)`,
+	).
+		Where(isStructuredLogger && m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Report("printf-style format verbs are not supported in structured logger context methods; move dynamic values to key/value fields")
+
+	m.Match(
+		`$logger.InfoCtx($ctx, $left + $right, $*fields)`,
+		`$logger.WarnCtx($ctx, $left + $right, $*fields)`,
+		`$logger.ErrorCtx($ctx, $left + $right, $*fields)`,
+		`$logger.DebugCtx($ctx, $left + $right, $*fields)`,
+	).
+		Where(isStructuredLogger).
+		Report("avoid string concatenation in structured logger context methods; use key/value fields")
+
+	m.Match(
+		`$logger.InfoCtx($ctx, $msg, $*fields)`,
+		`$logger.WarnCtx($ctx, $msg, $*fields)`,
+		`$logger.ErrorCtx($ctx, $msg, $*fields)`,
+		`$logger.DebugCtx($ctx, $msg, $*fields)`,
+	).
+		Where(isStructuredLogger && !m["msg"].Text.Matches("^\".*\"$")).
+		Report("prefer a stable string-literal log message in structured logger context methods; move dynamic text into key/value fields")
 
 	m.Match(
 		`slog.Info(fmt.Sprintf($fmt, $*args), $*attrs)`,
@@ -579,6 +621,25 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(!m["msg"].Text.Matches("^\".*\"$")).
 		Report("prefer a stable string-literal slog.Log message; move dynamic text into key/value fields")
+
+	m.Match(
+		`$logger.Log($ctx, $level, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`$logger.Log($ctx, $level, fmt.Sprint($*args), $*attrs)`,
+	).
+		Where(isSlogLogger).
+		Report("use a stable slog.Logger.Log message and key/value context instead of fmt formatting")
+
+	m.Match(
+		`$logger.Log($ctx, $level, $left + $right, $*attrs)`,
+	).
+		Where(isSlogLogger).
+		Report("avoid string concatenation in slog.Logger.Log messages; use key/value fields")
+
+	m.Match(
+		`$logger.Log($ctx, $level, $msg, $*attrs)`,
+	).
+		Where(isSlogLogger && !m["msg"].Text.Matches("^\".*\"$")).
+		Report("prefer a stable string-literal slog.Logger.Log message; move dynamic text into key/value fields")
 }
 
 func unstructuredoutput(m fluent.Matcher) {
