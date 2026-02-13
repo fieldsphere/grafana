@@ -635,7 +635,7 @@ func (srv *ConvertPrometheusSrv) RouteConvertPrometheusGetAlertmanagerConfig(c *
 
 	cfg, err := srv.am.GetAlertmanagerConfiguration(ctx, c.GetOrgID(), false, false)
 	if err != nil {
-		logger.Error("failed to get alertmanager configuration", "err", err)
+		logger.Error("failed to get alertmanager configuration", "error", err)
 		return errorToResponse(err)
 	}
 

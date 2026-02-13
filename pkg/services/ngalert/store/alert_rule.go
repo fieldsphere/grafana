@@ -1199,7 +1199,7 @@ func (st DBstore) GetAlertRulesForScheduling(ctx context.Context, query *ngmodel
 			//nolint:staticcheck // not yet migrated to OpenFeature
 			if st.FeatureToggles.IsEnabled(ctx, featuremgmt.FlagAlertingQueryOptimization) {
 				if optimizations, err := OptimizeAlertQueries(converted.Data); err != nil {
-					st.Logger.Error("Could not migrate rule from range to instant query", "rule", rule.UID, "err", err)
+					st.Logger.Error("Could not migrate rule from range to instant query", "rule", rule.UID, "error", err)
 				} else if len(optimizations) > 0 {
 					st.Logger.Info("Migrated rule from range to instant query", "rule", rule.UID, "migrated_queries", len(optimizations))
 				}

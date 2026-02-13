@@ -419,7 +419,7 @@ func (nps *Service) getImportedRoute(ctx context.Context, span trace.Span, revis
 		result, err = imported.GetManagedRoute()
 	}
 	if err != nil {
-		nps.log.FromContext(ctx).Warn("Unable to include imported route. Skipping", "err", err)
+		nps.log.FromContext(ctx).Warn("Unable to include imported route. Skipping", "error", err)
 		span.RecordError(err, trace.WithAttributes(
 			attribute.String("concurrency_token", revision.ConcurrencyToken),
 		))
