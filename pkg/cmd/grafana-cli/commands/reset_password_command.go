@@ -27,7 +27,7 @@ func resetPasswordCommand(c utils.CommandLine, runner server.Runner) error {
 	adminId := int64(c.Int("user-id"))
 
 	if c.Bool("password-from-stdin") {
-		logger.Infof("New Password: ")
+		logger.Info("Reading new password from standard input")
 
 		scanner := bufio.NewScanner(os.Stdin)
 		if ok := scanner.Scan(); !ok {
@@ -48,21 +48,21 @@ func resetPasswordCommand(c utils.CommandLine, runner server.Runner) error {
 	err := resetPassword(adminId, newPassword, runner.UserService)
 	if err == nil {
 		logger.Infof("\n")
-		logger.Infof("Admin password changed successfully %s", color.GreenString("✔"))
+		logger.Info("Admin password changed successfully", "status", color.GreenString("✔"))
 	}
 
 	if errors.Is(err, ErrAdminCannotBeFound) {
 		logger.Infof("\n")
-		logger.Infof("Admin user cannot be found %s. \n", color.RedString("✘"))
+		logger.Info("Admin user cannot be found", "status", color.RedString("✘"))
 		admins, err := listAdminUsers(runner.UserService)
 		if err != nil {
 			return fmt.Errorf("failed to list admin users: %w", err)
 		}
 
 		logger.Infof("\n")
-		logger.Infof("Please try to run the command again specifying a user-id (--user-id) from the list below:\n")
+		logger.Info("Please run the command again with --user-id from the list below")
 		for _, u := range admins {
-			logger.Infof("\t Username: %s ID: %d\n", u.Login, u.ID)
+			logger.Info("Admin user", "username", u.Login, "id", u.ID)
 		}
 	}
 

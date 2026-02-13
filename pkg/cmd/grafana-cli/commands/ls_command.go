@@ -47,8 +47,10 @@ func lsCommand(c utils.CommandLine) error {
 	}
 
 	for _, plugin := range plugins {
-		logger.Infof("%s %s %s\n", plugin.Primary.JSONData.ID,
-			color.YellowString("@"), plugin.Primary.JSONData.Info.Version)
+		logger.Info("Installed plugin",
+			"pluginID", plugin.Primary.JSONData.ID,
+			"separator", color.YellowString("@"),
+			"version", plugin.Primary.JSONData.Info.Version)
 	}
 
 	return nil
