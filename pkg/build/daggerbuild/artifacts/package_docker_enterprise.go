@@ -183,7 +183,7 @@ func NewEntDockerFromString(ctx context.Context, log *slog.Logger, artifact stri
 		return nil, err
 	}
 
-	log.Info("initializing Enterprise Docker artifact", "Org", entOrg, "registry", entRegistry, "repo", entRepo, "tag", tagFormat)
+	log.Info("initializing Enterprise Docker artifact", "org", entOrg, "registry", entRegistry, "repo", entRepo, "tag", tagFormat)
 
 	return pipeline.ArtifactWithLogging(ctx, log, &pipeline.Artifact{
 		ArtifactString: artifact,
