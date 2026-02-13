@@ -17,7 +17,7 @@ package main
 
 import (
 	"errors"
-	"fmt"
+	"log/slog"
 	"os"
 	"time"
 )
@@ -70,13 +70,13 @@ type Event struct {
 // Start ensures the event starts with greeting all guests.
 func (e Event) Start() {
 	msg := e.Greeter.Greet()
-	fmt.Println(msg)
+	_, _ = os.Stdout.WriteString(string(msg) + "\n")
 }
 
 func main() {
 	e, err := InitializeEvent("hi there!")
 	if err != nil {
-		fmt.Printf("failed to create event: %s\n", err)
+		slog.Error("Failed to create event", "error", err)
 		os.Exit(2)
 	}
 	e.Start()
