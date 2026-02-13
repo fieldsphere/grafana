@@ -3,7 +3,6 @@ package search_test
 import (
 	"context"
 	"fmt"
-	"log"
 	"strings"
 	"testing"
 	"time"
@@ -297,7 +296,7 @@ func debugAnalyzer(index bleve.Index, analyzerName string, text string) {
 	// Get the analyzer (default: "standard")
 	analyzer := index.Mapping().AnalyzerNamed(analyzerName)
 	if analyzer == nil {
-		log.Fatal("Analyzer not found")
+		panic("Analyzer not found")
 	}
 
 	// Analyze text to see generated tokens
@@ -316,7 +315,7 @@ func debugIndexedTerms(index bleve.Index, field string) {
 	// Check what terms exist for the title field
 	fieldTerms, err := index.FieldDict(field)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	for {

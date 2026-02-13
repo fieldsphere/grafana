@@ -2,7 +2,6 @@ package fsql
 
 import (
 	"fmt"
-	"log"
 	"strings"
 	"testing"
 	"time"
@@ -327,7 +326,7 @@ func TestNewFrame(t *testing.T) {
 		},
 	}
 	if !cmp.Equal(expected, actual, cmp.Comparer(cmpFrame)) {
-		log.Fatal(cmp.Diff(expected, actual))
+		t.Fatalf("newFrame mismatch (-want +got):\n%s", cmp.Diff(expected, actual))
 	}
 }
 
