@@ -331,9 +331,46 @@ func (s *searchServer) logStats(ctx context.Context, stats *SearchStats, span tr
 			if !ok {
 				key = "searchLogArgs"
 			}
-			attrs = append(attrs, attribute.String(key, fmt.Sprint(args[i+1])))
+			attrs = append(attrs, searchLogAttribute(key, args[i+1]))
 		}
 		span.AddEvent("search stats", trace.WithAttributes(attrs...))
+	}
+}
+
+func searchLogAttribute(key string, value any) attribute.KeyValue {
+	switch v := value.(type) {
+	case string:
+		return attribute.String(key, v)
+	case bool:
+		return attribute.Bool(key, v)
+	case int:
+		return attribute.Int(key, v)
+	case int8:
+		return attribute.Int64(key, int64(v))
+	case int16:
+		return attribute.Int64(key, int64(v))
+	case int32:
+		return attribute.Int64(key, int64(v))
+	case int64:
+		return attribute.Int64(key, v)
+	case uint:
+		return attribute.Int64(key, int64(v))
+	case uint8:
+		return attribute.Int64(key, int64(v))
+	case uint16:
+		return attribute.Int64(key, int64(v))
+	case uint32:
+		return attribute.Int64(key, int64(v))
+	case float32:
+		return attribute.Float64(key, float64(v))
+	case float64:
+		return attribute.Float64(key, v)
+	case []string:
+		return attribute.StringSlice(key, v)
+	case time.Duration:
+		return attribute.Int64(key, int64(v))
+	default:
+		return attribute.String(key, fmt.Sprint(v))
 	}
 }
 

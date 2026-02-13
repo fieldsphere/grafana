@@ -16,6 +16,7 @@ import (
 	"github.com/grafana/authlib/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.opentelemetry.io/otel/attribute"
 
 	dashboardv1 "github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v1beta1"
 	"github.com/grafana/grafana/pkg/storage/unified/resourcepb"
@@ -999,5 +1000,25 @@ func TestNormalizeSearchLogArgs(t *testing.T) {
 	t.Run("wraps non-string keys", func(t *testing.T) {
 		got := normalizeSearchLogArgs(1, "default")
 		require.Equal(t, "searchLogArgs", got[0])
+	})
+}
+
+func TestSearchLogAttribute(t *testing.T) {
+	t.Run("keeps typed values", func(t *testing.T) {
+		require.Equal(t, attribute.Int("count", 5), searchLogAttribute("count", 5))
+		require.Equal(t, attribute.Bool("enabled", true), searchLogAttribute("enabled", true))
+		require.Equal(t, attribute.Float64("ratio", 1.5), searchLogAttribute("ratio", 1.5))
+		require.Equal(t, attribute.StringSlice("tags", []string{"a", "b"}), searchLogAttribute("tags", []string{"a", "b"}))
+		require.Equal(t, attribute.Int64("elapsed", int64(time.Second)), searchLogAttribute("elapsed", time.Second))
+	})
+
+	t.Run("falls back to string for unsupported value types", func(t *testing.T) {
+		type sample struct {
+			Name string
+		}
+
+		got := searchLogAttribute("value", sample{Name: "x"})
+		require.Equal(t, attribute.STRING, got.Value.Type())
+		require.Equal(t, "{x}", got.Value.AsString())
 	})
 }
