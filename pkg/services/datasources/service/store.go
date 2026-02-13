@@ -333,7 +333,7 @@ func (ss *SqlStore) AddDataSource(ctx context.Context, cmd *datasources.AddDataS
 
 		if cmd.UpdateSecretFn != nil {
 			if err := cmd.UpdateSecretFn(); err != nil {
-				// ss.logger.Error("Failed to update datasource secrets -- rolling back update", "name", cmd.Name, "type", cmd.Type, "orgId", cmd.OrgID)
+				// ss.logger.Error("Failed to update datasource secrets -- rolling back update", "name", cmd.Name, "type", cmd.Type, "orgID", cmd.OrgID)
 				return err
 			}
 		}
