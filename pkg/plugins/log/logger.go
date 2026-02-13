@@ -51,10 +51,29 @@ type slogLogger struct {
 	name   string
 }
 
+func normalizePluginLoggerContext(ctx ...any) []any {
+	if len(ctx) == 0 {
+		return nil
+	}
+
+	if len(ctx)%2 != 0 {
+		return []any{"plugin_log_context", ctx}
+	}
+
+	for i := 0; i < len(ctx); i += 2 {
+		if _, ok := ctx[i].(string); !ok {
+			return []any{"plugin_log_context", ctx}
+		}
+	}
+
+	return ctx
+}
+
 func wrapPluginLoggerContext(msg, level string, ctx ...any) []any {
-	fields := make([]any, 0, len(ctx)+4)
+	normalized := normalizePluginLoggerContext(ctx...)
+	fields := make([]any, 0, len(normalized)+4)
 	fields = append(fields, "plugin_message", msg, "plugin_log_level", level)
-	fields = append(fields, ctx...)
+	fields = append(fields, normalized...)
 	return fields
 }
 
