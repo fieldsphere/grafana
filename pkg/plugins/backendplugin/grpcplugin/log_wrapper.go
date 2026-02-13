@@ -31,7 +31,7 @@ func formatArgs(args ...any) []any {
 	}
 
 	if len(args)%2 != 0 {
-		return []any{"plugin_log_args", args}
+		return []any{"pluginLogArgs", args}
 	}
 
 	res := make([]any, 0, len(args))
@@ -39,7 +39,7 @@ func formatArgs(args ...any) []any {
 	for n := 0; n < len(args); n += 2 {
 		key, ok := args[n].(string)
 		if !ok {
-			return []any{"plugin_log_args", args}
+			return []any{"pluginLogArgs", args}
 		}
 
 		if key == "timestamp" {

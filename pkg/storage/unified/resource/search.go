@@ -338,11 +338,11 @@ func normalizeSearchLogArgs(params ...any) []any {
 		return nil
 	}
 	if len(params)%2 != 0 {
-		return []any{"search_log_args", params}
+		return []any{"searchLogArgs", params}
 	}
 	for i := 0; i < len(params); i += 2 {
 		if _, ok := params[i].(string); !ok {
-			return []any{"search_log_args", params}
+			return []any{"searchLogArgs", params}
 		}
 	}
 	return params

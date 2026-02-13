@@ -16,17 +16,17 @@ func TestNormalizeGraphiteLogArgs(t *testing.T) {
 		require.True(t, reflect.DeepEqual(expected, args))
 	})
 
-	t.Run("wraps odd args as graphite_args", func(t *testing.T) {
+	t.Run("wraps odd args as graphiteArgs", func(t *testing.T) {
 		args := normalizeGraphiteLogArgs("operation", "write", errors.New("boom"))
-		expected := []any{"graphite_args", []any{"operation", "write", errors.New("boom")}}
+		expected := []any{"graphiteArgs", []any{"operation", "write", errors.New("boom")}}
 		require.Equal(t, expected[0], args[0])
-		require.Equal(t, "graphite_args", args[0])
+		require.Equal(t, "graphiteArgs", args[0])
 		require.Len(t, args, 2)
 	})
 
-	t.Run("wraps non string keys as graphite_args", func(t *testing.T) {
+	t.Run("wraps non string keys as graphiteArgs", func(t *testing.T) {
 		args := normalizeGraphiteLogArgs(10, "value")
-		require.Equal(t, "graphite_args", args[0])
+		require.Equal(t, "graphiteArgs", args[0])
 		require.Equal(t, []any{10, "value"}, args[1])
 	})
 }

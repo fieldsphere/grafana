@@ -185,11 +185,11 @@ func normalizeCorePluginLogArgs(args ...any) []any {
 		return nil
 	}
 	if len(args)%2 != 0 {
-		return []any{"plugin_log_args", args}
+		return []any{"pluginLogArgs", args}
 	}
 	for i := 0; i < len(args); i += 2 {
 		if _, ok := args[i].(string); !ok {
-			return []any{"plugin_log_args", args}
+			return []any{"pluginLogArgs", args}
 		}
 	}
 	return args

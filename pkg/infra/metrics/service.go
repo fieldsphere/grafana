@@ -28,12 +28,12 @@ func normalizeGraphiteLogArgs(args ...any) []any {
 	}
 
 	if len(args)%2 != 0 {
-		return []any{"graphite_args", args}
+		return []any{"graphiteArgs", args}
 	}
 
 	for i := 0; i < len(args); i += 2 {
 		if _, ok := args[i].(string); !ok {
-			return []any{"graphite_args", args}
+			return []any{"graphiteArgs", args}
 		}
 	}
 

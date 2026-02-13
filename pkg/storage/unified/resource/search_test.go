@@ -993,11 +993,11 @@ func TestNormalizeSearchLogArgs(t *testing.T) {
 
 	t.Run("wraps odd args", func(t *testing.T) {
 		got := normalizeSearchLogArgs("namespace", "default", 10)
-		require.Equal(t, "search_log_args", got[0])
+		require.Equal(t, "searchLogArgs", got[0])
 	})
 
 	t.Run("wraps non-string keys", func(t *testing.T) {
 		got := normalizeSearchLogArgs(1, "default")
-		require.Equal(t, "search_log_args", got[0])
+		require.Equal(t, "searchLogArgs", got[0])
 	})
 }
