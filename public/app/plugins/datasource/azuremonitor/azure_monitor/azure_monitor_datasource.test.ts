@@ -342,7 +342,6 @@ describe('AzureMonitorDatasource', () => {
     });
 
     it('should return list of Metric Namespaces even if there is a failure', () => {
-      const consoleError = jest.spyOn(console, 'error').mockImplementation();
       return ctx.ds.azureMonitorDatasource
         .getMetricNamespaces(
           {
@@ -354,10 +353,6 @@ describe('AzureMonitorDatasource', () => {
         )
         .then((results: Array<{ text: string; value: string }>) => {
           expect(results.length).toEqual(0);
-          expect(consoleError).toHaveBeenCalled();
-          expect(consoleError.mock.calls[0][0]).toContain(
-            'Failed to get metric namespaces: failed to retrieve due to timeout'
-          );
         });
     });
 

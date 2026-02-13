@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { PanelData, TimeRange } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { EditorFieldGroup, EditorRow, EditorRows } from '@grafana/plugin-ui';
-import { config, getTemplateSrv } from '@grafana/runtime';
+import { config, createMonitoringLogger, getTemplateSrv } from '@grafana/runtime';
 import { Alert, LinkButton, Space, Text, TextLink } from '@grafana/ui';
 
 import { LogsEditorMode, ResultFormat } from '../../dataquery.gen';
@@ -25,6 +25,8 @@ import { TimeManagement } from './TimeManagement';
 import { onLoad, setBasicLogsQuery, setFormatAs, setKustoQuery } from './setQueryValue';
 import useMigrations from './useMigrations';
 import { shouldShowBasicLogsToggle } from './utils';
+
+const logger = createMonitoringLogger('plugins.datasource.azuremonitor.logs-query-editor');
 
 interface LogsQueryEditorProps {
   query: AzureMonitorQuery;
@@ -193,11 +195,27 @@ const LogsQueryEditor = ({
           setDataIngestedWarning(null);
         }
       } catch (err) {
-        console.error(err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'getBasicLogsUsage' });
+        } else {
+          logger.logWarning('Failed to fetch basic logs usage', {
+            operation: 'getBasicLogsUsage',
+            error: String(err),
+          });
+        }
       }
     };
 
-    getBasicLogsUsage(query).catch((err) => console.error(err));
+    getBasicLogsUsage(query).catch((err) => {
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'getBasicLogsUsage' });
+      } else {
+        logger.logWarning('Failed to fetch basic logs usage', {
+          operation: 'getBasicLogsUsage',
+          error: String(err),
+        });
+      }
+    });
   }, [datasource.azureLogAnalyticsDatasource, query, showBasicLogsToggle, from, to]);
   let portalLinkButton = null;
 

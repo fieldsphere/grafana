@@ -1,6 +1,7 @@
 import { EngineSchema, getKustoWorker } from '@kusto/monaco-kusto';
 import { useCallback, useEffect, useState } from 'react';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { CodeEditor, Monaco, MonacoEditor } from '@grafana/ui';
 
 import { AzureQueryEditorFieldProps } from '../../types/types';
@@ -11,6 +12,8 @@ interface MonacoEditorValues {
   editor: MonacoEditor;
   monaco: Monaco;
 }
+
+const logger = createMonitoringLogger('plugins.datasource.azuremonitor.logs-query-field');
 
 const QueryField = ({ query, onQueryChange, schema }: AzureQueryEditorFieldProps) => {
   const [monaco, setMonaco] = useState<MonacoEditorValues | undefined>();
@@ -29,11 +32,21 @@ const QueryField = ({ query, onQueryChange, schema }: AzureQueryEditorFieldProps
           await kustoMode.setSchema(schema);
         }
       } catch (err) {
-        console.error(err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'setupEditor' });
+        } else {
+          logger.logWarning('Failed to set up Kusto editor schema', { operation: 'setupEditor', error: String(err) });
+        }
       }
     };
 
-    setupEditor(monaco, schema).catch((err) => console.error(err));
+    setupEditor(monaco, schema).catch((err) => {
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'setupEditor' });
+      } else {
+        logger.logWarning('Failed to set up Kusto editor schema', { operation: 'setupEditor', error: String(err) });
+      }
+    });
   }, [schema, monaco]);
 
   const handleEditorMount = useCallback((editor: MonacoEditor, monaco: Monaco) => {
