@@ -806,6 +806,32 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(!m["msg"].Text.Matches("^\".*\"$")).
 		Report("prefer a stable string-literal klog message; move dynamic text into key/value fields")
+
+	m.Match(
+		`$logger.Info($msg, $*before, "error", $err.Error(), $*after)`,
+		`$logger.Warn($msg, $*before, "error", $err.Error(), $*after)`,
+		`$logger.Error($msg, $*before, "error", $err.Error(), $*after)`,
+		`$logger.Debug($msg, $*before, "error", $err.Error(), $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, "error", $err.Error(), $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, "error", $err.Error(), $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, "error", $err.Error(), $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, "error", $err.Error(), $*after)`,
+		`slog.Info($msg, $*before, "error", $err.Error(), $*after)`,
+		`slog.Warn($msg, $*before, "error", $err.Error(), $*after)`,
+		`slog.Error($msg, $*before, "error", $err.Error(), $*after)`,
+		`slog.Debug($msg, $*before, "error", $err.Error(), $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, "error", $err.Error(), $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, "error", $err.Error(), $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, "error", $err.Error(), $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, "error", $err.Error(), $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, "error", $err.Error(), $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, "error", $err.Error(), $*after)`,
+		`klog.InfoS($msg, $*before, "error", $err.Error(), $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, "error", $err.Error(), $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, "error", $err.Error(), $*after)`,
+	).
+		Where(m["err"].Type.Is("error")).
+		Report("pass error values directly in structured logs (\"error\", err) instead of err.Error()")
 }
 
 func unstructuredoutput(m fluent.Matcher) {
