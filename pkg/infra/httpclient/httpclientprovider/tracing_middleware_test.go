@@ -154,3 +154,19 @@ func TestTracingMiddleware(t *testing.T) {
 		require.NotNil(t, sp)
 	})
 }
+
+func TestFormatHTTPClientLabels(t *testing.T) {
+	t.Run("returns nil for empty labels", func(t *testing.T) {
+		require.Nil(t, formatHTTPClientLabels(nil))
+		require.Nil(t, formatHTTPClientLabels(map[string]string{}))
+	})
+
+	t.Run("returns sorted stable key value labels", func(t *testing.T) {
+		formatted := formatHTTPClientLabels(map[string]string{
+			"z": "last",
+			"a": "first",
+		})
+
+		require.Equal(t, []string{"a=first", "z=last"}, formatted)
+	})
+}

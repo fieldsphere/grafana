@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptrace"
+	"slices"
 	"strconv"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
@@ -20,7 +21,26 @@ import (
 const (
 	TracingMiddlewareName   = "tracing"
 	httpContentLengthTagKey = "http.content_length"
+	httpClientLabelsTagKey  = "httpClientLabels"
 )
+
+func formatHTTPClientLabels(labels map[string]string) []string {
+	if len(labels) == 0 {
+		return nil
+	}
+
+	labelKeys := make([]string, 0, len(labels))
+	for key := range labels {
+		labelKeys = append(labelKeys, key)
+	}
+	slices.Sort(labelKeys)
+
+	formatted := make([]string, 0, len(labelKeys))
+	for _, key := range labelKeys {
+		formatted = append(formatted, fmt.Sprintf("%s=%s", key, labels[key]))
+	}
+	return formatted
+}
 
 func TracingMiddleware(logger log.Logger, tracer tracing.Tracer) httpclient.Middleware {
 	return httpclient.NamedMiddlewareFunc(TracingMiddlewareName, func(opts httpclient.Options, next http.RoundTripper) http.RoundTripper {
@@ -30,8 +50,8 @@ func TracingMiddleware(logger log.Logger, tracer tracing.Tracer) httpclient.Midd
 
 			ctx = httptrace.WithClientTrace(ctx, otelhttptrace.NewClientTrace(ctx, otelhttptrace.WithoutSubSpans(), otelhttptrace.WithoutHeaders()))
 			req = req.WithContext(ctx)
-			for k, v := range opts.Labels {
-				span.SetAttributes(attribute.String(k, v))
+			if labels := formatHTTPClientLabels(opts.Labels); len(labels) > 0 {
+				span.SetAttributes(attribute.StringSlice(httpClientLabelsTagKey, labels))
 			}
 
 			tracer.Inject(ctx, req.Header, span)
