@@ -1,7 +1,7 @@
 import { throttle } from 'lodash';
 import { logUiDebug } from './structuredLogging';
 
-type Args = Parameters<typeof console.log>;
+type Args = unknown[];
 
 /**
  * @internal
