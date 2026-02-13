@@ -284,7 +284,7 @@ func (statement *Statement) buildUpdates(bean any,
 
 		fieldValuePtr, err := col.ValueOf(bean)
 		if err != nil {
-			engine.logger.Error(err)
+			engine.logger.Error("XORM failed to read column value", "column", col.Name, "error", err)
 			continue
 		}
 
@@ -321,7 +321,7 @@ func (statement *Statement) buildUpdates(bean any,
 			if structConvert, ok := fieldValue.Addr().Interface().(core.Conversion); ok {
 				data, err := structConvert.ToDB()
 				if err != nil {
-					engine.logger.Error(err)
+					engine.logger.Error("XORM failed to convert struct field to database value", "column", col.Name, "error", err)
 				} else {
 					if col.SQLType.IsText() {
 						val = string(data)
@@ -336,7 +336,7 @@ func (statement *Statement) buildUpdates(bean any,
 		if structConvert, ok := fieldValue.Interface().(core.Conversion); ok {
 			data, err := structConvert.ToDB()
 			if err != nil {
-				engine.logger.Error(err)
+				engine.logger.Error("XORM failed to convert field to database value", "column", col.Name, "error", err)
 			} else {
 				if col.SQLType.IsText() {
 					val = string(data)
@@ -461,7 +461,7 @@ func (statement *Statement) buildUpdates(bean any,
 			if col.SQLType.IsText() {
 				bytes, err := DefaultJSONHandler.Marshal(fieldValue.Interface())
 				if err != nil {
-					engine.logger.Error(err)
+					engine.logger.Error("XORM failed to marshal JSON column value", "column", col.Name, "error", err)
 					continue
 				}
 				val = string(bytes)
@@ -481,7 +481,7 @@ func (statement *Statement) buildUpdates(bean any,
 				} else {
 					bytes, err = DefaultJSONHandler.Marshal(fieldValue.Interface())
 					if err != nil {
-						engine.logger.Error(err)
+						engine.logger.Error("XORM failed to marshal JSON blob column value", "column", col.Name, "error", err)
 						continue
 					}
 					val = bytes
@@ -735,7 +735,7 @@ func (statement *Statement) Table(tableNameOrBean any) *Statement {
 		var err error
 		statement.RefTable, err = statement.Engine.autoMapType(v)
 		if err != nil {
-			statement.Engine.logger.Error(err)
+			statement.Engine.logger.Error("XORM failed to auto-map table type", "error", err)
 			return statement
 		}
 	}

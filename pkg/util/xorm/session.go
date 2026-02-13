@@ -396,7 +396,7 @@ func (session *Session) slice2Bean(scanResults []any, fields []string, bean any,
 		fieldValue, err := session.getField(dataStruct, key, table, idx)
 		if err != nil {
 			if !strings.Contains(err.Error(), "is not valid") {
-				session.engine.logger.Warn(err)
+				session.engine.logger.Warn("XORM failed to resolve field mapping", "field", key, "error", err)
 			}
 			continue
 		}
