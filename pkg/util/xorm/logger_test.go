@@ -1,6 +1,7 @@
 package xorm
 
 import (
+	"encoding/json"
 	"errors"
 	"reflect"
 	"testing"
@@ -38,6 +39,40 @@ func TestSplitLogArgs(t *testing.T) {
 		}
 		if msg == "" {
 			t.Fatal("expected non-empty fallback message")
+		}
+	})
+}
+
+func TestFormatSyslogEvent(t *testing.T) {
+	t.Run("single error serializes as structured payload", func(t *testing.T) {
+		out := formatSyslogEvent(errors.New("boom"))
+		payload := map[string]any{}
+		if err := json.Unmarshal([]byte(out), &payload); err != nil {
+			t.Fatalf("expected json payload, got %q: %v", out, err)
+		}
+		if payload["event"] != "XORM log event" {
+			t.Fatalf("unexpected event: %#v", payload["event"])
+		}
+		if payload["message"] != "XORM error" {
+			t.Fatalf("unexpected message: %#v", payload["message"])
+		}
+		if payload["error"] != "boom" {
+			t.Fatalf("unexpected error: %#v", payload["error"])
+		}
+	})
+
+	t.Run("formatted args preserve template context", func(t *testing.T) {
+		out := formatSyslogEvent("processed 3 rows", "template", "processed %d rows", "args", []any{3})
+		payload := map[string]any{}
+		if err := json.Unmarshal([]byte(out), &payload); err != nil {
+			t.Fatalf("expected json payload, got %q: %v", out, err)
+		}
+		if payload["template"] != "processed %d rows" {
+			t.Fatalf("unexpected template: %#v", payload["template"])
+		}
+		args, ok := payload["args"].([]any)
+		if !ok || len(args) != 1 || args[0] != float64(3) {
+			t.Fatalf("unexpected args payload: %#v", payload["args"])
 		}
 	})
 }
