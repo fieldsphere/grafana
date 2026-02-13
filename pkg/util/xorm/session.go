@@ -599,7 +599,7 @@ func (session *Session) slice2Bean(scanResults []any, fields []string, bean any,
 						hasAssigned = true
 						t, err := session.byte2Time(col, d)
 						if err != nil {
-							session.engine.logger.Error("byte2Time error:", err)
+							session.engine.logger.Error("byte2Time error", "error", err)
 							hasAssigned = false
 						} else {
 							fieldValue.Set(reflect.ValueOf(t).Convert(fieldType))
@@ -608,7 +608,7 @@ func (session *Session) slice2Bean(scanResults []any, fields []string, bean any,
 						hasAssigned = true
 						t, err := session.str2Time(col, d)
 						if err != nil {
-							session.engine.logger.Error("byte2Time error:", err)
+							session.engine.logger.Error("byte2Time error", "error", err)
 							hasAssigned = false
 						} else {
 							fieldValue.Set(reflect.ValueOf(t).Convert(fieldType))
@@ -621,7 +621,7 @@ func (session *Session) slice2Bean(scanResults []any, fields []string, bean any,
 				// !<winxxp>! 增加支持sql.Scanner接口的结构，如sql.NullString
 				hasAssigned = true
 				if err := nulVal.Scan(vv.Interface()); err != nil {
-					session.engine.logger.Error("sql.Sanner error:", err)
+					session.engine.logger.Error("sql.Scanner error", "error", err)
 					hasAssigned = false
 				}
 			} else if col.SQLType.IsJson() {
