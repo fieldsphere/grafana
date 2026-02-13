@@ -14,10 +14,10 @@
 
 package main
 
-import "fmt"
+import "os"
 
 func main() {
-	fmt.Println(injectFooer().Foo())
+	_, _ = os.Stdout.WriteString(injectFooer().Foo() + "\n")
 }
 
 type Fooer interface {
