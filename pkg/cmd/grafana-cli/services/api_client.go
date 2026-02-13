@@ -15,7 +15,7 @@ import (
 )
 
 func GetPluginInfoFromRepo(pluginId, repoUrl string) (models.Plugin, error) {
-	logger.Debugf("getting plugin metadata from: %v pluginId: %v \n", repoUrl, pluginId)
+	logger.Debug("Getting plugin metadata from repository", "repoURL", repoUrl, "pluginID", pluginId)
 	body, err := sendRequestGetBytes(HttpClient, repoUrl, "repo", pluginId)
 	if err != nil {
 		if errors.Is(err, ErrNotFoundError) {
