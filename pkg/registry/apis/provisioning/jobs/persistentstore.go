@@ -335,7 +335,7 @@ func (s *persistentStore) ListExpiredJobs(ctx context.Context, expiredBefore tim
 	ctx, span := tracing.Start(ctx, "provisioning.jobs.list_expired_jobs")
 	defer span.End()
 
-	logger := logging.FromContext(ctx).With("operation", "list_expired_jobs")
+	logger := logging.FromContext(ctx).With("operation", "listExpiredJobs")
 
 	// Set up provisioning identity to access jobs across all namespaces
 	ctx, _, err := identity.WithProvisioningIdentity(ctx, "*")
@@ -386,7 +386,7 @@ func (s *persistentStore) RenewLease(ctx context.Context, job *provisioning.Job)
 	defer span.End()
 
 	logger := logging.FromContext(ctx).With(
-		"operation", "renew_lease",
+		"operation", "renewLease",
 		"job", job.GetName(),
 		"namespace", job.GetNamespace(),
 	)
