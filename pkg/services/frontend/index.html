@@ -176,6 +176,16 @@
             return;
           }
           hasFailedToBoot = true;
+
+          const errName = err && err.name ? String(err.name) : 'unknown';
+          const errMessage = err && err.message ? String(err.message) : '';
+          window.__grafana_boot_failure = {
+            reason,
+            errorName: errName,
+            errorMessage: errMessage,
+            ts: Date.now(),
+          };
+
           document.querySelector('.fs-variant-loader').classList.add('fs-hidden');
           document.querySelector('.fs-variant-error').classList.remove('fs-hidden');
 
@@ -184,6 +194,7 @@
           const query = new URLSearchParams({
             ts: `${Date.now()}${Math.random()}`,
             reason,
+            errorName: errName,
           });
           fetch(`/-/fe-boot-error?${query.toString()}`, {
             // This "should" be a POST request, but we must use GET to interact with the correct service.
