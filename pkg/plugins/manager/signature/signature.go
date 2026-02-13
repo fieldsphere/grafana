@@ -27,7 +27,7 @@ func NewValidator(authorizer plugins.PluginLoaderAuthorizer) *Validation {
 
 func (s *Validation) ValidateSignature(plugin *plugins.Plugin) error {
 	if plugin.Signature.IsValid() {
-		s.log.Debug("Plugin has valid signature", "id", plugin.ID)
+		s.log.Debug("Plugin has valid signature", "pluginID", plugin.ID)
 		return nil
 	}
 
@@ -43,7 +43,7 @@ func (s *Validation) ValidateSignature(plugin *plugins.Plugin) error {
 			plugin.SignatureType = plugin.Parent.SignatureType
 			plugin.SignatureOrg = plugin.Parent.SignatureOrg
 			if plugin.Signature.IsValid() {
-				s.log.Debug("Plugin has valid signature (inherited from root)", "id", plugin.ID)
+				s.log.Debug("Plugin has valid signature (inherited from root)", "pluginID", plugin.ID)
 				return nil
 			}
 		}

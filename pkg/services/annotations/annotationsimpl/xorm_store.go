@@ -223,16 +223,16 @@ func (r *xormRepositoryImpl) update(ctx context.Context, item *annotations.Item)
 		existing.Text = item.Text
 
 		if item.Epoch != 0 {
-			r.log.Info("updating epoch for annotation", "id", item.ID, "orgID", item.OrgID, "oldEpoch", existing.Epoch, "newEpoch", item.Epoch)
+			r.log.Info("updating epoch for annotation", "annotationID", item.ID, "orgID", item.OrgID, "oldEpoch", existing.Epoch, "newEpoch", item.Epoch)
 			existing.Epoch = item.Epoch
 		}
 		if item.EpochEnd != 0 {
-			r.log.Info("updating epoch_end for annotation", "id", item.ID, "orgID", item.OrgID, "oldEpochEnd", existing.EpochEnd, "newEpochEnd", item.EpochEnd)
+			r.log.Info("updating epoch_end for annotation", "annotationID", item.ID, "orgID", item.OrgID, "oldEpochEnd", existing.EpochEnd, "newEpochEnd", item.EpochEnd)
 			existing.EpochEnd = item.EpochEnd
 		}
 
 		if item.Data != nil {
-			r.log.Info("updating data for annotation", "id", item.ID, "orgID", item.OrgID)
+			r.log.Info("updating data for annotation", "annotationID", item.ID, "orgID", item.OrgID)
 			existing.Data = item.Data
 		}
 

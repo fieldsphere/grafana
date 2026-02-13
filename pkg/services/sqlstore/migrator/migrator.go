@@ -276,7 +276,7 @@ func (mg *Migrator) run(ctx context.Context) (err error) {
 	for _, m := range mg.migrations {
 		_, exists := mg.logMap[m.Id()]
 		if exists {
-			logger.Debug("Skipping migration: Already executed", "id", m.Id())
+			logger.Debug("Skipping migration: Already executed", "migrationID", m.Id())
 			span.AddEvent("Skipping migration: Already executed",
 				trace.WithAttributes(attribute.String("migrationID", m.Id())),
 			)
@@ -370,22 +370,22 @@ func (mg *Migrator) exec(ctx context.Context, m Migration, sess *xorm.Session) e
 	logger := mg.Logger.FromContext(ctx)
 
 	start := time.Now()
-	logger.Info("Executing migration", "id", m.Id())
+	logger.Info("Executing migration", "migrationID", m.Id())
 
 	condition := m.GetCondition()
 	if condition != nil {
 		sql, args := condition.SQL(mg.Dialect)
 
 		if sql != "" {
-			logger.Debug("Executing migration condition SQL", "id", m.Id(), "sql", sql, "args", args)
+			logger.Debug("Executing migration condition SQL", "migrationID", m.Id(), "sql", sql, "args", args)
 			results, err := sess.SQL(sql, args...).Query()
 			if err != nil {
-				logger.Error("Executing migration condition failed", "id", m.Id(), "error", err)
+				logger.Error("Executing migration condition failed", "migrationID", m.Id(), "error", err)
 				return err
 			}
 
 			if !condition.IsFulfilled(results) {
-				logger.Warn("Skipping migration: Already executed, but not recorded in migration log", "id", m.Id())
+				logger.Warn("Skipping migration: Already executed, but not recorded in migration log", "migrationID", m.Id())
 				return nil
 			}
 		}
@@ -393,24 +393,24 @@ func (mg *Migrator) exec(ctx context.Context, m Migration, sess *xorm.Session) e
 
 	var err error
 	if codeMigration, ok := m.(CodeMigration); ok {
-		logger.Debug("Executing code migration", "id", m.Id())
+		logger.Debug("Executing code migration", "migrationID", m.Id())
 		err = codeMigration.Exec(sess, mg)
 	} else {
 		sql := m.SQL(mg.Dialect)
 		if strings.TrimSpace(sql) == "" {
-			logger.Debug("Skipping empty sql migration", "id", m.Id())
+			logger.Debug("Skipping empty sql migration", "migrationID", m.Id())
 		} else {
-			logger.Debug("Executing sql migration", "id", m.Id(), "sql", sql)
+			logger.Debug("Executing sql migration", "migrationID", m.Id(), "sql", sql)
 			_, err = sess.Exec(sql)
 		}
 	}
 
 	if err != nil {
-		logger.Error("Executing migration failed", "id", m.Id(), "error", err, "duration", time.Since(start))
+		logger.Error("Executing migration failed", "migrationID", m.Id(), "error", err, "duration", time.Since(start))
 		return err
 	}
 
-	logger.Info("Migration successfully executed", "id", m.Id(), "duration", time.Since(start))
+	logger.Info("Migration successfully executed", "migrationID", m.Id(), "duration", time.Since(start))
 
 	return nil
 }

@@ -84,7 +84,7 @@ func (r ReceiverPermissionsService) SetDefaultPermissions(ctx context.Context, o
 	if user != nil && user.IsIdentityType(claims.TypeUser, claims.TypeServiceAccount) {
 		userID, err := user.GetInternalID()
 		if err != nil {
-			r.log.Error("Could not make user admin", "receiverUID", uid, "resourceID", resourceId, "id", user.GetID(), "error", err)
+			r.log.Error("Could not make user admin", "receiverUID", uid, "resourceID", resourceId, "userID", user.GetID(), "error", err)
 		} else {
 			permissions = append(permissions, accesscontrol.SetResourcePermissionCommand{
 				UserID: userID, Permission: string(models.PermissionAdmin),
@@ -94,7 +94,11 @@ func (r ReceiverPermissionsService) SetDefaultPermissions(ctx context.Context, o
 	}
 
 	if _, err := r.SetPermissions(ctx, orgID, resourceId, permissions...); err != nil {
-		r.log.Error("Could not set default permissions", "receiverUID", uid, "resourceID", resourceId, "id", "error", err)
+		args := []any{"receiverUID", uid, "resourceID", resourceId, "error", err}
+		if user != nil {
+			args = append(args, "userID", user.GetID())
+		}
+		r.log.Error("Could not set default permissions", args...)
 	}
 
 	if clearCache {

@@ -773,7 +773,7 @@ func (dr *DashboardServiceImpl) BuildSaveDashboardCommand(ctx context.Context, d
 	if id, err := identity.UserIdentifier(dto.User.GetID()); err == nil {
 		userID = id
 	} else if !identity.IsServiceIdentity(ctx) {
-		dr.log.Debug("User does not belong to a user or service account namespace, using 0 as user ID", "id", dto.User.GetID())
+		dr.log.Debug("User does not belong to a user or service account namespace, using 0 as user ID", "userID", dto.User.GetID())
 	}
 
 	metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Dashboard).Inc()
@@ -1040,13 +1040,13 @@ func (dr *DashboardServiceImpl) maybeResetProvisioning(ctx context.Context, orgs
 		ctx, user := identity.WithServiceIdentity(ctx, orgID)
 		provFolders, resources, err := dr.searchExistingProvisionedData(ctx, orgID, folderTitle)
 		if err != nil {
-			dr.log.Error("failed to search for provisioned data for cleanup", "org", orgID, "error", err)
+			dr.log.Error("failed to search for provisioned data for cleanup", "orgID", orgID, "error", err)
 			continue
 		}
 
 		steps, err := cleanupSteps(provFolders, resources, provisionedNames)
 		if err != nil {
-			dr.log.Warn("not possible to perform automated duplicate cleanup", "org", orgID, "error", err)
+			dr.log.Warn("not possible to perform automated duplicate cleanup", "orgID", orgID, "error", err)
 			continue
 		}
 
@@ -1066,11 +1066,11 @@ func (dr *DashboardServiceImpl) maybeResetProvisioning(ctx context.Context, orgs
 
 			if err == nil {
 				dr.log.Info("deleted duplicated provisioned resource",
-					"type", step.Type, "uid", step.UID,
+					"type", step.Type, "stepUID", step.UID,
 				)
 			} else {
 				dr.log.Error("failed to delete duplicated provisioned resource",
-					"type", step.Type, "uid", step.UID, "error", err,
+					"type", step.Type, "stepUID", step.UID, "error", err,
 				)
 			}
 		}
@@ -1184,7 +1184,7 @@ func (dr *DashboardServiceImpl) SaveFolderForProvisionedDashboards(ctx context.C
 
 	f, err := dr.folderService.Create(ctx, dto)
 	if err != nil {
-		dr.log.Error("failed to create folder for provisioned dashboards", "folder", dto.Title, "org", dto.OrgID, "error", err)
+		dr.log.Error("failed to create folder for provisioned dashboards", "folder", dto.Title, "orgID", dto.OrgID, "error", err)
 		return nil, err
 	}
 
@@ -1206,7 +1206,7 @@ func (dr *DashboardServiceImpl) UpdateFolderWithManagedByAnnotation(ctx context.
 		Version:              f.Version,
 	})
 	if err != nil {
-		dr.log.Error("failed to update folder for provisioned dashboards", "folder", f.Title, "org", f.OrgID, "error", err)
+		dr.log.Error("failed to update folder for provisioned dashboards", "folder", f.Title, "orgID", f.OrgID, "error", err)
 		return nil, err
 	}
 	return updated, nil
@@ -1432,7 +1432,7 @@ func (dr *DashboardServiceImpl) SetDefaultPermissions(ctx context.Context, dto *
 	if !provisioned && dto.User.IsIdentityType(claims.TypeUser, claims.TypeServiceAccount) {
 		userID, err := dto.User.GetInternalID()
 		if err != nil {
-			dr.log.Error("Could not make user admin", "dashboard", dash.Title, "id", dto.User.GetID(), "error", err)
+			dr.log.Error("Could not make user admin", "dashboard", dash.Title, "userID", dto.User.GetID(), "error", err)
 		} else {
 			permissions = append(permissions, accesscontrol.SetResourcePermissionCommand{
 				UserID: userID, Permission: dashboardaccess.PERMISSION_ADMIN.String(),

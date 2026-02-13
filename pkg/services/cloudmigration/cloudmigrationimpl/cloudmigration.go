@@ -273,7 +273,7 @@ func (s *Service) CreateToken(ctx context.Context) (cloudmigration.CreateAccessT
 		}); err != nil {
 			return cloudmigration.CreateAccessTokenResponse{}, fmt.Errorf("deleting access policy: id=%s region=%s %w", existingAccessPolicy.ID, instance.RegionSlug, err)
 		}
-		logger.Info("deleted access policy", "id", existingAccessPolicy.ID, "name", existingAccessPolicy.Name)
+		logger.Info("deleted access policy", "accessPolicyID", existingAccessPolicy.ID, "name", existingAccessPolicy.Name)
 	}
 
 	timeoutCtx, cancel = context.WithTimeout(ctx, s.cfg.CloudMigration.CreateAccessPolicyTimeout)
@@ -292,7 +292,7 @@ func (s *Service) CreateToken(ctx context.Context) (cloudmigration.CreateAccessT
 	if err != nil {
 		return cloudmigration.CreateAccessTokenResponse{}, fmt.Errorf("creating access policy: %w", err)
 	}
-	logger.Info("created access policy", "id", accessPolicy.ID, "name", accessPolicy.Name)
+	logger.Info("created access policy", "accessPolicyID", accessPolicy.ID, "name", accessPolicy.Name)
 
 	// Add the stack id to the token name to ensure tokens in a org have unique names.
 	accessTokenName := fmt.Sprintf("%s-%s", cloudMigrationTokenNamePrefix, s.cfg.StackID)
@@ -314,7 +314,7 @@ func (s *Service) CreateToken(ctx context.Context) (cloudmigration.CreateAccessT
 	if err != nil {
 		return cloudmigration.CreateAccessTokenResponse{}, fmt.Errorf("creating access token: %w", err)
 	}
-	logger.Info("created access token", "id", token.ID, "name", token.Name)
+	logger.Info("created access token", "tokenID", token.ID, "name", token.Name)
 	s.metrics.accessTokenCreated.With(prometheus.Labels{"slug": s.cfg.Slug}).Inc()
 
 	bytes, err := json.Marshal(cloudmigration.Base64EncodedTokenPayload{
