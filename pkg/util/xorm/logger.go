@@ -82,14 +82,50 @@ func NewSimpleLogger(out io.Writer) *SimpleLogger {
 	}
 }
 
-func (s *SimpleLogger) emit(level slog.Level, message string) {
-	s.logger.Log(context.Background(), level, "XORM log event", "message", message)
+func splitLogArgs(args ...any) (string, []any) {
+	if len(args) == 0 {
+		return "", nil
+	}
+
+	msg, isString := args[0].(string)
+	if !isString {
+		return fmt.Sprint(args...), nil
+	}
+
+	if len(args) == 1 {
+		return msg, nil
+	}
+
+	rest := args[1:]
+	if len(rest) == 1 {
+		if err, ok := rest[0].(error); ok {
+			return msg, []any{"error", err}
+		}
+		return fmt.Sprint(args...), nil
+	}
+
+	if len(rest)%2 != 0 {
+		return fmt.Sprint(args...), nil
+	}
+
+	for i := 0; i < len(rest); i += 2 {
+		if _, ok := rest[i].(string); !ok {
+			return fmt.Sprint(args...), nil
+		}
+	}
+
+	return msg, rest
+}
+
+func (s *SimpleLogger) emit(level slog.Level, args ...any) {
+	message, attrs := splitLogArgs(args...)
+	s.logger.Log(context.Background(), level, "XORM log event", append([]any{"message", message}, attrs...)...)
 }
 
 // Error implement core.ILogger
 func (s *SimpleLogger) Error(v ...any) {
 	if s.level <= core.LOG_ERR {
-		s.emit(slog.LevelError, fmt.Sprint(v...))
+		s.emit(slog.LevelError, v...)
 	}
 }
 
@@ -103,7 +139,7 @@ func (s *SimpleLogger) Errorf(format string, v ...any) {
 // Debug implement core.ILogger
 func (s *SimpleLogger) Debug(v ...any) {
 	if s.level <= core.LOG_DEBUG {
-		s.emit(slog.LevelDebug, fmt.Sprint(v...))
+		s.emit(slog.LevelDebug, v...)
 	}
 }
 
@@ -117,7 +153,7 @@ func (s *SimpleLogger) Debugf(format string, v ...any) {
 // Info implement core.ILogger
 func (s *SimpleLogger) Info(v ...any) {
 	if s.level <= core.LOG_INFO {
-		s.emit(slog.LevelInfo, fmt.Sprint(v...))
+		s.emit(slog.LevelInfo, v...)
 	}
 }
 
@@ -131,7 +167,7 @@ func (s *SimpleLogger) Infof(format string, v ...any) {
 // Warn implement core.ILogger
 func (s *SimpleLogger) Warn(v ...any) {
 	if s.level <= core.LOG_WARNING {
-		s.emit(slog.LevelWarn, fmt.Sprint(v...))
+		s.emit(slog.LevelWarn, v...)
 	}
 }
 
