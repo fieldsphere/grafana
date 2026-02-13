@@ -176,7 +176,7 @@ func (s *OrgSync) SetDefaultOrgHook(ctx context.Context, currentIdentity *authn.
 
 	cmd := user.UpdateUserCommand{UserID: userID, OrgID: &s.cfg.LoginDefaultOrgId}
 	if svcErr := s.userService.Update(ctx, &cmd); svcErr != nil {
-		ctxLogger.Error("Failed to set default org", "id", currentIdentity.ID, "err", svcErr)
+		ctxLogger.Error("Failed to set default org", "id", currentIdentity.ID, "error", svcErr)
 	}
 }
 

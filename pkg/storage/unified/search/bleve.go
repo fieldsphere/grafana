@@ -403,11 +403,11 @@ func (b *bleveBackend) BuildIndex(
 		}
 
 		if closeErr := index.Close(); closeErr != nil {
-			logWithDetails.Error("Failed to close index after index build failure", "err", closeErr)
+			logWithDetails.Error("Failed to close index after index build failure", "error", closeErr)
 		}
 		if indexDir != "" {
 			if removeErr := os.RemoveAll(indexDir); removeErr != nil {
-				logWithDetails.Error("Failed to remove index directory after index build failure", "err", removeErr)
+				logWithDetails.Error("Failed to remove index directory after index build failure", "error", removeErr)
 			}
 		}
 	}

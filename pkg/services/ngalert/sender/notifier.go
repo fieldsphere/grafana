@@ -380,7 +380,7 @@ func (n *Manager) reload(tgs map[string][]*targetgroup.Group) {
 	for id, tgroup := range tgs {
 		am, ok := n.alertmanagers[id]
 		if !ok {
-			n.logger.Error("couldn't sync alert manager set", "err", fmt.Sprintf("invalid id:%v", id))
+			n.logger.Error("couldn't sync alert manager set", "error", fmt.Sprintf("invalid id:%v", id))
 			continue
 		}
 		am.sync(tgroup)

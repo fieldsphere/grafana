@@ -114,9 +114,9 @@ func (r *jobProgressRecorder) Record(ctx context.Context, result JobResourceResu
 
 	logger := logging.FromContext(ctx).With("path", result.Path(), "group", result.Group(), "kind", result.Kind(), "action", result.Action(), "name", result.Name())
 	if shouldLogError {
-		logger.Error("job resource operation failed", "err", logErr)
+		logger.Error("job resource operation failed", "error", logErr)
 	} else if shouldLogWarning {
-		logger.Warn("job resource operation completed with warning", "err", logWarning)
+		logger.Warn("job resource operation completed with warning", "error", logWarning)
 	} else {
 		logger.Info("job resource operation succeeded")
 	}

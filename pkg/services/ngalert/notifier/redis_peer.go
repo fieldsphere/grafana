@@ -131,7 +131,7 @@ func newRedisPeer(cfg redisConfig, logger log.Logger, reg prometheus.Registerer,
 
 	cmd := rdb.Ping(context.Background())
 	if cmd.Err() != nil {
-		logger.Error("Failed to ping redis - redis-based alertmanager clustering may not be available", "err", cmd.Err())
+		logger.Error("Failed to ping redis - redis-based alertmanager clustering may not be available", "error", cmd.Err())
 	}
 
 	// Make sure that the prefix uses a colon at the end as deliminator.
@@ -256,7 +256,7 @@ func (p *redisPeer) heartbeatLoop() {
 			reqDur := time.Since(startTime)
 			if cmd.Err() != nil {
 				p.nodePingFailures.Inc()
-				p.logger.Error("Error setting the heartbeat key", "err", cmd.Err(), "peer", p.withPrefix(p.name))
+				p.logger.Error("Error setting the heartbeat key", "error", cmd.Err(), "peer", p.withPrefix(p.name))
 				continue
 			}
 			p.nodePingDuration.WithLabelValues(redisServerLabel).Observe(reqDur.Seconds())
@@ -306,7 +306,7 @@ func (p *redisPeer) membersSync() {
 	}
 	values := p.redis.MGet(context.Background(), members...)
 	if values.Err() != nil {
-		p.logger.Error("Error getting values from redis", "err", values.Err(), "keys", members)
+		p.logger.Error("Error getting values from redis", "error", values.Err(), "keys", members)
 	}
 	// After getting the list of possible members from redis, we filter
 	// those out that have failed to send a heartbeat during the heartbeatTimeout.
@@ -596,7 +596,7 @@ func (p *redisPeer) fullStateSyncPublish() {
 	pub := p.redis.Publish(context.Background(), p.withPrefix(fullStateChannel), p.LocalState())
 	if pub.Err() != nil {
 		p.messagesPublishFailures.WithLabelValues(fullState, reasonRedisIssue).Inc()
-		p.logger.Error("Error publishing a message to redis", "err", pub.Err(), "channel", p.withPrefix(fullStateChannel))
+		p.logger.Error("Error publishing a message to redis", "error", pub.Err(), "channel", p.withPrefix(fullStateChannel))
 	}
 }
 
@@ -617,7 +617,7 @@ func (p *redisPeer) requestFullState() {
 	pub := p.redis.Publish(context.Background(), p.withPrefix(fullStateChannelReq), p.name)
 	if pub.Err() != nil {
 		p.messagesPublishFailures.WithLabelValues(fullState, reasonRedisIssue).Inc()
-		p.logger.Error("Error publishing a message to redis", "err", pub.Err(), "channel", p.withPrefix(fullStateChannelReq))
+		p.logger.Error("Error publishing a message to redis", "error", pub.Err(), "channel", p.withPrefix(fullStateChannelReq))
 	}
 }
 
@@ -652,6 +652,6 @@ func (p *redisPeer) Shutdown() {
 	defer cancel()
 	del := p.redis.Del(ctx, p.withPrefix(p.name))
 	if del.Err() != nil {
-		p.logger.Error("Error deleting the redis key on shutdown", "err", del.Err(), "key", p.withPrefix(p.name))
+		p.logger.Error("Error deleting the redis key on shutdown", "error", del.Err(), "key", p.withPrefix(p.name))
 	}
 }

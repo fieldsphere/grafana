@@ -279,7 +279,7 @@ func prepareQuery(
 	jsonQueries := make([]*simplejson.Json, 0, len(raw.Queries))
 	for _, q := range raw.Queries {
 		if dsRef, derr := getValidDataSourceRef(ctx, q.Datasource, q.DatasourceID, b.legacyDatasourceLookup); derr != nil {
-			connectLogger.Error("error getting valid datasource ref", "err", derr)
+			connectLogger.Error("error getting valid datasource ref", "error", derr)
 		} else if dsRef != nil {
 			q.Datasource = dsRef
 		}

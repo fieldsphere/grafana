@@ -75,7 +75,7 @@ func (d *dualWriter) Get(ctx context.Context, name string, options *metav1.GetOp
 	// If it's not okay to fail, we have to check it in the foreground.
 	_, unifiedErr := d.unified.Get(ctx, name, options)
 	if unifiedErr != nil && !apierrors.IsNotFound(unifiedErr) {
-		log.Error("failed to GET object from unified storage", "err", unifiedErr)
+		log.Error("failed to GET object from unified storage", "error", unifiedErr)
 		return nil, unifiedErr
 	}
 	return legacyGet, nil
@@ -163,7 +163,7 @@ func (d *dualWriter) List(ctx context.Context, options *metainternalversion.List
 			}
 			unifiedMeta, err := meta.ListAccessor(unifiedList)
 			if err != nil {
-				log.Error("failed background LIST to unified", "err",
+				log.Error("failed background LIST to unified", "error",
 					fmt.Errorf("failed to access unified List MetaData: %w", err))
 			}
 			out <- unifiedMeta.GetContinue()

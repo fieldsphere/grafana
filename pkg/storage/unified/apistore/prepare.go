@@ -55,7 +55,7 @@ func (v *objectForStorage) finish(ctx context.Context, err error, secrets secret
 		// Remove the secure values that were created
 		for _, s := range v.createdSecureValues {
 			if e := secrets.DeleteWhenOwnedByResource(ctx, v.ref, s); e != nil {
-				logging.FromContext(ctx).Warn("unable to clean up new secure value", "name", s, "err", e)
+				logging.FromContext(ctx).Warn("unable to clean up new secure value", "name", s, "error", e)
 			}
 		}
 		return err
@@ -65,7 +65,7 @@ func (v *objectForStorage) finish(ctx context.Context, err error, secrets secret
 	if len(v.deleteSecureValues) > 0 {
 		for _, s := range v.deleteSecureValues {
 			if e := secrets.DeleteWhenOwnedByResource(ctx, v.ref, s); e != nil {
-				logging.FromContext(ctx).Warn("unable to clean up new secure value", "name", s, "err", e)
+				logging.FromContext(ctx).Warn("unable to clean up new secure value", "name", s, "error", e)
 			}
 		}
 	}

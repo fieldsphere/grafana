@@ -184,7 +184,7 @@ func (s *QueryData) fetch(traceCtx context.Context, client *client.Client, q *mo
 			if res.Error != nil {
 				// If exemplar query returns error, we want to only log it and
 				// continue with other results processing
-				logger.Error("Exemplar query failed", "query", q.Expr, "err", res.Error)
+				logger.Error("Exemplar query failed", "query", q.Expr, "error", res.Error)
 			}
 			dr.Frames = append(dr.Frames, res.Frames...)
 			m.Unlock()

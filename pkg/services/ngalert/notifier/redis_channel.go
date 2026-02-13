@@ -40,7 +40,7 @@ func (c *RedisChannel) handleMessages() {
 			// The state will eventually be propagated to other members by the full sync.
 			if pub.Err() != nil {
 				c.p.messagesPublishFailures.WithLabelValues(c.msgType, reasonRedisIssue).Inc()
-				c.p.logger.Error("Error publishing a message to redis", "err", pub.Err(), "channel", c.channel)
+				c.p.logger.Error("Error publishing a message to redis", "error", pub.Err(), "channel", c.channel)
 				continue
 			}
 			c.p.messagesSent.WithLabelValues(c.msgType).Inc()

@@ -782,7 +782,7 @@ func (s *Service) uploadSnapshotWithFSStorage(ctx context.Context, session *clou
 	}
 	defer func() {
 		if closeErr := indexFile.Close(); closeErr != nil {
-			s.log.Error("closing index file", "err", closeErr.Error())
+			s.log.Error("closing index file", "error", closeErr)
 		}
 	}()
 
@@ -856,7 +856,7 @@ func (s *Service) uploadUsingPresignedURL(ctx context.Context, uploadURL, key st
 	}
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
-			s.log.Error("closing file", "path", filePath, "err", closeErr)
+			s.log.Error("closing file", "path", filePath, "error", closeErr)
 		}
 	}()
 
