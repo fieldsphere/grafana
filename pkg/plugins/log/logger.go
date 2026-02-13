@@ -51,6 +51,13 @@ type slogLogger struct {
 	name   string
 }
 
+func wrapPluginLoggerContext(msg, level string, ctx ...any) []any {
+	fields := make([]any, 0, len(ctx)+4)
+	fields = append(fields, "plugin_message", msg, "plugin_log_level", level)
+	fields = append(fields, ctx...)
+	return fields
+}
+
 func (l *slogLogger) New(ctx ...any) Logger {
 	if len(ctx) == 0 {
 		return &slogLogger{
@@ -65,19 +72,19 @@ func (l *slogLogger) New(ctx ...any) Logger {
 }
 
 func (l *slogLogger) Debug(msg string, ctx ...any) {
-	l.logger.Debug(msg, ctx...)
+	l.logger.Debug("Plugin logger event", wrapPluginLoggerContext(msg, "debug", ctx...)...)
 }
 
 func (l *slogLogger) Info(msg string, ctx ...any) {
-	l.logger.Info(msg, ctx...)
+	l.logger.Info("Plugin logger event", wrapPluginLoggerContext(msg, "info", ctx...)...)
 }
 
 func (l *slogLogger) Warn(msg string, ctx ...any) {
-	l.logger.Warn(msg, ctx...)
+	l.logger.Warn("Plugin logger event", wrapPluginLoggerContext(msg, "warn", ctx...)...)
 }
 
 func (l *slogLogger) Error(msg string, ctx ...any) {
-	l.logger.Error(msg, ctx...)
+	l.logger.Error("Plugin logger event", wrapPluginLoggerContext(msg, "error", ctx...)...)
 }
 
 func (l *slogLogger) FromContext(_ context.Context) Logger {
