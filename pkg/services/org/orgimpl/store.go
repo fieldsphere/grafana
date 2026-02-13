@@ -678,7 +678,7 @@ func (ss *sqlStore) RemoveOrgUser(ctx context.Context, cmd *org.RemoveOrgUserCom
 		if exists, err := sess.Where("org_id=? AND user_id=?", cmd.OrgID, cmd.UserID).Get(&orgUser); err != nil {
 			return err
 		} else if !exists {
-			ss.log.Debug("User not in org, nothing to do", "user_id", cmd.UserID, "org_id", cmd.OrgID)
+			ss.log.Debug("User not in org, nothing to do", "userID", cmd.UserID, "orgID", cmd.OrgID)
 			return nil
 		}
 

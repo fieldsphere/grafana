@@ -321,7 +321,7 @@ func (s *UserSync) SyncUserHook(ctx context.Context, id *authn.Identity, _ *auth
 				})
 				if errors.Is(authErr, user.ErrUserNotFound) {
 					s.log.FromContext(ctx).Error("SCIM-provisioned user attempted login via non-SAML auth module",
-						"user_id", usr.ID,
+						"userID", usr.ID,
 						"attempted_module", id.AuthenticatedBy,
 					)
 					return errSCIMAuthModuleMismatch.Errorf("user was provisioned via SCIM but attempted login via %s", id.AuthenticatedBy)

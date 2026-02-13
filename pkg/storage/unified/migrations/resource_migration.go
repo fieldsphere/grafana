@@ -87,7 +87,7 @@ func (r *MigrationRunner) Run(ctx context.Context, sess *xorm.Session, opts RunO
 	for _, org := range orgs {
 		info, err := types.ParseNamespace(types.OrgNamespaceFormatter(org.ID))
 		if err != nil {
-			r.log.Error("Failed to parse organization namespace", "org_id", org.ID, "error", err)
+		r.log.Error("Failed to parse organization namespace", "orgID", org.ID, "error", err)
 			return fmt.Errorf("failed to parse namespace for org %d: %w", org.ID, err)
 		}
 		if err = r.MigrateOrg(ctx, sess, info, opts); err != nil {
@@ -110,7 +110,7 @@ func (r *MigrationRunner) Run(ctx context.Context, sess *xorm.Session, opts RunO
 
 // MigrateOrg handles migration for a single organization.
 func (r *MigrationRunner) MigrateOrg(ctx context.Context, sess *xorm.Session, info types.NamespaceInfo, opts RunOptions) error {
-	r.log.Info("Migrating organization", "org_id", info.OrgID, "namespace", info.Value)
+	r.log.Info("Migrating organization", "orgID", info.OrgID, "namespace", info.Value)
 
 	// Create a service identity context for this namespace to authenticate with unified storage
 	ctx = identity.WithServiceIdentityForSingleNamespaceContext(ctx, info.Value)
@@ -122,18 +122,18 @@ func (r *MigrationRunner) MigrateOrg(ctx context.Context, sess *xorm.Session, in
 		Resources:   r.resources,
 		WithHistory: true, // Migrate with full history
 		Progress: func(count int, msg string) {
-			r.log.Info("Migration progress", "org_id", info.OrgID, "count", count, "message", msg)
+			r.log.Info("Migration progress", "orgID", info.OrgID, "count", count, "message", msg)
 		},
 	}
 
 	// Execute the migration via legacy migrator
 	response, err := r.unifiedMigrator.Migrate(ctx, migrateOpts)
 	if err != nil {
-		r.log.Error("Migration failed", "org_id", info.OrgID, "error", err, "duration", time.Since(startTime))
+		r.log.Error("Migration failed", "orgID", info.OrgID, "error", err, "duration", time.Since(startTime))
 		return fmt.Errorf("migration failed for org %d (%s): %w", info.OrgID, info.Value, err)
 	}
 	if response.Error != nil {
-		r.log.Error("Migration reported error", "org_id", info.OrgID, "errorMessage", response.Error.String(), "duration", time.Since(startTime))
+		r.log.Error("Migration reported error", "orgID", info.OrgID, "errorMessage", response.Error.String(), "duration", time.Since(startTime))
 		return fmt.Errorf("migration failed for org %d (%s): %w", info.OrgID, info.Value, fmt.Errorf("migration error: %s", response.Error.Message))
 	}
 
@@ -146,18 +146,18 @@ func (r *MigrationRunner) MigrateOrg(ctx context.Context, sess *xorm.Session, in
 		MigrationFinishedAt: migrationFinishedAt,
 	})
 	if err != nil {
-		r.log.Error("Rebuilding indexes failed", "org_id", info.OrgID, "error", err, "duration", time.Since(startTime))
+		r.log.Error("Rebuilding indexes failed", "orgID", info.OrgID, "error", err, "duration", time.Since(startTime))
 		return fmt.Errorf("rebuilding indexes failed for org %d (%s): %w", info.OrgID, info.Value, err)
 	}
 
 	// Validate the migration results
 	if err := r.validateMigration(ctx, sess, response, r.validators); err != nil {
-		r.log.Error("Migration validation failed", "org_id", info.OrgID, "error", err, "duration", time.Since(startTime))
+		r.log.Error("Migration validation failed", "orgID", info.OrgID, "error", err, "duration", time.Since(startTime))
 		return fmt.Errorf("migration validation failed for org %d (%s): %w", info.OrgID, info.Value, err)
 	}
 
 	r.log.Info("Migration completed for organization",
-		"org_id", info.OrgID,
+		"orgID", info.OrgID,
 		"duration", time.Since(startTime),
 		"processed", response.Processed,
 		"summaries", len(response.Summary),
