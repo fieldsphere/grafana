@@ -526,6 +526,12 @@ func unstructuredoutput(m fluent.Matcher) {
 		`fmt.Print($*args)`,
 		`fmt.Printf($*args)`,
 		`fmt.Println($*args)`,
+		`fmt.Fprint(os.Stdout, $*args)`,
+		`fmt.Fprintf(os.Stdout, $*args)`,
+		`fmt.Fprintln(os.Stdout, $*args)`,
+		`fmt.Fprint(os.Stderr, $*args)`,
+		`fmt.Fprintf(os.Stderr, $*args)`,
+		`fmt.Fprintln(os.Stderr, $*args)`,
 	).Report("avoid fmt.Print* helpers for logging; use structured logging or explicit stdout/stderr writers for command output")
 
 	m.Match(
