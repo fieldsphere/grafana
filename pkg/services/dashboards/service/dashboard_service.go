@@ -1219,7 +1219,7 @@ func (dr *DashboardServiceImpl) SaveDashboard(ctx context.Context, dto *dashboar
 
 	if err := dr.ValidateDashboardRefreshInterval(dr.cfg.MinRefreshInterval, dto.Dashboard.Data.Get("refresh").MustString("")); err != nil {
 		dr.log.Warn("Changing refresh interval for imported dashboard to minimum refresh interval",
-			"dashboardUid", dto.Dashboard.UID, "dashboardTitle", dto.Dashboard.Title, "minRefreshInterval",
+			"dashboardUID", dto.Dashboard.UID, "dashboardTitle", dto.Dashboard.Title, "minRefreshInterval",
 			dr.cfg.MinRefreshInterval)
 		dto.Dashboard.Data.Set("refresh", dr.cfg.MinRefreshInterval)
 	}
@@ -1283,7 +1283,7 @@ func (dr *DashboardServiceImpl) ImportDashboard(ctx context.Context, dto *dashbo
 
 	if err := dr.ValidateDashboardRefreshInterval(dr.cfg.MinRefreshInterval, dto.Dashboard.Data.Get("refresh").MustString("")); err != nil {
 		dr.log.Warn("Changing refresh interval for imported dashboard to minimum refresh interval",
-			"dashboardUid", dto.Dashboard.UID, "dashboardTitle", dto.Dashboard.Title,
+			"dashboardUID", dto.Dashboard.UID, "dashboardTitle", dto.Dashboard.Title,
 			"minRefreshInterval", dr.cfg.MinRefreshInterval)
 		dto.Dashboard.Data.Set("refresh", dr.cfg.MinRefreshInterval)
 	}
