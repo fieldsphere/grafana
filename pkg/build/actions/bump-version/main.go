@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"log/slog"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -20,7 +21,7 @@ func main() {
 	flag.Parse()
 	if *version == "" {
 		slog.Error("-version must be set")
-		return
+		os.Exit(1)
 	}
 
 	d, err := dagger.Connect(ctx)
@@ -43,7 +44,7 @@ func main() {
 	nodeVersion, err := NodeVersion(d, src).Stdout(ctx)
 	if err != nil {
 		slog.Error("Error getting node version from .nvmrc", "error", err)
-		return
+		os.Exit(1)
 	}
 
 	// Update version(s)
@@ -51,7 +52,7 @@ func main() {
 	slog.Info("Exporting directory")
 	if _, err := updated.Export(ctx, filepath.Clean(*dir)); err != nil {
 		slog.Error("Error exporting directory", "error", err)
-		return
+		os.Exit(1)
 	}
 	slog.Info("Done exporting directory")
 }
