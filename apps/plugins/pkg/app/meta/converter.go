@@ -823,13 +823,13 @@ func grafanaComPluginVersionMetaToMetaSpec(ctx context.Context, gcomMeta grafana
 
 	moduleURL, err := url.JoinPath(gcomMeta.CDNURL, "module.js")
 	if err != nil {
-		logging.FromContext(ctx).Error("Error getting module.js URL for catalog meta", "pluginId", gcomMeta.PluginSlug, "version", gcomMeta.Version)
+		logging.FromContext(ctx).Error("Error getting module.js URL for catalog meta", "pluginID", gcomMeta.PluginSlug, "version", gcomMeta.Version)
 	}
 
 	modulePath := path.Join(pluginRelBasePath, "module.js")
 	moduleHash, ok := gcomMeta.Manifest.Files[modulePath]
 	if !ok {
-		logging.FromContext(ctx).Error("Error getting module hash for catalog meta", "pluginId", gcomMeta.PluginSlug, "version", gcomMeta.Version, "path", pluginRelBasePath)
+		logging.FromContext(ctx).Error("Error getting module hash for catalog meta", "pluginID", gcomMeta.PluginSlug, "version", gcomMeta.Version, "path", pluginRelBasePath)
 	}
 
 	loadingStrategy := calculateLoadingStrategyFromGcomMeta(gcomMeta.CreatePluginVersion)
@@ -848,7 +848,7 @@ func grafanaComPluginVersionMetaToMetaSpec(ctx context.Context, gcomMeta grafana
 
 	translations, err := translationsFromManifest(gcomMeta.CDNURL, gcomMeta.Manifest.Files, pluginRelBasePath, gcomMeta.JSON)
 	if err != nil {
-		logging.FromContext(ctx).Warn("Error building translations", "pluginId", gcomMeta.PluginSlug, "version", gcomMeta.Version, "error", err)
+		logging.FromContext(ctx).Warn("Error building translations", "pluginID", gcomMeta.PluginSlug, "version", gcomMeta.Version, "error", err)
 	}
 	metaSpec.Translations = translations
 

@@ -120,8 +120,8 @@ func (p *CatalogProvider) findChildMeta(ctx context.Context, childID string, par
 	}
 
 	logging.FromContext(ctx).Debug("CatalogProvider: Child plugin not found in parent's children",
-		"childId", childID,
-		"parentId", parentMeta.PluginSlug,
+		"childID", childID,
+		"parentID", parentMeta.PluginSlug,
 		"childrenCount", len(parentMeta.Children),
 	)
 	return nil, ErrMetaNotFound
