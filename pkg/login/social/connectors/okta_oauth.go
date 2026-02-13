@@ -217,12 +217,12 @@ func (s *SocialOkta) extractAPI(ctx context.Context, data *OktaUserInfoJson, cli
 
 	err = json.Unmarshal(data.rawJSON, data)
 	if err != nil {
-		s.log.Debug("Error decoding user info response", "raw_json", data.rawJSON, "error", err)
+		s.log.Debug("Error decoding user info response", "rawJSON", data.rawJSON, "error", err)
 		data.rawJSON = []byte{}
 		return fmt.Errorf("error decoding user info response: %w", err)
 	}
 
-	s.log.Debug("Received user info response", "raw_json", string(data.rawJSON), "data", data)
+	s.log.Debug("Received user info response", "rawJSON", string(data.rawJSON), "data", data)
 	return nil
 }
 

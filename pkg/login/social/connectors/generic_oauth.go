@@ -418,7 +418,7 @@ func (s *SocialGenericOAuth) extractFromIDToken(ctx context.Context, token *oaut
 	idTokenAttribute := "id_token"
 	if s.idTokenAttributeName != "" {
 		idTokenAttribute = s.idTokenAttributeName
-		s.log.Debug("Using custom id_token attribute name", "attribute_name", idTokenAttribute)
+		s.log.Debug("Using custom id_token attribute name", "attributeName", idTokenAttribute)
 	}
 
 	idToken := token.Extra(idTokenAttribute)
@@ -478,13 +478,13 @@ func (s *SocialGenericOAuth) extractFromAccessToken(token *oauth2.Token) *UserIn
 func (s *SocialGenericOAuth) parseUserInfoFromJSON(rawJSON []byte, source string) *UserInfoJson {
 	var data UserInfoJson
 	if err := json.Unmarshal(rawJSON, &data); err != nil {
-		s.log.Error("Error decoding user info JSON", "raw_json", string(rawJSON), "error", err, "source", source)
+		s.log.Error("Error decoding user info JSON", "rawJSON", string(rawJSON), "error", err, "source", source)
 		return nil
 	}
 
 	data.rawJSON = rawJSON
 	data.source = source
-	s.log.Debug("Parsed user info from JSON", "raw_json", string(rawJSON), "data", data.String(), "source", source)
+	s.log.Debug("Parsed user info from JSON", "rawJSON", string(rawJSON), "data", data.String(), "source", source)
 	return &data
 }
 
@@ -618,7 +618,7 @@ func (s *SocialGenericOAuth) fetchPrivateEmail(ctx context.Context, client *http
 
 		err = json.Unmarshal(response.Body, &data)
 		if err != nil {
-			s.log.Error("Error decoding email addresses response", "raw_json", string(response.Body), "error", err)
+			s.log.Error("Error decoding email addresses response", "rawJSON", string(response.Body), "error", err)
 			return "", fmt.Errorf("%v: %w", "Error decoding email addresses response", err)
 		}
 
@@ -674,7 +674,7 @@ func (s *SocialGenericOAuth) fetchTeamMembershipsFromDeprecatedTeamsUrl(ctx cont
 
 	err = json.Unmarshal(response.Body, &records)
 	if err != nil {
-		s.log.Error("Error decoding team memberships response", "raw_json", string(response.Body), "error", err)
+		s.log.Error("Error decoding team memberships response", "rawJSON", string(response.Body), "error", err)
 		return []string{}, err
 	}
 

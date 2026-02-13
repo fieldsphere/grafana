@@ -307,10 +307,10 @@ func (s *SocialGitlab) extractFromToken(ctx context.Context, client *http.Client
 		}
 	}
 
-	s.log.Debug("Received id_token", "raw_json", string(rawJSON))
+	s.log.Debug("Received id_token", "rawJSON", string(rawJSON))
 	var data userData
 	if err := json.Unmarshal(rawJSON, &data); err != nil {
-		s.log.Warn("Error decoding id_token JSON", "raw_json", string(rawJSON), "error", err)
+		s.log.Warn("Error decoding id_token JSON", "rawJSON", string(rawJSON), "error", err)
 		return nil, nil
 	}
 
@@ -324,7 +324,7 @@ func (s *SocialGitlab) extractFromToken(ctx context.Context, client *http.Client
 		s.log.Warn("Error retrieving groups from userinfo. Using only token provided groups", "error", err)
 	} else {
 		s.log.Debug("Retrieved groups from userinfo", "sub", userInfo.Sub,
-			"original_groups", data.Groups, "groups", userInfo.Groups)
+			"originalGroups", data.Groups, "groups", userInfo.Groups)
 		data.Groups = userInfo.Groups
 	}
 

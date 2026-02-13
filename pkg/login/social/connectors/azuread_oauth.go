@@ -321,12 +321,12 @@ func (s *SocialAzureAD) validateClaims(ctx context.Context, client *http.Client,
 		return nil, &SocialError{"AzureAD OAuth: version 1.0 is not supported. Please ensure the auth_url and token_url are set to the v2.0 endpoints."}
 	}
 
-	s.log.Debug("Validating audience", "audience", claims.Audience, "client_id", s.ClientID)
+	s.log.Debug("Validating audience", "audience", claims.Audience, "clientID", s.ClientID)
 	if claims.Audience != s.ClientID {
 		return nil, &SocialError{"AzureAD OAuth: audience mismatch"}
 	}
 
-	s.log.Debug("Validating tenant", "tenant", claims.TenantID, "allowed_tenants", s.allowedOrganizations)
+	s.log.Debug("Validating tenant", "tenant", claims.TenantID, "allowedTenants", s.allowedOrganizations)
 	if !s.isAllowedTenant(claims.TenantID) {
 		return nil, &SocialError{"AzureAD OAuth: tenant mismatch"}
 	}

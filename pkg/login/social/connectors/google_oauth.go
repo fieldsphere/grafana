@@ -278,7 +278,7 @@ func (s *SocialGoogle) extractFromToken(ctx context.Context, _ *http.Client, tok
 	}
 
 	if s.cfg.Env == setting.Dev {
-		s.log.Debug("Received id_token", "raw_json", string(rawJSON))
+		s.log.Debug("Received id_token", "rawJSON", string(rawJSON))
 	}
 
 	var data googleUserData
