@@ -208,7 +208,7 @@ func (k *kvStorageBackend) cleanupOldLastImportTimes(ctx context.Context) {
 	if err != nil {
 		k.log.Error("Failed to cleanup last import times", "error", err)
 	} else if deleted > 0 {
-		k.log.Info("Cleaned up last import times", "deleted_count", deleted)
+		k.log.Info("Cleaned up last import times", "deletedCount", deleted)
 	}
 }
 
@@ -222,7 +222,7 @@ func (k *kvStorageBackend) cleanupOldEvents(ctx context.Context) {
 	}
 
 	if deletedCount > 0 {
-		k.log.Info("Cleaned up old events", "deleted_count", deletedCount, "retention_period", k.eventRetentionPeriod)
+		k.log.Info("Cleaned up old events", "deletedCount", deletedCount, "retentionPeriod", k.eventRetentionPeriod)
 	}
 }
 

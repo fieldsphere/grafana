@@ -222,11 +222,11 @@ func (m *unifiedMigration) rebuildIndexes(ctx context.Context, opts RebuildIndex
 			}
 
 			if buildTime < migrationFinishTime {
-				m.log.Error("index build time is before migration finished", "resource", key, "build_time", time.Unix(buildTime, 0), "migration_finished_at", opts.MigrationFinishedAt, "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID)
+				m.log.Error("index build time is before migration finished", "resource", key, "buildTime", time.Unix(buildTime, 0), "migrationFinishedAt", opts.MigrationFinishedAt, "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID)
 				return fmt.Errorf("rebuild index error: index for %s was built before migration finished (built at %s, migration finished at %s)", key, time.Unix(buildTime, 0), opts.MigrationFinishedAt)
 			}
 
-			m.log.Info("verified index build time", "resource", key, "build_time", time.Unix(buildTime, 0), "migration_finished_at", opts.MigrationFinishedAt, "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID)
+			m.log.Info("verified index build time", "resource", key, "buildTime", time.Unix(buildTime, 0), "migrationFinishedAt", opts.MigrationFinishedAt, "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID)
 		}
 	}
 

@@ -458,8 +458,8 @@ func logTokenNULParts(ctxLogger log.Logger, extSvcSlug string, token string) {
 			ctxLogger.Warn("Token contains NUL",
 				"service", extSvcSlug,
 				"part", i,
-				"part_len", len(parts[i]),
-				"parts_count", len(parts),
+				"partLen", len(parts[i]),
+				"partsCount", len(parts),
 			)
 		}
 	}

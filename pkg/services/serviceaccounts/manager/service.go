@@ -317,7 +317,7 @@ func (sa *ServiceAccountsService) migrateAPIKeysForAllOrgs(ctx context.Context) 
 
 	defer func() {
 		if total > 0 || errorsTotal > 0 {
-			sa.log.Info("API key migration finished", "total_keys", total, "successful_keys", migrated, "failed_keys", failed, "errors", errorsTotal)
+			sa.log.Info("API key migration finished", "totalKeys", total, "successfulKeys", migrated, "failedKeys", failed, "errors", errorsTotal)
 		}
 		setAPIKeyMigrationStats(total, migrated, failed)
 	}()
@@ -337,9 +337,9 @@ func (sa *ServiceAccountsService) migrateAPIKeysForAllOrgs(ctx context.Context) 
 			continue
 		}
 		if result.Failed > 0 {
-			sa.log.Warn("Some API keys failed to be migrated", "total_keys", result.Total, "failed_keys", result.Failed, "orgID", o.ID)
+			sa.log.Warn("Some API keys failed to be migrated", "totalKeys", result.Total, "failedKeys", result.Failed, "orgID", o.ID)
 		} else if result.Total > 0 {
-			sa.log.Info("API key migration was successful", "orgID", o.ID, "total_keys", result.Total)
+			sa.log.Info("API key migration was successful", "orgID", o.ID, "totalKeys", result.Total)
 		} else {
 			sa.log.Debug("No API keys found to migrate", "orgID", o.ID)
 		}

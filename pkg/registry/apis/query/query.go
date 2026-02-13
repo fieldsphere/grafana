@@ -415,7 +415,7 @@ func logEmptyRefids(queries []v0alpha1.DataQuery, logger log.Logger) {
 	}
 
 	if emptyCount > 0 {
-		logger.Info("empty refid found", "empty_count", emptyCount, "query_count", len(queries))
+		logger.Info("empty refid found", "emptyCount", emptyCount, "queryCount", len(queries))
 	}
 }
 

@@ -225,7 +225,7 @@ func (s *Service) GetToken(ctx context.Context) (authapi.TokenView, error) {
 	if err != nil {
 		return authapi.TokenView{}, fmt.Errorf("listing tokens: %w", err)
 	}
-	logger.Info("found access tokens", "num_tokens", len(tokens))
+	logger.Info("found access tokens", "numTokens", len(tokens))
 
 	for _, token := range tokens {
 		if token.Name == accessTokenName {

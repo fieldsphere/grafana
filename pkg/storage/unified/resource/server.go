@@ -1424,10 +1424,10 @@ func (s *server) Watch(req *resourcepb.WatchRequest, srv resourcepb.ResourceStor
 					if err != nil {
 						// This scenario should never happen, but if it does, we should log it and continue
 						// sending the event without the previous object. The client will decide what to do.
-						s.log.Error("error reading previous object", "key", event.Key, "resource_version", event.PreviousRV, "error", err)
+						s.log.Error("error reading previous object", "key", event.Key, "resourceVersion", event.PreviousRV, "error", err)
 					} else {
 						if prevObj.ResourceVersion != event.PreviousRV {
-							s.log.Error("resource version mismatch", "key", event.Key, "resource_version", event.PreviousRV, "actual", prevObj.ResourceVersion)
+							s.log.Error("resource version mismatch", "key", event.Key, "resourceVersion", event.PreviousRV, "actual", prevObj.ResourceVersion)
 							return fmt.Errorf("resource version mismatch")
 						}
 						resp.Previous = &resourcepb.WatchEvent_Resource{
@@ -1692,7 +1692,7 @@ func (s *server) checkQuota(ctx context.Context, nsr NamespacedResource) error {
 	}
 
 	if len(stats) > 0 && stats[0].Count >= int64(quota.Limit) {
-		s.log.FromContext(ctx).Info("Quota exceeded on create", "namespace", nsr.Namespace, "group", nsr.Group, "resource", nsr.Resource, "quota", quota.Limit, "count", stats[0].Count, "stats_resource", stats[0].Resource)
+		s.log.FromContext(ctx).Info("Quota exceeded on create", "namespace", nsr.Namespace, "group", nsr.Group, "resource", nsr.Resource, "quota", quota.Limit, "count", stats[0].Count, "statsResource", stats[0].Resource)
 		if s.quotasConfig.EnforceQuotas {
 			return QuotaExceededError{
 				Resource:       nsr.Resource,
