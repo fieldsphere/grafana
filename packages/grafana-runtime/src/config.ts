@@ -1,5 +1,4 @@
 import { merge } from 'lodash';
-import { faro, LogLevel } from '@grafana/faro-web-sdk';
 
 import {
   AppPluginConfig as AppPluginConfigGrafanaData,
@@ -303,29 +302,95 @@ export class GrafanaBootConfig {
 // example value: panelEditor=1,panelInspector=1
 const configLogSource = 'runtime.config';
 
+// Lazy-load faro SDK only when needed in browser environment
+let faroSdk: typeof import('@grafana/faro-web-sdk') | null = null;
+let faroSdkPromise: Promise<typeof import('@grafana/faro-web-sdk') | null> | null = null;
+
+function getFaroSdk(): typeof import('@grafana/faro-web-sdk') | null {
+  // Return cached SDK if available
+  if (faroSdk) {
+    return faroSdk;
+  }
+  
+  // Only attempt to load in browser environment
+  if (typeof window === 'undefined') {
+    return null;
+  }
+  
+  // Start async load if not already started (fire-and-forget)
+  if (!faroSdkPromise) {
+    faroSdkPromise = import('@grafana/faro-web-sdk')
+      .then((sdk) => {
+        faroSdk = sdk;
+        return sdk;
+      })
+      .catch(() => null);
+  }
+  
+  return null; // Not available synchronously
+}
+
 function logConfigInfo(message: string, context?: Record<string, unknown>) {
-  if (bootData?.settings?.grafanaJavascriptAgent?.enabled) {
-    faro.api.pushLog([message], {
-      level: LogLevel.INFO,
-      context: { source: configLogSource, ...context },
-    });
+  if (bootData?.settings?.grafanaJavascriptAgent?.enabled && typeof window !== 'undefined') {
+    const sdk = getFaroSdk();
+    if (sdk) {
+      sdk.faro.api.pushLog([message], {
+        level: sdk.LogLevel.INFO,
+        context: { source: configLogSource, ...context },
+      });
+    } else if (faroSdkPromise) {
+      // Fire-and-forget async logging if SDK is still loading
+      faroSdkPromise.then((loadedSdk) => {
+        if (loadedSdk) {
+          loadedSdk.faro.api.pushLog([message], {
+            level: loadedSdk.LogLevel.INFO,
+            context: { source: configLogSource, ...context },
+          });
+        }
+      });
+    }
   }
 }
 
 function logConfigWarning(message: string, context?: Record<string, unknown>) {
-  if (bootData?.settings?.grafanaJavascriptAgent?.enabled) {
-    faro.api.pushLog([message], {
-      level: LogLevel.WARN,
-      context: { source: configLogSource, ...context },
-    });
+  if (bootData?.settings?.grafanaJavascriptAgent?.enabled && typeof window !== 'undefined') {
+    const sdk = getFaroSdk();
+    if (sdk) {
+      sdk.faro.api.pushLog([message], {
+        level: sdk.LogLevel.WARN,
+        context: { source: configLogSource, ...context },
+      });
+    } else if (faroSdkPromise) {
+      // Fire-and-forget async logging if SDK is still loading
+      faroSdkPromise.then((loadedSdk) => {
+        if (loadedSdk) {
+          loadedSdk.faro.api.pushLog([message], {
+            level: loadedSdk.LogLevel.WARN,
+            context: { source: configLogSource, ...context },
+          });
+        }
+      });
+    }
   }
 }
 
 function logConfigError(message: string, context?: Record<string, unknown>) {
-  if (bootData?.settings?.grafanaJavascriptAgent?.enabled) {
-    faro.api.pushError(new Error(message), {
-      context: { source: configLogSource, ...context },
-    });
+  if (bootData?.settings?.grafanaJavascriptAgent?.enabled && typeof window !== 'undefined') {
+    const sdk = getFaroSdk();
+    if (sdk) {
+      sdk.faro.api.pushError(new Error(message), {
+        context: { source: configLogSource, ...context },
+      });
+    } else if (faroSdkPromise) {
+      // Fire-and-forget async logging if SDK is still loading
+      faroSdkPromise.then((loadedSdk) => {
+        if (loadedSdk) {
+          loadedSdk.faro.api.pushError(new Error(message), {
+            context: { source: configLogSource, ...context },
+          });
+        }
+      });
+    }
   }
 }
 
