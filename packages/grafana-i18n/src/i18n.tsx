@@ -7,6 +7,7 @@ import { initReactI18next, setDefaults, setI18n, Trans as I18NextTrans, getI18n 
 import { DEFAULT_LANGUAGE, PSEUDO_LOCALE } from './constants';
 import { initRegionalFormat } from './dates';
 import { LANGUAGES } from './languages';
+import { logI18nError, logI18nWarning } from './logging';
 import { ResourceLoader, Resources, TFunction, TransProps, TransType } from './types';
 
 let tFunc: I18NextTFunction<string[], undefined> | undefined;
@@ -44,7 +45,12 @@ export async function loadNamespacedResources(namespace: string, language: strin
         const resources = await loader(resolvedLanguage);
         addResourceBundle(resolvedLanguage, namespace, resources);
       } catch (error) {
-        console.error(`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, error);
+        logI18nError('Error loading resources', {
+          operation: 'loadNamespacedResources',
+          namespace,
+          language: resolvedLanguage,
+          error: String(error),
+        });
       }
     })
   );
@@ -202,9 +208,10 @@ export const t: TFunction = (id: string, defaultMessage: string, values?: Record
   initDefaultI18nInstance();
   if (!tFunc) {
     if (process.env.NODE_ENV !== 'test') {
-      console.warn(
-        't() was called before i18n was initialized. This is probably caused by calling t() in the root module scope, instead of lazily on render'
-      );
+      logI18nWarning('t() was called before i18n was initialized', {
+        operation: 't',
+        hint: 'Call t() lazily on render instead of root module scope',
+      });
     }
 
     if (process.env.NODE_ENV === 'development') {
