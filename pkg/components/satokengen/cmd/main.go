@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"strconv"
 
@@ -16,16 +17,16 @@ func main() {
 		var err error
 		numKeys, err = strconv.Atoi(os.Args[1])
 		if err != nil {
-			fmt.Println("ERROR: invalid number of keys to generate:", err)
-			return
+			slog.Error("Invalid number of keys to generate", "value", os.Args[1], "error", err)
+			os.Exit(1)
 		}
 	}
 
 	for i := 0; i < numKeys; i++ {
 		key, err := satokengen.New("pl")
 		if err != nil {
-			fmt.Println("ERROR: generating key failed:", err)
-			return
+			slog.Error("Generating key failed", "index", i, "error", err)
+			os.Exit(1)
 		}
 
 		fmt.Printf("\nGenerated key: %d:\n", i+1)
