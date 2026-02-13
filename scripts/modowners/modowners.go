@@ -177,7 +177,7 @@ func hasCommonElement(a []string, b []string) bool {
 func main() {
 	emit := stdioPrinter{out: os.Stdout}
 	if len(os.Args) < 2 {
-		_, _ = fmt.Fprintln(os.Stderr, "usage: modowners subcommand go.mod...")
+		slog.Error("Missing modowners subcommand", "usage", "modowners subcommand go.mod...")
 		os.Exit(1)
 	}
 	type CmdFunc func(fs.FS, linePrinter, []string) error
