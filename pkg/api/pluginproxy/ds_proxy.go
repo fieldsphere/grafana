@@ -99,7 +99,7 @@ func (proxy *DataSourceProxy) HandleRequest() {
 		"orgID", proxy.ctx.OrgID,
 		"uname", proxy.ctx.Login,
 		"path", proxy.ctx.Req.URL.Path,
-		"remote_addr", proxy.ctx.RemoteAddr(),
+		"remoteAddr", proxy.ctx.RemoteAddr(),
 		"referer", proxy.ctx.Req.Referer(),
 	)
 

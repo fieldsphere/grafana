@@ -552,7 +552,7 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 		}
 
 		if id.ExternalUID != authInfo.ExternalUID {
-			ctxLogger.Error("mismatched externalUID for provisioned user", "provisioned_externalUID", authInfo.ExternalUID, "identity_externalUID", id.ExternalUID)
+			ctxLogger.Error("mismatched externalUID for provisioned user", "provisionedExternalUID", authInfo.ExternalUID, "identityExternalUID", id.ExternalUID)
 			span.SetStatus(codes.Error, "mismatched externalUID for provisioned user")
 			return errMismatchedExternalUID.Errorf("externalUID mismatch")
 		}
