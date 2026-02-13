@@ -156,7 +156,6 @@ func (f *JSONFormatter) Format(diff diff.Diff) (result string, err error) {
 	b := &bytes.Buffer{}
 	err = f.tpl.ExecuteTemplate(b, "JSONDiffWrapper", f.Lines)
 	if err != nil {
-		fmt.Printf("%v\n", err)
 		return "", err
 	}
 
