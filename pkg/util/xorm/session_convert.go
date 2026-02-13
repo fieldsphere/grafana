@@ -502,7 +502,7 @@ func (session *Session) value2Interface(col *core.Column, fieldValue reflect.Val
 		if fieldValue.IsNil() {
 			return nil, nil
 		} else if !fieldValue.IsValid() {
-			session.engine.logger.Warn("the field[", col.FieldName, "] is invalid")
+			session.engine.logger.Warn("XORM field is invalid", "field", col.FieldName)
 			return nil, nil
 		} else {
 			// !nashtsai! deference pointer type to instance type

@@ -273,7 +273,7 @@ func (s *Service) CreateToken(ctx context.Context) (cloudmigration.CreateAccessT
 		}); err != nil {
 			return cloudmigration.CreateAccessTokenResponse{}, fmt.Errorf("deleting access policy: id=%s region=%s %w", existingAccessPolicy.ID, instance.RegionSlug, err)
 		}
-		logger.Info("deleted access policy", existingAccessPolicy.ID, "name", existingAccessPolicy.Name)
+		logger.Info("deleted access policy", "id", existingAccessPolicy.ID, "name", existingAccessPolicy.Name)
 	}
 
 	timeoutCtx, cancel = context.WithTimeout(ctx, s.cfg.CloudMigration.CreateAccessPolicyTimeout)

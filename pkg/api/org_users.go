@@ -418,9 +418,9 @@ func (hs *HTTPServer) updateOrgUserHelper(c *contextmodel.ReqContext, cmd org.Up
 	authInfo, err := hs.authInfoService.GetAuthInfo(c.Req.Context(), &qAuth)
 	if err != nil {
 		if errors.Is(err, user.ErrUserNotFound) {
-			hs.log.Debug("Failed to get user auth info for basic auth user", cmd.UserID, nil)
+			hs.log.Debug("Failed to get user auth info for basic auth user", "userID", cmd.UserID)
 		} else {
-			hs.log.Error("Failed to get user auth info for external sync check", cmd.UserID, err)
+			hs.log.Error("Failed to get user auth info for external sync check", "userID", cmd.UserID, "error", err)
 			return response.Error(http.StatusInternalServerError, "Failed to get user auth info", nil)
 		}
 	}
