@@ -148,7 +148,7 @@ func (r *DTOConnector) Connect(ctx context.Context, name string, opts runtime.Ob
 			Name:      name,
 		}, folder)
 		if err != nil {
-			logger.Warn("Failed to check read permission", "err", err)
+			logger.Warn("Failed to check read permission", "error", err)
 			responder.Error(fmt.Errorf("not allowed to view"))
 			return
 		}
@@ -168,7 +168,7 @@ func (r *DTOConnector) Connect(ctx context.Context, name string, opts runtime.Ob
 		// Keeping the same logic as with accessControl.Evaluate.
 		// On errors we default on deny.
 		if err != nil {
-			logger.Warn("Failed to check write permission", "err", err)
+			logger.Warn("Failed to check write permission", "error", err)
 		}
 		access.CanSave = writeRes.Allowed
 		access.CanEdit = writeRes.Allowed
@@ -182,7 +182,7 @@ func (r *DTOConnector) Connect(ctx context.Context, name string, opts runtime.Ob
 			Name:      name,
 		}, folder)
 		if err != nil {
-			logger.Warn("Failed to check delete permission", "err", err)
+			logger.Warn("Failed to check delete permission", "error", err)
 		}
 		access.CanDelete = deleteRes.Allowed
 

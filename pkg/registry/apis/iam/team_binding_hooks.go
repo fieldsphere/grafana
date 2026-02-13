@@ -74,7 +74,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterTeamBindingCreate(obj runtime.
 		if err != nil {
 			status = "failure"
 			b.logger.Error("failed to write team binding to zanzana",
-				"err", err,
+				"error", err,
 				"namespace", tb.Namespace,
 				"name", tb.Name,
 				"subject", tb.Spec.Subject.Name,
@@ -187,7 +187,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginTeamBindingUpdate(ctx context.
 			if err != nil {
 				status = "failure"
 				b.logger.Error("failed to update team binding in zanzana",
-					"err", err,
+					"error", err,
 					"namespace", newTB.Namespace,
 					"name", newTB.Name,
 				)
@@ -261,7 +261,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterTeamBindingDelete(obj runtime.
 		if err != nil {
 			status = "failure"
 			b.logger.Error("failed to delete team binding from zanzana",
-				"err", err,
+				"error", err,
 				"namespace", tb.Namespace,
 				"name", tb.Name,
 				"subject", tb.Spec.Subject.Name,

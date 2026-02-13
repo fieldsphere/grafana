@@ -112,7 +112,7 @@ func (e *evaluator) evaluateFile(ctx context.Context, repo repository.Reader, ba
 	info := fileChangeInfo{Change: change}
 	fileInfo, err := repo.Read(ctx, change.Path, change.Ref)
 	if err != nil {
-		logger.Info("unable to read file", "err", err)
+		logger.Info("unable to read file", "error", err)
 		info.Error = err.Error()
 		return info
 	}
@@ -142,7 +142,7 @@ func (e *evaluator) evaluateFile(ctx context.Context, repo repository.Reader, ba
 		// for testability and decoupling
 		urlBuilder, err := url.Parse(baseURL)
 		if err != nil {
-			logger.Warn("Error parsing baseURL", "err", err)
+			logger.Warn("Error parsing baseURL", "error", err)
 			info.Error = err.Error()
 			return info
 		}
@@ -196,12 +196,12 @@ func renderScreenshotFromGrafanaURL(ctx context.Context,
 	}()
 	parsed, err := url.Parse(grafanaURL)
 	if err != nil {
-		logging.FromContext(ctx).Warn("invalid", "url", grafanaURL, "err", err)
+		logging.FromContext(ctx).Warn("invalid", "url", grafanaURL, "error", err)
 		return "", err
 	}
 	snap, err := renderer.RenderScreenshot(ctx, repo, strings.TrimPrefix(parsed.Path, "/"), parsed.Query())
 	if err != nil {
-		logging.FromContext(ctx).Warn("render failed", "url", grafanaURL, "err", err)
+		logging.FromContext(ctx).Warn("render failed", "url", grafanaURL, "error", err)
 		return "", fmt.Errorf("error rendering screenshot: %w", err)
 	}
 	if strings.Contains(snap, "://") {
@@ -209,7 +209,7 @@ func renderScreenshotFromGrafanaURL(ctx context.Context,
 	}
 	base, err := url.Parse(baseURL)
 	if err != nil {
-		logger.Warn("invalid base", "url", baseURL, "err", err)
+		logger.Warn("invalid base", "url", baseURL, "error", err)
 		return "", err
 	}
 	outcome = utils.SuccessOutcome

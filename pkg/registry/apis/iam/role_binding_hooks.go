@@ -81,7 +81,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterRoleBindingCreate(obj runtime.
 		if err != nil {
 			status = "failure"
 			b.logger.Error("failed to write role binding to zanzana",
-				"err", err,
+				"error", err,
 				"namespace", rb.Namespace,
 				"name", rb.Name,
 				"subject", rb.Spec.Subject.Name,
@@ -158,7 +158,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterRoleBindingDelete(obj runtime.
 		if err != nil {
 			status = "failure"
 			b.logger.Error("failed to delete role binding from zanzana",
-				"err", err,
+				"error", err,
 				"namespace", rb.Namespace,
 				"name", rb.Name,
 				"subject", rb.Spec.Subject.Name,
@@ -271,7 +271,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginRoleBindingUpdate(ctx context.
 			if err != nil {
 				status = "failure"
 				b.logger.Error("failed to update role binding in zanzana",
-					"err", err,
+					"error", err,
 					"namespace", newRB.Namespace,
 					"name", newRB.Name,
 				)

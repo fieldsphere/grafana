@@ -266,7 +266,7 @@ func (r *jobProgressRecorder) notifyImmediately(ctx context.Context) {
 	jobStatus := r.currentStatus()
 	logger := logging.FromContext(ctx)
 	if err := r.notifyImmediatelyFn(ctx, jobStatus); err != nil {
-		logger.Warn("error notifying immediate progress", "err", err)
+		logger.Warn("error notifying immediate progress", "error", err)
 	}
 }
 
@@ -275,7 +275,7 @@ func (r *jobProgressRecorder) maybeNotify(ctx context.Context) {
 
 	logger := logging.FromContext(ctx)
 	if err := r.maybeNotifyFn(ctx, jobStatus); err != nil {
-		logger.Warn("error notifying progress", "err", err)
+		logger.Warn("error notifying progress", "error", err)
 	}
 }
 

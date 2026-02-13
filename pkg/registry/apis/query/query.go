@@ -161,7 +161,7 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 			},
 
 			func(err error) {
-				connectLogger.Error("error caught in handler", "err", err, "caller", getCaller(ctx))
+				connectLogger.Error("error caught in handler", "error", err, "caller", getCaller(ctx))
 				span.SetStatus(codes.Error, "query error")
 
 				if err == nil {
@@ -186,7 +186,7 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 		raw := &query.QueryDataRequest{}
 		err := web.Bind(httpreq, raw)
 		if err != nil {
-			connectLogger.Error("Hit unexpected error when reading query", "err", err)
+			connectLogger.Error("Hit unexpected error when reading query", "error", err)
 			err = errorsK8s.NewBadRequest("error reading query")
 			// TODO: can we wrap the error so details are not lost?!
 			// errutil.BadRequest(
@@ -200,7 +200,7 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 		qdr, err := handleQuery(ctx, *raw, *b, httpreq, *responder, connectLogger)
 
 		if err != nil {
-			connectLogger.Error("execute error", "http code", query.GetResponseCode(qdr), "err", err)
+			connectLogger.Error("execute error", "http code", query.GetResponseCode(qdr), "error", err)
 			logEmptyRefids(raw.Queries, connectLogger)
 			if qdr != nil { // if we have a response, we assume the err is set in the response
 				responder.Object(query.GetResponseCode(qdr), &query.QueryDataResponse{
@@ -227,10 +227,10 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 				if isTypedBadRequestError {
 					errorDataResponse = backend.ErrDataResponseWithSource(backend.StatusBadRequest, backend.ErrorSourceDownstream, err.Error())
 				} else if strings.Contains(err.Error(), "expression request error") {
-					connectLogger.Error("Error calling TransformData in an expression", "err", err)
+					connectLogger.Error("Error calling TransformData in an expression", "error", err)
 					errorDataResponse = backend.ErrDataResponseWithSource(backend.StatusBadRequest, backend.ErrorSourceDownstream, err.Error())
 				} else {
-					connectLogger.Error("unknown error, treated as a 500", "err", err)
+					connectLogger.Error("unknown error, treated as a 500", "error", err)
 					responder.Error(err)
 					return
 				}
@@ -286,12 +286,12 @@ func prepareQuery(
 
 		jsonBytes, err := json.Marshal(q)
 		if err != nil {
-			connectLogger.Error("error marshalling query", "err", err)
+			connectLogger.Error("error marshalling query", "error", err)
 		}
 
 		sjQuery, err := simplejson.NewJson(jsonBytes)
 		if err != nil {
-			connectLogger.Error("error creating simplejson for query", "err", err)
+			connectLogger.Error("error creating simplejson for query", "error", err)
 		}
 
 		jsonQueries = append(jsonQueries, sjQuery)
@@ -310,7 +310,7 @@ func prepareQuery(
 
 	instance, err := b.instanceProvider.GetInstance(ctx, connectLogger, headers)
 	if err != nil {
-		connectLogger.Error("failed to get instance configuration settings", "err", err)
+		connectLogger.Error("failed to get instance configuration settings", "error", err)
 		return nil, err
 	}
 

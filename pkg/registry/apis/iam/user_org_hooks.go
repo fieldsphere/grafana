@@ -74,7 +74,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterUserCreate(obj runtime.Object,
 		if err != nil {
 			status = "failure"
 			b.logger.Error("failed to write user basic role to zanzana",
-				"err", err,
+				"error", err,
 				"namespace", namespace,
 				"name", subjectName,
 				"role", role,
@@ -154,7 +154,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginUserUpdate(ctx context.Context
 			if err != nil {
 				status = "failure"
 				b.logger.Error("failed to update user basic role in zanzana",
-					"err", err,
+					"error", err,
 					"namespace", namespace,
 					"name", subjectName,
 					"role", newRole,
@@ -226,7 +226,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterUserDelete(obj runtime.Object,
 		if err != nil {
 			status = "failure"
 			b.logger.Error("failed to delete user basic role from zanzana",
-				"err", err,
+				"error", err,
 				"namespace", namespace,
 				"name", subjectName,
 				"role", role,

@@ -88,7 +88,7 @@ func (b *FolderAPIBuilder) afterDelete(obj runtime.Object, _ *metav1.DeleteOptio
 		log.Info("Propagating deleted folder to Zanzana", "folder", meta.GetName(), "parent", meta.GetFolder())
 		err = b.permissionStore.DeleteFolderParents(ctx, meta.GetNamespace(), meta.GetName())
 		if err != nil {
-			log.Warn("failed to propagate folder to zanzana", "err", err)
+			log.Warn("failed to propagate folder to zanzana", "error", err)
 		}
 	}
 
@@ -119,6 +119,6 @@ func (b *FolderAPIBuilder) afterDelete(obj runtime.Object, _ *metav1.DeleteOptio
 func (b *FolderAPIBuilder) writeFolderToZanzana(ctx context.Context, folder utils.GrafanaMetaAccessor) {
 	err := b.permissionStore.SetFolderParent(ctx, folder.GetNamespace(), folder.GetName(), folder.GetFolder())
 	if err != nil {
-		logging.FromContext(ctx).Warn("failed to propagate folder to zanzana", "err", err)
+		logging.FromContext(ctx).Warn("failed to propagate folder to zanzana", "error", err)
 	}
 }

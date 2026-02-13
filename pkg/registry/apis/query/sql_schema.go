@@ -31,7 +31,7 @@ func (b *QueryAPIBuilder) GetSQLSchemas(w http.ResponseWriter, r *http.Request) 
 	raw := &query.QueryDataRequest{}
 	err := web.Bind(r, raw)
 	if err != nil {
-		connectLogger.Error("Hit unexpected error when reading query", "err", err)
+		connectLogger.Error("Hit unexpected error when reading query", "error", err)
 		err = errorsK8s.NewBadRequest("error reading query")
 		errhttp.Write(ctx, err, w)
 		return
