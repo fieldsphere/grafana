@@ -40,12 +40,12 @@ func main() {
 		slog.Info("Sleeping before proxying request", "sleepDuration", safeSleep, "requestURI", safeRequestUri)
 
 		// This is commented out as CodeQL flags this as vulnerability CWE-117 (https://cwe.mitre.org/data/definitions/117.html)
-		// If you need to debug and log the headers then use the line below instead of the log.Printf statement above
+		// If you need to debug and log the headers then use the line below instead of the structured log statement above
 		// The docker container will then need to be rebuilt after the change is made:
 		// Run `make devenv sources=slow_proxy`
 		// or run `docker-compose build` in the devenv folder
 		//
-		// log.Printf("sleeping for %s then proxying request: url '%s', headers: '%v'", safeSleep, safeRequestUri, r.Header)
+		// slog.Info("Sleeping before proxying request", "sleepDuration", safeSleep, "requestURI", safeRequestUri, "headers", r.Header)
 		<-time.After(sleep)
 		proxy.ServeHTTP(w, r)
 	})
