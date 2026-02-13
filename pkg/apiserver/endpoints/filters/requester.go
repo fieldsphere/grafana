@@ -42,7 +42,7 @@ func WithRequester(handler http.Handler) http.Handler {
 			ctx, _ = identity.WithServiceIdentity(ctx, 1)
 			req = req.WithContext(ctx)
 		} else {
-			klog.V(5).Info("unable to map the k8s user to grafana requester", "user", info)
+			klog.V(5).InfoS("Unable to map the Kubernetes user to Grafana requester", "user", info)
 		}
 
 		handler.ServeHTTP(w, req)

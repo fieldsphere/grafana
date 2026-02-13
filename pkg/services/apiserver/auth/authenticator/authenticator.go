@@ -22,7 +22,7 @@ var _ authenticator.RequestFunc = identityAuthenticator
 func identityAuthenticator(req *http.Request) (*authenticator.Response, bool, error) {
 	ident, err := identity.GetRequester(req.Context())
 	if err != nil {
-		klog.V(5).Info("no idenitty in context", "err", err)
+		klog.V(5).InfoS("No identity in context", "error", err)
 		return nil, false, nil
 	}
 
