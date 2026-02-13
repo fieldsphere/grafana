@@ -52,7 +52,7 @@ func (c *RedisChannel) handleMessages() {
 func (c *RedisChannel) Broadcast(b []byte) {
 	b, err := proto.Marshal(&alertingClusterPB.Part{Key: c.key, Data: b})
 	if err != nil {
-		c.p.logger.Error("Error marshalling broadcast into proto", "err", err, "channel", c.channel)
+		c.p.logger.Error("Error marshalling broadcast into proto", "error", err, "channel", c.channel)
 		return
 	}
 	select {

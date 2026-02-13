@@ -616,7 +616,7 @@ func (rs *ReceiverService) InUseMetadata(ctx context.Context, orgID int64, recei
 		if err == nil {
 			importedUsesInRoutes = s.ReceiverUseByName()
 		} else {
-			rs.log.FromContext(ctx).Warn("Unable to include imported receivers. Skipping", "err", err)
+			rs.log.FromContext(ctx).Warn("Unable to include imported receivers. Skipping", "error", err)
 		}
 	}
 
@@ -822,7 +822,7 @@ func (rs *ReceiverService) getImportedReceivers(ctx context.Context, span trace.
 		result, err = imported.GetReceivers(uids)
 	}
 	if err != nil {
-		rs.log.FromContext(ctx).Warn("Unable to include imported receivers. Skipping", "err", err)
+		rs.log.FromContext(ctx).Warn("Unable to include imported receivers. Skipping", "error", err)
 		span.RecordError(err, trace.WithAttributes(
 			attribute.String("concurrency_token", revision.ConcurrencyToken),
 		))

@@ -110,7 +110,7 @@ func newRedisPeer(cfg redisConfig, logger log.Logger, reg prometheus.Registerer,
 	if cfg.tlsEnabled {
 		tlsClientConfig, err = cfg.tls.GetTLSConfig()
 		if err != nil {
-			logger.Error("Failed to get TLS config", "err", err)
+			logger.Error("Failed to get TLS config", "error", err)
 			return nil, err
 		}
 	}
@@ -284,7 +284,7 @@ func (p *redisPeer) membersSync() {
 	startTime := time.Now()
 	members, err := p.membersScan()
 	if err != nil {
-		p.logger.Error("Error getting keys from redis", "err", err, "pattern", p.withPrefix(peerPattern))
+		p.logger.Error("Error getting keys from redis", "error", err, "pattern", p.withPrefix(peerPattern))
 		// To prevent a spike of duplicate messages, we return for the duration of
 		// membersValidFor the last known members and only empty the list if we do
 		// not eventually recover.
@@ -360,7 +360,7 @@ func (p *redisPeer) filterUnhealthyMembers(members []string, values []any) []str
 		}
 		ts, err := strconv.ParseInt(val.(string), 10, 64)
 		if err != nil {
-			p.logger.Error("Error parsing timestamp value", "err", err, "peer", peer, "val", val)
+			p.logger.Error("Error parsing timestamp value", "error", err, "peer", peer, "val", val)
 			continue
 		}
 		tm := time.Unix(ts, 0)
@@ -388,7 +388,7 @@ func (p *redisPeer) Position() int {
 func (p *redisPeer) ClusterSize() int {
 	members, err := p.membersScan()
 	if err != nil {
-		p.logger.Error("Error getting keys from redis", "err", err, "pattern", p.withPrefix(peerPattern))
+		p.logger.Error("Error getting keys from redis", "error", err, "pattern", p.withPrefix(peerPattern))
 		return 0
 	}
 	return len(members)
@@ -491,7 +491,7 @@ func (p *redisPeer) mergePartialState(buf []byte) {
 
 	var part alertingClusterPB.Part
 	if err := proto.Unmarshal(buf, &part); err != nil {
-		p.logger.Warn("Error decoding the received broadcast message", "err", err)
+		p.logger.Warn("Error decoding the received broadcast message", "error", err)
 		return
 	}
 
@@ -503,7 +503,7 @@ func (p *redisPeer) mergePartialState(buf []byte) {
 		return
 	}
 	if err := s.Merge(part.Data); err != nil {
-		p.logger.Warn("Error merging the received broadcast message", "err", err, "key", part.Key)
+		p.logger.Warn("Error merging the received broadcast message", "error", err, "key", part.Key)
 		return
 	}
 	p.logger.Debug("Partial state was successfully merged", "key", part.Key)
@@ -572,7 +572,7 @@ func (p *redisPeer) mergeFullState(buf []byte) {
 
 	var fs alertingClusterPB.FullState
 	if err := proto.Unmarshal(buf, &fs); err != nil {
-		p.logger.Warn("Error unmarshaling the received remote state", "err", err)
+		p.logger.Warn("Error unmarshaling the received remote state", "error", err)
 		return
 	}
 
@@ -585,7 +585,7 @@ func (p *redisPeer) mergeFullState(buf []byte) {
 			continue
 		}
 		if err := s.Merge(part.Data); err != nil {
-			p.logger.Warn("Error merging the received remote state", "err", err, "key", part.Key)
+			p.logger.Warn("Error merging the received remote state", "error", err, "key", part.Key)
 			return
 		}
 	}
@@ -631,13 +631,13 @@ func (p *redisPeer) LocalState() []byte {
 	for key, s := range p.states {
 		b, err := s.MarshalBinary()
 		if err != nil {
-			p.logger.Warn("Error encoding the local state", "err", err, "key", key)
+			p.logger.Warn("Error encoding the local state", "error", err, "key", key)
 		}
 		all.Parts = append(all.Parts, alertingClusterPB.Part{Key: key, Data: b})
 	}
 	b, err := proto.Marshal(all)
 	if err != nil {
-		p.logger.Warn("Error encoding the local state to proto", "err", err)
+		p.logger.Warn("Error encoding the local state to proto", "error", err)
 	}
 	p.messagesSent.WithLabelValues(fullState).Inc()
 	p.messagesSentSize.WithLabelValues(fullState).Add(float64(len(b)))

@@ -585,7 +585,7 @@ func (s *alertmanagerSet) sync(tgs []*targetgroup.Group) {
 	for _, tg := range tgs {
 		ams, droppedAms, err := AlertmanagerFromGroup(tg, s.cfg)
 		if err != nil {
-			s.logger.Error("Creating discovered Alertmanagers failed", "err", err)
+			s.logger.Error("Creating discovered Alertmanagers failed", "error", err)
 			continue
 		}
 		allAms = append(allAms, ams...)
