@@ -3,6 +3,7 @@ import { memo, useEffect, useMemo, useState } from 'react';
 import { usePrevious } from 'react-use';
 
 import { DataSourceApi, getDefaultTimeRange, LoadingState, PanelData, SelectableValue, TimeRange } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import {
   EditorRow,
   LabelFilters,
@@ -30,6 +31,8 @@ import { EXPLAIN_LABEL_FILTER_CONTENT } from './LokiQueryBuilderExplained';
 import { NestedQueryList } from './NestedQueryList';
 
 export const TIME_SPAN_TO_TRIGGER_SAMPLES = 5 * 60 * 1000;
+const logger = createMonitoringLogger('plugins.datasource.loki.querybuilder.component');
+
 export interface Props {
   query: LokiVisualQuery;
   datasource: LokiDatasource;
@@ -126,7 +129,9 @@ export const LokiQueryBuilder = memo<Props>(({ datasource, query, onChange, onRu
         Math.abs(timeRange.from.valueOf() - prevTimeRange.from.valueOf()) > TIME_SPAN_TO_TRIGGER_SAMPLES);
     const updateBasedOnChangedQuery = !isEqual(prevQuery, query);
     if (updateBasedOnChangedTimeRange || updateBasedOnChangedQuery) {
-      onGetSampleData().catch(console.error);
+      onGetSampleData().catch((error) => {
+        logger.error('Failed to load Loki sample data for query builder', { error });
+      });
     }
   }, [datasource, query, timeRange, prevQuery, prevTimeRange]);
 
