@@ -257,7 +257,7 @@ func (b *APIBuilder) oneFlagHandler(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		_ = tracing.Errorf(span, namespaceMismatchMsg)
 		span.SetAttributes(semconv.HTTPStatusCode(http.StatusUnauthorized))
-		b.logger.Error(namespaceMismatchMsg)
+		b.logger.Error("Rejecting request with namespace mismatch", "namespace", ns, "flagKey", flagKey)
 		http.Error(w, namespaceMismatchMsg, http.StatusUnauthorized)
 		return
 	}
@@ -296,7 +296,7 @@ func (b *APIBuilder) allFlagsHandler(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		_ = tracing.Errorf(span, namespaceMismatchMsg)
 		span.SetAttributes(semconv.HTTPStatusCode(http.StatusUnauthorized))
-		b.logger.Error(namespaceMismatchMsg)
+		b.logger.Error("Rejecting request with namespace mismatch", "namespace", ns)
 		http.Error(w, namespaceMismatchMsg, http.StatusUnauthorized)
 		return
 	}
