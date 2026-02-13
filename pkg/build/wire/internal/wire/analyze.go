@@ -131,9 +131,9 @@ dfs:
 				continue
 			}
 			sb := new(strings.Builder)
-			fmt.Fprintf(sb, "no provider found for %s", types.TypeString(curr.t, nil))
+			sb.WriteString(fmt.Sprintf("no provider found for %s", types.TypeString(curr.t, nil)))
 			for f := curr.up; f != nil; f = f.up {
-				fmt.Fprintf(sb, "\nneeded by %s in %s", types.TypeString(f.t, nil), set.srcMap.At(f.t).(*providerSetSrc).description(fset, f.t))
+				sb.WriteString(fmt.Sprintf("\nneeded by %s in %s", types.TypeString(f.t, nil), set.srcMap.At(f.t).(*providerSetSrc).description(fset, f.t)))
 			}
 			ec.add(errors.New(sb.String()))
 			index.Set(curr.t, errAbort)
@@ -477,18 +477,18 @@ func verifyAcyclic(providerMap *typeutil.Map, hasher typeutil.Hasher) []error {
 					for i, b := range curr {
 						if types.Identical(a, b) {
 							sb := new(strings.Builder)
-							fmt.Fprintf(sb, "cycle for %s:\n", types.TypeString(a, nil))
+							sb.WriteString(fmt.Sprintf("cycle for %s:\n", types.TypeString(a, nil)))
 							for j := i; j < len(curr); j++ {
 								t := providerMap.At(curr[j]).(*ProvidedType)
 								if t.IsProvider() {
 									p := t.Provider()
-									fmt.Fprintf(sb, "%s (%s.%s) ->\n", types.TypeString(curr[j], nil), p.Pkg.Path(), p.Name)
+									sb.WriteString(fmt.Sprintf("%s (%s.%s) ->\n", types.TypeString(curr[j], nil), p.Pkg.Path(), p.Name))
 								} else {
 									p := t.Field()
-									fmt.Fprintf(sb, "%s (%s.%s) ->\n", types.TypeString(curr[j], nil), p.Parent, p.Name)
+									sb.WriteString(fmt.Sprintf("%s (%s.%s) ->\n", types.TypeString(curr[j], nil), p.Parent, p.Name))
 								}
 							}
-							fmt.Fprintf(sb, "%s", types.TypeString(a, nil))
+							sb.WriteString(types.TypeString(a, nil))
 							ec.add(errors.New(sb.String()))
 							hasCycle = true
 							break
@@ -512,10 +512,16 @@ func verifyAcyclic(providerMap *typeutil.Map, hasher typeutil.Hasher) []error {
 func bindingConflictError(fset *token.FileSet, typ types.Type, set *ProviderSet, cur, prev *providerSetSrc) error {
 	sb := new(strings.Builder)
 	if set.VarName != "" {
-		fmt.Fprintf(sb, "%s has ", set.VarName)
+		sb.WriteString(set.VarName)
+		sb.WriteString(" has ")
 	}
-	fmt.Fprintf(sb, "multiple bindings for %s\n", types.TypeString(typ, nil))
-	fmt.Fprintf(sb, "current:\n<- %s\n", strings.Join(cur.trace(fset, typ), "\n<- "))
-	fmt.Fprintf(sb, "previous:\n<- %s", strings.Join(prev.trace(fset, typ), "\n<- "))
+	sb.WriteString("multiple bindings for ")
+	sb.WriteString(types.TypeString(typ, nil))
+	sb.WriteString("\n")
+	sb.WriteString("current:\n<- ")
+	sb.WriteString(strings.Join(cur.trace(fset, typ), "\n<- "))
+	sb.WriteString("\n")
+	sb.WriteString("previous:\n<- ")
+	sb.WriteString(strings.Join(prev.trace(fset, typ), "\n<- "))
 	return notePosition(fset.Position(set.Pos), errors.New(sb.String()))
 }
