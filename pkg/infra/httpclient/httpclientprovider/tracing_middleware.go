@@ -20,7 +20,7 @@ import (
 
 const (
 	TracingMiddlewareName   = "tracing"
-	httpContentLengthTagKey = "http.content_length"
+	httpContentLengthTagKey = "http.contentLength"
 	httpClientLabelsTagKey  = "httpClientLabels"
 )
 

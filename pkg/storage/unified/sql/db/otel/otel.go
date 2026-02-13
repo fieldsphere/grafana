@@ -33,11 +33,11 @@ const (
 	txTraceCommit          = txTracePrefix + "commit"
 	txTraceRollback        = txTracePrefix + "rollback"
 
-	attrDriverName      = "driver_name"
-	attrServerVersion   = "server_version"
-	attrIsolationLevel  = "isolation_level"
-	attrReadOnly        = "read_only"
-	attrTxTerminationOp = "termination_op"
+	attrDriverName      = "driverName"
+	attrServerVersion   = "serverVersion"
+	attrIsolationLevel  = "isolationLevel"
+	attrReadOnly        = "readOnly"
+	attrTxTerminationOp = "terminationOp"
 
 	attrValTxTerminationOpBegin    = "begin"
 	attrValTxTerminationOpCommit   = "commit"
