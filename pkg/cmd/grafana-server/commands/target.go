@@ -3,7 +3,7 @@ package commands
 import (
 	"context"
 	"fmt"
-	"os"
+	"log/slog"
 	"runtime/debug"
 	"strings"
 
@@ -51,7 +51,7 @@ func RunTargetServer(opts standalone.BuildInfo, cli *cli.Context) error {
 	logger := log.New("cli")
 	defer func() {
 		if err := log.Close(); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to close log: %s\n", err)
+			slog.Error("Failed to close log", "error", err)
 		}
 	}()
 

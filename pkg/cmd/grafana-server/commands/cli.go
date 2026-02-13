@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	_ "net/http/pprof"
 	"os"
 	"os/signal"
@@ -65,7 +66,7 @@ func RunServer(opts standalone.BuildInfo, cli *cli.Context) error {
 	logger := log.New("cli")
 	defer func() {
 		if err := log.Close(); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to close log: %s\n", err)
+			slog.Error("Failed to close log", "error", err)
 		}
 	}()
 
