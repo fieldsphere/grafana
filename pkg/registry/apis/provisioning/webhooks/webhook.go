@@ -175,7 +175,7 @@ func (s *webhookConnector) Connect(ctx context.Context, name string, opts runtim
 		if rsp.Job != nil {
 			rsp.Job.Repository = name
 			actionTaken = string(rsp.Job.Action)
-			span.SetAttributes(attribute.String("job.action", actionTaken))
+			span.SetAttributes(attribute.String("jobAction", actionTaken))
 
 			job, err := s.core.GetJobQueue().Insert(ctx, namespace, *rsp.Job)
 			if err != nil {
@@ -184,7 +184,7 @@ func (s *webhookConnector) Connect(ctx context.Context, name string, opts runtim
 				responder.Error(err)
 				return
 			}
-			span.SetAttributes(attribute.String("job.name", job.Name))
+			span.SetAttributes(attribute.String("jobName", job.Name))
 			logger.Info("webhook job created", "job", job.Name, "action", actionTaken)
 			responder.Object(rsp.Code, job)
 			return

@@ -483,7 +483,7 @@ func (rc *RepositoryController) addSyncJob(ctx context.Context, obj *provisionin
 		return fmt.Errorf("error adding sync job: %w", err)
 	}
 
-	span.SetAttributes(attribute.String("job.name", job.Name))
+	span.SetAttributes(attribute.String("jobName", job.Name))
 	return nil
 }
 

@@ -168,10 +168,10 @@ func (s *persistentStore) Claim(ctx context.Context) (job *provisioning.Job, rol
 		)
 
 		span.SetAttributes(
-			attribute.String("job.name", updatedJob.GetName()),
-			attribute.String("job.namespace", updatedJob.GetNamespace()),
-			attribute.String("job.repository", updatedJob.Spec.Repository),
-			attribute.String("job.action", string(updatedJob.Spec.Action)),
+			attribute.String("jobName", updatedJob.GetName()),
+			attribute.String("jobNamespace", updatedJob.GetNamespace()),
+			attribute.String("jobRepository", updatedJob.Spec.Repository),
+			attribute.String("jobAction", string(updatedJob.Spec.Action)),
 		)
 
 		return updatedJob.DeepCopy(), func() {
@@ -226,8 +226,8 @@ func (s *persistentStore) Update(ctx context.Context, job *provisioning.Job) (*p
 	)
 
 	span.SetAttributes(
-		attribute.String("job.name", job.GetName()),
-		attribute.String("job.namespace", job.GetNamespace()),
+		attribute.String("jobName", job.GetName()),
+		attribute.String("jobNamespace", job.GetNamespace()),
 	)
 
 	// Set up the provisioning identity for this namespace
@@ -259,8 +259,8 @@ func (s *persistentStore) Get(ctx context.Context, namespace, name string) (*pro
 	)
 
 	span.SetAttributes(
-		attribute.String("job.name", name),
-		attribute.String("job.namespace", namespace),
+		attribute.String("jobName", name),
+		attribute.String("jobNamespace", namespace),
 	)
 
 	// Set up provisioning identity to access jobs across all namespaces
@@ -294,9 +294,9 @@ func (s *persistentStore) Complete(ctx context.Context, job *provisioning.Job) e
 	)
 
 	span.SetAttributes(
-		attribute.String("job.name", job.GetName()),
-		attribute.String("job.namespace", job.GetNamespace()),
-		attribute.String("job.action", string(job.Spec.Action)),
+		attribute.String("jobName", job.GetName()),
+		attribute.String("jobNamespace", job.GetNamespace()),
+		attribute.String("jobAction", string(job.Spec.Action)),
 	)
 
 	// Set up the provisioning identity for this namespace
@@ -392,8 +392,8 @@ func (s *persistentStore) RenewLease(ctx context.Context, job *provisioning.Job)
 	)
 
 	span.SetAttributes(
-		attribute.String("job.name", job.GetName()),
-		attribute.String("job.namespace", job.GetNamespace()),
+		attribute.String("jobName", job.GetName()),
+		attribute.String("jobNamespace", job.GetNamespace()),
 	)
 
 	if job.Labels == nil || job.Labels[LabelJobClaim] == "" {
@@ -467,9 +467,9 @@ func (s *persistentStore) Insert(ctx context.Context, namespace string, spec pro
 	)
 
 	span.SetAttributes(
-		attribute.String("job.namespace", namespace),
-		attribute.String("job.repository", spec.Repository),
-		attribute.String("job.action", string(spec.Action)),
+		attribute.String("jobNamespace", namespace),
+		attribute.String("jobRepository", spec.Repository),
+		attribute.String("jobAction", string(spec.Action)),
 	)
 
 	if spec.Repository == "" {
@@ -501,7 +501,7 @@ func (s *persistentStore) Insert(ctx context.Context, namespace string, spec pro
 	generateJobName(job) // Side-effect: updates the job's name.
 
 	logger = logger.With("job", job.GetName())
-	span.SetAttributes(attribute.String("job.name", job.GetName()))
+	span.SetAttributes(attribute.String("jobName", job.GetName()))
 
 	created, err := s.client.Jobs(namespace).Create(ctx, job, metav1.CreateOptions{})
 	if apierrors.IsAlreadyExists(err) {

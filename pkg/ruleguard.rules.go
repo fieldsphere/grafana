@@ -1555,6 +1555,21 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid uppercase-leading trace attribute keys; use lower camelCase with canonical acronym casing`)
 
 	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"(job|repository|resource|stats)\\.[A-Za-z0-9_.]+\"$")).
+		Report(`avoid dotted provisioning trace keys like "job.name" or "resource.name"; use flat camelCase keys such as "jobName", "repositoryName", "resourceName", or "statsErrorMessage"`)
+
+	m.Match(
 		`$logger.Debugf($*args)`,
 		`$logger.Infof($*args)`,
 		`$logger.Warnf($*args)`,

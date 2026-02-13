@@ -146,10 +146,10 @@ func (c *JobCleanupController) cleanUpExpiredJob(ctx context.Context, job *provi
 	jobCopy.Status.Finished = c.clock().UnixMilli()
 
 	span.SetAttributes(
-		attribute.String("job.name", jobCopy.GetName()),
-		attribute.String("job.namespace", jobCopy.GetNamespace()),
-		attribute.String("job.repository", jobCopy.Spec.Repository),
-		attribute.String("job.action", string(jobCopy.Spec.Action)),
+		attribute.String("jobName", jobCopy.GetName()),
+		attribute.String("jobNamespace", jobCopy.GetNamespace()),
+		attribute.String("jobRepository", jobCopy.Spec.Repository),
+		attribute.String("jobAction", string(jobCopy.Spec.Action)),
 	)
 
 	jobLogger := logging.FromContext(ctx).With("namespace", jobCopy.GetNamespace(), "job", jobCopy.GetName(), "action", jobCopy.Spec.Action)
