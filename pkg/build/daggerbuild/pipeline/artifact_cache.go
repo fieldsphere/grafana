@@ -5,7 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"log"
+	"log/slog"
 	"os/exec"
 	"sync"
 	"time"
@@ -58,14 +58,14 @@ func NextInterval(ts time.Time, d time.Duration) time.Time {
 
 	// 113 / 10 = 11
 	unix := ts.UTC().Unix() / int64(d.Seconds())
-	log.Println(time.Unix(unix, 0))
+	slog.Debug("NextInterval divided timestamp", "time", time.Unix(unix, 0))
 	// 11 * 10 = 110
 	unix = unix * int64(d.Seconds())
-	log.Println(time.Unix(unix, 0))
+	slog.Debug("NextInterval multiplied timestamp", "time", time.Unix(unix, 0))
 
 	// 110 + 10 = 120
 	unix = unix + int64(d.Seconds())
-	log.Println(time.Unix(unix, 0))
+	slog.Debug("NextInterval final timestamp", "time", time.Unix(unix, 0))
 	return time.Unix(unix, 0).UTC()
 }
 
@@ -108,13 +108,13 @@ func (a *ArtifactHandlerCache) Builder(ctx context.Context, opts *ArtifactContai
 
 	// nolint:gosec
 	out, err := exec.Command("docker", "pull", image).CombinedOutput()
-	log.Println("docker", "pull", image, string(out))
+	slog.Info("Docker pull command output", "image", image, "output", string(out))
 	if err == nil {
 		return opts.Client.Container().From(image), nil
 	}
 
 	if addr, err := builder.Publish(ctx, image); err != nil {
-		log.Println("Error publishing container", err, addr)
+		slog.Error("Error publishing container", "error", err, "address", addr, "image", image)
 		return builder, nil
 	}
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"log"
+	"log/slog"
 	"path/filepath"
 	"strings"
 
@@ -19,7 +19,8 @@ func main() {
 	)
 	flag.Parse()
 	if *version == "" {
-		log.Fatalln("-version must be set")
+		slog.Error("-version must be set")
+		return
 	}
 
 	d, err := dagger.Connect(ctx)
@@ -41,16 +42,18 @@ func main() {
 	})
 	nodeVersion, err := NodeVersion(d, src).Stdout(ctx)
 	if err != nil {
-		log.Fatalln("error getting node version from '.nvmrc':", err)
+		slog.Error("Error getting node version from .nvmrc", "error", err)
+		return
 	}
 
 	// Update version(s)
 	updated := WithUpdatedVersion(d, src, nodeVersion, *version)
-	log.Println("Exporting directory")
+	slog.Info("Exporting directory")
 	if _, err := updated.Export(ctx, filepath.Clean(*dir)); err != nil {
-		log.Fatalln("error exporting directory", err)
+		slog.Error("Error exporting directory", "error", err)
+		return
 	}
-	log.Println("Done exporting directory")
+	slog.Info("Done exporting directory")
 }
 
 // NodeVersion a container whose `stdout` will return the node version from the '.nvmrc' file in the directory 'src'.

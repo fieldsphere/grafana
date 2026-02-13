@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
+	"log/slog"
 	"net/url"
 	"path/filepath"
 	"strings"
@@ -104,7 +104,7 @@ func CloneContainer(d *dagger.Client, opts *GitCloneOptions) (*dagger.Container,
 	checkoutArgs = append(checkoutArgs, "else exit 3; fi")
 
 	container = container.WithExec([]string{"/bin/sh", "-c", strings.Join(checkoutArgs, " ")})
-	log.Println(strings.Join(checkoutArgs, " "))
+	slog.Info("Executing git checkout fallback command", "command", strings.Join(checkoutArgs, " "))
 	return container, nil
 }
 
