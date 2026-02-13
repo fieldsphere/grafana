@@ -1,14 +1,10 @@
 import {appendFileSync, writeFileSync} from 'fs';
 import {exec as execCallback} from 'node:child_process';
 import {promisify} from 'node:util';
+import {logChangelogNotice} from './logging.js';
 import {findPreviousVersion, semverParse} from "./semver.js";
 
-//
-// Github Action core utils: logging (notice + debug log levels), must escape
-// newlines and percent signs
-//
-const escapeData = (s) => s.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
-const LOG = (msg) => process.stdout.write(`::notice::${escapeData(msg)}\n`);
+const LOG = (msg) => logChangelogNotice(msg);
 
 
 // Using `git tag -l` output find the tag (version) that goes semantically
