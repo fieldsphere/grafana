@@ -326,10 +326,9 @@ describe('nullInsertThreshold Transformer', () => {
     // 10 fields x 3,000 values with 50% skip (output = 10 fields x 6,000 values)
     let bigFrameA = genFrame();
 
-    // eslint-disable-next-line no-console
-    console.time('insertValues-10x3k');
+    const startedAt = performance.now();
     applyNullInsertThreshold({ frame: bigFrameA });
-    // eslint-disable-next-line no-console
-    console.timeEnd('insertValues-10x3k');
+    const elapsedMs = performance.now() - startedAt;
+    expect(elapsedMs).toBeLessThanOrEqual(10);
   });
 });
