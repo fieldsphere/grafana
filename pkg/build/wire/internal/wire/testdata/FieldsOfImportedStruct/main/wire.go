@@ -18,7 +18,7 @@
 package main
 
 import (
-	"fmt"
+	"os"
 
 	"example.com/bar"
 	"example.com/baz"
@@ -46,5 +46,5 @@ func main() {
 		Bar: &bar.Config{2},
 	}
 	svc := newBazService(cfg)
-	fmt.Println(svc.String())
+	_, _ = os.Stdout.WriteString(svc.String() + "\n")
 }

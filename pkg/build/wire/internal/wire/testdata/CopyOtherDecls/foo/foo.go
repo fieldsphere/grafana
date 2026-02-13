@@ -21,13 +21,13 @@
 package main
 
 import (
-	"fmt"
+	"os"
 
 	"github.com/grafana/grafana/pkg/build/wire"
 )
 
 func main() {
-	fmt.Println(injectedMessage())
+	_, _ = os.Stdout.WriteString(injectedMessage() + "\n")
 }
 
 // provideMessage provides a friendly user greeting.

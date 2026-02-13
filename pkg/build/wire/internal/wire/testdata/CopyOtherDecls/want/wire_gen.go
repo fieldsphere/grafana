@@ -6,7 +6,7 @@
 package main
 
 import (
-	"fmt"
+	"os"
 )
 
 // Injectors from foo.go:
@@ -19,7 +19,7 @@ func injectedMessage() string {
 // foo.go:
 
 func main() {
-	fmt.Println(injectedMessage())
+	_, _ = os.Stdout.WriteString(injectedMessage() + "\n")
 }
 
 // provideMessage provides a friendly user greeting.
