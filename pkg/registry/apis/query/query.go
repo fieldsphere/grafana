@@ -129,8 +129,8 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 		ctx, span := b.tracer.Start(httpreq.Context(), "QueryService.Query")
 		defer span.End()
 		ctx = request.WithNamespace(ctx, request.NamespaceValue(connectCtx))
-		traceId := span.SpanContext().TraceID()
-		connectLogger := b.log.New("traceId", traceId.String(), "rule_uid", httpreq.Header.Get("X-Rule-Uid"))
+		traceID := span.SpanContext().TraceID()
+		connectLogger := b.log.New("traceID", traceID.String(), "rule_uid", httpreq.Header.Get("X-Rule-Uid"))
 		responder := newResponderWrapper(incomingResponder,
 			func(statusCode *int, obj runtime.Object) {
 				if *statusCode/100 == 4 {

@@ -368,7 +368,7 @@ func executeDSNodesGrouped(ctx context.Context, now time.Time, vars mathexp.Vars
 // other nodes they must have already been executed and their results must
 // already by in vars.
 func (dn *DSNode) Execute(ctx context.Context, now time.Time, _ mathexp.Vars, s *Service) (r mathexp.Results, e error) {
-	logger := logger.FromContext(ctx).New("datasourceType", dn.datasource.Type, "queryRefId", dn.refID, "datasourceUid", dn.datasource.UID, "datasourceVersion", dn.datasource.Version)
+	logger := logger.FromContext(ctx).New("datasourceType", dn.datasource.Type, "queryRefID", dn.refID, "datasourceUID", dn.datasource.UID, "datasourceVersion", dn.datasource.Version)
 	ctx, span := s.tracer.Start(ctx, "SSE.ExecuteDatasourceQuery")
 	defer span.End()
 
