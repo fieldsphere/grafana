@@ -703,10 +703,12 @@ func (statement *Statement) OrderBy(order string) *Statement {
 func (statement *Statement) Desc(colNames ...string) *Statement {
 	var buf strings.Builder
 	if len(statement.OrderStr) > 0 {
-		fmt.Fprint(&buf, statement.OrderStr, ", ")
+		buf.WriteString(statement.OrderStr)
+		buf.WriteString(", ")
 	}
 	newColNames := statement.col2NewColsWithQuote(colNames...)
-	fmt.Fprintf(&buf, "%v DESC", strings.Join(newColNames, " DESC, "))
+	buf.WriteString(strings.Join(newColNames, " DESC, "))
+	buf.WriteString(" DESC")
 	statement.OrderStr = buf.String()
 	return statement
 }
@@ -715,10 +717,12 @@ func (statement *Statement) Desc(colNames ...string) *Statement {
 func (statement *Statement) Asc(colNames ...string) *Statement {
 	var buf strings.Builder
 	if len(statement.OrderStr) > 0 {
-		fmt.Fprint(&buf, statement.OrderStr, ", ")
+		buf.WriteString(statement.OrderStr)
+		buf.WriteString(", ")
 	}
 	newColNames := statement.col2NewColsWithQuote(colNames...)
-	fmt.Fprintf(&buf, "%v ASC", strings.Join(newColNames, " ASC, "))
+	buf.WriteString(strings.Join(newColNames, " ASC, "))
+	buf.WriteString(" ASC")
 	statement.OrderStr = buf.String()
 	return statement
 }
@@ -744,9 +748,13 @@ func (statement *Statement) Table(tableNameOrBean any) *Statement {
 func (statement *Statement) Join(joinOP string, tablename any, condition string, args ...any) *Statement {
 	var buf strings.Builder
 	if len(statement.JoinStr) > 0 {
-		fmt.Fprintf(&buf, "%v %v JOIN ", statement.JoinStr, joinOP)
+		buf.WriteString(statement.JoinStr)
+		buf.WriteString(" ")
+		buf.WriteString(joinOP)
+		buf.WriteString(" JOIN ")
 	} else {
-		fmt.Fprintf(&buf, "%v JOIN ", joinOP)
+		buf.WriteString(joinOP)
+		buf.WriteString(" JOIN ")
 	}
 
 	switch tp := tablename.(type) {
@@ -760,7 +768,12 @@ func (statement *Statement) Join(joinOP string, tablename any, condition string,
 		quotes := append(strings.Split(statement.Engine.Quote(""), ""), "`")
 
 		var aliasName = strings.Trim(tbs[len(tbs)-1], strings.Join(quotes, ""))
-		fmt.Fprintf(&buf, "(%s) %s ON %v", subSQL, aliasName, condition)
+		buf.WriteString("(")
+		buf.WriteString(subSQL)
+		buf.WriteString(") ")
+		buf.WriteString(aliasName)
+		buf.WriteString(" ON ")
+		buf.WriteString(fmt.Sprint(condition))
 		statement.joinArgs = append(statement.joinArgs, subQueryArgs...)
 	case *builder.Builder:
 		subSQL, subQueryArgs, err := tp.ToSQL()
@@ -772,11 +785,18 @@ func (statement *Statement) Join(joinOP string, tablename any, condition string,
 		quotes := append(strings.Split(statement.Engine.Quote(""), ""), "`")
 
 		var aliasName = strings.Trim(tbs[len(tbs)-1], strings.Join(quotes, ""))
-		fmt.Fprintf(&buf, "(%s) %s ON %v", subSQL, aliasName, condition)
+		buf.WriteString("(")
+		buf.WriteString(subSQL)
+		buf.WriteString(") ")
+		buf.WriteString(aliasName)
+		buf.WriteString(" ON ")
+		buf.WriteString(fmt.Sprint(condition))
 		statement.joinArgs = append(statement.joinArgs, subQueryArgs...)
 	default:
 		tbName := statement.Engine.TableName(tablename, true)
-		fmt.Fprintf(&buf, "%s ON %v", tbName, condition)
+		buf.WriteString(tbName)
+		buf.WriteString(" ON ")
+		buf.WriteString(fmt.Sprint(condition))
 	}
 
 	statement.JoinStr = buf.String()
@@ -1074,34 +1094,49 @@ func (statement *Statement) genSelectSQL(columnStr, condSQL string, needLimit, n
 	pLimitN := statement.LimitN
 
 	var buf strings.Builder
-	fmt.Fprintf(&buf, "SELECT %v%v%v%v%v", distinct, top, columnStr, fromStr, whereStr)
+	buf.WriteString("SELECT ")
+	buf.WriteString(fmt.Sprint(distinct))
+	buf.WriteString(fmt.Sprint(top))
+	buf.WriteString(fmt.Sprint(columnStr))
+	buf.WriteString(fmt.Sprint(fromStr))
+	buf.WriteString(fmt.Sprint(whereStr))
 	if len(mssqlCondi) > 0 {
 		if len(whereStr) > 0 {
-			fmt.Fprint(&buf, " AND ", mssqlCondi)
+			buf.WriteString(" AND ")
+			buf.WriteString(fmt.Sprint(mssqlCondi))
 		} else {
-			fmt.Fprint(&buf, " WHERE ", mssqlCondi)
+			buf.WriteString(" WHERE ")
+			buf.WriteString(fmt.Sprint(mssqlCondi))
 		}
 	}
 
 	if statement.GroupByStr != "" {
-		fmt.Fprint(&buf, " GROUP BY ", statement.GroupByStr)
+		buf.WriteString(" GROUP BY ")
+		buf.WriteString(statement.GroupByStr)
 	}
 	if statement.HavingStr != "" {
-		fmt.Fprint(&buf, " ", statement.HavingStr)
+		buf.WriteString(" ")
+		buf.WriteString(statement.HavingStr)
 	}
 	if needOrderBy && statement.OrderStr != "" {
-		fmt.Fprint(&buf, " ORDER BY ", statement.OrderStr)
+		buf.WriteString(" ORDER BY ")
+		buf.WriteString(statement.OrderStr)
 	}
 	if needLimit {
 		if dialect.DBType() != core.ORACLE {
 			if statement.Start > 0 {
 				if pLimitN != nil {
-					fmt.Fprintf(&buf, " LIMIT %v OFFSET %v", *pLimitN, statement.Start)
+					buf.WriteString(" LIMIT ")
+					buf.WriteString(fmt.Sprint(*pLimitN))
+					buf.WriteString(" OFFSET ")
+					buf.WriteString(fmt.Sprint(statement.Start))
 				} else {
-					fmt.Fprintf(&buf, "LIMIT 0 OFFSET %v", statement.Start)
+					buf.WriteString("LIMIT 0 OFFSET ")
+					buf.WriteString(fmt.Sprint(statement.Start))
 				}
 			} else if pLimitN != nil {
-				fmt.Fprint(&buf, " LIMIT ", *pLimitN)
+				buf.WriteString(" LIMIT ")
+				buf.WriteString(fmt.Sprint(*pLimitN))
 			}
 		} else {
 			if statement.Start != 0 || pLimitN != nil {
@@ -1111,8 +1146,16 @@ func (statement *Statement) genSelectSQL(columnStr, condSQL string, needLimit, n
 				if rawColStr == "*" {
 					rawColStr = "at.*"
 				}
-				fmt.Fprintf(&buf, "SELECT %v FROM (SELECT %v,ROWNUM RN FROM (%v) at WHERE ROWNUM <= %d) aat WHERE RN > %d",
-					columnStr, rawColStr, oldString, statement.Start+*pLimitN, statement.Start)
+				buf.WriteString("SELECT ")
+				buf.WriteString(fmt.Sprint(columnStr))
+				buf.WriteString(" FROM (SELECT ")
+				buf.WriteString(fmt.Sprint(rawColStr))
+				buf.WriteString(",ROWNUM RN FROM (")
+				buf.WriteString(oldString)
+				buf.WriteString(") at WHERE ROWNUM <= ")
+				buf.WriteString(fmt.Sprint(statement.Start + *pLimitN))
+				buf.WriteString(") aat WHERE RN > ")
+				buf.WriteString(fmt.Sprint(statement.Start))
 			}
 		}
 	}
