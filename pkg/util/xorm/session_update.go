@@ -277,7 +277,7 @@ func (session *Session) Update(bean any, condiBean ...any) (int64, error) {
 			closure(bean)
 		}
 		if processor, ok := any(bean).(AfterUpdateProcessor); ok {
-			session.engine.logger.Debug("[event]", tableName, " has after update processor")
+			session.engine.logger.Debug("XORM after update processor", "table", tableName)
 			processor.AfterUpdate()
 		}
 	} else {
