@@ -306,21 +306,21 @@ func addExtensionConventionForRollups(buf io.Writer, mf *dto.MetricFamily, m mod
 	mfType := mf.GetType()
 	var err error
 	if mfType == dto.MetricType_COUNTER {
-		if _, err = fmt.Fprint(buf, ".count"); err != nil {
+		if _, err = io.WriteString(buf, ".count"); err != nil {
 			return err
 		}
 	}
 
 	if mfType == dto.MetricType_SUMMARY || mfType == dto.MetricType_HISTOGRAM {
 		if strings.HasSuffix(string(m[model.MetricNameLabel]), "_count") {
-			if _, err = fmt.Fprint(buf, ".count"); err != nil {
+			if _, err = io.WriteString(buf, ".count"); err != nil {
 				return err
 			}
 		}
 	}
 	if mfType == dto.MetricType_HISTOGRAM {
 		if strings.HasSuffix(string(m[model.MetricNameLabel]), "_sum") {
-			if _, err = fmt.Fprint(buf, ".sum"); err != nil {
+			if _, err = io.WriteString(buf, ".sum"); err != nil {
 				return err
 			}
 		}
