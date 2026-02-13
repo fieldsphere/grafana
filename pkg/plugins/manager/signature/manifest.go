@@ -148,12 +148,12 @@ func (s *Signature) Calculate(ctx context.Context, src plugins.PluginSource, plu
 	manifest, err := s.ReadPluginManifestFromFS(ctx, plugin.FS)
 	switch {
 	case errors.Is(err, ErrSignatureTypeUnsigned):
-		s.log.Warn("Plugin is unsigned", "id", plugin.JSONData.ID, "err", err)
+		s.log.Warn("Plugin is unsigned", "id", plugin.JSONData.ID, "error", err)
 		return plugins.Signature{
 			Status: plugins.SignatureStatusUnsigned,
 		}, nil
 	case err != nil:
-		s.log.Warn("Plugin signature is invalid", "id", plugin.JSONData.ID, "err", err)
+		s.log.Warn("Plugin signature is invalid", "id", plugin.JSONData.ID, "error", err)
 		return plugins.Signature{
 			Status: plugins.SignatureStatusInvalid,
 		}, nil

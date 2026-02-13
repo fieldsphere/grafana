@@ -60,7 +60,7 @@ func sendRequestGetBytes(client http.Client, repoUrl string, subPaths ...string)
 	}
 	defer func() {
 		if err := bodyReader.Close(); err != nil {
-			logger.Warn("Failed to close stream", "err", err)
+			logger.Warn("Failed to close stream", "error", err)
 		}
 	}()
 	return io.ReadAll(bodyReader)
@@ -115,7 +115,7 @@ func handleResponse(res *http.Response) (io.ReadCloser, error) {
 		body, err := io.ReadAll(res.Body)
 		defer func() {
 			if err := res.Body.Close(); err != nil {
-				logger.Warn("Failed to close response body", "err", err)
+				logger.Warn("Failed to close response body", "error", err)
 			}
 		}()
 		if err != nil || len(body) == 0 {

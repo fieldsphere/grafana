@@ -158,7 +158,7 @@ func (u *Uploader) uploadFile(
 	}
 	defer func() {
 		if err := fileReader.Close(); err != nil {
-			u.log.Warn("Failed to close file", "err", err, "path", imageDiskPath)
+			u.log.Warn("Failed to close file", "error", err, "path", imageDiskPath)
 		}
 	}()
 
