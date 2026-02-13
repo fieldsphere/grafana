@@ -1066,8 +1066,8 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid)\"$")).
-		Report(`avoid all-lowercase "…id" structured log keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID"`)
+		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid)\"$")).
+		Report(`avoid all-lowercase "…id" structured log keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID", "configID"`)
 
 	m.Match(
 		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
@@ -1075,8 +1075,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid)\"$")).
-		Report(`avoid all-lowercase "…id" structured log keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID"`)
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid)\"$")).
+		Report(`avoid all-lowercase "…id" structured log keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID", "configID"`)
 
 	m.Match(
 		`$logger.Info($msg, $*before, $key, $value, $*after)`,
@@ -1166,8 +1166,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*before, $key, $value, $*after)`,
 		`$logger.With($*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid)\"$")).
-		Report(`avoid all-lowercase "…id" structured context keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID"`)
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid)\"$")).
+		Report(`avoid all-lowercase "…id" structured context keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID", "configID"`)
 
 	m.Match(
 		`$logger.New($*before, $key, $value, $*after)`,
@@ -1290,8 +1290,8 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$")).
-		Report(`avoid all-lowercase "…id" trace attribute keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelID", "datasourceID", "queryGroupID", "migrationID", "resourceVersion"`)
+		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$")).
+		Report(`avoid all-lowercase "…id" trace attribute keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelID", "datasourceID", "queryGroupID", "migrationID", "resourceVersion", "configID"`)
 
 	m.Match(
 		`attribute.String($key, $value)`,
