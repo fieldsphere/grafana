@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"sync"
@@ -14,7 +14,7 @@ func docker(args []string) {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
-		fmt.Printf("docker pull failed: %v\n", err)
+		slog.Error("Docker command failed", "args", args, "error", err)
 		os.Exit(1)
 	}
 }
