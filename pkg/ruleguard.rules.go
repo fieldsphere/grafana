@@ -651,6 +651,42 @@ func structuredlogging(m fluent.Matcher) {
 		Report("prefer a stable string-literal slog.LogAttrs message; move dynamic text into structured attributes")
 
 	m.Match(
+		`slog.DebugContext($ctx, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`slog.InfoContext($ctx, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`slog.WarnContext($ctx, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`slog.ErrorContext($ctx, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`slog.DebugContext($ctx, fmt.Sprint($*args), $*attrs)`,
+		`slog.InfoContext($ctx, fmt.Sprint($*args), $*attrs)`,
+		`slog.WarnContext($ctx, fmt.Sprint($*args), $*attrs)`,
+		`slog.ErrorContext($ctx, fmt.Sprint($*args), $*attrs)`,
+	).Report("use a stable slog context message and key/value context instead of fmt formatting")
+
+	m.Match(
+		`slog.DebugContext($ctx, $msg, $*attrs)`,
+		`slog.InfoContext($ctx, $msg, $*attrs)`,
+		`slog.WarnContext($ctx, $msg, $*attrs)`,
+		`slog.ErrorContext($ctx, $msg, $*attrs)`,
+	).
+		Where(m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Report("printf-style format verbs are not supported in slog context methods; move dynamic values to key/value fields")
+
+	m.Match(
+		`slog.DebugContext($ctx, $left + $right, $*attrs)`,
+		`slog.InfoContext($ctx, $left + $right, $*attrs)`,
+		`slog.WarnContext($ctx, $left + $right, $*attrs)`,
+		`slog.ErrorContext($ctx, $left + $right, $*attrs)`,
+	).Report("avoid string concatenation in slog context messages; use key/value fields")
+
+	m.Match(
+		`slog.DebugContext($ctx, $msg, $*attrs)`,
+		`slog.InfoContext($ctx, $msg, $*attrs)`,
+		`slog.WarnContext($ctx, $msg, $*attrs)`,
+		`slog.ErrorContext($ctx, $msg, $*attrs)`,
+	).
+		Where(!m["msg"].Text.Matches("^\".*\"$")).
+		Report("prefer a stable string-literal slog context message; move dynamic text into key/value fields")
+
+	m.Match(
 		`$logger.Log($ctx, $level, fmt.Sprintf($fmt, $*args), $*attrs)`,
 		`$logger.Log($ctx, $level, fmt.Sprint($*args), $*attrs)`,
 	).
@@ -699,6 +735,46 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isSlogLogger && !m["msg"].Text.Matches("^\".*\"$")).
 		Report("prefer a stable string-literal slog.Logger.LogAttrs message; move dynamic text into structured attributes")
+
+	m.Match(
+		`$logger.DebugContext($ctx, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`$logger.InfoContext($ctx, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`$logger.WarnContext($ctx, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`$logger.ErrorContext($ctx, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`$logger.DebugContext($ctx, fmt.Sprint($*args), $*attrs)`,
+		`$logger.InfoContext($ctx, fmt.Sprint($*args), $*attrs)`,
+		`$logger.WarnContext($ctx, fmt.Sprint($*args), $*attrs)`,
+		`$logger.ErrorContext($ctx, fmt.Sprint($*args), $*attrs)`,
+	).
+		Where(isSlogLogger).
+		Report("use a stable slog.Logger context message and key/value context instead of fmt formatting")
+
+	m.Match(
+		`$logger.DebugContext($ctx, $msg, $*attrs)`,
+		`$logger.InfoContext($ctx, $msg, $*attrs)`,
+		`$logger.WarnContext($ctx, $msg, $*attrs)`,
+		`$logger.ErrorContext($ctx, $msg, $*attrs)`,
+	).
+		Where(isSlogLogger && m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Report("printf-style format verbs are not supported in slog.Logger context methods; move dynamic values to key/value fields")
+
+	m.Match(
+		`$logger.DebugContext($ctx, $left + $right, $*attrs)`,
+		`$logger.InfoContext($ctx, $left + $right, $*attrs)`,
+		`$logger.WarnContext($ctx, $left + $right, $*attrs)`,
+		`$logger.ErrorContext($ctx, $left + $right, $*attrs)`,
+	).
+		Where(isSlogLogger).
+		Report("avoid string concatenation in slog.Logger context messages; use key/value fields")
+
+	m.Match(
+		`$logger.DebugContext($ctx, $msg, $*attrs)`,
+		`$logger.InfoContext($ctx, $msg, $*attrs)`,
+		`$logger.WarnContext($ctx, $msg, $*attrs)`,
+		`$logger.ErrorContext($ctx, $msg, $*attrs)`,
+	).
+		Where(isSlogLogger && !m["msg"].Text.Matches("^\".*\"$")).
+		Report("prefer a stable string-literal slog.Logger context message; move dynamic text into key/value fields")
 }
 
 func unstructuredoutput(m fluent.Matcher) {
