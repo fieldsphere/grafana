@@ -390,7 +390,7 @@ func (ecp *ContactPointService) DeleteContactPoint(ctx context.Context, orgID in
 				for key := range used {
 					uids = append(uids, key.UID)
 				}
-				ecp.log.Error("Cannot delete contact point because it is used in rule's notification settings", "receiverName", name, "rulesUid", strings.Join(uids, ","))
+				ecp.log.Error("Cannot delete contact point because it is used in rule's notification settings", "receiverName", name, "rulesUID", strings.Join(uids, ","))
 				return ErrContactPointUsedInRule.Errorf("")
 			}
 
@@ -418,12 +418,12 @@ func (ecp *ContactPointService) decryptValueOrRedacted(decrypt bool, integration
 	return func(value string) string {
 		decodeValue, err := base64.StdEncoding.DecodeString(value)
 		if err != nil {
-			ecp.log.Warn("Failed to decode secret value from Base64", "error", err, "integrationUid", integrationUID)
+			ecp.log.Warn("Failed to decode secret value from Base64", "error", err, "integrationUID", integrationUID)
 			return ""
 		}
 		decryptedValue, err := ecp.encryptionService.Decrypt(context.Background(), decodeValue)
 		if err != nil {
-			ecp.log.Warn("Failed to decrypt secret value", "error", err, "integrationUid", integrationUID)
+			ecp.log.Warn("Failed to decrypt secret value", "error", err, "integrationUID", integrationUID)
 			return ""
 		}
 		if decrypt {

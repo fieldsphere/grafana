@@ -162,7 +162,7 @@ func (srv RulerSrv) RouteDeleteAlertRules(c *contextmodel.ReqContext, namespaceU
 			if err != nil {
 				return err
 			}
-			logger.Info("Alert rules were deleted", "ruleUid", strings.Join(rulesToDelete, ","))
+			logger.Info("Alert rules were deleted", "ruleUID", strings.Join(rulesToDelete, ","))
 			return nil
 		}
 		// if none rules were deleted return an error.

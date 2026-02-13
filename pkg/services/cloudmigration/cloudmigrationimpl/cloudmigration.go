@@ -824,7 +824,7 @@ func (s *Service) CancelSnapshot(ctx context.Context, sessionUid string, snapsho
 		s.log.Error("critical failure during snapshot cancelation - please report any error logs")
 	}
 
-	s.log.Info("canceled snapshot", "sessionUid", sessionUid, "snapshotUid", snapshotUid)
+	s.log.Info("canceled snapshot", "sessionUID", sessionUid, "snapshotUID", snapshotUid)
 
 	return nil
 }

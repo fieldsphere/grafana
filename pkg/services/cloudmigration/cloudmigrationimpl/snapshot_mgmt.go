@@ -706,7 +706,7 @@ func (s *Service) uploadSnapshot(ctx context.Context, session *cloudmigration.Cl
 		return fmt.Errorf("unknown resource storage type, check your configuration and try again: %q", s.cfg.CloudMigration.ResourceStorageType)
 	}
 
-	s.log.Info("successfully uploaded snapshot", "snapshotUid", snapshotMeta.UID, "cloud_snapshotUid", snapshotMeta.GMSSnapshotUID)
+	s.log.Info("successfully uploaded snapshot", "snapshotUID", snapshotMeta.UID, "cloudSnapshotUID", snapshotMeta.GMSSnapshotUID)
 
 	// update snapshot status to processing with retries
 	if err := s.updateSnapshotWithRetries(ctx, cloudmigration.UpdateSnapshotCmd{
@@ -881,7 +881,7 @@ func (s *Service) updateSnapshotWithRetries(ctx context.Context, cmd cloudmigrat
 		}
 		return retryer.FuncComplete, nil
 	}, maxRetries, time.Millisecond*10, time.Second*5); err != nil {
-		s.log.Error("failed to update snapshot status", "snapshotUid", cmd.UID, "status", cmd.Status, "num_local_resources", len(cmd.LocalResourcesToCreate), "num_cloud_resources", len(cmd.CloudResourcesToUpdate), "error", err)
+		s.log.Error("failed to update snapshot status", "snapshotUID", cmd.UID, "status", cmd.Status, "num_local_resources", len(cmd.LocalResourcesToCreate), "num_cloud_resources", len(cmd.CloudResourcesToUpdate), "error", err)
 		return fmt.Errorf("failed to update snapshot status: %w", err)
 	}
 	return nil
