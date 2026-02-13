@@ -1,8 +1,11 @@
 import { createContext } from 'react';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { CodeEditor, Monaco } from '@grafana/ui';
 
 import { K8sNameLookup } from './K8sNameLookup';
+
+const logger = createMonitoringLogger('swagger.plugins');
 
 // swagger does not have types
 interface UntypedProps {
@@ -63,7 +66,10 @@ export const WrappedPlugins = function () {
           if (mime) {
             v = mime.get('schema').toJS();
           }
-          console.log('RequestBody', v, mime, props);
+          logger.logDebug('Swagger request body schema resolved', {
+            operation: 'RequestBody',
+            hasSchema: Boolean(v),
+          });
         }
         // console.log('RequestBody PROPS', props);
         return (
@@ -75,7 +81,7 @@ export const WrappedPlugins = function () {
 
       modelExample: (Original: React.ElementType) => (props: UntypedProps) => {
         if (props.isExecute && props.schema) {
-          console.log('modelExample PROPS', props);
+          logger.logDebug('Swagger model example rendered', { operation: 'modelExample' });
           return (
             <SchemaContext.Provider value={props.schema.toJS()}>
               <Original {...props} />
@@ -128,7 +134,7 @@ export const WrappedPlugins = function () {
                     },
                   });
                 };
-                console.log('CodeEditor', schema);
+                logger.logDebug('Swagger CodeEditor schema loaded', { operation: 'TextArea' });
 
                 return (
                   <CodeEditor
