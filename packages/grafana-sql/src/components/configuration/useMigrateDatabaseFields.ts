@@ -21,7 +21,11 @@ export function useMigrateDatabaseFields<T extends SQLOptions, S = {}>({
 
     // Migrate the database field from the column into the jsonData object
     if (options.database) {
-      sqlPluginLogger.logDebug(`Migrating from options.database with value ${options.database} for ${options.name}`);
+      sqlPluginLogger.logDebug('Migrating database field from options to jsonData', {
+        operation: 'useMigrateDatabaseFields',
+        database: options.database,
+        name: options.name,
+      });
       newOptions.database = '';
       newOptions.jsonData = { ...jsonData, database: options.database };
       optionsUpdated = true;
@@ -36,9 +40,11 @@ export function useMigrateDatabaseFields<T extends SQLOptions, S = {}>({
     ) {
       const { maxOpenConns, maxIdleConns } = config.sqlConnectionLimits;
 
-      sqlPluginLogger.logDebug(
-        `Setting default max open connections to ${maxOpenConns} and setting max idle connection to ${maxIdleConns}`
-      );
+      sqlPluginLogger.logDebug('Setting default SQL connection limits', {
+        operation: 'useMigrateDatabaseFields',
+        maxOpenConns,
+        maxIdleConns,
+      });
 
       // Spread from the jsonData in new options in case
       // the database field was migrated as well
