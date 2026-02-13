@@ -3,13 +3,16 @@ const open = require('open').default;
 const path = require('path');
 
 const baseConfig = require('./jest.config.js');
+const { logScriptError, logScriptInfo } = require('./scripts/logging.js');
 const { CODEOWNER_KIND, getCodeownerKind, createCodeownerSlug } = require('./scripts/codeowners-manifest/utils.js');
 
 const CODEOWNERS_MANIFEST_FILENAMES_BY_TEAM_PATH = 'codeowners-manifest/filenames-by-team.json';
 
 const codeownerName = process.env.CODEOWNER_NAME;
 if (!codeownerName) {
-  console.error('ERROR: CODEOWNER_NAME environment variable is required');
+  logScriptError('CODEOWNER_NAME environment variable is required', {
+    operation: 'bootstrap',
+  });
   process.exit(1);
 }
 
@@ -19,8 +22,13 @@ const COVERAGE_SUMMARY_OUTPUT_PATH = './coverage-summary.json';
 const codeownersFilePath = path.join(__dirname, CODEOWNERS_MANIFEST_FILENAMES_BY_TEAM_PATH);
 
 if (!fs.existsSync(codeownersFilePath)) {
-  console.error(`Codeowners file not found at ${codeownersFilePath} ...`);
-  console.error('Please run: yarn codeowners-manifest first to generate the mapping file');
+  logScriptError('Codeowners file not found', {
+    operation: 'bootstrap',
+    codeownersFilePath,
+  });
+  logScriptError('Run yarn codeowners-manifest first to generate the mapping file', {
+    operation: 'bootstrap',
+  });
   process.exit(1);
 }
 
@@ -28,8 +36,14 @@ const codeownersData = JSON.parse(fs.readFileSync(codeownersFilePath, 'utf8'));
 const teamFiles = codeownersData[codeownerName] || [];
 
 if (teamFiles.length === 0) {
-  console.error(`ERROR: No files found for team "${codeownerName}"`);
-  console.error('Available teams:', Object.keys(codeownersData).join(', '));
+  logScriptError('No files found for codeowner team', {
+    operation: 'bootstrap',
+    codeownerName,
+  });
+  logScriptError('Available teams for coverage run', {
+    operation: 'bootstrap',
+    teams: Object.keys(codeownersData).join(', '),
+  });
   process.exit(1);
 }
 
@@ -64,13 +78,20 @@ const testFiles = teamFiles.filter((file) => {
 });
 
 if (testFiles.length === 0) {
-  console.log(`No test files found for team ${codeownerName}`);
+  logScriptInfo('No test files found for codeowner team', {
+    operation: 'bootstrap',
+    codeownerName,
+  });
   process.exit(0);
 }
 
-console.log(
-  `🧪 Collecting coverage for ${sourceFiles.length} testable files and running ${testFiles.length} test files of ${teamFiles.length} files owned by ${codeownerName}.`
-);
+logScriptInfo('Starting codeowner coverage run', {
+  operation: 'bootstrap',
+  sourceFileCount: sourceFiles.length,
+  testFileCount: testFiles.length,
+  teamFileCount: teamFiles.length,
+  codeownerName,
+});
 
 module.exports = {
   ...baseConfig,
@@ -100,7 +121,10 @@ module.exports = {
         cleanCache: true,
         onEnd: (coverageResults) => {
           const reportURL = `file://${path.resolve(outputDir)}/index.html`;
-          console.log(`📄 Coverage report saved to ${reportURL}`);
+          logScriptInfo('Coverage report saved', {
+            operation: 'reporter.onEnd',
+            reportURL,
+          });
 
           if (process.env.SHOULD_OPEN_COVERAGE_REPORT === 'true') {
             openCoverageReport(reportURL);
@@ -160,9 +184,15 @@ function writeCoverageSummaryArtifact(coverageResults) {
 
   try {
     fs.writeFileSync(COVERAGE_SUMMARY_OUTPUT_PATH, JSON.stringify(summary, null, 2));
-    console.log(`📊 Coverage summary written to ${COVERAGE_SUMMARY_OUTPUT_PATH}`);
+    logScriptInfo('Coverage summary written', {
+      operation: 'writeCoverageSummaryArtifact',
+      outputPath: COVERAGE_SUMMARY_OUTPUT_PATH,
+    });
   } catch (err) {
-    console.error(`Failed to write coverage summary: ${err}`);
+    logScriptError('Failed to write coverage summary', {
+      operation: 'writeCoverageSummaryArtifact',
+      error: String(err),
+    });
   }
 }
 
@@ -192,6 +222,10 @@ async function openCoverageReport(reportURL) {
   try {
     await open(reportURL);
   } catch (err) {
-    console.error(`Failed to open coverage report: ${err}`);
+    logScriptError('Failed to open coverage report', {
+      operation: 'openCoverageReport',
+      reportURL,
+      error: String(err),
+    });
   }
 }
