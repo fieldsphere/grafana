@@ -207,7 +207,7 @@ func (b *watcher) run(ctx context.Context) {
 
 			err := b.publisher(b.ns, b.channel, data)
 			if err != nil {
-				logger.Error("publish error", "channel", b.channel, "err", err)
+				logger.Error("publish error", "channel", b.channel, "error", err)
 				b.watch.Stop()
 				b.done = true // will force reconnect from the frontend
 				continue

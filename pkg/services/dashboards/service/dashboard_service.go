@@ -898,7 +898,7 @@ func (dr *DashboardServiceImpl) canCreateDashboard(ctx context.Context, user ide
 func (dr *DashboardServiceImpl) waitForSearchQuery(ctx context.Context, query *dashboards.FindPersistedDashboardsQuery, maxRetries int, expectedHits int64) error {
 	return retryer.Retry(func() (retryer.RetrySignal, error) {
 		results, err := dr.searchDashboardsThroughK8sRaw(ctx, query)
-		dr.log.Debug("waitForSearchQuery", "dashboardUIDs", strings.Join(query.DashboardUIDs, ","), "total_hits", results.TotalHits, "err", err)
+		dr.log.Debug("waitForSearchQuery", "dashboardUIDs", strings.Join(query.DashboardUIDs, ","), "total_hits", results.TotalHits, "error", err)
 		if err != nil {
 			return retryer.FuncError, err
 		}
@@ -1184,7 +1184,7 @@ func (dr *DashboardServiceImpl) SaveFolderForProvisionedDashboards(ctx context.C
 
 	f, err := dr.folderService.Create(ctx, dto)
 	if err != nil {
-		dr.log.Error("failed to create folder for provisioned dashboards", "folder", dto.Title, "org", dto.OrgID, "err", err)
+		dr.log.Error("failed to create folder for provisioned dashboards", "folder", dto.Title, "org", dto.OrgID, "error", err)
 		return nil, err
 	}
 
@@ -1206,7 +1206,7 @@ func (dr *DashboardServiceImpl) UpdateFolderWithManagedByAnnotation(ctx context.
 		Version:              f.Version,
 	})
 	if err != nil {
-		dr.log.Error("failed to update folder for provisioned dashboards", "folder", f.Title, "org", f.OrgID, "err", err)
+		dr.log.Error("failed to update folder for provisioned dashboards", "folder", f.Title, "org", f.OrgID, "error", err)
 		return nil, err
 	}
 	return updated, nil

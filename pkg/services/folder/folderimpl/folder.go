@@ -191,7 +191,7 @@ func (s *Service) DBMigration(db db.DB) {
 		return err
 	})
 	if err != nil {
-		s.log.Error("DB migration on folder service start failed.", "err", err)
+		s.log.Error("DB migration on folder service start failed.", "error", err)
 	}
 
 	s.log.Debug("syncing dashboard and folder tables finished")
@@ -966,7 +966,7 @@ func (s *Service) DeleteLegacy(ctx context.Context, cmd *folder.DeleteFolderComm
 
 		err = s.store.Delete(ctx, []string{cmd.UID}, cmd.OrgID)
 		if err != nil {
-			s.log.InfoContext(ctx, "failed deleting folder", "org_id", cmd.OrgID, "uid", cmd.UID, "err", err)
+			s.log.InfoContext(ctx, "failed deleting folder", "org_id", cmd.OrgID, "uid", cmd.UID, "error", err)
 			return err
 		}
 
@@ -1250,7 +1250,7 @@ func (s *Service) nestedFolderDelete(ctx context.Context, cmd *folder.DeleteFold
 
 	err = s.store.Delete(ctx, descendantUIDs, cmd.OrgID)
 	if err != nil {
-		s.log.ErrorContext(ctx, "failed to delete legacy folder descendants", "org_id", cmd.OrgID, "parent_uid", cmd.UID, "descendantsUIDs", strings.Join(descendantUIDs, ","), "err", err)
+		s.log.ErrorContext(ctx, "failed to delete legacy folder descendants", "org_id", cmd.OrgID, "parent_uid", cmd.UID, "descendantsUIDs", strings.Join(descendantUIDs, ","), "error", err)
 		return descendantUIDs, err
 	}
 	return descendantUIDs, nil

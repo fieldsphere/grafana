@@ -156,7 +156,7 @@ func (s *gPRCServerService) Run(ctx context.Context) error {
 	go func() {
 		s.logger.Info("GRPC server: starting")
 		if err := s.server.Serve(listener); err != nil {
-			s.logger.Error("GRPC server: failed to serve", "err", err)
+			s.logger.Error("GRPC server: failed to serve", "error", err)
 			serveErrCh <- err
 		}
 	}()

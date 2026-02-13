@@ -60,7 +60,7 @@ func ProvideDashboardStore(sqlStore db.DB, cfg *setting.Cfg, features featuremgm
 	// need to run this at startup in case any downgrade happened after the initial migration
 	err := migrations.RunDashboardTagMigrations(sqlStore.GetEngine().NewSession(), sqlStore.GetDialect().DriverName())
 	if err != nil {
-		s.log.Error("Failed to run dashboard_tag migrations", "err", err)
+		s.log.Error("Failed to run dashboard_tag migrations", "error", err)
 	}
 
 	return s, nil

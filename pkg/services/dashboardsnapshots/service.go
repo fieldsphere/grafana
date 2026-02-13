@@ -187,7 +187,7 @@ func DeleteExternalDashboardSnapshot(externalUrl string) error {
 
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			plog.Warn("Failed to close response body", "err", err)
+			plog.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -232,7 +232,7 @@ func createExternalDashboardSnapshot(cmd CreateDashboardSnapshotCommand, externa
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			plog.Warn("Failed to close response body", "err", err)
+			plog.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
