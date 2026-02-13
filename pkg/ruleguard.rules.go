@@ -832,6 +832,32 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["err"].Type.Is("error")).
 		Report("pass error values directly in structured logs (\"error\", err) instead of err.Error()")
+
+	m.Match(
+		`$logger.Info($msg, $err, $*rest)`,
+		`$logger.Warn($msg, $err, $*rest)`,
+		`$logger.Error($msg, $err, $*rest)`,
+		`$logger.Debug($msg, $err, $*rest)`,
+		`$logger.InfoCtx($ctx, $msg, $err, $*rest)`,
+		`$logger.WarnCtx($ctx, $msg, $err, $*rest)`,
+		`$logger.ErrorCtx($ctx, $msg, $err, $*rest)`,
+		`$logger.DebugCtx($ctx, $msg, $err, $*rest)`,
+		`slog.Info($msg, $err, $*rest)`,
+		`slog.Warn($msg, $err, $*rest)`,
+		`slog.Error($msg, $err, $*rest)`,
+		`slog.Debug($msg, $err, $*rest)`,
+		`slog.InfoContext($ctx, $msg, $err, $*rest)`,
+		`slog.WarnContext($ctx, $msg, $err, $*rest)`,
+		`slog.ErrorContext($ctx, $msg, $err, $*rest)`,
+		`slog.DebugContext($ctx, $msg, $err, $*rest)`,
+		`slog.Log($ctx, $level, $msg, $err, $*rest)`,
+		`$logger.Log($ctx, $level, $msg, $err, $*rest)`,
+		`klog.InfoS($msg, $err, $*rest)`,
+		`klog.V($lvl).InfoS($msg, $err, $*rest)`,
+		`klog.ErrorS($baseErr, $msg, $err, $*rest)`,
+	).
+		Where(m["err"].Type.Is("error")).
+		Report("avoid passing bare error arguments to structured logs; use key/value fields like \"error\", err")
 }
 
 func unstructuredoutput(m fluent.Matcher) {
