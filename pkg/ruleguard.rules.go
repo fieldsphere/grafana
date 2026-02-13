@@ -568,7 +568,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$logger.Panicf($*args)`,
 		`$logger.Panicln($*args)`,
 	).
-		Where(m["logger"].Type.Is("*log.Logger")).
+		Where(m["logger"].Type.Is("*log.Logger") || m["logger"].Type.Is("log.Logger")).
 		Report("avoid stdlib *log.Logger print/fatal helpers; use structured logging and explicit exit handling where needed")
 }
 
