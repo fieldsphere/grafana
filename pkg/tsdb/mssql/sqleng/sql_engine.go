@@ -121,7 +121,7 @@ func (e *DataSourceHandler) TransformQueryError(logger log.Logger, err error) er
 	// for security purposes.
 	var opErr *net.OpError
 	if errors.As(err, &opErr) {
-		logger.Error("Query error", "err", err)
+		logger.Error("Query error", "error", err)
 		return fmt.Errorf("failed to connect to server - %s", e.userError)
 	}
 
@@ -186,7 +186,7 @@ func NewQueryDataHandler(ctx context.Context, settings backend.DataSourceInstanc
 
 		db, err := newMSSQL(driverName, config.RowLimit, config.DSInfo, cnnstr, log, proxyClient)
 		if err != nil {
-			logger.Error("Failed connecting to MSSQL", "err", err)
+			logger.Error("Failed connecting to MSSQL", "error", err)
 			return nil, err
 		}
 
@@ -246,7 +246,7 @@ func (e *DataSourceHandler) getDB(ctx context.Context) (*sql.DB, error) {
 
 	db, err := newMSSQL(e.driverName, e.rowLimit, e.dsInfo, cnnstr, e.log, e.proxyClient)
 	if err != nil {
-		logger.Error("Failed connecting to MSSQL", "err", err)
+		logger.Error("Failed connecting to MSSQL", "error", err)
 		return nil, err
 	}
 	e.dbConnections.Store(cacheKey, db)
@@ -364,7 +364,7 @@ func (e *DataSourceHandler) executeQuery(query backend.DataQuery, wg *sync.WaitG
 	}
 	defer func() {
 		if err := rows.Close(); err != nil {
-			logger.Warn("Failed to close rows", "err", err)
+			logger.Warn("Failed to close rows", "error", err)
 		}
 	}()
 
@@ -471,7 +471,7 @@ func (e *DataSourceHandler) processResponse(qm *dataQueryModel, rows *sql.Rows, 
 			var err error
 			frame, err = sqlutil.ResampleWideFrame(frame, qm.FillMissing, alignedTimeRange, qm.Interval) //nolint:staticcheck
 			if err != nil {
-				logger.Error("Failed to resample dataframe", "err", err)
+				logger.Error("Failed to resample dataframe", "error", err)
 				frame.AppendNotices(data.Notice{Text: "Failed to resample dataframe", Severity: data.NoticeSeverityWarning})
 			}
 		}

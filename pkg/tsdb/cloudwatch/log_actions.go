@@ -213,7 +213,7 @@ func (ds *DataSource) executeStartQuery(ctx context.Context, logsClient models.C
 	if features.IsEnabled(ctx, features.FlagCloudWatchCrossAccountQuerying) && region != "" {
 		monitoringAccountStatus, err := ds.isMonitoringAccount(ctx, region)
 		if err != nil {
-			ds.logger.FromContext(ctx).Debug("failed to determine monitoring account status", "err", err)
+			ds.logger.FromContext(ctx).Debug("failed to determine monitoring account status", "error", err)
 		} else {
 			isMonitoringAccount = monitoringAccountStatus
 		}
@@ -271,9 +271,9 @@ func (ds *DataSource) executeStartQuery(ctx context.Context, logsClient models.C
 	resp, err := logsClient.StartQuery(ctx, startQueryInput)
 	if err != nil {
 		if errors.Is(err, &cloudwatchlogstypes.LimitExceededException{}) {
-			ds.logger.FromContext(ctx).Debug("ExecuteStartQuery limit exceeded", "err", err)
+			ds.logger.FromContext(ctx).Debug("ExecuteStartQuery limit exceeded", "error", err)
 		} else if errors.Is(err, &cloudwatchlogstypes.ThrottlingException{}) {
-			ds.logger.FromContext(ctx).Debug("ExecuteStartQuery rate exceeded", "err", err)
+			ds.logger.FromContext(ctx).Debug("ExecuteStartQuery rate exceeded", "error", err)
 		}
 		err = backend.DownstreamError(err)
 	}

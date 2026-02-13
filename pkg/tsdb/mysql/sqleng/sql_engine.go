@@ -106,7 +106,7 @@ func (e *DataSourceHandler) TransformQueryError(logger log.Logger, err error) er
 	// for security purposes.
 	var opErr *net.OpError
 	if errors.As(err, &opErr) {
-		logger.Error("Query error", "err", err)
+		logger.Error("Query error", "error", err)
 		return fmt.Errorf("failed to connect to server - %s", e.userError)
 	}
 
@@ -257,7 +257,7 @@ func (e *DataSourceHandler) executeQuery(query backend.DataQuery, wg *sync.WaitG
 	}
 	defer func() {
 		if err := rows.Close(); err != nil {
-			logger.Warn("Failed to close rows", "err", err)
+			logger.Warn("Failed to close rows", "error", err)
 		}
 	}()
 
@@ -359,7 +359,7 @@ func (e *DataSourceHandler) executeQuery(query backend.DataQuery, wg *sync.WaitG
 			var err error
 			frame, err = sqlutil.ResampleWideFrame(frame, qm.FillMissing, alignedTimeRange, qm.Interval) //nolint:staticcheck
 			if err != nil {
-				logger.Error("Failed to resample dataframe", "err", err)
+				logger.Error("Failed to resample dataframe", "error", err)
 				frame.AppendNotices(data.Notice{Text: "Failed to resample dataframe", Severity: data.NoticeSeverityWarning})
 			}
 		}
