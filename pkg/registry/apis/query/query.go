@@ -151,7 +151,7 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 								span.SetStatus(codes.Error, "500 error without downstream error source")
 							} else {
 								span.SetStatus(codes.Error, "500 error without downstream error source and no Error message")
-								span.SetAttributes(attribute.String("error.ref_id", refId))
+								span.SetAttributes(attribute.String("error.refID", refId))
 							}
 						}
 					}

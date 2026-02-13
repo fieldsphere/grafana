@@ -120,8 +120,8 @@ func (h *K8sClientWithFallback) Get(
 
 	span.SetAttributes(
 		attribute.Bool("fallback", true),
-		attribute.String("fallback.stored_version", storedVersion),
-		attribute.String("fallback.conversion_error", conversionErr),
+		attribute.String("fallback.storedVersion", storedVersion),
+		attribute.String("fallback.conversionError", conversionErr),
 	)
 
 	span.AddEvent(fmt.Sprintf("%s Get", storedVersion))

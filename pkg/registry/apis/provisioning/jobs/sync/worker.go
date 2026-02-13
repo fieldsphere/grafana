@@ -210,7 +210,7 @@ func (r *SyncWorker) Process(ctx context.Context, repo repository.Repository, jo
 		})
 	default:
 		logger.Warn("unexpected number of managed stats", "count", len(stats.Managed))
-		finalSpan.SetAttributes(attribute.Int("stats.unexpected_count", len(stats.Managed)))
+		finalSpan.SetAttributes(attribute.Int("stats.unexpectedCount", len(stats.Managed)))
 	}
 
 	// Update Quota condition based on stats and configured limits.

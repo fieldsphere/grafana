@@ -77,7 +77,7 @@ func (l *Listener) startSpan(toState services.State, fromState *services.State) 
 		semconv.GrafanaServiceName(l.serviceName),
 	}
 	if fromState != nil {
-		attributes = append(attributes, attribute.String("modules.tracing.from_state", fromState.String()))
+		attributes = append(attributes, attribute.String("modules.tracing.fromState", fromState.String()))
 	}
 	span.SetAttributes(attributes...)
 	l.stateSpan = span
@@ -105,7 +105,7 @@ func (l *Listener) endParentSpan(from services.State, err error) {
 	if l.parentSpan == nil || !l.parentSpan.IsRecording() {
 		return
 	}
-	l.parentSpan.SetAttributes(attribute.String("modules.tracing.final_state", from.String()))
+	l.parentSpan.SetAttributes(attribute.String("modules.tracing.finalState", from.String()))
 	if err != nil {
 		l.parentSpan.SetStatus(codes.Error, err.Error())
 		l.parentSpan.RecordError(err)
