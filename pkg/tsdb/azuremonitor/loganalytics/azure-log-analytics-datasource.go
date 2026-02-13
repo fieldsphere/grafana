@@ -45,7 +45,7 @@ func writeErrorResponse(rw http.ResponseWriter, statusCode int, message string) 
 	rw.WriteHeader(statusCode)
 
 	// Log the raw error message
-	backend.Logger.Error(message)
+	backend.Logger.Error("Azure Log Analytics response error", "message", message)
 
 	// Set error response to initial error message
 	errorBody := map[string]string{"error": message}

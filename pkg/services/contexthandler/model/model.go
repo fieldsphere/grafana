@@ -53,7 +53,7 @@ func (ctx *ReqContext) Handle(cfg *setting.Cfg, status int, title string, err er
 	}{title, "Grafana", cfg.AppSubURL, "dark", nil}
 
 	if err != nil {
-		ctx.Logger.Error(title, "error", err)
+		ctx.Logger.Error("Request context HTML error response", "responseTitle", title, "error", err)
 	}
 
 	ctx.HTML(status, cfg.ErrTemplateName, data)
@@ -74,9 +74,9 @@ func (ctx *ReqContext) JsonApiErr(status int, message string, err error) {
 	if err != nil {
 		resp["traceID"] = traceID
 		if status == http.StatusInternalServerError {
-			ctx.Logger.Error(message, "error", err, "traceID", traceID)
+			ctx.Logger.Error("Request context JSON API error response", "responseMessage", message, "error", err, "traceID", traceID, "status", status)
 		} else {
-			ctx.Logger.Warn(message, "error", err, "traceID", traceID)
+			ctx.Logger.Warn("Request context JSON API warning response", "responseMessage", message, "error", err, "traceID", traceID, "status", status)
 		}
 	}
 

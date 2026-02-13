@@ -437,7 +437,7 @@ func (l *LibraryElementService) toLibraryElementError(err error, message string)
 	}
 
 	// Log errors that cause internal server error status code.
-	l.log.Error(message, "error", err)
+	l.log.Error("Library elements request failed", "responseMessage", message, "error", err)
 	return response.ErrOrFallback(http.StatusInternalServerError, message, err)
 }
 

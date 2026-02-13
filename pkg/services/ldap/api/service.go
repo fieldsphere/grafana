@@ -206,7 +206,7 @@ func (s *Service) PostSyncUserWithLDAP(c *contextmodel.ReqContext) response.Resp
 		if errors.Is(err, multildap.ErrDidNotFindUser) { // User was not in the LDAP server - we need to take action:
 			if s.adminUser == usr.Login { // User is *the* Grafana Admin. We cannot disable it.
 				errMsg := fmt.Sprintf(`Refusing to sync grafana super admin "%s" - it would be disabled`, usr.Login)
-				s.log.Error(errMsg)
+				s.log.Error("Refusing to sync Grafana super admin because user would be disabled", "login", usr.Login)
 				return response.Error(http.StatusBadRequest, errMsg, err)
 			}
 
