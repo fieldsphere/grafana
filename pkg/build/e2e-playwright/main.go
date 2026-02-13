@@ -22,7 +22,7 @@ func main() {
 
 	if err := NewApp().Run(ctx, os.Args); err != nil {
 		cancel()
-		fmt.Println(err)
+		slog.Error("Playwright E2E command failed", "error", err)
 		os.Exit(1)
 	}
 }

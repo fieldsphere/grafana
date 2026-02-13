@@ -22,7 +22,7 @@ func main() {
 
 	if err := NewApp().Run(ctx, os.Args); err != nil {
 		cancel()
-		fmt.Println(err)
+		slog.Error("A11y command failed", "error", err)
 		os.Exit(1)
 	}
 }
