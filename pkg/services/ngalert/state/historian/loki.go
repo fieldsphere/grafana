@@ -295,7 +295,7 @@ func (h RemoteLokiBackend) merge(res []lokiclient.Stream, folderUIDToFilter []st
 		var entry LokiEntry
 		err := json.Unmarshal(entryBytes, &entry)
 		if err != nil {
-			h.log.Warn("failed to unmarshal entry, continuing", "err", err, "entry", minEl.V)
+			h.log.Warn("failed to unmarshal entry, continuing", "error", err, "entry", minEl.V)
 			pointers[minElStreamIdx]++
 			continue
 		}
@@ -305,7 +305,7 @@ func (h RemoteLokiBackend) merge(res []lokiclient.Stream, folderUIDToFilter []st
 		lblsJson, err := json.Marshal(streamLbls)
 		if err != nil {
 			// This should in theory never happen, as we're marshalling a map[string]string.
-			h.log.Warn("failed to serialize stream labels, continuing", "err", err, "labels", streamLbls)
+			h.log.Warn("failed to serialize stream labels, continuing", "error", err, "labels", streamLbls)
 			pointers[minElStreamIdx]++
 			continue
 		}
@@ -582,7 +582,7 @@ func (h *RemoteLokiBackend) getFolderUIDsForRuleFilter(ctx context.Context, quer
 	if err != nil {
 		if canReadAll {
 			// When the user can read all rules, filtering by folder UID is purely an optimization, so we can ignore errors here.
-			h.log.FromContext(ctx).Debug("failed to fetch alert rule by UID", "err", err)
+			h.log.FromContext(ctx).Debug("failed to fetch alert rule by UID", "error", err)
 			return nil, nil
 		}
 		return nil, fmt.Errorf("failed to fetch alert rule by UID: %w", err)
@@ -604,7 +604,7 @@ func (h *RemoteLokiBackend) getFolderUIDsForRuleFilter(ctx context.Context, quer
 	if err != nil {
 		// Including historical folders is an edge case enhancement, better to just log the error and continue
 		// with the current folder UID.
-		h.log.FromContext(ctx).Debug("failed to include historical folder UIDs for rule", "err", err)
+		h.log.FromContext(ctx).Debug("failed to include historical folder UIDs for rule", "error", err)
 	}
 
 	accessibleFolders := make([]string, 0, len(historicalFolders)+1)
@@ -628,7 +628,7 @@ func (h *RemoteLokiBackend) getFolderUIDsForRuleFilter(ctx context.Context, quer
 		if err != nil {
 			// Including historical folders is an edge case enhancement, better to just log the error and continue
 			// with the current folder UID.
-			h.log.FromContext(ctx).Debug("failed to check access to folder", "err", err, "folderUID", folderUID)
+			h.log.FromContext(ctx).Debug("failed to check access to folder", "error", err, "folderUID", folderUID)
 			continue
 		}
 		if !hasAccess {
