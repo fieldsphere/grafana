@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 	"sync"
@@ -448,7 +449,7 @@ func SetupTestDB() {
 	testSQLStoreMutex.Lock()
 	defer testSQLStoreMutex.Unlock()
 	if testSQLStoreSetup {
-		fmt.Printf("ERROR: Test DB already set up, SetupTestDB called twice\n")
+		slog.Error("Test DB already set up, SetupTestDB called twice")
 		os.Exit(1)
 	}
 	testSQLStoreSetup = true
@@ -458,12 +459,12 @@ func CleanupTestDB() {
 	testSQLStoreMutex.Lock()
 	defer testSQLStoreMutex.Unlock()
 	if !testSQLStoreSetup {
-		fmt.Printf("ERROR: Test DB not set up, SetupTestDB not called\n")
+		slog.Error("Test DB not set up, SetupTestDB not called")
 		os.Exit(1)
 	}
 	if testSQLStore != nil {
 		if err := testSQLStore.GetEngine().Close(); err != nil {
-			fmt.Printf("Failed to close testSQLStore engine: %s\n", err)
+			slog.Error("Failed to close testSQLStore engine", "error", err)
 		}
 
 		for _, cleanup := range testSQLStoreCleanup {

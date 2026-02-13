@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
@@ -99,17 +100,17 @@ func sqLite3TestDB() (*TestDB, error) {
 			// remove db file if it exists
 			err := os.Remove(sqliteDb)
 			if err != nil && !errors.Is(err, fs.ErrNotExist) {
-				fmt.Printf("Error removing sqlite db file %s: %v\n", sqliteDb, err)
+				slog.Error("Error removing sqlite db file", "path", sqliteDb, "error", err)
 			}
 
 			// remove wal & shm files if they exist
 			err = os.Remove(sqliteDb + "-wal")
 			if err != nil && !errors.Is(err, fs.ErrNotExist) {
-				fmt.Printf("Error removing sqlite wal file %s: %v\n", sqliteDb+"-wal", err)
+				slog.Error("Error removing sqlite wal file", "path", sqliteDb+"-wal", "error", err)
 			}
 			err = os.Remove(sqliteDb + "-shm")
 			if err != nil && !errors.Is(err, fs.ErrNotExist) {
-				fmt.Printf("Error removing sqlite shm file %s: %v\n", sqliteDb+"-shm", err)
+				slog.Error("Error removing sqlite shm file", "path", sqliteDb+"-shm", "error", err)
 			}
 		}
 	}
