@@ -82,10 +82,10 @@ func (ss *SqlStore) getDataSource(_ context.Context, query *datasources.GetDataS
 	has, err := sess.Get(datasource)
 
 	if err != nil {
-		ss.logger.Error("Failed getting data source", "error", err, "uid", query.UID, "id", query.ID, "name", query.Name, "orgId", query.OrgID) // nolint:staticcheck
+		ss.logger.Error("Failed getting data source", "error", err, "uid", query.UID, "id", query.ID, "name", query.Name, "orgID", query.OrgID) // nolint:staticcheck
 		return nil, err
 	} else if !has {
-		ss.logger.Debug("Data source not found", "uid", query.UID, "id", query.ID, "name", query.Name, "orgId", query.OrgID) // nolint:staticcheck
+		ss.logger.Debug("Data source not found", "uid", query.UID, "id", query.ID, "name", query.Name, "orgID", query.OrgID) // nolint:staticcheck
 		return nil, datasources.ErrDataSourceNotFound
 	}
 
@@ -117,10 +117,10 @@ func (ss *SqlStore) getDataSourceInGroup(_ context.Context, orgID int64, name, g
 	has, err := sess.Get(datasource)
 
 	if err != nil {
-		ss.logger.Error("Failed getting data source", "error", err, "name", name, "orgId", orgID, "group", group)
+		ss.logger.Error("Failed getting data source", "error", err, "name", name, "orgID", orgID, "group", group)
 		return nil, err
 	} else if !has {
-		ss.logger.Debug("Data source not found", "name", name, "orgId", orgID, "group", group)
+		ss.logger.Debug("Data source not found", "name", name, "orgID", orgID, "group", group)
 		return nil, datasources.ErrDataSourceNotFound
 	}
 
@@ -208,7 +208,7 @@ func (ss *SqlStore) DeleteDataSource(ctx context.Context, cmd *datasources.Delet
 
 		if cmd.UpdateSecretFn != nil {
 			if err := cmd.UpdateSecretFn(); err != nil {
-				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "UID", cmd.UID, "name", cmd.Name, "orgId", cmd.OrgID)
+				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "UID", cmd.UID, "name", cmd.Name, "orgID", cmd.OrgID)
 				return err
 			}
 		}
@@ -433,7 +433,7 @@ func (ss *SqlStore) UpdateDataSource(ctx context.Context, cmd *datasources.Updat
 
 		if cmd.UpdateSecretFn != nil {
 			if err := cmd.UpdateSecretFn(); err != nil {
-				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "UID", cmd.UID, "name", cmd.Name, "type", cmd.Type, "orgId", cmd.OrgID)
+				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "UID", cmd.UID, "name", cmd.Name, "type", cmd.Type, "orgID", cmd.OrgID)
 				return err
 			}
 		}
