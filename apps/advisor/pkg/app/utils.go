@@ -185,7 +185,7 @@ func processCheckRetry(ctx context.Context, log logging.Logger, client resource.
 	}
 	// Set the status
 	err = checks.SetStatus(ctx, client, obj, c.Status)
-	log.Debug("Status set", "check", obj.GetName(), "status.count", c.Status.Report.Count)
+	log.Debug("Status set", "check", obj.GetName(), "statusCount", c.Status.Report.Count)
 	if err != nil {
 		return err
 	}
