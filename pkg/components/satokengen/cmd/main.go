@@ -29,9 +29,9 @@ func main() {
 			os.Exit(1)
 		}
 
-		fmt.Printf("\nGenerated key: %d:\n", i+1)
-		fmt.Println(key.ClientSecret)
-		fmt.Printf("\nGenerated key hash: %d \n", i+1)
-		fmt.Println(key.HashedKey)
+		_, _ = os.Stdout.WriteString(fmt.Sprintf("\nGenerated key: %d:\n", i+1))
+		_, _ = os.Stdout.WriteString(key.ClientSecret + "\n")
+		_, _ = os.Stdout.WriteString(fmt.Sprintf("\nGenerated key hash: %d \n", i+1))
+		_, _ = os.Stdout.WriteString(key.HashedKey + "\n")
 	}
 }
