@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"sort"
+	"strconv"
 
 	diff "github.com/yudai/gojsondiff"
 )
@@ -404,7 +405,8 @@ func (f *JSONFormatter) closeLine() {
 func (f *JSONFormatter) printKey(name string) {
 	if !f.inArray[len(f.inArray)-1] {
 		f.line.key = name
-		fmt.Fprintf(f.line.buffer, `"%s": `, name)
+		f.line.buffer.WriteString(strconv.Quote(name))
+		f.line.buffer.WriteString(": ")
 	}
 }
 
@@ -419,13 +421,13 @@ func (f *JSONFormatter) printValue(value any) {
 	switch value.(type) {
 	case string:
 		f.line.val = value
-		fmt.Fprintf(f.line.buffer, `"%s"`, value)
+		f.line.buffer.WriteString(strconv.Quote(value.(string)))
 	case nil:
 		f.line.val = "null"
 		f.line.buffer.WriteString("null")
 	default:
 		f.line.val = value
-		fmt.Fprintf(f.line.buffer, `%#v`, value)
+		f.line.buffer.WriteString(fmt.Sprintf("%#v", value))
 	}
 }
 
