@@ -522,7 +522,7 @@ func (s *ResourcePermSqlBackend) deleteResourcePermission(ctx context.Context, s
 
 	_, err = sql.DB.GetSqlxSession().Exec(ctx, rawQuery, args...)
 	if err != nil {
-		s.logger.Error("could not delete resource permissions", "scope", scope, "orgID", ns.OrgID, err.Error())
+		s.logger.Error("could not delete resource permissions", "scope", scope, "orgID", ns.OrgID, "error", err)
 		return fmt.Errorf("could not delete resource permission")
 	}
 

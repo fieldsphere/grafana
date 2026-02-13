@@ -347,12 +347,14 @@ func (hs *HTTPServer) trySetEncryptedCookie(ctx *contextmodel.ReqContext, cookie
 }
 
 func (hs *HTTPServer) redirectWithError(c *contextmodel.ReqContext, err error, v ...any) {
-	c.Logger.Warn(err.Error(), v...)
+	args := append([]any{"error", err}, v...)
+	c.Logger.Warn("Login redirect error", args...)
 	c.Redirect(hs.redirectURLWithErrorCookie(c, err))
 }
 
 func (hs *HTTPServer) RedirectResponseWithError(c *contextmodel.ReqContext, err error, v ...any) *response.RedirectResponse {
-	c.Logger.Error(err.Error(), v...)
+	args := append([]any{"error", err}, v...)
+	c.Logger.Error("Login redirect error", args...)
 	location := hs.redirectURLWithErrorCookie(c, err)
 	return response.Redirect(location)
 }
