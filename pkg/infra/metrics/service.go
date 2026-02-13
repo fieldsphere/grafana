@@ -23,11 +23,13 @@ type logWrapper struct {
 }
 
 func (lw *logWrapper) Warn(msg string, args ...any) {
-	lw.logger.Warn(msg, args...)
+	context := append([]any{"graphite_message", msg}, args...)
+	lw.logger.Warn("Graphite bridge event", context...)
 }
 
 func (lw *logWrapper) Error(msg string, args ...any) {
-	lw.logger.Error(msg, args...)
+	context := append([]any{"graphite_message", msg}, args...)
+	lw.logger.Error("Graphite bridge event", context...)
 }
 
 func ProvideService(cfg *setting.Cfg, reg prometheus.Registerer, gatherer prometheus.Gatherer) (*InternalMetricsService, error) {
