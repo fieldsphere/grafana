@@ -764,7 +764,7 @@ func (s *Service) searchUserPermissions(ctx context.Context, orgID int64, search
 
 	key, err := accesscontrol.GetSearchPermissionCacheKey(s.log, &user.SignedInUser{UserID: searchOptions.UserID, OrgID: orgID}, searchOptions)
 	if err != nil {
-		s.log.Warn("failed to create search permission cache key", "err", err)
+		s.log.Warn("failed to create search permission cache key", "error", err)
 	} else {
 		s.cache.Set(key, permissions, cacheTTL)
 	}
@@ -784,7 +784,7 @@ func (s *Service) searchUserPermissionsFromCache(ctx context.Context, orgID int6
 
 	key, err := accesscontrol.GetSearchPermissionCacheKey(s.log, tempUser, searchOptions)
 	if err != nil {
-		s.log.Warn("failed to create search permission cache key", "err", err)
+		s.log.Warn("failed to create search permission cache key", "error", err)
 		return nil, false
 	}
 	permissions, ok := s.cache.Get((key))

@@ -38,7 +38,7 @@ func GetOpenAPIDefinitions(builders []APIGroupBuilder, additionalGetters ...open
 			},
 		)
 		if err != nil {
-			logging.DefaultLogger.Error("error initializing DataQuery apiequality", "err", err)
+			logging.DefaultLogger.Error("error initializing DataQuery apiequality", "error", err)
 		}
 	})
 

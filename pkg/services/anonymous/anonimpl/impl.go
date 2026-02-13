@@ -205,7 +205,7 @@ func (a *AnonDeviceService) Run(ctx context.Context) error {
 		case <-ticker.C:
 			err := a.serverLock.LockAndExecute(ctx, "cleanup old anon devices", time.Hour*10, func(context.Context) {
 				if err := a.anonStore.DeleteDevicesOlderThan(ctx, time.Now().Add(-keepFor)); err != nil {
-					a.log.Error("An error occurred while deleting old anon devices", "err", err)
+					a.log.Error("An error occurred while deleting old anon devices", "error", err)
 				}
 			})
 			if err != nil {
