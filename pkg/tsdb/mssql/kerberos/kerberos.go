@@ -9,8 +9,10 @@ import (
 	"strconv"
 
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
+	"github.com/grafana/grafana/pkg/infra/log"
 )
+
+var kerberosLog = log.New("tsdb.mssql.kerberos")
 
 type KerberosLookup struct {
 	User                    string `json:"user"`
@@ -70,7 +72,7 @@ func Krb5ParseAuthCredentials(host string, port string, db string, user string, 
 	if krb5CCLookupFile != "" {
 		krb5CacheCredsFile = getCredentialCacheFromLookup(krb5CCLookupFile, host, port, db, user)
 		if krb5CacheCredsFile == "" {
-			logger.Error("No valid credential cache file found in lookup.")
+			kerberosLog.Error("No valid credential cache file found in lookup")
 			return ""
 		}
 	}
@@ -88,7 +90,7 @@ func Krb5ParseAuthCredentials(host string, port string, db string, user string, 
 	} else if kerberosAuth.KeytabFilePath == "" {
 		krb5DriverParams += fmt.Sprintf("server=%s;database=%s;user id=%s;password=%s;", host, db, user, pass)
 	} else {
-		logger.Error("invalid kerberos configuration")
+		kerberosLog.Error("Invalid Kerberos configuration")
 		return ""
 	}
 
@@ -104,16 +106,16 @@ func Krb5ParseAuthCredentials(host string, port string, db string, user string, 
 }
 
 func getCredentialCacheFromLookup(lookupFile string, host string, port string, dbName string, user string) string {
-	logger.Info("Reading credential cache lookup", "lookupFile", lookupFile)
+	kerberosLog.Info("Reading credential cache lookup", "lookupFile", lookupFile)
 	content, err := os.ReadFile(filepath.Clean(lookupFile))
 	if err != nil {
-		logger.Error("Failed to read credential cache lookup file", "lookupFile", lookupFile, "error", err)
+		kerberosLog.Error("Failed to read credential cache lookup file", "lookupFile", lookupFile, "error", err)
 		return ""
 	}
 	var lookups []KerberosLookup
 	err = json.Unmarshal(content, &lookups)
 	if err != nil {
-		logger.Error("Failed to parse credential cache lookup file", "lookupFile", lookupFile, "error", err)
+		kerberosLog.Error("Failed to parse credential cache lookup file", "lookupFile", lookupFile, "error", err)
 		return ""
 	}
 	// find cache file
@@ -122,7 +124,7 @@ func getCredentialCacheFromLookup(lookupFile string, host string, port string, d
 			item.Address = host + ":0"
 		}
 		if item.Address == host+":"+port && item.DBName == dbName && item.User == user {
-			logger.Info("Matched credential cache lookup entry",
+			kerberosLog.Info("Matched credential cache lookup entry",
 				"address", item.Address,
 				"database", item.DBName,
 				"user", item.User,
@@ -130,6 +132,6 @@ func getCredentialCacheFromLookup(lookupFile string, host string, port string, d
 			return item.CredentialCacheFilename
 		}
 	}
-	logger.Error("No credential cache lookup match found", "address", host+":"+port, "database", dbName, "user", user)
+	kerberosLog.Error("No credential cache lookup match found", "address", host+":"+port, "database", dbName, "user", user)
 	return ""
 }
