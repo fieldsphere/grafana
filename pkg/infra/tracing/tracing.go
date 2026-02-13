@@ -315,7 +315,7 @@ func (ots *TracingService) starting(ctx context.Context) error {
 	otel.SetErrorHandler(otel.ErrorHandlerFunc(func(err error) {
 		err = level.Error(ots.log).Log("msg", "OpenTelemetry handler returned an error", "error", err)
 		if err != nil {
-			ots.log.Error("OpenTelemetry log returning error", err)
+			ots.log.Error("OpenTelemetry log returning error", "error", err)
 		}
 	}))
 	return nil

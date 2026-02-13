@@ -317,7 +317,7 @@ func (hs *HTTPServer) searchOrgUsersHelper(c *contextmodel.ReqContext, query *or
 	})
 
 	if err != nil {
-		hs.log.Warn("failed to retrieve users IDP label", err)
+		hs.log.Warn("failed to retrieve users IDP label", "error", err)
 	}
 
 	// Get accesscontrol metadata and IPD labels for users in the target org

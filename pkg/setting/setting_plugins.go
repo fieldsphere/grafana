@@ -61,7 +61,7 @@ func (cfg *Cfg) migrateInstallPluginsToPreinstallPluginsSync(rawInstallPlugins, 
 		matches := pluginRegex.FindStringSubmatch(trimmedEntry)
 
 		if matches == nil {
-			cfg.Logger.Debug("No match found for entry: ", trimmedEntry)
+			cfg.Logger.Debug("No match found for plugin install entry", "entry", trimmedEntry)
 			continue
 		}
 
