@@ -26,7 +26,7 @@ func (b *QueryAPIBuilder) GetSQLSchemas(w http.ResponseWriter, r *http.Request) 
 
 	ctx = request.WithNamespace(ctx, ns)
 	traceID := span.SpanContext().TraceID()
-	connectLogger := b.log.New("traceID", traceID.String(), "rule_uid", r.Header.Get("X-Rule-Uid"))
+	connectLogger := b.log.New("traceID", traceID.String(), "ruleUID", r.Header.Get("X-Rule-Uid"))
 
 	raw := &query.QueryDataRequest{}
 	err := web.Bind(r, raw)
