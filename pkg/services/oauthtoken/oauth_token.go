@@ -468,13 +468,13 @@ func (o *Service) tryGetOrRefreshOAuthToken(ctx context.Context, persistedToken 
 			ctxLogger.Debug("Oauth got token",
 				"authModule", usr.GetAuthenticatedBy(),
 				"expiry", fmt.Sprintf("%v", token.Expiry),
-				"access_token", fmt.Sprintf("%v", token.AccessToken),
-				"refresh_token", fmt.Sprintf("%v", token.RefreshToken),
+				"accessToken", fmt.Sprintf("%v", token.AccessToken),
+				"refreshToken", fmt.Sprintf("%v", token.RefreshToken),
 			)
 		}
 
 		if token.RefreshToken == "" {
-			ctxLogger.Warn("Refresh token is missing after token refresh", "authmodule", tokenRefreshMetadata.AuthModule)
+			ctxLogger.Warn("Refresh token is missing after token refresh", "authModule", tokenRefreshMetadata.AuthModule)
 		}
 
 		//nolint:staticcheck // not yet migrated to OpenFeature

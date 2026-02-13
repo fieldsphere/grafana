@@ -105,15 +105,15 @@ func (p *resourceDBProvider) Init(ctx context.Context) (db.DB, error) {
 
 func (p *resourceDBProvider) initDB(ctx context.Context) (db.DB, error) {
 	p.log.Info("Initializing Resource DB",
-		"db_type",
+		"dbType",
 		p.engine.Dialect().DriverName(),
-		"open_conn",
+		"openConn",
 		p.engine.DB().DB.Stats().OpenConnections,
-		"in_use_conn",
+		"inUseConn",
 		p.engine.DB().DB.Stats().InUse,
-		"idle_conn",
+		"idleConn",
 		p.engine.DB().DB.Stats().Idle,
-		"max_open_conn",
+		"maxOpenConn",
 		p.engine.DB().DB.Stats().MaxOpenConnections,
 	)
 

@@ -131,9 +131,9 @@ func (n *pollingNotifier) Watch(ctx context.Context, opts watchOptions) <-chan E
 
 	n.log.Info("creating new notifier",
 		"lookback", opts.LookbackPeriod,
-		"buffer_size", opts.BufferSize,
-		"min_backoff", opts.MinBackoff,
-		"max_backoff", opts.MaxBackoff,
+		"bufferSize", opts.BufferSize,
+		"minBackoff", opts.MinBackoff,
+		"maxBackoff", opts.MaxBackoff,
 	)
 
 	cacheTTL := opts.LookbackPeriod
