@@ -76,14 +76,12 @@ func (m *adminOnlyMigrator) Exec(sess *xorm.Session, mg *migrator.Migrator) erro
 			continue
 		}
 
-		msg := "removing viewer and editor permissions on "
+		resourceType := "dashboard"
 		if model.IsFolder {
-			msg += "folder"
-		} else {
-			msg += "dashboard"
+			resourceType = "folder"
 		}
 
-		logger.Info(msg, "uid", model.UID)
+		logger.Info("Removing viewer and editor permissions", "resourceType", resourceType, "uid", model.UID)
 
 		// Remove managed permission for editors and viewers if there was any
 		removeSQL := `DELETE FROM permission WHERE scope = ? AND role_id IN(?` + strings.Repeat(", ?", len(roleIDS)-1) + `) `
