@@ -21,14 +21,14 @@ type Module struct {
 }
 
 type linePrinter interface {
-	Println(v ...any)
+	WriteLine(v ...any)
 }
 
 type stdioPrinter struct {
 	out io.Writer
 }
 
-func (p stdioPrinter) Println(v ...any) {
+func (p stdioPrinter) WriteLine(v ...any) {
 	_, _ = io.WriteString(p.out, fmt.Sprintln(v...))
 }
 
@@ -91,7 +91,7 @@ func check(fileSystem fs.FS, emit linePrinter, args []string) error {
 	fail := false
 	for _, mod := range m {
 		if !mod.Indirect && len(mod.Owners) == 0 {
-			emit.Println(mod.Name)
+			emit.WriteLine(mod.Name)
 			fail = true
 		}
 	}
@@ -118,7 +118,7 @@ func owners(fileSystem fs.FS, emit linePrinter, args []string) error {
 	for _, mod := range m {
 		if len(*dep) > 0 && mod.Name == *dep {
 			for _, owner := range mod.Owners {
-				emit.Println(owner)
+				emit.WriteLine(owner)
 				break
 			}
 		}
@@ -131,9 +131,9 @@ func owners(fileSystem fs.FS, emit linePrinter, args []string) error {
 	if *allOwners {
 		for owner, n := range owners {
 			if *count {
-				emit.Println(owner, n)
+				emit.WriteLine(owner, n)
 			} else {
-				emit.Println(owner)
+				emit.WriteLine(owner)
 			}
 		}
 	}
@@ -156,7 +156,7 @@ func modules(fileSystem fs.FS, emit linePrinter, args []string) error {
 	for _, mod := range m {
 		if len(*owner) == 0 || hasCommonElement(mod.Owners, ownerFlags) {
 			if *indirect || !mod.Indirect {
-				emit.Println(mod.Name)
+				emit.WriteLine(mod.Name)
 			}
 		}
 	}

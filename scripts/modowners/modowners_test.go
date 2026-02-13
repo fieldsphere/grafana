@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"log"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -52,9 +51,9 @@ func TestCheck(t *testing.T) {
 		`, []string{"go.mod"}, false, "cloud.google.com/go/storage@v1.28.1\n"},
 	} {
 		buf := &bytes.Buffer{}
-		logger := log.New(buf, "", 0)
+		printer := stdioPrinter{out: buf}
 		filesystem := fstest.MapFS{test.fileName: &fstest.MapFile{Data: []byte(test.contents)}}
-		err := check(filesystem, logger, test.args)
+		err := check(filesystem, printer, test.args)
 		if test.valid && err != nil {
 			t.Error(test.description, err)
 		} else if !test.valid && err == nil {
@@ -68,7 +67,7 @@ func TestCheck(t *testing.T) {
 
 func TestModules(t *testing.T) {
 	buf := &bytes.Buffer{}
-	logger := log.New(buf, "", 0)
+	printer := stdioPrinter{out: buf}
 	filesystem := fstest.MapFS{"go.mod": &fstest.MapFile{Data: []byte(`
 	require (
 		cloud.google.com/go/storage v1.28.1
@@ -78,7 +77,7 @@ func TestModules(t *testing.T) {
 	)
 	`)}}
 
-	err := modules(filesystem, logger, []string{"go.mod"})
+	err := modules(filesystem, printer, []string{"go.mod"})
 	if err != nil {
 		t.Error(err, buf.String())
 	}
