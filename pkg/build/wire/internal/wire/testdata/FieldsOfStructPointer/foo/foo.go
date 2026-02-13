@@ -14,7 +14,7 @@
 
 package main
 
-import "fmt"
+import "os"
 
 type S struct {
 	Foo string
@@ -25,6 +25,6 @@ func provideS() *S {
 }
 
 func main() {
-	fmt.Println(injectedMessage())
-	fmt.Println("pointer to " + *injectedMessagePtr())
+	_, _ = os.Stdout.WriteString(injectedMessage() + "\n")
+	_, _ = os.Stdout.WriteString("pointer to " + *injectedMessagePtr() + "\n")
 }
