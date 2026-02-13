@@ -789,9 +789,9 @@ func (session *Session) saveLastSQL(sql string, args ...any) {
 func (session *Session) logSQL(sqlStr string, sqlArgs ...any) {
 	if session.showSQL && !session.engine.showExecTime {
 		if len(sqlArgs) > 0 {
-			session.engine.logger.Infof("[SQL] %v %#v", sqlStr, sqlArgs)
+			session.engine.logger.Info("XORM SQL statement", "sql", sqlStr, "args", sqlArgs)
 		} else {
-			session.engine.logger.Infof("[SQL] %v", sqlStr)
+			session.engine.logger.Info("XORM SQL statement", "sql", sqlStr)
 		}
 	}
 }
