@@ -98,7 +98,7 @@ func (h *K8sClientWithFallback) Get(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("dashboard.metadata.name", name),
+		attribute.String("dashboardMetadataName", name),
 		attribute.Int64("orgID", orgID),
 		attribute.Bool("fallback", false),
 	)
@@ -120,8 +120,8 @@ func (h *K8sClientWithFallback) Get(
 
 	span.SetAttributes(
 		attribute.Bool("fallback", true),
-		attribute.String("fallback.storedVersion", storedVersion),
-		attribute.String("fallback.conversionError", conversionErr),
+		attribute.String("fallbackStoredVersion", storedVersion),
+		attribute.String("fallbackConversionError", conversionErr),
 	)
 
 	span.AddEvent(fmt.Sprintf("%s Get", storedVersion))
@@ -222,7 +222,7 @@ func (h *K8sClientWithFallback) Update(
 
 	span.SetAttributes(
 		attribute.String("version", version),
-		attribute.String("dashboard.metadata.name", obj.GetName()),
+		attribute.String("dashboardMetadataName", obj.GetName()),
 		attribute.Int64("orgID", orgID),
 	)
 

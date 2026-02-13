@@ -144,7 +144,7 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 							if response.ErrorSource == backend.ErrorSourceDownstream {
 								*statusCode = http.StatusBadRequest //force this to be a 400 since it's downstream
 								span.SetStatus(codes.Error, strconv.Itoa(*statusCode))
-								span.SetAttributes(attribute.String("error.source", "downstream"))
+								span.SetAttributes(attribute.String("errorSource", "downstream"))
 								break
 							} else if response.Error != nil {
 								connectLogger.Debug("500 error without downstream error source", "error", response.Error, "errorSource", response.ErrorSource, "refID", refId)
