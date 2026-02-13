@@ -20,6 +20,13 @@ type grafanaInfraLogWrapper struct {
 	l *log.ConcreteLogger
 }
 
+func wrapPluginInfraLogArgs(msg, level string, ctx ...any) []any {
+	fields := make([]any, 0, len(ctx)+4)
+	fields = append(fields, "plugin_message", msg, "plugin_log_level", level)
+	fields = append(fields, ctx...)
+	return fields
+}
+
 func (d *grafanaInfraLogWrapper) New(ctx ...any) pluginslog.Logger {
 	if len(ctx) == 0 {
 		return &grafanaInfraLogWrapper{
@@ -33,19 +40,19 @@ func (d *grafanaInfraLogWrapper) New(ctx ...any) pluginslog.Logger {
 }
 
 func (d *grafanaInfraLogWrapper) Debug(msg string, ctx ...any) {
-	d.l.Debug(msg, ctx...)
+	d.l.Debug("Plugins infrastructure log entry", wrapPluginInfraLogArgs(msg, "debug", ctx...)...)
 }
 
 func (d *grafanaInfraLogWrapper) Info(msg string, ctx ...any) {
-	d.l.Info(msg, ctx...)
+	d.l.Info("Plugins infrastructure log entry", wrapPluginInfraLogArgs(msg, "info", ctx...)...)
 }
 
 func (d *grafanaInfraLogWrapper) Warn(msg string, ctx ...any) {
-	d.l.Warn(msg, ctx...)
+	d.l.Warn("Plugins infrastructure log entry", wrapPluginInfraLogArgs(msg, "warn", ctx...)...)
 }
 
 func (d *grafanaInfraLogWrapper) Error(msg string, ctx ...any) {
-	d.l.Error(msg, ctx...)
+	d.l.Error("Plugins infrastructure log entry", wrapPluginInfraLogArgs(msg, "error", ctx...)...)
 }
 
 func (d *grafanaInfraLogWrapper) FromContext(ctx context.Context) pluginslog.Logger {
