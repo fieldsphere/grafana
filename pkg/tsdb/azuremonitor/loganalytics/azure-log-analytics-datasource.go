@@ -266,7 +266,7 @@ func (e *AzureLogAnalyticsDatasource) GetBasicLogsUsage(ctx context.Context, url
 	if err != nil {
 		return rw, err
 	}
-	_, err = fmt.Fprintf(rw, "%f", value)
+	_, err = rw.Write([]byte(strconv.FormatFloat(value, 'f', 6, 64)))
 	if err != nil {
 		return rw, err
 	}
