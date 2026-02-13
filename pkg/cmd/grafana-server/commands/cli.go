@@ -48,15 +48,15 @@ func ServerCommand(version, commit, enterpriseCommit, buildBranch, buildstamp st
 func RunServer(opts standalone.BuildInfo, cli *cli.Context) error {
 	if Version || VerboseVersion {
 		if opts.EnterpriseCommit != gcli.DefaultCommitValue && opts.EnterpriseCommit != "" {
-			_, _ = fmt.Fprintf(os.Stdout, "Version %s (commit: %s, branch: %s, enterprise-commit: %s)\n", opts.Version, opts.Commit, opts.BuildBranch, opts.EnterpriseCommit)
+			_, _ = os.Stdout.WriteString(fmt.Sprintf("Version %s (commit: %s, branch: %s, enterprise-commit: %s)\n", opts.Version, opts.Commit, opts.BuildBranch, opts.EnterpriseCommit))
 		} else {
-			_, _ = fmt.Fprintf(os.Stdout, "Version %s (commit: %s, branch: %s)\n", opts.Version, opts.Commit, opts.BuildBranch)
+			_, _ = os.Stdout.WriteString(fmt.Sprintf("Version %s (commit: %s, branch: %s)\n", opts.Version, opts.Commit, opts.BuildBranch))
 		}
 		if VerboseVersion {
-			_, _ = fmt.Fprintln(os.Stdout, "Dependencies:")
+			_, _ = os.Stdout.WriteString("Dependencies:\n")
 			if info, ok := debug.ReadBuildInfo(); ok {
 				for _, dep := range info.Deps {
-					_, _ = fmt.Fprintln(os.Stdout, dep.Path, dep.Version)
+					_, _ = os.Stdout.WriteString(dep.Path + " " + dep.Version + "\n")
 				}
 			}
 		}
