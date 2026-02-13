@@ -53,7 +53,7 @@ func (s *Service) startBundleWork(ctx context.Context, collectors []string, uid 
 		return
 	case r := <-result:
 		if r.err != nil {
-			s.log.Error("Failed to make bundle", "error", r.err, "uid", uid)
+			s.log.Error("Failed to make bundle", "error", r.err, "bundleUID", uid)
 			if err := s.store.Update(ctx, uid, supportbundles.StateError, nil); err != nil {
 				s.log.Error("Failed to update bundle after error")
 			}

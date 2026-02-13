@@ -49,11 +49,11 @@ func (prov *defaultAlertRuleProvisioner) Provision(ctx context.Context,
 
 			folderUID, err := prov.getOrCreateFolderFullpath(ctx, group.FolderFullpath, group.OrgID)
 			if err != nil {
-				prov.logger.Error("failed to get or create folder", "folder", group.FolderFullpath, "org", group.OrgID, "error", err)
+				prov.logger.Error("failed to get or create folder", "folder", group.FolderFullpath, "orgID", group.OrgID, "error", err)
 				return err
 			}
 			prov.logger.Debug("provisioning alert rule group",
-				"org", group.OrgID,
+				"orgID", group.OrgID,
 				"folder", group.FolderFullpath,
 				"folderUID", folderUID,
 				"name", group.Title)
@@ -84,17 +84,17 @@ func (prov *defaultAlertRuleProvisioner) provisionRule(
 	ctx context.Context,
 	user identity.Requester,
 	rule alert_models.AlertRule) error {
-	prov.logger.Debug("provisioning alert rule", "uid", rule.UID, "org", rule.OrgID)
+	prov.logger.Debug("provisioning alert rule", "ruleUID", rule.UID, "orgID", rule.OrgID)
 	_, _, err := prov.ruleService.GetAlertRule(ctx, user, rule.UID)
 	if err != nil && !errors.Is(err, alert_models.ErrAlertRuleNotFound) {
 		return err
 	} else if err != nil {
-		prov.logger.Debug("creating rule", "uid", rule.UID, "org", rule.OrgID)
+		prov.logger.Debug("creating rule", "ruleUID", rule.UID, "orgID", rule.OrgID)
 		// a nil user is passed in as then the quota logic will only check for
 		// the organization quota since we don't have any user scope here.
 		_, err = prov.ruleService.CreateAlertRule(ctx, user, rule, alert_models.ProvenanceFile)
 	} else {
-		prov.logger.Debug("updating rule", "uid", rule.UID, "org", rule.OrgID)
+		prov.logger.Debug("updating rule", "ruleUID", rule.UID, "orgID", rule.OrgID)
 		_, err = prov.ruleService.UpdateAlertRule(ctx, user, rule, alert_models.ProvenanceFile)
 	}
 	return err
@@ -111,7 +111,7 @@ func (prov *defaultAlertRuleProvisioner) getOrCreateFolderFullpath(
 	for i := range folderTitles {
 		uid, err := prov.getOrCreateFolderByTitle(ctx, folderTitles[i], orgID, folderUID)
 		if err != nil {
-			prov.logger.Error("failed to get or create folder", "folder", folderTitles[i], "org", orgID, "error", err)
+			prov.logger.Error("failed to get or create folder", "folder", folderTitles[i], "orgID", orgID, "error", err)
 			return "", err
 		}
 		folderUID = &uid

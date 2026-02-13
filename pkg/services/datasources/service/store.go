@@ -82,10 +82,10 @@ func (ss *SqlStore) getDataSource(_ context.Context, query *datasources.GetDataS
 	has, err := sess.Get(datasource)
 
 	if err != nil {
-		ss.logger.Error("Failed getting data source", "error", err, "uid", query.UID, "id", query.ID, "name", query.Name, "orgID", query.OrgID) // nolint:staticcheck
+		ss.logger.Error("Failed getting data source", "error", err, "datasourceUID", query.UID, "datasourceID", query.ID, "name", query.Name, "orgID", query.OrgID) // nolint:staticcheck
 		return nil, err
 	} else if !has {
-		ss.logger.Debug("Data source not found", "uid", query.UID, "id", query.ID, "name", query.Name, "orgID", query.OrgID) // nolint:staticcheck
+		ss.logger.Debug("Data source not found", "datasourceUID", query.UID, "datasourceID", query.ID, "name", query.Name, "orgID", query.OrgID) // nolint:staticcheck
 		return nil, datasources.ErrDataSourceNotFound
 	}
 
@@ -465,6 +465,6 @@ func logDeprecatedInvalidDsUid(logger log.Logger, uid string, name string, actio
 	logger.Warn(
 		"Invalid datasource uid. A valid uid is a combination of a-z, A-Z, 0-9 (alphanumeric), - (dash) and _ "+
 			"(underscore) characters, maximum length 40. Invalid characters will be replaced by dashes.",
-		"uid", uid, "action", action, "name", name, "error", err,
+		"datasourceUID", uid, "action", action, "name", name, "error", err,
 	)
 }

@@ -75,7 +75,7 @@ func (hs *HTTPServer) redirectFromShortURL(c *contextmodel.ReqContext) {
 		// main page, otherwise we get into an endless loops of redirects, as
 		// we would try to redirect again.
 		if shorturls.ErrShortURLNotFound.Is(err) {
-			hs.log.Debug("Not redirecting short URL since not found", "uid", shortURLUID)
+			hs.log.Debug("Not redirecting short URL since not found", "shortURLUID", shortURLUID)
 			c.Redirect(hs.Cfg.AppURL, http.StatusPermanentRedirect)
 			return
 		}
@@ -139,7 +139,7 @@ func (sk8s *shortURLK8sHandler) getKubernetesShortURLsHandler(c *contextmodel.Re
 		return
 	}
 
-	c.Logger.Debug("Fetching short URL", "uid", shortURLUID)
+	c.Logger.Debug("Fetching short URL", "shortURLUID", shortURLUID)
 	out, err := client.Get(c.Req.Context(), shortURLUID, v1.GetOptions{})
 	if err != nil {
 		sk8s.writeError(c, err)
@@ -152,7 +152,7 @@ func (sk8s *shortURLK8sHandler) getKubernetesShortURLsHandler(c *contextmodel.Re
 func (sk8s *shortURLK8sHandler) getKubernetesRedirectFromShortURL(c *contextmodel.ReqContext) {
 	uid := web.Params(c.Req)[":uid"]
 	if !util.IsValidShortUID(uid) {
-		c.Logger.Warn("Invalid short URL UID format", "uid", uid)
+		c.Logger.Warn("Invalid short URL UID format", "shortURLUID", uid)
 		c.Redirect(sk8s.cfg.AppURL, http.StatusFound)
 		return
 	}
@@ -221,7 +221,7 @@ func (sk8s *shortURLK8sHandler) createKubernetesShortURLsHandler(c *contextmodel
 		return
 	}
 
-	c.Logger.Info("Successfully created short URL", "path", cmd.Path, "uid", out.GetName())
+	c.Logger.Info("Successfully created short URL", "path", cmd.Path, "shortURLUID", out.GetName())
 	c.JSON(http.StatusOK, shorturl.UnstructuredToLegacyShortURLDTO(*out, sk8s.cfg.AppURL))
 }
 

@@ -96,7 +96,7 @@ func (c *duplicateValidator) logWarnings(duplicatesByOrg map[int64]duplicateEntr
 	for orgID, duplicates := range duplicatesByOrg {
 		for uid, usage := range duplicates.UIDs {
 			if usage.Sum > 1 {
-				c.logger.Warn("the same UID is used more than once", "orgID", orgID, "uid", uid, "times", usage.Sum, "providers",
+				c.logger.Warn("the same UID is used more than once", "orgID", orgID, "dashboardUID", uid, "times", usage.Sum, "providers",
 					keysToSlice(usage.InvolvedReaders))
 			}
 		}
