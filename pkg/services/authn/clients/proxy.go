@@ -166,7 +166,7 @@ func (c *Proxy) Hook(ctx context.Context, id *authn.Identity, r *authn.Request) 
 
 	internalId, err := id.GetInternalID()
 	if err != nil {
-		c.log.Warn("Failed to cache proxy user", "error", err, "userId", id.GetID())
+		c.log.Warn("Failed to cache proxy user", "error", err, "userID", id.GetID())
 		return nil
 	}
 
@@ -186,11 +186,11 @@ func (c *Proxy) Hook(ctx context.Context, id *authn.Identity, r *authn.Request) 
 		}
 	}
 
-	c.log.FromContext(ctx).Debug("Cache proxy user", "userId", internalId)
+	c.log.FromContext(ctx).Debug("Cache proxy user", "userID", internalId)
 	bytes := []byte(strconv.FormatInt(internalId, 10))
 	duration := time.Duration(c.cfg.AuthProxy.SyncTTL) * time.Minute
 	if err := c.cache.Set(ctx, id.ClientParams.CacheAuthProxyKey, bytes, duration); err != nil {
-		c.log.Warn("Failed to cache proxy user", "error", err, "userId", internalId)
+		c.log.Warn("Failed to cache proxy user", "error", err, "userID", internalId)
 	}
 
 	// store current cacheKey for the user

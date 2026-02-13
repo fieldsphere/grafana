@@ -336,7 +336,7 @@ func (fr *FileReader) saveDashboard(ctx context.Context, path string, folderID i
 	if upToDate {
 		metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Provisioning).Inc()
 		// nolint:staticcheck
-		fr.log.Debug("provisioned dashboard is up to date", "provisioner", fr.Cfg.Name, "file", path, "folderId", dash.Dashboard.FolderID, "folderUid", dash.Dashboard.FolderUID)
+		fr.log.Debug("provisioned dashboard is up to date", "provisioner", fr.Cfg.Name, "file", path, "folderID", dash.Dashboard.FolderID, "folderUID", dash.Dashboard.FolderUID)
 		return provisioningMetadata, nil
 	}
 
@@ -352,7 +352,7 @@ func (fr *FileReader) saveDashboard(ctx context.Context, path string, folderID i
 	if !fr.isDatabaseAccessRestricted() {
 		metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Provisioning).Inc()
 		// nolint:staticcheck
-		fr.log.Debug("saving new dashboard", "provisioner", fr.Cfg.Name, "file", path, "folderId", dash.Dashboard.FolderID, "folderUid", dash.Dashboard.FolderUID)
+		fr.log.Debug("saving new dashboard", "provisioner", fr.Cfg.Name, "file", path, "folderID", dash.Dashboard.FolderID, "folderUID", dash.Dashboard.FolderUID)
 		dp := &dashboards.DashboardProvisioning{
 			ExternalID: path,
 			Name:       fr.Cfg.Name,
@@ -369,7 +369,7 @@ func (fr *FileReader) saveDashboard(ctx context.Context, path string, folderID i
 		metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Provisioning).Inc()
 		// nolint:staticcheck
 		fr.log.Warn("Not saving new dashboard due to restricted database access", "provisioner", fr.Cfg.Name,
-			"file", path, "folderId", dash.Dashboard.FolderID)
+			"file", path, "folderID", dash.Dashboard.FolderID)
 	}
 
 	return provisioningMetadata, nil

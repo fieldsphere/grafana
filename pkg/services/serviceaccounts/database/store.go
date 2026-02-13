@@ -460,7 +460,7 @@ func (s *ServiceAccountsStoreImpl) MigrateApiKeysToServiceAccounts(ctx context.C
 				migrationResult.FailedApikeyIDs = append(migrationResult.FailedApikeyIDs, key.ID)
 			} else {
 				migrationResult.Migrated++
-				s.log.Debug("API key converted to service account token", "keyId", key.ID)
+				s.log.Debug("API key converted to service account token", "keyID", key.ID)
 			}
 		}
 	}

@@ -113,7 +113,7 @@ func (s *OAuthTokenSync) SyncOauthTokenHook(ctx context.Context, id *authn.Ident
 
 			// log the user out
 			if err := s.sessionService.RevokeToken(ctx, id.SessionToken, false); err != nil && !errors.Is(err, auth.ErrUserTokenNotFound) {
-				ctxLogger.Warn("Failed to revoke session token", "id", id.ID, "tokenId", id.SessionToken.Id, "error", err)
+				ctxLogger.Warn("Failed to revoke session token", "id", id.ID, "tokenID", id.SessionToken.Id, "error", err)
 			}
 
 			s.cache.Delete(cacheKey)

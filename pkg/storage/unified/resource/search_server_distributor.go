@@ -281,7 +281,7 @@ func (ds *distributorServer) getClientToDistributeRequest(ctx context.Context, n
 	inst := rs.Instances[rand.Intn(len(rs.Instances))]
 	client, err := ds.clientPool.GetClientForInstance(inst)
 	if err != nil {
-		ds.log.Debug("error getting instance client from pool", "error", err, "namespace", namespace, "searchApiInstanceId", inst.Id)
+		ds.log.Debug("error getting instance client from pool", "error", err, "namespace", namespace, "searchAPIInstanceID", inst.Id)
 		return ctx, nil, err
 	}
 
