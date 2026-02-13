@@ -49,7 +49,18 @@ func (l *ZanzanaLogger) With(fields ...zapcore.Field) logger.Logger {
 
 func (l *ZanzanaLogger) emit(level string, msg string, fields ...zap.Field) {
 	args := append(zapFieldsToArgs(fields), "zanzana_message", msg, "zanzana_level", level)
-	l.logger.Info("Zanzana logger event", args...)
+	switch level {
+	case "debug":
+		l.logger.Debug("Zanzana logger event", args...)
+	case "info":
+		l.logger.Info("Zanzana logger event", args...)
+	case "warn":
+		l.logger.Warn("Zanzana logger event", args...)
+	case "error", "panic", "fatal":
+		l.logger.Error("Zanzana logger event", args...)
+	default:
+		l.logger.Info("Zanzana logger event", args...)
+	}
 }
 
 func (l *ZanzanaLogger) Debug(msg string, fields ...zap.Field) {
