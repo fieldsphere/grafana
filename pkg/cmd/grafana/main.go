@@ -2,9 +2,9 @@ package main
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 
-	"github.com/fatih/color"
 	"github.com/urfave/cli/v2"
 
 	gcli "github.com/grafana/grafana/pkg/cmd/grafana-cli/commands"
@@ -25,7 +25,7 @@ func main() {
 	app := MainApp()
 
 	if err := app.Run(os.Args); err != nil {
-		fmt.Printf("%s: %s %s\n", color.RedString("Error"), color.RedString("✗"), err)
+		slog.Error("Grafana command failed", "error", err)
 		os.Exit(1)
 	}
 
@@ -74,12 +74,9 @@ func MainApp() *cli.App {
 }
 
 func cmdNotFound(c *cli.Context, command string) {
-	fmt.Printf(
-		"%s: '%s' is not a %s command. See '%s --help'.\n",
-		c.App.Name,
-		command,
-		c.App.Name,
-		os.Args[0],
-	)
+	slog.Error("Unknown command",
+		"app", c.App.Name,
+		"command", command,
+		"help", fmt.Sprintf("%s --help", os.Args[0]))
 	os.Exit(1)
 }

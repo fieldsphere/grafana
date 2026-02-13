@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"errors"
-	"fmt"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -15,15 +15,21 @@ import (
 func RunGrafanaCmd(subCmd string) int {
 	curr, err := os.Executable()
 	if err != nil {
-		fmt.Println("Error locating executable:", err)
+		slog.Error("Error locating executable", "error", err)
 		return 1
 	}
 
 	switch filepath.Base(curr) {
 	case "grafana-server":
-		fmt.Printf("%s: %s\n", color.RedString("Deprecation warning"), "The standalone 'grafana-server' program is deprecated and will be removed in the future. Please update all uses of 'grafana-server' to 'grafana server'")
+		slog.Warn("Deprecation warning",
+			"binary", "grafana-server",
+			"message", "The standalone 'grafana-server' program is deprecated and will be removed in the future. Please update all uses of 'grafana-server' to 'grafana server'",
+			"prefix", color.RedString("Deprecation warning"))
 	case "grafana-cli":
-		fmt.Printf("%s: %s\n", color.RedString("Deprecation warning"), "The standalone 'grafana-cli' program is deprecated and will be removed in the future. Please update all uses of 'grafana-cli' to 'grafana cli'")
+		slog.Warn("Deprecation warning",
+			"binary", "grafana-cli",
+			"message", "The standalone 'grafana-cli' program is deprecated and will be removed in the future. Please update all uses of 'grafana-cli' to 'grafana cli'",
+			"prefix", color.RedString("Deprecation warning"))
 	}
 
 	executable := "grafana"
@@ -35,7 +41,7 @@ func RunGrafanaCmd(subCmd string) int {
 	if _, err := os.Stat(binary); err != nil {
 		binary, err = exec.LookPath(executable)
 		if err != nil {
-			fmt.Printf("Error locating %s: %s\n", executable, err)
+			slog.Error("Error locating executable", "executable", executable, "error", err)
 			return 1
 		}
 	}
@@ -66,7 +72,7 @@ func RunGrafanaCmd(subCmd string) int {
 	// nolint:gosec
 	execErr := syscall.Exec(binary, args, os.Environ())
 	if execErr != nil {
-		fmt.Printf("Error running %s: %s\n", binary, execErr)
+		slog.Error("Error running executable", "binary", binary, "error", execErr)
 		return 1
 	}
 
