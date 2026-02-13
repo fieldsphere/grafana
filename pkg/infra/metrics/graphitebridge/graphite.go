@@ -114,11 +114,10 @@ type Bridge struct {
 	lastValue map[model.Fingerprint]float64
 }
 
-// Logger is the minimal interface Bridge needs for logging. Note that
-// log.Logger from the standard library implements this interface, and it is
-// easy to implement by custom loggers, if they don't do so already anyway.
+// Logger is the minimal interface Bridge needs for structured logging.
 type Logger interface {
-	Println(v ...any)
+	Warn(msg string, args ...any)
+	Error(msg string, args ...any)
 }
 
 // NewBridge returns a pointer to a new Bridge struct.
@@ -173,7 +172,7 @@ func (b *Bridge) Run(ctx context.Context) {
 		select {
 		case <-ticker.C:
 			if err := b.Push(); err != nil && b.logger != nil {
-				b.logger.Println("error pushing to Graphite:", err)
+				b.logger.Error("Error pushing metrics to Graphite", "error", err)
 			}
 		case <-ctx.Done():
 			return
@@ -190,7 +189,7 @@ func (b *Bridge) Push() error {
 			return err
 		case ContinueOnError:
 			if b.logger != nil {
-				b.logger.Println("continue on error:", err)
+				b.logger.Warn("Continue on Graphite gather error", "error", err)
 			}
 		default:
 			panic("unrecognized error handling value")
@@ -203,7 +202,7 @@ func (b *Bridge) Push() error {
 	}
 	defer func() {
 		if err := conn.Close(); err != nil && b.logger != nil {
-			b.logger.Println("Failed to close connection", "err", err)
+			b.logger.Warn("Failed to close Graphite connection", "error", err)
 		}
 	}()
 
