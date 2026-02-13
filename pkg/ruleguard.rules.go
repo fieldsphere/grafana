@@ -1044,6 +1044,20 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`prefer "UID" acronym casing in structured log keys (for example "dashboardUID", "integrationUID")`)
 
 	m.Match(
+		`$logger.New($*before, $key, $value, $*after)`,
+		`$logger.With($*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in structured logger context keys (for example "orgID", "pluginID", "userID")`)
+
+	m.Match(
+		`$logger.New($*before, $key, $value, $*after)`,
+		`$logger.With($*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Report(`prefer "UID" acronym casing in structured logger context keys (for example "dashboardUID", "integrationUID")`)
+
+	m.Match(
 		`$logger.Debugf($*args)`,
 		`$logger.Infof($*args)`,
 		`$logger.Warnf($*args)`,
