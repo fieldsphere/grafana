@@ -173,10 +173,26 @@ type logWrapper struct {
 }
 
 func wrapCorePluginLogArgs(msg, level string, args ...any) []any {
-	context := make([]any, 0, len(args)+4)
+	normalized := normalizeCorePluginLogArgs(args...)
+	context := make([]any, 0, len(normalized)+4)
 	context = append(context, "plugin_message", msg, "plugin_log_level", level)
-	context = append(context, args...)
+	context = append(context, normalized...)
 	return context
+}
+
+func normalizeCorePluginLogArgs(args ...any) []any {
+	if len(args) == 0 {
+		return nil
+	}
+	if len(args)%2 != 0 {
+		return []any{"plugin_log_args", args}
+	}
+	for i := 0; i < len(args); i += 2 {
+		if _, ok := args[i].(string); !ok {
+			return []any{"plugin_log_args", args}
+		}
+	}
+	return args
 }
 
 func (l *logWrapper) Debug(msg string, args ...any) {

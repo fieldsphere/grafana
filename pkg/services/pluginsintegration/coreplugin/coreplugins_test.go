@@ -74,3 +74,20 @@ func TestLogger(t *testing.T) {
 		require.NotSame(t, newLogger.(*logWrapper).logger, wrapper.logger, "`With` should not return the same instance")
 	})
 }
+
+func TestNormalizeCorePluginLogArgs(t *testing.T) {
+	t.Run("keeps structured key value args", func(t *testing.T) {
+		got := normalizeCorePluginLogArgs("pluginID", "test", "attempt", 1)
+		require.Equal(t, []any{"pluginID", "test", "attempt", 1}, got)
+	})
+
+	t.Run("wraps odd args", func(t *testing.T) {
+		got := normalizeCorePluginLogArgs("pluginID", "test", 1)
+		require.Equal(t, "plugin_log_args", got[0])
+	})
+
+	t.Run("wraps non-string keys", func(t *testing.T) {
+		got := normalizeCorePluginLogArgs(10, "value")
+		require.Equal(t, "plugin_log_args", got[0])
+	})
+}
