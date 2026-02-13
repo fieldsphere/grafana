@@ -145,7 +145,7 @@ const importPlugin = <M extends PluginMeta, P extends PanelPlugin | GenericDataS
 ): Promise<P> => {
   const cached = getPluginFromCache<P>(meta.id);
   if (cached) {
-    pluginsLogger.logDebug(`Retrieving plugin from cache`, {
+    pluginsLogger.logDebug('Retrieving plugin from cache', {
       path: meta.module,
       pluginId: meta.id,
       pluginVersion: meta.info?.version ?? '',
@@ -157,7 +157,7 @@ const importPlugin = <M extends PluginMeta, P extends PanelPlugin | GenericDataS
   }
 
   if (promisesCache.has(meta.id)) {
-    pluginsLogger.logDebug(`Retrieving plugin from inflight plugin load request`, {
+    pluginsLogger.logDebug('Retrieving plugin from inflight plugin load request', {
       path: meta.module,
       pluginId: meta.id,
       pluginVersion: meta.info?.version ?? '',
