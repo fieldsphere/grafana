@@ -16,15 +16,16 @@ func InterceptorLogger(l log.Logger, enabled bool) logging.Logger {
 			return
 		}
 		l := l.FromContext(ctx)
+		contextFields := append([]any{"grpc_message", msg}, fields...)
 		switch lvl {
 		case logging.LevelDebug:
-			l.Debug(msg, fields...)
+			l.Debug("gRPC middleware log entry", append(contextFields, "grpc_level", "debug")...)
 		case logging.LevelInfo:
-			l.Info(msg, fields...)
+			l.Info("gRPC middleware log entry", append(contextFields, "grpc_level", "info")...)
 		case logging.LevelWarn:
-			l.Warn(msg, fields...)
+			l.Warn("gRPC middleware log entry", append(contextFields, "grpc_level", "warn")...)
 		case logging.LevelError:
-			l.Error(msg, fields...)
+			l.Error("gRPC middleware log entry", append(contextFields, "grpc_level", "error")...)
 		default:
 			panic(fmt.Sprintf("unknown level %v", lvl))
 		}
