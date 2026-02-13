@@ -521,6 +521,15 @@ func structuredlogging(m fluent.Matcher) {
 		Report("avoid string concatenation in structured log messages; use key/value fields")
 
 	m.Match(
+		`$logger.Info($msg, $*args)`,
+		`$logger.Warn($msg, $*args)`,
+		`$logger.Error($msg, $*args)`,
+		`$logger.Debug($msg, $*args)`,
+	).
+		Where(isStructuredLogger && !m["msg"].Text.Matches("^\".*\"$")).
+		Report("prefer a stable string-literal log message; move dynamic text into key/value fields")
+
+	m.Match(
 		`slog.Info(fmt.Sprintf($fmt, $*args), $*attrs)`,
 		`slog.Warn(fmt.Sprintf($fmt, $*args), $*attrs)`,
 		`slog.Error(fmt.Sprintf($fmt, $*args), $*attrs)`,
@@ -546,6 +555,15 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Error($left + $right, $*attrs)`,
 		`slog.Debug($left + $right, $*attrs)`,
 	).Report("avoid string concatenation in slog messages; use key/value fields")
+
+	m.Match(
+		`slog.Info($msg, $*attrs)`,
+		`slog.Warn($msg, $*attrs)`,
+		`slog.Error($msg, $*attrs)`,
+		`slog.Debug($msg, $*attrs)`,
+	).
+		Where(!m["msg"].Text.Matches("^\".*\"$")).
+		Report("prefer a stable string-literal slog message; move dynamic text into key/value fields")
 }
 
 func unstructuredoutput(m fluent.Matcher) {
