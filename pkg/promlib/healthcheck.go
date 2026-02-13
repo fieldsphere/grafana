@@ -34,13 +34,13 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 
 	hc, err := healthcheck(ctx, req, ds)
 	if err != nil {
-		logger.Warn("Error performing prometheus healthcheck", "err", err.Error())
+		logger.Warn("Error performing Prometheus healthcheck", "error", err)
 		return nil, err
 	}
 
 	heuristics, err := getHeuristics(ctx, ds, logger)
 	if err != nil {
-		logger.Warn("Failed to get prometheus heuristics", "err", err.Error())
+		logger.Warn("Failed to get Prometheus heuristics", "error", err)
 	} else {
 		jsonDetails, err := json.Marshal(heuristics)
 		if err != nil {
