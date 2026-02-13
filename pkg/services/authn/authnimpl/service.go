@@ -158,21 +158,21 @@ func (s *Service) authenticate(ctx context.Context, c authn.Client, r *authn.Req
 	}
 
 	span.SetAttributes(
-		attribute.String("identity.ID", identity.GetID()),
-		attribute.String("identity.AuthID", identity.GetAuthID()),
-		attribute.String("identity.AuthenticatedBy", identity.GetAuthenticatedBy()),
+		attribute.String("identityID", identity.GetID()),
+		attribute.String("identityAuthID", identity.GetAuthID()),
+		attribute.String("identityAuthenticatedBy", identity.GetAuthenticatedBy()),
 	)
 
 	if len(identity.ClientParams.FetchPermissionsParams.RestrictedActions) > 0 {
-		span.SetAttributes(attribute.StringSlice("identity.ClientParams.FetchPermissionsParams.RestrictedActions", identity.ClientParams.FetchPermissionsParams.RestrictedActions))
+		span.SetAttributes(attribute.StringSlice("identityRestrictedActions", identity.ClientParams.FetchPermissionsParams.RestrictedActions))
 	}
 
 	if len(identity.ClientParams.FetchPermissionsParams.Roles) > 0 {
-		span.SetAttributes(attribute.StringSlice("identity.ClientParams.FetchPermissionsParams.Roles", identity.ClientParams.FetchPermissionsParams.Roles))
+		span.SetAttributes(attribute.StringSlice("identityRoles", identity.ClientParams.FetchPermissionsParams.Roles))
 	}
 
 	if len(identity.ClientParams.FetchPermissionsParams.AllowedActions) > 0 {
-		span.SetAttributes(attribute.StringSlice("identity.ClientParams.FetchPermissionsParams.AllowedActions", identity.ClientParams.FetchPermissionsParams.AllowedActions))
+		span.SetAttributes(attribute.StringSlice("identityAllowedActions", identity.ClientParams.FetchPermissionsParams.AllowedActions))
 	}
 
 	if err := s.runPostAuthHooks(ctx, identity, r); err != nil {

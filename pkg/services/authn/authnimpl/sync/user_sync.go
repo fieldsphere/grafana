@@ -528,8 +528,8 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 	}
 
 	span.SetAttributes(
-		attribute.String("identity.ID", id.ID),
-		attribute.String("identity.ExternalUID", id.ExternalUID),
+		attribute.String("identityID", id.ID),
+		attribute.String("identityExternalUID", id.ExternalUID),
 	)
 
 	ctxLogger := s.log.FromContext(ctx)

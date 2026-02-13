@@ -1362,6 +1362,21 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
+		Where(m["key"].Text.Matches("^\"identity\\.[A-Za-z0-9.]+\"$")).
+		Report(`avoid dotted identity trace keys like "identity.ID"; use flattened camelCase keys such as "identityID" or "identityExternalUID"`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z0-9.]+\\.uid\"$")).
 		Report(`avoid lowercase dotted trace key suffix ".uid"; use canonical "UID" casing (for example "datasource.UID")`)
 
