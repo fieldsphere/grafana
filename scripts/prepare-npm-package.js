@@ -1,5 +1,6 @@
 //@ts-check
 import PackageJson from '@npmcli/package-json';
+import logging from './logging.js';
 
 const cwd = process.cwd();
 
@@ -30,6 +31,9 @@ try {
     await pkgJson.save();
   }
 } catch (e) {
-  console.error(e);
+  logging.logScriptError('prepare-npm-package failed', {
+    operation: 'prepareNpmPackage',
+    error: e instanceof Error ? e.message : String(e),
+  });
   process.exit(1);
 }

@@ -37,4 +37,5 @@ if ((data.removals.length > 0 || data.changes.length > 0) && !isFork) {
   markdown += printAffectedPluginsSection(data);
 }
 
-console.log(markdown);
+// Keep plain stdout output for CI consumers.
+process.stdout.write(`${markdown}\n`);
