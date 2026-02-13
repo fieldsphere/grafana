@@ -172,7 +172,7 @@ func SetupConfig(
 			// nolint:gosec
 			f, err := os.OpenFile("test.csv", os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0644)
 			if err != nil {
-				fmt.Printf("ERROR: %s\n", err)
+				klog.ErrorS(err, "Failed to open API operation audit file")
 			} else {
 				metastr, _ := json.Marshal(meta)
 
