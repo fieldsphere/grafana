@@ -830,12 +830,12 @@ WHERE r.uid IN (?, ?, ?) AND p.action LIKE 'annotations:%' AND p.scope IN ('*', 
 
 	for _, uid := range basicRoleUIDs {
 		if mappedBasicRolePerms[uid.(string)] == nil {
-			mg.Logger.Warn("basic role permissions missing annotation permissions, skipping annotation permission migration", "uid", uid)
+			mg.Logger.Warn("basic role permissions missing annotation permissions, skipping annotation permission migration", "roleUID", uid)
 			return false, nil
 		}
 		for _, action := range expectedAnnotationActions {
 			if !mappedBasicRolePerms[uid.(string)][action] {
-				mg.Logger.Warn("basic role permissions missing annotation permissions, skipping annotation permission migration", "uid", uid, "action", action)
+				mg.Logger.Warn("basic role permissions missing annotation permissions, skipping annotation permission migration", "roleUID", uid, "action", action)
 				return false, nil
 			}
 		}

@@ -74,7 +74,7 @@ func (c updateRulesOrderInGroup) Exec(sess *xorm.Session, migrator *migrator.Mig
 		rule.Version++
 		_, err := sess.ID(rule.ID).Cols("version", "updated", "rule_group_idx").Update(rule)
 		if err != nil {
-			migrator.Logger.Error("failed to update alert rule", "uid", rule.UID, "error", err)
+			migrator.Logger.Error("failed to update alert rule", "ruleUID", rule.UID, "error", err)
 			return fmt.Errorf("unable to update alert rules with group index: %w", err)
 		}
 		migrator.Logger.Debug("updated group index for alert rule", "ruleUID", rule.UID)

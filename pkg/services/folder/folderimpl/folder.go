@@ -409,7 +409,7 @@ func (s *Service) getChildrenLegacy(ctx context.Context, q *folder.GetChildrenQu
 		// fetch folder from dashboard store
 		dashFolder, ok := dashFolders[f.UID]
 		if !ok {
-			s.log.Error("failed to fetch folder by UID from dashboard store", "uid", f.UID)
+			s.log.Error("failed to fetch folder by UID from dashboard store", "folderUID", f.UID)
 			continue
 		}
 
@@ -472,7 +472,7 @@ func (s *Service) getRootFolders(ctx context.Context, q *folder.GetChildrenQuery
 		// fetch folder from dashboard store
 		dashFolder, ok := dashFolders[f.UID]
 		if !ok {
-			s.log.Error("failed to fetch folder by UID from dashboard store", "orgID", q.OrgID, "uid", f.UID)
+			s.log.Error("failed to fetch folder by UID from dashboard store", "orgID", q.OrgID, "folderUID", f.UID)
 		}
 		// always expose the dashboard store sequential ID
 		metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Folder).Inc()
@@ -699,7 +699,7 @@ func (s *Service) CreateLegacy(ctx context.Context, cmd *folder.CreateFolderComm
 	if id, err := identity.UserIdentifier(cmd.SignedInUser.GetID()); err == nil {
 		userID = id
 	} else if !identity.IsServiceIdentity(ctx) {
-		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "id", cmd.SignedInUser.GetID())
+		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "userID", cmd.SignedInUser.GetID())
 	}
 
 	if userID == 0 {
@@ -842,7 +842,7 @@ func (s *Service) legacyUpdate(ctx context.Context, cmd *folder.UpdateFolderComm
 	if id, err := identity.UserIdentifier(cmd.SignedInUser.GetID()); err == nil {
 		userID = id
 	} else if !identity.IsServiceIdentity(ctx) {
-		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "id", cmd.SignedInUser.GetID())
+		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "userID", cmd.SignedInUser.GetID())
 	}
 
 	prepareForUpdate(dashFolder, cmd.OrgID, userID, cmd)
@@ -1324,7 +1324,7 @@ func (s *Service) buildSaveDashboardCommand(ctx context.Context, dto *dashboards
 	if id, err := identity.UserIdentifier(dto.User.GetID()); err == nil {
 		userID = id
 	} else if !identity.IsServiceIdentity(ctx) {
-		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "id", dto.User.GetID())
+		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "userID", dto.User.GetID())
 	}
 
 	metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Folder).Inc()
