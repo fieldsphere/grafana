@@ -546,6 +546,15 @@ func unstructuredoutput(m fluent.Matcher) {
 		`log.Panic($*args)`,
 		`log.Panicf($*args)`,
 		`log.Panicln($*args)`,
+		`stdlog.Print($*args)`,
+		`stdlog.Printf($*args)`,
+		`stdlog.Println($*args)`,
+		`stdlog.Fatal($*args)`,
+		`stdlog.Fatalf($*args)`,
+		`stdlog.Fatalln($*args)`,
+		`stdlog.Panic($*args)`,
+		`stdlog.Panicf($*args)`,
+		`stdlog.Panicln($*args)`,
 	).Report("avoid stdlib log print/fatal helpers; use structured logging and explicit exit handling where needed")
 }
 
