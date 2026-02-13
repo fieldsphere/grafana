@@ -32,9 +32,9 @@ func main() {
 }
 
 func printUsage() {
-	println("Usage: go-workspace <command> [args]")
-	println("Commands:")
-	println("  list-submodules - List submodules in go.work")
+	_, _ = os.Stderr.WriteString("Usage: go-workspace <command> [args]\n")
+	_, _ = os.Stderr.WriteString("Commands:\n")
+	_, _ = os.Stderr.WriteString("  list-submodules - List submodules in go.work\n")
 }
 
 func listSubmodules() error {
