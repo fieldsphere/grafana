@@ -69,10 +69,10 @@ import {
   RawRecordingRules,
   RuleQueryMapping,
 } from './types';
-
-const logger = createMonitoringLogger('packages.grafana-prometheus.datasource');
 import { utf8Support, wrapUtf8Filters } from './utf8_support';
 import { PrometheusVariableSupport } from './variables';
+
+const logger = createMonitoringLogger('packages.grafana-prometheus.datasource');
 
 export class PrometheusDatasource
   extends DataSourceWithBackend<PromQuery, PromOptions>

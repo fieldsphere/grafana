@@ -25,33 +25,33 @@ func (l *prettyLogger) Failuref(format string, args ...any) {
 }
 
 func (l *prettyLogger) Info(args ...any) {
-	l.log.Info("Info", "message", fmt.Sprint(args...))
+	l.log.Info("log", "message", fmt.Sprint(args...))
 }
 
 func (l *prettyLogger) Infof(format string, args ...any) {
-	l.log.Info("Info", "message", fmt.Sprintf(format, args...))
+	l.log.Info("log", "message", fmt.Sprintf(format, args...))
 }
 
 func (l *prettyLogger) Debug(args ...any) {
-	l.log.Debug("Debug", "message", fmt.Sprint(args...))
+	l.log.Debug("log", "message", fmt.Sprint(args...))
 }
 
 func (l *prettyLogger) Debugf(format string, args ...any) {
-	l.log.Debug("Debug", "message", fmt.Sprintf(format, args...))
+	l.log.Debug("log", "message", fmt.Sprintf(format, args...))
 }
 
 func (l *prettyLogger) Warn(args ...any) {
-	l.log.Warn("Warn", "message", fmt.Sprint(args...))
+	l.log.Warn("log", "message", fmt.Sprint(args...))
 }
 
 func (l *prettyLogger) Warnf(format string, args ...any) {
-	l.log.Warn("Warn", "message", fmt.Sprintf(format, args...))
+	l.log.Warn("log", "message", fmt.Sprintf(format, args...))
 }
 
 func (l *prettyLogger) Error(args ...any) {
-	l.log.Error("Error", "message", fmt.Sprint(args...))
+	l.log.Error("log", "message", fmt.Sprint(args...))
 }
 
 func (l *prettyLogger) Errorf(format string, args ...any) {
-	l.log.Error("Error", "message", fmt.Sprintf(format, args...))
+	l.log.Error("log", "message", fmt.Sprintf(format, args...))
 }
