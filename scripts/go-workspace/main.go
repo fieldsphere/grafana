@@ -59,7 +59,7 @@ func listSubmodules() error {
 
 	paths := getSubmodulePaths(workfile, *skip)
 	for _, p := range paths {
-		fmt.Printf("%s%s", p, *delimiter)
+		_, _ = os.Stdout.WriteString(p + *delimiter)
 	}
 
 	return nil
