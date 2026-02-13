@@ -89,7 +89,7 @@ func (b *Bootstrap) Bootstrap(ctx context.Context, src plugins.PluginSource, fou
 		for _, decorate := range b.decorateSteps {
 			ip, err = decorate(ctx, p)
 			if err != nil {
-				b.log.Error("Could not decorate plugin", "pluginId", p.ID, "error", err)
+				b.log.Error("Could not decorate plugin", "pluginID", p.ID, "error", err)
 				return nil, tracing.Error(span, err)
 			}
 		}

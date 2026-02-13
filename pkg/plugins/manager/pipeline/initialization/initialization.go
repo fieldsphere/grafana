@@ -62,7 +62,7 @@ func (i *Initialize) Initialize(ctx context.Context, ps *plugins.Plugin) (*plugi
 	for _, init := range i.initializeSteps {
 		ip, err = init(ctx, ps)
 		if err != nil {
-			i.log.Error("Could not initialize plugin", "pluginId", ps.ID, "error", err)
+			i.log.Error("Could not initialize plugin", "pluginID", ps.ID, "error", err)
 			return nil, tracing.Error(span, err)
 		}
 	}

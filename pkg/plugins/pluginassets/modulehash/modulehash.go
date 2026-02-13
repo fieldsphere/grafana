@@ -45,7 +45,7 @@ func NewCalculator(cfg *config.PluginManagementCfg, reg registry.Service, cdn *p
 func (c *Calculator) ModuleHash(ctx context.Context, pluginID, pluginVersion string) string {
 	p, ok := c.reg.Plugin(ctx, pluginID, pluginVersion)
 	if !ok {
-		c.log.Error("Failed to calculate module hash as plugin is not registered", "pluginId", pluginID)
+		c.log.Error("Failed to calculate module hash as plugin is not registered", "pluginID", pluginID)
 		return ""
 	}
 	k := c.moduleHashCacheKey(pluginID, pluginVersion)
@@ -55,7 +55,7 @@ func (c *Calculator) ModuleHash(ctx context.Context, pluginID, pluginVersion str
 	}
 	mh, err := c.moduleHash(ctx, p, "")
 	if err != nil {
-		c.log.Error("Failed to calculate module hash", "pluginId", p.ID, "error", err)
+		c.log.Error("Failed to calculate module hash", "pluginID", p.ID, "error", err)
 	}
 	c.moduleHashCache.Store(k, mh)
 	return mh

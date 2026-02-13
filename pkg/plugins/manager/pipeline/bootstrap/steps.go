@@ -52,12 +52,12 @@ func NewDefaultConstructor(cfg *config.PluginManagementCfg, signatureCalculator 
 func (c *DefaultConstructor) Construct(ctx context.Context, src plugins.PluginSource, bundle *plugins.FoundBundle) ([]*plugins.Plugin, error) {
 	sig, err := c.signatureCalculator.Calculate(ctx, src, bundle.Primary)
 	if err != nil {
-		c.log.Warn("Could not calculate plugin signature state", "pluginId", bundle.Primary.JSONData.ID, "error", err)
+		c.log.Warn("Could not calculate plugin signature state", "pluginID", bundle.Primary.JSONData.ID, "error", err)
 		return nil, err
 	}
 	plugin, err := c.pluginFactoryFunc(bundle, src.PluginClass(ctx), sig)
 	if err != nil {
-		c.log.Error("Could not create primary plugin base", "pluginId", bundle.Primary.JSONData.ID, "error", err)
+		c.log.Error("Could not create primary plugin base", "pluginID", bundle.Primary.JSONData.ID, "error", err)
 		return nil, err
 	}
 	res := make([]*plugins.Plugin, 0, len(plugin.Children)+1)

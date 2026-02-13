@@ -69,13 +69,13 @@ func (m *PluginInstaller) Add(ctx context.Context, pluginID, version string, opt
 	}
 
 	for _, dep := range archive.Dependencies {
-		m.log.Info("Fetching plugin dependency", "pluginId", pluginID, "dependencyId", dep.ID)
+		m.log.Info("Fetching plugin dependency", "pluginID", pluginID, "dependencyID", dep.ID)
 
 		err = m.Add(ctx, dep.ID, "", plugins.NewAddOpts(opts.GrafanaVersion(), opts.OS(), opts.Arch(), ""))
 		if err != nil {
 			var dupeErr plugins.DuplicateError
 			if errors.As(err, &dupeErr) {
-				m.log.Info("Dependency already installed", "pluginId", dep.ID)
+				m.log.Info("Dependency already installed", "pluginID", dep.ID)
 				continue
 			}
 			return fmt.Errorf("%v: %w", fmt.Sprintf("failed to download plugin %s from repository", dep.ID), err)
@@ -125,7 +125,7 @@ func (m *PluginInstaller) install(ctx context.Context, pluginID, version string,
 		if err != nil {
 			return nil, err
 		}
-		m.log.Info("Installing plugin", "pluginId", pluginID, "version", version)
+		m.log.Info("Installing plugin", "pluginID", pluginID, "version", version)
 	}
 
 	extractedArchive, err := m.pluginStorage.Extract(ctx, pluginID, m.pluginStorageDirFunc, pluginArchive.File)
@@ -147,7 +147,7 @@ func (m *PluginInstaller) install(ctx context.Context, pluginID, version string,
 }
 
 func (m *PluginInstaller) updateFromURL(ctx context.Context, plugin *plugins.Plugin, url string, compatOpts repo.CompatOpts) (*repo.PluginArchive, error) {
-	m.log.Info("Updating plugin", "pluginId", plugin.ID, "from", plugin.Info.Version, "url", url)
+	m.log.Info("Updating plugin", "pluginID", plugin.ID, "from", plugin.Info.Version, "url", url)
 
 	// remove existing installation of plugin
 	err := m.Remove(ctx, plugin.ID, plugin.Info.Version)
@@ -165,7 +165,7 @@ func (m *PluginInstaller) updateFromCatalog(ctx context.Context, plugin *plugins
 		return nil, err
 	}
 
-	m.log.Info("Updating plugin", "pluginId", plugin.ID, "from", plugin.Info.Version, "to", pluginArchiveInfo.Version)
+	m.log.Info("Updating plugin", "pluginID", plugin.ID, "from", plugin.Info.Version, "to", pluginArchiveInfo.Version)
 
 	// if existing plugin version is the same as the target update version
 	if pluginArchiveInfo.Version == plugin.Info.Version {

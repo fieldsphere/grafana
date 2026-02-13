@@ -104,7 +104,7 @@ func (s *LocalSource) Discover(_ context.Context) ([]*plugins.FoundBundle, error
 
 		pluginJSONAbsPath, err := filepath.Abs(pluginJSONPath)
 		if err != nil {
-			s.log.Warn("Skipping plugin loading as absolute plugin.json path could not be calculated", "pluginId", plugin.ID, "error", err)
+			s.log.Warn("Skipping plugin loading as absolute plugin.json path could not be calculated", "pluginID", plugin.ID, "error", err)
 			continue
 		}
 
@@ -143,7 +143,7 @@ func (s *LocalSource) Discover(_ context.Context) ([]*plugins.FoundBundle, error
 
 			relPath, err := filepath.Rel(dir, dir2)
 			if err != nil {
-				s.log.Error("Cannot calculate relative path. Skipping", "pluginId", p2.Primary.JSONData.ID, "error", err)
+				s.log.Error("Cannot calculate relative path. Skipping", "pluginID", p2.Primary.JSONData.ID, "error", err)
 				continue
 			}
 			if !strings.Contains(relPath, "..") {
