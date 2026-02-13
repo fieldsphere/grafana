@@ -1091,6 +1091,50 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid all-lowercase "…id" structured context keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID"`)
 
 	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in trace attribute keys (for example "orgID", "pluginID", "userID")`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Report(`prefer "UID" acronym casing in trace attribute keys (for example "dashboardUID", "ruleUID", "datasourceUID")`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$")).
+		Report(`avoid all-lowercase "…id" trace attribute keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelID", "datasourceID", "queryGroupID", "migrationID", "resourceVersion"`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Report(`avoid snake_case trace attribute keys; use camelCase with canonical acronym casing`)
+
+	m.Match(
 		`$logger.Debugf($*args)`,
 		`$logger.Infof($*args)`,
 		`$logger.Warnf($*args)`,
