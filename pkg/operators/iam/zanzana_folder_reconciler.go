@@ -48,8 +48,8 @@ func RunIAMFolderReconciler(deps server.OperatorDependencies) error {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
-		<-sigChan
-		fmt.Println("Received shutdown signal, stopping IAM operator")
+		sig := <-sigChan
+		logger.Info("Received shutdown signal, stopping IAM operator", "signal", sig.String())
 		cancel()
 	}()
 
