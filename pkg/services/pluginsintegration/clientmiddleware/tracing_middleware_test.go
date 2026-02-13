@@ -194,8 +194,8 @@ func TestTracingMiddlewareAttributes(t *testing.T) {
 			assert: func(t *testing.T, span trace.ReadOnlySpan) {
 				attribs := span.Attributes()
 				require.Len(t, attribs, 2, "should have correct number of span attributes")
-				require.True(t, spanAttributesContains(attribs, attribute.String("plugin_id", "my_plugin_id")))
-				require.True(t, spanAttributesContains(attribs, attribute.Int("org_id", 1337)))
+				require.True(t, spanAttributesContains(attribs, attribute.String("pluginID", "my_plugin_id")))
+				require.True(t, spanAttributesContains(attribs, attribute.Int("orgID", 1337)))
 			},
 		},
 		{
@@ -209,8 +209,8 @@ func TestTracingMiddlewareAttributes(t *testing.T) {
 			assert: func(t *testing.T, span trace.ReadOnlySpan) {
 				attribs := span.Attributes()
 				assert.Len(t, attribs, 3, "should have correct number of span attributes")
-				require.True(t, spanAttributesContains(attribs, attribute.String("plugin_id", "my_plugin_id")))
-				require.True(t, spanAttributesContains(attribs, attribute.Int("org_id", 1337)))
+				require.True(t, spanAttributesContains(attribs, attribute.String("pluginID", "my_plugin_id")))
+				require.True(t, spanAttributesContains(attribs, attribute.Int("orgID", 1337)))
 				require.True(t, spanAttributesContains(attribs, attribute.String("user", "admin")))
 			},
 		},
@@ -220,8 +220,8 @@ func TestTracingMiddlewareAttributes(t *testing.T) {
 			assert: func(t *testing.T, span trace.ReadOnlySpan) {
 				attribs := span.Attributes()
 				require.Len(t, attribs, 2, "should have correct number of span attributes")
-				require.True(t, spanAttributesContains(attribs, attribute.String("plugin_id", "")))
-				require.True(t, spanAttributesContains(attribs, attribute.Int("org_id", 0)))
+				require.True(t, spanAttributesContains(attribs, attribute.String("pluginID", "")))
+				require.True(t, spanAttributesContains(attribs, attribute.Int("orgID", 0)))
 			},
 		},
 		{
@@ -233,8 +233,8 @@ func TestTracingMiddlewareAttributes(t *testing.T) {
 			},
 			assert: func(t *testing.T, span trace.ReadOnlySpan) {
 				attribs := span.Attributes()
-				require.True(t, spanAttributesContains(attribs, attribute.String("plugin_id", "")))
-				require.True(t, spanAttributesContains(attribs, attribute.Int("org_id", 0)))
+				require.True(t, spanAttributesContains(attribs, attribute.String("pluginID", "")))
+				require.True(t, spanAttributesContains(attribs, attribute.Int("orgID", 0)))
 			},
 		},
 		{
@@ -251,10 +251,10 @@ func TestTracingMiddlewareAttributes(t *testing.T) {
 			assert: func(t *testing.T, span trace.ReadOnlySpan) {
 				attribs := span.Attributes()
 				require.Len(t, attribs, 4)
-				require.True(t, spanAttributesContains(attribs, attribute.String("plugin_id", "")))
-				require.True(t, spanAttributesContains(attribs, attribute.Int("org_id", 0)))
-				require.True(t, spanAttributesContains(attribs, attribute.String("datasource_uid", "uid")))
-				require.True(t, spanAttributesContains(attribs, attribute.String("datasource_name", "name")))
+				require.True(t, spanAttributesContains(attribs, attribute.String("pluginID", "")))
+				require.True(t, spanAttributesContains(attribs, attribute.Int("orgID", 0)))
+				require.True(t, spanAttributesContains(attribs, attribute.String("datasourceUID", "uid")))
+				require.True(t, spanAttributesContains(attribs, attribute.String("datasourceName", "name")))
 			},
 		},
 		{
@@ -274,11 +274,11 @@ func TestTracingMiddlewareAttributes(t *testing.T) {
 			assert: func(t *testing.T, span trace.ReadOnlySpan) {
 				attribs := span.Attributes()
 				require.Len(t, attribs, 5)
-				require.True(t, spanAttributesContains(attribs, attribute.String("plugin_id", "")))
-				require.True(t, spanAttributesContains(attribs, attribute.Int("org_id", 0)))
-				require.True(t, spanAttributesContains(attribs, attribute.Int("panel_id", 10)))
-				require.True(t, spanAttributesContains(attribs, attribute.String("query_group_id", "query group id")))
-				require.True(t, spanAttributesContains(attribs, attribute.String("dashboard_uid", "dashboard uid")))
+				require.True(t, spanAttributesContains(attribs, attribute.String("pluginID", "")))
+				require.True(t, spanAttributesContains(attribs, attribute.Int("orgID", 0)))
+				require.True(t, spanAttributesContains(attribs, attribute.Int("panelID", 10)))
+				require.True(t, spanAttributesContains(attribs, attribute.String("queryGroupID", "query group id")))
+				require.True(t, spanAttributesContains(attribs, attribute.String("dashboardUID", "dashboard uid")))
 			},
 		},
 		{
@@ -296,8 +296,8 @@ func TestTracingMiddlewareAttributes(t *testing.T) {
 			assert: func(t *testing.T, span trace.ReadOnlySpan) {
 				attribs := span.Attributes()
 				require.Len(t, attribs, 2)
-				require.True(t, spanAttributesContains(attribs, attribute.String("plugin_id", "")))
-				require.True(t, spanAttributesContains(attribs, attribute.Int("org_id", 0)))
+				require.True(t, spanAttributesContains(attribs, attribute.String("pluginID", "")))
+				require.True(t, spanAttributesContains(attribs, attribute.Int("orgID", 0)))
 			},
 		},
 	} {
