@@ -89,7 +89,7 @@ func (s *Service) shouldUpdate(ctx context.Context, pluginID, currentVersion str
 	}
 	info, err := s.pluginRepo.GetPluginArchiveInfo(ctx, pluginID, "", repo.NewCompatOpts(s.cfg.BuildVersion, runtime.GOOS, runtime.GOARCH))
 	if err != nil {
-		s.log.Error("Failed to get plugin info", "pluginId", pluginID, "error", err)
+		s.log.Error("Failed to get plugin info", "pluginID", pluginID, "error", err)
 		return false
 	}
 
@@ -103,7 +103,7 @@ func (s *Service) installPlugins(ctx context.Context, pluginsToInstall []setting
 		if exists {
 			// If it's installed, check if we are looking for a specific version
 			if p.Info.Version == installPlugin.Version {
-				s.log.Debug("Plugin already installed", "pluginId", installPlugin.ID, "version", installPlugin.Version)
+				s.log.Debug("Plugin already installed", "pluginID", installPlugin.ID, "version", installPlugin.Version)
 				continue
 			}
 			if installPlugin.Version == "" {
@@ -119,7 +119,7 @@ func (s *Service) installPlugins(ctx context.Context, pluginsToInstall []setting
 			}
 		}
 
-		s.log.Info("Installing plugin", "pluginId", installPlugin.ID, "version", installPlugin.Version)
+		s.log.Info("Installing plugin", "pluginID", installPlugin.ID, "version", installPlugin.Version)
 		start := time.Now()
 		ctx = repo.WithRequestOrigin(ctx, "preinstall")
 		compatOpts := plugins.NewAddOpts(s.cfg.BuildVersion, runtime.GOOS, runtime.GOARCH, installPlugin.URL)
@@ -127,18 +127,18 @@ func (s *Service) installPlugins(ctx context.Context, pluginsToInstall []setting
 		if err != nil {
 			var dupeErr plugins.DuplicateError
 			if errors.As(err, &dupeErr) {
-				s.log.Debug("Plugin already installed", "pluginId", installPlugin.ID, "version", installPlugin.Version)
+				s.log.Debug("Plugin already installed", "pluginID", installPlugin.ID, "version", installPlugin.Version)
 				continue
 			}
 			if failOnErr {
 				// Halt execution in the synchronous scenario
 				return fmt.Errorf("failed to install plugin %s@%s: %w", installPlugin.ID, installPlugin.Version, err)
 			}
-			s.log.Error("Failed to install plugin", "pluginId", installPlugin.ID, "version", installPlugin.Version, "error", err)
+			s.log.Error("Failed to install plugin", "pluginID", installPlugin.ID, "version", installPlugin.Version, "error", err)
 			continue
 		}
 		elapsed := time.Since(start)
-		s.log.Info("Plugin successfully installed", "pluginId", installPlugin.ID, "version", installPlugin.Version, "duration", elapsed)
+		s.log.Info("Plugin successfully installed", "pluginID", installPlugin.ID, "version", installPlugin.Version, "duration", elapsed)
 		installRequestDuration.WithLabelValues(installPlugin.ID, installPlugin.Version).Observe(elapsed.Seconds())
 		installRequestCounter.WithLabelValues(installPlugin.ID, installPlugin.Version).Inc()
 	}

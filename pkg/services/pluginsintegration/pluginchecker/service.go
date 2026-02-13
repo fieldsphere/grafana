@@ -91,7 +91,7 @@ func (s *Service) IsUpdatable(ctx context.Context, plugin pluginstore.Plugin) bo
 func (s *Service) CanUpdate(pluginId string, currentVersion string, targetVersion string, onlyMinor bool) bool {
 	canUpdate, reason := CanUpdateVersion(currentVersion, targetVersion, onlyMinor)
 	if !canUpdate {
-		s.log.Debug("Skipping update", "pluginId", pluginId, "reason", reason)
+		s.log.Debug("Skipping update", "pluginID", pluginId, "reason", reason)
 	}
 	return canUpdate
 }
