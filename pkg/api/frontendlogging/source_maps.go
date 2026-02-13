@@ -38,7 +38,7 @@ func ReadSourceMapFromFS(dir string, path string) ([]byte, error) {
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
-			logger.Error("Failed to close source map file", "err", err)
+			logger.Error("Failed to close source map file", "error", err)
 		}
 	}()
 	return io.ReadAll(file)

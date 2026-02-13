@@ -123,7 +123,7 @@ func (hs *HTTPServer) AdminUpdateUserPassword(c *contextmodel.ReqContext) respon
 
 	if err := hs.loginAttemptService.Reset(c.Req.Context(),
 		usr.Login); err != nil {
-		c.Logger.Warn("could not reset login attempts", "err", err, "username", usr.Login)
+		c.Logger.Warn("could not reset login attempts", "error", err, "username", usr.Login)
 	}
 
 	if err := hs.AuthTokenService.RevokeAllUserTokens(c.Req.Context(),

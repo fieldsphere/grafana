@@ -97,7 +97,7 @@ func (hs *HTTPServer) ResetPassword(c *contextmodel.ReqContext) response.Respons
 	}
 
 	if err := hs.loginAttemptService.Reset(c.Req.Context(), username); err != nil {
-		c.Logger.Warn("could not reset login attempts", "err", err, "username", username)
+		c.Logger.Warn("could not reset login attempts", "error", err, "username", username)
 	}
 
 	if err := hs.AuthTokenService.RevokeAllUserTokens(c.Req.Context(),

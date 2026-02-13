@@ -102,7 +102,7 @@ func (r *NormalResponse) WriteTo(ctx *contextmodel.ReqContext) {
 	}
 	ctx.Resp.WriteHeader(r.status)
 	if _, err := ctx.Resp.Write(r.body.Bytes()); err != nil {
-		ctx.Logger.Error("Error writing to response", "err", err)
+		ctx.Logger.Error("Error writing to response", "error", err)
 	}
 }
 
@@ -163,7 +163,7 @@ func (r StreamingResponse) WriteTo(ctx *contextmodel.ReqContext) {
 	jsonCfg := jsoniter.ConfigCompatibleWithStandardLibrary
 	enc := jsonCfg.NewEncoder(ctx.Resp)
 	if err := enc.Encode(r.body); err != nil {
-		ctx.Logger.Error("Error writing to response", "err", err)
+		ctx.Logger.Error("Error writing to response", "error", err)
 	}
 }
 

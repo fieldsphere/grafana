@@ -120,7 +120,7 @@ func (a *AvatarCacheServer) Handler(ctx *contextmodel.ReqContext) {
 	ctx.Resp.Header().Set("Cache-Control", "private, max-age=3600")
 
 	if err := avatar.Encode(ctx.Resp); err != nil {
-		ctx.Logger.Warn("avatar encode error:", "err", err)
+		ctx.Logger.Warn("avatar encode error:", "error", err)
 		ctx.Resp.WriteHeader(http.StatusInternalServerError)
 	}
 }
@@ -153,7 +153,7 @@ func (a *AvatarCacheServer) getAvatarForHashContext(ctx context.Context, hash st
 	if !exists {
 		// The cache item is either expired or newly created, update it from the server
 		if err := avatar.update(ctx, baseUrl); err != nil {
-			alog.Debug("avatar update", "err", err)
+			alog.Debug("avatar update", "error", err)
 			avatar = a.notFound
 		}
 	}
@@ -341,7 +341,7 @@ func performGet(ctx context.Context, url string, av *Avatar, handler ResponseHan
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			alog.Warn("Failed to close response body", "err", err)
+			alog.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

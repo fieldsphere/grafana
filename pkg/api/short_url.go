@@ -79,7 +79,7 @@ func (hs *HTTPServer) redirectFromShortURL(c *contextmodel.ReqContext) {
 			c.Redirect(hs.Cfg.AppURL, http.StatusPermanentRedirect)
 			return
 		}
-		hs.log.Error("Short URL redirection error", "err", err)
+		hs.log.Error("Short URL redirection error", "error", err)
 		c.Redirect(hs.Cfg.AppURL, http.StatusTemporaryRedirect)
 		return
 	}
