@@ -110,7 +110,7 @@ func TestLoadingSettings(t *testing.T) {
 		err := cfg.Load(CommandLineArgs{HomePath: "../../"})
 		require.Nil(t, err)
 
-		require.Contains(t, cfg.appliedEnvOverrides, appliedEnvOverride{
+		require.Contains(t, cfg.appliedEnvOverrides, appliedConfigOverride{
 			key:   "GF_SECURITY_ADMIN_PASSWORD",
 			value: "*********",
 		})
@@ -123,7 +123,7 @@ func TestLoadingSettings(t *testing.T) {
 		err := cfg.Load(CommandLineArgs{HomePath: "../../"})
 		require.Nil(t, err)
 
-		require.Contains(t, cfg.appliedEnvOverrides, appliedEnvOverride{
+		require.Contains(t, cfg.appliedEnvOverrides, appliedConfigOverride{
 			key:   "GF_DATABASE_URL",
 			value: "mysql://user:xxxxx@localhost:3306/database",
 		})

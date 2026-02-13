@@ -89,8 +89,8 @@ type Cfg struct {
 
 	// for logging purposes
 	configFiles                  []string
-	appliedCommandLineProperties []string
-	appliedEnvOverrides          []appliedEnvOverride
+	appliedCommandLineProperties []appliedConfigOverride
+	appliedEnvOverrides          []appliedConfigOverride
 
 	// HTTP Server Settings
 	CertFile          string
@@ -643,7 +643,7 @@ type Cfg struct {
 	SecretsManagement SecretsManagerSettings
 }
 
-type appliedEnvOverride struct {
+type appliedConfigOverride struct {
 	key   string
 	value string
 }
@@ -782,7 +782,7 @@ func RedactedURL(value string) (string, error) {
 }
 
 func (cfg *Cfg) applyEnvVariableOverrides(file *ini.File) error {
-	cfg.appliedEnvOverrides = make([]appliedEnvOverride, 0)
+	cfg.appliedEnvOverrides = make([]appliedConfigOverride, 0)
 	for _, section := range file.Sections() {
 		for _, key := range section.Keys() {
 			envKey := EnvKey(section.Name(), key.Name())
@@ -790,7 +790,7 @@ func (cfg *Cfg) applyEnvVariableOverrides(file *ini.File) error {
 
 			if len(envValue) > 0 {
 				key.SetValue(envValue)
-				cfg.appliedEnvOverrides = append(cfg.appliedEnvOverrides, appliedEnvOverride{
+				cfg.appliedEnvOverrides = append(cfg.appliedEnvOverrides, appliedConfigOverride{
 					key:   envKey,
 					value: RedactedValue(envKey, envValue),
 				})
@@ -904,7 +904,7 @@ func EnvKey(sectionName string, keyName string) string {
 }
 
 func (cfg *Cfg) applyCommandLineDefaultProperties(props map[string]string, file *ini.File) {
-	cfg.appliedCommandLineProperties = make([]string, 0)
+	cfg.appliedCommandLineProperties = make([]appliedConfigOverride, 0)
 	for _, section := range file.Sections() {
 		for _, key := range section.Keys() {
 			keyString := fmt.Sprintf("default.%s.%s", section.Name(), key.Name())
@@ -912,7 +912,10 @@ func (cfg *Cfg) applyCommandLineDefaultProperties(props map[string]string, file 
 			if exists {
 				key.SetValue(value)
 				cfg.appliedCommandLineProperties = append(cfg.appliedCommandLineProperties,
-					fmt.Sprintf("%s=%s", keyString, RedactedValue(keyString, value)))
+					appliedConfigOverride{
+						key:   keyString,
+						value: RedactedValue(keyString, value),
+					})
 			}
 		}
 	}
@@ -928,7 +931,10 @@ func (cfg *Cfg) applyCommandLineProperties(props map[string]string, file *ini.Fi
 			keyString := sectionName + key.Name()
 			value, exists := props[keyString]
 			if exists {
-				cfg.appliedCommandLineProperties = append(cfg.appliedCommandLineProperties, fmt.Sprintf("%s=%s", keyString, value))
+				cfg.appliedCommandLineProperties = append(cfg.appliedCommandLineProperties, appliedConfigOverride{
+					key:   keyString,
+					value: value,
+				})
 				key.SetValue(value)
 			}
 		}
@@ -1597,7 +1603,7 @@ func (cfg *Cfg) LogConfigSources() {
 
 	if len(cfg.appliedCommandLineProperties) > 0 {
 		for _, prop := range cfg.appliedCommandLineProperties {
-			cfg.Logger.Info("Config overridden from command line", "arg", prop)
+			cfg.Logger.Info("Config overridden from command line", "key", prop.key, "value", prop.value)
 		}
 	}
 
