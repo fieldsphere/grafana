@@ -78,7 +78,7 @@ func newChannelNotifier(log log.Logger) *channelNotifier {
 }
 
 func (cn *channelNotifier) Watch(ctx context.Context, opts watchOptions) <-chan Event {
-	cn.log.Info("creating new notifier", "buffer_size", opts.BufferSize)
+	cn.log.Info("creating new notifier", "bufferSize", opts.BufferSize)
 	events := make(chan Event, opts.BufferSize)
 
 	cn.mu.Lock()

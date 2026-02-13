@@ -75,7 +75,7 @@ func newResourceDBProvider(grafanaDB infraDB.DB, cfg *setting.Cfg, tracer trace.
 
 	switch {
 	case dbType != "":
-		logger.Info("Using database section", "db_type", dbType)
+		logger.Info("Using database section", "dbType", dbType)
 		dbCfg, err := sqlstore.NewDatabaseConfig(cfg, nil)
 		if err != nil {
 			return nil, err

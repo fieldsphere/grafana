@@ -189,13 +189,13 @@ func (u *upgradeNgAlerting) updateAlertmanagerFiles(orgId int64, migrator *migra
 	moveFile := func(fileName string) {
 		alertingOrgDir := filepath.Join(alertingDir, strconv.FormatInt(orgId, 10))
 		if err := os.MkdirAll(alertingOrgDir, 0750); err != nil {
-			migrator.Logger.Error("Failed to create alerting directory for organization. Skip moving the file and delete it instead", "target_dir", alertingOrgDir, "org_id", orgId, "error", err, "file", fileName)
+			migrator.Logger.Error("Failed to create alerting directory for organization. Skip moving the file and delete it instead", "targetDir", alertingOrgDir, "orgID", orgId, "error", err, "file", fileName)
 			deleteFile(fileName)
 			return
 		}
 		err := os.Rename(filepath.Join(alertingDir, fileName), filepath.Join(alertingOrgDir, fileName))
 		if err != nil {
-			migrator.Logger.Error("Failed to move alertmanager configuration file to organization.", "source_dir", alertingDir, "target_dir", alertingOrgDir, "org_id", orgId, "error", err, "file", fileName)
+			migrator.Logger.Error("Failed to move alertmanager configuration file to organization.", "sourceDir", alertingDir, "targetDir", alertingOrgDir, "orgID", orgId, "error", err, "file", fileName)
 			deleteFile(fileName)
 		}
 	}
@@ -207,7 +207,7 @@ func (u *upgradeNgAlerting) updateAlertmanagerFiles(orgId int64, migrator *migra
 			for key := range knownFiles {
 				keys = append(keys, key)
 			}
-			migrator.Logger.Warn("Failed to clean up alerting directory. There may be files that are not used anymore.", "path", alertingDir, "files_to_delete", keys, "error", err)
+			migrator.Logger.Warn("Failed to clean up alerting directory. There may be files that are not used anymore.", "path", alertingDir, "filesToDelete", keys, "error", err)
 		}
 	}
 

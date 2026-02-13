@@ -315,7 +315,7 @@ func (v *FolderTreeValidator) buildLegacyFolderParentMap(sess *xorm.Session, org
 	}
 
 	if len(parentMap) == 0 {
-		log.Debug("No legacy folders found for org", "org_id", orgID)
+		log.Debug("No legacy folders found for org", "orgID", orgID)
 		return make(map[string]string), nil
 	}
 

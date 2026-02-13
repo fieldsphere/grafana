@@ -82,7 +82,7 @@ func (cfg *Cfg) setUnifiedStorageConfig() {
 		cfg.enforceMigrationToUnifiedConfigs()
 	} else {
 		// Helper log to find instances disabling migration
-		cfg.Logger.Info("Unified migration configs enforcement disabled", "storage_type", cfg.UnifiedStorageType(), "disable_data_migrations", cfg.DisableDataMigrations)
+		cfg.Logger.Info("Unified migration configs enforcement disabled", "storageType", cfg.UnifiedStorageType(), "disableDataMigrations", cfg.DisableDataMigrations)
 	}
 	cfg.EnableSearch = section.Key("enable_search").MustBool(false)
 	cfg.EnableSearchClient = section.Key("enable_search_client").MustBool(false)
@@ -153,7 +153,7 @@ func (cfg *Cfg) enforceMigrationToUnifiedConfigs() {
 				cfg.Logger.Info("Resource migration disabled", "resource", resource)
 				continue
 			}
-			cfg.Logger.Info("Overriding unified storage config for migrated resource", "resource", resource, "old_config", resourceCfg)
+			cfg.Logger.Info("Overriding unified storage config for migrated resource", "resource", resource, "oldConfig", resourceCfg)
 		} else if !enabledByDefault {
 			continue
 		}

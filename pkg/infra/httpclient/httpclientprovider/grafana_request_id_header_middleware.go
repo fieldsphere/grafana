@@ -15,7 +15,7 @@ func GrafanaRequestIDHeaderMiddleware(cfg *setting.Cfg, logger log.Logger) sdkht
 	return sdkhttpclient.NamedMiddlewareFunc(GrafanaRequestIDHeaderMiddlewareName, func(opts sdkhttpclient.Options, next http.RoundTripper) http.RoundTripper {
 		return sdkhttpclient.RoundTripperFunc(func(req *http.Request) (*http.Response, error) {
 			if req.Header.Get(clientmiddleware.GrafanaRequestID) != "" {
-				logger.Debug("Request already has a Grafana request ID header", "request_id", req.Header.Get(clientmiddleware.GrafanaRequestID))
+				logger.Debug("Request already has a Grafana request ID header", "requestID", req.Header.Get(clientmiddleware.GrafanaRequestID))
 				return next.RoundTrip(req)
 			}
 

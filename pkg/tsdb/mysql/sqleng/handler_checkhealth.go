@@ -111,8 +111,8 @@ func logCheckHealthError(ctx context.Context, dsInfo DataSourceInfo, err error) 
 	}
 	configSummaryJson, marshalError := json.Marshal(configSummary)
 	if marshalError != nil {
-		logger.Error("Check health failed", "error", err, "message_type", "ds_config_health_check_error")
+		logger.Error("Check health failed", "error", err, "messageType", "ds_config_health_check_error")
 		return
 	}
-	logger.Error("Check health failed", "error", err, "message_type", "ds_config_health_check_error_detailed", "details", string(configSummaryJson))
+	logger.Error("Check health failed", "error", err, "messageType", "ds_config_health_check_error_detailed", "details", string(configSummaryJson))
 }
