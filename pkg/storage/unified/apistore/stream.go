@@ -74,19 +74,19 @@ decode:
 		case grpcStatus.Code(err) == grpcCodes.Canceled:
 			return watch.Error, nil, err
 		case err != nil:
-			klog.Errorf("client: error receiving result: %s", err)
+			klog.ErrorS(err, "Client watch stream receive failed")
 			return watch.Error, nil, err
 		}
 
 		// Error event
 		if evt.Type == resourcepb.WatchEvent_ERROR {
 			err = fmt.Errorf("stream error")
-			klog.Errorf("client: error receiving result: %s", err)
+			klog.ErrorS(err, "Client watch stream returned error event")
 			return watch.Error, nil, err
 		}
 
 		if evt.Resource == nil {
-			klog.Errorf("client: received nil \n")
+			klog.ErrorS(errors.New("nil resource event"), "Client watch stream received nil resource event")
 			continue decode
 		}
 
@@ -96,7 +96,7 @@ decode:
 			// here k8s expects an empty object with just resource version and k8s.io/initial-events-end annotation
 			accessor, err := utils.MetaAccessor(obj)
 			if err != nil {
-				klog.Errorf("error getting object accessor: %s", err)
+				klog.ErrorS(err, "Error getting object accessor for bookmark")
 				return watch.Error, nil, err
 			}
 
@@ -107,7 +107,7 @@ decode:
 
 		obj, err := d.toObject(evt.Resource)
 		if err != nil {
-			klog.Errorf("error decoding entity: %s", err)
+			klog.ErrorS(err, "Error decoding watch entity")
 			return watch.Error, nil, err
 		}
 
@@ -117,7 +117,7 @@ decode:
 			// apply any predicates not handled in storage
 			matches, err := d.predicate.Matches(obj)
 			if err != nil {
-				klog.Errorf("error matching object: %s", err)
+				klog.ErrorS(err, "Error matching added object")
 				return watch.Error, nil, err
 			}
 			if !matches {
@@ -141,14 +141,14 @@ decode:
 			if evt.Previous != nil {
 				prevObj, err = d.toObject(evt.Previous)
 				if err != nil {
-					klog.Errorf("error decoding entity: %s", err)
+					klog.ErrorS(err, "Error decoding previous watch entity")
 					return watch.Error, nil, err
 				}
 
 				// apply any predicates not handled in storage
 				prevMatches, err = d.predicate.Matches(prevObj)
 				if err != nil {
-					klog.Errorf("error matching object: %s", err)
+					klog.ErrorS(err, "Error matching previous object")
 					return watch.Error, nil, err
 				}
 			}
@@ -166,7 +166,7 @@ decode:
 
 				accessor, err := utils.MetaAccessor(obj)
 				if err != nil {
-					klog.Errorf("error getting object accessor: %s", err)
+					klog.ErrorS(err, "Error getting object accessor for deleted event")
 					return watch.Error, nil, err
 				}
 
@@ -182,14 +182,14 @@ decode:
 			if evt.Previous != nil {
 				obj, err = d.toObject(evt.Previous)
 				if err != nil {
-					klog.Errorf("error decoding entity: %s", err)
+					klog.ErrorS(err, "Error decoding previous object for deleted event")
 					return watch.Error, nil, err
 				}
 
 				// here k8s expects the previous object but with the new resource version
 				accessor, err := utils.MetaAccessor(obj)
 				if err != nil {
-					klog.Errorf("error getting object accessor: %s", err)
+					klog.ErrorS(err, "Error getting object accessor for previous deleted event")
 					return watch.Error, nil, err
 				}
 
@@ -199,7 +199,7 @@ decode:
 			// apply any predicates not handled in storage
 			matches, err := d.predicate.Matches(obj)
 			if err != nil {
-				klog.Errorf("error matching object: %s", err)
+				klog.ErrorS(err, "Error matching deleted object")
 				return watch.Error, nil, err
 			}
 			if !matches {
@@ -217,7 +217,7 @@ func (d *streamDecoder) Close() {
 	// Close the send stream
 	err := d.client.CloseSend()
 	if err != nil {
-		klog.Errorf("error closing watch stream: %s", err)
+		klog.ErrorS(err, "Error closing watch stream")
 	}
 	// Cancel the send context
 	d.cancelWatch()

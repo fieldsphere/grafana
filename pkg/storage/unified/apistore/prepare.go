@@ -174,7 +174,7 @@ func (s *Storage) prepareObjectForUpdate(ctx context.Context, updateObject runti
 	}
 
 	if previous.GetUID() == "" {
-		klog.Errorf("object is missing UID: %s, %s", obj.GetGroupVersionKind().String(), obj.GetName())
+		klog.ErrorS(errors.New("object is missing UID"), "Object is missing UID", "groupVersionKind", obj.GetGroupVersionKind().String(), "name", obj.GetName())
 	} else if obj.GetUID() != previous.GetUID() {
 		// Eventually this should be a real error or logged
 		// However the dashboard dual write behavior hits this every time, so we will ignore it

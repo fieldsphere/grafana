@@ -45,7 +45,7 @@ func WrapHandler(handler http.Handler) func(req *http.Request) (*http.Response, 
 			defer cancel()
 			handler.ServeHTTP(w, req)
 			if err := w.CloseWriter(); err != nil {
-				klog.Errorf("error closing writer: %v", err)
+				klog.ErrorS(err, "Error closing response writer")
 			}
 		}()
 
@@ -201,7 +201,7 @@ func (ra *ResponseAdapter) Flush() {
 	// cases, we log the error, as it could be potentially not easy to check
 	// otherwise.
 	if err := ra.FlushError(); err != nil && !errors.Is(err, io.ErrClosedPipe) {
-		klog.Error("Error flushing response buffer: ", "error", err)
+		klog.ErrorS(err, "Error flushing response buffer")
 	}
 }
 
