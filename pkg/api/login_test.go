@@ -455,9 +455,6 @@ func TestLoginPostRedirect(t *testing.T) {
 		hs.Cfg.AppSubURL = c.appSubURL
 
 		t.Run(c.desc, func(t *testing.T) {
-			if c.desc == "grafana invalid relative url starting with subpath" {
-				fmt.Println()
-			}
 			expCookiePath := "/"
 			if len(hs.Cfg.AppSubURL) > 0 {
 				expCookiePath = hs.Cfg.AppSubURL
