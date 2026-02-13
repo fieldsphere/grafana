@@ -606,6 +606,6 @@ func formatProviderSetName(importPath, varName string) string {
 
 func logErrors(errs []error) {
 	for _, err := range errs {
-		wireLogger.Error("Wire reported error", "error", strings.Replace(err.Error(), "\n", "\n\t", -1))
+		wireLogger.Error("Wire reported error", "error", err, "formattedError", strings.Replace(err.Error(), "\n", "\n\t", -1))
 	}
 }
