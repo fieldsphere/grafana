@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/setting"
 	"github.com/stretchr/testify/assert"
 )
@@ -269,7 +270,7 @@ func TestMatchesAllowedPath(t *testing.T) {
 
 		t.Run(tc.name, func(t *testing.T) {
 			allGlobs, err := cacheGlobs(tc.allowList)
-			matched := matchesAllowedPath(allGlobs, tc.aPath)
+			matched := matchesAllowedPath(allGlobs, tc.aPath, log.New("validate_action_url_test"))
 			assert.NoError(t, err)
 			assert.Equal(t, matched, tc.matches)
 		})

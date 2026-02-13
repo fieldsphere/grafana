@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gobwas/glob"
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/services/contexthandler"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
@@ -81,7 +80,7 @@ func check(ctx *contextmodel.ReqContext, allGlobs *[]glob.Glob, logger log.Logge
 	// if matches glob
 	// return nil
 	urlToCheck := ctx.Req.URL
-	if matchesAllowedPath(allGlobs, urlToCheck.Path) {
+	if matchesAllowedPath(allGlobs, urlToCheck.Path, logger) {
 		return nil
 	}
 	logger.Warn("POST/PUT to path not allowed", "url", urlToCheck)
@@ -92,13 +91,13 @@ func check(ctx *contextmodel.ReqContext, allGlobs *[]glob.Glob, logger log.Logge
 	}
 }
 
-func matchesAllowedPath(allGlobs *[]glob.Glob, pathToCheck string) bool {
-	logger.Debug("Checking url", "actions", pathToCheck)
+func matchesAllowedPath(allGlobs *[]glob.Glob, pathToCheck string, logger log.Logger) bool {
+	logger.Debug("Checking action URL allowlist", "path", pathToCheck)
 	for _, rule := range *allGlobs {
-		logger.Debug("Checking match", "actions", rule)
+		logger.Debug("Checking action URL allowlist rule", "path", pathToCheck, "rule", rule)
 		if rule.Match(pathToCheck) {
 			// allowed
-			logger.Debug("POST/PUT call matches allow configuration settings")
+			logger.Debug("POST/PUT call matches allow configuration settings", "path", pathToCheck)
 			return true
 		}
 	}
