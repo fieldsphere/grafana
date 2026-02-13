@@ -13,6 +13,18 @@ import (
 	"xorm.io/builder"
 )
 
+func (session *Session) logSQLEvent(sqlStr string, args []any, execDuration *time.Duration) {
+	logArgs := []any{"sql", sqlStr}
+	if len(args) > 0 {
+		logArgs = append(logArgs, "args", args)
+	}
+	if execDuration != nil {
+		logArgs = append(logArgs, "duration", execDuration.String())
+	}
+	eventArgs := append([]any{"XORM SQL execution"}, logArgs...)
+	session.engine.logger.Info(eventArgs...)
+}
+
 func (session *Session) queryPreprocess(sqlStr *string, paramStr ...any) {
 	for _, filter := range session.engine.dialect.Filters() {
 		*sqlStr = filter.Do(*sqlStr, session.engine.dialect, session.statement.RefTable)
@@ -34,18 +46,10 @@ func (session *Session) queryRows(sqlStr string, args ...any) (*core.Rows, error
 			b4ExecTime := time.Now()
 			defer func() {
 				execDuration := time.Since(b4ExecTime)
-				if len(args) > 0 {
-					session.engine.logger.Infof("[SQL] %s %#v - took: %v", sqlStr, args, execDuration)
-				} else {
-					session.engine.logger.Infof("[SQL] %s - took: %v", sqlStr, execDuration)
-				}
+				session.logSQLEvent(sqlStr, args, &execDuration)
 			}()
 		} else {
-			if len(args) > 0 {
-				session.engine.logger.Infof("[SQL] %v %#v", sqlStr, args)
-			} else {
-				session.engine.logger.Infof("[SQL] %v", sqlStr)
-			}
+			session.logSQLEvent(sqlStr, args, nil)
 		}
 	}
 
@@ -155,18 +159,10 @@ func (session *Session) exec(sqlStr string, args ...any) (sql.Result, error) {
 			b4ExecTime := time.Now()
 			defer func() {
 				execDuration := time.Since(b4ExecTime)
-				if len(args) > 0 {
-					session.engine.logger.Infof("[SQL] %s %#v - took: %v", sqlStr, args, execDuration)
-				} else {
-					session.engine.logger.Infof("[SQL] %s - took: %v", sqlStr, execDuration)
-				}
+				session.logSQLEvent(sqlStr, args, &execDuration)
 			}()
 		} else {
-			if len(args) > 0 {
-				session.engine.logger.Infof("[SQL] %v %#v", sqlStr, args)
-			} else {
-				session.engine.logger.Infof("[SQL] %v", sqlStr)
-			}
+			session.logSQLEvent(sqlStr, args, nil)
 		}
 	}
 

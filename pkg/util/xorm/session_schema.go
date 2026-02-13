@@ -18,7 +18,7 @@ func (session *Session) Ping() error {
 		defer session.Close()
 	}
 
-	session.engine.logger.Infof("PING DATABASE %v", session.engine.DriverName())
+	session.engine.logger.Info("XORM ping database", "driver", session.engine.DriverName())
 	return session.DB().PingContext(session.ctx)
 }
 
