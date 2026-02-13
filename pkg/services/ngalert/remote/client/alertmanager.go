@@ -85,7 +85,7 @@ func (am *Alertmanager) IsReadyWithBackoff(ctx context.Context) error {
 			wait = time.Duration(100<<attempt-1) * time.Millisecond
 			status, err := am.checkReadiness(ctx)
 			if err != nil {
-				am.logger.Debug("Readiness check attempt failed", "attempt", attempt, "err", err)
+				am.logger.Debug("Readiness check attempt failed", "attempt", attempt, "error", err)
 				break
 			}
 
@@ -104,7 +104,7 @@ func (am *Alertmanager) IsReadyWithBackoff(ctx context.Context) error {
 			if status >= 400 && status < 500 {
 				return fmt.Errorf("readiness check failed on attempt %d with non-retriable status code %d", attempt, status)
 			}
-			am.logger.Debug("Readiness check failed, status code is not 200", "attempt", attempt, "status", status, "err", err)
+			am.logger.Debug("Readiness check failed, status code is not 200", "attempt", attempt, "status", status, "error", err)
 		}
 	}
 }
@@ -127,7 +127,7 @@ func (am *Alertmanager) checkReadiness(ctx context.Context) (int, error) {
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			am.logger.Warn("Error closing response body", "err", err)
+			am.logger.Warn("Error closing response body", "error", err)
 		}
 	}()
 

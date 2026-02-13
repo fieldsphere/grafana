@@ -784,7 +784,7 @@ func (am *Alertmanager) shouldSendConfig(ctx context.Context, newCfg remoteClien
 	rc, err := am.mimirClient.GetGrafanaAlertmanagerConfig(ctx)
 	if err != nil {
 		// Log the error and return true so we try to upload our config anyway.
-		am.log.Warn("Unable to get the remote Alertmanager configuration for comparison, sending the configuration without comparing", "err", err)
+		am.log.Warn("Unable to get the remote Alertmanager configuration for comparison, sending the configuration without comparing", "error", err)
 		return true
 	}
 	if rc.Hash != newCfg.Hash {

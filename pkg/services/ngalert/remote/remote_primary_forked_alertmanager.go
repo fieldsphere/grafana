@@ -49,7 +49,7 @@ func NewRemotePrimaryFactory(
 			l := log.New("ngalert.forked-alertmanager.remote-primary")
 			remoteAM, err := NewAlertmanager(ctx, cfg, notifier.NewFileStore(cfg.OrgID, store), crypto, autogenFn, m, t, features)
 			if err != nil {
-				l.Error("Failed to create remote Alertmanager, falling back to using only the internal one", "err", err)
+				l.Error("Failed to create remote Alertmanager, falling back to using only the internal one", "error", err)
 				return internalAM, nil
 			}
 
@@ -76,7 +76,7 @@ func (fam *RemotePrimaryForkedAlertmanager) ApplyConfig(ctx context.Context, con
 	if err := fam.internal.ApplyConfig(ctx, config); err != nil {
 		// An error in the internal Alertmanager shouldn't make the whole operation fail.
 		// We're replicating writes in the internal Alertmanager just for comparing and in case we need to roll back.
-		fam.log.Error("Error applying config to the internal Alertmanager", "err", err)
+		fam.log.Error("Error applying config to the internal Alertmanager", "error", err)
 	}
 	return nil
 }
@@ -89,7 +89,7 @@ func (fam *RemotePrimaryForkedAlertmanager) SaveAndApplyConfig(ctx context.Conte
 	if err := fam.internal.SaveAndApplyConfig(ctx, config); err != nil {
 		// An error in the internal Alertmanager shouldn't make the whole operation fail.
 		// We're replicating writes in the internal Alertmanager just for comparing and in case we need to roll back.
-		fam.log.Error("Error applying config to the internal Alertmanager", "err", err)
+		fam.log.Error("Error applying config to the internal Alertmanager", "error", err)
 	}
 	return nil
 }
@@ -102,7 +102,7 @@ func (fam *RemotePrimaryForkedAlertmanager) SaveAndApplyDefaultConfig(ctx contex
 	if err := fam.internal.SaveAndApplyDefaultConfig(ctx); err != nil {
 		// An error in the internal Alertmanager shouldn't make the whole operation fail.
 		// We're replicating writes in the internal Alertmanager just for comparing and in case we need to roll back.
-		fam.log.Error("Error applying the default configuration to the internal Alertmanager", "err", err)
+		fam.log.Error("Error applying the default configuration to the internal Alertmanager", "error", err)
 	}
 	return nil
 }
@@ -124,16 +124,16 @@ func (fam *RemotePrimaryForkedAlertmanager) CreateSilence(ctx context.Context, s
 			if errors.Is(err, alertingNotify.ErrSilenceNotFound) {
 				// This can happen if the silence was created in the remote AM without using the Grafana UI
 				// in remote primary mode, or if the silence failed to be replicated in the internal AM.
-				fam.log.Warn("Failed to delete silence in the internal Alertmanager", "err", err, "id", originalID)
+				fam.log.Warn("Failed to delete silence in the internal Alertmanager", "error", err, "id", originalID)
 			} else {
-				fam.log.Error("Failed to delete silence in the internal Alertmanager", "err", err, "id", originalID)
+				fam.log.Error("Failed to delete silence in the internal Alertmanager", "error", err, "id", originalID)
 			}
 		}
 	}
 
 	silence.ID = id
 	if _, err := fam.internal.CreateSilence(ctx, silence); err != nil {
-		fam.log.Error("Error creating silence in the internal Alertmanager", "err", err, "silence", silence)
+		fam.log.Error("Error creating silence in the internal Alertmanager", "error", err, "silence", silence)
 	}
 	return id, nil
 }
@@ -143,7 +143,7 @@ func (fam *RemotePrimaryForkedAlertmanager) DeleteSilence(ctx context.Context, i
 		return err
 	}
 	if err := fam.internal.DeleteSilence(ctx, id); err != nil {
-		fam.log.Error("Error deleting silence in the internal Alertmanager", "err", err, "id", id)
+		fam.log.Error("Error deleting silence in the internal Alertmanager", "error", err, "id", id)
 	}
 	return nil
 }
