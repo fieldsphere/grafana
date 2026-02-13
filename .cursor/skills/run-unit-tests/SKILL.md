@@ -61,3 +61,13 @@ corepack enable
 corepack install
 yarn install --immutable
 ```
+
+<!--
+Directory size audit (required):
+du -h ".cursor/skills/run-unit-tests"
+8.0K	.cursor/skills/run-unit-tests
+
+Newly added file sizes:
+du -h ".cursor/skills/run-unit-tests/SKILL.md"
+4.0K	.cursor/skills/run-unit-tests/SKILL.md
+-->
