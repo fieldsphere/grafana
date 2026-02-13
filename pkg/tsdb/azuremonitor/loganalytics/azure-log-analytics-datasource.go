@@ -137,7 +137,7 @@ func (e *AzureLogAnalyticsDatasource) ResourceRequest(rw http.ResponseWriter, re
 
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
-				e.Logger.Warn("Failed to close response body for metadata request", "err", err)
+				e.Logger.Warn("Failed to close response body for metadata request", "error", err)
 			}
 		}()
 
@@ -247,7 +247,7 @@ func (e *AzureLogAnalyticsDatasource) GetBasicLogsUsage(ctx context.Context, url
 
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			e.Logger.Warn("Failed to close response body for data volume request", "err", err)
+			e.Logger.Warn("Failed to close response body for data volume request", "error", err)
 		}
 	}()
 
@@ -463,7 +463,7 @@ func (e *AzureLogAnalyticsDatasource) executeQuery(ctx context.Context, query *A
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			e.Logger.Warn("Failed to close response body", "err", err)
+			e.Logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -790,7 +790,7 @@ func getCorrelationWorkspaces(ctx context.Context, baseResource string, resource
 
 		defer func() {
 			if err := res.Body.Close(); err != nil {
-				azMonService.Logger.Warn("Failed to close response body", "err", err)
+				azMonService.Logger.Warn("Failed to close response body", "error", err)
 			}
 		}()
 
@@ -857,7 +857,7 @@ func (e *AzureLogAnalyticsDatasource) unmarshalResponse(res *http.Response) (Azu
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			e.Logger.Warn("Failed to close response body", "err", err)
+			e.Logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

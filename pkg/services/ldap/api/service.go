@@ -222,7 +222,7 @@ func (s *Service) PostSyncUserWithLDAP(c *contextmodel.ReqContext) response.Resp
 			return response.Error(http.StatusBadRequest, "User not found in LDAP. Disabled the user without updating information", nil) // should this be a success?
 		}
 
-		s.log.Debug("Failed to sync the user with LDAP", "err", err)
+		s.log.Debug("Failed to sync the user with LDAP", "error", err)
 		return response.Error(http.StatusBadRequest, "Something went wrong while finding the user in LDAP", err)
 	}
 

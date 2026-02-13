@@ -1179,7 +1179,7 @@ func (cfg *Cfg) Load(args CommandLineArgs) error {
 	_, zoneInfoSet := os.LookupEnv(zoneInfo)
 	if !zoneInfoSet {
 		if err := os.Setenv(zoneInfo, filepath.Join(cfg.HomePath, "tools", "zoneinfo.zip")); err != nil {
-			cfg.Logger.Error("Can't set ZONEINFO environment variable", "err", err)
+			cfg.Logger.Error("Can't set ZONEINFO environment variable", "error", err)
 		}
 	}
 

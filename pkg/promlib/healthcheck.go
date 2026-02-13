@@ -44,7 +44,7 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 	} else {
 		jsonDetails, err := json.Marshal(heuristics)
 		if err != nil {
-			logger.Warn("Failed to marshal heuristics", "err", err)
+			logger.Warn("Failed to marshal heuristics", "error", err)
 		} else {
 			hc.JSONDetails = jsonDetails
 		}
