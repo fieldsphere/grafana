@@ -30,7 +30,7 @@ func instrumentContext(ctx context.Context, pCtx backend.PluginContext) context.
 		p = append(p, "endpoint", string(ep))
 	}
 
-	p = append(p, "pluginId", pCtx.PluginID)
+	p = append(p, "pluginID", pCtx.PluginID)
 
 	if pCtx.DataSourceInstanceSettings != nil {
 		p = append(p, "dsName", pCtx.DataSourceInstanceSettings.Name)
