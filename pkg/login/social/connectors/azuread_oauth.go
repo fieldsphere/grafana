@@ -144,7 +144,7 @@ func (s *SocialAzureAD) UserInfo(ctx context.Context, client *http.Client, token
 		return nil, fmt.Errorf("failed to extract groups: %w", err)
 	}
 
-	s.log.Debug("AzureAD OAuth: extracted groups", "email", email, "groups", fmt.Sprintf("%v", groups))
+	s.log.Debug("AzureAD OAuth: extracted groups", "email", email, "groups", groups)
 
 	userInfo := &social.BasicUserInfo{
 		Id:     claims.ID,
@@ -168,7 +168,7 @@ func (s *SocialAzureAD) UserInfo(ctx context.Context, client *http.Client, token
 			return nil, errRoleAttributeStrictViolation.Errorf("could not evaluate any valid roles using IdP provided data")
 		}
 
-		s.log.Debug("AzureAD OAuth: mapped org roles", "email", email, "roles", fmt.Sprintf("%v", userInfo.OrgRoles))
+		s.log.Debug("AzureAD OAuth: mapped org roles", "email", email, "roles", userInfo.OrgRoles)
 	}
 
 	if s.info.AllowAssignGrafanaAdmin && s.info.SkipOrgRoleSync {

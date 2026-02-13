@@ -267,7 +267,7 @@ func (s *SocialGitlab) extractFromAPI(ctx context.Context, client *http.Client, 
 	}
 
 	if s.cfg.Env == setting.Dev {
-		s.log.Debug("Resolved ID", "data", fmt.Sprintf("%+v", idData))
+		s.log.Debug("Resolved ID", "data", idData)
 	}
 
 	return idData, nil
@@ -284,7 +284,7 @@ func (s *SocialGitlab) extractFromToken(ctx context.Context, client *http.Client
 
 	idTokenString, ok := idToken.(string)
 	if !ok {
-		s.log.Warn("ID token is not a string", "token", fmt.Sprintf("%+v", idToken))
+		s.log.Warn("ID token is not a string", "token", idToken)
 		return nil, nil
 	}
 
@@ -302,7 +302,7 @@ func (s *SocialGitlab) extractFromToken(ctx context.Context, client *http.Client
 		// Otherwise, just extract the payload without signature validation
 		rawJSON, err = s.retrieveRawJWTPayload(idTokenString)
 		if err != nil {
-			s.log.Warn("Error retrieving id_token", "error", err, "token", fmt.Sprintf("%+v", idToken))
+			s.log.Warn("Error retrieving id_token", "error", err, "token", idToken)
 			return nil, nil
 		}
 	}
@@ -330,7 +330,7 @@ func (s *SocialGitlab) extractFromToken(ctx context.Context, client *http.Client
 
 	data.raw = rawJSON
 
-	s.log.Debug("Resolved user data", "data", fmt.Sprintf("%+v", data))
+	s.log.Debug("Resolved user data", "data", data)
 	return &data, nil
 }
 

@@ -1627,7 +1627,7 @@ func (s *DynamicSection) Key(k string) *ini.Key {
 	}
 
 	key.SetValue(envValue)
-	s.Logger.Info("Config overridden from Environment variable", "var", fmt.Sprintf("%s=%s", envKey, RedactedValue(envKey, envValue)))
+	s.Logger.Info("Config overridden from Environment variable", "var", envKey, "value", RedactedValue(envKey, envValue))
 
 	return key
 }

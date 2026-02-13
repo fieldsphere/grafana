@@ -184,7 +184,7 @@ func (s *SocialGoogle) UserInfo(ctx context.Context, client *http.Client, token 
 		}
 	}
 
-	s.log.Debug("Resolved user info", "data", fmt.Sprintf("%+v", userInfo))
+	s.log.Debug("Resolved user info", "data", userInfo)
 
 	return userInfo, nil
 }
@@ -254,7 +254,7 @@ func (s *SocialGoogle) extractFromToken(ctx context.Context, _ *http.Client, tok
 
 	idTokenString, ok := idToken.(string)
 	if !ok {
-		s.log.Warn("ID token is not a string", "token", fmt.Sprintf("%+v", idToken))
+		s.log.Warn("ID token is not a string", "token", idToken)
 		return nil, nil
 	}
 
@@ -272,7 +272,7 @@ func (s *SocialGoogle) extractFromToken(ctx context.Context, _ *http.Client, tok
 		// Otherwise, just extract the payload without signature validation
 		rawJSON, err = s.retrieveRawJWTPayload(idTokenString)
 		if err != nil {
-			s.log.Warn("Error retrieving id_token", "error", err, "token", fmt.Sprintf("%+v", idToken))
+			s.log.Warn("Error retrieving id_token", "error", err, "token", idToken)
 			return nil, nil
 		}
 	}

@@ -10,6 +10,7 @@ import (
 	"iter"
 	"math/rand/v2"
 	"net/http"
+	"reflect"
 	"sort"
 	"time"
 
@@ -159,7 +160,11 @@ func NewKVStorageBackend(opts KVBackendOptions) (KVBackend, error) {
 	// Start the cleanup background job.
 	go backend.runCleanups(ctx)
 
-	logger.Info("backend initialized", "kv", fmt.Sprintf("%T", kv))
+	kvType := "<nil>"
+	if kv != nil {
+		kvType = reflect.TypeOf(kv).String()
+	}
+	logger.Info("backend initialized", "kvType", kvType)
 
 	return backend, nil
 }

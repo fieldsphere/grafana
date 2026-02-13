@@ -572,7 +572,7 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 			if updateCmd.IsGrafanaAdmin != nil {
 				finalCmdToExecute.IsGrafanaAdmin = updateCmd.IsGrafanaAdmin
 				shouldExecuteUpdate = true
-				ctxLogger.Debug("Syncing IsGrafanaAdmin for provisioned user", "id", id.ID, "isAdmin", fmt.Sprintf("%v", *updateCmd.IsGrafanaAdmin))
+				ctxLogger.Debug("Syncing IsGrafanaAdmin for provisioned user", "id", id.ID, "isAdmin", *updateCmd.IsGrafanaAdmin)
 			}
 
 			if !shouldExecuteUpdate {
