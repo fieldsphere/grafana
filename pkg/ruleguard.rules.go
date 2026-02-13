@@ -521,6 +521,26 @@ func structuredlogging(m fluent.Matcher) {
 		Report("avoid string concatenation in structured log messages; use key/value fields")
 }
 
+func unstructuredoutput(m fluent.Matcher) {
+	m.Match(
+		`fmt.Print($*args)`,
+		`fmt.Printf($*args)`,
+		`fmt.Println($*args)`,
+	).Report("avoid fmt.Print* helpers for logging; use structured logging or explicit stdout/stderr writers for command output")
+
+	m.Match(
+		`log.Print($*args)`,
+		`log.Printf($*args)`,
+		`log.Println($*args)`,
+		`log.Fatal($*args)`,
+		`log.Fatalf($*args)`,
+		`log.Fatalln($*args)`,
+		`log.Panic($*args)`,
+		`log.Panicf($*args)`,
+		`log.Panicln($*args)`,
+	).Report("avoid stdlib log print/fatal helpers; use structured logging and explicit exit handling where needed")
+}
+
 func badlock(m fluent.Matcher) {
 	// Shouldn't give many false positives without type filter
 	// as Lock+Unlock pairs in combination with defer gives us pretty
