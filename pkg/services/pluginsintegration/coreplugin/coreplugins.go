@@ -172,20 +172,27 @@ type logWrapper struct {
 	logger log.Logger
 }
 
+func wrapCorePluginLogArgs(msg, level string, args ...any) []any {
+	context := make([]any, 0, len(args)+4)
+	context = append(context, "plugin_message", msg, "plugin_log_level", level)
+	context = append(context, args...)
+	return context
+}
+
 func (l *logWrapper) Debug(msg string, args ...any) {
-	l.logger.Debug(msg, args...)
+	l.logger.Debug("Core plugin SDK log entry", wrapCorePluginLogArgs(msg, "debug", args...)...)
 }
 
 func (l *logWrapper) Info(msg string, args ...any) {
-	l.logger.Info(msg, args...)
+	l.logger.Info("Core plugin SDK log entry", wrapCorePluginLogArgs(msg, "info", args...)...)
 }
 
 func (l *logWrapper) Warn(msg string, args ...any) {
-	l.logger.Warn(msg, args...)
+	l.logger.Warn("Core plugin SDK log entry", wrapCorePluginLogArgs(msg, "warn", args...)...)
 }
 
 func (l *logWrapper) Error(msg string, args ...any) {
-	l.logger.Error(msg, args...)
+	l.logger.Error("Core plugin SDK log entry", wrapCorePluginLogArgs(msg, "error", args...)...)
 }
 
 func (l *logWrapper) Level() sdklog.Level {
