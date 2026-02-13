@@ -49,7 +49,7 @@ func (engine *Engine) buildConds(table *core.Table, bean any,
 		fieldValuePtr, err := col.ValueOf(bean)
 		if err != nil {
 			if !strings.Contains(err.Error(), "is not valid") {
-				engine.logger.Warn(err)
+				engine.logger.Warn("XORM failed to read condition field value", "column", col.Name, "error", err)
 			}
 			continue
 		}
@@ -145,7 +145,7 @@ func (engine *Engine) buildConds(table *core.Table, bean any,
 					if col.SQLType.IsText() {
 						bytes, err := DefaultJSONHandler.Marshal(fieldValue.Interface())
 						if err != nil {
-							engine.logger.Error(err)
+							engine.logger.Error("XORM failed to marshal JSON condition value", "column", col.Name, "error", err)
 							continue
 						}
 						val = string(bytes)
@@ -154,7 +154,7 @@ func (engine *Engine) buildConds(table *core.Table, bean any,
 						var err error
 						bytes, err = DefaultJSONHandler.Marshal(fieldValue.Interface())
 						if err != nil {
-							engine.logger.Error(err)
+							engine.logger.Error("XORM failed to marshal JSON blob condition value", "column", col.Name, "error", err)
 							continue
 						}
 						val = bytes
@@ -193,7 +193,7 @@ func (engine *Engine) buildConds(table *core.Table, bean any,
 			if col.SQLType.IsText() {
 				bytes, err := DefaultJSONHandler.Marshal(fieldValue.Interface())
 				if err != nil {
-					engine.logger.Error(err)
+					engine.logger.Error("XORM failed to marshal JSON condition value", "column", col.Name, "error", err)
 					continue
 				}
 				val = string(bytes)
@@ -210,7 +210,7 @@ func (engine *Engine) buildConds(table *core.Table, bean any,
 				} else {
 					bytes, err = DefaultJSONHandler.Marshal(fieldValue.Interface())
 					if err != nil {
-						engine.logger.Error(err)
+						engine.logger.Error("XORM failed to marshal JSON blob condition value", "column", col.Name, "error", err)
 						continue
 					}
 					val = bytes
