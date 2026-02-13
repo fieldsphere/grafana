@@ -2,7 +2,7 @@ package errutil_test
 
 import (
 	"errors"
-	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -41,7 +41,7 @@ func ExampleTemplate() {
 		Error: errors.New("oh noes"),
 	})
 
-	fmt.Println(err.Error())
+	_, _ = os.Stdout.WriteString(err.Error() + "\n")
 
 	// Output:
 	// [template.sampleError] [grot the bot] got error: oh noes
@@ -64,8 +64,8 @@ func ExampleTemplate_public() {
 		Error: errors.New("oh noes"),
 	}).(errutil.Error)
 
-	fmt.Println(err.Error())
-	fmt.Println(err.PublicMessage)
+	_, _ = os.Stdout.WriteString(err.Error() + "\n")
+	_, _ = os.Stdout.WriteString(err.PublicMessage + "\n")
 
 	// Output:
 	// [template.sampleError] [grot the bot] got error: oh noes
