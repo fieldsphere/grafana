@@ -223,7 +223,7 @@ func (r *ZanzanaReconciler) reconcile(ctx context.Context) {
 	if r.cfg.StackID != "" {
 		id, err := strconv.ParseInt(r.cfg.StackID, 10, 64)
 		if err != nil {
-			r.log.Error("cannot perform reconciliation, malformed stack id", "id", r.cfg.StackID, "error", err)
+			r.log.Error("cannot perform reconciliation, malformed stack id", "stackID", r.cfg.StackID, "error", err)
 			return
 		}
 

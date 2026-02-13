@@ -372,14 +372,14 @@ func (hs *HTTPServer) newToFolderDto(c *contextmodel.ReqContext, f *folder.Folde
 	parents, err := hs.folderService.GetParents(ctx, folder.GetParentsQuery{UID: f.UID, OrgID: f.OrgID})
 	if err != nil {
 		// log the error instead of failing
-		hs.log.Error("failed to fetch folder parents", "folder", f.UID, "org", f.OrgID, "error", err)
+		hs.log.Error("failed to fetch folder parents", "folderUID", f.UID, "orgID", f.OrgID, "error", err)
 	}
 
 	folderDTO.Parents = make([]dtos.Folder, 0, len(parents))
 	for _, f := range parents {
 		DTO, err := toDTO(f, true)
 		if err != nil {
-			hs.log.Error("failed to convert folder to DTO", "folder", f.UID, "org", f.OrgID, "error", err)
+			hs.log.Error("failed to convert folder to DTO", "folderUID", f.UID, "orgID", f.OrgID, "error", err)
 			continue
 		}
 		folderDTO.Parents = append(folderDTO.Parents, DTO)

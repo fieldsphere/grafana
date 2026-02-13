@@ -147,7 +147,7 @@ func ProvideService(
 
 	for _, root := range settings.Roots {
 		if root.Prefix == "" {
-			grafanaStorageLogger.Warn("Invalid root configuration", "cfg", root)
+			grafanaStorageLogger.Warn("Invalid root configuration", "rootConfig", root)
 			continue
 		}
 

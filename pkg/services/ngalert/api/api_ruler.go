@@ -489,7 +489,7 @@ func (srv RulerSrv) updateAlertRulesInGroup(c *contextmodel.ReqContext, groupKey
 		// This isn't strictly necessary since the alertmanager config is periodically synced.
 		err := srv.amRefresher.ApplyConfig(c.Req.Context(), groupKey.OrgID, amConfig)
 		if err != nil {
-			srv.log.Warn("Failed to refresh Alertmanager config for org after change in notification settings", "org", c.GetOrgID(), "error", err)
+			srv.log.Warn("Failed to refresh Alertmanager config for org after change in notification settings", "orgID", c.GetOrgID(), "error", err)
 		}
 	}
 

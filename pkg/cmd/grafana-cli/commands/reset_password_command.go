@@ -62,7 +62,7 @@ func resetPasswordCommand(c utils.CommandLine, runner server.Runner) error {
 		logger.Info("\n")
 		logger.Info("Please run the command again with --user-id from the list below")
 		for _, u := range admins {
-			logger.Info("Admin user", "username", u.Login, "id", u.ID)
+			logger.Info("Admin user", "username", u.Login, "userID", u.ID)
 		}
 	}
 

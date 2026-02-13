@@ -106,7 +106,7 @@ func (d *AlertsRouter) SyncAndApplyConfigFromDatabase(ctx context.Context) error
 		}
 
 		if disableExternal && cfg.SendAlertsTo != models.InternalAlertmanager {
-			d.logger.Warn("Alertmanager choice in configuration will be ignored due to feature flags", "org", cfg.OrgID, "choice", cfg.SendAlertsTo)
+			d.logger.Warn("Alertmanager choice in configuration will be ignored due to feature flags", "orgID", cfg.OrgID, "choice", cfg.SendAlertsTo)
 			cfg.SendAlertsTo = models.InternalAlertmanager
 		}
 
@@ -119,25 +119,25 @@ func (d *AlertsRouter) SyncAndApplyConfigFromDatabase(ctx context.Context) error
 
 		//  We have no running sender and alerts are handled internally, no-op.
 		if !ok && cfg.SendAlertsTo == models.InternalAlertmanager {
-			d.logger.Debug("Grafana is configured to send alerts to the internal alertmanager only. Skipping synchronization with external alertmanager", "org", cfg.OrgID)
+			d.logger.Debug("Grafana is configured to send alerts to the internal alertmanager only. Skipping synchronization with external alertmanager", "orgID", cfg.OrgID)
 			continue
 		}
 
 		alertmanagers, err := d.alertmanagersFromDatasources(cfg.OrgID)
 		if err != nil {
-			d.logger.Error("Failed to get alertmanagers from datasources", "org", cfg.OrgID, "error", err)
+			d.logger.Error("Failed to get alertmanagers from datasources", "orgID", cfg.OrgID, "error", err)
 			continue
 		}
 
 		// We have no running sender and no Alertmanager(s) configured, no-op.
 		if !ok && len(alertmanagers) == 0 {
-			d.logger.Debug("No external alertmanagers configured", "org", cfg.OrgID)
+			d.logger.Debug("No external alertmanagers configured", "orgID", cfg.OrgID)
 			continue
 		}
 
 		// We have a running sender but no Alertmanager(s) configured, shut it down.
 		if ok && len(alertmanagers) == 0 {
-			d.logger.Info("No external alertmanager(s) configured, sender will be stopped", "org", cfg.OrgID)
+			d.logger.Info("No external alertmanager(s) configured, sender will be stopped", "orgID", cfg.OrgID)
 			delete(orgsFound, cfg.OrgID)
 			continue
 		}
@@ -154,14 +154,14 @@ func (d *AlertsRouter) SyncAndApplyConfigFromDatabase(ctx context.Context) error
 		amHash := asSHA256(hashes)
 		if ok {
 			if d.externalAlertmanagersCfgHash[cfg.OrgID] == amHash {
-				d.logger.Debug("Sender configuration is the same as the one running, no-op", "org", cfg.OrgID, "alertmanagers", redactedAMs)
+				d.logger.Debug("Sender configuration is the same as the one running, no-op", "orgID", cfg.OrgID, "alertmanagers", redactedAMs)
 				continue
 			}
 
-			d.logger.Info("Applying new configuration to sender", "org", cfg.OrgID, "alertmanagers", redactedAMs, "cfg", cfg.ID)
+			d.logger.Info("Applying new configuration to sender", "orgID", cfg.OrgID, "alertmanagers", redactedAMs, "configID", cfg.ID)
 			err := existing.ApplyConfig(cfg.OrgID, cfg.ID, alertmanagers)
 			if err != nil {
-				d.logger.Error("Failed to apply configuration", "error", err, "org", cfg.OrgID)
+				d.logger.Error("Failed to apply configuration", "error", err, "orgID", cfg.OrgID)
 				continue
 			}
 			d.externalAlertmanagersCfgHash[cfg.OrgID] = amHash
@@ -169,7 +169,7 @@ func (d *AlertsRouter) SyncAndApplyConfigFromDatabase(ctx context.Context) error
 		}
 
 		// No sender and have Alertmanager(s) to send to - start a new one.
-		d.logger.Info("Creating new sender for the external alertmanagers", "org", cfg.OrgID, "alertmanagers", redactedAMs)
+		d.logger.Info("Creating new sender for the external alertmanagers", "orgID", cfg.OrgID, "alertmanagers", redactedAMs)
 		senderLogger := log.New("ngalert.sender.external-alertmanager")
 		s, err := NewExternalAlertmanagerSender(senderLogger, prometheus.NewRegistry())
 		if err != nil {
@@ -181,7 +181,7 @@ func (d *AlertsRouter) SyncAndApplyConfigFromDatabase(ctx context.Context) error
 
 		err = s.ApplyConfig(cfg.OrgID, cfg.ID, alertmanagers)
 		if err != nil {
-			d.logger.Error("Failed to apply configuration", "error", err, "org", cfg.OrgID)
+			d.logger.Error("Failed to apply configuration", "error", err, "orgID", cfg.OrgID)
 			continue
 		}
 
@@ -201,9 +201,9 @@ func (d *AlertsRouter) SyncAndApplyConfigFromDatabase(ctx context.Context) error
 	// We can now stop these senders w/o having to hold a lock.
 	d.adminConfigMtx.Unlock()
 	for orgID, s := range sendersToStop {
-		d.logger.Info("Stopping sender", "org", orgID)
+		d.logger.Info("Stopping sender", "orgID", orgID)
 		s.Stop()
-		d.logger.Info("Stopped sender", "org", orgID)
+		d.logger.Info("Stopped sender", "orgID", orgID)
 	}
 
 	d.logger.Debug("Finish of admin configuration sync")
@@ -211,12 +211,12 @@ func (d *AlertsRouter) SyncAndApplyConfigFromDatabase(ctx context.Context) error
 	return nil
 }
 
-func buildRedactedAMs(l log.Logger, alertmanagers []ExternalAMcfg, ordId int64) []string {
+func buildRedactedAMs(l log.Logger, alertmanagers []ExternalAMcfg, orgID int64) []string {
 	redactedAMs := make([]string, 0, len(alertmanagers))
 	for _, am := range alertmanagers {
 		parsedAM, err := url.Parse(am.URL)
 		if err != nil {
-			l.Error("Failed to parse alertmanager string", "org", ordId, "error", err)
+			l.Error("Failed to parse alertmanager string", "orgID", orgID, "error", err)
 			continue
 		}
 
@@ -266,8 +266,8 @@ func (d *AlertsRouter) alertmanagersFromDatasources(orgID int64) ([]ExternalAMcf
 		cfg, err := d.datasourceToExternalAMcfg(ds)
 		if err != nil {
 			d.logger.Error("Failed to convert datasource to external alertmanager config",
-				"org", ds.OrgID,
-				"uid", ds.UID,
+				"orgID", ds.OrgID,
+				"datasourceUID", ds.UID,
 				"error", err)
 			continue
 		}

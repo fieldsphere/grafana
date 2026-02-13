@@ -102,5 +102,5 @@ func (a *AccessControl) debug(ctx context.Context, ident identity.Requester, sta
 	ctx, span := tracer.Start(ctx, "accesscontrol.acimpl.debug")
 	defer span.End()
 
-	a.log.FromContext(ctx).Debug("Access control permission evaluation", "stage", stage, "id", ident.GetID(), "orgID", ident.GetOrgID(), "permissions", eval.GoString())
+	a.log.FromContext(ctx).Debug("Access control permission evaluation", "stage", stage, "identityID", ident.GetID(), "orgID", ident.GetOrgID(), "permissions", eval.GoString())
 }

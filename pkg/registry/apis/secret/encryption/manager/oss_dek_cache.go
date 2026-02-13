@@ -52,7 +52,7 @@ func (c *ossDataKeyCache) GetById(namespace, id string) (_ encryption.DataKeyCac
 		return entry, false
 	}
 	if entry.Namespace != namespace {
-		c.log.Error("Broken invariant: unexpected namespace for data key id lookup", "expectedNamespace", namespace, "actualNamespace", entry.Namespace, "id", id)
+		c.log.Error("Broken invariant: unexpected namespace for data key id lookup", "expectedNamespace", namespace, "actualNamespace", entry.Namespace, "dataKeyID", id)
 		return encryption.DataKeyCacheEntry{}, false
 	}
 	if entry.IsExpired() {

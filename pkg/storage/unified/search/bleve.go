@@ -1974,7 +1974,7 @@ func (q *permissionScopedQuery) Searcher(ctx context.Context, i index.IndexReade
 		parts := strings.Split(d.ID, "/")
 		// Exclude doc if id isn't expected format
 		if len(parts) != 4 {
-			logger.Debug("Unexpected document ID format", "id", d.ID)
+			logger.Debug("Unexpected document ID format", "documentID", d.ID)
 			return false
 		}
 		ns := parts[0]

@@ -182,13 +182,13 @@ func NewExternalAlertmanagerSender(l log.Logger, reg prometheus.Registerer, opts
 }
 
 // ApplyConfig syncs a configuration with the sender.
-func (s *ExternalAlertmanager) ApplyConfig(orgId, id int64, alertmanagers []ExternalAMcfg) error {
+func (s *ExternalAlertmanager) ApplyConfig(orgID, configID int64, alertmanagers []ExternalAMcfg) error {
 	notifierCfg, headers, err := buildNotifierConfig(alertmanagers)
 	if err != nil {
 		return err
 	}
 
-	s.logger = s.logger.New("org", orgId, "cfg", id)
+	s.logger = s.logger.New("orgID", orgID, "configID", configID)
 
 	s.logger.Info("Synchronizing config with external Alertmanager group")
 	if err := s.manager.ApplyConfig(notifierCfg, headers); err != nil {

@@ -172,12 +172,12 @@ func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Re
 
 		id, err := strconv.ParseInt(keyID, 10, 64)
 		if err != nil {
-			s.log.Warn("Invalid api key id", "id", keyID, "error", err)
+			s.log.Warn("Invalid api key id", "apiKeyID", keyID, "error", err)
 			return
 		}
 
 		if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), id); err != nil {
-			s.log.Warn("Failed to update last used date for api key", "id", keyID, "error", err)
+			s.log.Warn("Failed to update last used date for api key", "apiKeyID", keyID, "error", err)
 			return
 		}
 	}(r.GetMeta(metaKeyID))

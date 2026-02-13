@@ -79,7 +79,7 @@ func (s *Service) SignIdentity(ctx context.Context, id identity.Requester) (stri
 		cachedToken, err := s.cache.Get(ctx, cacheKey)
 		if err == nil {
 			s.metrics.tokenSigningFromCacheCounter.Inc()
-			s.logger.FromContext(ctx).Debug("Cached token found", "id", id.GetID())
+			s.logger.FromContext(ctx).Debug("Cached token found", "identityID", id.GetID())
 
 			tokenClaims, err := s.extractTokenClaims(string(cachedToken))
 			if err != nil {
@@ -89,7 +89,7 @@ func (s *Service) SignIdentity(ctx context.Context, id identity.Requester) (stri
 		}
 
 		s.metrics.tokenSigningCounter.Inc()
-		s.logger.FromContext(ctx).Debug("Sign new id token", "id", id.GetID())
+		s.logger.FromContext(ctx).Debug("Sign new id token", "identityID", id.GetID())
 
 		now := time.Now()
 		idClaims := &auth.IDClaims{
@@ -159,7 +159,7 @@ func (s *Service) SyncIDToken(ctx context.Context, identity *authn.Identity, _ *
 	token, idClaims, err := s.SignIdentity(ctx, identity)
 	if err != nil {
 		if shouldLogErr(err) {
-			s.logger.FromContext(ctx).Error("Failed to sign id token", "error", err, "id", identity.GetID())
+			s.logger.FromContext(ctx).Error("Failed to sign id token", "error", err, "identityID", identity.GetID())
 		}
 		// for now don't return error so we don't break authentication from this hook
 		return nil
