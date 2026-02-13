@@ -727,7 +727,7 @@ func (hs *HTTPServer) healthzHandler(ctx *web.Context) {
 
 	ctx.Resp.WriteHeader(http.StatusOK)
 	if _, err := ctx.Resp.Write([]byte("Ok")); err != nil {
-		hs.log.Error("could not write to response", "err", err)
+		hs.log.Error("could not write to response", "error", err)
 	}
 }
 
@@ -776,12 +776,12 @@ func (hs *HTTPServer) apiHealthHandler(ctx *web.Context) {
 
 	dataBytes, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		hs.log.Error("Failed to encode data", "err", err)
+		hs.log.Error("Failed to encode data", "error", err)
 		return
 	}
 
 	if _, err := ctx.Resp.Write(dataBytes); err != nil {
-		hs.log.Error("Failed to write to response", "err", err)
+		hs.log.Error("Failed to write to response", "error", err)
 	}
 }
 
