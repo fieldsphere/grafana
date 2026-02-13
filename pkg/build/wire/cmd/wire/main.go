@@ -244,7 +244,7 @@ func (cmd *diffCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 		}); err == nil {
 			if diff != "" {
 				// Print the actual diff to stdout, not stderr.
-				fmt.Printf("%s: diff from %s:\n%s\n", out.PkgPath, out.OutputPath, diff)
+				_, _ = fmt.Fprintf(os.Stdout, "%s: diff from %s:\n%s\n", out.PkgPath, out.OutputPath, diff)
 				hadDiff = true
 			}
 		} else {
@@ -304,15 +304,15 @@ func (cmd *showCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 		})
 		for i, k := range keys {
 			if i > 0 {
-				fmt.Println()
+				_, _ = fmt.Fprintln(os.Stdout)
 			}
 			outGroups, imports := gather(info, k)
-			fmt.Println(k)
+			_, _ = fmt.Fprintln(os.Stdout, k)
 			for _, imp := range sortSet(imports) {
-				fmt.Printf("\t%s\n", imp)
+				_, _ = fmt.Fprintf(os.Stdout, "\t%s\n", imp)
 			}
 			for i := range outGroups {
-				fmt.Printf("\tOutputs given %s:\n", outGroups[i].name)
+				_, _ = fmt.Fprintf(os.Stdout, "\tOutputs given %s:\n", outGroups[i].name)
 				out := make(map[string]token.Pos, outGroups[i].outputs.Len())
 				outGroups[i].outputs.Iterate(func(t types.Type, v interface{}) {
 					switch v := v.(type) {
@@ -327,8 +327,8 @@ func (cmd *showCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 					}
 				})
 				for _, t := range sortSet(out) {
-					fmt.Printf("\t\t%s\n", t)
-					fmt.Printf("\t\t\tat %v\n", info.Fset.Position(out[t]))
+					_, _ = fmt.Fprintf(os.Stdout, "\t\t%s\n", t)
+					_, _ = fmt.Fprintf(os.Stdout, "\t\t\tat %v\n", info.Fset.Position(out[t]))
 				}
 			}
 		}
@@ -340,9 +340,9 @@ func (cmd *showCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 				}
 				return injectors[i].ImportPath < injectors[j].ImportPath
 			})
-			fmt.Println("\nInjectors:")
+			_, _ = fmt.Fprintln(os.Stdout, "\nInjectors:")
 			for _, in := range injectors {
-				fmt.Printf("\t%v\n", in)
+				_, _ = fmt.Fprintf(os.Stdout, "\t%v\n", in)
 			}
 		}
 	}
