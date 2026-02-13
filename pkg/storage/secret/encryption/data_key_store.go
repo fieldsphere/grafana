@@ -41,7 +41,7 @@ func (ss *encryptionStoreImpl) GetDataKey(ctx context.Context, namespace, uid st
 	start := time.Now()
 	ctx, span := ss.tracer.Start(ctx, "DataKeyStorage.GetDataKey", trace.WithAttributes(
 		attribute.String("namespace", namespace),
-		attribute.String("uid", uid),
+		attribute.String("dataKeyUID", uid),
 	))
 
 	defer func() {
@@ -226,7 +226,7 @@ func (ss *encryptionStoreImpl) ListDataKeys(ctx context.Context, namespace strin
 func (ss *encryptionStoreImpl) CreateDataKey(ctx context.Context, dataKey *contracts.SecretDataKey) error {
 	start := time.Now()
 	ctx, span := ss.tracer.Start(ctx, "DataKeyStorage.CreateDataKey", trace.WithAttributes(
-		attribute.String("uid", dataKey.UID),
+		attribute.String("dataKeyUID", dataKey.UID),
 		attribute.String("namespace", dataKey.Namespace),
 		attribute.Bool("active", dataKey.Active),
 	))
@@ -310,7 +310,7 @@ func (ss *encryptionStoreImpl) DisableDataKeys(ctx context.Context, namespace st
 func (ss *encryptionStoreImpl) DeleteDataKey(ctx context.Context, namespace, uid string) error {
 	start := time.Now()
 	ctx, span := ss.tracer.Start(ctx, "DataKeyStorage.DeleteDataKey", trace.WithAttributes(
-		attribute.String("uid", uid),
+		attribute.String("dataKeyUID", uid),
 		attribute.String("namespace", namespace),
 	))
 	defer func() {

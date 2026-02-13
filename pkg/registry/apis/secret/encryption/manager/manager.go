@@ -344,7 +344,7 @@ func (s *EncryptionManager) Decrypt(ctx context.Context, namespace xkube.Namespa
 func (s *EncryptionManager) dataKeyById(ctx context.Context, namespace, id string, skipCache bool) ([]byte, error) {
 	ctx, span := s.tracer.Start(ctx, "EnvelopeEncryptionManager.GetDataKey", trace.WithAttributes(
 		attribute.String("namespace", namespace),
-		attribute.String("id", id),
+		attribute.String("dataKeyID", id),
 	))
 	defer span.End()
 

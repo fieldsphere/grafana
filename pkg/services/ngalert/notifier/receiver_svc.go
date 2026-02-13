@@ -393,7 +393,7 @@ func (rs *ReceiverService) CreateReceiver(ctx context.Context, r *models.Receive
 	}
 
 	span.AddEvent("Created a new receiver", trace.WithAttributes(
-		attribute.String("uid", result.UID),
+		attribute.String("receiverUID", result.UID),
 		attribute.String("version", result.Version),
 	))
 	rs.log.FromContext(ctx).Info("Created a new receiver", "receiver", result.Name, "uid", result.UID, "fingerprint", result.Version, "integrations", result.GetIntegrationTypes())
@@ -403,7 +403,7 @@ func (rs *ReceiverService) CreateReceiver(ctx context.Context, r *models.Receive
 func (rs *ReceiverService) UpdateReceiver(ctx context.Context, r *models.Receiver, storedSecureFields map[string][]string, orgID int64, user identity.Requester) (*models.Receiver, error) {
 	ctx, span := rs.tracer.Start(ctx, "alerting.receivers.update", trace.WithAttributes(
 		attribute.String("receiver", r.Name),
-		attribute.String("uid", r.UID),
+		attribute.String("receiverUID", r.UID),
 		attribute.String("version", r.Version),
 		attribute.StringSlice("integrations", r.GetIntegrationTypes()),
 	))
@@ -453,7 +453,7 @@ func (rs *ReceiverService) UpdateReceiver(ctx context.Context, r *models.Receive
 	span.AddEvent("Loaded current receiver", trace.WithAttributes(
 		attribute.String("concurrencyToken", revision.ConcurrencyToken),
 		attribute.String("receiver", existing.Name),
-		attribute.String("uid", existing.UID),
+		attribute.String("receiverUID", existing.UID),
 		attribute.String("version", existing.Version),
 		attribute.StringSlice("integrations", existing.GetIntegrationTypes()),
 	))
