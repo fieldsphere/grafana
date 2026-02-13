@@ -65,7 +65,7 @@ func RequestConfigMiddleware(cfg *setting.Cfg, license licensing.Licensing, sett
 
 				settings, err := settingsService.ListAsIni(ctx, selector)
 				if err != nil {
-					logger.Error("failed to fetch tenant settings", "namespace", namespace, "err", err)
+					logger.Error("failed to fetch tenant settings", "namespace", namespace, "error", err)
 					// Fall back to base config
 				} else {
 					// Merge tenant overrides with base config

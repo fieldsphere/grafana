@@ -82,7 +82,7 @@ func (ss *SqlStore) getDataSource(_ context.Context, query *datasources.GetDataS
 	has, err := sess.Get(datasource)
 
 	if err != nil {
-		ss.logger.Error("Failed getting data source", "err", err, "uid", query.UID, "id", query.ID, "name", query.Name, "orgId", query.OrgID) // nolint:staticcheck
+		ss.logger.Error("Failed getting data source", "error", err, "uid", query.UID, "id", query.ID, "name", query.Name, "orgId", query.OrgID) // nolint:staticcheck
 		return nil, err
 	} else if !has {
 		ss.logger.Debug("Data source not found", "uid", query.UID, "id", query.ID, "name", query.Name, "orgId", query.OrgID) // nolint:staticcheck
@@ -117,7 +117,7 @@ func (ss *SqlStore) getDataSourceInGroup(_ context.Context, orgID int64, name, g
 	has, err := sess.Get(datasource)
 
 	if err != nil {
-		ss.logger.Error("Failed getting data source", "err", err, "name", name, "orgId", orgID, "group", group)
+		ss.logger.Error("Failed getting data source", "error", err, "name", name, "orgId", orgID, "group", group)
 		return nil, err
 	} else if !has {
 		ss.logger.Debug("Data source not found", "name", name, "orgId", orgID, "group", group)

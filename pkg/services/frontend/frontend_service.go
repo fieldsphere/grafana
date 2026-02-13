@@ -69,7 +69,7 @@ func ProvideFrontendService(cfg *setting.Cfg, features featuremgmt.FeatureToggle
 	// Initialize Settings Service client if configured
 	var settingsService settingservice.Service
 	if settingsSvc, err := setupSettingsService(cfg, promRegister); err != nil {
-		logger.Error("Settings Service failed to initialize", "err", err)
+		logger.Error("Settings Service failed to initialize", "error", err)
 		return nil, err
 	} else {
 		settingsService = settingsSvc
@@ -204,7 +204,7 @@ func (s *frontendService) handleBootError(w http.ResponseWriter, r *http.Request
 
 	defer func() {
 		if err := r.Body.Close(); err != nil {
-			s.log.Warn("Failed to close response body", "err", err)
+			s.log.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
