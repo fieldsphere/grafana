@@ -1164,7 +1164,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Float64($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9.]*_[A-Za-z0-9_.]*\"$")).
 		Report(`avoid snake_case trace attribute keys; use camelCase with canonical acronym casing`)
 
 	m.Match(
