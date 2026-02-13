@@ -334,7 +334,7 @@ func (mg *Migrator) doMigration(ctx context.Context, m Migration) error {
 			cnt++
 			logger.Debug("Database locked, sleeping then retrying", "error", err, "sql", sql)
 			span.AddEvent("Database locked, sleeping then retrying",
-				trace.WithAttributes(attribute.String("error", err.Error())),
+				trace.WithAttributes(attribute.String("errorMessage", err.Error())),
 				trace.WithAttributes(attribute.String("sql", sql)),
 			)
 			time.Sleep(100 * time.Millisecond)

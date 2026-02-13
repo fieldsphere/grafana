@@ -280,7 +280,7 @@ func (b *batchRunner) Next() bool {
 
 	if b.err != nil {
 		b.rollback = true
-		b.span.AddEvent("next", trace.WithAttributes(attribute.String("error", b.err.Error())))
+		b.span.AddEvent("next", trace.WithAttributes(attribute.String("errorMessage", b.err.Error())))
 		return true
 	}
 
@@ -301,7 +301,7 @@ func (b *batchRunner) Next() bool {
 			attribute.String("key", nsgrWithName(key)),
 		}
 		if b.err != nil {
-			attrs = append(attrs, attribute.String("error", b.err.Error()))
+			attrs = append(attrs, attribute.String("errorMessage", b.err.Error()))
 		}
 
 		b.span.AddEvent("next", trace.WithAttributes(attrs...))

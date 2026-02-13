@@ -1177,6 +1177,18 @@ func structuredlogging(m fluent.Matcher) {
 		Report("prefer stable string-literal or const trace attribute keys; avoid runtime-generated key values")
 
 	m.Match(
+		`attribute.String("error", $err.Error())`,
+	).
+		Where(m["err"].Type.Is("error")).
+		Report(`use "errorMessage" for stringified error text in trace attributes (for example attribute.String("errorMessage", err.Error()))`)
+
+	m.Match(
+		`attribute.String("error", $errMsg)`,
+	).
+		Where(m["errMsg"].Type.Is("string")).
+		Report(`use "errorMessage" when storing string error text in trace attributes`)
+
+	m.Match(
 		`attribute.String($key, $value)`,
 		`attribute.Int($key, $value)`,
 		`attribute.Int64($key, $value)`,

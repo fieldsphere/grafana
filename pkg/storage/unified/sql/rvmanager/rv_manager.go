@@ -269,7 +269,7 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 			if err != nil {
 				span.AddEvent("batch_operation_failed", trace.WithAttributes(
 					attribute.Int("operationIndex", i),
-					attribute.String("error", err.Error()),
+					attribute.String("errorMessage", err.Error()),
 				))
 				return err
 			}
@@ -285,7 +285,7 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 		lockTimer.ObserveDuration()
 		if err != nil {
 			span.AddEvent("resource_version_lock_failed", trace.WithAttributes(
-				attribute.String("error", err.Error()),
+				attribute.String("errorMessage", err.Error()),
 			))
 			return fmt.Errorf("failed to increment resource version: %w", err)
 		}
@@ -310,7 +310,7 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 			GUIDToRV:    guidToRV,
 		}); err != nil {
 			span.AddEvent("resource_update_rv_failed", trace.WithAttributes(
-				attribute.String("error", err.Error()),
+				attribute.String("errorMessage", err.Error()),
 			))
 			return fmt.Errorf("update resource version: %w", err)
 		}
@@ -322,7 +322,7 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 			GUIDToSnowflakeRV: guidToSnowflakeRV,
 		}); err != nil {
 			span.AddEvent("resource_history_update_rv_failed", trace.WithAttributes(
-				attribute.String("error", err.Error()),
+				attribute.String("errorMessage", err.Error()),
 			))
 			return fmt.Errorf("update resource history version: %w", err)
 		}
@@ -332,7 +332,7 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 		err = m.SaveRV(ctx, tx, group, resource, rv)
 		if err != nil {
 			span.AddEvent("save_rv_failed", trace.WithAttributes(
-				attribute.String("error", err.Error()),
+				attribute.String("errorMessage", err.Error()),
 			))
 		}
 		return err
@@ -340,7 +340,7 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 
 	if err != nil {
 		span.AddEvent("batch_transaction_failed", trace.WithAttributes(
-			attribute.String("error", err.Error()),
+			attribute.String("errorMessage", err.Error()),
 		))
 	} else {
 		span.AddEvent("batch_transaction_completed")
