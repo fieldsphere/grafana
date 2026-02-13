@@ -90,7 +90,7 @@ type Cfg struct {
 	// for logging purposes
 	configFiles                  []string
 	appliedCommandLineProperties []string
-	appliedEnvOverrides          []string
+	appliedEnvOverrides          []appliedEnvOverride
 
 	// HTTP Server Settings
 	CertFile          string
@@ -643,6 +643,11 @@ type Cfg struct {
 	SecretsManagement SecretsManagerSettings
 }
 
+type appliedEnvOverride struct {
+	key   string
+	value string
+}
+
 type UnifiedStorageConfig struct {
 	DualWriterMode rest.DualWriterMode
 	// EnableMigration indicates whether migration is enabled for the resource.
@@ -777,7 +782,7 @@ func RedactedURL(value string) (string, error) {
 }
 
 func (cfg *Cfg) applyEnvVariableOverrides(file *ini.File) error {
-	cfg.appliedEnvOverrides = make([]string, 0)
+	cfg.appliedEnvOverrides = make([]appliedEnvOverride, 0)
 	for _, section := range file.Sections() {
 		for _, key := range section.Keys() {
 			envKey := EnvKey(section.Name(), key.Name())
@@ -785,7 +790,10 @@ func (cfg *Cfg) applyEnvVariableOverrides(file *ini.File) error {
 
 			if len(envValue) > 0 {
 				key.SetValue(envValue)
-				cfg.appliedEnvOverrides = append(cfg.appliedEnvOverrides, fmt.Sprintf("%s=%s", envKey, RedactedValue(envKey, envValue)))
+				cfg.appliedEnvOverrides = append(cfg.appliedEnvOverrides, appliedEnvOverride{
+					key:   envKey,
+					value: RedactedValue(envKey, envValue),
+				})
 			}
 		}
 	}
@@ -1596,7 +1604,7 @@ func (cfg *Cfg) LogConfigSources() {
 	if len(cfg.appliedEnvOverrides) > 0 {
 		text.WriteString("\tEnvironment variables used:\n")
 		for _, prop := range cfg.appliedEnvOverrides {
-			cfg.Logger.Info("Config overridden from Environment variable", "var", prop)
+			cfg.Logger.Info("Config overridden from Environment variable", "var", prop.key, "value", prop.value)
 		}
 	}
 
