@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"go/build"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -28,7 +28,7 @@ const (
 var binaries = []string{BackendBinary, ServerBinary, CLIBinary}
 
 func logError(message string, err error) int {
-	log.Println(message, err)
+	slog.Error(message, "error", err)
 
 	return 1
 }
@@ -62,10 +62,13 @@ func RunCmd() int {
 		return 0
 	}
 
-	log.Printf("Version: %s, Linux Version: %s, Package Iteration: %s\n", version, version, iteration)
+	slog.Info("Build version",
+		"version", version,
+		"linuxVersion", version,
+		"packageIteration", iteration)
 
 	if flag.NArg() == 0 {
-		log.Println("Usage: go run build.go build")
+		slog.Error("Usage: go run build.go build")
 		return 1
 	}
 
@@ -80,7 +83,7 @@ func RunCmd() int {
 			}
 
 			if err := doBuild("grafana", "./pkg/cmd/grafana", opts); err != nil {
-				log.Println(err)
+				slog.Error("Build backend failed", "error", err)
 				return 1
 			}
 
@@ -90,24 +93,24 @@ func RunCmd() int {
 			}
 
 			if err := doBuild("grafana-server", "./pkg/cmd/grafana-server", opts); err != nil {
-				log.Println(err)
+				slog.Error("Build server failed", "error", err)
 				return 1
 			}
 
 		case "build-cli":
 			clean(opts)
 			if err := doBuild("grafana-cli", "./pkg/cmd/grafana-cli", opts); err != nil {
-				log.Println(err)
+				slog.Error("Build CLI failed", "error", err)
 				return 1
 			}
 
 		case "build":
 			// clean()
 			for _, binary := range binaries {
-				log.Println("building binaries", cmd)
+				slog.Info("Building binaries", "command", cmd, "binary", binary)
 				// Can't use filepath.Join here because filepath.Join calls filepath.Clean, which removes the `./` from this path, which upsets `go build`
 				if err := doBuild(binary, fmt.Sprintf("./pkg/cmd/%s", binary), opts); err != nil {
-					log.Println(err)
+					slog.Error("Build failed", "binary", binary, "error", err)
 					return 1
 				}
 			}
@@ -124,7 +127,7 @@ func RunCmd() int {
 			clean(opts)
 
 		default:
-			log.Println("Unknown command", cmd)
+			slog.Error("Unknown command", "command", cmd)
 			return 1
 		}
 	}
@@ -158,7 +161,7 @@ func doBuild(binaryName, pkg string, opts BuildOpts) error {
 		binaryName += "-" + opts.binarySuffix
 	}
 
-	log.Println("building", binaryName, pkg)
+	slog.Info("Building target", "binary", binaryName, "package", pkg)
 
 	if err := setBuildEnv(opts); err != nil {
 		return err
