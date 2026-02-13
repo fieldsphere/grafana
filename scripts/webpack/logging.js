@@ -1,23 +1,25 @@
 'use strict';
 
-function formatLogLine(message, context) {
-  if (context == null) {
-    return `${message}\n`;
-  }
+function formatLogLine(level, message, context) {
+  const payload = {
+    level,
+    message,
+    ...(context != null ? { context } : {}),
+  };
 
   try {
-    return `${message} ${JSON.stringify(context)}\n`;
+    return `${JSON.stringify(payload)}\n`;
   } catch (error) {
-    return `${message} ${String(context)}\n`;
+    return `${JSON.stringify({ level, message, context: String(context) })}\n`;
   }
 }
 
 function logWebpackInfo(message, context) {
-  process.stdout.write(formatLogLine(message, context));
+  process.stdout.write(formatLogLine('info', message, context));
 }
 
 function logWebpackError(message, context) {
-  process.stderr.write(formatLogLine(message, context));
+  process.stderr.write(formatLogLine('error', message, context));
 }
 
 module.exports = {

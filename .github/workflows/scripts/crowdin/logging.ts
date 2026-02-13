@@ -1,21 +1,23 @@
 type LogContext = Record<string, unknown>
 
-function formatLogLine(message: string, context?: LogContext): string {
-  if (context == null) {
-    return `${message}\n`
+function formatLogLine(level: 'info' | 'error', message: string, context?: LogContext): string {
+  const payload = {
+    level,
+    message,
+    ...(context != null ? { context } : {}),
   }
 
   try {
-    return `${message} ${JSON.stringify(context)}\n`
+    return `${JSON.stringify(payload)}\n`
   } catch {
-    return `${message} ${String(context)}\n`
+    return `${JSON.stringify({ level, message, context: String(context) })}\n`
   }
 }
 
 export function logCrowdinInfo(message: string, context?: LogContext) {
-  process.stdout.write(formatLogLine(message, context))
+  process.stdout.write(formatLogLine('info', message, context))
 }
 
 export function logCrowdinError(message: string, context?: LogContext) {
-  process.stderr.write(formatLogLine(message, context))
+  process.stderr.write(formatLogLine('error', message, context))
 }
