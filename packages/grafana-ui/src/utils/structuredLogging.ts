@@ -1,19 +1,4 @@
-type LogContext = Record<string, unknown>;
-
-function emit(level: 'log' | 'warn' | 'error', message: string, context?: LogContext): void {
-  const sink = globalThis.console as Partial<Record<'log' | 'warn' | 'error', (...args: unknown[]) => void>> | undefined;
-  const method = sink?.[level];
-  if (!method) {
-    return;
-  }
-
-  if (context) {
-    method(message, context);
-    return;
-  }
-
-  method(message);
-}
+import { emit, type LogContext } from '@grafana/data';
 
 export function logUiWarning(message: string, context?: LogContext): void {
   emit('warn', message, context);

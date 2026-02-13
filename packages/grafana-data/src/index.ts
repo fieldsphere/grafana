@@ -868,6 +868,7 @@ export {
   type InfinityOptions,
 } from './types/action';
 export { DataFrameType } from './types/dataFrameTypes';
+export { emit, type LogContext } from './logging';
 export {
   FieldType,
   type FieldConfig,

@@ -1,7 +1,7 @@
-type LogContext = Record<string, unknown>;
+export type LogContext = Record<string, unknown>;
 
-function emit(level: 'warn' | 'error', message: string, context?: LogContext): void {
-  const sink = globalThis.console as Partial<Record<'warn' | 'error', (...args: unknown[]) => void>> | undefined;
+export function emit(level: 'log' | 'warn' | 'error', message: string, context?: LogContext): void {
+  const sink = globalThis.console as Partial<Record<'log' | 'warn' | 'error', (...args: unknown[]) => void>> | undefined;
   const method = sink?.[level];
   if (!method) {
     return;
