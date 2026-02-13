@@ -96,7 +96,7 @@ func validateDockerfile() error {
 		}
 	}
 
-	fmt.Println("All submodules are included in the Dockerfile.")
+	slog.Info("All submodules are included in the Dockerfile")
 	return nil
 }
 
