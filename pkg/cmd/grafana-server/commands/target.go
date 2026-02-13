@@ -77,7 +77,7 @@ func RunTargetServer(opts standalone.BuildInfo, cli *cli.Context) error {
 	}()
 
 	SetBuildInfo(opts)
-	checkPrivileges()
+	checkPrivileges(logger)
 
 	configOptions := strings.Split(ConfigOverrides, " ")
 	cfg, err := setting.NewCfgFromArgs(setting.CommandLineArgs{
@@ -111,6 +111,6 @@ func RunTargetServer(opts standalone.BuildInfo, cli *cli.Context) error {
 	}
 
 	ctx := context.Background()
-	go listenToSystemSignals(ctx, s)
+	go listenToSystemSignals(ctx, s, logger)
 	return s.Run()
 }

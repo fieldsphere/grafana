@@ -91,7 +91,7 @@ func RunServer(opts standalone.BuildInfo, cli *cli.Context) error {
 	}()
 
 	SetBuildInfo(opts)
-	checkPrivileges()
+	checkPrivileges(logger)
 
 	configOptions := strings.Split(ConfigOverrides, " ")
 	cfg, err := setting.NewCfgFromArgs(setting.CommandLineArgs{
@@ -126,7 +126,7 @@ func RunServer(opts standalone.BuildInfo, cli *cli.Context) error {
 		return err
 	}
 
-	go listenToSystemSignals(cli.Context, s)
+	go listenToSystemSignals(cli.Context, s, logger)
 	return s.Run()
 }
 
@@ -145,7 +145,7 @@ type gserver interface {
 	Shutdown(context.Context, string) error
 }
 
-func listenToSystemSignals(ctx context.Context, s gserver) {
+func listenToSystemSignals(ctx context.Context, s gserver, logger log.Logger) {
 	signalChan := make(chan os.Signal, 1)
 	sighupChan := make(chan os.Signal, 1)
 
@@ -156,25 +156,25 @@ func listenToSystemSignals(ctx context.Context, s gserver) {
 		select {
 		case <-sighupChan:
 			if err := log.Reload(); err != nil {
-				fmt.Fprintf(os.Stderr, "Failed to reload loggers: %s\n", err)
+				logger.Error("Failed to reload loggers", "error", err)
 			}
 		case sig := <-signalChan:
 			ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
 			defer cancel()
 			if err := s.Shutdown(ctx, fmt.Sprintf("System signal: %s", sig)); err != nil {
-				fmt.Fprintf(os.Stderr, "Timed out waiting for server to shut down\n")
+				logger.Warn("Timed out waiting for server to shut down")
 			}
 			return
 		}
 	}
 }
 
-func checkPrivileges() {
+func checkPrivileges(logger log.Logger) {
 	elevated, err := process.IsRunningWithElevatedPrivileges()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error checking server process execution privilege. error: %s\n", err.Error())
+		logger.Error("Error checking server process execution privilege", "error", err)
 	}
 	if elevated {
-		fmt.Println("Grafana server is running with elevated privileges. This is not recommended")
+		logger.Warn("Grafana server is running with elevated privileges. This is not recommended")
 	}
 }
