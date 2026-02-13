@@ -42,6 +42,7 @@ import {
 } from '@grafana/data';
 import {
   DataSourceWithBackend,
+  createMonitoringLogger,
   getDataSourceSrv,
   BackendSrvRequest,
   TemplateSrv,
@@ -87,6 +88,7 @@ import { getScriptValue, isTimeSeriesQuery } from './utils';
 
 export const REF_ID_STARTER_LOG_VOLUME = 'log-volume-';
 export const REF_ID_STARTER_LOG_SAMPLE = 'log-sample-';
+const logger = createMonitoringLogger('plugins.datasource.elasticsearch');
 
 // Those are metadata fields as defined in https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-fields.html#_identity_metadata_fields.
 // custom fields can start with underscores, therefore is not safe to exclude anything that starts with one.
@@ -1172,12 +1174,26 @@ export class ElasticDatasource
         try {
           return new SemVer(versionNumber);
         } catch (error) {
-          console.error(error);
+          if (error instanceof Error) {
+            logger.logError(error, { operation: 'getDatabaseVersionUncached' });
+          } else {
+            logger.logWarning('Failed to parse Elasticsearch database version', {
+              operation: 'getDatabaseVersionUncached',
+              error: String(error),
+            });
+          }
           return null;
         }
       },
       (error) => {
-        console.error(error);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'getDatabaseVersionUncached' });
+        } else {
+          logger.logWarning('Failed to fetch Elasticsearch database version', {
+            operation: 'getDatabaseVersionUncached',
+            error: String(error),
+          });
+        }
         return null;
       }
     );

@@ -1,11 +1,13 @@
 import { CoreApp, DashboardLoadedEvent, DataQueryRequest, DataQueryResponse } from '@grafana/data';
-import { config, reportInteraction } from '@grafana/runtime';
+import { config, createMonitoringLogger, reportInteraction } from '@grafana/runtime';
 
 import { ElasticsearchDataQuery } from './dataquery.gen';
 import { REF_ID_STARTER_LOG_VOLUME } from './datasource';
 import pluginJson from './plugin.json';
 import { ElasticsearchAnnotationQuery } from './types';
 import { variableRegex } from './utils';
+
+const logger = createMonitoringLogger('plugins.datasource.elasticsearch.tracking');
 
 type ElasticSearchOnDashboardLoadedTrackingEvent = {
   grafana_version?: string;
@@ -71,7 +73,14 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_elasticsearch_dashboard_loaded', event);
   } catch (error) {
-    console.error('error in elasticsearch tracking handler', error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'onDashboardLoadedHandler' });
+    } else {
+      logger.logWarning('Error in elasticsearch tracking handler', {
+        operation: 'onDashboardLoadedHandler',
+        error: String(error),
+      });
+    }
   }
 };
 
