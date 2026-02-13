@@ -93,8 +93,8 @@ func (c *DataPlaneServiceRegistrationController) Run(ctx context.Context, handle
 	defer utilruntime.HandleCrash()
 	defer c.queue.ShutDown()
 
-	klog.Info("Starting DataPlaneServiceRegistrationController")
-	defer klog.Info("Shutting down DataPlaneServiceRegistrationController")
+	klog.InfoS("Starting DataPlaneServiceRegistrationController")
+	defer klog.InfoS("Shutting down DataPlaneServiceRegistrationController")
 
 	if !cache.WaitForCacheSync(ctx.Done(), c.dataPlaneServiceSynced) {
 		return
