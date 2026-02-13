@@ -124,9 +124,9 @@ func (fam *RemotePrimaryForkedAlertmanager) CreateSilence(ctx context.Context, s
 			if errors.Is(err, alertingNotify.ErrSilenceNotFound) {
 				// This can happen if the silence was created in the remote AM without using the Grafana UI
 				// in remote primary mode, or if the silence failed to be replicated in the internal AM.
-				fam.log.Warn("Failed to delete silence in the internal Alertmanager", "error", err, "id", originalID)
+				fam.log.Warn("Failed to delete silence in the internal Alertmanager", "error", err, "originalSilenceID", originalID)
 			} else {
-				fam.log.Error("Failed to delete silence in the internal Alertmanager", "error", err, "id", originalID)
+				fam.log.Error("Failed to delete silence in the internal Alertmanager", "error", err, "originalSilenceID", originalID)
 			}
 		}
 	}
@@ -143,7 +143,7 @@ func (fam *RemotePrimaryForkedAlertmanager) DeleteSilence(ctx context.Context, i
 		return err
 	}
 	if err := fam.internal.DeleteSilence(ctx, id); err != nil {
-		fam.log.Error("Error deleting silence in the internal Alertmanager", "error", err, "id", id)
+		fam.log.Error("Error deleting silence in the internal Alertmanager", "error", err, "silenceID", id)
 	}
 	return nil
 }
