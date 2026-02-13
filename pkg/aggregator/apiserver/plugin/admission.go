@@ -60,14 +60,14 @@ func (h *PluginHandler) AdmissionMutationHandler() http.Handler {
 
 		respBytes, err := json.Marshal(res)
 		if err != nil {
-			klog.Error(err)
+			klog.ErrorS(err, "Failed to marshal admission mutation response")
 			responder.Error(w, r, err)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		if _, err := w.Write(respBytes); err != nil {
-			klog.Error(err)
+			klog.ErrorS(err, "Failed to write admission mutation response")
 		}
 	})
 }
@@ -114,14 +114,14 @@ func (h *PluginHandler) AdmissionValidationHandler() http.Handler {
 
 		respBytes, err := json.Marshal(res)
 		if err != nil {
-			klog.Error(err)
+			klog.ErrorS(err, "Failed to marshal admission validation response")
 			responder.Error(w, r, err)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		if _, err := w.Write(respBytes); err != nil {
-			klog.Error(err)
+			klog.ErrorS(err, "Failed to write admission validation response")
 		}
 	})
 }
