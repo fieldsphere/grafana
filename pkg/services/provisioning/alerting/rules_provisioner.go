@@ -49,7 +49,7 @@ func (prov *defaultAlertRuleProvisioner) Provision(ctx context.Context,
 
 			folderUID, err := prov.getOrCreateFolderFullpath(ctx, group.FolderFullpath, group.OrgID)
 			if err != nil {
-				prov.logger.Error("failed to get or create folder", "folder", group.FolderFullpath, "org", group.OrgID, "err", err)
+				prov.logger.Error("failed to get or create folder", "folder", group.FolderFullpath, "org", group.OrgID, "error", err)
 				return err
 			}
 			prov.logger.Debug("provisioning alert rule group",
@@ -111,7 +111,7 @@ func (prov *defaultAlertRuleProvisioner) getOrCreateFolderFullpath(
 	for i := range folderTitles {
 		uid, err := prov.getOrCreateFolderByTitle(ctx, folderTitles[i], orgID, folderUID)
 		if err != nil {
-			prov.logger.Error("failed to get or create folder", "folder", folderTitles[i], "org", orgID, "err", err)
+			prov.logger.Error("failed to get or create folder", "folder", folderTitles[i], "org", orgID, "error", err)
 			return "", err
 		}
 		folderUID = &uid

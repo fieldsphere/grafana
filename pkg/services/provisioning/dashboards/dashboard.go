@@ -167,7 +167,7 @@ func (provider *Provisioner) CleanUpOrphanedDashboards(ctx context.Context) {
 	if err := provider.provisioner.DeleteOrphanedProvisionedDashboards(
 		ctx, &dashboards.DeleteOrphanedProvisionedDashboardsCommand{Config: configs},
 	); err != nil {
-		provider.log.Warn("Failed to delete orphaned provisioned dashboards", "err", err)
+		provider.log.Warn("Failed to delete orphaned provisioned dashboards", "error", err)
 	}
 }
 

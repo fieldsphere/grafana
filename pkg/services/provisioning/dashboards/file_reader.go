@@ -522,7 +522,7 @@ func (fr *FileReader) readDashboardFromFile(path string, lastModified time.Time,
 	}
 	defer func() {
 		if err := reader.Close(); err != nil {
-			fr.log.Warn("Failed to close file", "path", path, "err", err)
+			fr.log.Warn("Failed to close file", "path", path, "error", err)
 		}
 	}()
 
