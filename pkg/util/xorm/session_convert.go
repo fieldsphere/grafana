@@ -112,7 +112,7 @@ func (session *Session) bytes2Value(col *core.Column, fieldValue *reflect.Value,
 		if len(data) > 0 {
 			err := DefaultJSONHandler.Unmarshal(data, x.Interface())
 			if err != nil {
-				session.engine.logger.Error(err)
+				session.engine.logger.Error("XORM failed to unmarshal complex value", "column", key, "error", err)
 				return err
 			}
 			fieldValue.Set(x.Elem())
@@ -126,7 +126,7 @@ func (session *Session) bytes2Value(col *core.Column, fieldValue *reflect.Value,
 			if len(data) > 0 {
 				err := DefaultJSONHandler.Unmarshal(data, x.Interface())
 				if err != nil {
-					session.engine.logger.Error(err)
+					session.engine.logger.Error("XORM failed to unmarshal text value", "column", key, "error", err)
 					return err
 				}
 				fieldValue.Set(x.Elem())
@@ -139,7 +139,7 @@ func (session *Session) bytes2Value(col *core.Column, fieldValue *reflect.Value,
 				if len(data) > 0 {
 					err := DefaultJSONHandler.Unmarshal(data, x.Interface())
 					if err != nil {
-						session.engine.logger.Error(err)
+						session.engine.logger.Error("XORM failed to unmarshal blob value", "column", key, "error", err)
 						return err
 					}
 					fieldValue.Set(x.Elem())
@@ -234,7 +234,7 @@ func (session *Session) bytes2Value(col *core.Column, fieldValue *reflect.Value,
 			if len(data) > 0 {
 				err := DefaultJSONHandler.Unmarshal(data, &x)
 				if err != nil {
-					session.engine.logger.Error(err)
+					session.engine.logger.Error("XORM failed to unmarshal pointer complex64 value", "column", key, "error", err)
 					return err
 				}
 				fieldValue.Set(reflect.ValueOf(&x).Convert(fieldType))
@@ -245,7 +245,7 @@ func (session *Session) bytes2Value(col *core.Column, fieldValue *reflect.Value,
 			if len(data) > 0 {
 				err := DefaultJSONHandler.Unmarshal(data, &x)
 				if err != nil {
-					session.engine.logger.Error(err)
+					session.engine.logger.Error("XORM failed to unmarshal pointer complex128 value", "column", key, "error", err)
 					return err
 				}
 				fieldValue.Set(reflect.ValueOf(&x).Convert(fieldType))
@@ -550,14 +550,14 @@ func (session *Session) value2Interface(col *core.Column, fieldValue reflect.Val
 		if col.SQLType.IsText() {
 			bytes, err := DefaultJSONHandler.Marshal(fieldValue.Interface())
 			if err != nil {
-				session.engine.logger.Error(err)
+				session.engine.logger.Error("XORM failed to marshal struct value as text", "column", col.Name, "error", err)
 				return 0, err
 			}
 			return string(bytes), nil
 		} else if col.SQLType.IsBlob() {
 			bytes, err := DefaultJSONHandler.Marshal(fieldValue.Interface())
 			if err != nil {
-				session.engine.logger.Error(err)
+				session.engine.logger.Error("XORM failed to marshal struct value as blob", "column", col.Name, "error", err)
 				return 0, err
 			}
 			return bytes, nil
@@ -566,7 +566,7 @@ func (session *Session) value2Interface(col *core.Column, fieldValue reflect.Val
 	case reflect.Complex64, reflect.Complex128:
 		bytes, err := DefaultJSONHandler.Marshal(fieldValue.Interface())
 		if err != nil {
-			session.engine.logger.Error(err)
+			session.engine.logger.Error("XORM failed to marshal complex value", "column", col.Name, "error", err)
 			return 0, err
 		}
 		return string(bytes), nil
@@ -578,7 +578,7 @@ func (session *Session) value2Interface(col *core.Column, fieldValue reflect.Val
 		if col.SQLType.IsText() {
 			bytes, err := DefaultJSONHandler.Marshal(fieldValue.Interface())
 			if err != nil {
-				session.engine.logger.Error(err)
+				session.engine.logger.Error("XORM failed to marshal collection value as text", "column", col.Name, "error", err)
 				return 0, err
 			}
 			return string(bytes), nil
@@ -591,7 +591,7 @@ func (session *Session) value2Interface(col *core.Column, fieldValue reflect.Val
 			} else {
 				bytes, err = DefaultJSONHandler.Marshal(fieldValue.Interface())
 				if err != nil {
-					session.engine.logger.Error(err)
+					session.engine.logger.Error("XORM failed to marshal collection value as blob", "column", col.Name, "error", err)
 					return 0, err
 				}
 			}
