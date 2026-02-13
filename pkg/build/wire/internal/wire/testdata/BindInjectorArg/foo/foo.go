@@ -16,10 +16,11 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 func main() {
-	fmt.Println(inject(Foo{"hello"}).Name)
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", inject(Foo{"hello"}).Name))
 }
 
 type Fooer interface {
