@@ -740,6 +740,13 @@ func structuredlogging(m fluent.Matcher) {
 		Report("use a stable slog.Logger.Log message and key/value context instead of fmt formatting")
 
 	m.Match(
+		`$logger.Log($ctx, $level, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+	).
+		Where(isSlogLogger).
+		Report("avoid fmt formatting in slog.Logger.Log field values; pass typed values or separate fields")
+
+	m.Match(
 		`$logger.Log($ctx, $level, $left + $right, $*attrs)`,
 	).
 		Where(isSlogLogger).
