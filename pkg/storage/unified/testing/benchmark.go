@@ -69,12 +69,24 @@ type BenchmarkResult struct {
 func (r BenchmarkResult) String() string {
 	var out strings.Builder
 
-	fmt.Fprintf(&out, "Total Duration: %v\n", r.TotalDuration)
-	fmt.Fprintf(&out, "Write Count: %d\n", r.WriteCount)
-	fmt.Fprintf(&out, "Throughput: %.2f writes/sec\n", r.Throughput)
-	fmt.Fprintf(&out, "P50 Latency: %v\n", r.P50Latency)
-	fmt.Fprintf(&out, "P90 Latency: %v\n", r.P90Latency)
-	fmt.Fprintf(&out, "P99 Latency: %v\n", r.P99Latency)
+	out.WriteString("Total Duration: ")
+	out.WriteString(r.TotalDuration.String())
+	out.WriteString("\n")
+	out.WriteString("Write Count: ")
+	out.WriteString(strconv.Itoa(r.WriteCount))
+	out.WriteString("\n")
+	out.WriteString("Throughput: ")
+	out.WriteString(strconv.FormatFloat(r.Throughput, 'f', 2, 64))
+	out.WriteString(" writes/sec\n")
+	out.WriteString("P50 Latency: ")
+	out.WriteString(r.P50Latency.String())
+	out.WriteString("\n")
+	out.WriteString("P90 Latency: ")
+	out.WriteString(r.P90Latency.String())
+	out.WriteString("\n")
+	out.WriteString("P99 Latency: ")
+	out.WriteString(r.P99Latency.String())
+	out.WriteString("\n")
 
 	return out.String()
 }

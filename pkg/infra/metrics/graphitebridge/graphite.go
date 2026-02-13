@@ -24,6 +24,7 @@ import (
 	"math"
 	"net"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -233,7 +234,19 @@ func (b *Bridge) writeMetrics(w io.Writer, mfs []*dto.MetricFamily, prefix strin
 			}
 
 			value := b.replaceCounterWithDelta(mf, s.Metric, s.Value)
-			if _, err := fmt.Fprintf(buf, " %g %d\n", value, int64(s.Timestamp)/millisecondsPerSecond); err != nil {
+			if err := buf.WriteByte(' '); err != nil {
+				return err
+			}
+			if _, err := io.WriteString(buf, strconv.FormatFloat(float64(value), 'g', -1, 64)); err != nil {
+				return err
+			}
+			if err := buf.WriteByte(' '); err != nil {
+				return err
+			}
+			if _, err := io.WriteString(buf, strconv.FormatInt(int64(s.Timestamp)/millisecondsPerSecond, 10)); err != nil {
+				return err
+			}
+			if err := buf.WriteByte('\n'); err != nil {
 				return err
 			}
 			if err := buf.Flush(); err != nil {
