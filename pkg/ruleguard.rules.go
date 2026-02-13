@@ -974,106 +974,74 @@ func structuredlogging(m fluent.Matcher) {
 		Report("structured log attributes should start with a string key; pass key/value pairs instead of bare values")
 
 	m.Match(
-		`$logger.Info($msg, $*before, "orgId", $value, $*after)`,
-		`$logger.Warn($msg, $*before, "orgId", $value, $*after)`,
-		`$logger.Error($msg, $*before, "orgId", $value, $*after)`,
-		`$logger.Debug($msg, $*before, "orgId", $value, $*after)`,
-		`$logger.InfoCtx($ctx, $msg, $*before, "orgId", $value, $*after)`,
-		`$logger.WarnCtx($ctx, $msg, $*before, "orgId", $value, $*after)`,
-		`$logger.ErrorCtx($ctx, $msg, $*before, "orgId", $value, $*after)`,
-		`$logger.DebugCtx($ctx, $msg, $*before, "orgId", $value, $*after)`,
-		`slog.Info($msg, $*before, "orgId", $value, $*after)`,
-		`slog.Warn($msg, $*before, "orgId", $value, $*after)`,
-		`slog.Error($msg, $*before, "orgId", $value, $*after)`,
-		`slog.Debug($msg, $*before, "orgId", $value, $*after)`,
-		`slog.InfoContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
-		`slog.WarnContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
-		`slog.ErrorContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
-		`slog.DebugContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
-		`slog.Log($ctx, $level, $msg, $*before, "orgId", $value, $*after)`,
-		`$logger.Log($ctx, $level, $msg, $*before, "orgId", $value, $*after)`,
-		`klog.InfoS($msg, $*before, "orgId", $value, $*after)`,
-		`klog.V($lvl).InfoS($msg, $*before, "orgId", $value, $*after)`,
-		`klog.ErrorS($baseErr, $msg, $*before, "orgId", $value, $*after)`,
+		`$logger.Info($msg, $*before, $key, $value, $*after)`,
+		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
+		`$logger.Error($msg, $*before, $key, $value, $*after)`,
+		`$logger.Debug($msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Info($msg, $*before, $key, $value, $*after)`,
+		`slog.Warn($msg, $*before, $key, $value, $*after)`,
+		`slog.Error($msg, $*before, $key, $value, $*after)`,
+		`slog.Debug($msg, $*before, $key, $value, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`klog.InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Report(`prefer "orgID" key naming in structured logs`)
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in structured log keys (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
-		`$logger.DebugContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
-		`$logger.InfoContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
-		`$logger.WarnContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
-		`$logger.ErrorContext($ctx, $msg, $*before, "orgId", $value, $*after)`,
+		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isSlogLogger).
-		Report(`prefer "orgID" key naming in structured logs`)
+		Where(isSlogLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in structured log keys (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
-		`$logger.Info($msg, $*before, "pluginId", $value, $*after)`,
-		`$logger.Warn($msg, $*before, "pluginId", $value, $*after)`,
-		`$logger.Error($msg, $*before, "pluginId", $value, $*after)`,
-		`$logger.Debug($msg, $*before, "pluginId", $value, $*after)`,
-		`$logger.InfoCtx($ctx, $msg, $*before, "pluginId", $value, $*after)`,
-		`$logger.WarnCtx($ctx, $msg, $*before, "pluginId", $value, $*after)`,
-		`$logger.ErrorCtx($ctx, $msg, $*before, "pluginId", $value, $*after)`,
-		`$logger.DebugCtx($ctx, $msg, $*before, "pluginId", $value, $*after)`,
-		`slog.Info($msg, $*before, "pluginId", $value, $*after)`,
-		`slog.Warn($msg, $*before, "pluginId", $value, $*after)`,
-		`slog.Error($msg, $*before, "pluginId", $value, $*after)`,
-		`slog.Debug($msg, $*before, "pluginId", $value, $*after)`,
-		`slog.InfoContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
-		`slog.WarnContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
-		`slog.ErrorContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
-		`slog.DebugContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
-		`slog.Log($ctx, $level, $msg, $*before, "pluginId", $value, $*after)`,
-		`$logger.Log($ctx, $level, $msg, $*before, "pluginId", $value, $*after)`,
-		`klog.InfoS($msg, $*before, "pluginId", $value, $*after)`,
-		`klog.V($lvl).InfoS($msg, $*before, "pluginId", $value, $*after)`,
-		`klog.ErrorS($baseErr, $msg, $*before, "pluginId", $value, $*after)`,
+		`$logger.Info($msg, $*before, $key, $value, $*after)`,
+		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
+		`$logger.Error($msg, $*before, $key, $value, $*after)`,
+		`$logger.Debug($msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Info($msg, $*before, $key, $value, $*after)`,
+		`slog.Warn($msg, $*before, $key, $value, $*after)`,
+		`slog.Error($msg, $*before, $key, $value, $*after)`,
+		`slog.Debug($msg, $*before, $key, $value, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`klog.InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Report(`prefer "pluginID" key naming in structured logs`)
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Report(`prefer "UID" acronym casing in structured log keys (for example "dashboardUID", "integrationUID")`)
 
 	m.Match(
-		`$logger.DebugContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
-		`$logger.InfoContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
-		`$logger.WarnContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
-		`$logger.ErrorContext($ctx, $msg, $*before, "pluginId", $value, $*after)`,
+		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isSlogLogger).
-		Report(`prefer "pluginID" key naming in structured logs`)
-
-	m.Match(
-		`$logger.Info($msg, $*before, "stackId", $value, $*after)`,
-		`$logger.Warn($msg, $*before, "stackId", $value, $*after)`,
-		`$logger.Error($msg, $*before, "stackId", $value, $*after)`,
-		`$logger.Debug($msg, $*before, "stackId", $value, $*after)`,
-		`$logger.InfoCtx($ctx, $msg, $*before, "stackId", $value, $*after)`,
-		`$logger.WarnCtx($ctx, $msg, $*before, "stackId", $value, $*after)`,
-		`$logger.ErrorCtx($ctx, $msg, $*before, "stackId", $value, $*after)`,
-		`$logger.DebugCtx($ctx, $msg, $*before, "stackId", $value, $*after)`,
-		`slog.Info($msg, $*before, "stackId", $value, $*after)`,
-		`slog.Warn($msg, $*before, "stackId", $value, $*after)`,
-		`slog.Error($msg, $*before, "stackId", $value, $*after)`,
-		`slog.Debug($msg, $*before, "stackId", $value, $*after)`,
-		`slog.InfoContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
-		`slog.WarnContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
-		`slog.ErrorContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
-		`slog.DebugContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
-		`slog.Log($ctx, $level, $msg, $*before, "stackId", $value, $*after)`,
-		`$logger.Log($ctx, $level, $msg, $*before, "stackId", $value, $*after)`,
-		`klog.InfoS($msg, $*before, "stackId", $value, $*after)`,
-		`klog.V($lvl).InfoS($msg, $*before, "stackId", $value, $*after)`,
-		`klog.ErrorS($baseErr, $msg, $*before, "stackId", $value, $*after)`,
-	).
-		Report(`prefer "stackID" key naming in structured logs`)
-
-	m.Match(
-		`$logger.DebugContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
-		`$logger.InfoContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
-		`$logger.WarnContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
-		`$logger.ErrorContext($ctx, $msg, $*before, "stackId", $value, $*after)`,
-	).
-		Where(isSlogLogger).
-		Report(`prefer "stackID" key naming in structured logs`)
+		Where(isSlogLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Report(`prefer "UID" acronym casing in structured log keys (for example "dashboardUID", "integrationUID")`)
 
 	m.Match(
 		`$logger.Debugf($*args)`,
