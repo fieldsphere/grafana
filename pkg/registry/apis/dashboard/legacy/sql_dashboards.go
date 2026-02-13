@@ -355,8 +355,8 @@ func (a *dashboardSqlAccess) MigrateDashboards(ctx context.Context, orgId int64,
 			a.log.Warn("rejected dashboard",
 				"namespace", opts.Namespace,
 				"dashboard", row.Dash.Name,
-				"uid", row.Dash.UID,
-				"id", id,
+				"dashboardUID", row.Dash.UID,
+				"dashboardID", id,
 				"version", row.Dash.Generation,
 			)
 			opts.Progress(-2, fmt.Sprintf("rejected: id:%s, uid:%s", id, row.Dash.Name))
@@ -876,17 +876,17 @@ func generateFallbackDashboard(data []byte, title, uid string) ([]byte, error) {
 
 func (a *dashboardSqlAccess) parseDashboard(dash *dashboardV1.Dashboard, data []byte, id int64, title string) error {
 	if err := dash.Spec.UnmarshalJSON(data); err != nil {
-		a.log.Warn("error unmarshalling dashboard spec. Generating fallback dashboard data", "error", err, "uid", dash.UID, "id", id, "name", dash.Name)
+		a.log.Warn("error unmarshalling dashboard spec. Generating fallback dashboard data", "error", err, "dashboardUID", dash.UID, "dashboardID", id, "name", dash.Name)
 		dash.Spec = *dashboardV0.NewDashboardSpec()
 
 		dashboardData, err := generateFallbackDashboard(data, title, string(dash.UID))
 		if err != nil {
-			a.log.Warn("error generating fallback dashboard data", "error", err, "uid", dash.UID, "id", id, "name", dash.Name)
+			a.log.Warn("error generating fallback dashboard data", "error", err, "dashboardUID", dash.UID, "dashboardID", id, "name", dash.Name)
 			return err
 		}
 
 		if err = dash.Spec.UnmarshalJSON(dashboardData); err != nil {
-			a.log.Warn("error unmarshalling fallback dashboard data", "error", err, "uid", dash.UID, "id", id, "name", dash.Name)
+			a.log.Warn("error unmarshalling fallback dashboard data", "error", err, "dashboardUID", dash.UID, "dashboardID", id, "name", dash.Name)
 			return err
 		}
 	}
@@ -952,7 +952,7 @@ func (a *dashboardSqlAccess) scanRow(rows *sql.Rows, history bool) (*dashboardRo
 		dash.SetCreationTimestamp(metav1.NewTime(created.Time))
 		meta, err := utils.MetaAccessor(dash)
 		if err != nil {
-			a.log.Debug("failed to get meta accessor for dashboard", "error", err, "uid", dash.UID, "name", dash.Name, "version", version)
+			a.log.Debug("failed to get meta accessor for dashboard", "error", err, "dashboardUID", dash.UID, "name", dash.Name, "version", version)
 			return nil, err
 		}
 		meta.SetUpdatedTimestamp(&updated.Time)

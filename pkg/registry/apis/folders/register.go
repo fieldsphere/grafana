@@ -233,7 +233,7 @@ func (b *FolderAPIBuilder) setDefaultFolderPermissions(ctx context.Context, key 
 	}
 
 	log := logging.FromContext(ctx)
-	log.Debug("setting default folder permissions", "uid", obj.GetName(), "namespace", obj.GetNamespace())
+	log.Debug("setting default folder permissions", "folderUID", obj.GetName(), "namespace", obj.GetNamespace())
 
 	client := (*b.resourcePermissionsSvc).Namespace(obj.GetNamespace())
 	name := fmt.Sprintf("%s-%s-%s", folders.FolderResourceInfo.GroupVersionResource().Group, folders.FolderResourceInfo.GroupVersionResource().Resource, obj.GetName())

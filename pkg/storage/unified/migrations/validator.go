@@ -258,7 +258,7 @@ func (v *FolderTreeValidator) Validate(ctx context.Context, sess *xorm.Session, 
 		if !exists {
 			// Folder exists in legacy but not in unified - might be rejected, skip
 			log.Debug("Folder exists in legacy but not in unified storage",
-				"uid", uid,
+				"folderUID", uid,
 				"legacyParent", legacyParent)
 			continue
 		}
@@ -268,7 +268,7 @@ func (v *FolderTreeValidator) Validate(ctx context.Context, sess *xorm.Session, 
 				uid, legacyParent, unifiedParent)
 			mismatches = append(mismatches, mismatch)
 			log.Warn("Folder parent mismatch",
-				"uid", uid,
+				"folderUID", uid,
 				"legacyParent", legacyParent,
 				"unifiedParent", unifiedParent)
 		}
@@ -279,7 +279,7 @@ func (v *FolderTreeValidator) Validate(ctx context.Context, sess *xorm.Session, 
 		if _, exists := legacyParentMap[uid]; !exists {
 			mismatch := fmt.Sprintf("folder %s exists in unified but not in legacy", uid)
 			mismatches = append(mismatches, mismatch)
-			log.Warn("Folder exists in unified but not in legacy", "uid", uid)
+			log.Warn("Folder exists in unified but not in legacy", "folderUID", uid)
 		}
 	}
 
