@@ -30,7 +30,7 @@ func (s *SlogAdapter) Log(keyvals ...interface{}) error {
 	}
 
 	// Delegate to slog.Logger
-	s.logger.Info("Legacy log bridge event", append(args, "legacy_message", msg)...)
+	s.logger.Info("Legacy log bridge event", append(args, "legacyMessage", msg)...)
 	return nil
 }
 
@@ -42,7 +42,7 @@ func (h *InfraLoggerHandler) Enabled(_ context.Context, level slog.Level) bool {
 
 // Handle processes a log record and routes it to infra's log.Logger
 func (h *InfraLoggerHandler) Handle(_ context.Context, record slog.Record) error {
-	args := []interface{}{"slog_message", record.Message}
+	args := []interface{}{"slogMessage", record.Message}
 	record.Attrs(func(a slog.Attr) bool {
 		args = append(args, a.Key, a.Value.Any())
 		return true
@@ -51,13 +51,13 @@ func (h *InfraLoggerHandler) Handle(_ context.Context, record slog.Record) error
 	// Route the log message to Infra's logger
 	switch record.Level {
 	case slog.LevelDebug:
-		h.infraLogger.Debug("Slog adapter event", append(args, "slog_level", "debug")...)
+		h.infraLogger.Debug("Slog adapter event", append(args, "slogLevel", "debug")...)
 	case slog.LevelInfo:
-		h.infraLogger.Info("Slog adapter event", append(args, "slog_level", "info")...)
+		h.infraLogger.Info("Slog adapter event", append(args, "slogLevel", "info")...)
 	case slog.LevelWarn:
-		h.infraLogger.Warn("Slog adapter event", append(args, "slog_level", "warn")...)
+		h.infraLogger.Warn("Slog adapter event", append(args, "slogLevel", "warn")...)
 	case slog.LevelError:
-		h.infraLogger.Error("Slog adapter event", append(args, "slog_level", "error")...)
+		h.infraLogger.Error("Slog adapter event", append(args, "slogLevel", "error")...)
 	}
 
 	return nil

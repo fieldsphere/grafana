@@ -270,7 +270,7 @@ func (st *DBstore) deleteOldConfigurations(ctx context.Context, orgID int64, lim
 		}
 		affectedRows = rows
 		if affectedRows > 0 {
-			st.Logger.Info("Deleted old alert_configuration(s)", "org", orgID, "limit", limit, "delete_count", affectedRows)
+			st.Logger.Info("Deleted old alert_configuration(s)", "org", orgID, "limit", limit, "deleteCount", affectedRows)
 		}
 		return nil
 	})

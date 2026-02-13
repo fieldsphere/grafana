@@ -294,7 +294,7 @@ func (p *redisPeer) membersSync() {
 			p.membersMtx.Unlock()
 			return
 		}
-		p.logger.Warn("Fetching members from redis failed, falling back to last known members", "last_known", p.members)
+		p.logger.Warn("Fetching members from redis failed, falling back to last known members", "lastKnown", p.members)
 		return
 	}
 	// This might happen on startup, when no value is in the store yet.
@@ -318,7 +318,7 @@ func (p *redisPeer) membersSync() {
 	peers = slices.Compact(peers)
 
 	dur := time.Since(startTime)
-	p.logger.Debug("Membership sync done", "duration_ms", dur.Milliseconds())
+	p.logger.Debug("Membership sync done", "durationMs", dur.Milliseconds())
 	p.membersMtx.Lock()
 	p.members = peers
 	p.membersMtx.Unlock()

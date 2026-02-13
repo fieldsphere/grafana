@@ -124,7 +124,7 @@ func (a *SyncStatePersister) saveAlertStates(ctx context.Context, states ...Stat
 	}
 
 	start := time.Now()
-	logger.Debug("Saving alert states", "count", len(states), "max_state_save_concurrency", a.maxStateSaveConcurrency)
+	logger.Debug("Saving alert states", "count", len(states), "maxStateSaveConcurrency", a.maxStateSaveConcurrency)
 	_ = concurrency.ForEachJob(ctx, len(states), a.maxStateSaveConcurrency, saveState)
-	logger.Debug("Saving alert states done", "count", len(states), "max_state_save_concurrency", a.maxStateSaveConcurrency, "duration", time.Since(start))
+	logger.Debug("Saving alert states done", "count", len(states), "maxStateSaveConcurrency", a.maxStateSaveConcurrency, "duration", time.Since(start))
 }

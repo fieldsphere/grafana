@@ -304,7 +304,7 @@ func (a *alertRule) Run() error {
 
 					var needReset bool
 					if a.currentFingerprint != f {
-						logger.Debug("Got a new version of alert rule. Clear up the state", "current_fingerprint", a.currentFingerprint, "fingerprint", f)
+						logger.Debug("Got a new version of alert rule. Clear up the state", "currentFingerprint", a.currentFingerprint, "fingerprint", f)
 						needReset = true
 					}
 					// We need to reset state if the loop has started and the alert is already paused. It can happen,
@@ -356,7 +356,7 @@ func (a *alertRule) Run() error {
 						return
 					}
 
-					logger.Error("Failed to evaluate rule", "attempt", attempt, "max_attempts", a.retryConfig.MaxAttempts, "next_attempt_in", nextDelay, "error", err)
+					logger.Error("Failed to evaluate rule", "attempt", attempt, "maxAttempts", a.retryConfig.MaxAttempts, "nextAttemptIn", nextDelay, "error", err)
 					attempt++
 
 					select {

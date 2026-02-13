@@ -146,7 +146,7 @@ func (nps *Service) GetManagedRoutes(ctx context.Context, orgID int64) (legacy_s
 			// This shouldn't happen under normal circumstances as we guard during create. However, if it happens, we error for now.
 			// When UIDs are introduced to managed routes, we can choose to de-duplicate the name as rules will reference the route by UID, not name.
 			if exists := managedRoutes.Contains(importedRoute.Name); exists {
-				nps.log.FromContext(ctx).Warn("Imported route name conflicts with existing managed route. Skipping imported route.", "route_name", importedRoute.Name)
+				nps.log.FromContext(ctx).Warn("Imported route name conflicts with existing managed route. Skipping imported route.", "routeName", importedRoute.Name)
 				span.AddEvent("Skipped imported route due to name conflict", trace.WithAttributes(
 					attribute.String("route_name", importedRoute.Name),
 				))

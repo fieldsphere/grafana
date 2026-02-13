@@ -317,7 +317,7 @@ func (rs *ReceiverService) DeleteReceiver(ctx context.Context, uid string, calle
 	}
 
 	if usedByRoutes || len(usedByRules) > 0 {
-		logger.Warn("Cannot delete receiver because it is used", "used_by_routes", usedByRoutes, "used_by_rules", len(usedByRules))
+		logger.Warn("Cannot delete receiver because it is used", "usedByRoutes", usedByRoutes, "usedByRules", len(usedByRules))
 		return makeReceiverInUseErr(usedByRoutes, usedByRules)
 	}
 
@@ -536,7 +536,7 @@ func (rs *ReceiverService) UpdateReceiver(ctx context.Context, r *models.Receive
 		return nil, err
 	}
 
-	logger.Info("Updated receiver", "new_version", result.Version)
+	logger.Info("Updated receiver", "newVersion", result.Version)
 	return result, nil
 }
 

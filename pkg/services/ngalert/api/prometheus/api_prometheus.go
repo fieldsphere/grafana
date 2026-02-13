@@ -1142,7 +1142,7 @@ func getGroupedRules(log log.Logger, ruleList ngmodels.RulesGroup, ruleNamesSet 
 	for groupKey, groupRules := range groupedRules {
 		folder, ok := namespaceMap[groupKey.NamespaceUID]
 		if !ok {
-			log.Warn("Query returned rules that belong to folder the user does not have access to. All rules that belong to that namespace will not be added to the response", "folder_uid", groupKey.NamespaceUID)
+			log.Warn("Query returned rules that belong to folder the user does not have access to. All rules that belong to that namespace will not be added to the response", "folderUID", groupKey.NamespaceUID)
 			continue
 		}
 

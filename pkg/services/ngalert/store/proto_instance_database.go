@@ -125,7 +125,7 @@ func (st ProtoInstanceDBStore) FullSync(ctx context.Context, instances []models.
 	}
 
 	logger := st.Logger.FromContext(ctx)
-	logger.Debug("FullSync called", "total_instances", len(instances))
+	logger.Debug("FullSync called", "totalInstances", len(instances))
 
 	ruleGroups := make(map[models.AlertRuleKeyWithGroup][]models.AlertInstance)
 	for _, instance := range instances {
@@ -163,7 +163,7 @@ func (st ProtoInstanceDBStore) FullSync(ctx context.Context, instances []models.
 
 	return st.SQLStore.WithTransactionalDbSession(ctx, func(sess *sqlstore.DBSession) error {
 		syncTimestamp := time.Now()
-		logger.Debug("Starting FullSync transaction", "rules_count", len(preparedRules), "timestamp", syncTimestamp)
+		logger.Debug("Starting FullSync transaction", "rulesCount", len(preparedRules), "timestamp", syncTimestamp)
 
 		// First we delete all records from the table
 		if _, err := sess.Exec("DELETE FROM alert_rule_state"); err != nil {
@@ -179,7 +179,7 @@ func (st ProtoInstanceDBStore) FullSync(ctx context.Context, instances []models.
 			}
 		}
 
-		logger.Debug("FullSync transaction completed successfully", "rules_synced", len(preparedRules))
+		logger.Debug("FullSync transaction completed successfully", "rulesSynced", len(preparedRules))
 		return nil
 	})
 }

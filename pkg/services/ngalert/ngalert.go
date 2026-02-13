@@ -612,7 +612,7 @@ func subscribeToFolderChanges(logger log.Logger, bus bus.Bus, dbStore api.RuleSt
 
 // Run starts the scheduler and Alertmanager.
 func (ng *AlertNG) Run(ctx context.Context) error {
-	ng.Log.Debug("Starting", "execute_alerts", ng.Cfg.UnifiedAlerting.ExecuteAlerts)
+	ng.Log.Debug("Starting", "executeAlerts", ng.Cfg.UnifiedAlerting.ExecuteAlerts)
 
 	children, subCtx := errgroup.WithContext(ctx)
 
@@ -792,7 +792,7 @@ func createRecordingWriter(settings setting.RecordingRuleSettings, httpClientPro
 		}
 
 		logger.Info("Setting up remote write using data sources",
-			"timeout", cfg.Timeout, "default_datasource_uid", cfg.DefaultDatasourceUID)
+			"timeout", cfg.Timeout, "defaultDatasourceUID", cfg.DefaultDatasourceUID)
 
 		return writer.NewDatasourceWriter(cfg, datasourceService, httpClientProvider, pluginContextProvider, clock, logger, m), nil
 	}

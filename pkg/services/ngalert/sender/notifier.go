@@ -403,7 +403,7 @@ func (n *Manager) Send(alerts ...*Alert) {
 	if d := len(alerts) - n.opts.QueueCapacity; d > 0 {
 		alerts = alerts[d:]
 
-		n.logger.Warn("Alert batch larger than queue capacity, dropping alerts", "num_dropped", d)
+		n.logger.Warn("Alert batch larger than queue capacity, dropping alerts", "numDropped", d)
 		n.metrics.dropped.Add(float64(d))
 	}
 
@@ -412,7 +412,7 @@ func (n *Manager) Send(alerts ...*Alert) {
 	if d := (len(n.queue) + len(alerts)) - n.opts.QueueCapacity; d > 0 {
 		n.queue = n.queue[d:]
 
-		n.logger.Warn("Alert notification queue full, dropping alerts", "num_dropped", d)
+		n.logger.Warn("Alert notification queue full, dropping alerts", "numDropped", d)
 		n.metrics.dropped.Add(float64(d))
 	}
 	n.queue = append(n.queue, alerts...)

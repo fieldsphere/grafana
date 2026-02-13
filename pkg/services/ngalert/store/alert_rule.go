@@ -218,7 +218,7 @@ func (st DBstore) GetAlertRuleVersions(ctx context.Context, orgID int64, guid st
 			}
 			converted, err := alertRuleVersionToModelsAlertRuleVersion(*rule, st.Logger)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "GetAlertRuleVersions", "error", err, "version_id", rule.ID)
+				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "GetAlertRuleVersions", "error", err, "versionID", rule.ID)
 				continue
 			}
 			previousVersion = rule
@@ -284,7 +284,7 @@ func (st DBstore) ListDeletedRules(ctx context.Context, orgID int64) ([]*ngmodel
 			// Note: Message is not returned as a message cannot be set when deleting rules.
 			converted, err := alertRuleToModelsAlertRule(alertRuleVersionToAlertRule(*rule), st.Logger)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "GetAlertRuleVersions", "error", err, "version_id", rule.ID)
+				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "GetAlertRuleVersions", "error", err, "versionID", rule.ID)
 				continue
 			}
 			alertRules = append(alertRules, &converted)
@@ -767,7 +767,7 @@ func (st DBstore) ListAlertRules(ctx context.Context, query *ngmodels.ListAlertR
 	// This should never happen, as Limit is 0, which means no pagination.
 	if nextToken != "" {
 		err = fmt.Errorf("unexpected next token %q, expected empty string", nextToken)
-		st.Logger.Error("ListAlertRules returned a next token, but it should not have, this is a bug!", "next_token", nextToken, "query", query)
+		st.Logger.Error("ListAlertRules returned a next token, but it should not have, this is a bug!", "nextToken", nextToken, "query", query)
 	}
 	return result, err
 }
@@ -1201,7 +1201,7 @@ func (st DBstore) GetAlertRulesForScheduling(ctx context.Context, query *ngmodel
 				if optimizations, err := OptimizeAlertQueries(converted.Data); err != nil {
 					st.Logger.Error("Could not migrate rule from range to instant query", "rule", rule.UID, "error", err)
 				} else if len(optimizations) > 0 {
-					st.Logger.Info("Migrated rule from range to instant query", "rule", rule.UID, "migrated_queries", len(optimizations))
+					st.Logger.Info("Migrated rule from range to instant query", "rule", rule.UID, "migratedQueries", len(optimizations))
 				}
 			}
 			rules = append(rules, &converted)
