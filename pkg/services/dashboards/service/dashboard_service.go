@@ -941,7 +941,7 @@ func (dr *DashboardServiceImpl) DeleteOrphanedProvisionedDashboards(ctx context.
 		if err != nil {
 			return err
 		}
-		dr.log.Debug("Found dashboards to be deleted", "orgId", org.ID, "count", len(foundDashs))
+		dr.log.Debug("Found dashboards to be deleted", "orgID", org.ID, "count", len(foundDashs))
 
 		// delete them
 		var deletedUids []string
