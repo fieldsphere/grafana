@@ -128,6 +128,13 @@ func (s *SimpleLogger) emit(level slog.Level, args ...any) {
 	s.logger.Log(context.Background(), level, "XORM log event", append([]any{"message", message}, attrs...)...)
 }
 
+func (s *SimpleLogger) emitf(level slog.Level, format string, args ...any) {
+	s.logger.Log(context.Background(), level, "XORM log event",
+		"message", fmt.Sprintf(format, args...),
+		"template", format,
+		"args", args)
+}
+
 // Error implement core.ILogger
 func (s *SimpleLogger) Error(v ...any) {
 	if s.level <= core.LOG_ERR {
@@ -138,7 +145,7 @@ func (s *SimpleLogger) Error(v ...any) {
 // Errorf implement core.ILogger
 func (s *SimpleLogger) Errorf(format string, v ...any) {
 	if s.level <= core.LOG_ERR {
-		s.emit(slog.LevelError, fmt.Sprintf(format, v...))
+		s.emitf(slog.LevelError, format, v...)
 	}
 }
 
@@ -152,7 +159,7 @@ func (s *SimpleLogger) Debug(v ...any) {
 // Debugf implement core.ILogger
 func (s *SimpleLogger) Debugf(format string, v ...any) {
 	if s.level <= core.LOG_DEBUG {
-		s.emit(slog.LevelDebug, fmt.Sprintf(format, v...))
+		s.emitf(slog.LevelDebug, format, v...)
 	}
 }
 
@@ -166,7 +173,7 @@ func (s *SimpleLogger) Info(v ...any) {
 // Infof implement core.ILogger
 func (s *SimpleLogger) Infof(format string, v ...any) {
 	if s.level <= core.LOG_INFO {
-		s.emit(slog.LevelInfo, fmt.Sprintf(format, v...))
+		s.emitf(slog.LevelInfo, format, v...)
 	}
 }
 
@@ -180,7 +187,7 @@ func (s *SimpleLogger) Warn(v ...any) {
 // Warnf implement core.ILogger
 func (s *SimpleLogger) Warnf(format string, v ...any) {
 	if s.level <= core.LOG_WARNING {
-		s.emit(slog.LevelWarn, fmt.Sprintf(format, v...))
+		s.emitf(slog.LevelWarn, format, v...)
 	}
 }
 
