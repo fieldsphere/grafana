@@ -192,7 +192,7 @@ func (w *DatasourceWriter) makeWriter(ctx context.Context, orgID int64, dsUID st
 		httpClientCtx = backend.WithGrafanaConfig(ctx, pluginCtx.GrafanaConfig)
 	} else {
 		// This should not happen, but if the plugin context provider is not set, log a warning.
-		w.l.Warn("Plugin context provider is not set for the data source writer, PDC-enabled data sources may not work correctly", "datasource_uid", dsUID, "datasource_type", ds.Type)
+		w.l.Warn("Plugin context provider is not set for the data source writer, PDC-enabled data sources may not work correctly", "datasourceUID", dsUID, "datasourceType", ds.Type)
 	}
 
 	ho, err := is.HTTPClientOptions(httpClientCtx)
@@ -248,12 +248,12 @@ func (w *DatasourceWriter) makeWriter(ctx context.Context, orgID int64, dsUID st
 	}
 
 	w.l.Debug("Created Prometheus remote writer",
-		"datasource_uid", dsUID,
+		"datasourceUID", dsUID,
 		"type", ds.Type,
 		"prometheusType", getPrometheusType(ds),
 		"url", cfg.URL,
 		"tls", cfg.HTTPOptions.TLS != nil,
-		"basic_auth", cfg.HTTPOptions.BasicAuth != nil,
+		"basicAuth", cfg.HTTPOptions.BasicAuth != nil,
 		"timeout", cfg.Timeout)
 
 	return NewPrometheusWriter(
