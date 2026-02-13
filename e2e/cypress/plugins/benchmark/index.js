@@ -3,6 +3,7 @@ const { fromPairs } = require('lodash');
 
 const { CDPDataCollector } = require('./CDPDataCollector');
 const { formatResults } = require('./formatting');
+const { logE2eInfo } = require('../logging');
 
 const remoteDebuggingPortOptionPrefix = '--remote-debugging-port=';
 
@@ -54,7 +55,10 @@ const initialize = (on, config) => {
 
   if (!fs.existsSync(resultsFolder)) {
     fs.mkdirSync(resultsFolder, { recursive: true });
-    console.log(`Created folder for benchmark results ${resultsFolder}`);
+    logE2eInfo('Created folder for benchmark results', {
+      operation: 'benchmark.initialize',
+      resultsFolder,
+    });
   }
 
   on('before:browser:launch', async (browser, options) => {
@@ -69,11 +73,11 @@ const initialize = (on, config) => {
 
     args.push('--start-fullscreen');
 
-    console.log(
-      `initialized benchmarking plugin with ${collectors.length} collectors: ${collectors
-        .map((col) => col.getName())
-        .join(', ')}`
-    );
+    logE2eInfo('Initialized benchmarking plugin', {
+      operation: 'benchmark.before:browser:launch',
+      collectorCount: collectors.length,
+      collectors: collectors.map((col) => col.getName()).join(','),
+    });
 
     return options;
   });

@@ -3,6 +3,7 @@ const path = require('path');
 
 const benchmarkPlugin = require('./benchmark');
 const extendConfig = require('./extendConfig');
+const { logE2eInfo } = require('./logging');
 const readProvisions = require('./readProvisions');
 const smtpTester = require('./smtpTester');
 const typescriptPreprocessor = require('./typescriptPreprocessor');
@@ -19,7 +20,7 @@ module.exports = (on, config) => {
   on('file:preprocessor', typescriptPreprocessor);
   on('task', {
     log({ message, optional }) {
-      optional ? console.log(message, optional) : console.log(message);
+      optional ? logE2eInfo(message, optional) : logE2eInfo(message);
       return null;
     },
   });
@@ -39,14 +40,22 @@ module.exports = (on, config) => {
   // Make recordings higher resolution
   // https://www.cypress.io/blog/2021/03/01/generate-high-resolution-videos-and-screenshots/
   on('before:browser:launch', (browser = {}, launchOptions) => {
-    console.log('launching browser %s is headless? %s', browser.name, browser.isHeadless);
+    logE2eInfo('Launching browser', {
+      operation: 'before:browser:launch',
+      browserName: browser.name,
+      isHeadless: browser.isHeadless,
+    });
 
     // the browser width and height we want to get
     // our screenshots and videos will be of that resolution
     const width = 1920;
     const height = 1080;
 
-    console.log('setting the browser window size to %d x %d', width, height);
+    logE2eInfo('Setting browser window size', {
+      operation: 'before:browser:launch',
+      width,
+      height,
+    });
 
     if (browser.name === 'chrome' && browser.isHeadless) {
       launchOptions.args.push(`--window-size=${width},${height}`);
