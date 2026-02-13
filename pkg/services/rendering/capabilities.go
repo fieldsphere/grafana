@@ -43,14 +43,14 @@ func (rs *RenderingService) HasCapability(ctx context.Context, capability Capabi
 
 	compiledSemverConstraint, err := semver.NewConstraint(semverConstraint)
 	if err != nil {
-		rs.log.Error("Failed to parse semver constraint", "constraint", semverConstraint, "capability", capability, "error", err.Error())
+		rs.log.Error("Failed to parse semver constraint", "constraint", semverConstraint, "capability", capability, "error", err)
 		return CapabilitySupportRequestResult{IsSupported: false, SemverConstraint: semverConstraint}, ErrUnknownCapability
 	}
 
 	imageRendererVersion := rs.Version()
 	compiledImageRendererVersion, err := semver.NewVersion(imageRendererVersion)
 	if err != nil {
-		rs.log.Error("Failed to parse plugin version", "version", imageRendererVersion, "error", err.Error())
+		rs.log.Error("Failed to parse plugin version", "version", imageRendererVersion, "error", err)
 		return CapabilitySupportRequestResult{IsSupported: false, SemverConstraint: semverConstraint}, ErrInvalidPluginVersion
 	}
 

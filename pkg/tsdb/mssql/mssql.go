@@ -68,7 +68,7 @@ func NewInstanceSettings(logger log.Logger) datasource.InstanceFactoryFunc {
 
 		azureSettings, err := azsettings.ReadSettings(ctx)
 		if err != nil {
-			logger.Error("failed to read Azure settings from Grafana", "error", err.Error())
+			logger.Error("failed to read Azure settings from Grafana", "error", err)
 			return nil, err
 		}
 

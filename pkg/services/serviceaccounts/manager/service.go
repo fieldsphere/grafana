@@ -94,7 +94,7 @@ func ProvideServiceAccountsService(
 		if errSecret != nil {
 			s.secretScanEnabled = false
 			s.log.Warn("Failed to initialize secret scan service. secret scan is disabled",
-				"error", errSecret.Error())
+				"error", errSecret)
 		}
 	}
 
@@ -105,13 +105,13 @@ func (sa *ServiceAccountsService) Run(ctx context.Context) error {
 	sa.backgroundLog.Debug("Service initialized")
 
 	if _, err := sa.getUsageMetrics(ctx); err != nil {
-		sa.log.Warn("Failed to get usage metrics", "error", err.Error())
+		sa.log.Warn("Failed to get usage metrics", "error", err)
 	}
 
 	err := sa.serverLock.LockAndExecute(ctx, "migrate API keys to service accounts", time.Minute*30, func(context.Context) {
 		err := sa.migrateAPIKeysForAllOrgs(ctx)
 		if err != nil {
-			sa.log.Warn("Failed to migrate API keys", "error", err.Error())
+			sa.log.Warn("Failed to migrate API keys", "error", err)
 		}
 	})
 
@@ -136,7 +136,7 @@ func (sa *ServiceAccountsService) Run(ctx context.Context) error {
 	} else {
 		sa.backgroundLog.Debug("Enabled token secret check and executing first check")
 		if err := sa.secretScanService.CheckTokens(ctx); err != nil {
-			sa.backgroundLog.Warn("Failed to check for leaked tokens", "error", err.Error())
+			sa.backgroundLog.Warn("Failed to check for leaked tokens", "error", err)
 		}
 
 		defer tokenCheckTicker.Stop()
@@ -156,13 +156,13 @@ func (sa *ServiceAccountsService) Run(ctx context.Context) error {
 			sa.backgroundLog.Debug("Updating usage metrics")
 
 			if _, err := sa.getUsageMetrics(ctx); err != nil {
-				sa.backgroundLog.Warn("Failed to get usage metrics", "error", err.Error())
+				sa.backgroundLog.Warn("Failed to get usage metrics", "error", err)
 			}
 		case <-tokenCheckTicker.C:
 			sa.backgroundLog.Debug("Checking for leaked tokens")
 
 			if err := sa.secretScanService.CheckTokens(ctx); err != nil {
-				sa.backgroundLog.Warn("Failed to check for leaked tokens", "error", err.Error())
+				sa.backgroundLog.Warn("Failed to check for leaked tokens", "error", err)
 			}
 		}
 	}
@@ -332,7 +332,7 @@ func (sa *ServiceAccountsService) migrateAPIKeysForAllOrgs(ctx context.Context) 
 
 		result, err := sa.store.MigrateApiKeysToServiceAccounts(ctx, o.ID)
 		if err != nil {
-			sa.log.Warn("Failed to migrate API keys", "error", err.Error(), "orgId", o.ID)
+			sa.log.Warn("Failed to migrate API keys", "error", err, "orgId", o.ID)
 			errorsTotal += 1
 			continue
 		}

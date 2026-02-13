@@ -17,7 +17,7 @@ func LogQuerySuccess(datasources []string, log log.Logger) {
 }
 
 func LogQueryFailure(datasources []string, log log.Logger, err error) {
-	log.Error("Error querying datasources for public dashboard", "error", err.Error(), "datasources", datasources)
+	log.Error("Error querying datasources for public dashboard", "error", err, "datasources", datasources)
 	label := getLabelName(datasources)
 	metrics.MPublicDashboardDatasourceQuerySuccess.WithLabelValues(label, models.QueryFailure).Inc()
 }
