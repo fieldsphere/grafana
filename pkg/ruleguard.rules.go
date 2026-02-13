@@ -619,6 +619,12 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.Log($ctx, $level, $msg, $*attrs)`,
 	).
+		Where(m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Report("printf-style format verbs are not supported in slog.Log messages; move dynamic values to key/value fields")
+
+	m.Match(
+		`slog.Log($ctx, $level, $msg, $*attrs)`,
+	).
 		Where(!m["msg"].Text.Matches("^\".*\"$")).
 		Report("prefer a stable string-literal slog.Log message; move dynamic text into key/value fields")
 
@@ -634,6 +640,12 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isSlogLogger).
 		Report("avoid string concatenation in slog.Logger.Log messages; use key/value fields")
+
+	m.Match(
+		`$logger.Log($ctx, $level, $msg, $*attrs)`,
+	).
+		Where(isSlogLogger && m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Report("printf-style format verbs are not supported in slog.Logger.Log messages; move dynamic values to key/value fields")
 
 	m.Match(
 		`$logger.Log($ctx, $level, $msg, $*attrs)`,
