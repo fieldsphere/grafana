@@ -2,7 +2,6 @@ package promlib
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"testing"
@@ -105,9 +104,9 @@ func TestService(t *testing.T) {
 		f := &fakeHTTPClientProvider{}
 		httpProvider := getMockPromTestSDKProvider(f)
 		service := NewService(httpProvider, backend.NewLoggerWith("logger", "test"), func(ctx context.Context, settings backend.DataSourceInstanceSettings, clientOpts *sdkhttpclient.Options, log log.Logger) error {
-			fmt.Println(ctx, settings, clientOpts)
 			require.NotNil(t, ctx)
 			require.NotNil(t, settings)
+				require.NotNil(t, clientOpts)
 			require.Equal(t, "test-prom", settings.Name)
 			return nil
 		})

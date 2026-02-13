@@ -2,7 +2,6 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"net/http"
 	"testing"
@@ -44,7 +43,7 @@ func TestClient(t *testing.T) {
 			defer func() {
 				if res != nil && res.Body != nil {
 					if err := res.Body.Close(); err != nil {
-						fmt.Println("Error", "err", err)
+						t.Logf("error closing response body: %v", err)
 					}
 				}
 			}()
@@ -68,7 +67,7 @@ func TestClient(t *testing.T) {
 			defer func() {
 				if res != nil && res.Body != nil {
 					if err := res.Body.Close(); err != nil {
-						fmt.Println("Error", "err", err)
+						t.Logf("error closing response body: %v", err)
 					}
 				}
 			}()
@@ -98,7 +97,7 @@ func TestClient(t *testing.T) {
 			defer func() {
 				if res != nil && res.Body != nil {
 					if err := res.Body.Close(); err != nil {
-						fmt.Println("Error", "err", err)
+						t.Logf("error closing response body: %v", err)
 					}
 				}
 			}()
@@ -125,7 +124,7 @@ func TestClient(t *testing.T) {
 			defer func() {
 				if res != nil && res.Body != nil {
 					if err := res.Body.Close(); err != nil {
-						fmt.Println("Error", "err", err)
+						t.Logf("error closing response body: %v", err)
 					}
 				}
 			}()

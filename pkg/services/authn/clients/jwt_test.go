@@ -617,5 +617,4 @@ func TestJWTSubClaimsConfig(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, "mainemail+extraemail02@gmail.com", identity.Email)
 	require.Equal(t, "name_of_the_user", identity.Name)
-	fmt.Println("identity.Email", identity.Email)
 }
