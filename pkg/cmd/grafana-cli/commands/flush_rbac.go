@@ -16,7 +16,7 @@ func flushSeedAssignment(c utils.CommandLine, cfg *setting.Cfg, sqlStore db.DB) 
 			return err
 		}
 		if !exists {
-			logger.Infof("seed_assignment table does not exist, skipping.")
+			logger.Info("Skipping seed_assignment flush because table does not exist")
 			return nil
 		}
 
@@ -26,7 +26,7 @@ func flushSeedAssignment(c utils.CommandLine, cfg *setting.Cfg, sqlStore db.DB) 
 		}
 
 		rowsAffected, _ := result.RowsAffected()
-		logger.Infof("Flushed seed_assignment table (%d rows deleted).", rowsAffected)
+		logger.Info("Flushed seed_assignment table", "rowsDeleted", rowsAffected)
 		logger.Info("Restart Grafana to repopulate this table on next startup with the default RBAC assignments.")
 		return nil
 	})

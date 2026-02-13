@@ -178,7 +178,7 @@ func doInstallPlugin(ctx context.Context, pluginID, version string, o pluginInst
 	}
 
 	for _, dep := range extractedArchive.Dependencies {
-		services.Logger.Infof("Fetching %s dependency %s...", pluginID, dep.ID)
+		services.Logger.Info("Fetching plugin dependency", "pluginID", pluginID, "dependencyID", dep.ID)
 		err = doInstallPlugin(ctx, dep.ID, "", pluginInstallOpts{
 			insecure:  o.insecure,
 			repoURL:   o.repoURL,
@@ -195,9 +195,9 @@ func doInstallPlugin(ctx context.Context, pluginID, version string, o pluginInst
 func uninstallPlugin(_ context.Context, pluginID string, c utils.CommandLine) error {
 	for _, bundle := range services.GetLocalPlugins(c.PluginDirectory()) {
 		if bundle.Primary.JSONData.ID == pluginID {
-			logger.Infof("Removing plugin: %v\n", pluginID)
+			logger.Info("Removing plugin", "pluginID", pluginID)
 			if remover, ok := bundle.Primary.FS.(plugins.FSRemover); ok {
-				logger.Debugf("Removing directory %v\n\n", bundle.Primary.FS.Base())
+				logger.Debug("Removing plugin directory", "directory", bundle.Primary.FS.Base())
 				if err := remover.Remove(); err != nil {
 					return err
 				}
