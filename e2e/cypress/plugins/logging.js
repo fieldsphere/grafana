@@ -1,27 +1,27 @@
 'use strict';
 
-function logE2eInfo(message, context) {
-  if (context) {
-    console.log(message, context);
-    return;
+function formatLogLine(message, context) {
+  if (context == null) {
+    return `${message}\n`;
   }
-  console.log(message);
+
+  try {
+    return `${message} ${JSON.stringify(context)}\n`;
+  } catch (error) {
+    return `${message} ${String(context)}\n`;
+  }
+}
+
+function logE2eInfo(message, context) {
+  process.stdout.write(formatLogLine(message, context));
 }
 
 function logE2eWarning(message, context) {
-  if (context) {
-    console.warn(message, context);
-    return;
-  }
-  console.warn(message);
+  process.stderr.write(formatLogLine(message, context));
 }
 
 function logE2eError(message, context) {
-  if (context) {
-    console.error(message, context);
-    return;
-  }
-  console.error(message);
+  process.stderr.write(formatLogLine(message, context));
 }
 
 module.exports = {

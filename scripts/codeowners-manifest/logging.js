@@ -1,19 +1,23 @@
 'use strict';
 
-function logCodeownersInfo(message, context) {
-  if (context) {
-    console.log(message, context);
-    return;
+function formatLogLine(message, context) {
+  if (context == null) {
+    return `${message}\n`;
   }
-  console.log(message);
+
+  try {
+    return `${message} ${JSON.stringify(context)}\n`;
+  } catch (error) {
+    return `${message} ${String(context)}\n`;
+  }
+}
+
+function logCodeownersInfo(message, context) {
+  process.stdout.write(formatLogLine(message, context));
 }
 
 function logCodeownersError(message, context) {
-  if (context) {
-    console.error(message, context);
-    return;
-  }
-  console.error(message);
+  process.stderr.write(formatLogLine(message, context));
 }
 
 module.exports = {

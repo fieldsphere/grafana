@@ -1,27 +1,27 @@
 'use strict';
 
-function logScriptInfo(message, context) {
-  if (context) {
-    console.log(message, context);
-    return;
+function formatLogLine(message, context) {
+  if (context == null) {
+    return `${message}\n`;
   }
-  console.log(message);
+
+  try {
+    return `${message} ${JSON.stringify(context)}\n`;
+  } catch (error) {
+    return `${message} ${String(context)}\n`;
+  }
+}
+
+function logScriptInfo(message, context) {
+  process.stdout.write(formatLogLine(message, context));
 }
 
 function logScriptWarning(message, context) {
-  if (context) {
-    console.warn(message, context);
-    return;
-  }
-  console.warn(message);
+  process.stderr.write(formatLogLine(message, context));
 }
 
 function logScriptError(message, context) {
-  if (context) {
-    console.error(message, context);
-    return;
-  }
-  console.error(message);
+  process.stderr.write(formatLogLine(message, context));
 }
 
 module.exports = {

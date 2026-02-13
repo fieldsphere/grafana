@@ -1,25 +1,28 @@
 type LogContext = Record<string, unknown>;
 
-export function logUiWarning(message: string, context?: LogContext): void {
-  if (context) {
-    console.warn(message, context);
+function emit(level: 'log' | 'warn' | 'error', message: string, context?: LogContext): void {
+  const sink = globalThis.console as Partial<Record<'log' | 'warn' | 'error', (...args: unknown[]) => void>> | undefined;
+  const method = sink?.[level];
+  if (!method) {
     return;
   }
-  console.warn(message);
+
+  if (context) {
+    method(message, context);
+    return;
+  }
+
+  method(message);
+}
+
+export function logUiWarning(message: string, context?: LogContext): void {
+  emit('warn', message, context);
 }
 
 export function logUiError(message: string, context?: LogContext): void {
-  if (context) {
-    console.error(message, context);
-    return;
-  }
-  console.error(message);
+  emit('error', message, context);
 }
 
 export function logUiDebug(message: string, context?: LogContext): void {
-  if (context) {
-    console.log(message, context);
-    return;
-  }
-  console.log(message);
+  emit('log', message, context);
 }

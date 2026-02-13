@@ -1,25 +1,28 @@
 type LogContext = Record<string, unknown>;
 
-export function logApiClientInfo(message: string, context?: LogContext): void {
-  if (context) {
-    console.log(message, context);
+function emit(level: 'log' | 'warn' | 'error', message: string, context?: LogContext): void {
+  const sink = globalThis.console as Partial<Record<'log' | 'warn' | 'error', (...args: unknown[]) => void>> | undefined;
+  const method = sink?.[level];
+  if (!method) {
     return;
   }
-  console.log(message);
+
+  if (context) {
+    method(message, context);
+    return;
+  }
+
+  method(message);
+}
+
+export function logApiClientInfo(message: string, context?: LogContext): void {
+  emit('log', message, context);
 }
 
 export function logApiClientWarning(message: string, context?: LogContext): void {
-  if (context) {
-    console.warn(message, context);
-    return;
-  }
-  console.warn(message);
+  emit('warn', message, context);
 }
 
 export function logApiClientError(message: string, context?: LogContext): void {
-  if (context) {
-    console.error(message, context);
-    return;
-  }
-  console.error(message);
+  emit('error', message, context);
 }

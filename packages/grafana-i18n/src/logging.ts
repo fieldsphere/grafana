@@ -1,17 +1,24 @@
 type LogContext = Record<string, unknown>;
 
-export function logI18nError(message: string, context?: LogContext): void {
-  if (context) {
-    console.error(message, context);
+function emit(level: 'warn' | 'error', message: string, context?: LogContext): void {
+  const sink = globalThis.console as Partial<Record<'warn' | 'error', (...args: unknown[]) => void>> | undefined;
+  const method = sink?.[level];
+  if (!method) {
     return;
   }
-  console.error(message);
+
+  if (context) {
+    method(message, context);
+    return;
+  }
+
+  method(message);
+}
+
+export function logI18nError(message: string, context?: LogContext): void {
+  emit('error', message, context);
 }
 
 export function logI18nWarning(message: string, context?: LogContext): void {
-  if (context) {
-    console.warn(message, context);
-    return;
-  }
-  console.warn(message);
+  emit('warn', message, context);
 }
