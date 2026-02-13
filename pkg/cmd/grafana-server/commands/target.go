@@ -55,7 +55,7 @@ func RunTargetServer(opts standalone.BuildInfo, cli *cli.Context) error {
 		}
 	}()
 
-	if err := setupProfiling(Profile, ProfileAddr, ProfilePort, ProfileBlockRate, ProfileMutexFraction); err != nil {
+	if err := setupProfiling(Profile, ProfileAddr, ProfilePort, ProfileBlockRate, ProfileMutexFraction, logger); err != nil {
 		return err
 	}
 	if err := setupTracing(Tracing, TracingFile, logger); err != nil {
