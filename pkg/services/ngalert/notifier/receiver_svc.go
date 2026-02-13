@@ -293,7 +293,7 @@ func (rs *ReceiverService) DeleteReceiver(ctx context.Context, uid string, calle
 		return nil
 	}
 
-	logger := rs.log.FromContext(ctx).New("receiver", existing.Name, "uid", uid, "version", version, "integrations", existing.GetIntegrationTypes())
+	logger := rs.log.FromContext(ctx).New("receiver", existing.Name, "receiverUID", uid, "version", version, "integrations", existing.GetIntegrationTypes())
 
 	// Check optimistic concurrency.
 	// Optimistic concurrency is optional for delete operations, but we still check it if a version is provided.
@@ -396,7 +396,7 @@ func (rs *ReceiverService) CreateReceiver(ctx context.Context, r *models.Receive
 		attribute.String("receiverUID", result.UID),
 		attribute.String("version", result.Version),
 	))
-	rs.log.FromContext(ctx).Info("Created a new receiver", "receiver", result.Name, "uid", result.UID, "fingerprint", result.Version, "integrations", result.GetIntegrationTypes())
+	rs.log.FromContext(ctx).Info("Created a new receiver", "receiver", result.Name, "receiverUID", result.UID, "fingerprint", result.Version, "integrations", result.GetIntegrationTypes())
 	return result, nil
 }
 
@@ -417,7 +417,7 @@ func (rs *ReceiverService) UpdateReceiver(ctx context.Context, r *models.Receive
 		return nil, err
 	}
 
-	logger := rs.log.FromContext(ctx).New("receiver", r.Name, "uid", r.UID, "version", r.Version, "integrations", r.GetIntegrationTypes())
+	logger := rs.log.FromContext(ctx).New("receiver", r.Name, "receiverUID", r.UID, "version", r.Version, "integrations", r.GetIntegrationTypes())
 	logger.Debug("Updating receiver")
 
 	revision, err := rs.cfgStore.Get(ctx, orgID)

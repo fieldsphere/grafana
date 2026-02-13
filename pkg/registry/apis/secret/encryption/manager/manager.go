@@ -330,7 +330,7 @@ func (s *EncryptionManager) Decrypt(ctx context.Context, namespace xkube.Namespa
 
 	dataKey, err := s.dataKeyById(ctx, namespace.String(), payload.DataKeyID, opts.SkipCache)
 	if err != nil {
-		s.log.FromContext(ctx).Error("Failed to lookup data key by id", "id", payload.DataKeyID, "error", err)
+		s.log.FromContext(ctx).Error("Failed to lookup data key by id", "dataKeyID", payload.DataKeyID, "error", err)
 		return nil, err
 	}
 
