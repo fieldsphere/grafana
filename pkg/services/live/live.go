@@ -1342,7 +1342,8 @@ func (g *GrafanaLive) HandleWriteConfigsPostHTTP(c *contextmodel.ReqContext) res
 
 // Write to the standard log15 logger
 func handleLog(msg centrifuge.LogEntry) {
-	arr := make([]interface{}, 0)
+	arr := make([]interface{}, 0, len(msg.Fields)*2+4)
+	arr = append(arr, "message", msg.Message)
 	for k, v := range msg.Fields {
 		switch v {
 		case nil:
@@ -1355,13 +1356,13 @@ func handleLog(msg centrifuge.LogEntry) {
 
 	switch msg.Level {
 	case centrifuge.LogLevelDebug:
-		loggerCF.Debug(msg.Message, arr...)
+		loggerCF.Debug("Centrifuge log entry", append(arr, "centrifugeLevel", "debug")...)
 	case centrifuge.LogLevelError:
-		loggerCF.Error(msg.Message, arr...)
+		loggerCF.Error("Centrifuge log entry", append(arr, "centrifugeLevel", "error")...)
 	case centrifuge.LogLevelInfo:
-		loggerCF.Info(msg.Message, arr...)
+		loggerCF.Info("Centrifuge log entry", append(arr, "centrifugeLevel", "info")...)
 	default:
-		loggerCF.Debug(msg.Message, arr...)
+		loggerCF.Debug("Centrifuge log entry", append(arr, "centrifugeLevel", "unknown")...)
 	}
 }
 
