@@ -47,50 +47,55 @@ func (l *ZanzanaLogger) With(fields ...zapcore.Field) logger.Logger {
 	}
 }
 
+func (l *ZanzanaLogger) emit(level string, msg string, fields ...zap.Field) {
+	args := append(zapFieldsToArgs(fields), "zanzana_message", msg, "zanzana_level", level)
+	l.logger.Info("Zanzana logger event", args...)
+}
+
 func (l *ZanzanaLogger) Debug(msg string, fields ...zap.Field) {
-	l.logger.Debug(msg, zapFieldsToArgs(fields)...)
+	l.emit("debug", msg, fields...)
 }
 
 func (l *ZanzanaLogger) Info(msg string, fields ...zap.Field) {
-	l.logger.Info(msg, zapFieldsToArgs(fields)...)
+	l.emit("info", msg, fields...)
 }
 
 func (l *ZanzanaLogger) Warn(msg string, fields ...zap.Field) {
-	l.logger.Warn(msg, zapFieldsToArgs(fields)...)
+	l.emit("warn", msg, fields...)
 }
 
 func (l *ZanzanaLogger) Error(msg string, fields ...zap.Field) {
-	l.logger.Error(msg, zapFieldsToArgs(fields)...)
+	l.emit("error", msg, fields...)
 }
 
 func (l *ZanzanaLogger) Panic(msg string, fields ...zap.Field) {
-	l.logger.Error(msg, zapFieldsToArgs(fields)...)
+	l.emit("panic", msg, fields...)
 }
 
 func (l *ZanzanaLogger) Fatal(msg string, fields ...zap.Field) {
-	l.logger.Error(msg, zapFieldsToArgs(fields)...)
+	l.emit("fatal", msg, fields...)
 }
 
 func (l *ZanzanaLogger) DebugWithContext(ctx context.Context, msg string, fields ...zap.Field) {
-	l.logger.Debug(msg, zapFieldsToArgs(fields)...)
+	l.emit("debug", msg, fields...)
 }
 
 func (l *ZanzanaLogger) InfoWithContext(ctx context.Context, msg string, fields ...zap.Field) {
-	l.logger.Info(msg, zapFieldsToArgs(fields)...)
+	l.emit("info", msg, fields...)
 }
 
 func (l *ZanzanaLogger) WarnWithContext(ctx context.Context, msg string, fields ...zap.Field) {
-	l.logger.Warn(msg, zapFieldsToArgs(fields)...)
+	l.emit("warn", msg, fields...)
 }
 
 func (l *ZanzanaLogger) ErrorWithContext(ctx context.Context, msg string, fields ...zap.Field) {
-	l.logger.Error(msg, zapFieldsToArgs(fields)...)
+	l.emit("error", msg, fields...)
 }
 
 func (l *ZanzanaLogger) PanicWithContext(ctx context.Context, msg string, fields ...zap.Field) {
-	l.logger.Error(msg, zapFieldsToArgs(fields)...)
+	l.emit("panic", msg, fields...)
 }
 
 func (l *ZanzanaLogger) FatalWithContext(ctx context.Context, msg string, fields ...zap.Field) {
-	l.logger.Error(msg, zapFieldsToArgs(fields)...)
+	l.emit("fatal", msg, fields...)
 }
