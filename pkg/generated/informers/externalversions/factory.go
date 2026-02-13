@@ -200,7 +200,7 @@ func (f *sharedInformerFactory) InformerFor(obj runtime.Object, newFunc internal
 //	synced := factory.WaitForCacheSync(ctx.Done())
 //	for v, ok := range synced {
 //	    if !ok {
-//	        fmt.Fprintf(os.Stderr, "caches failed to sync: %v", v)
+//	        slog.Error("caches failed to sync", "informer", v)
 //	        return
 //	    }
 //	}
