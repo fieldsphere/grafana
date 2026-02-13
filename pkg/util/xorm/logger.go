@@ -87,6 +87,12 @@ func splitLogArgs(args ...any) (string, []any) {
 		return "", nil
 	}
 
+	if len(args) == 1 {
+		if err, ok := args[0].(error); ok {
+			return "XORM error", []any{"error", err}
+		}
+	}
+
 	msg, isString := args[0].(string)
 	if !isString {
 		return fmt.Sprint(args...), nil
