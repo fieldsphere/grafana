@@ -375,7 +375,7 @@ func (dr *DashboardServiceImpl) processDashboardBatch(ctx context.Context, orgID
 		resourceVersion, _ := meta["resourceVersion"].(string)
 
 		dr.log.Info("K8s dashboard resource previously got deleted, cleaning up",
-			"UID", dash.UID,
+			"dashboardUID", dash.UID,
 			"orgID", orgID,
 			"deletionTimestamp", deletionTimestamp,
 			"resourceVersion", resourceVersion)
