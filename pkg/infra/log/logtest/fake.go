@@ -19,6 +19,12 @@ type Logs struct {
 	Ctx     []any
 }
 
+func (f *Fake) record(logs *Logs, msg string, ctx ...any) {
+	logs.Calls++
+	logs.Message = msg
+	logs.Ctx = ctx
+}
+
 func (f *Fake) New(ctx ...any) *log.ConcreteLogger {
 	return log.NewNopLogger()
 }
@@ -28,39 +34,31 @@ func (f *Fake) Log(keyvals ...any) error {
 }
 
 func (f *Fake) Debug(msg string, ctx ...any) {
-	f.DebugLogs.Calls++
-	f.DebugLogs.Message = msg
-	f.DebugLogs.Ctx = ctx
+	f.record(&f.DebugLogs, msg, ctx...)
 }
 
 func (f *Fake) Info(msg string, ctx ...any) {
-	f.InfoLogs.Calls++
-	f.InfoLogs.Message = msg
-	f.InfoLogs.Ctx = ctx
+	f.record(&f.InfoLogs, msg, ctx...)
 }
 
 func (f *Fake) Warn(msg string, ctx ...any) {
-	f.WarnLogs.Calls++
-	f.WarnLogs.Message = msg
-	f.WarnLogs.Ctx = ctx
+	f.record(&f.WarnLogs, msg, ctx...)
 }
 
 func (f *Fake) Error(msg string, ctx ...any) {
-	f.ErrorLogs.Calls++
-	f.ErrorLogs.Message = msg
-	f.ErrorLogs.Ctx = ctx
+	f.record(&f.ErrorLogs, msg, ctx...)
 }
 
 func (f *Fake) DebugCtx(_ context.Context, msg string, args ...any) {
-	f.Debug(msg, args...)
+	f.record(&f.DebugLogs, msg, args...)
 }
 
 func (f *Fake) InfoCtx(_ context.Context, msg string, args ...any) {
-	f.Info(msg, args...)
+	f.record(&f.InfoLogs, msg, args...)
 }
 
 func (f *Fake) WarnCtx(_ context.Context, msg string, args ...any) {
-	f.Warn(msg, args...)
+	f.record(&f.WarnLogs, msg, args...)
 }
 
 func (f *Fake) FromContext(_ context.Context) log.Logger {
