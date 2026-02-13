@@ -3,6 +3,7 @@ package v0alpha1
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"strconv"
 
 	"go.yaml.in/yaml/v3"
@@ -125,7 +126,7 @@ func (s RawSecureValue) String() string {
 
 // Format must not return the exposed secure value.
 func (s RawSecureValue) Format(f fmt.State, _verb rune) {
-	_, _ = fmt.Fprint(f, redacted)
+	_, _ = io.WriteString(f, redacted)
 }
 
 // GoString must not return the exposed secure value.
