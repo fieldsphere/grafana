@@ -19,4 +19,4 @@ fs.writeFileSync(
   )
 );
 
-console.log('Successfully generated theme schema');
+process.stdout.write('Successfully generated theme schema\n');
