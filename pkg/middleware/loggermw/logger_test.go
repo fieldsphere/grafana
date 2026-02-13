@@ -88,7 +88,7 @@ func Test_prepareLog(t *testing.T) {
 
 			expectFields: map[string]any{
 				"status": http.StatusInternalServerError,
-				"error":  "got an error",
+				"error":  fmt.Errorf("got an error"),
 			},
 			expectAbsence: map[string]struct{}{
 				"errorReason":    {},

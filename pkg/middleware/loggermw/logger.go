@@ -144,7 +144,7 @@ func errorLogParams(err error) []any {
 
 	var gfErr errutil.Error
 	if !errors.As(err, &gfErr) {
-		return []any{"error", err.Error()}
+		return []any{"error", err}
 	}
 
 	return []any{
