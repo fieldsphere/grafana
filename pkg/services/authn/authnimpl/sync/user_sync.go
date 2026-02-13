@@ -359,7 +359,7 @@ func (s *UserSync) FetchSyncedUserHook(ctx context.Context, id *authn.Identity, 
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "err", err)
+		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "error", err)
 		return nil
 	}
 
@@ -400,7 +400,7 @@ func (s *UserSync) SyncLastSeenHook(ctx context.Context, id *authn.Identity, r *
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "err", err)
+		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "error", err)
 		return nil
 	}
 
@@ -409,7 +409,7 @@ func (s *UserSync) SyncLastSeenHook(ctx context.Context, id *authn.Identity, r *
 	_, _, _ = s.lastSeenSF.Do(fmt.Sprintf("%d-%d", id.GetOrgID(), userID), func() (interface{}, error) {
 		err := s.userService.UpdateLastSeenAt(goCtx, &user.UpdateUserLastSeenAtCommand{UserID: userID, OrgID: id.GetOrgID()})
 		if err != nil && !errors.Is(err, user.ErrLastSeenUpToDate) {
-			s.log.Error("Failed to update last_seen_at", "err", err, "userId", userID)
+			s.log.Error("Failed to update last_seen_at", "error", err, "userId", userID)
 		}
 		return nil, nil
 	})
@@ -431,7 +431,7 @@ func (s *UserSync) EnableUserHook(ctx context.Context, id *authn.Identity, _ *au
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "err", err)
+		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "error", err)
 		return nil
 	}
 

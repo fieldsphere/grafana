@@ -87,7 +87,7 @@ func (s *AuthService) initKeySet() error {
 		}
 		defer func() {
 			if err := file.Close(); err != nil {
-				s.log.Warn("Failed to close file", "path", keyFilePath, "err", err)
+				s.log.Warn("Failed to close file", "path", keyFilePath, "error", err)
 			}
 		}()
 
@@ -140,7 +140,7 @@ func (s *AuthService) initKeySet() error {
 		}
 		defer func() {
 			if err := file.Close(); err != nil {
-				s.log.Warn("Failed to close file", "path", keyFilePath, "err", err)
+				s.log.Warn("Failed to close file", "path", keyFilePath, "error", err)
 			}
 		}()
 
@@ -248,7 +248,7 @@ func (ks *keySetHTTP) getJWKS(ctx context.Context) (keySetJWKS, error) {
 		if val, err := ks.cache.Get(ctx, ks.cacheKey); err == nil {
 			err := json.Unmarshal(val, &jwks)
 			if err != nil {
-				ks.log.Warn("Failed to unmarshal key set from cache", "err", err)
+				ks.log.Warn("Failed to unmarshal key set from cache", "error", err)
 			} else {
 				return jwks, err
 			}
@@ -279,7 +279,7 @@ func (ks *keySetHTTP) getJWKS(ctx context.Context) (keySetJWKS, error) {
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			ks.log.Warn("Failed to close response body", "err", err)
+			ks.log.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

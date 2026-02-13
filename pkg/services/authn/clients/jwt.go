@@ -128,7 +128,7 @@ func (s *JWT) Authenticate(ctx context.Context, r *authn.Request) (*authn.Identi
 
 		externalOrgs, err := s.extractOrgs(claims)
 		if err != nil {
-			s.log.Warn("Failed to extract orgs", "err", err)
+			s.log.Warn("Failed to extract orgs", "error", err)
 			return nil, err
 		}
 

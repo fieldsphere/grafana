@@ -159,7 +159,7 @@ func (s *Service) SyncIDToken(ctx context.Context, identity *authn.Identity, _ *
 	token, idClaims, err := s.SignIdentity(ctx, identity)
 	if err != nil {
 		if shouldLogErr(err) {
-			s.logger.FromContext(ctx).Error("Failed to sign id token", "err", err, "id", identity.GetID())
+			s.logger.FromContext(ctx).Error("Failed to sign id token", "error", err, "id", identity.GetID())
 		}
 		// for now don't return error so we don't break authentication from this hook
 		return nil

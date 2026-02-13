@@ -260,7 +260,7 @@ func (s *Service) Login(ctx context.Context, client string, r *authn.Request) (i
 	sessionToken, err := s.sessionService.CreateToken(ctx, &auth.CreateTokenCommand{User: &user.User{ID: userID}, ClientIP: ip, UserAgent: r.HTTPRequest.UserAgent(), ExternalSession: externalSession})
 	if err != nil {
 		s.metrics.failedLogin.WithLabelValues(client).Inc()
-		s.log.FromContext(ctx).Error("Failed to create session", "client", client, "id", id.ID, "err", err)
+		s.log.FromContext(ctx).Error("Failed to create session", "client", client, "id", id.ID, "error", err)
 		return nil, err
 	}
 
@@ -311,7 +311,7 @@ func (s *Service) Logout(ctx context.Context, user identity.Requester, sessionTo
 
 	id, err := user.GetInternalID()
 	if err != nil {
-		s.log.FromContext(ctx).Debug("Invalid user id", "id", id, "err", err)
+		s.log.FromContext(ctx).Debug("Invalid user id", "id", id, "error", err)
 		return redirect, nil
 	}
 

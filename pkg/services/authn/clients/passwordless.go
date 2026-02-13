@@ -281,7 +281,7 @@ func (c *Passwordless) authenticatePasswordless(ctx context.Context, r *authn.Re
 	}
 
 	if err := c.loginAttempts.Reset(ctx, codeEntry.Email); err != nil {
-		c.log.Warn("could not reset login attempts", "err", err, "username", codeEntry.Email)
+		c.log.Warn("could not reset login attempts", "error", err, "username", codeEntry.Email)
 	}
 
 	usr, err := c.userService.GetByEmail(ctx, &user.GetUserByEmailQuery{Email: codeEntry.Email})

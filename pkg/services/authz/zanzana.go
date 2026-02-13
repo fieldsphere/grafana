@@ -324,7 +324,7 @@ func (z *Zanzana) running(ctx context.Context) error {
 
 func (z *Zanzana) stopping(err error) error {
 	if err != nil && !errors.Is(err, context.Canceled) {
-		z.logger.Error("Stopping zanzana due to unexpected error", "err", err)
+		z.logger.Error("Stopping zanzana due to unexpected error", "error", err)
 	}
 	z.zanzanaServer.Close()
 	return nil

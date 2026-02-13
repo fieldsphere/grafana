@@ -46,7 +46,7 @@ func (s *OrgSync) SyncOrgRolesHook(ctx context.Context, id *authn.Identity, _ *a
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		ctxLogger.Warn("Failed to sync org role, invalid ID for identity", "type", id.GetIdentityType(), "err", err)
+		ctxLogger.Warn("Failed to sync org role, invalid ID for identity", "type", id.GetIdentityType(), "error", err)
 		return nil
 	}
 
@@ -159,13 +159,13 @@ func (s *OrgSync) SetDefaultOrgHook(ctx context.Context, currentIdentity *authn.
 
 	userID, err := currentIdentity.GetInternalID()
 	if err != nil {
-		ctxLogger.Debug("Skipping default org sync, invalid ID for identity", "id", currentIdentity.ID, "type", currentIdentity.GetIdentityType(), "err", err)
+		ctxLogger.Debug("Skipping default org sync, invalid ID for identity", "id", currentIdentity.ID, "type", currentIdentity.GetIdentityType(), "error", err)
 		return
 	}
 
 	hasAssignedToOrg, err := s.validateUsingOrg(ctx, userID, s.cfg.LoginDefaultOrgId)
 	if err != nil {
-		ctxLogger.Error("Skipping default org sync, failed to validate user's organizations", "id", currentIdentity.ID, "err", err)
+		ctxLogger.Error("Skipping default org sync, failed to validate user's organizations", "id", currentIdentity.ID, "error", err)
 		return
 	}
 

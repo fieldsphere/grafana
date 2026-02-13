@@ -166,7 +166,7 @@ func (c *Proxy) Hook(ctx context.Context, id *authn.Identity, r *authn.Request) 
 
 	internalId, err := id.GetInternalID()
 	if err != nil {
-		c.log.Warn("Failed to cache proxy user", "error", err, "userId", id.GetID(), "err", err)
+		c.log.Warn("Failed to cache proxy user", "error", err, "userId", id.GetID())
 		return nil
 	}
 
