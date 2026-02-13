@@ -82,7 +82,7 @@ export const reducerTester = <State>(): Given<State> => {
 
   const thenStateShouldEqual = (state: State): When<State> => {
     if (showDebugOutput) {
-      console.log(JSON.stringify(resultingState, null, 2));
+      process.stdout.write(`${JSON.stringify(resultingState, null, 2)}\n`);
     }
     expect(resultingState).toEqual(state);
 
@@ -91,7 +91,7 @@ export const reducerTester = <State>(): Given<State> => {
 
   const thenStatePredicateShouldEqual = (predicate: (resultingState: State) => boolean): When<State> => {
     if (showDebugOutput) {
-      console.log(JSON.stringify(resultingState, null, 2));
+      process.stdout.write(`${JSON.stringify(resultingState, null, 2)}\n`);
     }
     expect(predicate(resultingState)).toBe(true);
 
