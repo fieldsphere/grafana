@@ -338,7 +338,7 @@ func (ds *DataSource) resourceRequestMiddleware(handleFunc models.RouteHandlerFu
 		ctx := req.Context()
 		jsonResponse, httpError := handleFunc(ctx, req.URL.Query())
 		if httpError != nil {
-			ds.logger.FromContext(ctx).Error("Error handling resource request", "error", httpError.Message)
+			ds.logger.FromContext(ctx).Error("Error handling resource request", "errorMessage", httpError.Message)
 			respondWithError(rw, httpError)
 			return
 		}
