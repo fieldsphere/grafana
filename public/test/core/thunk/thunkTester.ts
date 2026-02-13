@@ -2,6 +2,8 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import configureMockStore from 'redux-mock-store';
 import { thunk } from 'redux-thunk';
 
+import { logTestDebug } from '../logging';
+
 const mockStore = configureMockStore([thunk]);
 
 export interface ThunkGiven {
@@ -28,7 +30,7 @@ export const thunkTester = (initialState: unknown, debug?: boolean): ThunkGiven 
 
     dispatchedActions = store.getActions();
     if (debug) {
-      process.stdout.write(`resultingActions: ${JSON.stringify(dispatchedActions, null, 2)}\n`);
+      logTestDebug('Thunk resulting actions', { dispatchedActions });
     }
 
     return dispatchedActions;

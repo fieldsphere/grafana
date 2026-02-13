@@ -3,6 +3,7 @@ import { cloneDeep } from 'lodash';
 import { Action } from 'redux';
 
 import { StoreState } from 'app/types/store';
+import { logTestDebug } from '../logging';
 
 type GrafanaReducer<S = StoreState, A extends Action = AnyAction> = (state: S, action: A) => S;
 
@@ -82,7 +83,7 @@ export const reducerTester = <State>(): Given<State> => {
 
   const thenStateShouldEqual = (state: State): When<State> => {
     if (showDebugOutput) {
-      process.stdout.write(`${JSON.stringify(resultingState, null, 2)}\n`);
+      logTestDebug('Reducer resulting state', { resultingState });
     }
     expect(resultingState).toEqual(state);
 
@@ -91,7 +92,7 @@ export const reducerTester = <State>(): Given<State> => {
 
   const thenStatePredicateShouldEqual = (predicate: (resultingState: State) => boolean): When<State> => {
     if (showDebugOutput) {
-      process.stdout.write(`${JSON.stringify(resultingState, null, 2)}\n`);
+      logTestDebug('Reducer resulting state', { resultingState });
     }
     expect(predicate(resultingState)).toBe(true);
 
