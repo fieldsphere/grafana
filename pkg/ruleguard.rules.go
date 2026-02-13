@@ -629,6 +629,27 @@ func structuredlogging(m fluent.Matcher) {
 		Report("prefer a stable string-literal slog.Log message; move dynamic text into key/value fields")
 
 	m.Match(
+		`slog.LogAttrs($ctx, $level, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`slog.LogAttrs($ctx, $level, fmt.Sprint($*args), $*attrs)`,
+	).Report("use a stable slog.LogAttrs message and attrs instead of fmt formatting")
+
+	m.Match(
+		`slog.LogAttrs($ctx, $level, $left + $right, $*attrs)`,
+	).Report("avoid string concatenation in slog.LogAttrs messages; use structured attributes")
+
+	m.Match(
+		`slog.LogAttrs($ctx, $level, $msg, $*attrs)`,
+	).
+		Where(m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Report("printf-style format verbs are not supported in slog.LogAttrs messages; move dynamic values to attributes")
+
+	m.Match(
+		`slog.LogAttrs($ctx, $level, $msg, $*attrs)`,
+	).
+		Where(!m["msg"].Text.Matches("^\".*\"$")).
+		Report("prefer a stable string-literal slog.LogAttrs message; move dynamic text into structured attributes")
+
+	m.Match(
 		`$logger.Log($ctx, $level, fmt.Sprintf($fmt, $*args), $*attrs)`,
 		`$logger.Log($ctx, $level, fmt.Sprint($*args), $*attrs)`,
 	).
@@ -652,6 +673,31 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isSlogLogger && !m["msg"].Text.Matches("^\".*\"$")).
 		Report("prefer a stable string-literal slog.Logger.Log message; move dynamic text into key/value fields")
+
+	m.Match(
+		`$logger.LogAttrs($ctx, $level, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`$logger.LogAttrs($ctx, $level, fmt.Sprint($*args), $*attrs)`,
+	).
+		Where(isSlogLogger).
+		Report("use a stable slog.Logger.LogAttrs message and attrs instead of fmt formatting")
+
+	m.Match(
+		`$logger.LogAttrs($ctx, $level, $left + $right, $*attrs)`,
+	).
+		Where(isSlogLogger).
+		Report("avoid string concatenation in slog.Logger.LogAttrs messages; use structured attributes")
+
+	m.Match(
+		`$logger.LogAttrs($ctx, $level, $msg, $*attrs)`,
+	).
+		Where(isSlogLogger && m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Report("printf-style format verbs are not supported in slog.Logger.LogAttrs messages; move dynamic values to attributes")
+
+	m.Match(
+		`$logger.LogAttrs($ctx, $level, $msg, $*attrs)`,
+	).
+		Where(isSlogLogger && !m["msg"].Text.Matches("^\".*\"$")).
+		Report("prefer a stable string-literal slog.Logger.LogAttrs message; move dynamic text into structured attributes")
 }
 
 func unstructuredoutput(m fluent.Matcher) {
