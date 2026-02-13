@@ -176,7 +176,7 @@ func (s *Service) authenticate(ctx context.Context, c authn.Client, r *authn.Req
 	}
 
 	if err := s.runPostAuthHooks(ctx, identity, r); err != nil {
-		s.errorLogFunc(ctx, err)("Failed to run post auth hook", "client", c.Name(), "id", identity.ID, "error", err)
+		s.errorLogFunc(ctx, err)("Failed to run post auth hook", "client", c.Name(), "identityID", identity.ID, "error", err)
 		return nil, err
 	}
 
@@ -186,7 +186,7 @@ func (s *Service) authenticate(ctx context.Context, c authn.Client, r *authn.Req
 
 	if hc, ok := c.(authn.HookClient); ok {
 		if err := hc.Hook(ctx, identity, r); err != nil {
-			s.errorLogFunc(ctx, err)("Failed to run post client auth hook", "client", c.Name(), "id", identity.ID, "error", err)
+			s.errorLogFunc(ctx, err)("Failed to run post client auth hook", "client", c.Name(), "identityID", identity.ID, "error", err)
 			return nil, err
 		}
 	}
