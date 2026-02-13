@@ -48,17 +48,18 @@ func formatArgs(args ...any) []any {
 
 // Emit a message and key/value pairs at a provided log level
 func (lw logWrapper) Log(level hclog.Level, msg string, args ...any) {
+	fields := wrapPluginLogArgs(msg, level.String(), args...)
 	switch level {
 	case hclog.Trace:
-		lw.Trace(msg, args...)
+		lw.Logger.Debug("Backend plugin log entry", fields...)
 	case hclog.Debug:
-		lw.Debug(msg, args...)
+		lw.Logger.Debug("Backend plugin log entry", fields...)
 	case hclog.Info:
-		lw.Info(msg, args...)
+		lw.Logger.Info("Backend plugin log entry", fields...)
 	case hclog.Warn:
-		lw.Warn(msg, args...)
+		lw.Logger.Warn("Backend plugin log entry", fields...)
 	case hclog.Error:
-		lw.Error(msg, args...)
+		lw.Logger.Error("Backend plugin log entry", fields...)
 	default:
 		// TODO: Handle hclog.NoLevel
 	}
