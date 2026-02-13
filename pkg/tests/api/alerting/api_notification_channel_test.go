@@ -1190,7 +1190,7 @@ func (nc *mockNotificationChannel) ServeHTTP(res http.ResponseWriter, req *http.
 	nc.receivedNotifications[key] = append(nc.receivedNotifications[key], body)
 	res.Header().Set("Content-Type", "application/json")
 	res.WriteHeader(http.StatusOK)
-	_, _ = fmt.Fprint(res, nc.responses[paths[0]])
+	_, _ = io.WriteString(res, nc.responses[paths[0]])
 }
 
 func (nc *mockNotificationChannel) totalNotifications() int {

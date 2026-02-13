@@ -2,7 +2,7 @@ package statscollector
 
 import (
 	"context"
-	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -18,12 +18,12 @@ import (
 
 func TestDetectPrometheusVariant(t *testing.T) {
 	vanilla := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = fmt.Fprint(w, `{"status":"success","data":{"version":"","revision":"","branch":"","buildUser":"","buildDate":"","goVersion":"go1.17.6"}}`)
+		_, _ = io.WriteString(w, `{"status":"success","data":{"version":"","revision":"","branch":"","buildUser":"","buildDate":"","goVersion":"go1.17.6"}}`)
 	}))
 	t.Cleanup(vanilla.Close)
 
 	mimir := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		_, _ = fmt.Fprint(w, `{"status":"success","data":{"application":"Grafana Mimir","version":"2.0.0","revision":"9fd2da5","branch":"HEAD","goVersion":"go1.17.8","features":{"ruler_config_api":"true","alertmanager_config_api":"true","query_sharding":"false","federated_rules":"false"}}}`)
+		_, _ = io.WriteString(w, `{"status":"success","data":{"application":"Grafana Mimir","version":"2.0.0","revision":"9fd2da5","branch":"HEAD","goVersion":"go1.17.8","features":{"ruler_config_api":"true","alertmanager_config_api":"true","query_sharding":"false","federated_rules":"false"}}}`)
 	}))
 	t.Cleanup(mimir.Close)
 

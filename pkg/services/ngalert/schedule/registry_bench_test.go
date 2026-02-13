@@ -1,7 +1,6 @@
 package schedule
 
 import (
-	"fmt"
 	"io"
 	"math/rand"
 	"testing"
@@ -27,5 +26,5 @@ func BenchmarkRuleWithFolderFingerprint(b *testing.B) {
 		f = ruleWithFolder{rule: rules[i], folderTitle: folder}.Fingerprint()
 	}
 	b.StopTimer()
-	_, _ = fmt.Fprint(io.Discard, f)
+	_, _ = io.WriteString(io.Discard, f.String())
 }
