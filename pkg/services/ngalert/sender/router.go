@@ -229,7 +229,16 @@ func buildRedactedAMs(l log.Logger, alertmanagers []ExternalAMcfg, ordId int64) 
 func asSHA256(strings []string) string {
 	h := sha256.New()
 	sort.Strings(strings)
-	_, _ = fmt.Fprintf(h, "%v", strings)
+
+	_, _ = h.Write([]byte{'['})
+	for i, value := range strings {
+		if i > 0 {
+			_, _ = h.Write([]byte{' '})
+		}
+		_, _ = h.Write([]byte(value))
+	}
+	_, _ = h.Write([]byte{']'})
+
 	return fmt.Sprintf("%x", h.Sum(nil))
 }
 
