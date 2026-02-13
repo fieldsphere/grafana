@@ -99,7 +99,7 @@ func (h *K8sClientWithFallback) Get(
 
 	span.SetAttributes(
 		attribute.String("dashboard.metadata.name", name),
-		attribute.Int64("org.id", orgID),
+		attribute.Int64("orgID", orgID),
 		attribute.Bool("fallback", false),
 	)
 
@@ -142,7 +142,7 @@ func (h *K8sClientWithFallback) List(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.Int64("org.id", orgID),
+		attribute.Int64("orgID", orgID),
 		attribute.Bool("fallback", false),
 	)
 
@@ -223,7 +223,7 @@ func (h *K8sClientWithFallback) Update(
 	span.SetAttributes(
 		attribute.String("version", version),
 		attribute.String("dashboard.metadata.name", obj.GetName()),
-		attribute.Int64("org.id", orgID),
+		attribute.Int64("orgID", orgID),
 	)
 
 	res, err := h.newClientFunc(ctx, version).Update(ctx, obj, orgID, options)
