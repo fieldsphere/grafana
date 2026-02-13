@@ -67,7 +67,7 @@ func (g *Gateway) Handle(ctx *contextmodel.ReqContext) {
 	}
 	logger.Debug("Live Push request",
 		"protocol", "http",
-		"streamId", streamID,
+		"streamID", streamID,
 		"bodyLength", len(body),
 		"frameFormat", frameFormat,
 	)

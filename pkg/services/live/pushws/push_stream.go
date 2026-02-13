@@ -83,7 +83,7 @@ func (s *Handler) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 		logger.Debug("Live Push request",
 			"protocol", "ws",
-			"streamId", streamID,
+			"streamID", streamID,
 			"bodyLength", len(body),
 			"frameFormat", frameFormat,
 			"duration", time.Since(started).String(),

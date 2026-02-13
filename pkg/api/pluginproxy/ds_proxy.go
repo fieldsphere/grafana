@@ -95,8 +95,8 @@ func (proxy *DataSourceProxy) HandleRequest() {
 	}
 
 	proxyErrorLogger := logger.New(
-		"userId", proxy.ctx.UserID,
-		"orgId", proxy.ctx.OrgID,
+		"userID", proxy.ctx.UserID,
+		"orgID", proxy.ctx.OrgID,
 		"uname", proxy.ctx.Login,
 		"path", proxy.ctx.Req.URL.Path,
 		"remote_addr", proxy.ctx.RemoteAddr(),
@@ -380,7 +380,7 @@ func (proxy *DataSourceProxy) logRequest() {
 		}
 	}
 
-	panelPluginId := proxy.ctx.Req.Header.Get("X-Panel-Plugin-Id")
+	panelPluginID := proxy.ctx.Req.Header.Get("X-Panel-Plugin-Id")
 
 	uri, err := util.SanitizeURI(proxy.ctx.Req.RequestURI)
 	if err != nil {
@@ -389,13 +389,13 @@ func (proxy *DataSourceProxy) logRequest() {
 
 	ctxLogger := logger.FromContext(proxy.ctx.Req.Context())
 	ctxLogger.Info("Proxying incoming request",
-		"userid", proxy.ctx.UserID,
-		"orgid", proxy.ctx.OrgID,
+		"userID", proxy.ctx.UserID,
+		"orgID", proxy.ctx.OrgID,
 		"username", proxy.ctx.Login,
 		"datasource", proxy.ds.Type,
 		"uri", uri,
 		"method", proxy.ctx.Req.Method,
-		"panelPluginId", panelPluginId,
+		"panelPluginID", panelPluginID,
 		"body", body)
 }
 
