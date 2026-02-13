@@ -314,3 +314,13 @@ func TestAppendSortedFrontendContext(t *testing.T) {
 		"context_z", "z",
 	}, got)
 }
+
+func TestSortedMeasurementKeys(t *testing.T) {
+	keys := sortedMeasurementKeys(map[string]float64{
+		"LCP": 1.2,
+		"CLS": 0.3,
+		"FCP": 0.8,
+	})
+
+	require.Equal(t, []string{"CLS", "FCP", "LCP"}, keys)
+}

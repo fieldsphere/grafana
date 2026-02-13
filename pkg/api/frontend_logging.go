@@ -32,6 +32,15 @@ func appendSortedFrontendContext(ctx frontendlogging.CtxVector, values map[strin
 	return ctx
 }
 
+func sortedMeasurementKeys(values map[string]float64) []string {
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
 func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapStore) frontendLogMessageHandler {
 	return func(hs *HTTPServer, c *web.Context) {
 		event := frontendlogging.FrontendGrafanaJavascriptAgentEvent{}
@@ -78,7 +87,8 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 
 		if len(event.Measurements) > 0 {
 			for _, measurementEntry := range event.Measurements {
-				for measurementName, measurementValue := range measurementEntry.Values {
+				for _, measurementName := range sortedMeasurementKeys(measurementEntry.Values) {
+					measurementValue := measurementEntry.Values[measurementName]
 					var ctx = frontendlogging.CtxVector{}
 					ctx = event.AddMetaToContext(ctx)
 					ctx = append(ctx, measurementName, measurementValue)
