@@ -168,7 +168,6 @@ func testIntegrationPlaylistDataAccess(t *testing.T, fn getStore) {
 
 			jj, err := json.MarshalIndent(res, "", "  ")
 			require.NoError(t, err)
-			//fmt.Printf("OUT:%s\n", string(jj))
 
 			// Each row has a full payload
 			require.JSONEq(t, `[

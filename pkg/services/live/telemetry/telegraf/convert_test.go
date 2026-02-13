@@ -3,7 +3,6 @@ package telegraf
 import (
 	"encoding/json"
 	"flag"
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -101,7 +100,7 @@ func TestConverter_Convert_LabelsColumn(t *testing.T) {
 		t.Run(tt.Name, func(t *testing.T) {
 			testData := loadTestData(t, tt.Name)
 			if *pprint {
-				fmt.Println(string(testData))
+				t.Log(string(testData))
 			}
 			converter := NewConverter(WithUseLabelsColumn(true))
 			frameWrappers, err := converter.Convert(testData)
@@ -118,7 +117,7 @@ func TestConverter_Convert_LabelsColumn(t *testing.T) {
 				if *pprint {
 					s, err := frame.StringTable(100, 100)
 					require.NoError(t, err)
-					fmt.Println(s)
+					t.Log(s)
 				}
 			}
 		})

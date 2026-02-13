@@ -227,7 +227,6 @@ func testBleveBackend(t *testing.T, backend *bleveBackend) {
 		require.True(t, ok)
 		disp, err := json.MarshalIndent(facet, "", "  ")
 		require.NoError(t, err)
-		//fmt.Printf("%s\n", disp)
 		require.JSONEq(t, `{
 			"field": "tags",
 			"total": 4,
@@ -358,7 +357,6 @@ func testBleveBackend(t *testing.T, backend *bleveBackend) {
 		require.NoError(t, err)
 		jj, err := json.MarshalIndent(found, "", "  ")
 		require.NoError(t, err)
-		fmt.Printf("%s\n", string(jj))
 		// NOTE "hash" -> "checksum" requires changing the protobuf
 		require.JSONEq(t, `{
 			"items": [
@@ -395,7 +393,6 @@ func testBleveBackend(t *testing.T, backend *bleveBackend) {
 		require.NoError(t, err)
 		jj, err = json.MarshalIndent(counts, "", "  ")
 		require.NoError(t, err)
-		fmt.Printf("%s\n", string(jj))
 		require.JSONEq(t, `[
 			{
 				"kind": "repo",
@@ -543,7 +540,6 @@ func testBleveBackend(t *testing.T, backend *bleveBackend) {
 		require.True(t, ok)
 		disp, err := json.MarshalIndent(facet, "", "  ")
 		require.NoError(t, err)
-		// fmt.Printf("%s\n", disp)
 		// NOTE, the west values come from *both* dashboards and folders
 		require.JSONEq(t, `{
 			"field": "labels.region",

@@ -143,7 +143,6 @@ func TestIntegrationTestDatasource(t *testing.T) {
 
 		spec, _, _ := unstructured.NestedMap(list.Items[0].Object, "spec")
 		jj, _ := json.MarshalIndent(spec, "", "  ")
-		// fmt.Printf("%s\n", string(jj))
 		require.JSONEq(t, `{
 					"access": "proxy",
 					"database": "testdb",
@@ -182,7 +181,6 @@ func TestIntegrationTestDatasource(t *testing.T) {
 		// require.NoError(t, err)
 		// body, err := rsp.MarshalJSON()
 		// require.NoError(t, err)
-		// //fmt.Printf("GOT: %v\n", string(body))
 		// require.JSONEq(t, `{
 		// 	"apiVersion": "grafana-testdata-datasource.datasource.grafana.app/v0alpha1",
 		// 	"code": 1,

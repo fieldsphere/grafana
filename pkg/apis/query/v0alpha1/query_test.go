@@ -64,7 +64,6 @@ func TestParseQueriesIntoQueryDataRequest(t *testing.T) {
 	// The second query has an explicit time range, and legacy datasource name
 	out, err = json.MarshalIndent(req.Queries[1], "", "  ")
 	require.NoError(t, err)
-	// fmt.Printf("%s\n", string(out))
 	require.JSONEq(t, `{
 		"datasource": {
 		  "type": "", ` /* NOTE! this implies legacy naming */ +`

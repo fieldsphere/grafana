@@ -1,7 +1,6 @@
 package search_test
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/blevesearch/bleve/v2/document"
@@ -44,11 +43,5 @@ func TestDocumentMapping(t *testing.T) {
 	err = mappings.MapDocument(doc, data)
 	require.NoError(t, err)
 
-	for _, f := range doc.Fields {
-		fmt.Printf("%s = %+v\n", f.Name(), f.Value())
-	}
-
-	fmt.Printf("DOC: fields %d\n", len(doc.Fields))
-	fmt.Printf("DOC: size %d\n", doc.Size())
 	require.Equal(t, 19, len(doc.Fields))
 }

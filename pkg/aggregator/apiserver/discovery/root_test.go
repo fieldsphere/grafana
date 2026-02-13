@@ -2,7 +2,6 @@ package discovery
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -102,7 +101,7 @@ func TestRootDiscoveryHandler_Handle(t *testing.T) {
 			fakeRm.ServeHTTP(w, r)
 			return
 		default:
-			fmt.Printf("Accept: %s\n", r.Header.Get("Accept"))
+			t.Logf("unexpected accept header: %s", r.Header.Get("Accept"))
 			http.Error(w, "Bad request", http.StatusBadRequest)
 		}
 	})
@@ -132,7 +131,7 @@ func TestRootDiscoveryHandler_Handle(t *testing.T) {
 					rm.ServeHTTP(resp.ResponseWriter, req.Request)
 					return
 				default:
-					fmt.Printf("Accept: %s\n", req.Request.Header.Get("Accept"))
+					t.Logf("unexpected accept header: %s", req.Request.Header.Get("Accept"))
 					http.Error(resp.ResponseWriter, "Bad request", http.StatusBadRequest)
 				}
 

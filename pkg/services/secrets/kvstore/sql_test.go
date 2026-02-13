@@ -127,7 +127,6 @@ func TestIntegrationSecretsKVStoreSQL(t *testing.T) {
 		tc := testCases[0]
 
 		client := With(kv, tc.OrgId, tc.Namespace, tc.Type)
-		fmt.Println(client.Namespace, client.OrgId, client.Type)
 
 		value, ok, err := client.Get(ctx)
 		require.NoError(t, err)

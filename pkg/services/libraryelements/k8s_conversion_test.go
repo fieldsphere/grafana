@@ -154,7 +154,6 @@ func TestUnstructuredToLegacyLibraryPanelDTO(t *testing.T) {
 	require.Equal(t, testUser.Login, result.Meta.UpdatedBy.Name)
 	require.Equal(t, dtos.GetGravatarUrl(cfg, testUser.Email), result.Meta.UpdatedBy.AvatarUrl)
 
-	// fmt.Printf("%s\n", result.Model)
 	require.JSONEq(t, `{
 		"datasource": { "type": "testdata", "uid": "test-datasource" },
 		"description": "Test description",
