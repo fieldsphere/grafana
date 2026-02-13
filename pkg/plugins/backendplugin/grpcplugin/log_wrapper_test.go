@@ -14,10 +14,11 @@ func TestLogWrapper(t *testing.T) {
 		expectedResult []any
 	}{
 		{args: []any{}, expectedResult: []any{}},
-		{args: []any{"1", "2", "3"}, expectedResult: []any{"1", "2", "3"}},
+		{args: []any{"1", "2", "3"}, expectedResult: []any{"plugin_log_args", []any{"1", "2", "3"}}},
 		{args: []any{"1", "2"}, expectedResult: []any{"1", "2"}},
 		{args: []any{"1", "2", "timestamp", time.Now()}, expectedResult: []any{"1", "2"}},
 		{args: []any{"1", "2", "timestamp", time.Now(), "3", "4"}, expectedResult: []any{"1", "2", "3", "4"}},
+		{args: []any{"1", "2", 3, "4"}, expectedResult: []any{"plugin_log_args", []any{"1", "2", 3, "4"}}},
 	}
 
 	for i, tc := range tcs {

@@ -26,16 +26,23 @@ func wrapPluginLogArgs(msg, level string, args ...any) []any {
 }
 
 func formatArgs(args ...any) []any {
-	if len(args) == 0 || len(args)%2 != 0 {
-		return args
+	if len(args) == 0 {
+		return []any{}
 	}
 
-	res := []any{}
+	if len(args)%2 != 0 {
+		return []any{"plugin_log_args", args}
+	}
+
+	res := make([]any, 0, len(args))
 
 	for n := 0; n < len(args); n += 2 {
-		key := args[n]
+		key, ok := args[n].(string)
+		if !ok {
+			return []any{"plugin_log_args", args}
+		}
 
-		if stringKey, ok := key.(string); ok && stringKey == "timestamp" {
+		if key == "timestamp" {
 			continue
 		}
 
