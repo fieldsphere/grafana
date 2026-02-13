@@ -1003,22 +1003,38 @@ func TestNormalizeSearchLogArgs(t *testing.T) {
 	})
 }
 
-func TestSearchLogAttribute(t *testing.T) {
-	t.Run("keeps typed values", func(t *testing.T) {
-		require.Equal(t, attribute.Int("count", 5), searchLogAttribute("count", 5))
-		require.Equal(t, attribute.Bool("enabled", true), searchLogAttribute("enabled", true))
-		require.Equal(t, attribute.Float64("ratio", 1.5), searchLogAttribute("ratio", 1.5))
-		require.Equal(t, attribute.StringSlice("tags", []string{"a", "b"}), searchLogAttribute("tags", []string{"a", "b"}))
-		require.Equal(t, attribute.Int64("elapsed", int64(time.Second)), searchLogAttribute("elapsed", time.Second))
-	})
+func TestSearchStatsSpanAttributes(t *testing.T) {
+	stats := &SearchStats{
+		operation:             "search",
+		indexBuildTime:        2 * time.Millisecond,
+		indexUpdateTime:       3 * time.Millisecond,
+		requestConversion:     4 * time.Millisecond,
+		searchTime:            5 * time.Millisecond,
+		totalHits:             7,
+		returnedDocuments:     3,
+		resultsConversionTime: 6 * time.Millisecond,
+	}
 
-	t.Run("falls back to string for unsupported value types", func(t *testing.T) {
-		type sample struct {
-			Name string
+	attrs := searchStatsSpanAttributes(stats, 8*time.Millisecond, []any{"namespace", "default"})
+
+	require.True(t, searchSpanAttributeContains(attrs, attribute.String("operation", "search")))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("elapsedTime", int64(8*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("indexBuildTime", int64(2*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("indexUpdateTime", int64(3*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("requestConversionTime", int64(4*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("searchTime", int64(5*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int("totalHits", 7)))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int("returnedDocuments", 3)))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("resultsConversionTime", int64(6*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.String("searchLogArgs", "[namespace default]")))
+}
+
+func searchSpanAttributeContains(attrs []attribute.KeyValue, expected attribute.KeyValue) bool {
+	for _, attr := range attrs {
+		if attr.Key == expected.Key && attr.Value == expected.Value {
+			return true
 		}
+	}
 
-		got := searchLogAttribute("value", sample{Name: "x"})
-		require.Equal(t, attribute.STRING, got.Value.Type())
-		require.Equal(t, "{x}", got.Value.AsString())
-	})
+	return false
 }

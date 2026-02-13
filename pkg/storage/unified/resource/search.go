@@ -308,6 +308,7 @@ func (s *searchServer) ListManagedObjects(ctx context.Context, req *resourcepb.L
 
 func (s *searchServer) logStats(ctx context.Context, stats *SearchStats, span trace.Span, params ...any) {
 	elapsed := time.Since(stats.startTime)
+	searchArgs := normalizeSearchLogArgs(params...)
 
 	args := []any{
 		"operation", stats.operation,
@@ -320,58 +321,33 @@ func (s *searchServer) logStats(ctx context.Context, stats *SearchStats, span tr
 		"returnedDocuments", stats.returnedDocuments,
 		"resultsConversionTime", stats.resultsConversionTime,
 	}
-	args = append(args, normalizeSearchLogArgs(params...)...)
+	args = append(args, searchArgs...)
 
 	s.log.FromContext(ctx).Debug("Search stats", args...)
 
 	if span != nil {
-		attrs := make([]attribute.KeyValue, 0, len(args)/2)
-		for i := 0; i+1 < len(args); i += 2 {
-			key, ok := args[i].(string)
-			if !ok {
-				key = "searchLogArgs"
-			}
-			attrs = append(attrs, searchLogAttribute(key, args[i+1]))
-		}
-		span.AddEvent("search stats", trace.WithAttributes(attrs...))
+		span.AddEvent("search stats", trace.WithAttributes(searchStatsSpanAttributes(stats, elapsed, searchArgs)...))
 	}
 }
 
-func searchLogAttribute(key string, value any) attribute.KeyValue {
-	switch v := value.(type) {
-	case string:
-		return attribute.String(key, v)
-	case bool:
-		return attribute.Bool(key, v)
-	case int:
-		return attribute.Int(key, v)
-	case int8:
-		return attribute.Int64(key, int64(v))
-	case int16:
-		return attribute.Int64(key, int64(v))
-	case int32:
-		return attribute.Int64(key, int64(v))
-	case int64:
-		return attribute.Int64(key, v)
-	case uint:
-		return attribute.Int64(key, int64(v))
-	case uint8:
-		return attribute.Int64(key, int64(v))
-	case uint16:
-		return attribute.Int64(key, int64(v))
-	case uint32:
-		return attribute.Int64(key, int64(v))
-	case float32:
-		return attribute.Float64(key, float64(v))
-	case float64:
-		return attribute.Float64(key, v)
-	case []string:
-		return attribute.StringSlice(key, v)
-	case time.Duration:
-		return attribute.Int64(key, int64(v))
-	default:
-		return attribute.String(key, fmt.Sprint(v))
+func searchStatsSpanAttributes(stats *SearchStats, elapsed time.Duration, searchArgs []any) []attribute.KeyValue {
+	attrs := []attribute.KeyValue{
+		attribute.String("operation", stats.operation),
+		attribute.Int64("elapsedTime", int64(elapsed)),
+		attribute.Int64("indexBuildTime", int64(stats.indexBuildTime)),
+		attribute.Int64("indexUpdateTime", int64(stats.indexUpdateTime)),
+		attribute.Int64("requestConversionTime", int64(stats.requestConversion)),
+		attribute.Int64("searchTime", int64(stats.searchTime)),
+		attribute.Int("totalHits", stats.totalHits),
+		attribute.Int("returnedDocuments", stats.returnedDocuments),
+		attribute.Int64("resultsConversionTime", int64(stats.resultsConversionTime)),
 	}
+
+	if len(searchArgs) > 0 {
+		attrs = append(attrs, attribute.String("searchLogArgs", fmt.Sprint(searchArgs)))
+	}
+
+	return attrs
 }
 
 func normalizeSearchLogArgs(params ...any) []any {
