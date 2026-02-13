@@ -13,6 +13,7 @@ const { merge } = require('webpack-merge');
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity');
 
 const getEnvConfig = require('./env-util.js');
+const { logWebpackError } = require('./logging.js');
 const FeatureFlaggedSRIPlugin = require('./plugins/FeatureFlaggedSriPlugin');
 const common = require('./webpack.common.js');
 const esbuildTargets = resolveToEsbuildTarget(browserslist(), { printUnknownTargets: false });
@@ -112,7 +113,10 @@ module.exports = (env = {}) =>
       function () {
         this.hooks.done.tap('Done', function (stats) {
           if (stats.compilation.errors && stats.compilation.errors.length) {
-            console.log(stats.compilation.errors);
+            logWebpackError('Webpack compilation errors encountered', {
+              operation: 'compiler.done',
+              errors: stats.compilation.errors,
+            });
             process.exit(1);
           }
         });
