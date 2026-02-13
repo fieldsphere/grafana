@@ -83,10 +83,9 @@ func (s *httpServiceProxy) Do(rw http.ResponseWriter, req *http.Request, cli *ht
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, err = fmt.Fprintf(rw, "unexpected error %v", err)
-		if err != nil {
-			return nil, fmt.Errorf("unable to write HTTP response: %v", err)
+		s.logger.Error("failed to read resource proxy response body", "error", err)
+		if writeErr := s.writeErrorResponse(rw, http.StatusInternalServerError, fmt.Sprintf("unexpected error: %v", err)); writeErr != nil {
+			return nil, writeErr
 		}
 		return nil, err
 	}
