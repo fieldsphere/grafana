@@ -222,9 +222,8 @@ export class TabItem
         const newChildren = layout.state.children.filter((child) => child !== gridItem);
         layout.setState({ children: newChildren });
       } else {
-        const warningMessage = 'Grid item has unexpected parent type';
-        logger.logWarning(warningMessage);
-        logWarning(warningMessage);
+        logger.logWarning('Grid item has unexpected parent type');
+        logWarning('Grid item has unexpected parent type');
       }
     }
     this.setIsDropTarget(false);
@@ -244,15 +243,13 @@ export class TabItem
         if (isDashboardLayoutGrid(rowLayout)) {
           rowLayout.addGridItem(gridItem);
         } else {
-          const warningMessage = 'First row layout does not support addGridItem';
-          logger.logWarning(warningMessage);
-          logWarning(warningMessage);
+          logger.logWarning('First row layout does not support addGridItem');
+          logWarning('First row layout does not support addGridItem');
         }
       }
     } else {
-      const warningMessage = 'Layout manager does not support addGridItem';
-      logger.logWarning(warningMessage);
-      logWarning(warningMessage);
+      logger.logWarning('Layout manager does not support addGridItem');
+      logWarning('Layout manager does not support addGridItem');
     }
     this.setIsDropTarget(false);
 

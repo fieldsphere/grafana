@@ -354,9 +354,8 @@ export class V2DashboardSerializer
             this.defaultDsReferencesMap.variables.set(variable.spec.name, datasourceType);
           }
         } else {
-          const warningMsg = 'Dashboard serializer: Undefined variable found in dashboard save model, ignoring it';
-          logger.logWarning(warningMsg);
-          logWarning(warningMsg);
+          logger.logWarning('Dashboard serializer: Undefined variable found in dashboard save model, ignoring it');
+          logWarning('Dashboard serializer: Undefined variable found in dashboard save model, ignoring it');
         }
       }
     }

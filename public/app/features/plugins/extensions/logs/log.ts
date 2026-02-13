@@ -40,12 +40,16 @@ export class ExtensionsLog {
   }
 
   warning(message: string, labels?: Labels): void {
-    monitoringLogger.logWarning(message, { ...this.baseLabels, ...labels });
+    monitoringLogger.logWarning('UI extension warning message', { ...this.baseLabels, ...labels, logMessage: message });
     this.log(LogLevel.warning, message, labels);
   }
 
   error(message: string, labels?: Labels): void {
-    monitoringLogger.logError(new Error(message), { ...this.baseLabels, ...labels });
+    monitoringLogger.logError(new Error('UI extension error message'), {
+      ...this.baseLabels,
+      ...labels,
+      logMessage: message,
+    });
     this.log(LogLevel.error, message, labels);
   }
 
