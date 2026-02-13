@@ -269,7 +269,7 @@ func executeDSNodesGrouped(ctx context.Context, now time.Time, vars mathexp.Vars
 			)
 			span.SetAttributes(
 				attribute.String("datasource.type", firstNode.datasource.Type),
-				attribute.String("datasource.uid", firstNode.datasource.UID),
+				attribute.String("datasource.UID", firstNode.datasource.UID),
 			)
 
 			req := &backend.QueryDataRequest{
@@ -374,7 +374,7 @@ func (dn *DSNode) Execute(ctx context.Context, now time.Time, _ mathexp.Vars, s 
 
 	span.SetAttributes(
 		attribute.String("datasource.type", dn.datasource.Type),
-		attribute.String("datasource.uid", dn.datasource.UID),
+		attribute.String("datasource.UID", dn.datasource.UID),
 	)
 
 	req := &backend.QueryDataRequest{

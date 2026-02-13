@@ -1320,6 +1320,36 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9.]+\\.uid\"$")).
+		Report(`avoid lowercase dotted trace key suffix ".uid"; use canonical "UID" casing (for example "datasource.UID")`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9.]+\\.id\"$")).
+		Report(`avoid lowercase dotted trace key suffix ".id"; use canonical "ID" casing (for example "orgID")`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
 		Where(m["key"].Text.Matches("^\"org\\.id\"$")).
 		Report(`avoid dotted lowercase trace key "org.id"; use canonical "orgID"`)
 
