@@ -30,7 +30,7 @@ type ProtoInstanceDBStore struct {
 
 func (st ProtoInstanceDBStore) ListAlertInstances(ctx context.Context, cmd *models.ListAlertInstancesQuery) (result []*models.AlertInstance, err error) {
 	logger := st.Logger.FromContext(ctx)
-	logger.Debug("ListAlertInstances called", "rule_uid", cmd.RuleUID, "org_id", cmd.RuleOrgID)
+	logger.Debug("ListAlertInstances called", "ruleUID", cmd.RuleUID, "orgID", cmd.RuleOrgID)
 	alertInstances := make([]*models.AlertInstance, 0)
 
 	err = st.SQLStore.WithDbSession(ctx, func(sess *db.Session) error {
@@ -97,7 +97,7 @@ func (st ProtoInstanceDBStore) DeleteAlertInstances(ctx context.Context, keys ..
 
 func (st ProtoInstanceDBStore) SaveAlertInstancesForRule(ctx context.Context, key models.AlertRuleKeyWithGroup, instances []models.AlertInstance) error {
 	logger := st.Logger.FromContext(ctx)
-	logger.Debug("SaveAlertInstancesForRule called", "rule_uid", key.UID, "org_id", key.OrgID, "instances", len(instances))
+	logger.Debug("SaveAlertInstancesForRule called", "ruleUID", key.UID, "orgID", key.OrgID, "instances", len(instances))
 
 	compressedAlertInstances, err := convertAndCompressAlertInstances(instances)
 	if err != nil {
@@ -111,7 +111,7 @@ func (st ProtoInstanceDBStore) SaveAlertInstancesForRule(ctx context.Context, ke
 
 func (st ProtoInstanceDBStore) DeleteAlertInstancesByRule(ctx context.Context, key models.AlertRuleKeyWithGroup) error {
 	logger := st.Logger.FromContext(ctx)
-	logger.Debug("DeleteAlertInstancesByRule called", "rule_uid", key.UID, "org_id", key.OrgID)
+	logger.Debug("DeleteAlertInstancesByRule called", "ruleUID", key.UID, "orgID", key.OrgID)
 
 	return st.SQLStore.WithTransactionalDbSession(ctx, func(sess *db.Session) error {
 		_, err := sess.Exec("DELETE FROM alert_rule_state WHERE org_id = ? AND rule_uid = ?", key.OrgID, key.UID)
@@ -149,7 +149,7 @@ func (st ProtoInstanceDBStore) FullSync(ctx context.Context, instances []models.
 		// Convert and compress instances
 		compressedAlertInstances, err := convertAndCompressAlertInstances(ruleInstances)
 		if err != nil {
-			logger.Error("Failed to compress instances for rule", "rule_uid", ruleKey.UID, "error", err)
+			logger.Error("Failed to compress instances for rule", "ruleUID", ruleKey.UID, "error", err)
 			continue
 		}
 
@@ -158,7 +158,7 @@ func (st ProtoInstanceDBStore) FullSync(ctx context.Context, instances []models.
 			compressedData: compressedAlertInstances,
 		})
 
-		logger.Debug("Prepared rule for sync", "rule_uid", ruleKey.UID, "org_id", ruleKey.OrgID, "instances", len(ruleInstances))
+		logger.Debug("Prepared rule for sync", "ruleUID", ruleKey.UID, "orgID", ruleKey.OrgID, "instances", len(ruleInstances))
 	}
 
 	return st.SQLStore.WithTransactionalDbSession(ctx, func(sess *sqlstore.DBSession) error {
@@ -171,7 +171,7 @@ func (st ProtoInstanceDBStore) FullSync(ctx context.Context, instances []models.
 		}
 
 		for i, prepared := range preparedRules {
-			logger.Debug("Executing UPSERT for rule", "rule_uid", prepared.ruleKey.UID, "org_id", prepared.ruleKey.OrgID, "rule_index", i+1, "total_rules", len(preparedRules))
+			logger.Debug("Executing UPSERT for rule", "ruleUID", prepared.ruleKey.UID, "orgID", prepared.ruleKey.OrgID, "ruleIndex", i+1, "totalRules", len(preparedRules))
 
 			// Execute UPSERT with pre-compressed data using helper method
 			if err := st.upsertCompressedAlertInstances(sess, prepared.ruleKey.OrgID, prepared.ruleKey.UID, prepared.compressedData, syncTimestamp); err != nil {

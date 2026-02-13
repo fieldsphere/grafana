@@ -293,7 +293,7 @@ func (w PrometheusWriter) WriteDatasource(ctx context.Context, dsUID string, nam
 	l := w.logger.FromContext(ctx)
 
 	if dsUID != "" {
-		l.Error("Writing to specific data sources is not enabled", "org_id", orgID, "datasource_uid", dsUID)
+		l.Error("Writing to specific data sources is not enabled", "orgID", orgID, "datasourceUID", dsUID)
 		return errors.New("writing to specific data sources is not enabled")
 	}
 

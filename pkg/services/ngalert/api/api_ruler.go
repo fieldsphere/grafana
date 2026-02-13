@@ -503,8 +503,8 @@ func (srv RulerSrv) performUpdateAlertRules(ctx context.Context, c *contextmodel
 		id, _ := c.GetInternalID()
 		userNamespace := c.GetIdentityType()
 
-		logger := srv.log.New("namespace_uid", groupKey.NamespaceUID, "group",
-			groupKey.RuleGroup, "org_id", groupKey.OrgID, "user_id", id, "userNamespace", userNamespace)
+		logger := srv.log.New("namespaceUID", groupKey.NamespaceUID, "group",
+			groupKey.RuleGroup, "orgID", groupKey.OrgID, "userID", id, "userNamespace", userNamespace)
 		groupChanges, err := store.CalculateChanges(tranCtx, srv.store, groupKey, rules)
 		if err != nil {
 			return err
@@ -565,7 +565,7 @@ func (srv RulerSrv) performUpdateAlertRules(ctx context.Context, c *contextmodel
 		if len(finalChanges.Update) > 0 {
 			updates := make([]ngmodels.UpdateRule, 0, len(finalChanges.Update))
 			for _, update := range finalChanges.Update {
-				logger.Debug("Updating rule", "rule_uid", update.New.UID, "diff", update.Diff.String())
+				logger.Debug("Updating rule", "ruleUID", update.New.UID, "diff", update.Diff.String())
 				if ngmodels.IsNoGroupRuleGroup(update.Existing.RuleGroup) && !ngmodels.IsNoGroupRuleGroup(update.New.RuleGroup) {
 					return fmt.Errorf("%w: cannot move rule out of this group", ngmodels.ErrAlertRuleFailedValidation)
 				}

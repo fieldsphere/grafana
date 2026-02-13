@@ -44,7 +44,7 @@ func (a *SyncRuleStatePersister) Sync(ctx context.Context, span trace.Span, rule
 
 		key, err := s.GetAlertInstanceKey()
 		if err != nil {
-			logger.Error("Failed to create a key for alert state to save it. The state will be ignored ", "cacheID", s.CacheID, "error", err, "labels", s.Labels.String(), "rule_uid", ruleKey.UID, "rule_group", ruleKey.RuleGroup)
+			logger.Error("Failed to create a key for alert state to save it. The state will be ignored ", "cacheID", s.CacheID, "error", err, "labels", s.Labels.String(), "ruleUID", ruleKey.UID, "ruleGroup", ruleKey.RuleGroup)
 			continue
 		}
 

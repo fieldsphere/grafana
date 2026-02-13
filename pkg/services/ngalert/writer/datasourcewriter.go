@@ -275,7 +275,7 @@ func (w *DatasourceWriter) WriteDatasource(ctx context.Context, dsUID string, na
 		}
 		dsUID = w.cfg.DefaultDatasourceUID
 		w.l.Debug("Using default data source for remote write",
-			"org_id", orgID, "datasource_uid", dsUID)
+			"orgID", orgID, "datasourceUID", dsUID)
 	}
 
 	key := uidKey(orgID, dsUID)
@@ -294,7 +294,7 @@ func (w *DatasourceWriter) WriteDatasource(ctx context.Context, dsUID string, na
 		writer, err = w.makeWriter(ctx, orgID, dsUID)
 		if err != nil {
 			w.l.Error("Failed to create writer for data source",
-				"org_id", orgID, "datasource_uid", dsUID)
+				"orgID", orgID, "datasourceUID", dsUID)
 			return err
 		}
 

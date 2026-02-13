@@ -47,7 +47,7 @@ func (st DBstore) DeleteAlertRulesByUID(ctx context.Context, orgID int64, user *
 	if len(ruleUID) == 0 {
 		return nil
 	}
-	logger := st.Logger.New("org_id", orgID, "rule_uids", ruleUID)
+	logger := st.Logger.New("orgID", orgID, "ruleUIDs", ruleUID)
 	return st.SQLStore.WithTransactionalDbSession(ctx, func(sess *db.Session) error {
 		rows, err := sess.Table(alertRule{}).Where("org_id = ?", orgID).In("uid", ruleUID).Delete(alertRule{})
 		if err != nil {
@@ -506,7 +506,7 @@ func (st DBstore) deleteOldAlertRuleVersions(ctx context.Context, sess *db.Sessi
 		if deleteTo <= 1 {
 			continue
 		}
-		logger := logger.New("org_id", rv.RuleOrgID, "rule_uid", rv.RuleUID, "version", rv.Version, "limit", st.Cfg.RulesPerRuleGroupLimit)
+		logger := logger.New("orgID", rv.RuleOrgID, "ruleUID", rv.RuleUID, "version", rv.Version, "limit", st.Cfg.RulesPerRuleGroupLimit)
 		res, err := sess.Exec(`DELETE FROM alert_rule_version WHERE rule_guid = ? AND version <= ?`, rv.RuleGUID, deleteTo)
 		if err != nil {
 			logger.Error("Failed to delete old alert rule versions", "error", err)
