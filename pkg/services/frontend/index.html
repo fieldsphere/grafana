@@ -171,7 +171,7 @@
         // However, it can fail to load in multiple different places
         // To avoid double reporting the error, we use this boolean to check if we've already failed
         let hasFailedToBoot = false;
-        window.__grafana_load_failed = function(err) {
+        window.__grafana_load_failed = function(err, reason = 'unknown') {
           if (hasFailedToBoot) {
             return;
           }
@@ -181,7 +181,11 @@
 
           // not a secure random value, but collisions are highly unlikely and 1/1000_000_000 lost requests
           // doesn't make a difference.
-          fetch(`/-/fe-boot-error?ts=${Date.now()}${Math.random()}`, {
+          const query = new URLSearchParams({
+            ts: `${Date.now()}${Math.random()}`,
+            reason,
+          });
+          fetch(`/-/fe-boot-error?${query.toString()}`, {
             // This "should" be a POST request, but we must use GET to interact with the correct service.
             // no-store and ?ts=_ are used to ensure the request isn't cached.
             method: 'GET',
@@ -193,7 +197,7 @@
           if (window.__grafana_app_bundle_loaded) {
             return;
           }
-          window.__grafana_load_failed();
+          window.__grafana_load_failed(undefined, 'app_bundle_not_loaded');
         };
 
         let hasSetLoading = false;
@@ -388,7 +392,7 @@
 
         window.__grafana_boot_data_promise = initGrafana()
         window.__grafana_boot_data_promise.catch((err) => {
-          window.__grafana_load_failed(err);
+          window.__grafana_load_failed(err, 'boot_data_promise_rejected');
         });
       })();
     </script>
