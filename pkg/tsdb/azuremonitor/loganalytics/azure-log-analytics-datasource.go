@@ -448,11 +448,11 @@ func (e *AzureLogAnalyticsDatasource) executeQuery(ctx context.Context, query *A
 
 	_, span := tracing.DefaultTracer().Start(ctx, "azure log analytics query", trace.WithAttributes(
 		attribute.String("target", query.Query),
-		attribute.Bool("basic_logs", query.BasicLogs),
+		attribute.Bool("basicLogs", query.BasicLogs),
 		attribute.Int64("from", query.TimeRange.From.UnixNano()/int64(time.Millisecond)),
 		attribute.Int64("until", query.TimeRange.To.UnixNano()/int64(time.Millisecond)),
-		attribute.Int64("datasource_id", dsInfo.DatasourceID),
-		attribute.Int64("org_id", dsInfo.OrgID),
+		attribute.Int64("datasourceID", dsInfo.DatasourceID),
+		attribute.Int64("orgID", dsInfo.OrgID),
 	))
 	defer span.End()
 
@@ -774,8 +774,8 @@ func getCorrelationWorkspaces(ctx context.Context, baseResource string, resource
 
 		_, span := tracing.DefaultTracer().Start(ctx, "azure traces correlation request", trace.WithAttributes(
 			attribute.String("target", req.URL.String()),
-			attribute.Int64("datasource_id", dsInfo.DatasourceID),
-			attribute.Int64("org_id", dsInfo.OrgID),
+			attribute.Int64("datasourceID", dsInfo.DatasourceID),
+			attribute.Int64("orgID", dsInfo.OrgID),
 		))
 		defer span.End()
 

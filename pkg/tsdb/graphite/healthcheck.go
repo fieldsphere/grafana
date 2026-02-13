@@ -56,7 +56,7 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 		attribute.String("target", targetStr),
 		attribute.String("from", formData["from"][0]),
 		attribute.String("until", formData["until"][0]),
-		attribute.Int64("datasource_id", dsInfo.Id),
+		attribute.Int64("datasourceID", dsInfo.Id),
 	)
 	res, err := dsInfo.HTTPClient.Do(graphiteReq)
 	if res != nil {

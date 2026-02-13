@@ -315,7 +315,7 @@ func doGraphiteRequest[T any](ctx context.Context, dsInfo *datasourceInfo, logge
 	_, span := tracing.DefaultTracer().Start(ctx, "graphite request")
 	defer span.End()
 	span.SetAttributes(
-		attribute.Int64("datasource_id", dsInfo.Id),
+		attribute.Int64("datasourceID", dsInfo.Id),
 	)
 	res, err := dsInfo.HTTPClient.Do(req)
 	if res != nil {

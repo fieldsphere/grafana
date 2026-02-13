@@ -77,8 +77,8 @@ func (s *Service) RunQuery(ctx context.Context, req *backend.QueryDataRequest, d
 			attribute.String("target", targetStr),
 			attribute.String("from", graphiteReq.formData["from"][0]),
 			attribute.String("until", graphiteReq.formData["until"][0]),
-			attribute.Int64("datasource_id", dsInfo.Id),
-			attribute.Int64("org_id", req.PluginContext.OrgID),
+			attribute.Int64("datasourceID", dsInfo.Id),
+			attribute.Int64("orgID", req.PluginContext.OrgID),
 		)
 		res, err := dsInfo.HTTPClient.Do(graphiteReq.req)
 		if res != nil {

@@ -47,7 +47,7 @@ var identityTransformation = func(value float64) float64 { return value }
 
 // query processes single Pyroscope query transforming the response to data.Frame packaged in DataResponse
 func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginContext, query backend.DataQuery) backend.DataResponse {
-	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.pyroscope.query", trace.WithAttributes(attribute.String("query_type", query.QueryType)))
+	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.pyroscope.query", trace.WithAttributes(attribute.String("queryType", query.QueryType)))
 	defer span.End()
 
 	var qm queryModel
