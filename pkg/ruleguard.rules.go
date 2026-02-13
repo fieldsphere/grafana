@@ -564,6 +564,21 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(!m["msg"].Text.Matches("^\".*\"$")).
 		Report("prefer a stable string-literal slog message; move dynamic text into key/value fields")
+
+	m.Match(
+		`slog.Log($ctx, $level, fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`slog.Log($ctx, $level, fmt.Sprint($*args), $*attrs)`,
+	).Report("use a stable slog.Log message and key/value context instead of fmt formatting")
+
+	m.Match(
+		`slog.Log($ctx, $level, $left + $right, $*attrs)`,
+	).Report("avoid string concatenation in slog.Log messages; use key/value fields")
+
+	m.Match(
+		`slog.Log($ctx, $level, $msg, $*attrs)`,
+	).
+		Where(!m["msg"].Text.Matches("^\".*\"$")).
+		Report("prefer a stable string-literal slog.Log message; move dynamic text into key/value fields")
 }
 
 func unstructuredoutput(m fluent.Matcher) {
