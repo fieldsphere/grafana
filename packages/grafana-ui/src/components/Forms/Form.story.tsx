@@ -69,12 +69,9 @@ const renderForm = (defaultValues?: FormDTO) => {
   return (
     <Form
       defaultValues={defaultValues}
-      onSubmit={(data: FormDTO) => {
-        console.log(data);
-      }}
+      onSubmit={() => undefined}
     >
       {({ register, control, errors }) => {
-        console.log(errors);
         return (
           <>
             <Legend>Edit user</Legend>
@@ -157,12 +154,11 @@ export const AsyncValidation: StoryFn = ({ passAsyncValidation }) => {
   return (
     <>
       <Form
-        onSubmit={(data: FormDTO) => {
+        onSubmit={() => {
           alert('Submitted successfully!');
         }}
       >
         {({ register, control, errors, formState }) => {
-          console.log(errors);
           return (
             <>
               <Legend>Edit user</Legend>
@@ -200,8 +196,7 @@ const validateAsync = (shouldPass: boolean) => async () => {
       }, 2000);
     });
     return true;
-  } catch (e) {
-    console.log(e);
+  } catch {
     return false;
   }
 };

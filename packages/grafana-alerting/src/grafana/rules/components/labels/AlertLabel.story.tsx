@@ -38,12 +38,7 @@ export const Sizes: StoryObj<typeof AlertLabel> = {
 
 export const Clickable: StoryObj<typeof AlertLabel> = {
   render: (args: ComponentProps<typeof AlertLabel>) => (
-    <AlertLabel
-      {...args}
-      labelKey="region"
-      value="eu-central-1"
-      onClick={([value, key]) => console.log('clicked', key, value)}
-    />
+    <AlertLabel {...args} labelKey="region" value="eu-central-1" onClick={() => undefined} />
   ),
 };
 
