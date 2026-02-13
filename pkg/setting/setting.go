@@ -1028,7 +1028,7 @@ func (cfg *Cfg) loadConfiguration(args CommandLineArgs) (*ini.File, error) {
 		if err2 != nil {
 			return nil, err2
 		}
-		cfg.Logger.Error(err.Error())
+		cfg.Logger.Error("Failed to load specified config file", "error", err)
 		os.Exit(1)
 	}
 
