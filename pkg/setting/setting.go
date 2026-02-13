@@ -932,7 +932,7 @@ func (cfg *Cfg) applyCommandLineProperties(props map[string]string, file *ini.Fi
 			if exists {
 				cfg.appliedCommandLineProperties = append(cfg.appliedCommandLineProperties, appliedConfigOverride{
 					key:   keyString,
-					value: value,
+					value: RedactedValue(keyString, value),
 				})
 				key.SetValue(value)
 			}

@@ -161,6 +161,22 @@ func TestLoadingSettings(t *testing.T) {
 		}
 	})
 
+	t.Run("Should redact sensitive values from command line overrides", func(t *testing.T) {
+		cfg := NewCfg()
+		err := cfg.Load(CommandLineArgs{
+			HomePath: "../../",
+			Args: []string{
+				"cfg:security.admin_password=supersecret",
+			},
+		})
+		require.Nil(t, err)
+
+		require.Contains(t, cfg.appliedCommandLineProperties, appliedConfigOverride{
+			key:   "security.admin_password",
+			value: "*********",
+		})
+	})
+
 	t.Run("Should be able to override defaults via command line", func(t *testing.T) {
 		cfg := NewCfg()
 		err := cfg.Load(CommandLineArgs{
