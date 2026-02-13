@@ -10,7 +10,6 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
 	"github.com/grafana/grafana/pkg/infra/metrics"
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/plugins"
@@ -24,6 +23,8 @@ import (
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginaccesscontrol"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/provisionedplugins"
 )
+
+var pipelineLog = log.New("plugins.pipeline")
 
 // ExternalServiceRegistration implements an InitializeFunc for registering external services.
 type ExternalServiceRegistration struct {
@@ -176,7 +177,7 @@ func ReportCloudProvisioningMetrics(ppManaged provisionedplugins.Manager) initia
 	pps, err := ppManaged.ProvisionedPlugins(context.Background())
 	if err != nil {
 		cloudProvisioningMethod = plugins.CloudProvisioningMethodUnknown
-		logger.Warn("Failed to get provisioned plugins", "error", err)
+		pipelineLog.Warn("Failed to get provisioned plugins", "error", err)
 	}
 
 	return func(ctx context.Context, p *plugins.Plugin) (*plugins.Plugin, error) {
