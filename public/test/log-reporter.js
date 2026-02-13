@@ -28,7 +28,7 @@ class LogReporter {
       duration: Date.now() - results.startTime,
     };
     // JestStats suites=1 tests=94 passes=93 pending=0 failures=1 duration=3973
-    process.stdout.write(`JestStats ${objToLogAttributes(stats)}\n`);
+    writeTestLogLine('JestStats', objToLogAttributes(stats));
   }
 }
 
@@ -45,7 +45,7 @@ function printTestFailures(result) {
     };
     // JestFailure file=<...>/public/app/features/dashboard/state/DashboardMigrator.test.ts
     // failures=1 duration=3251 errorMessage="formatted error message"
-    process.stdout.write(`JestFailure ${objToLogAttributes(testInfo)}\n`);
+    writeTestLogLine('JestFailure', objToLogAttributes(testInfo));
   }
 }
 
@@ -79,5 +79,7 @@ function formatValue(value) {
 
   return hasWhiteSpaces ? `"${escapeQuotes(value)}"` : value;
 }
+
+const { writeTestLogLine } = require('./logging');
 
 module.exports = LogReporter;
