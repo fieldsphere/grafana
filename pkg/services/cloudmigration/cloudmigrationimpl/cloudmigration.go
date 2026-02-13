@@ -546,7 +546,7 @@ func (s *Service) CreateSnapshot(ctx context.Context, signedInUser *user.SignedI
 		if err != nil {
 			asyncSpan.SetStatus(codes.Error, "error building snapshot")
 			asyncSpan.RecordError(err)
-			s.log.Error("building snapshot", "err", err.Error())
+			s.log.Error("building snapshot", "error", err)
 
 			// Update status to error with retries
 			if err := s.updateSnapshotWithRetries(asyncCtx, cloudmigration.UpdateSnapshotCmd{
@@ -775,7 +775,7 @@ func (s *Service) UploadSnapshot(ctx context.Context, orgID int64, signedInUser 
 			asyncSpan.SetStatus(codes.Error, "error uploading snapshot")
 			asyncSpan.RecordError(err)
 
-			s.log.Error("uploading snapshot", "err", err.Error())
+			s.log.Error("uploading snapshot", "error", err)
 			// Update status to error with retries
 			if err := s.updateSnapshotWithRetries(asyncCtx, cloudmigration.UpdateSnapshotCmd{
 				UID:       snapshot.UID,

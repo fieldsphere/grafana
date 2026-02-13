@@ -94,7 +94,7 @@ func (cma *CloudMigrationAPI) GetToken(c *contextmodel.ReqContext) response.Resp
 		span.RecordError(err)
 
 		if !errors.Is(err, cloudmigration.ErrTokenNotFound) {
-			logger.Error("fetching cloud migration access token", "err", err.Error())
+			logger.Error("fetching cloud migration access token", "error", err)
 		}
 
 		return response.ErrOrFallback(http.StatusInternalServerError, "fetching cloud migration access token", err)
@@ -129,7 +129,7 @@ func (cma *CloudMigrationAPI) CreateToken(c *contextmodel.ReqContext) response.R
 	if err != nil {
 		span.SetStatus(codes.Error, "creating gcom access token")
 		span.RecordError(err)
-		logger.Error("creating gcom access token", "err", err.Error())
+		logger.Error("creating gcom access token", "error", err)
 
 		return response.ErrOrFallback(http.StatusInternalServerError, "creating gcom access token", err)
 	}
@@ -164,7 +164,7 @@ func (cma *CloudMigrationAPI) DeleteToken(c *contextmodel.ReqContext) response.R
 	if err := cma.cloudMigrationService.DeleteToken(ctx, uid); err != nil {
 		span.SetStatus(codes.Error, "deleting cloud migration token")
 		span.RecordError(err)
-		logger.Error("deleting cloud migration token", "err", err.Error())
+		logger.Error("deleting cloud migration token", "error", err)
 
 		return response.ErrOrFallback(http.StatusInternalServerError, "deleting cloud migration token", err)
 	}
