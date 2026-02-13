@@ -40,7 +40,7 @@ func (cr *configReaderImpl) readConfig(ctx context.Context, path string) ([]*plu
 
 	for _, file := range files {
 		if strings.HasSuffix(file.Name(), ".yaml") || strings.HasSuffix(file.Name(), ".yml") {
-			cr.log.Debug("Parsing plugin provisioning file", "path", path, "file.Name", file.Name())
+			cr.log.Debug("Parsing plugin provisioning file", "path", path, "fileName", file.Name())
 			app, err := cr.parsePluginConfig(path, file)
 			if err != nil {
 				return nil, err
