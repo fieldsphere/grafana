@@ -2,7 +2,6 @@ package resource
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -234,12 +233,12 @@ func (s *searchWrapper) compareSearchResults(legacyResponse, unifiedResponse *re
 	}
 
 	s.logger.Debug("Search results comparison completed",
-		"resource_type", resourceType,
-		"legacy_count", len(legacyUIDs),
-		"unified_count", len(unifiedUIDs),
-		"match_percentage", fmt.Sprintf("%.1f%%", matchPercentage),
-		"legacy_total_hits", legacyResponse.TotalHits,
-		"unified_total_hits", unifiedResponse.TotalHits,
+		"resourceType", resourceType,
+		"legacyCount", len(legacyUIDs),
+		"unifiedCount", len(unifiedUIDs),
+		"matchPercentage", matchPercentage,
+		"legacyTotalHits", legacyResponse.TotalHits,
+		"unifiedTotalHits", unifiedResponse.TotalHits,
 	)
 
 	searchResultsMatchHistogram.WithLabelValues(resourceType).Observe(matchPercentage)

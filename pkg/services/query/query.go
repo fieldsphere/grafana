@@ -452,11 +452,11 @@ func (s *ServiceImpl) parseMetricRequest(ctx context.Context, user identity.Requ
 		req.parsedQueries[ds.UID] = append(req.parsedQueries[ds.UID], pq)
 
 		s.log.Debug("Processed metrics query",
-			"ref_id", pq.query.RefID,
+			"refID", pq.query.RefID,
 			"from", timeRange.GetFromAsMsEpoch(),
 			"to", timeRange.GetToAsMsEpoch(),
 			"interval", pq.query.Interval.Milliseconds(),
-			"max_data_points", pq.query.MaxDataPoints,
+			"maxDataPoints", pq.query.MaxDataPoints,
 			"query", string(modelJSON))
 	}
 
