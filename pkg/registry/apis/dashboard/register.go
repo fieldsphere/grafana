@@ -157,7 +157,7 @@ func RegisterAPIService(
 ) *DashboardsAPIBuilder {
 	cfg, err := configProvider.Get(context.Background())
 	if err != nil {
-		logging.DefaultLogger.Error("failed to load settings configuration instance", "stackId", cfg.StackID, "error", err)
+		logging.DefaultLogger.Error("failed to load settings configuration instance", "error", err)
 		return nil
 	}
 
@@ -220,7 +220,7 @@ func RegisterAPIService(
 			}
 		}
 		if err != nil {
-			logging.DefaultLogger.Error("failed to parse namespace for cache preloading", "stackId", cfg.StackID, "error", err)
+			logging.DefaultLogger.Error("failed to parse namespace for cache preloading", "stackID", cfg.StackID, "error", err)
 		}
 	}
 
