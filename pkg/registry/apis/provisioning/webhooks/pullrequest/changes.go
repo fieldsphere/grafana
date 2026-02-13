@@ -11,7 +11,6 @@ import (
 	dashboard "github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v1beta1"
 	provisioning "github.com/grafana/grafana/apps/provisioning/pkg/apis/provisioning/v0alpha1"
 	"github.com/grafana/grafana/apps/provisioning/pkg/repository"
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
 	"github.com/grafana/grafana/pkg/infra/slugify"
 	"github.com/grafana/grafana/pkg/registry/apis/provisioning/jobs"
 	"github.com/grafana/grafana/pkg/registry/apis/provisioning/resources"
@@ -83,18 +82,17 @@ func (e *evaluator) Evaluate(ctx context.Context, repo repository.Reader, opts p
 		MissingImageRenderer: !rendererAvailable,
 	}
 
-	logger := logging.FromContext(ctx)
+	ctxLogger := logging.FromContext(ctx)
 
 	for i, change := range changes {
 		// process maximum 10 files
 		if i >= 10 {
 			info.SkippedFiles = len(changes) - i
-			logger.Info("skipping remaining files", "count", info.SkippedFiles)
+			ctxLogger.Info("skipping remaining files", "count", info.SkippedFiles)
 			break
 		}
 
 		progress.SetMessage(ctx, fmt.Sprintf("process %s", change.Path))
-		logger.With("action", change.Action).With("path", change.Path)
 		info.Changes = append(info.Changes, e.evaluateFile(ctx, repo, info.GrafanaBaseURL, change, opts, parser, shouldRender))
 	}
 
@@ -104,6 +102,8 @@ func (e *evaluator) Evaluate(ctx context.Context, repo repository.Reader, opts p
 var dashboardKind = dashboard.DashboardResourceInfo.GroupVersionKind().Kind
 
 func (e *evaluator) evaluateFile(ctx context.Context, repo repository.Reader, baseURL string, change repository.VersionedFileChange, opts provisioning.PullRequestJobOptions, parser resources.Parser, shouldRender bool) fileChangeInfo {
+	logger := logging.FromContext(ctx)
+
 	if change.Action == repository.FileActionDeleted {
 		// TODO: read the old and verify
 		return fileChangeInfo{Change: change, Error: "delete feedback not yet implemented"}
@@ -209,7 +209,7 @@ func renderScreenshotFromGrafanaURL(ctx context.Context,
 	}
 	base, err := url.Parse(baseURL)
 	if err != nil {
-		logger.Warn("invalid base", "url", baseURL, "error", err)
+		logging.FromContext(ctx).Warn("invalid base", "url", baseURL, "error", err)
 		return "", err
 	}
 	outcome = utils.SuccessOutcome
