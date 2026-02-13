@@ -79,7 +79,7 @@ func WrapWithStageAndPushIfPossible(
 	// FIXME: should we handle this differently?
 	defer func() {
 		if err := staged.Remove(ctx); err != nil {
-			logging.FromContext(ctx).Error("failed to remove staged repository after export", "err", err)
+			logging.FromContext(ctx).Error("failed to remove staged repository after export", "error", err)
 		}
 	}()
 

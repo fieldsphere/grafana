@@ -101,7 +101,7 @@ func (c *Client) Push(ctx context.Context, streams []Stream) error {
 	if res != nil {
 		defer func() {
 			if err := res.Body.Close(); err != nil {
-				log.Warn("Failed to close response body", "err", err)
+				log.Warn("Failed to close response body", "error", err)
 			}
 		}()
 	}
@@ -144,7 +144,7 @@ func (c *Client) RangeQuery(ctx context.Context, logQL string, start, end, limit
 	if res != nil {
 		defer func() {
 			if err := res.Body.Close(); err != nil {
-				log.Warn("Failed to close response body", "err", err)
+				log.Warn("Failed to close response body", "error", err)
 			}
 		}()
 	}

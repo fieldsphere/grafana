@@ -765,7 +765,7 @@ type grafanaComPluginManifest struct {
 func grafanaComChildPluginVersionToMetaSpec(ctx context.Context, child grafanaComChildPluginVersion, parent grafanaComPluginVersionMeta) pluginsv0alpha1.MetaSpec {
 	cdnURL, err := url.JoinPath(parent.CDNURL, child.Path)
 	if err != nil {
-		logging.FromContext(ctx).Error("Error getting cdn URL for catalog child meta", "child", child.Slug, "parent", parent.PluginSlug, "err", err)
+		logging.FromContext(ctx).Error("Error getting cdn URL for catalog child meta", "child", child.Slug, "parent", parent.PluginSlug, "error", err)
 	}
 
 	// Create a synthetic meta with both parent and child info
