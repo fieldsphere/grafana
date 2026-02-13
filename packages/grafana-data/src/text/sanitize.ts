@@ -72,7 +72,7 @@ export function sanitize(unsanitizedString: string): string {
   } catch (error) {
     logDataError('String could not be sanitized', {
       operation: 'sanitize',
-      unsanitizedString,
+      unsanitizedString: escapeHtml(unsanitizedString),
       error: String(error),
     });
     return escapeHtml(unsanitizedString);
@@ -107,7 +107,7 @@ export function sanitizeTextPanelContent(unsanitizedString: string): string {
   } catch (error) {
     logDataError('String could not be sanitized', {
       operation: 'sanitizeTextPanelContent',
-      unsanitizedString,
+      unsanitizedString: escapeHtml(unsanitizedString),
       error: String(error),
     });
     return 'Text string could not be sanitized';
