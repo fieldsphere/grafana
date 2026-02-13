@@ -236,9 +236,9 @@ func (s *ExternalAlertmanager) SendAlerts(alerts apimodels.PostableAlerts) {
 			"Sending alert",
 			"alert",
 			na.String(),
-			"starts_at",
+			"startsAt",
 			na.StartsAt,
-			"ends_at",
+			"endsAt",
 			na.EndsAt)
 	}
 

@@ -351,13 +351,13 @@ func resultNormal(state *State, rule *models.AlertRule, result eval.Result, logg
 		if result.EvaluatedAt.Sub(state.StartsAt) >= rule.KeepFiringFor {
 			nextEndsAt := result.EvaluatedAt
 			logger.Debug("Changing state",
-				"previous_state",
+				"previousState",
 				state.State,
-				"next_state",
+				"nextState",
 				eval.Normal,
-				"previous_ends_at",
+				"previousEndsAt",
 				state.EndsAt,
-				"next_ends_at",
+				"nextEndsAt",
 				nextEndsAt,
 			)
 			state.SetNormal(reason, nextEndsAt, nextEndsAt)
@@ -374,26 +374,26 @@ func resultNormal(state *State, rule *models.AlertRule, result eval.Result, logg
 		// EndsAt must be set to a future time for the Alertmanager, the same as for Alerting states.
 		nextEndsAt := nextEndsTime(rule.IntervalSeconds, result.EvaluatedAt)
 		logger.Debug("Changing state",
-			"previous_state",
+			"previousState",
 			state.State,
-			"next_state",
+			"nextState",
 			eval.Recovering,
-			"previous_ends_at",
+			"previousEndsAt",
 			state.EndsAt,
-			"next_ends_at",
+			"nextEndsAt",
 			nextEndsAt,
 		)
 		state.SetRecovering(reason, result.EvaluatedAt, nextEndsAt)
 	default:
 		nextEndsAt := result.EvaluatedAt
 		logger.Debug("Changing state",
-			"previous_state",
+			"previousState",
 			state.State,
-			"next_state",
+			"nextState",
 			eval.Normal,
-			"previous_ends_at",
+			"previousEndsAt",
 			state.EndsAt,
-			"next_ends_at",
+			"nextEndsAt",
 			nextEndsAt,
 		)
 		// Normal states have the same start and end timestamps
@@ -411,22 +411,22 @@ func resultAlerting(state *State, rule *models.AlertRule, result eval.Result, lo
 		logger.Debug("Keeping state",
 			"state",
 			state.State,
-			"previous_ends_at",
+			"previousEndsAt",
 			prevEndsAt,
-			"next_ends_at",
+			"nextEndsAt",
 			state.EndsAt)
 	case eval.Pending:
 		// If the previous state is Pending then check if the For duration has been observed
 		if result.EvaluatedAt.Sub(state.StartsAt) >= rule.For {
 			nextEndsAt := nextEndsTime(rule.IntervalSeconds, result.EvaluatedAt)
 			logger.Debug("Changing state",
-				"previous_state",
+				"previousState",
 				state.State,
-				"next_state",
+				"nextState",
 				eval.Alerting,
-				"previous_ends_at",
+				"previousEndsAt",
 				state.EndsAt,
-				"next_ends_at",
+				"nextEndsAt",
 				nextEndsAt)
 			state.SetAlerting(reason, result.EvaluatedAt, nextEndsAt)
 		}
@@ -436,24 +436,24 @@ func resultAlerting(state *State, rule *models.AlertRule, result eval.Result, lo
 			// If the alert rule has a For duration that should be observed then the state should be set to Pending.
 			// If the alert is currently in the Recovering state then we skip Pending and set it directly to Alerting.
 			logger.Debug("Changing state",
-				"previous_state",
+				"previousState",
 				state.State,
-				"next_state",
+				"nextState",
 				eval.Pending,
-				"previous_ends_at",
+				"previousEndsAt",
 				state.EndsAt,
-				"next_ends_at",
+				"nextEndsAt",
 				nextEndsAt)
 			state.SetPending(reason, result.EvaluatedAt, nextEndsAt)
 		} else {
 			logger.Debug("Changing state",
-				"previous_state",
+				"previousState",
 				state.State,
-				"next_state",
+				"nextState",
 				eval.Alerting,
-				"previous_ends_at",
+				"previousEndsAt",
 				state.EndsAt,
-				"next_ends_at",
+				"nextEndsAt",
 				nextEndsAt)
 			state.SetAlerting(reason, result.EvaluatedAt, nextEndsAt)
 		}
@@ -465,7 +465,7 @@ func resultError(state *State, rule *models.AlertRule, result eval.Result, logge
 
 	switch rule.ExecErrState {
 	case models.AlertingErrState:
-		logger.Debug("Execution error state is Alerting", "handler", "resultAlerting", "previous_handler", handlerStr)
+		logger.Debug("Execution error state is Alerting", "handler", "resultAlerting", "previousHandler", handlerStr)
 		resultAlerting(state, rule, result, logger, models.StateReasonError)
 		// This is a special case where Alerting and Pending should also have an error and reason
 		state.Error = result.Error
@@ -478,21 +478,21 @@ func resultError(state *State, rule *models.AlertRule, result eval.Result, logge
 			logger.Debug("Keeping state",
 				"state",
 				state.State,
-				"previous_ends_at",
+				"previousEndsAt",
 				prevEndsAt,
-				"next_ends_at",
+				"nextEndsAt",
 				state.EndsAt)
 		} else {
 			nextEndsAt := nextEndsTime(rule.IntervalSeconds, result.EvaluatedAt)
 			// This is the first occurrence of an error
 			logger.Debug("Changing state",
-				"previous_state",
+				"previousState",
 				state.State,
-				"next_state",
+				"nextState",
 				eval.Error,
-				"previous_ends_at",
+				"previousEndsAt",
 				state.EndsAt,
-				"next_ends_at",
+				"nextEndsAt",
 				nextEndsAt)
 			state.SetError(result.Error, result.EvaluatedAt, nextEndsAt)
 		}
@@ -501,11 +501,11 @@ func resultError(state *State, rule *models.AlertRule, result eval.Result, logge
 			state.Annotations["Error"] = result.Error.Error()
 		}
 	case models.OkErrState:
-		logger.Debug("Execution error state is Normal", "handler", "resultNormal", "previous_handler", handlerStr)
+		logger.Debug("Execution error state is Normal", "handler", "resultNormal", "previousHandler", handlerStr)
 		resultNormal(state, rule, result, logger, "") // TODO: Should we add a reason?
 		state.addErrorInfoToAnnotations(result.Error, rule)
 	case models.KeepLastErrState:
-		logger := logger.New("previous_handler", handlerStr)
+		logger := logger.New("previousHandler", handlerStr)
 		resultKeepLast(state, rule, result, logger)
 		state.addErrorInfoToAnnotations(result.Error, rule)
 	default:
@@ -520,7 +520,7 @@ func resultNoData(state *State, rule *models.AlertRule, result eval.Result, logg
 
 	switch rule.NoDataState {
 	case models.Alerting:
-		logger.Debug("Execution no data state is Alerting", "handler", "resultAlerting", "previous_handler", handlerStr)
+		logger.Debug("Execution no data state is Alerting", "handler", "resultAlerting", "previousHandler", handlerStr)
 		resultAlerting(state, rule, result, logger, models.StateReasonNoData)
 	case models.NoData:
 		if state.State == eval.NoData {
@@ -529,29 +529,29 @@ func resultNoData(state *State, rule *models.AlertRule, result eval.Result, logg
 			logger.Debug("Keeping state",
 				"state",
 				state.State,
-				"previous_ends_at",
+				"previousEndsAt",
 				prevEndsAt,
-				"next_ends_at",
+				"nextEndsAt",
 				state.EndsAt)
 		} else {
 			// This is the first occurrence of no data
 			nextEndsAt := nextEndsTime(rule.IntervalSeconds, result.EvaluatedAt)
 			logger.Debug("Changing state",
-				"previous_state",
+				"previousState",
 				state.State,
-				"next_state",
+				"nextState",
 				eval.NoData,
-				"previous_ends_at",
+				"previousEndsAt",
 				state.EndsAt,
-				"next_ends_at",
+				"nextEndsAt",
 				nextEndsAt)
 			state.SetNoData("", result.EvaluatedAt, nextEndsAt)
 		}
 	case models.OK:
-		logger.Debug("Execution no data state is Normal", "handler", "resultNormal", "previous_handler", handlerStr)
+		logger.Debug("Execution no data state is Normal", "handler", "resultNormal", "previousHandler", handlerStr)
 		resultNormal(state, rule, result, logger, models.StateReasonNoData)
 	case models.KeepLast:
-		logger := logger.New("previous_handler", handlerStr)
+		logger := logger.New("previousHandler", handlerStr)
 		resultKeepLast(state, rule, result, logger)
 	default:
 		err := fmt.Errorf("unsupported no data state: %s", rule.NoDataState)
@@ -770,7 +770,7 @@ func GetRuleExtraLabels(l log.Logger, rule *models.AlertRule, folderTitle string
 		// Any items past the first should not exist so we ignore them.
 		if len(rule.NotificationSettings) > 1 {
 			ignored, _ := json.Marshal(rule.NotificationSettings[1:])
-			l.Error("Detected multiple notification settings, which is not supported. Only the first will be applied", "ignored_settings", string(ignored))
+			l.Error("Detected multiple notification settings, which is not supported. Only the first will be applied", "ignoredSettings", string(ignored))
 		}
 		return mergeLabels(extraLabels, rule.NotificationSettings[0].ToLabels(features))
 	}
