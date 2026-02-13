@@ -28,9 +28,9 @@ func (c *ZanzanaPermissionStore) SetFolderParent(ctx context.Context, namespace,
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	ctx, span := tracer.Start(ctx, "zanzana-permission-store.set-folder-parent",
 		trace.WithAttributes(
-			attribute.String("folder.uid", folderUID),
+			attribute.String("folderUID", folderUID),
 			attribute.String("folder.namespace", namespace),
-			attribute.String("parent.uid", parentUID),
+			attribute.String("parentUID", parentUID),
 		),
 	)
 	defer span.End()
@@ -61,7 +61,7 @@ func (c *ZanzanaPermissionStore) GetFolderParents(ctx context.Context, namespace
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	ctx, span := tracer.Start(ctx, "ZanzanaPermissionStore.GetFolderParents",
 		trace.WithAttributes(
-			attribute.String("folder.uid", folderUID),
+			attribute.String("folderUID", folderUID),
 			attribute.String("folder.namespace", namespace),
 		),
 	)
@@ -106,7 +106,7 @@ func (c *ZanzanaPermissionStore) DeleteFolderParents(ctx context.Context, namesp
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	ctx, span := tracer.Start(ctx, "ZanzanaPermissionStore.DeleteFolderParents",
 		trace.WithAttributes(
-			attribute.String("folder.uid", folderUID),
+			attribute.String("folderUID", folderUID),
 			attribute.String("folder.namespace", namespace),
 		),
 	)
@@ -138,7 +138,7 @@ func (c *ZanzanaPermissionStore) listFolderParentRelations(ctx context.Context, 
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	ctx, span := tracer.Start(ctx, "ZanzanaPermissionStore.listFolderParentRelations",
 		trace.WithAttributes(
-			attribute.String("folder.uid", folderUID),
+			attribute.String("folderUID", folderUID),
 			attribute.String("folder.namespace", namespace),
 		),
 	)
