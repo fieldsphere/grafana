@@ -429,7 +429,7 @@ func (ss *FolderStoreImpl) GetHeight(ctx context.Context, foldrUID string, orgID
 		}
 	}
 	if height > folder.MaxNestedFolderDepth {
-		ss.log.Warn("folder height exceeds the maximum allowed depth, You might have a circular reference", "uid", foldrUID, "orgId", orgID, "maxDepth", folder.MaxNestedFolderDepth)
+		ss.log.Warn("folder height exceeds the maximum allowed depth, You might have a circular reference", "uid", foldrUID, "orgID", orgID, "maxDepth", folder.MaxNestedFolderDepth)
 	}
 	return height, nil
 }
