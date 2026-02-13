@@ -3,7 +3,7 @@ package main
 import (
 	"encoding/json"
 	"flag"
-	"log"
+	"log/slog"
 	"os"
 	"strings"
 )
@@ -18,26 +18,31 @@ func main() {
 	flag.Parse()
 
 	if input == "" || output == "" {
-		log.Fatal("no file specified, input", input, ", output", output)
+		slog.Error("No file specified", "input", input, "output", output)
+		os.Exit(1)
 	}
 
 	//nolint
 	b, err := os.ReadFile(input)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("Failed to read input file", "path", input, "error", err)
+		os.Exit(1)
 	}
 
 	data := make(map[string]any)
 	if err := json.Unmarshal(b, &data); err != nil {
-		log.Fatal(err)
+		slog.Error("Failed to parse input JSON", "path", input, "error", err)
+		os.Exit(1)
 	}
 
 	info, ok := data["info"].(map[string]any)
 	if info == nil {
-		log.Fatal("expecting 'info' field")
+		slog.Error("Expecting info field")
+		os.Exit(1)
 	}
 	if !ok {
-		log.Fatal("unable to turn info field into map[string]any")
+		slog.Error("Unable to turn info field into map")
+		os.Exit(1)
 	}
 
 	if info["title"] == nil {
@@ -46,7 +51,8 @@ func main() {
 
 	definitions, ok := data["definitions"]
 	if !ok {
-		log.Fatal("no definitions")
+		slog.Error("No definitions in swagger input")
+		os.Exit(1)
 	}
 
 	defs := definitions.(map[string]any)
@@ -58,20 +64,22 @@ func main() {
 		}
 
 		if strings.TrimPrefix(refKey.(string), "#/definitions/") == k {
-			log.Println("removing circular ref key", refKey)
+			slog.Debug("Removing circular ref key", "ref", refKey)
 			delete(vMap, RefKey)
 		}
 	}
 
 	paths, ok := data["paths"].(map[string]any)
 	if !ok {
-		log.Fatal("no paths")
+		slog.Error("No paths in swagger input")
+		os.Exit(1)
 	}
 
 	for _, path := range paths {
 		path, ok := path.(map[string]any)
 		if !ok {
-			log.Fatal("invalid path")
+			slog.Error("Invalid path in swagger input")
+			os.Exit(1)
 		}
 
 		for _, op := range path {
@@ -82,14 +90,14 @@ func main() {
 
 			tags, ok := op["tags"].([]any)
 			if !ok {
-				log.Println("invalid op, skipping")
+				slog.Debug("Invalid operation tags, skipping")
 				continue
 			}
 
 			// Remove "stable" tag. Multiple tags cause routes to render strangely in the final docs.
 			for i, tag := range tags {
 				if tag == "stable" {
-					log.Println("removing stable tag")
+					slog.Debug("Removing stable tag from operation")
 					op["tags"] = append(tags[:i], tags[i+1:]...)
 				}
 			}
@@ -98,11 +106,13 @@ func main() {
 
 	out, err := json.MarshalIndent(data, "", " ")
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("Failed to marshal cleaned swagger JSON", "error", err)
+		os.Exit(1)
 	}
 
 	err = os.WriteFile(output, out, 0644)
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("Failed to write cleaned swagger file", "path", output, "error", err)
+		os.Exit(1)
 	}
 }

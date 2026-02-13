@@ -2,7 +2,7 @@ package codegen
 
 import (
 	"encoding/json"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
@@ -20,7 +20,7 @@ func OpenPackageJSON(dir string) (PackageJSON, error) {
 
 	defer func() {
 		if err := f.Close(); err != nil {
-			log.Println("error closing package.json", err)
+			slog.Error("Error closing package.json", "error", err)
 		}
 	}()
 
