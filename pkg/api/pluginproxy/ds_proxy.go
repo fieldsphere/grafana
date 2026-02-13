@@ -154,19 +154,25 @@ func (proxy *DataSourceProxy) HandleRequest() {
 		attribute.Int64("orgID", proxy.ctx.OrgID),
 	)
 
-	proxy.addTraceFromHeaderValue(span, "X-Panel-Id", "panelID")
-	proxy.addTraceFromHeaderValue(span, "X-Dashboard-Id", "dashboardID")
+	proxy.addPanelIDTraceFromHeader(span)
+	proxy.addDashboardIDTraceFromHeader(span)
 
 	proxy.tracer.Inject(ctx, proxy.ctx.Req.Header, span)
 
 	reverseProxy.ServeHTTP(proxy.ctx.Resp, proxy.ctx.Req)
 }
 
-func (proxy *DataSourceProxy) addTraceFromHeaderValue(span trace.Span, headerName string, tagName string) {
-	panelId := proxy.ctx.Req.Header.Get(headerName)
-	dashId, err := strconv.Atoi(panelId)
+func (proxy *DataSourceProxy) addPanelIDTraceFromHeader(span trace.Span) {
+	panelID, err := strconv.Atoi(proxy.ctx.Req.Header.Get("X-Panel-Id"))
 	if err == nil {
-		span.SetAttributes(attribute.Int(tagName, dashId))
+		span.SetAttributes(attribute.Int("panelID", panelID))
+	}
+}
+
+func (proxy *DataSourceProxy) addDashboardIDTraceFromHeader(span trace.Span) {
+	dashboardID, err := strconv.Atoi(proxy.ctx.Req.Header.Get("X-Dashboard-Id"))
+	if err == nil {
+		span.SetAttributes(attribute.Int("dashboardID", dashboardID))
 	}
 }
 

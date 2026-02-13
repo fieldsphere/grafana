@@ -30,12 +30,15 @@ type TracingMiddleware struct {
 	tracer tracing.Tracer
 }
 
-// setSpanAttributeFromHTTPHeader takes a ReqContext and a span, and adds the specified HTTP header as a span attribute
-// (string value), if the header is present.
-func setSpanAttributeFromHTTPHeader(headers http.Header, span trace.Span, attributeName, headerName string) {
-	// Set the attribute as string
-	if v := headers.Get(headerName); v != "" {
-		span.SetAttributes(attribute.String(attributeName, v))
+func setSpanQueryGroupIDFromHTTPHeader(headers http.Header, span trace.Span) {
+	if queryGroupID := headers.Get(query.HeaderQueryGroupID); queryGroupID != "" {
+		span.SetAttributes(attribute.String("queryGroupID", queryGroupID))
+	}
+}
+
+func setSpanDashboardUIDFromHTTPHeader(headers http.Header, span trace.Span) {
+	if dashboardUID := headers.Get(query.HeaderDashboardUID); dashboardUID != "" {
+		span.SetAttributes(attribute.String("dashboardUID", dashboardUID))
 	}
 }
 
@@ -65,8 +68,8 @@ func (m *TracingMiddleware) traceWrap(
 		if v, err := strconv.Atoi(reqCtx.Req.Header.Get(query.HeaderPanelID)); err == nil {
 			span.SetAttributes(attribute.Int("panelID", v))
 		}
-		setSpanAttributeFromHTTPHeader(reqCtx.Req.Header, span, "queryGroupID", query.HeaderQueryGroupID)
-		setSpanAttributeFromHTTPHeader(reqCtx.Req.Header, span, "dashboardUID", query.HeaderDashboardUID)
+		setSpanQueryGroupIDFromHTTPHeader(reqCtx.Req.Header, span)
+		setSpanDashboardUIDFromHTTPHeader(reqCtx.Req.Header, span)
 	}
 
 	// Return ctx with span + cleanup func
