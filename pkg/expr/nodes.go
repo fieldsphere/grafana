@@ -263,8 +263,8 @@ func executeDSNodesGrouped(ctx context.Context, now time.Time, vars mathexp.Vars
 
 			firstNode := nodeGroup[0]
 			logger := logger.FromContext(ctx).New("datasourceType", firstNode.datasource.Type,
-				"queryRefId", firstNode.refID,
-				"datasourceUid", firstNode.datasource.UID,
+				"queryRefID", firstNode.refID,
+				"datasourceUID", firstNode.datasource.UID,
 				"datasourceVersion", firstNode.datasource.Version,
 			)
 			span.SetAttributes(
