@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -1344,7 +1345,13 @@ func (g *GrafanaLive) HandleWriteConfigsPostHTTP(c *contextmodel.ReqContext) res
 func handleLog(msg centrifuge.LogEntry) {
 	arr := make([]interface{}, 0, len(msg.Fields)*2+4)
 	arr = append(arr, "message", msg.Message)
-	for k, v := range msg.Fields {
+	keys := make([]string, 0, len(msg.Fields))
+	for key := range msg.Fields {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, k := range keys {
+		v := msg.Fields[k]
 		switch v {
 		case nil:
 			v = "<nil>"
