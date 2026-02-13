@@ -23,7 +23,7 @@ type logWrapper struct {
 }
 
 func (lw *logWrapper) Println(v ...any) {
-	lw.logger.Info("graphite metric bridge", v...)
+	lw.logger.Info("Graphite metric bridge event", "message", fmt.Sprint(v...))
 }
 
 func ProvideService(cfg *setting.Cfg, reg prometheus.Registerer, gatherer prometheus.Gatherer) (*InternalMetricsService, error) {
