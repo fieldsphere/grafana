@@ -116,7 +116,7 @@ package dashboardsnapshot
 //			return
 //		}
 //
-//		fmt.Printf("TODO, export: %s (len: %d)\n", snap.Key, len(dash))
+//		// TODO: export dashboard payload
 //
 //		// w, err := bucket.NewWriter(ctx, "foo.txt", nil)
 //		// if err != nil {
@@ -127,5 +127,5 @@ package dashboardsnapshot
 //		time.Sleep(time.Second * 1)
 //		d.status.Updated = time.Now().UnixMilli()
 //	}
-//	fmt.Printf("done!\n")
+//	// done
 //}

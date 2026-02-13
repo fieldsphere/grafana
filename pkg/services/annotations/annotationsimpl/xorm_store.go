@@ -346,7 +346,6 @@ func (r *xormRepositoryImpl) Get(ctx context.Context, query annotations.ItemQuer
 		params = append(params, query.OrgID)
 
 		if query.AnnotationID != 0 {
-			// fmt.Println("annotation query")
 			sql.WriteString(` AND a.id = ?`)
 			params = append(params, query.AnnotationID)
 		}

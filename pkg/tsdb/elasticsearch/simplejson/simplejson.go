@@ -349,7 +349,8 @@ func (j *Json) StringArray() ([]string, error) {
 // useful when you want to iterate over array values in a succinct manner:
 //
 //	for i, v := range js.Get("results").MustArray() {
-//		fmt.Println(i, v)
+//		_ = i
+//		_ = v
 //	}
 func (j *Json) MustArray(args ...[]any) []any {
 	var def []any
@@ -375,7 +376,8 @@ func (j *Json) MustArray(args ...[]any) []any {
 // useful when you want to iterate over map values in a succinct manner:
 //
 //	for k, v := range js.Get("dictionary").MustMap() {
-//		fmt.Println(k, v)
+//		_ = k
+//		_ = v
 //	}
 func (j *Json) MustMap(args ...map[string]any) map[string]any {
 	var def map[string]any
@@ -425,7 +427,8 @@ func (j *Json) MustString(args ...string) string {
 // useful when you want to iterate over array values in a succinct manner:
 //
 //	for i, s := range js.Get("results").MustStringArray() {
-//		fmt.Println(i, s)
+//		_ = i
+//		_ = s
 //	}
 func (j *Json) MustStringArray(args ...[]string) []string {
 	var def []string

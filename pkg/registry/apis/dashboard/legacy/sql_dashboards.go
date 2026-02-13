@@ -203,7 +203,7 @@ func (a *dashboardSqlAccess) getRows(ctx context.Context, helper *legacysql.Lega
 	q := rawQuery
 	// if false {
 	// 	 pretty := sqltemplate.RemoveEmptyLines(rawQuery)
-	//	 fmt.Printf("DASHBOARD QUERY: %s [%+v] // %+v\n", pretty, req.GetArgs(), query)
+	//	 debug dashboard query output if needed
 	// }
 
 	rows, err := a.executeQuery(ctx, helper, q, req.GetArgs()...)

@@ -190,7 +190,6 @@ func removeSchemaRefs(s *spec.Schema) {
 	// Examples is invalid -- only use the first example
 	examples, ok := s.ExtraProps["examples"]
 	if ok && examples != nil {
-		//fmt.Printf("TODO, use reflection to get first element from: %+v\n", examples)
 		//s.Example = examples[0]
 		delete(s.ExtraProps, "examples")
 	}

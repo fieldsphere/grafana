@@ -994,7 +994,6 @@ WHERE c.relkind = 'r'::char AND c.relname = $1%s AND f.attnum > 0 ORDER BY f.att
 			return nil, nil, err
 		}
 
-		// fmt.Println(args, colName, isNullable, dataType, maxLenStr, colDefault, isPK, isUnique)
 		var maxLen int
 		if maxLenStr != nil {
 			maxLen, err = strconv.Atoi(*maxLenStr)
