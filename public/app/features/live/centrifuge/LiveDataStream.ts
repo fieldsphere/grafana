@@ -13,7 +13,13 @@ import {
   StreamingDataFrame,
 } from '@grafana/data';
 import { getStreamingFrameOptions } from '@grafana/data/internal';
-import { LiveDataStreamOptions, StreamingFrameAction, StreamingFrameOptions, toDataQueryError } from '@grafana/runtime';
+import {
+  createMonitoringLogger,
+  LiveDataStreamOptions,
+  StreamingFrameAction,
+  StreamingFrameOptions,
+  toDataQueryError,
+} from '@grafana/runtime';
 
 import { StreamingResponseDataType } from '../data/utils';
 
@@ -120,6 +126,7 @@ const filterMessages = <T extends InternalStreamMessageType>(
   packets: InternalStreamMessage[],
   type: T
 ): Array<InternalStreamMessage<T>> => packets.filter((p) => p.type === type) as Array<InternalStreamMessage<T>>;
+const logger = createMonitoringLogger('features.live.data-stream');
 
 export class LiveDataStream<T = unknown> {
   private frameBuffer: StreamingDataFrame;
@@ -149,7 +156,15 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onError = (err: unknown) => {
-    console.log('LiveQuery [error]', { err }, this.deps.channelId);
+    if (err instanceof Error) {
+      logger.logError(err, { operation: 'onError', channelId: this.deps.channelId });
+    } else {
+      logger.logWarning('Live query error', {
+        operation: 'onError',
+        channelId: this.deps.channelId,
+        error: String(err),
+      });
+    }
     this.stream.next({
       type: InternalStreamMessageType.Error,
       error: toDataQueryError(err),
@@ -158,7 +173,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onComplete = () => {
-    console.log('LiveQuery [complete]', this.deps.channelId);
+    logger.logDebug('Live query complete', { operation: 'onComplete', channelId: this.deps.channelId });
     this.shutdown();
   };
 
@@ -275,7 +290,10 @@ export class LiveDataStream<T = unknown> {
       }
 
       if (!messages.length) {
-        console.warn(`expected to find at least one non error message ${messages.map(({ type }) => type)}`);
+        logger.logWarning('Expected to find at least one non-error message', {
+          operation: 'getFullFrameResponseData',
+          messageTypes: messages.map(({ type }) => type).join(','),
+        });
         // send empty frame
         return {
           key: subKey,
@@ -353,7 +371,10 @@ export class LiveDataStream<T = unknown> {
 
         const newValueSameSchemaMessages = filterMessages(messages, InternalStreamMessageType.NewValuesSameSchema);
         if (newValueSameSchemaMessages.length !== messages.length) {
-          console.warn(`unsupported message type ${messages.map(({ type }) => type)}`);
+          logger.logWarning('Unsupported live stream message types', {
+            operation: 'transformedInternalStream.map',
+            messageTypes: messages.map(({ type }) => type).join(','),
+          });
         }
 
         return getNewValuesSameSchemaResponseData(newValueSameSchemaMessages);
