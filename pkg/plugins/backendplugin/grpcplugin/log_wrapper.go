@@ -20,7 +20,7 @@ type logWrapper struct {
 func wrapPluginLogArgs(msg, level string, args ...any) []any {
 	formattedArgs := formatArgs(args...)
 	context := make([]any, 0, len(formattedArgs)+4)
-	context = append(context, "plugin_message", msg, "plugin_log_level", level)
+	context = append(context, "pluginMessage", msg, "pluginLogLevel", level)
 	context = append(context, formattedArgs...)
 	return context
 }

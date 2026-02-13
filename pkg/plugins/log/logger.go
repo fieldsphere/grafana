@@ -72,7 +72,7 @@ func normalizePluginLoggerContext(ctx ...any) []any {
 func wrapPluginLoggerContext(msg, level string, ctx ...any) []any {
 	normalized := normalizePluginLoggerContext(ctx...)
 	fields := make([]any, 0, len(normalized)+4)
-	fields = append(fields, "plugin_message", msg, "plugin_log_level", level)
+	fields = append(fields, "pluginMessage", msg, "pluginLogLevel", level)
 	fields = append(fields, normalized...)
 	return fields
 }

@@ -175,7 +175,7 @@ type logWrapper struct {
 func wrapCorePluginLogArgs(msg, level string, args ...any) []any {
 	normalized := normalizeCorePluginLogArgs(args...)
 	context := make([]any, 0, len(normalized)+4)
-	context = append(context, "plugin_message", msg, "plugin_log_level", level)
+	context = append(context, "pluginMessage", msg, "pluginLogLevel", level)
 	context = append(context, normalized...)
 	return context
 }
