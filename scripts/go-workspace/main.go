@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -25,7 +26,7 @@ func main() {
 		printUsage()
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		slog.Error("go-workspace command failed", "command", os.Args[1], "error", err)
 		os.Exit(1)
 	}
 }
