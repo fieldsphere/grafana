@@ -1005,7 +1005,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isSlogLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
 		Report(`prefer "ID" acronym casing in structured log keys (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
@@ -1040,7 +1040,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isSlogLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
 		Report(`prefer "UID" acronym casing in structured log keys (for example "dashboardUID", "integrationUID")`)
 
 	m.Match(
@@ -1070,6 +1070,15 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid all-lowercase "…id" structured log keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID"`)
 
 	m.Match(
+		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid)\"$")).
+		Report(`avoid all-lowercase "…id" structured log keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID"`)
+
+	m.Match(
 		`$logger.Info($msg, $*before, $key, $value, $*after)`,
 		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
 		`$logger.Error($msg, $*before, $key, $value, $*after)`,
@@ -1096,6 +1105,15 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous structured log keys like "id" or "uid"; use contextual keys such as "userID", "dashboardUID", or "resourceID"`)
 
 	m.Match(
+		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(id|uid)\"$")).
+		Report(`avoid ambiguous structured log keys like "id" or "uid"; use contextual keys such as "userID", "dashboardUID", or "resourceID"`)
+
+	m.Match(
 		`$logger.Info($msg, $*before, $key, $value, $*after)`,
 		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
 		`$logger.Error($msg, $*before, $key, $value, $*after)`,
@@ -1119,6 +1137,15 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Report(`avoid snake_case structured log keys; use camelCase with canonical acronym casing`)
+
+	m.Match(
+		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
 		Report(`avoid snake_case structured log keys; use camelCase with canonical acronym casing`)
 
 	m.Match(
