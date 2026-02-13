@@ -47,19 +47,19 @@ func resetPasswordCommand(c utils.CommandLine, runner server.Runner) error {
 
 	err := resetPassword(adminId, newPassword, runner.UserService)
 	if err == nil {
-		logger.Infof("\n")
+		logger.Info("\n")
 		logger.Info("Admin password changed successfully", "status", color.GreenString("✔"))
 	}
 
 	if errors.Is(err, ErrAdminCannotBeFound) {
-		logger.Infof("\n")
+		logger.Info("\n")
 		logger.Info("Admin user cannot be found", "status", color.RedString("✘"))
 		admins, err := listAdminUsers(runner.UserService)
 		if err != nil {
 			return fmt.Errorf("failed to list admin users: %w", err)
 		}
 
-		logger.Infof("\n")
+		logger.Info("\n")
 		logger.Info("Please run the command again with --user-id from the list below")
 		for _, u := range admins {
 			logger.Info("Admin user", "username", u.Login, "id", u.ID)
