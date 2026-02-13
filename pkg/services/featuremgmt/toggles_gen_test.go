@@ -311,7 +311,7 @@ func generateRegistry(t *testing.T) string {
 {{"\t"}}Flag{{.CamelCase}} = "{{.Flag.Name}}"
 `)
 	if err != nil {
-		t.Fatal("error reading template", "error", err.Error())
+		t.Fatal("error reading template", err)
 		return ""
 	}
 
