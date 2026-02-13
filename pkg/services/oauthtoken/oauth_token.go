@@ -97,13 +97,13 @@ func (o *Service) GetCurrentOAuthToken(ctx context.Context, usr identity.Request
 	}
 
 	if !usr.IsIdentityType(claims.TypeUser) {
-		ctxLogger.Warn("Can only get OAuth tokens for users", "id", usr.GetID())
+		ctxLogger.Warn("Can only get OAuth tokens for users", "userID", usr.GetID())
 		return nil
 	}
 
 	userID, err := usr.GetInternalID()
 	if err != nil {
-		logger.Error("Failed to convert user id to int", "id", usr.GetID(), "error", err)
+		logger.Error("Failed to convert user id to int", "userID", usr.GetID(), "error", err)
 		return nil
 	}
 
@@ -211,7 +211,7 @@ func (o *Service) hasOAuthEntry(ctx context.Context, usr identity.Requester) (*l
 	ctxLogger := logger.FromContext(ctx)
 	userID, err := usr.GetInternalID()
 	if err != nil {
-		ctxLogger.Error("Failed to convert user id to int", "id", usr.GetID(), "error", err)
+		ctxLogger.Error("Failed to convert user id to int", "userID", usr.GetID(), "error", err)
 		return nil, false, err
 	}
 
@@ -256,13 +256,13 @@ func (o *Service) TryTokenRefresh(ctx context.Context, usr identity.Requester, t
 	}
 
 	if !usr.IsIdentityType(claims.TypeUser) {
-		ctxLogger.Warn("Can only refresh OAuth tokens for users", "id", usr.GetID())
+		ctxLogger.Warn("Can only refresh OAuth tokens for users", "userID", usr.GetID())
 		return nil, nil
 	}
 
 	userID, err := usr.GetInternalID()
 	if err != nil {
-		ctxLogger.Warn("Failed to convert user id to int", "id", usr.GetID(), "error", err)
+		ctxLogger.Warn("Failed to convert user id to int", "userID", usr.GetID(), "error", err)
 		return nil, nil
 	}
 
@@ -370,7 +370,7 @@ func (o *Service) TryTokenRefresh(ctx context.Context, usr identity.Requester, t
 func (o *Service) InvalidateOAuthTokens(ctx context.Context, usr identity.Requester, tokenRefreshMetadata *TokenRefreshMetadata) error {
 	userID, err := usr.GetInternalID()
 	if err != nil {
-		logger.Error("Failed to convert user id to int", "id", usr.GetID(), "error", err)
+		logger.Error("Failed to convert user id to int", "userID", usr.GetID(), "error", err)
 		return err
 	}
 
@@ -404,7 +404,7 @@ func (o *Service) tryGetOrRefreshOAuthToken(ctx context.Context, persistedToken 
 
 	userID, err := usr.GetInternalID()
 	if err != nil {
-		logger.Error("Failed to convert user id to int", "id", usr.GetID(), "error", err)
+		logger.Error("Failed to convert user id to int", "userID", usr.GetID(), "error", err)
 		span.SetStatus(codes.Error, "Failed to convert user id to int")
 		return nil, err
 	}

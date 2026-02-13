@@ -105,15 +105,15 @@ func (s *OAuthTokenSync) SyncOauthTokenHook(ctx context.Context, id *authn.Ident
 			}
 
 			if errors.Is(refreshErr, oauthtoken.ErrRetriesExhausted) {
-				ctxLogger.Warn("Retries have been exhausted for locking the DB for OAuth token refresh", "id", id.ID, "error", refreshErr)
+				ctxLogger.Warn("Retries have been exhausted for locking the DB for OAuth token refresh", "identityID", id.ID, "error", refreshErr)
 				return nil, refreshErr
 			}
 
-			ctxLogger.Error("Failed to refresh OAuth access token", "id", id.ID, "error", refreshErr)
+			ctxLogger.Error("Failed to refresh OAuth access token", "identityID", id.ID, "error", refreshErr)
 
 			// log the user out
 			if err := s.sessionService.RevokeToken(ctx, id.SessionToken, false); err != nil && !errors.Is(err, auth.ErrUserTokenNotFound) {
-				ctxLogger.Warn("Failed to revoke session token", "id", id.ID, "tokenID", id.SessionToken.Id, "error", err)
+				ctxLogger.Warn("Failed to revoke session token", "identityID", id.ID, "tokenID", id.SessionToken.Id, "error", err)
 			}
 
 			s.cache.Delete(cacheKey)

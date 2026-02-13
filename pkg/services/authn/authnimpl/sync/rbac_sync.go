@@ -112,7 +112,7 @@ func (s *RBACSync) fetchPermissions(ctx context.Context, ident *authn.Identity) 
 
 	permissions, err := s.ac.GetUserPermissions(ctx, ident, accesscontrol.Options{ReloadCache: false})
 	if err != nil {
-		s.log.FromContext(ctx).Error("Failed to fetch permissions from db", "error", err, "id", ident.ID)
+		s.log.FromContext(ctx).Error("Failed to fetch permissions from db", "error", err, "identityID", ident.ID)
 		return nil, errSyncPermissionsForbidden
 	}
 	return permissions, nil
@@ -249,7 +249,7 @@ func (s *RBACSync) SyncCloudRoles(ctx context.Context, ident *authn.Identity, r 
 	}
 
 	if !ident.IsIdentityType(claims.TypeUser) {
-		s.log.FromContext(ctx).Debug("Skip syncing cloud role", "id", ident.ID)
+		s.log.FromContext(ctx).Debug("Skip syncing cloud role", "identityID", ident.ID)
 		return nil
 	}
 

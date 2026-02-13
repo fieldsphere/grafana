@@ -37,7 +37,7 @@ func (s *OrgSync) SyncOrgRolesHook(ctx context.Context, id *authn.Identity, _ *a
 		return nil
 	}
 
-	ctxLogger := s.log.FromContext(ctx).New("id", id.ID, "login", id.Login)
+	ctxLogger := s.log.FromContext(ctx).New("identityID", id.ID, "login", id.Login)
 
 	if !id.IsIdentityType(claims.TypeUser) {
 		ctxLogger.Warn("Failed to sync org role, invalid namespace for identity", "type", id.GetIdentityType())
@@ -159,24 +159,24 @@ func (s *OrgSync) SetDefaultOrgHook(ctx context.Context, currentIdentity *authn.
 
 	userID, err := currentIdentity.GetInternalID()
 	if err != nil {
-		ctxLogger.Debug("Skipping default org sync, invalid ID for identity", "id", currentIdentity.ID, "type", currentIdentity.GetIdentityType(), "error", err)
+		ctxLogger.Debug("Skipping default org sync, invalid ID for identity", "identityID", currentIdentity.ID, "type", currentIdentity.GetIdentityType(), "error", err)
 		return
 	}
 
 	hasAssignedToOrg, err := s.validateUsingOrg(ctx, userID, s.cfg.LoginDefaultOrgId)
 	if err != nil {
-		ctxLogger.Error("Skipping default org sync, failed to validate user's organizations", "id", currentIdentity.ID, "error", err)
+		ctxLogger.Error("Skipping default org sync, failed to validate user's organizations", "identityID", currentIdentity.ID, "error", err)
 		return
 	}
 
 	if !hasAssignedToOrg {
-		ctxLogger.Debug("Skipping default org sync, user is not assigned to org", "id", currentIdentity.ID, "org", s.cfg.LoginDefaultOrgId)
+		ctxLogger.Debug("Skipping default org sync, user is not assigned to org", "identityID", currentIdentity.ID, "orgID", s.cfg.LoginDefaultOrgId)
 		return
 	}
 
 	cmd := user.UpdateUserCommand{UserID: userID, OrgID: &s.cfg.LoginDefaultOrgId}
 	if svcErr := s.userService.Update(ctx, &cmd); svcErr != nil {
-		ctxLogger.Error("Failed to set default org", "id", currentIdentity.ID, "error", svcErr)
+		ctxLogger.Error("Failed to set default org", "identityID", currentIdentity.ID, "error", svcErr)
 	}
 }
 

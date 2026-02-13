@@ -246,7 +246,7 @@ func (s *UserSync) ValidateUserProvisioningHook(ctx context.Context, currentIden
 }
 
 func (s *UserSync) skipProvisioningValidation(ctx context.Context, currentIdentity *authn.Identity) bool {
-	log := s.log.FromContext(ctx).New("authModule", currentIdentity.AuthenticatedBy, "authID", currentIdentity.AuthID, "id", currentIdentity.ID)
+	log := s.log.FromContext(ctx).New("authModule", currentIdentity.AuthenticatedBy, "authID", currentIdentity.AuthID, "identityID", currentIdentity.ID)
 
 	// Use dynamic SCIM settings if available, otherwise fall back to static config
 	effectiveUserSyncEnabled := s.isUserProvisioningEnabled
@@ -359,7 +359,7 @@ func (s *UserSync) FetchSyncedUserHook(ctx context.Context, id *authn.Identity, 
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "error", err)
+		s.log.FromContext(ctx).Warn("got invalid identity ID", "identityID", id.ID, "error", err)
 		return nil
 	}
 
@@ -400,7 +400,7 @@ func (s *UserSync) SyncLastSeenHook(ctx context.Context, id *authn.Identity, r *
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "error", err)
+		s.log.FromContext(ctx).Warn("got invalid identity ID", "identityID", id.ID, "error", err)
 		return nil
 	}
 
@@ -431,7 +431,7 @@ func (s *UserSync) EnableUserHook(ctx context.Context, id *authn.Identity, _ *au
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "error", err)
+		s.log.FromContext(ctx).Warn("got invalid identity ID", "identityID", id.ID, "error", err)
 		return nil
 	}
 
@@ -475,7 +475,7 @@ func (s *UserSync) upsertAuthConnection(ctx context.Context, userID int64, ident
 		updateAuthInfoCmd.OAuthToken = identity.OAuthToken
 	}
 
-	s.log.FromContext(ctx).Debug("Updating auth connection for user", "id", identity.ID)
+	s.log.FromContext(ctx).Debug("Updating auth connection for user", "identityID", identity.ID)
 	return s.authInfoService.UpdateAuthInfo(ctx, updateAuthInfoCmd)
 }
 
@@ -546,7 +546,7 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 		}
 
 		if id.ExternalUID == "" {
-			ctxLogger.Error("externalUID is empty for provisioned user", "id", id.UID)
+			ctxLogger.Error("externalUID is empty for provisioned user", "identityUID", id.UID)
 			span.SetStatus(codes.Error, "externalUID is empty for provisioned user")
 			return errEmptyExternalUID.Errorf("externalUID is empty")
 		}
@@ -565,18 +565,18 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 		if !usr.IsProvisioned {
 			finalCmdToExecute = updateCmd
 			shouldExecuteUpdate = true
-			ctxLogger.Debug("Syncing all differing attributes for non-provisioned user", "id", id.ID,
+			ctxLogger.Debug("Syncing all differing attributes for non-provisioned user", "identityID", id.ID,
 				"login", finalCmdToExecute.Login, "email", finalCmdToExecute.Email, "name", finalCmdToExecute.Name,
 				"isGrafanaAdmin", finalCmdToExecute.IsGrafanaAdmin, "emailVerified", finalCmdToExecute.EmailVerified)
 		} else {
 			if updateCmd.IsGrafanaAdmin != nil {
 				finalCmdToExecute.IsGrafanaAdmin = updateCmd.IsGrafanaAdmin
 				shouldExecuteUpdate = true
-				ctxLogger.Debug("Syncing IsGrafanaAdmin for provisioned user", "id", id.ID, "isAdmin", *updateCmd.IsGrafanaAdmin)
+				ctxLogger.Debug("Syncing IsGrafanaAdmin for provisioned user", "identityID", id.ID, "isAdmin", *updateCmd.IsGrafanaAdmin)
 			}
 
 			if !shouldExecuteUpdate {
-				ctxLogger.Debug("SAML attributes differed, but no SCIM-overridable attributes changed for provisioned user", "id", id.ID,
+				ctxLogger.Debug("SAML attributes differed, but no SCIM-overridable attributes changed for provisioned user", "identityID", id.ID,
 					"login", updateCmd.Login, "email", updateCmd.Email, "name", updateCmd.Name,
 					"isGrafanaAdmin", updateCmd.IsGrafanaAdmin, "emailVerified", updateCmd.EmailVerified)
 			}
@@ -584,7 +584,7 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 
 		if shouldExecuteUpdate {
 			if err := s.userService.Update(ctx, finalCmdToExecute); err != nil {
-				ctxLogger.Error("Failed to update user attributes", "error", err, "id", id.ID, "isProvisioned", usr.IsProvisioned,
+				ctxLogger.Error("Failed to update user attributes", "error", err, "identityID", id.ID, "isProvisioned", usr.IsProvisioned,
 					"login", finalCmdToExecute.Login, "email", finalCmdToExecute.Email, "name", finalCmdToExecute.Name,
 					"isGrafanaAdmin", finalCmdToExecute.IsGrafanaAdmin, "emailVerified", finalCmdToExecute.EmailVerified)
 				span.RecordError(err)

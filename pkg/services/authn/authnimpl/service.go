@@ -252,7 +252,7 @@ func (s *Service) Login(ctx context.Context, client string, r *authn.Request) (i
 	addr := web.RemoteAddr(r.HTTPRequest)
 	ip, err := network.GetIPFromAddress(addr)
 	if err != nil {
-		s.log.FromContext(ctx).Debug("Failed to parse ip from address", "client", c.Name(), "id", id.ID, "addr", addr, "error", err)
+		s.log.FromContext(ctx).Debug("Failed to parse ip from address", "client", c.Name(), "identityID", id.ID, "addr", addr, "error", err)
 	}
 
 	externalSession := s.resolveExternalSessionFromIdentity(ctx, id, userID)
@@ -260,7 +260,7 @@ func (s *Service) Login(ctx context.Context, client string, r *authn.Request) (i
 	sessionToken, err := s.sessionService.CreateToken(ctx, &auth.CreateTokenCommand{User: &user.User{ID: userID}, ClientIP: ip, UserAgent: r.HTTPRequest.UserAgent(), ExternalSession: externalSession})
 	if err != nil {
 		s.metrics.failedLogin.WithLabelValues(client).Inc()
-		s.log.FromContext(ctx).Error("Failed to create session", "client", client, "id", id.ID, "error", err)
+		s.log.FromContext(ctx).Error("Failed to create session", "client", client, "identityID", id.ID, "error", err)
 		return nil, err
 	}
 
@@ -311,7 +311,7 @@ func (s *Service) Logout(ctx context.Context, user identity.Requester, sessionTo
 
 	id, err := user.GetInternalID()
 	if err != nil {
-		s.log.FromContext(ctx).Debug("Invalid user id", "id", id, "error", err)
+		s.log.FromContext(ctx).Debug("Invalid user id", "userID", id, "error", err)
 		return redirect, nil
 	}
 
