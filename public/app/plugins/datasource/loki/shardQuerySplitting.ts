@@ -400,5 +400,8 @@ function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  logger.logDebug(message, { operation: 'debug' });
+  logger.logDebug('Loki shard query splitting debug event', {
+    operation: 'debug',
+    logMessage: message,
+  });
 }

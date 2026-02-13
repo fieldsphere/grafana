@@ -75,10 +75,13 @@ function isPerformanceLoggingEnabled(): boolean {
 /**
  * Write a collapsible performance log group (follows writePerformanceLog pattern)
  */
-export function writePerformanceGroupStart(logger: string, message: string): void {
+export function writePerformanceGroupStart(loggerName: string, message: string): void {
   if (isPerformanceLoggingEnabled()) {
-    // eslint-disable-next-line no-console
-    console.groupCollapsed(`${logger}: ${message}`);
+    logger.logDebug('Performance group start', {
+      group: loggerName,
+      groupAction: 'start',
+      logMessage: message,
+    });
   }
 }
 
@@ -87,12 +90,7 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
  */
 export function writePerformanceGroupLog(loggerName: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
-    if (data) {
-      // Keep grouped output but route data through structured logger
-      logger.logDebug(message, { group: loggerName, data });
-    } else {
-      logger.logDebug(message, { group: loggerName });
-    }
+    logger.logDebug('Performance group log', { group: loggerName, logMessage: message, data });
   }
 }
 
@@ -101,8 +99,7 @@ export function writePerformanceGroupLog(loggerName: string, message: string, da
  */
 export function writePerformanceGroupEnd(): void {
   if (isPerformanceLoggingEnabled()) {
-    // eslint-disable-next-line no-console
-    console.groupEnd();
+    logger.logDebug('Performance group end', { groupAction: 'end' });
   }
 }
 
