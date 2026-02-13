@@ -55,7 +55,7 @@ func (r *ExternalServiceRegistration) Register(ctx context.Context, p *plugins.P
 	}
 
 	ctx, span := r.tracer.Start(ctx, "ExternalServiceRegistration.Register")
-	span.SetAttributes(attribute.String("register.pluginId", p.ID))
+	span.SetAttributes(attribute.String("register.pluginID", p.ID))
 	defer span.End()
 
 	ctxLogger := r.log.FromContext(ctx)

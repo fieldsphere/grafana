@@ -476,7 +476,7 @@ func (s *Service) DeleteSession(ctx context.Context, orgID int64, signedInUser *
 
 func (s *Service) CreateSnapshot(ctx context.Context, signedInUser *user.SignedInUser, cmd cloudmigration.CreateSnapshotCommand) (*cloudmigration.CloudMigrationSnapshot, error) {
 	ctx, span := s.tracer.Start(ctx, "CloudMigrationService.CreateSnapshot", trace.WithAttributes(
-		attribute.String("sessionUid", cmd.SessionUID),
+		attribute.String("sessionUID", cmd.SessionUID),
 	))
 	defer span.End()
 
@@ -715,8 +715,8 @@ func (s *Service) GetSnapshotList(ctx context.Context, query cloudmigration.List
 func (s *Service) UploadSnapshot(ctx context.Context, orgID int64, signedInUser *user.SignedInUser, sessionUid string, snapshotUid string) error {
 	ctx, span := s.tracer.Start(ctx, "CloudMigrationService.UploadSnapshot",
 		trace.WithAttributes(
-			attribute.String("sessionUid", sessionUid),
-			attribute.String("snapshotUid", snapshotUid),
+			attribute.String("sessionUID", sessionUid),
+			attribute.String("snapshotUID", snapshotUid),
 		),
 	)
 	defer span.End()
@@ -796,8 +796,8 @@ func (s *Service) UploadSnapshot(ctx context.Context, orgID int64, signedInUser 
 func (s *Service) CancelSnapshot(ctx context.Context, sessionUid string, snapshotUid string) (err error) {
 	ctx, span := s.tracer.Start(ctx, "CloudMigrationService.CancelSnapshot",
 		trace.WithAttributes(
-			attribute.String("sessionUid", sessionUid),
-			attribute.String("snapshotUid", snapshotUid),
+			attribute.String("sessionUID", sessionUid),
+			attribute.String("snapshotUID", snapshotUid),
 		),
 	)
 	defer span.End()

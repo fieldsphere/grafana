@@ -73,7 +73,7 @@ func (s *Service) RunQuery(ctx context.Context, req *backend.QueryDataRequest, d
 		defer span.End()
 		targetStr := strings.Join(graphiteReq.formData["target"], ",")
 		span.SetAttributes(
-			attribute.String("refId", refId),
+			attribute.String("refID", refId),
 			attribute.String("target", targetStr),
 			attribute.String("from", graphiteReq.formData["from"][0]),
 			attribute.String("until", graphiteReq.formData["until"][0]),
