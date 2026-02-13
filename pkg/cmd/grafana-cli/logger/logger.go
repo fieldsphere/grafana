@@ -50,7 +50,10 @@ func Debug(args ...any) {
 
 func Debugf(fmtString string, args ...any) {
 	if debugmode {
-		slog.Debug("Grafana CLI debug", "message", fmt.Sprintf(fmtString, args...))
+		slog.Debug("Grafana CLI debug",
+			"message", fmt.Sprintf(fmtString, args...),
+			"template", fmtString,
+			"args", args)
 	}
 }
 
@@ -64,7 +67,10 @@ func Error(args ...any) {
 }
 
 func Errorf(fmtString string, args ...any) {
-	slog.Error("Grafana CLI error", "message", fmt.Sprintf(fmtString, args...))
+	slog.Error("Grafana CLI error",
+		"message", fmt.Sprintf(fmtString, args...),
+		"template", fmtString,
+		"args", args)
 }
 
 func Info(args ...any) {
@@ -77,7 +83,10 @@ func Info(args ...any) {
 }
 
 func Infof(fmtString string, args ...any) {
-	slog.Info("Grafana CLI info", "message", fmt.Sprintf(fmtString, args...))
+	slog.Info("Grafana CLI info",
+		"message", fmt.Sprintf(fmtString, args...),
+		"template", fmtString,
+		"args", args)
 }
 
 func Warn(args ...any) {
@@ -90,7 +99,10 @@ func Warn(args ...any) {
 }
 
 func Warnf(fmtString string, args ...any) {
-	slog.Warn("Grafana CLI warning", "message", fmt.Sprintf(fmtString, args...))
+	slog.Warn("Grafana CLI warning",
+		"message", fmt.Sprintf(fmtString, args...),
+		"template", fmtString,
+		"args", args)
 }
 
 func SetDebug(value bool) {
