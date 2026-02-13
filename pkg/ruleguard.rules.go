@@ -486,6 +486,7 @@ func writestring(m fluent.Matcher) {
 func structuredlogging(m fluent.Matcher) {
 	isStructuredLogger := m["logger"].Type.Implements("github.com/grafana/grafana/pkg/infra/log.Logger") ||
 		m["logger"].Type.Implements("github.com/grafana/grafana/pkg/plugins/log.Logger") ||
+		m["logger"].Type.Implements("github.com/grafana/grafana-plugin-sdk-go/backend.Logger") ||
 		m["logger"].Type.Is("*log/slog.Logger") ||
 		m["logger"].Type.Is("log/slog.Logger")
 	isSlogLogger := m["logger"].Type.Is("*log/slog.Logger") ||
