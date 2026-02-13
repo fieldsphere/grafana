@@ -563,30 +563,6 @@ func (db *Base) IsColumnExist(tableName, colName string) (bool, error) {
 	return db.HasRecords(query, db.DbName, tableName, colName)
 }
 
-/*
-func (db *Base) CreateTableIfNotExists(table *Table, tableName, storeEngine, charset string) error {
-	sql, args := db.dialect.TableCheckSql(tableName)
-	rows, err := db.DB().Query(sql, args...)
-	if db.Logger != nil {
-		db.Logger.Info("[sql]", sql, args)
-	}
-	if err != nil {
-		return err
-	}
-	defer rows.Close()
-
-	if rows.Next() {
-		return nil
-	}
-
-	sql = db.dialect.CreateTableSql(table, tableName, storeEngine, charset)
-	_, err = db.DB().Exec(sql)
-	if db.Logger != nil {
-		db.Logger.Info("[sql]", sql)
-	}
-	return err
-}*/
-
 func (db *Base) CreateIndexSql(tableName string, index *Index) string {
 	quote := db.dialect.Quote
 	var unique string
