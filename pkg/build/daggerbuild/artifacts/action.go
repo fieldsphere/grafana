@@ -233,7 +233,7 @@ func ExportArtifactFunc(ctx context.Context, d *dagger.Client, sm *semaphore.Wei
 		}
 
 		for _, v := range paths {
-			if _, err := fmt.Fprintf(Stdout, "%s\n", v); err != nil {
+			if _, err := Stdout.Write([]byte(v + "\n")); err != nil {
 				return fmt.Errorf("error writing to stdout: %w", err)
 			}
 		}
