@@ -4,7 +4,6 @@
 package setting
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -1595,8 +1594,6 @@ func (cfg *Cfg) initLogging(file *ini.File) error {
 }
 
 func (cfg *Cfg) LogConfigSources() {
-	var text bytes.Buffer
-
 	for _, file := range cfg.configFiles {
 		cfg.Logger.Info("Config loaded from", "file", file)
 	}
@@ -1608,7 +1605,6 @@ func (cfg *Cfg) LogConfigSources() {
 	}
 
 	if len(cfg.appliedEnvOverrides) > 0 {
-		text.WriteString("\tEnvironment variables used:\n")
 		for _, prop := range cfg.appliedEnvOverrides {
 			cfg.Logger.Info("Config overridden from Environment variable", "var", prop.key, "value", prop.value)
 		}
