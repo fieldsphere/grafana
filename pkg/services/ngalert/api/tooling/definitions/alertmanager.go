@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -271,24 +272,43 @@ type (
 
 type MergeResult definition.MergeResult
 
+func formatRenameLogValue(values map[string]string) string {
+	if len(values) == 0 {
+		return "[]"
+	}
+
+	keys := make([]string, 0, len(values))
+	for key := range values {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	var builder strings.Builder
+	builder.WriteByte('[')
+	for i, from := range keys {
+		if i > 0 {
+			builder.WriteString(", ")
+		}
+		builder.WriteByte('\'')
+		builder.WriteString(from)
+		builder.WriteString("'->'")
+		builder.WriteString(values[from])
+		builder.WriteByte('\'')
+	}
+	builder.WriteByte(']')
+	return builder.String()
+}
+
 func (m MergeResult) LogContext() []any {
 	if len(m.Receivers) == 0 && len(m.TimeIntervals) == 0 {
 		return nil
 	}
 	logCtx := make([]any, 0, 4)
 	if len(m.Receivers) > 0 {
-		rcvBuilder := strings.Builder{}
-		for from, to := range m.Receivers {
-			rcvBuilder.WriteString(fmt.Sprintf("'%s'->'%s',", from, to))
-		}
-		logCtx = append(logCtx, "renamedReceivers", fmt.Sprintf("[%s]", rcvBuilder.String()[0:rcvBuilder.Len()-1]))
+		logCtx = append(logCtx, "renamedReceivers", formatRenameLogValue(m.Receivers))
 	}
 	if len(m.TimeIntervals) > 0 {
-		intervalBuilder := strings.Builder{}
-		for from, to := range m.TimeIntervals {
-			intervalBuilder.WriteString(fmt.Sprintf("'%s'->'%s',", from, to))
-		}
-		logCtx = append(logCtx, "renamedTimeIntervals", fmt.Sprintf("[%s]", intervalBuilder.String()[0:intervalBuilder.Len()-1]))
+		logCtx = append(logCtx, "renamedTimeIntervals", formatRenameLogValue(m.TimeIntervals))
 	}
 	return logCtx
 }
