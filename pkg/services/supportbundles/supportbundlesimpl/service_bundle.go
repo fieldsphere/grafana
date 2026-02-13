@@ -68,7 +68,7 @@ func (s *Service) startBundleWork(ctx context.Context, collectors []string, uid 
 
 func (s *Service) bundle(ctx context.Context, collectors []string, uid string) ([]byte, error) {
 	ctxTracer, span := s.tracer.Start(ctx, "SupportBundle.bundle")
-	span.SetAttributes(attribute.String("supportBundle.bundleUID", uid))
+	span.SetAttributes(attribute.String("supportBundleUID", uid))
 	defer span.End()
 
 	lookup := make(map[string]bool, len(collectors))
@@ -90,7 +90,7 @@ func (s *Service) bundle(ctx context.Context, collectors []string, uid string) (
 
 		// Trace the collector run
 		ctxBundler, span := s.tracer.Start(ctxTracer, "SupportBundle.bundle.collector")
-		span.SetAttributes(attribute.String("supportBundle.bundle.collectorUID", collector.UID))
+		span.SetAttributes(attribute.String("supportBundleCollectorUID", collector.UID))
 
 		item, err := collector.Fn(ctxBundler)
 		if err != nil {

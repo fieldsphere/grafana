@@ -125,10 +125,10 @@ func (dp *DataPipeline) execute(c context.Context, now time.Time, s *Service) (m
 		}
 
 		c, span := s.tracer.Start(c, "SSE.ExecuteNode")
-		span.SetAttributes(attribute.String("node.refID", node.RefID()))
+		span.SetAttributes(attribute.String("nodeRefID", node.RefID()))
 		if len(node.NeedsVars()) > 0 {
 			inputRefIDs := node.NeedsVars()
-			span.SetAttributes(attribute.StringSlice("node.inputRefIDs", inputRefIDs))
+			span.SetAttributes(attribute.StringSlice("nodeInputRefIDs", inputRefIDs))
 		}
 		defer span.End()
 
