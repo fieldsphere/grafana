@@ -265,7 +265,7 @@ func (d *jobDriver) leaseRenewalLoop(ctx context.Context, logger logging.Logger,
 	ticker := time.NewTicker(d.leaseRenewalInterval)
 	defer ticker.Stop()
 
-	logger.Debug("start lease renewal loop", "renewal_interval", d.leaseRenewalInterval)
+	logger.Debug("start lease renewal loop", "renewalInterval", d.leaseRenewalInterval)
 
 	consecutiveFailures := 0
 	maxFailures := 3 // Allow a few failures before giving up
@@ -294,17 +294,17 @@ func (d *jobDriver) leaseRenewalLoop(ctx context.Context, logger logging.Logger,
 					return
 				}
 
-				logger.Warn("failed to renew lease", "error", err, "consecutive_failures", consecutiveFailures)
+				logger.Warn("failed to renew lease", "error", err, "consecutiveFailures", consecutiveFailures)
 
 				if consecutiveFailures >= maxFailures {
 					logger.Error("too many consecutive lease renewal failures - job will be aborted",
-						"consecutive_failures", consecutiveFailures, "max_failures", maxFailures)
+						"consecutiveFailures", consecutiveFailures, "maxFailures", maxFailures)
 					close(leaseExpired)
 					return
 				}
 			} else {
 				if consecutiveFailures > 0 {
-					logger.Debug("lease renewal recovered", "previous_failures", consecutiveFailures)
+					logger.Debug("lease renewal recovered", "previousFailures", consecutiveFailures)
 				}
 				consecutiveFailures = 0
 			}

@@ -29,7 +29,7 @@ func Provision(ctx context.Context, cfg ProvisionerConfig) error {
 		return err
 	}
 	logger.Info("starting to provision alerting")
-	logger.Debug("read all alerting files", "file_count", len(files))
+	logger.Debug("read all alerting files", "fileCount", len(files))
 	cpProvisioner := NewContactPointProvisoner(logger, cfg.ContactPointService)
 	err = cpProvisioner.Provision(ctx, files)
 	if err != nil {

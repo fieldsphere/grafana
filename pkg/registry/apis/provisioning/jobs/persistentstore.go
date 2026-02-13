@@ -346,7 +346,7 @@ func (s *persistentStore) ListExpiredJobs(ctx context.Context, expiredBefore tim
 
 	// Find jobs with expired leases (older than expiredBefore)
 	expiry := expiredBefore.UnixMilli()
-	logger.Debug("searching for expired jobs", "expiry_threshold", expiredBefore.Format(time.RFC3339))
+	logger.Debug("searching for expired jobs", "expiryThreshold", expiredBefore.Format(time.RFC3339))
 
 	requirement, err := labels.NewRequirement(LabelJobClaim, selection.LessThan, []string{strconv.FormatInt(expiry, 10)})
 	if err != nil {
@@ -355,7 +355,7 @@ func (s *persistentStore) ListExpiredJobs(ctx context.Context, expiredBefore tim
 	}
 
 	span.SetAttributes(
-		attribute.String("expiry_threshold", expiredBefore.Format(time.RFC3339)),
+		attribute.String("expiryThreshold", expiredBefore.Format(time.RFC3339)),
 		attribute.Int("limit", limit),
 	)
 

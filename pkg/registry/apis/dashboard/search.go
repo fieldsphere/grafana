@@ -402,7 +402,7 @@ func (s *SearchHandler) DoSearch(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if result != nil {
-		s.log.Debug("search result hits and cost", "total_hits", result.TotalHits, "query_cost", result.QueryCost)
+		s.log.Debug("search result hits and cost", "totalHits", result.TotalHits, "queryCost", result.QueryCost)
 	}
 
 	parsedResults, err := dashboardsearch.ParseResults(result, searchRequest.Offset)

@@ -41,7 +41,7 @@ func NewSQLKeeper(
 		log := logging.FromContext(context.Background())
 		log.Debug("sqlkeeper: executing encrypted value store migration")
 		rowsAffected, err := migrationExecutor.Execute(context.Background())
-		log.Debug("sqlkeeper: encrypted value store migration completed", "rows_affected", rowsAffected)
+		log.Debug("sqlkeeper: encrypted value store migration completed", "rowsAffected", rowsAffected)
 		if err != nil {
 			return nil, fmt.Errorf("error encountered during encrypted value store migration: %w", err)
 		}

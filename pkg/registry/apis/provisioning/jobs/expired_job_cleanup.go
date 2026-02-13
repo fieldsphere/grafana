@@ -61,7 +61,7 @@ func (c *JobCleanupController) Run(ctx context.Context) error {
 		return apifmt.Errorf("failed to grant provisioning identity for cleanup: %w", err)
 	}
 
-	logger.Info("starting job cleanup controller", "cleanup_interval", c.cleanupInterval, "expiry", c.expiry)
+	logger.Info("starting job cleanup controller", "cleanupInterval", c.cleanupInterval, "expiry", c.expiry)
 
 	// Initial cleanup
 	if err := c.Cleanup(ctx); err != nil {
@@ -109,7 +109,7 @@ func (c *JobCleanupController) Cleanup(ctx context.Context) error {
 		duration := c.clock().Sub(startTime)
 		span.SetAttributes(
 			attribute.Int("count", 0),
-			attribute.Int64("duration_ms", duration.Milliseconds()),
+			attribute.Int64("durationMs", duration.Milliseconds()),
 		)
 		return nil
 	}
@@ -128,7 +128,7 @@ func (c *JobCleanupController) Cleanup(ctx context.Context) error {
 
 	span.SetAttributes(
 		attribute.Int("count", len(jobs)),
-		attribute.Int64("duration_ms", duration.Milliseconds()),
+		attribute.Int64("durationMs", duration.Milliseconds()),
 	)
 
 	return nil

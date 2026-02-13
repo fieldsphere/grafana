@@ -320,14 +320,14 @@ func (rc *RepositoryController) shouldResync(ctx context.Context, obj *provision
 			// Only trigger if sync interval has elapsed to avoid unnecessary operations
 			if syncAge >= (syncInterval - tolerance) {
 				logger := logging.FromContext(ctx)
-				logger.Info("detected stale sync status", "job_id", obj.Status.Sync.JobID)
+				logger.Info("detected stale sync status", "jobID", obj.Status.Sync.JobID)
 				return true
 			}
 		}
 		// For other errors, log but continue with normal logic
 		if err != nil {
 			logger := logging.FromContext(ctx)
-			logger.Warn("failed to check job existence for stale sync status", "error", err, "job_id", obj.Status.Sync.JobID)
+			logger.Warn("failed to check job existence for stale sync status", "error", err, "jobID", obj.Status.Sync.JobID)
 		}
 	}
 
@@ -591,15 +591,15 @@ func (rc *RepositoryController) process(item *queueItem) error {
 	case hasSpecChanged:
 		logger.Info("spec changed", "Generation", obj.Generation, "ObservedGeneration", obj.Status.ObservedGeneration)
 	case shouldResync:
-		logger.Info("sync interval triggered", "sync_interval", time.Duration(obj.Spec.Sync.IntervalSeconds)*time.Second, "sync_status", obj.Status.Sync)
+		logger.Info("sync interval triggered", "syncInterval", time.Duration(obj.Spec.Sync.IntervalSeconds)*time.Second, "syncStatus", obj.Status.Sync)
 	case shouldCheckHealth:
-		logger.Info("health is stale", "health_status", obj.Status.Health.Healthy)
+		logger.Info("health is stale", "healthStatus", obj.Status.Health.Healthy)
 	case forceProcessForUnblock:
 		logger.Info("repository was blocked but now within quota, processing to unblock")
 	case shouldGenerateToken:
 		logger.Info("repository token needs to be generated", "connection", obj.Spec.Connection.Name)
 	default:
-		logger.Info("skipping as conditions are not met", "status", obj.Status, "generation", obj.Generation, "sync_spec", obj.Spec.Sync)
+		logger.Info("skipping as conditions are not met", "status", obj.Status, "generation", obj.Generation, "syncSpec", obj.Spec.Sync)
 		return nil
 	}
 
@@ -634,7 +634,7 @@ func (rc *RepositoryController) process(item *queueItem) error {
 		// Rule 1: Not blocked + over quota -> Block and exit
 		logger.Info("namespace over quota, blocking repository",
 			"namespace", namespace,
-			"max_repositories", newQuota.MaxRepositories,
+			"maxRepositories", newQuota.MaxRepositories,
 		)
 
 		// Mark the repository as unhealthy

@@ -66,8 +66,8 @@ func NewConcurrentJobDriver(
 // Note: This function intentionally does NOT create a tracing span because it runs indefinitely
 // until shutdown. Individual job processing operations already have their own spans.
 func (c *ConcurrentJobDriver) Run(ctx context.Context) error {
-	logger := logging.FromContext(ctx).With("logger", "concurrent-job-driver", "num_drivers", c.numDrivers)
-	logger.Info("start concurrent job driver", "num_drivers", c.numDrivers)
+	logger := logging.FromContext(ctx).With("logger", "concurrent-job-driver", "numDrivers", c.numDrivers)
+	logger.Info("start concurrent job driver", "numDrivers", c.numDrivers)
 
 	var wg sync.WaitGroup
 	errChan := make(chan error, c.numDrivers)
