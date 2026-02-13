@@ -190,7 +190,7 @@ func (m *unifiedMigration) rebuildIndexes(ctx context.Context, opts RebuildIndex
 	}
 
 	if response.Error != nil {
-		m.log.Error("error rebuilding index for resource", "error", response.Error.Message, "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID, "resources", opts.Resources)
+		m.log.Error("error rebuilding index for resource", "errorMessage", response.Error.Message, "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID, "resources", opts.Resources)
 		return fmt.Errorf("rebuild index error: %s", response.Error.Message)
 	}
 

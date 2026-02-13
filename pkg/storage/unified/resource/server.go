@@ -1424,7 +1424,7 @@ func (s *server) Watch(req *resourcepb.WatchRequest, srv resourcepb.ResourceStor
 					if err != nil {
 						// This scenario should never happen, but if it does, we should log it and continue
 						// sending the event without the previous object. The client will decide what to do.
-						s.log.Error("error reading previous object", "key", event.Key, "resource_version", event.PreviousRV, "error", prevObj.Error)
+						s.log.Error("error reading previous object", "key", event.Key, "resource_version", event.PreviousRV, "error", err)
 					} else {
 						if prevObj.ResourceVersion != event.PreviousRV {
 							s.log.Error("resource version mismatch", "key", event.Key, "resource_version", event.PreviousRV, "actual", prevObj.ResourceVersion)
