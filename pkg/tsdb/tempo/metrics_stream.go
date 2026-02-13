@@ -107,7 +107,7 @@ func (s *Service) processMetricsStream(ctx context.Context, query string, stream
 	for {
 		msg, err := stream.Recv()
 		messageCount++
-		span.SetAttributes(attribute.Int("message_count", messageCount))
+		span.SetAttributes(attribute.Int("messageCount", messageCount))
 		if errors.Is(err, io.EOF) {
 			if err := s.sendResponse(ctx, nil, nil, dataquery.SearchStreamingStateDone, sender); err != nil {
 				span.RecordError(err)
@@ -142,7 +142,7 @@ func (s *Service) processInstantMetricsStream(ctx context.Context, stream tempop
 	for {
 		msg, err := stream.Recv()
 		messageCount++
-		span.SetAttributes(attribute.Int("message_count", messageCount))
+		span.SetAttributes(attribute.Int("messageCount", messageCount))
 		if errors.Is(err, io.EOF) {
 			if err := s.sendResponse(ctx, nil, nil, dataquery.SearchStreamingStateDone, sender); err != nil {
 				span.RecordError(err)

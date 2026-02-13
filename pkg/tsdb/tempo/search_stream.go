@@ -86,7 +86,7 @@ func (s *Service) processStream(ctx context.Context, stream tempopb.StreamingQue
 	for {
 		msg, err := stream.Recv()
 		messageCount++
-		span.SetAttributes(attribute.Int("message_count", messageCount))
+		span.SetAttributes(attribute.Int("messageCount", messageCount))
 		if errors.Is(err, io.EOF) {
 			if err := s.sendSearchResponse(ctx, &ExtendedResponse{
 				State: dataquery.SearchStreamingStateDone,
@@ -111,7 +111,7 @@ func (s *Service) processStream(ctx context.Context, stream tempopb.StreamingQue
 		metrics = msg.Metrics
 		traceList = append(traceList, msg.Traces...)
 		traceList = removeDuplicates(traceList)
-		span.SetAttributes(attribute.Int("traces_count", len(traceList)))
+		span.SetAttributes(attribute.Int("tracesCount", len(traceList)))
 
 		if err := s.sendSearchResponse(ctx, &ExtendedResponse{
 			State: dataquery.SearchStreamingStateStreaming,
@@ -135,7 +135,7 @@ func (s *Service) sendSearchResponse(ctx context.Context, response *ExtendedResp
 	frame := createResponseDataFrame()
 
 	if response != nil {
-		span.SetAttributes(attribute.Int("trace_count", len(response.Traces)), attribute.String("state", string(response.State)))
+		span.SetAttributes(attribute.Int("traceCount", len(response.Traces)), attribute.String("state", string(response.State)))
 		return s.sendResponse(ctx, response.Traces, response.Metrics, response.State, sender)
 	}
 

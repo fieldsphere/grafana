@@ -416,7 +416,7 @@ func Error(span trace.Span, err error) error {
 	attr := []attribute.KeyValue{}
 	grafanaErr := errutil.Error{}
 	if errors.As(err, &grafanaErr) {
-		attr = append(attr, attribute.String("message_id", grafanaErr.MessageID))
+		attr = append(attr, attribute.String("messageID", grafanaErr.MessageID))
 	}
 
 	span.SetStatus(codes.Error, err.Error())

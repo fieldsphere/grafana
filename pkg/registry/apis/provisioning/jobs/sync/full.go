@@ -202,7 +202,7 @@ func applyChanges(ctx context.Context, changes []ResourceFileChange, clients res
 	progress.SetTotal(ctx, len(changes))
 
 	_, applyChangesSpan := tracer.Start(ctx, "provisioning.sync.full.apply_changes",
-		trace.WithAttributes(attribute.Int("changes_count", len(changes))),
+		trace.WithAttributes(attribute.Int("changesCount", len(changes))),
 	)
 	defer applyChangesSpan.End()
 
@@ -236,10 +236,10 @@ func applyChanges(ctx context.Context, changes []ResourceFileChange, clients res
 	}
 
 	applyChangesSpan.SetAttributes(
-		attribute.Int("file_deletions", len(fileDeletions)),
-		attribute.Int("folder_deletions", len(folderDeletions)),
-		attribute.Int("folder_creations", len(folderCreations)),
-		attribute.Int("file_creations", len(fileCreations)),
+		attribute.Int("fileDeletions", len(fileDeletions)),
+		attribute.Int("folderDeletions", len(folderDeletions)),
+		attribute.Int("folderCreations", len(folderCreations)),
+		attribute.Int("fileCreations", len(fileCreations)),
 	)
 
 	if len(fileDeletions) > 0 {
