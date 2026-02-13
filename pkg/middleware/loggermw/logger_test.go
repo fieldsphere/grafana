@@ -93,6 +93,7 @@ func Test_prepareLog(t *testing.T) {
 			expectAbsence: map[string]struct{}{
 				"errorReason":    {},
 				"errorMessageID": {},
+				"errorMessage":   {},
 			},
 			expectedLevel: errutil.LevelError,
 		},
@@ -105,7 +106,7 @@ func Test_prepareLog(t *testing.T) {
 			error: grafanaFlavoredErr,
 			expectFields: map[string]any{
 				"status":         http.StatusNotFound,
-				"error":          "got error",
+				"errorMessage":   "got error",
 				"errorReason":    errutil.StatusNotFound,
 				"errorMessageID": "test.notFound",
 			},

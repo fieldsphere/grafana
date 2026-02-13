@@ -150,6 +150,6 @@ func errorLogParams(err error) []any {
 	return []any{
 		"errorReason", gfErr.Reason,
 		"errorMessageID", gfErr.MessageID,
-		"error", gfErr.LogMessage,
+		"errorMessage", gfErr.LogMessage,
 	}
 }

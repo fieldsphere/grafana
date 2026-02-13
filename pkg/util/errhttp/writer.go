@@ -97,7 +97,7 @@ func logError(ctx context.Context, e errutil.Error, opt ErrorOptions) {
 
 	kv := []any{
 		"messageID", e.MessageID,
-		"error", e.LogMessage,
+		"errorMessage", e.LogMessage,
 	}
 	if e.Underlying != nil {
 		kv = append(kv, "underlying", e.Underlying)
