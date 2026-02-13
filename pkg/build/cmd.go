@@ -58,7 +58,7 @@ func RunCmd() int {
 	version, iteration := LinuxPackageVersion(packageJSON.Version, opts.buildID)
 
 	if opts.printGenVersion {
-		fmt.Print(genPackageVersion(version, iteration))
+		_, _ = os.Stdout.WriteString(genPackageVersion(version, iteration))
 		return 0
 	}
 
