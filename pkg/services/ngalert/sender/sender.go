@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -417,7 +418,8 @@ func (s *ExternalAlertmanager) sanitizeLabelName(name string) (string, error) {
 		if i == 0 {
 			buf.WriteRune('_')
 		}
-		_, _ = fmt.Fprintf(&buf, "%#x", b)
+		buf.WriteString("0x")
+		buf.WriteString(strconv.FormatInt(int64(b), 16))
 	}
 
 	if buf.Len() == 0 {
