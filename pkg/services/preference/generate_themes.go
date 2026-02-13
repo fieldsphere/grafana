@@ -5,6 +5,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,7 +25,7 @@ func main() {
 
 	// Check if the themes directory exists
 	if _, err := os.Stat(themesPath); os.IsNotExist(err) {
-		fmt.Fprintf(os.Stderr, "Themes directory not found: %s\n", themesPath)
+		slog.Error("Themes directory not found", "path", themesPath)
 		os.Exit(1)
 	}
 
@@ -50,14 +51,14 @@ var themes = []ThemeDTO{
 
 		fileBytes, readErr := os.ReadFile(path)
 		if readErr != nil {
-			fmt.Fprintf(os.Stderr, "Error reading file %s: %v\n", path, readErr)
+			slog.Error("Error reading theme file", "path", path, "error", readErr)
 			return nil // Continue processing other files
 		}
 
 		var themeDef ThemeDefinition
 		jsonErr := json.Unmarshal(fileBytes, &themeDef)
 		if jsonErr != nil {
-			fmt.Fprintf(os.Stderr, "Error parsing JSON from %s: %v\n", path, jsonErr)
+			slog.Error("Error parsing theme JSON", "path", path, "error", jsonErr)
 			return nil // Continue processing other files
 		}
 
@@ -73,7 +74,7 @@ var themes = []ThemeDTO{
 	})
 
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error walking themes directory: %v\n", err)
+		slog.Error("Error walking themes directory", "path", themesPath, "error", err)
 		os.Exit(1)
 	}
 
@@ -82,9 +83,9 @@ var themes = []ThemeDTO{
 	// Write the generated file
 	outputPath := filepath.Join("themes_generated.go")
 	if err := os.WriteFile(outputPath, []byte(output), 0644); err != nil {
-		fmt.Fprintf(os.Stderr, "Error writing output file: %v\n", err)
+		slog.Error("Error writing generated themes file", "path", outputPath, "error", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("Successfully generated themes_generated.go\n")
+	slog.Info("Successfully generated themes file", "path", outputPath)
 }
