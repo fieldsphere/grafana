@@ -3,6 +3,8 @@ import fs from 'fs';
 import { OpenAPIV3 } from 'openapi-types';
 import path from 'path';
 
+import { logApiClientError, logApiClientInfo, logApiClientWarning } from '../logging';
+
 type PlopActionFunction = (
   answers: Record<string, unknown>,
   config?: Record<string, unknown>
@@ -71,12 +73,18 @@ export const runGenerateApis =
         command = 'yarn workspace @grafana/api-clients generate-apis';
       }
 
-      console.log(`⏳ Running ${command} to generate endpoints...`);
+      logApiClientInfo('Running command to generate endpoints', {
+        operation: 'runGenerateApis',
+        command,
+      });
       execSync(command, { stdio: 'inherit', cwd: basePath });
       return '✅ API endpoints generated successfully!';
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('❌ Failed to generate API endpoints:', errorMessage);
+      logApiClientError('Failed to generate API endpoints', {
+        operation: 'runGenerateApis',
+        error: errorMessage,
+      });
       return '❌ Failed to generate API endpoints. See error above.';
     }
   };
@@ -85,7 +93,9 @@ export const formatFiles =
   (basePath: string): PlopActionFunction =>
   (_, config) => {
     if (!config || !Array.isArray(config.files)) {
-      console.error('Invalid config passed to formatFiles action');
+      logApiClientError('Invalid config passed to formatFiles action', {
+        operation: 'formatFiles',
+      });
       return '❌ Formatting failed: Invalid configuration';
     }
 
@@ -94,27 +104,40 @@ export const formatFiles =
     try {
       const filesList = filesToFormat.map((file: string) => `"${file}"`).join(' ');
 
-      console.log('🧹 Running ESLint on generated/modified files...');
+      logApiClientInfo('Running ESLint on generated or modified files', {
+        operation: 'formatFiles',
+      });
       try {
         execSync(`yarn eslint --fix ${filesList}`, { cwd: basePath });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.warn(`⚠️ Warning: ESLint encountered issues: ${errorMessage}`);
+        logApiClientWarning('ESLint encountered issues', {
+          operation: 'formatFiles',
+          error: errorMessage,
+        });
       }
 
-      console.log('🧹 Running Prettier on generated/modified files...');
+      logApiClientInfo('Running Prettier on generated or modified files', {
+        operation: 'formatFiles',
+      });
       try {
         // '--ignore-path' is necessary so the gitignored files ('local/' folder) can still be formatted
         execSync(`yarn prettier --write ${filesList} --ignore-path=./.prettierignore`, { cwd: basePath });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error);
-        console.warn(`⚠️ Warning: Prettier encountered issues: ${errorMessage}`);
+        logApiClientWarning('Prettier encountered issues', {
+          operation: 'formatFiles',
+          error: errorMessage,
+        });
       }
 
       return '✅ Files linted and formatted successfully!';
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('⚠️ Warning: Formatting operations failed:', errorMessage);
+      logApiClientError('Formatting operations failed', {
+        operation: 'formatFiles',
+        error: errorMessage,
+      });
       return '⚠️ Warning: Formatting operations failed.';
     }
   };
@@ -163,7 +186,10 @@ export const updatePackageJsonExports =
       return `✅ Added export for ${newExportKey} to package.json`;
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error);
-      console.error('❌ Failed to update package.json exports:', errorMessage);
+      logApiClientError('Failed to update package.json exports', {
+        operation: 'updatePackageJsonExports',
+        error: errorMessage,
+      });
       return '❌ Failed to update package.json exports. See error above.';
     }
   };
