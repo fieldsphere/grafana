@@ -330,7 +330,7 @@ func (s *secureValueMetadataStorage) List(ctx context.Context, namespace xkube.N
 
 	defer func() {
 		success := listErr == nil
-		span.SetAttributes(attribute.Int("returnedList.count", len(svList)))
+		span.SetAttributes(attribute.Int("returnedListCount", len(svList)))
 
 		args := []any{
 			"namespace", namespace.String(),

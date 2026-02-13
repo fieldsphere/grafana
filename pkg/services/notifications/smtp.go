@@ -69,8 +69,8 @@ func (sc *SmtpClient) Send(ctx context.Context, messages ...*Message) (int, erro
 
 func (sc *SmtpClient) sendMessage(ctx context.Context, dialer *gomail.Dialer, msg *Message) error {
 	ctx, span := tracer.Start(ctx, "notifications.SmtpClient.sendMessage", trace.WithAttributes(
-		attribute.String("smtp.sender", msg.From),
-		attribute.StringSlice("smtp.recipients", msg.To),
+		attribute.String("smtpSender", msg.From),
+		attribute.StringSlice("smtpRecipients", msg.To),
 	))
 	defer span.End()
 

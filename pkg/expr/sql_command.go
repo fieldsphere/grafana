@@ -127,7 +127,7 @@ func (gr *SQLCommand) Execute(ctx context.Context, now time.Time, vars mathexp.V
 				semconv.ExceptionType(errorType),
 				semconv.ExceptionMessage(rsp.Error.Error()),
 			))
-			span.SetAttributes(attribute.String("error.category", errorType))
+			span.SetAttributes(attribute.String("errorCategory", errorType))
 			span.SetStatus(codes.Error, errorType)
 			gr.logger.Error("SQL command execution failed", "error", rsp.Error, "errorType", errorType)
 		}
@@ -375,8 +375,8 @@ func handleSqlInput(ctx context.Context, tracer trace.Tracer, refID string, forR
 		span.SetAttributes(
 			attribute.String("status", statusLabel),
 			attribute.Float64("duration", duration),
-			attribute.String("data.type", dataType),
-			attribute.String("datasource.type", dsType),
+			attribute.String("dataType", dataType),
+			attribute.String("datasourceType", dsType),
 		)
 
 		if result.Error != nil {
@@ -390,7 +390,7 @@ func handleSqlInput(ctx context.Context, tracer trace.Tracer, refID string, forR
 				semconv.ExceptionType(errorType),
 				semconv.ExceptionMessage(result.Error.Error()),
 			))
-			span.SetAttributes(attribute.String("error.category", errorType))
+			span.SetAttributes(attribute.String("errorCategory", errorType))
 			span.SetStatus(codes.Error, errorType)
 		}
 		span.End()

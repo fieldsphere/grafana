@@ -60,7 +60,7 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 	)
 	res, err := dsInfo.HTTPClient.Do(graphiteReq)
 	if res != nil {
-		span.SetAttributes(attribute.Int("graphite.response.code", res.StatusCode))
+		span.SetAttributes(attribute.Int("graphiteResponseCode", res.StatusCode))
 	}
 	if err != nil {
 		span.RecordError(err)

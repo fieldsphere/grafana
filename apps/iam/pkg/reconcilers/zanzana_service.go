@@ -29,7 +29,7 @@ func (c *ZanzanaPermissionStore) SetFolderParent(ctx context.Context, namespace,
 	ctx, span := tracer.Start(ctx, "zanzana-permission-store.set-folder-parent",
 		trace.WithAttributes(
 			attribute.String("folderUID", folderUID),
-			attribute.String("folder.namespace", namespace),
+			attribute.String("folderNamespace", namespace),
 			attribute.String("parentUID", parentUID),
 		),
 	)
@@ -62,7 +62,7 @@ func (c *ZanzanaPermissionStore) GetFolderParents(ctx context.Context, namespace
 	ctx, span := tracer.Start(ctx, "ZanzanaPermissionStore.GetFolderParents",
 		trace.WithAttributes(
 			attribute.String("folderUID", folderUID),
-			attribute.String("folder.namespace", namespace),
+			attribute.String("folderNamespace", namespace),
 		),
 	)
 	defer span.End()
@@ -74,7 +74,7 @@ func (c *ZanzanaPermissionStore) GetFolderParents(ctx context.Context, namespace
 		return nil, err
 	}
 
-	span.SetAttributes(attribute.Int("tuples.count", len(tuples)))
+	span.SetAttributes(attribute.Int("tuplesCount", len(tuples)))
 	parents := make([]string, 0, len(tuples))
 
 	for _, t := range tuples {
@@ -107,7 +107,7 @@ func (c *ZanzanaPermissionStore) DeleteFolderParents(ctx context.Context, namesp
 	ctx, span := tracer.Start(ctx, "ZanzanaPermissionStore.DeleteFolderParents",
 		trace.WithAttributes(
 			attribute.String("folderUID", folderUID),
-			attribute.String("folder.namespace", namespace),
+			attribute.String("folderNamespace", namespace),
 		),
 	)
 	defer span.End()
@@ -139,7 +139,7 @@ func (c *ZanzanaPermissionStore) listFolderParentRelations(ctx context.Context, 
 	ctx, span := tracer.Start(ctx, "ZanzanaPermissionStore.listFolderParentRelations",
 		trace.WithAttributes(
 			attribute.String("folderUID", folderUID),
-			attribute.String("folder.namespace", namespace),
+			attribute.String("folderNamespace", namespace),
 		),
 	)
 	defer span.End()

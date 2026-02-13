@@ -41,11 +41,11 @@ func NewLocalInlineSecureValueService(
 
 func (s *LocalInlineSecureValueService) CanReference(ctx context.Context, owner common.ObjectReference, names ...string) error {
 	ctx, span := s.tracer.Start(ctx, "InlineSecureValueService.CanReference", trace.WithAttributes(
-		attribute.String("owner.namespace", owner.Namespace),
-		attribute.String("owner.apiGroup", owner.APIGroup),
-		attribute.String("owner.apiVersion", owner.APIVersion),
-		attribute.String("owner.kind", owner.Kind),
-		attribute.String("owner.name", owner.Name),
+		attribute.String("ownerNamespace", owner.Namespace),
+		attribute.String("ownerAPIGroup", owner.APIGroup),
+		attribute.String("ownerAPIVersion", owner.APIVersion),
+		attribute.String("ownerKind", owner.Kind),
+		attribute.String("ownerName", owner.Name),
 		attribute.StringSlice("secureValueNames", names),
 	))
 	defer span.End()
@@ -175,11 +175,11 @@ func (s *LocalInlineSecureValueService) verifyOwnerAndAuth(ctx context.Context, 
 
 func (s *LocalInlineSecureValueService) CreateInline(ctx context.Context, owner common.ObjectReference, value common.RawSecureValue) (string, error) {
 	ctx, span := s.tracer.Start(ctx, "InlineSecureValueService.CreateInline", trace.WithAttributes(
-		attribute.String("owner.namespace", owner.Namespace),
-		attribute.String("owner.apiGroup", owner.APIGroup),
-		attribute.String("owner.apiVersion", owner.APIVersion),
-		attribute.String("owner.kind", owner.Kind),
-		attribute.String("owner.name", owner.Name),
+		attribute.String("ownerNamespace", owner.Namespace),
+		attribute.String("ownerAPIGroup", owner.APIGroup),
+		attribute.String("ownerAPIVersion", owner.APIVersion),
+		attribute.String("ownerKind", owner.Kind),
+		attribute.String("ownerName", owner.Name),
 	))
 	defer span.End()
 
@@ -226,11 +226,11 @@ func (s *LocalInlineSecureValueService) CreateInline(ctx context.Context, owner 
 
 func (s *LocalInlineSecureValueService) DeleteWhenOwnedByResource(ctx context.Context, owner common.ObjectReference, names ...string) error {
 	ctx, span := s.tracer.Start(ctx, "InlineSecureValueService.DeleteWhenOwnedByResource", trace.WithAttributes(
-		attribute.String("owner.namespace", owner.Namespace),
-		attribute.String("owner.apiGroup", owner.APIGroup),
-		attribute.String("owner.apiVersion", owner.APIVersion),
-		attribute.String("owner.kind", owner.Kind),
-		attribute.String("owner.name", owner.Name),
+		attribute.String("ownerNamespace", owner.Namespace),
+		attribute.String("ownerAPIGroup", owner.APIGroup),
+		attribute.String("ownerAPIVersion", owner.APIVersion),
+		attribute.String("ownerKind", owner.Kind),
+		attribute.String("ownerName", owner.Name),
 		attribute.StringSlice("secureValueNames", names),
 	))
 	defer span.End()

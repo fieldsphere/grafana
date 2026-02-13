@@ -362,7 +362,7 @@ func (s *keeperMetadataStorage) List(ctx context.Context, namespace xkube.Namesp
 	defer span.End()
 
 	defer func() {
-		span.SetAttributes(attribute.Int("returnedList.count", len(keeperList)))
+		span.SetAttributes(attribute.Int("returnedListCount", len(keeperList)))
 		success := err == nil
 
 		args := []any{

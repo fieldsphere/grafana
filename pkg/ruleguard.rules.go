@@ -1566,6 +1566,21 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Report(`avoid dotted trace attribute keys; use flat camelCase keys with canonical acronym casing (for example "datasourceUID", "errorSource", "dashboardMetadataName")`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
 		Where(m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
 		Report(`avoid uppercase-leading trace attribute keys; use lower camelCase with canonical acronym casing`)
 

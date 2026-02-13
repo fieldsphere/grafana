@@ -124,7 +124,7 @@ func (s *Service) Decrypt(ctx context.Context, payload []byte, secret string) ([
 		return nil, err
 	}
 
-	span.SetAttributes(attribute.String("encryption.algorithm", algorithm))
+	span.SetAttributes(attribute.String("encryptionAlgorithm", algorithm))
 
 	var decrypted []byte
 	decrypted, err = decipher.Decrypt(ctx, toDecrypt, secret)
@@ -193,7 +193,7 @@ func (s *Service) Encrypt(ctx context.Context, payload []byte, secret string) ([
 		return nil, err
 	}
 
-	span.SetAttributes(attribute.String("encryption.algorithm", algorithm))
+	span.SetAttributes(attribute.String("encryptionAlgorithm", algorithm))
 
 	var encrypted []byte
 	encrypted, err = cipher.Encrypt(ctx, payload, secret)

@@ -319,7 +319,7 @@ func doGraphiteRequest[T any](ctx context.Context, dsInfo *datasourceInfo, logge
 	)
 	res, err := dsInfo.HTTPClient.Do(req)
 	if res != nil {
-		span.SetAttributes(attribute.Int("graphite.response.code", res.StatusCode))
+		span.SetAttributes(attribute.Int("graphiteResponseCode", res.StatusCode))
 	}
 	if err != nil {
 		span.RecordError(err)

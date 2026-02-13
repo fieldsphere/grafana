@@ -83,7 +83,7 @@ func (s *cipherService) Decrypt(ctx context.Context, payload []byte, secret stri
 		return nil, err
 	}
 
-	span.SetAttributes(attribute.String("cipher.algorithm", algorithm))
+	span.SetAttributes(attribute.String("cipherAlgorithm", algorithm))
 
 	var decrypted []byte
 	decrypted, err = s.decipher.Decrypt(ctx, toDecrypt, secret)
@@ -123,7 +123,7 @@ func (s *cipherService) Encrypt(ctx context.Context, payload []byte, secret stri
 		}
 	}()
 
-	span.SetAttributes(attribute.String("cipher.algorithm", s.algorithm))
+	span.SetAttributes(attribute.String("cipherAlgorithm", s.algorithm))
 
 	var encrypted []byte
 	encrypted, err = s.cipher.Encrypt(ctx, payload, secret)

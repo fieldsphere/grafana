@@ -376,20 +376,20 @@ func (b *APIBuilder) validateNamespace(r *http.Request) (bool, string) {
 	if err != nil {
 		_ = tracing.Errorf(span, "failed to read request body: %w", err)
 		b.logger.Error("Error reading evaluation request body", "error", err)
-		span.SetAttributes(attribute.Bool("validation.success", false))
+		span.SetAttributes(attribute.Bool("validationSuccess", false))
 		return false, ""
 	}
 	r.Body = io.NopCloser(bytes.NewBuffer(body))
 
-	span.SetAttributes(attribute.String("request.body", string(body)))
+	span.SetAttributes(attribute.String("requestBody", string(body)))
 
 	evalCtxNamespace := b.namespaceFromEvalCtx(body)
 	// "default" namespace case can only occur in on-prem grafana
 	if (namespace == "default" && evalCtxNamespace == "") || (evalCtxNamespace == namespace) {
-		span.SetAttributes(attribute.Bool("validation.success", true))
+		span.SetAttributes(attribute.Bool("validationSuccess", true))
 		return true, evalCtxNamespace
 	}
 
-	span.SetAttributes(attribute.Bool("validation.success", false))
+	span.SetAttributes(attribute.Bool("validationSuccess", false))
 	return false, evalCtxNamespace
 }

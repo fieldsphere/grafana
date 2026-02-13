@@ -55,7 +55,7 @@ func New(_ *config.PluginManagementCfg, opts Opts) *Discovery {
 func (d *Discovery) Discover(ctx context.Context, src plugins.PluginSource) ([]*plugins.FoundBundle, error) {
 	pluginClass := src.PluginClass(ctx)
 	ctx, span := d.tracer.Start(ctx, "discovery.Discover", trace.WithAttributes(
-		attribute.String("grafana.plugins.class", string(pluginClass)),
+		attribute.String("grafanaPluginsClass", string(pluginClass)),
 	))
 	defer span.End()
 	ctxLogger := d.log.FromContext(ctx)
