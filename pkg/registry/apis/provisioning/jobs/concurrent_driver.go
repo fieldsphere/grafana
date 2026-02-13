@@ -78,7 +78,7 @@ func (c *ConcurrentJobDriver) Run(ctx context.Context) error {
 		go func(driverID int) {
 			defer wg.Done()
 
-			driverLogger := logger.With("driver_id", driverID)
+			driverLogger := logger.With("driverID", driverID)
 			driverCtx := logging.Context(ctx, driverLogger)
 
 			driver, err := NewJobDriver(

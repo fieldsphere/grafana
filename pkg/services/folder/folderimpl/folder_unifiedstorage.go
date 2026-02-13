@@ -625,7 +625,7 @@ func (s *Service) deleteFromApiServer(ctx context.Context, cmd *folder.DeleteFol
 		folders = append(folders, f.UID)
 	}
 	// must delete children first, then the parent folder
-	s.log.InfoContext(ctx, "deleting folder with descendants", "org_id", cmd.OrgID, "uid", cmd.UID, "folderUIDs", strings.Join(folders, ","))
+	s.log.InfoContext(ctx, "deleting folder with descendants", "orgID", cmd.OrgID, "uid", cmd.UID, "folderUIDs", strings.Join(folders, ","))
 	folders = append(folders, cmd.UID)
 
 	if cmd.ForceDeleteRules {

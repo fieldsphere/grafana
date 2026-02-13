@@ -71,7 +71,7 @@ func (c *filesConnector) getRepo(ctx context.Context, method, name string) (repo
 
 // TODO: document the synchronous write and delete on the API Spec
 func (c *filesConnector) Connect(ctx context.Context, name string, opts runtime.Object, responder rest.Responder) (http.Handler, error) {
-	logger := logging.FromContext(ctx).With("logger", "files-connector", "repository_name", name)
+	logger := logging.FromContext(ctx).With("logger", "files-connector", "repositoryName", name)
 	ctx = logging.Context(ctx, logger)
 
 	return WithTimeout(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -212,7 +212,7 @@ func (rc *RepositoryController) processNextWorkItem(ctx context.Context) bool {
 	defer rc.queue.Done(item)
 
 	// TODO: should we move tracking work to trace ids instead?
-	logger := logging.FromContext(ctx).With("work_key", item.key)
+	logger := logging.FromContext(ctx).With("workKey", item.key)
 	logger.Info("RepositoryController processing key")
 
 	err := rc.processFn(item)

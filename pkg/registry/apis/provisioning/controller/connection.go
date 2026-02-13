@@ -129,7 +129,7 @@ func (cc *ConnectionController) processNextWorkItem(ctx context.Context) bool {
 	}
 	defer cc.queue.Done(item)
 
-	logger := logging.FromContext(ctx).With("work_key", item.key)
+	logger := logging.FromContext(ctx).With("workKey", item.key)
 	logger.Info("ConnectionController processing key")
 
 	err := cc.process(ctx, item)

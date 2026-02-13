@@ -49,7 +49,7 @@ func (*connectionRepositoriesConnector) NewConnectOptions() (runtime.Object, boo
 }
 
 func (c *connectionRepositoriesConnector) Connect(ctx context.Context, name string, opts runtime.Object, responder rest.Responder) (http.Handler, error) {
-	logger := logging.FromContext(ctx).With("logger", "connection-repositories-connector", "connection_name", name)
+	logger := logging.FromContext(ctx).With("logger", "connection-repositories-connector", "connectionName", name)
 	ctx = logging.Context(ctx, logger)
 
 	return WithTimeout(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
