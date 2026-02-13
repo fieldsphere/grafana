@@ -179,7 +179,7 @@ func (s *Storage) prepareObjectForUpdate(ctx context.Context, updateObject runti
 		// Eventually this should be a real error or logged
 		// However the dashboard dual write behavior hits this every time, so we will ignore it
 		// if obj.GetUID() != "" {
-		// 	klog.ErrorS(errors.New("object UID mismatch"), "Object UID mismatch", "groupVersionKind", obj.GetGroupVersionKind().String(), "previousName", previous.GetName(), "uid", obj.GetUID())
+		// 	klog.ErrorS(errors.New("object UID mismatch"), "Object UID mismatch", "groupVersionKind", obj.GetGroupVersionKind().String(), "previousName", previous.GetName(), "objectUID", obj.GetUID())
 		// }
 		obj.SetUID(previous.GetUID())
 	}
