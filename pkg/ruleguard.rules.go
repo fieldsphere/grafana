@@ -492,9 +492,13 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn(fmt.Sprintf($fmt, $*args))`,
 		`$logger.Error(fmt.Sprintf($fmt, $*args))`,
 		`$logger.Debug(fmt.Sprintf($fmt, $*args))`,
+		`$logger.Info(fmt.Sprint($*args))`,
+		`$logger.Warn(fmt.Sprint($*args))`,
+		`$logger.Error(fmt.Sprint($*args))`,
+		`$logger.Debug(fmt.Sprint($*args))`,
 	).
 		Where(isStructuredLogger).
-		Report("use a static log message and key/value context instead of fmt.Sprintf")
+		Report("use a static log message and key/value context instead of fmt formatting")
 
 	m.Match(
 		`$logger.Info($msg, $*args)`,
