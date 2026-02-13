@@ -15,14 +15,14 @@ func TestNormalizePluginLoggerContext(t *testing.T) {
 
 	t.Run("wraps odd argument lists", func(t *testing.T) {
 		got := normalizePluginLoggerContext("pluginID", "my-plugin", 10)
-		if len(got) != 2 || got[0] != "plugin_log_context" {
+		if len(got) != 2 || got[0] != "plugin_log_args" {
 			t.Fatalf("unexpected fallback context: %#v", got)
 		}
 	})
 
 	t.Run("wraps non-string keys", func(t *testing.T) {
 		got := normalizePluginLoggerContext(10, "my-plugin")
-		if len(got) != 2 || got[0] != "plugin_log_context" {
+		if len(got) != 2 || got[0] != "plugin_log_args" {
 			t.Fatalf("unexpected fallback context: %#v", got)
 		}
 	})

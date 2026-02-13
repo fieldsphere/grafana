@@ -57,12 +57,12 @@ func normalizePluginLoggerContext(ctx ...any) []any {
 	}
 
 	if len(ctx)%2 != 0 {
-		return []any{"plugin_log_context", ctx}
+		return []any{"plugin_log_args", ctx}
 	}
 
 	for i := 0; i < len(ctx); i += 2 {
 		if _, ok := ctx[i].(string); !ok {
-			return []any{"plugin_log_context", ctx}
+			return []any{"plugin_log_args", ctx}
 		}
 	}
 
