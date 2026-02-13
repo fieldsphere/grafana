@@ -190,7 +190,12 @@
             // no-store and ?ts=_ are used to ensure the request isn't cached.
             method: 'GET',
             cache: "no-store",
-          }).catch(() => {});
+          }).catch(() => {
+            window.__grafana_boot_error_report_failed = {
+              reason,
+              ts: Date.now(),
+            };
+          });
         };
 
         window.onload = function() {
