@@ -206,7 +206,7 @@ func ProvideService(
 		if storageName == RootSystem {
 			filter, err := systemUsersService.GetFilter(user)
 			if err != nil {
-				grafanaStorageLogger.Error("Failed to create path filter for system user", "userID", user.UserID, "userLogin", user.Login, "err", err)
+				grafanaStorageLogger.Error("Failed to create path filter for system user", "userID", user.UserID, "userLogin", user.Login, "error", err)
 				return map[string]filestorage.PathFilter{
 					ActionFilesRead:   denyAllPathFilter,
 					ActionFilesWrite:  denyAllPathFilter,
@@ -423,7 +423,7 @@ func (s *standardStorageService) Upload(ctx context.Context, user *user.SignedIn
 	if !req.OverwriteExistingFile {
 		file, _, err := root.Store().Get(ctx, storagePath, &filestorage.GetFileOptions{WithContents: false})
 		if err != nil {
-			grafanaStorageLogger.Error("Failed while checking file existence", "err", err, "path", req.Path)
+			grafanaStorageLogger.Error("Failed while checking file existence", "error", err, "path", req.Path)
 			return ErrUploadInternalError
 		}
 
@@ -433,7 +433,7 @@ func (s *standardStorageService) Upload(ctx context.Context, user *user.SignedIn
 	}
 
 	if err := root.Store().Upsert(ctx, upsertCommand); err != nil {
-		grafanaStorageLogger.Error("Failed while uploading the file", "err", err, "path", req.Path)
+		grafanaStorageLogger.Error("Failed while uploading the file", "error", err, "path", req.Path)
 		return ErrUploadInternalError
 	}
 

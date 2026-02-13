@@ -44,7 +44,7 @@ func (api *API) GetStars(c *contextmodel.ReqContext) response.Response {
 	if api.starService == nil {
 		stars, err := api.client.GetStars(c)
 		if err != nil {
-			logging.FromContext(c.Req.Context()).With("logger", "star.api").Warn("error", "err", err)
+			logging.FromContext(c.Req.Context()).With("logger", "star.api").Warn("error", "error", err)
 		}
 		return response.JSON(http.StatusOK, stars)
 	}

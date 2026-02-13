@@ -102,7 +102,7 @@ func (s *GrafanaService) checkForUpdates(ctx context.Context) error {
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			ctxLogger.Warn("Failed to close response body", "err", err)
+			ctxLogger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 	body, err := io.ReadAll(resp.Body)

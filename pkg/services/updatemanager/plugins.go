@@ -179,7 +179,7 @@ func (s *PluginsService) checkForUpdates(ctx context.Context) error {
 	defer func() {
 		err = resp.Body.Close()
 		if err != nil {
-			ctxLogger.Warn("Failed to close response body", "err", err)
+			ctxLogger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

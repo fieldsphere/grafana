@@ -31,7 +31,7 @@ func (s *Service) startBundleWork(ctx context.Context, collectors []string, uid 
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
-				s.log.Error("Support bundle collector panic", "err", err, "stack", string(debug.Stack()))
+				s.log.Error("Support bundle collector panic", "error", err, "stack", string(debug.Stack()))
 				result <- bundleResult{err: ErrCollectorPanicked}
 			}
 		}()
