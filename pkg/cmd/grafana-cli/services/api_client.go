@@ -28,7 +28,7 @@ func GetPluginInfoFromRepo(pluginId, repoUrl string) (models.Plugin, error) {
 	var data models.Plugin
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		logger.Info("Failed to unmarshal plugin repo response error:", err)
+		logger.Info("Failed to unmarshal plugin repo response", "error", err)
 		return models.Plugin{}, err
 	}
 
@@ -46,7 +46,7 @@ func ListAllPlugins(repoUrl string) (models.PluginRepo, error) {
 	var data models.PluginRepo
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		logger.Info("Failed to unmarshal plugin repo response error:", err)
+		logger.Info("Failed to unmarshal plugin repo response", "error", err)
 		return models.PluginRepo{}, err
 	}
 

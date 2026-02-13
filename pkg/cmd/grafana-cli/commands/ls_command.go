@@ -19,7 +19,7 @@ var validateLsCommand = func(pluginDir string) error {
 		return errMissingPathFlag
 	}
 
-	logger.Debug("plugindir:", pluginDir)
+	logger.Debug("Resolved plugin directory", "pluginDir", pluginDir)
 	pluginDirInfo, err := services.IoHelper.Stat(pluginDir)
 	if err != nil {
 		return err
