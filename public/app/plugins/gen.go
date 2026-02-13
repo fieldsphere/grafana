@@ -8,7 +8,7 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -29,12 +29,14 @@ const sep = string(filepath.Separator)
 
 func main() {
 	if len(os.Args) > 1 {
-		log.Fatal(fmt.Errorf("plugin thema code generator does not currently accept any arguments\n, got %q", os.Args))
+		slog.Error("Plugin thema code generator does not accept arguments", "args", os.Args)
+		os.Exit(1)
 	}
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		log.Fatal(fmt.Errorf("could not get working directory: %s", err))
+		slog.Error("Could not get working directory", "error", err)
+		os.Exit(1)
 	}
 	groot := filepath.Clean(filepath.Join(cwd, "../../.."))
 
@@ -57,20 +59,24 @@ func main() {
 	declParser := pfs.NewDeclParser(skipPlugins)
 	decls, err := declParser.Parse(os.DirFS(cwd))
 	if err != nil {
-		log.Fatalln(fmt.Errorf("parsing plugins in dir failed %s: %s", cwd, err))
+		slog.Error("Parsing plugins in directory failed", "dir", cwd, "error", err)
+		os.Exit(1)
 	}
 
 	jfs, err := pluginKindGen.GenerateFS(decls...)
 	if err != nil {
-		log.Fatalln(fmt.Errorf("error writing files to disk: %s", err))
+		slog.Error("Error generating files", "error", err)
+		os.Exit(1)
 	}
 
 	if _, set := os.LookupEnv("CODEGEN_VERIFY"); set {
 		if err = jfs.Verify(context.Background(), groot); err != nil {
-			log.Fatal(fmt.Errorf("generated code is out of sync with inputs:\n%s\nrun `make gen-cue` to regenerate", err))
+			slog.Error("Generated code is out of sync with inputs", "error", err, "hint", "run `make gen-cue` to regenerate")
+			os.Exit(1)
 		}
 	} else if err = jfs.Write(context.Background(), groot); err != nil {
-		log.Fatal(fmt.Errorf("error while writing generated code to disk:\n%s", err))
+		slog.Error("Error while writing generated code to disk", "error", err)
+		os.Exit(1)
 	}
 }
 
