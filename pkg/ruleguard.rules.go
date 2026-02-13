@@ -556,6 +556,20 @@ func unstructuredoutput(m fluent.Matcher) {
 		`stdlog.Panicf($*args)`,
 		`stdlog.Panicln($*args)`,
 	).Report("avoid stdlib log print/fatal helpers; use structured logging and explicit exit handling where needed")
+
+	m.Match(
+		`$logger.Print($*args)`,
+		`$logger.Printf($*args)`,
+		`$logger.Println($*args)`,
+		`$logger.Fatal($*args)`,
+		`$logger.Fatalf($*args)`,
+		`$logger.Fatalln($*args)`,
+		`$logger.Panic($*args)`,
+		`$logger.Panicf($*args)`,
+		`$logger.Panicln($*args)`,
+	).
+		Where(m["logger"].Type.Is("*log.Logger")).
+		Report("avoid stdlib *log.Logger print/fatal helpers; use structured logging and explicit exit handling where needed")
 }
 
 func badlock(m fluent.Matcher) {
