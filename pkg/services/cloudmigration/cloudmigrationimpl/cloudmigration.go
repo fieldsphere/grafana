@@ -852,7 +852,7 @@ func (s *Service) report(
 			errMessage = evtErr.Error()
 		}
 
-		s.log.Error("failed to report event", "type", t, "error", errMessage)
+		s.log.Error("failed to report event", "type", t, "errorMessage", errMessage)
 
 		return
 	}
