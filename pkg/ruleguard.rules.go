@@ -509,6 +509,27 @@ func structuredlogging(m fluent.Matcher) {
 		Report("use a static log message and key/value context instead of fmt formatting")
 
 	m.Match(
+		`$logger.Info($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.Warn($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.Error($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.Debug($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.Info($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`$logger.Warn($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`$logger.Error($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`$logger.Debug($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+	).
+		Where(isStructuredLogger).
+		Report("avoid fmt formatting in structured log field values; pass typed values or separate fields")
+
+	m.Match(
 		`$logger.Info($msg, $*args)`,
 		`$logger.Warn($msg, $*args)`,
 		`$logger.Error($msg, $*args)`,
@@ -585,6 +606,28 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Error(fmt.Sprint($*args), $*attrs)`,
 		`slog.Debug(fmt.Sprint($*args), $*attrs)`,
 	).Report("use a static slog message and key/value context instead of fmt formatting")
+
+	m.Match(
+		`slog.Info($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`slog.Warn($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`slog.Error($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`slog.Debug($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`slog.Info($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`slog.Warn($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`slog.Error($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`slog.Debug($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+	).
+		Report("avoid fmt formatting in slog field values; pass typed values or separate fields")
 
 	m.Match(
 		`slog.Info($msg, $*attrs)`,
