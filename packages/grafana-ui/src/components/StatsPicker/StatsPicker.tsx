@@ -4,6 +4,7 @@ import { memo, useEffect } from 'react';
 import { fieldReducers, SelectableValue, FieldReducerInfo } from '@grafana/data';
 
 import { Select } from '../Select/Select';
+import { logUiWarning } from '../../utils/structuredLogging';
 
 export interface Props {
   placeholder?: string;
@@ -36,13 +37,20 @@ export const StatsPicker = memo<Props>(
       if (current.length !== stats.length) {
         const found = current.map((v) => v.id);
         const notFound = difference(stats, found);
-        console.warn('Unknown stats', notFound, stats);
+        logUiWarning('Unknown stats selected', {
+          operation: 'StatsPicker.useEffect',
+          unknownStats: notFound.join(','),
+          stats: stats.join(','),
+        });
         onChange(current.map((stat) => stat.id));
       }
 
       // Make sure there is only one
       if (!allowMultiple && stats.length > 1) {
-        console.warn('Removing extra stat', stats);
+        logUiWarning('Removing extra stats because multiple selection is disabled', {
+          operation: 'StatsPicker.useEffect',
+          stats: stats.join(','),
+        });
         onChange([stats[0]]);
       }
 

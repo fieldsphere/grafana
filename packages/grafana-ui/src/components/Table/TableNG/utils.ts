@@ -30,6 +30,7 @@ import {
 } from '@grafana/schema';
 
 import { getTextColorForAlphaBackground } from '../../../utils/colors';
+import { logUiError } from '../../../utils/structuredLogging';
 import { TableCellInspectorMode } from '../TableCellInspector';
 import { TableCellOptions } from '../types';
 
@@ -1101,7 +1102,11 @@ export function parseStyleJson(rawValue: unknown): CSSProperties | void {
       }
     } catch (e) {
       if (!warnedAboutStyleJsonSet.has(rawValue)) {
-        console.error(`encountered invalid cell style JSON: ${rawValue}`, e);
+        logUiError('Encountered invalid cell style JSON', {
+          operation: 'parseStyleJson',
+          rawValue,
+          error: String(e),
+        });
         warnedAboutStyleJsonSet.add(rawValue);
       }
     }

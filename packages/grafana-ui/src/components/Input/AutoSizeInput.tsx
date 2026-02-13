@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import * as React from 'react';
 
 import { measureText } from '../../utils/measureText';
+import { logUiWarning } from '../../utils/structuredLogging';
 
 import { AutoSizeInputContext } from './AutoSizeInputContext';
 import { Input, Props as InputProps } from './Input';
@@ -119,9 +120,9 @@ function useControlledState<T>(controlledValue: T, onChange: Function | undefine
 
   const hasLoggedControlledWarning = useRef(false);
   if (isControlledNow !== isControlledRef.current && !hasLoggedControlledWarning.current) {
-    console.warn(
-      'An AutoSizeInput is changing from an uncontrolled to a controlled input. If you want to control the input, the empty value should be an empty string.'
-    );
+    logUiWarning('AutoSizeInput is changing from uncontrolled to controlled mode', {
+      operation: 'useControlledState',
+    });
     hasLoggedControlledWarning.current = true;
   }
 
