@@ -474,7 +474,7 @@ func ReadLoggingConfig(modes []string, logsPath string, cfg *ini.File) error {
 			fileName := sec.Key("file_name").MustString(filepath.Join(logsPath, "grafana.log"))
 			dpath := filepath.Dir(fileName)
 			if err := os.MkdirAll(dpath, 0o750); err != nil {
-				_ = level.Error(root).Log("Failed to create directory", "dpath", dpath, "err", err)
+				_ = level.Error(root).Log("Failed to create directory", "dpath", dpath, "error", err)
 				continue
 			}
 			fileHandler := NewFileWriter()
@@ -486,7 +486,7 @@ func ReadLoggingConfig(modes []string, logsPath string, cfg *ini.File) error {
 			fileHandler.Daily = sec.Key("daily_rotate").MustBool(true)
 			fileHandler.Maxdays = sec.Key("max_days").MustInt64(7)
 			if err := fileHandler.Init(); err != nil {
-				_ = level.Error(root).Log("Failed to initialize file handler", "dpath", dpath, "err", err)
+				_ = level.Error(root).Log("Failed to initialize file handler", "dpath", dpath, "error", err)
 				continue
 			}
 

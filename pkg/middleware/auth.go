@@ -156,7 +156,7 @@ func RoleAppPluginAuth(accessControl ac.AccessControl, ps pluginstore.Store, log
 
 			u, err := url.Parse(i.Path)
 			if err != nil {
-				logger.Error("failed to parse include path", "pluginId", pluginID, "include", i.Name, "err", err)
+				logger.Error("failed to parse include path", "pluginId", pluginID, "include", i.Name, "error", err)
 				continue
 			}
 

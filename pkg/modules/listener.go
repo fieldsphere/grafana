@@ -32,7 +32,7 @@ func (l *serviceListener) Stopped() {
 func (l *serviceListener) Failure(service services.Service) {
 	// if any service fails, stop all services
 	if err := l.service.Shutdown(context.Background(), service.FailureCase().Error()); err != nil {
-		l.log.Error("Failed to stop all modules", "err", err)
+		l.log.Error("Failed to stop all modules", "error", err)
 	}
 
 	// log which module failed

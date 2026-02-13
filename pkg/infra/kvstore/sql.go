@@ -27,7 +27,7 @@ func (kv *kvStoreSQL) Get(ctx context.Context, orgId int64, namespace string, ke
 	err := kv.sqlStore.WithDbSession(ctx, func(dbSession *db.Session) error {
 		has, err := dbSession.Get(&item)
 		if err != nil {
-			kv.log.Debug("error getting kvstore value", "orgId", orgId, "namespace", namespace, "key", key, "err", err)
+			kv.log.Debug("error getting kvstore value", "orgId", orgId, "namespace", namespace, "key", key, "error", err)
 			return err
 		}
 		if !has {
@@ -53,7 +53,7 @@ func (kv *kvStoreSQL) Set(ctx context.Context, orgId int64, namespace string, ke
 
 		has, err := dbSession.Get(&item)
 		if err != nil {
-			kv.log.Debug("error checking kvstore value", "orgId", orgId, "namespace", namespace, "key", key, "value", value, "err", err)
+			kv.log.Debug("error checking kvstore value", "orgId", orgId, "namespace", namespace, "key", key, "value", value, "error", err)
 			return err
 		}
 
@@ -68,7 +68,7 @@ func (kv *kvStoreSQL) Set(ctx context.Context, orgId int64, namespace string, ke
 		if has {
 			_, err = dbSession.Exec("UPDATE kv_store SET value = ?, updated = ? WHERE id = ?", item.Value, item.Updated, item.Id)
 			if err != nil {
-				kv.log.Debug("error updating kvstore value", "orgId", orgId, "namespace", namespace, "key", key, "value", value, "err", err)
+				kv.log.Debug("error updating kvstore value", "orgId", orgId, "namespace", namespace, "key", key, "value", value, "error", err)
 			} else {
 				kv.log.Debug("kvstore value updated", "orgId", orgId, "namespace", namespace, "key", key, "value", value)
 			}
@@ -78,7 +78,7 @@ func (kv *kvStoreSQL) Set(ctx context.Context, orgId int64, namespace string, ke
 		item.Created = item.Updated
 		_, err = dbSession.Insert(&item)
 		if err != nil {
-			kv.log.Debug("error inserting kvstore value", "orgId", orgId, "namespace", namespace, "key", key, "value", value, "err", err)
+			kv.log.Debug("error inserting kvstore value", "orgId", orgId, "namespace", namespace, "key", key, "value", value, "error", err)
 		} else {
 			kv.log.Debug("kvstore value inserted", "orgId", orgId, "namespace", namespace, "key", key, "value", value)
 		}

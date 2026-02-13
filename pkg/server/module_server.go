@@ -339,17 +339,17 @@ func (s *ModuleServer) notifySystemd(state string) {
 	}
 	conn, err := net.DialUnix(socketAddr.Net, nil, socketAddr)
 	if err != nil {
-		s.log.Warn("Failed to connect to systemd", "err", err, "socket", notifySocket)
+		s.log.Warn("Failed to connect to systemd", "error", err, "socket", notifySocket)
 		return
 	}
 	defer func() {
 		if err := conn.Close(); err != nil {
-			s.log.Warn("Failed to close connection", "err", err)
+			s.log.Warn("Failed to close connection", "error", err)
 		}
 	}()
 
 	_, err = conn.Write([]byte(state))
 	if err != nil {
-		s.log.Warn("Failed to write notification to systemd", "err", err)
+		s.log.Warn("Failed to write notification to systemd", "error", err)
 	}
 }

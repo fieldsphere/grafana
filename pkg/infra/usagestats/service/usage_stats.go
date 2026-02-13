@@ -178,7 +178,7 @@ var sendUsageStats = func(uss *UsageStats, ctx context.Context, data *bytes.Buff
 		return err
 	}
 	if err := resp.Body.Close(); err != nil {
-		uss.log.FromContext(ctx).Warn("Failed to close response body after sending usage stats", "err", err)
+		uss.log.FromContext(ctx).Warn("Failed to close response body after sending usage stats", "error", err)
 	}
 	return nil
 }
