@@ -15,7 +15,8 @@
 package main
 
 import "fmt"
+import "os"
 
 func main() {
-	fmt.Printf("%v\n", injectedBar())
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", injectedBar()))
 }

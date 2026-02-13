@@ -15,13 +15,13 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 )
 
 func main() {
 	r := injectedReader(strings.NewReader("hello world"))
 	buf, _ := ioutil.ReadAll(r)
-	fmt.Println(string(buf))
+	_, _ = os.Stdout.WriteString(string(buf) + "\n")
 }

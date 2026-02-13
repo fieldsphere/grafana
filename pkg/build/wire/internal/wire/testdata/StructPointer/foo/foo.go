@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/grafana/grafana/pkg/build/wire"
 )
@@ -23,7 +24,7 @@ import (
 func main() {
 	fb := injectFooBar()
 	e := injectEmptyStruct()
-	fmt.Printf("%d %d %v\n", fb.Foo, fb.Bar, e)
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%d %d %v\n", fb.Foo, fb.Bar, e))
 }
 
 type Foo int
