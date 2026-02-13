@@ -3,7 +3,7 @@ package build
 import (
 	"crypto/md5"
 	"crypto/sha256"
-	"fmt"
+	"encoding/hex"
 	"io"
 	"log/slog"
 	"os"
@@ -56,7 +56,7 @@ func shaFile(file string) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(out, "%x\n", h.Sum(nil))
+	_, err = out.Write([]byte(hex.EncodeToString(h.Sum(nil)) + "\n"))
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func md5File(file string) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(out, "%x\n", h.Sum(nil))
+	_, err = out.Write([]byte(hex.EncodeToString(h.Sum(nil)) + "\n"))
 	if err != nil {
 		return err
 	}
