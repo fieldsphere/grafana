@@ -333,7 +333,7 @@ func (w PrometheusWriter) Write(ctx context.Context, name string, t time.Time, f
 		if err, ignored := checkWriteError(writeErr); err != nil {
 			return err
 		} else if ignored {
-			l.Debug("Ignored write error", "error", err, "status_code", res.StatusCode)
+			l.Debug("Ignored write error", "error", err, "statusCode", res.StatusCode)
 		}
 	}
 

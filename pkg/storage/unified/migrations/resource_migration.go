@@ -71,7 +71,7 @@ func (r *MigrationRunner) Run(ctx context.Context, sess *xorm.Session, opts RunO
 		return nil
 	}
 
-	r.log.Info("Starting migration for all organizations", "org_count", len(orgs), "resources", r.resources)
+	r.log.Info("Starting migration for all organizations", "orgCount", len(orgs), "resources", r.resources)
 
 	if opts.DriverName == migrator.SQLite {
 		// reuse transaction in SQLite to avoid "database is locked" errors
@@ -103,7 +103,7 @@ func (r *MigrationRunner) Run(ctx context.Context, sess *xorm.Session, opts RunO
 		}
 	}
 
-	r.log.Info("Migration completed successfully for all organizations", "org_count", len(orgs))
+	r.log.Info("Migration completed successfully for all organizations", "orgCount", len(orgs))
 
 	return nil
 }

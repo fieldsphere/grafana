@@ -210,14 +210,14 @@ func (srv *ConvertPrometheusSrv) RouteConvertPrometheusDeleteNamespace(c *contex
 	logger := srv.logger.FromContext(c.Req.Context())
 
 	workingFolderUID := getWorkingFolderUID(c)
-	logger = logger.New("working_folder_uid", workingFolderUID)
+	logger = logger.New("workingFolderUID", workingFolderUID)
 
-	logger.Debug("Looking up folder by title", "folder_title", namespaceTitle)
+	logger.Debug("Looking up folder by title", "folderTitle", namespaceTitle)
 	namespace, err := srv.ruleStore.GetNamespaceByTitle(c.Req.Context(), namespaceTitle, c.GetOrgID(), c.SignedInUser, workingFolderUID)
 	if err != nil {
 		return namespaceErrorResponse(err)
 	}
-	logger.Info("Deleting all Prometheus-imported rule groups", "folder_uid", namespace.UID, "folder_title", namespaceTitle)
+	logger.Info("Deleting all Prometheus-imported rule groups", "folderUID", namespace.UID, "folderTitle", namespaceTitle)
 
 	provenance := getProvenance(c)
 	filterOpts := &provisioning.FilterOptions{
@@ -229,7 +229,7 @@ func (srv *ConvertPrometheusSrv) RouteConvertPrometheusDeleteNamespace(c *contex
 		return response.Empty(http.StatusNotFound)
 	}
 	if err != nil {
-		logger.Error("Failed to delete rule groups", "folder_uid", namespace.UID, "error", err)
+		logger.Error("Failed to delete rule groups", "folderUID", namespace.UID, "error", err)
 		return errorToResponse(err)
 	}
 
@@ -241,14 +241,14 @@ func (srv *ConvertPrometheusSrv) RouteConvertPrometheusDeleteRuleGroup(c *contex
 	logger := srv.logger.FromContext(c.Req.Context())
 
 	workingFolderUID := getWorkingFolderUID(c)
-	logger = logger.New("working_folder_uid", workingFolderUID)
+	logger = logger.New("workingFolderUID", workingFolderUID)
 
-	logger.Debug("Looking up folder by title", "folder_title", namespaceTitle)
+	logger.Debug("Looking up folder by title", "folderTitle", namespaceTitle)
 	folder, err := srv.ruleStore.GetNamespaceByTitle(c.Req.Context(), namespaceTitle, c.GetOrgID(), c.SignedInUser, workingFolderUID)
 	if err != nil {
 		return namespaceErrorResponse(err)
 	}
-	logger.Info("Deleting Prometheus-imported rule group", "folder_uid", folder.UID, "folder_title", namespaceTitle, "group", group)
+	logger.Info("Deleting Prometheus-imported rule group", "folderUID", folder.UID, "folderTitle", namespaceTitle, "group", group)
 
 	provenance := getProvenance(c)
 	filterOpts := &provisioning.FilterOptions{
@@ -261,7 +261,7 @@ func (srv *ConvertPrometheusSrv) RouteConvertPrometheusDeleteRuleGroup(c *contex
 		return response.Empty(http.StatusNotFound)
 	}
 	if err != nil {
-		logger.Error("Failed to delete rule group", "folder_uid", folder.UID, "group", group, "error", err)
+		logger.Error("Failed to delete rule group", "folderUID", folder.UID, "group", group, "error", err)
 		return errorToResponse(err)
 	}
 
@@ -274,9 +274,9 @@ func (srv *ConvertPrometheusSrv) RouteConvertPrometheusGetNamespace(c *contextmo
 	logger := srv.logger.FromContext(c.Req.Context())
 
 	workingFolderUID := getWorkingFolderUID(c)
-	logger = logger.New("working_folder_uid", workingFolderUID)
+	logger = logger.New("workingFolderUID", workingFolderUID)
 
-	logger.Debug("Looking up folder by title", "folder_title", namespaceTitle)
+	logger.Debug("Looking up folder by title", "folderTitle", namespaceTitle)
 	namespace, err := srv.ruleStore.GetNamespaceByTitle(c.Req.Context(), namespaceTitle, c.GetOrgID(), c.SignedInUser, workingFolderUID)
 	if err != nil {
 		logger.Error("Failed to get folder", "error", err)
@@ -308,9 +308,9 @@ func (srv *ConvertPrometheusSrv) RouteConvertPrometheusGetRuleGroup(c *contextmo
 	logger := srv.logger.FromContext(c.Req.Context())
 
 	workingFolderUID := getWorkingFolderUID(c)
-	logger = logger.New("working_folder_uid", workingFolderUID)
+	logger = logger.New("workingFolderUID", workingFolderUID)
 
-	logger.Debug("Looking up folder by title", "folder_title", namespaceTitle)
+	logger.Debug("Looking up folder by title", "folderTitle", namespaceTitle)
 	namespace, err := srv.ruleStore.GetNamespaceByTitle(c.Req.Context(), namespaceTitle, c.GetOrgID(), c.SignedInUser, workingFolderUID)
 	if err != nil {
 		logger.Error("Failed to get folder", "error", err)
@@ -334,7 +334,7 @@ func (srv *ConvertPrometheusSrv) RouteConvertPrometheusGetRuleGroup(c *contextmo
 		return response.Error(http.StatusNotFound, "Rule group not found", nil)
 	}
 	if len(groupsWithFolders) > 1 {
-		logger.Error("Multiple rule groups found when only one was expected", "folder_title", namespaceTitle, "group", group)
+		logger.Error("Multiple rule groups found when only one was expected", "folderTitle", namespaceTitle, "group", group)
 		// It shouldn't happen, but if we get more than 1 group, we return an error.
 		return response.Error(http.StatusInternalServerError, "Multiple rule groups found", nil)
 	}
@@ -362,7 +362,7 @@ func (srv *ConvertPrometheusSrv) RouteConvertPrometheusPostRuleGroups(c *context
 
 	// 1. Parse the appropriate headers
 	workingFolderUID := getWorkingFolderUID(c)
-	logger = logger.New("working_folder_uid", workingFolderUID)
+	logger = logger.New("workingFolderUID", workingFolderUID)
 
 	pauseRecordingRules, err := parseBooleanHeader(c.Req.Header.Get(recordingRulesPausedHeader), recordingRulesPausedHeader)
 	if err != nil {

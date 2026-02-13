@@ -185,7 +185,7 @@ func (s *UserSync) CatalogLoginHook(_ context.Context, identity *authn.Identity,
 
 // ValidateUserProvisioningHook validates if a user should be allowed access based on provisioning status and configuration
 func (s *UserSync) ValidateUserProvisioningHook(ctx context.Context, currentIdentity *authn.Identity, _ *authn.Request) error {
-	log := s.log.FromContext(ctx).New("auth_module", currentIdentity.AuthenticatedBy, "auth_id", currentIdentity.AuthID)
+	log := s.log.FromContext(ctx).New("authModule", currentIdentity.AuthenticatedBy, "authID", currentIdentity.AuthID)
 
 	if !currentIdentity.ClientParams.SyncUser {
 		return nil
@@ -246,7 +246,7 @@ func (s *UserSync) ValidateUserProvisioningHook(ctx context.Context, currentIden
 }
 
 func (s *UserSync) skipProvisioningValidation(ctx context.Context, currentIdentity *authn.Identity) bool {
-	log := s.log.FromContext(ctx).New("auth_module", currentIdentity.AuthenticatedBy, "auth_id", currentIdentity.AuthID, "id", currentIdentity.ID)
+	log := s.log.FromContext(ctx).New("authModule", currentIdentity.AuthenticatedBy, "authID", currentIdentity.AuthID, "id", currentIdentity.ID)
 
 	// Use dynamic SCIM settings if available, otherwise fall back to static config
 	effectiveUserSyncEnabled := s.isUserProvisioningEnabled
@@ -292,13 +292,13 @@ func (s *UserSync) SyncUserHook(ctx context.Context, id *authn.Identity, _ *auth
 	// Does user exist in the database?
 	usr, userAuth, err := s.getUser(ctx, id)
 	if err != nil && !errors.Is(err, user.ErrUserNotFound) {
-		s.log.FromContext(ctx).Error("Failed to fetch user", "error", err, "auth_module", id.AuthenticatedBy, "auth_id", id.AuthID)
+		s.log.FromContext(ctx).Error("Failed to fetch user", "error", err, "authModule", id.AuthenticatedBy, "authID", id.AuthID)
 		return errSyncUserInternal.Errorf("unable to retrieve user")
 	}
 
 	if errors.Is(err, user.ErrUserNotFound) {
 		if !id.ClientParams.AllowSignUp {
-			s.log.FromContext(ctx).Warn("Failed to create user, signup is not allowed for module", "auth_module", id.AuthenticatedBy, "auth_id", id.AuthID)
+			s.log.FromContext(ctx).Warn("Failed to create user, signup is not allowed for module", "authModule", id.AuthenticatedBy, "authID", id.AuthID)
 			return errUserSignupDisabled.Errorf("%w", errSignupNotAllowed)
 		}
 
@@ -322,7 +322,7 @@ func (s *UserSync) SyncUserHook(ctx context.Context, id *authn.Identity, _ *auth
 				if errors.Is(authErr, user.ErrUserNotFound) {
 					s.log.FromContext(ctx).Error("SCIM-provisioned user attempted login via non-SAML auth module",
 						"userID", usr.ID,
-						"attempted_module", id.AuthenticatedBy,
+						"attemptedModule", id.AuthenticatedBy,
 					)
 					return errSCIMAuthModuleMismatch.Errorf("user was provisioned via SCIM but attempted login via %s", id.AuthenticatedBy)
 				}
@@ -330,13 +330,13 @@ func (s *UserSync) SyncUserHook(ctx context.Context, id *authn.Identity, _ *auth
 		}
 
 		if err != nil {
-			s.log.FromContext(ctx).Error("Failed to create user", "error", err, "auth_module", id.AuthenticatedBy, "auth_id", id.AuthID)
+			s.log.FromContext(ctx).Error("Failed to create user", "error", err, "authModule", id.AuthenticatedBy, "authID", id.AuthID)
 			return errSyncUserInternal.Errorf("unable to create user: %w", err)
 		}
 	} else {
 		// update user
 		if err := s.updateUserAttributes(ctx, usr, id, userAuth); err != nil {
-			s.log.FromContext(ctx).Error("Failed to update user", "error", err, "auth_module", id.AuthenticatedBy, "auth_id", id.AuthID)
+			s.log.FromContext(ctx).Error("Failed to update user", "error", err, "authModule", id.AuthenticatedBy, "authID", id.AuthID)
 			return errSyncUserInternal.Errorf("unable to update user")
 		}
 	}
@@ -664,7 +664,7 @@ func (s *UserSync) getUser(ctx context.Context, identity *authn.Identity) (*user
 			// if the user connected to user auth does not exist try to clean it up
 			if errors.Is(errGetByID, user.ErrUserNotFound) {
 				if err := s.authInfoService.DeleteUserAuthInfo(ctx, authInfo.UserId); err != nil {
-					s.log.FromContext(ctx).Error("Failed to clean up user auth", "error", err, "auth_module", identity.AuthenticatedBy, "auth_id", identity.AuthID)
+					s.log.FromContext(ctx).Error("Failed to clean up user auth", "error", err, "authModule", identity.AuthenticatedBy, "authID", identity.AuthID)
 				}
 			}
 		}
