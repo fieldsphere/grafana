@@ -282,7 +282,7 @@ func (e *AzureMonitorDatasource) retrieveSubscriptionDetails(cli *http.Client, c
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			e.Logger.Warn("Failed to close response body", "err", err)
+			e.Logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -334,7 +334,7 @@ func (e *AzureMonitorDatasource) executeQuery(ctx context.Context, query *types.
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			e.Logger.Warn("Failed to close response body", "err", err)
+			e.Logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

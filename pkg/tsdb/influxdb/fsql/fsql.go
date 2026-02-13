@@ -36,7 +36,7 @@ func Query(ctx context.Context, dsInfo *models.DatasourceInfo, req backend.Query
 	defer func(client *client) {
 		err := client.Close()
 		if err != nil {
-			logger.Warn("Failed to close fsql client", "err", err)
+			logger.Warn("Failed to close fsql client", "error", err)
 		}
 	}(r.client)
 

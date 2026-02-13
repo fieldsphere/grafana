@@ -161,14 +161,14 @@ func decode(encoding string, original io.ReadCloser) ([]byte, error) {
 		}
 		defer func() {
 			if err := reader.(io.ReadCloser).Close(); err != nil {
-				backend.Logger.Warn("Failed to close reader body", "err", err)
+				backend.Logger.Warn("Failed to close reader body", "error", err)
 			}
 		}()
 	case "deflate":
 		reader = flate.NewReader(original)
 		defer func() {
 			if err := reader.(io.ReadCloser).Close(); err != nil {
-				backend.Logger.Warn("Failed to close reader body", "err", err)
+				backend.Logger.Warn("Failed to close reader body", "error", err)
 			}
 		}()
 	case "br":

@@ -199,14 +199,14 @@ func decode(encoding string, original io.ReadCloser) ([]byte, error) {
 		}
 		defer func() {
 			if err := reader.(io.ReadCloser).Close(); err != nil {
-				backend.Logger.Warn("Failed to close reader body", "err", err)
+				backend.Logger.Warn("Failed to close reader body", "error", err)
 			}
 		}()
 	case "deflate":
 		reader = flate.NewReader(original)
 		defer func() {
 			if err := reader.(io.ReadCloser).Close(); err != nil {
-				backend.Logger.Warn("Failed to close reader body", "err", err)
+				backend.Logger.Warn("Failed to close reader body", "error", err)
 			}
 		}()
 	case "br":
@@ -246,7 +246,7 @@ func encode(encoding string, body []byte) ([]byte, error) {
 	_, err = writer.Write(body)
 	if writeCloser, ok := writer.(io.WriteCloser); ok {
 		if err := writeCloser.Close(); err != nil {
-			backend.Logger.Warn("Failed to close writer body", "err", err)
+			backend.Logger.Warn("Failed to close writer body", "error", err)
 		}
 	}
 	if err != nil {
@@ -284,7 +284,7 @@ func doRequest(req *http.Request, cli *http.Client, responseFn processResponse) 
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			backend.Logger.Warn("Failed to close response body", "err", err)
+			backend.Logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 	encoding := res.Header.Get("Content-Encoding")

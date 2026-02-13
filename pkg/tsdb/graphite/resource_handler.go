@@ -46,7 +46,7 @@ func handleResourceReq[T any](handlerFn resourceHandler[T], s *Service) func(rw 
 		defer func() {
 			if req.Body != nil {
 				if err := req.Body.Close(); err != nil {
-					s.logger.Warn("Failed to close request body", "err", err)
+					s.logger.Warn("Failed to close request body", "error", err)
 					writeErrorResponse(rw, http.StatusInternalServerError, fmt.Sprintf("unexpected error %v", err))
 					return
 				}
@@ -329,7 +329,7 @@ func doGraphiteRequest[T any](ctx context.Context, dsInfo *datasourceInfo, logge
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			logger.Warn("Failed to close response body", "err", err)
+			logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

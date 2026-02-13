@@ -104,7 +104,7 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			s.logger.Warn("Failed to close response body", "err", err)
+			s.logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -613,7 +613,7 @@ func unmarshalResponse(res *http.Response, logger log.Logger) (cloudMonitoringRe
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			logger.Warn("Failed to close response body", "err", err)
+			logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

@@ -206,7 +206,7 @@ func execute(ctx context.Context, tracer trace.Tracer, dsInfo *models.Datasource
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			logger.Warn("Failed to close response body", "err", err)
+			logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
