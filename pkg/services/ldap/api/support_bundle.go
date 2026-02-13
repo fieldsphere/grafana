@@ -11,6 +11,10 @@ import (
 	"github.com/grafana/grafana/pkg/services/supportbundles"
 )
 
+func writeSupportBundlef(buf *bytes.Buffer, format string, args ...any) {
+	buf.WriteString(fmt.Sprintf(format, args...))
+}
+
 func (s *Service) supportBundleCollector(context.Context) (*supportbundles.SupportItem, error) {
 	bWriter := bytes.NewBuffer(nil)
 	bWriter.WriteString("# LDAP information\n\n")
@@ -23,16 +27,16 @@ func (s *Service) supportBundleCollector(context.Context) (*supportbundles.Suppo
 
 		ldapStatus, err := ldapClient.Ping()
 		if err != nil {
-			fmt.Fprintf(bWriter,
+			writeSupportBundlef(bWriter,
 				"Unable to ping server\n Err: %s", err)
 		}
 
 		for _, server := range ldapStatus {
-			fmt.Fprintf(bWriter, "\nHost: %s  \n", server.Host)
-			fmt.Fprintf(bWriter, "Port: %d  \n", server.Port)
-			fmt.Fprintf(bWriter, "Available: %v  \n", server.Available)
+			writeSupportBundlef(bWriter, "\nHost: %s  \n", server.Host)
+			writeSupportBundlef(bWriter, "Port: %d  \n", server.Port)
+			writeSupportBundlef(bWriter, "Available: %v  \n", server.Available)
 			if server.Error != nil {
-				fmt.Fprintf(bWriter, "Error: %s\n", server.Error)
+				writeSupportBundlef(bWriter, "Error: %s\n", server.Error)
 			}
 		}
 
@@ -45,7 +49,7 @@ func (s *Service) supportBundleCollector(context.Context) (*supportbundles.Suppo
 			server.ClientKeyValue = "********"
 
 			if !strings.Contains(server.SearchFilter, server.Attr.Username) {
-				fmt.Fprintf(bWriter,
+				writeSupportBundlef(bWriter,
 					"Search filter does not match username attribute  \n"+
 						"Server: %s  \n"+
 						"Search filter: %s  \n"+
@@ -64,7 +68,7 @@ func (s *Service) supportBundleCollector(context.Context) (*supportbundles.Suppo
 	bWriter.WriteString("```toml\n")
 	errM := toml.NewEncoder(bWriter).Encode(ldapConfig)
 	if errM != nil {
-		fmt.Fprintf(bWriter,
+		writeSupportBundlef(bWriter,
 			"Unable to encode LDAP configuration  \n Err: %s", errM)
 	}
 	bWriter.WriteString("```\n\n")
@@ -73,12 +77,12 @@ func (s *Service) supportBundleCollector(context.Context) (*supportbundles.Suppo
 
 	bWriter.WriteString("```ini\n")
 
-	fmt.Fprintf(bWriter, "enabled = %v\n", s.cfg.Enabled)
-	fmt.Fprintf(bWriter, "config_file = %s\n", s.cfg.ConfigFilePath)
-	fmt.Fprintf(bWriter, "allow_sign_up = %v\n", s.cfg.AllowSignUp)
-	fmt.Fprintf(bWriter, "sync_cron = %s\n", s.cfg.SyncCron)
-	fmt.Fprintf(bWriter, "active_sync_enabled = %v\n", s.cfg.ActiveSyncEnabled)
-	fmt.Fprintf(bWriter, "skip_org_role_sync = %v\n", s.cfg.SkipOrgRoleSync)
+	writeSupportBundlef(bWriter, "enabled = %v\n", s.cfg.Enabled)
+	writeSupportBundlef(bWriter, "config_file = %s\n", s.cfg.ConfigFilePath)
+	writeSupportBundlef(bWriter, "allow_sign_up = %v\n", s.cfg.AllowSignUp)
+	writeSupportBundlef(bWriter, "sync_cron = %s\n", s.cfg.SyncCron)
+	writeSupportBundlef(bWriter, "active_sync_enabled = %v\n", s.cfg.ActiveSyncEnabled)
+	writeSupportBundlef(bWriter, "skip_org_role_sync = %v\n", s.cfg.SkipOrgRoleSync)
 
 	bWriter.WriteString("```\n\n")
 
