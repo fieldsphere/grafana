@@ -299,7 +299,7 @@ func assertContextContains(t *testing.T, logRecord map[string]any, label string,
 }
 
 func TestAppendSortedFrontendContext(t *testing.T) {
-	base := frontendlogging.CtxVector{"kind", "log"}
+	base := frontendlogging.CtxVector{"eventKind", "log"}
 	kv := map[string]any{
 		"context_z": "z",
 		"context_a": "a",
@@ -309,7 +309,7 @@ func TestAppendSortedFrontendContext(t *testing.T) {
 	got := appendSortedFrontendContext(base, kv)
 
 	require.Equal(t, frontendlogging.CtxVector{
-		"kind", "log",
+		"eventKind", "log",
 		"context_a", "a",
 		"context_b", "b",
 		"context_z", "z",

@@ -58,7 +58,7 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 			for _, logEntry := range event.Logs {
 				var ctx = frontendlogging.CtxVector{}
 				ctx = event.AddMetaToContext(ctx)
-				ctx = append(ctx, "kind", "log", "originalTimestamp", logEntry.Timestamp)
+				ctx = append(ctx, "eventKind", "log", "originalTimestamp", logEntry.Timestamp)
 				ctx = appendSortedFrontendContext(ctx, frontendlogging.KeyValToInterfaceMap(logEntry.KeyValContext()))
 				switch logEntry.LogLevel {
 				case frontendlogging.LogLevelDebug, frontendlogging.LogLevelTrace:
@@ -92,7 +92,7 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 					var ctx = frontendlogging.CtxVector{}
 					ctx = event.AddMetaToContext(ctx)
 					ctx = append(ctx, measurementName, measurementValue)
-					ctx = append(ctx, "kind", "measurement", "originalTimestamp", measurementEntry.Timestamp)
+					ctx = append(ctx, "eventKind", "measurement", "originalTimestamp", measurementEntry.Timestamp)
 					frontendLogger.Info("Measurement", append(ctx, "measurementType", measurementEntry.Type)...)
 				}
 			}
@@ -103,7 +103,7 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 				ctx = event.AddMetaToContext(ctx)
 				exception := exception
 				transformedException := frontendlogging.TransformException(c.Req.Context(), &exception, store)
-				ctx = append(ctx, "kind", "exception", "type", transformedException.Type, "value", transformedException.Value, "stacktrace", transformedException.String())
+				ctx = append(ctx, "eventKind", "exception", "type", transformedException.Type, "value", transformedException.Value, "stacktrace", transformedException.String())
 				ctx = append(ctx, "originalTimestamp", exception.Timestamp, "frontendExceptionMessage", exception.Message())
 				frontendLogger.Error("Frontend javascript agent exception", ctx...)
 			}
