@@ -1385,6 +1385,18 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in []any key/value slices; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`[]any{$*before, $key, $value, $dangling}`,
+	).
+		Where(m["key"].Type.Is("string") && m["dangling"].Type.Is("string")).
+		Report("[]any key/value slice has a dangling key without a value; ensure key/value arguments are paired")
+
+	m.Match(
+		`append($arr, $*before, $key, $value, $dangling)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Type.Is("string") && m["dangling"].Type.Is("string")).
+		Report("append([]any, ...) key/value slice has a dangling key without a value; ensure key/value arguments are paired")
+
+	m.Match(
 		`append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
 		`append($arr, $*before, $key, fmt.Sprint($*args), $*after)`,
 	).
