@@ -94,7 +94,7 @@ func check(ctx *contextmodel.ReqContext, allGlobs *[]glob.Glob, logger log.Logge
 func matchesAllowedPath(allGlobs *[]glob.Glob, pathToCheck string, logger log.Logger) bool {
 	logger.Debug("Checking action URL allowlist", "path", pathToCheck)
 	for _, rule := range *allGlobs {
-		logger.Debug("Checking action URL allowlist rule", "path", pathToCheck, "rule", rule)
+		logger.Debug("Checking action URL allowlist rule", "path", pathToCheck, "allowlistRule", rule)
 		if rule.Match(pathToCheck) {
 			// allowed
 			logger.Debug("POST/PUT call matches allow configuration settings", "path", pathToCheck)

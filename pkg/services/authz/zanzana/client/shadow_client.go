@@ -60,7 +60,7 @@ func (c *ShadowClient) Check(ctx context.Context, id authlib.AuthInfo, req authl
 		if acErr == nil {
 			if res.Allowed != acRes.Allowed {
 				c.metrics.evaluationStatusTotal.WithLabelValues("error").Inc()
-				c.logger.Warn("Zanzana check result does not match", "expected", acRes.Allowed, "actual", res.Allowed, "userUID", id.GetUID(), "request", req)
+				c.logger.Warn("Zanzana check result does not match", "expected", acRes.Allowed, "actual", res.Allowed, "userUID", id.GetUID(), "checkRequest", req)
 			} else {
 				c.metrics.evaluationStatusTotal.WithLabelValues("success").Inc()
 			}
