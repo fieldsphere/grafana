@@ -33,7 +33,7 @@ func (s *Service) newResourceMux() *http.ServeMux {
 
 func handleResourceReq[T any](handlerFn resourceHandler[T], s *Service) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
-		s.logger.Debug("Received resource call", "url", req.URL.String(), "method", req.Method)
+		s.logger.Debug("Received resource call", "requestURL", req.URL.String(), "method", req.Method)
 
 		pluginCtx := backend.PluginConfigFromContext(req.Context())
 		ctx := req.Context()

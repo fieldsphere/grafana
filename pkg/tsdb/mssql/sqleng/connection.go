@@ -95,7 +95,7 @@ func generateConnectionString(dsInfo DataSourceInfo, azureCredentials azcredenti
 	}
 
 	args := []any{
-		"url", dsInfo.URL, "host", addr.Host,
+		"datasourceURL", dsInfo.URL, "host", addr.Host,
 	}
 	if addr.Port != "0" {
 		args = append(args, "port", addr.Port)

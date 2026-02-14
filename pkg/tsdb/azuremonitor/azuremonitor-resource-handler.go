@@ -135,7 +135,7 @@ func writeErrorResponse(rw http.ResponseWriter, code int, msg string) {
 
 func (s *Service) handleResourceReq(subDataSource string) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
-		s.logger.Debug("Received resource call", "url", req.URL.String(), "method", req.Method)
+		s.logger.Debug("Received resource call", "requestURL", req.URL.String(), "method", req.Method)
 
 		newPath, err := getTarget(req.URL.Path)
 		if err != nil {

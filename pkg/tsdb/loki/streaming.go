@@ -99,7 +99,7 @@ func (s *Service) RunStream(ctx context.Context, req *backend.RunStreamRequest, 
 	}
 	wsurl.RawQuery = params.Encode()
 
-	logger.Info("Connecting to websocket", "url", wsurl)
+	logger.Info("Connecting to websocket", "websocketURL", wsurl)
 	c, r, err := websocket.DefaultDialer.Dial(wsurl.String(), nil)
 	if err != nil {
 		logger.Error("Error connecting to websocket", "error", err)
