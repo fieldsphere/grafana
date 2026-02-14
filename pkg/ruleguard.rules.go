@@ -1342,6 +1342,48 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in []any key/value slices; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`append($arr, $*before, $key, $value, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in []any key/value slices (for example "orgID", "pluginID", "userID")`)
+
+	m.Match(
+		`append($arr, $*before, $key, $value, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Report(`prefer "UID" acronym casing in []any key/value slices (for example "dashboardUID", "ruleUID", "datasourceUID")`)
+
+	m.Match(
+		`append($arr, $*before, $key, $value, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Report(`avoid snake_case keys in []any key/value slices; use camelCase with canonical acronym casing`)
+
+	m.Match(
+		`append($arr, $*before, $key, $value, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\".*\\s+.*\"$")).
+		Report(`avoid whitespace in []any keys; use compact camelCase keys`)
+
+	m.Match(
+		`append($arr, $*before, $key, $value, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
+		Report(`avoid hyphenated keys in []any key/value slices; use camelCase keys`)
+
+	m.Match(
+		`append($arr, $*before, $key, $value, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Report(`avoid dotted keys in []any key/value slices; prefer flat camelCase keys`)
+
+	m.Match(
+		`append($arr, $*before, $key, $value, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
+		Report(`avoid uppercase-leading keys in []any key/value slices; use lower camelCase with canonical acronym casing`)
+
+	m.Match(
 		`slog.Group($group, $*before, $key, $value, $*after)`,
 	).
 		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|user|client|uname|type|value|info)\"$")).
@@ -1376,6 +1418,62 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in slog.Group appended fields; use stable string-literal or const keys and keep dynamic data in values`)
+
+	m.Match(
+		`slog.Group($group, $*before, $key, $value, $*after)`,
+		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in slog.Group field keys (for example "orgID", "pluginID", "userID")`)
+
+	m.Match(
+		`slog.Group($group, $*before, $key, $value, $*after)`,
+		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Report(`prefer "UID" acronym casing in slog.Group field keys (for example "dashboardUID", "ruleUID", "datasourceUID")`)
+
+	m.Match(
+		`slog.Group($group, $*before, $key, $value, $*after)`,
+		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Report(`avoid snake_case slog.Group field keys; use camelCase with canonical acronym casing`)
+
+	m.Match(
+		`slog.Group($group, $*before, $key, $value, $*after)`,
+		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\".*\\s+.*\"$")).
+		Report(`avoid whitespace in slog.Group field keys; use compact camelCase keys`)
+
+	m.Match(
+		`slog.Group($group, $*before, $key, $value, $*after)`,
+		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
+		Report(`avoid hyphenated slog.Group field keys; use camelCase keys`)
+
+	m.Match(
+		`slog.Group($group, $*before, $key, $value, $*after)`,
+		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Report(`avoid dotted slog.Group field keys; prefer flat camelCase keys`)
+
+	m.Match(
+		`slog.Group($group, $*before, $key, $value, $*after)`,
+		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
+		Report(`avoid uppercase-leading slog.Group field keys; use lower camelCase with canonical acronym casing`)
 
 	m.Match(
 		`slog.Group($group, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
