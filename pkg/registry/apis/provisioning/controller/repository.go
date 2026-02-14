@@ -391,7 +391,7 @@ func (rc *RepositoryController) determineSyncStrategy(
 		return nil
 	case isBlocked:
 		logger.Info("skip sync for repository over quota",
-			"repository", obj.Name,
+			"repositoryName", obj.Name,
 			"namespace", obj.Namespace,
 		)
 		return nil
