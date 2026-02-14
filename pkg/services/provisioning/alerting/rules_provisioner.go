@@ -56,7 +56,7 @@ func (prov *defaultAlertRuleProvisioner) Provision(ctx context.Context,
 				"orgID", group.OrgID,
 				"folderFullpath", group.FolderFullpath,
 				"folderUID", folderUID,
-				"name", group.Title)
+				"groupTitle", group.Title)
 			for _, rule := range group.Rules {
 				rule.NamespaceUID = folderUID
 				rule.RuleGroup = group.Title

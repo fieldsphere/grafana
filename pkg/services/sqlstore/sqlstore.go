@@ -219,7 +219,7 @@ func (ss *SQLStore) ensureMainOrgAndAdminUser(test bool) error {
 			ss.log.Info("Created default admin", "adminUser", ss.cfg.AdminUser)
 		}
 
-		ss.log.Debug("Creating default org", "name", mainOrgName)
+		ss.log.Debug("Creating default org", "orgName", mainOrgName)
 		if _, err := ss.getOrCreateOrg(sess, mainOrgName); err != nil {
 			return fmt.Errorf("failed to create default organization: %w", err)
 		}

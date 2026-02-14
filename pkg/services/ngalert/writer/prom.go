@@ -321,7 +321,7 @@ func (w PrometheusWriter) Write(ctx context.Context, name string, t time.Time, f
 		})
 	}
 
-	l.Debug("Writing metric", "name", name)
+	l.Debug("Writing metric", "metricName", name)
 	writeStart := w.clock.Now()
 	res, writeErr := w.client.WriteTimeSeries(ctx, series, promremote.WriteOptions{})
 	w.metrics.WriteDuration.WithLabelValues(lvs...).Observe(w.clock.Now().Sub(writeStart).Seconds())

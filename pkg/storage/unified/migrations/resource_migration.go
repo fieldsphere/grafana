@@ -174,7 +174,7 @@ func (r *MigrationRunner) validateMigration(ctx context.Context, sess *xorm.Sess
 	}
 
 	for _, validator := range validators {
-		r.log.Debug("Running validator", "name", validator.Name(), "total", len(validators))
+		r.log.Debug("Running validator", "validatorName", validator.Name(), "total", len(validators))
 		if err := validator.Validate(ctx, sess, response, r.log); err != nil {
 			return fmt.Errorf("validator %s failed: %w", validator.Name(), err)
 		}

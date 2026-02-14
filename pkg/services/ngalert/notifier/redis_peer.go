@@ -375,7 +375,7 @@ func (p *redisPeer) filterUnhealthyMembers(members []string, values []any) []str
 func (p *redisPeer) Position() int {
 	for i, peer := range p.Members() {
 		if peer == p.withPrefix(p.name) {
-			p.logger.Debug("Cluster position found", "name", p.name, "position", i)
+			p.logger.Debug("Cluster position found", "peerName", p.name, "position", i)
 			return i
 		}
 	}
