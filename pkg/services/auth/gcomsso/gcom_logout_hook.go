@@ -32,7 +32,7 @@ func ProvideGComSSOService(cfg *setting.Cfg) *GComSSOService {
 }
 
 func (s *GComSSOService) LogoutHook(ctx context.Context, user identity.Requester, sessionToken *usertoken.UserToken) error {
-	s.logger.Debug("Logging out from Grafana.com", "user", user.GetID(), "session", sessionToken.Id)
+	s.logger.Debug("Logging out from Grafana.com", "userID", user.GetID(), "sessionID", sessionToken.Id)
 	data, err := json.Marshal(&gcomLogoutRequest{
 		Token:     user.GetIDToken(),
 		SessionID: fmt.Sprint(sessionToken.Id),

@@ -1034,7 +1034,7 @@ func (g *GrafanaLive) HandleHTTPPublish(ctx *contextmodel.ReqContext) response.R
 		return response.Error(http.StatusBadRequest, "invalid channel ID", nil)
 	}
 
-	logger.Debug("Publish API cmd", "identity", ctx.GetUsername(), "channel", cmd.Channel)
+	logger.Debug("Publish API cmd", "username", ctx.GetUsername(), "channel", cmd.Channel)
 	user := ctx.SignedInUser
 	channel := cmd.Channel
 	ns := user.GetNamespace()
@@ -1042,14 +1042,14 @@ func (g *GrafanaLive) HandleHTTPPublish(ctx *contextmodel.ReqContext) response.R
 	if g.Pipeline != nil {
 		rule, ok, err := g.Pipeline.Get(ns, channel)
 		if err != nil {
-			logger.Error("Error getting channel rule", "user", user, "channel", channel, "error", err)
+			logger.Error("Error getting channel rule", "identityID", user.GetID(), "channel", channel, "error", err)
 			return response.Error(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError), nil)
 		}
 		if ok {
 			if rule.PublishAuth != nil {
 				ok, err := rule.PublishAuth.CanPublish(ctx.Req.Context(), user)
 				if err != nil {
-					logger.Error("Error checking publish permissions", "user", user, "channel", channel, "error", err)
+					logger.Error("Error checking publish permissions", "identityID", user.GetID(), "channel", channel, "error", err)
 					return response.Error(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError), nil)
 				}
 				if !ok {
@@ -1062,7 +1062,7 @@ func (g *GrafanaLive) HandleHTTPPublish(ctx *contextmodel.ReqContext) response.R
 			}
 			_, err := g.Pipeline.ProcessInput(ctx.Req.Context(), ns, channel, cmd.Data)
 			if err != nil {
-				logger.Error("Error processing input", "user", user, "channel", channel, "error", err)
+				logger.Error("Error processing input", "identityID", user.GetID(), "channel", channel, "error", err)
 				return response.Error(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError), nil)
 			}
 			return response.JSON(http.StatusOK, model.LivePublishResponse{})
@@ -1092,7 +1092,7 @@ func (g *GrafanaLive) HandleHTTPPublish(ctx *contextmodel.ReqContext) response.R
 			return response.Error(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError), nil)
 		}
 	}
-	logger.Debug("Publication successful", "identity", ctx.GetID(), "channel", cmd.Channel)
+	logger.Debug("Publication successful", "identityID", ctx.GetID(), "channel", cmd.Channel)
 	return response.JSON(http.StatusOK, model.LivePublishResponse{})
 }
 

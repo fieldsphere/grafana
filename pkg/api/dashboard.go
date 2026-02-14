@@ -350,7 +350,7 @@ func (hs *HTTPServer) deleteDashboard(c *contextmodel.ReqContext) response.Respo
 		hs.log.Error(
 			"Failed to disconnect library elements",
 			"dashboardID", dash.ID,
-			"identity", c.GetID(),
+			"identityID", c.GetID(),
 			"error", err)
 	}
 
