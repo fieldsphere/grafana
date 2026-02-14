@@ -89,5 +89,5 @@ func (a *SyncRuleStatePersister) Sync(ctx context.Context, span trace.Span, rule
 	}
 
 	logger.Debug("Saving alert states done", "count", len(instancesToSave), "duration", time.Since(start))
-	span.AddEvent("saved alert rule state")
+	span.AddEvent("savedAlertRuleState")
 }

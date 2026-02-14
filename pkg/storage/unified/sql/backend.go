@@ -409,7 +409,7 @@ func (b *backend) garbageCollectBatch(ctx context.Context, group, resourceName s
 			return err
 		}
 		rowsAffected = rows
-		span.AddEvent("rows deleted", trace.WithAttributes(attribute.Int64("rowsDeleted", rowsAffected)))
+		span.AddEvent("rowsDeleted", trace.WithAttributes(attribute.Int64("rowsDeleted", rowsAffected)))
 		return nil
 	})
 	return rowsAffected, err

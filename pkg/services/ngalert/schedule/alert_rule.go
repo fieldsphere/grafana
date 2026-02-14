@@ -469,7 +469,7 @@ func (a *alertRule) evaluate(ctx context.Context, e *Evaluation, span trace.Span
 		span.RecordError(err)
 	} else {
 		logger.Debug("Alert rule evaluated", "results", len(results), "duration", dur)
-		span.AddEvent("rule evaluated", trace.WithAttributes(
+		span.AddEvent("ruleEvaluated", trace.WithAttributes(
 			attribute.Int64("results", int64(len(results))),
 		))
 	}
@@ -483,7 +483,7 @@ func (a *alertRule) evaluate(ctx context.Context, e *Evaluation, span trace.Span
 		func(ctx context.Context, statesToSend state.StateTransitions) {
 			start := a.clock.Now()
 			alerts := a.send(ctx, logger, statesToSend)
-			span.AddEvent("results sent", trace.WithAttributes(
+			span.AddEvent("resultsSent", trace.WithAttributes(
 				attribute.Int64("alertsSent", int64(len(alerts.PostableAlerts))),
 			))
 			sendDuration.Observe(a.clock.Now().Sub(start).Seconds())

@@ -261,7 +261,7 @@ func (r *recordingRule) doEvaluate(ctx context.Context, ev *Evaluation) {
 		return
 	}
 	logger.Debug("Recording rule evaluation succeeded")
-	span.AddEvent("rule evaluated")
+	span.AddEvent("ruleEvaluated")
 	r.lastError.Store(nil)
 	r.health.Store("ok")
 }
@@ -283,13 +283,13 @@ func (r *recordingRule) tryEvaluation(ctx context.Context, ev *Evaluation, logge
 
 	logger.Debug("Recording rule query completed", "resultCount", len(result.Responses), "duration", evalDur)
 	span := trace.SpanFromContext(ctx)
-	span.AddEvent("query succeeded", trace.WithAttributes(
+	span.AddEvent("querySucceeded", trace.WithAttributes(
 		attribute.Int64("results", int64(len(result.Responses))),
 	))
 
 	frames, err := r.frameRef(ev.rule.Record.From, result)
 	if err != nil {
-		span.AddEvent("query returned no data, nothing to write", trace.WithAttributes(
+		span.AddEvent("queryReturnedNoData", trace.WithAttributes(
 			attribute.String("reason", err.Error()),
 		))
 		logger.Debug("Query returned no data", "reason", err)
@@ -309,7 +309,7 @@ func (r *recordingRule) tryEvaluation(ctx context.Context, ev *Evaluation, logge
 	}
 
 	logger.Debug("Metrics written", "duration", writeDur)
-	span.AddEvent("metrics written", trace.WithAttributes(
+	span.AddEvent("metricsWritten", trace.WithAttributes(
 		attribute.Int64("frames", int64(len(frames))),
 	))
 

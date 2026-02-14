@@ -339,7 +339,7 @@ func (st *Manager) ProcessEvalResults(
 	states := st.setNextStateForRule(ctx, alertRule, results, extraLabels, logger, fn, evaluatedAt)
 
 	missingSeriesStates, staleCount := st.processMissingSeriesStates(logger, evaluatedAt, alertRule, fn)
-	span.AddEvent("results processed", trace.WithAttributes(
+	span.AddEvent("resultsProcessed", trace.WithAttributes(
 		attribute.Int("stateTransitions", len(states)),
 		attribute.Int("staleStates", staleCount),
 	))

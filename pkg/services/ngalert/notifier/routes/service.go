@@ -99,7 +99,7 @@ func (nps *Service) GetManagedRoute(ctx context.Context, orgID int64, name strin
 		}
 	}
 
-	span.AddEvent("Loaded route", trace.WithAttributes(
+	span.AddEvent("loadedRoute", trace.WithAttributes(
 		attribute.String("concurrencyToken", rev.ConcurrencyToken),
 	))
 
@@ -147,7 +147,7 @@ func (nps *Service) GetManagedRoutes(ctx context.Context, orgID int64) (legacy_s
 			// When UIDs are introduced to managed routes, we can choose to de-duplicate the name as rules will reference the route by UID, not name.
 			if exists := managedRoutes.Contains(importedRoute.Name); exists {
 				nps.log.FromContext(ctx).Warn("Imported route name conflicts with existing managed route. Skipping imported route.", "routeName", importedRoute.Name)
-				span.AddEvent("Skipped imported route due to name conflict", trace.WithAttributes(
+				span.AddEvent("skippedImportedRouteNameConflict", trace.WithAttributes(
 					attribute.String("routeName", importedRoute.Name),
 				))
 			} else {
@@ -156,7 +156,7 @@ func (nps *Service) GetManagedRoutes(ctx context.Context, orgID int64) (legacy_s
 		}
 	}
 
-	span.AddEvent("Loaded routes", trace.WithAttributes(
+	span.AddEvent("loadedRoutes", trace.WithAttributes(
 		attribute.String("concurrencyToken", rev.ConcurrencyToken),
 		attribute.Int("count", len(managedRoutes)),
 	))
@@ -199,7 +199,7 @@ func (nps *Service) UpdateManagedRoute(ctx context.Context, orgID int64, name st
 		return nil, models.ErrRouteNotFound.Errorf("route %q not found", name)
 	}
 
-	span.AddEvent("Loaded current route", trace.WithAttributes(
+	span.AddEvent("loadedCurrentRoute", trace.WithAttributes(
 		attribute.String("concurrencyToken", revision.ConcurrencyToken),
 		attribute.String("routeName", name),
 		attribute.String("routeVersion", existing.Version),
@@ -243,7 +243,7 @@ func (nps *Service) UpdateManagedRoute(ctx context.Context, orgID int64, name st
 	if err != nil {
 		return nil, err
 	}
-	span.AddEvent("Route updated", trace.WithAttributes(
+	span.AddEvent("routeUpdated", trace.WithAttributes(
 		attribute.String("version", updated.Version),
 	))
 	nps.log.FromContext(ctx).Info("Updated route", "routeName", name, "oldVersion", existing.Version, "newVersion", updated.Version)
@@ -382,7 +382,7 @@ func (nps *Service) CreateManagedRoute(ctx context.Context, orgID int64, name st
 	if err != nil {
 		return nil, err
 	}
-	span.AddEvent("Route created", trace.WithAttributes(
+	span.AddEvent("routeCreated", trace.WithAttributes(
 		attribute.String("version", created.Version),
 	))
 	nps.log.FromContext(ctx).Info("Created route", "routeName", name, "version", created.Version)
@@ -426,7 +426,7 @@ func (nps *Service) getImportedRoute(ctx context.Context, span trace.Span, revis
 		))
 		return nil
 	} else if result != nil {
-		span.AddEvent("Loaded imported route", trace.WithAttributes(
+		span.AddEvent("loadedImportedRoute", trace.WithAttributes(
 			attribute.String("concurrencyToken", revision.ConcurrencyToken),
 		))
 	}

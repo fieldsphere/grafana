@@ -326,7 +326,7 @@ func (s *searchServer) logStats(ctx context.Context, stats *SearchStats, span tr
 	s.log.FromContext(ctx).Debug("Search stats", args...)
 
 	if span != nil {
-		span.AddEvent("search stats", trace.WithAttributes(searchStatsSpanAttributes(stats, elapsed, searchArgs)...))
+		span.AddEvent("searchStats", trace.WithAttributes(searchStatsSpanAttributes(stats, elapsed, searchArgs)...))
 	}
 }
 
@@ -683,7 +683,7 @@ func (s *searchServer) init(ctx context.Context) error {
 		return err
 	}
 
-	span.AddEvent("namespaces indexed", trace.WithAttributes(attribute.Int("namespacesIndexed", totalBatchesIndexed)))
+	span.AddEvent("namespacesIndexed", trace.WithAttributes(attribute.Int("namespacesIndexed", totalBatchesIndexed)))
 
 	subctx, cancel := context.WithCancel(origCtx)
 
@@ -857,7 +857,7 @@ func (s *searchServer) rebuildIndex(ctx context.Context, req rebuildRequest) {
 
 	idx := s.search.GetIndex(req.NamespacedResource)
 	if idx == nil {
-		span.AddEvent("index not found")
+		span.AddEvent("indexNotFound")
 		l.Error("index not found")
 		return
 	}
@@ -870,7 +870,7 @@ func (s *searchServer) rebuildIndex(ctx context.Context, req rebuildRequest) {
 
 	rebuild := shouldRebuildIndex(bi, req.minBuildVersion, req.minBuildTime, req.lastImportTime, l)
 	if !rebuild {
-		span.AddEvent("index not rebuilt")
+		span.AddEvent("indexNotRebuilt")
 		l.Info("index doesn't need to be rebuilt")
 		return
 	}
@@ -982,7 +982,7 @@ func (s *searchServer) getOrCreateIndex(ctx context.Context, stats *SearchStats,
 
 	idx := s.search.GetIndex(key)
 	if idx == nil {
-		span.AddEvent("Building index")
+		span.AddEvent("buildingIndex")
 		buildStartTime := time.Now()
 		ch := s.buildIndex.DoChan(key.String(), func() (interface{}, error) {
 			// We want to finish building of the index even if original context is canceled.
@@ -1048,7 +1048,7 @@ func (s *searchServer) getOrCreateIndex(ctx context.Context, stats *SearchStats,
 		}
 	}
 
-	span.AddEvent("Updating index")
+	span.AddEvent("updatingIndex")
 	start := time.Now()
 	rv, err := idx.UpdateIndex(ctx)
 	if err != nil {
@@ -1060,7 +1060,7 @@ func (s *searchServer) getOrCreateIndex(ctx context.Context, stats *SearchStats,
 		s.indexMetrics.SearchUpdateWaitTime.WithLabelValues(reason).Observe(elapsed.Seconds())
 	}
 	s.log.FromContext(ctx).Debug("Index updated before search", "namespace", key.Namespace, "group", key.Group, "resource", key.Resource, "reason", reason, "duration", elapsed, "resourceVersion", rv)
-	span.AddEvent("Index updated")
+	span.AddEvent("indexUpdated")
 
 	return idx, nil
 }
@@ -1086,7 +1086,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 
 	builderFn := func(index ResourceIndex) (int64, error) {
 		span := trace.SpanFromContext(ctx)
-		span.AddEvent("building index", trace.WithAttributes(attribute.Int64("size", size), attribute.String("reason", indexBuildReason)))
+		span.AddEvent("buildingIndex", trace.WithAttributes(attribute.Int64("size", size), attribute.String("reason", indexBuildReason)))
 
 		listRV, err := s.storage.ListIterator(ctx, &resourcepb.ListRequest{
 			Limit: 1000000000000, // big number
@@ -1116,7 +1116,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 					Name:      iter.Name(),
 				}
 
-				span.AddEvent("building document", trace.WithAttributes(attribute.String("resourceName", iter.Name())))
+				span.AddEvent("buildingDocument", trace.WithAttributes(attribute.String("resourceName", iter.Name())))
 				// Convert it to an indexable document
 				doc, err := builder.BuildDocument(ctx, key, iter.ResourceVersion(), iter.Value())
 				if err != nil {
@@ -1133,7 +1133,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 
 				// When we reach the batch size, perform bulk index and reset the batch.
 				if len(items) >= maxBatchSize {
-					span.AddEvent("bulk indexing", trace.WithAttributes(attribute.Int("count", len(items))))
+					span.AddEvent("bulkIndexing", trace.WithAttributes(attribute.Int("count", len(items))))
 					if err = index.BulkIndex(&BulkIndexRequest{Items: items}); err != nil {
 						return err
 					}
@@ -1144,7 +1144,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 
 			// Index any remaining items in the final batch.
 			if len(items) > 0 {
-				span.AddEvent("bulk indexing", trace.WithAttributes(attribute.Int("count", len(items))))
+				span.AddEvent("bulkIndexing", trace.WithAttributes(attribute.Int("count", len(items))))
 				if err = index.BulkIndex(&BulkIndexRequest{Items: items}); err != nil {
 					return err
 				}
@@ -1156,7 +1156,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 
 	updaterFn := func(ctx context.Context, index ResourceIndex, sinceRV int64) (int64, int, error) {
 		span := trace.SpanFromContext(ctx)
-		span.AddEvent("updating index", trace.WithAttributes(attribute.Int64("sinceRV", sinceRV)))
+		span.AddEvent("updatingIndex", trace.WithAttributes(attribute.Int64("sinceRV", sinceRV)))
 
 		rv, it := s.storage.ListModifiedSince(ctx, NamespacedResource{
 			Group:     nsr.Group,
@@ -1186,7 +1186,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 			key := &res.Key
 			switch res.Action {
 			case resourcepb.WatchEvent_ADDED, resourcepb.WatchEvent_MODIFIED:
-				span.AddEvent("building document", trace.WithAttributes(attribute.String("resourceName", res.Key.Name)))
+				span.AddEvent("buildingDocument", trace.WithAttributes(attribute.String("resourceName", res.Key.Name)))
 				// Convert it to an indexable document
 				doc, err := builder.BuildDocument(ctx, key, res.ResourceVersion, res.Value)
 				if err != nil {
@@ -1200,7 +1200,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 					Doc:    doc,
 				})
 			case resourcepb.WatchEvent_DELETED:
-				span.AddEvent("deleting document", trace.WithAttributes(attribute.String("resourceName", res.Key.Name)))
+				span.AddEvent("deletingDocument", trace.WithAttributes(attribute.String("resourceName", res.Key.Name)))
 				items = append(items, &BulkIndexItem{
 					Action: ActionDelete,
 					Key:    &res.Key,
@@ -1212,7 +1212,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 
 			// When we reach the batch size, perform bulk index and reset the batch.
 			if len(items) >= maxBatchSize {
-				span.AddEvent("bulk indexing", trace.WithAttributes(attribute.Int("count", len(items))))
+				span.AddEvent("bulkIndexing", trace.WithAttributes(attribute.Int("count", len(items))))
 				if err = index.BulkIndex(&BulkIndexRequest{Items: items}); err != nil {
 					return 0, 0, err
 				}
@@ -1223,7 +1223,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 
 		// Index any remaining items in the final batch.
 		if len(items) > 0 {
-			span.AddEvent("bulk indexing", trace.WithAttributes(attribute.Int("count", len(items))))
+			span.AddEvent("bulkIndexing", trace.WithAttributes(attribute.Int("count", len(items))))
 			if err = index.BulkIndex(&BulkIndexRequest{Items: items}); err != nil {
 				return 0, 0, err
 			}

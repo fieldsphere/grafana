@@ -103,7 +103,7 @@ func (h *K8sClientWithFallback) Get(
 		attribute.Bool("fallback", false),
 	)
 
-	span.AddEvent("v0alpha1 Get")
+	span.AddEvent("v0alpha1Get")
 	result, err := h.K8sHandler.Get(spanCtx, name, orgID, options, subresources...)
 	if err != nil {
 		return nil, tracing.Error(span, err)
@@ -324,7 +324,7 @@ func newK8sClientFactory(
 		cacheMutex.RUnlock()
 
 		if exists {
-			span.AddEvent("Client found in cache")
+			span.AddEvent("clientFoundInCache")
 			return cachedClient
 		}
 
@@ -334,7 +334,7 @@ func newK8sClientFactory(
 		// check again in case another goroutine created in between locks
 		cachedClient, exists = clientCache[version]
 		if exists {
-			span.AddEvent("Client found in cache after lock")
+			span.AddEvent("clientFoundInCacheAfterLock")
 			return cachedClient
 		}
 
@@ -344,7 +344,7 @@ func newK8sClientFactory(
 			Resource: "dashboards",
 		}
 
-		span.AddEvent("Creating new client")
+		span.AddEvent("creatingNewClient")
 		newClient := client.NewK8sHandler(dual, request.GetNamespaceMapper(cfg), gvr, restConfigProvider.GetRestConfig, dashboardStore, userService, resourceClient, sorter, features)
 		clientCache[version] = newClient
 

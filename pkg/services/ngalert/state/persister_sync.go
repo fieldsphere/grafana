@@ -36,13 +36,13 @@ func (a *SyncStatePersister) Sync(ctx context.Context, span trace.Span, _ ngMode
 	staleStates := allStates.StaleStates()
 	if len(staleStates) > 0 {
 		a.deleteAlertStates(ctx, staleStates)
-		span.AddEvent("deleted stale states", trace.WithAttributes(
+		span.AddEvent("deletedStaleStates", trace.WithAttributes(
 			attribute.Int64("stateTransitions", int64(len(staleStates))),
 		))
 	}
 
 	a.saveAlertStates(ctx, allStates...)
-	span.AddEvent("updated database")
+	span.AddEvent("updatedDatabase")
 }
 
 func (a *SyncStatePersister) deleteAlertStates(ctx context.Context, states []StateTransition) {

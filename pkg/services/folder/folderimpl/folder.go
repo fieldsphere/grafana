@@ -1132,7 +1132,7 @@ func (s *Service) publishFolderFullPathUpdatedEvent(ctx context.Context, timesta
 	for _, f := range descFolders {
 		uids = append(uids, f.UID)
 	}
-	span.AddEvent("found folder descendants", trace.WithAttributes(
+	span.AddEvent("foundFolderDescendants", trace.WithAttributes(
 		attribute.Int64("folders", int64(len(uids))),
 	))
 
@@ -1246,7 +1246,7 @@ func (s *Service) nestedFolderDelete(ctx context.Context, cmd *folder.DeleteFold
 	for _, f := range descendants {
 		descendantUIDs = append(descendantUIDs, f.UID)
 	}
-s.log.InfoContext(ctx, "deleting legacy folder descendants", "orgID", cmd.OrgID, "folderUID", cmd.UID, "descendantsUIDs", strings.Join(descendantUIDs, ","))
+	s.log.InfoContext(ctx, "deleting legacy folder descendants", "orgID", cmd.OrgID, "folderUID", cmd.UID, "descendantsUIDs", strings.Join(descendantUIDs, ","))
 
 	err = s.store.Delete(ctx, descendantUIDs, cmd.OrgID)
 	if err != nil {

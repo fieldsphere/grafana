@@ -350,7 +350,7 @@ func (s *Service) getCachedPermissions(ctx context.Context, key string, getPermi
 		}
 	}
 
-	span.AddEvent("cache miss")
+	span.AddEvent("cacheMiss")
 	metrics.MAccessPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheMiss).Inc()
 	permissions, err := getPermissionsFn(ctx)
 	span.SetAttributes(attribute.Int("numPermissionsFetched", len(permissions)))
@@ -393,7 +393,7 @@ func (s *Service) getCachedTeamsPermissions(ctx context.Context, user identity.R
 	}
 
 	if len(miss) > 0 {
-		span.AddEvent("cache miss")
+		span.AddEvent("cacheMiss")
 		metrics.MAccessPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheMiss).Inc()
 		teamsPermissions, err := s.getTeamsPermissions(ctx, miss, orgID)
 		span.SetAttributes(attribute.Int("numPermissionsFetched", len(teamsPermissions)))

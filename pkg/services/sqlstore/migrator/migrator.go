@@ -277,7 +277,7 @@ func (mg *Migrator) run(ctx context.Context) (err error) {
 		_, exists := mg.logMap[m.Id()]
 		if exists {
 			logger.Debug("Skipping migration: Already executed", "migrationID", m.Id())
-			span.AddEvent("Skipping migration: Already executed",
+			span.AddEvent("migrationAlreadyExecuted",
 				trace.WithAttributes(attribute.String("migrationID", m.Id())),
 			)
 			migrationsSkipped++
@@ -333,7 +333,7 @@ func (mg *Migrator) doMigration(ctx context.Context, m Migration) error {
 		for cnt < 3 && sqlite.IsBusyOrLocked(err) {
 			cnt++
 			logger.Debug("Database locked, sleeping then retrying", "error", err, "sqlQuery", sql)
-			span.AddEvent("Database locked, sleeping then retrying",
+			span.AddEvent("databaseLockedRetrying",
 				trace.WithAttributes(attribute.String("errorMessage", err.Error())),
 				trace.WithAttributes(attribute.String("sqlQuery", sql)),
 			)

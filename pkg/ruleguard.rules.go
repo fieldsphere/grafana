@@ -1726,6 +1726,20 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid generic trace event names like "result", "user", "next", or "data"; use contextual names such as "rpcResult", "authenticatedUser", "bulkNext", or "payloadReceived"`)
 
 	m.Match(
+		`$span.AddEvent($name)`,
+		`$span.AddEvent($name, $*attrs)`,
+	).
+		Where(m["name"].Text.Matches("^\".*\\s+.*\"$")).
+		Report(`avoid whitespace in trace event names; use lowerCamelCase literals such as "queryExecuted" or "indexUpdated"`)
+
+	m.Match(
+		`$span.AddEvent($name)`,
+		`$span.AddEvent($name, $*attrs)`,
+	).
+		Where(m["name"].Text.Matches("^\"[A-Z].*\"$")).
+		Report(`avoid PascalCase trace event names; use lowerCamelCase literals such as "queryDataStart" or "loadedRoute"`)
+
+	m.Match(
 		`$span.AddEvent($left + $right)`,
 		`$span.AddEvent($left + $right, $*attrs)`,
 		`$span.AddEvent(fmt.Sprintf($fmt, $*args))`,

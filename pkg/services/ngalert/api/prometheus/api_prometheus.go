@@ -310,7 +310,7 @@ func (srv PrometheusSrv) RouteGetRuleStatuses(c *contextmodel.ReqContext) respon
 		ruleResponse.ErrorType = apiv1.ErrServer
 		return response.JSON(ruleResponse.HTTPStatusCode(), ruleResponse)
 	}
-	span.AddEvent("User visible namespaces retrieved")
+	span.AddEvent("userVisibleNamespacesRetrieved")
 
 	allowedNamespaces := map[string]string{}
 	for namespaceUID, folder := range namespaceMap {
@@ -326,7 +326,7 @@ func (srv PrometheusSrv) RouteGetRuleStatuses(c *contextmodel.ReqContext) respon
 			allowedNamespaces[namespaceUID] = folder.Fullpath
 		}
 	}
-	span.AddEvent("User permissions checked")
+	span.AddEvent("userPermissionsChecked")
 	span.SetAttributes(attribute.Int("allowedNamespaces", len(allowedNamespaces)))
 
 	ruleResponse = PrepareRuleGroupStatusesV2(
@@ -549,7 +549,7 @@ func (ctx *paginationContext) fetchAndFilterPage(log log.Logger, store ListAlert
 		attribute.Int("storeRuleListLen", len(ruleList)),
 		attribute.Bool("storeContinueTokenSet", newToken != ""),
 	)
-	span.AddEvent("Alert rules retrieved from store")
+	span.AddEvent("alertRulesRetrievedFromStore")
 
 	// Load provenance for this page's rules
 	if ctx.provenanceStore != nil {
@@ -580,7 +580,7 @@ func (ctx *paginationContext) fetchAndFilterPage(log log.Logger, store ListAlert
 			}
 		}
 	}
-	span.AddEvent("Provenances retrieved from store")
+	span.AddEvent("provenancesRetrievedFromStore")
 
 	groupedRules := getGroupedRules(log, ruleList, ctx.ruleNamesSet, ctx.opts.AllowedNamespaces)
 

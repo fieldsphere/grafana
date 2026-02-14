@@ -157,7 +157,7 @@ func (rs *ReceiverService) GetReceiver(ctx context.Context, uid string, decrypt 
 		}
 	}
 
-	span.AddEvent("Loaded receiver", trace.WithAttributes(
+	span.AddEvent("loadedReceiver", trace.WithAttributes(
 		attribute.String("concurrencyToken", revision.ConcurrencyToken),
 	))
 
@@ -216,7 +216,7 @@ func (rs *ReceiverService) GetReceivers(ctx context.Context, q models.GetReceive
 		return nil, err
 	}
 
-	span.AddEvent("Loaded receivers", trace.WithAttributes(
+	span.AddEvent("loadedReceivers", trace.WithAttributes(
 		attribute.String("concurrencyToken", revision.ConcurrencyToken),
 		attribute.Int("count", len(receivers)),
 	))
@@ -235,7 +235,7 @@ func (rs *ReceiverService) GetReceivers(ctx context.Context, q models.GetReceive
 		return nil, err
 	}
 
-	span.AddEvent("Applied access control filter", trace.WithAttributes(
+	span.AddEvent("appliedAccessControlFilter", trace.WithAttributes(
 		attribute.Int("count", len(receivers)),
 	))
 
@@ -359,7 +359,7 @@ func (rs *ReceiverService) CreateReceiver(ctx context.Context, r *models.Receive
 		return nil, err
 	}
 
-	span.AddEvent("Loaded Alertmanager configuration", trace.WithAttributes(attribute.String("concurrencyToken", revision.ConcurrencyToken)))
+	span.AddEvent("loadedAlertmanagerConfiguration", trace.WithAttributes(attribute.String("concurrencyToken", revision.ConcurrencyToken)))
 
 	createdReceiver := r.Clone()
 	err = createdReceiver.Encrypt(rs.encryptor(ctx))
@@ -392,7 +392,7 @@ func (rs *ReceiverService) CreateReceiver(ctx context.Context, r *models.Receive
 		return nil, err
 	}
 
-	span.AddEvent("Created a new receiver", trace.WithAttributes(
+	span.AddEvent("createdReceiver", trace.WithAttributes(
 		attribute.String("receiverUID", result.UID),
 		attribute.String("version", result.Version),
 	))
@@ -450,7 +450,7 @@ func (rs *ReceiverService) UpdateReceiver(ctx context.Context, r *models.Receive
 		return nil, err
 	}
 
-	span.AddEvent("Loaded current receiver", trace.WithAttributes(
+	span.AddEvent("loadedCurrentReceiver", trace.WithAttributes(
 		attribute.String("concurrencyToken", revision.ConcurrencyToken),
 		attribute.String("receiver", existing.Name),
 		attribute.String("receiverUID", existing.UID),
@@ -827,7 +827,7 @@ func (rs *ReceiverService) getImportedReceivers(ctx context.Context, span trace.
 			attribute.String("concurrencyToken", revision.ConcurrencyToken),
 		))
 	} else if len(result) > 0 { // if the list is empty, then we do not have any imported configuration
-		span.AddEvent("Loaded importedReceivers receivers", trace.WithAttributes(
+		span.AddEvent("loadedImportedReceivers", trace.WithAttributes(
 			attribute.String("concurrencyToken", revision.ConcurrencyToken),
 			attribute.Int("count", len(result)),
 		))
