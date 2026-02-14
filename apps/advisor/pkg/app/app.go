@@ -90,7 +90,7 @@ func New(cfg app.Config) (app.App, error) {
 							}
 							if req.Action == resource.AdmissionActionCreate {
 								go func() {
-									logger := log.WithContext(ctx).With("check", check.ID())
+									logger := log.WithContext(ctx).With("checkID", check.ID())
 									logger.Debug("Processing check", "namespace", req.Object.GetNamespace())
 									orgID, err := getOrgIDFromNamespace(req.Object.GetNamespace())
 									if err != nil {
@@ -106,7 +106,7 @@ func New(cfg app.Config) (app.App, error) {
 							}
 							if req.Action == resource.AdmissionActionUpdate && retryAnnotationChanged(req.OldObject, req.Object) {
 								go func() {
-									logger := log.WithContext(ctx).With("check", check.ID())
+									logger := log.WithContext(ctx).With("checkID", check.ID())
 									logger.Debug("Updating check", "namespace", req.Object.GetNamespace(), "checkName", req.Object.GetName())
 									orgID, err := getOrgIDFromNamespace(req.Object.GetNamespace())
 									if err != nil {

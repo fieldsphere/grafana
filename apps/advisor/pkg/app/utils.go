@@ -109,17 +109,17 @@ func processCheckRetry(ctx context.Context, log logging.Logger, client resource.
 	status := checks.GetStatusAnnotation(obj)
 	if status == "" || status == checks.StatusAnnotationError {
 		// Check not processed yet or errored
-		log.Debug("Check not processed yet or errored, skipping retry", "check", obj.GetName(), "status", status)
+		log.Debug("Check not processed yet or errored, skipping retry", "checkName", obj.GetName(), "status", status)
 		return nil
 	}
 	// Get the item to retry from the annotation
 	itemToRetry := checks.GetRetryAnnotation(obj)
 	if itemToRetry == "" {
 		// No item to retry, nothing to do
-		log.Debug("No item to retry, skipping retry", "check", obj.GetName())
+		log.Debug("No item to retry, skipping retry", "checkName", obj.GetName())
 		return nil
 	} else {
-		log.Debug("Item to retry found", "check", obj.GetName(), "item", itemToRetry)
+		log.Debug("Item to retry found", "checkName", obj.GetName(), "item", itemToRetry)
 	}
 	c, ok := obj.(*advisorv0alpha1.Check)
 	if !ok {
@@ -185,14 +185,14 @@ func processCheckRetry(ctx context.Context, log logging.Logger, client resource.
 	}
 	// Set the status
 	err = checks.SetStatus(ctx, client, obj, c.Status)
-	log.Debug("Status set", "check", obj.GetName(), "statusCount", c.Status.Report.Count)
+	log.Debug("Status set", "checkName", obj.GetName(), "statusCount", c.Status.Report.Count)
 	if err != nil {
 		return err
 	}
 	// Delete the retry annotation to mark the check as processed
 	annotations := checks.DeleteAnnotations(ctx, obj, []string{checks.RetryAnnotation})
 	err = checks.SetAnnotations(ctx, client, obj, annotations)
-	log.Debug("Annotations set", "check", obj.GetName(), "annotations", annotations)
+	log.Debug("Annotations set", "checkName", obj.GetName(), "annotations", annotations)
 
 	return err
 }
@@ -277,7 +277,7 @@ func waitForItem(ctx context.Context, log logging.Logger, client resource.Client
 	})
 	retries := 0
 	for err != nil && k8serrors.IsNotFound(err) && retries < 5 {
-		log.Debug("Waiting for item to be persisted", "check", obj.GetName(), "retries", retries)
+		log.Debug("Waiting for item to be persisted", "checkName", obj.GetName(), "retries", retries)
 		time.Sleep(retryAnnotationPollingInterval)
 		retries++
 		_, err = client.Get(ctx, resource.Identifier{
@@ -300,7 +300,7 @@ func waitForRetryAnnotation(ctx context.Context, log logging.Logger, client reso
 	retries := 0
 	currentRetryAnnotation := checks.GetRetryAnnotation(currentObj)
 	for currentRetryAnnotation != itemToRetry {
-		log.Debug("Waiting for retry annotation to be persisted", "check", obj.GetName(), "item", itemToRetry, "currentRetryAnnotation", currentRetryAnnotation)
+		log.Debug("Waiting for retry annotation to be persisted", "checkName", obj.GetName(), "item", itemToRetry, "currentRetryAnnotation", currentRetryAnnotation)
 		time.Sleep(retryAnnotationPollingInterval)
 		retries++
 		if retries > 5 {
@@ -315,7 +315,7 @@ func waitForRetryAnnotation(ctx context.Context, log logging.Logger, client reso
 		}
 		currentRetryAnnotation = checks.GetRetryAnnotation(currentObj)
 	}
-	log.Debug("Retry annotation persisted", "check", obj.GetName(), "item", itemToRetry)
+	log.Debug("Retry annotation persisted", "checkName", obj.GetName(), "item", itemToRetry)
 	return nil
 }
 

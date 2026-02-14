@@ -224,7 +224,7 @@ func (r *Runner) markUnprocessedChecks(ctx context.Context, log logging.Logger, 
 	}
 	for _, item := range checkList {
 		if checks.GetStatusAnnotation(item) == "" {
-			log.Info("Check is unprocessed, marking as error", "check", item.GetStaticMetadata().Identifier())
+			log.Info("Check is unprocessed, marking as error", "checkIdentifier", item.GetStaticMetadata().Identifier())
 			err := checks.SetStatusAnnotation(ctx, r.checksClient, item, checks.StatusAnnotationError)
 			if err != nil {
 				log.Error("Error setting check status to error", "error", err)
@@ -297,7 +297,7 @@ func (r *Runner) cleanupChecks(ctx context.Context, logger logging.Logger, names
 		labels := check.GetLabels()
 		checkType, ok := labels[checks.TypeLabel]
 		if !ok {
-			logger.Error("Check type not found in labels", "check", check)
+			logger.Error("Check type not found in labels", "checkObject", check)
 			continue
 		}
 		checksByType[checkType] = append(checksByType[checkType], check)
@@ -321,7 +321,7 @@ func (r *Runner) cleanupChecks(ctx context.Context, logger logging.Logger, names
 				if err != nil {
 					return fmt.Errorf("error deleting check: %w", err)
 				}
-				logger.Debug("Deleted check", "check", check.GetStaticMetadata().Identifier())
+				logger.Debug("Deleted check", "checkIdentifier", check.GetStaticMetadata().Identifier())
 			}
 		}
 	}
