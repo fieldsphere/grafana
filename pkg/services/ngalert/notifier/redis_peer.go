@@ -503,10 +503,10 @@ func (p *redisPeer) mergePartialState(buf []byte) {
 		return
 	}
 	if err := s.Merge(part.Data); err != nil {
-		p.logger.Warn("Error merging the received broadcast message", "error", err, "key", part.Key)
+		p.logger.Warn("Error merging the received broadcast message", "error", err, "stateKey", part.Key)
 		return
 	}
-	p.logger.Debug("Partial state was successfully merged", "key", part.Key)
+	p.logger.Debug("Partial state was successfully merged", "stateKey", part.Key)
 }
 
 func (p *redisPeer) fullStateReqReceiveLoop() {
@@ -585,7 +585,7 @@ func (p *redisPeer) mergeFullState(buf []byte) {
 			continue
 		}
 		if err := s.Merge(part.Data); err != nil {
-			p.logger.Warn("Error merging the received remote state", "error", err, "key", part.Key)
+			p.logger.Warn("Error merging the received remote state", "error", err, "stateKey", part.Key)
 			return
 		}
 	}
@@ -631,7 +631,7 @@ func (p *redisPeer) LocalState() []byte {
 	for key, s := range p.states {
 		b, err := s.MarshalBinary()
 		if err != nil {
-			p.logger.Warn("Error encoding the local state", "error", err, "key", key)
+			p.logger.Warn("Error encoding the local state", "error", err, "stateKey", key)
 		}
 		all.Parts = append(all.Parts, alertingClusterPB.Part{Key: key, Data: b})
 	}
@@ -652,6 +652,6 @@ func (p *redisPeer) Shutdown() {
 	defer cancel()
 	del := p.redis.Del(ctx, p.withPrefix(p.name))
 	if del.Err() != nil {
-		p.logger.Error("Error deleting the redis key on shutdown", "error", del.Err(), "key", p.withPrefix(p.name))
+		p.logger.Error("Error deleting the redis key on shutdown", "error", del.Err(), "redisKey", p.withPrefix(p.name))
 	}
 }

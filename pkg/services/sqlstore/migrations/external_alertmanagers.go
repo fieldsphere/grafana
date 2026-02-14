@@ -136,7 +136,7 @@ func getEncryptedJsonData(cfg *setting.Cfg, sjd map[string]string, log log.Logge
 	for key, data := range sjd {
 		encryptedData, err := util.Encrypt([]byte(data), cfg.SecretKey)
 		if err != nil {
-			log.Error("Failed to encrypt secure JSON data", "key", key, "error", err)
+			log.Error("Failed to encrypt secure JSON data", "secureJSONKey", key, "error", err)
 			os.Exit(1)
 		}
 

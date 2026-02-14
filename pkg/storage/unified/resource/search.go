@@ -614,7 +614,7 @@ func (s *searchServer) RebuildIndexes(ctx context.Context, req *resourcepb.Rebui
 		}
 		bi, err := idx.BuildInfo()
 		if err != nil {
-			s.log.Warn("failed to get build info for index", "key", key, "error", err)
+			s.log.Warn("failed to get build info for index", "indexKey", key, "error", err)
 			continue
 		}
 		if !bi.BuildTime.IsZero() {
@@ -793,7 +793,7 @@ func (s *searchServer) findIndexesToRebuild(lastImportTimes map[NamespacedResour
 
 		bi, err := idx.BuildInfo()
 		if err != nil {
-			s.log.Error("failed to get build info for index to rebuild", "key", key, "error", err)
+			s.log.Error("failed to get build info for index to rebuild", "indexKey", key, "error", err)
 			continue
 		}
 
@@ -1121,7 +1121,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 				doc, err := builder.BuildDocument(ctx, key, iter.ResourceVersion(), iter.Value())
 				if err != nil {
 					span.RecordError(err)
-					logger.Error("error building search document", "key", SearchID(key), "error", err)
+					logger.Error("error building search document", "resourceKey", SearchID(key), "error", err)
 					continue
 				}
 
@@ -1191,7 +1191,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 				doc, err := builder.BuildDocument(ctx, key, res.ResourceVersion, res.Value)
 				if err != nil {
 					span.RecordError(err)
-					logger.Error("error building search document", "key", SearchID(key), "error", err)
+					logger.Error("error building search document", "resourceKey", SearchID(key), "error", err)
 					continue
 				}
 
@@ -1206,7 +1206,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 					Key:    &res.Key,
 				})
 			default:
-				logger.Error("can't update index with item, unknown action", "resourceAction", res.Action, "key", key)
+				logger.Error("can't update index with item, unknown action", "resourceAction", res.Action, "resourceKey", key)
 				continue
 			}
 

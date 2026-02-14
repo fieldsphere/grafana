@@ -203,7 +203,7 @@ func (b *bleveBackend) getCachedIndex(key resource.NamespacedResource, now time.
 func (b *bleveBackend) closeIndex(idx *bleveIndex, key resource.NamespacedResource) {
 	err := idx.stopUpdaterAndCloseIndex()
 	if err != nil {
-		b.log.Error("failed to close index", "key", key, "error", err)
+		b.log.Error("failed to close index", "indexKey", key, "error", err)
 	}
 
 	if b.indexMetrics != nil {
@@ -258,16 +258,16 @@ func (b *bleveBackend) runEvictExpiredOrUnownedIndexes(now time.Time) {
 	b.cacheMx.Unlock()
 
 	for key, err := range ownCheckErrors {
-		b.log.Warn("failed to check if index belongs to this instance", "key", key, "error", err)
+		b.log.Warn("failed to check if index belongs to this instance", "indexKey", key, "error", err)
 	}
 
 	for key, idx := range unowned {
-		b.log.Info("index evicted from cache", "reason", "unowned", "key", key, "storage", idx.indexStorage)
+		b.log.Info("index evicted from cache", "reason", "unowned", "indexKey", key, "storage", idx.indexStorage)
 		b.closeIndex(idx, key)
 	}
 
 	for key, idx := range expired {
-		b.log.Info("index evicted from cache", "reason", "expired", "key", key, "storage", idx.indexStorage)
+		b.log.Info("index evicted from cache", "reason", "expired", "indexKey", key, "storage", idx.indexStorage)
 		b.closeIndex(idx, key)
 	}
 }
@@ -540,9 +540,9 @@ func (b *bleveBackend) BuildIndex(
 
 	// Store the index in the cache.
 	if idx.expiration.IsZero() {
-		logWithDetails.Info("Storing index in cache, with no expiration", "key", key)
+		logWithDetails.Info("Storing index in cache, with no expiration", "indexKey", key)
 	} else {
-		logWithDetails.Info("Storing index in cache", "key", key, "expiration", idx.expiration)
+		logWithDetails.Info("Storing index in cache", "indexKey", key, "expiration", idx.expiration)
 	}
 
 	// We're storing index in the cache, so we can't close it.
@@ -561,7 +561,7 @@ func (b *bleveBackend) BuildIndex(
 
 		err := prev.stopUpdaterAndCloseIndex()
 		if err != nil {
-			logWithDetails.Error("failed to close previous index", "key", key, "error", err)
+			logWithDetails.Error("failed to close previous index", "indexKey", key, "error", err)
 		}
 	}
 	if b.indexMetrics != nil {

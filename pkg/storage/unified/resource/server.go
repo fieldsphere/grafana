@@ -554,11 +554,11 @@ func (s *server) newEvent(ctx context.Context, user claims.AuthInfo, key *resour
 	if obj.GetUID() == "" {
 		// TODO! once https://github.com/grafana/grafana/pull/96086 is deployed everywhere
 		// return nil, NewBadRequestError("object is missing UID")
-		l.Error("object is missing UID", "key", key)
+		l.Error("object is missing UID", "resourceKey", key)
 	}
 
 	if obj.GetResourceVersion() != "" {
-		l.Error("object must not include a resource version", "key", key)
+		l.Error("object must not include a resource version", "resourceKey", key)
 	}
 
 	// Make sure the command labels are not saved
@@ -792,7 +792,7 @@ func (s *server) create(ctx context.Context, user claims.AuthInfo, req *resource
 	if err != nil {
 		rsp.Error = AsErrorResult(err)
 	}
-s.log.FromContext(ctx).Debug("server.WriteEvent", "type", event.Type, "resourceVersion", rsp.ResourceVersion, "previousRV", event.PreviousRV, "group", event.Key.Group, "namespace", event.Key.Namespace, "resourceName", event.Key.Name, "resource", event.Key.Resource)
+	s.log.FromContext(ctx).Debug("server.WriteEvent", "type", event.Type, "resourceVersion", rsp.ResourceVersion, "previousRV", event.PreviousRV, "group", event.Key.Group, "namespace", event.Key.Namespace, "resourceName", event.Key.Name, "resource", event.Key.Resource)
 	return rsp, nil
 }
 
@@ -829,7 +829,7 @@ func (s *server) sleepAfterSuccessfulWriteOperation(operation string, key *resou
 		"group", key.Group,
 		"resource", key.Resource,
 		"namespace", key.Namespace,
-			"resourceName", key.Name)
+		"resourceName", key.Name)
 
 	time.Sleep(s.artificialSuccessfulWriteDelay)
 	return true
@@ -1424,10 +1424,10 @@ func (s *server) Watch(req *resourcepb.WatchRequest, srv resourcepb.ResourceStor
 					if err != nil {
 						// This scenario should never happen, but if it does, we should log it and continue
 						// sending the event without the previous object. The client will decide what to do.
-						s.log.Error("error reading previous object", "key", event.Key, "resourceVersion", event.PreviousRV, "error", err)
+						s.log.Error("error reading previous object", "resourceKey", event.Key, "resourceVersion", event.PreviousRV, "error", err)
 					} else {
 						if prevObj.ResourceVersion != event.PreviousRV {
-							s.log.Error("resource version mismatch", "key", event.Key, "resourceVersion", event.PreviousRV, "actual", prevObj.ResourceVersion)
+							s.log.Error("resource version mismatch", "resourceKey", event.Key, "resourceVersion", event.PreviousRV, "actual", prevObj.ResourceVersion)
 							return fmt.Errorf("resource version mismatch")
 						}
 						resp.Previous = &resourcepb.WatchEvent_Resource{

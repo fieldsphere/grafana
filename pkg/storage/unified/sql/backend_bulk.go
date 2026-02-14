@@ -306,14 +306,14 @@ func (b *backend) processBulkWithTx(ctx context.Context, tx db.Tx, setting resou
 		if b.dialect.DialectName() == "sqlite" {
 			nextRV, err := b.rvManager.Lock(ctx, tx, key.Group, key.Resource)
 			if err != nil {
-				b.log.Error("error locking RV", "error", err, "key", resource.NSGR(key))
+				b.log.Error("error locking RV", "error", err, "resourceKey", resource.NSGR(key))
 			} else {
-				b.log.Info("successfully locked RV", "nextRV", nextRV, "key", resource.NSGR(key))
+				b.log.Info("successfully locked RV", "nextRV", nextRV, "resourceKey", resource.NSGR(key))
 				// Save the incremented RV
 				if err := b.rvManager.SaveRV(ctx, tx, key.Group, key.Resource, nextRV); err != nil {
-					b.log.Error("error saving RV", "error", err, "key", resource.NSGR(key))
+					b.log.Error("error saving RV", "error", err, "resourceKey", resource.NSGR(key))
 				} else {
-					b.log.Info("successfully saved RV", "resourceVersion", nextRV, "key", resource.NSGR(key))
+					b.log.Info("successfully saved RV", "resourceVersion", nextRV, "resourceKey", resource.NSGR(key))
 				}
 			}
 		} else {
@@ -395,7 +395,7 @@ func (w *bulkWroker) deleteCollection(key *resourcepb.ResourceKey) (*resourcepb.
 
 // Copy the latest value from history into the active resource table
 func (w *bulkWroker) syncCollection(key *resourcepb.ResourceKey, summary *resourcepb.BulkResponse_Summary) error {
-	w.logger.Info("synchronize collection", "key", resource.NSGR(key))
+	w.logger.Info("synchronize collection", "resourceKey", resource.NSGR(key))
 	_, err := dbutil.Exec(w.ctx, w.tx, sqlResourceInsertFromHistory, &sqlResourceInsertFromHistoryRequest{
 		SQLTemplate: sqltemplate.New(w.dialect),
 		Key:         key,
@@ -404,7 +404,7 @@ func (w *bulkWroker) syncCollection(key *resourcepb.ResourceKey, summary *resour
 		return err
 	}
 
-	w.logger.Info("get stats (still in transaction)", "key", resource.NSGR(key))
+	w.logger.Info("get stats (still in transaction)", "resourceKey", resource.NSGR(key))
 	rows, err := dbutil.QueryRows(w.ctx, w.tx, sqlResourceStats, &sqlStatsRequest{
 		SQLTemplate: sqltemplate.New(w.dialect),
 		Namespace:   key.Namespace,

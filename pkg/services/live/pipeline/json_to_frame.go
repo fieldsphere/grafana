@@ -95,7 +95,7 @@ func (d *doc) addNil() {
 		d.fields = append(d.fields, f)
 		d.fieldNames[d.key()] = struct{}{}
 	} else {
-		logger.Warn("Skip nil field", "key", d.key())
+		logger.Warn("Skip nil field", "fieldKey", d.key())
 	}
 }
 

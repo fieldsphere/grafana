@@ -60,7 +60,7 @@ l1Fields:
 			break l1Fields
 		default:
 			v, err := iter.Read()
-			backend.Logger.Debug("InfluxQL response had unsupported root key", "key", l1Field, "value", v)
+			backend.Logger.Debug("InfluxQL response had unsupported root key", "responseKey", l1Field, "value", v)
 			if err != nil {
 				if rsp != nil {
 					rsp.Error = err
@@ -160,7 +160,7 @@ func readSeries(iter *sdkjsoniter.Iterator, query *models.Query) *backend.DataRe
 				if err != nil {
 					return rspErr(err)
 				}
-				backend.Logger.Debug("InfluxQL response had unsupported series key", "key", l1Field, "value", v)
+				backend.Logger.Debug("InfluxQL response had unsupported series key", "responseKey", l1Field, "value", v)
 			}
 		}
 

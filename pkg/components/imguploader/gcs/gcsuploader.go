@@ -33,7 +33,7 @@ func NewUploader(keyFile, bucket, path string, enableSignedURLs bool, signedURLE
 		signedURLExpiration: signedURLExpiration,
 	}
 
-	uploader.log.Debug("Created uploader", "key", keyFile, "bucket", bucket, "path", path, "enableSignedUrls",
+	uploader.log.Debug("Created uploader", "keyFile", keyFile, "bucket", bucket, "path", path, "enableSignedUrls",
 		enableSignedURLs, "signedUrlExpiration", signedURLExpiration.String())
 
 	return uploader, nil
@@ -165,7 +165,7 @@ func (u *Uploader) uploadFile(
 	// Set public access if not generating a signed URL
 	pubAcc := !u.enableSignedURLs
 
-	u.log.Debug("Uploading to GCS bucket using SDK", "bucket", u.Bucket, "key", key, "public", pubAcc)
+	u.log.Debug("Uploading to GCS bucket using SDK", "bucket", u.Bucket, "objectKey", key, "public", pubAcc)
 
 	uri := fmt.Sprintf("gs://%s/%s", u.Bucket, key)
 

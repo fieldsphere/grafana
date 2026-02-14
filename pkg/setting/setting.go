@@ -1546,27 +1546,27 @@ func (cfg *Cfg) handleAWSConfig() {
 	// Also set environment variables that can be used by core plugins
 	err := os.Setenv(awsds.AssumeRoleEnabledEnvVarKeyName, strconv.FormatBool(cfg.AWSAssumeRoleEnabled))
 	if err != nil {
-		cfg.Logger.Error("Could not set environment variable", "key", awsds.AssumeRoleEnabledEnvVarKeyName, "error", err)
+		cfg.Logger.Error("Could not set environment variable", "envVarKey", awsds.AssumeRoleEnabledEnvVarKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.AllowedAuthProvidersEnvVarKeyName, allowedAuthProviders)
 	if err != nil {
-		cfg.Logger.Error("Could not set environment variable", "key", awsds.AllowedAuthProvidersEnvVarKeyName, "error", err)
+		cfg.Logger.Error("Could not set environment variable", "envVarKey", awsds.AllowedAuthProvidersEnvVarKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.ListMetricsPageLimitKeyName, strconv.Itoa(cfg.AWSListMetricsPageLimit))
 	if err != nil {
-		cfg.Logger.Error("Could not set environment variable", "key", awsds.ListMetricsPageLimitKeyName, "error", err)
+		cfg.Logger.Error("Could not set environment variable", "envVarKey", awsds.ListMetricsPageLimitKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.GrafanaAssumeRoleExternalIdKeyName, cfg.AWSExternalId)
 	if err != nil {
-		cfg.Logger.Error("Could not set environment variable", "key", awsds.GrafanaAssumeRoleExternalIdKeyName, "error", err)
+		cfg.Logger.Error("Could not set environment variable", "envVarKey", awsds.GrafanaAssumeRoleExternalIdKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.SessionDurationEnvVarKeyName, cfg.AWSSessionDuration)
 	if err != nil {
-		cfg.Logger.Error("Could not set environment variable", "key", awsds.SessionDurationEnvVarKeyName, "error", err)
+		cfg.Logger.Error("Could not set environment variable", "envVarKey", awsds.SessionDurationEnvVarKeyName, "error", err)
 	}
 }
 
@@ -1600,7 +1600,7 @@ func (cfg *Cfg) LogConfigSources() {
 
 	if len(cfg.appliedCommandLineProperties) > 0 {
 		for _, prop := range cfg.appliedCommandLineProperties {
-			cfg.Logger.Info("Config overridden from command line", "key", prop.key, "value", prop.value)
+			cfg.Logger.Info("Config overridden from command line", "configKey", prop.key, "value", prop.value)
 		}
 	}
 

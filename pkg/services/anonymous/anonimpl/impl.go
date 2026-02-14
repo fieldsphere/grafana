@@ -102,7 +102,7 @@ func (a *AnonDeviceService) tagDeviceUI(ctx context.Context, device *anonstore.D
 	a.localCache.SetDefault(key, true)
 
 	if a.cfg.Env == setting.Dev {
-		a.log.Debug("Tagging device for UI", "deviceID", device.DeviceID, "device", device, "key", key)
+		a.log.Debug("Tagging device for UI", "deviceID", device.DeviceID, "device", device, "cacheKey", key)
 	}
 
 	if err := a.anonStore.CreateOrUpdateDevice(ctx, device); err != nil {

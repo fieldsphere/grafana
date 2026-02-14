@@ -512,7 +512,7 @@ func (s *Service) decryptSecrets(ctx context.Context, settings map[string]any) (
 			if IsSecretField(k) && v != "" {
 				strValue, ok := v.(string)
 				if !ok {
-					s.logger.FromContext(ctx).Error("Failed to parse secret value, it is not a string", "key", k)
+					s.logger.FromContext(ctx).Error("Failed to parse secret value, it is not a string", "secretFieldKey", k)
 					return nil, fmt.Errorf("secret value is not a string")
 				}
 

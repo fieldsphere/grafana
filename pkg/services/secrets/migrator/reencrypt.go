@@ -240,19 +240,19 @@ func (s alertingSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.Secre
 					for k, v := range gmr.SecureSettings {
 						decoded, err := base64.StdEncoding.DecodeString(v)
 						if err != nil {
-							logger.Warn("Could not decode base64-encoded alert_configuration secret", "alertConfigurationID", result.Id, "key", k, "error", err)
+							logger.Warn("Could not decode base64-encoded alert_configuration secret", "alertConfigurationID", result.Id, "secretFieldKey", k, "error", err)
 							return err
 						}
 
 						decrypted, err := secretsSrv.Decrypt(ctx, decoded)
 						if err != nil {
-							logger.Warn("Could not decrypt alert_configuration secret", "alertConfigurationID", result.Id, "key", k, "error", err)
+							logger.Warn("Could not decrypt alert_configuration secret", "alertConfigurationID", result.Id, "secretFieldKey", k, "error", err)
 							return err
 						}
 
 						reencrypted, err := secretsSrv.Encrypt(ctx, decrypted, secrets.WithoutScope())
 						if err != nil {
-							logger.Warn("Could not re-encrypt alert_configuration secret", "alertConfigurationID", result.Id, "key", k, "error", err)
+							logger.Warn("Could not re-encrypt alert_configuration secret", "alertConfigurationID", result.Id, "secretFieldKey", k, "error", err)
 							return err
 						}
 

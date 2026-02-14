@@ -248,19 +248,19 @@ func (s alertingSecret) Rollback(
 					for k, v := range gmr.SecureSettings {
 						decoded, err := base64.StdEncoding.DecodeString(v)
 						if err != nil {
-							logger.Warn("Could not decode base64-encoded secret", "alertConfigurationID", result.Id, "key", k, "error", err)
+							logger.Warn("Could not decode base64-encoded secret", "alertConfigurationID", result.Id, "secretFieldKey", k, "error", err)
 							return err
 						}
 
 						decrypted, err := secretsSrv.Decrypt(ctx, decoded)
 						if err != nil {
-							logger.Warn("Could not decrypt secret", "alertConfigurationID", result.Id, "key", k, "error", err)
+							logger.Warn("Could not decrypt secret", "alertConfigurationID", result.Id, "secretFieldKey", k, "error", err)
 							return err
 						}
 
 						reencrypted, err := encryptionSrv.Encrypt(ctx, decrypted, secretKey)
 						if err != nil {
-							logger.Warn("Could not re-encrypt secret", "alertConfigurationID", result.Id, "key", k, "error", err)
+							logger.Warn("Could not re-encrypt secret", "alertConfigurationID", result.Id, "secretFieldKey", k, "error", err)
 							return err
 						}
 
