@@ -90,9 +90,9 @@ func newClientConfig(descriptor PluginDescriptor, env []string, logger log.Logge
 			return nil, err
 		}
 		cfg.UnixSocketConfig = &goplugin.UnixSocketConfig{TempDir: td}
-		logger.Debug("Using runner mode", "os", runtime.GOOS, "executablePath", executablePath)
+		logger.Debug("Using runner mode", "operatingSystem", runtime.GOOS, "executablePath", executablePath)
 	} else {
-		logger.Debug("Using process mode", "os", runtime.GOOS, "executablePath", executablePath)
+		logger.Debug("Using process mode", "operatingSystem", runtime.GOOS, "executablePath", executablePath)
 		// We can ignore gosec G201 here, since the dynamic part of executablePath comes from the plugin definition
 		// nolint:gosec
 		cfg.Cmd = exec.Command(executablePath, descriptor.executableArgs...)
