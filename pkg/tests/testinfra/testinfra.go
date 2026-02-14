@@ -111,7 +111,7 @@ func StartGrafanaEnvWithDB(t *testing.T, grafDir, cfgPath string) (string, *serv
 		dbCfg.Key("path").SetValue(testDB.Path)
 	}
 
-	t.Log("Using test database", "type", testDB.DriverName, "host", testDB.Host, "port", testDB.Port, "dbUser", testDB.User, "databaseName", testDB.Database, "databasePath", testDB.Path)
+	t.Log("Using test database", "dbType", testDB.DriverName, "host", testDB.Host, "port", testDB.Port, "dbUser", testDB.User, "databaseName", testDB.Database, "databasePath", testDB.Path)
 
 	env, err := server.InitializeForTest(ctx, t, t, cfg, serverOpts, apiServerOpts)
 	require.NoError(t, err)
