@@ -3050,18 +3050,6 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid string concatenation in trace attribute string values; pass typed values directly or split related data into separate attributes`)
 
 	m.Match(
-		`attribute.String("error", $err.Error())`,
-	).
-		Where(m["err"].Type.Is("error")).
-		Report(`use "errorMessage" for stringified error text in trace attributes (for example attribute.String("errorMessage", err.Error()))`)
-
-	m.Match(
-		`attribute.Key("error").String($err.Error())`,
-	).
-		Where(m["err"].Type.Is("error")).
-		Report(`use "errorMessage" for stringified error text in trace attributes (for example attribute.Key("errorMessage").String(err.Error()))`)
-
-	m.Match(
 		`$span.AddEvent("status")`,
 		`$span.AddEvent("status", $*attrs)`,
 	).
