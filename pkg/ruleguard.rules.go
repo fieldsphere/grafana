@@ -1475,6 +1475,26 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`use "error" for error objects in []any key/value slices; reserve "errorMessage" for textual error details`)
 
 	m.Match(
+		`[]any{$*before, "errorMessage", $errVal, $*after}`,
+	).
+		Where(
+			m["errVal"].Type.Is("bool") ||
+				m["errVal"].Type.Is("int") ||
+				m["errVal"].Type.Is("int8") ||
+				m["errVal"].Type.Is("int16") ||
+				m["errVal"].Type.Is("int32") ||
+				m["errVal"].Type.Is("int64") ||
+				m["errVal"].Type.Is("uint") ||
+				m["errVal"].Type.Is("uint8") ||
+				m["errVal"].Type.Is("uint16") ||
+				m["errVal"].Type.Is("uint32") ||
+				m["errVal"].Type.Is("uint64") ||
+				m["errVal"].Type.Is("float32") ||
+				m["errVal"].Type.Is("float64"),
+		).
+		Report(`"errorMessage" in []any key/value slices should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for numeric/bool values`)
+
+	m.Match(
 		`append($arr, $*before, "error", $errMsg, $*after)`,
 	).
 		Where(m["arr"].Type.Is("[]any") && !m["errMsg"].Type.Is("error") && !m["errMsg"].Type.Implements("error")).
@@ -1485,6 +1505,27 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["arr"].Type.Is("[]any") && (m["errVal"].Type.Is("error") || m["errVal"].Type.Implements("error"))).
 		Report(`use "error" for error objects in []any key/value slices; reserve "errorMessage" for textual error details`)
+
+	m.Match(
+		`append($arr, $*before, "errorMessage", $errVal, $*after)`,
+	).
+		Where(
+			m["arr"].Type.Is("[]any") &&
+				(m["errVal"].Type.Is("bool") ||
+					m["errVal"].Type.Is("int") ||
+					m["errVal"].Type.Is("int8") ||
+					m["errVal"].Type.Is("int16") ||
+					m["errVal"].Type.Is("int32") ||
+					m["errVal"].Type.Is("int64") ||
+					m["errVal"].Type.Is("uint") ||
+					m["errVal"].Type.Is("uint8") ||
+					m["errVal"].Type.Is("uint16") ||
+					m["errVal"].Type.Is("uint32") ||
+					m["errVal"].Type.Is("uint64") ||
+					m["errVal"].Type.Is("float32") ||
+					m["errVal"].Type.Is("float64")),
+		).
+		Report(`"errorMessage" in []any key/value slices should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for numeric/bool values`)
 
 	m.Match(
 		`[]any{$*before, $key, $value, $dangling}`,
@@ -1576,6 +1617,26 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["errVal"].Type.Is("error") || m["errVal"].Type.Implements("error")).
 		Report(`use "error" for error objects in slog.Group fields; reserve "errorMessage" for textual error details`)
+
+	m.Match(
+		`slog.Group($group, $*before, "errorMessage", $errVal, $*after)`,
+	).
+		Where(
+			m["errVal"].Type.Is("bool") ||
+				m["errVal"].Type.Is("int") ||
+				m["errVal"].Type.Is("int8") ||
+				m["errVal"].Type.Is("int16") ||
+				m["errVal"].Type.Is("int32") ||
+				m["errVal"].Type.Is("int64") ||
+				m["errVal"].Type.Is("uint") ||
+				m["errVal"].Type.Is("uint8") ||
+				m["errVal"].Type.Is("uint16") ||
+				m["errVal"].Type.Is("uint32") ||
+				m["errVal"].Type.Is("uint64") ||
+				m["errVal"].Type.Is("float32") ||
+				m["errVal"].Type.Is("float64"),
+		).
+		Report(`"errorMessage" in slog.Group fields should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for numeric/bool values`)
 
 	m.Match(
 		`slog.Group($group, $*before, $key, $value, $*after)`,
@@ -1839,6 +1900,26 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["value"].Type.Is("error") || m["value"].Type.Implements("error")).
 		Report(`for error objects in slog attributes, use key "error"; reserve "errorMessage" for textual details`)
+
+	m.Match(
+		`slog.Any("errorMessage", $value)`,
+	).
+		Where(
+			m["value"].Type.Is("bool") ||
+				m["value"].Type.Is("int") ||
+				m["value"].Type.Is("int8") ||
+				m["value"].Type.Is("int16") ||
+				m["value"].Type.Is("int32") ||
+				m["value"].Type.Is("int64") ||
+				m["value"].Type.Is("uint") ||
+				m["value"].Type.Is("uint8") ||
+				m["value"].Type.Is("uint16") ||
+				m["value"].Type.Is("uint32") ||
+				m["value"].Type.Is("uint64") ||
+				m["value"].Type.Is("float32") ||
+				m["value"].Type.Is("float64"),
+		).
+		Report(`"errorMessage" slog attributes should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for numeric/bool values`)
 
 	m.Match(
 		`slog.Int("error", $value)`,
@@ -2941,6 +3022,28 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && (m["errVal"].Type.Is("error") || m["errVal"].Type.Implements("error"))).
 		Report(`use "error" for error objects in structured context; reserve "errorMessage" for textual error details`)
+
+	m.Match(
+		`$logger.New($*before, "errorMessage", $errVal, $*after)`,
+		`$logger.With($*before, "errorMessage", $errVal, $*after)`,
+	).
+		Where(
+			isStructuredLogger &&
+				(m["errVal"].Type.Is("bool") ||
+					m["errVal"].Type.Is("int") ||
+					m["errVal"].Type.Is("int8") ||
+					m["errVal"].Type.Is("int16") ||
+					m["errVal"].Type.Is("int32") ||
+					m["errVal"].Type.Is("int64") ||
+					m["errVal"].Type.Is("uint") ||
+					m["errVal"].Type.Is("uint8") ||
+					m["errVal"].Type.Is("uint16") ||
+					m["errVal"].Type.Is("uint32") ||
+					m["errVal"].Type.Is("uint64") ||
+					m["errVal"].Type.Is("float32") ||
+					m["errVal"].Type.Is("float64")),
+		).
+		Report(`"errorMessage" in structured context should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for numeric/bool values`)
 
 	m.Match(
 		`attribute.Key($key).String($value)`,
