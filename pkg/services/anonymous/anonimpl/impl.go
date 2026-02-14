@@ -143,7 +143,7 @@ func (a *AnonDeviceService) TagDevice(ctx context.Context, httpReq *http.Request
 	addr := web.RemoteAddr(httpReq)
 	ip, err := network.GetIPFromAddress(addr)
 	if err != nil {
-		a.log.Debug("Failed to parse ip from address", "addr", addr)
+		a.log.Debug("Failed to parse ip from address", "clientAddress", addr)
 		return nil
 	}
 

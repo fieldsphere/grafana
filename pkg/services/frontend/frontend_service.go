@@ -119,7 +119,7 @@ func (s *frontendService) stop(failureReason error) error {
 }
 
 func (s *frontendService) newFrontendServer(ctx context.Context) *http.Server {
-	s.log.Info("starting frontend server", "addr", ":"+s.cfg.HTTPPort)
+	s.log.Info("starting frontend server", "listenAddress", ":"+s.cfg.HTTPPort)
 
 	// Use the same web.Mux as the main grafana server for consistency + middleware reuse
 	handler := web.New()

@@ -149,7 +149,7 @@ func (s *Service) RunStream(ctx context.Context, req *backend.RunStreamRequest, 
 			}
 
 			if err != nil {
-				logger.Error("Websocket write:", "error", err, "raw", message)
+				logger.Error("Websocket write:", "error", err, "rawMessage", message)
 				return
 			}
 		}

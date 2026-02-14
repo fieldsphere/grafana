@@ -323,7 +323,7 @@ func (s *SocialGitlab) extractFromToken(ctx context.Context, client *http.Client
 	if err != nil {
 		s.log.Warn("Error retrieving groups from userinfo. Using only token provided groups", "error", err)
 	} else {
-		s.log.Debug("Retrieved groups from userinfo", "sub", userInfo.Sub,
+		s.log.Debug("Retrieved groups from userinfo", "userSubject", userInfo.Sub,
 			"originalGroups", data.Groups, "groups", userInfo.Groups)
 		data.Groups = userInfo.Groups
 	}

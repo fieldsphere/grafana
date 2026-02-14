@@ -94,7 +94,7 @@ func ProvideService(cfg *setting.Cfg, routeRegister routing.RouteRegister, plugC
 		g.keyPrefix = cfg.LiveHAPrefix + ".gf_live"
 	}
 
-	logger.Debug("GrafanaLive initialization", "ha", g.IsHA())
+	logger.Debug("GrafanaLive initialization", "highAvailabilityEnabled", g.IsHA())
 
 	// Node is the core object in Centrifuge library responsible for many useful
 	// things. For example Node allows to publish messages to channels from server

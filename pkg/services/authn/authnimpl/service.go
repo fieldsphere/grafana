@@ -252,7 +252,7 @@ func (s *Service) Login(ctx context.Context, client string, r *authn.Request) (i
 	addr := web.RemoteAddr(r.HTTPRequest)
 	ip, err := network.GetIPFromAddress(addr)
 	if err != nil {
-		s.log.FromContext(ctx).Debug("Failed to parse ip from address", "authClientName", c.Name(), "identityID", id.ID, "addr", addr, "error", err)
+		s.log.FromContext(ctx).Debug("Failed to parse ip from address", "authClientName", c.Name(), "identityID", id.ID, "clientAddress", addr, "error", err)
 	}
 
 	externalSession := s.resolveExternalSessionFromIdentity(ctx, id, userID)

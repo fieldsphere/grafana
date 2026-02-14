@@ -120,7 +120,7 @@ func (s *Service) buildJWKS(ctx context.Context, keys []signingkeys.SigningKey) 
 func (s *Service) GetOrCreatePrivateKey(ctx context.Context,
 	keyPrefix string, alg jose.SignatureAlgorithm) (string, crypto.Signer, error) {
 	if alg != jose.ES256 {
-		s.log.Error("Only ES256 is supported", "alg", alg)
+		s.log.Error("Only ES256 is supported", "algorithm", alg)
 		return "", nil, signingkeys.ErrKeyGenerationFailed.Errorf("Only ES256 is supported: %v", alg)
 	}
 
