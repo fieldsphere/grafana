@@ -1127,8 +1127,8 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"(user|client)\"$")).
-		Report(`avoid ambiguous structured log keys "user" or "client"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
+		Where(m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Report(`avoid ambiguous structured log keys "user", "client", or "uname"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
 
 	m.Match(
 		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
@@ -1145,8 +1145,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"(user|client)\"$")).
-		Report(`avoid ambiguous structured log keys "user" or "client"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Report(`avoid ambiguous structured log keys "user", "client", or "uname"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
 
 	m.Match(
 		`$logger.Info($msg, $*before, $key, $value, $*after)`,
@@ -1440,8 +1440,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*before, $key, $value, $*after)`,
 		`$logger.With($*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"(user|client)\"$")).
-		Report(`avoid ambiguous structured context keys "user" or "client"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Report(`avoid ambiguous structured context keys "user", "client", or "uname"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
 
 	m.Match(
 		`$logger.New($*before, $key, $value, $*after)`,
@@ -1629,8 +1629,8 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"(user|client)\"$")).
-		Report(`avoid ambiguous trace attribute keys "user" or "client"; use specific keys such as "userID", "userLogin", "clientID", "clientName", or "authClientName"`)
+		Where(m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Report(`avoid ambiguous trace attribute keys "user", "client", or "uname"; use specific keys such as "userID", "userLogin", "clientID", "clientName", or "authClientName"`)
 
 	m.Match(
 		`attribute.String($key, $value)`,

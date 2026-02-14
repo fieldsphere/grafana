@@ -101,7 +101,7 @@ func (proxy *PluginProxy) HandleRequest() {
 	proxyErrorLogger := logger.New(
 		"userID", proxy.ctx.UserID,
 		"orgID", proxy.ctx.OrgID,
-		"uname", proxy.ctx.Login,
+		"userLogin", proxy.ctx.Login,
 		"path", proxy.ctx.Req.URL.Path,
 		"remoteAddr", proxy.ctx.RemoteAddr(),
 		"referer", proxy.ctx.Req.Referer(),
