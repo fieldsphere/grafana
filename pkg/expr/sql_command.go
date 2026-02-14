@@ -373,7 +373,7 @@ func handleSqlInput(ctx context.Context, tracer trace.Tracer, refID string, forR
 		}
 		dataType := categorizeFrameInputType(dataFrames)
 		span.SetAttributes(
-			attribute.String("status", statusLabel),
+			attribute.String("queryStatus", statusLabel),
 			attribute.Float64("duration", duration),
 			attribute.String("dataType", dataType),
 			attribute.String("datasourceType", dsType),
