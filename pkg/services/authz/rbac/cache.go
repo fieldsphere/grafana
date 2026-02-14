@@ -73,7 +73,7 @@ func newCacheWrap[T any](cache cache.Cache, logger log.Logger, tracer tracing.Tr
 func (c *cacheWrapImpl[T]) Get(ctx context.Context, key string) (T, bool) {
 	ctx, span := c.tracer.Start(ctx, "cacheWrap.Get")
 	defer span.End()
-	span.SetAttributes(attribute.Bool("hit", false))
+	span.SetAttributes(attribute.Bool("cacheHit", false))
 	logger := c.logger.FromContext(ctx)
 
 	var value T
@@ -91,7 +91,7 @@ func (c *cacheWrapImpl[T]) Get(ctx context.Context, key string) (T, bool) {
 		return value, false
 	}
 
-	span.SetAttributes(attribute.Bool("hit", true))
+	span.SetAttributes(attribute.Bool("cacheHit", true))
 	return value, true
 }
 
