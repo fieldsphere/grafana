@@ -204,7 +204,7 @@ func (b *RemotePrometheusBackend) framesFor(ctx context.Context, rule history_mo
 			"lastEvaluationTime", t.LastEvaluationTime,
 			"ruleTitle", rule.Title,
 			"labels", labels,
-			"value", sample.value,
+			"sampleValue", sample.value,
 		)
 
 		field := data.NewField("", labels, []float64{sample.value})

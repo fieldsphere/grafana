@@ -249,11 +249,11 @@ func (w *DatasourceWriter) makeWriter(ctx context.Context, orgID int64, dsUID st
 
 	w.l.Debug("Created Prometheus remote writer",
 		"datasourceUID", dsUID,
-		"type", ds.Type,
+		"datasourceType", ds.Type,
 		"prometheusType", getPrometheusType(ds),
-		"url", cfg.URL,
-		"tls", cfg.HTTPOptions.TLS != nil,
-		"basicAuth", cfg.HTTPOptions.BasicAuth != nil,
+		"prometheusURL", cfg.URL,
+		"tlsEnabled", cfg.HTTPOptions.TLS != nil,
+		"basicAuthEnabled", cfg.HTTPOptions.BasicAuth != nil,
 		"timeout", cfg.Timeout)
 
 	return NewPrometheusWriter(
