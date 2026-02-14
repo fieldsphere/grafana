@@ -1406,6 +1406,104 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in slog attribute constructors; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`slog.String($key, $value)`,
+		`slog.Int($key, $value)`,
+		`slog.Int64($key, $value)`,
+		`slog.Uint64($key, $value)`,
+		`slog.Bool($key, $value)`,
+		`slog.Float64($key, $value)`,
+		`slog.Duration($key, $value)`,
+		`slog.Time($key, $value)`,
+		`slog.Any($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in slog attribute keys (for example "orgID", "pluginID", "userID")`)
+
+	m.Match(
+		`slog.String($key, $value)`,
+		`slog.Int($key, $value)`,
+		`slog.Int64($key, $value)`,
+		`slog.Uint64($key, $value)`,
+		`slog.Bool($key, $value)`,
+		`slog.Float64($key, $value)`,
+		`slog.Duration($key, $value)`,
+		`slog.Time($key, $value)`,
+		`slog.Any($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Report(`prefer "UID" acronym casing in slog attribute keys (for example "dashboardUID", "ruleUID", "datasourceUID")`)
+
+	m.Match(
+		`slog.String($key, $value)`,
+		`slog.Int($key, $value)`,
+		`slog.Int64($key, $value)`,
+		`slog.Uint64($key, $value)`,
+		`slog.Bool($key, $value)`,
+		`slog.Float64($key, $value)`,
+		`slog.Duration($key, $value)`,
+		`slog.Time($key, $value)`,
+		`slog.Any($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Report(`avoid snake_case slog attribute keys; use camelCase with canonical acronym casing`)
+
+	m.Match(
+		`slog.String($key, $value)`,
+		`slog.Int($key, $value)`,
+		`slog.Int64($key, $value)`,
+		`slog.Uint64($key, $value)`,
+		`slog.Bool($key, $value)`,
+		`slog.Float64($key, $value)`,
+		`slog.Duration($key, $value)`,
+		`slog.Time($key, $value)`,
+		`slog.Any($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\".*\\s+.*\"$")).
+		Report(`avoid whitespace in slog attribute keys; use compact camelCase keys such as "rowsAffected" or "currentProvider"`)
+
+	m.Match(
+		`slog.String($key, $value)`,
+		`slog.Int($key, $value)`,
+		`slog.Int64($key, $value)`,
+		`slog.Uint64($key, $value)`,
+		`slog.Bool($key, $value)`,
+		`slog.Float64($key, $value)`,
+		`slog.Duration($key, $value)`,
+		`slog.Time($key, $value)`,
+		`slog.Any($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
+		Report(`avoid hyphenated slog attribute keys; use camelCase keys such as "contentType" or "rowsAffected"`)
+
+	m.Match(
+		`slog.String($key, $value)`,
+		`slog.Int($key, $value)`,
+		`slog.Int64($key, $value)`,
+		`slog.Uint64($key, $value)`,
+		`slog.Bool($key, $value)`,
+		`slog.Float64($key, $value)`,
+		`slog.Duration($key, $value)`,
+		`slog.Time($key, $value)`,
+		`slog.Any($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Report(`avoid dotted slog attribute keys; prefer flat camelCase keys with canonical acronym casing`)
+
+	m.Match(
+		`slog.String($key, $value)`,
+		`slog.Int($key, $value)`,
+		`slog.Int64($key, $value)`,
+		`slog.Uint64($key, $value)`,
+		`slog.Bool($key, $value)`,
+		`slog.Float64($key, $value)`,
+		`slog.Duration($key, $value)`,
+		`slog.Time($key, $value)`,
+		`slog.Any($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
+		Report(`avoid uppercase-leading slog attribute keys; use lower camelCase with canonical acronym casing`)
+
+	m.Match(
 		`$logger.Info($msg, []any{$*before, $key, $value, $*after}...)`,
 		`$logger.Warn($msg, []any{$*before, $key, $value, $*after}...)`,
 		`$logger.Error($msg, []any{$*before, $key, $value, $*after}...)`,
