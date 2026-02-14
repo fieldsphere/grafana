@@ -534,7 +534,7 @@ func (hs *HTTPServer) updateDataSourceByID(c *contextmodel.ReqContext, ds *datas
 	_, err := hs.DataSourcesService.UpdateDataSource(c.Req.Context(), &cmd)
 	if err != nil {
 		if errors.Is(err, datasources.ErrDataSourceNameExists) {
-			return response.Error(http.StatusConflict, "Failed to update datasource: "+err.Error(), err)
+			return response.Error(http.StatusConflict, "Failed to update datasource", err)
 		}
 
 		if errors.Is(err, datasources.ErrDataSourceUpdatingOldVersion) {

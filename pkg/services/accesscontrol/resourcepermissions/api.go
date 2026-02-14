@@ -513,7 +513,7 @@ func (a *api) setPermissions(c *contextmodel.ReqContext) response.Response {
 
 	cmd := setPermissionsCommand{}
 	if err := web.Bind(c.Req, &cmd); err != nil {
-		return response.Error(http.StatusBadRequest, "Bad request data: "+err.Error(), err)
+		return response.Error(http.StatusBadRequest, "Bad request data", err)
 	}
 
 	if a.shouldUseK8sAPIs() {
