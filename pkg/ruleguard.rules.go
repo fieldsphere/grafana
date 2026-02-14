@@ -1378,6 +1378,24 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in slog.Group appended fields; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`slog.Group($group, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`slog.Group($group, $*before, $key, fmt.Sprint($*args), $*after)`,
+	).
+		Report(`avoid fmt formatting in slog.Group field values; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
+		`slog.Group($group, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
+		`slog.Group($group, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
+	).
+		Report(`avoid fmt formatting in slog.Group []any literal field values; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
+		`slog.Group($group, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`slog.Group($group, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+	).
+		Report(`avoid fmt formatting in slog.Group appended field values; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
 		`slog.Group($left + $right, $*fields)`,
 	).
 		Report(`avoid dynamic concatenation for slog group names; use stable string-literal group names`)
