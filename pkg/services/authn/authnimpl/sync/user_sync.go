@@ -566,7 +566,7 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 			finalCmdToExecute = updateCmd
 			shouldExecuteUpdate = true
 			ctxLogger.Debug("Syncing all differing attributes for non-provisioned user", "identityID", id.ID,
-				"login", finalCmdToExecute.Login, "email", finalCmdToExecute.Email, "name", finalCmdToExecute.Name,
+				"login", finalCmdToExecute.Login, "email", finalCmdToExecute.Email, "userName", finalCmdToExecute.Name,
 				"isGrafanaAdmin", finalCmdToExecute.IsGrafanaAdmin, "emailVerified", finalCmdToExecute.EmailVerified)
 		} else {
 			if updateCmd.IsGrafanaAdmin != nil {
@@ -577,7 +577,7 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 
 			if !shouldExecuteUpdate {
 				ctxLogger.Debug("SAML attributes differed, but no SCIM-overridable attributes changed for provisioned user", "identityID", id.ID,
-					"login", updateCmd.Login, "email", updateCmd.Email, "name", updateCmd.Name,
+					"login", updateCmd.Login, "email", updateCmd.Email, "userName", updateCmd.Name,
 					"isGrafanaAdmin", updateCmd.IsGrafanaAdmin, "emailVerified", updateCmd.EmailVerified)
 			}
 		}
@@ -585,7 +585,7 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 		if shouldExecuteUpdate {
 			if err := s.userService.Update(ctx, finalCmdToExecute); err != nil {
 				ctxLogger.Error("Failed to update user attributes", "error", err, "identityID", id.ID, "isProvisioned", usr.IsProvisioned,
-					"login", finalCmdToExecute.Login, "email", finalCmdToExecute.Email, "name", finalCmdToExecute.Name,
+					"login", finalCmdToExecute.Login, "email", finalCmdToExecute.Email, "userName", finalCmdToExecute.Name,
 					"isGrafanaAdmin", finalCmdToExecute.IsGrafanaAdmin, "emailVerified", finalCmdToExecute.EmailVerified)
 				span.RecordError(err)
 				span.SetStatus(codes.Error, err.Error())

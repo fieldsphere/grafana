@@ -165,13 +165,13 @@ func (c *DataPlaneServiceRegistrationController) enqueueInternal(obj *v0alpha1.D
 
 func (c *DataPlaneServiceRegistrationController) addDataPlaneService(obj interface{}) {
 	castObj := obj.(*v0alpha1.DataPlaneService)
-	klog.V(4).InfoS("Adding DataPlaneService", "name", castObj.Name)
+	klog.V(4).InfoS("Adding DataPlaneService", "dataPlaneServiceName", castObj.Name)
 	c.enqueueInternal(castObj)
 }
 
 func (c *DataPlaneServiceRegistrationController) updateDataPlaneService(obj, _ interface{}) {
 	castObj := obj.(*v0alpha1.DataPlaneService)
-	klog.V(4).InfoS("Updating DataPlaneService", "name", castObj.Name)
+	klog.V(4).InfoS("Updating DataPlaneService", "dataPlaneServiceName", castObj.Name)
 	c.enqueueInternal(castObj)
 }
 
@@ -189,7 +189,7 @@ func (c *DataPlaneServiceRegistrationController) deleteDataPlaneService(obj inte
 			return
 		}
 	}
-	klog.V(4).InfoS("Deleting DataPlaneService", "name", castObj.Name)
+	klog.V(4).InfoS("Deleting DataPlaneService", "dataPlaneServiceName", castObj.Name)
 	c.enqueueInternal(castObj)
 }
 

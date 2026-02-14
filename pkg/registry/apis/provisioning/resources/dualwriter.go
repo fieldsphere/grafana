@@ -243,7 +243,7 @@ func (r *DualReadWriter) createOrUpdate(ctx context.Context, create bool, opts D
 	// Make sure the value is valid
 	if !opts.SkipDryRun {
 		if err := parsed.DryRun(ctx); err != nil {
-			logger := logging.FromContext(ctx).With("path", opts.Path, "name", parsed.Obj.GetName(), "ref", opts.Ref)
+			logger := logging.FromContext(ctx).With("path", opts.Path, "resourceName", parsed.Obj.GetName(), "ref", opts.Ref)
 			logger.Warn("failed to dry run resource on create", "error", err)
 
 			return nil, fmt.Errorf("error running dryRun: %w", err)
@@ -430,7 +430,7 @@ func (r *DualReadWriter) moveFile(ctx context.Context, opts DualWriteOptions) (*
 	// Make sure the new resource is valid
 	if !opts.SkipDryRun {
 		if err := newParsed.DryRun(ctx); err != nil {
-			logger := logging.FromContext(ctx).With("path", opts.Path, "originalPath", opts.OriginalPath, "name", newParsed.Obj.GetName(), "ref", opts.Ref)
+			logger := logging.FromContext(ctx).With("path", opts.Path, "originalPath", opts.OriginalPath, "resourceName", newParsed.Obj.GetName(), "ref", opts.Ref)
 			logger.Warn("failed to dry run resource on move", "error", err)
 			return nil, fmt.Errorf("error running dryRun on moved resource: %w", err)
 		}

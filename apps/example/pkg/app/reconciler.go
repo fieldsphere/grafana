@@ -34,7 +34,7 @@ func (e *ExampleReconciler) doReconcile(ctx context.Context, req operator.TypedR
 		return operator.ReconcileResult{}, nil
 	}
 
-	logging.FromContext(ctx).Info("reconciling example", "name", req.Object.GetName(), "namespace", req.Object.GetNamespace(), "action", operator.ResourceActionFromReconcileAction(req.Action))
+	logging.FromContext(ctx).Info("reconciling example", "exampleName", req.Object.GetName(), "namespace", req.Object.GetNamespace(), "action", operator.ResourceActionFromReconcileAction(req.Action))
 
 	// If this is a delete, we don't need to do anything
 	if req.Action == operator.ReconcileActionDeleted {

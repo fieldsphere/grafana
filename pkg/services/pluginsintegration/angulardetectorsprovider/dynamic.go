@@ -96,7 +96,7 @@ func (d *Dynamic) patternsToDetectors(patterns GCOMPatterns) ([]angulardetector.
 			// Fail silently in case of an errUnknownPatternType.
 			// This allows us to introduce new pattern types without breaking old Grafana versions
 			if errors.Is(err, errUnknownPatternType) {
-				d.log.Debug("Unknown angular pattern", "name", pattern.Name, "type", pattern.Type, "error", err)
+				d.log.Debug("Unknown angular pattern", "patternName", pattern.Name, "type", pattern.Type, "error", err)
 				continue
 			}
 			// Other error, do not ignore it

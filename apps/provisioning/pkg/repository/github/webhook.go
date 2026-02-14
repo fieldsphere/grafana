@@ -380,7 +380,7 @@ func (r *githubWebhookRepository) logger(ctx context.Context, ref string) (conte
 		ref = r.config.Spec.GitHub.Branch
 	}
 
-	logger = logger.With(slog.Group("githubRepository", "owner", r.owner, "name", r.repo, "ref", ref))
+	logger = logger.With(slog.Group("githubRepository", "owner", r.owner, "repositoryName", r.repo, "ref", ref))
 	ctx = logging.Context(ctx, logger)
 	// We want to ensure we don't add multiple githubRepository keys. With doesn't deduplicate the keys...
 	ctx = context.WithValue(ctx, containsGhKey, true)

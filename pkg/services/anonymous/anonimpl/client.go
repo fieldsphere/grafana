@@ -41,7 +41,7 @@ func (a *Anonymous) Name() string {
 func (a *Anonymous) Authenticate(ctx context.Context, r *authn.Request) (*authn.Identity, error) {
 	o, err := a.orgService.GetByName(ctx, &org.GetOrgByNameQuery{Name: a.cfg.Anonymous.OrgName})
 	if err != nil {
-		a.log.FromContext(ctx).Error("Failed to find organization", "name", a.cfg.Anonymous.OrgName, "error", err)
+		a.log.FromContext(ctx).Error("Failed to find organization", "orgName", a.cfg.Anonymous.OrgName, "error", err)
 		return nil, err
 	}
 

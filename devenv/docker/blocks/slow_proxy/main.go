@@ -14,14 +14,14 @@ func main() {
 	origin := os.Getenv("ORIGIN_SERVER")
 	if origin == "" {
 		// it is never not-set, the default is in the `.env` file
-		slog.Error("Missing required environment variable", "name", "ORIGIN_SERVER")
+		slog.Error("Missing required environment variable", "envVarName", "ORIGIN_SERVER")
 		os.Exit(1)
 	}
 
 	sleepDurationStr := os.Getenv("SLEEP_DURATION")
 	if sleepDurationStr == "" {
 		// it is never not-set, the default is in the `.env` file
-		slog.Error("Missing required environment variable", "name", "SLEEP_DURATION")
+		slog.Error("Missing required environment variable", "envVarName", "SLEEP_DURATION")
 		os.Exit(1)
 	}
 

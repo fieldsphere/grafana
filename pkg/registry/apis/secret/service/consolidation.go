@@ -72,21 +72,21 @@ func (s *ConsolidationService) Consolidate(ctx context.Context) (err error) {
 		// Decrypt the value using its old data key. Skip the cache to avoid overloading it during consolidation.
 		decryptedValue, err := s.encryptionManager.Decrypt(ctx, xkube.Namespace(ev.Namespace), ev.EncryptedPayload, contracts.EncryptionOption{SkipCache: true})
 		if err != nil {
-			logging.FromContext(ctx).Error("Failed to decrypt value", "namespace", ev.Namespace, "name", ev.Name, "error", err)
+			logging.FromContext(ctx).Error("Failed to decrypt value", "namespace", ev.Namespace, "secretName", ev.Name, "error", err)
 			continue
 		}
 
 		// Re-encrypt the value using a new data key. Skip the cache to avoid overloading it during consolidation.
 		reEncryptedValue, err := s.encryptionManager.Encrypt(ctx, xkube.Namespace(ev.Namespace), decryptedValue, contracts.EncryptionOption{SkipCache: true})
 		if err != nil {
-			logging.FromContext(ctx).Error("Failed to re-encrypt value", "namespace", ev.Namespace, "name", ev.Name, "error", err)
+			logging.FromContext(ctx).Error("Failed to re-encrypt value", "namespace", ev.Namespace, "secretName", ev.Name, "error", err)
 			continue
 		}
 
 		// Update the encrypted value in the store.
 		err = s.encryptedValueStore.Update(ctx, xkube.Namespace(ev.Namespace), ev.Name, ev.Version, reEncryptedValue)
 		if err != nil {
-			logging.FromContext(ctx).Error("Failed to update encrypted value", "namespace", ev.Namespace, "name", ev.Name, "error", err)
+			logging.FromContext(ctx).Error("Failed to update encrypted value", "namespace", ev.Namespace, "secretName", ev.Name, "error", err)
 			continue
 		}
 	}

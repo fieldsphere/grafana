@@ -140,10 +140,10 @@ func (f *finalizer) processExistingItems(
 		err = cb(res, item)
 		if err != nil {
 			if errors.IsNotFound(err) {
-				logger.Info("resource not found, skipping", "name", item.Name, "group", item.Group, "resource", item.Resource)
+				logger.Info("resource not found, skipping", "resourceName", item.Name, "group", item.Group, "resource", item.Resource)
 				return nil
 			}
-			logger.Error("error processing item", "name", item.Name, "error", err)
+			logger.Error("error processing item", "resourceName", item.Name, "error", err)
 			return fmt.Errorf("processing item: %w", err)
 		}
 		return nil
@@ -192,7 +192,7 @@ func (f *finalizer) releaseResources(
 ) func(client dynamic.ResourceInterface, item *provisioning.ResourceListItem) error {
 	return func(client dynamic.ResourceInterface, item *provisioning.ResourceListItem) error {
 		logger.Info("release resource",
-			"name", item.Name,
+			"resourceName", item.Name,
 			"group", item.Group,
 			"resource", item.Resource,
 		)
@@ -217,7 +217,7 @@ func (f *finalizer) removeResources(
 ) func(client dynamic.ResourceInterface, item *provisioning.ResourceListItem) error {
 	return func(client dynamic.ResourceInterface, item *provisioning.ResourceListItem) error {
 		logger.Info("remove resource",
-			"name", item.Name,
+			"resourceName", item.Name,
 			"group", item.Group,
 			"resource", item.Resource,
 		)

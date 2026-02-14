@@ -248,7 +248,7 @@ func (c *Client) createScope(name string, cfg ScopeConfig) error {
 		return fmt.Errorf("failed to marshal scope: %w", err)
 	}
 
-	slog.Info("Creating scope", "name", prefixedName)
+	slog.Info("Creating scope", "scopeName", prefixedName)
 	return c.makeRequest("POST", "/scopes", body)
 }
 
@@ -312,7 +312,7 @@ func (c *Client) createScopeNode(name string, node TreeNode, parentName string) 
 		return fmt.Errorf("failed to marshal scope node: %w", err)
 	}
 
-	slog.Info("Creating scope node", "name", prefixedName)
+	slog.Info("Creating scope node", "scopeNodeName", prefixedName)
 	return c.makeRequest("POST", "/scopenodes", body)
 }
 
@@ -364,7 +364,7 @@ func (c *Client) createScopeNavigation(name string, nav NavigationConfig) error 
 		return fmt.Errorf("failed to marshal scope navigation: %w", err)
 	}
 
-	slog.Info("Creating scope navigation", "name", prefixedName)
+	slog.Info("Creating scope navigation", "scopeNavigationName", prefixedName)
 	if err := c.makeRequest("POST", "/scopenavigations", body); err != nil {
 		return err
 	}
@@ -395,7 +395,7 @@ func (c *Client) createScopeNavigation(name string, nav NavigationConfig) error 
 			return fmt.Errorf("failed to marshal scope navigation status: %w", err)
 		}
 
-		slog.Info("Updating scope navigation status", "name", prefixedName)
+		slog.Info("Updating scope navigation status", "scopeNavigationName", prefixedName)
 		return c.makeRequest("PUT", fmt.Sprintf("/scopenavigations/%s/status", prefixedName), statusBody)
 	}
 
@@ -548,7 +548,7 @@ func (c *Client) deleteResourceType(endpoint, resourceType string) {
 	deletedCount := 0
 	for _, item := range listResponse.Items {
 		if strings.HasPrefix(item.Metadata.Name, prefix+"-") {
-			slog.Info("Deleting scope resource", "resourceType", resourceType, "name", item.Metadata.Name)
+			slog.Info("Deleting scope resource", "resourceType", resourceType, "resourceName", item.Metadata.Name)
 			deleteURL := fmt.Sprintf("%s/%s", endpoint, item.Metadata.Name)
 			if err := c.makeRequest("DELETE", deleteURL, nil); err != nil {
 				// Silently skip deletion errors
@@ -588,7 +588,7 @@ func main() {
 	slog.Info("Creating scopes")
 	for name, scope := range config.Scopes {
 		if err := client.createScope(name, scope); err != nil {
-			slog.Error("Error creating scope", "name", name, "error", err)
+			slog.Error("Error creating scope", "scopeName", name, "error", err)
 			os.Exit(1)
 		}
 	}
@@ -615,7 +615,7 @@ func main() {
 					navWithName.Nav.Title = navWithName.Title
 				}
 				if err := client.createScopeNavigation(navWithName.Name, navWithName.Nav); err != nil {
-					slog.Error("Error creating scope navigation", "name", navWithName.Name, "error", err)
+					slog.Error("Error creating scope navigation", "scopeNavigationName", navWithName.Name, "error", err)
 					os.Exit(1)
 				}
 			}
@@ -627,7 +627,7 @@ func main() {
 		slog.Info("Creating scope navigations")
 		for name, nav := range config.Navigations {
 			if err := client.createScopeNavigation(name, nav); err != nil {
-				slog.Error("Error creating scope navigation", "name", name, "error", err)
+				slog.Error("Error creating scope navigation", "scopeNavigationName", name, "error", err)
 				os.Exit(1)
 			}
 		}

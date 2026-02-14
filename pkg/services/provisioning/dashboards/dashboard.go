@@ -130,7 +130,7 @@ func (provider *Provisioner) Provision(ctx context.Context) error {
 			if err := reader.walkDisk(ctx); err != nil {
 				if os.IsNotExist(err) {
 					// don't stop the provisioning service in case the folder is missing. The folder can appear after the startup
-					provider.log.Warn("Failed to provision config", "name", reader.Cfg.Name, "error", err)
+					provider.log.Warn("Failed to provision config", "configName", reader.Cfg.Name, "error", err)
 					return
 				}
 
@@ -216,7 +216,7 @@ func getFileReaders(
 		case "file":
 			fileReader, err := NewDashboardFileReader(
 				config,
-				logger.New("type", config.Type, "name", config.Name),
+				logger.New("type", config.Type, "configName", config.Name),
 				service,
 				store,
 				folderService,

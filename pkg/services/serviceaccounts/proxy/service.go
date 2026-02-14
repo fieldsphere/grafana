@@ -69,7 +69,7 @@ func (s *ServiceAccountsProxy) AddServiceAccountToken(ctx context.Context, servi
 func (s *ServiceAccountsProxy) CreateServiceAccount(ctx context.Context, orgID int64, saForm *serviceaccounts.CreateServiceAccountForm) (*serviceaccounts.ServiceAccountDTO, error) {
 	if s.isProxyEnabled {
 		if !isNameValid(saForm.Name) {
-			s.log.Error("Unable to create service account with a protected name", "name", saForm.Name)
+			s.log.Error("Unable to create service account with a protected name", "serviceAccountName", saForm.Name)
 			return nil, extsvcaccounts.ErrInvalidName
 		}
 	}
@@ -149,7 +149,7 @@ func (s *ServiceAccountsProxy) RetrieveServiceAccountIdByName(ctx context.Contex
 func (s *ServiceAccountsProxy) UpdateServiceAccount(ctx context.Context, orgID, serviceAccountID int64, saForm *serviceaccounts.UpdateServiceAccountForm) (*serviceaccounts.ServiceAccountProfileDTO, error) {
 	if s.isProxyEnabled {
 		if !isNameValid(*saForm.Name) {
-			s.log.Error("Invalid service account name", "name", *saForm.Name)
+			s.log.Error("Invalid service account name", "serviceAccountName", *saForm.Name)
 			return nil, extsvcaccounts.ErrInvalidName
 		}
 		sa, err := s.proxiedService.RetrieveServiceAccount(ctx, &serviceaccounts.GetServiceAccountQuery{OrgID: orgID, ID: serviceAccountID})
