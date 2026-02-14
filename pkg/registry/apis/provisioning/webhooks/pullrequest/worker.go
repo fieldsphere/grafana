@@ -98,7 +98,7 @@ func (c *PullRequestWorker) Process(ctx context.Context,
 		return apierrors.NewBadRequest("missing spec.pr")
 	}
 
-	logger := logging.FromContext(ctx).With("pr", opts.PR, "repositoryName", repo.Config().GetName(), "namespace", job.GetNamespace())
+	logger := logging.FromContext(ctx).With("pullRequestNumber", opts.PR, "repositoryName", repo.Config().GetName(), "namespace", job.GetNamespace())
 
 	if opts.Ref == "" {
 		logger.Debug("missing spec.ref")
