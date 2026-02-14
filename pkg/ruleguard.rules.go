@@ -2478,6 +2478,12 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`use "errorMessage" for stringified error text in trace attributes (for example attribute.String("errorMessage", err.Error()))`)
 
 	m.Match(
+		`attribute.Key("error").String($err.Error())`,
+	).
+		Where(m["err"].Type.Is("error")).
+		Report(`use "errorMessage" for stringified error text in trace attributes (for example attribute.Key("errorMessage").String(err.Error()))`)
+
+	m.Match(
 		`$span.AddEvent("status")`,
 		`$span.AddEvent("status", $*attrs)`,
 	).
@@ -2551,6 +2557,12 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`attribute.String("error", $errMsg)`,
+	).
+		Where(m["errMsg"].Type.Is("string")).
+		Report(`use "errorMessage" when storing string error text in trace attributes`)
+
+	m.Match(
+		`attribute.Key("error").String($errMsg)`,
 	).
 		Where(m["errMsg"].Type.Is("string")).
 		Report(`use "errorMessage" when storing string error text in trace attributes`)
