@@ -118,7 +118,7 @@ func (s *server) BulkProcess(stream resourcepb.BulkStore_BulkProcessServer) erro
 	defer span.End()
 
 	sendAndClose := func(rsp *resourcepb.BulkResponse) error {
-		span.AddEvent("sendAndClose", trace.WithAttributes(attribute.String("msg", rsp.String())))
+		span.AddEvent("sendAndClose", trace.WithAttributes(attribute.String("responseSummary", rsp.String())))
 		return stream.SendAndClose(rsp)
 	}
 
