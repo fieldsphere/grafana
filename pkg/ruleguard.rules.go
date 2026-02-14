@@ -1098,6 +1098,18 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recovered panic payloads in append-built key/value slices, use key "panicValue" instead of "errorMessage"`)
 
 	m.Match(
+		`if $panicVal := recover(); $panicVal != nil { $arr = []any{$*before, "error", $panicVal, $*after}; $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { $arr := []any{$*before, "error", $panicVal, $*after}; $*_ }`,
+	).
+		Report(`for recovered panic payloads in []any literal key/value slices, use key "panicValue" instead of "error"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal != nil { $arr = []any{$*before, "errorMessage", $panicVal, $*after}; $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { $arr := []any{$*before, "errorMessage", $panicVal, $*after}; $*_ }`,
+	).
+		Report(`for recovered panic payloads in []any literal key/value slices, use key "panicValue" instead of "errorMessage"`)
+
+	m.Match(
 		`$logger.Info($msg, $*before, "errorMessage", $errVal, $*after)`,
 		`$logger.Warn($msg, $*before, "errorMessage", $errVal, $*after)`,
 		`$logger.Error($msg, $*before, "errorMessage", $errVal, $*after)`,
