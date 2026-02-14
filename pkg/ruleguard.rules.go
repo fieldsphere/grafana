@@ -1747,8 +1747,8 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.Any("error", $value)`,
 	).
-		Where(m["value"].Type.Is("string")).
-		Report(`for string-formatted errors in slog attributes, use key "errorMessage"; reserve key "error" for error objects`)
+		Where(!m["value"].Type.Is("error") && !m["value"].Type.Implements("error")).
+		Report(`for non-error payloads in slog attributes, use key "errorMessage"; reserve key "error" for error objects`)
 
 	m.Match(
 		`slog.String($key, $value)`,
