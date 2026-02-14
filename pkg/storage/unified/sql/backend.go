@@ -394,7 +394,7 @@ func (b *backend) garbageCollectBatch(ctx context.Context, group, resourceName s
 		if len(candidates) == 0 {
 			return nil
 		}
-		span.AddEvent("candidates", trace.WithAttributes(attribute.Int("candidates", len(candidates))))
+		span.AddEvent("garbageCollectionCandidates", trace.WithAttributes(attribute.Int("candidates", len(candidates))))
 		res, err := dbutil.Exec(ctx, tx, sqlResourceHistoryGCDeleteByNames, &sqlGarbageCollectDeleteByNamesRequest{
 			SQLTemplate: sqltemplate.New(b.dialect),
 			Group:       group,
