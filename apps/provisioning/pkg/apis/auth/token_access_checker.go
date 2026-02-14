@@ -50,7 +50,7 @@ func (c *tokenAccessChecker) Check(ctx context.Context, req authlib.CheckRequest
 		"resource", req.Resource,
 		"verb", req.Verb,
 		"group", req.Group,
-		"name", req.Name,
+		"resourceName", req.Name,
 		"folder", folder,
 	)
 

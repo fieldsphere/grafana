@@ -47,7 +47,7 @@ func ProvideKeeperMetadataStorage(
 func (s *keeperMetadataStorage) Create(ctx context.Context, keeper *secretv1beta1.Keeper, actorUID string) (_ *secretv1beta1.Keeper, createErr error) {
 	start := time.Now()
 	ctx, span := s.tracer.Start(ctx, "KeeperMetadataStorage.Create", trace.WithAttributes(
-		attribute.String("name", keeper.GetName()),
+		attribute.String("keeperName", keeper.GetName()),
 		attribute.String("namespace", keeper.GetNamespace()),
 		attribute.String("actorUID", actorUID),
 	))
@@ -57,7 +57,7 @@ func (s *keeperMetadataStorage) Create(ctx context.Context, keeper *secretv1beta
 		success := createErr == nil
 
 		args := []any{
-			"name", keeper.GetName(),
+			"keeperName", keeper.GetName(),
 			"namespace", keeper.GetNamespace(),
 			"actorUID", actorUID,
 		}
@@ -128,7 +128,7 @@ func (s *keeperMetadataStorage) Create(ctx context.Context, keeper *secretv1beta
 func (s *keeperMetadataStorage) Read(ctx context.Context, namespace xkube.Namespace, name string, opts contracts.ReadOpts) (_ *secretv1beta1.Keeper, readErr error) {
 	start := time.Now()
 	ctx, span := s.tracer.Start(ctx, "KeeperMetadataStorage.Read", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("keeperName", name),
 		attribute.String("namespace", namespace.String()),
 		attribute.Bool("isForUpdate", opts.ForUpdate),
 	))
@@ -138,7 +138,7 @@ func (s *keeperMetadataStorage) Read(ctx context.Context, namespace xkube.Namesp
 		success := readErr == nil
 
 		args := []any{
-			"name", name,
+			"keeperName", name,
 			"namespace", namespace.String(),
 		}
 
@@ -212,7 +212,7 @@ func (s *keeperMetadataStorage) read(ctx context.Context, namespace, name string
 func (s *keeperMetadataStorage) Update(ctx context.Context, newKeeper *secretv1beta1.Keeper, actorUID string) (_ *secretv1beta1.Keeper, updateErr error) {
 	start := time.Now()
 	ctx, span := s.tracer.Start(ctx, "KeeperMetadataStorage.Update", trace.WithAttributes(
-		attribute.String("name", newKeeper.GetName()),
+		attribute.String("keeperName", newKeeper.GetName()),
 		attribute.String("namespace", newKeeper.GetNamespace()),
 		attribute.String("actorUID", actorUID),
 	))
@@ -221,7 +221,7 @@ func (s *keeperMetadataStorage) Update(ctx context.Context, newKeeper *secretv1b
 	defer func() {
 		success := updateErr == nil
 		args := []any{
-			"name", newKeeper.GetName(),
+			"keeperName", newKeeper.GetName(),
 			"namespace", newKeeper.GetNamespace(),
 			"actorUID", actorUID,
 		}
@@ -300,7 +300,7 @@ func (s *keeperMetadataStorage) Update(ctx context.Context, newKeeper *secretv1b
 func (s *keeperMetadataStorage) Delete(ctx context.Context, namespace xkube.Namespace, name string) (delErr error) {
 	start := time.Now()
 	ctx, span := s.tracer.Start(ctx, "KeeperMetadataStorage.Delete", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("keeperName", name),
 		attribute.String("namespace", namespace.String()),
 	))
 	defer span.End()
@@ -309,7 +309,7 @@ func (s *keeperMetadataStorage) Delete(ctx context.Context, namespace xkube.Name
 		success := delErr == nil
 
 		args := []any{
-			"name", name,
+			"keeperName", name,
 			"namespace", namespace.String(),
 		}
 
@@ -432,7 +432,7 @@ func (s *keeperMetadataStorage) List(ctx context.Context, namespace xkube.Namesp
 // It is used by other methods inside a transaction.
 func (s *keeperMetadataStorage) validateSecureValueReferences(ctx context.Context, keeper *secretv1beta1.Keeper) (err error) {
 	ctx, span := s.tracer.Start(ctx, "KeeperMetadataStorage.ValidateSecureValueReferences", trace.WithAttributes(
-		attribute.String("name", keeper.GetName()),
+		attribute.String("keeperName", keeper.GetName()),
 		attribute.String("namespace", keeper.GetNamespace()),
 	))
 	defer span.End()
@@ -580,7 +580,7 @@ func (s *keeperMetadataStorage) validateSecureValueReferences(ctx context.Contex
 func (s *keeperMetadataStorage) GetKeeperConfig(ctx context.Context, namespace string, name string, opts contracts.ReadOpts) (_ secretv1beta1.KeeperConfig, getErr error) {
 	ctx, span := s.tracer.Start(ctx, "KeeperMetadataStorage.GetKeeperConfig", trace.WithAttributes(
 		attribute.String("namespace", namespace),
-		attribute.String("name", name),
+		attribute.String("keeperName", name),
 		attribute.Bool("isForUpdate", opts.ForUpdate),
 	))
 	start := time.Now()
@@ -591,7 +591,7 @@ func (s *keeperMetadataStorage) GetKeeperConfig(ctx context.Context, namespace s
 
 		args := []any{
 			"namespace", namespace,
-			"name", name,
+			"keeperName", name,
 			"isForUpdate", strconv.FormatBool(opts.ForUpdate),
 		}
 

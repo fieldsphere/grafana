@@ -134,7 +134,7 @@ func (s *Service) Check(ctx context.Context, req *authzv1.CheckRequest) (*authzv
 		attribute.String("subject", req.Subject),
 		attribute.String("namespace", checkReq.Namespace.Value),
 		attribute.String("action", checkReq.Action),
-		attribute.String("name", checkReq.Name),
+		attribute.String("resourceName", checkReq.Name),
 		attribute.String("parentFolderUID", checkReq.ParentFolder),
 		attribute.Bool("allowed", false),
 	)

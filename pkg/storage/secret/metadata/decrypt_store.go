@@ -60,7 +60,7 @@ type decryptStorage struct {
 func (s *decryptStorage) Decrypt(ctx context.Context, namespace xkube.Namespace, name string) (_ secretv1beta1.ExposedSecureValue, decryptErr error) {
 	ctx, span := s.tracer.Start(ctx, "DecryptStorage.Decrypt", trace.WithAttributes(
 		attribute.String("namespace", namespace.String()),
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 	))
 	defer span.End()
 

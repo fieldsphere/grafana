@@ -406,7 +406,7 @@ func (hs *HTTPServer) redirectCDNPluginAsset(c *contextmodel.ReqContext, plugin 
 		"assetPath", assetPath,
 		"remoteURL", remoteURL,
 		"referer", c.Req.Referer(),
-		"user", c.Login,
+		"userLogin", c.Login,
 	)
 	pluginsCDNFallbackRedirectRequests.With(prometheus.Labels{
 		"plugin_id":      plugin.ID,

@@ -45,7 +45,7 @@ func (a *decryptAuthorizer) Authorize(
 	owners []metav1.OwnerReference,
 ) (id string, isAllowed bool, reason string) {
 	ctx, span := a.tracer.Start(ctx, "DecryptAuthorizer.Authorize", trace.WithAttributes(
-		attribute.String("name", secureValueName),
+		attribute.String("secureValueName", secureValueName),
 		attribute.StringSlice("decrypters", secureValueDecrypters),
 	))
 	defer span.End()

@@ -73,8 +73,8 @@ func (s *SecureValueService) Create(ctx context.Context, sv *secretv1beta1.Secur
 		}
 
 		if createdSv != nil {
-			args = append(args, "name", createdSv.GetName())
-			span.SetAttributes(attribute.String("name", createdSv.GetName()))
+			args = append(args, "secureValueName", createdSv.GetName())
+			span.SetAttributes(attribute.String("secureValueName", createdSv.GetName()))
 		}
 
 		success := createErr == nil
@@ -104,7 +104,7 @@ func (s *SecureValueService) Update(ctx context.Context, newSecureValue *secretv
 	name, namespace := newSecureValue.GetName(), newSecureValue.GetNamespace()
 
 	ctx, span := s.tracer.Start(ctx, "SecureValueService.Update", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace),
 		attribute.String("actor", actorUID),
 	))
@@ -112,7 +112,7 @@ func (s *SecureValueService) Update(ctx context.Context, newSecureValue *secretv
 
 	defer func() {
 		args := []any{
-			"name", name,
+			"secureValueName", name,
 			"namespace", namespace,
 			"actorUID", actorUID,
 			"sync", sync,
@@ -239,13 +239,13 @@ func (s *SecureValueService) Read(ctx context.Context, namespace xkube.Namespace
 	start := time.Now()
 
 	ctx, span := s.tracer.Start(ctx, "SecureValueService.Read", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace.String()),
 	))
 
 	defer func() {
 		args := []any{
-			"name", name,
+			"secureValueName", name,
 			"namespace", namespace.String(),
 		}
 
@@ -345,14 +345,14 @@ func (s *SecureValueService) Delete(ctx context.Context, namespace xkube.Namespa
 	start := time.Now()
 
 	ctx, span := s.tracer.Start(ctx, "SecureValueService.Delete", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace.String()),
 	))
 	defer span.End()
 
 	defer func() {
 		args := []any{
-			"name", name,
+			"secureValueName", name,
 			"namespace", namespace,
 		}
 

@@ -41,7 +41,7 @@ func ProvideService(db db.DB, cfg *setting.Cfg, tracer tracing.Tracer) (team.Ser
 func (s *Service) CreateTeam(ctx context.Context, cmd *team.CreateTeamCommand) (team.Team, error) {
 	_, span := s.tracer.Start(ctx, "team.CreateTeam", trace.WithAttributes(
 		attribute.Int64("orgID", cmd.OrgID),
-		attribute.String("name", cmd.Name),
+		attribute.String("teamName", cmd.Name),
 	))
 	defer span.End()
 	return s.store.Create(ctx, cmd)

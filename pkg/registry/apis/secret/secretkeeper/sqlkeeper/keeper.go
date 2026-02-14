@@ -59,7 +59,7 @@ func (s *SQLKeeper) Store(ctx context.Context, cfg secretv1beta1.KeeperConfig, n
 	ctx, span := s.tracer.Start(ctx, "SQLKeeper.Store",
 		trace.WithAttributes(
 			attribute.String("namespace", namespace.String()),
-			attribute.String("name", name),
+			attribute.String("secureValueName", name),
 			attribute.Int64("version", version)),
 	)
 	defer span.End()
@@ -85,7 +85,7 @@ func (s *SQLKeeper) Store(ctx context.Context, cfg secretv1beta1.KeeperConfig, n
 func (s *SQLKeeper) Expose(ctx context.Context, cfg secretv1beta1.KeeperConfig, namespace xkube.Namespace, name string, version int64) (secretv1beta1.ExposedSecureValue, error) {
 	ctx, span := s.tracer.Start(ctx, "SQLKeeper.Expose", trace.WithAttributes(
 		attribute.String("namespace", namespace.String()),
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.Int64("version", version),
 	))
 	defer span.End()
@@ -114,7 +114,7 @@ func (s *SQLKeeper) RetrieveReference(ctx context.Context, cfg secretv1beta1.Kee
 func (s *SQLKeeper) Delete(ctx context.Context, cfg secretv1beta1.KeeperConfig, namespace xkube.Namespace, name string, version int64) error {
 	ctx, span := s.tracer.Start(ctx, "SQLKeeper.Delete", trace.WithAttributes(
 		attribute.String("namespace", namespace.String()),
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.Int64("version", version),
 	))
 	defer span.End()

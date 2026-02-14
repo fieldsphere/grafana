@@ -60,7 +60,7 @@ func (c *sessionAccessChecker) Check(ctx context.Context, req authlib.CheckReque
 		"resource", req.Resource,
 		"verb", req.Verb,
 		"group", req.Group,
-		"name", req.Name,
+		"resourceName", req.Name,
 		"folder", folder,
 		"fallbackRole", c.fallbackRole,
 	)

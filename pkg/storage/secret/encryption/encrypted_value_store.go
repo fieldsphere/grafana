@@ -50,7 +50,7 @@ func (s *encryptedValStorage) Create(ctx context.Context, namespace xkube.Namesp
 		if ev != nil {
 			span.SetAttributes(
 				attribute.String("namespace", ev.Namespace),
-				attribute.String("name", ev.Name),
+				attribute.String("secureValueName", ev.Name),
 				attribute.Int64("version", ev.Version),
 			)
 		}
@@ -107,7 +107,7 @@ func (s *encryptedValStorage) Create(ctx context.Context, namespace xkube.Namesp
 func (s *encryptedValStorage) Update(ctx context.Context, namespace xkube.Namespace, name string, version int64, encryptedData contracts.EncryptedPayload) error {
 	ctx, span := s.tracer.Start(ctx, "EncryptedValueStorage.Update", trace.WithAttributes(
 		attribute.String("namespace", namespace.String()),
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.Int64("version", version),
 	))
 	defer span.End()
@@ -144,7 +144,7 @@ func (s *encryptedValStorage) Update(ctx context.Context, namespace xkube.Namesp
 func (s *encryptedValStorage) Get(ctx context.Context, namespace xkube.Namespace, name string, version int64) (*contracts.EncryptedValue, error) {
 	ctx, span := s.tracer.Start(ctx, "EncryptedValueStorage.Get", trace.WithAttributes(
 		attribute.String("namespace", namespace.String()),
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.Int64("version", version),
 	))
 	defer span.End()
@@ -195,7 +195,7 @@ func (s *encryptedValStorage) Get(ctx context.Context, namespace xkube.Namespace
 func (s *encryptedValStorage) Delete(ctx context.Context, namespace xkube.Namespace, name string, version int64) error {
 	ctx, span := s.tracer.Start(ctx, "EncryptedValueStorage.Delete", trace.WithAttributes(
 		attribute.String("namespace", namespace.String()),
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.Int64("version", version),
 	))
 	defer span.End()

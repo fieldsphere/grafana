@@ -457,7 +457,7 @@ func (s *ServiceImpl) parseMetricRequest(ctx context.Context, user identity.Requ
 			"to", timeRange.GetToAsMsEpoch(),
 			"interval", pq.query.Interval.Milliseconds(),
 			"maxDataPoints", pq.query.MaxDataPoints,
-			"query", string(modelJSON))
+			"queryJSON", string(modelJSON))
 	}
 
 	return req, req.validateRequest(ctx)

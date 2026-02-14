@@ -52,7 +52,7 @@ func (s *secureValueMetadataStorage) Create(ctx context.Context, keeper string, 
 	name := sv.GetName()
 	namespace := sv.GetNamespace()
 	ctx, span := s.tracer.Start(ctx, "SecureValueMetadataStorage.Create", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace),
 		attribute.String("keeper", keeper),
 		attribute.String("actorUID", actorUID),
@@ -63,7 +63,7 @@ func (s *secureValueMetadataStorage) Create(ctx context.Context, keeper string, 
 		success := svmCreateErr == nil
 
 		args := []any{
-			"name", name,
+			"secureValueName", name,
 			"namespace", namespace,
 			"keeper", keeper,
 			"actorUID", actorUID,
@@ -175,7 +175,7 @@ type versionAndCreated struct {
 
 func (s *secureValueMetadataStorage) getLatestVersionAndCreated(ctx context.Context, namespace xkube.Namespace, name string) (versionAndCreated, error) {
 	ctx, span := s.tracer.Start(ctx, "SecureValueMetadataStorage.getLatestVersionAndCreated", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace.String()),
 	))
 	defer span.End()
@@ -283,7 +283,7 @@ func (s *secureValueMetadataStorage) readActiveVersion(ctx context.Context, name
 func (s *secureValueMetadataStorage) Read(ctx context.Context, namespace xkube.Namespace, name string, opts contracts.ReadOpts) (_ *secretv1beta1.SecureValue, readErr error) {
 	start := s.clock.Now()
 	ctx, span := s.tracer.Start(ctx, "SecureValueMetadataStorage.Read", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace.String()),
 		attribute.Bool("isForUpdate", opts.ForUpdate),
 	))
@@ -293,7 +293,7 @@ func (s *secureValueMetadataStorage) Read(ctx context.Context, namespace xkube.N
 		success := readErr == nil
 
 		args := []any{
-			"name", name,
+			"secureValueName", name,
 			"namespace", namespace.String(),
 			"success", success,
 		}
@@ -406,7 +406,7 @@ func (s *secureValueMetadataStorage) List(ctx context.Context, namespace xkube.N
 
 func (s *secureValueMetadataStorage) SetVersionToActive(ctx context.Context, namespace xkube.Namespace, name string, version int64) error {
 	ctx, span := s.tracer.Start(ctx, "SecureValueMetadataStorage.SetVersionToActive", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace.String()),
 		attribute.Int64("version", version),
 	))
@@ -443,7 +443,7 @@ func (s *secureValueMetadataStorage) SetVersionToActive(ctx context.Context, nam
 
 func (s *secureValueMetadataStorage) SetVersionToInactive(ctx context.Context, namespace xkube.Namespace, name string, version int64) error {
 	ctx, span := s.tracer.Start(ctx, "SecureValueMetadataStorage.SetVersionToInactive", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace.String()),
 		attribute.Int64("version", version),
 	))
@@ -480,7 +480,7 @@ func (s *secureValueMetadataStorage) SetVersionToInactive(ctx context.Context, n
 func (s *secureValueMetadataStorage) SetExternalID(ctx context.Context, namespace xkube.Namespace, name string, version int64, externalID contracts.ExternalID) (setExtIDErr error) {
 	start := s.clock.Now()
 	ctx, span := s.tracer.Start(ctx, "SecureValueMetadataStorage.SetExternalID", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace.String()),
 		attribute.String("externalID", externalID.String()),
 		attribute.Int64("version", version),
@@ -491,7 +491,7 @@ func (s *secureValueMetadataStorage) SetExternalID(ctx context.Context, namespac
 	defer func() {
 		success := setExtIDErr == nil
 		args := []any{
-			"name", name,
+			"secureValueName", name,
 			"namespace", namespace.String(),
 			"success", success,
 			"version", strconv.FormatInt(version, 10),
@@ -541,7 +541,7 @@ func (s *secureValueMetadataStorage) SetExternalID(ctx context.Context, namespac
 func (s *secureValueMetadataStorage) Delete(ctx context.Context, namespace xkube.Namespace, name string, version int64) (err error) {
 	start := s.clock.Now()
 	ctx, span := s.tracer.Start(ctx, "SecureValueMetadataStorage.Delete", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace.String()),
 		attribute.Int64("version", version),
 	))
@@ -552,7 +552,7 @@ func (s *secureValueMetadataStorage) Delete(ctx context.Context, namespace xkube
 		success := err == nil
 		args := []any{
 			"namespace", namespace.String(),
-			"name", name,
+			"secureValueName", name,
 			"version", strconv.FormatInt(version, 10),
 			"success", success,
 		}

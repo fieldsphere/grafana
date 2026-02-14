@@ -400,7 +400,7 @@ func (mg *Migrator) exec(ctx context.Context, m Migration, sess *xorm.Session) e
 		if strings.TrimSpace(sql) == "" {
 			logger.Debug("Skipping empty sql migration", "migrationID", m.Id())
 		} else {
-			logger.Debug("Executing sql migration", "migrationID", m.Id(), "sql", sql)
+			logger.Debug("Executing sql migration", "migrationID", m.Id(), "sqlQuery", sql)
 			_, err = sess.Exec(sql)
 		}
 	}

@@ -66,7 +66,7 @@ func (b *DashboardsAPIBuilder) ValidateDashboardSpec(ctx context.Context, obj ru
 	}
 
 	if alwaysLogSchemaValidationErrors && len(errors) > 0 {
-		logging.FromContext(ctx).Info("Schema validation errors during dashboard validation", "groupVersion", obj.GetObjectKind().GroupVersionKind().GroupVersion().String(), "name", accessor.GetName(), "errors", errors.ToAggregate().Error(), "schemaVersionMismatch", schemaVersionError != nil)
+		logging.FromContext(ctx).Info("Schema validation errors during dashboard validation", "groupVersion", obj.GetObjectKind().GroupVersionKind().GroupVersion().String(), "dashboardName", accessor.GetName(), "errors", errors.ToAggregate().Error(), "schemaVersionMismatch", schemaVersionError != nil)
 	}
 
 	if errorOnSchemaMismatches {

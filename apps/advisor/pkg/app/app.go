@@ -107,7 +107,7 @@ func New(cfg app.Config) (app.App, error) {
 							if req.Action == resource.AdmissionActionUpdate && retryAnnotationChanged(req.OldObject, req.Object) {
 								go func() {
 									logger := log.WithContext(ctx).With("check", check.ID())
-									logger.Debug("Updating check", "namespace", req.Object.GetNamespace(), "name", req.Object.GetName())
+									logger.Debug("Updating check", "namespace", req.Object.GetNamespace(), "checkName", req.Object.GetName())
 									orgID, err := getOrgIDFromNamespace(req.Object.GetNamespace())
 									if err != nil {
 										logger.Error("Error getting org ID from namespace", "error", err)
