@@ -81,7 +81,7 @@ func ApplyRoute(ctx context.Context, req *http.Request, proxyPath string, route 
 	}
 
 	if cfg.DataProxyLogging {
-		ctxLogger.Debug("Requesting", "url", req.URL.String())
+		ctxLogger.Debug("Requesting", "requestURL", req.URL.String())
 	}
 }
 

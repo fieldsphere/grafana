@@ -57,7 +57,7 @@ func (m *HostedGrafanaACHeaderMiddleware) applyGrafanaRequestIDHeader(ctx contex
 		return
 	}
 	if !IsRequestURLInAllowList(dsBaseURL, m.cfg) {
-		m.log.Debug("Data source URL not among the allow-listed URLs", "url", dsBaseURL.String())
+		m.log.Debug("Data source URL not among the allow-listed URLs", "datasourceURL", dsBaseURL.String())
 		return
 	}
 

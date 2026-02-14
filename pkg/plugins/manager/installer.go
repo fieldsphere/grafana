@@ -147,7 +147,7 @@ func (m *PluginInstaller) install(ctx context.Context, pluginID, version string,
 }
 
 func (m *PluginInstaller) updateFromURL(ctx context.Context, plugin *plugins.Plugin, url string, compatOpts repo.CompatOpts) (*repo.PluginArchive, error) {
-	m.log.Info("Updating plugin", "pluginID", plugin.ID, "from", plugin.Info.Version, "url", url)
+	m.log.Info("Updating plugin", "pluginID", plugin.ID, "from", plugin.Info.Version, "downloadURL", url)
 
 	// remove existing installation of plugin
 	err := m.Remove(ctx, plugin.ID, plugin.Info.Version)

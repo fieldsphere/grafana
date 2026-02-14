@@ -57,7 +57,7 @@ func (g *GrafanaServer) Wait() {
 				}
 				return
 			}
-			slog.Debug("Failed attempt to connect to grafana-server, retrying", "url", url, "error", err)
+			slog.Debug("Failed attempt to connect to grafana-server, retrying", "healthcheckURL", url, "error", err)
 		}
 	}
 }

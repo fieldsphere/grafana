@@ -335,7 +335,7 @@ func (s *SocialGoogle) getGroupsPage(ctx context.Context, client *http.Client, u
 		url = fmt.Sprintf("%s&pageToken=%s", url, nextPageToken)
 	}
 
-	s.log.Debug("Retrieving groups", "url", url)
+	s.log.Debug("Retrieving groups", "apiURL", url)
 	resp, err := s.httpGet(ctx, client, url)
 	if err != nil {
 		return nil, fmt.Errorf("error getting groups: %s", err)

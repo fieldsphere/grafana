@@ -179,7 +179,7 @@ func (s *ScreenshotImageService) NewImage(ctx context.Context, r *models.AlertRu
 			if image, err = s.uploads.Upload(ctx, image); err != nil {
 				logger.Warn("Failed to upload image", "error", err)
 			} else {
-				logger.Debug("Uploaded image", "url", image.URL)
+				logger.Debug("Uploaded image", "imageURL", image.URL)
 			}
 		}
 

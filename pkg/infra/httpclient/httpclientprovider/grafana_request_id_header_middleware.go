@@ -20,7 +20,7 @@ func GrafanaRequestIDHeaderMiddleware(cfg *setting.Cfg, logger log.Logger) sdkht
 			}
 
 			if !clientmiddleware.IsRequestURLInAllowList(req.URL, cfg) {
-				logger.Debug("Data source URL not among the allow-listed URLs", "url", req.URL.String())
+				logger.Debug("Data source URL not among the allow-listed URLs", "datasourceURL", req.URL.String())
 				return next.RoundTrip(req)
 			}
 

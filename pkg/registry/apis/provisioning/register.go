@@ -228,7 +228,7 @@ func createJobHistoryConfigFromSettings(cfg *setting.Cfg) *JobHistoryConfig {
 	if cfg.ProvisioningLokiURL != "" {
 		parsedURL, err := url.Parse(cfg.ProvisioningLokiURL)
 		if err != nil {
-			logging.DefaultLogger.Error("Invalid Loki URL in provisioning config", "url", cfg.ProvisioningLokiURL, "error", err)
+			logging.DefaultLogger.Error("Invalid Loki URL in provisioning config", "provisioningLokiURL", cfg.ProvisioningLokiURL, "error", err)
 			return &JobHistoryConfig{}
 		}
 

@@ -271,7 +271,7 @@ func (p *publisher) postRequest(url string, obj any, desc string) error {
 	}
 
 	if p.dryRun {
-		slog.Info("Release publisher dry-run request", "url", p.apiURL(url), "payload", string(jsonBytes))
+		slog.Info("Release publisher dry-run request", "requestURL", p.apiURL(url), "payload", string(jsonBytes))
 		return nil
 	}
 

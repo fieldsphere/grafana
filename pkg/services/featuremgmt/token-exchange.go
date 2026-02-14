@@ -86,7 +86,7 @@ func (m tokenExchangeMiddlewareImpl) RoundTrip(req *http.Request) (res *http.Res
 
 	namespace := m.namespace
 
-	log.Debug("signing request", "url", req.URL.Path, "audience", m.audiences, "namespace", namespace)
+	log.Debug("signing request", "requestPath", req.URL.Path, "audience", m.audiences, "namespace", namespace)
 	token, err := m.tokenExchangeClient.Exchange(req.Context(), authlib.TokenExchangeRequest{
 		Namespace: namespace,
 		Audiences: m.audiences,

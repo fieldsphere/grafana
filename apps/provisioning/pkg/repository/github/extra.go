@@ -41,7 +41,7 @@ func (e *extra) Build(ctx context.Context, r *provisioning.Repository) (reposito
 	if r == nil || r.Spec.GitHub == nil {
 		return nil, fmt.Errorf("github configuration is required")
 	}
-	logger := logging.FromContext(ctx).With("url", r.Spec.GitHub.URL, "branch", r.Spec.GitHub.Branch, "path", r.Spec.GitHub.Path)
+	logger := logging.FromContext(ctx).With("repositoryURL", r.Spec.GitHub.URL, "branch", r.Spec.GitHub.Branch, "path", r.Spec.GitHub.Path)
 	logger.Info("Instantiating Github repository")
 
 	secure := e.decrypter(r)

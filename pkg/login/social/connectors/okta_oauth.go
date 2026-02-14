@@ -210,7 +210,7 @@ func (s *SocialOkta) UserInfo(ctx context.Context, client *http.Client, token *o
 func (s *SocialOkta) extractAPI(ctx context.Context, data *OktaUserInfoJson, client *http.Client) error {
 	rawUserInfoResponse, err := s.httpGet(ctx, client, s.info.ApiUrl)
 	if err != nil {
-		s.log.Debug("Error getting user info response", "url", s.info.ApiUrl, "error", err)
+		s.log.Debug("Error getting user info response", "apiURL", s.info.ApiUrl, "error", err)
 		return fmt.Errorf("error getting user info response: %w", err)
 	}
 	data.rawJSON = rawUserInfoResponse.Body

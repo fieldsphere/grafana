@@ -258,16 +258,16 @@ func (am *Alertmanager) ApplyConfig(ctx context.Context, config *models.AlertCon
 	if am.ready {
 		am.log.Debug("Alertmanager previously marked as ready, skipping readiness check and state sync")
 	} else {
-		am.log.Debug("Start readiness check for remote Alertmanager", "url", am.url)
+		am.log.Debug("Start readiness check for remote Alertmanager", "alertmanagerURL", am.url)
 		if err := am.checkReadiness(ctx); err != nil {
 			return fmt.Errorf("unable to pass the readiness check: %w", err)
 		}
-		am.log.Debug("Completed readiness check for remote Alertmanager, starting state upload", "url", am.url)
+		am.log.Debug("Completed readiness check for remote Alertmanager, starting state upload", "alertmanagerURL", am.url)
 
 		if err := am.SendState(ctx); err != nil {
 			return fmt.Errorf("unable to upload the state to the remote Alertmanager: %w", err)
 		}
-		am.log.Debug("Completed state upload to remote Alertmanager", "url", am.url)
+		am.log.Debug("Completed state upload to remote Alertmanager", "alertmanagerURL", am.url)
 	}
 
 	if time.Since(am.lastConfigSync) < am.syncInterval {
@@ -275,11 +275,11 @@ func (am *Alertmanager) ApplyConfig(ctx context.Context, config *models.AlertCon
 		return nil
 	}
 
-	am.log.Debug("Start configuration upload to remote Alertmanager", "url", am.url)
+	am.log.Debug("Start configuration upload to remote Alertmanager", "alertmanagerURL", am.url)
 	if err := am.CompareAndSendConfiguration(ctx, config); err != nil {
 		return fmt.Errorf("unable to upload the configuration to the remote Alertmanager: %w", err)
 	}
-	am.log.Debug("Completed configuration upload to remote Alertmanager", "url", am.url)
+	am.log.Debug("Completed configuration upload to remote Alertmanager", "alertmanagerURL", am.url)
 	return nil
 }
 
@@ -465,7 +465,7 @@ func (am *Alertmanager) SaveAndApplyConfig(ctx context.Context, cfg *apimodels.P
 
 // SaveAndApplyDefaultConfig sends the default Grafana Alertmanager configuration to the remote Alertmanager.
 func (am *Alertmanager) SaveAndApplyDefaultConfig(ctx context.Context) error {
-	am.log.Debug("Sending default configuration to a remote Alertmanager", "url", am.url)
+	am.log.Debug("Sending default configuration to a remote Alertmanager", "alertmanagerURL", am.url)
 	payload, err := am.buildConfiguration(ctx, []byte(am.defaultConfig), time.Now().Unix(), notifier.LogInvalidReceivers)
 	if err != nil {
 		return fmt.Errorf("unable to build default configuration: %w", err)
@@ -607,7 +607,7 @@ func (am *Alertmanager) PutAlerts(ctx context.Context, alerts apimodels.Postable
 			}
 		}
 	}
-	am.log.Debug("Sending alerts to a remote alertmanager", "url", am.url, "alerts", len(alerts.PostableAlerts))
+	am.log.Debug("Sending alerts to a remote alertmanager", "alertmanagerURL", am.url, "alerts", len(alerts.PostableAlerts))
 	am.sender.SendAlerts(alerts)
 	return nil
 }

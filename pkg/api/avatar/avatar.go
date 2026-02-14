@@ -333,7 +333,7 @@ func performGet(ctx context.Context, url string, av *Avatar, handler ResponseHan
 	req.Header.Set("Accept-Language", "zh-CN,zh;q=0.8")
 	req.Header.Set("Cache-Control", "no-cache")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.154 Safari/537.36")
-	alog.Debug("Fetching avatar url with parameters", "url", url)
+	alog.Debug("Fetching avatar url with parameters", "avatarURL", url)
 	resp, err := client.Do(req)
 	if err != nil {
 		av.setAvatarNotFound()

@@ -119,7 +119,7 @@ func (w *lokiWriter) flush(streams []LokiStream) error {
 	if err != nil {
 		return fmt.Errorf("error converting Loki stream entry to bytes: %v", err)
 	}
-	logger.Debug("Sending to Loki endpoint", "url", w.endpoint, "bodyLength", len(writeData))
+	logger.Debug("Sending to Loki endpoint", "endpointURL", w.endpoint, "bodyLength", len(writeData))
 	req, err := http.NewRequest(http.MethodPost, w.endpoint, bytes.NewReader(writeData))
 	if err != nil {
 		return fmt.Errorf("error constructing loki push request: %w", err)

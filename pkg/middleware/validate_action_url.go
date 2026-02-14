@@ -35,7 +35,7 @@ func ValidateActionUrl(cfg *setting.Cfg, logger log.Logger) func(http.Handler) h
 	// get the urls allowed from server config
 	allGlobs, globErr := cacheGlobs(cfg.ActionsAllowPostURL)
 	if globErr != nil {
-		logger.Error("invalid glob settings in config section [security] actions_allow_post_url", "url", cfg.ActionsAllowPostURL)
+		logger.Error("invalid glob settings in config section [security] actions_allow_post_url", "allowlistURLPatterns", cfg.ActionsAllowPostURL)
 	}
 
 	return func(next http.Handler) http.Handler {
@@ -83,7 +83,7 @@ func check(ctx *contextmodel.ReqContext, allGlobs *[]glob.Glob, logger log.Logge
 	if matchesAllowedPath(allGlobs, urlToCheck.Path, logger) {
 		return nil
 	}
-	logger.Warn("POST/PUT to path not allowed", "url", urlToCheck)
+	logger.Warn("POST/PUT to path not allowed", "requestURL", urlToCheck)
 	// return some error
 	return &errorWithStatus{
 		Underlying: fmt.Errorf("method POST/PUT not allowed for path %s", urlToCheck),

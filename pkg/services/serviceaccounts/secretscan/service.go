@@ -122,7 +122,7 @@ func (s *Service) CheckTokens(ctx context.Context) error {
 			if err := s.store.RevokeServiceAccountToken(
 				ctx, leakedToken.OrgID, *leakedToken.ServiceAccountId, leakedToken.ID); err != nil {
 				s.logger.Error("Failed to delete leaked token. Revoke manually.",
-					"error", err, "url", secretscanToken.URL, "reportedAt", secretscanToken.ReportedAt,
+					"error", err, "leakedTokenURL", secretscanToken.URL, "reportedAt", secretscanToken.ReportedAt,
 					"tokenID", leakedToken.ID, "token", leakedToken.Name, "orgID", leakedToken.OrgID,
 					"serviceAccount", *leakedToken.ServiceAccountId)
 			}
@@ -135,7 +135,7 @@ func (s *Service) CheckTokens(ctx context.Context) error {
 		}
 
 		s.logger.Warn("Found leaked token",
-			"url", secretscanToken.URL, "reportedAt", secretscanToken.ReportedAt,
+			"leakedTokenURL", secretscanToken.URL, "reportedAt", secretscanToken.ReportedAt,
 			"tokenID", leakedToken.ID, "token", leakedToken.Name, "orgID", leakedToken.OrgID,
 			"serviceAccount", *leakedToken.ServiceAccountId, "revoked", s.revoke)
 	}

@@ -104,7 +104,7 @@ func (s *SocialBase) httpGet(ctx context.Context, client *http.Client, url strin
 		return nil, fmt.Errorf("unsuccessful response status code %d: %s", r.StatusCode, string(response.Body))
 	}
 
-	s.log.Debug("HTTP GET", "url", url, "status", r.Status, "responseBody", string(response.Body))
+	s.log.Debug("HTTP GET", "requestURL", url, "status", r.Status, "responseBody", string(response.Body))
 
 	return response, nil
 }

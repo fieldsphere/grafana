@@ -842,7 +842,7 @@ func (r *gitRepository) withGitContext(ctx context.Context, ref string) (context
 	if ref == "" {
 		ref = r.gitConfig.Branch
 	}
-	logger = logger.With(slog.Group("gitRepository", "url", r.gitConfig.URL, "gitRef", ref, "nanogit", true))
+	logger = logger.With(slog.Group("gitRepository", "repositoryURL", r.gitConfig.URL, "gitRef", ref, "nanogit", true))
 	ctx = logging.Context(ctx, logger)
 	// We want to ensure we don't add multiple gitRepository keys. With doesn't deduplicate the keys...
 	ctx = context.WithValue(ctx, containsGitKey, true)

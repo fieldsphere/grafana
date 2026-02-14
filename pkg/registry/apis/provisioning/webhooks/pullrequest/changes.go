@@ -196,12 +196,12 @@ func renderScreenshotFromGrafanaURL(ctx context.Context,
 	}()
 	parsed, err := url.Parse(grafanaURL)
 	if err != nil {
-		logging.FromContext(ctx).Warn("invalid", "url", grafanaURL, "error", err)
+		logging.FromContext(ctx).Warn("invalid", "grafanaURL", grafanaURL, "error", err)
 		return "", err
 	}
 	snap, err := renderer.RenderScreenshot(ctx, repo, strings.TrimPrefix(parsed.Path, "/"), parsed.Query())
 	if err != nil {
-		logging.FromContext(ctx).Warn("render failed", "url", grafanaURL, "error", err)
+		logging.FromContext(ctx).Warn("render failed", "grafanaURL", grafanaURL, "error", err)
 		return "", fmt.Errorf("error rendering screenshot: %w", err)
 	}
 	if strings.Contains(snap, "://") {
@@ -209,7 +209,7 @@ func renderScreenshotFromGrafanaURL(ctx context.Context,
 	}
 	base, err := url.Parse(baseURL)
 	if err != nil {
-		logging.FromContext(ctx).Warn("invalid base", "url", baseURL, "error", err)
+		logging.FromContext(ctx).Warn("invalid base", "baseURL", baseURL, "error", err)
 		return "", err
 	}
 	outcome = utils.SuccessOutcome

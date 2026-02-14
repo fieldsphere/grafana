@@ -684,7 +684,7 @@ func (cfg *Cfg) parseAppUrlAndSubUrl(section *ini.Section) (string, string, erro
 	// Check if has app suburl.
 	url, err := url.Parse(appUrl)
 	if err != nil {
-		cfg.Logger.Error("Invalid root_url.", "url", appUrl, "error", err)
+		cfg.Logger.Error("Invalid root_url.", "rootURL", appUrl, "error", err)
 		os.Exit(1)
 	}
 

@@ -384,7 +384,7 @@ func (s *SocialBase) retrieveJWKSFromURL(ctx context.Context, client *http.Clien
 	}
 
 	cacheExpiration := getCacheExpiration(resp.Headers.Get("cache-control"))
-	s.log.Debug("Retrieved key set from URL", "url", jwkSetURL, "cacheExpiration", cacheExpiration)
+	s.log.Debug("Retrieved key set from URL", "jwkSetURL", jwkSetURL, "cacheExpiration", cacheExpiration)
 
 	return &jwks, cacheExpiration, nil
 }
@@ -418,13 +418,13 @@ func (s *SocialBase) validateIDTokenSignatureWithURLs(ctx context.Context, clien
 		// Try cache first for this URL
 		keyset, expiry, err := s.retrieveJWKSFromCache(ctx, cacheKey)
 		if err != nil {
-			s.log.Warn("Error retrieving JWKS from cache", "url", jwkSetURL, "error", err)
+			s.log.Warn("Error retrieving JWKS from cache", "jwkSetURL", jwkSetURL, "error", err)
 		}
 		// If cache miss or empty, fetch from URL
 		if keyset == nil || len(keyset.Keys) == 0 {
 			keyset, expiry, err = s.retrieveJWKSFromURL(ctx, client, jwkSetURL)
 			if err != nil {
-				s.log.Warn("Error retrieving JWKS from URL", "url", jwkSetURL, "error", err)
+				s.log.Warn("Error retrieving JWKS from URL", "jwkSetURL", jwkSetURL, "error", err)
 				continue
 			}
 		}

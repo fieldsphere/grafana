@@ -57,7 +57,7 @@ func (hs *HTTPServer) createShortURL(c *contextmodel.ReqContext) response.Respon
 	}
 
 	shortURLDTO := hs.ShortURLService.ConvertShortURLToDTO(shortURL, hs.Cfg.AppURL)
-	c.Logger.Debug("Created short URL", "url", shortURLDTO.URL)
+	c.Logger.Debug("Created short URL", "shortURL", shortURLDTO.URL)
 
 	return response.JSON(http.StatusOK, shortURLDTO)
 }

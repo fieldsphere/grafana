@@ -255,7 +255,7 @@ func (ks *keySetHTTP) getJWKS(ctx context.Context) (keySetJWKS, error) {
 		}
 	}
 
-	ks.log.Debug("Getting key set from endpoint", "url", ks.url)
+	ks.log.Debug("Getting key set from endpoint", "keySetURL", ks.url)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, ks.url, nil)
 	if err != nil {
@@ -291,7 +291,7 @@ func (ks *keySetHTTP) getJWKS(ctx context.Context) (keySetJWKS, error) {
 	if ks.cacheExpiration > 0 {
 		cacheExpiration := ks.getCacheExpiration(resp.Header.Get("cache-control"))
 
-		ks.log.Debug("Setting key set in cache", "url", ks.url,
+		ks.log.Debug("Setting key set in cache", "keySetURL", ks.url,
 			"cacheExpiration", cacheExpiration, "cacheControl", resp.Header.Get("cache-control"))
 		err = ks.cache.Set(ctx, ks.cacheKey, jsonBuf.Bytes(), cacheExpiration)
 	}

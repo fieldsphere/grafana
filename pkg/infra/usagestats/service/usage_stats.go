@@ -134,7 +134,7 @@ func (uss *UsageStats) sendUsageStats(ctx context.Context) (string, error) {
 	ctx, span := uss.tracer.Start(ctx, "UsageStats.BackgroundJob")
 	defer span.End()
 	traceID := tracing.TraceIDFromContext(ctx, false)
-	uss.log.FromContext(ctx).Debug("Sending anonymous usage stats", "url", usageStatsURL)
+	uss.log.FromContext(ctx).Debug("Sending anonymous usage stats", "usageStatsURL", usageStatsURL)
 	start := time.Now()
 
 	report, err := uss.GetUsageReport(ctx)

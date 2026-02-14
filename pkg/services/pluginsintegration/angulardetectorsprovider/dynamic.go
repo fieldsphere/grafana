@@ -127,7 +127,7 @@ func (d *Dynamic) fetch(ctx context.Context, etag string) (GCOMResponse, error) 
 		return GCOMResponse{}, fmt.Errorf("url joinpath: %w", err)
 	}
 
-	d.log.Debug("Fetching dynamic angular detection patterns", "url", reqURL)
+	d.log.Debug("Fetching dynamic angular detection patterns", "requestURL", reqURL)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
 	if err != nil {
 		return GCOMResponse{}, fmt.Errorf("new request with context: %w", err)
