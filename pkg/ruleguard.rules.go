@@ -1149,8 +1149,7 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous structured log keys "user", "client", or "uname"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
 
 	m.Match(
-		`append($arr, $key, $value)`,
-		`append($arr, $key, $value, $*rest)`,
+		`append($arr, $*before, $key, $value, $*after)`,
 	).
 		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url)\"$")).
 		Report(`avoid ambiguous keys in []any key/value slices; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", or "responseBody"`)
