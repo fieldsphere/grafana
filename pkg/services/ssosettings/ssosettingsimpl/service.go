@@ -518,7 +518,7 @@ func (s *Service) decryptSecrets(ctx context.Context, settings map[string]any) (
 
 				decoded, err := base64.RawStdEncoding.DecodeString(strValue)
 				if err != nil {
-					s.logger.FromContext(ctx).Error("Failed to decode secret string", "error", err, "value")
+					s.logger.FromContext(ctx).Error("Failed to decode secret string", "error", err, "secretFieldKey", k)
 					return nil, err
 				}
 

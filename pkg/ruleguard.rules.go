@@ -974,6 +974,32 @@ func structuredlogging(m fluent.Matcher) {
 		Report("structured log attributes should start with a string key; pass key/value pairs instead of bare values")
 
 	m.Match(
+		`$logger.Info($msg, $*before, $key, $value, $dangling)`,
+		`$logger.Warn($msg, $*before, $key, $value, $dangling)`,
+		`$logger.Error($msg, $*before, $key, $value, $dangling)`,
+		`$logger.Debug($msg, $*before, $key, $value, $dangling)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $value, $dangling)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $value, $dangling)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $value, $dangling)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $value, $dangling)`,
+		`slog.Info($msg, $*before, $key, $value, $dangling)`,
+		`slog.Warn($msg, $*before, $key, $value, $dangling)`,
+		`slog.Error($msg, $*before, $key, $value, $dangling)`,
+		`slog.Debug($msg, $*before, $key, $value, $dangling)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $value, $dangling)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $value, $dangling)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $value, $dangling)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $value, $dangling)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $value, $dangling)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, $value, $dangling)`,
+		`klog.InfoS($msg, $*before, $key, $value, $dangling)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $dangling)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $dangling)`,
+	).
+		Where(m["key"].Type.Is("string") && m["dangling"].Type.Is("string")).
+		Report("structured log call has a dangling key without a value; ensure key/value arguments are paired")
+
+	m.Match(
 		`$logger.Info($msg, $*before, $key, $value, $*after)`,
 		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
 		`$logger.Error($msg, $*before, $key, $value, $*after)`,

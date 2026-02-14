@@ -215,7 +215,7 @@ func execute(ctx context.Context, tracer trace.Tracer, dsInfo *models.Datasource
 
 	var resp *backend.DataResponse
 	if isStreamingParserEnabled {
-		logger.Info("InfluxDB InfluxQL streaming parser enabled: ", "info")
+		logger.Info("InfluxDB InfluxQL streaming parser enabled")
 		resp = querydata.ResponseParse(res.Body, res.StatusCode, query)
 	} else {
 		resp = buffered.ResponseParse(res.Body, res.StatusCode, query)
