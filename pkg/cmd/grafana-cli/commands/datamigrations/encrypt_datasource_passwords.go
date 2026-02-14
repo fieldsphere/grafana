@@ -41,15 +41,15 @@ func EncryptDatasourcePasswords(c utils.CommandLine, cfg *setting.Cfg, sqlStore 
 
 		logger.Info("\n")
 		if passwordsUpdated > 0 {
-			logger.Info("Encrypted datasource password fields", "status", color.GreenString("✔"), "datasourceCount", passwordsUpdated)
+			logger.Info("Encrypted datasource password fields", "operationStatus", color.GreenString("✔"), "datasourceCount", passwordsUpdated)
 		}
 
 		if basicAuthUpdated > 0 {
-			logger.Info("Encrypted datasource basic_auth_password fields", "status", color.GreenString("✔"), "datasourceCount", basicAuthUpdated)
+			logger.Info("Encrypted datasource basic_auth_password fields", "operationStatus", color.GreenString("✔"), "datasourceCount", basicAuthUpdated)
 		}
 
 		if passwordsUpdated == 0 && basicAuthUpdated == 0 {
-			logger.Info("All datasource secrets are already encrypted", "status", color.GreenString("✔"))
+			logger.Info("All datasource secrets are already encrypted", "operationStatus", color.GreenString("✔"))
 		}
 
 		logger.Info("\n")

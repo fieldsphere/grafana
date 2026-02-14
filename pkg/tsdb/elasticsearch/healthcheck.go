@@ -84,7 +84,7 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 		}, nil
 	}
 
-	logger.Info("Response received from Elasticsearch", "statusCode", response.StatusCode, "status", "ok", "duration", time.Since(start))
+	logger.Info("Response received from Elasticsearch", "statusCode", response.StatusCode, "requestStatus", "ok", "duration", time.Since(start))
 
 	defer func() {
 		if err := response.Body.Close(); err != nil {

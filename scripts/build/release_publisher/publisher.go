@@ -288,7 +288,7 @@ func (p *publisher) postRequest(url string, obj any, desc string) error {
 	}
 
 	if res.StatusCode == http.StatusOK {
-		slog.Info("Release publisher action completed", "releaseAction", desc, "status", "ok")
+		slog.Info("Release publisher action completed", "releaseAction", desc, "actionStatus", "ok")
 		return nil
 	}
 
@@ -300,7 +300,7 @@ func (p *publisher) postRequest(url string, obj any, desc string) error {
 		}
 
 		if strings.Contains(string(body), "already exists") || strings.Contains(string(body), "Nothing to update") {
-			slog.Info("Release publisher action skipped", "releaseAction", desc, "status", "already_exists")
+			slog.Info("Release publisher action skipped", "releaseAction", desc, "actionStatus", "already_exists")
 		} else {
 			slog.Error("Release publisher action failed", "releaseAction", desc, "statusText", res.Status)
 			slog.Error("Release publisher response body", "responseBody", string(body))

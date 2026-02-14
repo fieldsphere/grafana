@@ -635,7 +635,7 @@ func (r *gitRepository) CompareFiles(ctx context.Context, base, ref string) ([]r
 				Action: repository.FileActionUpdated,
 			})
 		default:
-			logger.Error("ignore unhandled file", "filePath", f.Path, "status", string(f.Status))
+			logger.Error("ignore unhandled file", "filePath", f.Path, "fileStatus", string(f.Status))
 		}
 	}
 

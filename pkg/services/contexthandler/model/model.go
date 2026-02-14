@@ -74,9 +74,9 @@ func (ctx *ReqContext) JsonApiErr(status int, message string, err error) {
 	if err != nil {
 		resp["traceID"] = traceID
 		if status == http.StatusInternalServerError {
-			ctx.Logger.Error("Request context JSON API error response", "responseMessage", message, "error", err, "traceID", traceID, "status", status)
+			ctx.Logger.Error("Request context JSON API error response", "responseMessage", message, "error", err, "traceID", traceID, "statusCode", status)
 		} else {
-			ctx.Logger.Warn("Request context JSON API warning response", "responseMessage", message, "error", err, "traceID", traceID, "status", status)
+			ctx.Logger.Warn("Request context JSON API warning response", "responseMessage", message, "error", err, "traceID", traceID, "statusCode", status)
 		}
 	}
 

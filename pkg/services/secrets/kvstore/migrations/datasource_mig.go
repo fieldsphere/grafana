@@ -39,7 +39,7 @@ func (s *DataSourceSecretMigrationService) Migrate(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	logger.Debug("Secret migration status loaded", "status", migrationStatus)
+	logger.Debug("Secret migration status loaded", "migrationStatus", migrationStatus)
 
 	// Only migrate if it hasn't happened yet
 	if migrationStatus != compatibleSecretMigrationValue {
@@ -82,7 +82,7 @@ func (s *DataSourceSecretMigrationService) Migrate(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
-		logger.Debug("Secret migration status updated", "status", compatibleSecretMigrationValue)
+		logger.Debug("Secret migration status updated", "migrationStatus", compatibleSecretMigrationValue)
 	}
 
 	return nil

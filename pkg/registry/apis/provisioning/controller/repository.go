@@ -599,7 +599,7 @@ func (rc *RepositoryController) process(item *queueItem) error {
 	case shouldGenerateToken:
 		logger.Info("repository token needs to be generated", "connection", obj.Spec.Connection.Name)
 	default:
-		logger.Info("skipping as conditions are not met", "status", obj.Status, "generation", obj.Generation, "syncSpec", obj.Spec.Sync)
+		logger.Info("skipping as conditions are not met", "repositoryStatus", obj.Status, "generation", obj.Generation, "syncSpec", obj.Spec.Sync)
 		return nil
 	}
 

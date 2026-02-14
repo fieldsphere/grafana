@@ -392,7 +392,7 @@ func (d *jobDriver) onProgress() ProgressFn {
 		ctx, span := tracing.Start(ctx, "provisioning.jobs.update_progress")
 		defer span.End()
 
-		logging.FromContext(ctx).Debug("job progress", "status", status)
+		logging.FromContext(ctx).Debug("job progress", "jobStatus", status)
 
 		const maxRetries = 3
 		for attempt := 0; attempt < maxRetries; attempt++ {

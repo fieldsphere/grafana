@@ -143,7 +143,7 @@ func main() {
 			w.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		slog.Info("Webhook payload parsed", "receiver", v.Receiver, "status", v.Status)
+		slog.Info("Webhook payload parsed", "receiver", v.Receiver, "alertStatus", v.Status)
 		updateFingerprints(v)
 		<-time.After(waitDuration)
 	})

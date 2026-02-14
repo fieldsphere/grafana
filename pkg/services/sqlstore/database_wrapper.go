@@ -111,7 +111,7 @@ func (h *databaseQueryWrapper) instrument(ctx context.Context, status string, qu
 	}
 
 	ctxLogger := h.log.FromContext(ctx)
-	ctxLogger.Debug("query finished", "status", status, "elapsedTime", elapsed, "sqlQuery", query, "error", err)
+	ctxLogger.Debug("query finished", "queryStatus", status, "elapsedTime", elapsed, "sqlQuery", query, "error", err)
 }
 
 // OnError will be called if any error happens

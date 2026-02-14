@@ -225,7 +225,7 @@ func (v *SignatureValidation) Validate(ctx context.Context, p *plugins.Plugin) e
 		var sigErr *plugins.Error
 		if errors.As(err, &sigErr) {
 			v.log.Warn("Skipping loading plugin due to problem with signature",
-				"pluginID", p.ID, "status", sigErr.SignatureStatus)
+				"pluginID", p.ID, "signatureStatus", sigErr.SignatureStatus)
 			p.Error = sigErr
 		}
 		return err

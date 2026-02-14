@@ -104,7 +104,7 @@ func (am *Alertmanager) IsReadyWithBackoff(ctx context.Context) error {
 			if status >= 400 && status < 500 {
 				return fmt.Errorf("readiness check failed on attempt %d with non-retriable status code %d", attempt, status)
 			}
-			am.logger.Debug("Readiness check failed, status code is not 200", "attempt", attempt, "status", status, "error", err)
+			am.logger.Debug("Readiness check failed, status code is not 200", "attempt", attempt, "statusCode", status, "error", err)
 		}
 	}
 }
