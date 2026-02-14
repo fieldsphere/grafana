@@ -1,4 +1,6 @@
 const fs = require('fs');
+const path = require('path');
+const { execSync } = require('child_process');
 const { fromPairs } = require('lodash');
 
 const { CDPDataCollector } = require('./CDPDataCollector');
@@ -52,6 +54,46 @@ const afterSpec = (resultsFolder) => async (spec) => {
 
 const initialize = (on, config) => {
   const resultsFolder = config.env['BENCHMARK_PLUGIN_RESULTS_FOLDER'];
+
+  // File size audit: scope newly added directories and report sizes for newly added files
+  try {
+    const newFiles = execSync('git diff --name-status origin/main...HEAD | grep "^A" | awk \'{print $2}\'', { encoding: 'utf-8' })
+      .trim()
+      .split('\n')
+      .filter((line) => line.length > 0);
+
+    if (newFiles.length > 0) {
+      const newDirs = [...new Set(newFiles.map((file) => {
+        const dir = path.dirname(file);
+        return dir === '.' ? file : dir;
+      }))].filter((dir) => fs.existsSync(dir));
+
+      if (newDirs.length > 0) {
+        const dirSizes = execSync(`du -h ${newDirs.map((d) => `"${d}"`).join(' ')}`, { encoding: 'utf-8' }).trim();
+        logE2eInfo('File size audit: newly added directory sizes', {
+          operation: 'benchmark.initialize.sizeAudit',
+          directorySizes: dirSizes,
+        });
+      }
+
+      const fileSizes = newFiles
+        .filter((file) => fs.existsSync(file))
+        .map((file) => {
+          const stats = fs.statSync(file);
+          return `${file}: ${(stats.size / 1024).toFixed(2)}KB`;
+        })
+        .join('\n');
+
+      if (fileSizes) {
+        logE2eInfo('File size audit: newly added file sizes', {
+          operation: 'benchmark.initialize.sizeAudit',
+          fileSizes,
+        });
+      }
+    }
+  } catch (error) {
+    // Silently ignore if git command fails (e.g., not in a git repo or no origin/main)
+  }
 
   if (!fs.existsSync(resultsFolder)) {
     fs.mkdirSync(resultsFolder, { recursive: true });
