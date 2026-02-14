@@ -126,14 +126,14 @@ func (ns *NotificationService) Run(ctx context.Context) error {
 		case msg := <-ns.mailQueue:
 			num, err := ns.Send(ctx, msg)
 			tos := strings.Join(msg.To, "; ")
-			info := ""
+			messageInfo := ""
 			if err != nil {
 				if len(msg.Info) > 0 {
-					info = ", info: " + msg.Info
+					messageInfo = msg.Info
 				}
-				ns.log.Error("Async send email failed", "sentCount", num, "unsentEmails", tos, "info", info, "error", err)
+				ns.log.Error("Async send email failed", "sentCount", num, "unsentEmails", tos, "messageInfo", messageInfo, "error", err)
 			} else {
-				ns.log.Debug("Async send email succeeded", "sentCount", num, "sentEmails", tos, "info", info)
+				ns.log.Debug("Async send email succeeded", "sentCount", num, "sentEmails", tos, "messageInfo", messageInfo)
 			}
 		case <-ctx.Done():
 			return ctx.Err()
