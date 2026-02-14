@@ -1745,6 +1745,20 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*before, $key, $value, $*after)`,
 		`$logger.With($*before, $key, $value, $*after)`,
 	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"value\"$")).
+		Report(`avoid ambiguous structured context key "value"; use contextual keys such as "configValue", "measurementValue", "sampleValue", "fieldValue", "headerValue", "argumentValue", "responseValue", or "kvValue"`)
+
+	m.Match(
+		`$logger.New($*before, $key, $value, $*after)`,
+		`$logger.With($*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"info\"$")).
+		Report(`avoid ambiguous structured context key "info"; use contextual keys such as "messageInfo", "buildInfo", "runtimeInfo", "pluginInfo", or "userInfoData"`)
+
+	m.Match(
+		`$logger.New($*before, $key, $value, $*after)`,
+		`$logger.With($*before, $key, $value, $*after)`,
+	).
 		Where(isStructuredLogger && m["key"].Text.Matches("^\"data\"$")).
 		Report(`avoid ambiguous structured context key "data"; use contextual keys such as "requestData", "responseData", "userData", or "payloadData"`)
 
