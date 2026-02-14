@@ -14,7 +14,7 @@ func PrettyPrint(label string, i interface{}) {
 		slog.Error("Failed to marshal pretty print value", "label", label, "error", err)
 		return
 	}
-	slog.Info("Pretty print output", "label", label, "value", string(b))
+	slog.Info("Pretty print output", "label", label, "prettyPrintedValue", string(b))
 }
 
 // FindJSONFiles recursively finds all .json files in a directory
