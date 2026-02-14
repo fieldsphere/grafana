@@ -46,7 +46,7 @@ type RBACSync struct {
 
 func (s *RBACSync) SyncPermissionsHook(ctx context.Context, ident *authn.Identity, _ *authn.Request) error {
 	ctx, span := s.tracer.Start(ctx, "rbac.sync.SyncPermissionsHook", trace.WithAttributes(
-		attribute.String("identUID", ident.UID),
+		attribute.String("identityUID", ident.UID),
 	))
 	defer span.End()
 

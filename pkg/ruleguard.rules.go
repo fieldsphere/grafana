@@ -1677,6 +1677,21 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
+		Where(m["key"].Text.Matches("^\"identUID\"$")).
+		Report(`avoid abbreviated trace attribute key "identUID"; use "identityUID" for clarity`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
 		Where(m["key"].Text.Matches("^\"func\"$")).
 		Report(`avoid shorthand trace attribute key "func"; use "function" for clarity`)
 
