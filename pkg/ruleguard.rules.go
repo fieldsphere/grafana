@@ -1122,6 +1122,16 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recovered panic payloads in structured context builders, use key "panicValue" instead of "errorMessage"`)
 
 	m.Match(
+		`if $panicVal := recover(); $panicVal != nil { slog.Group($group, $*before, "error", $panicVal, $*after); $*_ }`,
+	).
+		Report(`for recovered panic payloads in slog.Group fields, use key "panicValue" instead of "error"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal != nil { slog.Group($group, $*before, "errorMessage", $panicVal, $*after); $*_ }`,
+	).
+		Report(`for recovered panic payloads in slog.Group fields, use key "panicValue" instead of "errorMessage"`)
+
+	m.Match(
 		`$logger.Info($msg, $*before, "errorMessage", $errVal, $*after)`,
 		`$logger.Warn($msg, $*before, "errorMessage", $errVal, $*after)`,
 		`$logger.Error($msg, $*before, "errorMessage", $errVal, $*after)`,
