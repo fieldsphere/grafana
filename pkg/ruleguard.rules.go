@@ -1105,6 +1105,32 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous structured log keys like "id", "uid", "org", or "cfg"; use contextual keys such as "userID", "dashboardUID", "orgID", or "configID"`)
 
 	m.Match(
+		`$logger.Info($msg, $*before, $key, $value, $*after)`,
+		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
+		`$logger.Error($msg, $*before, $key, $value, $*after)`,
+		`$logger.Debug($msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Info($msg, $*before, $key, $value, $*after)`,
+		`slog.Warn($msg, $*before, $key, $value, $*after)`,
+		`slog.Error($msg, $*before, $key, $value, $*after)`,
+		`slog.Debug($msg, $*before, $key, $value, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`klog.InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
+	).
+		Where(m["key"].Text.Matches("^\"(user|client)\"$")).
+		Report(`avoid ambiguous structured log keys "user" or "client"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
+
+	m.Match(
 		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
@@ -1112,6 +1138,15 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && m["key"].Text.Matches("^\"(id|uid|org|cfg)\"$")).
 		Report(`avoid ambiguous structured log keys like "id", "uid", "org", or "cfg"; use contextual keys such as "userID", "dashboardUID", "orgID", or "configID"`)
+
+	m.Match(
+		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(user|client)\"$")).
+		Report(`avoid ambiguous structured log keys "user" or "client"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
 
 	m.Match(
 		`$logger.Info($msg, $*before, $key, $value, $*after)`,
@@ -1405,6 +1440,13 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*before, $key, $value, $*after)`,
 		`$logger.With($*before, $key, $value, $*after)`,
 	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(user|client)\"$")).
+		Report(`avoid ambiguous structured context keys "user" or "client"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
+
+	m.Match(
+		`$logger.New($*before, $key, $value, $*after)`,
+		`$logger.With($*before, $key, $value, $*after)`,
+	).
 		Where(isStructuredLogger && m["key"].Text.Matches("^\"func\"$")).
 		Report(`avoid shorthand structured context key "func"; use "function" for clarity`)
 
@@ -1574,6 +1616,21 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg)\"$")).
 		Report(`avoid ambiguous trace attribute keys like "id", "uid", "org", or "cfg"; use contextual keys such as "userID", "receiverUID", "orgID", or "configID"`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"(user|client)\"$")).
+		Report(`avoid ambiguous trace attribute keys "user" or "client"; use specific keys such as "userID", "userLogin", "clientID", "clientName", or "authClientName"`)
 
 	m.Match(
 		`attribute.String($key, $value)`,
