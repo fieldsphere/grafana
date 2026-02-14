@@ -170,7 +170,7 @@ func loadCueFiles(ctx *cue.Context, dirs []os.DirEntry) ([]codegen.SchemaForGen,
 
 		entries, err := os.ReadDir(dir.Name())
 		if err != nil {
-			slog.Error("Error opening kind directory", "dir", dir.Name(), "error", err)
+			slog.Error("Error opening kind directory", "directoryPath", dir.Name(), "error", err)
 			os.Exit(1)
 		}
 
@@ -181,7 +181,7 @@ func loadCueFiles(ctx *cue.Context, dirs []os.DirEntry) ([]codegen.SchemaForGen,
 		entry := filepath.Join(dir.Name(), entries[0].Name())
 		cueFile, err := os.ReadFile(entry)
 		if err != nil {
-			slog.Error("Unable to open CUE file", "dir", dir.Name(), "file", entries[0].Name(), "error", err)
+			slog.Error("Unable to open CUE file", "directoryPath", dir.Name(), "fileName", entries[0].Name(), "error", err)
 			os.Exit(1)
 		}
 

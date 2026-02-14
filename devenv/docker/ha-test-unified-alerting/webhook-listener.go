@@ -106,7 +106,7 @@ func main() {
 	if os.IsNotExist(err) {
 		err = os.MkdirAll(dumpDir, os.ModePerm)
 		if err != nil {
-			slog.Error("Cannot create dump directory", "dir", dumpDir, "error", err)
+			slog.Error("Cannot create dump directory", "directoryPath", dumpDir, "error", err)
 			os.Exit(1)
 		}
 	}

@@ -59,7 +59,7 @@ func main() {
 	declParser := pfs.NewDeclParser(skipPlugins)
 	decls, err := declParser.Parse(os.DirFS(cwd))
 	if err != nil {
-		slog.Error("Parsing plugins in directory failed", "dir", cwd, "error", err)
+		slog.Error("Parsing plugins in directory failed", "directoryPath", cwd, "error", err)
 		os.Exit(1)
 	}
 
