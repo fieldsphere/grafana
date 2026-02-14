@@ -948,7 +948,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, "error", $errMsg, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, "error", $errMsg, $*after)`,
 	).
-		Where(m["errMsg"].Type.Is("string")).
+		Where(!m["errMsg"].Type.Is("error") && !m["errMsg"].Type.Implements("error")).
 		Report("use \"errorMessage\" for string error text, or pass an error value as \"error\", err")
 
 	m.Match(
@@ -1399,13 +1399,13 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`[]any{$*before, "error", $errMsg, $*after}`,
 	).
-		Where(m["errMsg"].Type.Is("string")).
+		Where(!m["errMsg"].Type.Is("error") && !m["errMsg"].Type.Implements("error")).
 		Report(`use "errorMessage" for stringified error text in []any key/value slices; keep "error" for error objects`)
 
 	m.Match(
 		`append($arr, $*before, "error", $errMsg, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["errMsg"].Type.Is("string")).
+		Where(m["arr"].Type.Is("[]any") && !m["errMsg"].Type.Is("error") && !m["errMsg"].Type.Implements("error")).
 		Report(`use "errorMessage" for stringified error text in []any key/value slices; keep "error" for error objects`)
 
 	m.Match(
@@ -1490,7 +1490,7 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.Group($group, $*before, "error", $errMsg, $*after)`,
 	).
-		Where(m["errMsg"].Type.Is("string")).
+		Where(!m["errMsg"].Type.Is("error") && !m["errMsg"].Type.Implements("error")).
 		Report(`use "errorMessage" for stringified error text in slog.Group fields; keep "error" for error objects`)
 
 	m.Match(
@@ -2820,7 +2820,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*before, "error", $errMsg, $*after)`,
 		`$logger.With($*before, "error", $errMsg, $*after)`,
 	).
-		Where(isStructuredLogger && m["errMsg"].Type.Is("string")).
+		Where(isStructuredLogger && !m["errMsg"].Type.Is("error") && !m["errMsg"].Type.Implements("error")).
 		Report(`use "errorMessage" for stringified error text in structured context; keep "error" for error objects`)
 
 	m.Match(
