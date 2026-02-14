@@ -30,17 +30,17 @@ func newConfigReader(logger log.Logger, pluginStore pluginstore.Store) configRea
 
 func (cr *configReaderImpl) readConfig(ctx context.Context, path string) ([]*pluginsAsConfig, error) {
 	var apps []*pluginsAsConfig
-	cr.log.Debug("Looking for plugin provisioning files", "path", path)
+	cr.log.Debug("Looking for plugin provisioning files", "directoryPath", path)
 
 	files, err := os.ReadDir(path)
 	if err != nil {
-		cr.log.Error("Failed to read plugin provisioning files from directory", "path", path, "error", err)
+		cr.log.Error("Failed to read plugin provisioning files from directory", "directoryPath", path, "error", err)
 		return apps, nil
 	}
 
 	for _, file := range files {
 		if strings.HasSuffix(file.Name(), ".yaml") || strings.HasSuffix(file.Name(), ".yml") {
-			cr.log.Debug("Parsing plugin provisioning file", "path", path, "fileName", file.Name())
+			cr.log.Debug("Parsing plugin provisioning file", "directoryPath", path, "fileName", file.Name())
 			app, err := cr.parsePluginConfig(path, file)
 			if err != nil {
 				return nil, err

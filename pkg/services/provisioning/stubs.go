@@ -28,7 +28,7 @@ func NewStubProvisioning(path string) (StubProvisioningService, error) {
 
 	cfgs, err := dashboards.ReadDashboardConfig(filepath.Join(path, "dashboards"))
 	if err != nil {
-		logger.Warn("can't read dashboard provisioning files from directory", "path", filepath.Join(path, "dashboards"), "error", err)
+		logger.Warn("can't read dashboard provisioning files from directory", "directoryPath", filepath.Join(path, "dashboards"), "error", err)
 		return stub, nil
 	}
 
@@ -57,12 +57,12 @@ func (s *stubProvisioning) GetDashboardProvisionerResolvedPath(name string) stri
 
 	path, err := filepath.Abs(path)
 	if err != nil {
-		s.log.Warn("Could not create absolute path", "path", path, "error", err)
+		s.log.Warn("Could not create absolute path", "directoryPath", path, "error", err)
 	}
 
 	path, err = filepath.EvalSymlinks(path)
 	if err != nil {
-		s.log.Warn("Failed to read content of symlinked path", "path", path, "error", err)
+		s.log.Warn("Failed to read content of symlinked path", "directoryPath", path, "error", err)
 	}
 
 	if path == "" {

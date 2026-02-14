@@ -142,7 +142,7 @@ func (fr *FileReader) watchChanges(ctx context.Context) error {
 // walkDisk traverses the file system for the defined path, reading dashboard definition files,
 // and applies any change to the database.
 func (fr *FileReader) walkDisk(ctx context.Context) error {
-	fr.log.Debug("Start walking disk", "path", fr.Path)
+	fr.log.Debug("Start walking disk", "directoryPath", fr.Path)
 	resolvedPath := fr.resolvedPath()
 	if _, err := os.Stat(resolvedPath); err != nil {
 		return err
@@ -522,7 +522,7 @@ func (fr *FileReader) readDashboardFromFile(path string, lastModified time.Time,
 	}
 	defer func() {
 		if err := reader.Close(); err != nil {
-			fr.log.Warn("Failed to close file", "path", path, "error", err)
+			fr.log.Warn("Failed to close file", "dashboardFilePath", path, "error", err)
 		}
 	}()
 
@@ -560,12 +560,12 @@ func (fr *FileReader) resolvedPath() string {
 
 	path, err := filepath.Abs(fr.Path)
 	if err != nil {
-		fr.log.Error("Could not create absolute path", "path", fr.Path, "error", err)
+		fr.log.Error("Could not create absolute path", "directoryPath", fr.Path, "error", err)
 	}
 
 	path, err = filepath.EvalSymlinks(path)
 	if err != nil {
-		fr.log.Error("Failed to read content of symlinked path", "path", fr.Path, "error", err)
+		fr.log.Error("Failed to read content of symlinked path", "directoryPath", fr.Path, "error", err)
 	}
 
 	if path == "" {

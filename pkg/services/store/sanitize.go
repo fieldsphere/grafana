@@ -22,7 +22,7 @@ func (s *standardStorageService) sanitizeUploadRequest(ctx context.Context, user
 	// we have already validated that the file contents match the extension in `./validate.go`
 	mimeType := mime.TypeByExtension(filepath.Ext(req.Path))
 	if mimeType == "" {
-		grafanaStorageLogger.Info("Failed to find mime type", "path", req.Path)
+		grafanaStorageLogger.Info("Failed to find mime type", "filePath", req.Path)
 		mimeType = "application/octet-stream"
 	}
 

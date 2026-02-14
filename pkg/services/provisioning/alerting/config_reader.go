@@ -25,16 +25,16 @@ func newRulesConfigReader(logger log.Logger) rulesConfigReader {
 
 func (cr *rulesConfigReader) readConfig(ctx context.Context, path string) ([]*AlertingFile, error) {
 	var alertFiles []*AlertingFile
-	cr.log.Debug("looking for alerting provisioning files", "path", path)
+	cr.log.Debug("looking for alerting provisioning files", "directoryPath", path)
 
 	files, err := os.ReadDir(path)
 	if err != nil {
-		cr.log.Error("can't read alerting provisioning files from directory", "path", path, "error", err)
+		cr.log.Error("can't read alerting provisioning files from directory", "directoryPath", path, "error", err)
 		return alertFiles, nil
 	}
 
 	for _, file := range files {
-		cr.log.Debug("parsing alerting provisioning file", "path", path, "fileName", file.Name())
+		cr.log.Debug("parsing alerting provisioning file", "directoryPath", path, "fileName", file.Name())
 		if !cr.isYAML(file.Name()) && !cr.isJSON(file.Name()) {
 			cr.log.Warn("File has invalid suffix (.yaml,.yml,.json accepted), skipping", "fileName", file.Name())
 			continue

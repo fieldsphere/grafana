@@ -79,20 +79,20 @@ func (a *pathFilterFileGuardian) can(action string, path string) bool {
 	allow := false
 
 	if !isValidAction(action) {
-		a.log.Warn("Unsupported action", "fileAction", action, "path", path)
+		a.log.Warn("Unsupported action", "fileAction", action, "filePath", path)
 		return false
 	}
 
 	pathFilter, ok := a.pathFilterByAction[action]
 
 	if !ok {
-		a.log.Warn("Missing path filter", "fileAction", action, "path", path)
+		a.log.Warn("Missing path filter", "fileAction", action, "filePath", path)
 		return false
 	}
 
 	allow = pathFilter.IsAllowed(path)
 	if !allow {
-		a.log.Warn("Denying", "fileAction", action, "path", path)
+		a.log.Warn("Denying", "fileAction", action, "filePath", path)
 	}
 	return allow
 }

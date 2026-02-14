@@ -102,7 +102,7 @@ func (cr *configReader) readConfig(ctx context.Context) ([]*config, error) {
 
 	files, err := os.ReadDir(cr.path)
 	if err != nil {
-		cr.log.Error("can't read dashboard provisioning files from directory", "path", cr.path, "error", err)
+		cr.log.Error("can't read dashboard provisioning files from directory", "directoryPath", cr.path, "error", err)
 		return dashboards, nil
 	}
 

@@ -26,7 +26,7 @@ func (cr *configReader) readConfig(ctx context.Context, path string) ([]*configs
 
 	files, err := os.ReadDir(path)
 	if err != nil {
-		cr.log.Error("can't read datasource provisioning files from directory", "path", path, "error", err)
+		cr.log.Error("can't read datasource provisioning files from directory", "directoryPath", path, "error", err)
 		return datasources, nil
 	}
 
