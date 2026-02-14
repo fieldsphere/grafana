@@ -1249,7 +1249,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+-[A-Za-z0-9_-]+\"$")).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
 		Report(`avoid hyphenated structured log keys; use camelCase keys such as "contentType" or "rowsAffected"`)
 
 	m.Match(
@@ -1328,7 +1328,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z0-9_]+-[A-Za-z0-9_-]+\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
 		Report(`avoid hyphenated structured log keys; use camelCase keys such as "contentType" or "rowsAffected"`)
 
 	m.Match(
@@ -1391,7 +1391,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*before, $key, $value, $*after)`,
 		`$logger.With($*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z0-9_]+-[A-Za-z0-9_-]+\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
 		Report(`avoid hyphenated structured context keys; use camelCase keys such as "contentType" or "rowsAffected"`)
 
 	m.Match(
@@ -1665,7 +1665,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+-[A-Za-z0-9_-]+\"$")).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
 		Report(`avoid hyphenated trace attribute keys; use camelCase keys such as "contentType" or "rowsAffected"`)
 
 	m.Match(
