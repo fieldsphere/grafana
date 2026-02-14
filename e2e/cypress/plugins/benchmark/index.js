@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { execSync } = require('child_process');
 const { fromPairs } = require('lodash');
 
 const { CDPDataCollector } = require('./CDPDataCollector');
@@ -21,6 +22,40 @@ const getOrAddRemoteDebuggingPort = (args) => {
 
 let collectors = [];
 let results = [];
+
+const reportDirectorySize = (dirPath) => {
+  try {
+    const size = execSync(`du -h "${dirPath}"`, { encoding: 'utf-8' }).trim();
+    logE2eInfo('Directory size report', {
+      operation: 'benchmark.reportDirectorySize',
+      directory: dirPath,
+      size,
+    });
+  } catch (error) {
+    logE2eInfo('Failed to report directory size', {
+      operation: 'benchmark.reportDirectorySize',
+      directory: dirPath,
+      error: error.message,
+    });
+  }
+};
+
+const reportFileSize = (filePath) => {
+  try {
+    const size = execSync(`du -h "${filePath}"`, { encoding: 'utf-8' }).trim();
+    logE2eInfo('File size report', {
+      operation: 'benchmark.reportFileSize',
+      file: filePath,
+      size,
+    });
+  } catch (error) {
+    logE2eInfo('Failed to report file size', {
+      operation: 'benchmark.reportFileSize',
+      file: filePath,
+      error: error.message,
+    });
+  }
+};
 
 const startBenchmarking = async ({ testName }) => {
   await Promise.all(collectors.map((coll) => coll.start({ id: testName })));
@@ -45,7 +80,9 @@ const afterRun = async () => {
 };
 
 const afterSpec = (resultsFolder) => async (spec) => {
-  fs.writeFileSync(`${resultsFolder}/${spec.name}-${Date.now()}.json`, JSON.stringify(formatResults(results), null, 2));
+  const filePath = `${resultsFolder}/${spec.name}-${Date.now()}.json`;
+  fs.writeFileSync(filePath, JSON.stringify(formatResults(results), null, 2));
+  reportFileSize(filePath);
 
   results = [];
 };
@@ -59,6 +96,7 @@ const initialize = (on, config) => {
       operation: 'benchmark.initialize',
       resultsFolder,
     });
+    reportDirectorySize(resultsFolder);
   }
 
   on('before:browser:launch', async (browser, options) => {
