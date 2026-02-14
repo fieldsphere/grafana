@@ -36,7 +36,7 @@ var TSCoreKindParentPath = filepath.Join("packages", "grafana-schema", "src", "r
 
 func main() {
 	if len(os.Args) > 1 {
-		slog.Error("Code generator does not accept arguments", "args", os.Args)
+		slog.Error("Code generator does not accept arguments", "commandArgs", os.Args)
 		os.Exit(1)
 	}
 

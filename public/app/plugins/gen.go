@@ -29,7 +29,7 @@ const sep = string(filepath.Separator)
 
 func main() {
 	if len(os.Args) > 1 {
-		slog.Error("Plugin thema code generator does not accept arguments", "args", os.Args)
+		slog.Error("Plugin thema code generator does not accept arguments", "commandArgs", os.Args)
 		os.Exit(1)
 	}
 
