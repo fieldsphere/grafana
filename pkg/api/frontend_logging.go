@@ -103,7 +103,7 @@ func GrafanaJavascriptAgentLogMessageHandler(store *frontendlogging.SourceMapSto
 				ctx = event.AddMetaToContext(ctx)
 				exception := exception
 				transformedException := frontendlogging.TransformException(c.Req.Context(), &exception, store)
-				ctx = append(ctx, "eventKind", "exception", "type", transformedException.Type, "value", transformedException.Value, "stacktrace", transformedException.String())
+				ctx = append(ctx, "eventKind", "exception", "exceptionType", transformedException.Type, "exceptionValue", transformedException.Value, "stacktrace", transformedException.String())
 				ctx = append(ctx, "originalTimestamp", exception.Timestamp, "frontendExceptionMessage", exception.Message())
 				frontendLogger.Error("Frontend javascript agent exception", ctx...)
 			}
