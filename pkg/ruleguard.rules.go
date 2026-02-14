@@ -1385,6 +1385,30 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in []any key/value slices; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`[]any{$*before, "error", $err.Error(), $*after}`,
+	).
+		Where(m["err"].Type.Is("error")).
+		Report(`use "errorMessage" for stringified error text in []any key/value slices; keep "error" for error objects`)
+
+	m.Match(
+		`append($arr, $*before, "error", $err.Error(), $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["err"].Type.Is("error")).
+		Report(`use "errorMessage" for stringified error text in []any key/value slices; keep "error" for error objects`)
+
+	m.Match(
+		`[]any{$*before, "error", $errMsg, $*after}`,
+	).
+		Where(m["errMsg"].Type.Is("string")).
+		Report(`use "errorMessage" for stringified error text in []any key/value slices; keep "error" for error objects`)
+
+	m.Match(
+		`append($arr, $*before, "error", $errMsg, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["errMsg"].Type.Is("string")).
+		Report(`use "errorMessage" for stringified error text in []any key/value slices; keep "error" for error objects`)
+
+	m.Match(
 		`[]any{$*before, $key, $value, $dangling}`,
 	).
 		Where(m["key"].Type.Is("string") && m["dangling"].Type.Is("string")).
