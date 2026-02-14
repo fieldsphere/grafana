@@ -36,7 +36,7 @@ func (s *CacheSegmentedTree) updatePeriodically() {
 		for _, v := range namespaces {
 			err := s.fillOrg(v)
 			if err != nil {
-				logger.Error("Error filling orgId", "error", err, "ns", v)
+				logger.Error("Error filling orgId", "error", err, "namespace", v)
 			}
 		}
 		time.Sleep(20 * time.Second)

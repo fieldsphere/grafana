@@ -220,7 +220,7 @@ func (p *Pipeline) ProcessInput(ctx context.Context, ns string, channelID string
 	if p.tracer != nil {
 		ctx, span = p.tracer.Start(ctx, "live.pipeline.process_input")
 		span.SetAttributes(
-			attribute.String("ns", ns),
+			attribute.String("namespace", ns),
 			attribute.String("channel", channelID),
 			attribute.String("body", string(body)),
 		)
@@ -241,7 +241,7 @@ func (p *Pipeline) processInput(ctx context.Context, ns string, channelID string
 	if p.tracer != nil {
 		ctx, span = p.tracer.Start(ctx, "live.pipeline.process_input_"+channelID)
 		span.SetAttributes(
-			attribute.String("ns", ns),
+			attribute.String("namespace", ns),
 			attribute.String("channel", channelID),
 			attribute.String("body", string(body)),
 		)
@@ -283,7 +283,7 @@ func (p *Pipeline) DataToChannelFrames(ctx context.Context, rule LiveChannelRule
 	if p.tracer != nil {
 		ctx, span = p.tracer.Start(ctx, "live.pipeline.convert_"+rule.Converter.Type())
 		span.SetAttributes(
-			attribute.String("ns", ns),
+			attribute.String("namespace", ns),
 			attribute.String("channel", channelID),
 		)
 		defer span.End()
@@ -376,7 +376,7 @@ func (p *Pipeline) processFrame(ctx context.Context, ns string, channelID string
 		}
 		ctx, span = p.tracer.Start(ctx, "live.pipeline.process_frame_"+channelID)
 		span.SetAttributes(
-			attribute.String("ns", ns),
+			attribute.String("namespace", ns),
 			attribute.String("channel", channelID),
 			attribute.String("frame", table),
 		)
@@ -444,7 +444,7 @@ func (p *Pipeline) execProcessor(ctx context.Context, proc FrameProcessor, vars 
 			return nil, err
 		}
 		span.SetAttributes(
-			attribute.String("ns", vars.NS),
+			attribute.String("namespace", vars.NS),
 			attribute.String("channel", vars.Channel),
 			attribute.String("frame", table),
 			attribute.String("processor", proc.Type()),
@@ -464,7 +464,7 @@ func (p *Pipeline) processFrameOutput(ctx context.Context, out FrameOutputter, v
 			return nil, err
 		}
 		span.SetAttributes(
-			attribute.String("ns", vars.NS),
+			attribute.String("namespace", vars.NS),
 			attribute.String("channel", vars.Channel),
 			attribute.String("frame", table),
 			attribute.String("output", out.Type()),
@@ -479,7 +479,7 @@ func (p *Pipeline) processData(ctx context.Context, ns string, channelID string,
 	if p.tracer != nil {
 		ctx, span = p.tracer.Start(ctx, "live.pipeline.process_data_"+channelID)
 		span.SetAttributes(
-			attribute.String("ns", ns),
+			attribute.String("namespace", ns),
 			attribute.String("channel", channelID),
 			attribute.String("data", string(data)),
 		)
@@ -530,7 +530,7 @@ func (p *Pipeline) processDataOutput(ctx context.Context, out DataOutputter, var
 	if p.tracer != nil {
 		ctx, span = p.tracer.Start(ctx, "live.pipeline.data_output_"+out.Type())
 		span.SetAttributes(
-			attribute.String("ns", vars.NS),
+			attribute.String("namespace", vars.NS),
 			attribute.String("channel", vars.Channel),
 			attribute.String("data", string(data)),
 			attribute.String("output", out.Type()),

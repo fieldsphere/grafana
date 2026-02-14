@@ -313,7 +313,7 @@ func (b *backend) processBulkWithTx(ctx context.Context, tx db.Tx, setting resou
 				if err := b.rvManager.SaveRV(ctx, tx, key.Group, key.Resource, nextRV); err != nil {
 					b.log.Error("error saving RV", "error", err, "key", resource.NSGR(key))
 				} else {
-					b.log.Info("successfully saved RV", "rv", nextRV, "key", resource.NSGR(key))
+					b.log.Info("successfully saved RV", "resourceVersion", nextRV, "key", resource.NSGR(key))
 				}
 			}
 		} else {

@@ -513,7 +513,7 @@ func (b *bleveBackend) BuildIndex(
 		}
 		err = idx.updateResourceVersion(listRV)
 		if err != nil {
-			logWithDetails.Error("Failed to persist RV to index", "error", err, "rv", listRV)
+			logWithDetails.Error("Failed to persist RV to index", "error", err, "resourceVersion", listRV)
 			return nil, fmt.Errorf("failed to persist RV to index: %w", err)
 		}
 

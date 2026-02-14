@@ -915,7 +915,7 @@ func (b *backend) listAtRevision(ctx context.Context, req *resourcepb.ListReques
 
 	// The query below has the potential to be EXTREMELY slow if the resource_history table is big. May be helpful to know
 	// which stack is calling this.
-	b.log.Debug("listAtRevision", "ns", req.Options.Key.Namespace, "group", req.Options.Key.Group, "resource", req.Options.Key.Resource, "rv", iter.listRV)
+	b.log.Debug("listAtRevision", "namespace", req.Options.Key.Namespace, "group", req.Options.Key.Group, "resource", req.Options.Key.Resource, "resourceVersion", iter.listRV)
 
 	err := b.db.WithTx(ctx, ReadCommittedRO, func(ctx context.Context, tx db.Tx) error {
 		limit := int64(0) // ignore limit
