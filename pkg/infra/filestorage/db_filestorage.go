@@ -164,7 +164,7 @@ func (s dbFileStorage) Delete(ctx context.Context, filePath string) error {
 			return err
 		}
 
-		s.log.Info("Deleted file", "path", filePath, "deletedMetaCount", deletedMetaCount, "deletedFilesCount", deletedFilesCount)
+		s.log.Info("Deleted file", "filePath", filePath, "deletedMetaCount", deletedMetaCount, "deletedFilesCount", deletedFilesCount)
 		return err
 	})
 
@@ -234,7 +234,7 @@ func (s dbFileStorage) Upsert(ctx context.Context, cmd *UpsertFileCommand) error
 		if len(cmd.Properties) != 0 {
 			if err = upsertProperties(s.db.GetDialect(), sess, now, cmd, pathHash); err != nil {
 				if rollbackErr := sess.Rollback(); rollbackErr != nil {
-					s.log.Error("Failed while rolling back upsert", "path", cmd.Path)
+					s.log.Error("Failed while rolling back upsert", "filePath", cmd.Path)
 				}
 				return err
 			}
@@ -528,7 +528,7 @@ func (s dbFileStorage) DeleteFolder(ctx context.Context, folderPath string, opti
 		}
 
 		if len(rawHashes) == 0 {
-			s.log.Info("Force deleted folder", "path", lowerFolderPath, "deletedFilesCount", 0, "deletedMetaCount", 0)
+			s.log.Info("Force deleted folder", "folderPath", lowerFolderPath, "deletedFilesCount", 0, "deletedMetaCount", 0)
 			return nil
 		}
 
@@ -543,7 +543,7 @@ func (s dbFileStorage) DeleteFolder(ctx context.Context, folderPath string, opti
 		}
 
 		if int64(len(rawHashes)) != accessibleFilesCount {
-			s.log.Error("Force folder delete: unauthorized access", "path", lowerFolderPath, "expectedAccessibleFilesCount", int64(len(rawHashes)), "actualAccessibleFilesCount", accessibleFilesCount)
+			s.log.Error("Force folder delete: unauthorized access", "folderPath", lowerFolderPath, "expectedAccessibleFilesCount", int64(len(rawHashes)), "actualAccessibleFilesCount", accessibleFilesCount)
 			return fmt.Errorf("force folder delete: unauthorized access for path %s", lowerFolderPath)
 		}
 
@@ -582,7 +582,7 @@ func (s dbFileStorage) DeleteFolder(ctx context.Context, folderPath string, opti
 			return err
 		}
 
-		s.log.Info("Force deleted folder", "path", folderPath, "deletedFilesCount", deletedFilesCount, "deletedMetaCount", deletedMetaCount)
+		s.log.Info("Force deleted folder", "folderPath", folderPath, "deletedFilesCount", deletedFilesCount, "deletedMetaCount", deletedMetaCount)
 		return nil
 	})
 

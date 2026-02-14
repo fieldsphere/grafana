@@ -256,15 +256,15 @@ func verifyHash(mlog log.Logger, plugin plugins.FoundPlugin, path, hash string) 
 	f, err := plugin.FS.Open(path)
 	if err != nil {
 		if os.IsPermission(err) {
-			mlog.Warn("Could not open plugin file due to lack of permissions", "pluginID", plugin.JSONData.ID, "path", path)
+			mlog.Warn("Could not open plugin file due to lack of permissions", "pluginID", plugin.JSONData.ID, "pluginFilePath", path)
 			return errors.New("permission denied when attempting to read plugin file")
 		}
-		mlog.Warn("Plugin file listed in the manifest was not found", "pluginID", plugin.JSONData.ID, "path", path)
+		mlog.Warn("Plugin file listed in the manifest was not found", "pluginID", plugin.JSONData.ID, "pluginFilePath", path)
 		return errors.New("plugin file listed in the manifest was not found")
 	}
 	defer func() {
 		if err := f.Close(); err != nil {
-			mlog.Warn("Failed to close plugin file", "path", path, "error", err)
+			mlog.Warn("Failed to close plugin file", "pluginFilePath", path, "error", err)
 		}
 	}()
 
@@ -274,7 +274,7 @@ func verifyHash(mlog log.Logger, plugin plugins.FoundPlugin, path, hash string) 
 	}
 	sum := hex.EncodeToString(h.Sum(nil))
 	if sum != hash {
-		mlog.Warn("Plugin file checksum does not match signature checksum", "pluginID", plugin.JSONData.ID, "path", path)
+		mlog.Warn("Plugin file checksum does not match signature checksum", "pluginID", plugin.JSONData.ID, "pluginFilePath", path)
 		return errors.New("plugin file checksum does not match signature checksum")
 	}
 

@@ -572,13 +572,13 @@ func main() {
 
 	configData, err := os.ReadFile(*configFile)
 	if err != nil {
-		slog.Error("Error reading config file", "path", *configFile, "error", err)
+		slog.Error("Error reading config file", "configFilePath", *configFile, "error", err)
 		os.Exit(1)
 	}
 
 	var config Config
 	if err := yaml.Unmarshal(configData, &config); err != nil {
-		slog.Error("Error parsing config file", "path", *configFile, "error", err)
+		slog.Error("Error parsing config file", "configFilePath", *configFile, "error", err)
 		os.Exit(1)
 	}
 

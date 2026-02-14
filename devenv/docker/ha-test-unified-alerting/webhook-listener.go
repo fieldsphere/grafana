@@ -92,10 +92,10 @@ func saveDump(data []byte) {
 		}
 		name = path.Join(dumpDir, fmt.Sprintf("%d_%04d.json", ts, i))
 	}
-	slog.Info("Saving webhook dump", "path", name)
+	slog.Info("Saving webhook dump", "dumpFilePath", name)
 	err := os.WriteFile(name, data, os.ModePerm)
 	if err != nil {
-		slog.Error("Cannot save dump to file", "path", name, "error", err)
+		slog.Error("Cannot save dump to file", "dumpFilePath", name, "error", err)
 	}
 }
 
@@ -115,7 +115,7 @@ func main() {
 		//create your file with desired read/write permissions
 		f, err := os.OpenFile(logFileName, os.O_WRONLY|os.O_CREATE|os.O_APPEND, os.ModePerm)
 		if err != nil {
-			slog.Error("Cannot open webhook listener log file", "path", logFileName, "error", err)
+			slog.Error("Cannot open webhook listener log file", "logFilePath", logFileName, "error", err)
 			os.Exit(1)
 		}
 		defer f.Close()

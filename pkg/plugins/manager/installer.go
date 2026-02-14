@@ -84,7 +84,7 @@ func (m *PluginInstaller) Add(ctx context.Context, pluginID, version string, opt
 
 	_, err = m.pluginLoader.Load(ctx, sources.NewLocalSource(plugins.ClassExternal, []string{archive.Path}))
 	if err != nil {
-		m.log.Error("Could not load plugins", "path", archive.Path, "error", err)
+		m.log.Error("Could not load plugins", "pluginArchivePath", archive.Path, "error", err)
 		return err
 	}
 

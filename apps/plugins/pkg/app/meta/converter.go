@@ -829,7 +829,7 @@ func grafanaComPluginVersionMetaToMetaSpec(ctx context.Context, gcomMeta grafana
 	modulePath := path.Join(pluginRelBasePath, "module.js")
 	moduleHash, ok := gcomMeta.Manifest.Files[modulePath]
 	if !ok {
-		logging.FromContext(ctx).Error("Error getting module hash for catalog meta", "pluginID", gcomMeta.PluginSlug, "version", gcomMeta.Version, "path", pluginRelBasePath)
+		logging.FromContext(ctx).Error("Error getting module hash for catalog meta", "pluginID", gcomMeta.PluginSlug, "version", gcomMeta.Version, "pluginBasePath", pluginRelBasePath)
 	}
 
 	loadingStrategy := calculateLoadingStrategyFromGcomMeta(gcomMeta.CreatePluginVersion)

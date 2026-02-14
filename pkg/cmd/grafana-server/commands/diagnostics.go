@@ -157,7 +157,7 @@ func setupTracing(tracing bool, tracingFile string, logger *log.ConcreteLogger) 
 		}
 		defer func() {
 			if err := f.Close(); err != nil {
-				logger.Error("Failed to write trace diagnostics", "path", traceDiagnostics.file, "error", err)
+				logger.Error("Failed to write trace diagnostics", "traceFilePath", traceDiagnostics.file, "error", err)
 			}
 		}()
 

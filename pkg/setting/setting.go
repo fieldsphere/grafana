@@ -1016,7 +1016,7 @@ func (cfg *Cfg) loadConfiguration(args CommandLineArgs) (*ini.File, error) {
 	// check if config file exists
 	if _, err := os.Stat(defaultConfigFile); os.IsNotExist(err) {
 		slog.Error("Grafana server init failed: config defaults not found",
-			"path", defaultConfigFile,
+			"defaultConfigFilePath", defaultConfigFile,
 			"hint", "make sure homepath command line parameter is set or working directory is homepath")
 		os.Exit(1)
 	}
@@ -1024,7 +1024,7 @@ func (cfg *Cfg) loadConfiguration(args CommandLineArgs) (*ini.File, error) {
 	// load defaults
 	parsedFile, err := ini.Load(defaultConfigFile)
 	if err != nil {
-		slog.Error("Failed to parse defaults.ini", "path", defaultConfigFile, "error", err)
+		slog.Error("Failed to parse defaults.ini", "defaultConfigFilePath", defaultConfigFile, "error", err)
 		os.Exit(1)
 		return nil, err
 	}
@@ -1611,11 +1611,11 @@ func (cfg *Cfg) LogConfigSources() {
 	}
 
 	cfg.Logger.Info("Target", "target", cfg.Target)
-	cfg.Logger.Info("Path Home", "path", cfg.HomePath)
-	cfg.Logger.Info("Path Data", "path", cfg.DataPath)
-	cfg.Logger.Info("Path Logs", "path", cfg.LogsPath)
-	cfg.Logger.Info("Path Plugins", "path", cfg.PluginsPath)
-	cfg.Logger.Info("Path Provisioning", "path", cfg.ProvisioningPath)
+	cfg.Logger.Info("Path Home", "homePath", cfg.HomePath)
+	cfg.Logger.Info("Path Data", "dataPath", cfg.DataPath)
+	cfg.Logger.Info("Path Logs", "logsPath", cfg.LogsPath)
+	cfg.Logger.Info("Path Plugins", "pluginsPath", cfg.PluginsPath)
+	cfg.Logger.Info("Path Provisioning", "provisioningPath", cfg.ProvisioningPath)
 	cfg.Logger.Info("App mode", "mode", cfg.Env)
 }
 

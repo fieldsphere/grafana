@@ -98,7 +98,7 @@ func cloneOrMount(ctx context.Context, client *dagger.Client, localPath, repo, r
 			return nil, fmt.Errorf("error getting absolute path for local dir: %w", err)
 		}
 		localPath = absolute
-		slog.Info("Using local directory for repository", "path", localPath, "repositoryName", repo)
+		slog.Info("Using local directory for repository", "localDirectoryPath", localPath, "repositoryName", repo)
 		return daggerutil.HostDir(client, localPath, dagger.HostDirectoryOpts{
 			Exclude: []string{"dist", "node_modules"},
 		})

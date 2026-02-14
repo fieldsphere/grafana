@@ -192,7 +192,7 @@ func (s *Server) writePIDFile() error {
 		return fmt.Errorf("failed to write pidfile: %s", err)
 	}
 
-	s.log.Info("Writing PID file", "path", s.pidFile, "processID", processID)
+	s.log.Info("Writing PID file", "pidFilePath", s.pidFile, "processID", processID)
 	return nil
 }
 

@@ -100,7 +100,7 @@ func getName(path string) string {
 
 func (b wrapper) validatePath(path string) error {
 	if err := ValidatePath(path); err != nil {
-		b.log.Error("Path failed validation", "path", path, "error", err)
+		b.log.Error("Path failed validation", "filePath", path, "error", err)
 		return err
 	}
 	return nil

@@ -17,7 +17,7 @@ func (m *ArtifactStoreLogger) StoreFile(ctx context.Context, a *Artifact, file *
 	if err != nil {
 		return err
 	}
-	log := m.Log.With("artifact", a.ArtifactString, "path", fn)
+	log := m.Log.With("artifact", a.ArtifactString, "artifactPath", fn)
 
 	log.DebugContext(ctx, "storing artifact file...")
 	if err := m.Store.StoreFile(ctx, a, file); err != nil {
@@ -33,7 +33,7 @@ func (m *ArtifactStoreLogger) File(ctx context.Context, a *Artifact) (*dagger.Fi
 	if err != nil {
 		return nil, err
 	}
-	log := m.Log.With("artifact", a.ArtifactString, "path", fn)
+	log := m.Log.With("artifact", a.ArtifactString, "artifactPath", fn)
 
 	log.DebugContext(ctx, "fetching artifact file...")
 	file, err := m.Store.File(ctx, a)
@@ -51,7 +51,7 @@ func (m *ArtifactStoreLogger) StoreDirectory(ctx context.Context, a *Artifact, d
 	if err != nil {
 		return err
 	}
-	log := m.Log.With("artifact", a.ArtifactString, "path", fn)
+	log := m.Log.With("artifact", a.ArtifactString, "artifactPath", fn)
 
 	log.DebugContext(ctx, "storing artifact directory...")
 	if err := m.Store.StoreDirectory(ctx, a, dir); err != nil {
@@ -67,7 +67,7 @@ func (m *ArtifactStoreLogger) Directory(ctx context.Context, a *Artifact) (*dagg
 	if err != nil {
 		return nil, err
 	}
-	log := m.Log.With("artifact", a.ArtifactString, "path", fn)
+	log := m.Log.With("artifact", a.ArtifactString, "artifactPath", fn)
 
 	log.DebugContext(ctx, "fetching artifact directory...")
 	dir, err := m.Store.Directory(ctx, a)
@@ -85,7 +85,7 @@ func (m *ArtifactStoreLogger) Export(ctx context.Context, d *dagger.Client, a *A
 	if err != nil {
 		return nil, err
 	}
-	log := m.Log.With("artifact", a.ArtifactString, "path", fn, "destination", dst, "checksum", checksum)
+	log := m.Log.With("artifact", a.ArtifactString, "artifactPath", fn, "destination", dst, "checksum", checksum)
 
 	log.DebugContext(ctx, "exporting artifact...")
 	path, err := m.Store.Export(ctx, d, a, dst, checksum)
@@ -103,7 +103,7 @@ func (m *ArtifactStoreLogger) Exists(ctx context.Context, a *Artifact) (bool, er
 	if err != nil {
 		return false, err
 	}
-	log := m.Log.With("artifact", a.ArtifactString, "path", fn)
+	log := m.Log.With("artifact", a.ArtifactString, "artifactPath", fn)
 
 	log.DebugContext(ctx, "checking existence of artifact...")
 	v, err := m.Store.Exists(ctx, a)

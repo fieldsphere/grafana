@@ -27,7 +27,7 @@ func shaDir(dir string) error {
 			return nil
 		}
 		if err := shaFile(path); err != nil {
-			slog.Error("Failed to create sha file", "path", path, "error", err)
+			slog.Error("Failed to create sha file", "filePath", path, "error", err)
 		}
 		return nil
 	})
@@ -97,9 +97,9 @@ func md5File(file string) error {
 // basically `rm -r`s the list of files provided
 func rmr(paths ...string) {
 	for _, path := range paths {
-		slog.Info("Removing directory", "path", path)
+		slog.Info("Removing directory", "directoryPath", path)
 		if err := os.RemoveAll(path); err != nil {
-			slog.Error("Error deleting folder", "path", path, "error", err)
+			slog.Error("Error deleting folder", "directoryPath", path, "error", err)
 		}
 	}
 }
