@@ -46,14 +46,14 @@ func NewSQLCommand(ctx context.Context, logger log.Logger, refID, format, rawSQL
 	}
 	tables, err := sql.TablesList(ctx, rawSQL)
 	if err != nil {
-		sqlLogger.Warn("invalid sql query", "sql", rawSQL, "error", err)
+		sqlLogger.Warn("invalid sql query", "sqlQuery", rawSQL, "error", err)
 		return nil, sql.MakeErrInvalidQuery(refID, err)
 	}
 	if len(tables) == 0 {
-		sqlLogger.Warn("no tables found in SQL query", "sql", rawSQL)
+		sqlLogger.Warn("no tables found in SQL query", "sqlQuery", rawSQL)
 	}
 	if tables != nil {
-		sqlLogger.Debug("REF tables", "tables", tables, "sql", rawSQL)
+		sqlLogger.Debug("REF tables", "tables", tables, "sqlQuery", rawSQL)
 	}
 
 	return &SQLCommand{

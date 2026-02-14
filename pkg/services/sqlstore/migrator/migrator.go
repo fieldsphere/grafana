@@ -332,7 +332,7 @@ func (mg *Migrator) doMigration(ctx context.Context, m Migration) error {
 		cnt := 0
 		for cnt < 3 && sqlite.IsBusyOrLocked(err) {
 			cnt++
-			logger.Debug("Database locked, sleeping then retrying", "error", err, "sql", sql)
+			logger.Debug("Database locked, sleeping then retrying", "error", err, "sqlQuery", sql)
 			span.AddEvent("Database locked, sleeping then retrying",
 				trace.WithAttributes(attribute.String("errorMessage", err.Error())),
 				trace.WithAttributes(attribute.String("sql", sql)),
@@ -342,7 +342,7 @@ func (mg *Migrator) doMigration(ctx context.Context, m Migration) error {
 		}
 
 		if err != nil {
-			logger.Error("Exec failed", "error", err, "sql", sql)
+			logger.Error("Exec failed", "error", err, "sqlQuery", sql)
 			record.Error = err.Error()
 			if !m.SkipMigrationLog() {
 				if _, err := sess.Table(mg.tableName).Insert(&record); err != nil {
