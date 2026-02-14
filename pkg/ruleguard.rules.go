@@ -978,6 +978,46 @@ func structuredlogging(m fluent.Matcher) {
 		Report("use \"error\" for error objects in structured logs; reserve \"errorMessage\" for textual error details")
 
 	m.Match(
+		`$logger.Info($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.Warn($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.Error($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.Debug($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.Info($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.Warn($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.Error($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.Debug($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`klog.InfoS($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, "errorMessage", $errVal, $*after)`,
+	).
+		Where(
+			m["errVal"].Type.Is("bool") ||
+				m["errVal"].Type.Is("int") ||
+				m["errVal"].Type.Is("int8") ||
+				m["errVal"].Type.Is("int16") ||
+				m["errVal"].Type.Is("int32") ||
+				m["errVal"].Type.Is("int64") ||
+				m["errVal"].Type.Is("uint") ||
+				m["errVal"].Type.Is("uint8") ||
+				m["errVal"].Type.Is("uint16") ||
+				m["errVal"].Type.Is("uint32") ||
+				m["errVal"].Type.Is("uint64") ||
+				m["errVal"].Type.Is("float32") ||
+				m["errVal"].Type.Is("float64"),
+		).
+		Report("\"errorMessage\" should contain textual details; use contextual typed keys such as \"errorCode\", \"errorCount\", or \"hasError\" for numeric/bool values")
+
+	m.Match(
 		`$logger.Info($msg, $err, $*rest)`,
 		`$logger.Warn($msg, $err, $*rest)`,
 		`$logger.Error($msg, $err, $*rest)`,
