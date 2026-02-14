@@ -2289,6 +2289,111 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous trace attribute keys in attribute.Key(...); use contextual keys such as "userID", "receiverUID", "orgID", "configID", "queryText", "ruleUID", "requestBody", "resourceVersion", "repositoryName", "resourceKind", "statusCode", "requestPath", "datasourceURL", "messageInfo", "measurementValue", or "payloadData"`)
 
 	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in trace attribute keys (for example "orgID", "pluginID", "userID")`)
+
+	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Report(`prefer "UID" acronym casing in trace attribute keys (for example "dashboardUID", "ruleUID", "datasourceUID")`)
+
+	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Report(`avoid snake_case trace attribute keys; use camelCase with canonical acronym casing`)
+
+	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
+		Where(m["key"].Text.Matches("^\".*\\s+.*\"$")).
+		Report(`avoid whitespace in trace attribute keys; use compact camelCase keys such as "rowsAffected" or "currentProvider"`)
+
+	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
+		Report(`avoid hyphenated trace attribute keys; use camelCase keys such as "contentType" or "rowsAffected"`)
+
+	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Report(`avoid dotted trace attribute keys; prefer flat camelCase keys with canonical acronym casing`)
+
+	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
+		Report(`avoid uppercase-leading trace attribute keys; use lower camelCase with canonical acronym casing`)
+
+	m.Match(
 		`attribute.Key($left + $right)`,
 	).
 		Report("avoid dynamic concatenation for trace attribute keys in attribute.Key(...); use stable string-literal keys and keep dynamic data in values")
