@@ -335,7 +335,7 @@ func (mg *Migrator) doMigration(ctx context.Context, m Migration) error {
 			logger.Debug("Database locked, sleeping then retrying", "error", err, "sqlQuery", sql)
 			span.AddEvent("Database locked, sleeping then retrying",
 				trace.WithAttributes(attribute.String("errorMessage", err.Error())),
-				trace.WithAttributes(attribute.String("sql", sql)),
+				trace.WithAttributes(attribute.String("sqlQuery", sql)),
 			)
 			time.Sleep(100 * time.Millisecond)
 			err = mg.exec(ctx, m, sess)
