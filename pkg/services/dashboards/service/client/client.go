@@ -115,7 +115,7 @@ func (h *K8sClientWithFallback) Get(
 		return result, nil
 	}
 
-	h.log.Info("falling back to stored version", "name", name, "storedVersion", storedVersion, "conversionErr", conversionErr)
+	h.log.Info("falling back to stored version", "dashboardName", name, "storedVersion", storedVersion, "conversionErr", conversionErr)
 	h.metrics.fallbackCounter.WithLabelValues(storedVersion).Inc()
 
 	span.SetAttributes(
@@ -167,7 +167,7 @@ func (h *K8sClientWithFallback) List(
 
 		h.log.Debug(
 			"will fetch object with the stored version",
-			"name", item.GetName(),
+			"dashboardName", item.GetName(),
 			"storedVersion", storedVersion,
 			"conversionErr", conversionErr,
 		)

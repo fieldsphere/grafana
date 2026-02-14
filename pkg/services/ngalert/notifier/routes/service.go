@@ -246,7 +246,7 @@ func (nps *Service) UpdateManagedRoute(ctx context.Context, orgID int64, name st
 	span.AddEvent("Route updated", trace.WithAttributes(
 		attribute.String("version", updated.Version),
 	))
-	nps.log.FromContext(ctx).Info("Updated route", "name", name, "oldVersion", existing.Version, "newVersion", updated.Version)
+	nps.log.FromContext(ctx).Info("Updated route", "routeName", name, "oldVersion", existing.Version, "newVersion", updated.Version)
 	return updated, nil
 }
 
@@ -332,7 +332,7 @@ func (nps *Service) DeleteManagedRoute(ctx context.Context, orgID int64, name st
 	span.AddEvent(fmt.Sprintf("%s route", action), trace.WithAttributes(
 		attribute.String("concurrencyToken", revision.ConcurrencyToken),
 	))
-	nps.log.FromContext(ctx).Info("Managed route updated", "action", action, "name", name)
+	nps.log.FromContext(ctx).Info("Managed route updated", "action", action, "routeName", name)
 	return nil
 }
 
@@ -384,7 +384,7 @@ func (nps *Service) CreateManagedRoute(ctx context.Context, orgID int64, name st
 	span.AddEvent("Route created", trace.WithAttributes(
 		attribute.String("version", created.Version),
 	))
-	nps.log.FromContext(ctx).Info("Created route", "name", name, "version", created.Version)
+	nps.log.FromContext(ctx).Info("Created route", "routeName", name, "version", created.Version)
 	return created, nil
 }
 

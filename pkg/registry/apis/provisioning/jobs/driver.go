@@ -368,7 +368,7 @@ func (d *jobDriver) processJob(ctx context.Context, recorder JobProgressRecorder
 		r := repo.Config()
 		if r.DeletionTimestamp != nil && !r.DeletionTimestamp.IsZero() {
 			logger.Info("repository marked for deletion - skip job",
-				"name", r.Name,
+				"repositoryName", r.Name,
 				"namespace", r.Namespace,
 				"deletionTimestamp", r.DeletionTimestamp,
 			)

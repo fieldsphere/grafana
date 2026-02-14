@@ -172,12 +172,12 @@ func (rs *ReceiverService) GetReceiver(ctx context.Context, uid string, decrypt 
 	if decrypt {
 		err := rcv.Decrypt(rs.decryptor(ctx))
 		if err != nil {
-			rs.log.FromContext(ctx).Warn("Failed to decrypt secure settings", "name", rcv.Name, "error", err)
+			rs.log.FromContext(ctx).Warn("Failed to decrypt secure settings", "receiverName", rcv.Name, "error", err)
 		}
 	} else {
 		err := rcv.Encrypt(rs.encryptor(ctx))
 		if err != nil {
-			rs.log.FromContext(ctx).Warn("Failed to encrypt secure settings", "name", rcv.Name, "error", err)
+			rs.log.FromContext(ctx).Warn("Failed to encrypt secure settings", "receiverName", rcv.Name, "error", err)
 		}
 	}
 
@@ -243,12 +243,12 @@ func (rs *ReceiverService) GetReceivers(ctx context.Context, q models.GetReceive
 		if q.Decrypt {
 			err := rcv.Decrypt(rs.decryptor(ctx))
 			if err != nil {
-				rs.log.FromContext(ctx).Warn("Failed to decrypt secure settings", "name", rcv.Name, "error", err)
+				rs.log.FromContext(ctx).Warn("Failed to decrypt secure settings", "receiverName", rcv.Name, "error", err)
 			}
 		} else {
 			err := rcv.Encrypt(rs.encryptor(ctx))
 			if err != nil {
-				rs.log.FromContext(ctx).Warn("Failed to encrypt secure settings", "name", rcv.Name, "error", err)
+				rs.log.FromContext(ctx).Warn("Failed to encrypt secure settings", "receiverName", rcv.Name, "error", err)
 			}
 		}
 	}

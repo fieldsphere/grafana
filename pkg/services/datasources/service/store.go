@@ -82,10 +82,10 @@ func (ss *SqlStore) getDataSource(_ context.Context, query *datasources.GetDataS
 	has, err := sess.Get(datasource)
 
 	if err != nil {
-		ss.logger.Error("Failed getting data source", "error", err, "datasourceUID", query.UID, "datasourceID", query.ID, "name", query.Name, "orgID", query.OrgID) // nolint:staticcheck
+		ss.logger.Error("Failed getting data source", "error", err, "datasourceUID", query.UID, "datasourceID", query.ID, "datasourceName", query.Name, "orgID", query.OrgID) // nolint:staticcheck
 		return nil, err
 	} else if !has {
-		ss.logger.Debug("Data source not found", "datasourceUID", query.UID, "datasourceID", query.ID, "name", query.Name, "orgID", query.OrgID) // nolint:staticcheck
+		ss.logger.Debug("Data source not found", "datasourceUID", query.UID, "datasourceID", query.ID, "datasourceName", query.Name, "orgID", query.OrgID) // nolint:staticcheck
 		return nil, datasources.ErrDataSourceNotFound
 	}
 
@@ -117,10 +117,10 @@ func (ss *SqlStore) getDataSourceInGroup(_ context.Context, orgID int64, name, g
 	has, err := sess.Get(datasource)
 
 	if err != nil {
-		ss.logger.Error("Failed getting data source", "error", err, "name", name, "orgID", orgID, "group", group)
+		ss.logger.Error("Failed getting data source", "error", err, "datasourceName", name, "orgID", orgID, "group", group)
 		return nil, err
 	} else if !has {
-		ss.logger.Debug("Data source not found", "name", name, "orgID", orgID, "group", group)
+		ss.logger.Debug("Data source not found", "datasourceName", name, "orgID", orgID, "group", group)
 		return nil, datasources.ErrDataSourceNotFound
 	}
 
@@ -208,7 +208,7 @@ func (ss *SqlStore) DeleteDataSource(ctx context.Context, cmd *datasources.Delet
 
 		if cmd.UpdateSecretFn != nil {
 			if err := cmd.UpdateSecretFn(); err != nil {
-				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "datasourceUID", cmd.UID, "name", cmd.Name, "orgID", cmd.OrgID)
+				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "datasourceUID", cmd.UID, "datasourceName", cmd.Name, "orgID", cmd.OrgID)
 				return err
 			}
 		}
@@ -333,7 +333,7 @@ func (ss *SqlStore) AddDataSource(ctx context.Context, cmd *datasources.AddDataS
 
 		if cmd.UpdateSecretFn != nil {
 			if err := cmd.UpdateSecretFn(); err != nil {
-				// ss.logger.Error("Failed to update datasource secrets -- rolling back update", "name", cmd.Name, "type", cmd.Type, "orgID", cmd.OrgID)
+				// ss.logger.Error("Failed to update datasource secrets -- rolling back update", "datasourceName", cmd.Name, "type", cmd.Type, "orgID", cmd.OrgID)
 				return err
 			}
 		}
@@ -433,7 +433,7 @@ func (ss *SqlStore) UpdateDataSource(ctx context.Context, cmd *datasources.Updat
 
 		if cmd.UpdateSecretFn != nil {
 			if err := cmd.UpdateSecretFn(); err != nil {
-				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "datasourceUID", cmd.UID, "name", cmd.Name, "type", cmd.Type, "orgID", cmd.OrgID)
+				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "datasourceUID", cmd.UID, "datasourceName", cmd.Name, "type", cmd.Type, "orgID", cmd.OrgID)
 				return err
 			}
 		}
@@ -465,6 +465,6 @@ func logDeprecatedInvalidDsUid(logger log.Logger, uid string, name string, actio
 	logger.Warn(
 		"Invalid datasource uid. A valid uid is a combination of a-z, A-Z, 0-9 (alphanumeric), - (dash) and _ "+
 			"(underscore) characters, maximum length 40. Invalid characters will be replaced by dashes.",
-		"datasourceUID", uid, "action", action, "name", name, "error", err,
+		"datasourceUID", uid, "action", action, "datasourceName", name, "error", err,
 	)
 }

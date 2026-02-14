@@ -367,14 +367,14 @@ func (s *ExternalAlertmanager) sanitizeLabelSet(lbls models.LabelSet) labels.Lab
 	for _, k := range sortedKeys(lbls) {
 		sanitizedLabelName, err := s.sanitizeLabelName(k)
 		if err != nil {
-			s.logger.Error("Alert sending to external Alertmanager(s) contains an invalid label/annotation name that failed to sanitize, skipping", "name", k, "error", err)
+			s.logger.Error("Alert sending to external Alertmanager(s) contains an invalid label/annotation name that failed to sanitize, skipping", "labelName", k, "error", err)
 			continue
 		}
 
 		// There can be label name collisions after we sanitize. We check for this and attempt to make the name unique again using a short hash of the original name.
 		if _, ok := set[sanitizedLabelName]; ok {
 			sanitizedLabelName = sanitizedLabelName + fmt.Sprintf("_%.3x", md5.Sum([]byte(k)))
-			s.logger.Warn("Alert contains duplicate label/annotation name after sanitization, appending unique suffix", "name", k, "newName", sanitizedLabelName, "error", err)
+			s.logger.Warn("Alert contains duplicate label/annotation name after sanitization, appending unique suffix", "labelName", k, "newName", sanitizedLabelName, "error", err)
 		}
 
 		set[sanitizedLabelName] = struct{}{}
@@ -397,7 +397,7 @@ func (s *ExternalAlertmanager) sanitizeLabelName(name string) (string, error) {
 		return name, nil
 	}
 
-	s.logger.Warn("Alert sending to external Alertmanager(s) contains label/annotation name with invalid characters", "name", name)
+	s.logger.Warn("Alert sending to external Alertmanager(s) contains label/annotation name with invalid characters", "labelName", name)
 
 	// Remove spaces. We do this instead of replacing with underscore for backwards compatibility as this existed before the rest of this function.
 	sanitized := strings.Join(strings.Fields(name), "")
