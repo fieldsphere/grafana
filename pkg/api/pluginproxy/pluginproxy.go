@@ -216,7 +216,7 @@ func (proxy PluginProxy) logRequest() {
 		"userID", proxy.ctx.UserID,
 		"orgID", proxy.ctx.OrgID,
 		"username", proxy.ctx.Login,
-		"app", proxy.ps.PluginID,
+		"pluginID", proxy.ps.PluginID,
 		"requestURI", proxy.ctx.Req.RequestURI,
 		"method", proxy.ctx.Req.Method,
 		"body", body)

@@ -136,7 +136,7 @@ func InstallAPIs(
 ) error {
 	logger := logging.FromContext(ctx)
 	for _, installer := range appInstallers {
-		logger.Debug("Installing APIs for app installer", "app", installer.ManifestData().AppName)
+		logger.Debug("Installing APIs for app installer", "appName", installer.ManifestData().AppName)
 		wrapper := &serverWrapper{
 			ctx:               ctx,
 			GenericAPIServer:  appsdkapiserver.NewKubernetesGenericAPIServer(server),
@@ -150,7 +150,7 @@ func InstallAPIs(
 		if err := installer.InstallAPIs(wrapper, restOpsGetter); err != nil {
 			return fmt.Errorf("failed to install APIs for app %s: %w", installer.ManifestData().AppName, err)
 		}
-		logger.Info("Installed APIs for app", "app", installer.ManifestData().AppName)
+		logger.Info("Installed APIs for app", "appName", installer.ManifestData().AppName)
 	}
 	return nil
 }
@@ -178,25 +178,25 @@ func createPostStartHook(
 ) genericapiserver.PostStartHookFunc {
 	return func(hookContext genericapiserver.PostStartHookContext) error {
 		logger := logging.FromContext(hookContext.Context)
-		logger.Debug("Initializing app", "app", installer.ManifestData().AppName)
+		logger.Debug("Initializing app", "appName", installer.ManifestData().AppName)
 
 		if err := installer.InitializeApp(*hookContext.LoopbackClientConfig); err != nil && !errors.Is(err, appsdkapiserver.ErrAppAlreadyInitialized) {
-			logger.Error("Failed to initialize app", "app", installer.ManifestData().AppName, "error", err)
+			logger.Error("Failed to initialize app", "appName", installer.ManifestData().AppName, "error", err)
 			return fmt.Errorf("failed to initialize app %s: %w", installer.ManifestData().AppName, err)
 		}
 
-		logger.Info("App initialized", "app", installer.ManifestData().AppName)
+		logger.Info("App initialized", "appName", installer.ManifestData().AppName)
 		app, err := installer.App()
 		if err != nil {
-			logger.Error("Failed to initialize app", "app", installer.ManifestData().AppName, "error", err)
+			logger.Error("Failed to initialize app", "appName", installer.ManifestData().AppName, "error", err)
 			return fmt.Errorf("failed to get app from installer %s: %w", installer.ManifestData().AppName, err)
 		}
 		go func() {
 			err := app.Runner().Run(hookContext.Context)
 			if err != nil {
-				logger.Error("App runner exited with error", "app", installer.ManifestData().AppName, "error", err)
+				logger.Error("App runner exited with error", "appName", installer.ManifestData().AppName, "error", err)
 			} else {
-				logger.Info("App runner exited without error", "app", installer.ManifestData().AppName)
+				logger.Info("App runner exited without error", "appName", installer.ManifestData().AppName)
 			}
 		}()
 		return nil

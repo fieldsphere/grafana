@@ -39,7 +39,7 @@ func New(cfg app.Config) (app.App, error) {
 		return nil, fmt.Errorf("invalid config type")
 	}
 	checkRegistry := specificConfig.CheckRegistry
-	log := logging.DefaultLogger.With("app", "advisor.app")
+	log := logging.DefaultLogger.With("appName", "advisor.app")
 
 	// Prepare storage client
 	clientGenerator := k8s.NewClientRegistry(cfg.KubeConfig, k8s.ClientConfig{})

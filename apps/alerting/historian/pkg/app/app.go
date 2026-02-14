@@ -20,7 +20,7 @@ import (
 func New(cfg app.Config) (app.App, error) {
 	reg := prometheus.DefaultRegisterer
 	tracer := otel.GetTracerProvider().Tracer("historian.alerting.app")
-	logger := logging.DefaultLogger.With("app", "historian.alerting.app")
+	logger := logging.DefaultLogger.With("appName", "historian.alerting.app")
 
 	runtimeConfig := cfg.SpecificConfig.(config.RuntimeConfig)
 

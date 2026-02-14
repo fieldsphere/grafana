@@ -28,7 +28,7 @@ func New(cfg app.Config) (app.App, error) {
 		return nil, fmt.Errorf("invalid config type: expected DashValidatorConfig")
 	}
 
-	log := logging.DefaultLogger.With("app", "dashvalidator")
+	log := logging.DefaultLogger.With("appName", "dashvalidator")
 
 	// configure our app
 	simpleConfig := simple.AppConfig{

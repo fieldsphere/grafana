@@ -74,7 +74,7 @@ func MainApp() *cli.App {
 
 func cmdNotFound(c *cli.Context, command string) {
 	slog.Error("Unknown command",
-		"app", c.App.Name,
+		"appName", c.App.Name,
 		"command", command,
 		"helpBinary", os.Args[0],
 		"helpFlag", "--help")
