@@ -1691,6 +1691,23 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid generic trace event names like "result", "user", or "next"; use contextual names such as "rpcResult", "authenticatedUser", or "bulkNext"`)
 
 	m.Match(
+		`$span.AddEvent($left + $right)`,
+		`$span.AddEvent($left + $right, $*attrs)`,
+		`$span.AddEvent(fmt.Sprintf($fmt, $*args))`,
+		`$span.AddEvent(fmt.Sprintf($fmt, $*args), $*attrs)`,
+		`$span.AddEvent(fmt.Sprint($*args))`,
+		`$span.AddEvent(fmt.Sprint($*args), $*attrs)`,
+	).
+		Report(`avoid dynamic trace event names; use stable string-literal names and keep dynamic data in attributes`)
+
+	m.Match(
+		`$span.AddEvent($name)`,
+		`$span.AddEvent($name, $*attrs)`,
+	).
+		Where(!m["name"].Const && !m["name"].Text.Matches("^\".*\"$")).
+		Report(`prefer stable string-literal or const trace event names; avoid runtime-generated event names`)
+
+	m.Match(
 		`attribute.String("error", $errMsg)`,
 	).
 		Where(m["errMsg"].Type.Is("string")).
