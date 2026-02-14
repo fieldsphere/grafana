@@ -341,7 +341,7 @@ func (db *MySQLDialect) CreateDatabaseFromSnapshot(ctx context.Context, engine *
 	logger.Info("creating database schema from snapshot")
 
 	for _, entry := range entries {
-		logger.Debug("using snapshot file", "file", entry.Name())
+		logger.Debug("using snapshot file", "snapshotFileName", entry.Name())
 		data, err := sqlFiles.ReadFile(path.Join("snapshot", entry.Name()))
 		if err != nil {
 			return err

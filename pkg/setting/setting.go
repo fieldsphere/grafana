@@ -1595,7 +1595,7 @@ func (cfg *Cfg) initLogging(file *ini.File) error {
 
 func (cfg *Cfg) LogConfigSources() {
 	for _, file := range cfg.configFiles {
-		cfg.Logger.Info("Config loaded from", "file", file)
+		cfg.Logger.Info("Config loaded from", "configFilePath", file)
 	}
 
 	if len(cfg.appliedCommandLineProperties) > 0 {

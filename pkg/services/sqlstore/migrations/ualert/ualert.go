@@ -179,23 +179,23 @@ func (u *upgradeNgAlerting) updateAlertmanagerFiles(orgId int64, migrator *migra
 	// do not fail if something goes wrong because these files are not used anymore. the worst that can happen is that we leave some leftovers behind
 	deleteFile := func(fileName string) {
 		path := filepath.Join(alertingDir, fileName)
-		migrator.Logger.Info("Deleting alerting configuration file", "file", fileName)
+		migrator.Logger.Info("Deleting alerting configuration file", "fileName", fileName)
 		err := os.Remove(path)
 		if err != nil {
-			migrator.Logger.Warn("Failed to delete file", "file", path, "error", err)
+			migrator.Logger.Warn("Failed to delete file", "filePath", path, "error", err)
 		}
 	}
 
 	moveFile := func(fileName string) {
 		alertingOrgDir := filepath.Join(alertingDir, strconv.FormatInt(orgId, 10))
 		if err := os.MkdirAll(alertingOrgDir, 0750); err != nil {
-			migrator.Logger.Error("Failed to create alerting directory for organization. Skip moving the file and delete it instead", "targetDir", alertingOrgDir, "orgID", orgId, "error", err, "file", fileName)
+			migrator.Logger.Error("Failed to create alerting directory for organization. Skip moving the file and delete it instead", "targetDir", alertingOrgDir, "orgID", orgId, "error", err, "fileName", fileName)
 			deleteFile(fileName)
 			return
 		}
 		err := os.Rename(filepath.Join(alertingDir, fileName), filepath.Join(alertingOrgDir, fileName))
 		if err != nil {
-			migrator.Logger.Error("Failed to move alertmanager configuration file to organization.", "sourceDir", alertingDir, "targetDir", alertingOrgDir, "orgID", orgId, "error", err, "file", fileName)
+			migrator.Logger.Error("Failed to move alertmanager configuration file to organization.", "sourceDir", alertingDir, "targetDir", alertingOrgDir, "orgID", orgId, "error", err, "fileName", fileName)
 			deleteFile(fileName)
 		}
 	}

@@ -144,7 +144,7 @@ func GetConfig(cfg *Config) (*ServersConfig, error) {
 func readConfig(configFile string) (*ServersConfig, error) {
 	result := &ServersConfig{}
 
-	logger.Info("LDAP enabled, reading config file", "file", configFile)
+	logger.Info("LDAP enabled, reading config file", "configFilePath", configFile)
 
 	// nolint:gosec
 	// We can ignore the gosec G304 warning on this one because `filename` comes from grafana configuration file

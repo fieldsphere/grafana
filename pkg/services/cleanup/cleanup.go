@@ -213,7 +213,7 @@ func (srv *CleanUpService) cleanUpTmpFolder(ctx context.Context, folderPath stri
 	for _, file := range files {
 		info, err := file.Info()
 		if err != nil {
-			logger.Error("Problem reading file", "folderPath", folderPath, "file", file, "error", err)
+			logger.Error("Problem reading file", "folderPath", folderPath, "fileEntry", file, "error", err)
 			continue
 		}
 
@@ -226,7 +226,7 @@ func (srv *CleanUpService) cleanUpTmpFolder(ctx context.Context, folderPath stri
 		fullPath := path.Join(folderPath, file.Name())
 		err := os.Remove(fullPath)
 		if err != nil {
-			logger.Error("Failed to delete temp file", "file", file.Name(), "error", err)
+			logger.Error("Failed to delete temp file", "fileName", file.Name(), "error", err)
 		}
 	}
 

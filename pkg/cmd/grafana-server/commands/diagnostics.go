@@ -150,7 +150,7 @@ func setupTracing(tracing bool, tracingFile string, logger *log.ConcreteLogger) 
 	}
 
 	if traceDiagnostics.enabled {
-		logger.Info("Diagnostics tracing enabled", "file", traceDiagnostics.file)
+		logger.Info("Diagnostics tracing enabled", "traceFilePath", traceDiagnostics.file)
 		f, err := os.Create(traceDiagnostics.file)
 		if err != nil {
 			panic(err)

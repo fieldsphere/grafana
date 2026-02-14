@@ -29,7 +29,7 @@ func main() {
 		outFile = args[1]
 	}
 
-	slog.Info("Reading swagger 2 file", "file", inFile)
+	slog.Info("Reading swagger 2 file", "inputFilePath", inFile)
 	byt, err := os.ReadFile(inFile)
 	if err != nil {
 		panic(err)
@@ -57,5 +57,5 @@ func main() {
 	if err = os.WriteFile(outFile, j3, 0644); err != nil {
 		panic(err)
 	}
-	slog.Info("OpenAPI specs generated", "file", outFile)
+	slog.Info("OpenAPI specs generated", "outputFilePath", outFile)
 }
