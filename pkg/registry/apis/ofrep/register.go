@@ -323,7 +323,7 @@ func writeResponse(statusCode int, result any, logger log.Logger, w http.Respons
 
 func (b *APIBuilder) namespaceFromEvalCtx(body []byte) string {
 	// TODO: eval ctx should be added to span attributes, not log
-	b.logger.Debug("evaluation context from request", "ctx", string(body))
+	b.logger.Debug("evaluation context from request", "evaluationContextJSON", string(body))
 
 	var evalCtx struct {
 		// Extract namespace from request body without consuming it

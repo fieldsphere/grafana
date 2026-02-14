@@ -360,7 +360,7 @@ func (p *redisPeer) filterUnhealthyMembers(members []string, values []any) []str
 		}
 		ts, err := strconv.ParseInt(val.(string), 10, 64)
 		if err != nil {
-			p.logger.Error("Error parsing timestamp value", "error", err, "peer", peer, "val", val)
+			p.logger.Error("Error parsing timestamp value", "error", err, "peer", peer, "timestampValue", val)
 			continue
 		}
 		tm := time.Unix(ts, 0)
