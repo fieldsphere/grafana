@@ -1394,6 +1394,20 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in []any literal spread arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|user|client|uname|type|value|info)\"$")).
+		Report(`avoid ambiguous keys in []any literal spread context arguments; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
+
+	m.Match(
+		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
+	).
+		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Report(`avoid runtime-generated keys in []any literal spread context arguments; use stable string-literal or const keys and keep dynamic data in values`)
+
+	m.Match(
 		`$logger.Info($msg, append($arr, $*before, $key, $value, $*after)...)`,
 		`$logger.Warn($msg, append($arr, $*before, $key, $value, $*after)...)`,
 		`$logger.Error($msg, append($arr, $*before, $key, $value, $*after)...)`,
