@@ -1342,6 +1342,19 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in []any key/value slices; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`append($arr, $*before, $key, fmt.Sprint($*args), $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any")).
+		Report(`avoid fmt formatting in []any key/value slices; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
+		`append($arr, $*before, $key, $left + $right, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report(`avoid string concatenation in []any key/value slices; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
 		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
