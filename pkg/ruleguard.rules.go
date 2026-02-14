@@ -3002,6 +3002,19 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid string concatenation in trace attribute string values; pass typed values directly or split related data into separate attributes`)
 
 	m.Match(
+		`$attrKey.String(fmt.Sprintf($fmt, $*args))`,
+		`$attrKey.String(fmt.Sprint($*args))`,
+	).
+		Where(m["attrKey"].Type.Is("go.opentelemetry.io/otel/attribute.Key")).
+		Report(`avoid fmt formatting in trace attribute string values; pass typed values directly or split related data into separate attributes`)
+
+	m.Match(
+		`$attrKey.String($left + $right)`,
+	).
+		Where(m["attrKey"].Type.Is("go.opentelemetry.io/otel/attribute.Key") && m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report(`avoid string concatenation in trace attribute string values; pass typed values directly or split related data into separate attributes`)
+
+	m.Match(
 		`attribute.String("error", $err.Error())`,
 	).
 		Where(m["err"].Type.Is("error")).
