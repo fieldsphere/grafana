@@ -99,7 +99,7 @@ func (du *DashboardUpdater) syncPluginDashboards(ctx context.Context, plugin plu
 	for _, dash := range resp.Items {
 		// remove removed ones
 		if dash.Removed {
-			du.logger.Info("Deleting plugin dashboard", "pluginID", plugin.ID, "dashboard", dash.Slug)
+			du.logger.Info("Deleting plugin dashboard", "pluginID", plugin.ID, "dashboardSlug", dash.Slug)
 
 			if err := du.dashboardService.DeleteDashboard(ctx, dash.DashboardId, dash.UID, orgID); err != nil {
 				du.logger.Error("Failed to auto update app dashboard", "pluginID", plugin.ID, "error", err)
@@ -156,7 +156,7 @@ func (du *DashboardUpdater) handlePluginStateChanged(ctx context.Context, event 
 		}
 
 		for _, dash := range queryResult {
-			du.logger.Info("Deleting plugin dashboard", "pluginID", event.PluginId, "dashboard", dash.Slug)
+			du.logger.Info("Deleting plugin dashboard", "pluginID", event.PluginId, "dashboardSlug", dash.Slug)
 			if err := du.dashboardService.DeleteDashboard(ctx, dash.ID, dash.UID, dash.OrgID); err != nil {
 				return err
 			}
@@ -175,7 +175,7 @@ func (du *DashboardUpdater) autoUpdateAppDashboard(ctx context.Context, pluginDa
 	if err != nil {
 		return err
 	}
-	du.logger.Info("Auto updating App dashboard", "dashboard", resp.Dashboard.Title, "newRev",
+	du.logger.Info("Auto updating App dashboard", "dashboardTitle", resp.Dashboard.Title, "newRev",
 		pluginDashInfo.Revision, "oldRev", pluginDashInfo.ImportedRevision)
 	_, err = du.dashboardImportService.ImportDashboard(ctx, &dashboardimport.ImportDashboardRequest{
 		PluginId: pluginDashInfo.PluginId,
