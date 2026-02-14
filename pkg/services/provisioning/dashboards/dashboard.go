@@ -216,7 +216,7 @@ func getFileReaders(
 		case "file":
 			fileReader, err := NewDashboardFileReader(
 				config,
-				logger.New("type", config.Type, "configName", config.Name),
+				logger.New("provisioningType", config.Type, "configName", config.Name),
 				service,
 				store,
 				folderService,
