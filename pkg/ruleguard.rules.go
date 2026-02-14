@@ -1178,6 +1178,52 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recovered panic payloads in recover else-branches and appended spread arguments, use key "panicValue" instead of "errorMessage"`)
 
 	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $arr = append($arr, $*before, "error", $panicVal, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $arr := append($arr, $*before, "error", $panicVal, $*after); $*_ }`,
+	).
+		Report(`for recovered panic payloads in recover else-branches and append-built key/value slices, use key "panicValue" instead of "error"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $arr = append($arr, $*before, "errorMessage", $panicVal, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $arr := append($arr, $*before, "errorMessage", $panicVal, $*after); $*_ }`,
+	).
+		Report(`for recovered panic payloads in recover else-branches and append-built key/value slices, use key "panicValue" instead of "errorMessage"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $arr = []any{$*before, "error", $panicVal, $*after}; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $arr := []any{$*before, "error", $panicVal, $*after}; $*_ }`,
+	).
+		Report(`for recovered panic payloads in recover else-branches and []any literal key/value slices, use key "panicValue" instead of "error"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $arr = []any{$*before, "errorMessage", $panicVal, $*after}; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $arr := []any{$*before, "errorMessage", $panicVal, $*after}; $*_ }`,
+	).
+		Report(`for recovered panic payloads in recover else-branches and []any literal key/value slices, use key "panicValue" instead of "errorMessage"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.New($*before, "error", $panicVal, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.With($*before, "error", $panicVal, $*after); $*_ }`,
+	).
+		Report(`for recovered panic payloads in recover else-branches and structured context builders, use key "panicValue" instead of "error"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.New($*before, "errorMessage", $panicVal, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.With($*before, "errorMessage", $panicVal, $*after); $*_ }`,
+	).
+		Report(`for recovered panic payloads in recover else-branches and structured context builders, use key "panicValue" instead of "errorMessage"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { slog.Group($group, $*before, "error", $panicVal, $*after); $*_ }`,
+	).
+		Report(`for recovered panic payloads in recover else-branches and slog.Group fields, use key "panicValue" instead of "error"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { slog.Group($group, $*before, "errorMessage", $panicVal, $*after); $*_ }`,
+	).
+		Report(`for recovered panic payloads in recover else-branches and slog.Group fields, use key "panicValue" instead of "errorMessage"`)
+
+	m.Match(
 		`if $panicVal := recover(); $panicVal != nil { $logger.Info($msg, []any{$*before, "error", $panicVal, $*after}...); $*_ }`,
 		`if $panicVal := recover(); $panicVal != nil { $logger.Warn($msg, []any{$*before, "error", $panicVal, $*after}...); $*_ }`,
 		`if $panicVal := recover(); $panicVal != nil { $logger.Error($msg, []any{$*before, "error", $panicVal, $*after}...); $*_ }`,
