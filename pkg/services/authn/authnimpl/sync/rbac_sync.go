@@ -125,7 +125,7 @@ func (s *RBACSync) fetchPermissions(ctx context.Context, ident *authn.Identity) 
 func (s *RBACSync) addPermissionsForAction(action string, permissions *[]accesscontrol.Permission) {
 	scopes, ok := s.permRegistry.GetScopePrefixes(action)
 	if !ok {
-		s.log.Warn("Unknown action scopes", "action", action)
+		s.log.Warn("Unknown action scopes", "permissionAction", action)
 		return
 	}
 	if len(scopes) == 0 {

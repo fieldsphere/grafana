@@ -78,7 +78,7 @@ func (r *FolderReconciler) reconcile(ctx context.Context, req operator.TypedReco
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	ctx, span := tracer.Start(ctx, "folder.reconcile",
 		trace.WithAttributes(
-			attribute.String("action", actionToString(req.Action)),
+			attribute.String("reconcileAction", actionToString(req.Action)),
 			attribute.String("folderUID", req.Object.Name),
 			attribute.String("namespace", req.Object.Namespace),
 		),

@@ -133,7 +133,7 @@ func (s *Service) Check(ctx context.Context, req *authzv1.CheckRequest) (*authzv
 	span.SetAttributes(
 		attribute.String("subject", req.Subject),
 		attribute.String("namespace", checkReq.Namespace.Value),
-		attribute.String("action", checkReq.Action),
+		attribute.String("permissionAction", checkReq.Action),
 		attribute.String("resourceName", checkReq.Name),
 		attribute.String("parentFolderUID", checkReq.ParentFolder),
 		attribute.Bool("allowed", false),
@@ -356,7 +356,7 @@ func (s *Service) processBatchCheckGroup(
 ) {
 	permissions, err := s.getPermissionsForGroup(ctx, group, ns, idType, userUID)
 	if err != nil {
-		ctxLogger.Error("could not get permissions", "namespace", ns.Value, "action", group.action, "error", err)
+		ctxLogger.Error("could not get permissions", "namespace", ns.Value, "permissionAction", group.action, "error", err)
 		for _, item := range group.items {
 			results[item.GetCorrelationId()] = &authzv1.BatchCheckResult{Allowed: false, Error: err.Error()}
 		}
@@ -420,7 +420,7 @@ func (s *Service) List(ctx context.Context, req *authzv1.ListRequest) (*authzv1.
 	span.SetAttributes(
 		attribute.String("subject", req.Subject),
 		attribute.String("namespace", listReq.Namespace.Value),
-		attribute.String("action", listReq.Action),
+		attribute.String("permissionAction", listReq.Action),
 	)
 
 	var permissions map[string]bool

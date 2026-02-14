@@ -465,6 +465,6 @@ func logDeprecatedInvalidDsUid(logger log.Logger, uid string, name string, actio
 	logger.Warn(
 		"Invalid datasource uid. A valid uid is a combination of a-z, A-Z, 0-9 (alphanumeric), - (dash) and _ "+
 			"(underscore) characters, maximum length 40. Invalid characters will be replaced by dashes.",
-		"datasourceUID", uid, "action", action, "datasourceName", name, "error", err,
+		"datasourceUID", uid, "datasourceOperation", action, "datasourceName", name, "error", err,
 	)
 }
