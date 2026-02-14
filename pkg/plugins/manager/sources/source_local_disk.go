@@ -148,7 +148,7 @@ func (s *LocalSource) Discover(_ context.Context) ([]*plugins.FoundBundle, error
 			}
 			if !strings.Contains(relPath, "..") {
 				child := p2.Primary
-				s.log.Debug("Adding child", "parent", p.Primary.JSONData.ID, "child", child.JSONData.ID, "relPath", relPath)
+				s.log.Debug("Adding child", "parentPluginID", p.Primary.JSONData.ID, "childPluginID", child.JSONData.ID, "relPath", relPath)
 				p.Children = append(p.Children, &child)
 				childPlugins[dir2] = struct{}{}
 			}
