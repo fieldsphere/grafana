@@ -1248,6 +1248,12 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous key "type" in []any key/value slices; use contextual keys such as "datasourceType", "resourceType", or "eventType"`)
 
 	m.Match(
+		`append($arr, $*before, $key, $value, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && !m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Report(`avoid runtime-generated keys in []any key/value slices; use stable string-literal or const keys and keep dynamic data in values`)
+
+	m.Match(
 		`$logger.Info($msg, $*before, $key, $value, $*after)`,
 		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
 		`$logger.Error($msg, $*before, $key, $value, $*after)`,
