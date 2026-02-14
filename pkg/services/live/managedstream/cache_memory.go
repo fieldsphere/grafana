@@ -45,7 +45,7 @@ func (c *MemoryFrameCache) GetFrame(ctx context.Context, ns string, channel stri
 	cachedFrame, ok := c.frames[ns][channel]
 	raw := cachedFrame.Bytes(data.IncludeAll)
 	c.log.Debug("Cache get",
-		"ns", ns,
+		"namespace", ns,
 		"channel", channel,
 		"length", len(raw),
 	)
@@ -62,7 +62,7 @@ func (c *MemoryFrameCache) Update(ctx context.Context, ns string, channel string
 	schemaUpdated := !exists || !cachedJsonFrame.SameSchema(&jsonFrame)
 	c.frames[ns][channel] = jsonFrame
 	c.log.Debug("Cache update",
-		"ns", ns,
+		"namespace", ns,
 		"channel", channel,
 		"length", len(jsonFrame.Bytes(data.IncludeAll)),
 	)
