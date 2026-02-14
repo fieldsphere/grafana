@@ -530,6 +530,36 @@ func structuredlogging(m fluent.Matcher) {
 		Report("avoid fmt formatting in structured log field values; pass typed values or separate fields")
 
 	m.Match(
+		`$logger.Info($msg, $*before, $key, $left + $right, $*after)`,
+		`$logger.Warn($msg, $*before, $key, $left + $right, $*after)`,
+		`$logger.Error($msg, $*before, $key, $left + $right, $*after)`,
+		`$logger.Debug($msg, $*before, $key, $left + $right, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $left + $right, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $left + $right, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $left + $right, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $left + $right, $*after)`,
+	).
+		Where(isStructuredLogger && m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report("avoid string concatenation in structured log field values; pass typed values or separate fields")
+
+	m.Match(
+		`slog.Info($msg, $*before, $key, $left + $right, $*after)`,
+		`slog.Warn($msg, $*before, $key, $left + $right, $*after)`,
+		`slog.Error($msg, $*before, $key, $left + $right, $*after)`,
+		`slog.Debug($msg, $*before, $key, $left + $right, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $left + $right, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $left + $right, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $left + $right, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $left + $right, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $left + $right, $*after)`,
+		`klog.InfoS($msg, $*before, $key, $left + $right, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $left + $right, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $left + $right, $*after)`,
+	).
+		Where(m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report("avoid string concatenation in structured log field values; pass typed values or separate fields")
+
+	m.Match(
 		`$logger.Info($msg, $*args)`,
 		`$logger.Warn($msg, $*args)`,
 		`$logger.Error($msg, $*args)`,
