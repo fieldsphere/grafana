@@ -44,8 +44,8 @@ func Test_prepareLog(t *testing.T) {
 
 			expectFields: map[string]any{
 				"method":      "GET",
-				"path":        "/",
-				"status":      0,
+				"requestPath": "/",
+				"statusCode":  0,
 				"remoteAddr":  "",
 				"timeMs":      0,
 				"duration":    "0s",
@@ -64,8 +64,8 @@ func Test_prepareLog(t *testing.T) {
 
 			expectFields: map[string]any{
 				"method":      "GET",
-				"path":        "/",
-				"status":      0,
+				"requestPath": "/",
+				"statusCode":  0,
 				"remoteAddr":  "",
 				"timeMs":      0,
 				"duration":    "0s",
@@ -87,8 +87,8 @@ func Test_prepareLog(t *testing.T) {
 			error: fmt.Errorf("got an error"),
 
 			expectFields: map[string]any{
-				"status": http.StatusInternalServerError,
-				"error":  fmt.Errorf("got an error"),
+				"statusCode": http.StatusInternalServerError,
+				"error":      fmt.Errorf("got an error"),
 			},
 			expectAbsence: map[string]struct{}{
 				"errorReason":    {},
@@ -105,7 +105,7 @@ func Test_prepareLog(t *testing.T) {
 			},
 			error: grafanaFlavoredErr,
 			expectFields: map[string]any{
-				"status":         http.StatusNotFound,
+				"statusCode":     http.StatusNotFound,
 				"errorMessage":   "got error",
 				"errorReason":    errutil.StatusNotFound,
 				"errorMessageID": "test.notFound",

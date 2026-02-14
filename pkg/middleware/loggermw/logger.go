@@ -104,8 +104,8 @@ func (l *loggerImpl) prepareLogParams(c *contextmodel.ReqContext, duration time.
 
 	logParams := []any{
 		"method", r.Method,
-		"path", r.URL.Path,
-		"status", status,
+		"requestPath", r.URL.Path,
+		"statusCode", status,
 		"remoteAddr", c.RemoteAddr(),
 		"timeMs", int64(duration / time.Millisecond),
 		"duration", duration.String(),

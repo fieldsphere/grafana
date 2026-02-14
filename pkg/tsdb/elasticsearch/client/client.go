@@ -130,7 +130,7 @@ func (c *baseClientImpl) ExecuteMultisearch(r *MultiSearchRequest) (*MultiSearch
 		if errors.Is(err, context.Canceled) {
 			status = "cancelled"
 		}
-		lp := []any{"error", err, "status", status, "duration", time.Since(start), "stage", StageDatabaseRequest}
+		lp := []any{"error", err, "requestStatus", status, "duration", time.Since(start), "stage", StageDatabaseRequest}
 		sourceErr := backend.ErrorWithSource{}
 		if errors.As(err, &sourceErr) {
 			lp = append(lp, "statusSource", sourceErr.ErrorSource())

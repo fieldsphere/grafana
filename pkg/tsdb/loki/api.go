@@ -175,7 +175,7 @@ func (api *LokiAPI) DataQuery(ctx context.Context, query lokiQuery, responseOpts
 		return nil, err
 	}
 
-	queryAttrs := []any{"start", query.Start, "end", query.End, "step", query.Step, "query", query.Expr, "queryType", query.QueryType, "direction", query.Direction, "maxLines", query.MaxLines, "supportingQueryType", query.SupportingQueryType, "lokiHost", req.URL.Host, "lokiPath", req.URL.Path}
+	queryAttrs := []any{"start", query.Start, "end", query.End, "step", query.Step, "queryText", query.Expr, "queryType", query.QueryType, "direction", query.Direction, "maxLines", query.MaxLines, "supportingQueryType", query.SupportingQueryType, "lokiHost", req.URL.Host, "lokiPath", req.URL.Path}
 	api.log.Debug("Sending query to loki", queryAttrs...)
 	start := time.Now()
 	resp, err := api.client.Do(req)
@@ -184,7 +184,7 @@ func (api *LokiAPI) DataQuery(ctx context.Context, query lokiQuery, responseOpts
 		if errors.Is(err, context.Canceled) {
 			status = "cancelled"
 		}
-		lp := []any{"error", err, "status", status, "duration", time.Since(start), "stage", stageDatabaseRequest}
+		lp := []any{"error", err, "requestStatus", status, "duration", time.Since(start), "stage", stageDatabaseRequest}
 		lp = append(lp, queryAttrs...)
 		if resp != nil {
 			lp = append(lp, "statusCode", resp.StatusCode)
@@ -212,11 +212,11 @@ func (api *LokiAPI) DataQuery(ctx context.Context, query lokiQuery, responseOpts
 			ErrorSource: backend.ErrorSourceFromHTTPStatus(resp.StatusCode),
 			Status:      backend.Status(resp.StatusCode),
 		}
-		lp = append(lp, "status", "error", "error", err, "statusSource", res.ErrorSource)
+		lp = append(lp, "requestStatus", "error", "error", err, "statusSource", res.ErrorSource)
 		api.log.Debug("Error received from Loki", lp...)
 		return &res, nil
 	} else {
-		lp = append(lp, "status", "ok")
+		lp = append(lp, "requestStatus", "ok")
 		api.log.Info("Response received from loki", lp...)
 	}
 
@@ -281,7 +281,7 @@ func (api *LokiAPI) RawQuery(ctx context.Context, resourcePath string) (RawLokiR
 		if errors.Is(err, context.Canceled) {
 			status = "cancelled"
 		}
-		lp := []any{"error", err, "resourcePath", resourcePath, "status", status, "duration", time.Since(start), "stage", stageDatabaseRequest}
+		lp := []any{"error", err, "resourcePath", resourcePath, "requestStatus", status, "duration", time.Since(start), "stage", stageDatabaseRequest}
 		if resp != nil {
 			lp = append(lp, "statusCode", resp.StatusCode)
 		}

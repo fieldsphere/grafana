@@ -55,7 +55,7 @@ func (m *LoggerMiddleware) logRequest(ctx context.Context, pCtx backend.PluginCo
 
 	status, err := fn(ctx)
 
-	logParams = append(logParams, "status", status.String(), "duration", time.Since(start))
+	logParams = append(logParams, "requestStatus", status.String(), "duration", time.Since(start))
 
 	if err != nil {
 		logParams = append(logParams, "error", err)
@@ -90,7 +90,7 @@ func (m *LoggerMiddleware) QueryData(ctx context.Context, req *backend.QueryData
 			if dr.Error != nil {
 				logParams := []any{
 					"refID", refID,
-					"status", int(dr.Status),
+					"statusCode", int(dr.Status),
 					"error", dr.Error,
 					"statusSource", dr.ErrorSource.String(),
 					"target", m.pluginTarget(ctx, req.PluginContext),
