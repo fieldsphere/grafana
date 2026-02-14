@@ -344,7 +344,7 @@ func searchStatsSpanAttributes(stats *SearchStats, elapsed time.Duration, search
 	}
 
 	if len(searchArgs) > 0 {
-		attrs = append(attrs, attribute.String("searchLogArgs", fmt.Sprint(searchArgs)))
+		attrs = append(attrs, attribute.Int("searchLogArgsCount", len(searchArgs)))
 	}
 
 	return attrs

@@ -2458,6 +2458,20 @@ func structuredlogging(m fluent.Matcher) {
 		Report("prefer stable string-literal or const trace attribute keys; avoid runtime-generated key values")
 
 	m.Match(
+		`attribute.String($key, fmt.Sprintf($fmt, $*args))`,
+		`attribute.String($key, fmt.Sprint($*args))`,
+		`attribute.Key($key).String(fmt.Sprintf($fmt, $*args))`,
+		`attribute.Key($key).String(fmt.Sprint($*args))`,
+	).
+		Report(`avoid fmt formatting in trace attribute string values; pass typed values directly or split related data into separate attributes`)
+
+	m.Match(
+		`attribute.String($key, $left + $right)`,
+		`attribute.Key($key).String($left + $right)`,
+	).
+		Report(`avoid string concatenation in trace attribute string values; pass typed values directly or split related data into separate attributes`)
+
+	m.Match(
 		`attribute.String("error", $err.Error())`,
 	).
 		Where(m["err"].Type.Is("error")).
