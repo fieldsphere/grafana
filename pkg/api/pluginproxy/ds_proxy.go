@@ -150,7 +150,7 @@ func (proxy *DataSourceProxy) HandleRequest() {
 	span.SetAttributes(
 		attribute.String("datasourceName", proxy.ds.Name),
 		attribute.String("datasourceType", proxy.ds.Type),
-		attribute.String("user", proxy.ctx.Login),
+		attribute.String("userLogin", proxy.ctx.Login),
 		attribute.Int64("orgID", proxy.ctx.OrgID),
 	)
 

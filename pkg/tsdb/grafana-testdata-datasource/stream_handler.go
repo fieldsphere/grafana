@@ -16,7 +16,7 @@ var random20HzStreamRegex = regexp.MustCompile(`random-20Hz-stream(-\d+)?`)
 
 func (s *Service) SubscribeStream(ctx context.Context, req *backend.SubscribeStreamRequest) (*backend.SubscribeStreamResponse, error) {
 	ctxLogger := s.logger.FromContext(ctx)
-	ctxLogger.Debug("Allowing access to stream", "path", req.Path, "user", req.PluginContext.User)
+	ctxLogger.Debug("Allowing access to stream", "path", req.Path, "pluginContextUser", req.PluginContext.User)
 
 	if strings.HasPrefix(req.Path, "sim/") {
 		return s.sims.SubscribeStream(ctx, req)
@@ -42,7 +42,7 @@ func (s *Service) SubscribeStream(ctx context.Context, req *backend.SubscribeStr
 
 func (s *Service) PublishStream(ctx context.Context, req *backend.PublishStreamRequest) (*backend.PublishStreamResponse, error) {
 	ctxLogger := s.logger.FromContext(ctx)
-	ctxLogger.Debug("Attempt to publish into stream", "path", req.Path, "user", req.PluginContext.User)
+	ctxLogger.Debug("Attempt to publish into stream", "path", req.Path, "pluginContextUser", req.PluginContext.User)
 
 	if strings.HasPrefix(req.Path, "sim/") {
 		return s.sims.PublishStream(ctx, req)

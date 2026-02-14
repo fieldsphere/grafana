@@ -120,7 +120,7 @@ func (proxy *PluginProxy) HandleRequest() {
 	proxy.ctx.Req = proxy.ctx.Req.WithContext(ctx)
 
 	span.SetAttributes(
-		attribute.String("user", proxy.ctx.Login),
+		attribute.String("userLogin", proxy.ctx.Login),
 		attribute.Int64("orgID", proxy.ctx.OrgID),
 	)
 

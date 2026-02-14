@@ -141,13 +141,13 @@ func (s QueryHistoryService) deleteQuery(ctx context.Context, user *user.SignedI
 		// Try to unstar the query first
 		_, err := session.Table("query_history_star").Where("user_id = ? AND query_uid = ?", user.UserID, UID).Delete(QueryHistoryStar{})
 		if err != nil {
-			s.log.Error("Failed to unstar query while deleting it from query history", "query", UID, "user", user.UserID, "error", err)
+			s.log.Error("Failed to unstar query while deleting it from query history", "query", UID, "userID", user.UserID, "error", err)
 		}
 
 		// remove the details
 		_, err = session.Table("query_history_details").Where("query_history_item_uid = ?", UID).Delete(QueryHistoryDetails{})
 		if err != nil {
-			s.log.Error("Failed to remove the details for the query item", "query", UID, "user", user.UserID, "error", err)
+			s.log.Error("Failed to remove the details for the query item", "query", UID, "userID", user.UserID, "error", err)
 		}
 
 		// Then delete it

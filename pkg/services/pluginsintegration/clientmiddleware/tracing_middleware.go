@@ -60,7 +60,7 @@ func (m *TracingMiddleware) traceWrap(
 		span.SetAttributes(attribute.String("datasourceUID", settings.UID))
 	}
 	if u := pluginContext.User; u != nil {
-		span.SetAttributes(attribute.String("user", u.Login))
+		span.SetAttributes(attribute.String("userLogin", u.Login))
 	}
 
 	// Additional attributes from http headers

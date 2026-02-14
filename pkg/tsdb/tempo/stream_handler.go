@@ -10,7 +10,7 @@ import (
 )
 
 func (s *Service) SubscribeStream(_ context.Context, req *backend.SubscribeStreamRequest) (*backend.SubscribeStreamResponse, error) {
-	s.logger.Debug("Allowing access to stream", "path", req.Path, "user", req.PluginContext.User)
+	s.logger.Debug("Allowing access to stream", "path", req.Path, "pluginContextUser", req.PluginContext.User)
 
 	if strings.HasPrefix(req.Path, SearchPathPrefix) {
 		return &backend.SubscribeStreamResponse{

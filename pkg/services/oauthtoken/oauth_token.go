@@ -91,7 +91,7 @@ func (o *Service) GetCurrentOAuthToken(ctx context.Context, usr identity.Request
 	ctxLogger := logger.FromContext(ctx)
 
 	if usr == nil || usr.IsNil() {
-		ctxLogger.Warn("Can only get OAuth tokens for existing users", "user", "nil")
+		ctxLogger.Warn("Can only get OAuth tokens for existing users", "userState", "nil")
 		// Not user, no token.
 		return nil
 	}
@@ -250,7 +250,7 @@ func (o *Service) TryTokenRefresh(ctx context.Context, usr identity.Requester, t
 	ctxLogger := logger.FromContext(ctx)
 
 	if usr == nil || usr.IsNil() {
-		ctxLogger.Warn("Can only refresh OAuth tokens for existing users", "user", "nil")
+		ctxLogger.Warn("Can only refresh OAuth tokens for existing users", "userState", "nil")
 		// Not user, no token.
 		return nil, nil
 	}

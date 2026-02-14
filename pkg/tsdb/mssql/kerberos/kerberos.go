@@ -127,11 +127,11 @@ func getCredentialCacheFromLookup(lookupFile string, host string, port string, d
 			kerberosLog.Info("Matched credential cache lookup entry",
 				"address", item.Address,
 				"database", item.DBName,
-				"user", item.User,
+				"userName", item.User,
 				"credentialCache", item.CredentialCacheFilename)
 			return item.CredentialCacheFilename
 		}
 	}
-	kerberosLog.Error("No credential cache lookup match found", "address", host+":"+port, "database", dbName, "user", user)
+	kerberosLog.Error("No credential cache lookup match found", "address", host+":"+port, "database", dbName, "userName", user)
 	return ""
 }

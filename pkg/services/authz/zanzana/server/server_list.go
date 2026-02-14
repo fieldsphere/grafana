@@ -217,7 +217,7 @@ func (s *Server) listObjects(ctx context.Context, req *openfgav1.ListObjectsRequ
 
 	res, err := fn(ctx, req)
 	if err != nil {
-		s.logger.Error("failed to perform openfga ListObjects request", "error", errors.Unwrap(err), "user", req.GetUser(), "type", req.GetType(), "relation", req.GetRelation())
+		s.logger.Error("failed to perform openfga ListObjects request", "error", errors.Unwrap(err), "userRef", req.GetUser(), "type", req.GetType(), "relation", req.GetRelation())
 		return nil, err
 	}
 

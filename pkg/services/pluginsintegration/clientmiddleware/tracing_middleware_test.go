@@ -211,7 +211,7 @@ func TestTracingMiddlewareAttributes(t *testing.T) {
 				assert.Len(t, attribs, 3, "should have correct number of span attributes")
 				require.True(t, spanAttributesContains(attribs, attribute.String("pluginID", "my_plugin_id")))
 				require.True(t, spanAttributesContains(attribs, attribute.Int("orgID", 1337)))
-				require.True(t, spanAttributesContains(attribs, attribute.String("user", "admin")))
+				require.True(t, spanAttributesContains(attribs, attribute.String("userLogin", "admin")))
 			},
 		},
 		{

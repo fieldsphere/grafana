@@ -509,7 +509,7 @@ func (pd *PublicDashboardServiceImpl) logIsEnabledChanged(existingPubdash *Publi
 		if newPubdash.IsEnabled {
 			verb = "enabled"
 		}
-		pd.log.Info("Public dashboard status changed", "action", verb, "publicDashboardUID", newPubdash.Uid, "dashboardUID", newPubdash.DashboardUid, "user", u.Login)
+		pd.log.Info("Public dashboard status changed", "action", verb, "publicDashboardUID", newPubdash.Uid, "dashboardUID", newPubdash.DashboardUid, "userLogin", u.Login)
 	}
 }
 

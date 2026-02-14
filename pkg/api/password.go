@@ -28,12 +28,12 @@ func (hs *HTTPServer) SendResetPasswordEmail(c *contextmodel.ReqContext) respons
 
 	usr, err := hs.userService.GetByLogin(c.Req.Context(), &userQuery)
 	if err != nil {
-		c.Logger.Info("Requested password reset for user that was not found", "user", userQuery.LoginOrEmail, "error", err)
+		c.Logger.Info("Requested password reset for user that was not found", "userLoginOrEmail", userQuery.LoginOrEmail, "error", err)
 		return response.Error(http.StatusOK, "Email sent", nil)
 	}
 
 	if usr.IsDisabled {
-		c.Logger.Info("Requested password reset for disabled user", "user", userQuery.LoginOrEmail)
+		c.Logger.Info("Requested password reset for disabled user", "userLoginOrEmail", userQuery.LoginOrEmail)
 		return response.Error(http.StatusOK, "Email sent", nil)
 	}
 

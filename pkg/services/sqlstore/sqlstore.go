@@ -216,7 +216,7 @@ func (ss *SQLStore) ensureMainOrgAndAdminUser(test bool) error {
 				return fmt.Errorf("failed to create admin user: %s", err)
 			}
 
-			ss.log.Info("Created default admin", "user", ss.cfg.AdminUser)
+			ss.log.Info("Created default admin", "adminUser", ss.cfg.AdminUser)
 		}
 
 		ss.log.Debug("Creating default org", "name", mainOrgName)
