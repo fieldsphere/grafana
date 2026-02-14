@@ -85,7 +85,7 @@ func (c *CompositeStore) GetTags(ctx context.Context, query annotations.TagsQuer
 // It will log the error and set the job error if it is not nil.
 func handleJobPanic(logger log.Logger, storeType string, jobErr *error) {
 	if r := recover(); r != nil {
-		logger.Error("Annotation store panic", "error", r, "store", storeType, "stack", log.Stack(1))
+		logger.Error("Annotation store panic", "panicValue", r, "store", storeType, "stack", log.Stack(1))
 		errMsg := "concurrent job panic"
 
 		if jobErr != nil {

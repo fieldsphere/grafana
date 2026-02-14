@@ -271,7 +271,7 @@ func (e *DataSourceHandler) handleQueryError(frameErr string, err error, query s
 
 func (e *DataSourceHandler) handlePanic(logger log.Logger, queryResult *DBDataResponse, ch chan DBDataResponse) {
 	if r := recover(); r != nil {
-		logger.Error("ExecuteQuery panic", "error", r, "stack", string(debug.Stack()))
+		logger.Error("ExecuteQuery panic", "panicValue", r, "stack", string(debug.Stack()))
 		if theErr, ok := r.(error); ok {
 			queryResult.dataResponse.Error = theErr
 			queryResult.dataResponse.ErrorSource = backend.ErrorSourcePlugin

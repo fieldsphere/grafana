@@ -150,7 +150,7 @@ func (s *ServiceImpl) executeConcurrentQueries(ctx context.Context, user identit
 	recoveryFn := func(queries []*simplejson.Json) {
 		if r := recover(); r != nil {
 			var err error
-			s.log.Error("query datasource panic", "error", r, "stack", log.Stack(1))
+			s.log.Error("query datasource panic", "panicValue", r, "stack", log.Stack(1))
 			if theErr, ok := r.(error); ok {
 				err = theErr
 			} else if theErrString, ok := r.(string); ok {

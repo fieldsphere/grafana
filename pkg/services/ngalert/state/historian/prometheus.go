@@ -138,7 +138,7 @@ func (b *RemotePrometheusBackend) Record(ctx context.Context, rule history_model
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				logger.Error("Panic in prometheus historian", "error", r)
+				logger.Error("Panic in prometheus historian", "panicValue", r)
 				errCh <- fmt.Errorf("prometheus historian panic: %v", r)
 			}
 			close(errCh)

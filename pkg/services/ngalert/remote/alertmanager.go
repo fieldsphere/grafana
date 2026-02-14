@@ -480,7 +480,7 @@ func (am *Alertmanager) SaveAndApplyDefaultConfig(ctx context.Context) error {
 func (am *Alertmanager) CreateSilence(ctx context.Context, silence *apimodels.PostableSilence) (string, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while creating silence", "error", r)
+			am.log.Error("Panic while creating silence", "panicValue", r)
 		}
 	}()
 
@@ -508,7 +508,7 @@ func (am *Alertmanager) CreateSilence(ctx context.Context, silence *apimodels.Po
 func (am *Alertmanager) DeleteSilence(ctx context.Context, silenceID string) error {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while deleting silence", "error", r)
+			am.log.Error("Panic while deleting silence", "panicValue", r)
 		}
 	}()
 
@@ -523,7 +523,7 @@ func (am *Alertmanager) DeleteSilence(ctx context.Context, silenceID string) err
 func (am *Alertmanager) GetSilence(ctx context.Context, silenceID string) (apimodels.GettableSilence, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while getting silence", "error", r)
+			am.log.Error("Panic while getting silence", "panicValue", r)
 		}
 	}()
 
@@ -539,7 +539,7 @@ func (am *Alertmanager) GetSilence(ctx context.Context, silenceID string) (apimo
 func (am *Alertmanager) ListSilences(ctx context.Context, filter []string) (apimodels.GettableSilences, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while listing silences", "error", r)
+			am.log.Error("Panic while listing silences", "panicValue", r)
 		}
 	}()
 
@@ -555,7 +555,7 @@ func (am *Alertmanager) ListSilences(ctx context.Context, filter []string) (apim
 func (am *Alertmanager) GetAlerts(ctx context.Context, active, silenced, inhibited bool, filter []string, receiver string) (apimodels.GettableAlerts, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while getting alerts", "error", r)
+			am.log.Error("Panic while getting alerts", "panicValue", r)
 		}
 	}()
 
@@ -577,7 +577,7 @@ func (am *Alertmanager) GetAlerts(ctx context.Context, active, silenced, inhibit
 func (am *Alertmanager) GetAlertGroups(ctx context.Context, active, silenced, inhibited bool, filter []string, receiver string) (apimodels.AlertGroups, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while getting alert groups", "error", r)
+			am.log.Error("Panic while getting alert groups", "panicValue", r)
 		}
 	}()
 
@@ -616,7 +616,7 @@ func (am *Alertmanager) PutAlerts(ctx context.Context, alerts apimodels.Postable
 func (am *Alertmanager) GetStatus(ctx context.Context) (apimodels.GettableStatus, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while getting status", "error", r)
+			am.log.Error("Panic while getting status", "panicValue", r)
 		}
 	}()
 
@@ -809,7 +809,7 @@ func calculateUserGrafanaConfigHash(config remoteClient.UserGrafanaConfig) (stri
 func (am *Alertmanager) logDiff(curCfg, newCfg *remoteClient.UserGrafanaConfig) []string {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Warn("Panic while comparing configurations", "error", r)
+			am.log.Warn("Panic while comparing configurations", "panicValue", r)
 		}
 	}()
 	var reporter cmputil.DiffReporter

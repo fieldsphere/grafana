@@ -131,7 +131,7 @@ func Recovery(cfg *setting.Cfg, license licensing.Licensing) web.Middleware {
 					}
 
 					stack := stack(3)
-					panicLogger.Error("Request error", "error", r, "stack", string(stack))
+					panicLogger.Error("Request error", "panicValue", r, "stack", string(stack))
 
 					// if response has already been written, skip.
 					if c.Resp.Written() {
