@@ -33,7 +33,7 @@ func TestNew(t *testing.T) {
 	require.NoError(t, err)
 	log3 := New("three")
 	log3.Error("hello 3")
-	log4 := log3.New("key", "value")
+	log4 := log3.New("contextKey", "value")
 	err = log4.Log("msg", "hello 4")
 	require.NoError(t, err)
 	log3.Error("hello 3 again")
@@ -60,7 +60,7 @@ func TestNew(t *testing.T) {
 
 	scenario.ValidateLineEquality(t, 3, []any{
 		"logger", "three",
-		"key", "value",
+		"contextKey", "value",
 		"t", scenario.mockedTime,
 		"msg", "hello 4",
 	})

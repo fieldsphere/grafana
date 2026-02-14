@@ -675,7 +675,7 @@ func TestUserInfoSearchesForLogin(t *testing.T) {
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 				w.Header().Set("Content-Type", "application/json")
-				t.Log("Writing fake API response body", "body", tc.ResponseBody)
+				t.Log("Writing fake API response body", "responseBody", tc.ResponseBody)
 				_, err = w.Write(body)
 				require.NoError(t, err)
 			}))
@@ -775,7 +775,7 @@ func TestUserInfoSearchesForName(t *testing.T) {
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 				w.Header().Set("Content-Type", "application/json")
-				t.Log("Writing fake API response body", "body", tc.ResponseBody)
+				t.Log("Writing fake API response body", "responseBody", tc.ResponseBody)
 				_, err = w.Write(body)
 				require.NoError(t, err)
 			}))
@@ -836,7 +836,7 @@ func TestUserInfoSearchesForGroup(t *testing.T) {
 			ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 				w.WriteHeader(http.StatusOK)
 				w.Header().Set("Content-Type", "application/json")
-				t.Log("Writing fake API response body", "body", test.responseBody)
+				t.Log("Writing fake API response body", "responseBody", test.responseBody)
 				_, err := w.Write(body)
 				require.NoError(t, err)
 			}))

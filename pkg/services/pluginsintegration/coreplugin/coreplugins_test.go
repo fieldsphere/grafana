@@ -69,7 +69,7 @@ func TestLogger(t *testing.T) {
 		wrapper := &logWrapper{
 			logger: log.New("test"),
 		}
-		newLogger := wrapper.With("key", "value")
+		newLogger := wrapper.With("contextKey", "value")
 
 		require.NotSame(t, newLogger.(*logWrapper).logger, wrapper.logger, "`With` should not return the same instance")
 	})
