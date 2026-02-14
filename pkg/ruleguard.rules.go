@@ -1378,6 +1378,60 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in slog.Group appended fields; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`slog.Group($group, $*fields)`,
+	).
+		Where(!m["group"].Const && !m["group"].Text.Matches("^\".*\"$")).
+		Report(`prefer stable string-literal or const slog group names; avoid runtime-generated group keys`)
+
+	m.Match(
+		`slog.Group($group, $*fields)`,
+	).
+		Where(m["group"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|user|client|uname|type|value|info)\"$")).
+		Report(`avoid ambiguous slog group names like "status", "path", "type", or "value"; use contextual names such as "requestContext", "queryInfo", "datasourceConfig", or "pluginMetadata"`)
+
+	m.Match(
+		`slog.Group($group, $*fields)`,
+	).
+		Where(m["group"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in slog group names (for example "userIDContext", "orgIDMetadata")`)
+
+	m.Match(
+		`slog.Group($group, $*fields)`,
+	).
+		Where(m["group"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Report(`prefer "UID" acronym casing in slog group names (for example "dashboardUIDContext", "datasourceUIDMetadata")`)
+
+	m.Match(
+		`slog.Group($group, $*fields)`,
+	).
+		Where(m["group"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Report(`avoid snake_case slog group names; use camelCase with canonical acronym casing`)
+
+	m.Match(
+		`slog.Group($group, $*fields)`,
+	).
+		Where(m["group"].Text.Matches("^\".*\\s+.*\"$")).
+		Report(`avoid whitespace in slog group names; use compact camelCase names`)
+
+	m.Match(
+		`slog.Group($group, $*fields)`,
+	).
+		Where(m["group"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
+		Report(`avoid hyphenated slog group names; use camelCase names`)
+
+	m.Match(
+		`slog.Group($group, $*fields)`,
+	).
+		Where(m["group"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Report(`avoid dotted slog group names; prefer flat camelCase names`)
+
+	m.Match(
+		`slog.Group($group, $*fields)`,
+	).
+		Where(m["group"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
+		Report(`avoid uppercase-leading slog group names; use lower camelCase with canonical acronym casing`)
+
+	m.Match(
 		`slog.String($key, $value)`,
 		`slog.Int($key, $value)`,
 		`slog.Int64($key, $value)`,
