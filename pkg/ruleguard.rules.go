@@ -1887,6 +1887,22 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in []any literal spread context arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`$logger.New($*prefix, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
+		`$logger.New($*prefix, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
+	).
+		Where(isStructuredLogger).
+		Report(`avoid fmt formatting in []any literal spread context values; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
+		`$logger.New($*prefix, []any{$*before, $key, $left + $right, $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, $left + $right, $*after}...)`,
+	).
+		Where(isStructuredLogger && m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report(`avoid string concatenation in []any literal spread context values; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
 		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
 		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
 	).
@@ -1913,6 +1929,22 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in appended structured context arguments; use stable string-literal or const keys and keep dynamic data in values`)
+
+	m.Match(
+		`$logger.New($*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.With($*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.New($*before, $key, fmt.Sprint($*args), $*after)`,
+		`$logger.With($*before, $key, fmt.Sprint($*args), $*after)`,
+	).
+		Where(isStructuredLogger).
+		Report(`avoid fmt formatting in structured context values; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
+		`$logger.New($*before, $key, $left + $right, $*after)`,
+		`$logger.With($*before, $key, $left + $right, $*after)`,
+	).
+		Where(isStructuredLogger && m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report(`avoid string concatenation in structured context values; pass typed values directly or split related data into separate structured fields`)
 
 	m.Match(
 		`$logger.New($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
