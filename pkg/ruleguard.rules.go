@@ -1751,6 +1751,17 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for non-error payloads in slog attributes, use key "errorMessage"; reserve key "error" for error objects`)
 
 	m.Match(
+		`slog.Int("error", $value)`,
+		`slog.Int64("error", $value)`,
+		`slog.Uint64("error", $value)`,
+		`slog.Bool("error", $value)`,
+		`slog.Float64("error", $value)`,
+		`slog.Duration("error", $value)`,
+		`slog.Time("error", $value)`,
+	).
+		Report(`for non-error payloads in slog attributes, use key "errorMessage"; reserve key "error" for error objects`)
+
+	m.Match(
 		`slog.String($key, $value)`,
 		`slog.Int($key, $value)`,
 		`slog.Int64($key, $value)`,
