@@ -25,7 +25,7 @@ func main() {
 
 	// Check if the themes directory exists
 	if _, err := os.Stat(themesPath); os.IsNotExist(err) {
-		slog.Error("Themes directory not found", "path", themesPath)
+		slog.Error("Themes directory not found", "themesDirectoryPath", themesPath)
 		os.Exit(1)
 	}
 
@@ -51,14 +51,14 @@ var themes = []ThemeDTO{
 
 		fileBytes, readErr := os.ReadFile(path)
 		if readErr != nil {
-			slog.Error("Error reading theme file", "path", path, "error", readErr)
+			slog.Error("Error reading theme file", "themeFilePath", path, "error", readErr)
 			return nil // Continue processing other files
 		}
 
 		var themeDef ThemeDefinition
 		jsonErr := json.Unmarshal(fileBytes, &themeDef)
 		if jsonErr != nil {
-			slog.Error("Error parsing theme JSON", "path", path, "error", jsonErr)
+			slog.Error("Error parsing theme JSON", "themeFilePath", path, "error", jsonErr)
 			return nil // Continue processing other files
 		}
 
@@ -74,7 +74,7 @@ var themes = []ThemeDTO{
 	})
 
 	if err != nil {
-		slog.Error("Error walking themes directory", "path", themesPath, "error", err)
+		slog.Error("Error walking themes directory", "themesDirectoryPath", themesPath, "error", err)
 		os.Exit(1)
 	}
 
@@ -83,9 +83,9 @@ var themes = []ThemeDTO{
 	// Write the generated file
 	outputPath := filepath.Join("themes_generated.go")
 	if err := os.WriteFile(outputPath, []byte(output), 0644); err != nil {
-		slog.Error("Error writing generated themes file", "path", outputPath, "error", err)
+		slog.Error("Error writing generated themes file", "outputFilePath", outputPath, "error", err)
 		os.Exit(1)
 	}
 
-	slog.Info("Successfully generated themes file", "path", outputPath)
+	slog.Info("Successfully generated themes file", "outputFilePath", outputPath)
 }

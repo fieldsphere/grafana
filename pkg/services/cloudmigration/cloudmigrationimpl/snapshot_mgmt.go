@@ -856,7 +856,7 @@ func (s *Service) uploadUsingPresignedURL(ctx context.Context, uploadURL, key st
 	}
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
-			s.log.Error("closing file", "path", filePath, "error", closeErr)
+			s.log.Error("closing file", "snapshotFilePath", filePath, "error", closeErr)
 		}
 	}()
 

@@ -262,7 +262,7 @@ func (ss *SQLStore) initEngine(engine *xorm.Engine) error {
 
 		const perms = 0640
 		if !exists {
-			ss.log.Info("Creating SQLite database file", "path", ss.dbCfg.Path)
+			ss.log.Info("Creating SQLite database file", "sqliteDatabasePath", ss.dbCfg.Path)
 			f, err := os.OpenFile(ss.dbCfg.Path, os.O_CREATE|os.O_RDWR, perms)
 			if err != nil {
 				return fmt.Errorf("failed to create SQLite database file %q: %w", ss.dbCfg.Path, err)
@@ -278,7 +278,7 @@ func (ss *SQLStore) initEngine(engine *xorm.Engine) error {
 			m := fi.Mode() & os.ModePerm
 			if m|perms != perms {
 				ss.log.Warn("SQLite database file has broader permissions than it should",
-					"path", ss.dbCfg.Path, "mode", m, "expected", os.FileMode(perms))
+					"sqliteDatabasePath", ss.dbCfg.Path, "mode", m, "expected", os.FileMode(perms))
 			}
 		}
 	}

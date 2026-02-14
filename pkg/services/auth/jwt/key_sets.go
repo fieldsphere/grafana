@@ -87,7 +87,7 @@ func (s *AuthService) initKeySet() error {
 		}
 		defer func() {
 			if err := file.Close(); err != nil {
-				s.log.Warn("Failed to close file", "path", keyFilePath, "error", err)
+				s.log.Warn("Failed to close file", "keyFilePath", keyFilePath, "error", err)
 			}
 		}()
 
@@ -140,7 +140,7 @@ func (s *AuthService) initKeySet() error {
 		}
 		defer func() {
 			if err := file.Close(); err != nil {
-				s.log.Warn("Failed to close file", "path", keyFilePath, "error", err)
+				s.log.Warn("Failed to close file", "keyFilePath", keyFilePath, "error", err)
 			}
 		}()
 
@@ -166,13 +166,13 @@ func (s *AuthService) initKeySet() error {
 			// We can ignore the gosec G304 warning on this one because `tlsClientCa` comes from grafana configuration file
 			caCert, err := os.ReadFile(s.Cfg.JWTAuth.TlsClientCa)
 			if err != nil {
-				s.log.Error("Failed to read TlsClientCa", "path", s.Cfg.JWTAuth.TlsClientCa, "error", err)
+				s.log.Error("Failed to read TlsClientCa", "tlsClientCAPath", s.Cfg.JWTAuth.TlsClientCa, "error", err)
 				return fmt.Errorf("failed to read TlsClientCa: %w", err)
 			}
 
 			caCertPool = x509.NewCertPool()
 			if !caCertPool.AppendCertsFromPEM(caCert) {
-				s.log.Error("failed to decode provided PEM certs", "path", s.Cfg.JWTAuth.TlsClientCa)
+				s.log.Error("failed to decode provided PEM certs", "tlsClientCAPath", s.Cfg.JWTAuth.TlsClientCa)
 				return fmt.Errorf("failed to decode provided PEM certs file from TlsClientCa")
 			}
 		}

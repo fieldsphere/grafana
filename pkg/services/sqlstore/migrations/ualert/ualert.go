@@ -207,7 +207,7 @@ func (u *upgradeNgAlerting) updateAlertmanagerFiles(orgId int64, migrator *migra
 			for key := range knownFiles {
 				keys = append(keys, key)
 			}
-			migrator.Logger.Warn("Failed to clean up alerting directory. There may be files that are not used anymore.", "path", alertingDir, "filesToDelete", keys, "error", err)
+			migrator.Logger.Warn("Failed to clean up alerting directory. There may be files that are not used anymore.", "alertingDirectoryPath", alertingDir, "filesToDelete", keys, "error", err)
 		}
 	}
 
