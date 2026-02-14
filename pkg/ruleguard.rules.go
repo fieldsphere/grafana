@@ -1446,6 +1446,18 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous keys in slog.Group fields; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
 
 	m.Match(
+		`slog.Group($group, $*before, "error", $err.Error(), $*after)`,
+	).
+		Where(m["err"].Type.Is("error")).
+		Report(`use "errorMessage" for stringified error text in slog.Group fields (for example slog.Group("context", "errorMessage", err.Error())); keep "error" for error objects`)
+
+	m.Match(
+		`slog.Group($group, $*before, "error", $errMsg, $*after)`,
+	).
+		Where(m["errMsg"].Type.Is("string")).
+		Report(`use "errorMessage" for stringified error text in slog.Group fields; keep "error" for error objects`)
+
+	m.Match(
 		`slog.Group($group, $*before, $key, $value, $*after)`,
 	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
@@ -2749,6 +2761,20 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
 		Report(`avoid uppercase-leading structured context keys; use lower camelCase with canonical acronym casing`)
+
+	m.Match(
+		`$logger.New($*before, "error", $err.Error(), $*after)`,
+		`$logger.With($*before, "error", $err.Error(), $*after)`,
+	).
+		Where(isStructuredLogger && m["err"].Type.Is("error")).
+		Report(`use "errorMessage" for stringified error text in structured context (for example logger.With("errorMessage", err.Error())); keep "error" for error objects`)
+
+	m.Match(
+		`$logger.New($*before, "error", $errMsg, $*after)`,
+		`$logger.With($*before, "error", $errMsg, $*after)`,
+	).
+		Where(isStructuredLogger && m["errMsg"].Type.Is("string")).
+		Report(`use "errorMessage" for stringified error text in structured context; keep "error" for error objects`)
 
 	m.Match(
 		`attribute.Key($key).String($value)`,
