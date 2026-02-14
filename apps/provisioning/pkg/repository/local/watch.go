@@ -103,7 +103,7 @@ func (f *fileWatcher) Watch(ctx context.Context, events chan<- string) {
 				info, _ := os.Stat(e.Name)
 				if info != nil && info.IsDir() {
 					if err := f.watcher.Add(e.Name); err != nil {
-						f.logger.Warn("error adding folder", "folder", e.Name, "error", err)
+						f.logger.Warn("error adding folder", "folderPath", e.Name, "error", err)
 					}
 				}
 				continue

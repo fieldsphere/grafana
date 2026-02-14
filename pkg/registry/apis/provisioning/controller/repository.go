@@ -463,7 +463,7 @@ func (rc *RepositoryController) addSyncJob(ctx context.Context, obj *provisionin
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("repository", obj.GetName()),
+		attribute.String("repositoryName", obj.GetName()),
 		attribute.String("namespace", obj.Namespace),
 		attribute.Bool("incremental", syncOptions != nil && syncOptions.Incremental),
 	)

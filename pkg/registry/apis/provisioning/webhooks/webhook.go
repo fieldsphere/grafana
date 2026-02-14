@@ -128,11 +128,11 @@ func (s *webhookConnector) Connect(ctx context.Context, name string, opts runtim
 		defer span.End()
 
 		span.SetAttributes(
-			attribute.String("repository", name),
+			attribute.String("repositoryName", name),
 			attribute.String("namespace", namespace),
 		)
 
-		logger := logging.FromContext(ctx).With("logger", "webhook-connector", "repo", name)
+		logger := logging.FromContext(ctx).With("logger", "webhook-connector", "repositoryName", name)
 		ctx = logging.Context(ctx, logger)
 		if !s.webhooksEnabled {
 			responder.Error(errors.NewBadRequest("webhooks are not enabled"))
