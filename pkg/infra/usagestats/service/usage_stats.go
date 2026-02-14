@@ -64,7 +64,7 @@ func (uss *UsageStats) GetUsageReport(ctx context.Context) (usagestats.Report, e
 		return true
 	})
 
-	uss.log.FromContext(ctx).Debug("Collected usage stats", "metricCount", metricCount, "version", report.Version, "operatingSystem", report.Os, "arch", report.Arch, "edition", report.Edition, "duration", time.Since(start))
+	uss.log.FromContext(ctx).Debug("Collected usage stats", "metricCount", metricCount, "version", report.Version, "operatingSystem", report.Os, "architecture", report.Arch, "edition", report.Edition, "duration", time.Since(start))
 	return report, nil
 }
 

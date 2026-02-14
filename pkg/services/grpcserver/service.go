@@ -135,7 +135,7 @@ func (s *gPRCServerService) Run(ctx context.Context) error {
 	s.logger.Info("Running GRPC server",
 		"address", s.cfg.Address,
 		"network", s.cfg.Network,
-		"tls", s.cfg.TLSConfig != nil,
+		"tlsEnabled", s.cfg.TLSConfig != nil,
 		"maxRecvMsgSize", s.cfg.MaxRecvMsgSize,
 		"maxSendMsgSize", s.cfg.MaxSendMsgSize,
 		"maxConnectionAge", s.cfg.MaxConnectionAge,
