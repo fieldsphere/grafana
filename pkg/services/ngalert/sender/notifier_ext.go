@@ -162,8 +162,9 @@ func (n *Manager) sendAll(alerts ...*Alert) bool {
 		default:
 			{
 				n.logger.Error(
-					fmt.Sprintf("Invalid Alertmanager API version '%v', expected one of '%v'", ams.cfg.APIVersion, config.SupportedAlertmanagerAPIVersions),
-					"error", err,
+					"Invalid Alertmanager API version",
+					"apiVersion", ams.cfg.APIVersion,
+					"supportedAPIVersions", config.SupportedAlertmanagerAPIVersions,
 				)
 				ams.mtx.RUnlock()
 				return false

@@ -103,7 +103,8 @@ func (v *CountValidator) Validate(ctx context.Context, sess *xorm.Session, respo
 	// Should have at most one summary after filtering
 	if len(response.Summary) == 0 {
 		log.Debug("No summaries found for resource, skipping count validation",
-			"resource", fmt.Sprintf("%s.%s", v.resource.Resource, v.resource.Group))
+			"resource", v.resource.Resource,
+			"group", v.resource.Group)
 		return nil
 	}
 
@@ -157,7 +158,8 @@ func (v *CountValidator) Validate(ctx context.Context, sess *xorm.Session, respo
 	expectedCount := unifiedCount + int64(len(response.Rejected))
 
 	log.Info("Count validation",
-		"resource", fmt.Sprintf("%s.%s", summary.Resource, summary.Group),
+		"resource", summary.Resource,
+		"group", summary.Group,
 		"namespace", summary.Namespace,
 		"legacyCount", legacyCount,
 		"unifiedCount", unifiedCount,

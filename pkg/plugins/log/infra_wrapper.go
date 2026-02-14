@@ -18,16 +18,14 @@ func NewPrettyLogger(name string) *prettyLogger {
 
 func (l *prettyLogger) Successf(format string, args ...any) {
 	l.log.Info("Operation succeeded",
-		"message", fmt.Sprintf(format, args...),
-		"template", format,
-		"args", args)
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 func (l *prettyLogger) Failuref(format string, args ...any) {
 	l.log.Error("Operation failed",
-		"message", fmt.Sprintf(format, args...),
-		"template", format,
-		"args", args)
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 func splitPrettyArgs(args ...any) (string, []any, bool) {
@@ -69,9 +67,8 @@ func (l *prettyLogger) Info(args ...any) {
 
 func (l *prettyLogger) Infof(format string, args ...any) {
 	l.log.Info("Info",
-		"message", fmt.Sprintf(format, args...),
-		"template", format,
-		"args", args)
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 func (l *prettyLogger) Debug(args ...any) {
@@ -85,9 +82,8 @@ func (l *prettyLogger) Debug(args ...any) {
 
 func (l *prettyLogger) Debugf(format string, args ...any) {
 	l.log.Debug("Debug",
-		"message", fmt.Sprintf(format, args...),
-		"template", format,
-		"args", args)
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 func (l *prettyLogger) Warn(args ...any) {
@@ -101,9 +97,8 @@ func (l *prettyLogger) Warn(args ...any) {
 
 func (l *prettyLogger) Warnf(format string, args ...any) {
 	l.log.Warn("Warn",
-		"message", fmt.Sprintf(format, args...),
-		"template", format,
-		"args", args)
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 func (l *prettyLogger) Error(args ...any) {
@@ -117,7 +112,6 @@ func (l *prettyLogger) Error(args ...any) {
 
 func (l *prettyLogger) Errorf(format string, args ...any) {
 	l.log.Error("Error",
-		"message", fmt.Sprintf(format, args...),
-		"template", format,
-		"args", args)
+		"messageTemplate", format,
+		"messageArgs", args)
 }

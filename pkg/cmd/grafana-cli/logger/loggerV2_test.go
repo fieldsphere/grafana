@@ -46,14 +46,11 @@ func TestCLILoggerInfofIncludesTemplateAndArgs(t *testing.T) {
 		New(false).Infof("Installed %s", "example")
 	})
 
-	if record["message"] != "Installed example" {
-		t.Fatalf("unexpected event message: %#v", record["message"])
+	if record["messageTemplate"] != "Installed %s" {
+		t.Fatalf("unexpected template: %#v", record["messageTemplate"])
 	}
-	if record["template"] != "Installed %s" {
-		t.Fatalf("unexpected template: %#v", record["template"])
-	}
-	args, ok := record["args"].([]any)
+	args, ok := record["messageArgs"].([]any)
 	if !ok || len(args) != 1 || args[0] != "example" {
-		t.Fatalf("unexpected args payload: %#v", record["args"])
+		t.Fatalf("unexpected args payload: %#v", record["messageArgs"])
 	}
 }

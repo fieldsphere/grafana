@@ -293,7 +293,7 @@ func (server *Server) Users(logins []string) (
 	}
 
 	server.log.Debug(
-		"LDAP users found", "users", fmt.Sprintf("%+v", serializedUsers),
+		"LDAP users found", "users", serializedUsers,
 	)
 
 	return serializedUsers, nil
@@ -467,7 +467,7 @@ func (server *Server) getSearchRequest(
 	}
 
 	server.log.Debug(
-		"LDAP SearchRequest", "searchRequest", fmt.Sprintf("%+v\n", searchRequest),
+		"LDAP SearchRequest", "searchRequest", searchRequest,
 	)
 
 	return searchRequest
@@ -538,9 +538,9 @@ func (server *Server) UserBind(username, password string) error {
 	err := server.userBind(username, password)
 	if err != nil {
 		server.log.Error(
-			fmt.Sprintf("Cannot bind user %s with LDAP", username),
-			"error",
-			err,
+			"Cannot bind user with LDAP",
+			"username", username,
+			"error", err,
 		)
 		return err
 	}
