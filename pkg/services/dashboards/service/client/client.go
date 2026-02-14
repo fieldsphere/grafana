@@ -2,10 +2,10 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -124,7 +124,7 @@ func (h *K8sClientWithFallback) Get(
 		attribute.String("fallbackConversionError", conversionErr),
 	)
 
-	span.AddEvent(fmt.Sprintf("%s Get", storedVersion))
+	span.AddEvent("fallbackGet", trace.WithAttributes(attribute.String("storedVersion", storedVersion)))
 	return h.newClientFunc(spanCtx, storedVersion).Get(spanCtx, name, orgID, options, subresources...)
 }
 
