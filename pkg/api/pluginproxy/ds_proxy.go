@@ -399,7 +399,7 @@ func (proxy *DataSourceProxy) logRequest() {
 		"orgID", proxy.ctx.OrgID,
 		"username", proxy.ctx.Login,
 		"datasource", proxy.ds.Type,
-		"uri", uri,
+		"requestURI", uri,
 		"method", proxy.ctx.Req.Method,
 		"panelPluginID", panelPluginID,
 		"body", body)
