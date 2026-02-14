@@ -227,7 +227,7 @@ func ProvideService(cfg *setting.Cfg, routeRegister routing.RouteRegister, plugC
 				if err != nil {
 					span.SetStatus(codes.Error, err.Error())
 				} else {
-					span.AddEvent("result", trace.WithAttributes(attribute.String("data", string(resp.Data))))
+					span.AddEvent("rpcResult", trace.WithAttributes(attribute.String("data", string(resp.Data))))
 					span.SetStatus(codes.Ok, "")
 				}
 				cb(resp, err)

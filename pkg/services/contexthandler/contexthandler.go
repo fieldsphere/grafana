@@ -145,7 +145,7 @@ func (h *ContextHandler) setRequestContext(ctx context.Context) context.Context 
 	h.excludeSensitiveHeadersFromRequest(reqContext.Req)
 
 	reqContext.Logger = reqContext.Logger.New("userID", reqContext.UserID, "orgID", reqContext.OrgID, "userLogin", reqContext.Login)
-	span.AddEvent("user", trace.WithAttributes(
+	span.AddEvent("authenticatedUser", trace.WithAttributes(
 		attribute.String("userLogin", reqContext.Login),
 		attribute.Int64("orgID", reqContext.OrgID),
 		attribute.Int64("userID", reqContext.UserID),
