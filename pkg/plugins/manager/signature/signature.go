@@ -35,10 +35,10 @@ func (s *Validation) ValidateSignature(plugin *plugins.Plugin) error {
 	if plugin.Parent != nil {
 		if plugin.IsCorePlugin() || plugin.Signature.IsInternal() {
 			s.log.Debug("Not setting descendant plugin's signature to that of root since it's core or internal",
-				"plugin", plugin.ID, "signature", plugin.Signature, "isCore", plugin.IsCorePlugin())
+				"pluginID", plugin.ID, "signature", plugin.Signature, "isCore", plugin.IsCorePlugin())
 		} else {
-			s.log.Debug("Setting descendant plugin's signature to that of root", "plugin", plugin.ID,
-				"root", plugin.Parent.ID, "signature", plugin.Signature, "rootSignature", plugin.Parent.Signature)
+			s.log.Debug("Setting descendant plugin's signature to that of root", "pluginID", plugin.ID,
+				"rootPluginID", plugin.Parent.ID, "signature", plugin.Signature, "rootSignature", plugin.Parent.Signature)
 			plugin.Signature = plugin.Parent.Signature
 			plugin.SignatureType = plugin.Parent.SignatureType
 			plugin.SignatureOrg = plugin.Parent.SignatureOrg

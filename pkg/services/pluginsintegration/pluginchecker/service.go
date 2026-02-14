@@ -66,22 +66,22 @@ func (s *Service) isProvisioned(ctx context.Context, pluginID string) bool {
 
 func (s *Service) IsUpdatable(ctx context.Context, plugin pluginstore.Plugin) bool {
 	if plugin.IsCorePlugin() {
-		s.log.Debug("Skipping core plugin", "plugin", plugin.ID)
+		s.log.Debug("Skipping core plugin", "pluginID", plugin.ID)
 		return false
 	}
 
 	if s.isManaged(ctx, plugin.ID) {
-		s.log.Debug("Skipping managed plugin", "plugin", plugin.ID)
+		s.log.Debug("Skipping managed plugin", "pluginID", plugin.ID)
 		return false
 	}
 
 	if s.pluginPreinstall.IsPinned(plugin.ID) {
-		s.log.Debug("Skipping pinned plugin", "plugin", plugin.ID)
+		s.log.Debug("Skipping pinned plugin", "pluginID", plugin.ID)
 		return false
 	}
 
 	if s.isProvisioned(ctx, plugin.ID) {
-		s.log.Debug("Skipping provisioned plugin", "plugin", plugin.ID)
+		s.log.Debug("Skipping provisioned plugin", "pluginID", plugin.ID)
 		return false
 	}
 

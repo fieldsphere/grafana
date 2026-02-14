@@ -187,10 +187,10 @@ func (s *Signature) Calculate(ctx context.Context, src plugins.PluginSource, plu
 	// Validate that plugin is running within defined root URLs
 	if len(manifest.RootURLs) > 0 {
 		if match, err := urlMatch(manifest.RootURLs, s.cfg.GrafanaAppURL, manifest.SignatureType); err != nil {
-			s.log.Warn("Could not verify if root URLs match", "plugin", plugin.JSONData.ID, "rootUrls", manifest.RootURLs)
+			s.log.Warn("Could not verify if root URLs match", "pluginID", plugin.JSONData.ID, "rootUrls", manifest.RootURLs)
 			return plugins.Signature{}, err
 		} else if !match {
-			s.log.Warn("Could not find root URL that matches running application URL", "plugin", plugin.JSONData.ID,
+			s.log.Warn("Could not find root URL that matches running application URL", "pluginID", plugin.JSONData.ID,
 				"appUrl", s.cfg.GrafanaAppURL, "rootUrls", manifest.RootURLs)
 			return plugins.Signature{
 				Status: plugins.SignatureStatusInvalid,
@@ -233,7 +233,7 @@ func (s *Signature) Calculate(ctx context.Context, src plugins.PluginSource, plu
 	}
 
 	if len(unsignedFiles) > 0 {
-		s.log.Warn("The following files were not included in the signature", "plugin", plugin.JSONData.ID, "files", unsignedFiles)
+		s.log.Warn("The following files were not included in the signature", "pluginID", plugin.JSONData.ID, "files", unsignedFiles)
 		return plugins.Signature{
 			Status: plugins.SignatureStatusModified,
 		}, nil
@@ -256,10 +256,10 @@ func verifyHash(mlog log.Logger, plugin plugins.FoundPlugin, path, hash string) 
 	f, err := plugin.FS.Open(path)
 	if err != nil {
 		if os.IsPermission(err) {
-			mlog.Warn("Could not open plugin file due to lack of permissions", "plugin", plugin.JSONData.ID, "path", path)
+			mlog.Warn("Could not open plugin file due to lack of permissions", "pluginID", plugin.JSONData.ID, "path", path)
 			return errors.New("permission denied when attempting to read plugin file")
 		}
-		mlog.Warn("Plugin file listed in the manifest was not found", "plugin", plugin.JSONData.ID, "path", path)
+		mlog.Warn("Plugin file listed in the manifest was not found", "pluginID", plugin.JSONData.ID, "path", path)
 		return errors.New("plugin file listed in the manifest was not found")
 	}
 	defer func() {
@@ -274,7 +274,7 @@ func verifyHash(mlog log.Logger, plugin plugins.FoundPlugin, path, hash string) 
 	}
 	sum := hex.EncodeToString(h.Sum(nil))
 	if sum != hash {
-		mlog.Warn("Plugin file checksum does not match signature checksum", "plugin", plugin.JSONData.ID, "path", path)
+		mlog.Warn("Plugin file checksum does not match signature checksum", "pluginID", plugin.JSONData.ID, "path", path)
 		return errors.New("plugin file checksum does not match signature checksum")
 	}
 

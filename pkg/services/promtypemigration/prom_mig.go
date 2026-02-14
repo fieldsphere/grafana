@@ -38,7 +38,7 @@ func (s *promMigrationService) applyMigration(ctx context.Context, pluginID stri
 		}
 	}
 
-	logger.Debug("performing prometheus data source type migration", "plugin", pluginID)
+	logger.Debug("performing prometheus data source type migration", "pluginID", pluginID)
 
 	for _, ds := range promDataSources {
 		err := s.updateDataSourceType(ctx, ds, pluginID)
@@ -47,7 +47,7 @@ func (s *promMigrationService) applyMigration(ctx context.Context, pluginID stri
 		}
 	}
 
-	logger.Debug("prometheus data source type migration complete", "plugin", pluginID)
+	logger.Debug("prometheus data source type migration complete", "pluginID", pluginID)
 
 	return nil
 }
