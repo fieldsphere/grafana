@@ -3124,13 +3124,11 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`attribute.String("error", $errMsg)`,
 	).
-		Where(m["errMsg"].Type.Is("string")).
 		Report(`use "errorMessage" when storing string error text in trace attributes`)
 
 	m.Match(
 		`attribute.Key("error").String($errMsg)`,
 	).
-		Where(m["errMsg"].Type.Is("string")).
 		Report(`use "errorMessage" when storing string error text in trace attributes`)
 
 	m.Match(
