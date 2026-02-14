@@ -1314,6 +1314,12 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Report(`avoid ambiguous keys "user", "client", or "uname" in []any key/value slices; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
+
+	m.Match(
+		`append($arr, $*before, $key, $value, $*after)`,
+	).
 		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"type\"$")).
 		Report(`avoid ambiguous key "type" in []any key/value slices; use contextual keys such as "datasourceType", "resourceType", or "eventType"`)
 
