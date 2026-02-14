@@ -2021,6 +2021,36 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid uppercase-leading structured context keys; use lower camelCase with canonical acronym casing`)
 
 	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Report("prefer stable string-literal or const trace attribute keys when using attribute.Key(...); avoid runtime-generated key values")
+
+	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
+		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|msg|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|user|client|uname|type|value|info|data)\"$")).
+		Report(`avoid ambiguous trace attribute keys in attribute.Key(...); use contextual keys such as "userID", "receiverUID", "orgID", "configID", "queryText", "ruleUID", "requestBody", "resourceVersion", "repositoryName", "resourceKind", "statusCode", "requestPath", "datasourceURL", "messageInfo", "measurementValue", or "payloadData"`)
+
+	m.Match(
 		`attribute.String($left + $right, $value)`,
 		`attribute.Int($left + $right, $value)`,
 		`attribute.Int64($left + $right, $value)`,
