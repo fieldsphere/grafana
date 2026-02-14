@@ -3133,6 +3133,32 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`prefer stable string-literal or const trace event names; avoid runtime-generated event names`)
 
 	m.Match(
+		`attribute.Int("error", $value)`,
+		`attribute.Int64("error", $value)`,
+		`attribute.IntSlice("error", $value)`,
+		`attribute.Int64Slice("error", $value)`,
+		`attribute.Bool("error", $value)`,
+		`attribute.BoolSlice("error", $value)`,
+		`attribute.Float64("error", $value)`,
+		`attribute.Float64Slice("error", $value)`,
+		`attribute.StringSlice("error", $value)`,
+	).
+		Report(`avoid non-text trace attributes under key "error"; use contextual keys such as "errorCode", "errorCount", or "hasError", and reserve "errorMessage" for textual error details`)
+
+	m.Match(
+		`attribute.Key("error").Int($value)`,
+		`attribute.Key("error").Int64($value)`,
+		`attribute.Key("error").IntSlice($value)`,
+		`attribute.Key("error").Int64Slice($value)`,
+		`attribute.Key("error").Bool($value)`,
+		`attribute.Key("error").BoolSlice($value)`,
+		`attribute.Key("error").Float64($value)`,
+		`attribute.Key("error").Float64Slice($value)`,
+		`attribute.Key("error").StringSlice($value)`,
+	).
+		Report(`avoid non-text trace attributes under key "error"; use contextual keys such as "errorCode", "errorCount", or "hasError", and reserve "errorMessage" for textual error details`)
+
+	m.Match(
 		`attribute.String("error", $errMsg)`,
 	).
 		Report(`use "errorMessage" when storing string error text in trace attributes`)
