@@ -1384,6 +1384,14 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid fmt formatting in slog.Group field values; pass typed values directly or split related data into separate structured fields`)
 
 	m.Match(
+		`slog.Group($group, $*before, $key, $left + $right, $*after)`,
+		`slog.Group($group, []any{$*before, $key, $left + $right, $*after}...)`,
+		`slog.Group($group, append($arr, $*before, $key, $left + $right, $*after)...)`,
+	).
+		Where(m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report(`avoid string concatenation in slog.Group field values; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
 		`slog.Group($group, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
 		`slog.Group($group, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
 	).
@@ -1522,6 +1530,12 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Any(fmt.Sprint($*args), $value)`,
 	).
 		Report(`avoid fmt formatting for slog attribute keys; use stable string-literal keys`)
+
+	m.Match(
+		`slog.String($key, $left + $right)`,
+	).
+		Where(m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report(`avoid string concatenation in slog attribute values; pass typed values directly or split related data into separate structured fields`)
 
 	m.Match(
 		`slog.String($key, $value)`,
