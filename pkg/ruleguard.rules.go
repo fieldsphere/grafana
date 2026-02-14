@@ -1101,8 +1101,8 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request)\"$")).
-		Report(`avoid ambiguous structured log keys like "id", "uid", "org", "cfg", "query", "rule", or "request"; use contextual keys such as "userID", "dashboardUID", "orgID", "configID", "queryText", "ruleUID", or "checkRequest"`)
+		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo)\"$")).
+		Report(`avoid ambiguous structured log keys like "id", "uid", "org", "cfg", "query", "rule", "request", "ns", "rv", or "repo"; use contextual keys such as "userID", "dashboardUID", "orgID", "configID", "queryText", "ruleUID", "checkRequest", "namespace", "resourceVersion", or "repositoryName"`)
 
 	m.Match(
 		`$logger.Info($msg, $*before, $key, $value, $*after)`,
@@ -1136,8 +1136,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request)\"$")).
-		Report(`avoid ambiguous structured log keys like "id", "uid", "org", "cfg", "query", "rule", or "request"; use contextual keys such as "userID", "dashboardUID", "orgID", "configID", "queryText", "ruleUID", or "checkRequest"`)
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo)\"$")).
+		Report(`avoid ambiguous structured log keys like "id", "uid", "org", "cfg", "query", "rule", "request", "ns", "rv", or "repo"; use contextual keys such as "userID", "dashboardUID", "orgID", "configID", "queryText", "ruleUID", "checkRequest", "namespace", "resourceVersion", or "repositoryName"`)
 
 	m.Match(
 		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
@@ -1433,8 +1433,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*before, $key, $value, $*after)`,
 		`$logger.With($*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request)\"$")).
-		Report(`avoid ambiguous structured context keys like "id", "uid", "org", "cfg", "query", "rule", or "request"; use contextual keys such as "userID", "dashboardUID", "orgID", "configID", "queryText", "ruleUID", or "checkRequest"`)
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo)\"$")).
+		Report(`avoid ambiguous structured context keys like "id", "uid", "org", "cfg", "query", "rule", "request", "ns", "rv", or "repo"; use contextual keys such as "userID", "dashboardUID", "orgID", "configID", "queryText", "ruleUID", "checkRequest", "namespace", "resourceVersion", or "repositoryName"`)
 
 	m.Match(
 		`$logger.New($*before, $key, $value, $*after)`,
@@ -1614,8 +1614,8 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request)\"$")).
-		Report(`avoid ambiguous trace attribute keys like "id", "uid", "org", "cfg", "query", "rule", or "request"; use contextual keys such as "userID", "receiverUID", "orgID", "configID", "queryText", "ruleUID", or "requestBody"`)
+		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo)\"$")).
+		Report(`avoid ambiguous trace attribute keys like "id", "uid", "org", "cfg", "query", "rule", "request", "ns", "rv", or "repo"; use contextual keys such as "userID", "receiverUID", "orgID", "configID", "queryText", "ruleUID", "requestBody", "namespace", "resourceVersion", or "repositoryName"`)
 
 	m.Match(
 		`attribute.String($key, $value)`,
