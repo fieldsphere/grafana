@@ -150,7 +150,7 @@ func (mc *Mimir) do(ctx context.Context, p, method string, payload io.Reader, ou
 		if err != nil {
 			bodyStr = fmt.Sprintf("fail_to_read: %s", err)
 		}
-		mc.logger.Error("Response content-type is not application/json", "content-type", ct, "url", r.URL.String(), "method", r.Method, "status", resp.StatusCode, "body", bodyStr)
+		mc.logger.Error("Response content-type is not application/json", "contentType", ct, "url", r.URL.String(), "method", r.Method, "status", resp.StatusCode, "body", bodyStr)
 		return nil, fmt.Errorf("response content-type is not application/json: %s", ct)
 	}
 

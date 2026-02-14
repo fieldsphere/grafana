@@ -1249,6 +1249,32 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+-[A-Za-z0-9_-]+\"$")).
+		Report(`avoid hyphenated structured log keys; use camelCase keys such as "contentType" or "rowsAffected"`)
+
+	m.Match(
+		`$logger.Info($msg, $*before, $key, $value, $*after)`,
+		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
+		`$logger.Error($msg, $*before, $key, $value, $*after)`,
+		`$logger.Debug($msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Info($msg, $*before, $key, $value, $*after)`,
+		`slog.Warn($msg, $*before, $key, $value, $*after)`,
+		`slog.Error($msg, $*before, $key, $value, $*after)`,
+		`slog.Debug($msg, $*before, $key, $value, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`klog.InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
+	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
 		Report(`avoid dotted structured log keys; prefer flat camelCase keys with canonical acronym casing (for example "fileName", "identityUID")`)
 
@@ -1295,6 +1321,15 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && m["key"].Text.Matches("^\".*\\s+.*\"$")).
 		Report(`avoid whitespace in structured log keys; use compact camelCase keys such as "rowsAffected" or "currentProvider"`)
+
+	m.Match(
+		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z0-9_]+-[A-Za-z0-9_-]+\"$")).
+		Report(`avoid hyphenated structured log keys; use camelCase keys such as "contentType" or "rowsAffected"`)
 
 	m.Match(
 		`$logger.New($*before, $key, $value, $*after)`,
@@ -1351,6 +1386,13 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && m["key"].Text.Matches("^\".*\\s+.*\"$")).
 		Report(`avoid whitespace in structured context keys; use compact camelCase keys such as "rowsAffected" or "currentProvider"`)
+
+	m.Match(
+		`$logger.New($*before, $key, $value, $*after)`,
+		`$logger.With($*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z0-9_]+-[A-Za-z0-9_-]+\"$")).
+		Report(`avoid hyphenated structured context keys; use camelCase keys such as "contentType" or "rowsAffected"`)
 
 	m.Match(
 		`$logger.New($*before, $key, $value, $*after)`,
@@ -1610,6 +1652,21 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\".*\\s+.*\"$")).
 		Report(`avoid whitespace in trace attribute keys; use compact camelCase keys such as "rowsAffected" or "currentProvider"`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+-[A-Za-z0-9_-]+\"$")).
+		Report(`avoid hyphenated trace attribute keys; use camelCase keys such as "contentType" or "rowsAffected"`)
 
 	m.Match(
 		`attribute.String($key, $value)`,
