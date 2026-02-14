@@ -1740,6 +1740,17 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid string concatenation in slog attribute values; pass typed values directly or split related data into separate structured fields`)
 
 	m.Match(
+		`slog.String("error", $value)`,
+	).
+		Report(`for string-formatted errors in slog attributes, use key "errorMessage"; reserve key "error" for error objects`)
+
+	m.Match(
+		`slog.Any("error", $value)`,
+	).
+		Where(m["value"].Type.Is("string")).
+		Report(`for string-formatted errors in slog attributes, use key "errorMessage"; reserve key "error" for error objects`)
+
+	m.Match(
 		`slog.String($key, $value)`,
 		`slog.Int($key, $value)`,
 		`slog.Int64($key, $value)`,
