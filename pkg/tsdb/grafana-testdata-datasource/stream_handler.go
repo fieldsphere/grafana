@@ -16,7 +16,7 @@ var random20HzStreamRegex = regexp.MustCompile(`random-20Hz-stream(-\d+)?`)
 
 func (s *Service) SubscribeStream(ctx context.Context, req *backend.SubscribeStreamRequest) (*backend.SubscribeStreamResponse, error) {
 	ctxLogger := s.logger.FromContext(ctx)
-	ctxLogger.Debug("Allowing access to stream", "path", req.Path, "pluginContextUser", req.PluginContext.User)
+	ctxLogger.Debug("Allowing access to stream", "streamPath", req.Path, "pluginContextUser", req.PluginContext.User)
 
 	if strings.HasPrefix(req.Path, "sim/") {
 		return s.sims.SubscribeStream(ctx, req)
@@ -42,7 +42,7 @@ func (s *Service) SubscribeStream(ctx context.Context, req *backend.SubscribeStr
 
 func (s *Service) PublishStream(ctx context.Context, req *backend.PublishStreamRequest) (*backend.PublishStreamResponse, error) {
 	ctxLogger := s.logger.FromContext(ctx)
-	ctxLogger.Debug("Attempt to publish into stream", "path", req.Path, "pluginContextUser", req.PluginContext.User)
+	ctxLogger.Debug("Attempt to publish into stream", "streamPath", req.Path, "pluginContextUser", req.PluginContext.User)
 
 	if strings.HasPrefix(req.Path, "sim/") {
 		return s.sims.PublishStream(ctx, req)
@@ -55,7 +55,7 @@ func (s *Service) PublishStream(ctx context.Context, req *backend.PublishStreamR
 
 func (s *Service) RunStream(ctx context.Context, request *backend.RunStreamRequest, sender *backend.StreamSender) error {
 	ctxLogger := s.logger.FromContext(ctx)
-	ctxLogger.Debug("New stream call", "path", request.Path)
+	ctxLogger.Debug("New stream call", "streamPath", request.Path)
 
 	if strings.HasPrefix(request.Path, "sim/") {
 		return s.sims.RunStream(ctx, request, sender)
@@ -111,7 +111,7 @@ func (s *Service) runTestStream(ctx context.Context, path string, conf testStrea
 	for {
 		select {
 		case <-ctx.Done():
-			ctxLogger.Debug("Stop streaming data for path", "path", path)
+			ctxLogger.Debug("Stop streaming data for path", "streamPath", path)
 			return ctx.Err()
 		case t := <-ticker.C:
 			if rand.Float64() < conf.Drop {

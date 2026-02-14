@@ -96,7 +96,7 @@ func (s *Service) QueryData(ctx context.Context, req *backend.QueryDataRequest) 
 
 func (s *Service) CallResource(ctx context.Context, req *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {
 	ctxLogger := s.logger.FromContext(ctx)
-	ctxLogger.Debug("Calling resource", "path", req.Path, "function", logEntrypoint())
+	ctxLogger.Debug("Calling resource", "requestPath", req.Path, "function", logEntrypoint())
 
 	i, err := s.getInstance(ctx, req.PluginContext)
 	if err != nil {

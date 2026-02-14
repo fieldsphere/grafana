@@ -215,7 +215,7 @@ func (s *Service) CallResource(ctx context.Context, req *backend.CallResourceReq
 	// - _field_caps for fetching "root" field capabilities
 	if req.Path != "" && !isFieldCaps(req.Path) && req.Path != "_msearch" &&
 		!strings.HasSuffix(req.Path, "/_mapping") && req.Path != "_mapping" {
-		logger.Error("Invalid resource path", "path", req.Path)
+		logger.Error("Invalid resource path", "resourcePath", req.Path)
 		return fmt.Errorf("invalid resource URL: %s", req.Path)
 	}
 

@@ -10,7 +10,7 @@ import (
 )
 
 func (s *Service) SubscribeStream(_ context.Context, req *backend.SubscribeStreamRequest) (*backend.SubscribeStreamResponse, error) {
-	s.logger.Debug("Allowing access to stream", "path", req.Path, "pluginContextUser", req.PluginContext.User)
+	s.logger.Debug("Allowing access to stream", "streamPath", req.Path, "pluginContextUser", req.PluginContext.User)
 
 	if strings.HasPrefix(req.Path, SearchPathPrefix) {
 		return &backend.SubscribeStreamResponse{
@@ -39,7 +39,7 @@ func (s *Service) PublishStream(_ context.Context, _ *backend.PublishStreamReque
 }
 
 func (s *Service) RunStream(ctx context.Context, request *backend.RunStreamRequest, sender *backend.StreamSender) error {
-	s.logger.Debug("New stream call", "path", request.Path)
+	s.logger.Debug("New stream call", "streamPath", request.Path)
 	tempoDatasource, dsInfoErr := s.getDSInfo(ctx, request.PluginContext)
 
 	// get incoming and team http headers and append to stream request.
