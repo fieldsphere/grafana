@@ -58,7 +58,7 @@ func (e Event) KVPairs() []any {
 		"object", e.Object,
 		"apiGroup", e.APIGroup,
 		"apiVersion", e.APIVersion,
-		"kind", e.Kind,
+		"resourceKind", e.Kind,
 		"outcome", e.Outcome,
 	}
 
