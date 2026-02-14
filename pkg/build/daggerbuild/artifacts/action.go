@@ -127,13 +127,13 @@ func Action(r Registerer, c *cli.Context) error {
 	log.Info("Exporting artifacts...")
 	// Export the files from the dag, causing the containers to trigger.
 	for _, v := range artifacts {
-		log := log.With("artifact", v.ArtifactString, "action", "export")
+		log := log.With("artifact", v.ArtifactString, "artifactAction", "export")
 		wg.Go(ExportArtifactFunc(ctx, client, sm, log, v, store, destination, checksum))
 	}
 	if verify {
 		// Export the files from the dag, causing the containers to trigger.
 		for _, v := range artifacts {
-			log := log.With("artifact", v.ArtifactString, "action", "validate")
+			log := log.With("artifact", v.ArtifactString, "artifactAction", "validate")
 			wg.Go(VerifyArtifactFunc(ctx, client, sm, log, v, store, destination))
 		}
 	}
