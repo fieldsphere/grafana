@@ -1747,6 +1747,16 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid separator characters in trace event names; use lowerCamelCase literals such as "batchTransactionCompleted" or "resourceVersionLocked"`)
 
 	m.Match(
+		`$span.AddEvent($name)`,
+		`$span.AddEvent($name, $*attrs)`,
+	).
+		Where(
+			m["name"].Text.Matches("^\"[a-z0-9]+\"$") &&
+				!m["name"].Text.Matches("^\"exception\"$"),
+		).
+		Report(`avoid generic single-word trace event names; use contextual lowerCamelCase literals such as "connectionLimitDisconnect" or "garbageCollectionCandidates"`)
+
+	m.Match(
 		`$span.AddEvent($left + $right)`,
 		`$span.AddEvent($left + $right, $*attrs)`,
 		`$span.AddEvent(fmt.Sprintf($fmt, $*args))`,
