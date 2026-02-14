@@ -185,7 +185,7 @@ func (s *webhookConnector) Connect(ctx context.Context, name string, opts runtim
 				return
 			}
 			span.SetAttributes(attribute.String("jobName", job.Name))
-			logger.Info("webhook job created", "job", job.Name, "action", actionTaken)
+			logger.Info("webhook job created", "jobName", job.Name, "action", actionTaken)
 			responder.Object(rsp.Code, job)
 			return
 		}

@@ -119,7 +119,7 @@ func (c *JobCleanupController) Cleanup(ctx context.Context) error {
 	for _, job := range jobs {
 		if err := c.cleanUpExpiredJob(ctx, job); err != nil {
 			// Log error but continue processing other jobs
-			logger.Error("failed to clean up expired job", "error", err, "job", job.GetName(), "namespace", job.GetNamespace())
+			logger.Error("failed to clean up expired job", "error", err, "jobName", job.GetName(), "namespace", job.GetNamespace())
 		}
 	}
 
