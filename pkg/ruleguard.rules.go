@@ -1209,6 +1209,32 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous structured log key "value"; use contextual keys such as "configValue", "measurementValue", "sampleValue", "fieldValue", "headerValue", "argumentValue", "responseValue", or "kvValue"`)
 
 	m.Match(
+		`$logger.Info($msg, $*before, $key, $value, $*after)`,
+		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
+		`$logger.Error($msg, $*before, $key, $value, $*after)`,
+		`$logger.Debug($msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Info($msg, $*before, $key, $value, $*after)`,
+		`slog.Warn($msg, $*before, $key, $value, $*after)`,
+		`slog.Error($msg, $*before, $key, $value, $*after)`,
+		`slog.Debug($msg, $*before, $key, $value, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`klog.InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
+	).
+		Where(m["key"].Text.Matches("^\"info\"$")).
+		Report(`avoid ambiguous structured log key "info"; use contextual keys such as "messageInfo", "buildInfo", "runtimeInfo", "pluginInfo", or "userInfoData"`)
+
+	m.Match(
 		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
@@ -1243,6 +1269,15 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && m["key"].Text.Matches("^\"value\"$")).
 		Report(`avoid ambiguous structured log key "value"; use contextual keys such as "configValue", "measurementValue", "sampleValue", "fieldValue", "headerValue", "argumentValue", "responseValue", or "kvValue"`)
+
+	m.Match(
+		`$logger.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"info\"$")).
+		Report(`avoid ambiguous structured log key "info"; use contextual keys such as "messageInfo", "buildInfo", "runtimeInfo", "pluginInfo", or "userInfoData"`)
 
 	m.Match(
 		`$logger.Info($msg, $*before, $key, $value, $*after)`,
@@ -1287,6 +1322,12 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"value\"$")).
 		Report(`avoid ambiguous key "value" in []any key/value slices; use contextual keys such as "measurementValue", "fieldValue", "responseValue", or "configValue"`)
+
+	m.Match(
+		`append($arr, $*before, $key, $value, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"info\"$")).
+		Report(`avoid ambiguous key "info" in []any key/value slices; use contextual keys such as "messageInfo", "buildInfo", or "runtimeInfo"`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
@@ -2004,6 +2045,21 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\"value\"$")).
 		Report(`avoid ambiguous trace attribute key "value"; use contextual keys such as "measurementValue", "fieldValue", "responseValue", "requestValue", or "configValue"`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"info\"$")).
+		Report(`avoid ambiguous trace attribute key "info"; use contextual keys such as "messageInfo", "runtimeInfo", "buildInfo", or "pluginInfo"`)
 
 	m.Match(
 		`attribute.String($key, $value)`,
