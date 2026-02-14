@@ -2003,6 +2003,22 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in appended structured context arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`$logger.New($*prefix, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.With($*prefix, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.New($*prefix, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`$logger.With($*prefix, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+	).
+		Where(isStructuredLogger).
+		Report(`avoid fmt formatting in appended structured context values; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
+		`$logger.New($*prefix, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`$logger.With($*prefix, append($arr, $*before, $key, $left + $right, $*after)...)`,
+	).
+		Where(isStructuredLogger && m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report(`avoid string concatenation in appended structured context values; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
 		`$logger.New($*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
 		`$logger.With($*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
 		`$logger.New($*before, $key, fmt.Sprint($*args), $*after)`,
@@ -2083,6 +2099,78 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in appended structured log arguments; use stable string-literal or const keys and keep dynamic data in values`)
+
+	m.Match(
+		`$logger.Info($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.Warn($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.Error($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.Debug($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.DebugCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`slog.Info($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`slog.Warn($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`slog.Error($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`slog.Debug($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`slog.InfoContext($ctx, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`slog.WarnContext($ctx, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`slog.DebugContext($ctx, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`slog.Log($ctx, $level, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.Log($ctx, $level, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`klog.InfoS($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`klog.V($lvl).InfoS($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.Info($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`$logger.Warn($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`$logger.Error($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`$logger.Debug($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`$logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`$logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`$logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`$logger.DebugCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`slog.Info($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`slog.Warn($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`slog.Error($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`slog.Debug($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`slog.InfoContext($ctx, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`slog.WarnContext($ctx, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`slog.DebugContext($ctx, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`slog.Log($ctx, $level, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`$logger.Log($ctx, $level, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`klog.InfoS($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`klog.V($lvl).InfoS($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+	).
+		Report(`avoid fmt formatting in appended structured log values; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
+		`$logger.Info($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`$logger.Warn($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`$logger.Error($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`$logger.Debug($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`$logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`$logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`$logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`$logger.DebugCtx($ctx, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`slog.Info($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`slog.Warn($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`slog.Error($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`slog.Debug($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`slog.InfoContext($ctx, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`slog.WarnContext($ctx, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`slog.DebugContext($ctx, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`slog.Log($ctx, $level, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`$logger.Log($ctx, $level, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`klog.InfoS($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+	).
+		Where(m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report(`avoid string concatenation in appended structured log values; pass typed values directly or split related data into separate structured fields`)
 
 	m.Match(
 		`$logger.Info($msg, append($arr, $*before, $key, $value, $*after)...)`,
