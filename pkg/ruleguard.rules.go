@@ -1685,8 +1685,10 @@ func structuredlogging(m fluent.Matcher) {
 		`$span.AddEvent("result", $*attrs)`,
 		`$span.AddEvent("user")`,
 		`$span.AddEvent("user", $*attrs)`,
+		`$span.AddEvent("next")`,
+		`$span.AddEvent("next", $*attrs)`,
 	).
-		Report(`avoid generic trace event names like "result" or "user"; use contextual names such as "rpcResult" or "authenticatedUser"`)
+		Report(`avoid generic trace event names like "result", "user", or "next"; use contextual names such as "rpcResult", "authenticatedUser", or "bulkNext"`)
 
 	m.Match(
 		`attribute.String("error", $errMsg)`,
