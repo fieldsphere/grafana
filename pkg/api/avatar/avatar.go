@@ -200,7 +200,7 @@ func newNotFound(cfg *setting.Cfg) *Avatar {
 	// variable.
 	// nolint:gosec
 	if data, err := os.ReadFile(path); err != nil {
-		alog.Error("Failed to read user_profile.png", "path", path)
+		alog.Error("Failed to read user_profile.png", "avatarFilePath", path)
 	} else {
 		avatar.data = data
 	}

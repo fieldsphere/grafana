@@ -102,7 +102,7 @@ func (proxy *PluginProxy) HandleRequest() {
 		"userID", proxy.ctx.UserID,
 		"orgID", proxy.ctx.OrgID,
 		"userLogin", proxy.ctx.Login,
-		"path", proxy.ctx.Req.URL.Path,
+		"requestPath", proxy.ctx.Req.URL.Path,
 		"remoteAddr", proxy.ctx.RemoteAddr(),
 		"referer", proxy.ctx.Req.Referer(),
 	)

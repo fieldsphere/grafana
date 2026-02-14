@@ -98,7 +98,7 @@ func (proxy *DataSourceProxy) HandleRequest() {
 		"userID", proxy.ctx.UserID,
 		"orgID", proxy.ctx.OrgID,
 		"userLogin", proxy.ctx.Login,
-		"path", proxy.ctx.Req.URL.Path,
+		"requestPath", proxy.ctx.Req.URL.Path,
 		"remoteAddr", proxy.ctx.RemoteAddr(),
 		"referer", proxy.ctx.Req.Referer(),
 	)
@@ -359,13 +359,13 @@ func (proxy *DataSourceProxy) hasAccessToRoute(route *plugins.Route) bool {
 		routeEval := pluginac.GetDataSourceRouteEvaluator(proxy.ds.UID, route.ReqAction)
 		hasAccess := routeEval.Evaluate(proxy.ctx.GetPermissions())
 		if !hasAccess {
-			ctxLogger.Debug("plugin route is covered by RBAC, user doesn't have access", "route", proxy.ctx.Req.URL.Path, "routeAction", route.ReqAction, "path", route.Path, "method", route.Method)
+			ctxLogger.Debug("plugin route is covered by RBAC, user doesn't have access", "route", proxy.ctx.Req.URL.Path, "routeAction", route.ReqAction, "routePath", route.Path, "method", route.Method)
 		}
 		return hasAccess
 	}
 	if route.ReqRole.IsValid() {
 		if hasUserRole := proxy.ctx.HasUserRole(route.ReqRole); !hasUserRole {
-			ctxLogger.Debug("plugin route is covered by org role, user doesn't have access", "route", proxy.ctx.Req.URL.Path, "role", route.ReqRole, "path", route.Path, "method", route.Method)
+			ctxLogger.Debug("plugin route is covered by org role, user doesn't have access", "route", proxy.ctx.Req.URL.Path, "role", route.ReqRole, "routePath", route.Path, "method", route.Method)
 			return false
 		}
 	}

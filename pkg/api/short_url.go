@@ -50,7 +50,7 @@ func (hs *HTTPServer) createShortURL(c *contextmodel.ReqContext) response.Respon
 	if err := web.Bind(c.Req, &cmd); err != nil {
 		return response.Err(shorturls.ErrShortURLBadRequest.Errorf("bad request data: %w", err))
 	}
-	hs.log.Debug("Received request to create short URL", "path", cmd.Path)
+	hs.log.Debug("Received request to create short URL", "shortURLPath", cmd.Path)
 	shortURL, err := hs.ShortURLService.CreateShortURL(c.Req.Context(), c.SignedInUser, cmd)
 	if err != nil {
 		return response.Err(err)
@@ -89,7 +89,7 @@ func (hs *HTTPServer) redirectFromShortURL(c *contextmodel.ReqContext) {
 		hs.log.Error("Failed to update short URL last seen at", "error", err)
 	}
 
-	hs.log.Debug("Redirecting short URL", "path", shortURL.Path)
+	hs.log.Debug("Redirecting short URL", "shortURLPath", shortURL.Path)
 	c.Redirect(setting.ToAbsUrl(shortURL.Path), http.StatusFound)
 }
 
@@ -210,18 +210,18 @@ func (sk8s *shortURLK8sHandler) createKubernetesShortURLsHandler(c *contextmodel
 		return
 	}
 
-	c.Logger.Debug("Creating short URL", "path", cmd.Path)
+	c.Logger.Debug("Creating short URL", "shortURLPath", cmd.Path)
 	obj := shorturl.LegacyCreateCommandToUnstructured(cmd)
 	obj.SetGenerateName("s") // becomes a prefix
 
 	out, err := client.Create(c.Req.Context(), &obj, v1.CreateOptions{})
 	if err != nil {
-		c.Logger.Error("Failed to create short URL in Kubernetes", "path", cmd.Path, "error", err)
+		c.Logger.Error("Failed to create short URL in Kubernetes", "shortURLPath", cmd.Path, "error", err)
 		sk8s.writeError(c, err)
 		return
 	}
 
-	c.Logger.Info("Successfully created short URL", "path", cmd.Path, "shortURLUID", out.GetName())
+	c.Logger.Info("Successfully created short URL", "shortURLPath", cmd.Path, "shortURLUID", out.GetName())
 	c.JSON(http.StatusOK, shorturl.UnstructuredToLegacyShortURLDTO(*out, sk8s.cfg.AppURL))
 }
 

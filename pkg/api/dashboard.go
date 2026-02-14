@@ -527,7 +527,7 @@ func (hs *HTTPServer) GetHomeDashboard(c *contextmodel.ReqContext) response.Resp
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
-			hs.log.Warn("Failed to close dashboard file", "path", filePath, "error", err)
+			hs.log.Warn("Failed to close dashboard file", "dashboardFilePath", filePath, "error", err)
 		}
 	}()
 

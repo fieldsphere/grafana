@@ -112,7 +112,7 @@ func (r *jobProgressRecorder) Record(ctx context.Context, result JobResourceResu
 	r.updateSummary(result)
 	r.mu.Unlock()
 
-	logger := logging.FromContext(ctx).With("path", result.Path(), "group", result.Group(), "resourceKind", result.Kind(), "resourceAction", result.Action(), "resourceName", result.Name())
+	logger := logging.FromContext(ctx).With("resourcePath", result.Path(), "group", result.Group(), "resourceKind", result.Kind(), "resourceAction", result.Action(), "resourceName", result.Name())
 	if shouldLogError {
 		logger.Error("job resource operation failed", "error", logErr)
 	} else if shouldLogWarning {

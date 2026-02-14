@@ -128,7 +128,7 @@ type ParsedResource struct {
 }
 
 func (r *parser) Parse(ctx context.Context, info *repository.FileInfo) (parsed *ParsedResource, err error) {
-	logger := logging.FromContext(ctx).With("path", info.Path)
+	logger := logging.FromContext(ctx).With("resourcePath", info.Path)
 	parsed = &ParsedResource{
 		Info: info,
 		Repo: r.repo,
@@ -413,7 +413,7 @@ func (f *ParsedResource) Run(ctx context.Context) error {
 	}
 
 	updateCtx, updateSpan := tracing.Start(actionsCtx, "provisioning.resources.run_resource.update")
-updateSpan.SetAttributes(attribute.String("resourceName", f.Obj.GetName()))
+	updateSpan.SetAttributes(attribute.String("resourceName", f.Obj.GetName()))
 	f.Upsert, err = f.Client.Update(updateCtx, f.Obj, metav1.UpdateOptions{
 		FieldValidation: fieldValidation,
 	})
