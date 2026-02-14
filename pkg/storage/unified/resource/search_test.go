@@ -1026,7 +1026,7 @@ func TestSearchStatsSpanAttributes(t *testing.T) {
 	require.True(t, searchSpanAttributeContains(attrs, attribute.Int("totalHits", 7)))
 	require.True(t, searchSpanAttributeContains(attrs, attribute.Int("returnedDocuments", 3)))
 	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("resultsConversionTime", int64(6*time.Millisecond))))
-	require.True(t, searchSpanAttributeContains(attrs, attribute.String("searchLogArgs", "[namespace default]")))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int("searchLogArgsCount", 2)))
 }
 
 func searchSpanAttributeContains(attrs []attribute.KeyValue, expected attribute.KeyValue) bool {
