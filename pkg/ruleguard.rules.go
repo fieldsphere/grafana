@@ -1812,6 +1812,17 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for non-error payloads in slog attributes, use key "errorMessage"; reserve key "error" for error objects`)
 
 	m.Match(
+		`slog.Int("errorMessage", $value)`,
+		`slog.Int64("errorMessage", $value)`,
+		`slog.Uint64("errorMessage", $value)`,
+		`slog.Bool("errorMessage", $value)`,
+		`slog.Float64("errorMessage", $value)`,
+		`slog.Duration("errorMessage", $value)`,
+		`slog.Time("errorMessage", $value)`,
+	).
+		Report(`"errorMessage" should contain textual error details; use contextual typed keys such as "errorCode", "errorCount", "retryDelay", or "hasError" for non-text values`)
+
+	m.Match(
 		`slog.String($key, $value)`,
 		`slog.Int($key, $value)`,
 		`slog.Int64($key, $value)`,
@@ -3203,6 +3214,19 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid non-text trace attributes under key "error"; use contextual keys such as "errorCode", "errorCount", or "hasError", and reserve "errorMessage" for textual error details`)
 
 	m.Match(
+		`attribute.Int("errorMessage", $value)`,
+		`attribute.Int64("errorMessage", $value)`,
+		`attribute.IntSlice("errorMessage", $value)`,
+		`attribute.Int64Slice("errorMessage", $value)`,
+		`attribute.Bool("errorMessage", $value)`,
+		`attribute.BoolSlice("errorMessage", $value)`,
+		`attribute.Float64("errorMessage", $value)`,
+		`attribute.Float64Slice("errorMessage", $value)`,
+		`attribute.StringSlice("errorMessage", $value)`,
+	).
+		Report(`"errorMessage" trace attributes should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for non-text values`)
+
+	m.Match(
 		`attribute.Key("error").Int($value)`,
 		`attribute.Key("error").Int64($value)`,
 		`attribute.Key("error").IntSlice($value)`,
@@ -3214,6 +3238,19 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key("error").StringSlice($value)`,
 	).
 		Report(`avoid non-text trace attributes under key "error"; use contextual keys such as "errorCode", "errorCount", or "hasError", and reserve "errorMessage" for textual error details`)
+
+	m.Match(
+		`attribute.Key("errorMessage").Int($value)`,
+		`attribute.Key("errorMessage").Int64($value)`,
+		`attribute.Key("errorMessage").IntSlice($value)`,
+		`attribute.Key("errorMessage").Int64Slice($value)`,
+		`attribute.Key("errorMessage").Bool($value)`,
+		`attribute.Key("errorMessage").BoolSlice($value)`,
+		`attribute.Key("errorMessage").Float64($value)`,
+		`attribute.Key("errorMessage").Float64Slice($value)`,
+		`attribute.Key("errorMessage").StringSlice($value)`,
+	).
+		Report(`"errorMessage" trace attributes should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for non-text values`)
 
 	m.Match(
 		`attribute.String("error", $errMsg)`,
