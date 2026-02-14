@@ -1606,7 +1606,7 @@ func (cfg *Cfg) LogConfigSources() {
 
 	if len(cfg.appliedEnvOverrides) > 0 {
 		for _, prop := range cfg.appliedEnvOverrides {
-			cfg.Logger.Info("Config overridden from Environment variable", "var", prop.key, "value", prop.value)
+			cfg.Logger.Info("Config overridden from Environment variable", "envVarKey", prop.key, "value", prop.value)
 		}
 	}
 
@@ -1637,7 +1637,7 @@ func (s *DynamicSection) Key(k string) *ini.Key {
 	}
 
 	key.SetValue(envValue)
-	s.Logger.Info("Config overridden from Environment variable", "var", envKey, "value", RedactedValue(envKey, envValue))
+	s.Logger.Info("Config overridden from Environment variable", "envVarKey", envKey, "value", RedactedValue(envKey, envValue))
 
 	return key
 }
