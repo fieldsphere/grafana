@@ -109,7 +109,7 @@ func processCheckRetry(ctx context.Context, log logging.Logger, client resource.
 	status := checks.GetStatusAnnotation(obj)
 	if status == "" || status == checks.StatusAnnotationError {
 		// Check not processed yet or errored
-		log.Debug("Check not processed yet or errored, skipping retry", "checkName", obj.GetName(), "status", status)
+		log.Debug("Check not processed yet or errored, skipping retry", "checkName", obj.GetName(), "checkStatus", status)
 		return nil
 	}
 	// Get the item to retry from the annotation
