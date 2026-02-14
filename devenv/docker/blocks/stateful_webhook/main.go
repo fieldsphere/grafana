@@ -126,7 +126,7 @@ func (ah *NotificationHandler) GetNotifications(w http.ResponseWriter, _ *http.R
 		return
 	}
 
-	slog.Info("Current state requested", "response", string(res))
+	slog.Info("Current state requested", "responseBody", string(res))
 
 	_, err = w.Write(res)
 	if err != nil {

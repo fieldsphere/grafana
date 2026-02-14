@@ -715,7 +715,7 @@ func (s *SocialGenericOAuth) fetchOrganizations(ctx context.Context, client *htt
 
 	err = json.Unmarshal(response.Body, &records)
 	if err != nil {
-		s.log.Error("Error decoding organization response", "response", string(response.Body), "error", err)
+		s.log.Error("Error decoding organization response", "responseBody", string(response.Body), "error", err)
 		return nil, false
 	}
 
