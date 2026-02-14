@@ -111,11 +111,11 @@ func (c *Client) Push(ctx context.Context, streams []Stream) error {
 
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		body, _ := io.ReadAll(res.Body)
-		log.Error("Error response from Loki", "response", string(body), "status", res.StatusCode)
+		log.Error("Error response from Loki", "responseBody", string(body), "statusCode", res.StatusCode)
 		return fmt.Errorf("received a non-200 response from loki, status: %d", res.StatusCode)
 	}
 
-	log.Debug("Successfully pushed streams to Loki", "status", res.StatusCode, "streams", len(streams))
+	log.Debug("Successfully pushed streams to Loki", "statusCode", res.StatusCode, "streams", len(streams))
 	return nil
 }
 
@@ -159,9 +159,9 @@ func (c *Client) RangeQuery(ctx context.Context, logQL string, start, end, limit
 
 	if res.StatusCode < 200 || res.StatusCode >= 300 {
 		if len(body) > 0 {
-			log.Error("Error response from Loki", "response", string(body), "status", res.StatusCode)
+			log.Error("Error response from Loki", "responseBody", string(body), "statusCode", res.StatusCode)
 		} else {
-			log.Error("Error response from Loki with an empty body", "status", res.StatusCode)
+			log.Error("Error response from Loki with an empty body", "statusCode", res.StatusCode)
 		}
 		return QueryRes{}, fmt.Errorf("received a non-200 response from loki, status: %d", res.StatusCode)
 	}
@@ -171,7 +171,7 @@ func (c *Client) RangeQuery(ctx context.Context, logQL string, start, end, limit
 		return QueryRes{}, fmt.Errorf("error unmarshaling loki response: %w", err)
 	}
 
-	log.Debug("Successfully queried Loki", "status", res.StatusCode, "streams", len(queryRes.Data.Result))
+	log.Debug("Successfully queried Loki", "statusCode", res.StatusCode, "streams", len(queryRes.Data.Result))
 	return queryRes, nil
 }
 
