@@ -67,18 +67,18 @@ func (s *store) Create(ctx context.Context, usr identity.Requester) (*supportbun
 
 	bundlesCreatedString, _, err := s.statKV.Get(ctx, key)
 	if err != nil {
-		s.log.Warn("An error has occurred upon retrieving value at statKV", "key", key)
+		s.log.Warn("An error has occurred upon retrieving value at statKV", "statKey", key)
 	}
 
 	bundlesCreated, err := strconv.ParseInt(bundlesCreatedString, 10, 64)
 	if err != nil {
-		s.log.Warn("No value was found at statKV", "key", key)
+		s.log.Warn("No value was found at statKV", "statKey", key)
 	}
 
 	bundlesCreated = bundlesCreated + 1
 
 	if err := s.statKV.Set(ctx, key, fmt.Sprint(bundlesCreated)); err != nil {
-		s.log.Warn("An error has occurred upon setting a value at statKV", "key", key)
+		s.log.Warn("An error has occurred upon setting a value at statKV", "statKey", key)
 	}
 	s.mu.Unlock()
 

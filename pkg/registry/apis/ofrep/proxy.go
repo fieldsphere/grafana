@@ -77,7 +77,7 @@ func (b *APIBuilder) proxyFlagReq(ctx context.Context, flagKey string, isAuthedU
 	proxy, err := b.newProxy(path.Join(ofrepPath, flagKey))
 	if err != nil {
 		err = tracing.Error(span, err)
-		b.logger.Error("Failed to create proxy", "key", flagKey, "error", err)
+		b.logger.Error("Failed to create proxy", "flagKey", flagKey, "error", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

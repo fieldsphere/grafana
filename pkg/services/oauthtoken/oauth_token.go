@@ -314,7 +314,7 @@ func (o *Service) TryTokenRefresh(ctx context.Context, usr identity.Requester, t
 			trace.WithAttributes(attribute.Int64("userID", userID)))
 		defer span.End()
 
-		ctxLogger.Debug("Serverlock request for getting a new access token", "key", lockKey)
+		ctxLogger.Debug("Serverlock request for getting a new access token", "lockKey", lockKey)
 
 		var persistedToken *oauth2.Token
 		var externalSession *auth.ExternalSession

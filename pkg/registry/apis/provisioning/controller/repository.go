@@ -532,7 +532,7 @@ func (rc *RepositoryController) determineSyncStatusOps(obj *provisioning.Reposit
 
 //nolint:gocyclo
 func (rc *RepositoryController) process(item *queueItem) error {
-	logger := rc.logger.With("key", item.key)
+	logger := rc.logger.With("repositoryQueueKey", item.key)
 	ctx := logging.Context(context.Background(), logger)
 
 	namespace, name, err := cache.SplitMetaNamespaceKey(item.key)

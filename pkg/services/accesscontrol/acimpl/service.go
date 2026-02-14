@@ -797,7 +797,7 @@ func (s *Service) searchUserPermissionsFromCache(ctx context.Context, orgID int6
 		return nil, false
 	}
 
-	s.log.Debug("Using cached permissions", "key", key)
+	s.log.Debug("Using cached permissions", "permissionCacheKey", key)
 	metrics.MAccessSearchUserPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheHit).Inc()
 
 	return permissions.([]accesscontrol.Permission), true

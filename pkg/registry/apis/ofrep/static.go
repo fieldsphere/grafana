@@ -48,7 +48,7 @@ func (b *APIBuilder) evalFlagStatic(ctx context.Context, flagKey string, w http.
 	result, err := b.staticEvaluator.EvalFlag(ctx, flagKey)
 	if err != nil {
 		err = tracing.Error(span, err)
-		b.logger.Error("Failed to evaluate static flag", "key", flagKey, "error", err)
+		b.logger.Error("Failed to evaluate static flag", "flagKey", flagKey, "error", err)
 		http.Error(w, "failed to evaluate flag", http.StatusInternalServerError)
 		return
 	}

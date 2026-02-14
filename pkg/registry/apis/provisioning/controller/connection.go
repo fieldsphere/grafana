@@ -162,7 +162,7 @@ func (cc *ConnectionController) processNextWorkItem(ctx context.Context) bool {
 }
 
 func (cc *ConnectionController) process(ctx context.Context, item *connectionQueueItem) error {
-	logger := cc.logger.With("key", item.key)
+	logger := cc.logger.With("connectionQueueKey", item.key)
 	ctx = logging.Context(ctx, logger)
 
 	namespace, name, err := cache.SplitMetaNamespaceKey(item.key)
