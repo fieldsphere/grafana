@@ -15,11 +15,15 @@ function formatLogLine(level, message, context) {
 }
 
 function logDevenvInfo(message, context) {
-  process.stdout.write(formatLogLine('info', message, context));
+  if (typeof process !== 'undefined' && process.stdout) {
+    process.stdout.write(formatLogLine('info', message, context));
+  }
 }
 
 function logDevenvWarning(message, context) {
-  process.stderr.write(formatLogLine('warning', message, context));
+  if (typeof process !== 'undefined' && process.stderr) {
+    process.stderr.write(formatLogLine('warning', message, context));
+  }
 }
 
 module.exports = {
