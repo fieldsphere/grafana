@@ -161,7 +161,7 @@ func (s *persistentStore) Claim(ctx context.Context) (job *provisioning.Job, rol
 		}
 
 		logger.Info("job claim complete",
-			"job", updatedJob.GetName(),
+			"jobName", updatedJob.GetName(),
 			"namespace", updatedJob.GetNamespace(),
 			"repository", updatedJob.Spec.Repository,
 			"action", updatedJob.Spec.Action,
@@ -179,7 +179,7 @@ func (s *persistentStore) Claim(ctx context.Context) (job *provisioning.Job, rol
 			// This will also use the parent context (i.e. from the for loop!), ensuring we have permissions to do this.
 			ctx = context.WithoutCancel(ctx)
 
-			logger := logging.FromContext(ctx).With("namespace", updatedJob.GetNamespace(), "job", updatedJob.GetName())
+			logger := logging.FromContext(ctx).With("namespace", updatedJob.GetNamespace(), "jobName", updatedJob.GetName())
 
 			timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 			refetched, err := s.client.Jobs(updatedJob.GetNamespace()).Get(timeoutCtx, updatedJob.GetName(), metav1.GetOptions{})
@@ -221,7 +221,7 @@ func (s *persistentStore) Update(ctx context.Context, job *provisioning.Job) (*p
 
 	logger := logging.FromContext(ctx).With(
 		"operation", "update",
-		"job", job.GetName(),
+		"jobName", job.GetName(),
 		"namespace", job.GetNamespace(),
 	)
 
@@ -254,7 +254,7 @@ func (s *persistentStore) Get(ctx context.Context, namespace, name string) (*pro
 
 	logger := logging.FromContext(ctx).With(
 		"operation", "get",
-		"job", name,
+		"jobName", name,
 		"namespace", namespace,
 	)
 
@@ -290,7 +290,7 @@ func (s *persistentStore) Complete(ctx context.Context, job *provisioning.Job) e
 	logger := logging.FromContext(ctx).With(
 		"operation", "complete",
 		"namespace", job.GetNamespace(),
-		"job", job.GetName(),
+		"jobName", job.GetName(),
 	)
 
 	span.SetAttributes(
@@ -387,7 +387,7 @@ func (s *persistentStore) RenewLease(ctx context.Context, job *provisioning.Job)
 
 	logger := logging.FromContext(ctx).With(
 		"operation", "renewLease",
-		"job", job.GetName(),
+		"jobName", job.GetName(),
 		"namespace", job.GetNamespace(),
 	)
 
@@ -500,7 +500,7 @@ func (s *persistentStore) Insert(ctx context.Context, namespace string, spec pro
 	}
 	generateJobName(job) // Side-effect: updates the job's name.
 
-	logger = logger.With("job", job.GetName())
+	logger = logger.With("jobName", job.GetName())
 	span.SetAttributes(attribute.String("jobName", job.GetName()))
 
 	created, err := s.client.Jobs(namespace).Create(ctx, job, metav1.CreateOptions{})

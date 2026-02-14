@@ -70,7 +70,7 @@ func (c *HistoryJobController) cleanupJob(obj interface{}) {
 	}
 
 	logger := c.logger.With(
-		"job", job.Name,
+		"jobName", job.Name,
 		"namespace", job.Namespace,
 		"age", age,
 	)

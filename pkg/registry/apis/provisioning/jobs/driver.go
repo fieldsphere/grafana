@@ -174,7 +174,7 @@ func (d *jobDriver) claimAndProcessOneJob(ctx context.Context) error {
 	defer rollback()
 
 	namespace := claimedJob.GetNamespace()
-	logger = logger.With("job", claimedJob.GetName(), "namespace", namespace)
+	logger = logger.With("jobName", claimedJob.GetName(), "namespace", namespace)
 	ctx = logging.Context(ctx, logger)
 	d.currentJob = claimedJob
 
