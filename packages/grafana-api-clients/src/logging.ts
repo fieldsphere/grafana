@@ -8,11 +8,11 @@ function emit(level: 'log' | 'warn' | 'error', message: string, context?: LogCon
   }
 
   if (context) {
-    method(message, context);
+    method.call(sink, message, context);
     return;
   }
 
-  method(message);
+  method.call(sink, message);
 }
 
 export function logApiClientInfo(message: string, context?: LogContext): void {
