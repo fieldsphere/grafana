@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { execSync } = require('child_process');
 const { fromPairs } = require('lodash');
 
 const { CDPDataCollector } = require('./CDPDataCollector');
@@ -45,7 +46,19 @@ const afterRun = async () => {
 };
 
 const afterSpec = (resultsFolder) => async (spec) => {
-  fs.writeFileSync(`${resultsFolder}/${spec.name}-${Date.now()}.json`, JSON.stringify(formatResults(results), null, 2));
+  const filePath = `${resultsFolder}/${spec.name}-${Date.now()}.json`;
+  fs.writeFileSync(filePath, JSON.stringify(formatResults(results), null, 2));
+
+  try {
+    const fileSize = execSync(`du -h "${filePath}"`, { encoding: 'utf-8' }).trim();
+    logE2eInfo('Created benchmark results file', {
+      operation: 'benchmark.afterSpec',
+      filePath,
+      size: fileSize,
+    });
+  } catch (error) {
+    // Ignore errors from du command
+  }
 
   results = [];
 };
@@ -55,10 +68,19 @@ const initialize = (on, config) => {
 
   if (!fs.existsSync(resultsFolder)) {
     fs.mkdirSync(resultsFolder, { recursive: true });
-    logE2eInfo('Created folder for benchmark results', {
-      operation: 'benchmark.initialize',
-      resultsFolder,
-    });
+    try {
+      const dirSize = execSync(`du -h "${resultsFolder}"`, { encoding: 'utf-8' }).trim();
+      logE2eInfo('Created folder for benchmark results', {
+        operation: 'benchmark.initialize',
+        resultsFolder,
+        size: dirSize,
+      });
+    } catch (error) {
+      logE2eInfo('Created folder for benchmark results', {
+        operation: 'benchmark.initialize',
+        resultsFolder,
+      });
+    }
   }
 
   on('before:browser:launch', async (browser, options) => {
