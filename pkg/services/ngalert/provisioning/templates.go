@@ -310,7 +310,7 @@ func (t *TemplateService) checkOptimisticConcurrency(name, currentContent string
 	if desiredVersion == "" {
 		if provenance != models.ProvenanceFile {
 			// if version is not specified and it's not a file provisioning, emit a log message to reflect that optimistic concurrency is disabled for this request
-			t.log.Debug("ignoring optimistic concurrency check because version was not provided", "template", name, "operation", action)
+			t.log.Debug("ignoring optimistic concurrency check because version was not provided", "templateName", name, "operation", action)
 		}
 		return nil
 	}
