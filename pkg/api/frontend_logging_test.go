@@ -288,7 +288,8 @@ func TestFrontendLoggingEndpointGrafanaJavascriptAgent(t *testing.T) {
 		logGrafanaJavascriptAgentEventScenario(t, "Should log web vitals as context", logWebVitals,
 			func(sc *scenarioContext, logs map[string]any, sourceMapReads []SourceMapReadRecord) {
 				assert.Equal(t, http.StatusAccepted, sc.resp.Code)
-				assertContextContains(t, logs, "CLS", float64(1))
+				assertContextContains(t, logs, "measurementName", "CLS")
+				assertContextContains(t, logs, "measurementValue", float64(1))
 			})
 	})
 }
