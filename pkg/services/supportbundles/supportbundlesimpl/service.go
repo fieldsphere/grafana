@@ -123,7 +123,7 @@ func (s *Service) create(ctx context.Context, collectors []string, usr identity.
 		ctx, cancel := context.WithTimeout(context.Background(), bundleCreationTimeout)
 		defer func() {
 			if err := recover(); err != nil {
-				s.log.Error("Support bundle collection panic", "error", err)
+				s.log.Error("Support bundle collection panic", "panicValue", err)
 			}
 			cancel()
 		}()

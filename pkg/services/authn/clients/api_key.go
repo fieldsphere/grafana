@@ -166,7 +166,7 @@ func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Re
 	go func(keyID string) {
 		defer func() {
 			if err := recover(); err != nil {
-				s.log.Error("Panic during user last seen sync", "error", err)
+				s.log.Error("Panic during user last seen sync", "panicValue", err)
 			}
 		}()
 

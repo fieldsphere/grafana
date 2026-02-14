@@ -91,7 +91,7 @@ func (s *Store) Add(ctx context.Context, key *signingkeys.SigningKey, force bool
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {
-					s.log.Error("panic during expired signing key cleanup", "error", err)
+					s.log.Error("panic during expired signing key cleanup", "panicValue", err)
 				}
 			}()
 

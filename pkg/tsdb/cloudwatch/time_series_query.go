@@ -70,7 +70,7 @@ func (ds *DataSource) executeTimeSeriesQuery(ctx context.Context, req *backend.Q
 			eg.Go(func() error {
 				defer func() {
 					if err := recover(); err != nil {
-						ds.logger.FromContext(ctx).Error("Execute Get Metric Data Query Panic", "error", err, "stack", utils.Stack(1))
+						ds.logger.FromContext(ctx).Error("Execute Get Metric Data Query Panic", "panicValue", err, "stack", utils.Stack(1))
 						if theErr, ok := err.(error); ok {
 							resultChan <- &responseWrapper{
 								DataResponse: &backend.DataResponse{
