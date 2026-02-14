@@ -15,6 +15,7 @@ export const useChromeHeaderHeight = () => {
       throw new Error('useChromeHeaderHeight hook not found in @grafana/runtime');
     }
     logger.logWarning('useChromeHeaderHeight hook not found');
+    console.error('useChromeHeaderHeight hook not found');
   }
 
   return chromeHeaderHeightHook?.();
