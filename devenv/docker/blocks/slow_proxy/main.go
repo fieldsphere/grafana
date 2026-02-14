@@ -27,7 +27,7 @@ func main() {
 
 	sleep, err := time.ParseDuration(sleepDurationStr)
 	if err != nil {
-		slog.Error("Failed to parse SLEEP_DURATION", "value", sleepDurationStr, "error", err)
+		slog.Error("Failed to parse SLEEP_DURATION", "sleepDurationValue", sleepDurationStr, "error", err)
 		os.Exit(1)
 	}
 
