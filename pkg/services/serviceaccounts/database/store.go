@@ -341,7 +341,7 @@ func (s *ServiceAccountsStoreImpl) SearchOrgServiceAccounts(ctx context.Context,
 			whereConditions = append(whereConditions, sql)
 			whereParams = append(whereParams, param)
 		default:
-			s.log.Warn("Invalid filter user for service account filtering", "service account search filtering", query.Filter)
+			s.log.Warn("Invalid filter user for service account filtering", "serviceAccountSearchFiltering", query.Filter)
 		}
 
 		// Count the number of accounts

@@ -581,7 +581,7 @@ func (p *redisPeer) mergeFullState(buf []byte) {
 	for _, part := range fs.Parts {
 		s, ok := p.states[part.Key]
 		if !ok {
-			p.logger.Warn("Received", "unknown state key", "len", len(buf), "key", part.Key)
+			p.logger.Warn("Received unknown state key", "messageLength", len(buf), "stateKey", part.Key)
 			continue
 		}
 		if err := s.Merge(part.Data); err != nil {

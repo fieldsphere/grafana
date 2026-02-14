@@ -58,7 +58,7 @@ func (s *promMigrationService) updateDataSourceType(ctx context.Context, ds *dat
 		return err
 	}
 	if ds.JsonData == nil {
-		logger.Debug("no JsonData found", "data source ID", ds.ID)
+		logger.Debug("no JsonData found", "dataSourceID", ds.ID)
 		ds.JsonData = &simplejson.Json{}
 	}
 	ds.JsonData.Set("prometheus-type-migration", true)

@@ -92,7 +92,7 @@ func ProvideSecretsService(
 		return nil, fmt.Errorf("missing configuration for current encryption provider %s", currentProviderID)
 	}
 
-	s.log.Info("Envelope encryption state", "current provider", currentProviderID)
+	s.log.Info("Envelope encryption state", "currentProvider", currentProviderID)
 
 	s.registerUsageMetrics()
 

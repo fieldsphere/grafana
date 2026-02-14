@@ -68,7 +68,7 @@ func Query(ctx context.Context, tracer trace.Tracer, dsInfo *models.DatasourceIn
 			query.RawQuery = rawQuery
 
 			if setting.Env == setting.Dev {
-				logger.Debug("Influxdb query", "raw query", rawQuery)
+				logger.Debug("Influxdb query", "rawQuery", rawQuery)
 			}
 
 			request, err := createRequest(ctx, logger, dsInfo, rawQuery, query.Policy)
@@ -95,7 +95,7 @@ func Query(ctx context.Context, tracer trace.Tracer, dsInfo *models.DatasourceIn
 		})
 
 		if err != nil {
-			logger.Debug("Influxdb concurrent query error", "concurrent query", err)
+			logger.Debug("Influxdb concurrent query error", "concurrentQuery", err)
 		}
 	} else {
 		for _, reqQuery := range req.Queries {
@@ -115,7 +115,7 @@ func Query(ctx context.Context, tracer trace.Tracer, dsInfo *models.DatasourceIn
 			query.RawQuery = rawQuery
 
 			if setting.Env == setting.Dev {
-				logger.Debug("Influxdb query", "raw query", rawQuery)
+				logger.Debug("Influxdb query", "rawQuery", rawQuery)
 			}
 
 			request, err := createRequest(ctx, logger, dsInfo, rawQuery, query.Policy)

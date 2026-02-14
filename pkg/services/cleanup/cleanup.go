@@ -176,7 +176,7 @@ func (srv *CleanUpService) cleanUpOldAnnotations(ctx context.Context) {
 	if err != nil && !errors.Is(err, context.DeadlineExceeded) {
 		logger.Error("failed to clean up old annotations", "error", err)
 	} else {
-		logger.Debug("Deleted excess annotations", "annotations affected", affected, "annotation tags affected", affectedTags)
+		logger.Debug("Deleted excess annotations", "annotationsAffected", affected, "annotationTagsAffected", affectedTags)
 	}
 }
 
@@ -251,7 +251,7 @@ func (srv *CleanUpService) deleteExpiredSnapshots(ctx context.Context) {
 		if err := srv.dashboardSnapshotService.DeleteExpiredSnapshots(ctx, &cmd); err != nil {
 			logger.Error("Failed to delete expired snapshots", "error", err)
 		} else {
-			logger.Debug("Deleted expired snapshots", "rows affected", cmd.DeletedRows)
+			logger.Debug("Deleted expired snapshots", "rowsAffected", cmd.DeletedRows)
 		}
 	}
 }
@@ -336,7 +336,7 @@ func (srv *CleanUpService) deleteExpiredDashboardVersions(ctx context.Context) {
 	if err := srv.dashboardVersionService.DeleteExpired(ctx, &cmd); err != nil {
 		logger.Error("Failed to delete expired dashboard versions", "error", err)
 	} else {
-		logger.Debug("Deleted old/expired dashboard versions", "rows affected", cmd.DeletedRows)
+		logger.Debug("Deleted old/expired dashboard versions", "rowsAffected", cmd.DeletedRows)
 	}
 }
 
@@ -348,7 +348,7 @@ func (srv *CleanUpService) deleteExpiredImages(ctx context.Context) {
 	if rowsAffected, err := srv.deleteExpiredImageService.DeleteExpired(ctx); err != nil {
 		logger.Error("Failed to delete expired images", "error", err)
 	} else {
-		logger.Debug("Deleted expired images", "rows affected", rowsAffected)
+		logger.Debug("Deleted expired images", "rowsAffected", rowsAffected)
 	}
 }
 
@@ -363,7 +363,7 @@ func (srv *CleanUpService) expireOldUserInvites(ctx context.Context) {
 	if err := srv.tempUserService.ExpireOldUserInvites(ctx, &cmd); err != nil {
 		logger.Error("Problem expiring user invites", "error", err)
 	} else {
-		logger.Debug("Expired user invites", "rows affected", cmd.NumExpired)
+		logger.Debug("Expired user invites", "rowsAffected", cmd.NumExpired)
 	}
 }
 
@@ -378,7 +378,7 @@ func (srv *CleanUpService) expireOldVerifications(ctx context.Context) {
 	if err := srv.tempUserService.ExpireOldVerifications(ctx, &cmd); err != nil {
 		logger.Error("Problem expiring email verifications", "error", err)
 	} else {
-		logger.Debug("Expired email verifications", "rows affected", cmd.NumExpired)
+		logger.Debug("Expired email verifications", "rowsAffected", cmd.NumExpired)
 	}
 }
 
@@ -394,7 +394,7 @@ func (srv *CleanUpService) deleteStaleShortURLs(ctx context.Context) {
 		if err := srv.ShortURLService.DeleteStaleShortURLs(ctx, &cmd); err != nil {
 			logger.Error("Problem deleting stale short urls", "error", err)
 		} else {
-			logger.Debug("Deleted short urls", "rows affected", cmd.NumDeleted)
+			logger.Debug("Deleted short urls", "rowsAffected", cmd.NumDeleted)
 		}
 	}
 }
@@ -482,7 +482,7 @@ func (srv *CleanUpService) deleteStaleQueryHistory(ctx context.Context) {
 	if err != nil {
 		logger.Error("Problem deleting stale query history", "error", err)
 	} else {
-		logger.Debug("Deleted stale query history", "rows affected", rowsCount)
+		logger.Debug("Deleted stale query history", "rowsAffected", rowsCount)
 	}
 
 	// Enforce 200k limit for query_history table
@@ -491,7 +491,7 @@ func (srv *CleanUpService) deleteStaleQueryHistory(ctx context.Context) {
 	if err != nil {
 		logger.Error("Problem with enforcing row limit for query_history", "error", err)
 	} else {
-		logger.Debug("Enforced row limit for query_history", "rows affected", rowsCount)
+		logger.Debug("Enforced row limit for query_history", "rowsAffected", rowsCount)
 	}
 
 	// Enforce 150k limit for query_history_star table
@@ -500,7 +500,7 @@ func (srv *CleanUpService) deleteStaleQueryHistory(ctx context.Context) {
 	if err != nil {
 		logger.Error("Problem with enforcing row limit for query_history_star", "error", err)
 	} else {
-		logger.Debug("Enforced row limit for query_history_star", "rows affected", rowsCount)
+		logger.Debug("Enforced row limit for query_history_star", "rowsAffected", rowsCount)
 	}
 }
 
@@ -510,7 +510,7 @@ func (srv *CleanUpService) cleanUpTrashAlertRules(ctx context.Context) {
 	if err != nil {
 		logger.Error("Problem cleaning up deleted alert rules", "error", err)
 	} else {
-		logger.Debug("Cleaned up deleted alert rules", "rows affected", affected)
+		logger.Debug("Cleaned up deleted alert rules", "rowsAffected", affected)
 	}
 }
 

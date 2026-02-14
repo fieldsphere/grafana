@@ -52,7 +52,7 @@ func (s *Service) RunQuery(ctx context.Context, req *backend.QueryDataRequest, d
 	}
 
 	if len(emptyQueries) != 0 {
-		s.logger.Warn("Found query models without targets", "models without targets", strings.Join(emptyQueries, "\n"))
+		s.logger.Warn("Found query models without targets", "modelsWithoutTargets", strings.Join(emptyQueries, "\n"))
 		// If no queries had a valid target, return an error; otherwise, attempt with the targets we have
 		if len(emptyQueries) == len(req.Queries) {
 			if result.Responses == nil {
@@ -138,7 +138,7 @@ func (s *Service) processQuery(query backend.DataQuery) (string, *GraphiteQuery,
 		currTarget = queryJSON.Target
 	}
 	if currTarget == "" {
-		s.logger.Debug("Graphite", "empty query target", queryJSON)
+		s.logger.Debug("Graphite", "emptyQueryTarget", queryJSON)
 		return "", &queryJSON, false, nil
 	}
 	target := fixIntervalFormat(currTarget)
@@ -166,7 +166,7 @@ func (s *Service) createGraphiteRequest(ctx context.Context, query backend.DataQ
 	}
 
 	if emptyQuery != nil {
-		s.logger.Debug("Graphite", "empty query target", emptyQuery)
+		s.logger.Debug("Graphite", "emptyQueryTarget", emptyQuery)
 		return nil, formData, emptyQuery, "", nil
 	}
 

@@ -200,7 +200,7 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 		qdr, err := handleQuery(ctx, *raw, *b, httpreq, *responder, connectLogger)
 
 		if err != nil {
-			connectLogger.Error("execute error", "http code", query.GetResponseCode(qdr), "error", err)
+			connectLogger.Error("execute error", "httpCode", query.GetResponseCode(qdr), "error", err)
 			logEmptyRefids(raw.Queries, connectLogger)
 			if qdr != nil { // if we have a response, we assume the err is set in the response
 				responder.Object(query.GetResponseCode(qdr), &query.QueryDataResponse{
