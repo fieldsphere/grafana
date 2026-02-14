@@ -952,6 +952,32 @@ func structuredlogging(m fluent.Matcher) {
 		Report("use \"errorMessage\" for string error text, or pass an error value as \"error\", err")
 
 	m.Match(
+		`$logger.Info($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.Warn($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.Error($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.Debug($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.Info($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.Warn($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.Error($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.Debug($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, "errorMessage", $errVal, $*after)`,
+		`klog.InfoS($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, "errorMessage", $errVal, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, "errorMessage", $errVal, $*after)`,
+	).
+		Where(m["errVal"].Type.Is("error") || m["errVal"].Type.Implements("error")).
+		Report("use \"error\" for error objects in structured logs; reserve \"errorMessage\" for textual error details")
+
+	m.Match(
 		`$logger.Info($msg, $err, $*rest)`,
 		`$logger.Warn($msg, $err, $*rest)`,
 		`$logger.Error($msg, $err, $*rest)`,
@@ -1403,10 +1429,22 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`use "errorMessage" for stringified error text in []any key/value slices; keep "error" for error objects`)
 
 	m.Match(
+		`[]any{$*before, "errorMessage", $errVal, $*after}`,
+	).
+		Where(m["errVal"].Type.Is("error") || m["errVal"].Type.Implements("error")).
+		Report(`use "error" for error objects in []any key/value slices; reserve "errorMessage" for textual error details`)
+
+	m.Match(
 		`append($arr, $*before, "error", $errMsg, $*after)`,
 	).
 		Where(m["arr"].Type.Is("[]any") && !m["errMsg"].Type.Is("error") && !m["errMsg"].Type.Implements("error")).
 		Report(`use "errorMessage" for stringified error text in []any key/value slices; keep "error" for error objects`)
+
+	m.Match(
+		`append($arr, $*before, "errorMessage", $errVal, $*after)`,
+	).
+		Where(m["arr"].Type.Is("[]any") && (m["errVal"].Type.Is("error") || m["errVal"].Type.Implements("error"))).
+		Report(`use "error" for error objects in []any key/value slices; reserve "errorMessage" for textual error details`)
 
 	m.Match(
 		`[]any{$*before, $key, $value, $dangling}`,
@@ -1492,6 +1530,12 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(!m["errMsg"].Type.Is("error") && !m["errMsg"].Type.Implements("error")).
 		Report(`use "errorMessage" for stringified error text in slog.Group fields; keep "error" for error objects`)
+
+	m.Match(
+		`slog.Group($group, $*before, "errorMessage", $errVal, $*after)`,
+	).
+		Where(m["errVal"].Type.Is("error") || m["errVal"].Type.Implements("error")).
+		Report(`use "error" for error objects in slog.Group fields; reserve "errorMessage" for textual error details`)
 
 	m.Match(
 		`slog.Group($group, $*before, $key, $value, $*after)`,
@@ -1749,6 +1793,12 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(!m["value"].Type.Is("error") && !m["value"].Type.Implements("error")).
 		Report(`for non-error payloads in slog attributes, use key "errorMessage"; reserve key "error" for error objects`)
+
+	m.Match(
+		`slog.Any("errorMessage", $value)`,
+	).
+		Where(m["value"].Type.Is("error") || m["value"].Type.Implements("error")).
+		Report(`for error objects in slog attributes, use key "error"; reserve "errorMessage" for textual details`)
 
 	m.Match(
 		`slog.Int("error", $value)`,
@@ -2833,6 +2883,13 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && !m["errMsg"].Type.Is("error") && !m["errMsg"].Type.Implements("error")).
 		Report(`use "errorMessage" for stringified error text in structured context; keep "error" for error objects`)
+
+	m.Match(
+		`$logger.New($*before, "errorMessage", $errVal, $*after)`,
+		`$logger.With($*before, "errorMessage", $errVal, $*after)`,
+	).
+		Where(isStructuredLogger && (m["errVal"].Type.Is("error") || m["errVal"].Type.Implements("error"))).
+		Report(`use "error" for error objects in structured context; reserve "errorMessage" for textual error details`)
 
 	m.Match(
 		`attribute.Key($key).String($value)`,
