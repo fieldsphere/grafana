@@ -1378,6 +1378,17 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in slog.Group appended fields; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`slog.Group($left + $right, $*fields)`,
+	).
+		Report(`avoid dynamic concatenation for slog group names; use stable string-literal group names`)
+
+	m.Match(
+		`slog.Group(fmt.Sprintf($fmt, $*args), $*fields)`,
+		`slog.Group(fmt.Sprint($*args), $*fields)`,
+	).
+		Report(`avoid fmt formatting for slog group names; use stable string-literal group names`)
+
+	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
 		Where(!m["group"].Const && !m["group"].Text.Matches("^\".*\"$")).
@@ -1458,6 +1469,41 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in slog attribute constructors; use stable string-literal or const keys and keep dynamic data in values`)
+
+	m.Match(
+		`slog.String($left + $right, $value)`,
+		`slog.Int($left + $right, $value)`,
+		`slog.Int64($left + $right, $value)`,
+		`slog.Uint64($left + $right, $value)`,
+		`slog.Bool($left + $right, $value)`,
+		`slog.Float64($left + $right, $value)`,
+		`slog.Duration($left + $right, $value)`,
+		`slog.Time($left + $right, $value)`,
+		`slog.Any($left + $right, $value)`,
+	).
+		Report(`avoid dynamic concatenation for slog attribute keys; use stable string-literal keys`)
+
+	m.Match(
+		`slog.String(fmt.Sprintf($fmt, $*args), $value)`,
+		`slog.Int(fmt.Sprintf($fmt, $*args), $value)`,
+		`slog.Int64(fmt.Sprintf($fmt, $*args), $value)`,
+		`slog.Uint64(fmt.Sprintf($fmt, $*args), $value)`,
+		`slog.Bool(fmt.Sprintf($fmt, $*args), $value)`,
+		`slog.Float64(fmt.Sprintf($fmt, $*args), $value)`,
+		`slog.Duration(fmt.Sprintf($fmt, $*args), $value)`,
+		`slog.Time(fmt.Sprintf($fmt, $*args), $value)`,
+		`slog.Any(fmt.Sprintf($fmt, $*args), $value)`,
+		`slog.String(fmt.Sprint($*args), $value)`,
+		`slog.Int(fmt.Sprint($*args), $value)`,
+		`slog.Int64(fmt.Sprint($*args), $value)`,
+		`slog.Uint64(fmt.Sprint($*args), $value)`,
+		`slog.Bool(fmt.Sprint($*args), $value)`,
+		`slog.Float64(fmt.Sprint($*args), $value)`,
+		`slog.Duration(fmt.Sprint($*args), $value)`,
+		`slog.Time(fmt.Sprint($*args), $value)`,
+		`slog.Any(fmt.Sprint($*args), $value)`,
+	).
+		Report(`avoid fmt formatting for slog attribute keys; use stable string-literal keys`)
 
 	m.Match(
 		`slog.String($key, $value)`,
