@@ -122,7 +122,7 @@ func setupProfiling(profile bool, profileAddr string, profilePort uint64, blockR
 
 	if profileDiagnostics.enabled {
 		logger.Info("Diagnostics pprof profiling enabled",
-			"addr", profileDiagnostics.addr,
+			"profileAddress", profileDiagnostics.addr,
 			"port", profileDiagnostics.port,
 			"blockProfileRate", profileDiagnostics.blockRate,
 			"mutexProfileRate", profileDiagnostics.mutexRate)
