@@ -47,12 +47,12 @@ func (g *GrafanaServer) Wait() {
 				}
 				slog.Info("Connected to grafana-server")
 				if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-					slog.Error("Grafana server unhealthy response", "statusCode", resp.StatusCode, "body", string(body))
+					slog.Error("Grafana server unhealthy response", "statusCode", resp.StatusCode, "responseBody", string(body))
 					os.Exit(1)
 				}
 				err = resp.Body.Close()
 				if err != nil {
-					slog.Warn("Error closing response body", "body", string(body), "error", err)
+					slog.Warn("Error closing response body", "responseBody", string(body), "error", err)
 					return
 				}
 				return

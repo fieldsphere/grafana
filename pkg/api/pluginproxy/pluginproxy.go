@@ -219,7 +219,7 @@ func (proxy PluginProxy) logRequest() {
 		"pluginID", proxy.ps.PluginID,
 		"requestURI", proxy.ctx.Req.RequestURI,
 		"method", proxy.ctx.Req.Method,
-		"body", body)
+		"requestBody", body)
 }
 
 type templateData struct {

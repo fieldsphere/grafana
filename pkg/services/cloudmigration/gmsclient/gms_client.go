@@ -263,7 +263,7 @@ func (c *gmsClientImpl) ReportEvent(ctx context.Context, session cloudmigration.
 			c.log.Error("reading request body", "error", err)
 			return
 		}
-		c.log.Error("http request error", "body", string(body))
+		c.log.Error("http request error", "responseBody", string(body))
 		return
 	}
 

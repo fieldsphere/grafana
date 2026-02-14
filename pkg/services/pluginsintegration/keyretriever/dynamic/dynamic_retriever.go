@@ -145,7 +145,7 @@ func (kr *KeyRetriever) downloadKeys(ctx context.Context) error {
 	}
 
 	if err := json.Unmarshal(body, &data); err != nil {
-		kr.log.Debug("Error unmarshalling response body", "error", err, "body", string(body))
+		kr.log.Debug("Error unmarshalling response body", "error", err, "responseBody", string(body))
 		return fmt.Errorf("error unmarshalling response body: %w", err)
 	}
 

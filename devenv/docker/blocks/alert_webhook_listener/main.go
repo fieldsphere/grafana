@@ -17,7 +17,7 @@ func hello(w http.ResponseWriter, r *http.Request) {
 
 	safeBody := strings.ReplaceAll(string(body), "\n", "")
 	line := fmt.Sprintf("webbhook: -> %s", safeBody)
-	slog.Info("Received webhook request", "body", safeBody)
+	slog.Info("Received webhook request", "requestBody", safeBody)
 	if _, err := io.WriteString(w, line); err != nil {
 		slog.Error("Failed to write webhook response", "error", err)
 	}

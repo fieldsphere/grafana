@@ -222,7 +222,7 @@ func (p *Pipeline) ProcessInput(ctx context.Context, ns string, channelID string
 		span.SetAttributes(
 			attribute.String("namespace", ns),
 			attribute.String("channel", channelID),
-			attribute.String("body", string(body)),
+			attribute.String("requestBody", string(body)),
 		)
 		defer span.End()
 	}
@@ -243,7 +243,7 @@ func (p *Pipeline) processInput(ctx context.Context, ns string, channelID string
 		span.SetAttributes(
 			attribute.String("namespace", ns),
 			attribute.String("channel", channelID),
-			attribute.String("body", string(body)),
+			attribute.String("requestBody", string(body)),
 		)
 		defer span.End()
 	}

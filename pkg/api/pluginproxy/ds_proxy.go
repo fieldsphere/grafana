@@ -119,7 +119,7 @@ func (proxy *DataSourceProxy) HandleRequest() {
 			_ = resp.Body.Close()
 
 			ctxLogger := proxyErrorLogger.FromContext(resp.Request.Context())
-			ctxLogger.Info("Authentication to data source failed", "body", string(body), "statusCode",
+			ctxLogger.Info("Authentication to data source failed", "responseBody", string(body), "statusCode",
 				resp.StatusCode)
 			msg := "Authentication to data source failed"
 			*resp = http.Response{
@@ -402,7 +402,7 @@ func (proxy *DataSourceProxy) logRequest() {
 		"requestURI", uri,
 		"method", proxy.ctx.Req.Method,
 		"panelPluginID", panelPluginID,
-		"body", body)
+		"requestBody", body)
 }
 
 func (proxy *DataSourceProxy) checkWhiteList() bool {

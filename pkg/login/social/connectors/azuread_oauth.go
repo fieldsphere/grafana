@@ -495,7 +495,7 @@ func (s *SocialAzureAD) extractGroups(ctx context.Context, client *http.Client, 
 			s.log.Warn("AzureAD OAuth: Token need GroupMember.Read.All permission to fetch all groups")
 		} else {
 			body, _ := io.ReadAll(res.Body)
-			s.log.Warn("AzureAD OAuth: could not fetch user groups", "code", res.StatusCode, "body", string(body))
+			s.log.Warn("AzureAD OAuth: could not fetch user groups", "code", res.StatusCode, "responseBody", string(body))
 		}
 		return []string{}, nil
 	}

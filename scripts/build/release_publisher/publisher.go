@@ -303,7 +303,7 @@ func (p *publisher) postRequest(url string, obj any, desc string) error {
 			slog.Info("Release publisher action skipped", "releaseAction", desc, "status", "already_exists")
 		} else {
 			slog.Error("Release publisher action failed", "releaseAction", desc, "status", res.Status)
-			slog.Error("Release publisher response body", "body", string(body))
+			slog.Error("Release publisher response body", "responseBody", string(body))
 			return fmt.Errorf("release publisher request failed: action=%s status=%s", desc, res.Status)
 		}
 	}

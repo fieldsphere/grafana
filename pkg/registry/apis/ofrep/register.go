@@ -333,7 +333,7 @@ func (b *APIBuilder) namespaceFromEvalCtx(body []byte) string {
 	}
 
 	if err := json.Unmarshal(body, &evalCtx); err != nil {
-		b.logger.Debug("Failed to unmarshal evaluation context", "error", err, "body", string(body))
+		b.logger.Debug("Failed to unmarshal evaluation context", "error", err, "requestBody", string(body))
 		return ""
 	}
 

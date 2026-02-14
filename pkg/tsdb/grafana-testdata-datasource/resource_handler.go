@@ -185,7 +185,7 @@ func createJSONHandler(logger log.Logger) http.Handler {
 					ctxLogger.Error("Failed to unmarshal request body to JSON", "error", err)
 				}
 
-				ctxLogger.Debug("Received resource call body", "body", reqData)
+				ctxLogger.Debug("Received resource call body", "requestBody", reqData)
 			}
 		}
 
