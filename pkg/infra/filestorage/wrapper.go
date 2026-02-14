@@ -180,7 +180,7 @@ func (b wrapper) Upsert(ctx context.Context, file *UpsertFileCommand) error {
 	}
 
 	path := getParentFolderPath(file.Path)
-	b.log.Info("Creating folder before upserting file", "file", file.Path, "folder", path)
+	b.log.Info("Creating folder before upserting file", "file", file.Path, "folderPath", path)
 	if err := b.CreateFolder(ctx, path); err != nil {
 		return err
 	}

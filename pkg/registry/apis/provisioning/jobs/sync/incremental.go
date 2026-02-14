@@ -200,7 +200,7 @@ func cleanupOrphanedFolders(
 	}
 
 	for path, folderName := range affectedFolders {
-		span.SetAttributes(attribute.String("folder", folderName))
+		span.SetAttributes(attribute.String("folderName", folderName))
 
 		// Check if any resources under this folder failed to delete
 		if progress.HasDirPathFailedDeletion(path) {

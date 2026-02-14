@@ -1184,7 +1184,7 @@ func (dr *DashboardServiceImpl) SaveFolderForProvisionedDashboards(ctx context.C
 
 	f, err := dr.folderService.Create(ctx, dto)
 	if err != nil {
-		dr.log.Error("failed to create folder for provisioned dashboards", "folder", dto.Title, "orgID", dto.OrgID, "error", err)
+		dr.log.Error("failed to create folder for provisioned dashboards", "folderTitle", dto.Title, "orgID", dto.OrgID, "error", err)
 		return nil, err
 	}
 
@@ -1206,7 +1206,7 @@ func (dr *DashboardServiceImpl) UpdateFolderWithManagedByAnnotation(ctx context.
 		Version:              f.Version,
 	})
 	if err != nil {
-		dr.log.Error("failed to update folder for provisioned dashboards", "folder", f.Title, "orgID", f.OrgID, "error", err)
+		dr.log.Error("failed to update folder for provisioned dashboards", "folderTitle", f.Title, "orgID", f.OrgID, "error", err)
 		return nil, err
 	}
 	return updated, nil
