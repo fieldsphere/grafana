@@ -136,7 +136,7 @@ func (w *lokiWriter) flush(streams []LokiStream) error {
 	}
 	_ = resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
-		logger.Error("Unexpected response code from Loki endpoint", "code", resp.StatusCode)
+		logger.Error("Unexpected response code from Loki endpoint", "statusCode", resp.StatusCode)
 		return errors.New("unexpected response code Loki endpoint")
 	}
 	logger.Debug("Successfully sent to Loki", "elapsed", time.Since(started))
