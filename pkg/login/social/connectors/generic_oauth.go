@@ -651,7 +651,7 @@ func (s *SocialGenericOAuth) fetchTeamMemberships(ctx context.Context, client *h
 	}
 
 	if err == nil {
-		s.log.Debug("Received team memberships", "ids", ids)
+		s.log.Debug("Received team memberships", "teamIDs", ids)
 	}
 
 	return ids, err
