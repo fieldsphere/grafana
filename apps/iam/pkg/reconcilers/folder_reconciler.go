@@ -149,7 +149,7 @@ func (r *FolderReconciler) handleUpdateFolder(ctx context.Context, folder *folde
 	}
 
 	if (len(parents) == 0 && parentUID == "") || (len(parents) == 1 && parents[0] == parentUID) {
-		logger.Info("Folder is already reconciled", "folder", folderUID, "parent", parentUID, "namespace", namespace)
+		logger.Info("Folder is already reconciled", "folderUID", folderUID, "parentUID", parentUID, "namespace", namespace)
 		if r.metrics != nil {
 			r.metrics.RecordReconcileSuccess(action, "no_changes_needed")
 		}
@@ -165,7 +165,7 @@ func (r *FolderReconciler) handleUpdateFolder(ctx context.Context, folder *folde
 		return operator.ReconcileResult{}, err
 	}
 
-	logger.Info("Folder parent set in permission store", "folder", folderUID, "parent", parentUID, "namespace", namespace)
+	logger.Info("Folder parent set in permission store", "folderUID", folderUID, "parentUID", parentUID, "namespace", namespace)
 
 	if r.metrics != nil {
 		r.metrics.RecordReconcileSuccess(action, "changes_made")
@@ -189,7 +189,7 @@ func (r *FolderReconciler) handleDeleteFolder(ctx context.Context, folder *folde
 		return operator.ReconcileResult{}, err
 	}
 
-	logger.Info("Folder deleted from permission store", "folder", folderUID, "namespace", namespace)
+	logger.Info("Folder deleted from permission store", "folderUID", folderUID, "namespace", namespace)
 
 	if r.metrics != nil {
 		r.metrics.RecordReconcileSuccess(action, "changes_made")
