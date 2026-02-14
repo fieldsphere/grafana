@@ -40,13 +40,13 @@ func (s *OrgSync) SyncOrgRolesHook(ctx context.Context, id *authn.Identity, _ *a
 	ctxLogger := s.log.FromContext(ctx).New("identityID", id.ID, "login", id.Login)
 
 	if !id.IsIdentityType(claims.TypeUser) {
-		ctxLogger.Warn("Failed to sync org role, invalid namespace for identity", "type", id.GetIdentityType())
+		ctxLogger.Warn("Failed to sync org role, invalid namespace for identity", "identityType", id.GetIdentityType())
 		return nil
 	}
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		ctxLogger.Warn("Failed to sync org role, invalid ID for identity", "type", id.GetIdentityType(), "error", err)
+		ctxLogger.Warn("Failed to sync org role, invalid ID for identity", "identityType", id.GetIdentityType(), "error", err)
 		return nil
 	}
 
@@ -153,13 +153,13 @@ func (s *OrgSync) SetDefaultOrgHook(ctx context.Context, currentIdentity *authn.
 	ctxLogger := s.log.FromContext(ctx)
 
 	if !currentIdentity.IsIdentityType(claims.TypeUser) {
-		ctxLogger.Debug("Skipping default org sync, not a user", "type", currentIdentity.GetIdentityType())
+		ctxLogger.Debug("Skipping default org sync, not a user", "identityType", currentIdentity.GetIdentityType())
 		return
 	}
 
 	userID, err := currentIdentity.GetInternalID()
 	if err != nil {
-		ctxLogger.Debug("Skipping default org sync, invalid ID for identity", "identityID", currentIdentity.ID, "type", currentIdentity.GetIdentityType(), "error", err)
+		ctxLogger.Debug("Skipping default org sync, invalid ID for identity", "identityID", currentIdentity.ID, "identityType", currentIdentity.GetIdentityType(), "error", err)
 		return
 	}
 

@@ -257,7 +257,7 @@ func (c *gmsClientImpl) ReportEvent(ctx context.Context, session cloudmigration.
 		c.log.Error("error sending http request for report event", "error", err)
 		return
 	} else if resp.StatusCode >= 400 {
-		c.log.Error("received error response for report event", "type", event.Event, "statusCode", resp.StatusCode)
+		c.log.Error("received error response for report event", "eventType", event.Event, "statusCode", resp.StatusCode)
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
 			c.log.Error("reading request body", "error", err)
