@@ -185,13 +185,14 @@ func (s *Server) writePIDFile() error {
 	}
 
 	// Retrieve the PID and write it to file.
-	pid := strconv.Itoa(os.Getpid())
+	processID := os.Getpid()
+	pid := strconv.Itoa(processID)
 	if err := os.WriteFile(s.pidFile, []byte(pid), 0644); err != nil {
 		s.log.Error("Failed to write pidfile", "error", err)
 		return fmt.Errorf("failed to write pidfile: %s", err)
 	}
 
-	s.log.Info("Writing PID file", "path", s.pidFile, "pid", pid)
+	s.log.Info("Writing PID file", "path", s.pidFile, "processID", processID)
 	return nil
 }
 
