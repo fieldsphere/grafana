@@ -1090,7 +1090,7 @@ func (a *dashboardSqlAccess) buildSaveDashboardCommand(ctx context.Context, orgI
 		schemaVersion := schemaversion.GetSchemaVersion(dash.Spec.Object)
 		if schemaVersion < int(schemaversion.LATEST_VERSION) {
 			apiVersion = dashboardV0.VERSION
-			a.log.Info("Downgrading v1alpha1 dashboard to v0alpha1 due to schema version mismatch", "dashboard", dash.Name, "schemaVersion", schemaVersion)
+			a.log.Info("Downgrading v1alpha1 dashboard to v0alpha1 due to schema version mismatch", "dashboardName", dash.Name, "schemaVersion", schemaVersion)
 		}
 	}
 

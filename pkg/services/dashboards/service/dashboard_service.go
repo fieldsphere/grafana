@@ -1432,7 +1432,7 @@ func (dr *DashboardServiceImpl) SetDefaultPermissions(ctx context.Context, dto *
 	if !provisioned && dto.User.IsIdentityType(claims.TypeUser, claims.TypeServiceAccount) {
 		userID, err := dto.User.GetInternalID()
 		if err != nil {
-			dr.log.Error("Could not make user admin", "dashboard", dash.Title, "userID", dto.User.GetID(), "error", err)
+			dr.log.Error("Could not make user admin", "dashboardTitle", dash.Title, "userID", dto.User.GetID(), "error", err)
 		} else {
 			permissions = append(permissions, accesscontrol.SetResourcePermissionCommand{
 				UserID: userID, Permission: dashboardaccess.PERMISSION_ADMIN.String(),
@@ -1449,7 +1449,7 @@ func (dr *DashboardServiceImpl) SetDefaultPermissions(ctx context.Context, dto *
 
 	svc := dr.getPermissionsService(dash.IsFolder)
 	if _, err := svc.SetPermissions(ctx, dto.OrgID, dash.UID, permissions...); err != nil {
-		dr.log.Error("Could not set default permissions", "dashboard", dash.Title, "error", err)
+		dr.log.Error("Could not set default permissions", "dashboardTitle", dash.Title, "error", err)
 	}
 
 	// Clear permission cache for the user who created the dashboard, so that new permissions are fetched for their next call
