@@ -286,7 +286,7 @@ func (s *SocialGenericOAuth) buildUserInfo(dataSources []*UserInfoJson) (*social
 	var externalOrgs []string
 
 	for _, data := range dataSources {
-		s.log.Debug("Processing external user info", "source", data.source, "data", data)
+		s.log.Debug("Processing external user info", "source", data.source, "externalUserInfoData", data)
 
 		s.extractBasicUserFields(userInfo, data)
 
@@ -484,7 +484,7 @@ func (s *SocialGenericOAuth) parseUserInfoFromJSON(rawJSON []byte, source string
 
 	data.rawJSON = rawJSON
 	data.source = source
-	s.log.Debug("Parsed user info from JSON", "rawJSON", string(rawJSON), "data", data.String(), "source", source)
+	s.log.Debug("Parsed user info from JSON", "rawJSON", string(rawJSON), "parsedUserInfoData", data.String(), "source", source)
 	return &data
 }
 

@@ -481,7 +481,7 @@ func (p *Pipeline) processData(ctx context.Context, ns string, channelID string,
 		span.SetAttributes(
 			attribute.String("namespace", ns),
 			attribute.String("channel", channelID),
-			attribute.String("data", string(data)),
+			attribute.String("payloadData", string(data)),
 		)
 		defer span.End()
 	}
@@ -532,7 +532,7 @@ func (p *Pipeline) processDataOutput(ctx context.Context, out DataOutputter, var
 		span.SetAttributes(
 			attribute.String("namespace", vars.NS),
 			attribute.String("channel", vars.Channel),
-			attribute.String("data", string(data)),
+			attribute.String("payloadData", string(data)),
 			attribute.String("output", out.Type()),
 		)
 		defer span.End()

@@ -184,7 +184,7 @@ func (s *SocialGoogle) UserInfo(ctx context.Context, client *http.Client, token 
 		}
 	}
 
-	s.log.Debug("Resolved user info", "data", userInfo)
+	s.log.Debug("Resolved user info", "userInfoData", userInfo)
 
 	return userInfo, nil
 }

@@ -267,7 +267,7 @@ func (s *SocialGitlab) extractFromAPI(ctx context.Context, client *http.Client, 
 	}
 
 	if s.cfg.Env == setting.Dev {
-		s.log.Debug("Resolved ID", "data", idData)
+		s.log.Debug("Resolved ID", "idData", idData)
 	}
 
 	return idData, nil
@@ -330,7 +330,7 @@ func (s *SocialGitlab) extractFromToken(ctx context.Context, client *http.Client
 
 	data.raw = rawJSON
 
-	s.log.Debug("Resolved user data", "data", data)
+	s.log.Debug("Resolved user data", "userData", data)
 	return &data, nil
 }
 

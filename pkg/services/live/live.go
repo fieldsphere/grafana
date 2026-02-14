@@ -219,7 +219,7 @@ func ProvideService(cfg *setting.Cfg, routeRegister routing.RouteRegister, plugC
 
 			span.SetAttributes(
 				attribute.String("method", e.Method),
-				attribute.String("data", string(e.Data)),
+				attribute.String("requestData", string(e.Data)),
 			)
 
 			cbWithSpan := func(resp centrifuge.RPCReply, err error) {
@@ -227,7 +227,7 @@ func ProvideService(cfg *setting.Cfg, routeRegister routing.RouteRegister, plugC
 				if err != nil {
 					span.SetStatus(codes.Error, err.Error())
 				} else {
-					span.AddEvent("rpcResult", trace.WithAttributes(attribute.String("data", string(resp.Data))))
+					span.AddEvent("rpcResult", trace.WithAttributes(attribute.String("responseData", string(resp.Data))))
 					span.SetStatus(codes.Ok, "")
 				}
 				cb(resp, err)
@@ -248,7 +248,7 @@ func ProvideService(cfg *setting.Cfg, routeRegister routing.RouteRegister, plugC
 
 			span.SetAttributes(
 				attribute.String("channel", e.Channel),
-				attribute.String("data", string(e.Data)),
+				attribute.String("requestData", string(e.Data)),
 			)
 
 			cbWithSpan := func(resp centrifuge.SubscribeReply, err error) {
@@ -278,7 +278,7 @@ func ProvideService(cfg *setting.Cfg, routeRegister routing.RouteRegister, plugC
 
 			span.SetAttributes(
 				attribute.String("channel", e.Channel),
-				attribute.String("data", string(e.Data)),
+				attribute.String("requestData", string(e.Data)),
 			)
 
 			cbWithSpan := func(resp centrifuge.PublishReply, err error) {

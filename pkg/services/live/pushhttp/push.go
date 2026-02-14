@@ -89,7 +89,7 @@ func (g *Gateway) Handle(ctx *contextmodel.ReqContext) {
 	for _, mf := range metricFrames {
 		err := stream.Push(ctx.Req.Context(), mf.Key(), mf.Frame())
 		if err != nil {
-			logger.Error("Error pushing frame", "error", err, "data", string(body))
+			logger.Error("Error pushing frame", "error", err, "requestBody", string(body))
 			ctx.Resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
