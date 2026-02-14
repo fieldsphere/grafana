@@ -1,4 +1,4 @@
-import { logDevenvWarning } from '../../logging.js';
+import { logDevenvWarning } from '../logging.js';
 
 export const createTestOrgIfNotExists = (client) => {
   let orgId = 0;
