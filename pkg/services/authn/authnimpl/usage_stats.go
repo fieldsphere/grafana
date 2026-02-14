@@ -40,7 +40,7 @@ func (s *Service) getUsageStats(ctx context.Context) (map[string]any, error) {
 		if usac, ok := client.(authn.UsageStatClient); ok {
 			clientStats, err := usac.UsageStatFn(ctx)
 			if err != nil {
-				s.log.Warn("Failed to get usage stats from client", "client", client.Name(), "error", err)
+				s.log.Warn("Failed to get usage stats from client", "authClientName", client.Name(), "error", err)
 			}
 
 			for k, v := range clientStats {
