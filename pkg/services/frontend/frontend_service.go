@@ -212,7 +212,7 @@ func (s *frontendService) handleBootError(w http.ResponseWriter, r *http.Request
 	bootErrorMetric.Inc()
 
 	// Log the error details
-	s.log.Error("frontend boot error reported", "error", body)
+	s.log.Error("frontend boot error reported", "errorMessage", string(body))
 
 	// Return success response
 	w.WriteHeader(http.StatusOK)
