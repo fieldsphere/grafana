@@ -47,7 +47,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterRoleBindingCreate(obj runtime.
 
 		b.logger.Debug("writing role binding to zanzana",
 			"namespace", rb.Namespace,
-			"name", rb.Name,
+			"roleBindingName", rb.Name,
 			"subject", rb.Spec.Subject.Name,
 			"roleRefs", rb.Spec.RoleRefs,
 		)
@@ -83,7 +83,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterRoleBindingCreate(obj runtime.
 			b.logger.Error("failed to write role binding to zanzana",
 				"error", err,
 				"namespace", rb.Namespace,
-				"name", rb.Name,
+				"roleBindingName", rb.Name,
 				"subject", rb.Spec.Subject.Name,
 				"roleRefs", rb.Spec.RoleRefs,
 			)
@@ -124,7 +124,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterRoleBindingDelete(obj runtime.
 
 		b.logger.Debug("deleting role binding from zanzana",
 			"namespace", rb.Namespace,
-			"name", rb.Name,
+			"roleBindingName", rb.Name,
 			"subject", rb.Spec.Subject.Name,
 			"roleRefs", rb.Spec.RoleRefs,
 		)
@@ -160,7 +160,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterRoleBindingDelete(obj runtime.
 			b.logger.Error("failed to delete role binding from zanzana",
 				"error", err,
 				"namespace", rb.Namespace,
-				"name", rb.Name,
+				"roleBindingName", rb.Name,
 				"subject", rb.Spec.Subject.Name,
 				"roleRefs", rb.Spec.RoleRefs,
 			)
@@ -193,7 +193,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginRoleBindingUpdate(ctx context.
 	if newRB.Spec.Subject.Name == "" {
 		b.logger.Error("invalid role binding",
 			"namespace", newRB.Namespace,
-			"name", newRB.Name,
+			"roleBindingName", newRB.Name,
 			"subject", newRB.Spec.Subject.Name,
 			"roleRefs", newRB.Spec.RoleRefs,
 		)
@@ -222,7 +222,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginRoleBindingUpdate(ctx context.
 
 			b.logger.Debug("updating role binding in zanzana",
 				"namespace", newRB.Namespace,
-				"name", newRB.Name,
+				"roleBindingName", newRB.Name,
 				"oldSubject", oldRB.Spec.Subject.Name,
 				"newSubject", newRB.Spec.Subject.Name,
 				"oldRoleRefs", oldRB.Spec.RoleRefs,
@@ -260,7 +260,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginRoleBindingUpdate(ctx context.
 
 			// Only make the request if there are deletes or writes
 			if len(operations) == 0 {
-				b.logger.Debug("no role bindings to update in zanzana", "namespace", newRB.Namespace, "name", newRB.Name)
+				b.logger.Debug("no role bindings to update in zanzana", "namespace", newRB.Namespace, "roleBindingName", newRB.Name)
 				return
 			}
 
@@ -273,7 +273,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginRoleBindingUpdate(ctx context.
 				b.logger.Error("failed to update role binding in zanzana",
 					"error", err,
 					"namespace", newRB.Namespace,
-					"name", newRB.Name,
+					"roleBindingName", newRB.Name,
 				)
 			}
 		}()

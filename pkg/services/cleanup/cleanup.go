@@ -302,7 +302,7 @@ func (srv *CleanUpService) deleteKubernetesExpiredSnapshots(ctx context.Context)
 			var snapshot v0alpha1.Snapshot
 			err := runtime.DefaultUnstructuredConverter.FromUnstructured(item.Object, &snapshot)
 			if err != nil {
-				logger.Error("Failed to convert unstructured object to snapshot", "name", item.GetName(), "namespace", item.GetNamespace(), "error", err)
+				logger.Error("Failed to convert unstructured object to snapshot", "snapshotName", item.GetName(), "namespace", item.GetNamespace(), "error", err)
 				continue
 			}
 
@@ -315,13 +315,13 @@ func (srv *CleanUpService) deleteKubernetesExpiredSnapshots(ctx context.Context)
 				if err != nil {
 					// Check if it's a "not found" error, which is expected if the resource was already deleted
 					if k8serrors.IsNotFound(err) {
-						logger.Debug("Snapshot already deleted", "name", name, "namespace", namespace)
+						logger.Debug("Snapshot already deleted", "snapshotName", name, "namespace", namespace)
 					} else {
-						logger.Error("Failed to delete expired snapshot", "name", name, "namespace", namespace, "error", err)
+						logger.Error("Failed to delete expired snapshot", "snapshotName", name, "namespace", namespace, "error", err)
 					}
 				} else {
 					deletedCount++
-					logger.Debug("Successfully deleted expired snapshot", "name", name, "namespace", namespace, "creationTime", snapshot.CreationTimestamp.Unix(), "expirationTime", expirationTimestamp)
+					logger.Debug("Successfully deleted expired snapshot", "snapshotName", name, "namespace", namespace, "creationTime", snapshot.CreationTimestamp.Unix(), "expirationTime", expirationTimestamp)
 				}
 			}
 		}
@@ -445,7 +445,7 @@ func (srv *CleanUpService) deleteStaleKubernetesShortURLs(ctx context.Context) {
 			var shortURL v1beta1.ShortURL
 			err := runtime.DefaultUnstructuredConverter.FromUnstructured(item.Object, &shortURL)
 			if err != nil {
-				logger.Error("Failed to convert unstructured object to ShortURL", "name", item.GetName(), "namespace", item.GetNamespace(), "error", err)
+				logger.Error("Failed to convert unstructured object to ShortURL", "shortURLName", item.GetName(), "namespace", item.GetNamespace(), "error", err)
 				continue
 			}
 
@@ -458,13 +458,13 @@ func (srv *CleanUpService) deleteStaleKubernetesShortURLs(ctx context.Context) {
 				if err != nil {
 					// Check if it's a "not found" error, which is expected if the resource was already deleted
 					if k8serrors.IsNotFound(err) {
-						logger.Debug("ShortURL already deleted", "name", name, "namespace", namespace)
+						logger.Debug("ShortURL already deleted", "shortURLName", name, "namespace", namespace)
 					} else {
-						logger.Error("Failed to delete expired shortURL", "name", name, "namespace", namespace, "error", err)
+						logger.Error("Failed to delete expired shortURL", "shortURLName", name, "namespace", namespace, "error", err)
 					}
 				} else {
 					deletedCount++
-					logger.Debug("Successfully deleted expired shortURL", "name", name, "namespace", namespace, "creationTime", shortURL.CreationTimestamp.Unix(), "expirationTime", expirationTimestamp)
+					logger.Debug("Successfully deleted expired shortURL", "shortURLName", name, "namespace", namespace, "creationTime", shortURL.CreationTimestamp.Unix(), "expirationTime", expirationTimestamp)
 				}
 			}
 		}

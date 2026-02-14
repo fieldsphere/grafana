@@ -47,7 +47,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterTeamBindingCreate(obj runtime.
 
 		b.logger.Debug("writing team binding to zanzana",
 			"namespace", tb.Namespace,
-			"name", tb.Name,
+			"teamBindingName", tb.Name,
 			"subject", tb.Spec.Subject.Name,
 			"teamRef", tb.Spec.TeamRef.Name,
 			"permission", tb.Spec.Permission,
@@ -76,7 +76,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterTeamBindingCreate(obj runtime.
 			b.logger.Error("failed to write team binding to zanzana",
 				"error", err,
 				"namespace", tb.Namespace,
-				"name", tb.Name,
+				"teamBindingName", tb.Name,
 				"subject", tb.Spec.Subject.Name,
 				"teamRef", tb.Spec.TeamRef.Name,
 				"permission", tb.Spec.Permission,
@@ -113,7 +113,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginTeamBindingUpdate(ctx context.
 	if newTB.Spec.Subject.Name == "" || newTB.Spec.TeamRef.Name == "" {
 		b.logger.Error("invalid team binding",
 			"namespace", newTB.Namespace,
-			"name", newTB.Name,
+			"teamBindingName", newTB.Name,
 			"subject", newTB.Spec.Subject.Name,
 			"teamRef", newTB.Spec.TeamRef.Name,
 		)
@@ -140,7 +140,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginTeamBindingUpdate(ctx context.
 		},
 	})
 	if len(operations) == 0 {
-		b.logger.Debug("no updates to team binding in zanzana", "namespace", newTB.Namespace, "name", newTB.Name)
+		b.logger.Debug("no updates to team binding in zanzana", "namespace", newTB.Namespace, "teamBindingName", newTB.Name)
 		return func(ctx context.Context, success bool) {}, nil
 	}
 
@@ -167,7 +167,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginTeamBindingUpdate(ctx context.
 
 			b.logger.Debug("updating team binding in zanzana",
 				"namespace", newTB.Namespace,
-				"name", newTB.Name,
+				"teamBindingName", newTB.Name,
 				"oldSubject", oldTB.Spec.Subject.Name,
 				"newSubject", newTB.Spec.Subject.Name,
 				"oldTeamRef", oldTB.Spec.TeamRef.Name,
@@ -189,7 +189,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginTeamBindingUpdate(ctx context.
 				b.logger.Error("failed to update team binding in zanzana",
 					"error", err,
 					"namespace", newTB.Namespace,
-					"name", newTB.Name,
+					"teamBindingName", newTB.Name,
 				)
 			} else {
 				// Record successful tuple operations
@@ -235,7 +235,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterTeamBindingDelete(obj runtime.
 
 		b.logger.Debug("deleting team binding from zanzana",
 			"namespace", tb.Namespace,
-			"name", tb.Name,
+			"teamBindingName", tb.Name,
 			"subject", tb.Spec.Subject.Name,
 			"teamRef", tb.Spec.TeamRef.Name,
 			"permission", tb.Spec.Permission,
@@ -263,7 +263,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterTeamBindingDelete(obj runtime.
 			b.logger.Error("failed to delete team binding from zanzana",
 				"error", err,
 				"namespace", tb.Namespace,
-				"name", tb.Name,
+				"teamBindingName", tb.Name,
 				"subject", tb.Spec.Subject.Name,
 				"teamRef", tb.Spec.TeamRef.Name,
 			)

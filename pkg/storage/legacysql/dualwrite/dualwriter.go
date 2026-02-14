@@ -50,7 +50,7 @@ func (d *dualWriter) Get(ctx context.Context, name string, options *metav1.GetOp
 			attribute.Bool("readUnified", d.readUnified)))
 	defer span.End()
 
-	log := logging.FromContext(ctx).With("method", "Get", "name", name)
+	log := logging.FromContext(ctx).With("method", "Get", "resourceName", name)
 	// If we read from unified, we can just do that and return.
 	if d.readUnified {
 		return d.unified.Get(ctx, name, options)
@@ -283,7 +283,7 @@ func (d *dualWriter) Create(ctx context.Context, in runtime.Object, createValida
 			go func(ctxBg context.Context, cancel context.CancelFunc) {
 				defer cancel()
 				if _, asyncDelete, err := d.legacy.Delete(ctxBg, accCreated.GetName(), nil, &metav1.DeleteOptions{}); err != nil {
-					log.With("name", accCreated.GetName()).Error("failed to CLEANUP object in legacy storage", "error", err, "asyncDelete", asyncDelete)
+					log.With("resourceName", accCreated.GetName()).Error("failed to CLEANUP object in legacy storage", "error", err, "asyncDelete", asyncDelete)
 				}
 			}(context.WithTimeout(context.WithoutCancel(ctx), backgroundReqTimeout))
 			return nil, errObjectSt
@@ -308,7 +308,7 @@ func (d *dualWriter) Create(ctx context.Context, in runtime.Object, createValida
 			go func(ctxBg context.Context, cancel context.CancelFunc) {
 				defer cancel()
 				if _, asyncDelete, err := d.legacy.Delete(ctxBg, accCreated.GetName(), nil, &metav1.DeleteOptions{}); err != nil {
-					log.With("name", accCreated.GetName()).Error("failed to CLEANUP object in legacy storage", "error", err, "asyncDelete", asyncDelete)
+					log.With("resourceName", accCreated.GetName()).Error("failed to CLEANUP object in legacy storage", "error", err, "asyncDelete", asyncDelete)
 				}
 			}(context.WithTimeout(context.WithoutCancel(ctx), backgroundReqTimeout))
 			return nil, err
@@ -333,7 +333,7 @@ func (d *dualWriter) Delete(ctx context.Context, name string, deleteValidation r
 			attribute.Bool("errorIsOK", d.errorIsOK),
 			attribute.Bool("readUnified", d.readUnified)))
 	defer span.End()
-	log := logging.FromContext(ctx).With("method", "Delete", "name", name)
+	log := logging.FromContext(ctx).With("method", "Delete", "resourceName", name)
 	ctx = utils.SetFolderRemovePermissions(ctx, false)
 
 	objFromLegacy, asyncLegacy, err := d.legacy.Delete(ctx, name, deleteValidation, options)
@@ -379,7 +379,7 @@ func (d *dualWriter) Update(ctx context.Context, name string, objInfo rest.Updat
 			attribute.Bool("errorIsOK", d.errorIsOK),
 			attribute.Bool("readUnified", d.readUnified)))
 	defer span.End()
-	log := logging.FromContext(ctx).With("method", "Update", "name", name)
+	log := logging.FromContext(ctx).With("method", "Update", "resourceName", name)
 	// update in legacy first, and then unistore. Will return a failure if either fails.
 	//
 	// we want to update in legacy first, otherwise if the update from unistore was successful,
@@ -448,7 +448,7 @@ func (d *dualWriter) Update(ctx context.Context, name string, objInfo rest.Updat
 			go func(ctxBg context.Context, cancel context.CancelFunc) {
 				defer cancel()
 				if _, asyncDelete, err := d.legacy.Delete(ctxBg, name, nil, &metav1.DeleteOptions{}); err != nil {
-					log.With("name", name).Error("failed to CLEANUP object in legacy storage after unified storage update failure", "error", err, "asyncDelete", asyncDelete)
+					log.With("resourceName", name).Error("failed to CLEANUP object in legacy storage after unified storage update failure", "error", err, "asyncDelete", asyncDelete)
 				}
 			}(context.WithTimeout(context.WithoutCancel(ctx), backgroundReqTimeout))
 		}
