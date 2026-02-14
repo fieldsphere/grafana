@@ -336,7 +336,7 @@ func (srv RulerSrv) RouteGetRulesConfig(c *contextmodel.ReqContext) response.Res
 		if !ok {
 			id, _ := c.GetInternalID()
 			userNamespace := c.GetIdentityType()
-			srv.log.Error("Namespace not visible to the user", "user", id, "userNamespace", userNamespace, "namespace", groupKey.NamespaceUID)
+			srv.log.Error("Namespace not visible to the user", "userID", id, "userNamespace", userNamespace, "namespaceUID", groupKey.NamespaceUID)
 			continue
 		}
 		result[folder.Fullpath] = append(result[folder.Fullpath], toGettableRuleGroupConfig(groupKey.RuleGroup, rules, provenanceRecords, userUIDmapping))

@@ -1256,7 +1256,7 @@ func (st DBstore) DeleteInFolders(ctx context.Context, orgID int64, folderUIDs [
 			return err
 		}
 		if !canSave {
-			st.Logger.Error("user is not allowed to delete alert rules in folder", "folder", folderUID, "user")
+			st.Logger.Error("user is not allowed to delete alert rules in folder", "folderUID", folderUID, "identityID", user.GetID())
 			return dashboards.ErrFolderAccessDenied
 		}
 
