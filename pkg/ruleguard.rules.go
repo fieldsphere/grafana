@@ -1915,6 +1915,20 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in appended structured context arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`$logger.New($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.With($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in appended structured context keys (for example "orgID", "pluginID", "userID")`)
+
+	m.Match(
+		`$logger.New($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.With($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"([A-Za-z_]+Uid|[A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)\"$")).
+		Report(`avoid non-canonical appended structured context keys; use lower camelCase with canonical acronym casing (for example "dashboardUID", "requestPath", "statusCode")`)
+
+	m.Match(
 		`$logger.Info($msg, append($arr, $*before, $key, $value, $*after)...)`,
 		`$logger.Warn($msg, append($arr, $*before, $key, $value, $*after)...)`,
 		`$logger.Error($msg, append($arr, $*before, $key, $value, $*after)...)`,
@@ -1965,6 +1979,58 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in appended structured log arguments; use stable string-literal or const keys and keep dynamic data in values`)
+
+	m.Match(
+		`$logger.Info($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Warn($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Error($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Debug($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.DebugCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Info($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Warn($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Error($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Debug($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.InfoContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.WarnContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.DebugContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Log($ctx, $level, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Log($ctx, $level, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`klog.InfoS($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in appended structured log keys (for example "orgID", "pluginID", "userID")`)
+
+	m.Match(
+		`$logger.Info($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Warn($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Error($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Debug($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.DebugCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Info($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Warn($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Error($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Debug($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.InfoContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.WarnContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.DebugContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Log($ctx, $level, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Log($ctx, $level, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`klog.InfoS($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\"([A-Za-z_]+Uid|[A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)\"$")).
+		Report(`avoid non-canonical appended structured log keys; use lower camelCase with canonical acronym casing (for example "dashboardUID", "requestPath", "statusCode")`)
 
 	m.Match(
 		`$logger.Info($msg, $*before, $key, $value, $*after)`,
