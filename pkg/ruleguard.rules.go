@@ -2051,6 +2051,17 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous trace attribute keys in attribute.Key(...); use contextual keys such as "userID", "receiverUID", "orgID", "configID", "queryText", "ruleUID", "requestBody", "resourceVersion", "repositoryName", "resourceKind", "statusCode", "requestPath", "datasourceURL", "messageInfo", "measurementValue", or "payloadData"`)
 
 	m.Match(
+		`attribute.Key($left + $right)`,
+	).
+		Report("avoid dynamic concatenation for trace attribute keys in attribute.Key(...); use stable string-literal keys and keep dynamic data in values")
+
+	m.Match(
+		`attribute.Key(fmt.Sprintf($fmt, $*args))`,
+		`attribute.Key(fmt.Sprint($*args))`,
+	).
+		Report("avoid fmt formatting for trace attribute keys in attribute.Key(...); use stable string-literal keys and keep dynamic data in values")
+
+	m.Match(
 		`attribute.String($left + $right, $value)`,
 		`attribute.Int($left + $right, $value)`,
 		`attribute.Int64($left + $right, $value)`,
