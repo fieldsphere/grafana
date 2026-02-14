@@ -31,16 +31,16 @@ func (b *FolderAPIBuilder) beginCreate(ctx context.Context, obj runtime.Object, 
 
 	if meta.GetFolder() == "" {
 		// Zanzana only cares about parent-child folder relationships; nothing to do if folder is at root.
-		log.Info("Skipping Zanzana folder propagation for new root-level folder", "folder", meta.GetName())
+		log.Info("Skipping Zanzana folder propagation for new root-level folder", "folderUID", meta.GetName())
 		return func(ctx context.Context, success bool) {}, nil
 	}
 
 	return func(ctx context.Context, success bool) {
 		if success {
-			log.Info("Propagating new folder to Zanzana", "folder", meta.GetName(), "parent", meta.GetFolder())
+			log.Info("Propagating new folder to Zanzana", "folderUID", meta.GetName(), "parentFolderUID", meta.GetFolder())
 			b.writeFolderToZanzana(ctx, meta)
 		} else {
-			log.Info("Got success=false in folder create hook", "folder", meta.GetName())
+			log.Info("Got success=false in folder create hook", "folderUID", meta.GetName())
 		}
 	}, nil
 }
@@ -60,16 +60,16 @@ func (b *FolderAPIBuilder) beginUpdate(ctx context.Context, obj runtime.Object, 
 
 	if updatedMeta.GetFolder() == oldMeta.GetFolder() {
 		// No change to parent folder, nothing to do.
-		log.Info("Skipping Zanzana folder propagation; no change in parent", "folder", oldMeta.GetName())
+		log.Info("Skipping Zanzana folder propagation; no change in parent", "folderUID", oldMeta.GetName())
 		return func(ctx context.Context, success bool) {}, nil
 	}
 
 	return func(ctx context.Context, success bool) {
 		if success {
-			log.Info("Propagating updated folder to Zanzana", "folder", oldMeta.GetName(), "oldParent", oldMeta.GetFolder(), "newParent", updatedMeta.GetFolder())
+			log.Info("Propagating updated folder to Zanzana", "folderUID", oldMeta.GetName(), "oldParentFolderUID", oldMeta.GetFolder(), "newParentFolderUID", updatedMeta.GetFolder())
 			b.writeFolderToZanzana(ctx, updatedMeta)
 		} else {
-			log.Info("Got success=false in folder update hook", "folder", oldMeta.GetName())
+			log.Info("Got success=false in folder update hook", "folderUID", oldMeta.GetName())
 		}
 	}, nil
 }
@@ -85,7 +85,7 @@ func (b *FolderAPIBuilder) afterDelete(obj runtime.Object, _ *metav1.DeleteOptio
 
 	//nolint:staticcheck // not yet migrated to OpenFeature
 	if b.features.IsEnabledGlobally(featuremgmt.FlagZanzana) {
-		log.Info("Propagating deleted folder to Zanzana", "folder", meta.GetName(), "parent", meta.GetFolder())
+		log.Info("Propagating deleted folder to Zanzana", "folderUID", meta.GetName(), "parentFolderUID", meta.GetFolder())
 		err = b.permissionStore.DeleteFolderParents(ctx, meta.GetNamespace(), meta.GetName())
 		if err != nil {
 			log.Warn("failed to propagate folder to zanzana", "error", err)
@@ -111,7 +111,7 @@ func (b *FolderAPIBuilder) afterDelete(obj runtime.Object, _ *metav1.DeleteOptio
 			return
 		}
 		if accessErr := b.folderPermissionsSvc.DeleteResourcePermissions(ctx, ns.OrgID, meta.GetName()); accessErr != nil {
-			log.Warn("failed to delete folder permission after successfully deleting folder resource", "folder", meta.GetName(), "error", accessErr)
+			log.Warn("failed to delete folder permission after successfully deleting folder resource", "folderUID", meta.GetName(), "error", accessErr)
 		}
 	}
 }

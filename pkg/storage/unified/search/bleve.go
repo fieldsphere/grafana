@@ -1977,13 +1977,13 @@ func (q *permissionScopedQuery) Searcher(ctx context.Context, i index.IndexReade
 			logger.Debug("Unexpected document ID format", "documentID", d.ID)
 			return false
 		}
-		ns := parts[0]
+		namespace := parts[0]
 		resource := parts[2]
-		name := parts[3]
-		folder := ""
+		resourceName := parts[3]
+		folderUID := ""
 		err = dvReader.VisitDocValues(d.IndexInternalID, func(field string, value []byte) {
 			if field == "folder" {
-				folder = string(value)
+				folderUID = string(value)
 			}
 		})
 		if err != nil {
@@ -1994,9 +1994,9 @@ func (q *permissionScopedQuery) Searcher(ctx context.Context, i index.IndexReade
 			logger.Debug("No resource checker found", "resource", resource)
 			return false
 		}
-		allowed := q.checkers[resource](name, folder)
+		allowed := q.checkers[resource](resourceName, folderUID)
 		if !allowed {
-			logger.Debug("Denying access", "ns", ns, "name", name, "folder", folder)
+			logger.Debug("Denying access", "namespace", namespace, "resourceName", resourceName, "folderUID", folderUID)
 		}
 		return allowed
 	})

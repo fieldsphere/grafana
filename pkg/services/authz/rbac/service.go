@@ -897,7 +897,7 @@ func (s *Service) checkInheritedPermissions(ctx context.Context, scopeMap map[st
 		if !s.isFolderInTree(tree, req.ParentFolder) {
 			// Not erroring here as the permission might exist but the folder wasn't synchronized yet
 			// Once in mode 5 we can deny access here
-			ctxLogger.Error("parent folder not found in folder tree", "folder", req.ParentFolder)
+			ctxLogger.Error("parent folder not found in folder tree", "parentFolderUID", req.ParentFolder)
 		}
 	}
 

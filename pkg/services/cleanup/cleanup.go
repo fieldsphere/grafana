@@ -195,15 +195,15 @@ func (srv *CleanUpService) cleanUpTmpFiles(ctx context.Context) {
 	}
 }
 
-func (srv *CleanUpService) cleanUpTmpFolder(ctx context.Context, folder string) {
+func (srv *CleanUpService) cleanUpTmpFolder(ctx context.Context, folderPath string) {
 	logger := srv.log.FromContext(ctx)
-	if _, err := os.Stat(folder); os.IsNotExist(err) {
+	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
 		return
 	}
 
-	files, err := os.ReadDir(folder)
+	files, err := os.ReadDir(folderPath)
 	if err != nil {
-		logger.Error("Problem reading dir", "folder", folder, "error", err)
+		logger.Error("Problem reading dir", "folderPath", folderPath, "error", err)
 		return
 	}
 
@@ -213,7 +213,7 @@ func (srv *CleanUpService) cleanUpTmpFolder(ctx context.Context, folder string) 
 	for _, file := range files {
 		info, err := file.Info()
 		if err != nil {
-			logger.Error("Problem reading file", "folder", folder, "file", file, "error", err)
+			logger.Error("Problem reading file", "folderPath", folderPath, "file", file, "error", err)
 			continue
 		}
 
@@ -223,14 +223,14 @@ func (srv *CleanUpService) cleanUpTmpFolder(ctx context.Context, folder string) 
 	}
 
 	for _, file := range toDelete {
-		fullPath := path.Join(folder, file.Name())
+		fullPath := path.Join(folderPath, file.Name())
 		err := os.Remove(fullPath)
 		if err != nil {
 			logger.Error("Failed to delete temp file", "file", file.Name(), "error", err)
 		}
 	}
 
-	logger.Debug("Found old rendered file to delete", "folder", folder, "deleted", len(toDelete), "kept", len(files))
+	logger.Debug("Found old rendered file to delete", "folderPath", folderPath, "deleted", len(toDelete), "kept", len(files))
 }
 
 func (srv *CleanUpService) shouldCleanupTempFile(filemtime time.Time, now time.Time) bool {
