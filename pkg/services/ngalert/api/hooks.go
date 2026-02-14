@@ -31,7 +31,7 @@ func NewHooks(logger log.Logger) *Hooks {
 // Add creates a new request hook for a path, causing requests to the path to
 // be handled by the hook function, and not the original handler.
 func (h *Hooks) Set(method string, path string, hook RequestHandlerFunc) {
-	h.logger.Info("Setting hook override for the specified route", "path", path)
+	h.logger.Info("Setting hook override for the specified route", "routePath", path)
 	route := h.router.NewRoute().Path(path).Methods(method)
 	h.routeHooks[route] = hook
 }
@@ -55,7 +55,7 @@ func (h *Hooks) Get(method string, url *url.URL) (RequestHandlerFunc, bool) {
 func (h *Hooks) Wrap(next RequestHandlerFunc) RequestHandlerFunc {
 	return func(req *contextmodel.ReqContext) response.Response {
 		if hook, ok := h.Get(req.Req.Method, req.Req.URL); ok {
-			h.logger.Debug("Hook defined - invoking new handler", "path", req.Req.URL.Path)
+			h.logger.Debug("Hook defined - invoking new handler", "requestPath", req.Req.URL.Path)
 			return hook(req)
 		}
 		return next(req)

@@ -71,10 +71,10 @@ func (r *PluginPathRunner) OnSubscribe(ctx context.Context, user identity.Reques
 	pCtx, err := r.pluginContextGetter.GetPluginContext(ctx, user, r.pluginID, r.datasourceUID, false)
 	if err != nil {
 		if errors.Is(err, plugins.ErrPluginNotRegistered) {
-			livePluginLog.Error("Plugin context not found", "path", r.path)
+			livePluginLog.Error("Plugin context not found", "streamPath", r.path)
 			return model.SubscribeReply{}, 0, centrifuge.ErrorInternal
 		}
-		livePluginLog.Error("Get plugin context error", "error", err, "path", r.path)
+		livePluginLog.Error("Get plugin context error", "error", err, "streamPath", r.path)
 		return model.SubscribeReply{}, 0, err
 	}
 	resp, err := r.handler.SubscribeStream(ctx, &backend.SubscribeStreamRequest{
@@ -83,7 +83,7 @@ func (r *PluginPathRunner) OnSubscribe(ctx context.Context, user identity.Reques
 		Data:          e.Data,
 	})
 	if err != nil {
-		livePluginLog.Error("Plugin OnSubscribe call error", "error", err, "path", r.path)
+		livePluginLog.Error("Plugin OnSubscribe call error", "error", err, "streamPath", r.path)
 		return model.SubscribeReply{}, 0, err
 	}
 	if resp.Status != backend.SubscribeStreamStatusOK {
@@ -92,13 +92,13 @@ func (r *PluginPathRunner) OnSubscribe(ctx context.Context, user identity.Reques
 
 	submitResult, err := r.runStreamManager.SubmitStream(ctx, user, orgchannel.PrependK8sNamespace(user.GetNamespace(), e.Channel), r.path, e.Data, pCtx, r.handler, false)
 	if err != nil {
-		livePluginLog.Error("Error submitting stream to manager", "error", err, "path", r.path)
+		livePluginLog.Error("Error submitting stream to manager", "error", err, "streamPath", r.path)
 		return model.SubscribeReply{}, 0, centrifuge.ErrorInternal
 	}
 	if submitResult.StreamExists {
-		livePluginLog.Debug("Skip running new stream (already exists)", "path", r.path)
+		livePluginLog.Debug("Skip running new stream (already exists)", "streamPath", r.path)
 	} else {
-		livePluginLog.Debug("Running a new unidirectional stream", "path", r.path)
+		livePluginLog.Debug("Running a new unidirectional stream", "streamPath", r.path)
 	}
 
 	reply := model.SubscribeReply{
@@ -115,10 +115,10 @@ func (r *PluginPathRunner) OnPublish(ctx context.Context, user identity.Requeste
 	pCtx, err := r.pluginContextGetter.GetPluginContext(ctx, user, r.pluginID, r.datasourceUID, false)
 	if err != nil {
 		if errors.Is(err, plugins.ErrPluginNotRegistered) {
-			livePluginLog.Error("Plugin context not found", "path", r.path)
+			livePluginLog.Error("Plugin context not found", "streamPath", r.path)
 			return model.PublishReply{}, 0, centrifuge.ErrorInternal
 		}
-		livePluginLog.Error("Get plugin context error", "error", err, "path", r.path)
+		livePluginLog.Error("Get plugin context error", "error", err, "streamPath", r.path)
 		return model.PublishReply{}, 0, err
 	}
 	resp, err := r.handler.PublishStream(ctx, &backend.PublishStreamRequest{
@@ -127,7 +127,7 @@ func (r *PluginPathRunner) OnPublish(ctx context.Context, user identity.Requeste
 		Data:          e.Data,
 	})
 	if err != nil {
-		livePluginLog.Error("Plugin OnPublish call error", "error", err, "path", r.path)
+		livePluginLog.Error("Plugin OnPublish call error", "error", err, "streamPath", r.path)
 		return model.PublishReply{}, 0, err
 	}
 	if resp.Status != backend.PublishStreamStatusOK {

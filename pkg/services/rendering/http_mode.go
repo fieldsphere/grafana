@@ -211,7 +211,7 @@ func (rs *RenderingService) writeResponseToFile(ctx context.Context, resp *http.
 	defer func() {
 		if err := out.Close(); err != nil && !errors.Is(err, fs.ErrClosed) {
 			// We already close the file explicitly in the non-error path, so shouldn't be a problem
-			logger.Warn("Failed to close file", "path", filePath, "error", err)
+			logger.Warn("Failed to close file", "filePath", filePath, "error", err)
 		}
 	}()
 

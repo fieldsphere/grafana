@@ -25,13 +25,13 @@ func main() {
 	//nolint
 	b, err := os.ReadFile(input)
 	if err != nil {
-		slog.Error("Failed to read input file", "path", input, "error", err)
+		slog.Error("Failed to read input file", "inputFilePath", input, "error", err)
 		os.Exit(1)
 	}
 
 	data := make(map[string]any)
 	if err := json.Unmarshal(b, &data); err != nil {
-		slog.Error("Failed to parse input JSON", "path", input, "error", err)
+		slog.Error("Failed to parse input JSON", "inputFilePath", input, "error", err)
 		os.Exit(1)
 	}
 
@@ -112,7 +112,7 @@ func main() {
 
 	err = os.WriteFile(output, out, 0644)
 	if err != nil {
-		slog.Error("Failed to write cleaned swagger file", "path", output, "error", err)
+		slog.Error("Failed to write cleaned swagger file", "outputFilePath", output, "error", err)
 		os.Exit(1)
 	}
 }

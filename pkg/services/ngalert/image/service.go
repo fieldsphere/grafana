@@ -171,7 +171,7 @@ func (s *ScreenshotImageService) NewImage(ctx context.Context, r *models.AlertRu
 			return nil, err
 		}
 
-		logger.Debug("Took screenshot", "path", screenshot.Path)
+		logger.Debug("Took screenshot", "screenshotPath", screenshot.Path)
 		image := models.Image{Path: screenshot.Path}
 
 		// Uploading images is optional

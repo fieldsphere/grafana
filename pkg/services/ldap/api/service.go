@@ -95,7 +95,7 @@ func ProvideService(
 // Responses:
 // 410: goneError
 func (s *Service) ReloadLDAPCfg(c *contextmodel.ReqContext) response.Response {
-	s.log.Warn("Obsolete and Permanently moved API endpoint called", "path", c.Req.URL.Path)
+	s.log.Warn("Obsolete and Permanently moved API endpoint called", "requestPath", c.Req.URL.Path)
 
 	// Respond with a 410 Gone status code
 	return response.Error(

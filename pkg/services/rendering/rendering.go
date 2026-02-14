@@ -282,7 +282,7 @@ func (rs *RenderingService) render(ctx context.Context, renderType RenderType, o
 	metrics.MRenderingQueue.Set(float64(newInProgressCount))
 
 	if opts.ConcurrentLimit > 0 && int(newInProgressCount) > opts.ConcurrentLimit {
-		logger.Warn("Could not render image, hit the currency limit", "concurrencyLimit", opts.ConcurrentLimit, "path", opts.Path)
+		logger.Warn("Could not render image, hit the currency limit", "concurrencyLimit", opts.ConcurrentLimit, "renderPath", opts.Path)
 		if opts.ErrorConcurrentLimitReached {
 			return nil, ErrConcurrentLimitReached
 		}
@@ -303,7 +303,7 @@ func (rs *RenderingService) render(ctx context.Context, renderType RenderType, o
 		}
 	}
 
-	logger.Info("Rendering", "path", opts.Path, "userID", opts.UserID)
+	logger.Info("Rendering", "renderPath", opts.Path, "userID", opts.UserID)
 	if math.IsInf(opts.DeviceScaleFactor, 0) || math.IsNaN(opts.DeviceScaleFactor) || opts.DeviceScaleFactor == 0 {
 		opts.DeviceScaleFactor = 1
 	}
@@ -316,10 +316,10 @@ func (rs *RenderingService) render(ctx context.Context, renderType RenderType, o
 
 	res, err := rs.renderAction(ctx, renderType, renderKey, opts)
 	if err != nil {
-		logger.Error("Failed to render image", "path", opts.Path, "error", err)
+		logger.Error("Failed to render image", "renderPath", opts.Path, "error", err)
 		return nil, err
 	}
-	logger.Debug("Successfully rendered image", "path", opts.Path)
+	logger.Debug("Successfully rendered image", "renderPath", opts.Path)
 
 	return res, nil
 }
@@ -357,7 +357,7 @@ func (rs *RenderingService) renderCSV(ctx context.Context, opts CSVOpts, renderK
 		return nil, ErrConcurrentLimitReached
 	}
 
-	logger.Info("Rendering", "path", opts.Path)
+	logger.Info("Rendering", "renderPath", opts.Path)
 	renderKey, err := renderKeyProvider.get(ctx, opts.AuthOpts)
 	if err != nil {
 		return nil, err

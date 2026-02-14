@@ -64,7 +64,7 @@ func (h *DashboardHandler) OnSubscribe(ctx context.Context, user identity.Reques
 	}
 
 	// Unknown path
-	liveDashboardLog.Error("Unknown dashboard channel", "path", e.Path)
+	liveDashboardLog.Error("Unknown dashboard channel", "channelPath", e.Path)
 	return model.SubscribeReply{}, backend.SubscribeStreamStatusNotFound, nil
 }
 
