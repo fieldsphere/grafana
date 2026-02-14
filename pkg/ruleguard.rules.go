@@ -1558,6 +1558,28 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid uppercase-leading slog attribute keys; use lower camelCase with canonical acronym casing`)
 
 	m.Match(
+		`slog.String($key, fmt.Sprintf($fmt, $*args))`,
+		`slog.Int($key, fmt.Sprintf($fmt, $*args))`,
+		`slog.Int64($key, fmt.Sprintf($fmt, $*args))`,
+		`slog.Uint64($key, fmt.Sprintf($fmt, $*args))`,
+		`slog.Bool($key, fmt.Sprintf($fmt, $*args))`,
+		`slog.Float64($key, fmt.Sprintf($fmt, $*args))`,
+		`slog.Duration($key, fmt.Sprintf($fmt, $*args))`,
+		`slog.Time($key, fmt.Sprintf($fmt, $*args))`,
+		`slog.Any($key, fmt.Sprintf($fmt, $*args))`,
+		`slog.String($key, fmt.Sprint($*args))`,
+		`slog.Int($key, fmt.Sprint($*args))`,
+		`slog.Int64($key, fmt.Sprint($*args))`,
+		`slog.Uint64($key, fmt.Sprint($*args))`,
+		`slog.Bool($key, fmt.Sprint($*args))`,
+		`slog.Float64($key, fmt.Sprint($*args))`,
+		`slog.Duration($key, fmt.Sprint($*args))`,
+		`slog.Time($key, fmt.Sprint($*args))`,
+		`slog.Any($key, fmt.Sprint($*args))`,
+	).
+		Report(`avoid fmt formatting in slog attribute constructor values; pass typed values directly or split related data into separate structured fields`)
+
+	m.Match(
 		`$logger.Info($msg, []any{$*before, $key, $value, $*after}...)`,
 		`$logger.Warn($msg, []any{$*before, $key, $value, $*after}...)`,
 		`$logger.Error($msg, []any{$*before, $key, $value, $*after}...)`,
