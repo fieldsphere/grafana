@@ -1740,6 +1740,13 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid PascalCase trace event names; use lowerCamelCase literals such as "queryDataStart" or "loadedRoute"`)
 
 	m.Match(
+		`$span.AddEvent($name)`,
+		`$span.AddEvent($name, $*attrs)`,
+	).
+		Where(m["name"].Text.Matches("^\".*[_\\-.:/].*\"$")).
+		Report(`avoid separator characters in trace event names; use lowerCamelCase literals such as "batchTransactionCompleted" or "resourceVersionLocked"`)
+
+	m.Match(
 		`$span.AddEvent($left + $right)`,
 		`$span.AddEvent($left + $right, $*attrs)`,
 		`$span.AddEvent(fmt.Sprintf($fmt, $*args))`,
