@@ -163,8 +163,8 @@ func (s *persistentStore) Claim(ctx context.Context) (job *provisioning.Job, rol
 		logger.Info("job claim complete",
 			"jobName", updatedJob.GetName(),
 			"namespace", updatedJob.GetNamespace(),
-			"repository", updatedJob.Spec.Repository,
-			"action", updatedJob.Spec.Action,
+			"repositoryName", updatedJob.Spec.Repository,
+			"jobAction", updatedJob.Spec.Action,
 		)
 
 		span.SetAttributes(
@@ -462,8 +462,8 @@ func (s *persistentStore) Insert(ctx context.Context, namespace string, spec pro
 	logger := logging.FromContext(ctx).With(
 		"operation", "insert",
 		"namespace", namespace,
-		"repository", spec.Repository,
-		"action", spec.Action,
+		"repositoryName", spec.Repository,
+		"jobAction", spec.Action,
 	)
 
 	span.SetAttributes(

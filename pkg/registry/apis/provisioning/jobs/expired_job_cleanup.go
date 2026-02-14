@@ -152,7 +152,7 @@ func (c *JobCleanupController) cleanUpExpiredJob(ctx context.Context, job *provi
 		attribute.String("jobAction", string(jobCopy.Spec.Action)),
 	)
 
-	jobLogger := logging.FromContext(ctx).With("namespace", jobCopy.GetNamespace(), "jobName", jobCopy.GetName(), "action", jobCopy.Spec.Action)
+	jobLogger := logging.FromContext(ctx).With("namespace", jobCopy.GetNamespace(), "jobName", jobCopy.GetName(), "jobAction", jobCopy.Spec.Action)
 
 	// Delete from active job store first
 	if err := c.store.Complete(ctx, jobCopy); err != nil {
