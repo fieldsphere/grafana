@@ -64,7 +64,7 @@ func main() {
 		}
 
 		if strings.TrimPrefix(refKey.(string), "#/definitions/") == k {
-			slog.Debug("Removing circular ref key", "ref", refKey)
+			slog.Debug("Removing circular ref key", "referenceKey", refKey)
 			delete(vMap, RefKey)
 		}
 	}

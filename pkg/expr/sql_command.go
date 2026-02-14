@@ -184,7 +184,7 @@ func (gr *SQLCommand) Execute(ctx context.Context, now time.Time, vars mathexp.V
 	for _, ref := range gr.varsToQuery {
 		results, ok := vars[ref]
 		if !ok {
-			gr.logger.Warn("no results found for", "ref", ref)
+			gr.logger.Warn("no results found for", "queryRefID", ref)
 			continue
 		}
 		frames := results.Values.AsDataFrames(ref)

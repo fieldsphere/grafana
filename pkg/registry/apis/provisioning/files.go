@@ -106,7 +106,7 @@ func (c *filesConnector) handleRequest(ctx context.Context, name string, r *http
 		return
 	}
 
-	logger = logger.With("url", r.URL.Path, "ref", opts.Ref, "message", opts.Message)
+	logger = logger.With("url", r.URL.Path, "gitRef", opts.Ref, "message", opts.Message)
 	ctx = logging.Context(r.Context(), logger)
 
 	// Handle directory listing separately
