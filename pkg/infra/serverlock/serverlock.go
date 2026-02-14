@@ -399,7 +399,7 @@ func (sl *ServerLockService) createLock(ctx context.Context,
 		sl.log.FromContext(ctx).Error("Expected rows affected to be 1 if there was no error",
 			"actionName", lockRow.OperationUID,
 			"rowsAffected", affected,
-			"lockRow ID", lockRow.Id)
+			"lockRowID", lockRow.Id)
 	}
 
 	return lockRow, nil

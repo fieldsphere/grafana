@@ -258,7 +258,7 @@ func (esa *ExtSvcAccountsService) ManageExtSvcAccount(ctx context.Context, cmd *
 		}
 		ctxLogger.Info("Skipping service account creation, no permission",
 			"service", cmd.ExtSvcSlug,
-			"permission count", len(cmd.Permissions),
+			"permissionCount", len(cmd.Permissions),
 			"saID", saID)
 		return 0, nil
 	}

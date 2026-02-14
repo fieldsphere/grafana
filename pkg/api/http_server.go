@@ -952,8 +952,8 @@ func (hs *HTTPServer) configureTLS() error {
 
 	tlsCiphers := hs.getDefaultCiphers(minTlsVersion, string(hs.Cfg.Protocol))
 
-	hs.log.Info("HTTP Server TLS settings", "scheme", hs.Cfg.Protocol, "Min TLS Version", hs.Cfg.MinTLSVersion,
-		"configured ciphers", util.TlsCipherIdsToString(tlsCiphers))
+	hs.log.Info("HTTP Server TLS settings", "scheme", hs.Cfg.Protocol, "minTLSVersion", hs.Cfg.MinTLSVersion,
+		"configuredCiphers", util.TlsCipherIdsToString(tlsCiphers))
 
 	tlsCfg := &tls.Config{
 		Certificates: tlsCerts,

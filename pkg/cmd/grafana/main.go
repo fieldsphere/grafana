@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log/slog"
 	"os"
 
@@ -77,6 +76,7 @@ func cmdNotFound(c *cli.Context, command string) {
 	slog.Error("Unknown command",
 		"app", c.App.Name,
 		"command", command,
-		"help", fmt.Sprintf("%s --help", os.Args[0]))
+		"helpBinary", os.Args[0],
+		"helpFlag", "--help")
 	os.Exit(1)
 }
