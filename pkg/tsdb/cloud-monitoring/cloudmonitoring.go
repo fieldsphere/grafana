@@ -618,7 +618,7 @@ func unmarshalResponse(res *http.Response, logger log.Logger) (cloudMonitoringRe
 	}()
 
 	if res.StatusCode/100 != 2 {
-		logger.Error("Request failed", "status", res.Status, "responseBody", string(body), "statusSource", backend.ErrorSourceDownstream)
+		logger.Error("Request failed", "statusText", res.Status, "responseBody", string(body), "statusSource", backend.ErrorSourceDownstream)
 		statusErr := fmt.Errorf("query failed: %s", string(body))
 		if backend.ErrorSourceFromHTTPStatus(res.StatusCode) == backend.ErrorSourceDownstream {
 			return cloudMonitoringResponse{}, backend.DownstreamError(statusErr)
@@ -629,7 +629,7 @@ func unmarshalResponse(res *http.Response, logger log.Logger) (cloudMonitoringRe
 	var data cloudMonitoringResponse
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		logger.Error("Failed to unmarshal CloudMonitoring response", "error", err, "status", res.Status, "responseBody", string(body), "statusSource", backend.ErrorSourceDownstream)
+		logger.Error("Failed to unmarshal CloudMonitoring response", "error", err, "statusText", res.Status, "responseBody", string(body), "statusSource", backend.ErrorSourceDownstream)
 		return cloudMonitoringResponse{}, fmt.Errorf("failed to unmarshal query response: %w", err)
 	}
 

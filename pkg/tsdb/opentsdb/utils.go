@@ -236,7 +236,7 @@ func ParseResponse(logger log.Logger, res *http.Response, refID string, tsdbVers
 	}()
 
 	if res.StatusCode/100 != 2 {
-		logger.Info("Request failed", "status", res.Status, "responseBody", string(body))
+		logger.Info("Request failed", "statusText", res.Status, "responseBody", string(body))
 		return nil, fmt.Errorf("request failed, status: %s", res.Status)
 	}
 
@@ -247,7 +247,7 @@ func ParseResponse(logger log.Logger, res *http.Response, refID string, tsdbVers
 	if tsdbVersion == 4 {
 		err = json.Unmarshal(body, &responseData24)
 		if err != nil {
-			logger.Info("Failed to unmarshal opentsdb response", "error", err, "status", res.Status, "responseBody", string(body))
+			logger.Info("Failed to unmarshal opentsdb response", "error", err, "statusText", res.Status, "responseBody", string(body))
 			return nil, err
 		}
 
@@ -255,7 +255,7 @@ func ParseResponse(logger log.Logger, res *http.Response, refID string, tsdbVers
 	} else {
 		err = json.Unmarshal(body, &responseData)
 		if err != nil {
-			logger.Info("Failed to unmarshal opentsdb response", "error", err, "status", res.Status, "responseBody", string(body))
+			logger.Info("Failed to unmarshal opentsdb response", "error", err, "statusText", res.Status, "responseBody", string(body))
 			return nil, err
 		}
 
