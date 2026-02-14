@@ -122,9 +122,9 @@ func (m *TLSManager) cleanupCertFiles(tlsConfig tlsSettings) {
 			continue
 		}
 		if err := os.Remove(file.path); err != nil {
-			m.logger.Error("Failed to remove file", "type", file.name, "filePath", file.path, "error", err)
+			m.logger.Error("Failed to remove file", "tlsFileType", file.name, "filePath", file.path, "error", err)
 		} else {
-			m.logger.Debug("Successfully removed file", "type", file.name, "filePath", file.path)
+			m.logger.Debug("Successfully removed file", "tlsFileType", file.name, "filePath", file.path)
 		}
 	}
 }

@@ -146,7 +146,7 @@ func (s *SecureValueService) Update(ctx context.Context, newSecureValue *secretv
 		if err != nil {
 			return nil, false, fmt.Errorf("getting keeper for config: namespace=%+v keeperName=%+v %w", newSecureValue.Namespace, newSecureValue.Status.Keeper, err)
 		}
-		logging.FromContext(ctx).Debug("retrieved keeper", "namespace", newSecureValue.Namespace, "type", keeperCfg.Type())
+		logging.FromContext(ctx).Debug("retrieved keeper", "namespace", newSecureValue.Namespace, "keeperType", keeperCfg.Type())
 
 		secret, err := keeper.Expose(ctx, keeperCfg, xkube.Namespace(newSecureValue.Namespace), newSecureValue.Name, currentVersion.Status.Version)
 		if err != nil {
@@ -192,7 +192,7 @@ func (s *SecureValueService) createNewVersion(ctx context.Context, keeperName st
 	if err != nil {
 		return nil, fmt.Errorf("getting keeper for config: namespace=%+v keeperName=%+v %w", createdSv.Namespace, keeperName, err)
 	}
-	logging.FromContext(ctx).Debug("retrieved keeper", "namespace", createdSv.Namespace, "type", keeperCfg.Type())
+	logging.FromContext(ctx).Debug("retrieved keeper", "namespace", createdSv.Namespace, "keeperType", keeperCfg.Type())
 	// TODO: can we stop using external id?
 	// TODO: store uses only the namespace and returns and id. It could be a kv instead.
 	// TODO: check that the encrypted store works with multiple versions

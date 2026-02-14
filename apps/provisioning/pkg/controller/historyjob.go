@@ -58,7 +58,7 @@ func NewHistoryJobController(
 func (c *HistoryJobController) cleanupJob(obj interface{}) {
 	job, ok := obj.(*provisioning.HistoricJob)
 	if !ok {
-		c.logger.Error("unexpected object type - expected HistoricJob", "type", obj)
+		c.logger.Error("unexpected object type - expected HistoricJob", "objectType", obj)
 		return
 	}
 

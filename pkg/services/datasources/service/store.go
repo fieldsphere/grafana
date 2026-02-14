@@ -333,7 +333,7 @@ func (ss *SqlStore) AddDataSource(ctx context.Context, cmd *datasources.AddDataS
 
 		if cmd.UpdateSecretFn != nil {
 			if err := cmd.UpdateSecretFn(); err != nil {
-				// ss.logger.Error("Failed to update datasource secrets -- rolling back update", "datasourceName", cmd.Name, "type", cmd.Type, "orgID", cmd.OrgID)
+				// ss.logger.Error("Failed to update datasource secrets -- rolling back update", "datasourceName", cmd.Name, "datasourceType", cmd.Type, "orgID", cmd.OrgID)
 				return err
 			}
 		}
@@ -433,7 +433,7 @@ func (ss *SqlStore) UpdateDataSource(ctx context.Context, cmd *datasources.Updat
 
 		if cmd.UpdateSecretFn != nil {
 			if err := cmd.UpdateSecretFn(); err != nil {
-				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "datasourceUID", cmd.UID, "datasourceName", cmd.Name, "type", cmd.Type, "orgID", cmd.OrgID)
+				ss.logger.Error("Failed to update datasource secrets -- rolling back update", "datasourceUID", cmd.UID, "datasourceName", cmd.Name, "datasourceType", cmd.Type, "orgID", cmd.OrgID)
 				return err
 			}
 		}

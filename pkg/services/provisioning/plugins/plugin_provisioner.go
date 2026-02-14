@@ -73,7 +73,7 @@ func (ap *PluginProvisioner) apply(ctx context.Context, cfg *pluginsAsConfig) er
 			app.PluginVersion = ps.PluginVersion
 		}
 
-		ap.log.Info("Updating app from configuration ", "type", app.PluginID, "enabled", app.Enabled)
+		ap.log.Info("Updating app from configuration ", "pluginID", app.PluginID, "enabled", app.Enabled)
 		if err := ap.pluginSettings.UpdatePluginSetting(ctx, &pluginsettings.UpdateArgs{
 			OrgID:          app.OrgID,
 			PluginID:       app.PluginID,

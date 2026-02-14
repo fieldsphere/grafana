@@ -72,7 +72,7 @@ func ValidateURL(typeName, urlStr string) (*url.URL, error) {
 	case "mssql":
 		u, err = parseURL(urlStr, logger)
 	default:
-		logger.Debug("Applying default URL parsing for this data source type", "type", typeName, "datasourceURL", urlStr)
+		logger.Debug("Applying default URL parsing for this data source type", "datasourceType", typeName, "datasourceURL", urlStr)
 
 		// Make sure the URL starts with a protocol specifier, so parsing is unambiguous
 		if !reURL.MatchString(urlStr) {

@@ -269,7 +269,7 @@ func copyData(field *data.Field, col arrow.Array) error {
 		copyBasic[int64](field, array.NewInt64Data(colData))
 	default:
 		// FIXME: Should this return an error instead?
-		slog.Error("datatype is unhandled", "type", col.DataType().ID())
+		slog.Error("datatype is unhandled", "dataType", col.DataType().ID())
 	}
 
 	return nil
