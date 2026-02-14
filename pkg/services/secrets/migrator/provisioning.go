@@ -48,7 +48,7 @@ func (p provisioningSecrets) reEncrypt(
 			Select("guid, value").
 			Find(&rows)
 	}); err != nil {
-		logger.Warn("Could not find any provisioning secrets to re-encrypt", "error", err, "action", action)
+		logger.Warn("Could not find any provisioning secrets to re-encrypt", "error", err, "migrationAction", action)
 		// resource table may not exists (when not using unified storage and right db), so we don't report error here.
 		return true
 	}
@@ -58,21 +58,21 @@ func (p provisioningSecrets) reEncrypt(
 	for _, row := range rows {
 		var resource map[string]any
 		if err := json.Unmarshal(row.Value, &resource); err != nil {
-			logger.Error("Failed to decode resource", "guid", row.Guid, "error", err, "action", action)
+			logger.Error("Failed to decode resource", "guid", row.Guid, "error", err, "migrationAction", action)
 			failures++
 			continue
 		}
 
 		err := p.reEncryptGitHubToken(ctx, svc, encrypt, sqlStore, resource)
 		if err != nil && !errors.Is(err, errNoEncryptedValue) {
-			logger.Error("Failed to rotate GitHub token", "guid", row.Guid, "error", err, "action", action)
+			logger.Error("Failed to rotate GitHub token", "guid", row.Guid, "error", err, "migrationAction", action)
 			failures++
 		}
 		update := err == nil
 
 		err = p.reEncryptWebhookSecret(ctx, svc, encrypt, sqlStore, resource)
 		if err != nil && !errors.Is(err, errNoEncryptedValue) {
-			logger.Error("Failed to rotate webhook secret", "guid", row.Guid, "error", err, "action", action)
+			logger.Error("Failed to rotate webhook secret", "guid", row.Guid, "error", err, "migrationAction", action)
 			failures++
 		}
 		update = update || err == nil
@@ -81,7 +81,7 @@ func (p provisioningSecrets) reEncrypt(
 			// Do it...
 			encoded, err := json.Marshal(resource)
 			if err != nil {
-				logger.Error("Failed to marshal resource to JSON", "guid", row.Guid, "error", err, "action", action)
+				logger.Error("Failed to marshal resource to JSON", "guid", row.Guid, "error", err, "migrationAction", action)
 				failures++
 				continue
 			}
@@ -91,16 +91,16 @@ func (p provisioningSecrets) reEncrypt(
 				_, err = sess.Exec("UPDATE resource SET value = ? WHERE guid = ?", string(encoded), row.Guid)
 				return err
 			}); err != nil {
-				logger.Error("Failed to update resource with re-encrypted values", "guid", row.Guid, "error", err, "action", action)
+				logger.Error("Failed to update resource with re-encrypted values", "guid", row.Guid, "error", err, "migrationAction", action)
 				failures++
 			}
 		}
 	}
 
 	if failures > 0 {
-		logger.Warn("Failed to rotate provisioning secrets", "failures", failures, "action", action)
+		logger.Warn("Failed to rotate provisioning secrets", "failures", failures, "migrationAction", action)
 	} else {
-		logger.Info("Successfully rotated provisioning secrets", "action", action)
+		logger.Info("Successfully rotated provisioning secrets", "migrationAction", action)
 	}
 	return failures == 0
 }

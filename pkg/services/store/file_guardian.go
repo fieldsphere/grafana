@@ -47,7 +47,7 @@ type pathFilterFileGuardian struct {
 
 func (a *pathFilterFileGuardian) getPathFilter(action string) filestorage.PathFilter {
 	if !isValidAction(action) {
-		a.log.Warn("Unsupported action", "action", action)
+		a.log.Warn("Unsupported action", "fileAction", action)
 		return denyAllPathFilter
 	}
 
@@ -79,20 +79,20 @@ func (a *pathFilterFileGuardian) can(action string, path string) bool {
 	allow := false
 
 	if !isValidAction(action) {
-		a.log.Warn("Unsupported action", "action", action, "path", path)
+		a.log.Warn("Unsupported action", "fileAction", action, "path", path)
 		return false
 	}
 
 	pathFilter, ok := a.pathFilterByAction[action]
 
 	if !ok {
-		a.log.Warn("Missing path filter", "action", action, "path", path)
+		a.log.Warn("Missing path filter", "fileAction", action, "path", path)
 		return false
 	}
 
 	allow = pathFilter.IsAllowed(path)
 	if !allow {
-		a.log.Warn("Denying", "action", action, "path", path)
+		a.log.Warn("Denying", "fileAction", action, "path", path)
 	}
 	return allow
 }
