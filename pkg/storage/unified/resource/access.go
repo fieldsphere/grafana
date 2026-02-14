@@ -107,7 +107,7 @@ func (c authzLimitedClient) Check(ctx context.Context, id claims.AuthInfo, req c
 		attribute.String("group", req.Group),
 		attribute.String("resource", req.Resource),
 		attribute.String("namespace", req.Namespace),
-		attribute.String("name", req.Name),
+		attribute.String("resourceName", req.Name),
 		attribute.String("verb", req.Verb),
 		attribute.String("folderUID", folder),
 		attribute.Bool("fallbackUsed", FallbackUsed(ctx)),

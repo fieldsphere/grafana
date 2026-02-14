@@ -205,7 +205,7 @@ func (p *pollingNotifier) poll(ctx context.Context, grp string, res string, sinc
 			"namespace", rec.Key.Namespace,
 			"group", rec.Key.Group,
 			"resource", rec.Key.Resource,
-			"name", rec.Key.Name,
+			"resourceName", rec.Key.Name,
 			"action", rec.Action,
 			"resourceVersion", rec.ResourceVersion)
 	}

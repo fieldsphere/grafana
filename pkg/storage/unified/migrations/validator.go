@@ -93,7 +93,7 @@ func (v *CountValidator) Validate(ctx context.Context, sess *xorm.Session, respo
 					"namespace", rejected.Key.Namespace,
 					"group", rejected.Key.Group,
 					"resource", rejected.Key.Resource,
-					"name", rejected.Key.Name,
+					"resourceName", rejected.Key.Name,
 					"reason", rejected.Error)
 			}
 		}

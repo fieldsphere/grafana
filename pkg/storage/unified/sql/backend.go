@@ -256,7 +256,7 @@ func (b *backend) initPruner(ctx context.Context) error {
 					"namespace", key.Namespace,
 					"group", key.Group,
 					"resource", key.Resource,
-					"name", key.Name,
+					"resourceName", key.Name,
 					"rows", rows)
 				return nil
 			})
@@ -266,7 +266,7 @@ func (b *backend) initPruner(ctx context.Context) error {
 				"namespace", key.Namespace,
 				"group", key.Group,
 				"resource", key.Resource,
-				"name", key.Name,
+				"resourceName", key.Name,
 				"error", err)
 		},
 		Reg: b.reg,

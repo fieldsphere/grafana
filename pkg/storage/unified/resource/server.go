@@ -792,7 +792,7 @@ func (s *server) create(ctx context.Context, user claims.AuthInfo, req *resource
 	if err != nil {
 		rsp.Error = AsErrorResult(err)
 	}
-	s.log.FromContext(ctx).Debug("server.WriteEvent", "type", event.Type, "resourceVersion", rsp.ResourceVersion, "previousRV", event.PreviousRV, "group", event.Key.Group, "namespace", event.Key.Namespace, "name", event.Key.Name, "resource", event.Key.Resource)
+s.log.FromContext(ctx).Debug("server.WriteEvent", "type", event.Type, "resourceVersion", rsp.ResourceVersion, "previousRV", event.PreviousRV, "group", event.Key.Group, "namespace", event.Key.Namespace, "resourceName", event.Key.Name, "resource", event.Key.Resource)
 	return rsp, nil
 }
 
@@ -829,7 +829,7 @@ func (s *server) sleepAfterSuccessfulWriteOperation(operation string, key *resou
 		"group", key.Group,
 		"resource", key.Resource,
 		"namespace", key.Namespace,
-		"name", key.Name)
+			"resourceName", key.Name)
 
 	time.Sleep(s.artificialSuccessfulWriteDelay)
 	return true
@@ -1262,7 +1262,7 @@ func (s *server) initWatcher() error {
 					continue
 				}
 
-				s.log.Debug("Server. Streaming Event", "type", v.Type, "previousRV", v.PreviousRV, "group", v.Key.Group, "namespace", v.Key.Namespace, "resource", v.Key.Resource, "name", v.Key.Name)
+				s.log.Debug("Server. Streaming Event", "type", v.Type, "previousRV", v.PreviousRV, "group", v.Key.Group, "namespace", v.Key.Namespace, "resource", v.Key.Resource, "resourceName", v.Key.Name)
 				s.mostRecentRV.Store(v.ResourceVersion)
 				out <- v
 			}
@@ -1400,7 +1400,7 @@ func (s *server) Watch(req *resourcepb.WatchRequest, srv resourcepb.ResourceStor
 				s.log.Debug("watch events closed")
 				return nil
 			}
-			s.log.Debug("Server Broadcasting", "type", event.Type, "resourceVersion", event.ResourceVersion, "previousRV", event.PreviousRV, "group", event.Key.Group, "namespace", event.Key.Namespace, "resource", event.Key.Resource, "name", event.Key.Name)
+			s.log.Debug("Server Broadcasting", "type", event.Type, "resourceVersion", event.ResourceVersion, "previousRV", event.PreviousRV, "group", event.Key.Group, "namespace", event.Key.Namespace, "resource", event.Key.Resource, "resourceName", event.Key.Name)
 			if event.ResourceVersion > since && matchesQueryKey(req.Options.Key, event.Key) {
 				if !checker(event.Key.Name, event.Folder) {
 					continue

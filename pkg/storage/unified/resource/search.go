@@ -1116,7 +1116,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 					Name:      iter.Name(),
 				}
 
-				span.AddEvent("building document", trace.WithAttributes(attribute.String("name", iter.Name())))
+				span.AddEvent("building document", trace.WithAttributes(attribute.String("resourceName", iter.Name())))
 				// Convert it to an indexable document
 				doc, err := builder.BuildDocument(ctx, key, iter.ResourceVersion(), iter.Value())
 				if err != nil {
@@ -1186,7 +1186,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 			key := &res.Key
 			switch res.Action {
 			case resourcepb.WatchEvent_ADDED, resourcepb.WatchEvent_MODIFIED:
-				span.AddEvent("building document", trace.WithAttributes(attribute.String("name", res.Key.Name)))
+				span.AddEvent("building document", trace.WithAttributes(attribute.String("resourceName", res.Key.Name)))
 				// Convert it to an indexable document
 				doc, err := builder.BuildDocument(ctx, key, res.ResourceVersion, res.Value)
 				if err != nil {
@@ -1200,7 +1200,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 					Doc:    doc,
 				})
 			case resourcepb.WatchEvent_DELETED:
-				span.AddEvent("deleting document", trace.WithAttributes(attribute.String("name", res.Key.Name)))
+				span.AddEvent("deleting document", trace.WithAttributes(attribute.String("resourceName", res.Key.Name)))
 				items = append(items, &BulkIndexItem{
 					Action: ActionDelete,
 					Key:    &res.Key,

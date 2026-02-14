@@ -69,7 +69,7 @@ func (r *ResourcePermissionsAuthorizer) AfterGet(ctx context.Context, obj runtim
 					"namespace", o.Namespace,
 					"group", target.ApiGroup,
 					"resource", target.Resource,
-					"name", target.Name,
+					"resourceName", target.Name,
 				)
 				return err
 			}
@@ -119,7 +119,7 @@ func (r *ResourcePermissionsAuthorizer) beforeWrite(ctx context.Context, obj run
 					"namespace", o.Namespace,
 					"group", target.ApiGroup,
 					"resource", target.Resource,
-					"name", target.Name,
+					"resourceName", target.Name,
 				)
 				return err
 			}
@@ -215,7 +215,7 @@ func (r *ResourcePermissionsAuthorizer) FilterList(ctx context.Context, list run
 						"namespace", item.Namespace,
 						"group", target.ApiGroup,
 						"resource", target.Resource,
-						"name", target.Name,
+						"resourceName", target.Name,
 					)
 					continue
 				}

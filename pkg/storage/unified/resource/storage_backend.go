@@ -280,7 +280,7 @@ func (k *kvStorageBackend) initPruner(ctx context.Context) error {
 				"namespace", key.Namespace,
 				"group", key.Group,
 				"resource", key.Resource,
-				"name", key.Name,
+				"resourceName", key.Name,
 				"error", err)
 		},
 	})
@@ -415,7 +415,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("failed to check latest version: %w", err)
@@ -427,7 +427,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("optimistic locking failed: concurrent modification detected")
@@ -438,7 +438,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("optimistic locking failed: resource was modified concurrently (expected previous RV %d, found %d)", event.PreviousRV, prevKey.ResourceVersion)
@@ -456,7 +456,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("failed to check latest version: %w", err)
@@ -468,7 +468,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("optimistic locking failed: concurrent create detected")
@@ -480,7 +480,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("optimistic locking failed: concurrent create detected")
