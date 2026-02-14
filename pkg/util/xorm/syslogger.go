@@ -9,7 +9,6 @@ package xorm
 
 import (
 	"encoding/json"
-	"fmt"
 	"log/syslog"
 
 	"github.com/grafana/grafana/pkg/util/xorm/core"
@@ -63,9 +62,9 @@ func (s *SyslogLogger) emit(write func(string) error, args ...any) {
 
 func (s *SyslogLogger) emitf(write func(string) error, format string, args ...any) {
 	s.emit(write,
-		fmt.Sprintf(format, args...),
-		"template", format,
-		"args", args)
+		format,
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 // Debug log content as Debug

@@ -130,9 +130,8 @@ func (s *SimpleLogger) emit(level slog.Level, args ...any) {
 
 func (s *SimpleLogger) emitf(level slog.Level, format string, args ...any) {
 	s.logger.Log(context.Background(), level, "XORM log event",
-		"message", fmt.Sprintf(format, args...),
-		"template", format,
-		"args", args)
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 // Error implement core.ILogger

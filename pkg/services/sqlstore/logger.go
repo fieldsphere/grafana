@@ -61,9 +61,8 @@ func (s *XormLogger) emit(logFn func(msg string, args ...any), args ...any) {
 
 func (s *XormLogger) emitf(logFn func(msg string, args ...any), format string, args ...any) {
 	logFn("SQL store log",
-		"message", fmt.Sprintf(format, args...),
-		"template", format,
-		"args", args)
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 // Error implement core.ILogger

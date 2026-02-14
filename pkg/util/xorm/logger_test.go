@@ -62,17 +62,17 @@ func TestFormatSyslogEvent(t *testing.T) {
 	})
 
 	t.Run("formatted args preserve template context", func(t *testing.T) {
-		out := formatSyslogEvent("processed 3 rows", "template", "processed %d rows", "args", []any{3})
+		out := formatSyslogEvent("processed 3 rows", "messageTemplate", "processed %d rows", "messageArgs", []any{3})
 		payload := map[string]any{}
 		if err := json.Unmarshal([]byte(out), &payload); err != nil {
 			t.Fatalf("expected json payload, got %q: %v", out, err)
 		}
-		if payload["template"] != "processed %d rows" {
-			t.Fatalf("unexpected template: %#v", payload["template"])
+		if payload["messageTemplate"] != "processed %d rows" {
+			t.Fatalf("unexpected template: %#v", payload["messageTemplate"])
 		}
-		args, ok := payload["args"].([]any)
+		args, ok := payload["messageArgs"].([]any)
 		if !ok || len(args) != 1 || args[0] != float64(3) {
-			t.Fatalf("unexpected args payload: %#v", payload["args"])
+			t.Fatalf("unexpected args payload: %#v", payload["messageArgs"])
 		}
 	})
 }
