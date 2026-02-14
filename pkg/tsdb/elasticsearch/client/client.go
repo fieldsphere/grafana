@@ -113,7 +113,7 @@ func (c *baseClientImpl) ExecuteMultisearch(r *MultiSearchRequest) (*MultiSearch
 	queryParams := c.getMultiSearchQueryParameters()
 	_, span := tracing.DefaultTracer().Start(c.ctx, "datasource.elasticsearch.queryData.executeMultisearch", trace.WithAttributes(
 		attribute.String("queryParams", queryParams),
-		attribute.String("url", c.ds.URL),
+		attribute.String("datasourceURL", c.ds.URL),
 	))
 	defer func() {
 		if err != nil {

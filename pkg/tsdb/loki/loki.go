@@ -129,7 +129,7 @@ func callResource(ctx context.Context, req *backend.CallResourceRequest, sender 
 	lokiURL := fmt.Sprintf("/loki/api/v1/%s", url)
 
 	ctx, span := tracer.Start(ctx, "datasource.loki.CallResource", trace.WithAttributes(
-		attribute.String("url", lokiURL),
+		attribute.String("requestPath", lokiURL),
 	))
 	defer span.End()
 

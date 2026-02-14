@@ -65,7 +65,7 @@ func NewPyroscopeDatasource(ctx context.Context, httpClientProvider httpclient.P
 
 func (d *PyroscopeDatasource) CallResource(ctx context.Context, req *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {
 	ctxLogger := logger.FromContext(ctx)
-	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.pyroscope.CallResource", trace.WithAttributes(attribute.String("path", req.Path), attribute.String("method", req.Method)))
+	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.pyroscope.CallResource", trace.WithAttributes(attribute.String("requestPath", req.Path), attribute.String("method", req.Method)))
 	defer span.End()
 	ctxLogger.Debug("CallResource", "path", req.Path, "method", req.Method, "requestBody", req.Body, "function", logEntrypoint())
 	if req.Path == "profileTypes" {
