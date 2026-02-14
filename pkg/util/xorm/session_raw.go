@@ -14,9 +14,9 @@ import (
 )
 
 func (session *Session) logSQLEvent(sqlStr string, args []any, execDuration *time.Duration) {
-	logArgs := []any{"sql", sqlStr}
+	logArgs := []any{"sqlQuery", sqlStr}
 	if len(args) > 0 {
-		logArgs = append(logArgs, "args", args)
+		logArgs = append(logArgs, "sqlArgs", args)
 	}
 	if execDuration != nil {
 		logArgs = append(logArgs, "duration", execDuration.String())

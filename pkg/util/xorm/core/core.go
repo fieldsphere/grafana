@@ -650,9 +650,9 @@ func (b *Base) ForUpdateSql(query string) string {
 func (b *Base) LogSQL(sql string, args []interface{}) {
 	if b.logger != nil && b.logger.IsShowSQL() {
 		if len(args) > 0 {
-			b.logger.Info("XORM SQL statement", "sql", sql, "args", args)
+			b.logger.Info("XORM SQL statement", "sqlQuery", sql, "sqlArgs", args)
 		} else {
-			b.logger.Info("XORM SQL statement", "sql", sql)
+			b.logger.Info("XORM SQL statement", "sqlQuery", sql)
 		}
 	}
 }

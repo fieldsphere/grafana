@@ -377,7 +377,7 @@ func (mg *Migrator) exec(ctx context.Context, m Migration, sess *xorm.Session) e
 		sql, args := condition.SQL(mg.Dialect)
 
 		if sql != "" {
-			logger.Debug("Executing migration condition SQL", "migrationID", m.Id(), "sql", sql, "args", args)
+			logger.Debug("Executing migration condition SQL", "migrationID", m.Id(), "sqlQuery", sql, "sqlArgs", args)
 			results, err := sess.SQL(sql, args...).Query()
 			if err != nil {
 				logger.Error("Executing migration condition failed", "migrationID", m.Id(), "error", err)
