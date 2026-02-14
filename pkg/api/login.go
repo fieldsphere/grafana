@@ -285,7 +285,7 @@ func (hs *HTTPServer) loginUserWithUser(user *user.User, c *contextmodel.ReqCont
 		ip = nil
 	}
 
-	hs.log.Debug("Got IP address from client address", "clientAddress", addr, "ip", ip)
+	hs.log.Debug("Got IP address from client address", "clientAddress", addr, "clientIP", ip)
 	ctx := context.WithValue(c.Req.Context(), loginservice.RequestURIKey{}, c.Req.RequestURI)
 	userToken, err := hs.AuthTokenService.CreateToken(ctx, &auth.CreateTokenCommand{User: user, ClientIP: ip, UserAgent: c.Req.UserAgent()})
 	if err != nil {
