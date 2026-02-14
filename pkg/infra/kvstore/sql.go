@@ -35,7 +35,7 @@ func (kv *kvStoreSQL) Get(ctx context.Context, orgId int64, namespace string, ke
 			return nil
 		}
 		itemFound = true
-		kv.log.Debug("got kvstore value", "orgID", orgId, "namespace", namespace, "kvKey", key, "value", item.Value)
+		kv.log.Debug("got kvstore value", "orgID", orgId, "namespace", namespace, "kvKey", key, "kvValue", item.Value)
 		return nil
 	})
 
@@ -53,12 +53,12 @@ func (kv *kvStoreSQL) Set(ctx context.Context, orgId int64, namespace string, ke
 
 		has, err := dbSession.Get(&item)
 		if err != nil {
-			kv.log.Debug("error checking kvstore value", "orgID", orgId, "namespace", namespace, "kvKey", key, "value", value, "error", err)
+			kv.log.Debug("error checking kvstore value", "orgID", orgId, "namespace", namespace, "kvKey", key, "kvValue", value, "error", err)
 			return err
 		}
 
 		if has && item.Value == value {
-			kv.log.Debug("kvstore value not changed", "orgID", orgId, "namespace", namespace, "kvKey", key, "value", value)
+			kv.log.Debug("kvstore value not changed", "orgID", orgId, "namespace", namespace, "kvKey", key, "kvValue", value)
 			return nil
 		}
 
@@ -68,9 +68,9 @@ func (kv *kvStoreSQL) Set(ctx context.Context, orgId int64, namespace string, ke
 		if has {
 			_, err = dbSession.Exec("UPDATE kv_store SET value = ?, updated = ? WHERE id = ?", item.Value, item.Updated, item.Id)
 			if err != nil {
-				kv.log.Debug("error updating kvstore value", "orgID", orgId, "namespace", namespace, "kvKey", key, "value", value, "error", err)
+				kv.log.Debug("error updating kvstore value", "orgID", orgId, "namespace", namespace, "kvKey", key, "kvValue", value, "error", err)
 			} else {
-				kv.log.Debug("kvstore value updated", "orgID", orgId, "namespace", namespace, "kvKey", key, "value", value)
+				kv.log.Debug("kvstore value updated", "orgID", orgId, "namespace", namespace, "kvKey", key, "kvValue", value)
 			}
 			return err
 		}
@@ -78,9 +78,9 @@ func (kv *kvStoreSQL) Set(ctx context.Context, orgId int64, namespace string, ke
 		item.Created = item.Updated
 		_, err = dbSession.Insert(&item)
 		if err != nil {
-			kv.log.Debug("error inserting kvstore value", "orgID", orgId, "namespace", namespace, "kvKey", key, "value", value, "error", err)
+			kv.log.Debug("error inserting kvstore value", "orgID", orgId, "namespace", namespace, "kvKey", key, "kvValue", value, "error", err)
 		} else {
-			kv.log.Debug("kvstore value inserted", "orgID", orgId, "namespace", namespace, "kvKey", key, "value", value)
+			kv.log.Debug("kvstore value inserted", "orgID", orgId, "namespace", namespace, "kvKey", key, "kvValue", value)
 		}
 		return err
 	})

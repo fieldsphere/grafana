@@ -17,7 +17,7 @@ func main() {
 		var err error
 		numKeys, err = strconv.Atoi(os.Args[1])
 		if err != nil {
-			slog.Error("Invalid number of keys to generate", "value", os.Args[1], "error", err)
+			slog.Error("Invalid number of keys to generate", "argumentValue", os.Args[1], "error", err)
 			os.Exit(1)
 		}
 	}

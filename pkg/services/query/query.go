@@ -206,7 +206,7 @@ func (s *ServiceImpl) executeConcurrentQueries(ctx context.Context, user identit
 					if !slices.Contains(reqCtx.Resp.Header().Values(k), val) {
 						reqCtx.Resp.Header().Add(k, val)
 					} else {
-						s.log.Warn("skipped duplicate response header", "header", k, "value", val)
+						s.log.Warn("skipped duplicate response header", "header", k, "headerValue", val)
 					}
 				}
 			}

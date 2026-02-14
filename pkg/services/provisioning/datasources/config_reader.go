@@ -141,7 +141,7 @@ func (cr *configReader) validateAccessAndOrgID(ctx context.Context, ds *upsertDa
 	}
 
 	if ds.Access != datasources.DS_ACCESS_DIRECT && ds.Access != datasources.DS_ACCESS_PROXY {
-		cr.log.Warn("invalid access value, will use 'proxy' instead", "value", ds.Access)
+		cr.log.Warn("invalid access value, will use 'proxy' instead", "accessValue", ds.Access)
 		ds.Access = datasources.DS_ACCESS_PROXY
 	}
 	return nil

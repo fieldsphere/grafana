@@ -387,7 +387,7 @@ func (cfg *Cfg) ReadUnifiedAlertingSettings(iniFile *ini.File) error {
 
 	uaRandomizationFactor := ua.Key("randomization_factor").MustFloat64(schedulerDefaultRandomizationFactor)
 	if uaRandomizationFactor < 0 || uaRandomizationFactor > 1 {
-		cfg.Logger.Warn("randomization_factor must be between 0 and 1, falling back to the default value", "value", uaRandomizationFactor, "default", schedulerDefaultRandomizationFactor)
+		cfg.Logger.Warn("randomization_factor must be between 0 and 1, falling back to the default value", "randomizationFactor", uaRandomizationFactor, "defaultRandomizationFactor", schedulerDefaultRandomizationFactor)
 		uaRandomizationFactor = schedulerDefaultRandomizationFactor
 	}
 	uaCfg.RandomizationFactor = uaRandomizationFactor

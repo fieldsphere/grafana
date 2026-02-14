@@ -426,7 +426,7 @@ func mergeHeaders(main http.Header, extra http.Header, l log.Logger) {
 			if !slices.Contains(mainValues, extraV) {
 				main.Add(headerName, extraV)
 			} else {
-				l.Warn("skipped duplicate response header", "header", headerName, "value", extraV)
+				l.Warn("skipped duplicate response header", "header", headerName, "headerValue", extraV)
 			}
 		}
 	}
