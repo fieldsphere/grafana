@@ -391,7 +391,7 @@ var DistributionGoOpts = map[Distribution]DistroBuildOptsFunc{
 func DistroOptsLogger(log *slog.Logger, fn DistroBuildOptsFunc) func(distro Distribution, experiments []string, tags []string) *GoBuildOpts {
 	return func(distro Distribution, experiments []string, tags []string) *GoBuildOpts {
 		opts := fn(distro, experiments, tags)
-		log.Debug("Building with options", "distribution", distro, "experiments", experiments, "tags", tags, "operatingSystem", opts.OS, "arch", opts.Arch, "arm", opts.GoARM, "cgoEnabled", opts.CGOEnabled, "go386", opts.Go386, "cc", opts.CC, "cxx", opts.CXX)
+		log.Debug("Building with options", "distribution", distro, "experiments", experiments, "tags", tags, "operatingSystem", opts.OS, "arch", opts.Arch, "goARM", opts.GoARM, "cgoEnabled", opts.CGOEnabled, "go386", opts.Go386, "cCompiler", opts.CC, "cppCompiler", opts.CXX)
 		return opts
 	}
 }

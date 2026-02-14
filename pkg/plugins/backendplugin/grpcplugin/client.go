@@ -103,7 +103,7 @@ func newClientConfig(descriptor PluginDescriptor, env []string, logger log.Logge
 }
 
 func containerClientConfig(executablePath, containerImage, containerTag string, logger log.Logger, versionedPlugins map[int]goplugin.PluginSet, skipHostEnvVars bool, tracer trace.Tracer) *goplugin.ClientConfig {
-	logger.Info("Using container mode", "executable", executablePath, "image", containerImage, "tag", containerTag)
+	logger.Info("Using container mode", "executable", executablePath, "image", containerImage, "containerTag", containerTag)
 	return &goplugin.ClientConfig{
 		RunnerFunc: func(l hclog.Logger, cmd *exec.Cmd, tmpDir string) (runner.Runner, error) {
 			logger.Info("Creating container runner", "executablePath", executablePath, "tmpDir", tmpDir)

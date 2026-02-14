@@ -184,7 +184,7 @@ func NewProDockerFromString(ctx context.Context, log *slog.Logger, artifact stri
 		return nil, err
 	}
 
-	log.Info("initializing Pro Docker artifact", "orgName", proOrg, "registry", proRegistry, "repositoryName", proRepo, "tag", tagFormat)
+	log.Info("initializing Pro Docker artifact", "orgName", proOrg, "registry", proRegistry, "repositoryName", proRepo, "tagFormat", tagFormat)
 
 	return pipeline.ArtifactWithLogging(ctx, log, &pipeline.Artifact{
 		ArtifactString: artifact,

@@ -283,7 +283,7 @@ func (s *Service) handleTagValues(rw http.ResponseWriter, req *http.Request) {
 	// escape tag
 	tag, err := url.PathUnescape(encodedTag)
 	if err != nil {
-		s.logger.Error("Failed to unescape", "error", err, "tag", encodedTag)
+		s.logger.Error("Failed to unescape", "error", err, "encodedTag", encodedTag)
 		http.Error(rw, "Invalid 'tag' parameter", http.StatusBadRequest)
 		return
 	}
