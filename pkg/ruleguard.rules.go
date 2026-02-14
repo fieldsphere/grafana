@@ -1821,6 +1821,58 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in []any literal spread arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`$logger.Info($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Warn($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Error($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Debug($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.InfoCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.WarnCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.ErrorCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.DebugCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Info($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Warn($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Error($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Debug($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.InfoContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.WarnContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.ErrorContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.DebugContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Log($ctx, $level, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Log($ctx, $level, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`klog.InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
+		`klog.V($lvl).InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
+		`klog.ErrorS($baseErr, $msg, []any{$*before, $key, $value, $*after}...)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in []any literal spread keys (for example "orgID", "pluginID", "userID")`)
+
+	m.Match(
+		`$logger.Info($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Warn($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Error($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Debug($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.InfoCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.WarnCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.ErrorCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.DebugCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Info($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Warn($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Error($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Debug($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.InfoContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.WarnContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.ErrorContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.DebugContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Log($ctx, $level, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Log($ctx, $level, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`klog.InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
+		`klog.V($lvl).InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
+		`klog.ErrorS($baseErr, $msg, []any{$*before, $key, $value, $*after}...)`,
+	).
+		Where(m["key"].Text.Matches("^\"([A-Za-z_]+Uid|[A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)\"$")).
+		Report(`avoid non-canonical []any literal spread keys; use lower camelCase with canonical acronym casing (for example "dashboardUID", "requestPath", "statusCode")`)
+
+	m.Match(
 		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
 		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
 	).
@@ -1833,6 +1885,20 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in []any literal spread context arguments; use stable string-literal or const keys and keep dynamic data in values`)
+
+	m.Match(
+		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Report(`prefer "ID" acronym casing in []any literal spread context keys (for example "orgID", "pluginID", "userID")`)
+
+	m.Match(
+		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"([A-Za-z_]+Uid|[A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)\"$")).
+		Report(`avoid non-canonical []any literal spread context keys; use lower camelCase with canonical acronym casing (for example "dashboardUID", "requestPath", "statusCode")`)
 
 	m.Match(
 		`$logger.New($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
