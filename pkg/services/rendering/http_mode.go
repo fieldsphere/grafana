@@ -129,7 +129,7 @@ func (rs *RenderingService) doRequestAndWriteToFile(ctx context.Context, renderT
 
 	// if we didn't get a 200 response, something went wrong.
 	if resp.StatusCode != http.StatusOK {
-		logger.Error("Remote rendering request failed", "error", resp.Status, "targetURL", rendererURL.Query().Get("url"))
+		logger.Error("Remote rendering request failed", "responseStatus", resp.Status, "renderRequestURL", rendererURL.Query().Get("url"))
 		return nil, fmt.Errorf("remote rendering request failed, status code: %d, status: %s", resp.StatusCode,
 			resp.Status)
 	}

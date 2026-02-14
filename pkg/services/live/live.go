@@ -754,7 +754,7 @@ func (g *GrafanaLive) handleOnSubscribe(clientContextWithSpan context.Context, c
 	if status != backend.SubscribeStreamStatusOK {
 		// using HTTP error codes for WS errors too.
 		code, text := subscribeStatusToHTTPError(status)
-		logger.Debug("Return custom subscribe error", "userID", client.UserID(), "clientID", client.ID(), "channel", e.Channel, "code", code)
+		logger.Debug("Return custom subscribe error", "userID", client.UserID(), "clientID", client.ID(), "channel", e.Channel, "statusCode", code)
 		return centrifuge.SubscribeReply{}, &centrifuge.Error{Code: uint32(code), Message: text}
 	}
 	logger.Debug("Client subscribed", "userID", client.UserID(), "clientID", client.ID(), "channel", e.Channel)
@@ -853,7 +853,7 @@ func (g *GrafanaLive) handleOnPublish(clientCtxWithSpan context.Context, client 
 	if status != backend.PublishStreamStatusOK {
 		// using HTTP error codes for WS errors too.
 		code, text := publishStatusToHTTPError(status)
-		logger.Debug("Return custom publish error", "userID", client.UserID(), "clientID", client.ID(), "channel", e.Channel, "code", code)
+		logger.Debug("Return custom publish error", "userID", client.UserID(), "clientID", client.ID(), "channel", e.Channel, "statusCode", code)
 		return centrifuge.PublishReply{}, &centrifuge.Error{Code: uint32(code), Message: text}
 	}
 	centrifugeReply := centrifuge.PublishReply{
@@ -867,7 +867,7 @@ func (g *GrafanaLive) handleOnPublish(clientCtxWithSpan context.Context, client 
 		// publication result so Centrifuge won't publish itself.
 		result, err := g.node.Publish(e.Channel, reply.Data)
 		if err != nil {
-			logger.Error("Error publishing", "userID", client.UserID(), "clientID", client.ID(), "channel", e.Channel, "error", err, "data", string(reply.Data))
+			logger.Error("Error publishing", "userID", client.UserID(), "clientID", client.ID(), "channel", e.Channel, "error", err, "publicationData", string(reply.Data))
 			return centrifuge.PublishReply{}, centrifuge.ErrorInternal
 		}
 		centrifugeReply.Result = &result

@@ -55,7 +55,7 @@ func (h *PluginHandler) QueryDataHandler() http.HandlerFunc {
 		// the UID in the query body should match the UID in the URL
 		if dsRef.UID != dsUID {
 			err := errors.New("invalid datasource UID")
-			klog.ErrorS(err, err.Error(), "path", dsUID, "refUID", dsRef.UID)
+			klog.ErrorS(err, err.Error(), "requestDatasourceUID", dsUID, "refUID", dsRef.UID)
 			responder.Error(w, req, err)
 			return
 		}

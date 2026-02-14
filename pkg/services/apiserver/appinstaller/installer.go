@@ -103,7 +103,7 @@ func RegisterAuthorizers(
 					panic("authorizer cannot be nil for api group: " + gv.String())
 				}
 				registrar.Register(gv, authorizer)
-				logger.Debug("Registered authorizer", "group", gv.Group, "version", gv.Version, "app")
+				logger.Debug("Registered authorizer", "group", gv.Group, "version", gv.Version, "appName", installer.ManifestData().AppName)
 			}
 		} else {
 			panic("authorizer cannot be nil for api group: " + installer.GroupVersions()[0].Group)

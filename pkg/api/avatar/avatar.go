@@ -280,7 +280,7 @@ func (a *thunderTask) fetch() error {
 func avatarFetch(ctx context.Context, avatar *Avatar, baseURL string) error {
 	avatar.timestamp = time.Now()
 
-	alog.Debug("avatar.fetch(fetch new avatar)", "url", baseURL)
+	alog.Debug("avatar.fetch(fetch new avatar)", "avatarURL", baseURL)
 	// First do the fetch to get the Gravatar with a retro icon fallback
 	err := performGet(ctx, baseURL+gravatarReqParams, avatar, getGravatarHandler)
 	if err == nil {
