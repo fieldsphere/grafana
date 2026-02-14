@@ -154,7 +154,7 @@ func callResource(ctx context.Context, req *backend.CallResourceRequest, sender 
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
-			plog.Error("Failed resource call from loki", "error", err, "url", lokiURL)
+			plog.Error("Failed resource call from loki", "error", err, "requestPath", lokiURL)
 			return err
 		}
 	}

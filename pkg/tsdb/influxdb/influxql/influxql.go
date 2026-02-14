@@ -193,7 +193,7 @@ func createRequest(ctx context.Context, logger log.Logger, dsInfo *models.Dataso
 
 	req.URL.RawQuery = params.Encode()
 
-	logger.Debug("Influxdb request", "url", req.URL.String())
+	logger.Debug("Influxdb request", "requestURL", req.URL.String())
 	return req, nil
 }
 

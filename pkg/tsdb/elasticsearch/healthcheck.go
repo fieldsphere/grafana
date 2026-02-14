@@ -51,7 +51,7 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 
 	request, err := http.NewRequestWithContext(ctx, http.MethodGet, healthStatusUrl.String(), nil)
 	if err != nil {
-		logger.Error("Failed to create request", "error", err, "url", healthStatusUrl.String())
+		logger.Error("Failed to create request", "error", err, "requestURL", healthStatusUrl.String())
 		return &backend.CheckHealthResult{
 			Status:  backend.HealthStatusUnknown,
 			Message: "Failed to create request",
@@ -59,11 +59,11 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 	}
 
 	start := time.Now()
-	logger.Debug("Sending healthcheck request to Elasticsearch", "url", healthStatusUrl.String())
+	logger.Debug("Sending healthcheck request to Elasticsearch", "requestURL", healthStatusUrl.String())
 	response, err := ds.HTTPClient.Do(request)
 
 	if err != nil {
-		logger.Error("Failed to connect to Elasticsearch", "error", err, "url", healthStatusUrl.String())
+		logger.Error("Failed to connect to Elasticsearch", "error", err, "requestURL", healthStatusUrl.String())
 		return &backend.CheckHealthResult{
 			Status:  backend.HealthStatusError,
 			Message: "Health check failed: Failed to connect to Elasticsearch",

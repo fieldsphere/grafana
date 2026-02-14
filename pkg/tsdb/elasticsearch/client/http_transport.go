@@ -37,7 +37,7 @@ func (t *httpTransport) executeBatchRequest(uriPath, uriQuery string, body []byt
 
 // executeRequest executes an HTTP request to Elasticsearch
 func (t *httpTransport) executeRequest(method, uriPath, uriQuery string, body []byte) (*http.Response, error) {
-	t.logger.Debug("Sending request to Elasticsearch", "url", t.baseURL)
+	t.logger.Debug("Sending request to Elasticsearch", "datasourceURL", t.baseURL)
 	u, err := url.Parse(t.baseURL)
 	if err != nil {
 		return nil, backend.DownstreamError(fmt.Errorf("URL could not be parsed: %w", err))

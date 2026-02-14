@@ -164,7 +164,7 @@ func newInstanceSettings(httpClientProvider *httpclient.Provider) datasource.Ins
 			// Log warning but continue with default (non-serverless) behavior
 			// This handles cases where users don't have permission to access the root endpoint (403)
 			// or other connectivity issues that shouldn't prevent basic datasource functionality
-			backend.Logger.Warn("Failed to get Elasticsearch cluster info, assuming non-serverless cluster", "error", err, "url", settings.URL)
+			backend.Logger.Warn("Failed to get Elasticsearch cluster info, assuming non-serverless cluster", "error", err, "datasourceURL", settings.URL)
 			clusterInfo = es.ClusterInfo{}
 		}
 
@@ -227,12 +227,12 @@ func (s *Service) CallResource(ctx context.Context, req *backend.CallResourceReq
 
 	esUrl, err := createElasticsearchURL(req, ds)
 	if err != nil {
-		logger.Error("Failed to create request url", "error", err, "url", ds.URL, "path", req.Path)
+		logger.Error("Failed to create request url", "error", err, "datasourceURL", ds.URL, "resourcePath", req.Path)
 	}
 
 	request, err := http.NewRequestWithContext(ctx, req.Method, esUrl, bytes.NewBuffer(req.Body))
 	if err != nil {
-		logger.Error("Failed to create request", "error", err, "url", esUrl)
+		logger.Error("Failed to create request", "error", err, "requestURL", esUrl)
 		return err
 	}
 
