@@ -27,11 +27,11 @@ func NewPlaylistReconciler(patchClient operator.PatchClient) (operator.Reconcile
 			klog.InfoS("Possibly updated resource", "playlistName", request.Object.GetStaticMetadata().Identifier().Name)
 			return operator.ReconcileResult{}, nil
 		case operator.ReconcileActionUnknown:
-			klog.InfoS("error reconciling unknown action for Playlist", "action", request.Action, "object", request.Object)
+			klog.InfoS("error reconciling unknown action for Playlist", "reconcileAction", request.Action, "object", request.Object)
 			return operator.ReconcileResult{}, nil
 		}
 
-		klog.InfoS("error reconciling invalid action for Playlist", "action", request.Action, "object", request.Object)
+		klog.InfoS("error reconciling invalid action for Playlist", "reconcileAction", request.Action, "object", request.Object)
 		return operator.ReconcileResult{}, nil
 	}
 

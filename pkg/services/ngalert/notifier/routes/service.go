@@ -332,7 +332,7 @@ func (nps *Service) DeleteManagedRoute(ctx context.Context, orgID int64, name st
 	span.AddEvent(fmt.Sprintf("%s route", action), trace.WithAttributes(
 		attribute.String("concurrencyToken", revision.ConcurrencyToken),
 	))
-	nps.log.FromContext(ctx).Info("Managed route updated", "action", action, "routeName", name)
+	nps.log.FromContext(ctx).Info("Managed route updated", "routeAction", action, "routeName", name)
 	return nil
 }
 
