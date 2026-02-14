@@ -89,17 +89,17 @@ func (ns *NotificationService) sendWebRequestSync(ctx context.Context, webhook *
 	if webhook.Validation != nil {
 		err := webhook.Validation(body, resp.StatusCode)
 		if err != nil {
-			ns.log.Debug("Webhook failed validation", "url", url.Redacted(), "statusCode", resp.Status, "body", string(body), "error", err)
+			ns.log.Debug("Webhook failed validation", "url", url.Redacted(), "statusCode", resp.StatusCode, "body", string(body), "error", err)
 			return fmt.Errorf("webhook failed validation: %w", err)
 		}
 	}
 
 	if resp.StatusCode/100 == 2 {
-		ns.log.Debug("Webhook succeeded", "url", url.Redacted(), "statusCode", resp.Status)
+		ns.log.Debug("Webhook succeeded", "url", url.Redacted(), "statusCode", resp.StatusCode)
 		return nil
 	}
 
-	ns.log.Debug("Webhook failed", "url", url.Redacted(), "statusCode", resp.Status, "body", string(body))
+	ns.log.Debug("Webhook failed", "url", url.Redacted(), "statusCode", resp.StatusCode, "body", string(body))
 	return fmt.Errorf("webhook response status %v", resp.Status)
 }
 
