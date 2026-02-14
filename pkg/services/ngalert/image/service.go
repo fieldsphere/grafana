@@ -132,7 +132,7 @@ func (s *ScreenshotImageService) NewImage(ctx context.Context, r *models.AlertRu
 		return nil, models.ErrNoPanel
 	}
 
-	logger = logger.New("dashboard", dashboardUID, "panel", panelID)
+	logger = logger.New("dashboardUID", dashboardUID, "panelID", panelID)
 
 	opts := screenshot.ScreenshotOptions{
 		OrgID:        r.OrgID,

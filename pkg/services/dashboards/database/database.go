@@ -477,7 +477,7 @@ func (d *dashboardStore) saveDashboard(ctx context.Context, sess *db.Session, cm
 	}
 
 	if isParentFolderChanged {
-		d.log.Debug("Dashboard parent folder has changed", "dashboard", dash.UID, "newFolder", dash.FolderUID)
+		d.log.Debug("Dashboard parent folder has changed", "dashboardUID", dash.UID, "newFolderUID", dash.FolderUID)
 	}
 
 	if dash.UID == "" {

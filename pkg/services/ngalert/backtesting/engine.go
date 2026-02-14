@@ -90,7 +90,7 @@ func (e *Engine) Test(ctx context.Context, user identity.Requester, rule *models
 	}
 
 	ruleCtx := models.WithRuleKey(ctx, rule.GetKey())
-	logger := logger.FromContext(ruleCtx).New("backtesting", util.GenerateShortUID())
+	logger := logger.FromContext(ruleCtx).New("backtestingUID", util.GenerateShortUID())
 
 	var warns []string
 	if rule.GetInterval() < e.minInterval {
