@@ -176,7 +176,7 @@ func (m *ResourceVersionManager) ExecWithRV(ctx context.Context, key *resourcepb
 			span.RecordError(res.err)
 		}
 		span.SetAttributes(
-			attribute.String("guid", res.guid),
+			attribute.String("resourceGUID", res.guid),
 			attribute.Int64("resourceVersion", res.rv),
 		)
 		span.AddLink(res.batchTraceLink)

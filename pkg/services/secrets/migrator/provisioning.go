@@ -58,21 +58,21 @@ func (p provisioningSecrets) reEncrypt(
 	for _, row := range rows {
 		var resource map[string]any
 		if err := json.Unmarshal(row.Value, &resource); err != nil {
-			logger.Error("Failed to decode resource", "guid", row.Guid, "error", err, "migrationAction", action)
+			logger.Error("Failed to decode resource", "resourceGUID", row.Guid, "error", err, "migrationAction", action)
 			failures++
 			continue
 		}
 
 		err := p.reEncryptGitHubToken(ctx, svc, encrypt, sqlStore, resource)
 		if err != nil && !errors.Is(err, errNoEncryptedValue) {
-			logger.Error("Failed to rotate GitHub token", "guid", row.Guid, "error", err, "migrationAction", action)
+			logger.Error("Failed to rotate GitHub token", "resourceGUID", row.Guid, "error", err, "migrationAction", action)
 			failures++
 		}
 		update := err == nil
 
 		err = p.reEncryptWebhookSecret(ctx, svc, encrypt, sqlStore, resource)
 		if err != nil && !errors.Is(err, errNoEncryptedValue) {
-			logger.Error("Failed to rotate webhook secret", "guid", row.Guid, "error", err, "migrationAction", action)
+			logger.Error("Failed to rotate webhook secret", "resourceGUID", row.Guid, "error", err, "migrationAction", action)
 			failures++
 		}
 		update = update || err == nil
@@ -81,7 +81,7 @@ func (p provisioningSecrets) reEncrypt(
 			// Do it...
 			encoded, err := json.Marshal(resource)
 			if err != nil {
-				logger.Error("Failed to marshal resource to JSON", "guid", row.Guid, "error", err, "migrationAction", action)
+				logger.Error("Failed to marshal resource to JSON", "resourceGUID", row.Guid, "error", err, "migrationAction", action)
 				failures++
 				continue
 			}
@@ -91,7 +91,7 @@ func (p provisioningSecrets) reEncrypt(
 				_, err = sess.Exec("UPDATE resource SET value = ? WHERE guid = ?", string(encoded), row.Guid)
 				return err
 			}); err != nil {
-				logger.Error("Failed to update resource with re-encrypted values", "guid", row.Guid, "error", err, "migrationAction", action)
+				logger.Error("Failed to update resource with re-encrypted values", "resourceGUID", row.Guid, "error", err, "migrationAction", action)
 				failures++
 			}
 		}
