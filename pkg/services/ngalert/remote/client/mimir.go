@@ -145,12 +145,18 @@ func (mc *Mimir) do(ctx context.Context, p, method string, payload io.Reader, ou
 
 	ct := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(ct, "application/json") {
-		body, err := io.ReadAll(resp.Body)
-		bodyStr := string(body)
-		if err != nil {
-			bodyStr = fmt.Sprintf("fail_to_read: %s", err)
+		body, readErr := io.ReadAll(resp.Body)
+		logArgs := []any{
+			"contentType", ct,
+			"requestURL", r.URL.String(),
+			"method", r.Method,
+			"statusCode", resp.StatusCode,
+			"responseBody", string(body),
 		}
-		mc.logger.Error("Response content-type is not application/json", "contentType", ct, "requestURL", r.URL.String(), "method", r.Method, "statusCode", resp.StatusCode, "responseBody", bodyStr)
+		if readErr != nil {
+			logArgs = append(logArgs, "error", readErr)
+		}
+		mc.logger.Error("Response content-type is not application/json", logArgs...)
 		return nil, fmt.Errorf("response content-type is not application/json: %s", ct)
 	}
 
