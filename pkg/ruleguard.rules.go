@@ -1197,6 +1197,32 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
+		Where(m["key"].Text.Matches("^\"statuscode\"$")).
+		Report(`avoid non-canonical structured log key "statuscode"; use "statusCode"`)
+
+	m.Match(
+		`$logger.Info($msg, $*before, $key, $value, $*after)`,
+		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
+		`$logger.Error($msg, $*before, $key, $value, $*after)`,
+		`$logger.Debug($msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Info($msg, $*before, $key, $value, $*after)`,
+		`slog.Warn($msg, $*before, $key, $value, $*after)`,
+		`slog.Error($msg, $*before, $key, $value, $*after)`,
+		`slog.Debug($msg, $*before, $key, $value, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`klog.InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
+	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report("prefer stable string-literal or const structured log keys; avoid runtime-generated key values")
 
@@ -1454,6 +1480,13 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*before, $key, $value, $*after)`,
 		`$logger.With($*before, $key, $value, $*after)`,
 	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"statuscode\"$")).
+		Report(`avoid non-canonical structured context key "statuscode"; use "statusCode"`)
+
+	m.Match(
+		`$logger.New($*before, $key, $value, $*after)`,
+		`$logger.With($*before, $key, $value, $*after)`,
+	).
 		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z0-9.]+\\.(id|uid)\"$")).
 		Report(`avoid lowercase dotted structured context key suffixes like ".id" or ".uid"; use canonical casing such as "userID" or "datasource.UID"`)
 
@@ -1646,6 +1679,21 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\"func\"$")).
 		Report(`avoid shorthand trace attribute key "func"; use "function" for clarity`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"statuscode\"$")).
+		Report(`avoid non-canonical trace attribute key "statuscode"; use "statusCode"`)
 
 	m.Match(
 		`attribute.String($key, $value)`,
