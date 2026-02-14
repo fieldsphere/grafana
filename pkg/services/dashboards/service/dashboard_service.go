@@ -1066,11 +1066,11 @@ func (dr *DashboardServiceImpl) maybeResetProvisioning(ctx context.Context, orgs
 
 			if err == nil {
 				dr.log.Info("deleted duplicated provisioned resource",
-					"type", step.Type, "stepUID", step.UID,
+					"resourceType", step.Type, "stepUID", step.UID,
 				)
 			} else {
 				dr.log.Error("failed to delete duplicated provisioned resource",
-					"type", step.Type, "stepUID", step.UID, "error", err,
+					"resourceType", step.Type, "stepUID", step.UID, "error", err,
 				)
 			}
 		}

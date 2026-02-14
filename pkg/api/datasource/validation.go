@@ -78,7 +78,7 @@ func ValidateURL(typeName, urlStr string) (*url.URL, error) {
 		if !reURL.MatchString(urlStr) {
 			logger.Debug(
 				"Data source URL doesn't specify protocol, so prepending it with http:// in order to make it unambiguous",
-				"type", typeName, "datasourceURL", urlStr)
+				"datasourceType", typeName, "datasourceURL", urlStr)
 			urlStr = fmt.Sprintf("http://%s", urlStr)
 		}
 		u, err = url.Parse(urlStr)
