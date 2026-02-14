@@ -1206,7 +1206,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 					Key:    &res.Key,
 				})
 			default:
-				logger.Error("can't update index with item, unknown action", "action", res.Action, "key", key)
+				logger.Error("can't update index with item, unknown action", "resourceAction", res.Action, "key", key)
 				continue
 			}
 

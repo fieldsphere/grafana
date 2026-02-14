@@ -264,19 +264,19 @@ func (hs *HTTPServer) getAnnotationPermissionsByScope(c *contextmodel.ReqContext
 	evaluate := accesscontrol.EvalPermission(accesscontrol.ActionAnnotationsCreate, scope)
 	actions.CanAdd, err = hs.AccessControl.Evaluate(c.Req.Context(), c.SignedInUser, evaluate)
 	if err != nil {
-		hs.log.Warn("Failed to evaluate permission", "error", err, "action", accesscontrol.ActionAnnotationsCreate, "scope", scope)
+		hs.log.Warn("Failed to evaluate permission", "error", err, "permissionAction", accesscontrol.ActionAnnotationsCreate, "scope", scope)
 	}
 
 	evaluate = accesscontrol.EvalPermission(accesscontrol.ActionAnnotationsDelete, scope)
 	actions.CanDelete, err = hs.AccessControl.Evaluate(c.Req.Context(), c.SignedInUser, evaluate)
 	if err != nil {
-		hs.log.Warn("Failed to evaluate permission", "error", err, "action", accesscontrol.ActionAnnotationsDelete, "scope", scope)
+		hs.log.Warn("Failed to evaluate permission", "error", err, "permissionAction", accesscontrol.ActionAnnotationsDelete, "scope", scope)
 	}
 
 	evaluate = accesscontrol.EvalPermission(accesscontrol.ActionAnnotationsWrite, scope)
 	actions.CanEdit, err = hs.AccessControl.Evaluate(c.Req.Context(), c.SignedInUser, evaluate)
 	if err != nil {
-		hs.log.Warn("Failed to evaluate permission", "error", err, "action", accesscontrol.ActionAnnotationsWrite, "scope", scope)
+		hs.log.Warn("Failed to evaluate permission", "error", err, "permissionAction", accesscontrol.ActionAnnotationsWrite, "scope", scope)
 	}
 }
 

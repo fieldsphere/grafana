@@ -42,7 +42,7 @@ func (r *ChildPluginReconciler) reconcile(ctx context.Context, req operator.Type
 		"pluginID", plugin.Spec.Id,
 		"namespace", plugin.Namespace,
 		"version", plugin.Spec.Version,
-		"action", req.Action,
+		"reconcileAction", req.Action,
 		"parentID", plugin.Spec.ParentId,
 	)
 
@@ -70,7 +70,7 @@ func (r *ChildPluginReconciler) reconcile(ctx context.Context, req operator.Type
 
 	logger.Debug("Plugin has children, reconciling child plugins",
 		"childCount", len(result.Meta.Children),
-		"action", req.Action,
+		"reconcileAction", req.Action,
 	)
 
 	switch req.Action {
