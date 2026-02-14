@@ -426,7 +426,7 @@ func (moa *MultiOrgAlertmanager) cleanupOrphanLocalOrgState(ctx context.Context,
 		keys, err := moa.kvStore.Keys(ctx, kvstore.AllOrganizations, KVNamespace, fileName)
 		if err != nil {
 			moa.logger.Error("Failed to fetch items from kvstore", "error", err,
-				"namespace", KVNamespace, "key", fileName)
+				"namespace", KVNamespace, "kvFileName", fileName)
 		}
 		for _, key := range keys {
 			if _, exists := activeOrganizations[key.OrgId]; exists {
@@ -435,7 +435,7 @@ func (moa *MultiOrgAlertmanager) cleanupOrphanLocalOrgState(ctx context.Context,
 			err = moa.kvStore.Del(ctx, key.OrgId, key.Namespace, key.Key)
 			if err != nil {
 				moa.logger.Error("Failed to delete item from kvstore", "error", err,
-					"orgID", key.OrgId, "namespace", KVNamespace, "key", key.Key)
+					"orgID", key.OrgId, "namespace", KVNamespace, "kvKey", key.Key)
 			}
 		}
 	}

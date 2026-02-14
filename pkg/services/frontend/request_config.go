@@ -144,7 +144,7 @@ func applyString(settings *ini.File, sectionName, keyName string, target *string
 
 		logger.Debug("applying request config override",
 			"section", sectionName,
-			"key", keyName,
+			"configKey", keyName,
 			"value", *target)
 	}
 }
@@ -156,7 +156,7 @@ func applyBool(settings *ini.File, sectionName, keyName string, target *bool, lo
 
 		logger.Debug("applying request config override",
 			"section", sectionName,
-			"key", keyName,
+			"configKey", keyName,
 			"value", *target)
 	}
 }
