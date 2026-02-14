@@ -87,7 +87,7 @@ func (r *MigrationRunner) Run(ctx context.Context, sess *xorm.Session, opts RunO
 	for _, org := range orgs {
 		info, err := types.ParseNamespace(types.OrgNamespaceFormatter(org.ID))
 		if err != nil {
-		r.log.Error("Failed to parse organization namespace", "orgID", org.ID, "error", err)
+			r.log.Error("Failed to parse organization namespace", "orgID", org.ID, "error", err)
 			return fmt.Errorf("failed to parse namespace for org %d: %w", org.ID, err)
 		}
 		if err = r.MigrateOrg(ctx, sess, info, opts); err != nil {
@@ -98,7 +98,7 @@ func (r *MigrationRunner) Run(ctx context.Context, sess *xorm.Session, opts RunO
 	// Auto-enable mode 5 for resources after successful migration
 	if r.autoEnableMode5 && r.cfg != nil {
 		for _, gr := range r.resources {
-			r.log.Info("Auto-enabling mode 5 for resource", "resource", gr.Resource+"."+gr.Group)
+			r.log.Info("Auto-enabling mode 5 for resource", "resourceName", gr.Resource, "resourceGroup", gr.Group)
 			r.cfg.EnableMode5(gr.Resource + "." + gr.Group)
 		}
 	}

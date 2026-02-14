@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -119,11 +120,12 @@ func getCredentialCacheFromLookup(lookupFile string, host string, port string, d
 		return ""
 	}
 	// find cache file
+	endpoint := net.JoinHostPort(host, port)
 	for _, item := range lookups {
 		if port == "0" {
-			item.Address = host + ":0"
+			item.Address = net.JoinHostPort(host, "0")
 		}
-		if item.Address == host+":"+port && item.DBName == dbName && item.User == user {
+		if item.Address == endpoint && item.DBName == dbName && item.User == user {
 			kerberosLog.Info("Matched credential cache lookup entry",
 				"address", item.Address,
 				"database", item.DBName,
@@ -132,6 +134,6 @@ func getCredentialCacheFromLookup(lookupFile string, host string, port string, d
 			return item.CredentialCacheFilename
 		}
 	}
-	kerberosLog.Error("No credential cache lookup match found", "address", host+":"+port, "database", dbName, "userName", user)
+	kerberosLog.Error("No credential cache lookup match found", "address", endpoint, "database", dbName, "userName", user)
 	return ""
 }

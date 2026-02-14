@@ -604,7 +604,7 @@ func (s *SocialGenericOAuth) fetchPrivateEmail(ctx context.Context, client *http
 
 	response, err := s.httpGet(ctx, client, s.info.ApiUrl+"/emails")
 	if err != nil {
-		s.log.Error("Error getting email address", "apiURL", s.info.ApiUrl+"/emails", "error", err)
+		s.log.Error("Error getting email address", "apiBaseURL", s.info.ApiUrl, "apiEndpoint", "/emails", "error", err)
 		return "", fmt.Errorf("%v: %w", "Error getting email address", err)
 	}
 
@@ -666,7 +666,7 @@ func (s *SocialGenericOAuth) fetchTeamMembershipsFromDeprecatedTeamsUrl(ctx cont
 
 	response, err := s.httpGet(ctx, client, s.info.ApiUrl+"/teams")
 	if err != nil {
-		s.log.Error("Error getting team memberships", "apiURL", s.info.ApiUrl+"/teams", "error", err)
+		s.log.Error("Error getting team memberships", "apiBaseURL", s.info.ApiUrl, "apiEndpoint", "/teams", "error", err)
 		return []string{}, err
 	}
 
@@ -707,7 +707,7 @@ func (s *SocialGenericOAuth) fetchOrganizations(ctx context.Context, client *htt
 
 	response, err := s.httpGet(ctx, client, s.info.ApiUrl+"/orgs")
 	if err != nil {
-		s.log.Error("Error getting organizations", "apiURL", s.info.ApiUrl+"/orgs", "error", err)
+		s.log.Error("Error getting organizations", "apiBaseURL", s.info.ApiUrl, "apiEndpoint", "/orgs", "error", err)
 		return nil, false
 	}
 
