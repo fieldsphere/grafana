@@ -355,7 +355,7 @@ func installAPIGroupsForBuilder(g *genericapiserver.APIGroupInfo, group string, 
 			Version: version,
 		}
 		if apiResourceConfig != nil && !apiResourceConfig.ResourceEnabled(gvr) {
-			klog.InfoS("Skipping storage for disabled resource", "gvr", gvr.String())
+			klog.InfoS("Skipping storage for disabled resource", "groupVersionResource", gvr.String())
 			delete(g.VersionedResourcesStorageMap, version)
 		}
 	}
