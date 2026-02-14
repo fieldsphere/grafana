@@ -276,7 +276,7 @@ func (a *alertRule) Run() error {
 				return nil
 			}
 			f := ctx.Fingerprint()
-			logger := a.logger.New("version", ctx.rule.Version, "fingerprint", f, "now", ctx.scheduledAt)
+			logger := a.logger.New("version", ctx.rule.Version, "fingerprint", f, "scheduledAt", ctx.scheduledAt)
 			logger.Debug("Processing tick")
 
 			retryer := newExponentialBackoffRetryer(
@@ -342,7 +342,7 @@ func (a *alertRule) Run() error {
 					if tracingCtx.Err() != nil {
 						span.SetStatus(codes.Error, "rule evaluation cancelled")
 						span.End()
-						logger.Error("Skip evaluation and updating the state because the context has been cancelled", "version", ctx.rule.Version, "fingerprint", f, "attempt", attempt, "now", ctx.scheduledAt)
+						logger.Error("Skip evaluation and updating the state because the context has been cancelled", "version", ctx.rule.Version, "fingerprint", f, "attempt", attempt, "scheduledAt", ctx.scheduledAt)
 						return
 					}
 					nextDelay := retryer.NextAttemptIn()

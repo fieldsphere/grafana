@@ -548,7 +548,7 @@ func (srv RulerSrv) performUpdateAlertRules(ctx context.Context, c *contextmodel
 		}
 
 		finalChanges = store.UpdateCalculatedRuleFields(groupChanges)
-		logger.Debug("Updating database with the authorized changes", "add", len(finalChanges.New), "update", len(finalChanges.New), "delete", len(finalChanges.Delete))
+		logger.Debug("Updating database with the authorized changes", "addedRulesCount", len(finalChanges.New), "updatedRulesCount", len(finalChanges.Update), "deletedRulesCount", len(finalChanges.Delete))
 
 		// Delete first as this could prevent future unique constraint violations.
 		if len(finalChanges.Delete) > 0 {

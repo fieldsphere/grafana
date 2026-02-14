@@ -450,7 +450,7 @@ func (p *redisPeer) Settle(ctx context.Context, interval time.Duration) {
 			p.logger.Debug("Gossip looks settled", "elapsed", elapsed)
 		} else {
 			nOkay = 0
-			p.logger.Info("Gossip not settled", "polls", totalPolls, "before", nPeers, "now", n, "elapsed", elapsed)
+			p.logger.Info("Gossip not settled", "polls", totalPolls, "before", nPeers, "currentMembers", n, "elapsed", elapsed)
 		}
 		nPeers = n
 		totalPolls++

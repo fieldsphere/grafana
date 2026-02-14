@@ -169,7 +169,7 @@ func (r *recordingRule) Run() error {
 }
 
 func (r *recordingRule) doEvaluate(ctx context.Context, ev *Evaluation) {
-	logger := r.logger.FromContext(ctx).New("now", ev.scheduledAt, "fingerprint", ev.Fingerprint())
+	logger := r.logger.FromContext(ctx).New("scheduledAt", ev.scheduledAt, "fingerprint", ev.Fingerprint())
 	orgID := fmt.Sprint(ev.rule.OrgID)
 	evalDuration := r.metrics.EvalDuration.WithLabelValues(orgID)
 	evalAttemptTotal := r.metrics.EvalAttemptTotal.WithLabelValues(orgID)
