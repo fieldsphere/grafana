@@ -1675,6 +1675,12 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid generic trace event name "status"; use contextual event names such as "queryStatus", "requestStatus", or "operationStatus"`)
 
 	m.Match(
+		`$span.AddEvent("query")`,
+		`$span.AddEvent("query", $*attrs)`,
+	).
+		Report(`avoid generic trace event name "query"; use a contextual event name such as "queryExecuted", "queryStarted", or "queryFinished"`)
+
+	m.Match(
 		`attribute.String("error", $errMsg)`,
 	).
 		Where(m["errMsg"].Type.Is("string")).

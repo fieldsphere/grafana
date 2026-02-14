@@ -103,7 +103,7 @@ func (h *databaseQueryWrapper) instrument(ctx context.Context, status string, qu
 	_, span := h.tracer.Start(ctx, "database query", trace.WithTimestamp(begin))
 	defer span.End()
 
-	span.AddEvent("query", trace.WithAttributes(attribute.String("queryText", query)))
+	span.AddEvent("queryExecuted", trace.WithAttributes(attribute.String("queryText", query)))
 	span.AddEvent("queryStatus", trace.WithAttributes(attribute.String("queryStatus", status)))
 
 	if err != nil {
