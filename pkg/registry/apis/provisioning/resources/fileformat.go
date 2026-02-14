@@ -52,7 +52,7 @@ func ReadClassicResource(ctx context.Context, info *repository.FileInfo) (*unstr
 
 		logging.FromContext(ctx).Debug("TODO... likely a provisioning",
 			"apiVersion", value["apiVersion"],
-			"kind", value["Kind"])
+			"resourceKind", value["Kind"])
 		gv, err := schema.ParseGroupVersion(value["apiVersion"].(string))
 		if err != nil {
 			return nil, nil, "", fmt.Errorf("invalid apiVersion")
