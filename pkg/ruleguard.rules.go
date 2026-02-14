@@ -1030,6 +1030,19 @@ func structuredlogging(m fluent.Matcher) {
 		Report("structured log call has a dangling key without a value; ensure key/value arguments are paired")
 
 	m.Match(
+		`$logger.New($*before, $key, $value, $dangling)`,
+		`$logger.With($*before, $key, $value, $dangling)`,
+	).
+		Where(isStructuredLogger && m["key"].Type.Is("string") && m["dangling"].Type.Is("string")).
+		Report("structured context builder has a dangling key without a value; ensure key/value arguments are paired")
+
+	m.Match(
+		`slog.Group($group, $*before, $key, $value, $dangling)`,
+	).
+		Where(m["key"].Type.Is("string") && m["dangling"].Type.Is("string")).
+		Report("slog.Group call has a dangling key without a value; ensure field arguments are paired")
+
+	m.Match(
 		`$logger.Info($msg, $*before, $key, $value, $*after)`,
 		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
 		`$logger.Error($msg, $*before, $key, $value, $*after)`,
