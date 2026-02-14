@@ -1,4 +1,8 @@
-import { logDevenvWarning } from '../../logging.js';
+// Inline logging function for k6 ESM compatibility
+function logDevenvWarning(message, context) {
+  // k6 doesn't have process.stderr, use console for logging
+  console.warn(JSON.stringify({ level: 'warning', message, ...(context != null ? { context } : {}) }));
+}
 
 export const createTestOrgIfNotExists = (client) => {
   let orgId = 0;
