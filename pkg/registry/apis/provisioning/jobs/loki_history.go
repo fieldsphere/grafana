@@ -89,7 +89,7 @@ func (h *LokiJobHistory) RecentJobs(ctx context.Context, namespace, repo string)
 	now := time.Now().UTC()
 	from := now.Add(-defaultJobQueryRange)
 
-	logger.Debug("Querying Loki for recent jobs", "namespace", namespace, "repository", repo, "query", logQL)
+	logger.Debug("Querying Loki for recent jobs", "namespace", namespace, "repository", repo, "logQLQuery", logQL)
 
 	// Execute query
 	result, err := h.client.RangeQuery(ctx, logQL, from.UnixNano(), now.UnixNano(), int64(maxJobsLimit))

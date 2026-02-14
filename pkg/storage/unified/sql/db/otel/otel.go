@@ -57,11 +57,11 @@ type ctxKey struct{}
 // Example:
 //
 //	// the following QueryContext operation will have an extra attribute
-//	ctx = SetAttributes(attribute.String("query", "get user by id"))
+//	ctx = SetAttributes(attribute.String("queryText", "get user by id"))
 //	res, err := myTracedTx.QueryContext(ctx, getUserByIDSQL, userID)
 //
 //	// the following ExecContext operation will have a different extra attribute
-//	ctx = SetAttributes(attribute.String("query", "disable user"))
+//	ctx = SetAttributes(attribute.String("queryText", "disable user"))
 //	err = myTracedTx.ExecContext(ctx, disableUserSQL, userID)
 //
 //	// the following Commit operation will NOT have any extra attribute

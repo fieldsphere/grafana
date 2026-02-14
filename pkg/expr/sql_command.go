@@ -78,7 +78,7 @@ func UnmarshalSQLCommand(ctx context.Context, rn *rawNode, cfg *setting.Cfg) (*S
 
 	expressionRaw, ok := rn.Query["expression"]
 	if !ok {
-		sqlLogger.Error("no expression in the query", "query", rn.Query)
+		sqlLogger.Error("no expression in the query", "queryModel", rn.Query)
 		return nil, errors.New("no expression in the query")
 	}
 	expression, ok := expressionRaw.(string)
@@ -199,7 +199,7 @@ func (gr *SQLCommand) Execute(ctx context.Context, now time.Time, vars mathexp.V
 		return rsp, nil
 	}
 
-	gr.logger.Debug("Executing query", "query", gr.query, "frames", len(allFrames))
+	gr.logger.Debug("Executing query", "sqlQuery", gr.query, "frames", len(allFrames))
 
 	db := sql.DB{}
 	frame, err := db.QueryFrames(ctx, tracer, gr.refID, gr.query, allFrames, sql.WithMaxOutputCells(gr.outputLimit), sql.WithTimeout(gr.timeout))
@@ -208,7 +208,7 @@ func (gr *SQLCommand) Execute(ctx context.Context, now time.Time, vars mathexp.V
 		return rsp, nil
 	}
 
-	gr.logger.Debug("Done Executing query", "query", gr.query, "rows", frame.Rows())
+	gr.logger.Debug("Done Executing query", "sqlQuery", gr.query, "rows", frame.Rows())
 
 	if frame.Rows() == 0 {
 		rsp.Values = mathexp.Values{

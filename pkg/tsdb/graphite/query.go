@@ -131,7 +131,7 @@ func (s *Service) processQuery(query backend.DataQuery) (string, *GraphiteQuery,
 	if err != nil {
 		return "", &queryJSON, false, backend.PluginError(fmt.Errorf("failed to decode the Graphite query: %w", err))
 	}
-	s.logger.Debug("Graphite", "query", queryJSON)
+	s.logger.Debug("Graphite", "queryModel", queryJSON)
 	currTarget := queryJSON.TargetFull
 
 	if currTarget == "" {

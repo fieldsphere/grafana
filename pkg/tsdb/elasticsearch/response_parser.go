@@ -73,7 +73,7 @@ func parseResponse(ctx context.Context, responses []*es.SearchResponse, targets 
 			resSpan.RecordError(errors.New(string(me)))
 			resSpan.SetStatus(codes.Error, string(me))
 			resSpan.End()
-			logger.Error("Processing error response from Elasticsearch", "error", string(me), "query", string(mt))
+			logger.Error("Processing error response from Elasticsearch", "error", string(me), "queryJSON", string(mt))
 			errResult := getErrorFromElasticResponse(res)
 			result.Responses[target.RefID] = backend.ErrorResponseWithErrorSource(backend.DownstreamError(errors.New(errResult)))
 			continue
@@ -113,7 +113,7 @@ func parseResponse(ctx context.Context, responses []*es.SearchResponse, targets 
 				span.SetStatus(codes.Error, err.Error())
 				resSpan.RecordError(err)
 				resSpan.SetStatus(codes.Error, err.Error())
-				logger.Error("Error processing buckets", "error", err, "query", string(mt), "aggregationsLength", len(res.Aggregations), "stage", es.StageParseResponse)
+				logger.Error("Error processing buckets", "error", err, "queryJSON", string(mt), "aggregationsLength", len(res.Aggregations), "stage", es.StageParseResponse)
 				instrumentation.UpdatePluginParsingResponseDurationSeconds(ctx, time.Since(start), "error")
 				resSpan.End()
 				return &backend.QueryDataResponse{}, err

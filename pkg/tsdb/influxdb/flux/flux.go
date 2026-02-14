@@ -20,7 +20,7 @@ var (
 func Query(ctx context.Context, dsInfo *models.DatasourceInfo, tsdbQuery backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
 	logger := glog.FromContext(ctx)
 	tRes := backend.NewQueryDataResponse()
-	logger.Debug("Received a query", "query", tsdbQuery)
+	logger.Debug("Received a query", "queryDataRequest", tsdbQuery)
 	r, err := runnerFromDataSource(dsInfo)
 	if err != nil {
 		return &backend.QueryDataResponse{}, err

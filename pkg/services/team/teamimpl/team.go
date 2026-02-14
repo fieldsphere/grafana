@@ -68,7 +68,7 @@ func (s *Service) DeleteTeam(ctx context.Context, cmd *team.DeleteTeamCommand) e
 func (s *Service) SearchTeams(ctx context.Context, query *team.SearchTeamsQuery) (team.SearchTeamQueryResult, error) {
 	ctx, span := s.tracer.Start(ctx, "team.SearchTeams", trace.WithAttributes(
 		attribute.Int64("orgID", query.OrgID),
-		attribute.String("query", query.Query),
+		attribute.String("queryText", query.Query),
 	))
 	defer span.End()
 	return s.store.Search(ctx, query)

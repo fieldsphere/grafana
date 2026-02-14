@@ -132,7 +132,7 @@ func (db *SQLite3) TruncateDBTables(engine *xorm.Engine) error {
 			if !sqlite.IsBusyOrLocked(lastErr) {
 				break
 			}
-			sqliteLogger.Warn("Retrying busy or locked error", "query", query, "error", lastErr)
+			sqliteLogger.Warn("Retrying busy or locked error", "sqlQuery", query, "error", lastErr)
 			b.Wait()
 		}
 		return errors.Join(lastErr, b.Err())

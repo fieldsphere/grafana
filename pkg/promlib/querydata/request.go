@@ -134,14 +134,14 @@ func (s *QueryData) handleQuery(ctx context.Context, bq backend.DataQuery, fromA
 
 	r := s.fetch(traceCtx, s.client, query)
 	if r == nil {
-		s.log.FromContext(ctx).Debug("Received nil response from runQuery", "query", query.Expr)
+		s.log.FromContext(ctx).Debug("Received nil response from runQuery", "queryExpr", query.Expr)
 	}
 	return r
 }
 
 func (s *QueryData) fetch(traceCtx context.Context, client *client.Client, q *models.Query) *backend.DataResponse {
 	logger := s.log.FromContext(traceCtx)
-	logger.Debug("Sending query", "start", q.Start, "end", q.End, "step", q.Step, "query", q.Expr)
+	logger.Debug("Sending query", "start", q.Start, "end", q.End, "step", q.Step, "queryExpr", q.Expr)
 
 	dr := &backend.DataResponse{
 		Frames: data.Frames{},
@@ -184,7 +184,7 @@ func (s *QueryData) fetch(traceCtx context.Context, client *client.Client, q *mo
 			if res.Error != nil {
 				// If exemplar query returns error, we want to only log it and
 				// continue with other results processing
-				logger.Error("Exemplar query failed", "query", q.Expr, "error", res.Error)
+				logger.Error("Exemplar query failed", "queryExpr", q.Expr, "error", res.Error)
 			}
 			dr.Frames = append(dr.Frames, res.Frames...)
 			m.Unlock()

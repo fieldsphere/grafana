@@ -767,7 +767,7 @@ func (st DBstore) ListAlertRules(ctx context.Context, query *ngmodels.ListAlertR
 	// This should never happen, as Limit is 0, which means no pagination.
 	if nextToken != "" {
 		err = fmt.Errorf("unexpected next token %q, expected empty string", nextToken)
-		st.Logger.Error("ListAlertRules returned a next token, but it should not have, this is a bug!", "nextToken", nextToken, "query", query)
+		st.Logger.Error("ListAlertRules returned a next token, but it should not have, this is a bug!", "nextToken", nextToken, "listAlertRulesQuery", query)
 	}
 	return result, err
 }

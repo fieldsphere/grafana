@@ -262,7 +262,7 @@ func (s *SearchHandler) DoSearch(w http.ResponseWriter, r *http.Request) {
 	span.SetAttributes(attribute.Int("limit", limit),
 		attribute.Int("page", page),
 		attribute.Int("offset", offset),
-		attribute.String("query", searchQuery))
+		attribute.String("queryText", searchQuery))
 
 	if !requester.GetIsGrafanaAdmin() {
 		// FIXME: Use the new config service instead of the legacy one
