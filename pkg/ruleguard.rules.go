@@ -3642,6 +3642,59 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in []any literal spread context arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`$logger.New($*prefix, []any{$*before, $key, $err.Error(), $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, $err.Error(), $*after}...)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^`error`$") && m["err"].Type.Is("error")).
+		Report(`use "errorMessage" for stringified error text in []any literal spread context arguments; keep "error" for error objects`)
+
+	m.Match(
+		`$logger.New($*prefix, []any{$*before, $key, $errMsg, $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, $errMsg, $*after}...)`,
+	).
+		Where(
+			isStructuredLogger &&
+				m["key"].Text.Matches("^`error`$") &&
+				!m["errMsg"].Type.Is("error") &&
+				!m["errMsg"].Type.Implements("error"),
+		).
+		Report(`use "errorMessage" for stringified error text in []any literal spread context arguments; keep "error" for error objects`)
+
+	m.Match(
+		`$logger.New($*prefix, []any{$*before, $key, $errVal, $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, $errVal, $*after}...)`,
+	).
+		Where(
+			isStructuredLogger &&
+				m["key"].Text.Matches("^`errorMessage`$") &&
+				(m["errVal"].Type.Is("error") || m["errVal"].Type.Implements("error")),
+		).
+		Report(`use "error" for error objects in []any literal spread context arguments; reserve "errorMessage" for textual error details`)
+
+	m.Match(
+		`$logger.New($*prefix, []any{$*before, $key, $errVal, $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, $errVal, $*after}...)`,
+	).
+		Where(
+			isStructuredLogger &&
+				m["key"].Text.Matches("^`errorMessage`$") &&
+				(m["errVal"].Type.Is("bool") ||
+					m["errVal"].Type.Is("int") ||
+					m["errVal"].Type.Is("int8") ||
+					m["errVal"].Type.Is("int16") ||
+					m["errVal"].Type.Is("int32") ||
+					m["errVal"].Type.Is("int64") ||
+					m["errVal"].Type.Is("uint") ||
+					m["errVal"].Type.Is("uint8") ||
+					m["errVal"].Type.Is("uint16") ||
+					m["errVal"].Type.Is("uint32") ||
+					m["errVal"].Type.Is("uint64") ||
+					m["errVal"].Type.Is("float32") ||
+					m["errVal"].Type.Is("float64")),
+		).
+		Report(`"errorMessage" in []any literal spread context arguments should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for numeric/bool values`)
+
+	m.Match(
 		`$logger.New($*prefix, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
 		`$logger.With($*prefix, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
 		`$logger.New($*prefix, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
@@ -3698,6 +3751,59 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in appended structured context arguments; use stable string-literal or const keys and keep dynamic data in values`)
+
+	m.Match(
+		`$logger.New($*prefix, append($arr, $*before, $key, $err.Error(), $*after)...)`,
+		`$logger.With($*prefix, append($arr, $*before, $key, $err.Error(), $*after)...)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^`error`$") && m["err"].Type.Is("error")).
+		Report(`use "errorMessage" for stringified error text in appended structured context arguments; keep "error" for error objects`)
+
+	m.Match(
+		`$logger.New($*prefix, append($arr, $*before, $key, $errMsg, $*after)...)`,
+		`$logger.With($*prefix, append($arr, $*before, $key, $errMsg, $*after)...)`,
+	).
+		Where(
+			isStructuredLogger &&
+				m["key"].Text.Matches("^`error`$") &&
+				!m["errMsg"].Type.Is("error") &&
+				!m["errMsg"].Type.Implements("error"),
+		).
+		Report(`use "errorMessage" for stringified error text in appended structured context arguments; keep "error" for error objects`)
+
+	m.Match(
+		`$logger.New($*prefix, append($arr, $*before, $key, $errVal, $*after)...)`,
+		`$logger.With($*prefix, append($arr, $*before, $key, $errVal, $*after)...)`,
+	).
+		Where(
+			isStructuredLogger &&
+				m["key"].Text.Matches("^`errorMessage`$") &&
+				(m["errVal"].Type.Is("error") || m["errVal"].Type.Implements("error")),
+		).
+		Report(`use "error" for error objects in appended structured context arguments; reserve "errorMessage" for textual error details`)
+
+	m.Match(
+		`$logger.New($*prefix, append($arr, $*before, $key, $errVal, $*after)...)`,
+		`$logger.With($*prefix, append($arr, $*before, $key, $errVal, $*after)...)`,
+	).
+		Where(
+			isStructuredLogger &&
+				m["key"].Text.Matches("^`errorMessage`$") &&
+				(m["errVal"].Type.Is("bool") ||
+					m["errVal"].Type.Is("int") ||
+					m["errVal"].Type.Is("int8") ||
+					m["errVal"].Type.Is("int16") ||
+					m["errVal"].Type.Is("int32") ||
+					m["errVal"].Type.Is("int64") ||
+					m["errVal"].Type.Is("uint") ||
+					m["errVal"].Type.Is("uint8") ||
+					m["errVal"].Type.Is("uint16") ||
+					m["errVal"].Type.Is("uint32") ||
+					m["errVal"].Type.Is("uint64") ||
+					m["errVal"].Type.Is("float32") ||
+					m["errVal"].Type.Is("float64")),
+		).
+		Report(`"errorMessage" in appended structured context arguments should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for numeric/bool values`)
 
 	m.Match(
 		`$logger.New($*prefix, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
