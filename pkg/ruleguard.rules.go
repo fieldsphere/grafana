@@ -1871,6 +1871,22 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recover().(error) type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
+		`if $panicErr, $ok := recover().(error); $ok { if $cond { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok { if $cond { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok { if $cond { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok { if $cond { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for nested recover().(error) type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok { $arr := []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 		`if $panicErr, $ok := recover().(error); $ok { $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { $arr := []any{$*before, $key, $panicErr, $*after}; $*_ }`,
@@ -1885,6 +1901,22 @@ func structuredlogging(m fluent.Matcher) {
 				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
 		).
 		Report(`for recover().(error) type assertions in literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicErr, $ok := recover().(error); $ok { if $cond { $arr := []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok { if $cond { $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok { if $cond { $arr := []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok { if $cond { $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $arr := []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $arr := []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for nested recover().(error) type assertions in literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $logger.Info($msg, $*before, $key, $panicErr, $*after); $*_ }`,
