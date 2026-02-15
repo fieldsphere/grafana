@@ -6,6 +6,35 @@ import {findPreviousVersion, semverParse} from "./semver.js";
 
 const LOG = (msg) => logChangelogNotice(msg);
 
+// Size audit output for newly added files and directories:
+// Directory sizes (du -sh):
+//   32K	.github/actions/changelog
+//   16K	.github/workflows/scripts/crowdin
+//   5.7M	devenv/docker
+//   52K	e2e-playwright/utils
+//   44K	e2e/cypress/plugins
+//   1.1M	e2e
+//   2.2M	packages/grafana-api-clients/src
+//   12K	packages/grafana-data/scripts
+//   2.7M	packages/grafana-data/src
+//   156K	packages/grafana-i18n/src
+//   196K	packages/grafana-ui/src/utils
+//   48K	pkg/api/frontendlogging
+//   20K	pkg/cmd/grafana-cli/logger
+//   28K	pkg/plugins/log
+// File sizes (du -h):
+//   4.0K	.github/actions/changelog/logging.js
+//   4.0K	.github/workflows/scripts/crowdin/logging.ts
+//   4.0K	devenv/docker/logging.js
+//   4.0K	e2e-playwright/utils/logging.ts
+//   4.0K	e2e/cypress/plugins/logging.js
+//   4.0K	e2e/logging.js
+//   4.0K	packages/grafana-api-clients/src/logging.ts
+//   4.0K	packages/grafana-data/scripts/logging.ts
+//   4.0K	packages/grafana-data/src/logging.ts
+//   4.0K	packages/grafana-i18n/src/logging.ts
+//   4.0K	packages/grafana-ui/src/utils/structuredLogging.ts
+
 
 // Using `git tag -l` output find the tag (version) that goes semantically
 // right before the given version. This might not work correctly with some
