@@ -4546,6 +4546,24 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`attribute.Key($key)`,
 	).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Report("prefer stable string-literal or const trace attribute keys in attribute.Key(...); avoid runtime-generated key values")
+
+	m.Match(
+		`attribute.Key($left + $right)`,
+	).
+		Where(m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report("avoid dynamic concatenation for trace attribute keys in attribute.Key(...); use stable string-literal keys and keep dynamic data in values")
+
+	m.Match(
+		`attribute.Key(fmt.Sprintf($fmt, $*args))`,
+		`attribute.Key(fmt.Sprint($*args))`,
+	).
+		Report("avoid fmt formatting for trace attribute keys in attribute.Key(...); use stable string-literal keys and keep dynamic data in values")
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
 		Where(m["key"].Text.Matches("^\"error\"$")).
 		Report(`avoid generic trace attribute key "error" in attribute.Key(...); use "errorMessage" for textual details and contextual typed keys such as "errorCode", "errorCount", or "hasError"`)
 
