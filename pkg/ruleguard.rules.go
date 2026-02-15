@@ -3053,6 +3053,32 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
 		`klog.ErrorS($baseErr, $msg, []any{$*before, $key, $value, $*after}...)`,
 	).
+		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous key "reason" in []any literal spread arguments; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
+		`$logger.Info($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Warn($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Error($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Debug($msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.InfoCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.WarnCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.ErrorCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.DebugCtx($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Info($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Warn($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Error($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Debug($msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.InfoContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.WarnContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.ErrorContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.DebugContext($ctx, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`slog.Log($ctx, $level, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.Log($ctx, $level, $msg, []any{$*before, $key, $value, $*after}...)`,
+		`klog.InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
+		`klog.V($lvl).InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
+		`klog.ErrorS($baseErr, $msg, []any{$*before, $key, $value, $*after}...)`,
+	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in []any literal spread arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
@@ -3191,6 +3217,13 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
 		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
 	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous key "reason" in []any literal spread context arguments; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
+		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
+		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
+	).
 		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in []any literal spread context arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
@@ -3230,6 +3263,13 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
 		Report(`avoid ambiguous keys in appended structured context arguments; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
+
+	m.Match(
+		`$logger.New($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.With($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous key "reason" in appended structured context arguments; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
 		`$logger.New($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
@@ -3309,6 +3349,32 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
 		Report(`avoid ambiguous keys in appended structured log arguments; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
+
+	m.Match(
+		`$logger.Info($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Warn($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Error($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Debug($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.DebugCtx($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Info($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Warn($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Error($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Debug($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.InfoContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.WarnContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.DebugContext($ctx, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`slog.Log($ctx, $level, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`$logger.Log($ctx, $level, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`klog.InfoS($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $value, $*after)...)`,
+		`klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous key "reason" in appended structured log arguments; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
 		`$logger.Info($msg, append($arr, $*before, $key, $value, $*after)...)`,
