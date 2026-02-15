@@ -2524,6 +2524,12 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous keys in slog.Group fields; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
 
 	m.Match(
+		`slog.Group($group, $*before, $key, $value, $*after)`,
+	).
+		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous slog.Group key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
 		`slog.Group($group, $*before, "error", $err.Error(), $*after)`,
 	).
 		Where(m["err"].Type.Is("error")).
@@ -2576,6 +2582,12 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 	).
+		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous slog.Group []any spread key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
+		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
+	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in slog.Group []any literal spread fields; use stable string-literal or const keys and keep dynamic data in values`)
 
@@ -2584,6 +2596,12 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
 		Report(`avoid ambiguous keys in slog.Group appended fields; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
+
+	m.Match(
+		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous slog.Group appended key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
@@ -4037,6 +4055,21 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|msg|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|data)\"$")).
 		Report(`avoid ambiguous trace attribute keys in attribute.Key(...); use contextual keys such as "userID", "receiverUID", "orgID", "configID", "queryText", "ruleUID", "requestBody", "resourceVersion", "repositoryName", "resourceKind", "statusCode", "requestPath", "datasourceURL", "messageInfo", "measurementValue", or "payloadData"`)
+
+	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
+		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous trace attribute key "reason" in attribute.Key(...); use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
 		`attribute.Key($key).String($value)`,
