@@ -155,7 +155,7 @@ func (s *APIKey) Priority() uint {
 	return 30
 }
 
-func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Request) error {
+func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) error {
 	_, span := s.tracer.Start(ctx, "authn.apikey.Hook")
 	defer span.End()
 
