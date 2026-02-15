@@ -2781,6 +2781,20 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
+		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous slog attribute key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
+		`slog.String($key, $value)`,
+		`slog.Int($key, $value)`,
+		`slog.Int64($key, $value)`,
+		`slog.Uint64($key, $value)`,
+		`slog.Bool($key, $value)`,
+		`slog.Float64($key, $value)`,
+		`slog.Duration($key, $value)`,
+		`slog.Time($key, $value)`,
+		`slog.Any($key, $value)`,
+	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in slog attribute constructors; use stable string-literal or const keys and keep dynamic data in values`)
 
