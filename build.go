@@ -4,6 +4,7 @@
 package main
 
 import (
+	"log"
 	"log/slog"
 	"os"
 
@@ -11,6 +12,8 @@ import (
 )
 
 func main() {
+	log.SetOutput(os.Stdout)
+	log.SetFlags(0)
 	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{})))
 	os.Exit(build.RunCmd())
 }
