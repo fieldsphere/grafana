@@ -1,5 +1,3 @@
-'use strict';
-
 function formatLogLine(level, message, context) {
   const payload = {
     level,
@@ -14,15 +12,10 @@ function formatLogLine(level, message, context) {
   }
 }
 
-function logDevenvInfo(message, context) {
+export function logDevenvInfo(message, context) {
   process.stdout.write(formatLogLine('info', message, context));
 }
 
-function logDevenvWarning(message, context) {
+export function logDevenvWarning(message, context) {
   process.stderr.write(formatLogLine('warning', message, context));
 }
-
-module.exports = {
-  logDevenvInfo,
-  logDevenvWarning,
-};
