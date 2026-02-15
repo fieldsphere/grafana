@@ -2859,7 +2859,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
+		Where(m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)[\"`]$")).
 		Report(`avoid ambiguous keys in slog attribute constructors; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
 
 	m.Match(
@@ -2873,7 +2873,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Where(m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous slog attribute key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
@@ -2887,7 +2887,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Where(m["key"].Text.Matches("^[\"`]panic[\"`]$")).
 		Report(`avoid ambiguous slog attribute key "panic"; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
@@ -2901,7 +2901,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
-		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in slog attribute constructors; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
@@ -3015,7 +3015,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z_]+Id[\"`]$")).
 		Report(`prefer "ID" acronym casing in slog attribute keys (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
@@ -3029,7 +3029,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z_]+Uid[\"`]$")).
 		Report(`prefer "UID" acronym casing in slog attribute keys (for example "dashboardUID", "ruleUID", "datasourceUID")`)
 
 	m.Match(
@@ -3043,7 +3043,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z0-9]+_[A-Za-z0-9_]+[\"`]$")).
 		Report(`avoid snake_case slog attribute keys; use camelCase with canonical acronym casing`)
 
 	m.Match(
@@ -3057,7 +3057,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\".*\\s+.*\"$")).
+		Where(m["key"].Text.Matches("^[\"`].*\\s+.*[\"`]$")).
 		Report(`avoid whitespace in slog attribute keys; use compact camelCase keys such as "rowsAffected" or "currentProvider"`)
 
 	m.Match(
@@ -3071,7 +3071,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+[\"`]$")).
 		Report(`avoid hyphenated slog attribute keys; use camelCase keys such as "contentType" or "rowsAffected"`)
 
 	m.Match(
@@ -3085,7 +3085,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z0-9_]+\\.[A-Za-z0-9_.]+[\"`]$")).
 		Report(`avoid dotted slog attribute keys; prefer flat camelCase keys with canonical acronym casing`)
 
 	m.Match(
@@ -3099,7 +3099,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Time($key, $value)`,
 		`slog.Any($key, $value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Z][A-Za-z0-9_.]*[\"`]$")).
 		Report(`avoid uppercase-leading slog attribute keys; use lower camelCase with canonical acronym casing`)
 
 	m.Match(
