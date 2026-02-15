@@ -372,6 +372,12 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 			expectedOK: true,
 		},
 		{
+			name:       "valid numeric id with leading zeros",
+			keyID:      leadingZeroAPIKeyIDString,
+			expectedID: 123,
+			expectedOK: true,
+		},
+		{
 			name:       "empty id",
 			keyID:      "",
 			expectedID: 0,
