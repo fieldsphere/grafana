@@ -4472,6 +4472,22 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid non-canonical trace attribute key "statuscode"; use "statusCode"`)
 
 	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"identUID\"$|^attribute\\.Key\\(\"identUID\"\\)$")).
+		Report(`avoid abbreviated trace attribute key "identUID"; use "identityUID" for clarity`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"func\"$|^attribute\\.Key\\(\"func\"\\)$")).
+		Report(`avoid shorthand trace attribute key "func"; use "function" for clarity`)
+
+	m.Match(
 		`attribute.Key($key).String($value)`,
 		`attribute.Key($key).Int($value)`,
 		`attribute.Key($key).Int64($value)`,
