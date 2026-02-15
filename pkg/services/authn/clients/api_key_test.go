@@ -200,6 +200,15 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 
 		assert.False(t, service.called)
 	})
+
+	t.Run("should skip update for missing key id", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed("")
+
+		assert.False(t, service.called)
+	})
 }
 
 func TestAPIKey_Hook(t *testing.T) {
