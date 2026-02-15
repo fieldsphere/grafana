@@ -22,3 +22,22 @@ func TestNormalizePluginInfraLogArgs(t *testing.T) {
 		require.Equal(t, "pluginLogArgs", got[0])
 	})
 }
+
+func TestWrapPluginInfraLogArgsEncapsulatesContext(t *testing.T) {
+	t.Run("adds pluginContext when args are provided", func(t *testing.T) {
+		got := wrapPluginInfraLogArgs("plugin started", "info", "pluginID", "test", "attempt", 1)
+		require.Equal(t, []any{
+			"pluginMessage", "plugin started",
+			"pluginLogLevel", "info",
+			"pluginContext", []any{"pluginID", "test", "attempt", 1},
+		}, got)
+	})
+
+	t.Run("omits pluginContext when args are empty", func(t *testing.T) {
+		got := wrapPluginInfraLogArgs("plugin started", "info")
+		require.Equal(t, []any{
+			"pluginMessage", "plugin started",
+			"pluginLogLevel", "info",
+		}, got)
+	})
+}

@@ -28,3 +28,24 @@ func TestLogWrapper(t *testing.T) {
 		})
 	}
 }
+
+func TestWrapPluginLogArgsEncapsulatesContext(t *testing.T) {
+	t.Run("adds pluginContext when args are provided", func(t *testing.T) {
+		got := wrapPluginLogArgs("plugin started", "info", "pluginID", "test", "attempt", 1)
+		expected := []any{
+			"pluginMessage", "plugin started",
+			"pluginLogLevel", "info",
+			"pluginContext", []any{"pluginID", "test", "attempt", 1},
+		}
+		assert.Exactly(t, expected, got)
+	})
+
+	t.Run("omits pluginContext when args are empty", func(t *testing.T) {
+		got := wrapPluginLogArgs("plugin started", "info")
+		expected := []any{
+			"pluginMessage", "plugin started",
+			"pluginLogLevel", "info",
+		}
+		assert.Exactly(t, expected, got)
+	})
+}
