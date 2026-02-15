@@ -470,6 +470,16 @@ func TestAPIKey_Hook(t *testing.T) {
 
 		assertNoUpdateCall(t, service)
 	})
+
+	t.Run("should skip update when both context and request are nil", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		err := client.Hook(nil, nil, nil)
+		assert.NoError(t, err)
+
+		assertNoUpdateCall(t, service)
+	})
 }
 
 type updateLastUsedService struct {
