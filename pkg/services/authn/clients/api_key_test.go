@@ -179,6 +179,39 @@ func TestAPIKey_Test(t *testing.T) {
 	}
 }
 
+func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
+	t.Run("should update last used for valid key id", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed("123")
+
+		assert.True(t, service.called)
+		assert.Equal(t, int64(123), service.updatedID)
+	})
+
+	t.Run("should skip update for invalid key id", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed("bad-id")
+
+		assert.False(t, service.called)
+	})
+}
+
+type updateLastUsedService struct {
+	apikeytest.Service
+	called    bool
+	updatedID int64
+}
+
+func (s *updateLastUsedService) UpdateAPIKeyLastUsedDate(ctx context.Context, tokenID int64) error {
+	s.called = true
+	s.updatedID = tokenID
+	return s.ExpectedError
+}
+
 func intPtr(n int64) *int64 {
 	return &n
 }
