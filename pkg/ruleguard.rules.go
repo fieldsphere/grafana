@@ -4295,6 +4295,14 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
+		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|msg|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|panic|user|client|uname|type|value|info|data)\"$|^attribute\\.Key\\(\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|msg|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|panic|user|client|uname|type|value|info|data)\"\\)$")).
+		Report(`avoid ambiguous trace attribute keys in attribute.KeyValue literals; use contextual keys such as "userID", "receiverUID", "orgID", "configID", "queryText", "ruleUID", "requestBody", "resourceVersion", "repositoryName", "resourceKind", "statusCode", "requestPath", "datasourceURL", "messageInfo", "measurementValue", or "payloadData"`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
 		Where(m["key"].Text.Matches("^\"reason\"$|^attribute\\.Key\\(\"reason\"\\)$")).
 		Report(`avoid ambiguous trace attribute key "reason" in attribute.KeyValue literals; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
