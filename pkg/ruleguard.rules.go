@@ -2334,43 +2334,43 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason)\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason)[\"`]$")).
 		Report(`avoid ambiguous keys in []any key/value slices; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", or "responseBody"`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`](user|client|uname)[\"`]$")).
 		Report(`avoid ambiguous keys "user", "client", or "uname" in []any key/value slices; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"type\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`]type[\"`]$")).
 		Report(`avoid ambiguous key "type" in []any key/value slices; use contextual keys such as "datasourceType", "resourceType", or "eventType"`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"value\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`]value[\"`]$")).
 		Report(`avoid ambiguous key "value" in []any key/value slices; use contextual keys such as "measurementValue", "fieldValue", "responseValue", or "configValue"`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"info\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`]info[\"`]$")).
 		Report(`avoid ambiguous key "info" in []any key/value slices; use contextual keys such as "messageInfo", "buildInfo", or "runtimeInfo"`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"reason\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous key "reason" in []any key/value slices; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"panic\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`]panic[\"`]$")).
 		Report(`avoid ambiguous key "panic" in []any key/value slices; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
@@ -2383,42 +2383,42 @@ func structuredlogging(m fluent.Matcher) {
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
 	).
-		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason)\"$")).
+		Where(m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason)[\"`]$")).
 		Report(`avoid ambiguous keys in []any literal key/value slices; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", or "responseBody"`)
 
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
 	).
-		Where(m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Where(m["key"].Text.Matches("^[\"`](user|client|uname)[\"`]$")).
 		Report(`avoid ambiguous keys "user", "client", or "uname" in []any literal key/value slices; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
 
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
 	).
-		Where(m["key"].Text.Matches("^\"type\"$")).
+		Where(m["key"].Text.Matches("^[\"`]type[\"`]$")).
 		Report(`avoid ambiguous key "type" in []any literal key/value slices; use contextual keys such as "datasourceType", "resourceType", or "eventType"`)
 
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
 	).
-		Where(m["key"].Text.Matches("^\"value\"$")).
+		Where(m["key"].Text.Matches("^[\"`]value[\"`]$")).
 		Report(`avoid ambiguous key "value" in []any literal key/value slices; use contextual keys such as "measurementValue", "fieldValue", "responseValue", or "configValue"`)
 
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
 	).
-		Where(m["key"].Text.Matches("^\"info\"$")).
+		Where(m["key"].Text.Matches("^[\"`]info[\"`]$")).
 		Report(`avoid ambiguous key "info" in []any literal key/value slices; use contextual keys such as "messageInfo", "buildInfo", or "runtimeInfo"`)
 
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
 	).
-		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Where(m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous key "reason" in []any literal key/value slices; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
@@ -2540,43 +2540,43 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`][A-Za-z_]+Id[\"`]$")).
 		Report(`prefer "ID" acronym casing in []any key/value slices (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`][A-Za-z_]+Uid[\"`]$")).
 		Report(`prefer "UID" acronym casing in []any key/value slices (for example "dashboardUID", "ruleUID", "datasourceUID")`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`][A-Za-z0-9]+_[A-Za-z0-9_]+[\"`]$")).
 		Report(`avoid snake_case keys in []any key/value slices; use camelCase with canonical acronym casing`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\".*\\s+.*\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`].*\\s+.*[\"`]$")).
 		Report(`avoid whitespace in []any keys; use compact camelCase keys`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`][A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+[\"`]$")).
 		Report(`avoid hyphenated keys in []any key/value slices; use camelCase keys`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`][A-Za-z0-9_]+\\.[A-Za-z0-9_.]+[\"`]$")).
 		Report(`avoid dotted keys in []any key/value slices; prefer flat camelCase keys`)
 
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^[\"`][A-Z][A-Za-z0-9_.]*[\"`]$")).
 		Report(`avoid uppercase-leading keys in []any key/value slices; use lower camelCase with canonical acronym casing`)
 
 	m.Match(
