@@ -250,6 +250,24 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 
 		assert.False(t, service.called)
 	})
+
+	t.Run("should skip update for whitespace-only key id", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed("   ")
+
+		assert.False(t, service.called)
+	})
+
+	t.Run("should skip update for zero key id", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed("0")
+
+		assert.False(t, service.called)
+	})
 }
 
 func TestAPIKey_Hook(t *testing.T) {
@@ -322,6 +340,18 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := &authn.Request{}
 		req.SetMeta(metaKeyID, "-1")
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		assertNoUpdateCall(t, service)
+	})
+
+	t.Run("should skip update when key id is zero", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "0")
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)

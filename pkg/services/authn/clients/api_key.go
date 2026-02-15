@@ -210,7 +210,7 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 		return
 	}
 	if id < 1 {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", "mustBePositiveInteger")
+		s.log.Warn("Invalid API key ID", "apiKeyID", id, "validationReason", "mustBePositiveInteger")
 		return
 	}
 
