@@ -41,6 +41,7 @@ const (
 	skipReasonMissingAPIKeyID   = "missingAPIKeyID"
 
 	validationReasonMustBePositiveInteger = "mustBePositiveInteger"
+	validationReasonMustContainDigitsOnly = "mustContainDigitsOnly"
 )
 
 func ProvideAPIKey(apiKeyService apikey.Service, tracer trace.Tracer) *APIKey {
@@ -227,6 +228,11 @@ func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string) {
 }
 
 func (s *APIKey) parseAndValidateAPIKeyID(keyID string) (int64, bool) {
+	if !containsOnlyDigits(keyID) {
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", validationReasonMustContainDigitsOnly)
+		return 0, false
+	}
+
 	apiKeyID, err := strconv.ParseInt(keyID, 10, 64)
 	if err != nil {
 		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "error", err)
@@ -238,6 +244,16 @@ func (s *APIKey) parseAndValidateAPIKeyID(keyID string) (int64, bool) {
 	}
 
 	return apiKeyID, true
+}
+
+func containsOnlyDigits(value string) bool {
+	for _, char := range value {
+		if char < '0' || char > '9' {
+			return false
+		}
+	}
+
+	return true
 }
 
 func looksLikeApiKey(token string) bool {
