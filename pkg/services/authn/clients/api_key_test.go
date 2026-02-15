@@ -378,6 +378,12 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 			expectedOK: false,
 		},
 		{
+			name:       "whitespace-only id",
+			keyID:      "   ",
+			expectedID: 0,
+			expectedOK: false,
+		},
+		{
 			name:       "signed id",
 			keyID:      signedAPIKeyIDString,
 			expectedID: 0,
