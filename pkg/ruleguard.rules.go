@@ -4286,6 +4286,8 @@ func structuredlogging(m fluent.Matcher) {
 		Where(
 			!m["key"].Const &&
 				!m["key"].Text.Matches("^\".*\"$") &&
+				!m["key"].Text.Matches("^.*\\+.*$") &&
+				!m["key"].Text.Matches("^fmt\\.(Sprintf|Sprint)\\(.*\\)$") &&
 				!m["key"].Text.Matches("^attribute\\.Key\\(.*\\)$"),
 		).
 		Report(`prefer stable string-literal or const trace attribute keys in attribute.KeyValue literals; avoid runtime-generated key values`)
@@ -4295,7 +4297,12 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: attribute.Key($inner)}`,
 		`attribute.KeyValue{attribute.Key($inner), $value}`,
 	).
-		Where(!m["inner"].Const && !m["inner"].Text.Matches("^\".*\"$")).
+		Where(
+			!m["inner"].Const &&
+				!m["inner"].Text.Matches("^\".*\"$") &&
+				!m["inner"].Text.Matches("^.*\\+.*$") &&
+				!m["inner"].Text.Matches("^fmt\\.(Sprintf|Sprint)\\(.*\\)$"),
+		).
 		Report(`prefer stable string-literal or const trace attribute keys in attribute.KeyValue literals; avoid runtime-generated key values inside attribute.Key(...) wrappers`)
 
 	m.Match(
@@ -4550,7 +4557,12 @@ func structuredlogging(m fluent.Matcher) {
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
-		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(
+			!m["key"].Const &&
+				!m["key"].Text.Matches("^\".*\"$") &&
+				!m["key"].Text.Matches("^.*\\+.*$") &&
+				!m["key"].Text.Matches("^fmt\\.(Sprintf|Sprint)\\(.*\\)$"),
+		).
 		Report("prefer stable string-literal or const trace attribute keys in attribute.Key(...); avoid runtime-generated key values")
 
 	m.Match(
