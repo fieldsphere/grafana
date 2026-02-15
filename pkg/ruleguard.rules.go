@@ -3182,6 +3182,32 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
+		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous structured log key "panic"; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
+
+	m.Match(
+		`$logger.Info($msg, $*before, $key, $value, $*after)`,
+		`$logger.Warn($msg, $*before, $key, $value, $*after)`,
+		`$logger.Error($msg, $*before, $key, $value, $*after)`,
+		`$logger.Debug($msg, $*before, $key, $value, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Info($msg, $*before, $key, $value, $*after)`,
+		`slog.Warn($msg, $*before, $key, $value, $*after)`,
+		`slog.Error($msg, $*before, $key, $value, $*after)`,
+		`slog.Debug($msg, $*before, $key, $value, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $value, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, $value, $*after)`,
+		`klog.InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
+	).
 		Where(m["key"].Text.Matches("^\"status\"$") && m["value"].Text.Matches("(?:^|\\.)[A-Za-z0-9_]*StatusCode$|^statusCode$")).
 		Report(`avoid logging HTTP response codes under key "status"; use "statusCode"`)
 
@@ -3547,6 +3573,13 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(isStructuredLogger && m["key"].Text.Matches("^\"statuscode\"$")).
 		Report(`avoid non-canonical structured context key "statuscode"; use "statusCode"`)
+
+	m.Match(
+		`$logger.New($*before, $key, $value, $*after)`,
+		`$logger.With($*before, $key, $value, $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous structured context key "panic"; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
 		`$logger.New($*before, $key, $value, $*after)`,
