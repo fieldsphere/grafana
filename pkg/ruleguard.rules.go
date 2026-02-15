@@ -4331,6 +4331,30 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`prefer "UID" acronym casing in trace attribute keys (for example "dashboardUID", "ruleUID", "datasourceUID")`)
 
 	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$|^attribute\\.Key\\(\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"\\)$")).
+		Report(`avoid all-lowercase "…id" trace attribute keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelID", "datasourceID", "queryGroupID", "migrationID", "resourceVersion", "configID"`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"([A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)\"$|^attribute\\.Key\\(\"([A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)\"\\)$")).
+		Report(`avoid non-canonical trace attribute keys in attribute.KeyValue literals; use lower camelCase with canonical acronym casing (for example "dashboardUID", "requestPath", "statusCode")`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"statuscode\"$|^attribute\\.Key\\(\"statuscode\"\\)$")).
+		Report(`avoid non-canonical trace attribute key "statuscode"; use "statusCode"`)
+
+	m.Match(
 		`attribute.Key($key).String($value)`,
 		`attribute.Key($key).Int($value)`,
 		`attribute.Key($key).Int64($value)`,
