@@ -2387,6 +2387,24 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recover().(error) type assertions in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
+		`if $panicErr, $ok := recover().(error); $ok && $cond { $logger.Error($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { $logger.ErrorCtx($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.Error($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.Error($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.ErrorCtx($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.Error($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for recover().(error) type assertions in condition branches and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok { $logger.Error($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`if $panicErr, $ok := recover().(error); $ok { $logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`if $panicErr, $ok := recover().(error); $ok { slog.Error($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
