@@ -217,7 +217,7 @@ func runStepsInParallel(ctx context.Context, log logging.Logger, spec *advisorv0
 				func() {
 					defer func() {
 						if r := recover(); r != nil {
-							log.Error("panic recovered in step", "step", step.ID(), "error", r, "item", item)
+							log.Error("panic recovered in step", "step", step.ID(), "panicValue", r, "item", item)
 						}
 					}()
 					logger := log.With("step", step.ID())
