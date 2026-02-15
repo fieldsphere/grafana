@@ -4362,7 +4362,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"reason\"$|^attribute\\.Key\\(\"reason\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"reason\"|`reason`)$|^attribute\\.Key\\((\"reason\"|`reason`)\\)$")).
 		Report(`avoid ambiguous trace attribute key "reason" in attribute.KeyValue literals; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
@@ -4370,7 +4370,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"panic\"$|^attribute\\.Key\\(\"panic\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"panic\"|`panic`)$|^attribute\\.Key\\((\"panic\"|`panic`)\\)$")).
 		Report(`avoid ambiguous trace attribute key "panic" in attribute.KeyValue literals; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
@@ -4458,7 +4458,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: attribute.StringSliceValue($value), Key: $key}`,
 		`attribute.KeyValue{$key, attribute.StringSliceValue($value)}`,
 	).
-		Where(m["key"].Text.Matches("^\"error\"$|^attribute\\.Key\\(\"error\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"error\"|`error`)$|^attribute\\.Key\\((\"error\"|`error`)\\)$")).
 		Report(`avoid non-text trace attributes under key "error"; use contextual keys such as "errorCode", "errorCount", or "hasError", and reserve "errorMessage" for textual error details`)
 
 	m.Match(
@@ -4490,7 +4490,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: attribute.StringSliceValue($value), Key: $key}`,
 		`attribute.KeyValue{$key, attribute.StringSliceValue($value)}`,
 	).
-		Where(m["key"].Text.Matches("^\"errorMessage\"$|^attribute\\.Key\\(\"errorMessage\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"errorMessage\"|`errorMessage`)$|^attribute\\.Key\\((\"errorMessage\"|`errorMessage`)\\)$")).
 		Report(`"errorMessage" trace attributes should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for non-text values`)
 
 	m.Match(
@@ -4498,7 +4498,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: attribute.StringValue($errMsg), Key: $key}`,
 		`attribute.KeyValue{$key, attribute.StringValue($errMsg)}`,
 	).
-		Where(m["key"].Text.Matches("^\"error\"$|^attribute\\.Key\\(\"error\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"error\"|`error`)$|^attribute\\.Key\\((\"error\"|`error`)\\)$")).
 		Report(`use "errorMessage" when storing string error text in trace attributes`)
 
 	m.Match(
@@ -4507,7 +4507,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{$key, $value}`,
 	).
 		Where(
-			m["key"].Text.Matches("^\"error\"$|^attribute\\.Key\\(\"error\"\\)$") &&
+			m["key"].Text.Matches("^(\"error\"|`error`)$|^attribute\\.Key\\((\"error\"|`error`)\\)$") &&
 				!m["value"].Text.Matches("^attribute\\.(StringValue|IntValue|Int64Value|IntSliceValue|Int64SliceValue|BoolValue|BoolSliceValue|Float64Value|Float64SliceValue|StringSliceValue)\\(.*\\)$"),
 		).
 		Report(`avoid trace attribute key "error" in attribute.KeyValue literals; use "errorMessage" for textual details and contextual typed keys such as "errorCode", "errorCount", or "hasError" for non-text values`)
@@ -4572,7 +4572,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
-		Where(m["key"].Text.Matches("^\"error\"$")).
+		Where(m["key"].Text.Matches("^(\"error\"|`error`)$")).
 		Report(`avoid generic trace attribute key "error" in attribute.Key(...); use "errorMessage" for textual details and contextual typed keys such as "errorCode", "errorCount", or "hasError"`)
 
 	m.Match(
@@ -4581,7 +4581,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
-		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Where(m["key"].Text.Matches("^(\"reason\"|`reason`)$")).
 		Report(`avoid ambiguous trace attribute key "reason" in attribute.Key(...); use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
@@ -4590,7 +4590,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
-		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Where(m["key"].Text.Matches("^(\"panic\"|`panic`)$")).
 		Report(`avoid ambiguous trace attribute key "panic" in attribute.Key(...); use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
