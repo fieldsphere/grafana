@@ -230,6 +230,16 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assert.Equal(t, int64(123), service.updatedID)
 	})
 
+	t.Run("should update last used for valid key id with surrounding control whitespace", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed("\n123\t")
+
+		assert.True(t, service.called)
+		assert.Equal(t, int64(123), service.updatedID)
+	})
+
 	t.Run("should update last used for max int64 key id", func(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -342,6 +352,19 @@ func TestAPIKey_Hook(t *testing.T) {
 
 		waitForUpdateCall(t, service)
 		assert.Equal(t, int64(458), service.updatedID)
+	})
+
+	t.Run("should trim control whitespace in key id metadata before update", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "\n459\t")
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		waitForUpdateCall(t, service)
+		assert.Equal(t, int64(459), service.updatedID)
 	})
 
 	t.Run("should update when key id is max int64", func(t *testing.T) {
