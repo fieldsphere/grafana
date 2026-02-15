@@ -926,6 +926,32 @@ func structuredlogging(m fluent.Matcher) {
 		Report("pass error values directly in structured logs (\"error\", err) instead of err.Error()")
 
 	m.Match(
+		`$logger.Info($msg, $*before, $key, $err.Error(), $*after)`,
+		`$logger.Warn($msg, $*before, $key, $err.Error(), $*after)`,
+		`$logger.Error($msg, $*before, $key, $err.Error(), $*after)`,
+		`$logger.Debug($msg, $*before, $key, $err.Error(), $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $err.Error(), $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $err.Error(), $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $err.Error(), $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $err.Error(), $*after)`,
+		`slog.Info($msg, $*before, $key, $err.Error(), $*after)`,
+		`slog.Warn($msg, $*before, $key, $err.Error(), $*after)`,
+		`slog.Error($msg, $*before, $key, $err.Error(), $*after)`,
+		`slog.Debug($msg, $*before, $key, $err.Error(), $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $err.Error(), $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $err.Error(), $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $err.Error(), $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $err.Error(), $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $err.Error(), $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, $err.Error(), $*after)`,
+		`klog.InfoS($msg, $*before, $key, $err.Error(), $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $err.Error(), $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $err.Error(), $*after)`,
+	).
+		Where(m["key"].Text.Matches("^`error`$") && m["err"].Type.Is("error")).
+		Report("pass error values directly in structured logs (\"error\", err) instead of err.Error()")
+
+	m.Match(
 		`$logger.Info($msg, $*before, "error", $errMsg, $*after)`,
 		`$logger.Warn($msg, $*before, "error", $errMsg, $*after)`,
 		`$logger.Error($msg, $*before, "error", $errMsg, $*after)`,
@@ -949,6 +975,36 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.ErrorS($baseErr, $msg, $*before, "error", $errMsg, $*after)`,
 	).
 		Where(!m["errMsg"].Type.Is("error") && !m["errMsg"].Type.Implements("error")).
+		Report("use \"errorMessage\" for string error text, or pass an error value as \"error\", err")
+
+	m.Match(
+		`$logger.Info($msg, $*before, $key, $errMsg, $*after)`,
+		`$logger.Warn($msg, $*before, $key, $errMsg, $*after)`,
+		`$logger.Error($msg, $*before, $key, $errMsg, $*after)`,
+		`$logger.Debug($msg, $*before, $key, $errMsg, $*after)`,
+		`$logger.InfoCtx($ctx, $msg, $*before, $key, $errMsg, $*after)`,
+		`$logger.WarnCtx($ctx, $msg, $*before, $key, $errMsg, $*after)`,
+		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $errMsg, $*after)`,
+		`$logger.DebugCtx($ctx, $msg, $*before, $key, $errMsg, $*after)`,
+		`slog.Info($msg, $*before, $key, $errMsg, $*after)`,
+		`slog.Warn($msg, $*before, $key, $errMsg, $*after)`,
+		`slog.Error($msg, $*before, $key, $errMsg, $*after)`,
+		`slog.Debug($msg, $*before, $key, $errMsg, $*after)`,
+		`slog.InfoContext($ctx, $msg, $*before, $key, $errMsg, $*after)`,
+		`slog.WarnContext($ctx, $msg, $*before, $key, $errMsg, $*after)`,
+		`slog.ErrorContext($ctx, $msg, $*before, $key, $errMsg, $*after)`,
+		`slog.DebugContext($ctx, $msg, $*before, $key, $errMsg, $*after)`,
+		`slog.Log($ctx, $level, $msg, $*before, $key, $errMsg, $*after)`,
+		`$logger.Log($ctx, $level, $msg, $*before, $key, $errMsg, $*after)`,
+		`klog.InfoS($msg, $*before, $key, $errMsg, $*after)`,
+		`klog.V($lvl).InfoS($msg, $*before, $key, $errMsg, $*after)`,
+		`klog.ErrorS($baseErr, $msg, $*before, $key, $errMsg, $*after)`,
+	).
+		Where(
+			m["key"].Text.Matches("^`error`$") &&
+				!m["errMsg"].Type.Is("error") &&
+				!m["errMsg"].Type.Implements("error"),
+		).
 		Report("use \"errorMessage\" for string error text, or pass an error value as \"error\", err")
 
 	m.Match(
