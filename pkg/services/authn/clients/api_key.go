@@ -209,6 +209,10 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "error", err)
 		return
 	}
+	if id < 1 {
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", "mustBePositiveInteger")
+		return
+	}
 
 	if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), id); err != nil {
 		s.log.Warn("Failed to update last used date for API key", "apiKeyID", id, "error", err)
