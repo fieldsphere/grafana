@@ -26,6 +26,8 @@ var (
 	secret, hash = genApiKey()
 )
 
+const asyncHookWaitTimeout = 200 * time.Millisecond
+
 func TestAPIKey_Authenticate(t *testing.T) {
 	type TestCase struct {
 		desc             string
@@ -233,7 +235,7 @@ func TestAPIKey_Hook(t *testing.T) {
 
 		select {
 		case <-service.calledCh:
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
 		}
 		assert.Equal(t, int64(456), service.updatedID)
@@ -250,7 +252,7 @@ func TestAPIKey_Hook(t *testing.T) {
 
 		select {
 		case <-service.calledCh:
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
 		}
 		assert.Equal(t, int64(457), service.updatedID)
@@ -267,7 +269,7 @@ func TestAPIKey_Hook(t *testing.T) {
 
 		select {
 		case <-service.calledCh:
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
 		}
 		assert.Equal(t, int64(458), service.updatedID)
@@ -286,7 +288,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		select {
 		case <-service.calledCh:
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 		}
 	})
 
@@ -302,7 +304,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		select {
 		case <-service.calledCh:
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 		}
 	})
 
@@ -317,7 +319,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		select {
 		case <-service.calledCh:
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 		}
 	})
 
@@ -333,7 +335,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		select {
 		case <-service.calledCh:
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 		}
 	})
 
@@ -366,7 +368,7 @@ func TestAPIKey_Hook(t *testing.T) {
 
 		select {
 		case <-service.calledCh:
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
 		}
 		assert.Equal(t, int64(789), service.updatedID)
@@ -386,7 +388,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		select {
 		case <-service.calledCh:
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 		}
 	})
 
@@ -402,7 +404,7 @@ func TestAPIKey_Hook(t *testing.T) {
 
 		select {
 		case <-service.calledCh:
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
 		}
 		assert.Equal(t, int64(987), service.updatedID)
@@ -423,13 +425,13 @@ func TestAPIKey_Hook(t *testing.T) {
 		select {
 		case err := <-doneCh:
 			assert.NoError(t, err)
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 			t.Fatal("expected Hook to return without waiting for async update")
 		}
 
 		select {
 		case <-service.calledCh:
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
 		}
 		assert.Equal(t, int64(654), service.updatedID)
@@ -446,7 +448,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		select {
 		case <-service.calledCh:
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(200 * time.Millisecond):
+		case <-time.After(asyncHookWaitTimeout):
 		}
 	})
 }
