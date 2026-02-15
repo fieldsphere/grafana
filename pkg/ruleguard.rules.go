@@ -4318,6 +4318,24 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid fmt formatting for trace attribute keys in attribute.KeyValue literals; use stable string-literal keys and keep dynamic data in values`)
 
 	m.Match(
+		`attribute.KeyValue{Key: $key, Value: attribute.StringValue(fmt.Sprintf($fmt, $*args))}`,
+		`attribute.KeyValue{Value: attribute.StringValue(fmt.Sprintf($fmt, $*args)), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.StringValue(fmt.Sprintf($fmt, $*args))}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.StringValue(fmt.Sprint($*args))}`,
+		`attribute.KeyValue{Value: attribute.StringValue(fmt.Sprint($*args)), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.StringValue(fmt.Sprint($*args))}`,
+	).
+		Report(`avoid fmt formatting in trace attribute string values in attribute.KeyValue literals; pass typed values directly or split related data into separate attributes`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: attribute.StringValue($left + $right)}`,
+		`attribute.KeyValue{Value: attribute.StringValue($left + $right), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.StringValue($left + $right)}`,
+	).
+		Where(m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report(`avoid string concatenation in trace attribute string values in attribute.KeyValue literals; pass typed values directly or split related data into separate attributes`)
+
+	m.Match(
 		`attribute.KeyValue{Key: $key, Value: $value}`,
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
