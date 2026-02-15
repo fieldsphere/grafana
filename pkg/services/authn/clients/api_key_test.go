@@ -192,6 +192,16 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assert.Equal(t, int64(123), service.updatedID)
 	})
 
+	t.Run("should update last used for valid key id with surrounding whitespace", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed(" 123 ")
+
+		assert.True(t, service.called)
+		assert.Equal(t, int64(123), service.updatedID)
+	})
+
 	t.Run("should skip update for invalid key id", func(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -246,6 +256,23 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.Equal(t, int64(457), service.updatedID)
 	})
 
+	t.Run("should trim key id metadata before update", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, " 458 ")
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		select {
+		case <-service.calledCh:
+		case <-time.After(200 * time.Millisecond):
+			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
+		}
+		assert.Equal(t, int64(458), service.updatedID)
+	})
+
 	t.Run("should skip update when skip marker is present", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -283,6 +310,22 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := &authn.Request{}
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		select {
+		case <-service.calledCh:
+			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
+		case <-time.After(200 * time.Millisecond):
+		}
+	})
+
+	t.Run("should skip update when key id metadata is whitespace only", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "   ")
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
