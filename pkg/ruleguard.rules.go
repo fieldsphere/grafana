@@ -2582,19 +2582,19 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.Group($group, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
+		Where(m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)[\"`]$")).
 		Report(`avoid ambiguous keys in slog.Group fields; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
 
 	m.Match(
 		`slog.Group($group, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Where(m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous slog.Group key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
 		`slog.Group($group, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Where(m["key"].Text.Matches("^[\"`]panic[\"`]$")).
 		Report(`avoid ambiguous slog.Group key "panic"; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
@@ -2638,55 +2638,55 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.Group($group, $*before, $key, $value, $*after)`,
 	).
-		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in slog.Group fields; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
+		Where(m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)[\"`]$")).
 		Report(`avoid ambiguous keys in slog.Group []any literal spread fields; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
 
 	m.Match(
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Where(m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous slog.Group []any spread key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Where(m["key"].Text.Matches("^[\"`]panic[\"`]$")).
 		Report(`avoid ambiguous slog.Group []any spread key "panic"; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in slog.Group []any literal spread fields; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
+		Where(m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)[\"`]$")).
 		Report(`avoid ambiguous keys in slog.Group appended fields; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
 
 	m.Match(
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Where(m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous slog.Group appended key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Where(m["key"].Text.Matches("^[\"`]panic[\"`]$")).
 		Report(`avoid ambiguous slog.Group appended key "panic"; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in slog.Group appended fields; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
@@ -2694,7 +2694,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z_]+Id[\"`]$")).
 		Report(`prefer "ID" acronym casing in slog.Group field keys (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
@@ -2702,7 +2702,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z_]+Uid[\"`]$")).
 		Report(`prefer "UID" acronym casing in slog.Group field keys (for example "dashboardUID", "ruleUID", "datasourceUID")`)
 
 	m.Match(
@@ -2710,7 +2710,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z0-9]+_[A-Za-z0-9_]+[\"`]$")).
 		Report(`avoid snake_case slog.Group field keys; use camelCase with canonical acronym casing`)
 
 	m.Match(
@@ -2718,7 +2718,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\".*\\s+.*\"$")).
+		Where(m["key"].Text.Matches("^[\"`].*\\s+.*[\"`]$")).
 		Report(`avoid whitespace in slog.Group field keys; use compact camelCase keys`)
 
 	m.Match(
@@ -2726,7 +2726,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+[\"`]$")).
 		Report(`avoid hyphenated slog.Group field keys; use camelCase keys`)
 
 	m.Match(
@@ -2734,7 +2734,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z0-9_]+\\.[A-Za-z0-9_.]+[\"`]$")).
 		Report(`avoid dotted slog.Group field keys; prefer flat camelCase keys`)
 
 	m.Match(
@@ -2742,7 +2742,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Z][A-Za-z0-9_.]*[\"`]$")).
 		Report(`avoid uppercase-leading slog.Group field keys; use lower camelCase with canonical acronym casing`)
 
 	m.Match(
@@ -2785,67 +2785,67 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
-		Where(!m["group"].Const && !m["group"].Text.Matches("^\".*\"$")).
+		Where(!m["group"].Const && !m["group"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`prefer stable string-literal or const slog group names; avoid runtime-generated group keys`)
 
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
-		Where(m["group"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
+		Where(m["group"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)[\"`]$")).
 		Report(`avoid ambiguous slog group names like "status", "path", "type", or "value"; use contextual names such as "requestContext", "queryInfo", "datasourceConfig", or "pluginMetadata"`)
 
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
-		Where(m["group"].Text.Matches("^\"reason\"$")).
+		Where(m["group"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous slog group name "reason"; use contextual names such as "shutdownContext", "validationContext", "indexBuildContext", or "stateTransitionContext"`)
 
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
-		Where(m["group"].Text.Matches("^\"panic\"$")).
+		Where(m["group"].Text.Matches("^[\"`]panic[\"`]$")).
 		Report(`avoid ambiguous slog group name "panic"; use contextual names such as "panicContext" or "recoveryContext", and use "panicValue" for recovered panic payload fields`)
 
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
-		Where(m["group"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Where(m["group"].Text.Matches("^[\"`][A-Za-z_]+Id[\"`]$")).
 		Report(`prefer "ID" acronym casing in slog group names (for example "userIDContext", "orgIDMetadata")`)
 
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
-		Where(m["group"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Where(m["group"].Text.Matches("^[\"`][A-Za-z_]+Uid[\"`]$")).
 		Report(`prefer "UID" acronym casing in slog group names (for example "dashboardUIDContext", "datasourceUIDMetadata")`)
 
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
-		Where(m["group"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Where(m["group"].Text.Matches("^[\"`][A-Za-z0-9]+_[A-Za-z0-9_]+[\"`]$")).
 		Report(`avoid snake_case slog group names; use camelCase with canonical acronym casing`)
 
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
-		Where(m["group"].Text.Matches("^\".*\\s+.*\"$")).
+		Where(m["group"].Text.Matches("^[\"`].*\\s+.*[\"`]$")).
 		Report(`avoid whitespace in slog group names; use compact camelCase names`)
 
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
-		Where(m["group"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
+		Where(m["group"].Text.Matches("^[\"`][A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+[\"`]$")).
 		Report(`avoid hyphenated slog group names; use camelCase names`)
 
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
-		Where(m["group"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Where(m["group"].Text.Matches("^[\"`][A-Za-z0-9_]+\\.[A-Za-z0-9_.]+[\"`]$")).
 		Report(`avoid dotted slog group names; prefer flat camelCase names`)
 
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
-		Where(m["group"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
+		Where(m["group"].Text.Matches("^[\"`][A-Z][A-Za-z0-9_.]*[\"`]$")).
 		Report(`avoid uppercase-leading slog group names; use lower camelCase with canonical acronym casing`)
 
 	m.Match(
