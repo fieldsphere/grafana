@@ -3356,21 +3356,21 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
 		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)[\"`]$")).
 		Report(`avoid ambiguous keys in []any literal spread context arguments; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
 
 	m.Match(
 		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
 		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"reason\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous key "reason" in []any literal spread context arguments; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
 		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
 		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"panic\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`]panic[\"`]$")).
 		Report(`avoid ambiguous key "panic" in []any literal spread context arguments; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
@@ -3414,21 +3414,21 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
 		`$logger.With($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)[\"`]$")).
 		Report(`avoid ambiguous keys in appended structured context arguments; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
 
 	m.Match(
 		`$logger.New($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
 		`$logger.With($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"reason\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous key "reason" in appended structured context arguments; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
 		`$logger.New($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
 		`$logger.With($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"panic\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`]panic[\"`]$")).
 		Report(`avoid ambiguous key "panic" in appended structured context arguments; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
@@ -3507,7 +3507,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $value, $*after)...)`,
 		`klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
+		Where(m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)[\"`]$")).
 		Report(`avoid ambiguous keys in appended structured log arguments; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
 
 	m.Match(
@@ -3533,7 +3533,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $value, $*after)...)`,
 		`klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Where(m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous key "reason" in appended structured log arguments; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
@@ -3559,7 +3559,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $value, $*after)...)`,
 		`klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Where(m["key"].Text.Matches("^[\"`]panic[\"`]$")).
 		Report(`avoid ambiguous key "panic" in appended structured log arguments; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
