@@ -4378,7 +4378,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"(user|client|uname)\"$|^attribute\\.Key\\(\"(user|client|uname)\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"(user|client|uname)\"|`(user|client|uname)`)$|^attribute\\.Key\\((\"(user|client|uname)\"|`(user|client|uname)`)\\)$")).
 		Report(`avoid ambiguous trace attribute keys "user", "client", or "uname" in attribute.KeyValue literals; use specific keys such as "userID", "userLogin", "clientID", "clientName", or "authClientName"`)
 
 	m.Match(
@@ -4386,7 +4386,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"type\"$|^attribute\\.Key\\(\"type\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"type\"|`type`)$|^attribute\\.Key\\((\"type\"|`type`)\\)$")).
 		Report(`avoid ambiguous trace attribute key "type" in attribute.KeyValue literals; use contextual keys such as "datasourceType", "resourceType", "eventType", "identityType", or "objectType"`)
 
 	m.Match(
@@ -4394,7 +4394,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"value\"$|^attribute\\.Key\\(\"value\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"value\"|`value`)$|^attribute\\.Key\\((\"value\"|`value`)\\)$")).
 		Report(`avoid ambiguous trace attribute key "value" in attribute.KeyValue literals; use contextual keys such as "measurementValue", "fieldValue", "responseValue", "requestValue", or "configValue"`)
 
 	m.Match(
@@ -4402,7 +4402,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"info\"$|^attribute\\.Key\\(\"info\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"info\"|`info`)$|^attribute\\.Key\\((\"info\"|`info`)\\)$")).
 		Report(`avoid ambiguous trace attribute key "info" in attribute.KeyValue literals; use contextual keys such as "messageInfo", "runtimeInfo", "buildInfo", or "pluginInfo"`)
 
 	m.Match(
@@ -4410,7 +4410,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"data\"$|^attribute\\.Key\\(\"data\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"data\"|`data`)$|^attribute\\.Key\\((\"data\"|`data`)\\)$")).
 		Report(`avoid ambiguous trace attribute key "data" in attribute.KeyValue literals; use contextual keys such as "requestData", "responseData", "payloadData", or "userData"`)
 
 	m.Match(
@@ -4418,7 +4418,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$|^attribute\\.Key\\(\"[A-Za-z_]+Id\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"[A-Za-z_]+Id\"|`[A-Za-z_]+Id`)$|^attribute\\.Key\\((\"[A-Za-z_]+Id\"|`[A-Za-z_]+Id`)\\)$")).
 		Report(`prefer "ID" acronym casing in trace attribute keys (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
@@ -4426,7 +4426,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$|^attribute\\.Key\\(\"[A-Za-z_]+Uid\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"[A-Za-z_]+Uid\"|`[A-Za-z_]+Uid`)$|^attribute\\.Key\\((\"[A-Za-z_]+Uid\"|`[A-Za-z_]+Uid`)\\)$")).
 		Report(`prefer "UID" acronym casing in trace attribute keys (for example "dashboardUID", "ruleUID", "datasourceUID")`)
 
 	m.Match(
@@ -4517,7 +4517,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$|^attribute\\.Key\\(\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"|`(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)`)$|^attribute\\.Key\\((\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"|`(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)`)\\)$")).
 		Report(`avoid all-lowercase "…id" trace attribute keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelID", "datasourceID", "queryGroupID", "migrationID", "resourceVersion", "configID"`)
 
 	m.Match(
@@ -4525,7 +4525,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"([A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)\"$|^attribute\\.Key\\(\"([A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"([A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)\"|`([A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)`)$|^attribute\\.Key\\((\"([A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)\"|`([A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)`)\\)$")).
 		Report(`avoid non-canonical trace attribute keys in attribute.KeyValue literals; use lower camelCase with canonical acronym casing (for example "dashboardUID", "requestPath", "statusCode")`)
 
 	m.Match(
@@ -4533,7 +4533,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"statuscode\"$|^attribute\\.Key\\(\"statuscode\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"statuscode\"|`statuscode`)$|^attribute\\.Key\\((\"statuscode\"|`statuscode`)\\)$")).
 		Report(`avoid non-canonical trace attribute key "statuscode"; use "statusCode"`)
 
 	m.Match(
@@ -4541,7 +4541,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"identUID\"$|^attribute\\.Key\\(\"identUID\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"identUID\"|`identUID`)$|^attribute\\.Key\\((\"identUID\"|`identUID`)\\)$")).
 		Report(`avoid abbreviated trace attribute key "identUID"; use "identityUID" for clarity`)
 
 	m.Match(
@@ -4549,7 +4549,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"func\"$|^attribute\\.Key\\(\"func\"\\)$")).
+		Where(m["key"].Text.Matches("^(\"func\"|`func`)$|^attribute\\.Key\\((\"func\"|`func`)\\)$")).
 		Report(`avoid shorthand trace attribute key "func"; use "function" for clarity`)
 
 	m.Match(
