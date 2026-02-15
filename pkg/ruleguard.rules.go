@@ -2717,6 +2717,12 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
+		Where(m["group"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous slog group name "reason"; use contextual names such as "shutdownContext", "validationContext", "indexBuildContext", or "stateTransitionContext"`)
+
+	m.Match(
+		`slog.Group($group, $*fields)`,
+	).
 		Where(m["group"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
 		Report(`prefer "ID" acronym casing in slog group names (for example "userIDContext", "orgIDMetadata")`)
 
