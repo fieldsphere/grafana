@@ -5149,12 +5149,16 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`$span.AddEvent("status")`,
 		`$span.AddEvent("status", $*attrs)`,
+		"$span.AddEvent(`status`)",
+		"$span.AddEvent(`status`, $*attrs)",
 	).
 		Report(`avoid generic trace event name "status"; use contextual event names such as "queryStatus", "requestStatus", or "operationStatus"`)
 
 	m.Match(
 		`$span.AddEvent("query")`,
 		`$span.AddEvent("query", $*attrs)`,
+		"$span.AddEvent(`query`)",
+		"$span.AddEvent(`query`, $*attrs)",
 	).
 		Report(`avoid generic trace event name "query"; use a contextual event name such as "queryExecuted", "queryStarted", or "queryFinished"`)
 
@@ -5167,6 +5171,14 @@ func structuredlogging(m fluent.Matcher) {
 		`$span.AddEvent("next", $*attrs)`,
 		`$span.AddEvent("data")`,
 		`$span.AddEvent("data", $*attrs)`,
+		"$span.AddEvent(`result`)",
+		"$span.AddEvent(`result`, $*attrs)",
+		"$span.AddEvent(`user`)",
+		"$span.AddEvent(`user`, $*attrs)",
+		"$span.AddEvent(`next`)",
+		"$span.AddEvent(`next`, $*attrs)",
+		"$span.AddEvent(`data`)",
+		"$span.AddEvent(`data`, $*attrs)",
 	).
 		Report(`avoid generic trace event names like "result", "user", "next", or "data"; use contextual names such as "rpcResult", "authenticatedUser", "bulkNext", or "payloadReceived"`)
 
