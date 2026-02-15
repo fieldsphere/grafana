@@ -1559,6 +1559,81 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recovered panic payloads in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
+		`if $panicVal := recover(); $panicVal != nil { $logger.Info($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { $logger.Warn($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { $logger.Error($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { $logger.Debug($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { $logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { $logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { $logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { $logger.DebugCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { slog.Info($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { slog.Warn($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { slog.Error($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { slog.Debug($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { slog.Log($ctx, $level, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { $logger.Log($ctx, $level, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { klog.InfoS($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $logger.Info($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $logger.Warn($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $logger.Error($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $logger.Debug($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $logger.DebugCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { slog.Info($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { slog.Warn($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { slog.Error($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { slog.Debug($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { slog.Log($ctx, $level, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $logger.Log($ctx, $level, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { klog.InfoS($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.Info($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.Warn($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.Error($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.Debug($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.DebugCtx($ctx, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { slog.Info($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { slog.Warn($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { slog.Error($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { slog.Debug($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { slog.Log($ctx, $level, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.Log($ctx, $level, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { klog.InfoS($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+	).
+		Where(m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$")).
+		Report(`for recovered panic payloads in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal != nil { $logger.New($*before, $key, $panicVal, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { $logger.With($*before, $key, $panicVal, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $logger.New($*before, $key, $panicVal, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $logger.With($*before, $key, $panicVal, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.New($*before, $key, $panicVal, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.With($*before, $key, $panicVal, $*after); $*_ }`,
+	).
+		Where(m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$")).
+		Report(`for recovered panic payloads in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal != nil { slog.Group($group, $*before, $key, $panicVal, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { slog.Group($group, $*before, $key, $panicVal, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else { slog.Group($group, $*before, $key, $panicVal, $*after); $*_ }`,
+	).
+		Where(m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$")).
+		Report(`for recovered panic payloads in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.Info($msg, []any{$*before, "reason", $panicVal, $*after}...); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.Warn($msg, []any{$*before, "reason", $panicVal, $*after}...); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.Error($msg, []any{$*before, "reason", $panicVal, $*after}...); $*_ }`,
