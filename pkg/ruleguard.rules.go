@@ -4286,8 +4286,16 @@ func structuredlogging(m fluent.Matcher) {
 		Where(
 			!m["key"].Const &&
 				!m["key"].Text.Matches("^\".*\"$") &&
-				!m["key"].Text.Matches("^attribute\\.Key\\(\".*\"\\)$"),
+				!m["key"].Text.Matches("^attribute\\.Key\\(.*\\)$"),
 		).
+		Report(`prefer stable string-literal or const trace attribute keys in attribute.KeyValue literals; avoid runtime-generated key values`)
+
+	m.Match(
+		`attribute.KeyValue{Key: attribute.Key($inner), Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: attribute.Key($inner)}`,
+		`attribute.KeyValue{attribute.Key($inner), $value}`,
+	).
+		Where(!m["inner"].Const && !m["inner"].Text.Matches("^\".*\"$")).
 		Report(`prefer stable string-literal or const trace attribute keys in attribute.KeyValue literals; avoid runtime-generated key values`)
 
 	m.Match(
