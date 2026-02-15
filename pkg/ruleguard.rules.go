@@ -4280,6 +4280,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
 		Where(
@@ -4291,6 +4292,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
 		Where(m["key"].Text.Matches("^\"reason\"$|^attribute\\.Key\\(\"reason\"\\)$")).
@@ -4298,6 +4300,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
 		Where(m["key"].Text.Matches("^\"panic\"$|^attribute\\.Key\\(\"panic\"\\)$")).
