@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"net/http"
 	"testing"
@@ -301,6 +302,24 @@ func TestAPIKey_Hook(t *testing.T) {
 			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
 		case <-time.After(200 * time.Millisecond):
 		}
+	})
+
+	t.Run("should continue when update returns an error", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		service.ExpectedError = errors.New("update failed")
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "987")
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		select {
+		case <-service.calledCh:
+		case <-time.After(200 * time.Millisecond):
+			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
+		}
+		assert.Equal(t, int64(987), service.updatedID)
 	})
 }
 
