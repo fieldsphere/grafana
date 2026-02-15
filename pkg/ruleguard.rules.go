@@ -4546,127 +4546,169 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid shorthand trace attribute key "func"; use "function" for clarity`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report("prefer stable string-literal or const trace attribute keys in attribute.Key(...); avoid runtime-generated key values")
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"error\"$")).
 		Report(`avoid generic trace attribute key "error" in attribute.Key(...); use "errorMessage" for textual details and contextual typed keys such as "errorCode", "errorCount", or "hasError"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"reason\"$")).
 		Report(`avoid ambiguous trace attribute key "reason" in attribute.Key(...); use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"panic\"$")).
 		Report(`avoid ambiguous trace attribute key "panic" in attribute.Key(...); use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"(user|client|uname)\"$")).
 		Report(`avoid ambiguous trace attribute keys "user", "client", or "uname" in attribute.Key(...); use specific keys such as "userID", "userLogin", "clientID", "clientName", or "authClientName"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"type\"$")).
 		Report(`avoid ambiguous trace attribute key "type" in attribute.Key(...); use contextual keys such as "datasourceType", "resourceType", "eventType", "identityType", or "objectType"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"value\"$")).
 		Report(`avoid ambiguous trace attribute key "value" in attribute.Key(...); use contextual keys such as "measurementValue", "fieldValue", "responseValue", "requestValue", or "configValue"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"info\"$")).
 		Report(`avoid ambiguous trace attribute key "info" in attribute.Key(...); use contextual keys such as "messageInfo", "runtimeInfo", "buildInfo", or "pluginInfo"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"data\"$")).
 		Report(`avoid ambiguous trace attribute key "data" in attribute.Key(...); use contextual keys such as "requestData", "responseData", "payloadData", or "userData"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"identUID\"$")).
 		Report(`avoid abbreviated trace attribute key "identUID" in attribute.Key(...); use "identityUID" for clarity`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"func\"$")).
 		Report(`avoid shorthand trace attribute key "func" in attribute.Key(...); use "function" for clarity`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"statuscode\"$")).
 		Report(`avoid non-canonical trace attribute key "statuscode" in attribute.Key(...); use "statusCode"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|msg|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url)\"$")).
 		Report(`avoid ambiguous trace attribute keys in attribute.Key(...); use contextual keys such as "userID", "receiverUID", "orgID", "configID", "queryText", "ruleUID", "requestBody", "resourceVersion", "repositoryName", "resourceKind", "statusCode", "requestPath", "datasourceURL", "messageInfo", "measurementValue", or "payloadData"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
 		Report(`prefer "ID" acronym casing in trace attribute keys in attribute.Key(...) (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
 		Report(`prefer "UID" acronym casing in trace attribute keys in attribute.Key(...) (for example "dashboardUID", "ruleUID", "datasourceUID")`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$")).
 		Report(`avoid all-lowercase "…id" trace attribute keys in attribute.Key(...); use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelID", "datasourceID", "queryGroupID", "migrationID", "resourceVersion", "configID"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
 		Report(`avoid snake_case trace attribute keys in attribute.Key(...); use camelCase with canonical acronym casing`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\".*\\s+.*\"$")).
 		Report(`avoid whitespace in trace attribute keys in attribute.Key(...); use compact camelCase keys such as "rowsAffected" or "currentProvider"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
 		Report(`avoid hyphenated trace attribute keys in attribute.Key(...); use camelCase keys such as "contentType" or "rowsAffected"`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
 		Report(`avoid dotted trace attribute keys in attribute.Key(...); prefer flat camelCase keys with canonical acronym casing`)
 
 	m.Match(
-		`attribute.Key($key)`,
+		`var $name = attribute.Key($key)`,
+		`$name := attribute.Key($key)`,
+		`$name = attribute.Key($key)`,
 	).
 		Where(m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
 		Report(`avoid uppercase-leading trace attribute keys in attribute.Key(...); use lower camelCase with canonical acronym casing`)
@@ -4972,13 +5014,19 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid uppercase-leading trace attribute keys; use lower camelCase with canonical acronym casing`)
 
 	m.Match(
-		`attribute.Key($left + $right)`,
+		`var $name = attribute.Key($left + $right)`,
+		`$name := attribute.Key($left + $right)`,
+		`$name = attribute.Key($left + $right)`,
 	).
 		Report("avoid dynamic concatenation for trace attribute keys in attribute.Key(...); use stable string-literal keys and keep dynamic data in values")
 
 	m.Match(
-		`attribute.Key(fmt.Sprintf($fmt, $*args))`,
-		`attribute.Key(fmt.Sprint($*args))`,
+		`var $name = attribute.Key(fmt.Sprintf($fmt, $*args))`,
+		`$name := attribute.Key(fmt.Sprintf($fmt, $*args))`,
+		`$name = attribute.Key(fmt.Sprintf($fmt, $*args))`,
+		`var $name = attribute.Key(fmt.Sprint($*args))`,
+		`$name := attribute.Key(fmt.Sprint($*args))`,
+		`$name = attribute.Key(fmt.Sprint($*args))`,
 	).
 		Report("avoid fmt formatting for trace attribute keys in attribute.Key(...); use stable string-literal keys and keep dynamic data in values")
 
