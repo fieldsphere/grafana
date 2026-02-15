@@ -3006,6 +3006,76 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`slog.String($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^`error`$")).
+		Report(`for string-formatted errors in slog attributes, use key "errorMessage"; reserve key "error" for error objects`)
+
+	m.Match(
+		`slog.Any($key, $value)`,
+	).
+		Where(
+			m["key"].Text.Matches("^`error`$") &&
+				!m["value"].Type.Is("error") &&
+				!m["value"].Type.Implements("error"),
+		).
+		Report(`for non-error payloads in slog attributes, use key "errorMessage"; reserve key "error" for error objects`)
+
+	m.Match(
+		`slog.Any($key, $value)`,
+	).
+		Where(
+			m["key"].Text.Matches("^`errorMessage`$") &&
+				(m["value"].Type.Is("error") || m["value"].Type.Implements("error")),
+		).
+		Report(`for error objects in slog attributes, use key "error"; reserve "errorMessage" for textual details`)
+
+	m.Match(
+		`slog.Any($key, $value)`,
+	).
+		Where(
+			m["key"].Text.Matches("^`errorMessage`$") &&
+				(m["value"].Type.Is("bool") ||
+					m["value"].Type.Is("int") ||
+					m["value"].Type.Is("int8") ||
+					m["value"].Type.Is("int16") ||
+					m["value"].Type.Is("int32") ||
+					m["value"].Type.Is("int64") ||
+					m["value"].Type.Is("uint") ||
+					m["value"].Type.Is("uint8") ||
+					m["value"].Type.Is("uint16") ||
+					m["value"].Type.Is("uint32") ||
+					m["value"].Type.Is("uint64") ||
+					m["value"].Type.Is("float32") ||
+					m["value"].Type.Is("float64")),
+		).
+		Report(`"errorMessage" slog attributes should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for numeric/bool values`)
+
+	m.Match(
+		`slog.Int($key, $value)`,
+		`slog.Int64($key, $value)`,
+		`slog.Uint64($key, $value)`,
+		`slog.Bool($key, $value)`,
+		`slog.Float64($key, $value)`,
+		`slog.Duration($key, $value)`,
+		`slog.Time($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^`error`$")).
+		Report(`for non-error payloads in slog attributes, use key "errorMessage"; reserve key "error" for error objects`)
+
+	m.Match(
+		`slog.Int($key, $value)`,
+		`slog.Int64($key, $value)`,
+		`slog.Uint64($key, $value)`,
+		`slog.Bool($key, $value)`,
+		`slog.Float64($key, $value)`,
+		`slog.Duration($key, $value)`,
+		`slog.Time($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^`errorMessage`$")).
+		Report(`"errorMessage" should contain textual error details; use contextual typed keys such as "errorCode", "errorCount", "retryDelay", or "hasError" for non-text values`)
+
+	m.Match(
+		`slog.String($key, $value)`,
 		`slog.Int($key, $value)`,
 		`slog.Int64($key, $value)`,
 		`slog.Uint64($key, $value)`,
