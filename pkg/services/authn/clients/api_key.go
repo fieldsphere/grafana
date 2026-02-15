@@ -159,6 +159,11 @@ func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Re
 	ctx, span := s.tracer.Start(ctx, "authn.apikey.Hook") //nolint:ineffassign,staticcheck
 	defer span.End()
 
+	if r == nil {
+		s.log.Warn("Skipping api key last-used hook because request is nil")
+		return nil
+	}
+
 	if r.GetMeta(metaKeySkipLastUsed) != "" {
 		return nil
 	}

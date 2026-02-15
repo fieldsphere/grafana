@@ -349,6 +349,20 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.Equal(t, int64(654), service.updatedID)
 		close(service.blockCh)
 	})
+
+	t.Run("should skip update when request is nil", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		err := client.Hook(context.Background(), nil, nil)
+		assert.NoError(t, err)
+
+		select {
+		case <-service.calledCh:
+			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
+		case <-time.After(200 * time.Millisecond):
+		}
+	})
 }
 
 type updateLastUsedService struct {
