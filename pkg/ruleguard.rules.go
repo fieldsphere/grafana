@@ -1499,10 +1499,7 @@ func structuredlogging(m fluent.Matcher) {
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { klog.V($lvl).InfoS($msg, $*before, $key, $panicVal, $*after); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { klog.ErrorS($baseErr, $msg, $*before, $key, $panicVal, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered panic payloads, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -1558,10 +1555,7 @@ func structuredlogging(m fluent.Matcher) {
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicVal, $*after}...); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicVal, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered panic payloads in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -1617,10 +1611,7 @@ func structuredlogging(m fluent.Matcher) {
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered panic payloads in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -1631,10 +1622,7 @@ func structuredlogging(m fluent.Matcher) {
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.New($*before, $key, $panicVal, $*after); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.With($*before, $key, $panicVal, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered panic payloads in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -1642,10 +1630,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal != nil { slog.Group($group, $*before, $key, $panicVal, $*after); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { slog.Group($group, $*before, $key, $panicVal, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered panic payloads in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -1804,10 +1789,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -1844,10 +1826,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions at non-error log levels in condition branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -1884,10 +1863,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions at non-error log levels in condition branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -1924,10 +1900,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions at non-error log levels in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -1964,10 +1937,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions at non-error log levels in condition branches and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2004,10 +1974,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions at non-error log levels in condition branches and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2044,10 +2011,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions at non-error log levels in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2084,10 +2048,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions at non-error log levels in condition branches and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2124,10 +2085,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions at non-error log levels in condition branches and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2148,10 +2106,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2172,10 +2127,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2188,10 +2140,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in condition branches and append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2204,10 +2153,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in condition branches and append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2228,10 +2174,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2252,10 +2195,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2268,10 +2208,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in condition branches and append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2284,10 +2221,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in condition branches and append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2308,10 +2242,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2324,10 +2255,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in condition branches and literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2348,10 +2276,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2364,10 +2289,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in condition branches and literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2404,10 +2326,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2444,10 +2363,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2484,10 +2400,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2524,10 +2437,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions at non-error log levels in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2564,10 +2474,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions at non-error log levels in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2604,10 +2511,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions at non-error log levels in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2644,10 +2548,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions at non-error log levels in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2662,10 +2563,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2680,10 +2578,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2698,10 +2593,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2716,10 +2608,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2734,10 +2623,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in condition branches and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2752,10 +2638,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in condition branches and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2770,10 +2653,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2788,10 +2668,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in condition branches and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2806,10 +2683,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in condition branches and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2818,10 +2692,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok { $logger.New($*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { $logger.With($*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2830,10 +2701,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.New($*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.With($*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in condition branches and structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2842,10 +2710,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok { if $cond { $logger.New($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { if $cond { $logger.With($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2854,30 +2719,21 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.New($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.With($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in condition branches and structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in condition branches and slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2886,10 +2742,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2898,10 +2751,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in condition branches and structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2910,10 +2760,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2922,70 +2769,49 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in condition branches and structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in condition branches and slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) type assertions in condition branches and slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok { if $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { if $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in condition branches and slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -2994,10 +2820,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok { if $cond { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { if $cond { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3006,10 +2829,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in condition branches and structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3018,10 +2838,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok { if $cond { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { if $cond { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3030,50 +2847,35 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in condition branches and structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok { if $cond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { if $cond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in condition branches and slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok { if $cond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok { if $cond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) type assertions in condition branches and slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3088,10 +2890,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3106,10 +2905,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3124,10 +2920,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3142,10 +2935,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3154,10 +2944,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.New($*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.With($*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3166,10 +2953,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions in structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3178,10 +2962,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions in structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3190,10 +2971,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $logger.New($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $logger.With($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3202,10 +2980,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions in structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3214,70 +2989,49 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions in structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions in slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions in slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions in slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions in slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3290,10 +3044,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3306,10 +3057,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3322,10 +3070,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3338,10 +3083,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3354,10 +3096,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-branch type assertions in literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3370,10 +3109,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-branch type assertions in literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3388,10 +3124,7 @@ func structuredlogging(m fluent.Matcher) {
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { if $cond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { if $cond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3406,10 +3139,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { if $cond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { if $cond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in assignment-style recover else-branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3424,10 +3154,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3442,10 +3169,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3460,10 +3184,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3478,10 +3199,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3518,10 +3236,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3558,10 +3273,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3598,10 +3310,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3638,10 +3347,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3656,10 +3362,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3674,10 +3377,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3692,10 +3392,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3710,10 +3407,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3728,10 +3422,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3746,10 +3437,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3764,10 +3452,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3782,10 +3467,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3822,10 +3504,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches at non-error log levels and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3862,10 +3541,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches at non-error log levels and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3902,10 +3578,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches at non-error log levels and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3942,10 +3615,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches at non-error log levels and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -3982,10 +3652,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches at non-error log levels and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4022,10 +3689,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches at non-error log levels and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4062,10 +3726,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches at non-error log levels and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4102,10 +3763,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches at non-error log levels and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4114,10 +3772,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $logger.New($*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $logger.With($*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches and structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4126,10 +3781,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $logger.New($*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $logger.With($*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches and structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4138,10 +3790,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.New($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.With($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches and structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4150,10 +3799,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.New($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.With($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches and structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4162,10 +3808,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches and structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4174,10 +3817,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches and structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4186,10 +3826,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches and structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4198,10 +3835,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches and structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4210,10 +3844,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches and structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4222,10 +3853,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches and structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4234,10 +3862,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches and structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4246,130 +3871,91 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches and structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches and slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches and slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches and slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches and slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches and slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches and slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches and slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches and slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches and slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches and slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches and slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches and slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4390,10 +3976,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches and append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4414,10 +3997,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches and append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4438,10 +4018,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches and append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4462,10 +4039,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches and append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4478,10 +4052,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion branches and literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4494,10 +4065,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if type-assertion condition branches and literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4510,10 +4078,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion branches and literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4526,10 +4091,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if type-assertion condition branches and literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4544,10 +4106,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4562,10 +4121,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4602,10 +4158,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4642,10 +4195,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4682,10 +4232,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches at non-error log levels and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4722,10 +4269,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches at non-error log levels and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4762,10 +4306,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches at non-error log levels and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4802,10 +4343,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches at non-error log levels and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4820,10 +4358,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches and []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4838,10 +4373,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches and appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4850,10 +4382,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $logger.New($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $logger.With($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches and structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4862,10 +4391,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.New($*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.With($*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches and structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4874,10 +4400,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches and structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4886,10 +4409,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches and structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4898,10 +4418,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches and structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4910,70 +4427,49 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches and structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches and slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches and slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches and slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches and slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches and slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches and slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -4994,10 +4490,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches and append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -5018,10 +4511,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches and append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -5034,10 +4524,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in recover else-if branches and literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -5050,10 +4537,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recovered type-asserted panic errors in recover else-if branches and literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -5078,10 +4562,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -5106,10 +4587,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -5122,10 +4600,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { $logger.New($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { $logger.With($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -5138,10 +4613,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -5154,10 +4626,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -5166,10 +4635,7 @@ func structuredlogging(m fluent.Matcher) {
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -5178,10 +4644,7 @@ func structuredlogging(m fluent.Matcher) {
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -5190,10 +4653,7 @@ func structuredlogging(m fluent.Matcher) {
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered type-asserted panic errors in slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10124,10 +9584,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10140,10 +9597,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10156,10 +9610,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions in literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10196,10 +9647,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions at non-error log levels in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10236,10 +9684,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions at non-error log levels in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10254,10 +9699,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10272,10 +9714,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10284,20 +9723,14 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { $logger.New($*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { $logger.With($*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else if $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10306,10 +9739,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions in structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10318,30 +9748,21 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions in structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else if $cond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions in slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else if $cond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recover().(error) else-if type assertions in slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10356,10 +9777,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10396,10 +9814,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10436,10 +9851,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { klog.InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { klog.V($lvl).InfoS($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions at non-error log levels in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10476,10 +9888,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { klog.InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions at non-error log levels in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10492,10 +9901,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10508,10 +9914,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10524,10 +9927,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { var $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { var $arr []any = []any{$*before, $key, $panicErr, $*after}; $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions in literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10542,10 +9942,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10560,10 +9957,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10572,20 +9966,14 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { $logger.New($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { $logger.With($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else if $cond { if $innerCond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10594,10 +9982,7 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { $logger.New([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { $logger.With([]any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions in structured context builders with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
@@ -10606,30 +9991,21 @@ func unstructuredoutput(m fluent.Matcher) {
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { $logger.New(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { $logger.With(append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions in structured context builders with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else if $cond { if $innerCond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { slog.Group($group, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions in slog.Group fields with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else if $cond { if $innerCond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else if $cond { if $innerCond { slog.Group($group, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
 	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for nested recover().(error) else-if type assertions in slog.Group fields with appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
