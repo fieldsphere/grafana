@@ -402,6 +402,18 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 			expectedOK: false,
 		},
 		{
+			name:       "fullwidth digit id",
+			keyID:      fullwidthAPIKeyIDString,
+			expectedID: 0,
+			expectedOK: false,
+		},
+		{
+			name:       "internal whitespace id",
+			keyID:      internalWhitespaceAPIKeyIDString,
+			expectedID: 0,
+			expectedOK: false,
+		},
+		{
 			name:       "non-positive id",
 			keyID:      "0",
 			expectedID: 0,
