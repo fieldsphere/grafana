@@ -39,6 +39,8 @@ const (
 	skipReasonRequestIsNil      = "requestIsNil"
 	skipReasonSkipMarkerPresent = "skipLastUsedMarkerPresent"
 	skipReasonMissingAPIKeyID   = "missingAPIKeyID"
+
+	validationReasonMustBePositiveInteger = "mustBePositiveInteger"
 )
 
 func ProvideAPIKey(apiKeyService apikey.Service, tracer trace.Tracer) *APIKey {
@@ -231,7 +233,7 @@ func (s *APIKey) parseAndValidateAPIKeyID(keyID string) (int64, bool) {
 		return 0, false
 	}
 	if apiKeyID < 1 {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "validationReason", "mustBePositiveInteger")
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "validationReason", validationReasonMustBePositiveInteger)
 		return 0, false
 	}
 
