@@ -15,14 +15,21 @@ function formatLogLine(level, message, context) {
 }
 
 function logDevenvInfo(message, context) {
-  process.stdout.write(formatLogLine('info', message, context));
+  const line = formatLogLine('info', message, context);
+  if (typeof process !== 'undefined' && process.stdout) {
+    process.stdout.write(line);
+  } else {
+    console.log(line.trimEnd());
+  }
 }
 
 function logDevenvWarning(message, context) {
-  process.stderr.write(formatLogLine('warning', message, context));
+  const line = formatLogLine('warning', message, context);
+  if (typeof process !== 'undefined' && process.stderr) {
+    process.stderr.write(line);
+  } else {
+    console.error(line.trimEnd());
+  }
 }
 
-module.exports = {
-  logDevenvInfo,
-  logDevenvWarning,
-};
+export { logDevenvInfo, logDevenvWarning };
