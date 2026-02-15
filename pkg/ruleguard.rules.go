@@ -3193,36 +3193,12 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recover().(error) else-branch type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
-		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
-		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }`,
-		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
-		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }`,
-	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
-		Report(`for recover().(error) else-branch type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
-
-	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
-		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
-		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
-	).
-		Where(
-			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
-				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
-		).
-		Report(`for nested recover().(error) else-branch type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
-
-	m.Match(
-		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
-		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
