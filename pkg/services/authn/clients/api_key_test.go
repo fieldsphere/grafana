@@ -229,6 +229,23 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.Equal(t, int64(456), service.updatedID)
 	})
 
+	t.Run("should handle nil context when skip marker is absent", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "457")
+
+		err := client.Hook(nil, nil, req)
+		assert.NoError(t, err)
+
+		select {
+		case <-service.calledCh:
+		case <-time.After(200 * time.Millisecond):
+			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
+		}
+		assert.Equal(t, int64(457), service.updatedID)
+	})
+
 	t.Run("should skip update when skip marker is present", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())

@@ -156,6 +156,10 @@ func (s *APIKey) Priority() uint {
 }
 
 func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) error {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	_, span := s.tracer.Start(ctx, "authn.apikey.Hook")
 	defer span.End()
 
