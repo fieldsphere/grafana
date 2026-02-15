@@ -4331,6 +4331,78 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`prefer "UID" acronym casing in trace attribute keys (for example "dashboardUID", "ruleUID", "datasourceUID")`)
 
 	m.Match(
+		`attribute.KeyValue{Key: $key, Value: attribute.IntValue($value)}`,
+		`attribute.KeyValue{Value: attribute.IntValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.IntValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.Int64Value($value)}`,
+		`attribute.KeyValue{Value: attribute.Int64Value($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.Int64Value($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.IntSliceValue($value)}`,
+		`attribute.KeyValue{Value: attribute.IntSliceValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.IntSliceValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.Int64SliceValue($value)}`,
+		`attribute.KeyValue{Value: attribute.Int64SliceValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.Int64SliceValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.BoolValue($value)}`,
+		`attribute.KeyValue{Value: attribute.BoolValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.BoolValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.BoolSliceValue($value)}`,
+		`attribute.KeyValue{Value: attribute.BoolSliceValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.BoolSliceValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.Float64Value($value)}`,
+		`attribute.KeyValue{Value: attribute.Float64Value($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.Float64Value($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.Float64SliceValue($value)}`,
+		`attribute.KeyValue{Value: attribute.Float64SliceValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.Float64SliceValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.StringSliceValue($value)}`,
+		`attribute.KeyValue{Value: attribute.StringSliceValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.StringSliceValue($value)}`,
+	).
+		Where(m["key"].Text.Matches("^\"error\"$|^attribute\\.Key\\(\"error\"\\)$")).
+		Report(`avoid non-text trace attributes under key "error"; use contextual keys such as "errorCode", "errorCount", or "hasError", and reserve "errorMessage" for textual error details`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: attribute.IntValue($value)}`,
+		`attribute.KeyValue{Value: attribute.IntValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.IntValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.Int64Value($value)}`,
+		`attribute.KeyValue{Value: attribute.Int64Value($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.Int64Value($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.IntSliceValue($value)}`,
+		`attribute.KeyValue{Value: attribute.IntSliceValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.IntSliceValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.Int64SliceValue($value)}`,
+		`attribute.KeyValue{Value: attribute.Int64SliceValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.Int64SliceValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.BoolValue($value)}`,
+		`attribute.KeyValue{Value: attribute.BoolValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.BoolValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.BoolSliceValue($value)}`,
+		`attribute.KeyValue{Value: attribute.BoolSliceValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.BoolSliceValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.Float64Value($value)}`,
+		`attribute.KeyValue{Value: attribute.Float64Value($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.Float64Value($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.Float64SliceValue($value)}`,
+		`attribute.KeyValue{Value: attribute.Float64SliceValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.Float64SliceValue($value)}`,
+		`attribute.KeyValue{Key: $key, Value: attribute.StringSliceValue($value)}`,
+		`attribute.KeyValue{Value: attribute.StringSliceValue($value), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.StringSliceValue($value)}`,
+	).
+		Where(m["key"].Text.Matches("^\"errorMessage\"$|^attribute\\.Key\\(\"errorMessage\"\\)$")).
+		Report(`"errorMessage" trace attributes should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for non-text values`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: attribute.StringValue($errMsg)}`,
+		`attribute.KeyValue{Value: attribute.StringValue($errMsg), Key: $key}`,
+		`attribute.KeyValue{$key, attribute.StringValue($errMsg)}`,
+	).
+		Where(m["key"].Text.Matches("^\"error\"$|^attribute\\.Key\\(\"error\"\\)$")).
+		Report(`use "errorMessage" when storing string error text in trace attributes`)
+
+	m.Match(
 		`attribute.KeyValue{Key: $key, Value: $value}`,
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
