@@ -45,15 +45,32 @@ func TestZanzanaLoggerAddsStructuredContext(t *testing.T) {
 	}
 
 	ctx := fake.InfoLogs.Ctx
-	if len(ctx) < 4 {
+	if len(ctx) != 6 {
 		t.Fatalf("expected structured ctx entries, got %#v", ctx)
 	}
 
-	if ctx[0] != "subject" || ctx[1] != "user-1" {
-		t.Fatalf("expected zap field in context, got %#v", ctx)
-	}
-	if ctx[2] != "zanzana_message" || ctx[3] != "token checked" {
+	if ctx[0] != "zanzanaMessage" || ctx[1] != "token checked" {
 		t.Fatalf("expected zanzana message fields, got %#v", ctx)
+	}
+	if ctx[2] != "zanzanaLevel" || ctx[3] != "info" {
+		t.Fatalf("expected zanzana level field, got %#v", ctx)
+	}
+	if ctx[4] != "zanzanaFields" {
+		t.Fatalf("expected zanzana fields key, got %#v", ctx)
+	}
+
+	fields, ok := ctx[5].([]any)
+	if !ok {
+		t.Fatalf("expected zanzana fields as []any, got %#v", ctx[5])
+	}
+	expectedFields := []any{"subject", "user-1"}
+	if len(fields) != len(expectedFields) {
+		t.Fatalf("unexpected zanzana fields length: got=%d want=%d (%#v)", len(fields), len(expectedFields), fields)
+	}
+	for i := range expectedFields {
+		if fields[i] != expectedFields[i] {
+			t.Fatalf("unexpected zanzana field at index %d: got=%#v want=%#v (%#v)", i, fields[i], expectedFields[i], fields)
+		}
 	}
 }
 
