@@ -2370,6 +2370,12 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
+		Where(m["arr"].Type.Is("[]any") && m["key"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous key "panic" in []any key/value slices; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
+
+	m.Match(
+		`append($arr, $*before, $key, $value, $*after)`,
+	).
 		Where(m["arr"].Type.Is("[]any") && !m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in []any key/value slices; use stable string-literal or const keys and keep dynamic data in values`)
 
@@ -2414,6 +2420,13 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\"reason\"$")).
 		Report(`avoid ambiguous key "reason" in []any literal key/value slices; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
+		`$arr := []any{$*before, $key, $value, $*after}`,
+		`$arr = []any{$*before, $key, $value, $*after}`,
+	).
+		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous key "panic" in []any literal key/value slices; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
@@ -2579,6 +2592,12 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous slog.Group key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
+		`slog.Group($group, $*before, $key, $value, $*after)`,
+	).
+		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous slog.Group key "panic"; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
+
+	m.Match(
 		`slog.Group($group, $*before, "error", $err.Error(), $*after)`,
 	).
 		Where(m["err"].Type.Is("error")).
@@ -2637,6 +2656,12 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
 	).
+		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous slog.Group []any spread key "panic"; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
+
+	m.Match(
+		`slog.Group($group, []any{$*before, $key, $value, $*after}...)`,
+	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report(`avoid runtime-generated keys in slog.Group []any literal spread fields; use stable string-literal or const keys and keep dynamic data in values`)
 
@@ -2651,6 +2676,12 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\"reason\"$")).
 		Report(`avoid ambiguous slog.Group appended key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
+		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
+	).
+		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous slog.Group appended key "panic"; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
 		`slog.Group($group, append($arr, $*before, $key, $value, $*after)...)`,
@@ -2838,6 +2869,20 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\"reason\"$")).
 		Report(`avoid ambiguous slog attribute key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
+		`slog.String($key, $value)`,
+		`slog.Int($key, $value)`,
+		`slog.Int64($key, $value)`,
+		`slog.Uint64($key, $value)`,
+		`slog.Bool($key, $value)`,
+		`slog.Float64($key, $value)`,
+		`slog.Duration($key, $value)`,
+		`slog.Time($key, $value)`,
+		`slog.Any($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous slog attribute key "panic"; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
 		`slog.String($key, $value)`,
