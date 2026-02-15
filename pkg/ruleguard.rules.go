@@ -4544,6 +4544,24 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid shorthand trace attribute key "func"; use "function" for clarity`)
 
 	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"error\"$")).
+		Report(`avoid generic trace attribute key "error" in attribute.Key(...); use "errorMessage" for textual details and contextual typed keys such as "errorCode", "errorCount", or "hasError"`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous trace attribute key "reason" in attribute.Key(...); use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous trace attribute key "panic" in attribute.Key(...); use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
+
+	m.Match(
 		`attribute.Key($key).String($value)`,
 		`attribute.Key($key).Int($value)`,
 		`attribute.Key($key).Int64($value)`,
