@@ -644,7 +644,7 @@ func (s *Service) UpdateDataSource(ctx context.Context, cmd *datasources.UpdateD
 		// TODO: Refactor to store lbac rules separate from a datasource
 		if !cmd.AllowLBACRuleUpdates {
 			s.logger.Debug("Overriding LBAC rules with stored ones using updateLBACRules API",
-				"reason", "overridingLbacRulesFromDatasourceAPI",
+				"lbacOverrideReason", "overridingLbacRulesFromDatasourceAPI",
 				"datasourceID", dataSource.ID,
 				"datasourceUID", dataSource.UID)
 

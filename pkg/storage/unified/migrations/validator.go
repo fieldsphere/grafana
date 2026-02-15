@@ -94,7 +94,7 @@ func (v *CountValidator) Validate(ctx context.Context, sess *xorm.Session, respo
 					"group", rejected.Key.Group,
 					"resource", rejected.Key.Resource,
 					"resourceName", rejected.Key.Name,
-					"reason", rejected.Error)
+					"errorMessage", rejected.Error)
 			}
 		}
 		// Rejections are not fatal - they may be expected for invalid data

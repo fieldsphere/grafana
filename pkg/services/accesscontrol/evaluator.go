@@ -67,7 +67,7 @@ func match(scope, target string) bool {
 		logger.Error(
 			"invalid scope",
 			"scope", scope,
-			"reason", "scopes should not contain meta-characters like * or ?, except in the last position",
+			"validationReason", "scopes should not contain meta-characters like * or ?, except in the last position",
 		)
 		return false
 	}
