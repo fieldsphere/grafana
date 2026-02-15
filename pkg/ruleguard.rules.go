@@ -4307,6 +4307,22 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous trace attribute key "panic" in attribute.KeyValue literals; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$|^attribute\\.Key\\(\"[A-Za-z_]+Id\"\\)$")).
+		Report(`prefer "ID" acronym casing in trace attribute keys (for example "orgID", "pluginID", "userID")`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$|^attribute\\.Key\\(\"[A-Za-z_]+Uid\"\\)$")).
+		Report(`prefer "UID" acronym casing in trace attribute keys (for example "dashboardUID", "ruleUID", "datasourceUID")`)
+
+	m.Match(
 		`attribute.Key($key).String($value)`,
 		`attribute.Key($key).Int($value)`,
 		`attribute.Key($key).Int64($value)`,
