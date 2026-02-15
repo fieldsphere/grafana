@@ -2269,6 +2269,18 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recover().(error) else-branch type assertions in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $logger.New($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { $logger.With($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $logger.New($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { $logger.With($*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for nested recover().(error) else-branch type assertions in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
@@ -2277,6 +2289,16 @@ func structuredlogging(m fluent.Matcher) {
 				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
 		).
 		Report(`for recover().(error) else-branch type assertions in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { if $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { if $cond { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for nested recover().(error) else-branch type assertions in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { $logger.Error($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
