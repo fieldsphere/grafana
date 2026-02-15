@@ -4306,7 +4306,6 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: attribute.Key($left + $right)}`,
 		`attribute.KeyValue{attribute.Key($left + $right), $value}`,
 	).
-		Where(m["left"].Type.Is("string") && m["right"].Type.Is("string")).
 		Report(`avoid dynamic concatenation for trace attribute keys in attribute.KeyValue literals; use stable string-literal keys and keep dynamic data in values`)
 
 	m.Match(
@@ -4548,18 +4547,6 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
 		Report("prefer stable string-literal or const trace attribute keys in attribute.Key(...); avoid runtime-generated key values")
-
-	m.Match(
-		`attribute.Key($left + $right)`,
-	).
-		Where(m["left"].Type.Is("string") && m["right"].Type.Is("string")).
-		Report("avoid dynamic concatenation for trace attribute keys in attribute.Key(...); use stable string-literal keys and keep dynamic data in values")
-
-	m.Match(
-		`attribute.Key(fmt.Sprintf($fmt, $*args))`,
-		`attribute.Key(fmt.Sprint($*args))`,
-	).
-		Report("avoid fmt formatting for trace attribute keys in attribute.Key(...); use stable string-literal keys and keep dynamic data in values")
 
 	m.Match(
 		`attribute.Key($key)`,
