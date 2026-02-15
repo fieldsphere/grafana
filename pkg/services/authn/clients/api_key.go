@@ -253,6 +253,10 @@ func (s *APIKey) parseAndValidateAPIKeyID(keyID string) (int64, bool) {
 }
 
 func containsOnlyDigits(value string) bool {
+	if value == "" {
+		return false
+	}
+
 	for _, char := range value {
 		if char < '0' || char > '9' {
 			return false

@@ -356,6 +356,62 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 	})
 }
 
+func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
+	client := ProvideAPIKey(&updateLastUsedService{}, tracing.InitializeTracerForTest())
+
+	testCases := []struct {
+		name       string
+		keyID      string
+		expectedID int64
+		expectedOK bool
+	}{
+		{
+			name:       "valid numeric id",
+			keyID:      "123",
+			expectedID: 123,
+			expectedOK: true,
+		},
+		{
+			name:       "empty id",
+			keyID:      "",
+			expectedID: 0,
+			expectedOK: false,
+		},
+		{
+			name:       "signed id",
+			keyID:      signedAPIKeyIDString,
+			expectedID: 0,
+			expectedOK: false,
+		},
+		{
+			name:       "overflow id",
+			keyID:      overflowInt64APIKeyIDString,
+			expectedID: 0,
+			expectedOK: false,
+		},
+		{
+			name:       "non-ascii id",
+			keyID:      arabicIndicAPIKeyIDString,
+			expectedID: 0,
+			expectedOK: false,
+		},
+		{
+			name:       "non-positive id",
+			keyID:      "0",
+			expectedID: 0,
+			expectedOK: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			apiKeyID, ok := client.parseAndValidateAPIKeyID(tc.keyID)
+			assert.Equal(t, tc.expectedOK, ok)
+			assert.Equal(t, tc.expectedID, apiKeyID)
+		})
+	}
+}
+
 func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should call update when skip marker is absent", func(t *testing.T) {
 		service := newUpdateLastUsedService()
