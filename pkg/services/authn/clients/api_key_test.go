@@ -32,6 +32,8 @@ const (
 	maxInt64APIKeyIDString            = "9223372036854775807"
 	overflowInt64APIKeyIDString       = "9223372036854775808"
 	signedAPIKeyIDString              = "+123"
+	arabicIndicAPIKeyIDString         = "١٢٣"
+	fullwidthAPIKeyIDString           = "１２３"
 	maxInt64APIKeyIDValue       int64 = 9223372036854775807
 )
 
@@ -269,6 +271,24 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assert.False(t, service.called)
 	})
 
+	t.Run("should skip update for arabic-indic digit key id", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed(arabicIndicAPIKeyIDString)
+
+		assert.False(t, service.called)
+	})
+
+	t.Run("should skip update for fullwidth digit key id", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed(fullwidthAPIKeyIDString)
+
+		assert.False(t, service.called)
+	})
+
 	t.Run("should skip update for overflow key id", func(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -411,6 +431,30 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := &authn.Request{}
 		req.SetMeta(metaKeyID, signedAPIKeyIDString)
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		assertNoUpdateCall(t, service)
+	})
+
+	t.Run("should skip update when key id uses arabic-indic digits", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, arabicIndicAPIKeyIDString)
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		assertNoUpdateCall(t, service)
+	})
+
+	t.Run("should skip update when key id uses fullwidth digits", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, fullwidthAPIKeyIDString)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
