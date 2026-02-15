@@ -4499,7 +4499,10 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
-		Where(m["key"].Text.Matches("^\"error\"$|^attribute\\.Key\\(\"error\"\\)$")).
+		Where(
+			m["key"].Text.Matches("^\"error\"$|^attribute\\.Key\\(\"error\"\\)$") &&
+				!m["value"].Text.Matches("^attribute\\.(StringValue|IntValue|Int64Value|IntSliceValue|Int64SliceValue|BoolValue|BoolSliceValue|Float64Value|Float64SliceValue|StringSliceValue)\\(.*\\)$"),
+		).
 		Report(`avoid trace attribute key "error" in attribute.KeyValue literals; use "errorMessage" for textual details and contextual typed keys such as "errorCode", "errorCount", or "hasError" for non-text values`)
 
 	m.Match(
