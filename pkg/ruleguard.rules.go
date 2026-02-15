@@ -4500,6 +4500,14 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
+		Where(m["key"].Text.Matches("^\"error\"$|^attribute\\.Key\\(\"error\"\\)$")).
+		Report(`avoid trace attribute key "error" in attribute.KeyValue literals; use "errorMessage" for textual details and contextual typed keys such as "errorCode", "errorCount", or "hasError" for non-text values`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
 		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$|^attribute\\.Key\\(\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"\\)$")).
 		Report(`avoid all-lowercase "…id" trace attribute keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelID", "datasourceID", "queryGroupID", "migrationID", "resourceVersion", "configID"`)
 
