@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"testing"
+	"time"
 
 	"github.com/stretchr/testify/assert"
 
@@ -200,15 +201,62 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 	})
 }
 
+func TestAPIKey_Hook(t *testing.T) {
+	t.Run("should call update when skip marker is absent", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "456")
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		select {
+		case <-service.calledCh:
+		case <-time.After(200 * time.Millisecond):
+			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
+		}
+		assert.Equal(t, int64(456), service.updatedID)
+	})
+
+	t.Run("should skip update when skip marker is present", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "456")
+		req.SetMeta(metaKeySkipLastUsed, "true")
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		select {
+		case <-service.calledCh:
+			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
+		case <-time.After(200 * time.Millisecond):
+		}
+	})
+}
+
 type updateLastUsedService struct {
 	apikeytest.Service
 	called    bool
 	updatedID int64
+	calledCh  chan struct{}
+}
+
+func newUpdateLastUsedService() *updateLastUsedService {
+	return &updateLastUsedService{
+		calledCh: make(chan struct{}, 1),
+	}
 }
 
 func (s *updateLastUsedService) UpdateAPIKeyLastUsedDate(ctx context.Context, tokenID int64) error {
 	s.called = true
 	s.updatedID = tokenID
+	select {
+	case s.calledCh <- struct{}{}:
+	default:
+	}
 	return s.ExpectedError
 }
 
