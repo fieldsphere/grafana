@@ -6270,6 +6270,8 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr []any = []any{$*before, $key, $value, $*after}`,
 	).
 		Where(m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason)[\"`]$")).
 		Report(`avoid ambiguous keys in []any literal key/value slices; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", or "responseBody"`)
@@ -6277,6 +6279,8 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr []any = []any{$*before, $key, $value, $*after}`,
 	).
 		Where(m["key"].Text.Matches("^[\"`](user|client|uname)[\"`]$")).
 		Report(`avoid ambiguous keys "user", "client", or "uname" in []any literal key/value slices; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
@@ -6284,6 +6288,8 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr []any = []any{$*before, $key, $value, $*after}`,
 	).
 		Where(m["key"].Text.Matches("^[\"`]type[\"`]$")).
 		Report(`avoid ambiguous key "type" in []any literal key/value slices; use contextual keys such as "datasourceType", "resourceType", or "eventType"`)
@@ -6291,6 +6297,8 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr []any = []any{$*before, $key, $value, $*after}`,
 	).
 		Where(m["key"].Text.Matches("^[\"`]value[\"`]$")).
 		Report(`avoid ambiguous key "value" in []any literal key/value slices; use contextual keys such as "measurementValue", "fieldValue", "responseValue", or "configValue"`)
@@ -6298,6 +6306,8 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr []any = []any{$*before, $key, $value, $*after}`,
 	).
 		Where(m["key"].Text.Matches("^[\"`]info[\"`]$")).
 		Report(`avoid ambiguous key "info" in []any literal key/value slices; use contextual keys such as "messageInfo", "buildInfo", or "runtimeInfo"`)
@@ -6305,6 +6315,8 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr []any = []any{$*before, $key, $value, $*after}`,
 	).
 		Where(m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous key "reason" in []any literal key/value slices; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
@@ -6312,6 +6324,8 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr []any = []any{$*before, $key, $value, $*after}`,
 	).
 		Where(m["key"].Text.Matches("^(\"panic\"|`panic`)$")).
 		Report(`avoid ambiguous key "panic" in []any literal key/value slices; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
@@ -6319,6 +6333,8 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr = []any{$*before, $key, $value, $*after}`,
+		`var $arr []any = []any{$*before, $key, $value, $*after}`,
 	).
 		Where(!m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in []any literal key/value slices; use stable string-literal or const keys and keep dynamic data in values`)
