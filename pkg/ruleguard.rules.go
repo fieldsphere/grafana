@@ -3147,7 +3147,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
 		`klog.ErrorS($baseErr, $msg, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)\"$")).
+		Where(m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|user|client|uname|type|value|info|panic)[\"`]$")).
 		Report(`avoid ambiguous keys in []any literal spread arguments; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", "datasourceType", "measurementValue", or "messageInfo"`)
 
 	m.Match(
@@ -3173,7 +3173,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
 		`klog.ErrorS($baseErr, $msg, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Where(m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous key "reason" in []any literal spread arguments; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
@@ -3199,7 +3199,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
 		`klog.ErrorS($baseErr, $msg, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Where(m["key"].Text.Matches("^[\"`]panic[\"`]$")).
 		Report(`avoid ambiguous key "panic" in []any literal spread arguments; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
@@ -3225,7 +3225,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
 		`klog.ErrorS($baseErr, $msg, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in []any literal spread arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
@@ -3251,7 +3251,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
 		`klog.ErrorS($baseErr, $msg, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z_]+Id[\"`]$")).
 		Report(`prefer "ID" acronym casing in []any literal spread keys (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
@@ -3277,7 +3277,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, []any{$*before, $key, $value, $*after}...)`,
 		`klog.ErrorS($baseErr, $msg, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(m["key"].Text.Matches("^\"([A-Za-z_]+Uid|[A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)\"$")).
+		Where(m["key"].Text.Matches("^[\"`]([A-Za-z_]+Uid|[A-Za-z0-9]+_[A-Za-z0-9_]+|.*\\s+.*|[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+|[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+|[A-Z][A-Za-z0-9_.]*)[\"`]$")).
 		Report(`avoid non-canonical []any literal spread keys; use lower camelCase with canonical acronym casing (for example "dashboardUID", "requestPath", "statusCode")`)
 
 	m.Match(
