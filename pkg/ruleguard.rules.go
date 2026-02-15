@@ -4405,6 +4405,59 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`"errorMessage" in structured context should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for numeric/bool values`)
 
 	m.Match(
+		`$logger.New($*before, $key, $err.Error(), $*after)`,
+		`$logger.With($*before, $key, $err.Error(), $*after)`,
+	).
+		Where(isStructuredLogger && m["key"].Text.Matches("^`error`$") && m["err"].Type.Is("error")).
+		Report(`use "errorMessage" for stringified error text in structured context (for example logger.With("errorMessage", err.Error())); keep "error" for error objects`)
+
+	m.Match(
+		`$logger.New($*before, $key, $errMsg, $*after)`,
+		`$logger.With($*before, $key, $errMsg, $*after)`,
+	).
+		Where(
+			isStructuredLogger &&
+				m["key"].Text.Matches("^`error`$") &&
+				!m["errMsg"].Type.Is("error") &&
+				!m["errMsg"].Type.Implements("error"),
+		).
+		Report(`use "errorMessage" for stringified error text in structured context; keep "error" for error objects`)
+
+	m.Match(
+		`$logger.New($*before, $key, $errVal, $*after)`,
+		`$logger.With($*before, $key, $errVal, $*after)`,
+	).
+		Where(
+			isStructuredLogger &&
+				m["key"].Text.Matches("^`errorMessage`$") &&
+				(m["errVal"].Type.Is("error") || m["errVal"].Type.Implements("error")),
+		).
+		Report(`use "error" for error objects in structured context; reserve "errorMessage" for textual error details`)
+
+	m.Match(
+		`$logger.New($*before, $key, $errVal, $*after)`,
+		`$logger.With($*before, $key, $errVal, $*after)`,
+	).
+		Where(
+			isStructuredLogger &&
+				m["key"].Text.Matches("^`errorMessage`$") &&
+				(m["errVal"].Type.Is("bool") ||
+					m["errVal"].Type.Is("int") ||
+					m["errVal"].Type.Is("int8") ||
+					m["errVal"].Type.Is("int16") ||
+					m["errVal"].Type.Is("int32") ||
+					m["errVal"].Type.Is("int64") ||
+					m["errVal"].Type.Is("uint") ||
+					m["errVal"].Type.Is("uint8") ||
+					m["errVal"].Type.Is("uint16") ||
+					m["errVal"].Type.Is("uint32") ||
+					m["errVal"].Type.Is("uint64") ||
+					m["errVal"].Type.Is("float32") ||
+					m["errVal"].Type.Is("float64")),
+		).
+		Report(`"errorMessage" in structured context should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for numeric/bool values`)
+
+	m.Match(
 		`attribute.KeyValue{Key: $key, Value: $value}`,
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
