@@ -42,6 +42,7 @@ const (
 
 	validationReasonMustBePositiveInteger = "mustBePositiveInteger"
 	validationReasonMustContainDigitsOnly = "mustContainDigitsOnly"
+	validationReasonMustFitInt64          = "mustFitInt64"
 )
 
 func ProvideAPIKey(apiKeyService apikey.Service, tracer trace.Tracer) *APIKey {
@@ -235,6 +236,11 @@ func (s *APIKey) parseAndValidateAPIKeyID(keyID string) (int64, bool) {
 
 	apiKeyID, err := strconv.ParseInt(keyID, 10, 64)
 	if err != nil {
+		if errors.Is(err, strconv.ErrRange) {
+			s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", validationReasonMustFitInt64, "error", err)
+			return 0, false
+		}
+
 		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "error", err)
 		return 0, false
 	}
