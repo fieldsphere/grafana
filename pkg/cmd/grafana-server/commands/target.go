@@ -71,8 +71,7 @@ func RunTargetServer(opts standalone.BuildInfo, cli *cli.Context) error {
 		// to log any and all panics that are about to crash Grafana to
 		// our regular log locations before exiting.
 		if r := recover(); r != nil {
-			reason := fmt.Sprintf("%v", r)
-			logger.Error("Critical error", "reason", reason, "stackTrace", string(debug.Stack()))
+			logger.Error("Critical error", "panicValue", r, "stackTrace", string(debug.Stack()))
 			panic(r)
 		}
 	}()
