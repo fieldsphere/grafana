@@ -4630,6 +4630,12 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`attribute.Key($key)`,
 	).
+		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|msg|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason|panic|user|client|uname|type|value|info|data)\"$")).
+		Report(`avoid ambiguous trace attribute keys in attribute.Key(...); use contextual keys such as "userID", "receiverUID", "orgID", "configID", "queryText", "ruleUID", "requestBody", "resourceVersion", "repositoryName", "resourceKind", "statusCode", "requestPath", "datasourceURL", "messageInfo", "measurementValue", or "payloadData"`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
 		Report(`prefer "ID" acronym casing in trace attribute keys in attribute.Key(...) (for example "orgID", "pluginID", "userID")`)
 
@@ -4644,6 +4650,36 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$")).
 		Report(`avoid all-lowercase "…id" trace attribute keys in attribute.Key(...); use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelID", "datasourceID", "queryGroupID", "migrationID", "resourceVersion", "configID"`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Report(`avoid snake_case trace attribute keys in attribute.Key(...); use camelCase with canonical acronym casing`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\".*\\s+.*\"$")).
+		Report(`avoid whitespace in trace attribute keys in attribute.Key(...); use compact camelCase keys such as "rowsAffected" or "currentProvider"`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
+		Report(`avoid hyphenated trace attribute keys in attribute.Key(...); use camelCase keys such as "contentType" or "rowsAffected"`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Report(`avoid dotted trace attribute keys in attribute.Key(...); prefer flat camelCase keys with canonical acronym casing`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
+		Report(`avoid uppercase-leading trace attribute keys in attribute.Key(...); use lower camelCase with canonical acronym casing`)
 
 	m.Match(
 		`attribute.Key($key).String($value)`,
