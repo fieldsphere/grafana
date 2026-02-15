@@ -125,7 +125,7 @@ func Recovery(cfg *setting.Cfg, license licensing.Licensing) web.Middleware {
 						// and used as a signal for aborting requests. Suppresses stacktrace
 						// since it doesn't add any important information.
 						if errors.Is(err, http.ErrAbortHandler) {
-							panicLogger.Error("Request error", "error", err)
+							panicLogger.Error("Request error", "panicValue", err)
 							return
 						}
 					}
