@@ -168,7 +168,13 @@ func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Re
 		return nil
 	}
 
-	go func(keyID string) {
+	keyID := r.GetMeta(metaKeyID)
+	if keyID == "" {
+		s.log.Debug("Skipping api key last-used hook", "skipReason", "missingAPIKeyID")
+		return nil
+	}
+
+	go func() {
 		defer func() {
 			if err := recover(); err != nil {
 				s.log.Error("Panic during user last seen sync", "panicValue", err)
@@ -176,7 +182,7 @@ func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Re
 		}()
 
 		s.syncAPIKeyLastUsed(keyID)
-	}(r.GetMeta(metaKeyID))
+	}()
 
 	return nil
 }
