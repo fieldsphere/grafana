@@ -28,9 +28,9 @@ func (c *ZanzanaPermissionStore) SetFolderParent(ctx context.Context, namespace,
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	ctx, span := tracer.Start(ctx, "zanzana-permission-store.set-folder-parent",
 		trace.WithAttributes(
-			attribute.String("folderUID", folderUID),
-			attribute.String("folderNamespace", namespace),
-			attribute.String("parentUID", parentUID),
+			attribute.String("folder.uid", folderUID),
+			attribute.String("folder.namespace", namespace),
+			attribute.String("parent.uid", parentUID),
 		),
 	)
 	defer span.End()
@@ -61,8 +61,8 @@ func (c *ZanzanaPermissionStore) GetFolderParents(ctx context.Context, namespace
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	ctx, span := tracer.Start(ctx, "ZanzanaPermissionStore.GetFolderParents",
 		trace.WithAttributes(
-			attribute.String("folderUID", folderUID),
-			attribute.String("folderNamespace", namespace),
+			attribute.String("folder.uid", folderUID),
+			attribute.String("folder.namespace", namespace),
 		),
 	)
 	defer span.End()
@@ -106,8 +106,8 @@ func (c *ZanzanaPermissionStore) DeleteFolderParents(ctx context.Context, namesp
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	ctx, span := tracer.Start(ctx, "ZanzanaPermissionStore.DeleteFolderParents",
 		trace.WithAttributes(
-			attribute.String("folderUID", folderUID),
-			attribute.String("folderNamespace", namespace),
+			attribute.String("folder.uid", folderUID),
+			attribute.String("folder.namespace", namespace),
 		),
 	)
 	defer span.End()
@@ -138,8 +138,8 @@ func (c *ZanzanaPermissionStore) listFolderParentRelations(ctx context.Context, 
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	ctx, span := tracer.Start(ctx, "ZanzanaPermissionStore.listFolderParentRelations",
 		trace.WithAttributes(
-			attribute.String("folderUID", folderUID),
-			attribute.String("folderNamespace", namespace),
+			attribute.String("folder.uid", folderUID),
+			attribute.String("folder.namespace", namespace),
 		),
 	)
 	defer span.End()

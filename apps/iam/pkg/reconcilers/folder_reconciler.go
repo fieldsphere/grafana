@@ -78,8 +78,8 @@ func (r *FolderReconciler) reconcile(ctx context.Context, req operator.TypedReco
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	ctx, span := tracer.Start(ctx, "folder.reconcile",
 		trace.WithAttributes(
-			attribute.String("reconcileAction", actionToString(req.Action)),
-			attribute.String("folderUID", req.Object.Name),
+			attribute.String("action", actionToString(req.Action)),
+			attribute.String("folder.uid", req.Object.Name),
 			attribute.String("namespace", req.Object.Namespace),
 		),
 	)
@@ -215,7 +215,7 @@ func getFolderParent(ctx context.Context, folder *foldersKind.Folder) (string, e
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	_, span := tracer.Start(ctx, "get-folder-parent",
 		trace.WithAttributes(
-			attribute.String("folderUID", folder.Name),
+			attribute.String("folder.uid", folder.Name),
 		),
 	)
 	defer span.End()
