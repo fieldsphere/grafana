@@ -2013,7 +2013,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z_]+Id[\"`]$")).
 		Report(`prefer "ID" acronym casing in structured log keys (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
@@ -2022,7 +2022,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`][A-Za-z_]+Id[\"`]$")).
 		Report(`prefer "ID" acronym casing in structured log keys (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
@@ -2048,7 +2048,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Where(m["key"].Text.Matches("^[\"`][A-Za-z_]+Uid[\"`]$")).
 		Report(`prefer "UID" acronym casing in structured log keys (for example "dashboardUID", "integrationUID")`)
 
 	m.Match(
@@ -2057,7 +2057,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`][A-Za-z_]+Uid[\"`]$")).
 		Report(`prefer "UID" acronym casing in structured log keys (for example "dashboardUID", "integrationUID")`)
 
 	m.Match(
@@ -2083,7 +2083,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$")).
+		Where(m["key"].Text.Matches("^[\"`](userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)[\"`]$")).
 		Report(`avoid all-lowercase "…id" structured log keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID", "configID"`)
 
 	m.Match(
@@ -2092,7 +2092,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`](userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)[\"`]$")).
 		Report(`avoid all-lowercase "…id" structured log keys; use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelPluginID", "streamID", "configID"`)
 
 	m.Match(
@@ -2118,7 +2118,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason)\"$")).
+		Where(m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason)[\"`]$")).
 		Report(`avoid ambiguous structured log keys like "id", "uid", "org", "cfg", "query", "rule", "request", "ns", "rv", "repo", "repository", "template", "sql", "args", "name", "job", "action", "check", "guid", "pid", "pr", "ref", "key", "ctx", "val", "var", "gv", "gvr", "ha", "addr", "alg", "raw", "sub", "ip", "hit", "uri", "app", "body", "response", "code", "ids", "os", "file", "tag", "arm", "cc", "cxx", "arch", "repos", "tls", "status", "kind", "dir", "path", "url", or "reason"; use contextual keys such as "userID", "dashboardUID", "orgID", "configID", "queryText", "ruleUID", "checkRequest", "namespace", "resourceVersion", "repositoryName", "templateName", "sqlQuery", "commandArgs", "sqlArgs", "messageArgs", "resourceName", "jobName", "permissionAction", "resourceAction", "routeAction", "resourceKind", "scopeKind", "eventKind", "checkName", "checkID", "resourceGUID", "processID", "pullRequestNumber", "gitRef", "queryRefID", "referenceKey", "cacheKey", "resourceKey", "objectKey", "evaluationContextJSON", "timestampValue", "envVarKey", "groupVersion", "groupVersionResource", "highAvailabilityEnabled", "clientAddress", "algorithm", "rawMessage", "userSubject", "clientIP", "cacheHit", "requestURI", "requestURL", "requestPath", "resourcePath", "streamPath", "folderPath", "appName", "pluginID", "requestBody", "responseBody", "statusCode", "statusText", "requestStatus", "filePath", "fileName", "configFilePath", "traceFilePath", "dashboardFilePath", "inputFilePath", "outputFilePath", "snapshotFileName", "temporaryFilePath", "containerTag", "tagFormat", "encodedTag", "goARM", "cCompiler", "cppCompiler", "architecture", "repositoryNames", "tlsEnabled", "directoryPath", or "artifactPath"`)
 
 	m.Match(
@@ -2144,7 +2144,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Where(m["key"].Text.Matches("^[\"`](user|client|uname)[\"`]$")).
 		Report(`avoid ambiguous structured log keys "user", "client", or "uname"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
 
 	m.Match(
@@ -2170,7 +2170,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"type\"$")).
+		Where(m["key"].Text.Matches("^[\"`]type[\"`]$")).
 		Report(`avoid ambiguous structured log key "type"; use contextual keys such as "datasourceType", "resourceType", "resourceEventType", "identityType", "eventType", "objectType", "secretType", or "keeperType"`)
 
 	m.Match(
@@ -2196,7 +2196,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"value\"$")).
+		Where(m["key"].Text.Matches("^[\"`]value[\"`]$")).
 		Report(`avoid ambiguous structured log key "value"; use contextual keys such as "configValue", "measurementValue", "sampleValue", "fieldValue", "headerValue", "argumentValue", "responseValue", or "kvValue"`)
 
 	m.Match(
@@ -2222,7 +2222,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"info\"$")).
+		Where(m["key"].Text.Matches("^[\"`]info[\"`]$")).
 		Report(`avoid ambiguous structured log key "info"; use contextual keys such as "messageInfo", "buildInfo", "runtimeInfo", "pluginInfo", or "userInfoData"`)
 
 	m.Match(
@@ -2257,7 +2257,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason)\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`](id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason)[\"`]$")).
 		Report(`avoid ambiguous structured log keys like "id", "uid", "org", "cfg", "query", "rule", "request", "ns", "rv", "repo", "repository", "template", "sql", "args", "name", "job", "action", "check", "guid", "pid", "pr", "ref", "key", "ctx", "val", "var", "gv", "gvr", "ha", "addr", "alg", "raw", "sub", "ip", "hit", "uri", "app", "body", "response", "code", "ids", "os", "file", "tag", "arm", "cc", "cxx", "arch", "repos", "tls", "status", "kind", "dir", "path", "url", or "reason"; use contextual keys such as "userID", "dashboardUID", "orgID", "configID", "queryText", "ruleUID", "checkRequest", "namespace", "resourceVersion", "repositoryName", "templateName", "sqlQuery", "commandArgs", "sqlArgs", "messageArgs", "resourceName", "jobName", "permissionAction", "resourceAction", "routeAction", "resourceKind", "scopeKind", "eventKind", "checkName", "checkID", "resourceGUID", "processID", "pullRequestNumber", "gitRef", "queryRefID", "referenceKey", "cacheKey", "resourceKey", "objectKey", "evaluationContextJSON", "timestampValue", "envVarKey", "groupVersion", "groupVersionResource", "highAvailabilityEnabled", "clientAddress", "algorithm", "rawMessage", "userSubject", "clientIP", "cacheHit", "requestURI", "requestURL", "requestPath", "resourcePath", "streamPath", "folderPath", "appName", "pluginID", "requestBody", "responseBody", "statusCode", "statusText", "requestStatus", "filePath", "fileName", "configFilePath", "traceFilePath", "dashboardFilePath", "inputFilePath", "outputFilePath", "snapshotFileName", "temporaryFilePath", "containerTag", "tagFormat", "encodedTag", "goARM", "cCompiler", "cppCompiler", "architecture", "repositoryNames", "tlsEnabled", "directoryPath", or "artifactPath"`)
 
 	m.Match(
@@ -2266,7 +2266,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`](user|client|uname)[\"`]$")).
 		Report(`avoid ambiguous structured log keys "user", "client", or "uname"; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
 
 	m.Match(
@@ -2275,7 +2275,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"type\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`]type[\"`]$")).
 		Report(`avoid ambiguous structured log key "type"; use contextual keys such as "datasourceType", "resourceType", "resourceEventType", "identityType", "eventType", "objectType", "secretType", or "keeperType"`)
 
 	m.Match(
@@ -2284,7 +2284,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"value\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`]value[\"`]$")).
 		Report(`avoid ambiguous structured log key "value"; use contextual keys such as "configValue", "measurementValue", "sampleValue", "fieldValue", "headerValue", "argumentValue", "responseValue", or "kvValue"`)
 
 	m.Match(
@@ -2293,7 +2293,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"info\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`]info[\"`]$")).
 		Report(`avoid ambiguous structured log key "info"; use contextual keys such as "messageInfo", "buildInfo", "runtimeInfo", "pluginInfo", or "userInfoData"`)
 
 	m.Match(
@@ -2302,7 +2302,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && m["key"].Text.Matches("^\"reason\"$")).
+		Where(isStructuredLogger && m["key"].Text.Matches("^[\"`]reason[\"`]$")).
 		Report(`avoid ambiguous structured log key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
@@ -2328,7 +2328,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"data\"$")).
+		Where(m["key"].Text.Matches("^[\"`]data[\"`]$")).
 		Report(`avoid ambiguous structured log key "data"; use contextual keys such as "requestData", "responseData", "userData", or "payloadData"`)
 
 	m.Match(
@@ -2376,7 +2376,7 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`append($arr, $*before, $key, $value, $*after)`,
 	).
-		Where(m["arr"].Type.Is("[]any") && !m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(m["arr"].Type.Is("[]any") && !m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in []any key/value slices; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
@@ -2432,7 +2432,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
 	).
-		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in []any literal key/value slices; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
@@ -3377,7 +3377,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*prefix, []any{$*before, $key, $value, $*after}...)`,
 		`$logger.With($*prefix, []any{$*before, $key, $value, $*after}...)`,
 	).
-		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in []any literal spread context arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
@@ -3435,7 +3435,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
 		`$logger.With($*prefix, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in appended structured context arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
@@ -3585,7 +3585,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, append($arr, $*before, $key, $value, $*after)...)`,
 		`klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $value, $*after)...)`,
 	).
-		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report(`avoid runtime-generated keys in appended structured log arguments; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
@@ -3891,7 +3891,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report("prefer stable string-literal or const structured log keys; avoid runtime-generated key values")
 
 	m.Match(
@@ -4065,7 +4065,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*before, $key, $value, $*after)`,
 		`$logger.ErrorContext($ctx, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report("prefer stable string-literal or const structured log keys; avoid runtime-generated key values")
 
 	m.Match(
@@ -4099,7 +4099,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.New($*before, $key, $value, $*after)`,
 		`$logger.With($*before, $key, $value, $*after)`,
 	).
-		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(isStructuredLogger && !m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report("prefer stable string-literal or const structured context keys; avoid runtime-generated key values")
 
 	m.Match(
@@ -4758,7 +4758,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report("prefer stable string-literal or const trace attribute keys when using attribute.Key(...); avoid runtime-generated key values")
 
 	m.Match(
@@ -5116,7 +5116,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Float64Slice($key, $value)`,
 		`attribute.StringSlice($key, $value)`,
 	).
-		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report("prefer stable string-literal or const trace attribute keys; avoid runtime-generated key values")
 
 	m.Match(
