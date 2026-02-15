@@ -26,7 +26,13 @@ var (
 	secret, hash = genApiKey()
 )
 
-const asyncHookWaitTimeout = 200 * time.Millisecond
+const (
+	asyncHookWaitTimeout = 200 * time.Millisecond
+
+	maxInt64APIKeyIDString      = "9223372036854775807"
+	overflowInt64APIKeyIDString = "9223372036854775808"
+	signedAPIKeyIDString        = "+123"
+)
 
 func waitForUpdateCall(t *testing.T, service *updateLastUsedService) {
 	t.Helper()
@@ -228,7 +234,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		client.syncAPIKeyLastUsed("9223372036854775807")
+		client.syncAPIKeyLastUsed(maxInt64APIKeyIDString)
 
 		assert.True(t, service.called)
 		assert.Equal(t, int64(9223372036854775807), service.updatedID)
@@ -247,7 +253,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		client.syncAPIKeyLastUsed("+123")
+		client.syncAPIKeyLastUsed(signedAPIKeyIDString)
 
 		assert.False(t, service.called)
 	})
@@ -256,7 +262,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		client.syncAPIKeyLastUsed("9223372036854775808")
+		client.syncAPIKeyLastUsed(overflowInt64APIKeyIDString)
 
 		assert.False(t, service.called)
 	})
@@ -342,7 +348,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "9223372036854775807")
+		req.SetMeta(metaKeyID, maxInt64APIKeyIDString)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -380,7 +386,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "+123")
+		req.SetMeta(metaKeyID, signedAPIKeyIDString)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -392,7 +398,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "9223372036854775808")
+		req.SetMeta(metaKeyID, overflowInt64APIKeyIDString)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
