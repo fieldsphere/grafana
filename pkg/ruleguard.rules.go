@@ -2374,6 +2374,55 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid runtime-generated keys in []any key/value slices; use stable string-literal or const keys and keep dynamic data in values`)
 
 	m.Match(
+		`$arr := []any{$*before, $key, $value, $*after}`,
+		`$arr = []any{$*before, $key, $value, $*after}`,
+	).
+		Where(m["key"].Text.Matches("^\"(id|uid|org|cfg|query|rule|request|ns|rv|repo|repository|template|sql|args|name|job|action|check|guid|pid|pr|ref|key|ctx|val|var|gv|gvr|ha|addr|alg|raw|sub|ip|hit|uri|app|body|data|response|code|ids|os|file|tag|arm|cc|cxx|arch|repos|tls|status|kind|dir|path|url|reason)\"$")).
+		Report(`avoid ambiguous keys in []any literal key/value slices; use contextual keys such as "userID", "requestPath", "statusCode", "resourceKind", or "responseBody"`)
+
+	m.Match(
+		`$arr := []any{$*before, $key, $value, $*after}`,
+		`$arr = []any{$*before, $key, $value, $*after}`,
+	).
+		Where(m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Report(`avoid ambiguous keys "user", "client", or "uname" in []any literal key/value slices; use specific keys such as "userID", "userLogin", "clientID", "authClient", or "authClientName"`)
+
+	m.Match(
+		`$arr := []any{$*before, $key, $value, $*after}`,
+		`$arr = []any{$*before, $key, $value, $*after}`,
+	).
+		Where(m["key"].Text.Matches("^\"type\"$")).
+		Report(`avoid ambiguous key "type" in []any literal key/value slices; use contextual keys such as "datasourceType", "resourceType", or "eventType"`)
+
+	m.Match(
+		`$arr := []any{$*before, $key, $value, $*after}`,
+		`$arr = []any{$*before, $key, $value, $*after}`,
+	).
+		Where(m["key"].Text.Matches("^\"value\"$")).
+		Report(`avoid ambiguous key "value" in []any literal key/value slices; use contextual keys such as "measurementValue", "fieldValue", "responseValue", or "configValue"`)
+
+	m.Match(
+		`$arr := []any{$*before, $key, $value, $*after}`,
+		`$arr = []any{$*before, $key, $value, $*after}`,
+	).
+		Where(m["key"].Text.Matches("^\"info\"$")).
+		Report(`avoid ambiguous key "info" in []any literal key/value slices; use contextual keys such as "messageInfo", "buildInfo", or "runtimeInfo"`)
+
+	m.Match(
+		`$arr := []any{$*before, $key, $value, $*after}`,
+		`$arr = []any{$*before, $key, $value, $*after}`,
+	).
+		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Report(`avoid ambiguous key "reason" in []any literal key/value slices; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
+		`$arr := []any{$*before, $key, $value, $*after}`,
+		`$arr = []any{$*before, $key, $value, $*after}`,
+	).
+		Where(!m["key"].Const && !m["key"].Text.Matches("^\".*\"$")).
+		Report(`avoid runtime-generated keys in []any literal key/value slices; use stable string-literal or const keys and keep dynamic data in values`)
+
+	m.Match(
 		`[]any{$*before, "error", $err.Error(), $*after}`,
 	).
 		Where(m["err"].Type.Is("error")).
