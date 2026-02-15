@@ -174,9 +174,11 @@ type logWrapper struct {
 
 func wrapCorePluginLogArgs(msg, level string, args ...any) []any {
 	normalized := normalizeCorePluginLogArgs(args...)
-	context := make([]any, 0, len(normalized)+4)
+	context := make([]any, 0, 6)
 	context = append(context, "pluginMessage", msg, "pluginLogLevel", level)
-	context = append(context, normalized...)
+	if len(normalized) > 0 {
+		context = append(context, "pluginContext", normalized)
+	}
 	return context
 }
 
@@ -216,8 +218,15 @@ func (l *logWrapper) Level() sdklog.Level {
 }
 
 func (l *logWrapper) With(args ...any) sdklog.Logger {
+	normalized := normalizeCorePluginLogArgs(args...)
+	if len(normalized) == 0 {
+		return &logWrapper{
+			logger: l.logger.New(),
+		}
+	}
+
 	return &logWrapper{
-		logger: l.logger.New(args...),
+		logger: l.logger.New("pluginContext", normalized),
 	}
 }
 

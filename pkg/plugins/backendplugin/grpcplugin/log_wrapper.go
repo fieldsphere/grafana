@@ -19,9 +19,11 @@ type logWrapper struct {
 
 func wrapPluginLogArgs(msg, level string, args ...any) []any {
 	formattedArgs := formatArgs(args...)
-	context := make([]any, 0, len(formattedArgs)+4)
+	context := make([]any, 0, 6)
 	context = append(context, "pluginMessage", msg, "pluginLogLevel", level)
-	context = append(context, formattedArgs...)
+	if len(formattedArgs) > 0 {
+		context = append(context, "pluginContext", formattedArgs)
+	}
 	return context
 }
 
@@ -119,8 +121,17 @@ func (lw logWrapper) ImpliedArgs() []any {
 
 // Creates a sublogger that will always have the given key/value pairs
 func (lw logWrapper) With(args ...any) hclog.Logger {
+	formattedArgs := formatArgs(args...)
+	if len(formattedArgs) == 0 {
+		return logWrapper{
+			Logger:      lw.Logger.New(),
+			name:        lw.name,
+			impliedArgs: args,
+		}
+	}
+
 	return logWrapper{
-		Logger:      lw.Logger.New(args...),
+		Logger:      lw.Logger.New("pluginContext", formattedArgs),
 		name:        lw.name,
 		impliedArgs: args,
 	}

@@ -41,13 +41,24 @@ func zapFieldsToArgs(fields []zap.Field) []any {
 
 // With implements logger.Logger.
 func (l *ZanzanaLogger) With(fields ...zapcore.Field) logger.Logger {
+	normalized := zapFieldsToArgs(fields)
+	if len(normalized) == 0 {
+		return &ZanzanaLogger{
+			logger: l.logger.New(),
+		}
+	}
+
 	return &ZanzanaLogger{
-		logger: l.logger.New(zapFieldsToArgs(fields)...),
+		logger: l.logger.New("zanzanaContext", normalized),
 	}
 }
 
 func (l *ZanzanaLogger) emit(level string, msg string, fields ...zap.Field) {
-	args := append(zapFieldsToArgs(fields), "zanzanaMessage", msg, "zanzanaLevel", level)
+	zanzanaFields := zapFieldsToArgs(fields)
+	args := []any{"zanzanaMessage", msg, "zanzanaLevel", level}
+	if len(zanzanaFields) > 0 {
+		args = append(args, "zanzanaFields", zanzanaFields)
+	}
 	switch level {
 	case "debug":
 		l.logger.Debug("Zanzana logger event", args...)

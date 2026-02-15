@@ -22,9 +22,11 @@ type grafanaInfraLogWrapper struct {
 
 func wrapPluginInfraLogArgs(msg, level string, ctx ...any) []any {
 	normalized := normalizePluginInfraLogArgs(ctx...)
-	fields := make([]any, 0, len(normalized)+4)
+	fields := make([]any, 0, 6)
 	fields = append(fields, "pluginMessage", msg, "pluginLogLevel", level)
-	fields = append(fields, normalized...)
+	if len(normalized) > 0 {
+		fields = append(fields, "pluginContext", normalized)
+	}
 	return fields
 }
 
@@ -50,8 +52,15 @@ func (d *grafanaInfraLogWrapper) New(ctx ...any) pluginslog.Logger {
 		}
 	}
 
+	normalized := normalizePluginInfraLogArgs(ctx...)
+	if len(normalized) == 0 {
+		return &grafanaInfraLogWrapper{
+			l: d.l.New(),
+		}
+	}
+
 	return &grafanaInfraLogWrapper{
-		l: d.l.New(ctx...),
+		l: d.l.New("pluginContext", normalized),
 	}
 }
 
