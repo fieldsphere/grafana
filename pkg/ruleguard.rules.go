@@ -1797,6 +1797,38 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recover().(error) type assertions at non-error log levels in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
+		`if $panicErr, $ok := recover().(error); $ok { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for recover().(error) type assertions in append-built key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicErr, $ok := recover().(error); $ok { $arr := []any{$*before, $key, $panicErr, $*after}; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok { $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok { $arr := []any{$*before, $key, $panicErr, $*after}; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok { $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $arr := []any{$*before, $key, $panicErr, $*after}; $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $arr := []any{$*before, $key, $panicErr, $*after}; $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $arr = []any{$*before, $key, $panicErr, $*after}; $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for recover().(error) type assertions in literal key/value slices, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $logger.Info($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $logger.Warn($msg, $*before, $key, $panicErr, $*after); $*_ }`,
 		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $logger.Debug($msg, $*before, $key, $panicErr, $*after); $*_ }`,
