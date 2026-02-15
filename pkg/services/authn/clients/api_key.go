@@ -160,7 +160,7 @@ func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Re
 	defer span.End()
 
 	if r == nil {
-		s.log.Warn("Skipping api key last-used hook", "skipReason", "requestIsNil")
+		s.log.Warn("Skipping API key last-used hook", "skipReason", "requestIsNil")
 		return nil
 	}
 
@@ -170,14 +170,14 @@ func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Re
 
 	keyID := r.GetMeta(metaKeyID)
 	if keyID == "" {
-		s.log.Debug("Skipping api key last-used hook", "skipReason", "missingAPIKeyID")
+		s.log.Debug("Skipping API key last-used hook", "skipReason", "missingAPIKeyID")
 		return nil
 	}
 
 	go func() {
 		defer func() {
 			if panicValue := recover(); panicValue != nil {
-				s.log.Error("Panic during api key last-used sync", "apiKeyID", keyID, "panicValue", panicValue)
+				s.log.Error("Panic during API key last-used sync", "apiKeyID", keyID, "panicValue", panicValue)
 			}
 		}()
 
@@ -189,13 +189,13 @@ func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Re
 
 func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 	if keyID == "" {
-		s.log.Debug("Skipping api key last-used update", "skipReason", "missingAPIKeyID")
+		s.log.Debug("Skipping API key last-used update", "skipReason", "missingAPIKeyID")
 		return
 	}
 
 	id, err := strconv.ParseInt(keyID, 10, 64)
 	if err != nil {
-		s.log.Warn("Invalid api key id", "apiKeyID", keyID, "error", err)
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "error", err)
 		return
 	}
 
