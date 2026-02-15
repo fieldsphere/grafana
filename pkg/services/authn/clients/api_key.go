@@ -183,6 +183,11 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 		return nil
 	}
 
+	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID)
+	if !ok {
+		return nil
+	}
+
 	go func() {
 		defer func() {
 			if panicValue := recover(); panicValue != nil {
@@ -190,7 +195,7 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 			}
 		}()
 
-		s.syncAPIKeyLastUsed(keyID)
+		s.syncAPIKeyLastUsedByID(apiKeyID, keyID)
 	}()
 
 	return nil
@@ -204,20 +209,33 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 		return
 	}
 
-	id, err := strconv.ParseInt(keyID, 10, 64)
-	if err != nil {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "error", err)
-		return
-	}
-	if id < 1 {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyNumericID", id, "validationReason", "mustBePositiveInteger")
+	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID)
+	if !ok {
 		return
 	}
 
-	if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), id); err != nil {
-		s.log.Warn("Failed to update last used date for API key", "apiKeyID", keyID, "apiKeyNumericID", id, "error", err)
+	s.syncAPIKeyLastUsedByID(apiKeyID, keyID)
+}
+
+func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string) {
+	if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), apiKeyID); err != nil {
+		s.log.Warn("Failed to update last used date for API key", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "error", err)
 		return
 	}
+}
+
+func (s *APIKey) parseAndValidateAPIKeyID(keyID string) (int64, bool) {
+	apiKeyID, err := strconv.ParseInt(keyID, 10, 64)
+	if err != nil {
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "error", err)
+		return 0, false
+	}
+	if apiKeyID < 1 {
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "validationReason", "mustBePositiveInteger")
+		return 0, false
+	}
+
+	return apiKeyID, true
 }
 
 func looksLikeApiKey(token string) bool {
