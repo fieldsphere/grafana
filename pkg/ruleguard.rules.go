@@ -4329,6 +4329,21 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
+		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous trace attribute key "panic" in attribute.Key(...); use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
+
+	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
 		Report(`prefer "ID" acronym casing in trace attribute keys (for example "orgID", "pluginID", "userID")`)
 
@@ -4781,6 +4796,21 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^\"reason\"$")).
 		Report(`avoid ambiguous trace attribute key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
+		`attribute.String($key, $value)`,
+		`attribute.Int($key, $value)`,
+		`attribute.Int64($key, $value)`,
+		`attribute.IntSlice($key, $value)`,
+		`attribute.Int64Slice($key, $value)`,
+		`attribute.Bool($key, $value)`,
+		`attribute.BoolSlice($key, $value)`,
+		`attribute.Float64($key, $value)`,
+		`attribute.Float64Slice($key, $value)`,
+		`attribute.StringSlice($key, $value)`,
+	).
+		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous trace attribute key "panic"; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
 		`attribute.String($key, $value)`,
