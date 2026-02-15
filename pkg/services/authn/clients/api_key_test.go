@@ -378,6 +378,12 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 			expectedOK: true,
 		},
 		{
+			name:       "valid max int64 id",
+			keyID:      maxInt64APIKeyIDString,
+			expectedID: maxInt64APIKeyIDValue,
+			expectedOK: true,
+		},
+		{
 			name:       "empty id",
 			keyID:      "",
 			expectedID: 0,
