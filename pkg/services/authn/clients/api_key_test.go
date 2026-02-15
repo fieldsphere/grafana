@@ -34,6 +34,7 @@ const (
 	signedAPIKeyIDString              = "+123"
 	arabicIndicAPIKeyIDString         = "١٢٣"
 	fullwidthAPIKeyIDString           = "１２３"
+	leadingZeroAPIKeyIDString         = "000123"
 	maxInt64APIKeyIDValue       int64 = 9223372036854775807
 )
 
@@ -243,6 +244,16 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assert.Equal(t, int64(123), service.updatedID)
 	})
 
+	t.Run("should update last used for valid key id with leading zeros", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed(leadingZeroAPIKeyIDString)
+
+		assert.True(t, service.called)
+		assert.Equal(t, int64(123), service.updatedID)
+	})
+
 	t.Run("should update last used for max int64 key id", func(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -386,6 +397,19 @@ func TestAPIKey_Hook(t *testing.T) {
 
 		waitForUpdateCall(t, service)
 		assert.Equal(t, int64(459), service.updatedID)
+	})
+
+	t.Run("should update when key id metadata has leading zeros", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, leadingZeroAPIKeyIDString)
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		waitForUpdateCall(t, service)
+		assert.Equal(t, int64(123), service.updatedID)
 	})
 
 	t.Run("should update when key id is max int64", func(t *testing.T) {
