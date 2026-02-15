@@ -1677,6 +1677,42 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recover().(error) type assertions, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
+		`if $panicErr, $ok := recover().(error); $ok && $cond { $logger.Error($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { $logger.ErrorCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.Error($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.Error($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.ErrorCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.Error($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for recover().(error) type assertions in condition branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { $logger.Error($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { $logger.ErrorCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.Error($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.Error($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.ErrorCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.Error($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.ErrorContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { klog.ErrorS($baseErr, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for nested recover().(error) type assertions in condition branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok { if $cond { $logger.Error($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`if $panicErr, $ok := recover().(error); $ok { if $cond { $logger.ErrorCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`if $panicErr, $ok := recover().(error); $ok { if $cond { slog.Error($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
@@ -1773,6 +1809,86 @@ func structuredlogging(m fluent.Matcher) {
 				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
 		).
 		Report(`for recover().(error) type assertions at non-error log levels, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicErr, $ok := recover().(error); $ok && $cond { $logger.Info($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { $logger.Warn($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { $logger.Debug($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { $logger.InfoCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { $logger.WarnCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { $logger.DebugCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.Info($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.Warn($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.Debug($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.InfoContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.WarnContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.DebugContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { slog.Log($ctx, $level, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { $logger.Log($ctx, $level, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.Info($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.Warn($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.Debug($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.InfoCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.WarnCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.DebugCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.Info($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.Warn($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.Debug($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.InfoContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.WarnContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.DebugContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { slog.Log($ctx, $level, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { $logger.Log($ctx, $level, $msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for recover().(error) type assertions at non-error log levels in condition branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { $logger.Info($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { $logger.Warn($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { $logger.Debug($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { $logger.InfoCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { $logger.WarnCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { $logger.DebugCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.Info($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.Warn($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.Debug($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.InfoContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.WarnContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.DebugContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { slog.Log($ctx, $level, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { $logger.Log($ctx, $level, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicErr, $ok := recover().(error); $ok && $cond { if $innerCond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.Info($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.Warn($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.Debug($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.InfoCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.WarnCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.DebugCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.Info($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.Warn($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.Debug($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.InfoContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.WarnContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.DebugContext($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { slog.Log($ctx, $level, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { $logger.Log($ctx, $level, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { klog.InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicErr, $ok := recover().(error); if $ok && $cond { if $innerCond { klog.V($lvl).InfoS($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for nested recover().(error) type assertions at non-error log levels in condition branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicErr, $ok := recover().(error); $ok { $logger.Info($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
