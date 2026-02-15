@@ -172,12 +172,12 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 		return nil
 	}
 
+	keyID := strings.TrimSpace(r.GetMeta(metaKeyID))
 	if r.GetMeta(metaKeySkipLastUsed) != "" {
-		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonSkipMarkerPresent)
+		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonSkipMarkerPresent, "apiKeyID", keyID)
 		return nil
 	}
 
-	keyID := strings.TrimSpace(r.GetMeta(metaKeyID))
 	if keyID == "" {
 		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonMissingAPIKeyID)
 		return nil
