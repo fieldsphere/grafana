@@ -4554,6 +4554,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4567,6 +4568,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4575,6 +4577,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4583,6 +4586,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4591,6 +4595,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4599,6 +4604,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4607,6 +4613,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4615,6 +4622,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4623,6 +4631,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4631,6 +4640,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4639,6 +4649,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4647,6 +4658,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4655,6 +4667,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4663,6 +4676,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4671,6 +4685,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4679,6 +4694,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4687,6 +4703,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4695,6 +4712,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4703,6 +4721,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4711,6 +4730,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -4719,6 +4739,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($key)`,
+		`var $name $typ = attribute.Key($key)`,
 		`$name := attribute.Key($key)`,
 		`$name = attribute.Key($key)`,
 	).
@@ -5027,6 +5048,7 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key($left + $right)`,
+		`var $name $typ = attribute.Key($left + $right)`,
 		`$name := attribute.Key($left + $right)`,
 		`$name = attribute.Key($left + $right)`,
 	).
@@ -5034,9 +5056,11 @@ func structuredlogging(m fluent.Matcher) {
 
 	m.Match(
 		`var $name = attribute.Key(fmt.Sprintf($fmt, $*args))`,
+		`var $name $typ = attribute.Key(fmt.Sprintf($fmt, $*args))`,
 		`$name := attribute.Key(fmt.Sprintf($fmt, $*args))`,
 		`$name = attribute.Key(fmt.Sprintf($fmt, $*args))`,
 		`var $name = attribute.Key(fmt.Sprint($*args))`,
+		`var $name $typ = attribute.Key(fmt.Sprint($*args))`,
 		`$name := attribute.Key(fmt.Sprint($*args))`,
 		`$name = attribute.Key(fmt.Sprint($*args))`,
 	).
