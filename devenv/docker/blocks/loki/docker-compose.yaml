@@ -12,7 +12,9 @@
       retries: 5
 
   loki-data:
-    build: docker/blocks/loki/data
+    build:
+      context: docker
+      dockerfile: blocks/loki/data/Dockerfile
     command: node /home/node/data.js http://loki:3100
     depends_on:
       - loki

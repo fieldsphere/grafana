@@ -11,7 +11,9 @@
       - "9200:9200"
 
   elastic-data:
-    build: docker/blocks/elastic/data
+    build:
+      context: docker
+      dockerfile: blocks/elastic/data/Dockerfile
     command: node /home/node/data.js http://elastic:9200
     depends_on:
       - elastic

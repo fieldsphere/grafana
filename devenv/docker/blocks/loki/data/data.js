@@ -1,5 +1,5 @@
 const http = require('http');
-const { logDevenvInfo } = require('../../../logging');
+const { logDevenvInfo } = require('/home/node/logging');
 
 if (process.argv.length !== 3) {
   throw new Error('invalid command line: use node sendLogs.js LOKIC_BASE_URL');
