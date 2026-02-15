@@ -4364,6 +4364,46 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
 	).
+		Where(m["key"].Text.Matches("^\"(user|client|uname)\"$|^attribute\\.Key\\(\"(user|client|uname)\"\\)$")).
+		Report(`avoid ambiguous trace attribute keys "user", "client", or "uname" in attribute.KeyValue literals; use specific keys such as "userID", "userLogin", "clientID", "clientName", or "authClientName"`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"type\"$|^attribute\\.Key\\(\"type\"\\)$")).
+		Report(`avoid ambiguous trace attribute key "type" in attribute.KeyValue literals; use contextual keys such as "datasourceType", "resourceType", "eventType", "identityType", or "objectType"`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"value\"$|^attribute\\.Key\\(\"value\"\\)$")).
+		Report(`avoid ambiguous trace attribute key "value" in attribute.KeyValue literals; use contextual keys such as "measurementValue", "fieldValue", "responseValue", "requestValue", or "configValue"`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"info\"$|^attribute\\.Key\\(\"info\"\\)$")).
+		Report(`avoid ambiguous trace attribute key "info" in attribute.KeyValue literals; use contextual keys such as "messageInfo", "runtimeInfo", "buildInfo", or "pluginInfo"`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"data\"$|^attribute\\.Key\\(\"data\"\\)$")).
+		Report(`avoid ambiguous trace attribute key "data" in attribute.KeyValue literals; use contextual keys such as "requestData", "responseData", "payloadData", or "userData"`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $key}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$|^attribute\\.Key\\(\"[A-Za-z_]+Id\"\\)$")).
 		Report(`prefer "ID" acronym casing in trace attribute keys (for example "orgID", "pluginID", "userID")`)
 
