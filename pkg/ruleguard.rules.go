@@ -5174,21 +5174,21 @@ func structuredlogging(m fluent.Matcher) {
 		`$span.AddEvent($name)`,
 		`$span.AddEvent($name, $*attrs)`,
 	).
-		Where(m["name"].Text.Matches("^\".*\\s+.*\"$")).
+		Where(m["name"].Text.Matches("^[\"`].*\\s+.*[\"`]$")).
 		Report(`avoid whitespace in trace event names; use lowerCamelCase literals such as "queryExecuted" or "indexUpdated"`)
 
 	m.Match(
 		`$span.AddEvent($name)`,
 		`$span.AddEvent($name, $*attrs)`,
 	).
-		Where(m["name"].Text.Matches("^\"[A-Z].*\"$")).
+		Where(m["name"].Text.Matches("^[\"`][A-Z].*[\"`]$")).
 		Report(`avoid PascalCase trace event names; use lowerCamelCase literals such as "queryDataStart" or "loadedRoute"`)
 
 	m.Match(
 		`$span.AddEvent($name)`,
 		`$span.AddEvent($name, $*attrs)`,
 	).
-		Where(m["name"].Text.Matches("^\".*[_\\-.:/].*\"$")).
+		Where(m["name"].Text.Matches("^[\"`].*[_\\-.:/].*[\"`]$")).
 		Report(`avoid separator characters in trace event names; use lowerCamelCase literals such as "batchTransactionCompleted" or "resourceVersionLocked"`)
 
 	m.Match(
@@ -5196,8 +5196,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$span.AddEvent($name, $*attrs)`,
 	).
 		Where(
-			m["name"].Text.Matches("^\"[a-z0-9]+\"$") &&
-				!m["name"].Text.Matches("^\"exception\"$"),
+			m["name"].Text.Matches("^[\"`][a-z0-9]+[\"`]$") &&
+				!m["name"].Text.Matches("^[\"`]exception[\"`]$"),
 		).
 		Report(`avoid generic single-word trace event names; use contextual lowerCamelCase literals such as "connectionLimitDisconnect" or "garbageCollectionCandidates"`)
 
