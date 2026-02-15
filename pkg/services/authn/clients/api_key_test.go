@@ -266,13 +266,32 @@ func TestAPIKey_Hook(t *testing.T) {
 		case <-time.After(200 * time.Millisecond):
 		}
 	})
+
+	t.Run("should recover when update service panics", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		service.panicValue = "boom"
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "789")
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		select {
+		case <-service.calledCh:
+		case <-time.After(200 * time.Millisecond):
+			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
+		}
+		assert.Equal(t, int64(789), service.updatedID)
+	})
 }
 
 type updateLastUsedService struct {
 	apikeytest.Service
-	called    bool
-	updatedID int64
-	calledCh  chan struct{}
+	called     bool
+	updatedID  int64
+	calledCh   chan struct{}
+	panicValue any
 }
 
 func newUpdateLastUsedService() *updateLastUsedService {
@@ -287,6 +306,9 @@ func (s *updateLastUsedService) UpdateAPIKeyLastUsedDate(ctx context.Context, to
 	select {
 	case s.calledCh <- struct{}{}:
 	default:
+	}
+	if s.panicValue != nil {
+		panic(s.panicValue)
 	}
 	return s.ExpectedError
 }
