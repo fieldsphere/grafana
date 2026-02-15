@@ -4279,6 +4279,31 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`"errorMessage" in structured context should be textual; use contextual typed keys such as "errorCode", "errorCount", or "hasError" for numeric/bool values`)
 
 	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(
+			!m["key"].Const &&
+				!m["key"].Text.Matches("^\".*\"$") &&
+				!m["key"].Text.Matches("^attribute\\.Key\\(\".*\"\\)$"),
+		).
+		Report(`prefer stable string-literal or const trace attribute keys in attribute.KeyValue literals; avoid runtime-generated key values`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"reason\"$|^attribute\\.Key\\(\"reason\"\\)$")).
+		Report(`avoid ambiguous trace attribute key "reason" in attribute.KeyValue literals; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
+
+	m.Match(
+		`attribute.KeyValue{Key: $key, Value: $value}`,
+		`attribute.KeyValue{$key, $value}`,
+	).
+		Where(m["key"].Text.Matches("^\"panic\"$|^attribute\\.Key\\(\"panic\"\\)$")).
+		Report(`avoid ambiguous trace attribute key "panic" in attribute.KeyValue literals; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
+
+	m.Match(
 		`attribute.Key($key).String($value)`,
 		`attribute.Key($key).Int($value)`,
 		`attribute.Key($key).Int64($value)`,
