@@ -4562,6 +4562,54 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`avoid ambiguous trace attribute key "panic" in attribute.Key(...); use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Report(`avoid ambiguous trace attribute keys "user", "client", or "uname" in attribute.Key(...); use specific keys such as "userID", "userLogin", "clientID", "clientName", or "authClientName"`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"type\"$")).
+		Report(`avoid ambiguous trace attribute key "type" in attribute.Key(...); use contextual keys such as "datasourceType", "resourceType", "eventType", "identityType", or "objectType"`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"value\"$")).
+		Report(`avoid ambiguous trace attribute key "value" in attribute.Key(...); use contextual keys such as "measurementValue", "fieldValue", "responseValue", "requestValue", or "configValue"`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"info\"$")).
+		Report(`avoid ambiguous trace attribute key "info" in attribute.Key(...); use contextual keys such as "messageInfo", "runtimeInfo", "buildInfo", or "pluginInfo"`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"data\"$")).
+		Report(`avoid ambiguous trace attribute key "data" in attribute.Key(...); use contextual keys such as "requestData", "responseData", "payloadData", or "userData"`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"identUID\"$")).
+		Report(`avoid abbreviated trace attribute key "identUID" in attribute.Key(...); use "identityUID" for clarity`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"func\"$")).
+		Report(`avoid shorthand trace attribute key "func" in attribute.Key(...); use "function" for clarity`)
+
+	m.Match(
+		`attribute.Key($key)`,
+	).
+		Where(m["key"].Text.Matches("^\"statuscode\"$")).
+		Report(`avoid non-canonical trace attribute key "statuscode" in attribute.Key(...); use "statusCode"`)
+
+	m.Match(
 		`attribute.Key($key).String($value)`,
 		`attribute.Key($key).Int($value)`,
 		`attribute.Key($key).Int64($value)`,
