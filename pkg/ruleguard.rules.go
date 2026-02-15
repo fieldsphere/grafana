@@ -2803,6 +2803,12 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.Group($group, $*fields)`,
 	).
+		Where(m["group"].Text.Matches("^\"panic\"$")).
+		Report(`avoid ambiguous slog group name "panic"; use contextual names such as "panicContext" or "recoveryContext", and use "panicValue" for recovered panic payload fields`)
+
+	m.Match(
+		`slog.Group($group, $*fields)`,
+	).
 		Where(m["group"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
 		Report(`prefer "ID" acronym casing in slog group names (for example "userIDContext", "orgIDMetadata")`)
 
