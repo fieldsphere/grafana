@@ -321,6 +321,34 @@ func TestAPIKey_Hook(t *testing.T) {
 		}
 		assert.Equal(t, int64(987), service.updatedID)
 	})
+
+	t.Run("should return immediately while async update is blocked", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		service.blockCh = make(chan struct{})
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "654")
+
+		doneCh := make(chan error, 1)
+		go func() {
+			doneCh <- client.Hook(context.Background(), nil, req)
+		}()
+
+		select {
+		case err := <-doneCh:
+			assert.NoError(t, err)
+		case <-time.After(200 * time.Millisecond):
+			t.Fatal("expected Hook to return without waiting for async update")
+		}
+
+		select {
+		case <-service.calledCh:
+		case <-time.After(200 * time.Millisecond):
+			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
+		}
+		assert.Equal(t, int64(654), service.updatedID)
+		close(service.blockCh)
+	})
 }
 
 type updateLastUsedService struct {
@@ -329,6 +357,7 @@ type updateLastUsedService struct {
 	updatedID  int64
 	calledCh   chan struct{}
 	panicValue any
+	blockCh    chan struct{}
 }
 
 func newUpdateLastUsedService() *updateLastUsedService {
@@ -346,6 +375,9 @@ func (s *updateLastUsedService) UpdateAPIKeyLastUsedDate(ctx context.Context, to
 	}
 	if s.panicValue != nil {
 		panic(s.panicValue)
+	}
+	if s.blockCh != nil {
+		<-s.blockCh
 	}
 	return s.ExpectedError
 }
