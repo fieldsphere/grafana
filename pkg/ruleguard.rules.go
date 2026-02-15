@@ -1753,6 +1753,64 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recover().(error) type assertions in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $logger.Error($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $logger.ErrorCtx($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { slog.Error($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.Error($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.ErrorCtx($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.Error($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.ErrorContext($ctx, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { klog.ErrorS($baseErr, $msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for recover().(error) else-branch type assertions in []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $logger.Error($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { slog.Error($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.Error($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.Error($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.ErrorContext($ctx, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { klog.ErrorS($baseErr, $msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for recover().(error) else-branch type assertions in appended spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $logger.New($*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { $logger.With($*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.New($*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { $logger.With($*before, $key, $panicErr, $*after); $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for recover().(error) else-branch type assertions in structured context builders, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicErr, $ok := recover().(error); !$ok { $*_ } else { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicErr, $ok := recover().(error); if !$ok { $*_ } else { slog.Group($group, $*before, $key, $panicErr, $*after); $*_ }`,
+	).
+		Where(
+			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
+				m["key"].Text.Matches("^`(error|errorMessage|reason|panic)`$"),
+		).
+		Report(`for recover().(error) else-branch type assertions in slog.Group fields, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { $logger.Error($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { $logger.ErrorCtx($ctx, $msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { if $panicErr, $ok := $panicVal.(error); $ok { slog.Error($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
