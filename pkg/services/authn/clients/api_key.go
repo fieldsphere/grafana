@@ -160,7 +160,7 @@ func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Re
 	defer span.End()
 
 	if r == nil {
-		s.log.Warn("Skipping api key last-used hook because request is nil")
+		s.log.Warn("Skipping api key last-used hook", "skipReason", "requestIsNil")
 		return nil
 	}
 
@@ -182,6 +182,11 @@ func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Re
 }
 
 func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
+	if keyID == "" {
+		s.log.Debug("Skipping api key last-used update", "skipReason", "missingAPIKeyID")
+		return
+	}
+
 	id, err := strconv.ParseInt(keyID, 10, 64)
 	if err != nil {
 		s.log.Warn("Invalid api key id", "apiKeyID", keyID, "error", err)
