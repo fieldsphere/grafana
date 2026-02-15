@@ -277,6 +277,23 @@ func TestAPIKey_Hook(t *testing.T) {
 		}
 	})
 
+	t.Run("should skip missing key id before panic-capable update service", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		service.panicValue = "boom"
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		select {
+		case <-service.calledCh:
+			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
+		case <-time.After(200 * time.Millisecond):
+		}
+		assert.False(t, service.called)
+	})
+
 	t.Run("should recover when update service panics", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		service.panicValue = "boom"
