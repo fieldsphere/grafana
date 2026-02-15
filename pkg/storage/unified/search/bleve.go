@@ -262,12 +262,12 @@ func (b *bleveBackend) runEvictExpiredOrUnownedIndexes(now time.Time) {
 	}
 
 	for key, idx := range unowned {
-		b.log.Info("index evicted from cache", "reason", "unowned", "indexKey", key, "storage", idx.indexStorage)
+		b.log.Info("index evicted from cache", "evictionReason", "unowned", "indexKey", key, "storage", idx.indexStorage)
 		b.closeIndex(idx, key)
 	}
 
 	for key, idx := range expired {
-		b.log.Info("index evicted from cache", "reason", "expired", "indexKey", key, "storage", idx.indexStorage)
+		b.log.Info("index evicted from cache", "evictionReason", "expired", "indexKey", key, "storage", idx.indexStorage)
 		b.closeIndex(idx, key)
 	}
 }
@@ -374,7 +374,7 @@ func (b *bleveBackend) BuildIndex(
 		attribute.String("group", key.Group),
 		attribute.String("resource", key.Resource),
 		attribute.Int64("size", size),
-		attribute.String("reason", indexBuildReason),
+		attribute.String("indexBuildReason", indexBuildReason),
 	)
 
 	selectableFields := b.selectableFields[strings.ToLower(fmt.Sprintf("%s/%s", key.Group, key.Resource))]
@@ -391,7 +391,7 @@ func (b *bleveBackend) BuildIndex(
 		return nil, err
 	}
 
-	logWithDetails := b.log.FromContext(ctx).New("namespace", key.Namespace, "group", key.Group, "resource", key.Resource, "size", size, "reason", indexBuildReason)
+	logWithDetails := b.log.FromContext(ctx).New("namespace", key.Namespace, "group", key.Group, "resource", key.Resource, "size", size, "indexBuildReason", indexBuildReason)
 
 	// Close the newly created/opened index by default.
 	closeIndex := true

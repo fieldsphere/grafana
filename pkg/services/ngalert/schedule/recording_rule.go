@@ -290,9 +290,9 @@ func (r *recordingRule) tryEvaluation(ctx context.Context, ev *Evaluation, logge
 	frames, err := r.frameRef(ev.rule.Record.From, result)
 	if err != nil {
 		span.AddEvent("queryReturnedNoData", trace.WithAttributes(
-			attribute.String("reason", err.Error()),
+			attribute.String("errorMessage", err.Error()),
 		))
-		logger.Debug("Query returned no data", "reason", err)
+		logger.Debug("Query returned no data", "error", err)
 		r.health.Store("nodata")
 		return nil
 	}

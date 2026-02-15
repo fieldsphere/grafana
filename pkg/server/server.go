@@ -155,7 +155,7 @@ func (s *Server) Run() error {
 func (s *Server) Shutdown(ctx context.Context, reason string) error {
 	var err error
 	s.shutdownOnce.Do(func() {
-		s.log.Info("Shutdown started", "reason", reason)
+		s.log.Info("Shutdown started", "shutdownReason", reason)
 		if shutdownErr := s.managerAdapter.Shutdown(ctx, "shutdown"); shutdownErr != nil {
 			s.log.Error("Failed to shutdown background services", "error", shutdownErr)
 		}

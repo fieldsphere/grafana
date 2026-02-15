@@ -1026,7 +1026,7 @@ func (dr *DashboardServiceImpl) searchExistingProvisionedData(
 // process to start from scratch after this function returns.
 func (dr *DashboardServiceImpl) maybeResetProvisioning(ctx context.Context, orgs []int64, configs []dashboards.ProvisioningConfig) {
 	if skipReason := canBeAutomaticallyCleanedUp(configs); skipReason != "" {
-		dr.log.Info("not eligible for automated cleanup", "reason", skipReason)
+		dr.log.Info("not eligible for automated cleanup", "skipReason", skipReason)
 		return
 	}
 

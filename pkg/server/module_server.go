@@ -284,7 +284,7 @@ func (s *ModuleServer) initOperatorServer() (services.Service, error) {
 func (s *ModuleServer) Shutdown(ctx context.Context, reason string) error {
 	var err error
 	s.shutdownOnce.Do(func() {
-		s.log.Info("Shutdown started", "reason", reason)
+		s.log.Info("Shutdown started", "shutdownReason", reason)
 		// Call cancel func to stop background services.
 		s.shutdownFn()
 		// Wait for server to shut down

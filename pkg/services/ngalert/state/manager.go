@@ -283,7 +283,7 @@ func (st *Manager) ResetStateByRuleUID(ctx context.Context, rule *ngModels.Alert
 	go func() {
 		err := <-errCh
 		if err != nil {
-			st.log.FromContext(ctx).Error("Error updating historian state reset transitions", append(ruleKey.LogContext(), "reason", reason, "error", err)...)
+			st.log.FromContext(ctx).Error("Error updating historian state reset transitions", append(ruleKey.LogContext(), "stateResetReason", reason, "error", err)...)
 		}
 	}()
 	return transitions
@@ -320,13 +320,13 @@ func (st *Manager) ProcessEvalResults(
 			if imageTaken {
 				return image
 			}
-			logger.Debug("Taking image", "dashboardUID", alertRule.GetDashboardUID(), "panelID", alertRule.GetPanelID(), "reason", reason)
+			logger.Debug("Taking image", "dashboardUID", alertRule.GetDashboardUID(), "panelID", alertRule.GetPanelID(), "stateReason", reason)
 			img, err := takeImage(ctx, st.images, alertRule)
 			imageTaken = true
 			if err != nil {
 				logger.Warn("Failed to take an image",
 					"dashboardUID", alertRule.GetDashboardUID(),
-					"panelID", alertRule.GetPanelID(), "reason", reason,
+					"panelID", alertRule.GetPanelID(), "stateReason", reason,
 					"error", err)
 				return nil
 			}
@@ -511,7 +511,7 @@ func (st *Manager) processMissingSeriesStates(logger log.Logger, evaluatedAt tim
 		isStale := stateIsStale(evaluatedAt, s.LastEvaluationTime, alertRule.IntervalSeconds, missingEvalsToResolve)
 
 		if isStale {
-			logger.Info("Detected stale state entry", "cacheID", s.CacheID, "state", s.State, "reason", s.StateReason)
+			logger.Info("Detected stale state entry", "cacheID", s.CacheID, "state", s.State, "stateReason", s.StateReason)
 
 			s.State = eval.Normal
 			s.StateReason = ngModels.StateReasonMissingSeries

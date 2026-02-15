@@ -59,7 +59,7 @@ func (s *PromTypeMigrationProviderImpl) migrate(ctx context.Context) error {
 			logger.Debug("Starting prom data source type migration service", "service", serviceName)
 			err := service.Migrate(ctx)
 			if err != nil {
-				logger.Error("Stopped prom data source type migration service", "service", serviceName, "reason", err)
+				logger.Error("Stopped prom data source type migration service", "service", serviceName, "error", err)
 			}
 			logger.Debug("Finished prom data source type migration service", "service", serviceName)
 		}

@@ -1059,7 +1059,7 @@ func (s *searchServer) getOrCreateIndex(ctx context.Context, stats *SearchStats,
 	if s.indexMetrics != nil {
 		s.indexMetrics.SearchUpdateWaitTime.WithLabelValues(reason).Observe(elapsed.Seconds())
 	}
-	s.log.FromContext(ctx).Debug("Index updated before search", "namespace", key.Namespace, "group", key.Group, "resource", key.Resource, "reason", reason, "duration", elapsed, "resourceVersion", rv)
+	s.log.FromContext(ctx).Debug("Index updated before search", "namespace", key.Namespace, "group", key.Group, "resource", key.Resource, "updateReason", reason, "duration", elapsed, "resourceVersion", rv)
 	span.AddEvent("indexUpdated")
 
 	return idx, nil
@@ -1086,7 +1086,7 @@ func (s *searchServer) build(ctx context.Context, nsr NamespacedResource, size i
 
 	builderFn := func(index ResourceIndex) (int64, error) {
 		span := trace.SpanFromContext(ctx)
-		span.AddEvent("buildingIndex", trace.WithAttributes(attribute.Int64("size", size), attribute.String("reason", indexBuildReason)))
+		span.AddEvent("buildingIndex", trace.WithAttributes(attribute.Int64("size", size), attribute.String("indexBuildReason", indexBuildReason)))
 
 		listRV, err := s.storage.ListIterator(ctx, &resourcepb.ListRequest{
 			Limit: 1000000000000, // big number

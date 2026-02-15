@@ -109,7 +109,7 @@ func (s *frontendService) running(ctx context.Context) error {
 }
 
 func (s *frontendService) stop(failureReason error) error {
-	s.log.Info("stopping frontend server", "reason", failureReason)
+	s.log.Info("stopping frontend server", "failureReason", failureReason)
 
 	if err := s.httpServ.Shutdown(context.Background()); err != nil {
 		s.log.Error("failed to shutdown frontend server", "error", err)

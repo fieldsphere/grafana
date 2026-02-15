@@ -408,7 +408,7 @@ func (s *standardStorageService) Upload(ctx context.Context, user *user.SignedIn
 
 	validationResult := s.validateUploadRequest(ctx, user, req, storagePath)
 	if !validationResult.ok {
-		grafanaStorageLogger.Warn("File upload validation failed", "filePath", req.Path, "reason", validationResult.reason)
+		grafanaStorageLogger.Warn("File upload validation failed", "filePath", req.Path, "validationReason", validationResult.reason)
 		return ErrValidationFailed
 	}
 

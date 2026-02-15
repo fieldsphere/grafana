@@ -132,7 +132,7 @@ func (m *service) running(ctx context.Context) error {
 func (m *service) stopping(failureReason error) error {
 	spanCtx, span := infratracing.Start(context.Background(), "modules.service.stopping")
 	defer span.End()
-	m.log.Debug("Stopping module service manager", "reason", failureReason)
+	m.log.Debug("Stopping module service manager", "failureReason", failureReason)
 
 	// If no service manager was created (no modules registered), nothing to stop
 	if m.serviceManager == nil {

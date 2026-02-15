@@ -201,7 +201,7 @@ func ProvideService(cfg *setting.Cfg, routeRegister routing.RouteRegister, plugC
 				"Max number of Live connections reached, increase max_connections in [live] configuration section",
 				"userID", client.UserID(), "clientID", client.ID(), "limit", g.Cfg.LiveMaxConnections,
 			)
-			connectSpan.AddEvent("connectionLimitDisconnect", trace.WithAttributes(attribute.String("reason", "connection limit reached")))
+			connectSpan.AddEvent("connectionLimitDisconnect", trace.WithAttributes(attribute.String("disconnectReason", "connection limit reached")))
 			client.Disconnect(centrifuge.DisconnectConnectionLimit)
 			return
 		}
@@ -317,7 +317,7 @@ func ProvideService(cfg *setting.Cfg, routeRegister routing.RouteRegister, plugC
 			if e.Code == 3001 { // Shutdown
 				return
 			}
-			logger.Debug("Client disconnected", "userID", client.UserID(), "clientID", client.ID(), "reason", reason, "elapsed", time.Since(connectedAt))
+			logger.Debug("Client disconnected", "userID", client.UserID(), "clientID", client.ID(), "disconnectReason", reason, "elapsed", time.Since(connectedAt))
 		})
 	})
 

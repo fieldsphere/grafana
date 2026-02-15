@@ -391,7 +391,7 @@ func (a *alertRule) Run() error {
 				a.stateManager.ForgetStateByRuleUID(ngmodels.WithRuleKey(ctx, a.key.AlertRuleKey), a.key)
 			}
 
-			a.logger.Debug("Stopping alert rule routine", "reason", reason)
+			a.logger.Debug("Stopping alert rule routine", "stopReason", reason)
 			return nil
 		}
 	}
