@@ -235,6 +235,22 @@ func TestAPIKey_Hook(t *testing.T) {
 		case <-time.After(200 * time.Millisecond):
 		}
 	})
+
+	t.Run("should skip update when key id is invalid", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "bad-id")
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		select {
+		case <-service.calledCh:
+			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
+		case <-time.After(200 * time.Millisecond):
+		}
+	})
 }
 
 type updateLastUsedService struct {
