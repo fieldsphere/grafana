@@ -28,6 +28,26 @@ var (
 
 const asyncHookWaitTimeout = 200 * time.Millisecond
 
+func waitForUpdateCall(t *testing.T, service *updateLastUsedService) {
+	t.Helper()
+
+	select {
+	case <-service.calledCh:
+	case <-time.After(asyncHookWaitTimeout):
+		t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
+	}
+}
+
+func assertNoUpdateCall(t *testing.T, service *updateLastUsedService) {
+	t.Helper()
+
+	select {
+	case <-service.calledCh:
+		t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
+	case <-time.After(asyncHookWaitTimeout):
+	}
+}
+
 func TestAPIKey_Authenticate(t *testing.T) {
 	type TestCase struct {
 		desc             string
@@ -233,11 +253,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-		case <-time.After(asyncHookWaitTimeout):
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
-		}
+		waitForUpdateCall(t, service)
 		assert.Equal(t, int64(456), service.updatedID)
 	})
 
@@ -250,11 +266,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(nil, nil, req)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-		case <-time.After(asyncHookWaitTimeout):
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
-		}
+		waitForUpdateCall(t, service)
 		assert.Equal(t, int64(457), service.updatedID)
 	})
 
@@ -267,11 +279,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-		case <-time.After(asyncHookWaitTimeout):
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
-		}
+		waitForUpdateCall(t, service)
 		assert.Equal(t, int64(458), service.updatedID)
 	})
 
@@ -285,11 +293,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(asyncHookWaitTimeout):
-		}
+		assertNoUpdateCall(t, service)
 	})
 
 	t.Run("should skip update when key id is invalid", func(t *testing.T) {
@@ -301,11 +305,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(asyncHookWaitTimeout):
-		}
+		assertNoUpdateCall(t, service)
 	})
 
 	t.Run("should skip update when key id is missing", func(t *testing.T) {
@@ -316,11 +316,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(asyncHookWaitTimeout):
-		}
+		assertNoUpdateCall(t, service)
 	})
 
 	t.Run("should skip update when key id metadata is whitespace only", func(t *testing.T) {
@@ -332,11 +328,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(asyncHookWaitTimeout):
-		}
+		assertNoUpdateCall(t, service)
 	})
 
 	t.Run("should skip missing key id before panic-capable update service", func(t *testing.T) {
@@ -348,11 +340,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(200 * time.Millisecond):
-		}
+		assertNoUpdateCall(t, service)
 		assert.False(t, service.called)
 	})
 
@@ -366,11 +354,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-		case <-time.After(asyncHookWaitTimeout):
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
-		}
+		waitForUpdateCall(t, service)
 		assert.Equal(t, int64(789), service.updatedID)
 	})
 
@@ -385,11 +369,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(asyncHookWaitTimeout):
-		}
+		assertNoUpdateCall(t, service)
 	})
 
 	t.Run("should continue when update returns an error", func(t *testing.T) {
@@ -402,11 +382,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-		case <-time.After(asyncHookWaitTimeout):
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
-		}
+		waitForUpdateCall(t, service)
 		assert.Equal(t, int64(987), service.updatedID)
 	})
 
@@ -429,11 +405,7 @@ func TestAPIKey_Hook(t *testing.T) {
 			t.Fatal("expected Hook to return without waiting for async update")
 		}
 
-		select {
-		case <-service.calledCh:
-		case <-time.After(asyncHookWaitTimeout):
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to be called")
-		}
+		waitForUpdateCall(t, service)
 		assert.Equal(t, int64(654), service.updatedID)
 		close(service.blockCh)
 	})
@@ -445,11 +417,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		err := client.Hook(context.Background(), nil, nil)
 		assert.NoError(t, err)
 
-		select {
-		case <-service.calledCh:
-			t.Fatal("expected UpdateAPIKeyLastUsedDate to not be called")
-		case <-time.After(asyncHookWaitTimeout):
-		}
+		assertNoUpdateCall(t, service)
 	})
 }
 
