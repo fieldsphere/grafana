@@ -1,5 +1,5 @@
 const http = require('http');
-const { logDevenvInfo } = require('../../../logging');
+let logDevenvInfo;
 
 if (process.argv.length !== 3) {
   throw new Error('invalid command line: use node sendLogs.js LOKIC_BASE_URL');
@@ -208,15 +208,21 @@ async function sendNewLogs() {
 }
 
 async function main() {
+  // Import ESM module
+  const logging = await import('../../../logging.js');
+  logDevenvInfo = logging.logDevenvInfo;
+  
   // we generate both old-logs and new-logs at the same time
   await Promise.all([sendOldLogs(), sendNewLogs()])
 }
 
 // when running in docker, we catch the needed stop-signal, to shutdown fast
 process.on('SIGTERM', () => {
-  logDevenvInfo('Shutdown requested', {
-    operation: 'loki-data-sender.sigterm',
-  });
+  if (logDevenvInfo) {
+    logDevenvInfo('Shutdown requested', {
+      operation: 'loki-data-sender.sigterm',
+    });
+  }
   process.exit(0);
 });
 

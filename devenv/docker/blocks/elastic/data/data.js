@@ -1,5 +1,5 @@
 const http = require('http');
-const { logDevenvInfo } = require('../../../logging');
+let logDevenvInfo;
 
 if (process.argv.length !== 3) {
   throw new Error('invalid command line: use node sendLogs.js ELASTIC_BASE_URL');
@@ -159,6 +159,10 @@ function getRandomLogItem(counter, timestamp) {
 let globalCounter = 0;
 
 async function main() {
+  // Import ESM module
+  const logging = await import('../../../logging.js');
+  logDevenvInfo = logging.logDevenvInfo;
+  
   await elasticSetupIndexTemplate();
   const SLEEP_ANGLE_STEP = Math.PI / 200;
   let sleepAngle = 0;
@@ -177,9 +181,11 @@ async function main() {
 
 // when running in docker, we catch the needed stop-signal, to shutdown fast
 process.on('SIGTERM', () => {
-  logDevenvInfo('Shutdown requested', {
-    operation: 'elastic-data-sender.sigterm',
-  });
+  if (logDevenvInfo) {
+    logDevenvInfo('Shutdown requested', {
+      operation: 'elastic-data-sender.sigterm',
+    });
+  }
   process.exit(0);
 });
 
