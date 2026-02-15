@@ -4291,6 +4291,33 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`prefer stable string-literal or const trace attribute keys in attribute.KeyValue literals; avoid runtime-generated key values`)
 
 	m.Match(
+		`attribute.KeyValue{Key: $left + $right, Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: $left + $right}`,
+		`attribute.KeyValue{$left + $right, $value}`,
+		`attribute.KeyValue{Key: attribute.Key($left + $right), Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: attribute.Key($left + $right)}`,
+		`attribute.KeyValue{attribute.Key($left + $right), $value}`,
+	).
+		Where(m["left"].Type.Is("string") && m["right"].Type.Is("string")).
+		Report(`avoid dynamic concatenation for trace attribute keys in attribute.KeyValue literals; use stable string-literal keys and keep dynamic data in values`)
+
+	m.Match(
+		`attribute.KeyValue{Key: fmt.Sprintf($fmt, $*args), Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: fmt.Sprintf($fmt, $*args)}`,
+		`attribute.KeyValue{fmt.Sprintf($fmt, $*args), $value}`,
+		`attribute.KeyValue{Key: fmt.Sprint($*args), Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: fmt.Sprint($*args)}`,
+		`attribute.KeyValue{fmt.Sprint($*args), $value}`,
+		`attribute.KeyValue{Key: attribute.Key(fmt.Sprintf($fmt, $*args)), Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: attribute.Key(fmt.Sprintf($fmt, $*args))}`,
+		`attribute.KeyValue{attribute.Key(fmt.Sprintf($fmt, $*args)), $value}`,
+		`attribute.KeyValue{Key: attribute.Key(fmt.Sprint($*args)), Value: $value}`,
+		`attribute.KeyValue{Value: $value, Key: attribute.Key(fmt.Sprint($*args))}`,
+		`attribute.KeyValue{attribute.Key(fmt.Sprint($*args)), $value}`,
+	).
+		Report(`avoid fmt formatting for trace attribute keys in attribute.KeyValue literals; use stable string-literal keys and keep dynamic data in values`)
+
+	m.Match(
 		`attribute.KeyValue{Key: $key, Value: $value}`,
 		`attribute.KeyValue{Value: $value, Key: $key}`,
 		`attribute.KeyValue{$key, $value}`,
