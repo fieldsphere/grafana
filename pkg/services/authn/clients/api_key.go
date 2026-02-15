@@ -35,6 +35,10 @@ var (
 const (
 	metaKeyID           = "keyID"
 	metaKeySkipLastUsed = "keySkipLastUsed"
+
+	skipReasonRequestIsNil      = "requestIsNil"
+	skipReasonSkipMarkerPresent = "skipLastUsedMarkerPresent"
+	skipReasonMissingAPIKeyID   = "missingAPIKeyID"
 )
 
 func ProvideAPIKey(apiKeyService apikey.Service, tracer trace.Tracer) *APIKey {
@@ -164,17 +168,18 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 	defer span.End()
 
 	if r == nil {
-		s.log.Warn("Skipping API key last-used hook", "skipReason", "requestIsNil")
+		s.log.Warn("Skipping API key last-used hook", "skipReason", skipReasonRequestIsNil)
 		return nil
 	}
 
 	if r.GetMeta(metaKeySkipLastUsed) != "" {
+		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonSkipMarkerPresent)
 		return nil
 	}
 
 	keyID := strings.TrimSpace(r.GetMeta(metaKeyID))
 	if keyID == "" {
-		s.log.Debug("Skipping API key last-used hook", "skipReason", "missingAPIKeyID")
+		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonMissingAPIKeyID)
 		return nil
 	}
 
@@ -195,7 +200,7 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 	keyID = strings.TrimSpace(keyID)
 
 	if keyID == "" {
-		s.log.Debug("Skipping API key last-used update", "skipReason", "missingAPIKeyID")
+		s.log.Debug("Skipping API key last-used update", "skipReason", skipReasonMissingAPIKeyID)
 		return
 	}
 
@@ -206,7 +211,7 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 	}
 
 	if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), id); err != nil {
-		s.log.Warn("Failed to update last used date for api key", "apiKeyID", keyID, "error", err)
+		s.log.Warn("Failed to update last used date for API key", "apiKeyID", keyID, "error", err)
 		return
 	}
 }
