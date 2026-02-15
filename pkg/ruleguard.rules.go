@@ -4377,10 +4377,18 @@ func structuredlogging(m fluent.Matcher) {
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
 		Where(
 			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
@@ -4393,10 +4401,18 @@ func structuredlogging(m fluent.Matcher) {
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }`,
 	).
 		Where(
 			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
@@ -4413,6 +4429,14 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
 		Where(
 			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
@@ -4429,6 +4453,14 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
 		Where(
 			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
@@ -4949,10 +4981,18 @@ func structuredlogging(m fluent.Matcher) {
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
 	).
 		Where(
 			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
@@ -4969,6 +5009,14 @@ func structuredlogging(m fluent.Matcher) {
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $arr := append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $dst := append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $arr []any = append($arr, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { var $dst []any = append($src, $*before, $key, $panicErr, $*after); $*_ }; $*_ }; $*_ }`,
 	).
 		Where(
 			m["key"].Text.Matches(`^"(error|errorMessage|reason|panic)"$`) ||
