@@ -2248,7 +2248,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*before, $key, $value, $*after)`,
 		`klog.ErrorS($baseErr, $msg, $*before, $key, $value, $*after)`,
 	).
-		Where(m["key"].Text.Matches("^\"reason\"$")).
+		Where(m["key"].Text.Matches("^(\"reason\"|`reason`)$")).
 		Report(`avoid ambiguous structured log key "reason"; use contextual keys such as "failureReason", "shutdownReason", "skipReason", "validationReason", "stateReason", "disconnectReason", "evictionReason", "indexBuildReason", "updateReason", or "stopReason"`)
 
 	m.Match(
@@ -2425,7 +2425,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$arr := []any{$*before, $key, $value, $*after}`,
 		`$arr = []any{$*before, $key, $value, $*after}`,
 	).
-		Where(m["key"].Text.Matches("^\"panic\"$")).
+		Where(m["key"].Text.Matches("^(\"panic\"|`panic`)$")).
 		Report(`avoid ambiguous key "panic" in []any literal key/value slices; use "panicValue" for recovered panic payloads, or contextual keys such as "panicState"`)
 
 	m.Match(
@@ -4818,7 +4818,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"(user|client|uname)\"$")).
+		Where(m["key"].Text.Matches("^(\"(user|client|uname)\"|`(user|client|uname)`)$")).
 		Report(`avoid ambiguous trace attribute keys "user", "client", or "uname" in attribute.Key(...); use specific keys such as "userID", "userLogin", "clientID", "clientName", or "authClientName"`)
 
 	m.Match(
@@ -4833,7 +4833,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"type\"$")).
+		Where(m["key"].Text.Matches("^(\"type\"|`type`)$")).
 		Report(`avoid ambiguous trace attribute key "type" in attribute.Key(...); use contextual keys such as "datasourceType", "resourceType", "eventType", "identityType", or "objectType"`)
 
 	m.Match(
@@ -4848,7 +4848,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"value\"$")).
+		Where(m["key"].Text.Matches("^(\"value\"|`value`)$")).
 		Report(`avoid ambiguous trace attribute key "value" in attribute.Key(...); use contextual keys such as "measurementValue", "fieldValue", "responseValue", "requestValue", or "configValue"`)
 
 	m.Match(
@@ -4863,7 +4863,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"info\"$")).
+		Where(m["key"].Text.Matches("^(\"info\"|`info`)$")).
 		Report(`avoid ambiguous trace attribute key "info" in attribute.Key(...); use contextual keys such as "messageInfo", "runtimeInfo", "buildInfo", or "pluginInfo"`)
 
 	m.Match(
@@ -4878,7 +4878,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"data\"$")).
+		Where(m["key"].Text.Matches("^(\"data\"|`data`)$")).
 		Report(`avoid ambiguous trace attribute key "data" in attribute.Key(...); use contextual keys such as "requestData", "responseData", "payloadData", or "userData"`)
 
 	m.Match(
@@ -4893,7 +4893,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"identUID\"$")).
+		Where(m["key"].Text.Matches("^(\"identUID\"|`identUID`)$")).
 		Report(`avoid abbreviated trace attribute key "identUID" in attribute.Key(...); use "identityUID" for clarity`)
 
 	m.Match(
@@ -4908,7 +4908,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"func\"$")).
+		Where(m["key"].Text.Matches("^(\"func\"|`func`)$")).
 		Report(`avoid shorthand trace attribute key "func" in attribute.Key(...); use "function" for clarity`)
 
 	m.Match(
@@ -4923,7 +4923,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"statuscode\"$")).
+		Where(m["key"].Text.Matches("^(\"statuscode\"|`statuscode`)$")).
 		Report(`avoid non-canonical trace attribute key "statuscode" in attribute.Key(...); use "statusCode"`)
 
 	m.Match(
@@ -4938,7 +4938,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Id\"$")).
+		Where(m["key"].Text.Matches("^(\"[A-Za-z_]+Id\"|`[A-Za-z_]+Id`)$")).
 		Report(`prefer "ID" acronym casing in trace attribute keys (for example "orgID", "pluginID", "userID")`)
 
 	m.Match(
@@ -4953,7 +4953,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z_]+Uid\"$")).
+		Where(m["key"].Text.Matches("^(\"[A-Za-z_]+Uid\"|`[A-Za-z_]+Uid`)$")).
 		Report(`prefer "UID" acronym casing in trace attribute keys (for example "dashboardUID", "ruleUID", "datasourceUID")`)
 
 	m.Match(
@@ -4968,7 +4968,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$")).
+		Where(m["key"].Text.Matches("^(\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"|`(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)`)$")).
 		Report(`avoid all-lowercase "…id" trace attribute keys in attribute.Key(...); use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelID", "datasourceID", "queryGroupID", "migrationID", "resourceVersion", "configID"`)
 
 	m.Match(
@@ -4983,7 +4983,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
+		Where(m["key"].Text.Matches("^(\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"|`[A-Za-z0-9]+_[A-Za-z0-9_]+`)$")).
 		Report(`avoid snake_case trace attribute keys; use camelCase with canonical acronym casing`)
 
 	m.Match(
@@ -4998,7 +4998,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\".*\\s+.*\"$")).
+		Where(m["key"].Text.Matches("^(\".*\\s+.*\"|`.*\\s+.*`)$")).
 		Report(`avoid whitespace in trace attribute keys; use compact camelCase keys such as "rowsAffected" or "currentProvider"`)
 
 	m.Match(
@@ -5013,7 +5013,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"$")).
+		Where(m["key"].Text.Matches("^(\"[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+\"|`[A-Za-z0-9_.-]+-[A-Za-z0-9_.-]+`)$")).
 		Report(`avoid hyphenated trace attribute keys; use camelCase keys such as "contentType" or "rowsAffected"`)
 
 	m.Match(
@@ -5028,7 +5028,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"$")).
+		Where(m["key"].Text.Matches("^(\"[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+\"|`[A-Za-z0-9_]+\\.[A-Za-z0-9_.]+`)$")).
 		Report(`avoid dotted trace attribute keys; prefer flat camelCase keys with canonical acronym casing`)
 
 	m.Match(
@@ -5043,7 +5043,7 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
-		Where(m["key"].Text.Matches("^\"[A-Z][A-Za-z0-9_.]*\"$")).
+		Where(m["key"].Text.Matches("^(\"[A-Z][A-Za-z0-9_.]*\"|`[A-Z][A-Za-z0-9_.]*`)$")).
 		Report(`avoid uppercase-leading trace attribute keys; use lower camelCase with canonical acronym casing`)
 
 	m.Match(
