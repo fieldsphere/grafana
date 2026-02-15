@@ -4757,6 +4757,21 @@ func structuredlogging(m fluent.Matcher) {
 		`attribute.Key($key).Float64Slice($value)`,
 		`attribute.Key($key).StringSlice($value)`,
 	).
+		Where(m["key"].Text.Matches("^\"(userid|orgid|pluginid|traceid|panelpluginid|streamid|configid|datasourceid|dashboardid|panelid|querygroupid|migrationid|resourceversion)\"$")).
+		Report(`avoid all-lowercase "…id" trace attribute keys in attribute.Key(...); use canonical casing like "userID", "orgID", "pluginID", "traceID", "panelID", "datasourceID", "queryGroupID", "migrationID", "resourceVersion", "configID"`)
+
+	m.Match(
+		`attribute.Key($key).String($value)`,
+		`attribute.Key($key).Int($value)`,
+		`attribute.Key($key).Int64($value)`,
+		`attribute.Key($key).IntSlice($value)`,
+		`attribute.Key($key).Int64Slice($value)`,
+		`attribute.Key($key).Bool($value)`,
+		`attribute.Key($key).BoolSlice($value)`,
+		`attribute.Key($key).Float64($value)`,
+		`attribute.Key($key).Float64Slice($value)`,
+		`attribute.Key($key).StringSlice($value)`,
+	).
 		Where(m["key"].Text.Matches("^\"[A-Za-z0-9]+_[A-Za-z0-9_]+\"$")).
 		Report(`avoid snake_case trace attribute keys; use camelCase with canonical acronym casing`)
 
