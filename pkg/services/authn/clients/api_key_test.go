@@ -233,6 +233,15 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assert.False(t, service.called)
 	})
 
+	t.Run("should skip update for overflow key id", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed("9223372036854775808")
+
+		assert.False(t, service.called)
+	})
+
 	t.Run("should skip update for non-positive key id", func(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -328,6 +337,18 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := &authn.Request{}
 		req.SetMeta(metaKeyID, "bad-id")
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		assertNoUpdateCall(t, service)
+	})
+
+	t.Run("should skip update when key id overflows int64", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "9223372036854775808")
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
