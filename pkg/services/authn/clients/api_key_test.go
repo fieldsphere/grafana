@@ -29,9 +29,10 @@ var (
 const (
 	asyncHookWaitTimeout = 200 * time.Millisecond
 
-	maxInt64APIKeyIDString      = "9223372036854775807"
-	overflowInt64APIKeyIDString = "9223372036854775808"
-	signedAPIKeyIDString        = "+123"
+	maxInt64APIKeyIDString            = "9223372036854775807"
+	overflowInt64APIKeyIDString       = "9223372036854775808"
+	signedAPIKeyIDString              = "+123"
+	maxInt64APIKeyIDValue       int64 = 9223372036854775807
 )
 
 func waitForUpdateCall(t *testing.T, service *updateLastUsedService) {
@@ -247,7 +248,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		client.syncAPIKeyLastUsed(maxInt64APIKeyIDString)
 
 		assert.True(t, service.called)
-		assert.Equal(t, int64(9223372036854775807), service.updatedID)
+		assert.Equal(t, maxInt64APIKeyIDValue, service.updatedID)
 	})
 
 	t.Run("should skip update for invalid key id", func(t *testing.T) {
@@ -377,7 +378,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		waitForUpdateCall(t, service)
-		assert.Equal(t, int64(9223372036854775807), service.updatedID)
+		assert.Equal(t, maxInt64APIKeyIDValue, service.updatedID)
 	})
 
 	t.Run("should skip update when skip marker is present", func(t *testing.T) {
