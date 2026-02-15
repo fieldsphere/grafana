@@ -170,19 +170,23 @@ func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Re
 			}
 		}()
 
-		id, err := strconv.ParseInt(keyID, 10, 64)
-		if err != nil {
-			s.log.Warn("Invalid api key id", "apiKeyID", keyID, "error", err)
-			return
-		}
-
-		if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), id); err != nil {
-			s.log.Warn("Failed to update last used date for api key", "apiKeyID", keyID, "error", err)
-			return
-		}
+		s.syncAPIKeyLastUsed(keyID)
 	}(r.GetMeta(metaKeyID))
 
 	return nil
+}
+
+func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
+	id, err := strconv.ParseInt(keyID, 10, 64)
+	if err != nil {
+		s.log.Warn("Invalid api key id", "apiKeyID", keyID, "error", err)
+		return
+	}
+
+	if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), id); err != nil {
+		s.log.Warn("Failed to update last used date for api key", "apiKeyID", keyID, "error", err)
+		return
+	}
 }
 
 func looksLikeApiKey(token string) bool {
