@@ -565,7 +565,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Error($msg, $*args)`,
 		`$logger.Debug($msg, $*args)`,
 	).
-		Where(isStructuredLogger && m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Where(isStructuredLogger && m["msg"].Text.Matches("(\".*%[a-zA-Z].*\"|`.*%[a-zA-Z].*`)")).
 		Report("printf-style format verbs are not supported in structured logger methods; move dynamic values to key/value fields")
 
 	m.Match(
@@ -605,7 +605,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.ErrorCtx($ctx, $msg, $*fields)`,
 		`$logger.DebugCtx($ctx, $msg, $*fields)`,
 	).
-		Where(isStructuredLogger && m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Where(isStructuredLogger && m["msg"].Text.Matches("(\".*%[a-zA-Z].*\"|`.*%[a-zA-Z].*`)")).
 		Report("printf-style format verbs are not supported in structured logger context methods; move dynamic values to key/value fields")
 
 	m.Match(
@@ -665,7 +665,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.Error($msg, $*attrs)`,
 		`slog.Debug($msg, $*attrs)`,
 	).
-		Where(m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Where(m["msg"].Text.Matches("(\".*%[a-zA-Z].*\"|`.*%[a-zA-Z].*`)")).
 		Report("printf-style format verbs are not supported in slog methods; move dynamic values to key/value fields")
 
 	m.Match(
@@ -696,7 +696,7 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.Log($ctx, $level, $msg, $*attrs)`,
 	).
-		Where(m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Where(m["msg"].Text.Matches("(\".*%[a-zA-Z].*\"|`.*%[a-zA-Z].*`)")).
 		Report("printf-style format verbs are not supported in slog.Log messages; move dynamic values to key/value fields")
 
 	m.Match(
@@ -717,7 +717,7 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`slog.LogAttrs($ctx, $level, $msg, $*attrs)`,
 	).
-		Where(m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Where(m["msg"].Text.Matches("(\".*%[a-zA-Z].*\"|`.*%[a-zA-Z].*`)")).
 		Report("printf-style format verbs are not supported in slog.LogAttrs messages; move dynamic values to attributes")
 
 	m.Match(
@@ -743,7 +743,7 @@ func structuredlogging(m fluent.Matcher) {
 		`slog.WarnContext($ctx, $msg, $*attrs)`,
 		`slog.ErrorContext($ctx, $msg, $*attrs)`,
 	).
-		Where(m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Where(m["msg"].Text.Matches("(\".*%[a-zA-Z].*\"|`.*%[a-zA-Z].*`)")).
 		Report("printf-style format verbs are not supported in slog context methods; move dynamic values to key/value fields")
 
 	m.Match(
@@ -785,7 +785,7 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`$logger.Log($ctx, $level, $msg, $*attrs)`,
 	).
-		Where(isSlogLogger && m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Where(isSlogLogger && m["msg"].Text.Matches("(\".*%[a-zA-Z].*\"|`.*%[a-zA-Z].*`)")).
 		Report("printf-style format verbs are not supported in slog.Logger.Log messages; move dynamic values to key/value fields")
 
 	m.Match(
@@ -810,7 +810,7 @@ func structuredlogging(m fluent.Matcher) {
 	m.Match(
 		`$logger.LogAttrs($ctx, $level, $msg, $*attrs)`,
 	).
-		Where(isSlogLogger && m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Where(isSlogLogger && m["msg"].Text.Matches("(\".*%[a-zA-Z].*\"|`.*%[a-zA-Z].*`)")).
 		Report("printf-style format verbs are not supported in slog.Logger.LogAttrs messages; move dynamic values to attributes")
 
 	m.Match(
@@ -838,7 +838,7 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.WarnContext($ctx, $msg, $*attrs)`,
 		`$logger.ErrorContext($ctx, $msg, $*attrs)`,
 	).
-		Where(isSlogLogger && m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Where(isSlogLogger && m["msg"].Text.Matches("(\".*%[a-zA-Z].*\"|`.*%[a-zA-Z].*`)")).
 		Report("printf-style format verbs are not supported in slog.Logger context methods; move dynamic values to key/value fields")
 
 	m.Match(
@@ -882,7 +882,7 @@ func structuredlogging(m fluent.Matcher) {
 		`klog.V($lvl).InfoS($msg, $*kv)`,
 		`klog.ErrorS($err, $msg, $*kv)`,
 	).
-		Where(m["msg"].Text.Matches("\".*%[a-zA-Z].*\"")).
+		Where(m["msg"].Text.Matches("(\".*%[a-zA-Z].*\"|`.*%[a-zA-Z].*`)")).
 		Report("printf-style format verbs are not supported in structured klog methods; move dynamic values to key/value fields")
 
 	m.Match(
