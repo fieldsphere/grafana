@@ -29,13 +29,14 @@ var (
 const (
 	asyncHookWaitTimeout = 200 * time.Millisecond
 
-	maxInt64APIKeyIDString            = "9223372036854775807"
-	overflowInt64APIKeyIDString       = "9223372036854775808"
-	signedAPIKeyIDString              = "+123"
-	arabicIndicAPIKeyIDString         = "١٢٣"
-	fullwidthAPIKeyIDString           = "１２３"
-	leadingZeroAPIKeyIDString         = "000123"
-	maxInt64APIKeyIDValue       int64 = 9223372036854775807
+	maxInt64APIKeyIDString                 = "9223372036854775807"
+	overflowInt64APIKeyIDString            = "9223372036854775808"
+	signedAPIKeyIDString                   = "+123"
+	arabicIndicAPIKeyIDString              = "١٢٣"
+	fullwidthAPIKeyIDString                = "１２３"
+	leadingZeroAPIKeyIDString              = "000123"
+	internalWhitespaceAPIKeyIDString       = "12 3"
+	maxInt64APIKeyIDValue            int64 = 9223372036854775807
 )
 
 func waitForUpdateCall(t *testing.T, service *updateLastUsedService) {
@@ -300,6 +301,15 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assert.False(t, service.called)
 	})
 
+	t.Run("should skip update for key id with internal whitespace", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed(internalWhitespaceAPIKeyIDString)
+
+		assert.False(t, service.called)
+	})
+
 	t.Run("should skip update for overflow key id", func(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -479,6 +489,18 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := &authn.Request{}
 		req.SetMeta(metaKeyID, fullwidthAPIKeyIDString)
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		assertNoUpdateCall(t, service)
+	})
+
+	t.Run("should skip update when key id metadata has internal whitespace", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, internalWhitespaceAPIKeyIDString)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
