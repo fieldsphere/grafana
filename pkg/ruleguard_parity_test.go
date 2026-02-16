@@ -288,6 +288,24 @@ func TestRuleguardRecoverForbiddenKeyMatchersUseExplicitReplacementLanguage(t *t
 	}
 }
 
+func TestRuleguardRecoverMatcherBlocksAlwaysReport(t *testing.T) {
+	content := loadRuleguardRulesContent(t)
+	lines := strings.Split(content, "\n")
+	blocks := loadRuleguardMatchBlocks(t)
+
+	for i, block := range blocks {
+		blockText := strings.Join(block.lines, "\n")
+		if !strings.Contains(blockText, "recover()") {
+			continue
+		}
+
+		reportText := blockReportText(lines, blocks, i)
+		if reportText == "" {
+			t.Fatalf("recover matcher block at line %d has no Report(...) guidance", block.startLine)
+		}
+	}
+}
+
 func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 	fset := token.NewFileSet()
 	violations := make([]string, 0, 8)
