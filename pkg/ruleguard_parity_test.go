@@ -254,6 +254,36 @@ func TestRuleguardRecoverMatchersDoNotContainDuplicatePatternLines(t *testing.T)
 	}
 }
 
+func TestRuleguardRecoverForbiddenKeyMatchersUseExplicitReplacementLanguage(t *testing.T) {
+	content := loadRuleguardRulesContent(t)
+	lines := strings.Split(content, "\n")
+	blocks := loadRuleguardMatchBlocks(t)
+	forbiddenKeys := []string{`"error"`, `"errorMessage"`, `"reason"`, `"panic"`, "`error`", "`errorMessage`", "`reason`", "`panic`", `(error|errorMessage|reason|panic)`}
+
+	for i, block := range blocks {
+		blockText := strings.Join(block.lines, "\n")
+		if !strings.Contains(blockText, "recover()") {
+			continue
+		}
+
+		hasForbiddenAlias := false
+		for _, key := range forbiddenKeys {
+			if strings.Contains(blockText, key) {
+				hasForbiddenAlias = true
+				break
+			}
+		}
+		if !hasForbiddenAlias {
+			continue
+		}
+
+		reportText := blockReportText(lines, blocks, i)
+		if reportText == "" || !strings.Contains(reportText, `"panicValue"`) || !strings.Contains(reportText, "instead of") {
+			t.Fatalf("recover forbidden-key matcher block at line %d must include explicit panicValue replacement guidance", block.startLine)
+		}
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
