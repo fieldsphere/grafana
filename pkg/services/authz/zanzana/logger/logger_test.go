@@ -536,30 +536,22 @@ func TestZanzanaLoggerContextMethodsWithNestedNamespaceIncludeStructuredFields(t
 func TestStandardMethodCasesBuildsExpectedMetadata(t *testing.T) {
 	t.Run("default message non-context", func(t *testing.T) {
 		cases := standardMethodCases("", false)
-		assertCaseMetadata(t, cases, expectedStandardCaseMetadata(false))
+		assertCaseMetadata(t, cases, expectedStandardCaseMetadata("", false))
 	})
 
 	t.Run("default message context", func(t *testing.T) {
 		cases := standardMethodCases("", true)
-		assertCaseMetadata(t, cases, expectedStandardCaseMetadata(true))
+		assertCaseMetadata(t, cases, expectedStandardCaseMetadata("", true))
 	})
 
 	t.Run("custom message", func(t *testing.T) {
 		cases := standardMethodCases("custom message", false)
-		for _, tc := range cases {
-			if tc.expectedMessage != "custom message" {
-				t.Fatalf("expected custom message for %q, got %q", tc.name, tc.expectedMessage)
-			}
-		}
+		assertCaseMetadata(t, cases, expectedStandardCaseMetadata("custom message", false))
 	})
 
 	t.Run("custom message context", func(t *testing.T) {
 		cases := standardMethodCases("custom context message", true)
-		for _, tc := range cases {
-			if tc.expectedMessage != "custom context message" {
-				t.Fatalf("expected custom context message for %q, got %q", tc.name, tc.expectedMessage)
-			}
-		}
+		assertCaseMetadata(t, cases, expectedStandardCaseMetadata("custom context message", true))
 	})
 }
 
@@ -589,33 +581,33 @@ func TestLoggerMethodMessage(t *testing.T) {
 func TestEmitByLevelPanicsOnUnknownLevel(t *testing.T) {
 	logger := New(&logtest.Fake{})
 
-	defer func() {
-		recovered := recover()
-		if recovered == nil {
-			t.Fatal("expected panic for unknown level")
-		}
-		if recovered != "unexpected log level: trace" {
-			t.Fatalf("unexpected panic payload: %#v", recovered)
-		}
-	}()
-
-	emitByLevel(logger, "trace", "trace message")
+	assertPanicsWithMessage(t, "unexpected log level: trace", func() {
+		emitByLevel(logger, "trace", "trace message")
+	})
 }
 
 func TestEmitWithContextByLevelPanicsOnUnknownLevel(t *testing.T) {
 	logger := New(&logtest.Fake{})
 
+	assertPanicsWithMessage(t, "unexpected context log level: trace", func() {
+		emitWithContextByLevel(logger, "trace", "trace message")
+	})
+}
+
+func assertPanicsWithMessage(t *testing.T, expectedMessage string, fn func()) {
+	t.Helper()
+
 	defer func() {
 		recovered := recover()
 		if recovered == nil {
-			t.Fatal("expected panic for unknown context level")
+			t.Fatalf("expected panic with message %q", expectedMessage)
 		}
-		if recovered != "unexpected context log level: trace" {
+		if recovered != expectedMessage {
 			t.Fatalf("unexpected panic payload: %#v", recovered)
 		}
 	}()
 
-	emitWithContextByLevel(logger, "trace", "trace message")
+	fn()
 }
 
 func TestFilterLoggerCasesPreservesSourceOrder(t *testing.T) {
@@ -758,7 +750,7 @@ func loggerMethodMessage(level, message string) string {
 	return level + " message"
 }
 
-func expectedStandardCaseMetadata(withContext bool) []loggerFieldCase {
+func expectedStandardCaseMetadata(message string, withContext bool) []loggerFieldCase {
 	specs := []struct {
 		level        string
 		targetLogger string
@@ -781,7 +773,7 @@ func expectedStandardCaseMetadata(withContext bool) []loggerFieldCase {
 			name:            name,
 			targetLogger:    spec.targetLogger,
 			expectedLevel:   spec.level,
-			expectedMessage: loggerMethodMessage(spec.level, ""),
+			expectedMessage: loggerMethodMessage(spec.level, message),
 		})
 	}
 
