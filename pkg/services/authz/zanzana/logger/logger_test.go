@@ -17,6 +17,10 @@ const (
 	zanzanaEventFieldsKey   = "zanzanaFields"
 	zanzanaEventContextKey  = "zanzanaContext"
 	zanzanaEventMessageText = "Zanzana logger event"
+
+	zanzanaMessageLevelContextLen = 4
+	zanzanaMessageLevelFieldsLen  = 6
+	zanzanaWithContextPayloadLen  = 2
 )
 
 func TestZanzanaLoggerLevelRouting(t *testing.T) {
@@ -1296,7 +1300,7 @@ func assertTargetLevelContext(t *testing.T, fake *logtest.Fake, targetLogger, ex
 	ctx := assertSingleTargetLoggerCallAndContext(t, fake, targetLogger)
 	assertMessageAndLevel(t, ctx, expectedMessage, expectedLevel)
 	if !expectFields {
-		if len(ctx) != 4 {
+		if len(ctx) != zanzanaMessageLevelContextLen {
 			t.Fatalf("expected message+level fields, got %#v", ctx)
 		}
 		return nil
@@ -1308,7 +1312,7 @@ func assertTargetLevelContext(t *testing.T, fake *logtest.Fake, targetLogger, ex
 func assertContextPayloadFields(t *testing.T, ctx []any) []any {
 	t.Helper()
 
-	if len(ctx) != 2 {
+	if len(ctx) != zanzanaWithContextPayloadLen {
 		t.Fatalf("expected context payload with two entries, got %#v", ctx)
 	}
 	if ctx[0] != zanzanaEventContextKey {
@@ -1325,7 +1329,7 @@ func assertContextPayloadFields(t *testing.T, ctx []any) []any {
 func assertFieldsPayload(t *testing.T, ctx []any) []any {
 	t.Helper()
 
-	if len(ctx) != 6 {
+	if len(ctx) != zanzanaMessageLevelFieldsLen {
 		t.Fatalf("expected message+level+fields context, got %#v", ctx)
 	}
 	if ctx[4] != zanzanaEventFieldsKey {
