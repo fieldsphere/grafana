@@ -6,6 +6,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"testing"
@@ -391,6 +392,7 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 		t.Fatalf("scan runtime recover logging: %v", err)
 	}
 	if len(violations) > 0 {
+		sort.Strings(violations)
 		t.Fatalf("found recover logging forbidden key aliases:\n%s", strings.Join(violations, "\n"))
 	}
 }
@@ -481,6 +483,7 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 		for violation := range violationSet {
 			violations = append(violations, violation)
 		}
+		sort.Strings(violations)
 		t.Fatalf("found recover-derived runtime logging without panicValue key:\n%s", strings.Join(violations, "\n"))
 	}
 }
