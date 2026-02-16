@@ -157,18 +157,7 @@ func TestZanzanaLoggerInfoWithNamespaceFieldKeepsNestedPayload(t *testing.T) {
 	if namespacePayload["subject"] != "user-1" {
 		t.Fatalf("unexpected namespace subject payload: %#v", namespacePayload)
 	}
-	switch attempt := namespacePayload["attempt"].(type) {
-	case int:
-		if attempt != 2 {
-			t.Fatalf("unexpected namespace attempt payload: %#v", namespacePayload)
-		}
-	case int64:
-		if attempt != 2 {
-			t.Fatalf("unexpected namespace attempt payload: %#v", namespacePayload)
-		}
-	default:
-		t.Fatalf("unexpected namespace attempt type: %T (%#v)", namespacePayload["attempt"], namespacePayload)
-	}
+	assertIntLikeValue(t, namespacePayload["attempt"], 2, namespacePayload)
 }
 
 func TestZanzanaLoggerInfoWithNestedNamespaceFieldKeepsNestedPayload(t *testing.T) {
@@ -324,18 +313,7 @@ func TestZapFieldsToArgsPreservesNamespaceHierarchy(t *testing.T) {
 	if namespacePayload["subject"] != "user-1" {
 		t.Fatalf("unexpected namespace subject payload: %#v", namespacePayload)
 	}
-	switch attempt := namespacePayload["attempt"].(type) {
-	case int:
-		if attempt != 2 {
-			t.Fatalf("unexpected namespace attempt payload: %#v", namespacePayload)
-		}
-	case int64:
-		if attempt != 2 {
-			t.Fatalf("unexpected namespace attempt payload: %#v", namespacePayload)
-		}
-	default:
-		t.Fatalf("unexpected namespace attempt type: %T (%#v)", namespacePayload["attempt"], namespacePayload)
-	}
+	assertIntLikeValue(t, namespacePayload["attempt"], 2, namespacePayload)
 }
 
 func TestZapFieldsToArgsPreservesNestedNamespaceHierarchy(t *testing.T) {
@@ -457,18 +435,7 @@ func TestZanzanaLoggerWithNamespaceFieldKeepsNestedContext(t *testing.T) {
 	if namespacePayload["subject"] != "user-1" {
 		t.Fatalf("unexpected namespace subject payload: %#v", namespacePayload)
 	}
-	switch attempt := namespacePayload["attempt"].(type) {
-	case int:
-		if attempt != 2 {
-			t.Fatalf("unexpected namespace attempt payload: %#v", namespacePayload)
-		}
-	case int64:
-		if attempt != 2 {
-			t.Fatalf("unexpected namespace attempt payload: %#v", namespacePayload)
-		}
-	default:
-		t.Fatalf("unexpected namespace attempt type: %T (%#v)", namespacePayload["attempt"], namespacePayload)
-	}
+	assertIntLikeValue(t, namespacePayload["attempt"], 2, namespacePayload)
 }
 
 func TestZanzanaLoggerWithNestedNamespaceFieldKeepsNestedContext(t *testing.T) {
@@ -1116,6 +1083,23 @@ func TestZanzanaLoggerContextMethodsIncludeStructuredFields(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func assertIntLikeValue(t *testing.T, value any, want int64, payload any) {
+	t.Helper()
+
+	switch actual := value.(type) {
+	case int:
+		if int64(actual) != want {
+			t.Fatalf("unexpected integer payload: got=%d want=%d (%#v)", actual, want, payload)
+		}
+	case int64:
+		if actual != want {
+			t.Fatalf("unexpected integer payload: got=%d want=%d (%#v)", actual, want, payload)
+		}
+	default:
+		t.Fatalf("unexpected integer payload type: %T (%#v)", value, payload)
 	}
 }
 
