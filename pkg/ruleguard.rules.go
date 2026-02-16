@@ -1332,6 +1332,66 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recovered type-asserted panic errors in panic/fatal recover else-if && type-assertion branches with append spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Panic($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Fatal($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Panic($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Fatal($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+	).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
+		Report(`for nested recovered type-asserted panic errors in panic/fatal recover else-if type-assertion branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Panic($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Fatal($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Panic($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Fatal($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+	).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
+		Report(`for nested recovered type-asserted panic errors in panic/fatal recover else-if type-assertion branches with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Panic($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Fatal($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Panic($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok { if $innerCond { $logger.Fatal($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+	).
+		Where(
+			m["arr"].Type.Is("[]any") &&
+				m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$"),
+		).
+		Report(`for nested recovered type-asserted panic errors in panic/fatal recover else-if type-assertion branches with append spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Panic($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Fatal($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Panic($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Fatal($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+	).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
+		Report(`for nested recovered type-asserted panic errors in panic/fatal recover else-if && type-assertion branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Panic($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Fatal($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Panic($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Fatal($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+	).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
+		Report(`for nested recovered type-asserted panic errors in panic/fatal recover else-if && type-assertion branches with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Panic($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Fatal($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Panic($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $panicErr, $ok := $panicVal.(error); $ok && $cond { if $innerCond { $logger.Fatal($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+	).
+		Where(
+			m["arr"].Type.Is("[]any") &&
+				m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$"),
+		).
+		Report(`for nested recovered type-asserted panic errors in panic/fatal recover else-if && type-assertion branches with append spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { $logger.Panic($msg, $*before, $key, $panicVal, $*after); $*_ }`,
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { $logger.Fatal($msg, $*before, $key, $panicVal, $*after); $*_ }`,
 		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { $logger.Panic($msg, $*before, $key, $panicVal, $*after); $*_ }`,
