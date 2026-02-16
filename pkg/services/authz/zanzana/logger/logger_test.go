@@ -99,6 +99,29 @@ func TestZanzanaLoggerInfoWithoutFieldsOmitsZanzanaFields(t *testing.T) {
 	}
 }
 
+func TestZanzanaLoggerInfoWithSkippedFieldOmitsZanzanaFields(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.Info("token checked", zap.Skip())
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
+	}
+	if fake.InfoLogs.Message != "Zanzana logger event" {
+		t.Fatalf("unexpected message: %q", fake.InfoLogs.Message)
+	}
+	if len(fake.InfoLogs.Ctx) != 4 {
+		t.Fatalf("expected only message+level fields when payload is skipped, got %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[0] != "zanzanaMessage" || fake.InfoLogs.Ctx[1] != "token checked" {
+		t.Fatalf("unexpected message context: %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "info" {
+		t.Fatalf("unexpected level context: %#v", fake.InfoLogs.Ctx)
+	}
+}
+
 func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
 	args := zapFieldsToArgs(
 		[]zap.Field{
@@ -116,6 +139,18 @@ func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
 		if args[i] != expected[i] {
 			t.Fatalf("unexpected arg at index %d: got=%#v want=%#v (args=%#v)", i, args[i], expected[i], args)
 		}
+	}
+}
+
+func TestZapFieldsToArgsReturnsEmptySliceForNoFields(t *testing.T) {
+	args := zapFieldsToArgs(nil)
+	if len(args) != 0 {
+		t.Fatalf("expected empty args for nil fields, got %#v", args)
+	}
+
+	args = zapFieldsToArgs([]zap.Field{})
+	if len(args) != 0 {
+		t.Fatalf("expected empty args for empty fields, got %#v", args)
 	}
 }
 
