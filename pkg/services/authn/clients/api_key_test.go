@@ -126,15 +126,6 @@ func assertSyncNoUpdateForKeyIDWithoutPanic(t *testing.T, client *APIKey, keyID 
 	assert.False(t, service.called)
 }
 
-func assertSyncNoUpdateAndNoPanicForKeyID(t *testing.T, client *APIKey, keyID string, service *updateLastUsedService) {
-	t.Helper()
-
-	assert.NotPanics(t, func() {
-		client.syncAPIKeyLastUsed(keyID)
-	})
-	assert.False(t, service.called)
-}
-
 func newHookRequestWithMeta(keyID string, shouldSkipLastUsed bool) *authn.Request {
 	req := &authn.Request{}
 	if keyID != "" {
