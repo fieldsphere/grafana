@@ -1058,7 +1058,7 @@ func declaredNamesInBody(body *ast.BlockStmt) map[string]struct{} {
 				}
 			}
 		case *ast.GenDecl:
-			if n.Tok != token.VAR {
+			if n.Tok != token.VAR && n.Tok != token.CONST {
 				return true
 			}
 			for _, spec := range n.Specs {
@@ -1173,5 +1173,45 @@ func inspectBodyWithoutNestedFuncLits(body *ast.BlockStmt, visit func(node ast.N
 			}
 			return visit(node)
 		})
+	}
+}
+
+func TestDeclaredNamesInBodyIncludesLocalConstAndVarNames(t *testing.T) {
+	const src = `package p
+
+func f() {
+	const (
+		localConst = "panicValue"
+	)
+	var localVar = localConst
+	for idx := range []int{1,2,3} {
+		_ = idx
+	}
+	_ = localVar
+}
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "declared_names.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse body sample: %v", err)
+	}
+
+	var body *ast.BlockStmt
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if ok && fn.Name.Name == "f" {
+			body = fn.Body
+			break
+		}
+	}
+	if body == nil {
+		t.Fatal("failed to locate function body")
+	}
+
+	names := declaredNamesInBody(body)
+	for _, expected := range []string{"localConst", "localVar", "idx"} {
+		if _, ok := names[expected]; !ok {
+			t.Fatalf("expected declaredNamesInBody to include %q", expected)
+		}
 	}
 }
