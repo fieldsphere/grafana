@@ -1217,50 +1217,37 @@ func runWithContextMatrix(t *testing.T, testCases []withContextCase) {
 func assertSingleTargetLoggerCallAndContext(t *testing.T, fake *logtest.Fake, targetLogger string) []any {
 	t.Helper()
 
-	expectedDebugCalls := 0
-	expectedInfoCalls := 0
-	expectedWarnCalls := 0
-	expectedErrorCalls := 0
-	switch targetLogger {
-	case "debug":
-		expectedDebugCalls = 1
-	case "info":
-		expectedInfoCalls = 1
-	case "warn":
-		expectedWarnCalls = 1
-	case "error":
-		expectedErrorCalls = 1
-	default:
+	logsByLevel := map[string]*logtest.Logs{
+		"debug": &fake.DebugLogs,
+		"info":  &fake.InfoLogs,
+		"warn":  &fake.WarnLogs,
+		"error": &fake.ErrorLogs,
+	}
+
+	targetLogs, ok := logsByLevel[targetLogger]
+	if !ok {
 		t.Fatalf("unknown target logger %q", targetLogger)
 	}
 
-	if fake.DebugLogs.Calls != expectedDebugCalls {
-		t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, expectedDebugCalls)
+	expectedCalls := map[string]int{
+		"debug": 0,
+		"info":  0,
+		"warn":  0,
+		"error": 0,
 	}
-	if fake.InfoLogs.Calls != expectedInfoCalls {
-		t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, expectedInfoCalls)
-	}
-	if fake.WarnLogs.Calls != expectedWarnCalls {
-		t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, expectedWarnCalls)
-	}
-	if fake.ErrorLogs.Calls != expectedErrorCalls {
-		t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, expectedErrorCalls)
-	}
-	assertTargetLoggerEventMessage(t, fake, targetLogger, "Zanzana logger event")
+	expectedCalls[targetLogger] = 1
 
-	switch targetLogger {
-	case "debug":
-		return fake.DebugLogs.Ctx
-	case "info":
-		return fake.InfoLogs.Ctx
-	case "warn":
-		return fake.WarnLogs.Ctx
-	case "error":
-		return fake.ErrorLogs.Ctx
-	default:
-		t.Fatalf("unknown target logger %q", targetLogger)
-		return nil
+	for level, logs := range logsByLevel {
+		if logs.Calls != expectedCalls[level] {
+			t.Fatalf("unexpected %s calls: got=%d want=%d", level, logs.Calls, expectedCalls[level])
+		}
 	}
+
+	if targetLogs.Message != "Zanzana logger event" {
+		t.Fatalf("unexpected logger event message: got=%q want=%q", targetLogs.Message, "Zanzana logger event")
+	}
+
+	return targetLogs.Ctx
 }
 
 func assertMessageAndLevel(t *testing.T, ctx []any, expectedMessage, expectedLevel string) {
@@ -1271,28 +1258,6 @@ func assertMessageAndLevel(t *testing.T, ctx []any, expectedMessage, expectedLev
 	}
 	if ctx[2] != "zanzanaLevel" || ctx[3] != expectedLevel {
 		t.Fatalf("unexpected zanzana level context: %#v", ctx)
-	}
-}
-
-func assertTargetLoggerEventMessage(t *testing.T, fake *logtest.Fake, targetLogger, expectedMessage string) {
-	t.Helper()
-
-	var actualMessage string
-	switch targetLogger {
-	case "debug":
-		actualMessage = fake.DebugLogs.Message
-	case "info":
-		actualMessage = fake.InfoLogs.Message
-	case "warn":
-		actualMessage = fake.WarnLogs.Message
-	case "error":
-		actualMessage = fake.ErrorLogs.Message
-	default:
-		t.Fatalf("unknown target logger %q", targetLogger)
-	}
-
-	if actualMessage != expectedMessage {
-		t.Fatalf("unexpected logger event message: got=%q want=%q", actualMessage, expectedMessage)
 	}
 }
 
