@@ -1,6 +1,10 @@
 package clients
 
-import "encoding/base64"
+import (
+	"encoding/base64"
+
+	"github.com/grafana/grafana/pkg/components/satokengen"
+)
 
 func boolPtr(b bool) *bool {
 	return &b
@@ -16,4 +20,9 @@ func stringPtr(s string) *string {
 
 func encodeBasicAuth(username, password string) string {
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(username+":"+password))
+}
+
+func genApiKey() (string, string) {
+	res, _ := satokengen.New("test")
+	return res.ClientSecret, res.HashedKey
 }

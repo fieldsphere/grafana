@@ -12,7 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 
 	claims "github.com/grafana/authlib/types"
-	"github.com/grafana/grafana/pkg/components/satokengen"
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/services/apikey"
 	"github.com/grafana/grafana/pkg/services/apikey/apikeytest"
@@ -1177,7 +1176,3 @@ func (s *updateLastUsedService) UpdateAPIKeyLastUsedDate(ctx context.Context, to
 	return s.ExpectedError
 }
 
-func genApiKey() (string, string) {
-	res, _ := satokengen.New("test")
-	return res.ClientSecret, res.HashedKey
-}
