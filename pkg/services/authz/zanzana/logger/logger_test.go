@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"context"
 	"testing"
 
 	"go.uber.org/zap"
@@ -91,5 +92,80 @@ func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
 		if args[i] != expected[i] {
 			t.Fatalf("unexpected arg at index %d: got=%#v want=%#v (args=%#v)", i, args[i], expected[i], args)
 		}
+	}
+}
+
+func TestZanzanaLoggerErrorFamilyPreservesOriginalLevel(t *testing.T) {
+	testCases := []struct {
+		name string
+		emit func(*ZanzanaLogger)
+	}{
+		{
+			name: "error",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Error("error message")
+			},
+		},
+		{
+			name: "panic",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Panic("panic message")
+			},
+		},
+		{
+			name: "fatal",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Fatal("fatal message")
+			},
+		},
+		{
+			name: "panicWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.PanicWithContext(context.Background(), "panic message")
+			},
+		},
+		{
+			name: "fatalWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.FatalWithContext(context.Background(), "fatal message")
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			fake := &logtest.Fake{}
+			logger := New(fake)
+
+			tc.emit(logger)
+
+			if fake.ErrorLogs.Calls != 1 {
+				t.Fatalf("expected 1 error call, got %d", fake.ErrorLogs.Calls)
+			}
+			if fake.ErrorLogs.Message != "Zanzana logger event" {
+				t.Fatalf("unexpected message: %q", fake.ErrorLogs.Message)
+			}
+			if len(fake.ErrorLogs.Ctx) != 4 {
+				t.Fatalf("expected 4 structured fields, got %#v", fake.ErrorLogs.Ctx)
+			}
+			if fake.ErrorLogs.Ctx[0] != "zanzanaMessage" {
+				t.Fatalf("expected zanzanaMessage key, got %#v", fake.ErrorLogs.Ctx)
+			}
+			if fake.ErrorLogs.Ctx[2] != "zanzanaLevel" {
+				t.Fatalf("expected zanzanaLevel key, got %#v", fake.ErrorLogs.Ctx)
+			}
+
+			expectedLevel := tc.name
+			switch tc.name {
+			case "panicWithContext":
+				expectedLevel = "panic"
+			case "fatalWithContext":
+				expectedLevel = "fatal"
+			}
+			if fake.ErrorLogs.Ctx[3] != expectedLevel {
+				t.Fatalf("expected zanzanaLevel=%q, got %#v (%#v)", expectedLevel, fake.ErrorLogs.Ctx[3], fake.ErrorLogs.Ctx)
+			}
+		})
 	}
 }
