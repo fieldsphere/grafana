@@ -207,7 +207,7 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 		return nil
 	}
 
-	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID, validationSourceHook)
+	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID, rawKeyID, validationSourceHook)
 	if !ok {
 		return nil
 	}
@@ -234,7 +234,7 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 		return
 	}
 
-	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID, validationSourceSync)
+	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID, rawKeyID, validationSourceSync)
 	if !ok {
 		return
 	}
@@ -249,19 +249,19 @@ func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string, rawKeyID s
 	}
 }
 
-func (s *APIKey) parseAndValidateAPIKeyID(keyID string, validationSource string) (int64, bool) {
+func (s *APIKey) parseAndValidateAPIKeyID(keyID string, rawKeyID string, validationSource string) (int64, bool) {
 	if !containsOnlyDigits(keyID) {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", validationReasonMustContainDigitsOnly, "validationSource", validationSource)
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "validationReason", validationReasonMustContainDigitsOnly, "validationSource", validationSource)
 		return 0, false
 	}
 
 	apiKeyID, err := strconv.ParseInt(keyID, 10, 64)
 	if err != nil {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", validationReasonMustFitInt64, "validationSource", validationSource, "error", err)
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "validationReason", validationReasonMustFitInt64, "validationSource", validationSource, "error", err)
 		return 0, false
 	}
 	if apiKeyID < 1 {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "validationReason", validationReasonMustBePositiveInteger, "validationSource", validationSource)
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "apiKeyNumericID", apiKeyID, "validationReason", validationReasonMustBePositiveInteger, "validationSource", validationSource)
 		return 0, false
 	}
 

@@ -627,7 +627,7 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 			for _, tc := range testCases {
 				tc := tc
 				t.Run(tc.name, func(t *testing.T) {
-					apiKeyID, ok := client.parseAndValidateAPIKeyID(tc.keyID, validationSource)
+					apiKeyID, ok := client.parseAndValidateAPIKeyID(tc.keyID, tc.keyID, validationSource)
 					assert.Equal(t, tc.expectedOK, ok)
 					assert.Equal(t, tc.expectedID, apiKeyID)
 				})
