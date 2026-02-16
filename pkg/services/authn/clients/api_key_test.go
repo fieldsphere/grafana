@@ -456,6 +456,19 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.Equal(t, int64(456), service.updatedID)
 	})
 
+	t.Run("should call update when tracer is nil", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, nil)
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "456")
+
+		err := client.Hook(context.Background(), nil, req)
+		assert.NoError(t, err)
+
+		waitForUpdateCall(t, service)
+		assert.Equal(t, int64(456), service.updatedID)
+	})
+
 	t.Run("should handle nil context when skip marker is absent", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())

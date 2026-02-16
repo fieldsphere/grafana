@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 
 	claims "github.com/grafana/authlib/types"
 	"github.com/grafana/grafana/pkg/apimachinery/errutil"
@@ -46,6 +47,10 @@ const (
 )
 
 func ProvideAPIKey(apiKeyService apikey.Service, tracer trace.Tracer) *APIKey {
+	if tracer == nil {
+		tracer = noop.NewTracerProvider().Tracer(authn.ClientAPIKey)
+	}
+
 	return &APIKey{
 		log:           log.New(authn.ClientAPIKey),
 		apiKeyService: apiKeyService,
