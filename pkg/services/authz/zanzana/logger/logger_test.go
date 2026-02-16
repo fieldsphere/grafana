@@ -646,37 +646,11 @@ func standardMethodCases(message string, withContext bool, fields ...zap.Field) 
 
 		emit := func(logger *ZanzanaLogger) {
 			if withContext {
-				switch spec.level {
-				case "debug":
-					logger.DebugWithContext(context.Background(), caseMessage, fieldCopy...)
-				case "info":
-					logger.InfoWithContext(context.Background(), caseMessage, fieldCopy...)
-				case "warn":
-					logger.WarnWithContext(context.Background(), caseMessage, fieldCopy...)
-				case "error":
-					logger.ErrorWithContext(context.Background(), caseMessage, fieldCopy...)
-				case "panic":
-					logger.PanicWithContext(context.Background(), caseMessage, fieldCopy...)
-				case "fatal":
-					logger.FatalWithContext(context.Background(), caseMessage, fieldCopy...)
-				}
+				emitWithContextByLevel(logger, spec.level, caseMessage, fieldCopy...)
 				return
 			}
 
-			switch spec.level {
-			case "debug":
-				logger.Debug(caseMessage, fieldCopy...)
-			case "info":
-				logger.Info(caseMessage, fieldCopy...)
-			case "warn":
-				logger.Warn(caseMessage, fieldCopy...)
-			case "error":
-				logger.Error(caseMessage, fieldCopy...)
-			case "panic":
-				logger.Panic(caseMessage, fieldCopy...)
-			case "fatal":
-				logger.Fatal(caseMessage, fieldCopy...)
-			}
+			emitByLevel(logger, spec.level, caseMessage, fieldCopy...)
 		}
 
 		testCases = append(testCases, loggerFieldCase{
@@ -689,6 +663,44 @@ func standardMethodCases(message string, withContext bool, fields ...zap.Field) 
 	}
 
 	return testCases
+}
+
+func emitByLevel(logger *ZanzanaLogger, level, message string, fields ...zap.Field) {
+	switch level {
+	case "debug":
+		logger.Debug(message, fields...)
+	case "info":
+		logger.Info(message, fields...)
+	case "warn":
+		logger.Warn(message, fields...)
+	case "error":
+		logger.Error(message, fields...)
+	case "panic":
+		logger.Panic(message, fields...)
+	case "fatal":
+		logger.Fatal(message, fields...)
+	default:
+		panic("unexpected log level: " + level)
+	}
+}
+
+func emitWithContextByLevel(logger *ZanzanaLogger, level, message string, fields ...zap.Field) {
+	switch level {
+	case "debug":
+		logger.DebugWithContext(context.Background(), message, fields...)
+	case "info":
+		logger.InfoWithContext(context.Background(), message, fields...)
+	case "warn":
+		logger.WarnWithContext(context.Background(), message, fields...)
+	case "error":
+		logger.ErrorWithContext(context.Background(), message, fields...)
+	case "panic":
+		logger.PanicWithContext(context.Background(), message, fields...)
+	case "fatal":
+		logger.FatalWithContext(context.Background(), message, fields...)
+	default:
+		panic("unexpected context log level: " + level)
+	}
 }
 
 func loggerMethodMessage(level, message string) string {
