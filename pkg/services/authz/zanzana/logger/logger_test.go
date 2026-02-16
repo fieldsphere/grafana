@@ -3,6 +3,7 @@ package logger
 import (
 	"context"
 	"testing"
+	"time"
 
 	"go.uber.org/zap"
 
@@ -142,6 +143,40 @@ func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
 	}
 }
 
+func TestZapFieldsToArgsPreservesComplexValueTypes(t *testing.T) {
+	timestamp := time.Unix(1700000000, 0).UTC()
+
+	args := zapFieldsToArgs(
+		[]zap.Field{
+			zap.Any("meta", map[string]any{"k": "v"}),
+			zap.Duration("duration", 3*time.Second),
+			zap.Time("timestamp", timestamp),
+		},
+	)
+
+	if len(args) != 6 {
+		t.Fatalf("unexpected args length: got=%d want=%d (%#v)", len(args), 6, args)
+	}
+
+	if args[0] != "meta" {
+		t.Fatalf("unexpected key at index 0: %#v", args)
+	}
+	meta, ok := args[1].(map[string]any)
+	if !ok {
+		t.Fatalf("expected meta payload as map[string]any, got %#v", args[1])
+	}
+	if len(meta) != 1 || meta["k"] != "v" {
+		t.Fatalf("unexpected meta payload: %#v", meta)
+	}
+
+	if args[2] != "duration" || args[3] != 3*time.Second {
+		t.Fatalf("unexpected duration payload: %#v", args[2:4])
+	}
+	if args[4] != "timestamp" || args[5] != timestamp {
+		t.Fatalf("unexpected timestamp payload: %#v", args[4:6])
+	}
+}
+
 func TestZapFieldsToArgsReturnsEmptySliceForNoFields(t *testing.T) {
 	args := zapFieldsToArgs(nil)
 	if len(args) != 0 {
@@ -171,6 +206,44 @@ func TestZapFieldsToArgsSkipsNoOpFields(t *testing.T) {
 		if args[i] != expected[i] {
 			t.Fatalf("unexpected arg at index %d: got=%#v want=%#v (%#v)", i, args[i], expected[i], args)
 		}
+	}
+}
+
+func TestZapFieldsToArgsPreservesComplexTypedValues(t *testing.T) {
+	timestamp := time.Unix(1700000000, 0).UTC()
+
+	args := zapFieldsToArgs(
+		[]zap.Field{
+			zap.Any("meta", map[string]any{"k": "v"}),
+			zap.Duration("dur", 3*time.Second),
+			zap.Time("ts", timestamp),
+			zap.Float64("ratio", 1.25),
+		},
+	)
+
+	if len(args) != 8 {
+		t.Fatalf("unexpected args length: got=%d want=%d (%#v)", len(args), 8, args)
+	}
+
+	if args[0] != "meta" {
+		t.Fatalf("unexpected key at index 0: %#v", args[0])
+	}
+	meta, ok := args[1].(map[string]any)
+	if !ok {
+		t.Fatalf("expected meta payload as map[string]any, got %#v", args[1])
+	}
+	if meta["k"] != "v" {
+		t.Fatalf("unexpected meta payload: %#v", meta)
+	}
+
+	if args[2] != "dur" || args[3] != 3*time.Second {
+		t.Fatalf("unexpected duration payload: %#v", args[2:4])
+	}
+	if args[4] != "ts" || args[5] != timestamp {
+		t.Fatalf("unexpected timestamp payload: %#v", args[4:6])
+	}
+	if args[6] != "ratio" || args[7] != 1.25 {
+		t.Fatalf("unexpected float payload: %#v", args[6:8])
 	}
 }
 
