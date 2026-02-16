@@ -1467,6 +1467,79 @@ func TestZanzanaLoggerMethodsWithTopLevelAndNamespacedFieldsIncludeStructuredFie
 	}
 }
 
+func TestZanzanaLoggerMethodsWithTopLevelNamespaceAndSkippedFieldIncludeStructuredFields(t *testing.T) {
+	testCases := []struct {
+		name          string
+		emit          func(*ZanzanaLogger)
+		targetLogger  string
+		expectedLevel string
+	}{
+		{
+			name: "debug",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Debug("mixed skip message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			targetLogger:  "debug",
+			expectedLevel: "debug",
+		},
+		{
+			name: "info",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("mixed skip message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			targetLogger:  "info",
+			expectedLevel: "info",
+		},
+		{
+			name: "warn",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Warn("mixed skip message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			targetLogger:  "warn",
+			expectedLevel: "warn",
+		},
+		{
+			name: "error",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Error("mixed skip message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			targetLogger:  "error",
+			expectedLevel: "error",
+		},
+		{
+			name: "panic",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Panic("mixed skip message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			targetLogger:  "error",
+			expectedLevel: "panic",
+		},
+		{
+			name: "fatal",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Fatal("mixed skip message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			targetLogger:  "error",
+			expectedLevel: "fatal",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			fake := &logtest.Fake{}
+			logger := New(fake)
+
+			tc.emit(logger)
+
+			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
+			fields := assertFieldsPayload(t, ctx)
+			assertMessageAndLevel(t, ctx, "mixed skip message", tc.expectedLevel)
+			assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
+		})
+	}
+}
+
 func TestZanzanaLoggerContextMethodsIncludeStructuredFields(t *testing.T) {
 	testCases := []struct {
 		name          string
@@ -1796,6 +1869,79 @@ func TestZanzanaLoggerContextMethodsWithTopLevelAndNamespacedFieldsIncludeStruct
 			fields := assertFieldsPayload(t, ctx)
 			assertMessageAndLevel(t, ctx, "mixed context message", tc.expectedLevel)
 			assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
+		})
+	}
+}
+
+func TestZanzanaLoggerContextMethodsWithTopLevelNamespaceAndSkippedFieldIncludeStructuredFields(t *testing.T) {
+	testCases := []struct {
+		name          string
+		emit          func(*ZanzanaLogger)
+		expectedLevel string
+		targetLogger  string
+	}{
+		{
+			name: "debugWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.DebugWithContext(context.Background(), "mixed skip context message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			expectedLevel: "debug",
+			targetLogger:  "debug",
+		},
+		{
+			name: "infoWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.InfoWithContext(context.Background(), "mixed skip context message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			expectedLevel: "info",
+			targetLogger:  "info",
+		},
+		{
+			name: "warnWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.WarnWithContext(context.Background(), "mixed skip context message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			expectedLevel: "warn",
+			targetLogger:  "warn",
+		},
+		{
+			name: "errorWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.ErrorWithContext(context.Background(), "mixed skip context message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			expectedLevel: "error",
+			targetLogger:  "error",
+		},
+		{
+			name: "panicWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.PanicWithContext(context.Background(), "mixed skip context message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			expectedLevel: "panic",
+			targetLogger:  "error",
+		},
+		{
+			name: "fatalWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.FatalWithContext(context.Background(), "mixed skip context message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			expectedLevel: "fatal",
+			targetLogger:  "error",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			fake := &logtest.Fake{}
+			logger := New(fake)
+
+			tc.emit(logger)
+
+			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
+			fields := assertFieldsPayload(t, ctx)
+			assertMessageAndLevel(t, ctx, "mixed skip context message", tc.expectedLevel)
+			assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
 		})
 	}
 }
