@@ -486,7 +486,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		waitForUpdateCall(t, service)
-		assert.Equal(t, int64(456), service.updatedID)
+		assertUpdatedID(t, service, int64(456))
 	})
 
 	t.Run("should call update when tracer is nil", func(t *testing.T) {
@@ -499,7 +499,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		waitForUpdateCall(t, service)
-		assert.Equal(t, int64(456), service.updatedID)
+		assertUpdatedID(t, service, int64(456))
 	})
 
 	t.Run("should handle nil context when skip marker is absent", func(t *testing.T) {
@@ -512,7 +512,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		waitForUpdateCall(t, service)
-		assert.Equal(t, int64(457), service.updatedID)
+		assertUpdatedID(t, service, int64(457))
 	})
 
 	t.Run("should trim key id metadata before update", func(t *testing.T) {
@@ -525,7 +525,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		waitForUpdateCall(t, service)
-		assert.Equal(t, int64(458), service.updatedID)
+		assertUpdatedID(t, service, int64(458))
 	})
 
 	t.Run("should trim control whitespace in key id metadata before update", func(t *testing.T) {
@@ -538,7 +538,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		waitForUpdateCall(t, service)
-		assert.Equal(t, int64(459), service.updatedID)
+		assertUpdatedID(t, service, int64(459))
 	})
 
 	t.Run("should update when key id metadata has leading zeros", func(t *testing.T) {
@@ -551,7 +551,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		waitForUpdateCall(t, service)
-		assert.Equal(t, int64(123), service.updatedID)
+		assertUpdatedID(t, service, int64(123))
 	})
 
 	t.Run("should update when key id is max int64", func(t *testing.T) {
@@ -564,7 +564,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		waitForUpdateCall(t, service)
-		assert.Equal(t, maxInt64APIKeyIDValue, service.updatedID)
+		assertUpdatedID(t, service, maxInt64APIKeyIDValue)
 	})
 
 	t.Run("should skip update when skip marker is present", func(t *testing.T) {
@@ -723,7 +723,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		waitForUpdateCall(t, service)
-		assert.Equal(t, int64(789), service.updatedID)
+		assertUpdatedID(t, service, int64(789))
 	})
 
 	t.Run("should skip update and avoid panic when skip marker is present", func(t *testing.T) {
@@ -751,7 +751,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		waitForUpdateCall(t, service)
-		assert.Equal(t, int64(987), service.updatedID)
+		assertUpdatedID(t, service, int64(987))
 	})
 
 	t.Run("should return immediately while async update is blocked", func(t *testing.T) {
@@ -774,7 +774,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		}
 
 		waitForUpdateCall(t, service)
-		assert.Equal(t, int64(654), service.updatedID)
+		assertUpdatedID(t, service, int64(654))
 		close(service.blockCh)
 	})
 
