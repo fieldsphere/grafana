@@ -691,6 +691,29 @@ func f() {
 	}
 }
 
+func TestConstValueExprAtIndexBehavior(t *testing.T) {
+	litA := &ast.BasicLit{Kind: token.STRING, Value: `"a"`}
+	litB := &ast.BasicLit{Kind: token.STRING, Value: `"b"`}
+
+	if expr, ok := constValueExprAtIndex(nil, 0); ok || expr != nil {
+		t.Fatalf("expected no expression for empty values, got %v (ok=%v)", expr, ok)
+	}
+
+	if expr, ok := constValueExprAtIndex([]ast.Expr{litA}, 0); !ok || expr != litA {
+		t.Fatalf("expected single-value index 0 to resolve first literal, got %v (ok=%v)", expr, ok)
+	}
+	if expr, ok := constValueExprAtIndex([]ast.Expr{litA}, 3); !ok || expr != litA {
+		t.Fatalf("expected single-value fallback for high index, got %v (ok=%v)", expr, ok)
+	}
+
+	if expr, ok := constValueExprAtIndex([]ast.Expr{litA, litB}, 1); !ok || expr != litB {
+		t.Fatalf("expected multi-value index 1 to resolve second literal, got %v (ok=%v)", expr, ok)
+	}
+	if expr, ok := constValueExprAtIndex([]ast.Expr{litA, litB}, 2); ok || expr != nil {
+		t.Fatalf("expected out-of-range multi-value index to fail, got %v (ok=%v)", expr, ok)
+	}
+}
+
 func TestRecoverDerivedSlicesWithAliasViolationsTracksConstKeysAndAppendChains(t *testing.T) {
 	const src = `package p
 
