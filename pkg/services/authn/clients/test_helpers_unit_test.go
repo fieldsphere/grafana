@@ -122,3 +122,13 @@ func TestMustGenAPIKey(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, hash, regeneratedHash)
 }
+
+func TestMustGenAPIKeyGeneratesDistinctSecrets(t *testing.T) {
+	t.Parallel()
+
+	firstSecret, firstHash := mustGenAPIKey()
+	secondSecret, secondHash := mustGenAPIKey()
+
+	require.NotEqual(t, firstSecret, secondSecret)
+	require.NotEqual(t, firstHash, secondHash)
+}
