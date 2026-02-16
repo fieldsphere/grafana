@@ -476,16 +476,16 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assertUpdatedID(t, service, parsedAPIKeyIDValue)
 	})
 
-	t.Run("should still attempt update when service returns error for valid trimmed key id", func(t *testing.T) {
+	t.Run("should still attempt update when service returns error for max int64 key id with surrounding whitespace", func(t *testing.T) {
 		service := &updateLastUsedService{
 			Service: apikeytest.Service{ExpectedError: errors.New("update failed")},
 		}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		client.syncAPIKeyLastUsed(" 123 ")
+		client.syncAPIKeyLastUsed(" " + maxInt64APIKeyIDString + " ")
 
 		assert.True(t, service.called)
-		assertUpdatedID(t, service, parsedAPIKeyIDValue)
+		assertUpdatedID(t, service, maxInt64APIKeyIDValue)
 	})
 
 	t.Run("should skip update for invalid key id", func(t *testing.T) {
