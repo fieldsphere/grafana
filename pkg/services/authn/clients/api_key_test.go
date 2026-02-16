@@ -873,6 +873,13 @@ func TestAPIKey_Hook(t *testing.T) {
 		assertHookUpdateForKeyID(t, context.Background(), client, " "+maxInt64APIKeyIDString+" ", service)
 	})
 
+	t.Run("should continue when update returns an error for max int64 key id with surrounding whitespace and nil tracer/context", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		service.ExpectedError = errors.New("update failed")
+		client := ProvideAPIKey(service, nil)
+		assertHookUpdateForKeyID(t, nil, client, " "+maxInt64APIKeyIDString+" ", service)
+	})
+
 	t.Run("should return immediately while async update is blocked", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		service.blockCh = make(chan struct{})
