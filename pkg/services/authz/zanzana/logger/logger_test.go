@@ -222,6 +222,93 @@ func TestZanzanaLoggerErrorFamilyPreservesOriginalLevel(t *testing.T) {
 	}
 }
 
+func TestZanzanaLoggerContextMethodsPreserveLevelRouting(t *testing.T) {
+	testCases := []struct {
+		name               string
+		emit               func(*ZanzanaLogger)
+		expectedDebugCalls int
+		expectedInfoCalls  int
+		expectedWarnCalls  int
+		expectedErrorCalls int
+		expectedLevel      string
+	}{
+		{
+			name: "debugWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.DebugWithContext(context.Background(), "debug message")
+			},
+			expectedDebugCalls: 1,
+			expectedLevel:      "debug",
+		},
+		{
+			name: "infoWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.InfoWithContext(context.Background(), "info message")
+			},
+			expectedInfoCalls: 1,
+			expectedLevel:     "info",
+		},
+		{
+			name: "warnWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.WarnWithContext(context.Background(), "warn message")
+			},
+			expectedWarnCalls: 1,
+			expectedLevel:     "warn",
+		},
+		{
+			name: "errorWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.ErrorWithContext(context.Background(), "error message")
+			},
+			expectedErrorCalls: 1,
+			expectedLevel:      "error",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			fake := &logtest.Fake{}
+			logger := New(fake)
+
+			tc.emit(logger)
+
+			if fake.DebugLogs.Calls != tc.expectedDebugCalls {
+				t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, tc.expectedDebugCalls)
+			}
+			if fake.InfoLogs.Calls != tc.expectedInfoCalls {
+				t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, tc.expectedInfoCalls)
+			}
+			if fake.WarnLogs.Calls != tc.expectedWarnCalls {
+				t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, tc.expectedWarnCalls)
+			}
+			if fake.ErrorLogs.Calls != tc.expectedErrorCalls {
+				t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, tc.expectedErrorCalls)
+			}
+
+			var ctx []any
+			switch tc.expectedLevel {
+			case "debug":
+				ctx = fake.DebugLogs.Ctx
+			case "info":
+				ctx = fake.InfoLogs.Ctx
+			case "warn":
+				ctx = fake.WarnLogs.Ctx
+			default:
+				ctx = fake.ErrorLogs.Ctx
+			}
+
+			if len(ctx) < 4 {
+				t.Fatalf("expected structured level fields, got %#v", ctx)
+			}
+			if ctx[2] != "zanzanaLevel" || ctx[3] != tc.expectedLevel {
+				t.Fatalf("expected zanzanaLevel=%q, got %#v", tc.expectedLevel, ctx)
+			}
+		})
+	}
+}
+
 type capturingLogger struct {
 	newCalls int
 	newCtx   []any
