@@ -47,6 +47,8 @@ const (
 
 	validationSourceHook = "hook"
 	validationSourceSync = "sync"
+
+	errorMessageAPIKeyRequestIsNil = "API key request is nil"
 )
 
 func ProvideAPIKey(apiKeyService apikey.Service, tracer trace.Tracer) *APIKey {
@@ -80,7 +82,7 @@ func (s *APIKey) Authenticate(ctx context.Context, r *authn.Request) (*authn.Ide
 	defer span.End()
 
 	if r == nil {
-		return nil, errAPIKeyInvalid.Errorf("API key request is nil")
+		return nil, errAPIKeyInvalid.Errorf(errorMessageAPIKeyRequestIsNil)
 	}
 
 	key, err := s.getAPIKey(ctx, getTokenFromRequest(r))
