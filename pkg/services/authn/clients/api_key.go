@@ -72,8 +72,17 @@ func (s *APIKey) Name() string {
 }
 
 func (s *APIKey) Authenticate(ctx context.Context, r *authn.Request) (*authn.Identity, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	ctx, span := s.tracer.Start(ctx, "authn.apikey.Authenticate")
 	defer span.End()
+
+	if r == nil {
+		return nil, errAPIKeyInvalid.Errorf("API key request is nil")
+	}
+
 	key, err := s.getAPIKey(ctx, getTokenFromRequest(r))
 	if err != nil {
 		if errors.Is(err, satokengen.ErrInvalidApiKey) {

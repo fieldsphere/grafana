@@ -224,6 +224,7 @@ func TestAPIKey_AuthenticateWithNilRequest(t *testing.T) {
 	identity, err := client.Authenticate(context.Background(), nil)
 	assert.Nil(t, identity)
 	assert.Error(t, err)
+	assert.ErrorContains(t, err, "API key request is nil")
 }
 
 func TestAPIKey_AuthenticateWithNilTracerAndNilRequest(t *testing.T) {
@@ -232,6 +233,16 @@ func TestAPIKey_AuthenticateWithNilTracerAndNilRequest(t *testing.T) {
 	identity, err := client.Authenticate(context.Background(), nil)
 	assert.Nil(t, identity)
 	assert.Error(t, err)
+	assert.ErrorContains(t, err, "API key request is nil")
+}
+
+func TestAPIKey_AuthenticateWithNilContextAndNilRequest(t *testing.T) {
+	client := ProvideAPIKey(&apikeytest.Service{}, nil)
+
+	identity, err := client.Authenticate(nil, nil)
+	assert.Nil(t, identity)
+	assert.Error(t, err)
+	assert.ErrorContains(t, err, "API key request is nil")
 }
 
 func TestAPIKey_AuthenticateWithNilTracer(t *testing.T) {
