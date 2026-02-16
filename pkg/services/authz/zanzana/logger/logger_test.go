@@ -398,20 +398,7 @@ func TestZanzanaLoggerWithAddsStructuredContext(t *testing.T) {
 		t.Fatal("expected non-nil logger")
 	}
 
-	if capturing.newCalls != 1 {
-		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
-	}
-	if len(capturing.newCtx) != 2 {
-		t.Fatalf("expected two context arguments, got %#v", capturing.newCtx)
-	}
-	if capturing.newCtx[0] != "zanzanaContext" {
-		t.Fatalf("expected zanzanaContext key, got %#v", capturing.newCtx)
-	}
-
-	fields, ok := capturing.newCtx[1].([]any)
-	if !ok {
-		t.Fatalf("expected zanzanaContext payload to be []any, got %#v", capturing.newCtx[1])
-	}
+	fields := assertSingleNewCallContextFields(t, capturing)
 	expected := []any{"subject", "user-1", "count", int64(2)}
 	assertFieldsEqual(t, fields, expected)
 }
@@ -424,17 +411,7 @@ func TestZanzanaLoggerWithNamespaceFieldKeepsNestedContext(t *testing.T) {
 	if child == nil {
 		t.Fatal("expected non-nil logger")
 	}
-	if capturing.newCalls != 1 {
-		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
-	}
-	if len(capturing.newCtx) != 2 || capturing.newCtx[0] != "zanzanaContext" {
-		t.Fatalf("unexpected context payload: %#v", capturing.newCtx)
-	}
-
-	fields, ok := capturing.newCtx[1].([]any)
-	if !ok {
-		t.Fatalf("expected zanzanaContext payload to be []any, got %#v", capturing.newCtx[1])
-	}
+	fields := assertSingleNewCallContextFields(t, capturing)
 	if len(fields) != 2 {
 		t.Fatalf("unexpected zanzanaContext field length: got=%d want=%d (%#v)", len(fields), 2, fields)
 	}
@@ -460,14 +437,7 @@ func TestZanzanaLoggerWithNamespaceOnlyKeepsEmptyNamespaceContext(t *testing.T) 
 	if child == nil {
 		t.Fatal("expected non-nil logger")
 	}
-	if capturing.newCalls != 1 {
-		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
-	}
-	if len(capturing.newCtx) != 2 || capturing.newCtx[0] != "zanzanaContext" {
-		t.Fatalf("unexpected context payload: %#v", capturing.newCtx)
-	}
-
-	fields := assertContextPayloadFields(t, capturing.newCtx)
+	fields := assertSingleNewCallContextFields(t, capturing)
 	assertNamespacePayloadEmpty(t, fields, "auth")
 }
 
@@ -479,11 +449,7 @@ func TestZanzanaLoggerWithNamespaceAndSkippedFieldKeepsEmptyNamespaceContext(t *
 	if child == nil {
 		t.Fatal("expected non-nil logger")
 	}
-	if capturing.newCalls != 1 {
-		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
-	}
-
-	fields := assertContextPayloadFields(t, capturing.newCtx)
+	fields := assertSingleNewCallContextFields(t, capturing)
 	assertNamespacePayloadEmpty(t, fields, "auth")
 }
 
@@ -495,14 +461,7 @@ func TestZanzanaLoggerWithNestedNamespaceFieldKeepsNestedContext(t *testing.T) {
 	if child == nil {
 		t.Fatal("expected non-nil logger")
 	}
-	if capturing.newCalls != 1 {
-		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
-	}
-	if len(capturing.newCtx) != 2 || capturing.newCtx[0] != "zanzanaContext" {
-		t.Fatalf("unexpected context payload: %#v", capturing.newCtx)
-	}
-
-	fields := assertContextPayloadFields(t, capturing.newCtx)
+	fields := assertSingleNewCallContextFields(t, capturing)
 	assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
 }
 
@@ -514,11 +473,7 @@ func TestZanzanaLoggerWithTopLevelAndNamespacedFieldsKeepsBothPayloads(t *testin
 	if child == nil {
 		t.Fatal("expected non-nil logger")
 	}
-	if capturing.newCalls != 1 {
-		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
-	}
-
-	fields := assertContextPayloadFields(t, capturing.newCtx)
+	fields := assertSingleNewCallContextFields(t, capturing)
 	assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
 }
 
@@ -530,11 +485,7 @@ func TestZanzanaLoggerWithTopLevelNamespaceAndSkippedFieldKeepsPayload(t *testin
 	if child == nil {
 		t.Fatal("expected non-nil logger")
 	}
-	if capturing.newCalls != 1 {
-		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
-	}
-
-	fields := assertContextPayloadFields(t, capturing.newCtx)
+	fields := assertSingleNewCallContextFields(t, capturing)
 	assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
 }
 
@@ -547,12 +498,7 @@ func TestZanzanaLoggerWithWithoutFieldsKeepsEmptyContext(t *testing.T) {
 		t.Fatal("expected non-nil logger")
 	}
 
-	if capturing.newCalls != 1 {
-		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
-	}
-	if len(capturing.newCtx) != 0 {
-		t.Fatalf("expected no context args for empty fields, got %#v", capturing.newCtx)
-	}
+	assertSingleNewCallWithoutContext(t, capturing)
 }
 
 func TestZanzanaLoggerWithOnlySkippedFieldsKeepsEmptyContext(t *testing.T) {
@@ -564,12 +510,7 @@ func TestZanzanaLoggerWithOnlySkippedFieldsKeepsEmptyContext(t *testing.T) {
 		t.Fatal("expected non-nil logger")
 	}
 
-	if capturing.newCalls != 1 {
-		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
-	}
-	if len(capturing.newCtx) != 0 {
-		t.Fatalf("expected no context args when all fields are skipped, got %#v", capturing.newCtx)
-	}
+	assertSingleNewCallWithoutContext(t, capturing)
 }
 
 func TestZanzanaLoggerWithMixedSkippedFieldsFiltersSkipped(t *testing.T) {
@@ -580,17 +521,7 @@ func TestZanzanaLoggerWithMixedSkippedFieldsFiltersSkipped(t *testing.T) {
 	if child == nil {
 		t.Fatal("expected non-nil logger")
 	}
-	if capturing.newCalls != 1 {
-		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
-	}
-	if len(capturing.newCtx) != 2 || capturing.newCtx[0] != "zanzanaContext" {
-		t.Fatalf("unexpected context payload: %#v", capturing.newCtx)
-	}
-
-	fields, ok := capturing.newCtx[1].([]any)
-	if !ok {
-		t.Fatalf("expected zanzanaContext payload to be []any, got %#v", capturing.newCtx[1])
-	}
+	fields := assertSingleNewCallContextFields(t, capturing)
 	expected := []any{"subject", "user-1"}
 	assertFieldsEqual(t, fields, expected)
 }
@@ -603,17 +534,7 @@ func TestZanzanaLoggerWithPreservesDuplicateKeyOrder(t *testing.T) {
 	if child == nil {
 		t.Fatal("expected non-nil logger")
 	}
-	if capturing.newCalls != 1 {
-		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
-	}
-	if len(capturing.newCtx) != 2 || capturing.newCtx[0] != "zanzanaContext" {
-		t.Fatalf("unexpected context payload: %#v", capturing.newCtx)
-	}
-
-	fields, ok := capturing.newCtx[1].([]any)
-	if !ok {
-		t.Fatalf("expected zanzanaContext payload to be []any, got %#v", capturing.newCtx[1])
-	}
+	fields := assertSingleNewCallContextFields(t, capturing)
 	expected := []any{"scope", "first", "scope", "second"}
 	assertFieldsEqual(t, fields, expected)
 }
@@ -1508,6 +1429,27 @@ func assertMessageAndLevel(t *testing.T, ctx []any, expectedMessage, expectedLev
 	}
 	if ctx[2] != "zanzanaLevel" || ctx[3] != expectedLevel {
 		t.Fatalf("unexpected zanzana level context: %#v", ctx)
+	}
+}
+
+func assertSingleNewCallContextFields(t *testing.T, capturing *capturingLogger) []any {
+	t.Helper()
+
+	if capturing.newCalls != 1 {
+		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
+	}
+
+	return assertContextPayloadFields(t, capturing.newCtx)
+}
+
+func assertSingleNewCallWithoutContext(t *testing.T, capturing *capturingLogger) {
+	t.Helper()
+
+	if capturing.newCalls != 1 {
+		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
+	}
+	if len(capturing.newCtx) != 0 {
+		t.Fatalf("expected no context args, got %#v", capturing.newCtx)
 	}
 }
 
