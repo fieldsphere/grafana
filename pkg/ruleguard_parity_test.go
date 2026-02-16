@@ -1,8 +1,12 @@
 package pkg_test
 
 import (
+	"go/ast"
+	"go/parser"
+	"go/token"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 )
@@ -284,6 +288,100 @@ func TestRuleguardRecoverForbiddenKeyMatchersUseExplicitReplacementLanguage(t *t
 	}
 }
 
+func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
+	fset := token.NewFileSet()
+	violations := make([]string, 0, 8)
+	forbiddenAliases := map[string]struct{}{
+		"error":        {},
+		"errorMessage": {},
+		"reason":       {},
+		"panic":        {},
+	}
+	logMethodNames := map[string]struct{}{
+		"Debug": {}, "Info": {}, "Warn": {}, "Error": {}, "Panic": {}, "Fatal": {},
+		"DebugCtx": {}, "InfoCtx": {}, "WarnCtx": {}, "ErrorCtx": {},
+		"InfoContext": {}, "WarnContext": {}, "ErrorContext": {}, "DebugContext": {},
+		"Log": {}, "InfoS": {}, "ErrorS": {},
+	}
+
+	err := filepath.WalkDir(".", func(path string, d os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if d.IsDir() {
+			return nil
+		}
+		if strings.Contains(path, "/testdata/") {
+			return nil
+		}
+		if !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "ruleguard.rules.go") {
+			return nil
+		}
+
+		file, parseErr := parser.ParseFile(fset, path, nil, 0)
+		if parseErr != nil {
+			return parseErr
+		}
+
+		ast.Inspect(file, func(node ast.Node) bool {
+			fn, ok := node.(*ast.FuncLit)
+			if !ok {
+				return true
+			}
+
+			if !funcLitContainsRecover(fn) {
+				return true
+			}
+			recoverDerived := recoverDerivedIdentifiers(fn)
+
+			ast.Inspect(fn.Body, func(inner ast.Node) bool {
+				call, ok := inner.(*ast.CallExpr)
+				if !ok {
+					return true
+				}
+
+				method, ok := selectorName(call.Fun)
+				if !ok {
+					return true
+				}
+				if _, ok := logMethodNames[method]; !ok {
+					return true
+				}
+
+				for argIdx, arg := range call.Args {
+					basic, ok := arg.(*ast.BasicLit)
+					if !ok || basic.Kind != token.STRING {
+						continue
+					}
+
+					val, unquoteErr := strconv.Unquote(basic.Value)
+					if unquoteErr != nil {
+						continue
+					}
+					if _, isForbidden := forbiddenAliases[val]; isForbidden {
+						if argIdx+1 >= len(call.Args) || !exprDependsOnRecover(call.Args[argIdx+1], recoverDerived) {
+							continue
+						}
+						position := fset.Position(basic.Pos())
+						violations = append(violations, position.String()+": recover logging uses forbidden key alias "+basic.Value)
+					}
+				}
+
+				return true
+			})
+			return true
+		})
+
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("scan runtime recover logging: %v", err)
+	}
+	if len(violations) > 0 {
+		t.Fatalf("found recover logging forbidden key aliases:\n%s", strings.Join(violations, "\n"))
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
@@ -412,4 +510,91 @@ func recoverAliasMentionsInMatcherLines(lines []string) map[string]struct{} {
 	}
 
 	return aliases
+}
+
+func funcLitContainsRecover(fn *ast.FuncLit) bool {
+	found := false
+	ast.Inspect(fn.Body, func(node ast.Node) bool {
+		call, ok := node.(*ast.CallExpr)
+		if !ok {
+			return true
+		}
+		ident, ok := call.Fun.(*ast.Ident)
+		if ok && ident.Name == "recover" {
+			found = true
+			return false
+		}
+		return true
+	})
+	return found
+}
+
+func selectorName(expr ast.Expr) (string, bool) {
+	sel, ok := expr.(*ast.SelectorExpr)
+	if !ok {
+		return "", false
+	}
+	return sel.Sel.Name, true
+}
+
+type recoverDerivedSet struct {
+	objects map[*ast.Object]struct{}
+}
+
+func recoverDerivedIdentifiers(fn *ast.FuncLit) recoverDerivedSet {
+	derived := recoverDerivedSet{
+		objects: map[*ast.Object]struct{}{},
+	}
+
+	recordAssign := func(assign *ast.AssignStmt) {
+		for _, rhs := range assign.Rhs {
+			if !exprDependsOnRecover(rhs, derived) {
+				continue
+			}
+			for _, lhs := range assign.Lhs {
+				if ident, ok := lhs.(*ast.Ident); ok && ident.Name != "_" {
+					if ident.Obj != nil {
+						derived.objects[ident.Obj] = struct{}{}
+					}
+				}
+			}
+			return
+		}
+	}
+
+	ast.Inspect(fn.Body, func(node ast.Node) bool {
+		switch n := node.(type) {
+		case *ast.AssignStmt:
+			recordAssign(n)
+		case *ast.IfStmt:
+			if initAssign, ok := n.Init.(*ast.AssignStmt); ok {
+				recordAssign(initAssign)
+			}
+		}
+		return true
+	})
+
+	return derived
+}
+
+func exprDependsOnRecover(expr ast.Expr, derived recoverDerivedSet) bool {
+	depends := false
+	ast.Inspect(expr, func(node ast.Node) bool {
+		switch n := node.(type) {
+		case *ast.CallExpr:
+			if ident, ok := n.Fun.(*ast.Ident); ok && ident.Name == "recover" {
+				depends = true
+				return false
+			}
+		case *ast.Ident:
+			if n.Obj != nil {
+				if _, ok := derived.objects[n.Obj]; ok {
+					depends = true
+					return false
+				}
+			}
+		}
+		return true
+	})
+	return depends
 }
