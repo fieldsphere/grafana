@@ -766,18 +766,11 @@ func TestZanzanaLoggerUnknownLevelFallsBackToInfo(t *testing.T) {
 
 	logger.emit("trace", "trace message")
 
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected fallback to info logger, got %d info calls", fake.InfoLogs.Calls)
+	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
+	if len(ctx) != 4 {
+		t.Fatalf("expected message+level fields, got %#v", ctx)
 	}
-	if fake.ErrorLogs.Calls != 0 || fake.WarnLogs.Calls != 0 || fake.DebugLogs.Calls != 0 {
-		t.Fatalf("unexpected non-info calls: debug=%d info=%d warn=%d error=%d", fake.DebugLogs.Calls, fake.InfoLogs.Calls, fake.WarnLogs.Calls, fake.ErrorLogs.Calls)
-	}
-	if len(fake.InfoLogs.Ctx) != 4 {
-		t.Fatalf("expected message+level fields, got %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "trace" {
-		t.Fatalf("unexpected fallback level context: %#v", fake.InfoLogs.Ctx)
-	}
+	assertMessageAndLevel(t, ctx, "trace message", "trace")
 }
 
 func TestZanzanaLoggerUnknownLevelWithFieldsIncludesNormalizedFields(t *testing.T) {
@@ -786,28 +779,9 @@ func TestZanzanaLoggerUnknownLevelWithFieldsIncludesNormalizedFields(t *testing.
 
 	logger.emit("trace", "trace message", zap.String("subject", "user-1"))
 
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected fallback to info logger, got %d info calls", fake.InfoLogs.Calls)
-	}
-	if fake.ErrorLogs.Calls != 0 || fake.WarnLogs.Calls != 0 || fake.DebugLogs.Calls != 0 {
-		t.Fatalf("unexpected non-info calls: debug=%d info=%d warn=%d error=%d", fake.DebugLogs.Calls, fake.InfoLogs.Calls, fake.WarnLogs.Calls, fake.ErrorLogs.Calls)
-	}
-	if len(fake.InfoLogs.Ctx) != 6 {
-		t.Fatalf("expected message+level+fields context, got %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[0] != "zanzanaMessage" || fake.InfoLogs.Ctx[1] != "trace message" {
-		t.Fatalf("unexpected fallback message context: %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "trace" {
-		t.Fatalf("unexpected fallback level context: %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[4] != "zanzanaFields" {
-		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
-	}
-	fields, ok := fake.InfoLogs.Ctx[5].([]any)
-	if !ok {
-		t.Fatalf("expected zanzana fields payload as []any, got %#v", fake.InfoLogs.Ctx[5])
-	}
+	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
+	fields := assertFieldsPayload(t, ctx)
+	assertMessageAndLevel(t, ctx, "trace message", "trace")
 	assertFieldsEqual(t, fields, []any{"subject", "user-1"})
 }
 
@@ -817,23 +791,9 @@ func TestZanzanaLoggerUnknownLevelWithNestedNamespaceFieldsIncludesNormalizedFie
 
 	logger.emit("trace", "trace message", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
 
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected fallback to info logger, got %d info calls", fake.InfoLogs.Calls)
-	}
-	if fake.ErrorLogs.Calls != 0 || fake.WarnLogs.Calls != 0 || fake.DebugLogs.Calls != 0 {
-		t.Fatalf("unexpected non-info calls: debug=%d info=%d warn=%d error=%d", fake.DebugLogs.Calls, fake.InfoLogs.Calls, fake.WarnLogs.Calls, fake.ErrorLogs.Calls)
-	}
-	if len(fake.InfoLogs.Ctx) != 6 {
-		t.Fatalf("expected message+level+fields context, got %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "trace" {
-		t.Fatalf("unexpected fallback level context: %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[4] != "zanzanaFields" {
-		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
-	}
-
-	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
+	fields := assertFieldsPayload(t, ctx)
+	assertMessageAndLevel(t, ctx, "trace message", "trace")
 	assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
 }
 
@@ -843,23 +803,9 @@ func TestZanzanaLoggerUnknownLevelWithNamespaceOnlyIncludesEmptyNamespacePayload
 
 	logger.emit("trace", "trace message", zap.Namespace("auth"))
 
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected fallback to info logger, got %d info calls", fake.InfoLogs.Calls)
-	}
-	if fake.ErrorLogs.Calls != 0 || fake.WarnLogs.Calls != 0 || fake.DebugLogs.Calls != 0 {
-		t.Fatalf("unexpected non-info calls: debug=%d info=%d warn=%d error=%d", fake.DebugLogs.Calls, fake.InfoLogs.Calls, fake.WarnLogs.Calls, fake.ErrorLogs.Calls)
-	}
-	if len(fake.InfoLogs.Ctx) != 6 {
-		t.Fatalf("expected message+level+fields context, got %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "trace" {
-		t.Fatalf("unexpected fallback level context: %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[4] != "zanzanaFields" {
-		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
-	}
-
-	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
+	fields := assertFieldsPayload(t, ctx)
+	assertMessageAndLevel(t, ctx, "trace message", "trace")
 	assertNamespacePayloadEmpty(t, fields, "auth")
 }
 
@@ -869,20 +815,9 @@ func TestZanzanaLoggerUnknownLevelWithTopLevelAndNamespacedFieldsIncludesNormali
 
 	logger.emit("trace", "trace message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value"))
 
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected fallback to info logger, got %d info calls", fake.InfoLogs.Calls)
-	}
-	if fake.ErrorLogs.Calls != 0 || fake.WarnLogs.Calls != 0 || fake.DebugLogs.Calls != 0 {
-		t.Fatalf("unexpected non-info calls: debug=%d info=%d warn=%d error=%d", fake.DebugLogs.Calls, fake.InfoLogs.Calls, fake.WarnLogs.Calls, fake.ErrorLogs.Calls)
-	}
-	if len(fake.InfoLogs.Ctx) != 6 {
-		t.Fatalf("expected message+level+fields context, got %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "trace" {
-		t.Fatalf("unexpected fallback level context: %#v", fake.InfoLogs.Ctx)
-	}
-
-	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
+	fields := assertFieldsPayload(t, ctx)
+	assertMessageAndLevel(t, ctx, "trace message", "trace")
 	assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
 }
 
@@ -892,15 +827,9 @@ func TestZanzanaLoggerUnknownLevelWithTopLevelNamespaceAndSkippedFieldIncludesNo
 
 	logger.emit("trace", "trace message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
 
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected fallback to info logger, got %d info calls", fake.InfoLogs.Calls)
-	}
-	if fake.ErrorLogs.Calls != 0 || fake.WarnLogs.Calls != 0 || fake.DebugLogs.Calls != 0 {
-		t.Fatalf("unexpected non-info calls: debug=%d info=%d warn=%d error=%d", fake.DebugLogs.Calls, fake.InfoLogs.Calls, fake.WarnLogs.Calls, fake.ErrorLogs.Calls)
-	}
-
-	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
-	assertMessageAndLevel(t, fake.InfoLogs.Ctx, "trace message", "trace")
+	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
+	fields := assertFieldsPayload(t, ctx)
+	assertMessageAndLevel(t, ctx, "trace message", "trace")
 	assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
 }
 
