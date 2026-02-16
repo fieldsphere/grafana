@@ -245,6 +245,14 @@ func TestAPIKey_AuthenticateWithNilContextAndNilRequest(t *testing.T) {
 	assert.ErrorContains(t, err, "API key request is nil")
 }
 
+func TestAPIKey_AuthenticateWithNilContextAndEmptyRequest(t *testing.T) {
+	client := ProvideAPIKey(&apikeytest.Service{}, nil)
+
+	identity, err := client.Authenticate(nil, &authn.Request{})
+	assert.Nil(t, identity)
+	assert.Error(t, err)
+}
+
 func TestAPIKey_AuthenticateWithNilTracer(t *testing.T) {
 	client := ProvideAPIKey(&apikeytest.Service{
 		ExpectedAPIKey: &apikey.APIKey{
