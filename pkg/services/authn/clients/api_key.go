@@ -214,7 +214,7 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 	go func(apiKeyID int64, keyID string) {
 		defer func() {
 			if panicValue := recover(); panicValue != nil {
-				s.log.Error("Panic during API key last-used sync", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "panicValue", panicValue)
+				s.log.Error("Panic during API key last-used sync", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "validationSource", validationSourceHook, "panicValue", panicValue)
 			}
 		}()
 
