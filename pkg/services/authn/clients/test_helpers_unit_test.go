@@ -39,13 +39,42 @@ func TestPtrReturnsDistinctPointers(t *testing.T) {
 func TestEncodeBasicAuth(t *testing.T) {
 	t.Parallel()
 
-	header := encodeBasicAuth("api_key", "secret")
-	require.True(t, strings.HasPrefix(header, "Basic "))
+	testCases := []struct {
+		name     string
+		username string
+		password string
+	}{
+		{
+			name:     "regular credentials",
+			username: "api_key",
+			password: "secret",
+		},
+		{
+			name:     "empty password",
+			username: "api_key",
+			password: "",
+		},
+		{
+			name:     "password with colon",
+			username: "api_key",
+			password: "sec:ret",
+		},
+	}
 
-	encoded := strings.TrimPrefix(header, "Basic ")
-	decoded, err := base64.StdEncoding.DecodeString(encoded)
-	require.NoError(t, err)
-	require.Equal(t, "api_key:secret", string(decoded))
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			header := encodeBasicAuth(tc.username, tc.password)
+			require.True(t, strings.HasPrefix(header, "Basic "))
+
+			encoded := strings.TrimPrefix(header, "Basic ")
+			decoded, err := base64.StdEncoding.DecodeString(encoded)
+			require.NoError(t, err)
+			require.Equal(t, tc.username+":"+tc.password, string(decoded))
+		})
+	}
 }
 
 func TestMustGenAPIKey(t *testing.T) {
