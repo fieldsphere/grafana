@@ -454,83 +454,63 @@ func TestZanzanaLoggerInfoWithContextAndNestedNamespaceFieldKeepsNestedPayload(t
 }
 
 func TestZanzanaLoggerMethodsIncludeStructuredFields(t *testing.T) {
-	testCases := standardMethodCases("message", false, zap.String("subject", "user-1"))
-
-	runLoggerFieldMatrix(t, testCases, func(t *testing.T, fields []any) {
+	runStandardMethodFieldMatrix(t, "message", false, func(t *testing.T, fields []any) {
 		assertFieldsEqual(t, fields, []any{"subject", "user-1"})
-	})
+	}, zap.String("subject", "user-1"))
 }
 
 func TestZanzanaLoggerMethodsWithNestedNamespaceIncludeStructuredFields(t *testing.T) {
-	testCases := standardMethodCases("nested message", false, zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
-
-	runLoggerFieldMatrix(t, testCases, func(t *testing.T, fields []any) {
+	runStandardMethodFieldMatrix(t, "nested message", false, func(t *testing.T, fields []any) {
 		assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
-	})
+	}, zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
 }
 
 func TestZanzanaLoggerMethodsWithNamespaceOnlyIncludeEmptyNamespacePayload(t *testing.T) {
-	testCases := standardMethodCases("namespace only message", false, zap.Namespace("auth"))
-
-	runLoggerFieldMatrix(t, testCases, func(t *testing.T, fields []any) {
+	runStandardMethodFieldMatrix(t, "namespace only message", false, func(t *testing.T, fields []any) {
 		assertNamespacePayloadEmpty(t, fields, "auth")
-	})
+	}, zap.Namespace("auth"))
 }
 
 func TestZanzanaLoggerMethodsWithTopLevelAndNamespacedFieldsIncludeStructuredFields(t *testing.T) {
-	testCases := standardMethodCases("mixed message", false, zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value"))
-
-	runLoggerFieldMatrix(t, testCases, func(t *testing.T, fields []any) {
+	runStandardMethodFieldMatrix(t, "mixed message", false, func(t *testing.T, fields []any) {
 		assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
-	})
+	}, zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value"))
 }
 
 func TestZanzanaLoggerMethodsWithTopLevelNamespaceAndSkippedFieldIncludeStructuredFields(t *testing.T) {
-	testCases := standardMethodCases("mixed skip message", false, zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
-
-	runLoggerFieldMatrix(t, testCases, func(t *testing.T, fields []any) {
+	runStandardMethodFieldMatrix(t, "mixed skip message", false, func(t *testing.T, fields []any) {
 		assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
-	})
+	}, zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
 }
 
 func TestZanzanaLoggerContextMethodsIncludeStructuredFields(t *testing.T) {
-	testCases := standardMethodCases("context message", true, zap.String("subject", "user-1"))
-
-	runLoggerFieldMatrix(t, testCases, func(t *testing.T, fields []any) {
+	runStandardMethodFieldMatrix(t, "context message", true, func(t *testing.T, fields []any) {
 		assertFieldsEqual(t, fields, []any{"subject", "user-1"})
-	})
+	}, zap.String("subject", "user-1"))
 }
 
 func TestZanzanaLoggerContextMethodsWithNamespaceOnlyIncludeEmptyNamespacePayload(t *testing.T) {
-	testCases := standardMethodCases("namespace only context message", true, zap.Namespace("auth"))
-
-	runLoggerFieldMatrix(t, testCases, func(t *testing.T, fields []any) {
+	runStandardMethodFieldMatrix(t, "namespace only context message", true, func(t *testing.T, fields []any) {
 		assertNamespacePayloadEmpty(t, fields, "auth")
-	})
+	}, zap.Namespace("auth"))
 }
 
 func TestZanzanaLoggerContextMethodsWithTopLevelAndNamespacedFieldsIncludeStructuredFields(t *testing.T) {
-	testCases := standardMethodCases("mixed context message", true, zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value"))
-
-	runLoggerFieldMatrix(t, testCases, func(t *testing.T, fields []any) {
+	runStandardMethodFieldMatrix(t, "mixed context message", true, func(t *testing.T, fields []any) {
 		assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
-	})
+	}, zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value"))
 }
 
 func TestZanzanaLoggerContextMethodsWithTopLevelNamespaceAndSkippedFieldIncludeStructuredFields(t *testing.T) {
-	testCases := standardMethodCases("mixed skip context message", true, zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
-
-	runLoggerFieldMatrix(t, testCases, func(t *testing.T, fields []any) {
+	runStandardMethodFieldMatrix(t, "mixed skip context message", true, func(t *testing.T, fields []any) {
 		assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
-	})
+	}, zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
 }
 
 func TestZanzanaLoggerContextMethodsWithNestedNamespaceIncludeStructuredFields(t *testing.T) {
-	testCases := standardMethodCases("nested context message", true, zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
-
-	runLoggerFieldMatrix(t, testCases, func(t *testing.T, fields []any) {
+	runStandardMethodFieldMatrix(t, "nested context message", true, func(t *testing.T, fields []any) {
 		assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
-	})
+	}, zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
 }
 
 func TestStandardMethodCasesBuildsExpectedMetadata(t *testing.T) {
@@ -815,6 +795,13 @@ func runLoggerFieldMatrix(t *testing.T, testCases []loggerFieldCase, assertField
 			}
 		})
 	}
+}
+
+func runStandardMethodFieldMatrix(t *testing.T, message string, withContext bool, assertFields func(t *testing.T, fields []any), fields ...zap.Field) {
+	t.Helper()
+
+	testCases := standardMethodCases(message, withContext, fields...)
+	runLoggerFieldMatrix(t, testCases, assertFields)
 }
 
 func runTargetFieldMatrix(t *testing.T, targetLogger, expectedMessage, expectedLevel string, testCases []targetFieldCase) {
