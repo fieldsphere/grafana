@@ -32,22 +32,24 @@ var (
 const (
 	asyncHookWaitTimeout = 200 * time.Millisecond
 
-	maxInt64APIKeyIDString                      = "9223372036854775807"
-	maxInt64APIKeyIDWithWhitespace              = " " + maxInt64APIKeyIDString + " "
-	maxInt64APIKeyIDWithControlWhitespace       = "\n" + maxInt64APIKeyIDString + "\t"
-	overflowInt64APIKeyIDString                 = "9223372036854775808"
-	signedAPIKeyIDString                        = "+123"
-	signedAPIKeyIDWithWhitespace                = " " + signedAPIKeyIDString + " "
-	signedAPIKeyIDWithControlWhitespace         = "\n" + signedAPIKeyIDString + "\t"
-	arabicIndicAPIKeyIDString                   = "١٢٣"
-	fullwidthAPIKeyIDString                     = "１２３"
-	leadingZeroAPIKeyIDString                   = "000123"
-	internalWhitespaceAPIKeyIDString            = "12 3"
-	baseAPIKeyIDString                          = "123"
-	baseAPIKeyIDWithWhitespace                  = " " + baseAPIKeyIDString + " "
-	baseAPIKeyIDWithControlWhitespace           = "\n" + baseAPIKeyIDString + "\t"
-	parsedAPIKeyIDValue                   int64 = 123
-	maxInt64APIKeyIDValue                 int64 = 9223372036854775807
+	maxInt64APIKeyIDString                           = "9223372036854775807"
+	maxInt64APIKeyIDWithWhitespace                   = " " + maxInt64APIKeyIDString + " "
+	maxInt64APIKeyIDWithControlWhitespace            = "\n" + maxInt64APIKeyIDString + "\t"
+	overflowInt64APIKeyIDString                      = "9223372036854775808"
+	overflowInt64APIKeyIDWithWhitespace              = " " + overflowInt64APIKeyIDString + " "
+	overflowInt64APIKeyIDWithControlWhitespace       = "\n" + overflowInt64APIKeyIDString + "\t"
+	signedAPIKeyIDString                             = "+123"
+	signedAPIKeyIDWithWhitespace                     = " " + signedAPIKeyIDString + " "
+	signedAPIKeyIDWithControlWhitespace              = "\n" + signedAPIKeyIDString + "\t"
+	arabicIndicAPIKeyIDString                        = "١٢٣"
+	fullwidthAPIKeyIDString                          = "１２３"
+	leadingZeroAPIKeyIDString                        = "000123"
+	internalWhitespaceAPIKeyIDString                 = "12 3"
+	baseAPIKeyIDString                               = "123"
+	baseAPIKeyIDWithWhitespace                       = " " + baseAPIKeyIDString + " "
+	baseAPIKeyIDWithControlWhitespace                = "\n" + baseAPIKeyIDString + "\t"
+	parsedAPIKeyIDValue                        int64 = 123
+	maxInt64APIKeyIDValue                      int64 = 9223372036854775807
 )
 
 func waitForUpdateCall(t *testing.T, service *updateLastUsedService) {
@@ -594,6 +596,41 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assertSyncNoUpdateForKeyID(t, client, overflowInt64APIKeyIDString, service)
 	})
 
+	t.Run("should skip update for overflow key id with surrounding whitespace", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		assertSyncNoUpdateForKeyID(t, client, overflowInt64APIKeyIDWithWhitespace, service)
+	})
+
+	t.Run("should skip update for overflow key id with surrounding control whitespace", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		assertSyncNoUpdateForKeyID(t, client, overflowInt64APIKeyIDWithControlWhitespace, service)
+	})
+
+	t.Run("should skip overflow key id with control whitespace before panic-capable update service", func(t *testing.T) {
+		service := &updateLastUsedService{panicValue: "boom"}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		assertSyncNoUpdateForKeyIDWithoutPanic(t, client, overflowInt64APIKeyIDWithControlWhitespace, service)
+	})
+
+	t.Run("should skip update for overflow key id with surrounding whitespace", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		assertSyncNoUpdateForKeyID(t, client, overflowInt64APIKeyIDWithWhitespace, service)
+	})
+
+	t.Run("should skip update for overflow key id with surrounding control whitespace", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		assertSyncNoUpdateForKeyID(t, client, overflowInt64APIKeyIDWithControlWhitespace, service)
+	})
+
 	t.Run("should skip update for non-positive key id", func(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -713,6 +750,18 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 		{
 			name:       "overflow id",
 			rawKeyID:   overflowInt64APIKeyIDString,
+			expectedID: 0,
+			expectedOK: false,
+		},
+		{
+			name:       "overflow id with surrounding whitespace",
+			rawKeyID:   overflowInt64APIKeyIDWithWhitespace,
+			expectedID: 0,
+			expectedOK: false,
+		},
+		{
+			name:       "overflow id with surrounding control whitespace",
+			rawKeyID:   overflowInt64APIKeyIDWithControlWhitespace,
 			expectedID: 0,
 			expectedOK: false,
 		},
@@ -922,6 +971,42 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		assertHookNoUpdateForKeyID(t, context.Background(), client, overflowInt64APIKeyIDString, false, service)
+	})
+
+	t.Run("should skip update when key id overflows int64 with surrounding whitespace", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		assertHookNoUpdateForKeyID(t, context.Background(), client, overflowInt64APIKeyIDWithWhitespace, false, service)
+	})
+
+	t.Run("should skip update when key id overflows int64 with surrounding control whitespace", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		assertHookNoUpdateForKeyID(t, context.Background(), client, overflowInt64APIKeyIDWithControlWhitespace, false, service)
+	})
+
+	t.Run("should skip update when key id overflows int64 with surrounding control whitespace and nil tracer/context", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, nil)
+		assertHookNoUpdateForKeyID(t, nil, client, overflowInt64APIKeyIDWithControlWhitespace, false, service)
+	})
+
+	t.Run("should skip update when key id overflows int64 with surrounding whitespace", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		assertHookNoUpdateForKeyID(t, context.Background(), client, overflowInt64APIKeyIDWithWhitespace, false, service)
+	})
+
+	t.Run("should skip update when key id overflows int64 with surrounding control whitespace", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		assertHookNoUpdateForKeyID(t, context.Background(), client, overflowInt64APIKeyIDWithControlWhitespace, false, service)
+	})
+
+	t.Run("should skip update when key id overflows int64 with surrounding control whitespace and nil tracer/context", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, nil)
+		assertHookNoUpdateForKeyID(t, nil, client, overflowInt64APIKeyIDWithControlWhitespace, false, service)
 	})
 
 	t.Run("should skip update when key id is non-positive", func(t *testing.T) {
