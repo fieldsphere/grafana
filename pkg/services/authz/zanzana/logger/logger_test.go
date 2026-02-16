@@ -180,6 +180,19 @@ func TestZanzanaLoggerInfoWithNamespaceOnlyKeepsEmptyNamespacePayload(t *testing
 	assertNamespacePayloadEmpty(t, fields, "auth")
 }
 
+func TestZanzanaLoggerInfoWithNamespaceAndSkippedFieldKeepsEmptyNamespacePayload(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.Info("token checked", zap.Namespace("auth"), zap.Skip())
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
+	}
+	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	assertNamespacePayloadEmpty(t, fields, "auth")
+}
+
 func TestZanzanaLoggerInfoWithNestedNamespaceFieldKeepsNestedPayload(t *testing.T) {
 	fake := &logtest.Fake{}
 	logger := New(fake)
@@ -318,6 +331,12 @@ func TestZapFieldsToArgsNamespaceOnlyProducesEmptyNamespacePayload(t *testing.T)
 	assertNamespacePayloadEmpty(t, args, "auth")
 }
 
+func TestZapFieldsToArgsNamespaceWithSkippedFieldKeepsEmptyNamespacePayload(t *testing.T) {
+	args := zapFieldsToArgs([]zap.Field{zap.Namespace("auth"), zap.Skip()})
+
+	assertNamespacePayloadEmpty(t, args, "auth")
+}
+
 func TestZapFieldsToArgsPreservesNestedNamespaceHierarchy(t *testing.T) {
 	args := zapFieldsToArgs(
 		[]zap.Field{
@@ -432,6 +451,22 @@ func TestZanzanaLoggerWithNamespaceOnlyKeepsEmptyNamespaceContext(t *testing.T) 
 	}
 	if len(capturing.newCtx) != 2 || capturing.newCtx[0] != "zanzanaContext" {
 		t.Fatalf("unexpected context payload: %#v", capturing.newCtx)
+	}
+
+	fields := assertContextPayloadFields(t, capturing.newCtx)
+	assertNamespacePayloadEmpty(t, fields, "auth")
+}
+
+func TestZanzanaLoggerWithNamespaceAndSkippedFieldKeepsEmptyNamespaceContext(t *testing.T) {
+	capturing := &capturingLogger{}
+	logger := New(capturing)
+
+	child := logger.With(zap.Namespace("auth"), zap.Skip())
+	if child == nil {
+		t.Fatal("expected non-nil logger")
+	}
+	if capturing.newCalls != 1 {
+		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
 	}
 
 	fields := assertContextPayloadFields(t, capturing.newCtx)
