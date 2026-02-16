@@ -274,6 +274,10 @@ func looksLikeApiKey(token string) bool {
 }
 
 func getTokenFromRequest(r *authn.Request) string {
+	if r == nil {
+		return ""
+	}
+
 	// api keys are only supported through http requests
 	if r.HTTPRequest == nil {
 		return ""

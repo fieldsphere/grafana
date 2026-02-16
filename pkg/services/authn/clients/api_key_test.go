@@ -217,6 +217,14 @@ func TestAPIKey_Authenticate(t *testing.T) {
 	}
 }
 
+func TestAPIKey_AuthenticateWithNilRequest(t *testing.T) {
+	client := ProvideAPIKey(&apikeytest.Service{}, tracing.InitializeTracerForTest())
+
+	identity, err := client.Authenticate(context.Background(), nil)
+	assert.Nil(t, identity)
+	assert.Error(t, err)
+}
+
 func TestAPIKey_AuthenticateWithNilTracer(t *testing.T) {
 	client := ProvideAPIKey(&apikeytest.Service{
 		ExpectedAPIKey: &apikey.APIKey{
@@ -274,6 +282,11 @@ func TestAPIKey_Test(t *testing.T) {
 		{
 			desc:     "should fail when no http request is passed",
 			req:      &authn.Request{},
+			expected: false,
+		},
+		{
+			desc:     "should fail when request is nil",
+			req:      nil,
 			expected: false,
 		},
 		{
