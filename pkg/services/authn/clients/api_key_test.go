@@ -157,6 +157,34 @@ func TestAPIKey_Authenticate(t *testing.T) {
 	}
 }
 
+func TestAPIKey_AuthenticateWithNilTracer(t *testing.T) {
+	client := ProvideAPIKey(&apikeytest.Service{
+		ExpectedAPIKey: &apikey.APIKey{
+			ID:               1,
+			OrgID:            1,
+			Key:              hash,
+			ServiceAccountId: intPtr(1),
+		},
+	}, nil)
+
+	req := &authn.Request{
+		HTTPRequest: &http.Request{
+			Header: map[string][]string{
+				"Authorization": {"Bearer " + secret},
+			},
+		},
+	}
+
+	identity, err := client.Authenticate(context.Background(), req)
+	assert.NoError(t, err)
+	if assert.NotNil(t, identity) {
+		assert.Equal(t, "1", identity.ID)
+		assert.Equal(t, claims.TypeServiceAccount, identity.Type)
+		assert.Equal(t, int64(1), identity.OrgID)
+		assert.Equal(t, login.APIKeyAuthModule, identity.AuthenticatedBy)
+	}
+}
+
 func TestAPIKey_Test(t *testing.T) {
 	type TestCase struct {
 		desc     string
