@@ -364,140 +364,84 @@ func TestZapFieldsToArgsPreservesDuplicateKeyOrder(t *testing.T) {
 	assertFieldsEqual(t, args, expected)
 }
 
-func TestZanzanaLoggerWithAddsStructuredContext(t *testing.T) {
-	capturing := &capturingLogger{}
-	logger := New(capturing)
-
-	child := logger.With(zap.String("subject", "user-1"), zap.Int("count", 2))
-	if child == nil {
-		t.Fatal("expected non-nil logger")
+func TestZanzanaLoggerWithContextNormalization(t *testing.T) {
+	testCases := []withContextCase{
+		{
+			name:       "adds structured context",
+			withFields: []zap.Field{zap.String("subject", "user-1"), zap.Int("count", 2)},
+			assertFields: func(t *testing.T, fields []any) {
+				assertFieldsEqual(t, fields, []any{"subject", "user-1", "count", int64(2)})
+			},
+		},
+		{
+			name:       "namespace field keeps nested context",
+			withFields: []zap.Field{zap.Namespace("auth"), zap.String("subject", "user-1"), zap.Int("attempt", 2)},
+			assertFields: func(t *testing.T, fields []any) {
+				assertNamespaceSubjectAndAttempt(t, fields, "auth", "user-1", 2)
+			},
+		},
+		{
+			name:       "namespace only keeps empty context",
+			withFields: []zap.Field{zap.Namespace("auth")},
+			assertFields: func(t *testing.T, fields []any) {
+				assertNamespacePayloadEmpty(t, fields, "auth")
+			},
+		},
+		{
+			name:       "namespace and skipped field keeps empty context",
+			withFields: []zap.Field{zap.Namespace("auth"), zap.Skip()},
+			assertFields: func(t *testing.T, fields []any) {
+				assertNamespacePayloadEmpty(t, fields, "auth")
+			},
+		},
+		{
+			name:       "nested namespace field keeps nested context",
+			withFields: []zap.Field{zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1")},
+			assertFields: func(t *testing.T, fields []any) {
+				assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
+			},
+		},
+		{
+			name:       "top-level and namespaced fields keep both payloads",
+			withFields: []zap.Field{zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value")},
+			assertFields: func(t *testing.T, fields []any) {
+				assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
+			},
+		},
+		{
+			name:       "top-level namespace and skipped field keeps payload",
+			withFields: []zap.Field{zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip()},
+			assertFields: func(t *testing.T, fields []any) {
+				assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
+			},
+		},
+		{
+			name:          "without fields keeps empty context",
+			withFields:    nil,
+			expectContext: false,
+		},
+		{
+			name:          "only skipped fields keep empty context",
+			withFields:    []zap.Field{zap.Skip()},
+			expectContext: false,
+		},
+		{
+			name:       "mixed skipped fields filter skipped",
+			withFields: []zap.Field{zap.Skip(), zap.String("subject", "user-1")},
+			assertFields: func(t *testing.T, fields []any) {
+				assertFieldsEqual(t, fields, []any{"subject", "user-1"})
+			},
+		},
+		{
+			name:       "preserves duplicate key order",
+			withFields: []zap.Field{zap.String("scope", "first"), zap.String("scope", "second")},
+			assertFields: func(t *testing.T, fields []any) {
+				assertFieldsEqual(t, fields, []any{"scope", "first", "scope", "second"})
+			},
+		},
 	}
 
-	fields := assertSingleNewCallContextFields(t, capturing)
-	expected := []any{"subject", "user-1", "count", int64(2)}
-	assertFieldsEqual(t, fields, expected)
-}
-
-func TestZanzanaLoggerWithNamespaceFieldKeepsNestedContext(t *testing.T) {
-	capturing := &capturingLogger{}
-	logger := New(capturing)
-
-	child := logger.With(zap.Namespace("auth"), zap.String("subject", "user-1"), zap.Int("attempt", 2))
-	if child == nil {
-		t.Fatal("expected non-nil logger")
-	}
-	fields := assertSingleNewCallContextFields(t, capturing)
-	assertNamespaceSubjectAndAttempt(t, fields, "auth", "user-1", 2)
-}
-
-func TestZanzanaLoggerWithNamespaceOnlyKeepsEmptyNamespaceContext(t *testing.T) {
-	capturing := &capturingLogger{}
-	logger := New(capturing)
-
-	child := logger.With(zap.Namespace("auth"))
-	if child == nil {
-		t.Fatal("expected non-nil logger")
-	}
-	fields := assertSingleNewCallContextFields(t, capturing)
-	assertNamespacePayloadEmpty(t, fields, "auth")
-}
-
-func TestZanzanaLoggerWithNamespaceAndSkippedFieldKeepsEmptyNamespaceContext(t *testing.T) {
-	capturing := &capturingLogger{}
-	logger := New(capturing)
-
-	child := logger.With(zap.Namespace("auth"), zap.Skip())
-	if child == nil {
-		t.Fatal("expected non-nil logger")
-	}
-	fields := assertSingleNewCallContextFields(t, capturing)
-	assertNamespacePayloadEmpty(t, fields, "auth")
-}
-
-func TestZanzanaLoggerWithNestedNamespaceFieldKeepsNestedContext(t *testing.T) {
-	capturing := &capturingLogger{}
-	logger := New(capturing)
-
-	child := logger.With(zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
-	if child == nil {
-		t.Fatal("expected non-nil logger")
-	}
-	fields := assertSingleNewCallContextFields(t, capturing)
-	assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
-}
-
-func TestZanzanaLoggerWithTopLevelAndNamespacedFieldsKeepsBothPayloads(t *testing.T) {
-	capturing := &capturingLogger{}
-	logger := New(capturing)
-
-	child := logger.With(zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value"))
-	if child == nil {
-		t.Fatal("expected non-nil logger")
-	}
-	fields := assertSingleNewCallContextFields(t, capturing)
-	assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
-}
-
-func TestZanzanaLoggerWithTopLevelNamespaceAndSkippedFieldKeepsPayload(t *testing.T) {
-	capturing := &capturingLogger{}
-	logger := New(capturing)
-
-	child := logger.With(zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
-	if child == nil {
-		t.Fatal("expected non-nil logger")
-	}
-	fields := assertSingleNewCallContextFields(t, capturing)
-	assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
-}
-
-func TestZanzanaLoggerWithWithoutFieldsKeepsEmptyContext(t *testing.T) {
-	capturing := &capturingLogger{}
-	logger := New(capturing)
-
-	child := logger.With()
-	if child == nil {
-		t.Fatal("expected non-nil logger")
-	}
-
-	assertSingleNewCallWithoutContext(t, capturing)
-}
-
-func TestZanzanaLoggerWithOnlySkippedFieldsKeepsEmptyContext(t *testing.T) {
-	capturing := &capturingLogger{}
-	logger := New(capturing)
-
-	child := logger.With(zap.Skip())
-	if child == nil {
-		t.Fatal("expected non-nil logger")
-	}
-
-	assertSingleNewCallWithoutContext(t, capturing)
-}
-
-func TestZanzanaLoggerWithMixedSkippedFieldsFiltersSkipped(t *testing.T) {
-	capturing := &capturingLogger{}
-	logger := New(capturing)
-
-	child := logger.With(zap.Skip(), zap.String("subject", "user-1"))
-	if child == nil {
-		t.Fatal("expected non-nil logger")
-	}
-	fields := assertSingleNewCallContextFields(t, capturing)
-	expected := []any{"subject", "user-1"}
-	assertFieldsEqual(t, fields, expected)
-}
-
-func TestZanzanaLoggerWithPreservesDuplicateKeyOrder(t *testing.T) {
-	capturing := &capturingLogger{}
-	logger := New(capturing)
-
-	child := logger.With(zap.String("scope", "first"), zap.String("scope", "second"))
-	if child == nil {
-		t.Fatal("expected non-nil logger")
-	}
-	fields := assertSingleNewCallContextFields(t, capturing)
-	expected := []any{"scope", "first", "scope", "second"}
-	assertFieldsEqual(t, fields, expected)
+	runWithContextMatrix(t, testCases)
 }
 
 func TestZanzanaLoggerErrorFamilyPreservesOriginalLevel(t *testing.T) {
@@ -1299,6 +1243,13 @@ type unknownLevelFieldCase struct {
 	assertFields func(*testing.T, []any)
 }
 
+type withContextCase struct {
+	name          string
+	withFields    []zap.Field
+	expectContext bool
+	assertFields  func(*testing.T, []any)
+}
+
 func runLoggerFieldMatrix(t *testing.T, testCases []loggerFieldCase, expectedMessage string, assertFields func(t *testing.T, fields []any)) {
 	t.Helper()
 
@@ -1329,6 +1280,35 @@ func runUnknownLevelFieldMatrix(t *testing.T, testCases []unknownLevelFieldCase,
 
 			tc.emit(logger)
 			fields := assertUnknownLevelContext(t, fake, expectedMessage, expectedLevel, true)
+			tc.assertFields(t, fields)
+		})
+	}
+}
+
+func runWithContextMatrix(t *testing.T, testCases []withContextCase) {
+	t.Helper()
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			capturing := &capturingLogger{}
+			logger := New(capturing)
+
+			child := logger.With(tc.withFields...)
+			if child == nil {
+				t.Fatal("expected non-nil logger")
+			}
+
+			expectContext := tc.expectContext || tc.assertFields != nil
+			if !expectContext {
+				assertSingleNewCallWithoutContext(t, capturing)
+				return
+			}
+
+			fields := assertSingleNewCallContextFields(t, capturing)
+			if tc.assertFields == nil {
+				t.Fatal("expected assertFields callback when context payload is expected")
+			}
 			tc.assertFields(t, fields)
 		})
 	}
