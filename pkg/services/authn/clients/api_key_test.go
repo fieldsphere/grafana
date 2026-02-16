@@ -44,6 +44,8 @@ const (
 	leadingZeroAPIKeyIDString                   = "000123"
 	internalWhitespaceAPIKeyIDString            = "12 3"
 	baseAPIKeyIDString                          = "123"
+	baseAPIKeyIDWithWhitespace                  = " " + baseAPIKeyIDString + " "
+	baseAPIKeyIDWithControlWhitespace           = "\n" + baseAPIKeyIDString + "\t"
 	parsedAPIKeyIDValue                   int64 = 123
 	maxInt64APIKeyIDValue                 int64 = 9223372036854775807
 )
@@ -421,7 +423,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		client.syncAPIKeyLastUsed(" 123 ")
+		client.syncAPIKeyLastUsed(baseAPIKeyIDWithWhitespace)
 
 		assert.True(t, service.called)
 		assertUpdatedID(t, service, parsedAPIKeyIDValue)
@@ -431,7 +433,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		client.syncAPIKeyLastUsed("\n123\t")
+		client.syncAPIKeyLastUsed(baseAPIKeyIDWithControlWhitespace)
 
 		assert.True(t, service.called)
 		assertUpdatedID(t, service, parsedAPIKeyIDValue)
@@ -481,7 +483,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		service := newUpdateLastUsedServiceWithExpectedError(errUpdateFailed)
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		client.syncAPIKeyLastUsed(" 123 ")
+		client.syncAPIKeyLastUsed(baseAPIKeyIDWithWhitespace)
 
 		assert.True(t, service.called)
 		assertUpdatedID(t, service, parsedAPIKeyIDValue)
@@ -649,13 +651,13 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 		},
 		{
 			name:       "valid numeric id with surrounding whitespace",
-			rawKeyID:   " 123 ",
+			rawKeyID:   baseAPIKeyIDWithWhitespace,
 			expectedID: 123,
 			expectedOK: true,
 		},
 		{
 			name:       "valid numeric id with control-character whitespace",
-			rawKeyID:   "\n123\t",
+			rawKeyID:   baseAPIKeyIDWithControlWhitespace,
 			expectedID: 123,
 			expectedOK: true,
 		},
