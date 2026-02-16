@@ -1395,12 +1395,7 @@ func TestZanzanaLoggerMethodsWithNamespaceOnlyIncludeEmptyNamespacePayload(t *te
 }
 
 func TestZanzanaLoggerMethodsWithTopLevelAndNamespacedFieldsIncludeStructuredFields(t *testing.T) {
-	testCases := []struct {
-		name          string
-		emit          func(*ZanzanaLogger)
-		targetLogger  string
-		expectedLevel string
-	}{
+	testCases := []loggerFieldCase{
 		{
 			name: "debug",
 			emit: func(logger *ZanzanaLogger) {
@@ -1451,20 +1446,9 @@ func TestZanzanaLoggerMethodsWithTopLevelAndNamespacedFieldsIncludeStructuredFie
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			fake := &logtest.Fake{}
-			logger := New(fake)
-
-			tc.emit(logger)
-			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
-
-			fields := assertFieldsPayload(t, ctx)
-			assertMessageAndLevel(t, ctx, "mixed message", tc.expectedLevel)
-			assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
-		})
-	}
+	runLoggerFieldMatrix(t, testCases, "mixed message", func(t *testing.T, fields []any) {
+		assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
+	})
 }
 
 func TestZanzanaLoggerMethodsWithTopLevelNamespaceAndSkippedFieldIncludeStructuredFields(t *testing.T) {
@@ -2065,6 +2049,32 @@ func TestZanzanaLoggerContextMethodsWithNestedNamespaceIncludeStructuredFields(t
 
 			fields := assertFieldsPayload(t, ctx)
 			assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
+		})
+	}
+}
+
+type loggerFieldCase struct {
+	name          string
+	emit          func(*ZanzanaLogger)
+	targetLogger  string
+	expectedLevel string
+}
+
+func runLoggerFieldMatrix(t *testing.T, testCases []loggerFieldCase, expectedMessage string, assertFields func(t *testing.T, fields []any)) {
+	t.Helper()
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			fake := &logtest.Fake{}
+			logger := New(fake)
+
+			tc.emit(logger)
+
+			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
+			fields := assertFieldsPayload(t, ctx)
+			assertMessageAndLevel(t, ctx, expectedMessage, tc.expectedLevel)
+			assertFields(t, fields)
 		})
 	}
 }
