@@ -552,6 +552,15 @@ func TestStandardMethodCasesBuildsExpectedMetadata(t *testing.T) {
 			}
 		}
 	})
+
+	t.Run("custom message context", func(t *testing.T) {
+		cases := standardMethodCases("custom context message", true)
+		for _, tc := range cases {
+			if tc.expectedMessage != "custom context message" {
+				t.Fatalf("expected custom context message for %q, got %q", tc.name, tc.expectedMessage)
+			}
+		}
+	})
 }
 
 func TestLoggerMethodMessage(t *testing.T) {
@@ -575,6 +584,38 @@ func TestLoggerMethodMessage(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestEmitByLevelPanicsOnUnknownLevel(t *testing.T) {
+	logger := New(&logtest.Fake{})
+
+	defer func() {
+		recovered := recover()
+		if recovered == nil {
+			t.Fatal("expected panic for unknown level")
+		}
+		if recovered != "unexpected log level: trace" {
+			t.Fatalf("unexpected panic payload: %#v", recovered)
+		}
+	}()
+
+	emitByLevel(logger, "trace", "trace message")
+}
+
+func TestEmitWithContextByLevelPanicsOnUnknownLevel(t *testing.T) {
+	logger := New(&logtest.Fake{})
+
+	defer func() {
+		recovered := recover()
+		if recovered == nil {
+			t.Fatal("expected panic for unknown context level")
+		}
+		if recovered != "unexpected context log level: trace" {
+			t.Fatalf("unexpected panic payload: %#v", recovered)
+		}
+	}()
+
+	emitWithContextByLevel(logger, "trace", "trace message")
 }
 
 func TestFilterLoggerCasesPreservesSourceOrder(t *testing.T) {
