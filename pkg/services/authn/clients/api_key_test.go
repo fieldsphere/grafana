@@ -512,6 +512,18 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assertUpdatedID(t, service, maxInt64APIKeyIDValue)
 	})
 
+	t.Run("should still attempt update when service returns error for max int64 key id with surrounding control whitespace", func(t *testing.T) {
+		service := &updateLastUsedService{
+			Service: apikeytest.Service{ExpectedError: errors.New("update failed")},
+		}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed(maxInt64APIKeyIDWithControlWhitespace)
+
+		assert.True(t, service.called)
+		assertUpdatedID(t, service, maxInt64APIKeyIDValue)
+	})
+
 	t.Run("should skip update for invalid key id", func(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -968,6 +980,20 @@ func TestAPIKey_Hook(t *testing.T) {
 		service.ExpectedError = errors.New("update failed")
 		client := ProvideAPIKey(service, nil)
 		assertHookUpdateForKeyID(t, nil, client, maxInt64APIKeyIDWithWhitespace, service)
+	})
+
+	t.Run("should continue when update returns an error for max int64 key id with surrounding control whitespace", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		service.ExpectedError = errors.New("update failed")
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		assertHookUpdateForKeyID(t, context.Background(), client, maxInt64APIKeyIDWithControlWhitespace, service)
+	})
+
+	t.Run("should continue when update returns an error for max int64 key id with surrounding control whitespace and nil tracer/context", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		service.ExpectedError = errors.New("update failed")
+		client := ProvideAPIKey(service, nil)
+		assertHookUpdateForKeyID(t, nil, client, maxInt64APIKeyIDWithControlWhitespace, service)
 	})
 
 	t.Run("should return immediately while async update is blocked", func(t *testing.T) {
