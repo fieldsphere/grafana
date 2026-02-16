@@ -623,109 +623,72 @@ type withContextCase struct {
 
 func standardMethodCases(message string, withContext bool, fields ...zap.Field) []loggerFieldCase {
 	fieldCopy := append([]zap.Field(nil), fields...)
-	if withContext {
-		return []loggerFieldCase{
-			{
-				name: "debugWithContext",
-				emit: func(logger *ZanzanaLogger) {
-					logger.DebugWithContext(context.Background(), loggerMethodMessage("debug", message), fieldCopy...)
-				},
-				targetLogger:    "debug",
-				expectedLevel:   "debug",
-				expectedMessage: loggerMethodMessage("debug", message),
-			},
-			{
-				name: "infoWithContext",
-				emit: func(logger *ZanzanaLogger) {
-					logger.InfoWithContext(context.Background(), loggerMethodMessage("info", message), fieldCopy...)
-				},
-				targetLogger:    "info",
-				expectedLevel:   "info",
-				expectedMessage: loggerMethodMessage("info", message),
-			},
-			{
-				name: "warnWithContext",
-				emit: func(logger *ZanzanaLogger) {
-					logger.WarnWithContext(context.Background(), loggerMethodMessage("warn", message), fieldCopy...)
-				},
-				targetLogger:    "warn",
-				expectedLevel:   "warn",
-				expectedMessage: loggerMethodMessage("warn", message),
-			},
-			{
-				name: "errorWithContext",
-				emit: func(logger *ZanzanaLogger) {
-					logger.ErrorWithContext(context.Background(), loggerMethodMessage("error", message), fieldCopy...)
-				},
-				targetLogger:    "error",
-				expectedLevel:   "error",
-				expectedMessage: loggerMethodMessage("error", message),
-			},
-			{
-				name: "panicWithContext",
-				emit: func(logger *ZanzanaLogger) {
-					logger.PanicWithContext(context.Background(), loggerMethodMessage("panic", message), fieldCopy...)
-				},
-				targetLogger:    "error",
-				expectedLevel:   "panic",
-				expectedMessage: loggerMethodMessage("panic", message),
-			},
-			{
-				name: "fatalWithContext",
-				emit: func(logger *ZanzanaLogger) {
-					logger.FatalWithContext(context.Background(), loggerMethodMessage("fatal", message), fieldCopy...)
-				},
-				targetLogger:    "error",
-				expectedLevel:   "fatal",
-				expectedMessage: loggerMethodMessage("fatal", message),
-			},
-		}
+	specs := []struct {
+		level        string
+		targetLogger string
+	}{
+		{level: "debug", targetLogger: "debug"},
+		{level: "info", targetLogger: "info"},
+		{level: "warn", targetLogger: "warn"},
+		{level: "error", targetLogger: "error"},
+		{level: "panic", targetLogger: "error"},
+		{level: "fatal", targetLogger: "error"},
 	}
 
-	return []loggerFieldCase{
-		{
-			name:            "debug",
-			emit:            func(logger *ZanzanaLogger) { logger.Debug(loggerMethodMessage("debug", message), fieldCopy...) },
-			targetLogger:    "debug",
-			expectedLevel:   "debug",
-			expectedMessage: loggerMethodMessage("debug", message),
-		},
-		{
-			name:            "info",
-			emit:            func(logger *ZanzanaLogger) { logger.Info(loggerMethodMessage("info", message), fieldCopy...) },
-			targetLogger:    "info",
-			expectedLevel:   "info",
-			expectedMessage: loggerMethodMessage("info", message),
-		},
-		{
-			name:            "warn",
-			emit:            func(logger *ZanzanaLogger) { logger.Warn(loggerMethodMessage("warn", message), fieldCopy...) },
-			targetLogger:    "warn",
-			expectedLevel:   "warn",
-			expectedMessage: loggerMethodMessage("warn", message),
-		},
-		{
-			name:            "error",
-			emit:            func(logger *ZanzanaLogger) { logger.Error(loggerMethodMessage("error", message), fieldCopy...) },
-			targetLogger:    "error",
-			expectedLevel:   "error",
-			expectedMessage: loggerMethodMessage("error", message),
-		},
-		{
-			name:            "panic",
-			emit:            func(logger *ZanzanaLogger) { logger.Panic(loggerMethodMessage("panic", message), fieldCopy...) },
-			targetLogger:    "error",
-			expectedLevel:   "panic",
-			expectedMessage: loggerMethodMessage("panic", message),
-		},
-		{
-			name:            "fatal",
-			emit:            func(logger *ZanzanaLogger) { logger.Fatal(loggerMethodMessage("fatal", message), fieldCopy...) },
-			targetLogger:    "error",
-			expectedLevel:   "fatal",
-			expectedMessage: loggerMethodMessage("fatal", message),
-		},
+	testCases := make([]loggerFieldCase, 0, len(specs))
+	for _, spec := range specs {
+		spec := spec
+		caseName := spec.level
+		if withContext {
+			caseName += "WithContext"
+		}
+		caseMessage := loggerMethodMessage(spec.level, message)
+
+		emit := func(logger *ZanzanaLogger) {
+			if withContext {
+				switch spec.level {
+				case "debug":
+					logger.DebugWithContext(context.Background(), caseMessage, fieldCopy...)
+				case "info":
+					logger.InfoWithContext(context.Background(), caseMessage, fieldCopy...)
+				case "warn":
+					logger.WarnWithContext(context.Background(), caseMessage, fieldCopy...)
+				case "error":
+					logger.ErrorWithContext(context.Background(), caseMessage, fieldCopy...)
+				case "panic":
+					logger.PanicWithContext(context.Background(), caseMessage, fieldCopy...)
+				case "fatal":
+					logger.FatalWithContext(context.Background(), caseMessage, fieldCopy...)
+				}
+				return
+			}
+
+			switch spec.level {
+			case "debug":
+				logger.Debug(caseMessage, fieldCopy...)
+			case "info":
+				logger.Info(caseMessage, fieldCopy...)
+			case "warn":
+				logger.Warn(caseMessage, fieldCopy...)
+			case "error":
+				logger.Error(caseMessage, fieldCopy...)
+			case "panic":
+				logger.Panic(caseMessage, fieldCopy...)
+			case "fatal":
+				logger.Fatal(caseMessage, fieldCopy...)
+			}
+		}
+
+		testCases = append(testCases, loggerFieldCase{
+			name:            caseName,
+			emit:            emit,
+			targetLogger:    spec.targetLogger,
+			expectedLevel:   spec.level,
+			expectedMessage: caseMessage,
+		})
 	}
+
+	return testCases
 }
 
 func loggerMethodMessage(level, message string) string {
