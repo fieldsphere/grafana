@@ -1,4 +1,11 @@
-import { logDevenvWarning } from '../../logging.js';
+function logDevenvWarning(message, context) {
+  const payload = {
+    level: 'warning',
+    message,
+    ...(context != null ? { context } : {}),
+  };
+  console.warn(JSON.stringify(payload));
+}
 
 export const createTestOrgIfNotExists = (client) => {
   let orgId = 0;
