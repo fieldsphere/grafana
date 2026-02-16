@@ -1,11 +1,13 @@
 const http = require('http');
-const { logDevenvInfo } = require('../../../logging');
 
-if (process.argv.length !== 3) {
-  throw new Error('invalid command line: use node sendLogs.js ELASTIC_BASE_URL');
-}
+(async () => {
+  const { logDevenvInfo } = await import('../../../logging.js');
 
-const ELASTIC_BASE_URL = process.argv[2];
+  if (process.argv.length !== 3) {
+    throw new Error('invalid command line: use node sendLogs.js ELASTIC_BASE_URL');
+  }
+
+  const ELASTIC_BASE_URL = process.argv[2];
 
 // helper function, do a http request
 async function jsonRequest(data, method, url, expectedStatusCode) {
@@ -175,12 +177,13 @@ async function main() {
   }
 }
 
-// when running in docker, we catch the needed stop-signal, to shutdown fast
-process.on('SIGTERM', () => {
-  logDevenvInfo('Shutdown requested', {
-    operation: 'elastic-data-sender.sigterm',
+  // when running in docker, we catch the needed stop-signal, to shutdown fast
+  process.on('SIGTERM', () => {
+    logDevenvInfo('Shutdown requested', {
+      operation: 'elastic-data-sender.sigterm',
+    });
+    process.exit(0);
   });
-  process.exit(0);
-});
 
-main();
+  main();
+})();

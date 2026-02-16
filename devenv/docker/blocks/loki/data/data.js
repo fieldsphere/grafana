@@ -1,11 +1,13 @@
 const http = require('http');
-const { logDevenvInfo } = require('../../../logging');
 
-if (process.argv.length !== 3) {
-  throw new Error('invalid command line: use node sendLogs.js LOKIC_BASE_URL');
-}
+(async () => {
+  const { logDevenvInfo } = await import('../../../logging.js');
 
-const LOKI_BASE_URL = process.argv[2];
+  if (process.argv.length !== 3) {
+    throw new Error('invalid command line: use node sendLogs.js LOKIC_BASE_URL');
+  }
+
+  const LOKI_BASE_URL = process.argv[2];
 
 // helper function, do a http request
 async function jsonRequest(data, method, url, expectedStatusCode) {
@@ -212,12 +214,13 @@ async function main() {
   await Promise.all([sendOldLogs(), sendNewLogs()])
 }
 
-// when running in docker, we catch the needed stop-signal, to shutdown fast
-process.on('SIGTERM', () => {
-  logDevenvInfo('Shutdown requested', {
-    operation: 'loki-data-sender.sigterm',
+  // when running in docker, we catch the needed stop-signal, to shutdown fast
+  process.on('SIGTERM', () => {
+    logDevenvInfo('Shutdown requested', {
+      operation: 'loki-data-sender.sigterm',
+    });
+    process.exit(0);
   });
-  process.exit(0);
-});
 
-main();
+  main();
+})();
