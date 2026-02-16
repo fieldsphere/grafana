@@ -1092,6 +1092,36 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recovered panic payloads in panic/fatal recover else-branches with append spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { $logger.Panic($msg, $*before, $key, $panicVal, $*after); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { $logger.Fatal($msg, $*before, $key, $panicVal, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { $logger.Panic($msg, $*before, $key, $panicVal, $*after); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { $logger.Fatal($msg, $*before, $key, $panicVal, $*after); $*_ }`,
+	).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
+		Report(`for recovered panic payloads in panic/fatal recover else-if branches, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { $logger.Panic($msg, []any{$*before, $key, $panicVal, $*after}...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { $logger.Fatal($msg, []any{$*before, $key, $panicVal, $*after}...); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { $logger.Panic($msg, []any{$*before, $key, $panicVal, $*after}...); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { $logger.Fatal($msg, []any{$*before, $key, $panicVal, $*after}...); $*_ }`,
+	).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
+		Report(`for recovered panic payloads in panic/fatal recover else-if branches with []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { $logger.Panic($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`if $panicVal := recover(); $panicVal == nil { $*_ } else if $cond { $logger.Fatal($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { $logger.Panic($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+		`$panicVal := recover(); if $panicVal == nil { $*_ } else if $cond { $logger.Fatal($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
+	).
+		Where(
+			m["arr"].Type.Is("[]any") &&
+				m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$"),
+		).
+		Report(`for recovered panic payloads in panic/fatal recover else-if branches with append spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
 		`if $panicVal := recover(); $panicVal != nil { $logger.Info($msg, $*before, "error", $panicVal, $*after); $*_ }`,
 		`if $panicVal := recover(); $panicVal != nil { $logger.Warn($msg, $*before, "error", $panicVal, $*after); $*_ }`,
 		`if $panicVal := recover(); $panicVal != nil { $logger.Error($msg, $*before, "error", $panicVal, $*after); $*_ }`,
