@@ -1,7 +1,10 @@
 import { map } from 'rxjs/operators';
 
 import { getFieldDisplayName } from '../../field/fieldState';
+import { createStructuredLogger } from '../../utils/structuredLogger';
 import { DataFrame, Field } from '../../types/dataFrame';
+
+const filterByValueLogger = createStructuredLogger('grafana-data.filter-by-value');
 import { DataTransformerInfo, MatcherConfig } from '../../types/transformations';
 import { getValueMatcher } from '../matchers';
 
@@ -139,7 +142,9 @@ const createFilterValueMatchers = (
     const fieldIndex = fieldIndexByName[filter.fieldName] ?? -1;
 
     if (fieldIndex < 0) {
-      console.warn(`[FilterByValue] Could not find index for field name: ${filter.fieldName}`);
+      filterByValueLogger.logWarning('Could not find index for field name', {
+        fieldName: filter.fieldName,
+      });
       return noop;
     }
 

@@ -1,17 +1,21 @@
 import { KeyValue } from '../types/data';
 
+import { createStructuredLogger } from './structuredLogger';
+
+const logger = createStructuredLogger('grafana-data.deprecation');
+
 // Avoid writing the warning message more than once every 10s
 const history: KeyValue<number> = {};
 
 export const deprecationWarning = (file: string, oldName: string, newName?: string) => {
-  let message = `[Deprecation warning] ${file}: ${oldName} is deprecated`;
+  let message = `${file}: ${oldName} is deprecated`;
   if (newName) {
     message += `. Use ${newName} instead`;
   }
   const now = Date.now();
   const last = history[message];
   if (!last || now - last > 10000) {
-    console.warn(message);
+    logger.logWarning(message, { file, oldName, newName });
     history[message] = now;
   }
 };

@@ -26,9 +26,12 @@ import {
   Without,
 } from '@prometheus-io/lezer-promql';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { t } from '@grafana/i18n';
 
 import { binaryScalarOperatorToOperatorName } from './binaryScalarOperations';
+
+const logger = createMonitoringLogger('grafana-prometheus.parsing');
 import {
   ErrorId,
   getAllByType,
@@ -72,7 +75,7 @@ export function buildVisualQueryFromString(expr: string): Omit<Context, 'replace
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    logger.logError(err instanceof Error ? err : new Error(String(err)));
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

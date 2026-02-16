@@ -1,6 +1,9 @@
 import { Registry, RegistryItem } from '../utils/Registry';
+import { createStructuredLogger } from '../utils/structuredLogger';
 
 import { createTheme, NewThemeOptionsSchema } from './createTheme';
+
+const themeRegistryLogger = createStructuredLogger('grafana-data.theme-registry');
 import aubergine from './themeDefinitions/aubergine.json';
 import debug from './themeDefinitions/debug.json';
 import desertbloom from './themeDefinitions/desertbloom.json';
@@ -79,7 +82,10 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
 for (const [name, json] of Object.entries(extraThemes)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    themeRegistryLogger.logError('Invalid theme definition', {
+      theme: name,
+      error: result.error.message,
+    });
   } else {
     const theme = result.data;
     themeRegistry.register({

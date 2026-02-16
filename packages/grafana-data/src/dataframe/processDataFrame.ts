@@ -3,6 +3,9 @@ import { isArray, isBoolean, isNumber, isString } from 'lodash';
 
 import { isDateTime } from '../datetime/moment_wrapper';
 import { fieldIndexComparer } from '../field/fieldComparers';
+import { createStructuredLogger } from '../utils/structuredLogger';
+
+const processDataFrameLogger = createStructuredLogger('grafana-data.process-data-frame');
 import { getFieldDisplayName } from '../field/fieldState';
 import { Column, LoadingState, TableData, TimeSeries, TimeSeriesValue } from '../types/data';
 import {
@@ -340,7 +343,7 @@ export function toDataFrame(data: any): DataFrame {
     return arrayToDataFrame(data);
   }
 
-  console.warn('Can not convert', data);
+  processDataFrameLogger.logWarning('Can not convert', { data });
   throw new Error('Unsupported data format');
 }
 

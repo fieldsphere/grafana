@@ -3,9 +3,12 @@ import { FixedSizeList } from 'react-window';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { BrowserLabel as PromLabel, Input, Label, useStyles2, Spinner } from '@grafana/ui';
 
 import { LIST_ITEM_SIZE } from '../../constants';
+
+const logger = createMonitoringLogger('grafana-prometheus.value-selector');
 
 import { useMetricsBrowser } from './MetricsBrowserContext';
 import { getStylesMetricsBrowser, getStylesValueSelector } from './styles';
@@ -59,7 +62,7 @@ export function ValueSelector() {
         <div className={styles.valueListArea}>
           {Object.entries(filteredLabelValues).map(([lk, lv]) => {
             if (!lk || !lv) {
-              console.error('label values are empty:', { lk, lv });
+              logger.logError(new Error('label values are empty'), { labelKey: lk, labelValue: lv });
               return null;
             }
             return (

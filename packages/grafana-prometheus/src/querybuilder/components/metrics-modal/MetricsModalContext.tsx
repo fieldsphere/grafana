@@ -12,8 +12,11 @@ import {
 } from 'react';
 
 import { SelectableValue, TimeRange } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { METRIC_LABEL, PROMETHEUS_QUERY_BUILDER_MAX_RESULTS } from '../../../constants';
+
+const logger = createMonitoringLogger('grafana-prometheus.metrics-modal');
 import { PrometheusLanguageProviderInterface } from '../../../language_provider';
 import { regexifyLabelValuesQueryString } from '../../parsingUtils';
 import { QueryBuilderLabelFilter } from '../../shared/types';
@@ -167,7 +170,9 @@ export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalConte
         } catch (error) {
           // Only update state if this is still the latest search
           if (searchId === latestSearchIdRef.current) {
-            console.error('Backend search failed:', error);
+            logger.logError(error instanceof Error ? error : new Error(String(error)), {
+              message: 'Backend search failed',
+            });
             setMetricsData([]); // Clear results on error
             setIsLoading(false);
           }
