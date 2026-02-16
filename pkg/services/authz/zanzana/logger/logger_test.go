@@ -1167,7 +1167,6 @@ func runLoggerLevelMatrix(t *testing.T, testCases []loggerFieldCase) {
 
 			tc.emit(logger)
 			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
-			assertTargetLoggerEventMessage(t, fake, tc.targetLogger, "Zanzana logger event")
 			if len(ctx) != 4 {
 				t.Fatalf("expected structured level fields, got %#v", ctx)
 			}
@@ -1262,6 +1261,7 @@ func assertSingleTargetLoggerCallAndContext(t *testing.T, fake *logtest.Fake, ta
 	if fake.ErrorLogs.Calls != expectedErrorCalls {
 		t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, expectedErrorCalls)
 	}
+	assertTargetLoggerEventMessage(t, fake, targetLogger, "Zanzana logger event")
 
 	switch targetLogger {
 	case "debug":
