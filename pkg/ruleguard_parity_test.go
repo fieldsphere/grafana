@@ -337,9 +337,11 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 			return parseErr
 		}
 		constValues := stringConstValueMap(file)
+		constNameValues := constNameValueMap(constValues)
 
 		forEachRecoverFunctionBody(file, func(body *ast.BlockStmt) {
 			recoverDerived := recoverDerivedIdentifiers(body)
+			localNames := declaredNamesInBody(body)
 			inspectBodyWithoutNestedFuncLits(body, func(inner ast.Node) bool {
 				call, ok := inner.(*ast.CallExpr)
 				if !ok {
@@ -355,7 +357,7 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 				}
 
 				for argIdx := 0; argIdx+1 < len(call.Args); argIdx++ {
-					key, ok := keyValueFromExpr(call.Args[argIdx], constValues)
+					key, ok := keyValueFromExpr(call.Args[argIdx], constValues, constNameValues, localNames)
 					if !ok {
 						continue
 					}
@@ -407,10 +409,12 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 			return parseErr
 		}
 		constValues := stringConstValueMap(file)
+		constNameValues := constNameValueMap(constValues)
 
 		forEachRecoverFunctionBody(file, func(body *ast.BlockStmt) {
 			recoverDerived := recoverDerivedIdentifiers(body)
-			badSpreadSlices := recoverDerivedSlicesWithAliasViolations(body, recoverDerived, constValues)
+			localNames := declaredNamesInBody(body)
+			badSpreadSlices := recoverDerivedSlicesWithAliasViolations(body, recoverDerived, constValues, constNameValues, localNames)
 			inspectBodyWithoutNestedFuncLits(body, func(inner ast.Node) bool {
 				call, ok := inner.(*ast.CallExpr)
 				if !ok {
@@ -441,7 +445,7 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 						continue
 					}
 
-					prevKey, ok := keyValueFromExpr(call.Args[argIdx-1], constValues)
+					prevKey, ok := keyValueFromExpr(call.Args[argIdx-1], constValues, constNameValues, localNames)
 					if !ok {
 						continue
 					}
@@ -491,6 +495,8 @@ var _ = aliasPanicKey
 	}
 
 	constValues := stringConstValueMap(file)
+	constNameValues := constNameValueMap(constValues)
+	localNames := map[string]struct{}{}
 	assertConstValue := func(name string, expected string) {
 		t.Helper()
 		obj, ok := file.Scope.Objects[name]
@@ -530,7 +536,7 @@ var _ = aliasPanicKey
 		t.Fatal("failed to locate alias const usage expression")
 	}
 
-	resolved, ok := keyValueFromExpr(aliasExpr, constValues)
+	resolved, ok := keyValueFromExpr(aliasExpr, constValues, constNameValues, localNames)
 	if !ok || resolved != "panicValue" {
 		t.Fatalf("expected keyValueFromExpr to resolve alias const to panicValue, got %q (ok=%v)", resolved, ok)
 	}
@@ -581,6 +587,55 @@ var (
 	}
 	if _, exists := constValues[boolObj]; exists {
 		t.Fatal("boolKey should not be included in string const value map")
+	}
+}
+
+func TestRecoverDerivedSlicesWithAliasViolationsTracksConstKeysAndAppendChains(t *testing.T) {
+	const src = `package p
+
+func f() {
+	const badKey = "error"
+	panicVal := recover()
+	good := []any{"panicValue", panicVal}
+	bad := []any{"ctx", 1, badKey, panicVal}
+	badAppend := append(bad, "extra", 1)
+	_ = good
+	_ = bad
+	_ = badAppend
+}
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "slices.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse slice sample: %v", err)
+	}
+
+	var body *ast.BlockStmt
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if ok && fn.Name.Name == "f" {
+			body = fn.Body
+			break
+		}
+	}
+	if body == nil {
+		t.Fatal("failed to locate test function body")
+	}
+
+	constValues := stringConstValueMap(file)
+	constNameValues := constNameValueMap(constValues)
+	recoverDerived := recoverDerivedIdentifiers(body)
+	localNames := declaredNamesInBody(body)
+	violations := recoverDerivedSlicesWithAliasViolations(body, recoverDerived, constValues, constNameValues, localNames)
+
+	if _, hasGood := violations["good"]; hasGood {
+		t.Fatal("good slice should not be marked with alias violation")
+	}
+	if got, ok := violations["bad"]; !ok || got != "error" {
+		t.Fatalf("bad slice violation = %q (ok=%v), expected \"error\"", got, ok)
+	}
+	if got, ok := violations["badAppend"]; !ok || got != "error" {
+		t.Fatalf("badAppend violation = %q (ok=%v), expected inherited \"error\"", got, ok)
 	}
 }
 
@@ -753,7 +808,13 @@ type recoverDerivedSet struct {
 	objects map[*ast.Object]struct{}
 }
 
-func recoverDerivedSlicesWithAliasViolations(body *ast.BlockStmt, recoverDerived recoverDerivedSet, constValues map[*ast.Object]string) map[string]string {
+func recoverDerivedSlicesWithAliasViolations(
+	body *ast.BlockStmt,
+	recoverDerived recoverDerivedSet,
+	constValues map[*ast.Object]string,
+	constNameValues map[string]string,
+	localNames map[string]struct{},
+) map[string]string {
 	badSlices := map[string]string{}
 
 	recordVar := func(name string, rhs ast.Expr) {
@@ -761,7 +822,7 @@ func recoverDerivedSlicesWithAliasViolations(body *ast.BlockStmt, recoverDerived
 			return
 		}
 
-		if alias := recoverAliasViolationInSliceExpr(rhs, recoverDerived, badSlices, constValues); alias != "" {
+		if alias := recoverAliasViolationInSliceExpr(rhs, recoverDerived, badSlices, constValues, constNameValues, localNames); alias != "" {
 			badSlices[name] = alias
 		}
 	}
@@ -796,7 +857,14 @@ func recoverDerivedSlicesWithAliasViolations(body *ast.BlockStmt, recoverDerived
 	return badSlices
 }
 
-func recoverAliasViolationInSliceExpr(expr ast.Expr, recoverDerived recoverDerivedSet, badSlices map[string]string, constValues map[*ast.Object]string) string {
+func recoverAliasViolationInSliceExpr(
+	expr ast.Expr,
+	recoverDerived recoverDerivedSet,
+	badSlices map[string]string,
+	constValues map[*ast.Object]string,
+	constNameValues map[string]string,
+	localNames map[string]struct{},
+) string {
 	switch n := expr.(type) {
 	case *ast.Ident:
 		return badSlices[n.Name]
@@ -805,7 +873,7 @@ func recoverAliasViolationInSliceExpr(expr ast.Expr, recoverDerived recoverDeriv
 			if !exprDependsOnRecover(n.Elts[idx], recoverDerived) {
 				continue
 			}
-			key, ok := keyValueFromExpr(n.Elts[idx-1], constValues)
+			key, ok := keyValueFromExpr(n.Elts[idx-1], constValues, constNameValues, localNames)
 			if ok && key != "panicValue" {
 				return key
 			}
@@ -823,7 +891,7 @@ func recoverAliasViolationInSliceExpr(expr ast.Expr, recoverDerived recoverDeriv
 				if !exprDependsOnRecover(n.Args[idx], recoverDerived) {
 					continue
 				}
-				key, ok := keyValueFromExpr(n.Args[idx-1], constValues)
+				key, ok := keyValueFromExpr(n.Args[idx-1], constValues, constNameValues, localNames)
 				if ok && key != "panicValue" {
 					return key
 				}
@@ -834,7 +902,7 @@ func recoverAliasViolationInSliceExpr(expr ast.Expr, recoverDerived recoverDeriv
 	return ""
 }
 
-func keyValueFromExpr(expr ast.Expr, constValues map[*ast.Object]string) (string, bool) {
+func keyValueFromExpr(expr ast.Expr, constValues map[*ast.Object]string, constNameValues map[string]string, localNames map[string]struct{}) (string, bool) {
 	basic, ok := expr.(*ast.BasicLit)
 	if ok && basic.Kind == token.STRING {
 		key, err := strconv.Unquote(basic.Value)
@@ -850,6 +918,14 @@ func keyValueFromExpr(expr ast.Expr, constValues map[*ast.Object]string) (string
 			return key, true
 		}
 	}
+	if ok && ident.Obj == nil {
+		if _, shadowed := localNames[ident.Name]; shadowed {
+			return "", false
+		}
+		if key, exists := constNameValues[ident.Name]; exists {
+			return key, true
+		}
+	}
 
 	return "", false
 }
@@ -857,10 +933,10 @@ func keyValueFromExpr(expr ast.Expr, constValues map[*ast.Object]string) (string
 func stringConstValueMap(file *ast.File) map[*ast.Object]string {
 	exprByObject := map[*ast.Object]ast.Expr{}
 
-	for _, decl := range file.Decls {
-		genDecl, ok := decl.(*ast.GenDecl)
+	ast.Inspect(file, func(node ast.Node) bool {
+		genDecl, ok := node.(*ast.GenDecl)
 		if !ok || genDecl.Tok != token.CONST {
-			continue
+			return true
 		}
 
 		var inheritedValues []ast.Expr
@@ -889,7 +965,9 @@ func stringConstValueMap(file *ast.File) map[*ast.Object]string {
 				exprByObject[name.Obj] = expr
 			}
 		}
-	}
+
+		return true
+	})
 
 	values := map[*ast.Object]string{}
 	visiting := map[*ast.Object]bool{}
@@ -942,6 +1020,17 @@ func stringConstValueMap(file *ast.File) map[*ast.Object]string {
 	return values
 }
 
+func constNameValueMap(constValues map[*ast.Object]string) map[string]string {
+	byName := map[string]string{}
+	for obj, val := range constValues {
+		if obj == nil {
+			continue
+		}
+		byName[obj.Name] = val
+	}
+	return byName
+}
+
 func constValueExprAtIndex(values []ast.Expr, idx int) (ast.Expr, bool) {
 	switch {
 	case len(values) == 0:
@@ -953,6 +1042,50 @@ func constValueExprAtIndex(values []ast.Expr, idx int) (ast.Expr, bool) {
 	default:
 		return nil, false
 	}
+}
+
+func declaredNamesInBody(body *ast.BlockStmt) map[string]struct{} {
+	names := map[string]struct{}{}
+	inspectBodyWithoutNestedFuncLits(body, func(node ast.Node) bool {
+		switch n := node.(type) {
+		case *ast.AssignStmt:
+			if n.Tok != token.DEFINE {
+				return true
+			}
+			for _, lhs := range n.Lhs {
+				if ident, ok := lhs.(*ast.Ident); ok && ident.Name != "_" {
+					names[ident.Name] = struct{}{}
+				}
+			}
+		case *ast.GenDecl:
+			if n.Tok != token.VAR {
+				return true
+			}
+			for _, spec := range n.Specs {
+				valueSpec, ok := spec.(*ast.ValueSpec)
+				if !ok {
+					continue
+				}
+				for _, ident := range valueSpec.Names {
+					if ident != nil && ident.Name != "_" {
+						names[ident.Name] = struct{}{}
+					}
+				}
+			}
+		case *ast.RangeStmt:
+			if n.Tok != token.DEFINE {
+				return true
+			}
+			if ident, ok := n.Key.(*ast.Ident); ok && ident.Name != "_" {
+				names[ident.Name] = struct{}{}
+			}
+			if ident, ok := n.Value.(*ast.Ident); ok && ident.Name != "_" {
+				names[ident.Name] = struct{}{}
+			}
+		}
+		return true
+	})
+	return names
 }
 
 func recoverDerivedIdentifiers(body *ast.BlockStmt) recoverDerivedSet {
