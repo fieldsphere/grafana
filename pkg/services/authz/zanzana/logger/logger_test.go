@@ -213,6 +213,25 @@ func TestZanzanaLoggerInfoWithNestedNamespaceFieldKeepsNestedPayload(t *testing.
 	assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
 }
 
+func TestZanzanaLoggerInfoWithTopLevelAndNamespacedFieldsKeepsBothPayloads(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.Info("token checked", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value"))
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
+	}
+	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	if len(fields) != 4 {
+		t.Fatalf("unexpected zanzana fields length: got=%d want=%d (%#v)", len(fields), 4, fields)
+	}
+	if fields[0] != "subject" || fields[1] != "user-1" {
+		t.Fatalf("unexpected top-level payload: %#v", fields)
+	}
+	assertNamespaceFieldValue(t, fields[2:], "auth", "token", "value")
+}
+
 func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
 	args := zapFieldsToArgs(
 		[]zap.Field{
@@ -913,6 +932,35 @@ func TestZanzanaLoggerUnknownLevelWithNamespaceOnlyIncludesEmptyNamespacePayload
 
 	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
 	assertNamespacePayloadEmpty(t, fields, "auth")
+}
+
+func TestZanzanaLoggerUnknownLevelWithTopLevelAndNamespacedFieldsIncludesNormalizedFields(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.emit("trace", "trace message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value"))
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected fallback to info logger, got %d info calls", fake.InfoLogs.Calls)
+	}
+	if fake.ErrorLogs.Calls != 0 || fake.WarnLogs.Calls != 0 || fake.DebugLogs.Calls != 0 {
+		t.Fatalf("unexpected non-info calls: debug=%d info=%d warn=%d error=%d", fake.DebugLogs.Calls, fake.InfoLogs.Calls, fake.WarnLogs.Calls, fake.ErrorLogs.Calls)
+	}
+	if len(fake.InfoLogs.Ctx) != 6 {
+		t.Fatalf("expected message+level+fields context, got %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "trace" {
+		t.Fatalf("unexpected fallback level context: %#v", fake.InfoLogs.Ctx)
+	}
+
+	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	if len(fields) != 4 {
+		t.Fatalf("unexpected fallback fields length: got=%d want=%d (%#v)", len(fields), 4, fields)
+	}
+	if fields[0] != "subject" || fields[1] != "user-1" {
+		t.Fatalf("unexpected top-level payload: %#v", fields)
+	}
+	assertNamespaceFieldValue(t, fields[2:], "auth", "token", "value")
 }
 
 func TestZanzanaLoggerInfoWithContextAndNestedNamespaceFieldKeepsNestedPayload(t *testing.T) {
