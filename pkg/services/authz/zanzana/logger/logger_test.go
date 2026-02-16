@@ -478,7 +478,7 @@ func TestZanzanaLoggerUnknownLevelFallsBackToInfo(t *testing.T) {
 
 	logger.emit("trace", "trace message")
 
-	assertUnknownLevelContext(t, fake, "trace message", "trace", false)
+	assertTargetLevelContext(t, fake, "info", "trace message", "trace", false)
 }
 
 func TestZanzanaLoggerUnknownLevelFieldPayloadsIncludeNormalizedFields(t *testing.T) {
@@ -1197,7 +1197,7 @@ func runUnknownLevelFieldMatrix(t *testing.T, testCases []unknownLevelFieldCase,
 			logger := New(fake)
 
 			tc.emit(logger)
-			fields := assertUnknownLevelContext(t, fake, expectedMessage, expectedLevel, true)
+			fields := assertTargetLevelContext(t, fake, "info", expectedMessage, expectedLevel, true)
 			tc.assertFields(t, fields)
 		})
 	}
@@ -1215,7 +1215,7 @@ func runInfoFieldMatrix(t *testing.T, testCases []infoFieldCase, expectedMessage
 			tc.emit(logger)
 
 			expectFields := tc.expectFields || tc.assertFields != nil
-			fields := assertInfoContext(t, fake, expectedMessage, expectFields)
+			fields := assertTargetLevelContext(t, fake, "info", expectedMessage, "info", expectFields)
 			if tc.assertFields != nil {
 				tc.assertFields(t, fields)
 			}
@@ -1354,26 +1354,11 @@ func assertSingleNewCallWithoutContext(t *testing.T, capturing *capturingLogger)
 	}
 }
 
-func assertUnknownLevelContext(t *testing.T, fake *logtest.Fake, expectedMessage, expectedLevel string, expectFields bool) []any {
+func assertTargetLevelContext(t *testing.T, fake *logtest.Fake, targetLogger, expectedMessage, expectedLevel string, expectFields bool) []any {
 	t.Helper()
 
-	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
+	ctx := assertSingleTargetLoggerCallAndContext(t, fake, targetLogger)
 	assertMessageAndLevel(t, ctx, expectedMessage, expectedLevel)
-	if !expectFields {
-		if len(ctx) != 4 {
-			t.Fatalf("expected message+level fields, got %#v", ctx)
-		}
-		return nil
-	}
-
-	return assertFieldsPayload(t, ctx)
-}
-
-func assertInfoContext(t *testing.T, fake *logtest.Fake, expectedMessage string, expectFields bool) []any {
-	t.Helper()
-
-	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
-	assertMessageAndLevel(t, ctx, expectedMessage, "info")
 	if !expectFields {
 		if len(ctx) != 4 {
 			t.Fatalf("expected message+level fields, got %#v", ctx)
