@@ -241,14 +241,7 @@ func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
 	)
 
 	expected := []any{"enabled", true, "count", int64(3), "scope", "global"}
-	if len(args) != len(expected) {
-		t.Fatalf("unexpected args length: got=%d want=%d (%#v)", len(args), len(expected), args)
-	}
-	for i := range expected {
-		if args[i] != expected[i] {
-			t.Fatalf("unexpected arg at index %d: got=%#v want=%#v (args=%#v)", i, args[i], expected[i], args)
-		}
-	}
+	assertFieldsEqual(t, args, expected)
 }
 
 func TestZapFieldsToArgsPreservesComplexValueTypes(t *testing.T) {
@@ -307,14 +300,7 @@ func TestZapFieldsToArgsSkipsNoOpFields(t *testing.T) {
 	)
 
 	expected := []any{"subject", "user-1", "count", int64(2)}
-	if len(args) != len(expected) {
-		t.Fatalf("unexpected args length: got=%d want=%d (%#v)", len(args), len(expected), args)
-	}
-	for i := range expected {
-		if args[i] != expected[i] {
-			t.Fatalf("unexpected arg at index %d: got=%#v want=%#v (%#v)", i, args[i], expected[i], args)
-		}
-	}
+	assertFieldsEqual(t, args, expected)
 }
 
 func TestZapFieldsToArgsPreservesNamespaceHierarchy(t *testing.T) {
@@ -400,14 +386,7 @@ func TestZapFieldsToArgsPreservesDuplicateKeyOrder(t *testing.T) {
 	)
 
 	expected := []any{"scope", "first", "scope", "second"}
-	if len(args) != len(expected) {
-		t.Fatalf("unexpected args length: got=%d want=%d (%#v)", len(args), len(expected), args)
-	}
-	for i := range expected {
-		if args[i] != expected[i] {
-			t.Fatalf("unexpected arg at index %d: got=%#v want=%#v (%#v)", i, args[i], expected[i], args)
-		}
-	}
+	assertFieldsEqual(t, args, expected)
 }
 
 func TestZanzanaLoggerWithAddsStructuredContext(t *testing.T) {
@@ -434,14 +413,7 @@ func TestZanzanaLoggerWithAddsStructuredContext(t *testing.T) {
 		t.Fatalf("expected zanzanaContext payload to be []any, got %#v", capturing.newCtx[1])
 	}
 	expected := []any{"subject", "user-1", "count", int64(2)}
-	if len(fields) != len(expected) {
-		t.Fatalf("unexpected zanzanaContext field length: got=%d want=%d (%#v)", len(fields), len(expected), fields)
-	}
-	for i := range expected {
-		if fields[i] != expected[i] {
-			t.Fatalf("unexpected zanzanaContext field at index %d: got=%#v want=%#v (%#v)", i, fields[i], expected[i], fields)
-		}
-	}
+	assertFieldsEqual(t, fields, expected)
 }
 
 func TestZanzanaLoggerWithNamespaceFieldKeepsNestedContext(t *testing.T) {
@@ -620,14 +592,7 @@ func TestZanzanaLoggerWithMixedSkippedFieldsFiltersSkipped(t *testing.T) {
 		t.Fatalf("expected zanzanaContext payload to be []any, got %#v", capturing.newCtx[1])
 	}
 	expected := []any{"subject", "user-1"}
-	if len(fields) != len(expected) {
-		t.Fatalf("unexpected filtered field length: got=%d want=%d (%#v)", len(fields), len(expected), fields)
-	}
-	for i := range expected {
-		if fields[i] != expected[i] {
-			t.Fatalf("unexpected filtered field at index %d: got=%#v want=%#v (%#v)", i, fields[i], expected[i], fields)
-		}
-	}
+	assertFieldsEqual(t, fields, expected)
 }
 
 func TestZanzanaLoggerWithPreservesDuplicateKeyOrder(t *testing.T) {
@@ -650,14 +615,7 @@ func TestZanzanaLoggerWithPreservesDuplicateKeyOrder(t *testing.T) {
 		t.Fatalf("expected zanzanaContext payload to be []any, got %#v", capturing.newCtx[1])
 	}
 	expected := []any{"scope", "first", "scope", "second"}
-	if len(fields) != len(expected) {
-		t.Fatalf("unexpected duplicate key payload length: got=%d want=%d (%#v)", len(fields), len(expected), fields)
-	}
-	for i := range expected {
-		if fields[i] != expected[i] {
-			t.Fatalf("unexpected duplicate key field at index %d: got=%#v want=%#v (%#v)", i, fields[i], expected[i], fields)
-		}
-	}
+	assertFieldsEqual(t, fields, expected)
 }
 
 func TestZanzanaLoggerErrorFamilyPreservesOriginalLevel(t *testing.T) {
