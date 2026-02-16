@@ -812,6 +812,56 @@ func TestZanzanaLoggerUnknownLevelWithFieldsIncludesNormalizedFields(t *testing.
 	}
 }
 
+func TestZanzanaLoggerUnknownLevelWithNestedNamespaceFieldsIncludesNormalizedFields(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.emit("trace", "trace message", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected fallback to info logger, got %d info calls", fake.InfoLogs.Calls)
+	}
+	if fake.ErrorLogs.Calls != 0 || fake.WarnLogs.Calls != 0 || fake.DebugLogs.Calls != 0 {
+		t.Fatalf("unexpected non-info calls: debug=%d info=%d warn=%d error=%d", fake.DebugLogs.Calls, fake.InfoLogs.Calls, fake.WarnLogs.Calls, fake.ErrorLogs.Calls)
+	}
+	if len(fake.InfoLogs.Ctx) != 6 {
+		t.Fatalf("expected message+level+fields context, got %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "trace" {
+		t.Fatalf("unexpected fallback level context: %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[4] != "zanzanaFields" {
+		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
+	}
+
+	fields, ok := fake.InfoLogs.Ctx[5].([]any)
+	if !ok {
+		t.Fatalf("expected zanzana fields payload as []any, got %#v", fake.InfoLogs.Ctx[5])
+	}
+	if len(fields) != 2 {
+		t.Fatalf("unexpected fallback fields length: got=%d want=%d (%#v)", len(fields), 2, fields)
+	}
+	if fields[0] != "auth" {
+		t.Fatalf("unexpected outer namespace key: %#v", fields)
+	}
+
+	authPayload, ok := fields[1].(map[string]any)
+	if !ok {
+		t.Fatalf("expected outer namespace payload as map[string]any, got %#v", fields[1])
+	}
+	tokenPayloadValue, ok := authPayload["token"]
+	if !ok {
+		t.Fatalf("expected nested token namespace payload: %#v", authPayload)
+	}
+	tokenPayload, ok := tokenPayloadValue.(map[string]any)
+	if !ok {
+		t.Fatalf("expected nested token namespace payload as map[string]any, got %#v", tokenPayloadValue)
+	}
+	if tokenPayload["subject"] != "user-1" {
+		t.Fatalf("unexpected nested namespace subject payload: %#v", tokenPayload)
+	}
+}
+
 func TestZanzanaLoggerMethodsIncludeStructuredFields(t *testing.T) {
 	testCases := []struct {
 		name          string
