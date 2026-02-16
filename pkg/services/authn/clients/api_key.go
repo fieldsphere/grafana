@@ -37,6 +37,14 @@ const (
 	metaKeyID           = "keyID"
 	metaKeySkipLastUsed = "keySkipLastUsed"
 
+	fieldAPIKeyID         = "apiKeyID"
+	fieldAPIKeyIDRaw      = "apiKeyIDRaw"
+	fieldAPIKeyNumericID  = "apiKeyNumericID"
+	fieldSkipReason       = "skipReason"
+	fieldValidationReason = "validationReason"
+	fieldValidationSource = "validationSource"
+	fieldPanicValue       = "panicValue"
+
 	skipReasonRequestIsNil      = "requestIsNil"
 	skipReasonSkipMarkerPresent = "skipLastUsedMarkerPresent"
 	skipReasonMissingAPIKeyID   = "missingAPIKeyID"
@@ -191,19 +199,19 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 	defer span.End()
 
 	if r == nil {
-		s.log.Warn("Skipping API key last-used hook", "skipReason", skipReasonRequestIsNil, "validationSource", validationSourceHook)
+		s.log.Warn("Skipping API key last-used hook", fieldSkipReason, skipReasonRequestIsNil, fieldValidationSource, validationSourceHook)
 		return nil
 	}
 
 	rawKeyID := r.GetMeta(metaKeyID)
 	keyID := strings.TrimSpace(rawKeyID)
 	if r.GetMeta(metaKeySkipLastUsed) != "" {
-		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonSkipMarkerPresent, "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "validationSource", validationSourceHook)
+		s.log.Debug("Skipping API key last-used hook", fieldSkipReason, skipReasonSkipMarkerPresent, fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldValidationSource, validationSourceHook)
 		return nil
 	}
 
 	if keyID == "" {
-		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonMissingAPIKeyID, "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "validationSource", validationSourceHook)
+		s.log.Debug("Skipping API key last-used hook", fieldSkipReason, skipReasonMissingAPIKeyID, fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldValidationSource, validationSourceHook)
 		return nil
 	}
 
@@ -215,7 +223,7 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 	go func(apiKeyID int64, keyID string, rawKeyID string) {
 		defer func() {
 			if panicValue := recover(); panicValue != nil {
-				s.log.Error("Panic during API key last-used sync", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "apiKeyNumericID", apiKeyID, "validationSource", validationSourceHook, "panicValue", panicValue)
+				s.log.Error("Panic during API key last-used sync", fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldAPIKeyNumericID, apiKeyID, fieldValidationSource, validationSourceHook, fieldPanicValue, panicValue)
 			}
 		}()
 
@@ -230,7 +238,7 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 	keyID = strings.TrimSpace(keyID)
 
 	if keyID == "" {
-		s.log.Debug("Skipping API key last-used update", "skipReason", skipReasonMissingAPIKeyID, "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "validationSource", validationSourceSync)
+		s.log.Debug("Skipping API key last-used update", fieldSkipReason, skipReasonMissingAPIKeyID, fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldValidationSource, validationSourceSync)
 		return
 	}
 
@@ -244,7 +252,7 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 
 func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string, rawKeyID string, validationSource string) {
 	if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), apiKeyID); err != nil {
-		s.log.Warn("Failed to update last used date for API key", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "apiKeyNumericID", apiKeyID, "validationSource", validationSource, "error", err)
+		s.log.Warn("Failed to update last used date for API key", fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldAPIKeyNumericID, apiKeyID, fieldValidationSource, validationSource, "error", err)
 		return
 	}
 }
@@ -253,17 +261,17 @@ func (s *APIKey) parseAndValidateAPIKeyID(rawKeyID string, validationSource stri
 	keyID := strings.TrimSpace(rawKeyID)
 
 	if !containsOnlyDigits(keyID) {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "validationReason", validationReasonMustContainDigitsOnly, "validationSource", validationSource)
+		s.log.Warn("Invalid API key ID", fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldValidationReason, validationReasonMustContainDigitsOnly, fieldValidationSource, validationSource)
 		return 0, false
 	}
 
 	apiKeyID, err := strconv.ParseInt(keyID, 10, 64)
 	if err != nil {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "validationReason", validationReasonMustFitInt64, "validationSource", validationSource, "error", err)
+		s.log.Warn("Invalid API key ID", fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldValidationReason, validationReasonMustFitInt64, fieldValidationSource, validationSource, "error", err)
 		return 0, false
 	}
 	if apiKeyID < 1 {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "apiKeyNumericID", apiKeyID, "validationReason", validationReasonMustBePositiveInteger, "validationSource", validationSource)
+		s.log.Warn("Invalid API key ID", fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldAPIKeyNumericID, apiKeyID, fieldValidationReason, validationReasonMustBePositiveInteger, fieldValidationSource, validationSource)
 		return 0, false
 	}
 
