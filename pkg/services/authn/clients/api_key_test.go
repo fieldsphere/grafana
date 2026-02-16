@@ -115,6 +115,15 @@ func assertSyncNoUpdateForKeyID(t *testing.T, client *APIKey, keyID string, serv
 	assert.False(t, service.called)
 }
 
+func assertSyncNoUpdateForKeyIDWithoutPanic(t *testing.T, client *APIKey, keyID string, service *updateLastUsedService) {
+	t.Helper()
+
+	assert.NotPanics(t, func() {
+		client.syncAPIKeyLastUsed(keyID)
+	})
+	assert.False(t, service.called)
+}
+
 func assertSyncNoUpdateAndNoPanicForKeyID(t *testing.T, client *APIKey, keyID string, service *updateLastUsedService) {
 	t.Helper()
 
@@ -547,20 +556,14 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		service := &updateLastUsedService{panicValue: "boom"}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		assert.NotPanics(t, func() {
-			client.syncAPIKeyLastUsed(signedAPIKeyIDWithControlWhitespace)
-		})
-		assert.False(t, service.called)
+		assertSyncNoUpdateForKeyIDWithoutPanic(t, client, signedAPIKeyIDWithControlWhitespace, service)
 	})
 
 	t.Run("should skip signed key id with surrounding whitespace before panic-capable update service", func(t *testing.T) {
 		service := &updateLastUsedService{panicValue: "boom"}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		assert.NotPanics(t, func() {
-			client.syncAPIKeyLastUsed(signedAPIKeyIDWithWhitespace)
-		})
-		assert.False(t, service.called)
+		assertSyncNoUpdateForKeyIDWithoutPanic(t, client, signedAPIKeyIDWithWhitespace, service)
 	})
 
 	t.Run("should skip update for arabic-indic digit key id", func(t *testing.T) {
