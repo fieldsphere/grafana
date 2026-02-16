@@ -536,6 +536,54 @@ var _ = aliasPanicKey
 	}
 }
 
+func TestStringConstValueMapSkipsNonStringConstants(t *testing.T) {
+	const src = `package p
+
+const (
+	stringKey = "panicValue"
+	intKey    = 42
+	boolKey   = true
+)
+
+var (
+	_ = stringKey
+	_ = intKey
+	_ = boolKey
+)
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "consts_nonstring.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse const sample: %v", err)
+	}
+
+	constValues := stringConstValueMap(file)
+
+	stringObj, ok := file.Scope.Objects["stringKey"]
+	if !ok {
+		t.Fatal("missing stringKey object")
+	}
+	if got, ok := constValues[stringObj]; !ok || got != "panicValue" {
+		t.Fatalf("expected stringKey to resolve to panicValue, got %q (ok=%v)", got, ok)
+	}
+
+	intObj, ok := file.Scope.Objects["intKey"]
+	if !ok {
+		t.Fatal("missing intKey object")
+	}
+	if _, exists := constValues[intObj]; exists {
+		t.Fatal("intKey should not be included in string const value map")
+	}
+
+	boolObj, ok := file.Scope.Objects["boolKey"]
+	if !ok {
+		t.Fatal("missing boolKey object")
+	}
+	if _, exists := constValues[boolObj]; exists {
+		t.Fatal("boolKey should not be included in string const value map")
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
