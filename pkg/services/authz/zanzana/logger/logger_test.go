@@ -1399,56 +1399,10 @@ func TestZanzanaLoggerMethodsWithTopLevelAndNamespacedFieldsIncludeStructuredFie
 			logger := New(fake)
 
 			tc.emit(logger)
-
-			expectedDebugCalls := 0
-			expectedInfoCalls := 0
-			expectedWarnCalls := 0
-			expectedErrorCalls := 0
-			switch tc.targetLogger {
-			case "debug":
-				expectedDebugCalls = 1
-			case "info":
-				expectedInfoCalls = 1
-			case "warn":
-				expectedWarnCalls = 1
-			case "error":
-				expectedErrorCalls = 1
-			default:
-				t.Fatalf("unknown target logger %q", tc.targetLogger)
-			}
-
-			if fake.DebugLogs.Calls != expectedDebugCalls {
-				t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, expectedDebugCalls)
-			}
-			if fake.InfoLogs.Calls != expectedInfoCalls {
-				t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, expectedInfoCalls)
-			}
-			if fake.WarnLogs.Calls != expectedWarnCalls {
-				t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, expectedWarnCalls)
-			}
-			if fake.ErrorLogs.Calls != expectedErrorCalls {
-				t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, expectedErrorCalls)
-			}
-
-			var ctx []any
-			switch tc.targetLogger {
-			case "debug":
-				ctx = fake.DebugLogs.Ctx
-			case "info":
-				ctx = fake.InfoLogs.Ctx
-			case "warn":
-				ctx = fake.WarnLogs.Ctx
-			case "error":
-				ctx = fake.ErrorLogs.Ctx
-			}
+			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
 
 			fields := assertFieldsPayload(t, ctx)
-			if ctx[0] != "zanzanaMessage" || ctx[1] != "mixed message" {
-				t.Fatalf("unexpected zanzana message context: %#v", ctx)
-			}
-			if ctx[2] != "zanzanaLevel" || ctx[3] != tc.expectedLevel {
-				t.Fatalf("unexpected zanzana level context: %#v", ctx)
-			}
+			assertMessageAndLevel(t, ctx, "mixed message", tc.expectedLevel)
 			assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
 		})
 	}
@@ -1778,56 +1732,10 @@ func TestZanzanaLoggerContextMethodsWithTopLevelAndNamespacedFieldsIncludeStruct
 			logger := New(fake)
 
 			tc.emit(logger)
-
-			expectedDebugCalls := 0
-			expectedInfoCalls := 0
-			expectedWarnCalls := 0
-			expectedErrorCalls := 0
-			switch tc.targetLogger {
-			case "debug":
-				expectedDebugCalls = 1
-			case "info":
-				expectedInfoCalls = 1
-			case "warn":
-				expectedWarnCalls = 1
-			case "error":
-				expectedErrorCalls = 1
-			default:
-				t.Fatalf("unknown target logger %q", tc.targetLogger)
-			}
-
-			if fake.DebugLogs.Calls != expectedDebugCalls {
-				t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, expectedDebugCalls)
-			}
-			if fake.InfoLogs.Calls != expectedInfoCalls {
-				t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, expectedInfoCalls)
-			}
-			if fake.WarnLogs.Calls != expectedWarnCalls {
-				t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, expectedWarnCalls)
-			}
-			if fake.ErrorLogs.Calls != expectedErrorCalls {
-				t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, expectedErrorCalls)
-			}
-
-			var ctx []any
-			switch tc.targetLogger {
-			case "debug":
-				ctx = fake.DebugLogs.Ctx
-			case "info":
-				ctx = fake.InfoLogs.Ctx
-			case "warn":
-				ctx = fake.WarnLogs.Ctx
-			case "error":
-				ctx = fake.ErrorLogs.Ctx
-			}
+			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
 
 			fields := assertFieldsPayload(t, ctx)
-			if ctx[0] != "zanzanaMessage" || ctx[1] != "mixed context message" {
-				t.Fatalf("unexpected zanzana message context: %#v", ctx)
-			}
-			if ctx[2] != "zanzanaLevel" || ctx[3] != tc.expectedLevel {
-				t.Fatalf("unexpected zanzana level context: %#v", ctx)
-			}
+			assertMessageAndLevel(t, ctx, "mixed context message", tc.expectedLevel)
 			assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
 		})
 	}
@@ -1953,6 +1861,65 @@ func TestZanzanaLoggerContextMethodsWithNestedNamespaceIncludeStructuredFields(t
 			fields := assertFieldsPayload(t, ctx)
 			assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
 		})
+	}
+}
+
+func assertSingleTargetLoggerCallAndContext(t *testing.T, fake *logtest.Fake, targetLogger string) []any {
+	t.Helper()
+
+	expectedDebugCalls := 0
+	expectedInfoCalls := 0
+	expectedWarnCalls := 0
+	expectedErrorCalls := 0
+	switch targetLogger {
+	case "debug":
+		expectedDebugCalls = 1
+	case "info":
+		expectedInfoCalls = 1
+	case "warn":
+		expectedWarnCalls = 1
+	case "error":
+		expectedErrorCalls = 1
+	default:
+		t.Fatalf("unknown target logger %q", targetLogger)
+	}
+
+	if fake.DebugLogs.Calls != expectedDebugCalls {
+		t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, expectedDebugCalls)
+	}
+	if fake.InfoLogs.Calls != expectedInfoCalls {
+		t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, expectedInfoCalls)
+	}
+	if fake.WarnLogs.Calls != expectedWarnCalls {
+		t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, expectedWarnCalls)
+	}
+	if fake.ErrorLogs.Calls != expectedErrorCalls {
+		t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, expectedErrorCalls)
+	}
+
+	switch targetLogger {
+	case "debug":
+		return fake.DebugLogs.Ctx
+	case "info":
+		return fake.InfoLogs.Ctx
+	case "warn":
+		return fake.WarnLogs.Ctx
+	case "error":
+		return fake.ErrorLogs.Ctx
+	default:
+		t.Fatalf("unknown target logger %q", targetLogger)
+		return nil
+	}
+}
+
+func assertMessageAndLevel(t *testing.T, ctx []any, expectedMessage, expectedLevel string) {
+	t.Helper()
+
+	if ctx[0] != "zanzanaMessage" || ctx[1] != expectedMessage {
+		t.Fatalf("unexpected zanzana message context: %#v", ctx)
+	}
+	if ctx[2] != "zanzanaLevel" || ctx[3] != expectedLevel {
+		t.Fatalf("unexpected zanzana level context: %#v", ctx)
 	}
 }
 
