@@ -34,8 +34,9 @@ var (
 )
 
 const (
-	metaKeyID           = "keyID"
-	metaKeySkipLastUsed = "keySkipLastUsed"
+	metaKeyID             = "keyID"
+	metaKeySkipLastUsed   = "keySkipLastUsed"
+	metaValueSkipLastUsed = "true"
 
 	fieldAPIKeyID         = "apiKeyID"
 	fieldAPIKeyIDRaw      = "apiKeyIDRaw"
@@ -114,7 +115,7 @@ func (s *APIKey) Authenticate(ctx context.Context, r *authn.Request) (*authn.Ide
 	if !shouldUpdateLastUsedAt(key) {
 		// Hack to just have some value, we will check this key in the hook
 		// and if its not an empty string we will not update last used.
-		r.SetMeta(metaKeySkipLastUsed, "true")
+		r.SetMeta(metaKeySkipLastUsed, metaValueSkipLastUsed)
 	}
 
 	return newServiceAccountIdentity(key), nil

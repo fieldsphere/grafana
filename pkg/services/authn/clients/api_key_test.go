@@ -115,13 +115,22 @@ func assertSyncNoUpdateForKeyID(t *testing.T, client *APIKey, keyID string, serv
 	assert.False(t, service.called)
 }
 
+func assertSyncNoUpdateAndNoPanicForKeyID(t *testing.T, client *APIKey, keyID string, service *updateLastUsedService) {
+	t.Helper()
+
+	assert.NotPanics(t, func() {
+		client.syncAPIKeyLastUsed(keyID)
+	})
+	assert.False(t, service.called)
+}
+
 func newHookRequestWithMeta(keyID string, shouldSkipLastUsed bool) *authn.Request {
 	req := &authn.Request{}
 	if keyID != "" {
 		req.SetMeta(metaKeyID, keyID)
 	}
 	if shouldSkipLastUsed {
-		req.SetMeta(metaKeySkipLastUsed, "true")
+		req.SetMeta(metaKeySkipLastUsed, metaValueSkipLastUsed)
 	}
 
 	return req
@@ -131,7 +140,7 @@ func newHookRequestWithExplicitEmptyKey(shouldSkipLastUsed bool) *authn.Request 
 	req := &authn.Request{}
 	req.SetMeta(metaKeyID, "")
 	if shouldSkipLastUsed {
-		req.SetMeta(metaKeySkipLastUsed, "true")
+		req.SetMeta(metaKeySkipLastUsed, metaValueSkipLastUsed)
 	}
 
 	return req
