@@ -8,6 +8,7 @@ import { DEFAULT_LANGUAGE, PSEUDO_LOCALE } from './constants';
 import { initRegionalFormat } from './dates';
 import { LANGUAGES } from './languages';
 import { ResourceLoader, Resources, TFunction, TransProps, TransType } from './types';
+import { i18nLogger } from './utils/structuredLogger';
 
 let tFunc: I18NextTFunction<string[], undefined> | undefined;
 let transComponent: TransType;
@@ -44,7 +45,11 @@ export async function loadNamespacedResources(namespace: string, language: strin
         const resources = await loader(resolvedLanguage);
         addResourceBundle(resolvedLanguage, namespace, resources);
       } catch (error) {
-        console.error(`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, error);
+        i18nLogger.logError('Error loading resources', {
+          namespace,
+          language: resolvedLanguage,
+          error: error instanceof Error ? error.message : String(error),
+        });
       }
     })
   );
@@ -202,7 +207,7 @@ export const t: TFunction = (id: string, defaultMessage: string, values?: Record
   initDefaultI18nInstance();
   if (!tFunc) {
     if (process.env.NODE_ENV !== 'test') {
-      console.warn(
+      i18nLogger.logWarning(
         't() was called before i18n was initialized. This is probably caused by calling t() in the root module scope, instead of lazily on render'
       );
     }

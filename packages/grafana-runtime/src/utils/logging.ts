@@ -4,6 +4,20 @@ import { config } from '../config';
 
 export { LogLevel };
 
+function formatStructuredLog(level: string, message: string, contexts?: LogContext): string {
+  const entry = {
+    level,
+    message,
+    timestamp: new Date().toISOString(),
+    ...contexts,
+  };
+  return JSON.stringify(entry);
+}
+
+function shouldLogToConsole(): boolean {
+  return process.env.NODE_ENV !== 'test' && typeof console !== 'undefined';
+}
+
 /**
  * Log a message at INFO level
  * @public
@@ -14,6 +28,9 @@ export function logInfo(message: string, contexts?: LogContext) {
       level: LogLevel.INFO,
       context: contexts,
     });
+  }
+  if (shouldLogToConsole() && !config.grafanaJavascriptAgent.enabled) {
+    console.log(formatStructuredLog('info', message, contexts));
   }
 }
 
@@ -29,6 +46,9 @@ export function logWarning(message: string, contexts?: LogContext) {
       context: contexts,
     });
   }
+  if (shouldLogToConsole() && !config.grafanaJavascriptAgent.enabled) {
+    console.warn(formatStructuredLog('warn', message, contexts));
+  }
 }
 
 /**
@@ -43,6 +63,9 @@ export function logDebug(message: string, contexts?: LogContext) {
       context: contexts,
     });
   }
+  if (shouldLogToConsole() && !config.grafanaJavascriptAgent.enabled) {
+    console.debug(formatStructuredLog('debug', message, contexts));
+  }
 }
 
 /**
@@ -55,6 +78,16 @@ export function logError(err: Error, contexts?: LogContext) {
     faro.api.pushError(err, {
       context: contexts,
     });
+  }
+  if (shouldLogToConsole() && !config.grafanaJavascriptAgent.enabled) {
+    const entry = {
+      level: 'error',
+      message: err.message,
+      stack: err.stack,
+      timestamp: new Date().toISOString(),
+      ...contexts,
+    };
+    console.error(JSON.stringify(entry));
   }
 }
 
@@ -73,6 +106,16 @@ export function logMeasurement(type: string, values: MeasurementValues, context?
       },
       { context: context }
     );
+  }
+  if (shouldLogToConsole() && !config.grafanaJavascriptAgent.enabled) {
+    const entry = {
+      level: 'measurement',
+      type,
+      values,
+      timestamp: new Date().toISOString(),
+      ...context,
+    };
+    console.debug(JSON.stringify(entry));
   }
 }
 

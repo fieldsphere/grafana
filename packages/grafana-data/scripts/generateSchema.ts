@@ -19,4 +19,11 @@ fs.writeFileSync(
   )
 );
 
-console.log('Successfully generated theme schema');
+process.stdout.write(
+  JSON.stringify({
+    level: 'info',
+    source: 'grafana-data.generate-schema',
+    message: 'Successfully generated theme schema',
+    timestamp: new Date().toISOString(),
+  }) + '\n'
+);

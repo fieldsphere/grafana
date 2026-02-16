@@ -1,5 +1,8 @@
 import { getFieldDisplayName } from '../../field/fieldState';
 import { stringToJsRegex } from '../../text/string';
+import { createStructuredLogger } from '../../utils/structuredLogger';
+
+const nameMatcherLogger = createStructuredLogger('grafana-data.name-matcher');
 import { DataFrame, Field, FieldType, TIME_SERIES_VALUE_FIELD_NAME } from '../../types/dataFrame';
 import { FieldMatcher, FieldMatcherInfo, FrameMatcherInfo } from '../../types/transformations';
 
@@ -201,7 +204,7 @@ const patternToRegex = (pattern?: string): RegExp | undefined => {
   try {
     return stringToJsRegex(pattern);
   } catch (error) {
-    console.error(error);
+    nameMatcherLogger.logErrorFromError(error instanceof Error ? error : new Error(String(error)));
     return undefined;
   }
 };

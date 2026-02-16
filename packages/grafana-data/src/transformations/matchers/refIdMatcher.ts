@@ -1,5 +1,8 @@
 import { escapeStringForRegex, stringStartsAsRegEx, stringToJsRegex } from '../../text/string';
+import { createStructuredLogger } from '../../utils/structuredLogger';
 import { DataFrame } from '../../types/dataFrame';
+
+const refIdMatcherLogger = createStructuredLogger('grafana-data.ref-id-matcher');
 import { FrameMatcherInfo } from '../../types/transformations';
 
 import { FrameMatcherID } from './ids';
@@ -19,7 +22,7 @@ const refIdMatcher: FrameMatcherInfo<string> = {
         regex = stringToJsRegex(pattern);
       } catch (error) {
         if (error instanceof Error) {
-          console.warn(error.message);
+          refIdMatcherLogger.logWarning(error.message);
         }
       }
     }

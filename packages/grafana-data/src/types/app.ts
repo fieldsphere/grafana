@@ -1,8 +1,11 @@
 import { ComponentType } from 'react';
 
+import { createStructuredLogger } from '../utils/structuredLogger';
 import { throwIfAngular } from '../utils/throwIfAngular';
 
 import { KeyValue } from './data';
+
+const appLogger = createStructuredLogger('grafana-data.app');
 import { NavModel } from './navModel';
 import { PluginMeta, GrafanaPlugin, PluginIncludeType } from './plugin';
 import {
@@ -93,7 +96,10 @@ export class AppPlugin<T extends KeyValue = KeyValue> extends GrafanaPlugin<AppP
           const exp = pluginExports[include.component];
 
           if (!exp) {
-            console.warn('App Page uses unknown component: ', include.component, this.meta);
+            appLogger.logWarning('App Page uses unknown component', {
+              component: include.component,
+              meta: this.meta,
+            });
             continue;
           }
         }

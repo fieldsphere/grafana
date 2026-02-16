@@ -1,6 +1,9 @@
 import { ComponentType } from 'react';
 
+import { createStructuredLogger } from '../utils/structuredLogger';
 import { KeyValue } from './data';
+
+const pluginLogger = createStructuredLogger('grafana-data.plugin');
 import { IconName } from './icon';
 
 /** Describes plugins life cycle status */
@@ -260,7 +263,7 @@ export class GrafanaPlugin<T extends PluginMeta = PluginMeta> {
    * @deprecated -- this is no longer necessary and will be removed
    */
   setChannelSupport() {
-    console.warn('[deprecation] plugin is using ignored option: setChannelSupport', this.meta);
+    pluginLogger.logWarning('plugin is using ignored option: setChannelSupport', { meta: this.meta });
     return this;
   }
 

@@ -3,6 +3,10 @@
 // Copyright (c) 2014 Call-Em-All
 import { z } from 'zod';
 
+import { createStructuredLogger } from '../utils/structuredLogger';
+
+const createSpacingLogger = createStructuredLogger('grafana-data.create-spacing');
+
 /** @internal */
 export const ThemeSpacingOptionsSchema = z.object({
   gridSize: z.int().positive().optional(),
@@ -52,7 +56,7 @@ export function createSpacing(options: ThemeSpacingOptions = {}): ThemeSpacing {
 
     if (process.env.NODE_ENV !== 'production') {
       if (typeof value !== 'number') {
-        console.error(`Expected spacing argument to be a number or a string, got ${value}.`);
+        createSpacingLogger.logError('Expected spacing argument to be a number or a string', { value });
       }
     }
     return value * gridSize;
@@ -61,7 +65,9 @@ export function createSpacing(options: ThemeSpacingOptions = {}): ThemeSpacing {
   const spacing = (...args: Array<number | string>): string => {
     if (process.env.NODE_ENV !== 'production') {
       if (!(args.length <= 4)) {
-        console.error(`Too many arguments provided, expected between 0 and 4, got ${args.length}`);
+        createSpacingLogger.logError('Too many arguments provided, expected between 0 and 4', {
+          argsLength: args.length,
+        });
       }
     }
 
