@@ -96,6 +96,26 @@ func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
 	}
 }
 
+func TestZapFieldsToArgsSkipsNoOpFields(t *testing.T) {
+	args := zapFieldsToArgs(
+		[]zap.Field{
+			zap.String("subject", "user-1"),
+			zap.Skip(),
+			zap.Int("count", 2),
+		},
+	)
+
+	expected := []any{"subject", "user-1", "count", int64(2)}
+	if len(args) != len(expected) {
+		t.Fatalf("unexpected args length: got=%d want=%d (%#v)", len(args), len(expected), args)
+	}
+	for i := range expected {
+		if args[i] != expected[i] {
+			t.Fatalf("unexpected arg at index %d: got=%#v want=%#v (%#v)", i, args[i], expected[i], args)
+		}
+	}
+}
+
 func TestZanzanaLoggerWithAddsStructuredContext(t *testing.T) {
 	capturing := &capturingLogger{}
 	logger := New(capturing)
