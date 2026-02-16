@@ -324,6 +324,24 @@ func TestAPIKey_Test(t *testing.T) {
 	}
 }
 
+func TestAPIKey_getTokenFromRequest(t *testing.T) {
+	t.Run("should return empty token for nil request", func(t *testing.T) {
+		assert.Equal(t, "", getTokenFromRequest(nil))
+	})
+
+	t.Run("should return bearer token when present", func(t *testing.T) {
+		req := &authn.Request{
+			HTTPRequest: &http.Request{
+				Header: map[string][]string{
+					"Authorization": {"Bearer token123"},
+				},
+			},
+		}
+
+		assert.Equal(t, "token123", getTokenFromRequest(req))
+	})
+}
+
 func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 	t.Run("should update last used for valid key id", func(t *testing.T) {
 		service := &updateLastUsedService{}
