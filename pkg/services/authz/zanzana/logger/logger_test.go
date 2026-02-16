@@ -147,6 +147,23 @@ func TestZanzanaLoggerWithWithoutFieldsKeepsEmptyContext(t *testing.T) {
 	}
 }
 
+func TestZanzanaLoggerWithOnlySkippedFieldsKeepsEmptyContext(t *testing.T) {
+	capturing := &capturingLogger{}
+	logger := New(capturing)
+
+	child := logger.With(zap.Skip())
+	if child == nil {
+		t.Fatal("expected non-nil logger")
+	}
+
+	if capturing.newCalls != 1 {
+		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
+	}
+	if len(capturing.newCtx) != 0 {
+		t.Fatalf("expected no context args when all fields are skipped, got %#v", capturing.newCtx)
+	}
+}
+
 func TestZanzanaLoggerErrorFamilyPreservesOriginalLevel(t *testing.T) {
 	testCases := []struct {
 		name string
