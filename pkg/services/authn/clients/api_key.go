@@ -195,14 +195,15 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 		return nil
 	}
 
-	keyID := strings.TrimSpace(r.GetMeta(metaKeyID))
+	rawKeyID := r.GetMeta(metaKeyID)
+	keyID := strings.TrimSpace(rawKeyID)
 	if r.GetMeta(metaKeySkipLastUsed) != "" {
-		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonSkipMarkerPresent, "apiKeyID", keyID, "validationSource", validationSourceHook)
+		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonSkipMarkerPresent, "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "validationSource", validationSourceHook)
 		return nil
 	}
 
 	if keyID == "" {
-		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonMissingAPIKeyID, "validationSource", validationSourceHook)
+		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonMissingAPIKeyID, "apiKeyIDRaw", rawKeyID, "validationSource", validationSourceHook)
 		return nil
 	}
 
@@ -225,10 +226,11 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 }
 
 func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
+	rawKeyID := keyID
 	keyID = strings.TrimSpace(keyID)
 
 	if keyID == "" {
-		s.log.Debug("Skipping API key last-used update", "skipReason", skipReasonMissingAPIKeyID, "validationSource", validationSourceSync)
+		s.log.Debug("Skipping API key last-used update", "skipReason", skipReasonMissingAPIKeyID, "apiKeyIDRaw", rawKeyID, "validationSource", validationSourceSync)
 		return
 	}
 
