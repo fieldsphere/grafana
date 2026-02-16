@@ -1159,6 +1159,133 @@ func TestZanzanaLoggerContextMethodsIncludeStructuredFields(t *testing.T) {
 	}
 }
 
+func TestZanzanaLoggerContextMethodsWithNestedNamespaceIncludeStructuredFields(t *testing.T) {
+	testCases := []struct {
+		name          string
+		emit          func(*ZanzanaLogger)
+		expectedLevel string
+		targetLogger  string
+	}{
+		{
+			name: "debugWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.DebugWithContext(context.Background(), "nested context message", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
+			},
+			expectedLevel: "debug",
+			targetLogger:  "debug",
+		},
+		{
+			name: "infoWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.InfoWithContext(context.Background(), "nested context message", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
+			},
+			expectedLevel: "info",
+			targetLogger:  "info",
+		},
+		{
+			name: "warnWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.WarnWithContext(context.Background(), "nested context message", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
+			},
+			expectedLevel: "warn",
+			targetLogger:  "warn",
+		},
+		{
+			name: "errorWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.ErrorWithContext(context.Background(), "nested context message", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
+			},
+			expectedLevel: "error",
+			targetLogger:  "error",
+		},
+		{
+			name: "panicWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.PanicWithContext(context.Background(), "nested context message", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
+			},
+			expectedLevel: "panic",
+			targetLogger:  "error",
+		},
+		{
+			name: "fatalWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.FatalWithContext(context.Background(), "nested context message", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
+			},
+			expectedLevel: "fatal",
+			targetLogger:  "error",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			fake := &logtest.Fake{}
+			logger := New(fake)
+
+			tc.emit(logger)
+
+			expectedDebugCalls := 0
+			expectedInfoCalls := 0
+			expectedWarnCalls := 0
+			expectedErrorCalls := 0
+			switch tc.targetLogger {
+			case "debug":
+				expectedDebugCalls = 1
+			case "info":
+				expectedInfoCalls = 1
+			case "warn":
+				expectedWarnCalls = 1
+			case "error":
+				expectedErrorCalls = 1
+			default:
+				t.Fatalf("unknown target logger %q", tc.targetLogger)
+			}
+
+			if fake.DebugLogs.Calls != expectedDebugCalls {
+				t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, expectedDebugCalls)
+			}
+			if fake.InfoLogs.Calls != expectedInfoCalls {
+				t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, expectedInfoCalls)
+			}
+			if fake.WarnLogs.Calls != expectedWarnCalls {
+				t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, expectedWarnCalls)
+			}
+			if fake.ErrorLogs.Calls != expectedErrorCalls {
+				t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, expectedErrorCalls)
+			}
+
+			var ctx []any
+			switch tc.targetLogger {
+			case "debug":
+				ctx = fake.DebugLogs.Ctx
+			case "info":
+				ctx = fake.InfoLogs.Ctx
+			case "warn":
+				ctx = fake.WarnLogs.Ctx
+			case "error":
+				ctx = fake.ErrorLogs.Ctx
+			}
+
+			if len(ctx) != 6 {
+				t.Fatalf("expected structured context with fields, got %#v", ctx)
+			}
+			if ctx[0] != "zanzanaMessage" || ctx[1] != "nested context message" {
+				t.Fatalf("unexpected zanzana message context: %#v", ctx)
+			}
+			if ctx[2] != "zanzanaLevel" || ctx[3] != tc.expectedLevel {
+				t.Fatalf("unexpected zanzana level context: %#v", ctx)
+			}
+
+			fields := assertFieldsPayload(t, ctx)
+			authPayload := assertNamespacePayload(t, fields, "auth")
+			tokenPayload := assertNestedNamespacePayload(t, authPayload, "token")
+			if tokenPayload["subject"] != "user-1" {
+				t.Fatalf("unexpected nested namespace subject payload: %#v", tokenPayload)
+			}
+		})
+	}
+}
+
 func assertContextPayloadFields(t *testing.T, ctx []any) []any {
 	t.Helper()
 
