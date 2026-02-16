@@ -231,6 +231,29 @@ func TestRuleguardRecoverLiteralKeyMatchersReportMentionMatchedAliases(t *testin
 	}
 }
 
+func TestRuleguardRecoverMatchersDoNotContainDuplicatePatternLines(t *testing.T) {
+	blocks := loadRuleguardMatchBlocks(t)
+
+	for _, block := range blocks {
+		blockText := strings.Join(block.lines, "\n")
+		if !strings.Contains(blockText, "recover()") {
+			continue
+		}
+
+		seen := map[string]struct{}{}
+		for _, line := range block.lines {
+			trimmed := strings.TrimSpace(line)
+			if !strings.HasPrefix(trimmed, "`") {
+				continue
+			}
+			if _, ok := seen[trimmed]; ok {
+				t.Fatalf("recover matcher block at line %d contains duplicate pattern line:\n%s", block.startLine, trimmed)
+			}
+			seen[trimmed] = struct{}{}
+		}
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
