@@ -28,7 +28,7 @@ func encodeBasicAuth(username, password string) string {
 func mustGenAPIKey() (string, string) {
 	res, err := satokengen.New("test")
 	if err != nil {
-		panic(err)
+		panic("failed to generate API key test secret: " + err.Error())
 	}
 	return res.ClientSecret, res.HashedKey
 }
