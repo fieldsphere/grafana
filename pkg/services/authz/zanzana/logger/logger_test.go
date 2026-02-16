@@ -798,9 +798,6 @@ func runWithContextMatrix(t *testing.T, testCases []withContextCase) {
 			}
 
 			fields := assertSingleNewCallContextFields(t, capturing)
-			if tc.assertFields == nil {
-				t.Fatal("expected assertFields callback when context payload is expected")
-			}
 			tc.assertFields(t, fields)
 		})
 	}
