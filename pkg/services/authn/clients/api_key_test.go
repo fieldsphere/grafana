@@ -506,6 +506,15 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assert.False(t, service.called)
 	})
 
+	t.Run("should skip update for signed key id with surrounding whitespace", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed(" " + signedAPIKeyIDString + " ")
+
+		assert.False(t, service.called)
+	})
+
 	t.Run("should skip update for arabic-indic digit key id", func(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -639,6 +648,12 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 		{
 			name:       "signed id",
 			rawKeyID:   signedAPIKeyIDString,
+			expectedID: 0,
+			expectedOK: false,
+		},
+		{
+			name:       "signed id with surrounding whitespace",
+			rawKeyID:   " " + signedAPIKeyIDString + " ",
 			expectedID: 0,
 			expectedOK: false,
 		},
@@ -785,6 +800,12 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		assertHookNoUpdateForKeyID(t, context.Background(), client, signedAPIKeyIDString, false, service)
+	})
+
+	t.Run("should skip update when key id contains a sign with surrounding whitespace", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		assertHookNoUpdateForKeyID(t, context.Background(), client, " "+signedAPIKeyIDString+" ", false, service)
 	})
 
 	t.Run("should skip update when key id uses arabic-indic digits", func(t *testing.T) {
