@@ -1113,6 +1113,129 @@ func TestZanzanaLoggerMethodsWithNestedNamespaceIncludeStructuredFields(t *testi
 	}
 }
 
+func TestZanzanaLoggerMethodsWithNamespaceOnlyIncludeEmptyNamespacePayload(t *testing.T) {
+	testCases := []struct {
+		name          string
+		emit          func(*ZanzanaLogger)
+		targetLogger  string
+		expectedLevel string
+	}{
+		{
+			name: "debug",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Debug("namespace only message", zap.Namespace("auth"))
+			},
+			targetLogger:  "debug",
+			expectedLevel: "debug",
+		},
+		{
+			name: "info",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("namespace only message", zap.Namespace("auth"))
+			},
+			targetLogger:  "info",
+			expectedLevel: "info",
+		},
+		{
+			name: "warn",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Warn("namespace only message", zap.Namespace("auth"))
+			},
+			targetLogger:  "warn",
+			expectedLevel: "warn",
+		},
+		{
+			name: "error",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Error("namespace only message", zap.Namespace("auth"))
+			},
+			targetLogger:  "error",
+			expectedLevel: "error",
+		},
+		{
+			name: "panic",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Panic("namespace only message", zap.Namespace("auth"))
+			},
+			targetLogger:  "error",
+			expectedLevel: "panic",
+		},
+		{
+			name: "fatal",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Fatal("namespace only message", zap.Namespace("auth"))
+			},
+			targetLogger:  "error",
+			expectedLevel: "fatal",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			fake := &logtest.Fake{}
+			logger := New(fake)
+
+			tc.emit(logger)
+
+			expectedDebugCalls := 0
+			expectedInfoCalls := 0
+			expectedWarnCalls := 0
+			expectedErrorCalls := 0
+			switch tc.targetLogger {
+			case "debug":
+				expectedDebugCalls = 1
+			case "info":
+				expectedInfoCalls = 1
+			case "warn":
+				expectedWarnCalls = 1
+			case "error":
+				expectedErrorCalls = 1
+			default:
+				t.Fatalf("unknown target logger %q", tc.targetLogger)
+			}
+
+			if fake.DebugLogs.Calls != expectedDebugCalls {
+				t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, expectedDebugCalls)
+			}
+			if fake.InfoLogs.Calls != expectedInfoCalls {
+				t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, expectedInfoCalls)
+			}
+			if fake.WarnLogs.Calls != expectedWarnCalls {
+				t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, expectedWarnCalls)
+			}
+			if fake.ErrorLogs.Calls != expectedErrorCalls {
+				t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, expectedErrorCalls)
+			}
+
+			var ctx []any
+			switch tc.targetLogger {
+			case "debug":
+				ctx = fake.DebugLogs.Ctx
+			case "info":
+				ctx = fake.InfoLogs.Ctx
+			case "warn":
+				ctx = fake.WarnLogs.Ctx
+			case "error":
+				ctx = fake.ErrorLogs.Ctx
+			}
+
+			if len(ctx) != 6 {
+				t.Fatalf("expected structured context with fields, got %#v", ctx)
+			}
+			if ctx[0] != "zanzanaMessage" || ctx[1] != "namespace only message" {
+				t.Fatalf("unexpected zanzana message context: %#v", ctx)
+			}
+			if ctx[2] != "zanzanaLevel" || ctx[3] != tc.expectedLevel {
+				t.Fatalf("unexpected zanzana level context: %#v", ctx)
+			}
+
+			fields := assertFieldsPayload(t, ctx)
+			assertNamespacePayloadEmpty(t, fields, "auth")
+		})
+	}
+}
+
 func TestZanzanaLoggerContextMethodsIncludeStructuredFields(t *testing.T) {
 	testCases := []struct {
 		name          string
@@ -1246,6 +1369,129 @@ func TestZanzanaLoggerContextMethodsIncludeStructuredFields(t *testing.T) {
 					t.Fatalf("unexpected zanzana field at index %d: got=%#v want=%#v (%#v)", i, fields[i], expectedFields[i], fields)
 				}
 			}
+		})
+	}
+}
+
+func TestZanzanaLoggerContextMethodsWithNamespaceOnlyIncludeEmptyNamespacePayload(t *testing.T) {
+	testCases := []struct {
+		name          string
+		emit          func(*ZanzanaLogger)
+		expectedLevel string
+		targetLogger  string
+	}{
+		{
+			name: "debugWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.DebugWithContext(context.Background(), "namespace only context message", zap.Namespace("auth"))
+			},
+			expectedLevel: "debug",
+			targetLogger:  "debug",
+		},
+		{
+			name: "infoWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.InfoWithContext(context.Background(), "namespace only context message", zap.Namespace("auth"))
+			},
+			expectedLevel: "info",
+			targetLogger:  "info",
+		},
+		{
+			name: "warnWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.WarnWithContext(context.Background(), "namespace only context message", zap.Namespace("auth"))
+			},
+			expectedLevel: "warn",
+			targetLogger:  "warn",
+		},
+		{
+			name: "errorWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.ErrorWithContext(context.Background(), "namespace only context message", zap.Namespace("auth"))
+			},
+			expectedLevel: "error",
+			targetLogger:  "error",
+		},
+		{
+			name: "panicWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.PanicWithContext(context.Background(), "namespace only context message", zap.Namespace("auth"))
+			},
+			expectedLevel: "panic",
+			targetLogger:  "error",
+		},
+		{
+			name: "fatalWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.FatalWithContext(context.Background(), "namespace only context message", zap.Namespace("auth"))
+			},
+			expectedLevel: "fatal",
+			targetLogger:  "error",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			fake := &logtest.Fake{}
+			logger := New(fake)
+
+			tc.emit(logger)
+
+			expectedDebugCalls := 0
+			expectedInfoCalls := 0
+			expectedWarnCalls := 0
+			expectedErrorCalls := 0
+			switch tc.targetLogger {
+			case "debug":
+				expectedDebugCalls = 1
+			case "info":
+				expectedInfoCalls = 1
+			case "warn":
+				expectedWarnCalls = 1
+			case "error":
+				expectedErrorCalls = 1
+			default:
+				t.Fatalf("unknown target logger %q", tc.targetLogger)
+			}
+
+			if fake.DebugLogs.Calls != expectedDebugCalls {
+				t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, expectedDebugCalls)
+			}
+			if fake.InfoLogs.Calls != expectedInfoCalls {
+				t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, expectedInfoCalls)
+			}
+			if fake.WarnLogs.Calls != expectedWarnCalls {
+				t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, expectedWarnCalls)
+			}
+			if fake.ErrorLogs.Calls != expectedErrorCalls {
+				t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, expectedErrorCalls)
+			}
+
+			var ctx []any
+			switch tc.targetLogger {
+			case "debug":
+				ctx = fake.DebugLogs.Ctx
+			case "info":
+				ctx = fake.InfoLogs.Ctx
+			case "warn":
+				ctx = fake.WarnLogs.Ctx
+			case "error":
+				ctx = fake.ErrorLogs.Ctx
+			}
+
+			if len(ctx) != 6 {
+				t.Fatalf("expected structured context with fields, got %#v", ctx)
+			}
+			if ctx[0] != "zanzanaMessage" || ctx[1] != "namespace only context message" {
+				t.Fatalf("unexpected zanzana message context: %#v", ctx)
+			}
+			if ctx[2] != "zanzanaLevel" || ctx[3] != tc.expectedLevel {
+				t.Fatalf("unexpected zanzana level context: %#v", ctx)
+			}
+
+			fields := assertFieldsPayload(t, ctx)
+			assertNamespacePayloadEmpty(t, fields, "auth")
 		})
 	}
 }
