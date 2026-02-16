@@ -572,13 +572,32 @@ func TestStandardMethodCasesBuildsExpectedMetadata(t *testing.T) {
 
 func TestFilterLoggerCasesPreservesSourceOrder(t *testing.T) {
 	cases := standardMethodCases("", true)
-	filtered := filterLoggerCases(cases, "fatalWithContext", "warnWithContext")
-	if len(filtered) != 2 {
-		t.Fatalf("unexpected filtered case count: got=%d want=%d", len(filtered), 2)
-	}
-	if filtered[0].name != "warnWithContext" || filtered[1].name != "fatalWithContext" {
-		t.Fatalf("unexpected filtered case order: %#v", []string{filtered[0].name, filtered[1].name})
-	}
+	t.Run("preserves source order", func(t *testing.T) {
+		filtered := filterLoggerCases(cases, "fatalWithContext", "warnWithContext")
+		if len(filtered) != 2 {
+			t.Fatalf("unexpected filtered case count: got=%d want=%d", len(filtered), 2)
+		}
+		if filtered[0].name != "warnWithContext" || filtered[1].name != "fatalWithContext" {
+			t.Fatalf("unexpected filtered case order: %#v", []string{filtered[0].name, filtered[1].name})
+		}
+	})
+
+	t.Run("ignores unknown names", func(t *testing.T) {
+		filtered := filterLoggerCases(cases, "missingWithContext", "debugWithContext")
+		if len(filtered) != 1 {
+			t.Fatalf("unexpected filtered case count: got=%d want=%d", len(filtered), 1)
+		}
+		if filtered[0].name != "debugWithContext" {
+			t.Fatalf("unexpected filtered case: got=%q want=%q", filtered[0].name, "debugWithContext")
+		}
+	})
+
+	t.Run("empty allowlist returns empty result", func(t *testing.T) {
+		filtered := filterLoggerCases(cases)
+		if len(filtered) != 0 {
+			t.Fatalf("expected empty filtered result for empty allowlist, got %#v", filtered)
+		}
+	})
 }
 
 type loggerFieldCase struct {
