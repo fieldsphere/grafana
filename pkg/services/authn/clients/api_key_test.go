@@ -2,7 +2,6 @@ package clients
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"net/http"
 	"strconv"
@@ -1185,8 +1184,4 @@ func intPtr(n int64) *int64 {
 func genApiKey() (string, string) {
 	res, _ := satokengen.New("test")
 	return res.ClientSecret, res.HashedKey
-}
-
-func encodeBasicAuth(username, password string) string {
-	return "Basic " + base64.StdEncoding.EncodeToString([]byte(username+":"+password))
 }
