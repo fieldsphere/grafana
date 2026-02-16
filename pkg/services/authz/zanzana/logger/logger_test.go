@@ -226,6 +226,19 @@ func TestZanzanaLoggerInfoWithTopLevelAndNamespacedFieldsKeepsBothPayloads(t *te
 	assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
 }
 
+func TestZanzanaLoggerInfoWithTopLevelNamespaceAndSkippedFieldKeepsPayload(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.Info("token checked", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
+	}
+	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
+}
+
 func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
 	args := zapFieldsToArgs(
 		[]zap.Field{
@@ -372,6 +385,18 @@ func TestZapFieldsToArgsPreservesTopLevelAndNamespacedFields(t *testing.T) {
 	)
 
 	assertTopLevelAndNamespacedFieldValue(t, args, "subject", "user-1", "auth", "token", "value")
+}
+
+func TestZapFieldsToArgsPreservesTopLevelAndEmptyNamespaceWhenSkipped(t *testing.T) {
+	args := zapFieldsToArgs(
+		[]zap.Field{
+			zap.String("subject", "user-1"),
+			zap.Namespace("auth"),
+			zap.Skip(),
+		},
+	)
+
+	assertTopLevelAndEmptyNamespacePayload(t, args, "subject", "user-1", "auth")
 }
 
 func TestZapFieldsToArgsPreservesDuplicateKeyOrder(t *testing.T) {
@@ -531,6 +556,22 @@ func TestZanzanaLoggerWithTopLevelAndNamespacedFieldsKeepsBothPayloads(t *testin
 
 	fields := assertContextPayloadFields(t, capturing.newCtx)
 	assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
+}
+
+func TestZanzanaLoggerWithTopLevelNamespaceAndSkippedFieldKeepsPayload(t *testing.T) {
+	capturing := &capturingLogger{}
+	logger := New(capturing)
+
+	child := logger.With(zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+	if child == nil {
+		t.Fatal("expected non-nil logger")
+	}
+	if capturing.newCalls != 1 {
+		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
+	}
+
+	fields := assertContextPayloadFields(t, capturing.newCtx)
+	assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
 }
 
 func TestZanzanaLoggerWithWithoutFieldsKeepsEmptyContext(t *testing.T) {
@@ -937,6 +978,24 @@ func TestZanzanaLoggerUnknownLevelWithTopLevelAndNamespacedFieldsIncludesNormali
 
 	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
 	assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
+}
+
+func TestZanzanaLoggerUnknownLevelWithTopLevelNamespaceAndSkippedFieldIncludesNormalizedFields(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.emit("trace", "trace message", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected fallback to info logger, got %d info calls", fake.InfoLogs.Calls)
+	}
+	if fake.ErrorLogs.Calls != 0 || fake.WarnLogs.Calls != 0 || fake.DebugLogs.Calls != 0 {
+		t.Fatalf("unexpected non-info calls: debug=%d info=%d warn=%d error=%d", fake.DebugLogs.Calls, fake.InfoLogs.Calls, fake.WarnLogs.Calls, fake.ErrorLogs.Calls)
+	}
+
+	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	assertMessageAndLevel(t, fake.InfoLogs.Ctx, "trace message", "trace")
+	assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
 }
 
 func TestZanzanaLoggerInfoWithContextAndNestedNamespaceFieldKeepsNestedPayload(t *testing.T) {
@@ -2027,6 +2086,18 @@ func assertTopLevelAndNamespacedFieldValue(t *testing.T, fields []any, topLevelK
 		t.Fatalf("unexpected top-level payload: %#v", fields)
 	}
 	assertNamespaceFieldValue(t, fields[2:], namespace, namespaceKey, namespaceValue)
+}
+
+func assertTopLevelAndEmptyNamespacePayload(t *testing.T, fields []any, topLevelKey string, topLevelValue any, namespace string) {
+	t.Helper()
+
+	if len(fields) != 4 {
+		t.Fatalf("unexpected fields length: got=%d want=%d (%#v)", len(fields), 4, fields)
+	}
+	if fields[0] != topLevelKey || fields[1] != topLevelValue {
+		t.Fatalf("unexpected top-level payload: %#v", fields)
+	}
+	assertNamespacePayloadEmpty(t, fields[2:], namespace)
 }
 
 func assertIntLikeValue(t *testing.T, value any, want int64, payload any) {
