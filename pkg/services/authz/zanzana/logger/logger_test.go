@@ -523,6 +523,143 @@ func TestZanzanaLoggerUnknownLevelWithFieldsIncludesNormalizedFields(t *testing.
 	}
 }
 
+func TestZanzanaLoggerMethodsIncludeStructuredFields(t *testing.T) {
+	testCases := []struct {
+		name          string
+		emit          func(*ZanzanaLogger)
+		targetLogger  string
+		expectedLevel string
+	}{
+		{
+			name: "debug",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Debug("message", zap.String("subject", "user-1"))
+			},
+			targetLogger:  "debug",
+			expectedLevel: "debug",
+		},
+		{
+			name: "info",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("message", zap.String("subject", "user-1"))
+			},
+			targetLogger:  "info",
+			expectedLevel: "info",
+		},
+		{
+			name: "warn",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Warn("message", zap.String("subject", "user-1"))
+			},
+			targetLogger:  "warn",
+			expectedLevel: "warn",
+		},
+		{
+			name: "error",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Error("message", zap.String("subject", "user-1"))
+			},
+			targetLogger:  "error",
+			expectedLevel: "error",
+		},
+		{
+			name: "panic",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Panic("message", zap.String("subject", "user-1"))
+			},
+			targetLogger:  "error",
+			expectedLevel: "panic",
+		},
+		{
+			name: "fatal",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Fatal("message", zap.String("subject", "user-1"))
+			},
+			targetLogger:  "error",
+			expectedLevel: "fatal",
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			fake := &logtest.Fake{}
+			logger := New(fake)
+
+			tc.emit(logger)
+
+			expectedDebugCalls := 0
+			expectedInfoCalls := 0
+			expectedWarnCalls := 0
+			expectedErrorCalls := 0
+			switch tc.targetLogger {
+			case "debug":
+				expectedDebugCalls = 1
+			case "info":
+				expectedInfoCalls = 1
+			case "warn":
+				expectedWarnCalls = 1
+			case "error":
+				expectedErrorCalls = 1
+			default:
+				t.Fatalf("unknown target logger %q", tc.targetLogger)
+			}
+
+			if fake.DebugLogs.Calls != expectedDebugCalls {
+				t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, expectedDebugCalls)
+			}
+			if fake.InfoLogs.Calls != expectedInfoCalls {
+				t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, expectedInfoCalls)
+			}
+			if fake.WarnLogs.Calls != expectedWarnCalls {
+				t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, expectedWarnCalls)
+			}
+			if fake.ErrorLogs.Calls != expectedErrorCalls {
+				t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, expectedErrorCalls)
+			}
+
+			var ctx []any
+			switch tc.targetLogger {
+			case "debug":
+				ctx = fake.DebugLogs.Ctx
+			case "info":
+				ctx = fake.InfoLogs.Ctx
+			case "warn":
+				ctx = fake.WarnLogs.Ctx
+			case "error":
+				ctx = fake.ErrorLogs.Ctx
+			}
+
+			if len(ctx) != 6 {
+				t.Fatalf("expected structured context with fields, got %#v", ctx)
+			}
+			if ctx[0] != "zanzanaMessage" || ctx[1] != "message" {
+				t.Fatalf("unexpected zanzana message context: %#v", ctx)
+			}
+			if ctx[2] != "zanzanaLevel" || ctx[3] != tc.expectedLevel {
+				t.Fatalf("unexpected zanzana level context: %#v", ctx)
+			}
+			if ctx[4] != "zanzanaFields" {
+				t.Fatalf("expected zanzanaFields key, got %#v", ctx)
+			}
+
+			fields, ok := ctx[5].([]any)
+			if !ok {
+				t.Fatalf("expected zanzana fields payload as []any, got %#v", ctx[5])
+			}
+			expectedFields := []any{"subject", "user-1"}
+			if len(fields) != len(expectedFields) {
+				t.Fatalf("unexpected zanzana fields length: got=%d want=%d (%#v)", len(fields), len(expectedFields), fields)
+			}
+			for i := range expectedFields {
+				if fields[i] != expectedFields[i] {
+					t.Fatalf("unexpected zanzana field at index %d: got=%#v want=%#v (%#v)", i, fields[i], expectedFields[i], fields)
+				}
+			}
+		})
+	}
+}
+
 func TestZanzanaLoggerContextMethodsIncludeStructuredFields(t *testing.T) {
 	testCases := []struct {
 		name          string
