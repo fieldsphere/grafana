@@ -539,10 +539,9 @@ func TestZanzanaLoggerInfoWithContextAndNestedNamespaceFieldKeepsNestedPayload(t
 
 	logger.InfoWithContext(context.Background(), "context message", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
 
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
-	}
-	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
+	fields := assertFieldsPayload(t, ctx)
+	assertMessageAndLevel(t, ctx, "context message", "info")
 	assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
 }
 
