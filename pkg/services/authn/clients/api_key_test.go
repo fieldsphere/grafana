@@ -592,6 +592,12 @@ func TestAPIKey_Hook(t *testing.T) {
 		assertHookNoUpdateForKeyID(t, context.Background(), client, "bad-id", false, service)
 	})
 
+	t.Run("should skip update when key id is invalid and context is nil", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		assertHookNoUpdateForKeyID(t, nil, client, "bad-id", false, service)
+	})
+
 	t.Run("should skip update when key id contains a sign", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
