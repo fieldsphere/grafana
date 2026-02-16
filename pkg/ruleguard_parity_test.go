@@ -646,6 +646,7 @@ func structuredLogMethodNames() map[string]struct{} {
 		"DebugCtx": {}, "InfoCtx": {}, "WarnCtx": {}, "ErrorCtx": {},
 		"InfoContext": {}, "WarnContext": {}, "ErrorContext": {}, "DebugContext": {},
 		"Log": {}, "InfoS": {}, "ErrorS": {},
+		"New": {}, "With": {},
 	}
 }
 
