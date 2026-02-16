@@ -1,5 +1,10 @@
 const http = require('http');
-const { logDevenvInfo } = require('../../../logging');
+
+let logDevenvInfo;
+(async () => {
+  const logging = await import('../../../logging.js');
+  logDevenvInfo = logging.logDevenvInfo;
+})();
 
 if (process.argv.length !== 3) {
   throw new Error('invalid command line: use node sendLogs.js LOKIC_BASE_URL');
@@ -208,12 +213,21 @@ async function sendNewLogs() {
 }
 
 async function main() {
+  // Ensure logging module is loaded
+  if (!logDevenvInfo) {
+    const logging = await import('../../../logging.js');
+    logDevenvInfo = logging.logDevenvInfo;
+  }
   // we generate both old-logs and new-logs at the same time
   await Promise.all([sendOldLogs(), sendNewLogs()])
 }
 
 // when running in docker, we catch the needed stop-signal, to shutdown fast
-process.on('SIGTERM', () => {
+process.on('SIGTERM', async () => {
+  if (!logDevenvInfo) {
+    const logging = await import('../../../logging.js');
+    logDevenvInfo = logging.logDevenvInfo;
+  }
   logDevenvInfo('Shutdown requested', {
     operation: 'loki-data-sender.sigterm',
   });
