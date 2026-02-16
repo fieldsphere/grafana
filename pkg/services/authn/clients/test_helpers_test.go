@@ -23,6 +23,9 @@ func encodeBasicAuth(username, password string) string {
 }
 
 func genApiKey() (string, string) {
-	res, _ := satokengen.New("test")
+	res, err := satokengen.New("test")
+	if err != nil {
+		panic(err)
+	}
 	return res.ClientSecret, res.HashedKey
 }
