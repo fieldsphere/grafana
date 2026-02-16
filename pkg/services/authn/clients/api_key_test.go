@@ -742,10 +742,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		err := client.Hook(context.Background(), nil, nil)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, context.Background(), client, nil, service)
 	})
 
 	t.Run("should skip update when request is nil and tracer is nil", func(t *testing.T) {
@@ -759,10 +756,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		err := client.Hook(nil, nil, nil)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, nil, client, nil, service)
 	})
 }
 
