@@ -11,6 +11,14 @@ import (
 	"github.com/grafana/grafana/pkg/infra/log/logtest"
 )
 
+const (
+	zanzanaEventMessageKey  = "zanzanaMessage"
+	zanzanaEventLevelKey    = "zanzanaLevel"
+	zanzanaEventFieldsKey   = "zanzanaFields"
+	zanzanaEventContextKey  = "zanzanaContext"
+	zanzanaEventMessageText = "Zanzana logger event"
+)
+
 func TestZanzanaLoggerLevelRouting(t *testing.T) {
 	fake := &logtest.Fake{}
 	logger := New(fake)
@@ -1243,8 +1251,8 @@ func assertSingleTargetLoggerCallAndContext(t *testing.T, fake *logtest.Fake, ta
 		}
 	}
 
-	if targetLogs.Message != "Zanzana logger event" {
-		t.Fatalf("unexpected logger event message: got=%q want=%q", targetLogs.Message, "Zanzana logger event")
+	if targetLogs.Message != zanzanaEventMessageText {
+		t.Fatalf("unexpected logger event message: got=%q want=%q", targetLogs.Message, zanzanaEventMessageText)
 	}
 
 	return targetLogs.Ctx
@@ -1253,10 +1261,10 @@ func assertSingleTargetLoggerCallAndContext(t *testing.T, fake *logtest.Fake, ta
 func assertMessageAndLevel(t *testing.T, ctx []any, expectedMessage, expectedLevel string) {
 	t.Helper()
 
-	if ctx[0] != "zanzanaMessage" || ctx[1] != expectedMessage {
+	if ctx[0] != zanzanaEventMessageKey || ctx[1] != expectedMessage {
 		t.Fatalf("unexpected zanzana message context: %#v", ctx)
 	}
-	if ctx[2] != "zanzanaLevel" || ctx[3] != expectedLevel {
+	if ctx[2] != zanzanaEventLevelKey || ctx[3] != expectedLevel {
 		t.Fatalf("unexpected zanzana level context: %#v", ctx)
 	}
 }
@@ -1303,7 +1311,7 @@ func assertContextPayloadFields(t *testing.T, ctx []any) []any {
 	if len(ctx) != 2 {
 		t.Fatalf("expected context payload with two entries, got %#v", ctx)
 	}
-	if ctx[0] != "zanzanaContext" {
+	if ctx[0] != zanzanaEventContextKey {
 		t.Fatalf("expected zanzanaContext key, got %#v", ctx)
 	}
 	fields, ok := ctx[1].([]any)
@@ -1320,7 +1328,7 @@ func assertFieldsPayload(t *testing.T, ctx []any) []any {
 	if len(ctx) != 6 {
 		t.Fatalf("expected message+level+fields context, got %#v", ctx)
 	}
-	if ctx[4] != "zanzanaFields" {
+	if ctx[4] != zanzanaEventFieldsKey {
 		t.Fatalf("expected zanzanaFields key, got %#v", ctx)
 	}
 	fields, ok := ctx[5].([]any)
