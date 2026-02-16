@@ -536,26 +536,12 @@ func TestZanzanaLoggerContextMethodsWithNestedNamespaceIncludeStructuredFields(t
 func TestStandardMethodCasesBuildsExpectedMetadata(t *testing.T) {
 	t.Run("default message non-context", func(t *testing.T) {
 		cases := standardMethodCases("", false)
-		assertCaseMetadata(t, cases, []loggerFieldCase{
-			{name: "debug", targetLogger: "debug", expectedLevel: "debug", expectedMessage: "debug message"},
-			{name: "info", targetLogger: "info", expectedLevel: "info", expectedMessage: "info message"},
-			{name: "warn", targetLogger: "warn", expectedLevel: "warn", expectedMessage: "warn message"},
-			{name: "error", targetLogger: "error", expectedLevel: "error", expectedMessage: "error message"},
-			{name: "panic", targetLogger: "error", expectedLevel: "panic", expectedMessage: "panic message"},
-			{name: "fatal", targetLogger: "error", expectedLevel: "fatal", expectedMessage: "fatal message"},
-		})
+		assertCaseMetadata(t, cases, expectedStandardCaseMetadata(false))
 	})
 
 	t.Run("default message context", func(t *testing.T) {
 		cases := standardMethodCases("", true)
-		assertCaseMetadata(t, cases, []loggerFieldCase{
-			{name: "debugWithContext", targetLogger: "debug", expectedLevel: "debug", expectedMessage: "debug message"},
-			{name: "infoWithContext", targetLogger: "info", expectedLevel: "info", expectedMessage: "info message"},
-			{name: "warnWithContext", targetLogger: "warn", expectedLevel: "warn", expectedMessage: "warn message"},
-			{name: "errorWithContext", targetLogger: "error", expectedLevel: "error", expectedMessage: "error message"},
-			{name: "panicWithContext", targetLogger: "error", expectedLevel: "panic", expectedMessage: "panic message"},
-			{name: "fatalWithContext", targetLogger: "error", expectedLevel: "fatal", expectedMessage: "fatal message"},
-		})
+		assertCaseMetadata(t, cases, expectedStandardCaseMetadata(true))
 	})
 
 	t.Run("custom message", func(t *testing.T) {
@@ -566,6 +552,29 @@ func TestStandardMethodCasesBuildsExpectedMetadata(t *testing.T) {
 			}
 		}
 	})
+}
+
+func TestLoggerMethodMessage(t *testing.T) {
+	testCases := []struct {
+		name    string
+		level   string
+		message string
+		want    string
+	}{
+		{name: "uses explicit message", level: "info", message: "custom message", want: "custom message"},
+		{name: "generates default debug message", level: "debug", message: "", want: "debug message"},
+		{name: "generates default fatal message", level: "fatal", message: "", want: "fatal message"},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			got := loggerMethodMessage(tc.level, tc.message)
+			if got != tc.want {
+				t.Fatalf("unexpected generated message: got=%q want=%q", got, tc.want)
+			}
+		})
+	}
 }
 
 func TestFilterLoggerCasesPreservesSourceOrder(t *testing.T) {
@@ -706,6 +715,36 @@ func loggerMethodMessage(level, message string) string {
 	}
 
 	return level + " message"
+}
+
+func expectedStandardCaseMetadata(withContext bool) []loggerFieldCase {
+	specs := []struct {
+		level        string
+		targetLogger string
+	}{
+		{level: "debug", targetLogger: "debug"},
+		{level: "info", targetLogger: "info"},
+		{level: "warn", targetLogger: "warn"},
+		{level: "error", targetLogger: "error"},
+		{level: "panic", targetLogger: "error"},
+		{level: "fatal", targetLogger: "error"},
+	}
+
+	expected := make([]loggerFieldCase, 0, len(specs))
+	for _, spec := range specs {
+		name := spec.level
+		if withContext {
+			name += "WithContext"
+		}
+		expected = append(expected, loggerFieldCase{
+			name:            name,
+			targetLogger:    spec.targetLogger,
+			expectedLevel:   spec.level,
+			expectedMessage: loggerMethodMessage(spec.level, ""),
+		})
+	}
+
+	return expected
 }
 
 func filterLoggerCases(cases []loggerFieldCase, names ...string) []loggerFieldCase {
