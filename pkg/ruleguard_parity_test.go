@@ -342,6 +342,7 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 		forEachRecoverFunctionBody(file, func(body *ast.BlockStmt) {
 			recoverDerived := recoverDerivedIdentifiers(body)
 			localNames := declaredNamesInBody(body)
+			badSpreadSlices := recoverDerivedSlicesWithAliasViolations(body, recoverDerived, constValues, constNameValues, localNames)
 			inspectBodyWithoutNestedFuncLits(body, func(inner ast.Node) bool {
 				call, ok := inner.(*ast.CallExpr)
 				if !ok {
@@ -356,8 +357,18 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 					return true
 				}
 
-				for argIdx := 0; argIdx+1 < len(call.Args); argIdx++ {
-					key, ok := keyValueFromExpr(call.Args[argIdx], constValues, constNameValues, localNames)
+				for argIdx, arg := range call.Args {
+					if spreadArg, ok := arg.(*ast.Ellipsis); ok {
+						if alias := recoverAliasViolationInSliceExpr(spreadArg.Elt, recoverDerived, badSpreadSlices, constValues, constNameValues, localNames); alias != "" {
+							position := fset.Position(spreadArg.Pos())
+							violations = append(violations, position.String()+": recover logging uses forbidden key alias "+strconv.Quote(alias))
+						}
+					}
+					if argIdx+1 >= len(call.Args) {
+						continue
+					}
+
+					key, ok := keyValueFromExpr(arg, constValues, constNameValues, localNames)
 					if !ok {
 						continue
 					}
@@ -430,11 +441,9 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 
 				for argIdx, arg := range call.Args {
 					if spreadArg, ok := arg.(*ast.Ellipsis); ok {
-						if spreadIdent, ok := spreadArg.Elt.(*ast.Ident); ok {
-							if alias, found := badSpreadSlices[spreadIdent.Name]; found {
-								position := fset.Position(spreadArg.Pos())
-								violationSet[position.String()+": recover-derived spread args must use key \"panicValue\", found "+strconv.Quote(alias)] = struct{}{}
-							}
+						if alias := recoverAliasViolationInSliceExpr(spreadArg.Elt, recoverDerived, badSpreadSlices, constValues, constNameValues, localNames); alias != "" {
+							position := fset.Position(spreadArg.Pos())
+							violationSet[position.String()+": recover-derived spread args must use key \"panicValue\", found "+strconv.Quote(alias)] = struct{}{}
 						}
 					}
 
