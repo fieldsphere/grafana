@@ -329,6 +329,10 @@ func TestAPIKey_getTokenFromRequest(t *testing.T) {
 		assert.Equal(t, "", getTokenFromRequest(nil))
 	})
 
+	t.Run("should return empty token for request without http request", func(t *testing.T) {
+		assert.Equal(t, "", getTokenFromRequest(&authn.Request{}))
+	})
+
 	t.Run("should return bearer token when present", func(t *testing.T) {
 		req := &authn.Request{
 			HTTPRequest: &http.Request{
