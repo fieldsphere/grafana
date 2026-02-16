@@ -648,6 +648,11 @@ type loggerFieldCase struct {
 	expectedMessage string
 }
 
+type loggerMethodSpec struct {
+	level        string
+	targetLogger string
+}
+
 type targetFieldCase struct {
 	name         string
 	emit         func(*ZanzanaLogger)
@@ -662,17 +667,7 @@ type withContextCase struct {
 
 func standardMethodCases(message string, withContext bool, fields ...zap.Field) []loggerFieldCase {
 	fieldCopy := append([]zap.Field(nil), fields...)
-	specs := []struct {
-		level        string
-		targetLogger string
-	}{
-		{level: "debug", targetLogger: "debug"},
-		{level: "info", targetLogger: "info"},
-		{level: "warn", targetLogger: "warn"},
-		{level: "error", targetLogger: "error"},
-		{level: "panic", targetLogger: "error"},
-		{level: "fatal", targetLogger: "error"},
-	}
+	specs := defaultMethodSpecs()
 
 	testCases := make([]loggerFieldCase, 0, len(specs))
 	for _, spec := range specs {
@@ -751,17 +746,7 @@ func loggerMethodMessage(level, message string) string {
 }
 
 func expectedStandardCaseMetadata(message string, withContext bool) []loggerFieldCase {
-	specs := []struct {
-		level        string
-		targetLogger string
-	}{
-		{level: "debug", targetLogger: "debug"},
-		{level: "info", targetLogger: "info"},
-		{level: "warn", targetLogger: "warn"},
-		{level: "error", targetLogger: "error"},
-		{level: "panic", targetLogger: "error"},
-		{level: "fatal", targetLogger: "error"},
-	}
+	specs := defaultMethodSpecs()
 
 	expected := make([]loggerFieldCase, 0, len(specs))
 	for _, spec := range specs {
@@ -778,6 +763,17 @@ func expectedStandardCaseMetadata(message string, withContext bool) []loggerFiel
 	}
 
 	return expected
+}
+
+func defaultMethodSpecs() []loggerMethodSpec {
+	return []loggerMethodSpec{
+		{level: "debug", targetLogger: "debug"},
+		{level: "info", targetLogger: "info"},
+		{level: "warn", targetLogger: "warn"},
+		{level: "error", targetLogger: "error"},
+		{level: "panic", targetLogger: "error"},
+		{level: "fatal", targetLogger: "error"},
+	}
 }
 
 func filterLoggerCases(cases []loggerFieldCase, names ...string) []loggerFieldCase {
