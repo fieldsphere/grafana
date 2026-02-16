@@ -554,7 +554,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assertSyncNoUpdateForKeyID(t, client, signedAPIKeyIDWithControlWhitespace, service)
 	})
 
-	t.Run("should skip signed key id with control whitespace before panic-capable update service", func(t *testing.T) {
+	t.Run("should skip sync update for signed key id with control whitespace before panic-capable update service", func(t *testing.T) {
 		service := &updateLastUsedService{panicValue: "boom"}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
@@ -926,7 +926,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assertHookNoUpdateForKeyID(t, nil, client, signedAPIKeyIDWithControlWhitespace, false, service)
 	})
 
-	t.Run("should skip signed key id with control whitespace before panic-capable update service", func(t *testing.T) {
+	t.Run("should skip hook update for signed key id with control whitespace before panic-capable update service", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		service.panicValue = "boom"
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
