@@ -557,6 +557,20 @@ func TestLoggerMethodMessage(t *testing.T) {
 	}
 }
 
+func TestDefaultMethodSpecs(t *testing.T) {
+	specs := defaultMethodSpecs()
+	expected := []loggerMethodSpec{
+		{level: "debug", targetLogger: "debug"},
+		{level: "info", targetLogger: "info"},
+		{level: "warn", targetLogger: "warn"},
+		{level: "error", targetLogger: "error"},
+		{level: "panic", targetLogger: "error"},
+		{level: "fatal", targetLogger: "error"},
+	}
+
+	assertMethodSpecsEqual(t, specs, expected)
+}
+
 func TestEmitByLevelPanicsOnUnknownLevel(t *testing.T) {
 	logger := New(&logtest.Fake{})
 
@@ -604,6 +618,11 @@ func TestFilterLoggerCasesPreservesSourceOrder(t *testing.T) {
 		{
 			name:          "ignores unknown names",
 			allowlist:     []string{"missingWithContext", "debugWithContext"},
+			expectedNames: []string{"debugWithContext"},
+		},
+		{
+			name:          "duplicate allowlist names do not duplicate results",
+			allowlist:     []string{"debugWithContext", "debugWithContext"},
 			expectedNames: []string{"debugWithContext"},
 		},
 		{
@@ -1016,6 +1035,23 @@ func assertCaseNames(t *testing.T, actual []loggerFieldCase, expectedNames []str
 	for i := range expectedNames {
 		if actual[i].name != expectedNames[i] {
 			t.Fatalf("unexpected filtered case name at index %d: got=%q want=%q", i, actual[i].name, expectedNames[i])
+		}
+	}
+}
+
+func assertMethodSpecsEqual(t *testing.T, actual, expected []loggerMethodSpec) {
+	t.Helper()
+
+	if len(actual) != len(expected) {
+		t.Fatalf("unexpected method spec count: got=%d want=%d", len(actual), len(expected))
+	}
+
+	for i := range expected {
+		if actual[i].level != expected[i].level {
+			t.Fatalf("unexpected method spec level at index %d: got=%q want=%q", i, actual[i].level, expected[i].level)
+		}
+		if actual[i].targetLogger != expected[i].targetLogger {
+			t.Fatalf("unexpected method spec targetLogger at index %d: got=%q want=%q", i, actual[i].targetLogger, expected[i].targetLogger)
 		}
 	}
 }
