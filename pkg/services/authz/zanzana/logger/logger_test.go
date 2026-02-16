@@ -37,173 +37,88 @@ func TestZanzanaLoggerLevelRouting(t *testing.T) {
 	}
 }
 
-func TestZanzanaLoggerAddsStructuredContext(t *testing.T) {
-	fake := &logtest.Fake{}
-	logger := New(fake)
-
-	logger.Info("token checked", zap.String("subject", "user-1"))
-
-	if fake.InfoLogs.Message != "Zanzana logger event" {
-		t.Fatalf("unexpected message: %q", fake.InfoLogs.Message)
+func TestZanzanaLoggerInfoFieldNormalization(t *testing.T) {
+	testCases := []infoFieldCase{
+		{
+			name: "adds structured context",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("token checked", zap.String("subject", "user-1"))
+			},
+			assertFields: func(t *testing.T, fields []any) {
+				assertFieldsEqual(t, fields, []any{"subject", "user-1"})
+			},
+		},
+		{
+			name: "without fields omits zanzana fields",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("token checked")
+			},
+			expectFields: false,
+		},
+		{
+			name: "skipped field omits zanzana fields",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("token checked", zap.Skip())
+			},
+			expectFields: false,
+		},
+		{
+			name: "namespace field keeps nested payload",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("token checked", zap.Namespace("auth"), zap.String("subject", "user-1"), zap.Int("attempt", 2))
+			},
+			assertFields: func(t *testing.T, fields []any) {
+				assertNamespaceSubjectAndAttempt(t, fields, "auth", "user-1", 2)
+			},
+		},
+		{
+			name: "namespace only keeps empty namespace payload",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("token checked", zap.Namespace("auth"))
+			},
+			assertFields: func(t *testing.T, fields []any) {
+				assertNamespacePayloadEmpty(t, fields, "auth")
+			},
+		},
+		{
+			name: "namespace and skipped field keeps empty namespace payload",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("token checked", zap.Namespace("auth"), zap.Skip())
+			},
+			assertFields: func(t *testing.T, fields []any) {
+				assertNamespacePayloadEmpty(t, fields, "auth")
+			},
+		},
+		{
+			name: "nested namespace field keeps nested payload",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("token checked", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
+			},
+			assertFields: func(t *testing.T, fields []any) {
+				assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
+			},
+		},
+		{
+			name: "top-level and namespaced fields keep both payloads",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("token checked", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value"))
+			},
+			assertFields: func(t *testing.T, fields []any) {
+				assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
+			},
+		},
+		{
+			name: "top-level namespace and skipped field keeps payload",
+			emit: func(logger *ZanzanaLogger) {
+				logger.Info("token checked", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
+			},
+			assertFields: func(t *testing.T, fields []any) {
+				assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
+			},
+		},
 	}
 
-	ctx := fake.InfoLogs.Ctx
-	if len(ctx) != 6 {
-		t.Fatalf("expected structured ctx entries, got %#v", ctx)
-	}
-
-	if ctx[0] != "zanzanaMessage" || ctx[1] != "token checked" {
-		t.Fatalf("expected zanzana message fields, got %#v", ctx)
-	}
-	if ctx[2] != "zanzanaLevel" || ctx[3] != "info" {
-		t.Fatalf("expected zanzana level field, got %#v", ctx)
-	}
-	if ctx[4] != "zanzanaFields" {
-		t.Fatalf("expected zanzana fields key, got %#v", ctx)
-	}
-
-	fields, ok := ctx[5].([]any)
-	if !ok {
-		t.Fatalf("expected zanzana fields as []any, got %#v", ctx[5])
-	}
-	assertFieldsEqual(t, fields, []any{"subject", "user-1"})
-}
-
-func TestZanzanaLoggerInfoWithoutFieldsOmitsZanzanaFields(t *testing.T) {
-	fake := &logtest.Fake{}
-	logger := New(fake)
-
-	logger.Info("token checked")
-
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
-	}
-	if fake.InfoLogs.Message != "Zanzana logger event" {
-		t.Fatalf("unexpected message: %q", fake.InfoLogs.Message)
-	}
-	if len(fake.InfoLogs.Ctx) != 4 {
-		t.Fatalf("expected only message+level fields, got %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[0] != "zanzanaMessage" || fake.InfoLogs.Ctx[1] != "token checked" {
-		t.Fatalf("unexpected message context: %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "info" {
-		t.Fatalf("unexpected level context: %#v", fake.InfoLogs.Ctx)
-	}
-}
-
-func TestZanzanaLoggerInfoWithSkippedFieldOmitsZanzanaFields(t *testing.T) {
-	fake := &logtest.Fake{}
-	logger := New(fake)
-
-	logger.Info("token checked", zap.Skip())
-
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
-	}
-	if fake.InfoLogs.Message != "Zanzana logger event" {
-		t.Fatalf("unexpected message: %q", fake.InfoLogs.Message)
-	}
-	if len(fake.InfoLogs.Ctx) != 4 {
-		t.Fatalf("expected only message+level fields when payload is skipped, got %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[0] != "zanzanaMessage" || fake.InfoLogs.Ctx[1] != "token checked" {
-		t.Fatalf("unexpected message context: %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "info" {
-		t.Fatalf("unexpected level context: %#v", fake.InfoLogs.Ctx)
-	}
-}
-
-func TestZanzanaLoggerInfoWithNamespaceFieldKeepsNestedPayload(t *testing.T) {
-	fake := &logtest.Fake{}
-	logger := New(fake)
-
-	logger.Info("token checked", zap.Namespace("auth"), zap.String("subject", "user-1"), zap.Int("attempt", 2))
-
-	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
-	fields := assertFieldsPayload(t, ctx)
-	assertMessageAndLevel(t, ctx, "token checked", "info")
-	assertNamespaceSubjectAndAttempt(t, fields, "auth", "user-1", 2)
-}
-
-func TestZanzanaLoggerInfoWithNamespaceOnlyKeepsEmptyNamespacePayload(t *testing.T) {
-	fake := &logtest.Fake{}
-	logger := New(fake)
-
-	logger.Info("token checked", zap.Namespace("auth"))
-
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
-	}
-	if len(fake.InfoLogs.Ctx) != 6 {
-		t.Fatalf("expected zanzana fields payload, got %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[4] != "zanzanaFields" {
-		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
-	}
-
-	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
-	assertNamespacePayloadEmpty(t, fields, "auth")
-}
-
-func TestZanzanaLoggerInfoWithNamespaceAndSkippedFieldKeepsEmptyNamespacePayload(t *testing.T) {
-	fake := &logtest.Fake{}
-	logger := New(fake)
-
-	logger.Info("token checked", zap.Namespace("auth"), zap.Skip())
-
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
-	}
-	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
-	assertNamespacePayloadEmpty(t, fields, "auth")
-}
-
-func TestZanzanaLoggerInfoWithNestedNamespaceFieldKeepsNestedPayload(t *testing.T) {
-	fake := &logtest.Fake{}
-	logger := New(fake)
-
-	logger.Info("token checked", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
-
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
-	}
-	if len(fake.InfoLogs.Ctx) != 6 {
-		t.Fatalf("expected zanzana fields payload, got %#v", fake.InfoLogs.Ctx)
-	}
-	if fake.InfoLogs.Ctx[4] != "zanzanaFields" {
-		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
-	}
-
-	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
-	assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
-}
-
-func TestZanzanaLoggerInfoWithTopLevelAndNamespacedFieldsKeepsBothPayloads(t *testing.T) {
-	fake := &logtest.Fake{}
-	logger := New(fake)
-
-	logger.Info("token checked", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value"))
-
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
-	}
-	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
-	assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
-}
-
-func TestZanzanaLoggerInfoWithTopLevelNamespaceAndSkippedFieldKeepsPayload(t *testing.T) {
-	fake := &logtest.Fake{}
-	logger := New(fake)
-
-	logger.Info("token checked", zap.String("subject", "user-1"), zap.Namespace("auth"), zap.Skip())
-
-	if fake.InfoLogs.Calls != 1 {
-		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
-	}
-	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
-	assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
+	runInfoFieldMatrix(t, testCases, "token checked")
 }
 
 func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
@@ -1243,6 +1158,13 @@ type unknownLevelFieldCase struct {
 	assertFields func(*testing.T, []any)
 }
 
+type infoFieldCase struct {
+	name         string
+	emit         func(*ZanzanaLogger)
+	expectFields bool
+	assertFields func(*testing.T, []any)
+}
+
 type withContextCase struct {
 	name          string
 	withFields    []zap.Field
@@ -1281,6 +1203,26 @@ func runUnknownLevelFieldMatrix(t *testing.T, testCases []unknownLevelFieldCase,
 			tc.emit(logger)
 			fields := assertUnknownLevelContext(t, fake, expectedMessage, expectedLevel, true)
 			tc.assertFields(t, fields)
+		})
+	}
+}
+
+func runInfoFieldMatrix(t *testing.T, testCases []infoFieldCase, expectedMessage string) {
+	t.Helper()
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			fake := &logtest.Fake{}
+			logger := New(fake)
+
+			tc.emit(logger)
+
+			expectFields := tc.expectFields || tc.assertFields != nil
+			fields := assertInfoContext(t, fake, expectedMessage, expectFields)
+			if tc.assertFields != nil {
+				tc.assertFields(t, fields)
+			}
 		})
 	}
 }
@@ -1399,6 +1341,21 @@ func assertUnknownLevelContext(t *testing.T, fake *logtest.Fake, expectedMessage
 
 	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
 	assertMessageAndLevel(t, ctx, expectedMessage, expectedLevel)
+	if !expectFields {
+		if len(ctx) != 4 {
+			t.Fatalf("expected message+level fields, got %#v", ctx)
+		}
+		return nil
+	}
+
+	return assertFieldsPayload(t, ctx)
+}
+
+func assertInfoContext(t *testing.T, fake *logtest.Fake, expectedMessage string, expectFields bool) []any {
+	t.Helper()
+
+	ctx := assertSingleTargetLoggerCallAndContext(t, fake, "info")
+	assertMessageAndLevel(t, ctx, expectedMessage, "info")
 	if !expectFields {
 		if len(ctx) != 4 {
 			t.Fatalf("expected message+level fields, got %#v", ctx)
