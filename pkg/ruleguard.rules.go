@@ -1041,6 +1041,15 @@ func structuredlogging(m fluent.Matcher) {
 		Report(`for recovered panic payloads in panic/fatal structured logs, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
+		`if $panicVal := recover(); $panicVal != nil { if $panicErr, $ok := $panicVal.(error); $ok { $logger.Panic($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { if $panicErr, $ok := $panicVal.(error); $ok { $logger.Fatal($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $panicErr, $ok := $panicVal.(error); if $ok { $logger.Panic($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $panicErr, $ok := $panicVal.(error); if $ok { $logger.Fatal($msg, $*before, $key, $panicErr, $*after); $*_ }; $*_ }`,
+	).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
+		Report(`for recovered type-asserted panic errors in panic/fatal structured logs, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
 		`if $panicVal := recover(); $panicVal != nil { $logger.Panic($msg, []any{$*before, $key, $panicVal, $*after}...); $*_ }`,
 		`if $panicVal := recover(); $panicVal != nil { $logger.Fatal($msg, []any{$*before, $key, $panicVal, $*after}...); $*_ }`,
 		`$panicVal := recover(); if $panicVal != nil { $logger.Panic($msg, []any{$*before, $key, $panicVal, $*after}...); $*_ }`,
@@ -1048,6 +1057,15 @@ func structuredlogging(m fluent.Matcher) {
 	).
 		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
 		Report(`for recovered panic payloads in panic/fatal []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal != nil { if $panicErr, $ok := $panicVal.(error); $ok { $logger.Panic($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { if $panicErr, $ok := $panicVal.(error); $ok { $logger.Fatal($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $panicErr, $ok := $panicVal.(error); if $ok { $logger.Panic($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $panicErr, $ok := $panicVal.(error); if $ok { $logger.Fatal($msg, []any{$*before, $key, $panicErr, $*after}...); $*_ }; $*_ }`,
+	).
+		Where(m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$")).
+		Report(`for recovered type-asserted panic errors in panic/fatal []any spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal != nil { $logger.Panic($msg, append($arr, $*before, $key, $panicVal, $*after)...); $*_ }`,
@@ -1060,6 +1078,18 @@ func structuredlogging(m fluent.Matcher) {
 				m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$"),
 		).
 		Report(`for recovered panic payloads in panic/fatal append spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
+
+	m.Match(
+		`if $panicVal := recover(); $panicVal != nil { if $panicErr, $ok := $panicVal.(error); $ok { $logger.Panic($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+		`if $panicVal := recover(); $panicVal != nil { if $panicErr, $ok := $panicVal.(error); $ok { $logger.Fatal($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $panicErr, $ok := $panicVal.(error); if $ok { $logger.Panic($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+		`$panicVal := recover(); if $panicVal != nil { $panicErr, $ok := $panicVal.(error); if $ok { $logger.Fatal($msg, append($arr, $*before, $key, $panicErr, $*after)...); $*_ }; $*_ }`,
+	).
+		Where(
+			m["arr"].Type.Is("[]any") &&
+				m["key"].Text.Matches("^[\"`](error|errorMessage|reason|panic)[\"`]$"),
+		).
+		Report(`for recovered type-asserted panic errors in panic/fatal append spread arguments, use key "panicValue" instead of "error", "errorMessage", "reason", or "panic"`)
 
 	m.Match(
 		`if $panicVal := recover(); $panicVal == nil { $*_ } else { $logger.Panic($msg, $*before, $key, $panicVal, $*after); $*_ }`,
