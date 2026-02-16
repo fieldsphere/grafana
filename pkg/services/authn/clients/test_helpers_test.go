@@ -13,10 +13,12 @@ func ptr[T any](value T) *T {
 	return &value
 }
 
+// encodeBasicAuth returns a Basic authorization header value for tests.
 func encodeBasicAuth(username, password string) string {
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(username+":"+password))
 }
 
+// mustGenAPIKey creates deterministic API key fixtures for tests and fails fast if generation is unavailable.
 func mustGenAPIKey() (string, string) {
 	res, err := satokengen.New("test")
 	if err != nil {
