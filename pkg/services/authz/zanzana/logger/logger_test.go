@@ -226,6 +226,36 @@ func TestZanzanaLoggerWithOnlySkippedFieldsKeepsEmptyContext(t *testing.T) {
 	}
 }
 
+func TestZanzanaLoggerWithPreservesDuplicateKeyOrder(t *testing.T) {
+	capturing := &capturingLogger{}
+	logger := New(capturing)
+
+	child := logger.With(zap.String("scope", "first"), zap.String("scope", "second"))
+	if child == nil {
+		t.Fatal("expected non-nil logger")
+	}
+	if capturing.newCalls != 1 {
+		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
+	}
+	if len(capturing.newCtx) != 2 || capturing.newCtx[0] != "zanzanaContext" {
+		t.Fatalf("unexpected context payload: %#v", capturing.newCtx)
+	}
+
+	fields, ok := capturing.newCtx[1].([]any)
+	if !ok {
+		t.Fatalf("expected zanzanaContext payload to be []any, got %#v", capturing.newCtx[1])
+	}
+	expected := []any{"scope", "first", "scope", "second"}
+	if len(fields) != len(expected) {
+		t.Fatalf("unexpected duplicate key payload length: got=%d want=%d (%#v)", len(fields), len(expected), fields)
+	}
+	for i := range expected {
+		if fields[i] != expected[i] {
+			t.Fatalf("unexpected duplicate key field at index %d: got=%#v want=%#v (%#v)", i, fields[i], expected[i], fields)
+		}
+	}
+}
+
 func TestZanzanaLoggerErrorFamilyPreservesOriginalLevel(t *testing.T) {
 	testCases := []struct {
 		name string
