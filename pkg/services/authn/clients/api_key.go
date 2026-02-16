@@ -212,15 +212,15 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 		return nil
 	}
 
-	go func(apiKeyID int64, keyID string) {
+	go func(apiKeyID int64, keyID string, rawKeyID string) {
 		defer func() {
 			if panicValue := recover(); panicValue != nil {
-				s.log.Error("Panic during API key last-used sync", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "validationSource", validationSourceHook, "panicValue", panicValue)
+				s.log.Error("Panic during API key last-used sync", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "apiKeyNumericID", apiKeyID, "validationSource", validationSourceHook, "panicValue", panicValue)
 			}
 		}()
 
-		s.syncAPIKeyLastUsedByID(apiKeyID, keyID, validationSourceHook)
-	}(apiKeyID, keyID)
+		s.syncAPIKeyLastUsedByID(apiKeyID, keyID, rawKeyID, validationSourceHook)
+	}(apiKeyID, keyID, rawKeyID)
 
 	return nil
 }
@@ -239,12 +239,12 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 		return
 	}
 
-	s.syncAPIKeyLastUsedByID(apiKeyID, keyID, validationSourceSync)
+	s.syncAPIKeyLastUsedByID(apiKeyID, keyID, rawKeyID, validationSourceSync)
 }
 
-func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string, validationSource string) {
+func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string, rawKeyID string, validationSource string) {
 	if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), apiKeyID); err != nil {
-		s.log.Warn("Failed to update last used date for API key", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "validationSource", validationSource, "error", err)
+		s.log.Warn("Failed to update last used date for API key", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "apiKeyNumericID", apiKeyID, "validationSource", validationSource, "error", err)
 		return
 	}
 }
