@@ -926,6 +926,58 @@ func f(logger interface{ Error(string, ...any) }) {
 	}
 }
 
+func TestRecoverAliasViolationInSliceExprDetectsAppendSpreadSliceAlias(t *testing.T) {
+	const src = `package p
+
+func f(logger interface{ Error(string, ...any) }) {
+	panicVal := recover()
+	bad := []any{"reason", panicVal}
+	args := []any{"ctx", 1}
+	logger.Error("msg", append(args, bad...)...)
+}
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "spread_append_alias.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse source: %v", err)
+	}
+
+	var body *ast.BlockStmt
+	var spreadExpr ast.Expr
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok || fn.Name.Name != "f" {
+			continue
+		}
+		body = fn.Body
+		inspectBodyWithoutNestedFuncLits(body, func(node ast.Node) bool {
+			call, ok := node.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			if expr, ok := spreadArgExpr(call); ok {
+				spreadExpr = expr
+				return false
+			}
+			return true
+		})
+	}
+	if body == nil || spreadExpr == nil {
+		t.Fatal("failed to locate append spread expression")
+	}
+
+	constValues := stringConstValueMap(file)
+	constNameValues := constNameValueMap(constValues)
+	recoverDerived := recoverDerivedIdentifiers(body)
+	localNames := declaredNamesInBody(body)
+	badSlices := recoverDerivedSlicesWithAliasViolations(body, recoverDerived, constValues, constNameValues, localNames)
+
+	alias := recoverAliasViolationInSliceExpr(spreadExpr, recoverDerived, badSlices, constValues, constNameValues, localNames)
+	if alias != "reason" {
+		t.Fatalf("expected append spread alias to resolve forbidden key \"reason\", got %q", alias)
+	}
+}
+
 func TestKeyValueFromExprResolvesParenthesizedConstIdentifier(t *testing.T) {
 	const src = `package p
 
@@ -1243,6 +1295,11 @@ func recoverAliasViolationInSliceExpr(
 					if alias := badSlices[baseIdent.Name]; alias != "" {
 						return alias
 					}
+				}
+			}
+			if n.Ellipsis.IsValid() && len(n.Args) >= 2 {
+				if alias := recoverAliasViolationInSliceExpr(n.Args[1], recoverDerived, badSlices, constValues, constNameValues, localNames); alias != "" {
+					return alias
 				}
 			}
 			for idx := 2; idx < len(n.Args); idx++ {
