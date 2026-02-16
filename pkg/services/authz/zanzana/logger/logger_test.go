@@ -1149,12 +1149,7 @@ func TestZanzanaLoggerMethodsIncludeStructuredFields(t *testing.T) {
 }
 
 func TestZanzanaLoggerMethodsWithNestedNamespaceIncludeStructuredFields(t *testing.T) {
-	testCases := []struct {
-		name          string
-		emit          func(*ZanzanaLogger)
-		targetLogger  string
-		expectedLevel string
-	}{
+	testCases := []loggerFieldCase{
 		{
 			name: "debug",
 			emit: func(logger *ZanzanaLogger) {
@@ -1205,79 +1200,13 @@ func TestZanzanaLoggerMethodsWithNestedNamespaceIncludeStructuredFields(t *testi
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			fake := &logtest.Fake{}
-			logger := New(fake)
-
-			tc.emit(logger)
-
-			expectedDebugCalls := 0
-			expectedInfoCalls := 0
-			expectedWarnCalls := 0
-			expectedErrorCalls := 0
-			switch tc.targetLogger {
-			case "debug":
-				expectedDebugCalls = 1
-			case "info":
-				expectedInfoCalls = 1
-			case "warn":
-				expectedWarnCalls = 1
-			case "error":
-				expectedErrorCalls = 1
-			default:
-				t.Fatalf("unknown target logger %q", tc.targetLogger)
-			}
-
-			if fake.DebugLogs.Calls != expectedDebugCalls {
-				t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, expectedDebugCalls)
-			}
-			if fake.InfoLogs.Calls != expectedInfoCalls {
-				t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, expectedInfoCalls)
-			}
-			if fake.WarnLogs.Calls != expectedWarnCalls {
-				t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, expectedWarnCalls)
-			}
-			if fake.ErrorLogs.Calls != expectedErrorCalls {
-				t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, expectedErrorCalls)
-			}
-
-			var ctx []any
-			switch tc.targetLogger {
-			case "debug":
-				ctx = fake.DebugLogs.Ctx
-			case "info":
-				ctx = fake.InfoLogs.Ctx
-			case "warn":
-				ctx = fake.WarnLogs.Ctx
-			case "error":
-				ctx = fake.ErrorLogs.Ctx
-			}
-
-			if len(ctx) != 6 {
-				t.Fatalf("expected structured context with fields, got %#v", ctx)
-			}
-			if ctx[0] != "zanzanaMessage" || ctx[1] != "nested message" {
-				t.Fatalf("unexpected zanzana message context: %#v", ctx)
-			}
-			if ctx[2] != "zanzanaLevel" || ctx[3] != tc.expectedLevel {
-				t.Fatalf("unexpected zanzana level context: %#v", ctx)
-			}
-
-			fields := assertFieldsPayload(t, ctx)
-			assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
-		})
-	}
+	runLoggerFieldMatrix(t, testCases, "nested message", func(t *testing.T, fields []any) {
+		assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
+	})
 }
 
 func TestZanzanaLoggerMethodsWithNamespaceOnlyIncludeEmptyNamespacePayload(t *testing.T) {
-	testCases := []struct {
-		name          string
-		emit          func(*ZanzanaLogger)
-		targetLogger  string
-		expectedLevel string
-	}{
+	testCases := []loggerFieldCase{
 		{
 			name: "debug",
 			emit: func(logger *ZanzanaLogger) {
@@ -1328,70 +1257,9 @@ func TestZanzanaLoggerMethodsWithNamespaceOnlyIncludeEmptyNamespacePayload(t *te
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			fake := &logtest.Fake{}
-			logger := New(fake)
-
-			tc.emit(logger)
-
-			expectedDebugCalls := 0
-			expectedInfoCalls := 0
-			expectedWarnCalls := 0
-			expectedErrorCalls := 0
-			switch tc.targetLogger {
-			case "debug":
-				expectedDebugCalls = 1
-			case "info":
-				expectedInfoCalls = 1
-			case "warn":
-				expectedWarnCalls = 1
-			case "error":
-				expectedErrorCalls = 1
-			default:
-				t.Fatalf("unknown target logger %q", tc.targetLogger)
-			}
-
-			if fake.DebugLogs.Calls != expectedDebugCalls {
-				t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, expectedDebugCalls)
-			}
-			if fake.InfoLogs.Calls != expectedInfoCalls {
-				t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, expectedInfoCalls)
-			}
-			if fake.WarnLogs.Calls != expectedWarnCalls {
-				t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, expectedWarnCalls)
-			}
-			if fake.ErrorLogs.Calls != expectedErrorCalls {
-				t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, expectedErrorCalls)
-			}
-
-			var ctx []any
-			switch tc.targetLogger {
-			case "debug":
-				ctx = fake.DebugLogs.Ctx
-			case "info":
-				ctx = fake.InfoLogs.Ctx
-			case "warn":
-				ctx = fake.WarnLogs.Ctx
-			case "error":
-				ctx = fake.ErrorLogs.Ctx
-			}
-
-			if len(ctx) != 6 {
-				t.Fatalf("expected structured context with fields, got %#v", ctx)
-			}
-			if ctx[0] != "zanzanaMessage" || ctx[1] != "namespace only message" {
-				t.Fatalf("unexpected zanzana message context: %#v", ctx)
-			}
-			if ctx[2] != "zanzanaLevel" || ctx[3] != tc.expectedLevel {
-				t.Fatalf("unexpected zanzana level context: %#v", ctx)
-			}
-
-			fields := assertFieldsPayload(t, ctx)
-			assertNamespacePayloadEmpty(t, fields, "auth")
-		})
-	}
+	runLoggerFieldMatrix(t, testCases, "namespace only message", func(t *testing.T, fields []any) {
+		assertNamespacePayloadEmpty(t, fields, "auth")
+	})
 }
 
 func TestZanzanaLoggerMethodsWithTopLevelAndNamespacedFieldsIncludeStructuredFields(t *testing.T) {
@@ -1452,12 +1320,7 @@ func TestZanzanaLoggerMethodsWithTopLevelAndNamespacedFieldsIncludeStructuredFie
 }
 
 func TestZanzanaLoggerMethodsWithTopLevelNamespaceAndSkippedFieldIncludeStructuredFields(t *testing.T) {
-	testCases := []struct {
-		name          string
-		emit          func(*ZanzanaLogger)
-		targetLogger  string
-		expectedLevel string
-	}{
+	testCases := []loggerFieldCase{
 		{
 			name: "debug",
 			emit: func(logger *ZanzanaLogger) {
@@ -1508,20 +1371,9 @@ func TestZanzanaLoggerMethodsWithTopLevelNamespaceAndSkippedFieldIncludeStructur
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			fake := &logtest.Fake{}
-			logger := New(fake)
-
-			tc.emit(logger)
-
-			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
-			fields := assertFieldsPayload(t, ctx)
-			assertMessageAndLevel(t, ctx, "mixed skip message", tc.expectedLevel)
-			assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
-		})
-	}
+	runLoggerFieldMatrix(t, testCases, "mixed skip message", func(t *testing.T, fields []any) {
+		assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
+	})
 }
 
 func TestZanzanaLoggerContextMethodsIncludeStructuredFields(t *testing.T) {
@@ -1785,12 +1637,7 @@ func TestZanzanaLoggerContextMethodsWithNamespaceOnlyIncludeEmptyNamespacePayloa
 }
 
 func TestZanzanaLoggerContextMethodsWithTopLevelAndNamespacedFieldsIncludeStructuredFields(t *testing.T) {
-	testCases := []struct {
-		name          string
-		emit          func(*ZanzanaLogger)
-		expectedLevel string
-		targetLogger  string
-	}{
+	testCases := []loggerFieldCase{
 		{
 			name: "debugWithContext",
 			emit: func(logger *ZanzanaLogger) {
@@ -1841,29 +1688,13 @@ func TestZanzanaLoggerContextMethodsWithTopLevelAndNamespacedFieldsIncludeStruct
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			fake := &logtest.Fake{}
-			logger := New(fake)
-
-			tc.emit(logger)
-			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
-
-			fields := assertFieldsPayload(t, ctx)
-			assertMessageAndLevel(t, ctx, "mixed context message", tc.expectedLevel)
-			assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
-		})
-	}
+	runLoggerFieldMatrix(t, testCases, "mixed context message", func(t *testing.T, fields []any) {
+		assertTopLevelAndNamespacedFieldValue(t, fields, "subject", "user-1", "auth", "token", "value")
+	})
 }
 
 func TestZanzanaLoggerContextMethodsWithTopLevelNamespaceAndSkippedFieldIncludeStructuredFields(t *testing.T) {
-	testCases := []struct {
-		name          string
-		emit          func(*ZanzanaLogger)
-		expectedLevel string
-		targetLogger  string
-	}{
+	testCases := []loggerFieldCase{
 		{
 			name: "debugWithContext",
 			emit: func(logger *ZanzanaLogger) {
@@ -1914,20 +1745,9 @@ func TestZanzanaLoggerContextMethodsWithTopLevelNamespaceAndSkippedFieldIncludeS
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			fake := &logtest.Fake{}
-			logger := New(fake)
-
-			tc.emit(logger)
-
-			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
-			fields := assertFieldsPayload(t, ctx)
-			assertMessageAndLevel(t, ctx, "mixed skip context message", tc.expectedLevel)
-			assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
-		})
-	}
+	runLoggerFieldMatrix(t, testCases, "mixed skip context message", func(t *testing.T, fields []any) {
+		assertTopLevelAndEmptyNamespacePayload(t, fields, "subject", "user-1", "auth")
+	})
 }
 
 func TestZanzanaLoggerContextMethodsWithNestedNamespaceIncludeStructuredFields(t *testing.T) {
