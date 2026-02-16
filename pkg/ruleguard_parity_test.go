@@ -471,6 +471,71 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 	}
 }
 
+func TestStringConstValueMapResolvesInheritedAndAliasedConstants(t *testing.T) {
+	const src = `package p
+
+const (
+	panicKey         = "panicValue"
+	aliasPanicKey    = panicKey
+	reasonKey        = "reason"
+	inheritedReason
+	aliasInherited   = inheritedReason
+)
+
+var _ = aliasPanicKey
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "consts.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse const sample: %v", err)
+	}
+
+	constValues := stringConstValueMap(file)
+	assertConstValue := func(name string, expected string) {
+		t.Helper()
+		obj, ok := file.Scope.Objects[name]
+		if !ok {
+			t.Fatalf("missing const object %q", name)
+		}
+		got, ok := constValues[obj]
+		if !ok {
+			t.Fatalf("const %q not resolved in value map", name)
+		}
+		if got != expected {
+			t.Fatalf("const %q resolved to %q, expected %q", name, got, expected)
+		}
+	}
+
+	assertConstValue("panicKey", "panicValue")
+	assertConstValue("aliasPanicKey", "panicValue")
+	assertConstValue("reasonKey", "reason")
+	assertConstValue("inheritedReason", "reason")
+	assertConstValue("aliasInherited", "reason")
+
+	var aliasExpr ast.Expr
+	for _, decl := range file.Decls {
+		genDecl, ok := decl.(*ast.GenDecl)
+		if !ok || genDecl.Tok != token.VAR {
+			continue
+		}
+		for _, spec := range genDecl.Specs {
+			valueSpec, ok := spec.(*ast.ValueSpec)
+			if !ok || len(valueSpec.Values) == 0 {
+				continue
+			}
+			aliasExpr = valueSpec.Values[0]
+		}
+	}
+	if aliasExpr == nil {
+		t.Fatal("failed to locate alias const usage expression")
+	}
+
+	resolved, ok := keyValueFromExpr(aliasExpr, constValues)
+	if !ok || resolved != "panicValue" {
+		t.Fatalf("expected keyValueFromExpr to resolve alias const to panicValue, got %q (ok=%v)", resolved, ok)
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
@@ -742,7 +807,7 @@ func keyValueFromExpr(expr ast.Expr, constValues map[*ast.Object]string) (string
 }
 
 func stringConstValueMap(file *ast.File) map[*ast.Object]string {
-	values := map[*ast.Object]string{}
+	exprByObject := map[*ast.Object]ast.Expr{}
 
 	for _, decl := range file.Decls {
 		genDecl, ok := decl.(*ast.GenDecl)
@@ -750,9 +815,17 @@ func stringConstValueMap(file *ast.File) map[*ast.Object]string {
 			continue
 		}
 
+		var inheritedValues []ast.Expr
 		for _, spec := range genDecl.Specs {
 			valueSpec, ok := spec.(*ast.ValueSpec)
 			if !ok {
+				continue
+			}
+
+			if len(valueSpec.Values) > 0 {
+				inheritedValues = valueSpec.Values
+			}
+			if len(inheritedValues) == 0 {
 				continue
 			}
 
@@ -760,19 +833,78 @@ func stringConstValueMap(file *ast.File) map[*ast.Object]string {
 				if name == nil || name.Obj == nil {
 					continue
 				}
-				if idx >= len(valueSpec.Values) {
-					continue
-				}
-				key, ok := keyValueFromExpr(valueSpec.Values[idx], map[*ast.Object]string{})
+
+				expr, ok := constValueExprAtIndex(inheritedValues, idx)
 				if !ok {
 					continue
 				}
-				values[name.Obj] = key
+				exprByObject[name.Obj] = expr
 			}
 		}
 	}
 
+	values := map[*ast.Object]string{}
+	visiting := map[*ast.Object]bool{}
+	var resolve func(obj *ast.Object) (string, bool)
+	resolve = func(obj *ast.Object) (string, bool) {
+		if obj == nil {
+			return "", false
+		}
+		if val, ok := values[obj]; ok {
+			return val, true
+		}
+		if visiting[obj] {
+			return "", false
+		}
+		expr, ok := exprByObject[obj]
+		if !ok {
+			return "", false
+		}
+
+		visiting[obj] = true
+		defer delete(visiting, obj)
+
+		switch e := expr.(type) {
+		case *ast.BasicLit:
+			if e.Kind != token.STRING {
+				return "", false
+			}
+			val, err := strconv.Unquote(e.Value)
+			if err != nil {
+				return "", false
+			}
+			values[obj] = val
+			return val, true
+		case *ast.Ident:
+			resolved, ok := resolve(e.Obj)
+			if !ok {
+				return "", false
+			}
+			values[obj] = resolved
+			return resolved, true
+		}
+
+		return "", false
+	}
+
+	for obj := range exprByObject {
+		resolve(obj)
+	}
+
 	return values
+}
+
+func constValueExprAtIndex(values []ast.Expr, idx int) (ast.Expr, bool) {
+	switch {
+	case len(values) == 0:
+		return nil, false
+	case len(values) == 1:
+		return values[0], true
+	case idx < len(values):
+		return values[idx], true
+	default:
+		return nil, false
+	}
 }
 
 func recoverDerivedIdentifiers(body *ast.BlockStmt) recoverDerivedSet {
