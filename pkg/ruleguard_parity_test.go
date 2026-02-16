@@ -107,16 +107,44 @@ func TestRuleguardRecoverPanicAndFatalMatchersStaySymmetric(t *testing.T) {
 	}
 }
 
+func TestRuleguardRecoverVariableKeyMatchersUseFullPanicKeySet(t *testing.T) {
+	content := loadRuleguardRulesContent(t)
+	const requiredKeySet = `(error|errorMessage|reason|panic)`
+
+	offset := 0
+	for {
+		start := strings.Index(content[offset:], "m.Match(")
+		if start == -1 {
+			break
+		}
+		start += offset
+
+		report := strings.Index(content[start:], ".Report(")
+		if report == -1 {
+			break
+		}
+		report += start
+
+		blockText := content[start:report]
+		if !strings.Contains(blockText, "recover()") || !strings.Contains(blockText, "$key") {
+			offset = report + len(".Report(")
+			continue
+		}
+
+		if !strings.Contains(blockText, requiredKeySet) {
+			line := strings.Count(content[:start], "\n") + 1
+			t.Fatalf("recover matcher block at line %d uses $key but does not enforce %s", line, requiredKeySet)
+		}
+
+		offset = report + len(".Report(")
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
-	rulesPath := filepath.Join("ruleguard.rules.go")
-	content, err := os.ReadFile(rulesPath)
-	if err != nil {
-		t.Fatalf("read %s: %v", rulesPath, err)
-	}
-
-	lines := strings.Split(string(content), "\n")
+	content := loadRuleguardRulesContent(t)
+	lines := strings.Split(content, "\n")
 	blocks := make([]matchBlock, 0, 256)
 
 	inBlock := false
@@ -166,6 +194,18 @@ func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	}
 
 	return blocks
+}
+
+func loadRuleguardRulesContent(t *testing.T) string {
+	t.Helper()
+
+	rulesPath := filepath.Join("ruleguard.rules.go")
+	content, err := os.ReadFile(rulesPath)
+	if err != nil {
+		t.Fatalf("read %s: %v", rulesPath, err)
+	}
+
+	return string(content)
 }
 
 func matcherLineSet(blocks []matchBlock) map[string]struct{} {
