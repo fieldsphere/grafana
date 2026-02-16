@@ -91,6 +91,7 @@ func TestMustGenAPIKey(t *testing.T) {
 	require.NotEmpty(t, secret)
 	require.NotEmpty(t, hash)
 	require.NotEqual(t, secret, hash)
+	require.True(t, strings.HasPrefix(secret, satokengen.GrafanaPrefix+"test_"))
 
 	decoded, err := satokengen.Decode(secret)
 	require.NoError(t, err)
