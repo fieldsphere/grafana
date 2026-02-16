@@ -65,6 +65,14 @@ func assertUpdatedID(t *testing.T, service *updateLastUsedService, expectedID in
 	assert.Equal(t, expectedID, service.updatedID)
 }
 
+func assertHookNoUpdate(t *testing.T, client *APIKey, req *authn.Request, service *updateLastUsedService) {
+	t.Helper()
+
+	err := client.Hook(context.Background(), nil, req)
+	assert.NoError(t, err)
+	assertNoUpdateCall(t, service)
+}
+
 func newHookRequestWithMeta(keyID string, shouldSkipLastUsed bool) *authn.Request {
 	req := &authn.Request{}
 	if keyID != "" {
@@ -578,10 +586,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta("456", true)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should skip update when key id is invalid", func(t *testing.T) {
@@ -589,10 +594,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta("bad-id", false)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should skip update when key id contains a sign", func(t *testing.T) {
@@ -600,10 +602,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta(signedAPIKeyIDString, false)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should skip update when key id uses arabic-indic digits", func(t *testing.T) {
@@ -611,10 +610,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta(arabicIndicAPIKeyIDString, false)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should skip update when key id uses fullwidth digits", func(t *testing.T) {
@@ -622,10 +618,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta(fullwidthAPIKeyIDString, false)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should skip update when key id metadata has internal whitespace", func(t *testing.T) {
@@ -633,10 +626,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta(internalWhitespaceAPIKeyIDString, false)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should skip update when key id overflows int64", func(t *testing.T) {
@@ -644,10 +634,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta(overflowInt64APIKeyIDString, false)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should skip update when key id is non-positive", func(t *testing.T) {
@@ -655,10 +642,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta("-1", false)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should skip update when key id is zero", func(t *testing.T) {
@@ -666,10 +650,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta("0", false)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should skip update when key id is missing", func(t *testing.T) {
@@ -677,10 +658,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta("", false)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should skip update when key id metadata is whitespace only", func(t *testing.T) {
@@ -688,10 +666,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta("   ", false)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should skip missing key id before panic-capable update service", func(t *testing.T) {
@@ -700,10 +675,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta("", false)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 		assert.False(t, service.called)
 	})
 
@@ -726,10 +698,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		req := newHookRequestWithMeta("789", true)
 
-		err := client.Hook(context.Background(), nil, req)
-		assert.NoError(t, err)
-
-		assertNoUpdateCall(t, service)
+		assertHookNoUpdate(t, client, req, service)
 	})
 
 	t.Run("should continue when update returns an error", func(t *testing.T) {

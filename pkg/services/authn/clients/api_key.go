@@ -244,12 +244,7 @@ func (s *APIKey) parseAndValidateAPIKeyID(keyID string, validationSource string)
 
 	apiKeyID, err := strconv.ParseInt(keyID, 10, 64)
 	if err != nil {
-		if errors.Is(err, strconv.ErrRange) {
-			s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", validationReasonMustFitInt64, "validationSource", validationSource, "error", err)
-			return 0, false
-		}
-
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationSource", validationSource, "error", err)
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", validationReasonMustFitInt64, "validationSource", validationSource, "error", err)
 		return 0, false
 	}
 	if apiKeyID < 1 {
