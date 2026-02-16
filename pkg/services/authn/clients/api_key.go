@@ -44,6 +44,9 @@ const (
 	validationReasonMustBePositiveInteger = "mustBePositiveInteger"
 	validationReasonMustContainDigitsOnly = "mustContainDigitsOnly"
 	validationReasonMustFitInt64          = "mustFitInt64"
+
+	validationSourceHook = "hook"
+	validationSourceSync = "sync"
 )
 
 func ProvideAPIKey(apiKeyService apikey.Service, tracer trace.Tracer) *APIKey {
@@ -192,7 +195,7 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 		return nil
 	}
 
-	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID)
+	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID, validationSourceHook)
 	if !ok {
 		return nil
 	}
@@ -218,7 +221,7 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 		return
 	}
 
-	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID)
+	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID, validationSourceSync)
 	if !ok {
 		return
 	}
@@ -233,24 +236,24 @@ func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string) {
 	}
 }
 
-func (s *APIKey) parseAndValidateAPIKeyID(keyID string) (int64, bool) {
+func (s *APIKey) parseAndValidateAPIKeyID(keyID string, validationSource string) (int64, bool) {
 	if !containsOnlyDigits(keyID) {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", validationReasonMustContainDigitsOnly)
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", validationReasonMustContainDigitsOnly, "validationSource", validationSource)
 		return 0, false
 	}
 
 	apiKeyID, err := strconv.ParseInt(keyID, 10, 64)
 	if err != nil {
 		if errors.Is(err, strconv.ErrRange) {
-			s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", validationReasonMustFitInt64, "error", err)
+			s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationReason", validationReasonMustFitInt64, "validationSource", validationSource, "error", err)
 			return 0, false
 		}
 
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "error", err)
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "validationSource", validationSource, "error", err)
 		return 0, false
 	}
 	if apiKeyID < 1 {
-		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "validationReason", validationReasonMustBePositiveInteger)
+		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "validationReason", validationReasonMustBePositiveInteger, "validationSource", validationSource)
 		return 0, false
 	}
 
