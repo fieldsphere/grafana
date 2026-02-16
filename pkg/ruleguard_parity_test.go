@@ -877,6 +877,110 @@ func f(logger interface{ Error(string, ...any) }, args []any) {
 	}
 }
 
+func TestRecoverAliasViolationInSliceExprSupportsParenthesizedSpreadExpr(t *testing.T) {
+	const src = `package p
+
+func f(logger interface{ Error(string, ...any) }) {
+	panicVal := recover()
+	logger.Error("msg", ([]any{"panic", panicVal})...)
+}
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "spread_paren.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse source: %v", err)
+	}
+
+	var body *ast.BlockStmt
+	var spreadExpr ast.Expr
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok || fn.Name.Name != "f" {
+			continue
+		}
+		body = fn.Body
+		inspectBodyWithoutNestedFuncLits(body, func(node ast.Node) bool {
+			call, ok := node.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			if expr, ok := spreadArgExpr(call); ok {
+				spreadExpr = expr
+				return false
+			}
+			return true
+		})
+	}
+	if body == nil || spreadExpr == nil {
+		t.Fatal("failed to locate parenthesized spread expression")
+	}
+
+	constValues := stringConstValueMap(file)
+	constNameValues := constNameValueMap(constValues)
+	recoverDerived := recoverDerivedIdentifiers(body)
+	localNames := declaredNamesInBody(body)
+
+	alias := recoverAliasViolationInSliceExpr(spreadExpr, recoverDerived, map[string]string{}, constValues, constNameValues, localNames)
+	if alias != "panic" {
+		t.Fatalf("expected parenthesized spread alias to resolve forbidden key \"panic\", got %q", alias)
+	}
+}
+
+func TestKeyValueFromExprResolvesParenthesizedConstIdentifier(t *testing.T) {
+	const src = `package p
+
+const panicAlias = "panicValue"
+
+func f() {
+	var _ = (panicAlias)
+}
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "paren_const.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse source: %v", err)
+	}
+
+	constValues := stringConstValueMap(file)
+	constNameValues := constNameValueMap(constValues)
+
+	var expr ast.Expr
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok || fn.Name.Name != "f" {
+			continue
+		}
+		for _, stmt := range fn.Body.List {
+			declStmt, ok := stmt.(*ast.DeclStmt)
+			if !ok {
+				continue
+			}
+			genDecl, ok := declStmt.Decl.(*ast.GenDecl)
+			if !ok {
+				continue
+			}
+			for _, spec := range genDecl.Specs {
+				valueSpec, ok := spec.(*ast.ValueSpec)
+				if !ok || len(valueSpec.Values) == 0 {
+					continue
+				}
+				expr = valueSpec.Values[0]
+			}
+		}
+	}
+	if expr == nil {
+		t.Fatal("failed to locate parenthesized const identifier expression")
+	}
+
+	key, ok := keyValueFromExpr(expr, constValues, constNameValues, declaredNamesInBody(&ast.BlockStmt{}))
+	if !ok {
+		t.Fatal("expected parenthesized const identifier to resolve as key")
+	}
+	if key != "panicValue" {
+		t.Fatalf("expected key to resolve as \"panicValue\", got %q", key)
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
@@ -1118,6 +1222,8 @@ func recoverAliasViolationInSliceExpr(
 	localNames map[string]struct{},
 ) string {
 	switch n := expr.(type) {
+	case *ast.ParenExpr:
+		return recoverAliasViolationInSliceExpr(n.X, recoverDerived, badSlices, constValues, constNameValues, localNames)
 	case *ast.Ident:
 		return badSlices[n.Name]
 	case *ast.CompositeLit:
@@ -1155,6 +1261,10 @@ func recoverAliasViolationInSliceExpr(
 }
 
 func keyValueFromExpr(expr ast.Expr, constValues map[*ast.Object]string, constNameValues map[string]string, localNames map[string]struct{}) (string, bool) {
+	if paren, ok := expr.(*ast.ParenExpr); ok {
+		return keyValueFromExpr(paren.X, constValues, constNameValues, localNames)
+	}
+
 	basic, ok := expr.(*ast.BasicLit)
 	if ok && basic.Kind == token.STRING {
 		key, err := strconv.Unquote(basic.Value)
