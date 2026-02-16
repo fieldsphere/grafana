@@ -22,7 +22,7 @@ import (
 
 var (
 	revoked         = true
-	secret, hash    = genApiKey()
+	secret, hash    = mustGenAPIKey()
 	errUpdateFailed = errors.New("update failed")
 )
 

@@ -25,7 +25,7 @@ func encodeBasicAuth(username, password string) string {
 	return "Basic " + base64.StdEncoding.EncodeToString([]byte(username+":"+password))
 }
 
-func genApiKey() (string, string) {
+func mustGenAPIKey() (string, string) {
 	res, err := satokengen.New("test")
 	if err != nil {
 		panic(err)
