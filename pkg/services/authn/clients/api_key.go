@@ -218,7 +218,7 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 			}
 		}()
 
-		s.syncAPIKeyLastUsedByID(apiKeyID, keyID)
+		s.syncAPIKeyLastUsedByID(apiKeyID, keyID, validationSourceHook)
 	}(apiKeyID, keyID)
 
 	return nil
@@ -237,12 +237,12 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 		return
 	}
 
-	s.syncAPIKeyLastUsedByID(apiKeyID, keyID)
+	s.syncAPIKeyLastUsedByID(apiKeyID, keyID, validationSourceSync)
 }
 
-func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string) {
+func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string, validationSource string) {
 	if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), apiKeyID); err != nil {
-		s.log.Warn("Failed to update last used date for API key", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "error", err)
+		s.log.Warn("Failed to update last used date for API key", "apiKeyID", keyID, "apiKeyNumericID", apiKeyID, "validationSource", validationSource, "error", err)
 		return
 	}
 }
