@@ -403,6 +403,22 @@ func TestZanzanaLoggerContextMethodsPreserveLevelRouting(t *testing.T) {
 			expectedErrorCalls: 1,
 			expectedLevel:      "error",
 		},
+		{
+			name: "panicWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.PanicWithContext(context.Background(), "panic message")
+			},
+			expectedErrorCalls: 1,
+			expectedLevel:      "panic",
+		},
+		{
+			name: "fatalWithContext",
+			emit: func(logger *ZanzanaLogger) {
+				logger.FatalWithContext(context.Background(), "fatal message")
+			},
+			expectedErrorCalls: 1,
+			expectedLevel:      "fatal",
+		},
 	}
 
 	for _, tc := range testCases {
