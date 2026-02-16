@@ -829,6 +829,12 @@ func TestAPIKey_Hook(t *testing.T) {
 		assertHookUpdateForKeyID(t, context.Background(), client, maxInt64APIKeyIDWithControlWhitespace, service)
 	})
 
+	t.Run("should update when key id is max int64 with surrounding control whitespace and nil tracer/context", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, nil)
+		assertHookUpdateForKeyID(t, nil, client, maxInt64APIKeyIDWithControlWhitespace, service)
+	})
+
 	t.Run("should update when key id is max int64 with control-character whitespace", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -887,6 +893,12 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		assertHookNoUpdateForKeyID(t, context.Background(), client, signedAPIKeyIDWithControlWhitespace, false, service)
+	})
+
+	t.Run("should skip update when key id contains a sign with surrounding control whitespace and nil tracer/context", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, nil)
+		assertHookNoUpdateForKeyID(t, nil, client, signedAPIKeyIDWithControlWhitespace, false, service)
 	})
 
 	t.Run("should skip update when key id uses arabic-indic digits", func(t *testing.T) {
