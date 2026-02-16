@@ -23,6 +23,19 @@ func TestPtr(t *testing.T) {
 	require.True(t, *flag)
 }
 
+func TestPtrReturnsDistinctPointers(t *testing.T) {
+	t.Parallel()
+
+	first := ptr[int64](7)
+	second := ptr[int64](7)
+
+	require.NotNil(t, first)
+	require.NotNil(t, second)
+	require.NotSame(t, first, second)
+	require.EqualValues(t, 7, *first)
+	require.EqualValues(t, 7, *second)
+}
+
 func TestEncodeBasicAuth(t *testing.T) {
 	t.Parallel()
 
