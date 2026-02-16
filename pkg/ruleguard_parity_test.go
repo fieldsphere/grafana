@@ -337,18 +337,9 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 			return parseErr
 		}
 
-		ast.Inspect(file, func(node ast.Node) bool {
-			fn, ok := node.(*ast.FuncLit)
-			if !ok {
-				return true
-			}
-
-			if !funcLitContainsRecover(fn) {
-				return true
-			}
-			recoverDerived := recoverDerivedIdentifiers(fn)
-
-			ast.Inspect(fn.Body, func(inner ast.Node) bool {
+		forEachRecoverFunctionBody(file, func(body *ast.BlockStmt) {
+			recoverDerived := recoverDerivedIdentifiers(body)
+			inspectBodyWithoutNestedFuncLits(body, func(inner ast.Node) bool {
 				call, ok := inner.(*ast.CallExpr)
 				if !ok {
 					return true
@@ -383,7 +374,6 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 
 				return true
 			})
-			return true
 		})
 
 		return nil
@@ -421,17 +411,10 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 			return parseErr
 		}
 
-		ast.Inspect(file, func(node ast.Node) bool {
-			fn, ok := node.(*ast.FuncLit)
-			if !ok {
-				return true
-			}
-			if !funcLitContainsRecover(fn) {
-				return true
-			}
-			recoverDerived := recoverDerivedIdentifiers(fn)
-
-			ast.Inspect(fn.Body, func(inner ast.Node) bool {
+		forEachRecoverFunctionBody(file, func(body *ast.BlockStmt) {
+			recoverDerived := recoverDerivedIdentifiers(body)
+			badSpreadSlices := recoverDerivedSlicesWithAliasViolations(body, recoverDerived)
+			inspectBodyWithoutNestedFuncLits(body, func(inner ast.Node) bool {
 				call, ok := inner.(*ast.CallExpr)
 				if !ok {
 					return true
@@ -445,6 +428,15 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 				}
 
 				for argIdx, arg := range call.Args {
+					if spreadArg, ok := arg.(*ast.Ellipsis); ok {
+						if spreadIdent, ok := spreadArg.Elt.(*ast.Ident); ok {
+							if alias, found := badSpreadSlices[spreadIdent.Name]; found {
+								position := fset.Position(spreadArg.Pos())
+								violationSet[position.String()+": recover-derived spread args must use key \"panicValue\", found "+strconv.Quote(alias)] = struct{}{}
+							}
+						}
+					}
+
 					if !exprDependsOnRecover(arg, recoverDerived) {
 						continue
 					}
@@ -469,8 +461,6 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 
 				return true
 			})
-
-			return true
 		})
 
 		return nil
@@ -618,9 +608,9 @@ func recoverAliasMentionsInMatcherLines(lines []string) map[string]struct{} {
 	return aliases
 }
 
-func funcLitContainsRecover(fn *ast.FuncLit) bool {
+func blockContainsRecover(body *ast.BlockStmt) bool {
 	found := false
-	ast.Inspect(fn.Body, func(node ast.Node) bool {
+	inspectBodyWithoutNestedFuncLits(body, func(node ast.Node) bool {
 		call, ok := node.(*ast.CallExpr)
 		if !ok {
 			return true
@@ -657,7 +647,100 @@ type recoverDerivedSet struct {
 	objects map[*ast.Object]struct{}
 }
 
-func recoverDerivedIdentifiers(fn *ast.FuncLit) recoverDerivedSet {
+func recoverDerivedSlicesWithAliasViolations(body *ast.BlockStmt, recoverDerived recoverDerivedSet) map[string]string {
+	badSlices := map[string]string{}
+
+	recordVar := func(name string, rhs ast.Expr) {
+		if name == "" || rhs == nil {
+			return
+		}
+
+		if alias := recoverAliasViolationInSliceExpr(rhs, recoverDerived, badSlices); alias != "" {
+			badSlices[name] = alias
+		}
+	}
+
+	inspectBodyWithoutNestedFuncLits(body, func(node ast.Node) bool {
+		switch n := node.(type) {
+		case *ast.AssignStmt:
+			if len(n.Lhs) != len(n.Rhs) {
+				return true
+			}
+			for idx := range n.Lhs {
+				lhsIdent, ok := n.Lhs[idx].(*ast.Ident)
+				if !ok || lhsIdent.Name == "_" {
+					continue
+				}
+				recordVar(lhsIdent.Name, n.Rhs[idx])
+			}
+		case *ast.ValueSpec:
+			for idx, lhsIdent := range n.Names {
+				if lhsIdent == nil || lhsIdent.Name == "_" {
+					continue
+				}
+				if idx >= len(n.Values) {
+					continue
+				}
+				recordVar(lhsIdent.Name, n.Values[idx])
+			}
+		}
+		return true
+	})
+
+	return badSlices
+}
+
+func recoverAliasViolationInSliceExpr(expr ast.Expr, recoverDerived recoverDerivedSet, badSlices map[string]string) string {
+	switch n := expr.(type) {
+	case *ast.Ident:
+		return badSlices[n.Name]
+	case *ast.CompositeLit:
+		for idx := 1; idx < len(n.Elts); idx++ {
+			if !exprDependsOnRecover(n.Elts[idx], recoverDerived) {
+				continue
+			}
+			key, ok := keyLiteralFromExpr(n.Elts[idx-1])
+			if ok && key != "panicValue" {
+				return key
+			}
+		}
+	case *ast.CallExpr:
+		if funIdent, ok := n.Fun.(*ast.Ident); ok && funIdent.Name == "append" {
+			if len(n.Args) > 0 {
+				if baseIdent, ok := n.Args[0].(*ast.Ident); ok {
+					if alias := badSlices[baseIdent.Name]; alias != "" {
+						return alias
+					}
+				}
+			}
+			for idx := 2; idx < len(n.Args); idx++ {
+				if !exprDependsOnRecover(n.Args[idx], recoverDerived) {
+					continue
+				}
+				key, ok := keyLiteralFromExpr(n.Args[idx-1])
+				if ok && key != "panicValue" {
+					return key
+				}
+			}
+		}
+	}
+
+	return ""
+}
+
+func keyLiteralFromExpr(expr ast.Expr) (string, bool) {
+	basic, ok := expr.(*ast.BasicLit)
+	if !ok || basic.Kind != token.STRING {
+		return "", false
+	}
+	key, err := strconv.Unquote(basic.Value)
+	if err != nil {
+		return "", false
+	}
+	return key, true
+}
+
+func recoverDerivedIdentifiers(body *ast.BlockStmt) recoverDerivedSet {
 	derived := recoverDerivedSet{
 		objects: map[*ast.Object]struct{}{},
 	}
@@ -678,7 +761,7 @@ func recoverDerivedIdentifiers(fn *ast.FuncLit) recoverDerivedSet {
 		}
 	}
 
-	ast.Inspect(fn.Body, func(node ast.Node) bool {
+	inspectBodyWithoutNestedFuncLits(body, func(node ast.Node) bool {
 		switch n := node.(type) {
 		case *ast.AssignStmt:
 			recordAssign(n)
@@ -713,4 +796,34 @@ func exprDependsOnRecover(expr ast.Expr, derived recoverDerivedSet) bool {
 		return true
 	})
 	return depends
+}
+
+func forEachRecoverFunctionBody(file *ast.File, visit func(body *ast.BlockStmt)) {
+	ast.Inspect(file, func(node ast.Node) bool {
+		switch n := node.(type) {
+		case *ast.FuncDecl:
+			if n.Body != nil && blockContainsRecover(n.Body) {
+				visit(n.Body)
+			}
+		case *ast.FuncLit:
+			if n.Body != nil && blockContainsRecover(n.Body) {
+				visit(n.Body)
+			}
+		}
+		return true
+	})
+}
+
+func inspectBodyWithoutNestedFuncLits(body *ast.BlockStmt, visit func(node ast.Node) bool) {
+	for _, stmt := range body.List {
+		ast.Inspect(stmt, func(node ast.Node) bool {
+			if node == nil {
+				return true
+			}
+			if _, ok := node.(*ast.FuncLit); ok {
+				return false
+			}
+			return visit(node)
+		})
+	}
 }
