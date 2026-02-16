@@ -617,20 +617,6 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assertSyncNoUpdateForKeyIDWithoutPanic(t, client, overflowInt64APIKeyIDWithControlWhitespace, service)
 	})
 
-	t.Run("should skip update for overflow key id with surrounding whitespace", func(t *testing.T) {
-		service := &updateLastUsedService{}
-		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-
-		assertSyncNoUpdateForKeyID(t, client, overflowInt64APIKeyIDWithWhitespace, service)
-	})
-
-	t.Run("should skip update for overflow key id with surrounding control whitespace", func(t *testing.T) {
-		service := &updateLastUsedService{}
-		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-
-		assertSyncNoUpdateForKeyID(t, client, overflowInt64APIKeyIDWithControlWhitespace, service)
-	})
-
 	t.Run("should skip update for non-positive key id", func(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -971,24 +957,6 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		assertHookNoUpdateForKeyID(t, context.Background(), client, overflowInt64APIKeyIDString, false, service)
-	})
-
-	t.Run("should skip update when key id overflows int64 with surrounding whitespace", func(t *testing.T) {
-		service := newUpdateLastUsedService()
-		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		assertHookNoUpdateForKeyID(t, context.Background(), client, overflowInt64APIKeyIDWithWhitespace, false, service)
-	})
-
-	t.Run("should skip update when key id overflows int64 with surrounding control whitespace", func(t *testing.T) {
-		service := newUpdateLastUsedService()
-		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		assertHookNoUpdateForKeyID(t, context.Background(), client, overflowInt64APIKeyIDWithControlWhitespace, false, service)
-	})
-
-	t.Run("should skip update when key id overflows int64 with surrounding control whitespace and nil tracer/context", func(t *testing.T) {
-		service := newUpdateLastUsedService()
-		client := ProvideAPIKey(service, nil)
-		assertHookNoUpdateForKeyID(t, nil, client, overflowInt64APIKeyIDWithControlWhitespace, false, service)
 	})
 
 	t.Run("should skip update when key id overflows int64 with surrounding whitespace", func(t *testing.T) {
