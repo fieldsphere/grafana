@@ -910,10 +910,26 @@ func TestAPIKey_Hook(t *testing.T) {
 		assertHookNoUpdateForKeyID(t, context.Background(), client, "", false, service)
 	})
 
+	t.Run("should skip update when key id metadata is explicitly empty", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "")
+		assertHookNoUpdate(t, context.Background(), client, req, service)
+	})
+
 	t.Run("should skip update when key id metadata is whitespace only", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		assertHookNoUpdateForKeyID(t, context.Background(), client, "   ", false, service)
+	})
+
+	t.Run("should skip update when key id metadata is explicitly empty with nil tracer/context", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, nil)
+		req := &authn.Request{}
+		req.SetMeta(metaKeyID, "")
+		assertHookNoUpdate(t, nil, client, req, service)
 	})
 
 	t.Run("should skip missing key id before panic-capable update service", func(t *testing.T) {
