@@ -36,6 +36,7 @@ const (
 	fullwidthAPIKeyIDString                = "１２３"
 	leadingZeroAPIKeyIDString              = "000123"
 	internalWhitespaceAPIKeyIDString       = "12 3"
+	parsedAPIKeyIDValue              int64 = 123
 	maxInt64APIKeyIDValue            int64 = 9223372036854775807
 )
 
@@ -255,7 +256,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		client.syncAPIKeyLastUsed("123")
 
 		assert.True(t, service.called)
-		assertUpdatedID(t, service, int64(123))
+		assertUpdatedID(t, service, parsedAPIKeyIDValue)
 	})
 
 	t.Run("should update last used for valid key id with surrounding whitespace", func(t *testing.T) {
@@ -265,7 +266,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		client.syncAPIKeyLastUsed(" 123 ")
 
 		assert.True(t, service.called)
-		assertUpdatedID(t, service, int64(123))
+		assertUpdatedID(t, service, parsedAPIKeyIDValue)
 	})
 
 	t.Run("should update last used for valid key id with surrounding control whitespace", func(t *testing.T) {
@@ -275,7 +276,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		client.syncAPIKeyLastUsed("\n123\t")
 
 		assert.True(t, service.called)
-		assertUpdatedID(t, service, int64(123))
+		assertUpdatedID(t, service, parsedAPIKeyIDValue)
 	})
 
 	t.Run("should update last used for valid key id with leading zeros", func(t *testing.T) {
@@ -285,7 +286,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		client.syncAPIKeyLastUsed(leadingZeroAPIKeyIDString)
 
 		assert.True(t, service.called)
-		assertUpdatedID(t, service, int64(123))
+		assertUpdatedID(t, service, parsedAPIKeyIDValue)
 	})
 
 	t.Run("should update last used for max int64 key id", func(t *testing.T) {
@@ -551,7 +552,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		waitForUpdateCall(t, service)
-		assertUpdatedID(t, service, int64(123))
+		assertUpdatedID(t, service, parsedAPIKeyIDValue)
 	})
 
 	t.Run("should update when key id is max int64", func(t *testing.T) {
