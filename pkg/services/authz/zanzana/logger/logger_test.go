@@ -408,6 +408,42 @@ func TestZanzanaLoggerUnknownLevelFallsBackToInfo(t *testing.T) {
 	}
 }
 
+func TestZanzanaLoggerContextMethodsIncludeStructuredFields(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.WarnWithContext(context.Background(), "warn message", zap.String("subject", "user-1"))
+
+	if fake.WarnLogs.Calls != 1 {
+		t.Fatalf("expected 1 warn call, got %d", fake.WarnLogs.Calls)
+	}
+	if len(fake.WarnLogs.Ctx) != 6 {
+		t.Fatalf("expected structured warn context with fields, got %#v", fake.WarnLogs.Ctx)
+	}
+	if fake.WarnLogs.Ctx[0] != "zanzanaMessage" || fake.WarnLogs.Ctx[1] != "warn message" {
+		t.Fatalf("unexpected warn message context: %#v", fake.WarnLogs.Ctx)
+	}
+	if fake.WarnLogs.Ctx[2] != "zanzanaLevel" || fake.WarnLogs.Ctx[3] != "warn" {
+		t.Fatalf("unexpected warn level context: %#v", fake.WarnLogs.Ctx)
+	}
+	if fake.WarnLogs.Ctx[4] != "zanzanaFields" {
+		t.Fatalf("expected zanzanaFields key, got %#v", fake.WarnLogs.Ctx)
+	}
+	fields, ok := fake.WarnLogs.Ctx[5].([]any)
+	if !ok {
+		t.Fatalf("expected zanzana fields payload as []any, got %#v", fake.WarnLogs.Ctx[5])
+	}
+	expected := []any{"subject", "user-1"}
+	if len(fields) != len(expected) {
+		t.Fatalf("unexpected zanzana fields length: got=%d want=%d (%#v)", len(fields), len(expected), fields)
+	}
+	for i := range expected {
+		if fields[i] != expected[i] {
+			t.Fatalf("unexpected zanzana field at index %d: got=%#v want=%#v (%#v)", i, fields[i], expected[i], fields)
+		}
+	}
+}
+
 type capturingLogger struct {
 	newCalls int
 	newCtx   []any
