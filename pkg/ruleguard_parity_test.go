@@ -79,6 +79,34 @@ func TestRuleguardRecoverLiteralErrorMatchersHavePanicAndFatalAnalogs(t *testing
 	}
 }
 
+func TestRuleguardRecoverPanicAndFatalMatchersStaySymmetric(t *testing.T) {
+	blocks := loadRuleguardMatchBlocks(t)
+	allMatcherLines := matcherLineSet(blocks)
+
+	for _, block := range blocks {
+		for _, line := range block.lines {
+			trimmed := strings.TrimSpace(line)
+			if !strings.HasPrefix(trimmed, "`") || !strings.Contains(trimmed, "recover()") {
+				continue
+			}
+
+			if strings.Contains(trimmed, "$logger.Panic(") {
+				fatalVariant := strings.Replace(trimmed, "$logger.Panic(", "$logger.Fatal(", 1)
+				if _, ok := allMatcherLines[fatalVariant]; !ok {
+					t.Fatalf("recover panic matcher at block line %d missing fatal analog:\n%s", block.startLine, trimmed)
+				}
+			}
+
+			if strings.Contains(trimmed, "$logger.Fatal(") {
+				panicVariant := strings.Replace(trimmed, "$logger.Fatal(", "$logger.Panic(", 1)
+				if _, ok := allMatcherLines[panicVariant]; !ok {
+					t.Fatalf("recover fatal matcher at block line %d missing panic analog:\n%s", block.startLine, trimmed)
+				}
+			}
+		}
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
