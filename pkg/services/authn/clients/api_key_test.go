@@ -64,7 +64,7 @@ func assertNoUpdateCall(t *testing.T, service *updateLastUsedService) {
 
 func assertUpdatedID(t *testing.T, service *updateLastUsedService, expectedID int64) {
 	t.Helper()
-	assert.Equal(t, expectedID, service.updatedID)
+	assert.Equal(t, expectedID, service.updatedAPIKeyID)
 }
 
 func assertHookUpdate(t *testing.T, hookCtx context.Context, client *APIKey, req *authn.Request, service *updateLastUsedService, expectedID int64) {
@@ -741,11 +741,11 @@ func TestAPIKey_Hook(t *testing.T) {
 
 type updateLastUsedService struct {
 	apikeytest.Service
-	called     bool
-	updatedID  int64
-	calledCh   chan struct{}
-	panicValue any
-	blockCh    chan struct{}
+	called          bool
+	updatedAPIKeyID int64
+	calledCh        chan struct{}
+	panicValue      any
+	blockCh         chan struct{}
 }
 
 func newUpdateLastUsedService() *updateLastUsedService {
@@ -756,7 +756,7 @@ func newUpdateLastUsedService() *updateLastUsedService {
 
 func (s *updateLastUsedService) UpdateAPIKeyLastUsedDate(ctx context.Context, tokenID int64) error {
 	s.called = true
-	s.updatedID = tokenID
+	s.updatedAPIKeyID = tokenID
 	select {
 	case s.calledCh <- struct{}{}:
 	default:
