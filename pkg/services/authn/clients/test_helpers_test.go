@@ -6,6 +6,9 @@ import (
 	"github.com/grafana/grafana/pkg/components/satokengen"
 )
 
+// Shared helpers used across authn client package tests.
+// Keep reusable test utilities here so no test file depends on another test file's local helper declarations.
+
 func boolPtr(b bool) *bool {
 	return &b
 }
