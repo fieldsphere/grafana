@@ -364,6 +364,18 @@ func TestAPIKey_getTokenFromRequest(t *testing.T) {
 
 		assert.Equal(t, "", getTokenFromRequest(req))
 	})
+
+	t.Run("should return empty token for malformed basic auth header", func(t *testing.T) {
+		req := &authn.Request{
+			HTTPRequest: &http.Request{
+				Header: map[string][]string{
+					"Authorization": {"Basic not-base64"},
+				},
+			},
+		}
+
+		assert.Equal(t, "", getTokenFromRequest(req))
+	})
 }
 
 func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
