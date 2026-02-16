@@ -571,6 +571,12 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 			expectedOK: true,
 		},
 		{
+			name:       "valid numeric id with control-character whitespace",
+			rawKeyID:   "\n123\t",
+			expectedID: 123,
+			expectedOK: true,
+		},
+		{
 			name:       "valid max int64 id",
 			rawKeyID:   maxInt64APIKeyIDString,
 			expectedID: maxInt64APIKeyIDValue,
