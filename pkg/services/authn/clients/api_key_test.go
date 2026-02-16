@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/base64"
 	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -1193,5 +1192,5 @@ func genApiKey() (string, string) {
 }
 
 func encodeBasicAuth(username, password string) string {
-	return "Basic " + base64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%s:%s", username, password)))
+	return "Basic " + base64.StdEncoding.EncodeToString([]byte(username+":"+password))
 }
