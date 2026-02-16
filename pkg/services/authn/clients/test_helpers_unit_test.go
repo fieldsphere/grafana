@@ -71,6 +71,16 @@ func TestEncodeBasicAuth(t *testing.T) {
 			username: "api:key",
 			password: "secret",
 		},
+		{
+			name:     "empty credentials",
+			username: "",
+			password: "",
+		},
+		{
+			name:     "unicode credentials",
+			username: "usér",
+			password: "päss",
+		},
 	}
 
 	for _, tc := range testCases {
