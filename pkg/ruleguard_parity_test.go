@@ -202,6 +202,35 @@ func TestRuleguardRecoverVariableKeyMatcherReportsMentionAllForbiddenAliases(t *
 	}
 }
 
+func TestRuleguardRecoverLiteralKeyMatchersReportMentionMatchedAliases(t *testing.T) {
+	content := loadRuleguardRulesContent(t)
+	lines := strings.Split(content, "\n")
+	blocks := loadRuleguardMatchBlocks(t)
+
+	for i, block := range blocks {
+		blockText := strings.Join(block.lines, "\n")
+		if !strings.Contains(blockText, "recover()") || strings.Contains(blockText, "$key") {
+			continue
+		}
+
+		aliases := recoverAliasMentionsInMatcherLines(block.lines)
+		if len(aliases) == 0 {
+			continue
+		}
+
+		reportText := blockReportText(lines, blocks, i)
+		if reportText == "" || !strings.Contains(reportText, `"panicValue"`) {
+			t.Fatalf("recover literal-key matcher block at line %d is missing panicValue guidance", block.startLine)
+		}
+
+		for alias := range aliases {
+			if !strings.Contains(reportText, `"`+alias+`"`) {
+				t.Fatalf("recover literal-key matcher block at line %d report is missing alias %q", block.startLine, alias)
+			}
+		}
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
@@ -304,4 +333,30 @@ func matcherLineSet(blocks []matchBlock) map[string]struct{} {
 	}
 
 	return lineSet
+}
+
+func recoverAliasMentionsInMatcherLines(lines []string) map[string]struct{} {
+	aliases := map[string]struct{}{}
+
+	for _, line := range lines {
+		trimmed := strings.TrimSpace(line)
+		if !strings.HasPrefix(trimmed, "`") || !strings.Contains(trimmed, "recover()") {
+			continue
+		}
+
+		if strings.Contains(trimmed, `"error"`) || strings.Contains(trimmed, "`error`") {
+			aliases["error"] = struct{}{}
+		}
+		if strings.Contains(trimmed, `"errorMessage"`) || strings.Contains(trimmed, "`errorMessage`") {
+			aliases["errorMessage"] = struct{}{}
+		}
+		if strings.Contains(trimmed, `"reason"`) || strings.Contains(trimmed, "`reason`") {
+			aliases["reason"] = struct{}{}
+		}
+		if strings.Contains(trimmed, `"panic"`) || strings.Contains(trimmed, "`panic`") {
+			aliases["panic"] = struct{}{}
+		}
+	}
+
+	return aliases
 }
