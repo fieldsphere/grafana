@@ -468,6 +468,45 @@ func TestZanzanaLoggerUnknownLevelFallsBackToInfo(t *testing.T) {
 	}
 }
 
+func TestZanzanaLoggerUnknownLevelWithFieldsIncludesNormalizedFields(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.emit("trace", "trace message", zap.String("subject", "user-1"))
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected fallback to info logger, got %d info calls", fake.InfoLogs.Calls)
+	}
+	if fake.ErrorLogs.Calls != 0 || fake.WarnLogs.Calls != 0 || fake.DebugLogs.Calls != 0 {
+		t.Fatalf("unexpected non-info calls: debug=%d info=%d warn=%d error=%d", fake.DebugLogs.Calls, fake.InfoLogs.Calls, fake.WarnLogs.Calls, fake.ErrorLogs.Calls)
+	}
+	if len(fake.InfoLogs.Ctx) != 6 {
+		t.Fatalf("expected message+level+fields context, got %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[0] != "zanzanaMessage" || fake.InfoLogs.Ctx[1] != "trace message" {
+		t.Fatalf("unexpected fallback message context: %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "trace" {
+		t.Fatalf("unexpected fallback level context: %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[4] != "zanzanaFields" {
+		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
+	}
+	fields, ok := fake.InfoLogs.Ctx[5].([]any)
+	if !ok {
+		t.Fatalf("expected zanzana fields payload as []any, got %#v", fake.InfoLogs.Ctx[5])
+	}
+	expected := []any{"subject", "user-1"}
+	if len(fields) != len(expected) {
+		t.Fatalf("unexpected fallback fields length: got=%d want=%d (%#v)", len(fields), len(expected), fields)
+	}
+	for i := range expected {
+		if fields[i] != expected[i] {
+			t.Fatalf("unexpected fallback field at index %d: got=%#v want=%#v (%#v)", i, fields[i], expected[i], fields)
+		}
+	}
+}
+
 func TestZanzanaLoggerContextMethodsIncludeStructuredFields(t *testing.T) {
 	testCases := []struct {
 		name          string
