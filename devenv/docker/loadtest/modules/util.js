@@ -1,4 +1,12 @@
-import { logDevenvWarning } from '../../logging.js';
+// k6-compatible logging function (k6 doesn't support Node.js process APIs)
+function logDevenvWarning(message, context) {
+  const payload = {
+    level: 'warning',
+    message,
+    ...(context != null ? { context } : {}),
+  };
+  console.error(JSON.stringify(payload));
+}
 
 export const createTestOrgIfNotExists = (client) => {
   let orgId = 0;
