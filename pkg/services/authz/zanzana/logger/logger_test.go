@@ -868,6 +868,23 @@ func TestZanzanaLoggerUnknownLevelWithNamespaceOnlyIncludesEmptyNamespacePayload
 	}
 }
 
+func TestZanzanaLoggerInfoWithContextAndNestedNamespaceFieldKeepsNestedPayload(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.InfoWithContext(context.Background(), "context message", zap.Namespace("auth"), zap.Namespace("token"), zap.String("subject", "user-1"))
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
+	}
+	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	authPayload := assertNamespacePayload(t, fields, "auth")
+	tokenPayload := assertNestedNamespacePayload(t, authPayload, "token")
+	if tokenPayload["subject"] != "user-1" {
+		t.Fatalf("unexpected nested namespace subject payload: %#v", tokenPayload)
+	}
+}
+
 func TestZanzanaLoggerMethodsIncludeStructuredFields(t *testing.T) {
 	testCases := []struct {
 		name          string
