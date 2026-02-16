@@ -1177,10 +1177,6 @@ func (s *updateLastUsedService) UpdateAPIKeyLastUsedDate(ctx context.Context, to
 	return s.ExpectedError
 }
 
-func intPtr(n int64) *int64 {
-	return &n
-}
-
 func genApiKey() (string, string) {
 	res, _ := satokengen.New("test")
 	return res.ClientSecret, res.HashedKey
