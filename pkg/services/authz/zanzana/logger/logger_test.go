@@ -347,6 +347,53 @@ func TestZanzanaLoggerWithAddsStructuredContext(t *testing.T) {
 	}
 }
 
+func TestZanzanaLoggerWithNamespaceFieldKeepsNestedContext(t *testing.T) {
+	capturing := &capturingLogger{}
+	logger := New(capturing)
+
+	child := logger.With(zap.Namespace("auth"), zap.String("subject", "user-1"), zap.Int("attempt", 2))
+	if child == nil {
+		t.Fatal("expected non-nil logger")
+	}
+	if capturing.newCalls != 1 {
+		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
+	}
+	if len(capturing.newCtx) != 2 || capturing.newCtx[0] != "zanzanaContext" {
+		t.Fatalf("unexpected context payload: %#v", capturing.newCtx)
+	}
+
+	fields, ok := capturing.newCtx[1].([]any)
+	if !ok {
+		t.Fatalf("expected zanzanaContext payload to be []any, got %#v", capturing.newCtx[1])
+	}
+	if len(fields) != 2 {
+		t.Fatalf("unexpected zanzanaContext field length: got=%d want=%d (%#v)", len(fields), 2, fields)
+	}
+	if fields[0] != "auth" {
+		t.Fatalf("unexpected namespace key: %#v", fields)
+	}
+
+	namespacePayload, ok := fields[1].(map[string]any)
+	if !ok {
+		t.Fatalf("expected namespace payload as map[string]any, got %#v", fields[1])
+	}
+	if namespacePayload["subject"] != "user-1" {
+		t.Fatalf("unexpected namespace subject payload: %#v", namespacePayload)
+	}
+	switch attempt := namespacePayload["attempt"].(type) {
+	case int:
+		if attempt != 2 {
+			t.Fatalf("unexpected namespace attempt payload: %#v", namespacePayload)
+		}
+	case int64:
+		if attempt != 2 {
+			t.Fatalf("unexpected namespace attempt payload: %#v", namespacePayload)
+		}
+	default:
+		t.Fatalf("unexpected namespace attempt type: %T (%#v)", namespacePayload["attempt"], namespacePayload)
+	}
+}
+
 func TestZanzanaLoggerWithWithoutFieldsKeepsEmptyContext(t *testing.T) {
 	capturing := &capturingLogger{}
 	logger := New(capturing)
