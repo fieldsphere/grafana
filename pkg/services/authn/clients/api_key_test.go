@@ -24,8 +24,9 @@ import (
 )
 
 var (
-	revoked      = true
-	secret, hash = genApiKey()
+	revoked         = true
+	secret, hash    = genApiKey()
+	errUpdateFailed = errors.New("update failed")
 )
 
 const (
@@ -487,11 +488,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 	})
 
 	t.Run("should still attempt update when service returns error", func(t *testing.T) {
-		service := &updateLastUsedService{
-			Service: apikeytest.Service{
-				ExpectedError: errors.New("update failed"),
-			},
-		}
+		service := newUpdateLastUsedServiceWithExpectedError(errUpdateFailed)
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
 		client.syncAPIKeyLastUsed(" 123 ")
@@ -501,9 +498,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 	})
 
 	t.Run("should still attempt update when service returns error for max int64 key id with surrounding whitespace", func(t *testing.T) {
-		service := &updateLastUsedService{
-			Service: apikeytest.Service{ExpectedError: errors.New("update failed")},
-		}
+		service := newUpdateLastUsedServiceWithExpectedError(errUpdateFailed)
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
 		client.syncAPIKeyLastUsed(maxInt64APIKeyIDWithWhitespace)
@@ -513,9 +508,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 	})
 
 	t.Run("should still attempt update when service returns error for max int64 key id with surrounding control whitespace", func(t *testing.T) {
-		service := &updateLastUsedService{
-			Service: apikeytest.Service{ExpectedError: errors.New("update failed")},
-		}
+		service := newUpdateLastUsedServiceWithExpectedError(errUpdateFailed)
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
 		client.syncAPIKeyLastUsed(maxInt64APIKeyIDWithControlWhitespace)
@@ -974,36 +967,31 @@ func TestAPIKey_Hook(t *testing.T) {
 	})
 
 	t.Run("should continue when update returns an error", func(t *testing.T) {
-		service := newUpdateLastUsedService()
-		service.ExpectedError = errors.New("update failed")
+		service := newUpdateLastUsedServiceWithExpectedError(errUpdateFailed)
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		assertHookUpdateForKeyID(t, context.Background(), client, "987", service)
 	})
 
 	t.Run("should continue when update returns an error for max int64 key id with surrounding whitespace", func(t *testing.T) {
-		service := newUpdateLastUsedService()
-		service.ExpectedError = errors.New("update failed")
+		service := newUpdateLastUsedServiceWithExpectedError(errUpdateFailed)
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		assertHookUpdateForKeyID(t, context.Background(), client, maxInt64APIKeyIDWithWhitespace, service)
 	})
 
 	t.Run("should continue when update returns an error for max int64 key id with surrounding whitespace and nil tracer/context", func(t *testing.T) {
-		service := newUpdateLastUsedService()
-		service.ExpectedError = errors.New("update failed")
+		service := newUpdateLastUsedServiceWithExpectedError(errUpdateFailed)
 		client := ProvideAPIKey(service, nil)
 		assertHookUpdateForKeyID(t, nil, client, maxInt64APIKeyIDWithWhitespace, service)
 	})
 
 	t.Run("should continue when update returns an error for max int64 key id with surrounding control whitespace", func(t *testing.T) {
-		service := newUpdateLastUsedService()
-		service.ExpectedError = errors.New("update failed")
+		service := newUpdateLastUsedServiceWithExpectedError(errUpdateFailed)
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		assertHookUpdateForKeyID(t, context.Background(), client, maxInt64APIKeyIDWithControlWhitespace, service)
 	})
 
 	t.Run("should continue when update returns an error for max int64 key id with surrounding control whitespace and nil tracer/context", func(t *testing.T) {
-		service := newUpdateLastUsedService()
-		service.ExpectedError = errors.New("update failed")
+		service := newUpdateLastUsedServiceWithExpectedError(errUpdateFailed)
 		client := ProvideAPIKey(service, nil)
 		assertHookUpdateForKeyID(t, nil, client, maxInt64APIKeyIDWithControlWhitespace, service)
 	})
@@ -1073,6 +1061,12 @@ func newUpdateLastUsedService() *updateLastUsedService {
 	return &updateLastUsedService{
 		calledCh: make(chan struct{}, 1),
 	}
+}
+
+func newUpdateLastUsedServiceWithExpectedError(err error) *updateLastUsedService {
+	service := newUpdateLastUsedService()
+	service.ExpectedError = err
+	return service
 }
 
 func (s *updateLastUsedService) UpdateAPIKeyLastUsedDate(ctx context.Context, tokenID int64) error {
