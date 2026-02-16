@@ -315,12 +315,7 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 		"reason":       {},
 		"panic":        {},
 	}
-	logMethodNames := map[string]struct{}{
-		"Debug": {}, "Info": {}, "Warn": {}, "Error": {}, "Panic": {}, "Fatal": {},
-		"DebugCtx": {}, "InfoCtx": {}, "WarnCtx": {}, "ErrorCtx": {},
-		"InfoContext": {}, "WarnContext": {}, "ErrorContext": {}, "DebugContext": {},
-		"Log": {}, "InfoS": {}, "ErrorS": {},
-	}
+	logMethodNames := structuredLogMethodNames()
 
 	err := filepath.WalkDir(".", func(path string, d os.DirEntry, walkErr error) error {
 		if walkErr != nil {
@@ -397,6 +392,96 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 	}
 	if len(violations) > 0 {
 		t.Fatalf("found recover logging forbidden key aliases:\n%s", strings.Join(violations, "\n"))
+	}
+}
+
+func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
+	fset := token.NewFileSet()
+	violationSet := map[string]struct{}{}
+	logMethodNames := structuredLogMethodNames()
+
+	err := filepath.WalkDir(".", func(path string, d os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if d.IsDir() {
+			return nil
+		}
+		if strings.Contains(path, "/testdata/") {
+			return nil
+		}
+		if !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "ruleguard.rules.go") {
+			return nil
+		}
+
+		file, parseErr := parser.ParseFile(fset, path, nil, 0)
+		if parseErr != nil {
+			return parseErr
+		}
+
+		ast.Inspect(file, func(node ast.Node) bool {
+			fn, ok := node.(*ast.FuncLit)
+			if !ok {
+				return true
+			}
+			if !funcLitContainsRecover(fn) {
+				return true
+			}
+			recoverDerived := recoverDerivedIdentifiers(fn)
+
+			ast.Inspect(fn.Body, func(inner ast.Node) bool {
+				call, ok := inner.(*ast.CallExpr)
+				if !ok {
+					return true
+				}
+				method, ok := selectorName(call.Fun)
+				if !ok {
+					return true
+				}
+				if _, ok := logMethodNames[method]; !ok {
+					return true
+				}
+
+				for argIdx, arg := range call.Args {
+					if !exprDependsOnRecover(arg, recoverDerived) {
+						continue
+					}
+					if argIdx == 0 {
+						continue
+					}
+
+					prevLit, ok := call.Args[argIdx-1].(*ast.BasicLit)
+					if !ok || prevLit.Kind != token.STRING {
+						continue
+					}
+
+					prevKey, unquoteErr := strconv.Unquote(prevLit.Value)
+					if unquoteErr != nil {
+						continue
+					}
+					if prevKey != "panicValue" {
+						position := fset.Position(prevLit.Pos())
+						violationSet[position.String()+": recover-derived value must use key \"panicValue\", found "+prevLit.Value] = struct{}{}
+					}
+				}
+
+				return true
+			})
+
+			return true
+		})
+
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("scan runtime recover key usage: %v", err)
+	}
+	if len(violationSet) > 0 {
+		violations := make([]string, 0, len(violationSet))
+		for violation := range violationSet {
+			violations = append(violations, violation)
+		}
+		t.Fatalf("found recover-derived runtime logging without panicValue key:\n%s", strings.Join(violations, "\n"))
 	}
 }
 
@@ -553,6 +638,15 @@ func selectorName(expr ast.Expr) (string, bool) {
 		return "", false
 	}
 	return sel.Sel.Name, true
+}
+
+func structuredLogMethodNames() map[string]struct{} {
+	return map[string]struct{}{
+		"Debug": {}, "Info": {}, "Warn": {}, "Error": {}, "Panic": {}, "Fatal": {},
+		"DebugCtx": {}, "InfoCtx": {}, "WarnCtx": {}, "ErrorCtx": {},
+		"InfoContext": {}, "WarnContext": {}, "ErrorContext": {}, "DebugContext": {},
+		"Log": {}, "InfoS": {}, "ErrorS": {},
+	}
 }
 
 type recoverDerivedSet struct {
