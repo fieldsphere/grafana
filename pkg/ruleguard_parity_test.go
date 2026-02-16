@@ -590,6 +590,107 @@ var (
 	}
 }
 
+func TestKeyValueFromExprResolvesConstIdentifierByNameFallback(t *testing.T) {
+	const src = `package p
+
+const packageKey = "panicValue"
+
+func f() {
+	_ = packageKey
+}
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "key_expr.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse source: %v", err)
+	}
+
+	constValues := stringConstValueMap(file)
+	constNameValues := constNameValueMap(constValues)
+
+	var body *ast.BlockStmt
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if ok && fn.Name.Name == "f" {
+			body = fn.Body
+			break
+		}
+	}
+	if body == nil {
+		t.Fatal("failed to find function body")
+	}
+
+	var identExpr ast.Expr
+	inspectBodyWithoutNestedFuncLits(body, func(node ast.Node) bool {
+		assign, ok := node.(*ast.AssignStmt)
+		if !ok || len(assign.Rhs) == 0 {
+			return true
+		}
+		identExpr = assign.Rhs[0]
+		return false
+	})
+	if identExpr == nil {
+		t.Fatal("failed to find identifier expression")
+	}
+
+	got, ok := keyValueFromExpr(identExpr, constValues, constNameValues, declaredNamesInBody(body))
+	if !ok || got != "panicValue" {
+		t.Fatalf("expected package const identifier to resolve to panicValue, got %q (ok=%v)", got, ok)
+	}
+}
+
+func TestKeyValueFromExprSkipsShadowedConstNameFallback(t *testing.T) {
+	const src = `package p
+
+const packageKey = "panicValue"
+
+func f() {
+	packageKey := "shadowed"
+	_ = packageKey
+}
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "key_expr_shadowed.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse source: %v", err)
+	}
+
+	constValues := stringConstValueMap(file)
+	constNameValues := constNameValueMap(constValues)
+
+	var body *ast.BlockStmt
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if ok && fn.Name.Name == "f" {
+			body = fn.Body
+			break
+		}
+	}
+	if body == nil {
+		t.Fatal("failed to find function body")
+	}
+
+	var identExpr ast.Expr
+	inspectBodyWithoutNestedFuncLits(body, func(node ast.Node) bool {
+		assign, ok := node.(*ast.AssignStmt)
+		if !ok || len(assign.Rhs) == 0 {
+			return true
+		}
+		if ident, ok := assign.Lhs[0].(*ast.Ident); ok && ident.Name == "_" {
+			identExpr = assign.Rhs[0]
+			return false
+		}
+		return true
+	})
+	if identExpr == nil {
+		t.Fatal("failed to find shadowed identifier expression")
+	}
+
+	if got, ok := keyValueFromExpr(identExpr, constValues, constNameValues, declaredNamesInBody(body)); ok {
+		t.Fatalf("expected shadowed identifier to be ignored, got %q", got)
+	}
+}
+
 func TestRecoverDerivedSlicesWithAliasViolationsTracksConstKeysAndAppendChains(t *testing.T) {
 	const src = `package p
 
