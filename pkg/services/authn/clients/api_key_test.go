@@ -59,6 +59,11 @@ func assertNoUpdateCall(t *testing.T, service *updateLastUsedService) {
 	}
 }
 
+func assertUpdatedID(t *testing.T, service *updateLastUsedService, expectedID int64) {
+	t.Helper()
+	assert.Equal(t, expectedID, service.updatedID)
+}
+
 func TestAPIKey_Authenticate(t *testing.T) {
 	type TestCase struct {
 		desc             string
@@ -250,7 +255,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		client.syncAPIKeyLastUsed("123")
 
 		assert.True(t, service.called)
-		assert.Equal(t, int64(123), service.updatedID)
+		assertUpdatedID(t, service, int64(123))
 	})
 
 	t.Run("should update last used for valid key id with surrounding whitespace", func(t *testing.T) {
@@ -260,7 +265,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		client.syncAPIKeyLastUsed(" 123 ")
 
 		assert.True(t, service.called)
-		assert.Equal(t, int64(123), service.updatedID)
+		assertUpdatedID(t, service, int64(123))
 	})
 
 	t.Run("should update last used for valid key id with surrounding control whitespace", func(t *testing.T) {
@@ -270,7 +275,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		client.syncAPIKeyLastUsed("\n123\t")
 
 		assert.True(t, service.called)
-		assert.Equal(t, int64(123), service.updatedID)
+		assertUpdatedID(t, service, int64(123))
 	})
 
 	t.Run("should update last used for valid key id with leading zeros", func(t *testing.T) {
@@ -280,7 +285,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		client.syncAPIKeyLastUsed(leadingZeroAPIKeyIDString)
 
 		assert.True(t, service.called)
-		assert.Equal(t, int64(123), service.updatedID)
+		assertUpdatedID(t, service, int64(123))
 	})
 
 	t.Run("should update last used for max int64 key id", func(t *testing.T) {
@@ -290,7 +295,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		client.syncAPIKeyLastUsed(maxInt64APIKeyIDString)
 
 		assert.True(t, service.called)
-		assert.Equal(t, maxInt64APIKeyIDValue, service.updatedID)
+		assertUpdatedID(t, service, maxInt64APIKeyIDValue)
 	})
 
 	t.Run("should skip update for invalid key id", func(t *testing.T) {
