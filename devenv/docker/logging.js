@@ -22,7 +22,11 @@ function logDevenvWarning(message, context) {
   process.stderr.write(formatLogLine('warning', message, context));
 }
 
+// CommonJS export for backward compatibility
 module.exports = {
   logDevenvInfo,
   logDevenvWarning,
 };
+
+// ESM export for k6 loadtest modules
+export { logDevenvInfo, logDevenvWarning };
