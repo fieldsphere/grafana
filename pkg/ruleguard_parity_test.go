@@ -109,7 +109,7 @@ func TestRuleguardRecoverPanicAndFatalMatchersStaySymmetric(t *testing.T) {
 
 func TestRuleguardRecoverVariableKeyMatchersUseFullPanicKeySet(t *testing.T) {
 	content := loadRuleguardRulesContent(t)
-	const requiredKeySet = `(error|errorMessage|reason|panic)`
+	const requiredKeySet = "^[\\\"`](error|errorMessage|reason|panic)[\\\"`]$"
 
 	offset := 0
 	for {
@@ -129,6 +129,11 @@ func TestRuleguardRecoverVariableKeyMatchersUseFullPanicKeySet(t *testing.T) {
 		if !strings.Contains(blockText, "recover()") || !strings.Contains(blockText, "$key") {
 			offset = report + len(".Report(")
 			continue
+		}
+
+		if !strings.Contains(blockText, `m["key"].Text.Matches(`) {
+			line := strings.Count(content[:start], "\n") + 1
+			t.Fatalf("recover matcher block at line %d uses $key but has no m[\"key\"].Text.Matches(...) guard", line)
 		}
 
 		if !strings.Contains(blockText, requiredKeySet) {
