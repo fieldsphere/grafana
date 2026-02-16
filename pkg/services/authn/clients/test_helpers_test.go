@@ -9,16 +9,8 @@ import (
 // Shared helpers used across authn client package tests.
 // Keep reusable test utilities here so no test file depends on another test file's local helper declarations.
 
-func boolPtr(b bool) *bool {
-	return &b
-}
-
-func intPtr(n int64) *int64 {
-	return &n
-}
-
-func stringPtr(s string) *string {
-	return &s
+func ptr[T any](value T) *T {
+	return &value
 }
 
 func encodeBasicAuth(username, password string) string {

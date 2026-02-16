@@ -225,7 +225,7 @@ func TestOAuth_Authenticate(t *testing.T) {
 					AllowSignUp:     true,
 					FetchSyncedUser: true,
 					SyncOrgRoles:    true,
-					LookUpParams:    login.UserLookupParams{Email: stringPtr("some@email.com")},
+					LookUpParams:    login.UserLookupParams{Email: ptr("some@email.com")},
 				},
 			},
 		},

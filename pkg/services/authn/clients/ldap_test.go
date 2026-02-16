@@ -82,8 +82,8 @@ func TestLDAP_AuthenticateProxy(t *testing.T) {
 					SyncOrgRoles:    true,
 					SyncPermissions: true,
 					LookUpParams: login.UserLookupParams{
-						Email: stringPtr("test@test.com"),
-						Login: stringPtr("test"),
+						Email: ptr("test@test.com"),
+						Login: ptr("test"),
 					},
 				},
 			},
@@ -165,8 +165,8 @@ func TestLDAP_AuthenticatePassword(t *testing.T) {
 					SyncOrgRoles:    true,
 					SyncPermissions: true,
 					LookUpParams: login.UserLookupParams{
-						Email: stringPtr("test@test.com"),
-						Login: stringPtr("test"),
+						Email: ptr("test@test.com"),
+						Login: ptr("test"),
 					},
 				},
 			},
