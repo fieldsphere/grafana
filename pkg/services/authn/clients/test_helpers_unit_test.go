@@ -95,6 +95,8 @@ func TestMustGenAPIKey(t *testing.T) {
 
 	decoded, err := satokengen.Decode(secret)
 	require.NoError(t, err)
+	require.Equal(t, "test", decoded.ServiceID)
+	require.NotEmpty(t, decoded.Checksum)
 
 	regeneratedHash, err := decoded.Hash()
 	require.NoError(t, err)
