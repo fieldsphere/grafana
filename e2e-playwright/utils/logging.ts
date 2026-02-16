@@ -21,7 +21,3 @@ export function logPlaywrightInfo(message: string, context?: LogContext) {
 export function logPlaywrightWarning(message: string, context?: LogContext) {
   process.stderr.write(formatLogLine('warning', message, context));
 }
-
-export function logPlaywrightError(message: string, context?: LogContext) {
-  process.stderr.write(formatLogLine('error', message, context));
-}
