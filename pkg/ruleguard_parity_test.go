@@ -368,6 +368,9 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 					if argIdx+1 >= len(call.Args) {
 						continue
 					}
+					if isSpreadVariadicArg(call, argIdx+1) {
+						continue
+					}
 
 					key, ok := keyValueFromExpr(arg, constValues, constNameValues, localNames)
 					if !ok {
@@ -448,6 +451,10 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 				}
 
 				for argIdx, arg := range call.Args {
+					if isSpreadVariadicArg(call, argIdx) {
+						continue
+					}
+
 					if !exprDependsOnRecover(arg, recoverDerived) {
 						continue
 					}
@@ -822,6 +829,54 @@ func f(logger interface{ Error(string, ...any) }) {
 	}
 }
 
+func TestSpreadArgHelpersRespectCallEllipsis(t *testing.T) {
+	const src = `package p
+
+func f(logger interface{ Error(string, ...any) }, args []any) {
+	logger.Error("msg", args...)
+	logger.Error("msg", "panicValue", recover())
+}
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "spread_helper.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse source: %v", err)
+	}
+
+	var calls []*ast.CallExpr
+	ast.Inspect(file, func(node ast.Node) bool {
+		call, ok := node.(*ast.CallExpr)
+		if !ok {
+			return true
+		}
+		if _, ok := selectorName(call.Fun); ok {
+			calls = append(calls, call)
+		}
+		return true
+	})
+
+	if len(calls) != 2 {
+		t.Fatalf("expected 2 logger calls, got %d", len(calls))
+	}
+
+	if _, ok := spreadArgExpr(calls[0]); !ok {
+		t.Fatal("expected spreadArgExpr to detect variadic spread call")
+	}
+	if !isSpreadVariadicArg(calls[0], len(calls[0].Args)-1) {
+		t.Fatal("expected last argument in spread call to be flagged as spread variadic argument")
+	}
+	if isSpreadVariadicArg(calls[0], 0) {
+		t.Fatal("expected non-last argument in spread call not to be treated as spread variadic argument")
+	}
+
+	if _, ok := spreadArgExpr(calls[1]); ok {
+		t.Fatal("expected spreadArgExpr to return false for non-spread call")
+	}
+	if isSpreadVariadicArg(calls[1], len(calls[1].Args)-1) {
+		t.Fatal("expected non-spread call not to report any spread variadic argument")
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
@@ -982,6 +1037,13 @@ func spreadArgExpr(call *ast.CallExpr) (ast.Expr, bool) {
 		return nil, false
 	}
 	return call.Args[len(call.Args)-1], true
+}
+
+func isSpreadVariadicArg(call *ast.CallExpr, argIdx int) bool {
+	if call == nil || !call.Ellipsis.IsValid() || len(call.Args) == 0 {
+		return false
+	}
+	return argIdx == len(call.Args)-1
 }
 
 func structuredLogMethodNames() map[string]struct{} {
