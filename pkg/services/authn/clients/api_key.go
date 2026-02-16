@@ -207,7 +207,7 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 		return nil
 	}
 
-	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID, rawKeyID, validationSourceHook)
+	apiKeyID, ok := s.parseAndValidateAPIKeyID(rawKeyID, validationSourceHook)
 	if !ok {
 		return nil
 	}
@@ -234,7 +234,7 @@ func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
 		return
 	}
 
-	apiKeyID, ok := s.parseAndValidateAPIKeyID(keyID, rawKeyID, validationSourceSync)
+	apiKeyID, ok := s.parseAndValidateAPIKeyID(rawKeyID, validationSourceSync)
 	if !ok {
 		return
 	}
@@ -249,10 +249,8 @@ func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string, rawKeyID s
 	}
 }
 
-func (s *APIKey) parseAndValidateAPIKeyID(keyID string, rawKeyID string, validationSource string) (int64, bool) {
-	if rawKeyID == "" {
-		rawKeyID = keyID
-	}
+func (s *APIKey) parseAndValidateAPIKeyID(rawKeyID string, validationSource string) (int64, bool) {
+	keyID := strings.TrimSpace(rawKeyID)
 
 	if !containsOnlyDigits(keyID) {
 		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "validationReason", validationReasonMustContainDigitsOnly, "validationSource", validationSource)

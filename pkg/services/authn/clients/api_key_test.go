@@ -548,81 +548,79 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 
 	testCases := []struct {
 		name       string
-		keyID      string
 		rawKeyID   string
 		expectedID int64
 		expectedOK bool
 	}{
 		{
 			name:       "valid numeric id",
-			keyID:      baseAPIKeyIDString,
+			rawKeyID:   baseAPIKeyIDString,
 			expectedID: 123,
 			expectedOK: true,
 		},
 		{
 			name:       "valid numeric id with leading zeros",
-			keyID:      leadingZeroAPIKeyIDString,
+			rawKeyID:   leadingZeroAPIKeyIDString,
 			expectedID: 123,
 			expectedOK: true,
 		},
 		{
-			name:       "valid normalized id with raw whitespace",
-			keyID:      baseAPIKeyIDString,
+			name:       "valid numeric id with surrounding whitespace",
 			rawKeyID:   " 123 ",
 			expectedID: 123,
 			expectedOK: true,
 		},
 		{
 			name:       "valid max int64 id",
-			keyID:      maxInt64APIKeyIDString,
+			rawKeyID:   maxInt64APIKeyIDString,
 			expectedID: maxInt64APIKeyIDValue,
 			expectedOK: true,
 		},
 		{
 			name:       "empty id",
-			keyID:      "",
+			rawKeyID:   "",
 			expectedID: 0,
 			expectedOK: false,
 		},
 		{
 			name:       "whitespace-only id",
-			keyID:      "   ",
+			rawKeyID:   "   ",
 			expectedID: 0,
 			expectedOK: false,
 		},
 		{
 			name:       "signed id",
-			keyID:      signedAPIKeyIDString,
+			rawKeyID:   signedAPIKeyIDString,
 			expectedID: 0,
 			expectedOK: false,
 		},
 		{
 			name:       "overflow id",
-			keyID:      overflowInt64APIKeyIDString,
+			rawKeyID:   overflowInt64APIKeyIDString,
 			expectedID: 0,
 			expectedOK: false,
 		},
 		{
 			name:       "non-ascii id",
-			keyID:      arabicIndicAPIKeyIDString,
+			rawKeyID:   arabicIndicAPIKeyIDString,
 			expectedID: 0,
 			expectedOK: false,
 		},
 		{
 			name:       "fullwidth digit id",
-			keyID:      fullwidthAPIKeyIDString,
+			rawKeyID:   fullwidthAPIKeyIDString,
 			expectedID: 0,
 			expectedOK: false,
 		},
 		{
 			name:       "internal whitespace id",
-			keyID:      internalWhitespaceAPIKeyIDString,
+			rawKeyID:   internalWhitespaceAPIKeyIDString,
 			expectedID: 0,
 			expectedOK: false,
 		},
 		{
 			name:       "non-positive id",
-			keyID:      "0",
+			rawKeyID:   "0",
 			expectedID: 0,
 			expectedOK: false,
 		},
@@ -635,26 +633,13 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 			for _, tc := range testCases {
 				tc := tc
 				t.Run(tc.name, func(t *testing.T) {
-					rawKeyID := tc.rawKeyID
-					if rawKeyID == "" {
-						rawKeyID = tc.keyID
-					}
-
-					apiKeyID, ok := client.parseAndValidateAPIKeyID(tc.keyID, rawKeyID, validationSource)
+					apiKeyID, ok := client.parseAndValidateAPIKeyID(tc.rawKeyID, validationSource)
 					assert.Equal(t, tc.expectedOK, ok)
 					assert.Equal(t, tc.expectedID, apiKeyID)
 				})
 			}
 		})
 	}
-}
-
-func TestAPIKey_parseAndValidateAPIKeyID_EmptyRawKeyIDFallback(t *testing.T) {
-	client := ProvideAPIKey(&updateLastUsedService{}, tracing.InitializeTracerForTest())
-
-	apiKeyID, ok := client.parseAndValidateAPIKeyID(baseAPIKeyIDString, "", validationSourceSync)
-	assert.True(t, ok)
-	assert.Equal(t, parsedAPIKeyIDValue, apiKeyID)
 }
 
 func TestAPIKey_Hook(t *testing.T) {
