@@ -549,6 +549,7 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 	testCases := []struct {
 		name       string
 		keyID      string
+		rawKeyID   string
 		expectedID int64
 		expectedOK bool
 	}{
@@ -561,6 +562,13 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 		{
 			name:       "valid numeric id with leading zeros",
 			keyID:      leadingZeroAPIKeyIDString,
+			expectedID: 123,
+			expectedOK: true,
+		},
+		{
+			name:       "valid normalized id with raw whitespace",
+			keyID:      baseAPIKeyIDString,
+			rawKeyID:   " 123 ",
 			expectedID: 123,
 			expectedOK: true,
 		},
@@ -627,7 +635,12 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 			for _, tc := range testCases {
 				tc := tc
 				t.Run(tc.name, func(t *testing.T) {
-					apiKeyID, ok := client.parseAndValidateAPIKeyID(tc.keyID, tc.keyID, validationSource)
+					rawKeyID := tc.rawKeyID
+					if rawKeyID == "" {
+						rawKeyID = tc.keyID
+					}
+
+					apiKeyID, ok := client.parseAndValidateAPIKeyID(tc.keyID, rawKeyID, validationSource)
 					assert.Equal(t, tc.expectedOK, ok)
 					assert.Equal(t, tc.expectedID, apiKeyID)
 				})
