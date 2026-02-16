@@ -181,6 +181,27 @@ func TestRuleguardRecoverForbiddenKeyMatchersReportPanicValueGuidance(t *testing
 	}
 }
 
+func TestRuleguardRecoverVariableKeyMatcherReportsMentionAllForbiddenAliases(t *testing.T) {
+	content := loadRuleguardRulesContent(t)
+	lines := strings.Split(content, "\n")
+	blocks := loadRuleguardMatchBlocks(t)
+	requiredAliases := []string{`"error"`, `"errorMessage"`, `"reason"`, `"panic"`}
+
+	for i, block := range blocks {
+		blockText := strings.Join(block.lines, "\n")
+		if !strings.Contains(blockText, "recover()") || !strings.Contains(blockText, "$key") {
+			continue
+		}
+
+		reportText := blockReportText(lines, blocks, i)
+		for _, alias := range requiredAliases {
+			if !strings.Contains(reportText, alias) {
+				t.Fatalf("recover $key matcher block at line %d report is missing alias %s", block.startLine, alias)
+			}
+		}
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
