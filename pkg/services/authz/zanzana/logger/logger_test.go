@@ -349,6 +349,24 @@ func TestZapFieldsToArgsPreservesNestedNamespaceHierarchy(t *testing.T) {
 	assertNestedNamespaceSubject(t, args, "auth", "token", "subject", "user-1")
 }
 
+func TestZapFieldsToArgsPreservesTopLevelAndNamespacedFields(t *testing.T) {
+	args := zapFieldsToArgs(
+		[]zap.Field{
+			zap.String("subject", "user-1"),
+			zap.Namespace("auth"),
+			zap.String("token", "value"),
+		},
+	)
+
+	if len(args) != 4 {
+		t.Fatalf("unexpected args length: got=%d want=%d (%#v)", len(args), 4, args)
+	}
+	if args[0] != "subject" || args[1] != "user-1" {
+		t.Fatalf("unexpected top-level payload: %#v", args)
+	}
+	assertNamespaceFieldValue(t, args[2:], "auth", "token", "value")
+}
+
 func TestZapFieldsToArgsPreservesDuplicateKeyOrder(t *testing.T) {
 	args := zapFieldsToArgs(
 		[]zap.Field{
@@ -490,6 +508,28 @@ func TestZanzanaLoggerWithNestedNamespaceFieldKeepsNestedContext(t *testing.T) {
 
 	fields := assertContextPayloadFields(t, capturing.newCtx)
 	assertNestedNamespaceSubject(t, fields, "auth", "token", "subject", "user-1")
+}
+
+func TestZanzanaLoggerWithTopLevelAndNamespacedFieldsKeepsBothPayloads(t *testing.T) {
+	capturing := &capturingLogger{}
+	logger := New(capturing)
+
+	child := logger.With(zap.String("subject", "user-1"), zap.Namespace("auth"), zap.String("token", "value"))
+	if child == nil {
+		t.Fatal("expected non-nil logger")
+	}
+	if capturing.newCalls != 1 {
+		t.Fatalf("expected 1 call to New, got %d", capturing.newCalls)
+	}
+
+	fields := assertContextPayloadFields(t, capturing.newCtx)
+	if len(fields) != 4 {
+		t.Fatalf("unexpected zanzanaContext field length: got=%d want=%d (%#v)", len(fields), 4, fields)
+	}
+	if fields[0] != "subject" || fields[1] != "user-1" {
+		t.Fatalf("unexpected top-level payload: %#v", fields)
+	}
+	assertNamespaceFieldValue(t, fields[2:], "auth", "token", "value")
 }
 
 func TestZanzanaLoggerWithWithoutFieldsKeepsEmptyContext(t *testing.T) {
@@ -1736,6 +1776,15 @@ func assertNestedNamespaceSubject(t *testing.T, fields []any, outerNamespace, in
 	innerPayload := assertNestedNamespacePayload(t, outerPayload, innerNamespace)
 	if innerPayload[subjectKey] != subjectValue {
 		t.Fatalf("unexpected nested namespace subject payload: %#v", innerPayload)
+	}
+}
+
+func assertNamespaceFieldValue(t *testing.T, fields []any, namespace, key, wantValue string) {
+	t.Helper()
+
+	namespacePayload := assertNamespacePayload(t, fields, namespace)
+	if namespacePayload[key] != wantValue {
+		t.Fatalf("unexpected namespace payload value for %q: got=%#v want=%#v (%#v)", key, namespacePayload[key], wantValue, namespacePayload)
 	}
 }
 
