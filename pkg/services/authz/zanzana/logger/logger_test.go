@@ -176,20 +176,8 @@ func TestZanzanaLoggerInfoWithNamespaceOnlyKeepsEmptyNamespacePayload(t *testing
 		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
 	}
 
-	fields, ok := fake.InfoLogs.Ctx[5].([]any)
-	if !ok {
-		t.Fatalf("expected zanzana fields payload as []any, got %#v", fake.InfoLogs.Ctx[5])
-	}
-	if len(fields) != 2 {
-		t.Fatalf("unexpected zanzana fields length: got=%d want=%d (%#v)", len(fields), 2, fields)
-	}
-	if fields[0] != "auth" {
-		t.Fatalf("unexpected namespace key: %#v", fields)
-	}
-	namespacePayload, ok := fields[1].(map[string]any)
-	if !ok {
-		t.Fatalf("expected namespace payload as map[string]any, got %#v", fields[1])
-	}
+	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	namespacePayload := assertNamespacePayload(t, fields, "auth")
 	if len(namespacePayload) != 0 {
 		t.Fatalf("expected empty namespace payload for namespace-only field, got %#v", namespacePayload)
 	}
@@ -211,29 +199,9 @@ func TestZanzanaLoggerInfoWithNestedNamespaceFieldKeepsNestedPayload(t *testing.
 		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
 	}
 
-	fields, ok := fake.InfoLogs.Ctx[5].([]any)
-	if !ok {
-		t.Fatalf("expected zanzana fields payload as []any, got %#v", fake.InfoLogs.Ctx[5])
-	}
-	if len(fields) != 2 {
-		t.Fatalf("unexpected zanzana fields length: got=%d want=%d (%#v)", len(fields), 2, fields)
-	}
-	if fields[0] != "auth" {
-		t.Fatalf("unexpected outer namespace key: %#v", fields)
-	}
-
-	authPayload, ok := fields[1].(map[string]any)
-	if !ok {
-		t.Fatalf("expected outer namespace payload as map[string]any, got %#v", fields[1])
-	}
-	tokenPayloadValue, ok := authPayload["token"]
-	if !ok {
-		t.Fatalf("expected nested token namespace payload: %#v", authPayload)
-	}
-	tokenPayload, ok := tokenPayloadValue.(map[string]any)
-	if !ok {
-		t.Fatalf("expected nested token namespace payload as map[string]any, got %#v", tokenPayloadValue)
-	}
+	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	authPayload := assertNamespacePayload(t, fields, "auth")
+	tokenPayload := assertNestedNamespacePayload(t, authPayload, "token")
 	if tokenPayload["subject"] != "user-1" {
 		t.Fatalf("unexpected nested namespace subject payload: %#v", tokenPayload)
 	}
@@ -354,16 +322,7 @@ func TestZapFieldsToArgsPreservesNamespaceHierarchy(t *testing.T) {
 func TestZapFieldsToArgsNamespaceOnlyProducesEmptyNamespacePayload(t *testing.T) {
 	args := zapFieldsToArgs([]zap.Field{zap.Namespace("auth")})
 
-	if len(args) != 2 {
-		t.Fatalf("unexpected args length: got=%d want=%d (%#v)", len(args), 2, args)
-	}
-	if args[0] != "auth" {
-		t.Fatalf("unexpected namespace key: %#v", args)
-	}
-	namespacePayload, ok := args[1].(map[string]any)
-	if !ok {
-		t.Fatalf("expected namespace payload as map[string]any, got %#v", args[1])
-	}
+	namespacePayload := assertNamespacePayload(t, args, "auth")
 	if len(namespacePayload) != 0 {
 		t.Fatalf("expected empty namespace payload for namespace-only field, got %#v", namespacePayload)
 	}
@@ -378,25 +337,8 @@ func TestZapFieldsToArgsPreservesNestedNamespaceHierarchy(t *testing.T) {
 		},
 	)
 
-	if len(args) != 2 {
-		t.Fatalf("unexpected args length: got=%d want=%d (%#v)", len(args), 2, args)
-	}
-	if args[0] != "auth" {
-		t.Fatalf("unexpected outer namespace key: %#v", args)
-	}
-
-	authPayload, ok := args[1].(map[string]any)
-	if !ok {
-		t.Fatalf("expected outer namespace payload as map[string]any, got %#v", args[1])
-	}
-	tokenPayloadValue, ok := authPayload["token"]
-	if !ok {
-		t.Fatalf("expected nested token namespace payload: %#v", authPayload)
-	}
-	tokenPayload, ok := tokenPayloadValue.(map[string]any)
-	if !ok {
-		t.Fatalf("expected nested token namespace payload as map[string]any, got %#v", tokenPayloadValue)
-	}
+	authPayload := assertNamespacePayload(t, args, "auth")
+	tokenPayload := assertNestedNamespacePayload(t, authPayload, "token")
 	if tokenPayload["subject"] != "user-1" {
 		t.Fatalf("unexpected nested namespace subject payload: %#v", tokenPayload)
 	}
@@ -506,20 +448,8 @@ func TestZanzanaLoggerWithNamespaceOnlyKeepsEmptyNamespaceContext(t *testing.T) 
 		t.Fatalf("unexpected context payload: %#v", capturing.newCtx)
 	}
 
-	fields, ok := capturing.newCtx[1].([]any)
-	if !ok {
-		t.Fatalf("expected zanzanaContext payload to be []any, got %#v", capturing.newCtx[1])
-	}
-	if len(fields) != 2 {
-		t.Fatalf("unexpected zanzanaContext field length: got=%d want=%d (%#v)", len(fields), 2, fields)
-	}
-	if fields[0] != "auth" {
-		t.Fatalf("unexpected namespace key: %#v", fields)
-	}
-	namespacePayload, ok := fields[1].(map[string]any)
-	if !ok {
-		t.Fatalf("expected namespace payload as map[string]any, got %#v", fields[1])
-	}
+	fields := assertContextPayloadFields(t, capturing.newCtx)
+	namespacePayload := assertNamespacePayload(t, fields, "auth")
 	if len(namespacePayload) != 0 {
 		t.Fatalf("expected empty namespace payload for namespace-only field, got %#v", namespacePayload)
 	}
@@ -540,29 +470,9 @@ func TestZanzanaLoggerWithNestedNamespaceFieldKeepsNestedContext(t *testing.T) {
 		t.Fatalf("unexpected context payload: %#v", capturing.newCtx)
 	}
 
-	fields, ok := capturing.newCtx[1].([]any)
-	if !ok {
-		t.Fatalf("expected zanzanaContext payload to be []any, got %#v", capturing.newCtx[1])
-	}
-	if len(fields) != 2 {
-		t.Fatalf("unexpected zanzanaContext field length: got=%d want=%d (%#v)", len(fields), 2, fields)
-	}
-	if fields[0] != "auth" {
-		t.Fatalf("unexpected outer namespace key: %#v", fields)
-	}
-
-	authPayload, ok := fields[1].(map[string]any)
-	if !ok {
-		t.Fatalf("expected outer namespace payload as map[string]any, got %#v", fields[1])
-	}
-	tokenPayloadValue, ok := authPayload["token"]
-	if !ok {
-		t.Fatalf("expected nested token namespace payload: %#v", authPayload)
-	}
-	tokenPayload, ok := tokenPayloadValue.(map[string]any)
-	if !ok {
-		t.Fatalf("expected nested token namespace payload as map[string]any, got %#v", tokenPayloadValue)
-	}
+	fields := assertContextPayloadFields(t, capturing.newCtx)
+	authPayload := assertNamespacePayload(t, fields, "auth")
+	tokenPayload := assertNestedNamespacePayload(t, authPayload, "token")
 	if tokenPayload["subject"] != "user-1" {
 		t.Fatalf("unexpected nested namespace subject payload: %#v", tokenPayload)
 	}
@@ -921,29 +831,9 @@ func TestZanzanaLoggerUnknownLevelWithNestedNamespaceFieldsIncludesNormalizedFie
 		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
 	}
 
-	fields, ok := fake.InfoLogs.Ctx[5].([]any)
-	if !ok {
-		t.Fatalf("expected zanzana fields payload as []any, got %#v", fake.InfoLogs.Ctx[5])
-	}
-	if len(fields) != 2 {
-		t.Fatalf("unexpected fallback fields length: got=%d want=%d (%#v)", len(fields), 2, fields)
-	}
-	if fields[0] != "auth" {
-		t.Fatalf("unexpected outer namespace key: %#v", fields)
-	}
-
-	authPayload, ok := fields[1].(map[string]any)
-	if !ok {
-		t.Fatalf("expected outer namespace payload as map[string]any, got %#v", fields[1])
-	}
-	tokenPayloadValue, ok := authPayload["token"]
-	if !ok {
-		t.Fatalf("expected nested token namespace payload: %#v", authPayload)
-	}
-	tokenPayload, ok := tokenPayloadValue.(map[string]any)
-	if !ok {
-		t.Fatalf("expected nested token namespace payload as map[string]any, got %#v", tokenPayloadValue)
-	}
+	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	authPayload := assertNamespacePayload(t, fields, "auth")
+	tokenPayload := assertNestedNamespacePayload(t, authPayload, "token")
 	if tokenPayload["subject"] != "user-1" {
 		t.Fatalf("unexpected nested namespace subject payload: %#v", tokenPayload)
 	}
@@ -971,20 +861,8 @@ func TestZanzanaLoggerUnknownLevelWithNamespaceOnlyIncludesEmptyNamespacePayload
 		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
 	}
 
-	fields, ok := fake.InfoLogs.Ctx[5].([]any)
-	if !ok {
-		t.Fatalf("expected zanzana fields payload as []any, got %#v", fake.InfoLogs.Ctx[5])
-	}
-	if len(fields) != 2 {
-		t.Fatalf("unexpected fallback fields length: got=%d want=%d (%#v)", len(fields), 2, fields)
-	}
-	if fields[0] != "auth" {
-		t.Fatalf("unexpected namespace key: %#v", fields)
-	}
-	namespacePayload, ok := fields[1].(map[string]any)
-	if !ok {
-		t.Fatalf("expected namespace payload as map[string]any, got %#v", fields[1])
-	}
+	fields := assertFieldsPayload(t, fake.InfoLogs.Ctx)
+	namespacePayload := assertNamespacePayload(t, fields, "auth")
 	if len(namespacePayload) != 0 {
 		t.Fatalf("expected empty namespace payload for namespace-only field, got %#v", namespacePayload)
 	}
@@ -1262,6 +1140,72 @@ func TestZanzanaLoggerContextMethodsIncludeStructuredFields(t *testing.T) {
 			}
 		})
 	}
+}
+
+func assertContextPayloadFields(t *testing.T, ctx []any) []any {
+	t.Helper()
+
+	if len(ctx) != 2 {
+		t.Fatalf("expected context payload with two entries, got %#v", ctx)
+	}
+	if ctx[0] != "zanzanaContext" {
+		t.Fatalf("expected zanzanaContext key, got %#v", ctx)
+	}
+	fields, ok := ctx[1].([]any)
+	if !ok {
+		t.Fatalf("expected zanzanaContext payload as []any, got %#v", ctx[1])
+	}
+
+	return fields
+}
+
+func assertFieldsPayload(t *testing.T, ctx []any) []any {
+	t.Helper()
+
+	if len(ctx) != 6 {
+		t.Fatalf("expected message+level+fields context, got %#v", ctx)
+	}
+	if ctx[4] != "zanzanaFields" {
+		t.Fatalf("expected zanzanaFields key, got %#v", ctx)
+	}
+	fields, ok := ctx[5].([]any)
+	if !ok {
+		t.Fatalf("expected zanzana fields payload as []any, got %#v", ctx[5])
+	}
+
+	return fields
+}
+
+func assertNamespacePayload(t *testing.T, fields []any, namespace string) map[string]any {
+	t.Helper()
+
+	if len(fields) != 2 {
+		t.Fatalf("unexpected namespace payload length: got=%d want=%d (%#v)", len(fields), 2, fields)
+	}
+	if fields[0] != namespace {
+		t.Fatalf("unexpected namespace key: got=%#v want=%#v (%#v)", fields[0], namespace, fields)
+	}
+	namespacePayload, ok := fields[1].(map[string]any)
+	if !ok {
+		t.Fatalf("expected namespace payload as map[string]any, got %#v", fields[1])
+	}
+
+	return namespacePayload
+}
+
+func assertNestedNamespacePayload(t *testing.T, payload map[string]any, namespace string) map[string]any {
+	t.Helper()
+
+	nestedPayloadValue, ok := payload[namespace]
+	if !ok {
+		t.Fatalf("expected nested namespace payload %q in %#v", namespace, payload)
+	}
+	nestedPayload, ok := nestedPayloadValue.(map[string]any)
+	if !ok {
+		t.Fatalf("expected nested namespace payload as map[string]any, got %#v", nestedPayloadValue)
+	}
+
+	return nestedPayload
 }
 
 func assertIntLikeValue(t *testing.T, value any, want int64, payload any) {
