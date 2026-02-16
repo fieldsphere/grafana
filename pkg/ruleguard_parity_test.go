@@ -336,6 +336,7 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 		if parseErr != nil {
 			return parseErr
 		}
+		constValues := stringConstValueMap(file)
 
 		forEachRecoverFunctionBody(file, func(body *ast.BlockStmt) {
 			recoverDerived := recoverDerivedIdentifiers(body)
@@ -353,22 +354,17 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 					return true
 				}
 
-				for argIdx, arg := range call.Args {
-					basic, ok := arg.(*ast.BasicLit)
-					if !ok || basic.Kind != token.STRING {
+				for argIdx := 0; argIdx+1 < len(call.Args); argIdx++ {
+					key, ok := keyValueFromExpr(call.Args[argIdx], constValues)
+					if !ok {
 						continue
 					}
-
-					val, unquoteErr := strconv.Unquote(basic.Value)
-					if unquoteErr != nil {
-						continue
-					}
-					if _, isForbidden := forbiddenAliases[val]; isForbidden {
-						if argIdx+1 >= len(call.Args) || !exprDependsOnRecover(call.Args[argIdx+1], recoverDerived) {
+					if _, isForbidden := forbiddenAliases[key]; isForbidden {
+						if !exprDependsOnRecover(call.Args[argIdx+1], recoverDerived) {
 							continue
 						}
-						position := fset.Position(basic.Pos())
-						violations = append(violations, position.String()+": recover logging uses forbidden key alias "+basic.Value)
+						position := fset.Position(call.Args[argIdx].Pos())
+						violations = append(violations, position.String()+": recover logging uses forbidden key alias "+strconv.Quote(key))
 					}
 				}
 
@@ -410,10 +406,11 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 		if parseErr != nil {
 			return parseErr
 		}
+		constValues := stringConstValueMap(file)
 
 		forEachRecoverFunctionBody(file, func(body *ast.BlockStmt) {
 			recoverDerived := recoverDerivedIdentifiers(body)
-			badSpreadSlices := recoverDerivedSlicesWithAliasViolations(body, recoverDerived)
+			badSpreadSlices := recoverDerivedSlicesWithAliasViolations(body, recoverDerived, constValues)
 			inspectBodyWithoutNestedFuncLits(body, func(inner ast.Node) bool {
 				call, ok := inner.(*ast.CallExpr)
 				if !ok {
@@ -444,18 +441,14 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 						continue
 					}
 
-					prevLit, ok := call.Args[argIdx-1].(*ast.BasicLit)
-					if !ok || prevLit.Kind != token.STRING {
+					prevKey, ok := keyValueFromExpr(call.Args[argIdx-1], constValues)
+					if !ok {
 						continue
 					}
 
-					prevKey, unquoteErr := strconv.Unquote(prevLit.Value)
-					if unquoteErr != nil {
-						continue
-					}
 					if prevKey != "panicValue" {
-						position := fset.Position(prevLit.Pos())
-						violationSet[position.String()+": recover-derived value must use key \"panicValue\", found "+prevLit.Value] = struct{}{}
+						position := fset.Position(call.Args[argIdx-1].Pos())
+						violationSet[position.String()+": recover-derived value must use key \"panicValue\", found "+strconv.Quote(prevKey)] = struct{}{}
 					}
 				}
 
@@ -647,7 +640,7 @@ type recoverDerivedSet struct {
 	objects map[*ast.Object]struct{}
 }
 
-func recoverDerivedSlicesWithAliasViolations(body *ast.BlockStmt, recoverDerived recoverDerivedSet) map[string]string {
+func recoverDerivedSlicesWithAliasViolations(body *ast.BlockStmt, recoverDerived recoverDerivedSet, constValues map[*ast.Object]string) map[string]string {
 	badSlices := map[string]string{}
 
 	recordVar := func(name string, rhs ast.Expr) {
@@ -655,7 +648,7 @@ func recoverDerivedSlicesWithAliasViolations(body *ast.BlockStmt, recoverDerived
 			return
 		}
 
-		if alias := recoverAliasViolationInSliceExpr(rhs, recoverDerived, badSlices); alias != "" {
+		if alias := recoverAliasViolationInSliceExpr(rhs, recoverDerived, badSlices, constValues); alias != "" {
 			badSlices[name] = alias
 		}
 	}
@@ -690,7 +683,7 @@ func recoverDerivedSlicesWithAliasViolations(body *ast.BlockStmt, recoverDerived
 	return badSlices
 }
 
-func recoverAliasViolationInSliceExpr(expr ast.Expr, recoverDerived recoverDerivedSet, badSlices map[string]string) string {
+func recoverAliasViolationInSliceExpr(expr ast.Expr, recoverDerived recoverDerivedSet, badSlices map[string]string, constValues map[*ast.Object]string) string {
 	switch n := expr.(type) {
 	case *ast.Ident:
 		return badSlices[n.Name]
@@ -699,7 +692,7 @@ func recoverAliasViolationInSliceExpr(expr ast.Expr, recoverDerived recoverDeriv
 			if !exprDependsOnRecover(n.Elts[idx], recoverDerived) {
 				continue
 			}
-			key, ok := keyLiteralFromExpr(n.Elts[idx-1])
+			key, ok := keyValueFromExpr(n.Elts[idx-1], constValues)
 			if ok && key != "panicValue" {
 				return key
 			}
@@ -717,7 +710,7 @@ func recoverAliasViolationInSliceExpr(expr ast.Expr, recoverDerived recoverDeriv
 				if !exprDependsOnRecover(n.Args[idx], recoverDerived) {
 					continue
 				}
-				key, ok := keyLiteralFromExpr(n.Args[idx-1])
+				key, ok := keyValueFromExpr(n.Args[idx-1], constValues)
 				if ok && key != "panicValue" {
 					return key
 				}
@@ -728,16 +721,58 @@ func recoverAliasViolationInSliceExpr(expr ast.Expr, recoverDerived recoverDeriv
 	return ""
 }
 
-func keyLiteralFromExpr(expr ast.Expr) (string, bool) {
+func keyValueFromExpr(expr ast.Expr, constValues map[*ast.Object]string) (string, bool) {
 	basic, ok := expr.(*ast.BasicLit)
-	if !ok || basic.Kind != token.STRING {
-		return "", false
+	if ok && basic.Kind == token.STRING {
+		key, err := strconv.Unquote(basic.Value)
+		if err != nil {
+			return "", false
+		}
+		return key, true
 	}
-	key, err := strconv.Unquote(basic.Value)
-	if err != nil {
-		return "", false
+
+	ident, ok := expr.(*ast.Ident)
+	if ok && ident.Obj != nil {
+		if key, exists := constValues[ident.Obj]; exists {
+			return key, true
+		}
 	}
-	return key, true
+
+	return "", false
+}
+
+func stringConstValueMap(file *ast.File) map[*ast.Object]string {
+	values := map[*ast.Object]string{}
+
+	for _, decl := range file.Decls {
+		genDecl, ok := decl.(*ast.GenDecl)
+		if !ok || genDecl.Tok != token.CONST {
+			continue
+		}
+
+		for _, spec := range genDecl.Specs {
+			valueSpec, ok := spec.(*ast.ValueSpec)
+			if !ok {
+				continue
+			}
+
+			for idx, name := range valueSpec.Names {
+				if name == nil || name.Obj == nil {
+					continue
+				}
+				if idx >= len(valueSpec.Values) {
+					continue
+				}
+				key, ok := keyValueFromExpr(valueSpec.Values[idx], map[*ast.Object]string{})
+				if !ok {
+					continue
+				}
+				values[name.Obj] = key
+			}
+		}
+	}
+
+	return values
 }
 
 func recoverDerivedIdentifiers(body *ast.BlockStmt) recoverDerivedSet {
