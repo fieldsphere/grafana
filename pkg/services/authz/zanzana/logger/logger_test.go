@@ -408,7 +408,7 @@ func TestZanzanaLoggerErrorFamilyPreservesOriginalLevel(t *testing.T) {
 		},
 	}
 
-	runLoggerLevelMatrix(t, testCases)
+	runLoggerFieldMatrix(t, testCases, "", nil)
 }
 
 func TestZanzanaLoggerContextMethodsPreserveLevelRouting(t *testing.T) {
@@ -469,7 +469,7 @@ func TestZanzanaLoggerContextMethodsPreserveLevelRouting(t *testing.T) {
 		},
 	}
 
-	runLoggerLevelMatrix(t, testCases)
+	runLoggerFieldMatrix(t, testCases, "", nil)
 }
 
 func TestZanzanaLoggerUnknownLevelFallsBackToInfo(t *testing.T) {
@@ -1148,34 +1148,19 @@ func runLoggerFieldMatrix(t *testing.T, testCases []loggerFieldCase, expectedMes
 
 			tc.emit(logger)
 
-			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
-			fields := assertFieldsPayload(t, ctx)
-			assertMessageAndLevel(t, ctx, expectedMessage, tc.expectedLevel)
-			assertFields(t, fields)
-		})
-	}
-}
-
-func runLoggerLevelMatrix(t *testing.T, testCases []loggerFieldCase) {
-	t.Helper()
-
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			fake := &logtest.Fake{}
-			logger := New(fake)
-
-			tc.emit(logger)
-			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
-			if len(ctx) != 4 {
-				t.Fatalf("expected structured level fields, got %#v", ctx)
+			message := tc.expectedMessage
+			if message == "" {
+				message = expectedMessage
+			}
+			if message == "" {
+				message = tc.expectedLevel + " message"
 			}
 
-			expectedMessage := tc.expectedMessage
-			if expectedMessage == "" {
-				expectedMessage = tc.expectedLevel + " message"
+			expectFields := assertFields != nil
+			fields := assertTargetLevelContext(t, fake, tc.targetLogger, message, tc.expectedLevel, expectFields)
+			if assertFields != nil {
+				assertFields(t, fields)
 			}
-			assertMessageAndLevel(t, ctx, expectedMessage, tc.expectedLevel)
 		})
 	}
 }
