@@ -198,7 +198,7 @@ func TestAPIKey_Authenticate(t *testing.T) {
 				ID:               1,
 				OrgID:            1,
 				Key:              hash,
-				ServiceAccountId: ptr(int64(1)),
+				ServiceAccountId: ptr[int64](1),
 			},
 			expectedIdentity: &authn.Identity{
 				ID:    "1",
@@ -216,7 +216,7 @@ func TestAPIKey_Authenticate(t *testing.T) {
 			req:  &authn.Request{HTTPRequest: &http.Request{Header: map[string][]string{"Authorization": {"Bearer " + secret}}}},
 			expectedKey: &apikey.APIKey{
 				Key:     hash,
-				Expires: ptr(int64(0)),
+				Expires: ptr[int64](0),
 			},
 			expectedErr: errAPIKeyExpired,
 		},
@@ -236,7 +236,7 @@ func TestAPIKey_Authenticate(t *testing.T) {
 				ID:               1,
 				OrgID:            2,
 				Key:              hash,
-				ServiceAccountId: ptr(int64(1)),
+				ServiceAccountId: ptr[int64](1),
 			},
 			expectedErr: errAPIKeyOrgMismatch,
 		},
@@ -301,7 +301,7 @@ func TestAPIKey_AuthenticateWithNilTracer(t *testing.T) {
 			ID:               1,
 			OrgID:            1,
 			Key:              hash,
-			ServiceAccountId: ptr(int64(1)),
+			ServiceAccountId: ptr[int64](1),
 		},
 	}, nil)
 
