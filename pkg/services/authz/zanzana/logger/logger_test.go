@@ -514,25 +514,24 @@ func TestZanzanaLoggerContextMethodsWithNestedNamespaceIncludeStructuredFields(t
 }
 
 func TestStandardMethodCasesBuildsExpectedMetadata(t *testing.T) {
-	t.Run("default message non-context", func(t *testing.T) {
-		cases := standardMethodCases("", false)
-		assertCaseMetadata(t, cases, expectedStandardCaseMetadata("", false))
-	})
+	testCases := []struct {
+		name        string
+		message     string
+		withContext bool
+	}{
+		{name: "default message non-context", message: "", withContext: false},
+		{name: "default message context", message: "", withContext: true},
+		{name: "custom message", message: "custom message", withContext: false},
+		{name: "custom message context", message: "custom context message", withContext: true},
+	}
 
-	t.Run("default message context", func(t *testing.T) {
-		cases := standardMethodCases("", true)
-		assertCaseMetadata(t, cases, expectedStandardCaseMetadata("", true))
-	})
-
-	t.Run("custom message", func(t *testing.T) {
-		cases := standardMethodCases("custom message", false)
-		assertCaseMetadata(t, cases, expectedStandardCaseMetadata("custom message", false))
-	})
-
-	t.Run("custom message context", func(t *testing.T) {
-		cases := standardMethodCases("custom context message", true)
-		assertCaseMetadata(t, cases, expectedStandardCaseMetadata("custom context message", true))
-	})
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			cases := standardMethodCases(tc.message, tc.withContext)
+			assertCaseMetadata(t, cases, expectedStandardCaseMetadata(tc.message, tc.withContext))
+		})
+	}
 }
 
 func TestLoggerMethodMessage(t *testing.T) {
@@ -592,32 +591,35 @@ func assertPanicsWithMessage(t *testing.T, expectedMessage string, fn func()) {
 
 func TestFilterLoggerCasesPreservesSourceOrder(t *testing.T) {
 	cases := standardMethodCases("", true)
-	t.Run("preserves source order", func(t *testing.T) {
-		filtered := filterLoggerCases(cases, "fatalWithContext", "warnWithContext")
-		if len(filtered) != 2 {
-			t.Fatalf("unexpected filtered case count: got=%d want=%d", len(filtered), 2)
-		}
-		if filtered[0].name != "warnWithContext" || filtered[1].name != "fatalWithContext" {
-			t.Fatalf("unexpected filtered case order: %#v", []string{filtered[0].name, filtered[1].name})
-		}
-	})
+	testCases := []struct {
+		name          string
+		allowlist     []string
+		expectedNames []string
+	}{
+		{
+			name:          "preserves source order",
+			allowlist:     []string{"fatalWithContext", "warnWithContext"},
+			expectedNames: []string{"warnWithContext", "fatalWithContext"},
+		},
+		{
+			name:          "ignores unknown names",
+			allowlist:     []string{"missingWithContext", "debugWithContext"},
+			expectedNames: []string{"debugWithContext"},
+		},
+		{
+			name:          "empty allowlist returns empty result",
+			allowlist:     nil,
+			expectedNames: nil,
+		},
+	}
 
-	t.Run("ignores unknown names", func(t *testing.T) {
-		filtered := filterLoggerCases(cases, "missingWithContext", "debugWithContext")
-		if len(filtered) != 1 {
-			t.Fatalf("unexpected filtered case count: got=%d want=%d", len(filtered), 1)
-		}
-		if filtered[0].name != "debugWithContext" {
-			t.Fatalf("unexpected filtered case: got=%q want=%q", filtered[0].name, "debugWithContext")
-		}
-	})
-
-	t.Run("empty allowlist returns empty result", func(t *testing.T) {
-		filtered := filterLoggerCases(cases)
-		if len(filtered) != 0 {
-			t.Fatalf("expected empty filtered result for empty allowlist, got %#v", filtered)
-		}
-	})
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			filtered := filterLoggerCases(cases, tc.allowlist...)
+			assertCaseNames(t, filtered, tc.expectedNames)
+		})
+	}
 }
 
 type loggerFieldCase struct {
@@ -1000,6 +1002,20 @@ func assertCaseMetadata(t *testing.T, actual, expected []loggerFieldCase) {
 		}
 		if actual[i].expectedMessage != expected[i].expectedMessage {
 			t.Fatalf("unexpected expectedMessage at index %d: got=%q want=%q", i, actual[i].expectedMessage, expected[i].expectedMessage)
+		}
+	}
+}
+
+func assertCaseNames(t *testing.T, actual []loggerFieldCase, expectedNames []string) {
+	t.Helper()
+
+	if len(actual) != len(expectedNames) {
+		t.Fatalf("unexpected filtered case count: got=%d want=%d", len(actual), len(expectedNames))
+	}
+
+	for i := range expectedNames {
+		if actual[i].name != expectedNames[i] {
+			t.Fatalf("unexpected filtered case name at index %d: got=%q want=%q", i, actual[i].name, expectedNames[i])
 		}
 	}
 }
