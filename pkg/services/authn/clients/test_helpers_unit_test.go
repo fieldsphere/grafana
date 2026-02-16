@@ -51,7 +51,12 @@ func TestEncodeBasicAuth(t *testing.T) {
 func TestMustGenAPIKey(t *testing.T) {
 	t.Parallel()
 
-	secret, hash := mustGenAPIKey()
+	var secret string
+	var hash string
+	require.NotPanics(t, func() {
+		secret, hash = mustGenAPIKey()
+	})
+
 	require.NotEmpty(t, secret)
 	require.NotEmpty(t, hash)
 	require.NotEqual(t, secret, hash)
