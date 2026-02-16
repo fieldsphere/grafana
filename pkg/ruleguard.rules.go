@@ -500,10 +500,14 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn(fmt.Sprintf($fmt, $*args))`,
 		`$logger.Error(fmt.Sprintf($fmt, $*args))`,
 		`$logger.Debug(fmt.Sprintf($fmt, $*args))`,
+		`$logger.Panic(fmt.Sprintf($fmt, $*args))`,
+		`$logger.Fatal(fmt.Sprintf($fmt, $*args))`,
 		`$logger.Info(fmt.Sprint($*args))`,
 		`$logger.Warn(fmt.Sprint($*args))`,
 		`$logger.Error(fmt.Sprint($*args))`,
 		`$logger.Debug(fmt.Sprint($*args))`,
+		`$logger.Panic(fmt.Sprint($*args))`,
+		`$logger.Fatal(fmt.Sprint($*args))`,
 	).
 		Where(isStructuredLogger).
 		Report("use a static log message and key/value context instead of fmt formatting")
@@ -513,10 +517,14 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
 		`$logger.Error($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
 		`$logger.Debug($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.Panic($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
+		`$logger.Fatal($msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
 		`$logger.Info($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
 		`$logger.Warn($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
 		`$logger.Error($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
 		`$logger.Debug($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`$logger.Panic($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
+		`$logger.Fatal($msg, $*before, $key, fmt.Sprint($*args), $*after)`,
 		`$logger.InfoCtx($ctx, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
 		`$logger.WarnCtx($ctx, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
 		`$logger.ErrorCtx($ctx, $msg, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)`,
@@ -534,6 +542,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn($msg, $*before, $key, $left + $right, $*after)`,
 		`$logger.Error($msg, $*before, $key, $left + $right, $*after)`,
 		`$logger.Debug($msg, $*before, $key, $left + $right, $*after)`,
+		`$logger.Panic($msg, $*before, $key, $left + $right, $*after)`,
+		`$logger.Fatal($msg, $*before, $key, $left + $right, $*after)`,
 		`$logger.InfoCtx($ctx, $msg, $*before, $key, $left + $right, $*after)`,
 		`$logger.WarnCtx($ctx, $msg, $*before, $key, $left + $right, $*after)`,
 		`$logger.ErrorCtx($ctx, $msg, $*before, $key, $left + $right, $*after)`,
@@ -564,6 +574,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn($msg, $*args)`,
 		`$logger.Error($msg, $*args)`,
 		`$logger.Debug($msg, $*args)`,
+		`$logger.Panic($msg, $*args)`,
+		`$logger.Fatal($msg, $*args)`,
 	).
 		Where(isStructuredLogger && m["msg"].Text.Matches("(\".*%[a-zA-Z].*\"|`.*%[a-zA-Z].*`)")).
 		Report("printf-style format verbs are not supported in structured logger methods; move dynamic values to key/value fields")
@@ -573,6 +585,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn($left + $right, $*args)`,
 		`$logger.Error($left + $right, $*args)`,
 		`$logger.Debug($left + $right, $*args)`,
+		`$logger.Panic($left + $right, $*args)`,
+		`$logger.Fatal($left + $right, $*args)`,
 	).
 		Where(isStructuredLogger).
 		Report("avoid string concatenation in structured log messages; use key/value fields")
@@ -582,6 +596,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn($msg, $*args)`,
 		`$logger.Error($msg, $*args)`,
 		`$logger.Debug($msg, $*args)`,
+		`$logger.Panic($msg, $*args)`,
+		`$logger.Fatal($msg, $*args)`,
 	).
 		Where(isStructuredLogger && !m["msg"].Text.Matches("^(\".*\"|`.*`)$")).
 		Report("prefer a stable string-literal log message; move dynamic text into key/value fields")
@@ -6854,6 +6870,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn($msg, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
 		`$logger.Error($msg, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
 		`$logger.Debug($msg, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
+		`$logger.Panic($msg, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
+		`$logger.Fatal($msg, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
 		`$logger.InfoCtx($ctx, $msg, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
 		`$logger.WarnCtx($ctx, $msg, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
 		`$logger.ErrorCtx($ctx, $msg, []any{$*before, $key, fmt.Sprintf($fmt, $*args), $*after}...)`,
@@ -6862,6 +6880,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn($msg, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
 		`$logger.Error($msg, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
 		`$logger.Debug($msg, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
+		`$logger.Panic($msg, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
+		`$logger.Fatal($msg, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
 		`$logger.InfoCtx($ctx, $msg, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
 		`$logger.WarnCtx($ctx, $msg, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
 		`$logger.ErrorCtx($ctx, $msg, []any{$*before, $key, fmt.Sprint($*args), $*after}...)`,
@@ -6900,6 +6920,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn($msg, []any{$*before, $key, $left + $right, $*after}...)`,
 		`$logger.Error($msg, []any{$*before, $key, $left + $right, $*after}...)`,
 		`$logger.Debug($msg, []any{$*before, $key, $left + $right, $*after}...)`,
+		`$logger.Panic($msg, []any{$*before, $key, $left + $right, $*after}...)`,
+		`$logger.Fatal($msg, []any{$*before, $key, $left + $right, $*after}...)`,
 		`$logger.InfoCtx($ctx, $msg, []any{$*before, $key, $left + $right, $*after}...)`,
 		`$logger.WarnCtx($ctx, $msg, []any{$*before, $key, $left + $right, $*after}...)`,
 		`$logger.ErrorCtx($ctx, $msg, []any{$*before, $key, $left + $right, $*after}...)`,
@@ -7268,6 +7290,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
 		`$logger.Error($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
 		`$logger.Debug($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.Panic($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
+		`$logger.Fatal($msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
 		`$logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
 		`$logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
 		`$logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprintf($fmt, $*args), $*after)...)`,
@@ -7289,6 +7313,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
 		`$logger.Error($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
 		`$logger.Debug($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`$logger.Panic($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
+		`$logger.Fatal($msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
 		`$logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
 		`$logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
 		`$logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, fmt.Sprint($*args), $*after)...)`,
@@ -7314,6 +7340,8 @@ func structuredlogging(m fluent.Matcher) {
 		`$logger.Warn($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
 		`$logger.Error($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
 		`$logger.Debug($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`$logger.Panic($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
+		`$logger.Fatal($msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
 		`$logger.InfoCtx($ctx, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
 		`$logger.WarnCtx($ctx, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
 		`$logger.ErrorCtx($ctx, $msg, append($arr, $*before, $key, $left + $right, $*after)...)`,
