@@ -661,39 +661,46 @@ func TestZanzanaLoggerWithPreservesDuplicateKeyOrder(t *testing.T) {
 }
 
 func TestZanzanaLoggerErrorFamilyPreservesOriginalLevel(t *testing.T) {
-	testCases := []struct {
-		name string
-		emit func(*ZanzanaLogger)
-	}{
+	testCases := []loggerFieldCase{
 		{
 			name: "error",
 			emit: func(logger *ZanzanaLogger) {
 				logger.Error("error message")
 			},
+			targetLogger:  "error",
+			expectedLevel: "error",
 		},
 		{
 			name: "panic",
 			emit: func(logger *ZanzanaLogger) {
 				logger.Panic("panic message")
 			},
+			targetLogger:  "error",
+			expectedLevel: "panic",
 		},
 		{
 			name: "fatal",
 			emit: func(logger *ZanzanaLogger) {
 				logger.Fatal("fatal message")
 			},
+			targetLogger:  "error",
+			expectedLevel: "fatal",
 		},
 		{
 			name: "panicWithContext",
 			emit: func(logger *ZanzanaLogger) {
 				logger.PanicWithContext(context.Background(), "panic message")
 			},
+			targetLogger:  "error",
+			expectedLevel: "panic",
 		},
 		{
 			name: "fatalWithContext",
 			emit: func(logger *ZanzanaLogger) {
 				logger.FatalWithContext(context.Background(), "fatal message")
 			},
+			targetLogger:  "error",
+			expectedLevel: "fatal",
 		},
 	}
 
@@ -705,93 +712,75 @@ func TestZanzanaLoggerErrorFamilyPreservesOriginalLevel(t *testing.T) {
 
 			tc.emit(logger)
 
-			if fake.ErrorLogs.Calls != 1 {
-				t.Fatalf("expected 1 error call, got %d", fake.ErrorLogs.Calls)
-			}
+			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
 			if fake.ErrorLogs.Message != "Zanzana logger event" {
 				t.Fatalf("unexpected message: %q", fake.ErrorLogs.Message)
 			}
-			if len(fake.ErrorLogs.Ctx) != 4 {
-				t.Fatalf("expected 4 structured fields, got %#v", fake.ErrorLogs.Ctx)
+			if len(ctx) != 4 {
+				t.Fatalf("expected 4 structured fields, got %#v", ctx)
 			}
-			if fake.ErrorLogs.Ctx[0] != "zanzanaMessage" {
-				t.Fatalf("expected zanzanaMessage key, got %#v", fake.ErrorLogs.Ctx)
+			if ctx[0] != "zanzanaMessage" {
+				t.Fatalf("expected zanzanaMessage key, got %#v", ctx)
 			}
-			if fake.ErrorLogs.Ctx[2] != "zanzanaLevel" {
-				t.Fatalf("expected zanzanaLevel key, got %#v", fake.ErrorLogs.Ctx)
+			if ctx[2] != "zanzanaLevel" {
+				t.Fatalf("expected zanzanaLevel key, got %#v", ctx)
 			}
-
-			expectedLevel := tc.name
-			switch tc.name {
-			case "panicWithContext":
-				expectedLevel = "panic"
-			case "fatalWithContext":
-				expectedLevel = "fatal"
-			}
-			if fake.ErrorLogs.Ctx[3] != expectedLevel {
-				t.Fatalf("expected zanzanaLevel=%q, got %#v (%#v)", expectedLevel, fake.ErrorLogs.Ctx[3], fake.ErrorLogs.Ctx)
+			if ctx[3] != tc.expectedLevel {
+				t.Fatalf("expected zanzanaLevel=%q, got %#v (%#v)", tc.expectedLevel, ctx[3], ctx)
 			}
 		})
 	}
 }
 
 func TestZanzanaLoggerContextMethodsPreserveLevelRouting(t *testing.T) {
-	testCases := []struct {
-		name               string
-		emit               func(*ZanzanaLogger)
-		expectedDebugCalls int
-		expectedInfoCalls  int
-		expectedWarnCalls  int
-		expectedErrorCalls int
-		expectedLevel      string
-	}{
+	testCases := []loggerFieldCase{
 		{
 			name: "debugWithContext",
 			emit: func(logger *ZanzanaLogger) {
 				logger.DebugWithContext(context.Background(), "debug message")
 			},
-			expectedDebugCalls: 1,
-			expectedLevel:      "debug",
+			targetLogger:  "debug",
+			expectedLevel: "debug",
 		},
 		{
 			name: "infoWithContext",
 			emit: func(logger *ZanzanaLogger) {
 				logger.InfoWithContext(context.Background(), "info message")
 			},
-			expectedInfoCalls: 1,
-			expectedLevel:     "info",
+			targetLogger:  "info",
+			expectedLevel: "info",
 		},
 		{
 			name: "warnWithContext",
 			emit: func(logger *ZanzanaLogger) {
 				logger.WarnWithContext(context.Background(), "warn message")
 			},
-			expectedWarnCalls: 1,
-			expectedLevel:     "warn",
+			targetLogger:  "warn",
+			expectedLevel: "warn",
 		},
 		{
 			name: "errorWithContext",
 			emit: func(logger *ZanzanaLogger) {
 				logger.ErrorWithContext(context.Background(), "error message")
 			},
-			expectedErrorCalls: 1,
-			expectedLevel:      "error",
+			targetLogger:  "error",
+			expectedLevel: "error",
 		},
 		{
 			name: "panicWithContext",
 			emit: func(logger *ZanzanaLogger) {
 				logger.PanicWithContext(context.Background(), "panic message")
 			},
-			expectedErrorCalls: 1,
-			expectedLevel:      "panic",
+			targetLogger:  "error",
+			expectedLevel: "panic",
 		},
 		{
 			name: "fatalWithContext",
 			emit: func(logger *ZanzanaLogger) {
 				logger.FatalWithContext(context.Background(), "fatal message")
 			},
-			expectedErrorCalls: 1,
-			expectedLevel:      "fatal",
+			targetLogger:  "error",
+			expectedLevel: "fatal",
 		},
 	}
 
@@ -802,38 +791,13 @@ func TestZanzanaLoggerContextMethodsPreserveLevelRouting(t *testing.T) {
 			logger := New(fake)
 
 			tc.emit(logger)
+			ctx := assertSingleTargetLoggerCallAndContext(t, fake, tc.targetLogger)
 
-			if fake.DebugLogs.Calls != tc.expectedDebugCalls {
-				t.Fatalf("unexpected debug calls: got=%d want=%d", fake.DebugLogs.Calls, tc.expectedDebugCalls)
-			}
-			if fake.InfoLogs.Calls != tc.expectedInfoCalls {
-				t.Fatalf("unexpected info calls: got=%d want=%d", fake.InfoLogs.Calls, tc.expectedInfoCalls)
-			}
-			if fake.WarnLogs.Calls != tc.expectedWarnCalls {
-				t.Fatalf("unexpected warn calls: got=%d want=%d", fake.WarnLogs.Calls, tc.expectedWarnCalls)
-			}
-			if fake.ErrorLogs.Calls != tc.expectedErrorCalls {
-				t.Fatalf("unexpected error calls: got=%d want=%d", fake.ErrorLogs.Calls, tc.expectedErrorCalls)
-			}
-
-			var ctx []any
-			switch tc.expectedLevel {
-			case "debug":
-				ctx = fake.DebugLogs.Ctx
-			case "info":
-				ctx = fake.InfoLogs.Ctx
-			case "warn":
-				ctx = fake.WarnLogs.Ctx
-			default:
-				ctx = fake.ErrorLogs.Ctx
-			}
-
-			if len(ctx) < 4 {
+			if len(ctx) != 4 {
 				t.Fatalf("expected structured level fields, got %#v", ctx)
 			}
-			if ctx[2] != "zanzanaLevel" || ctx[3] != tc.expectedLevel {
-				t.Fatalf("expected zanzanaLevel=%q, got %#v", tc.expectedLevel, ctx)
-			}
+			expectedMessage := tc.expectedLevel + " message"
+			assertMessageAndLevel(t, ctx, expectedMessage, tc.expectedLevel)
 		})
 	}
 }
