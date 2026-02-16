@@ -649,6 +649,14 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 	}
 }
 
+func TestAPIKey_parseAndValidateAPIKeyID_EmptyRawKeyIDFallback(t *testing.T) {
+	client := ProvideAPIKey(&updateLastUsedService{}, tracing.InitializeTracerForTest())
+
+	apiKeyID, ok := client.parseAndValidateAPIKeyID(baseAPIKeyIDString, "", validationSourceSync)
+	assert.True(t, ok)
+	assert.Equal(t, parsedAPIKeyIDValue, apiKeyID)
+}
+
 func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should call update when skip marker is absent", func(t *testing.T) {
 		service := newUpdateLastUsedService()

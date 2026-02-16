@@ -250,6 +250,10 @@ func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string, rawKeyID s
 }
 
 func (s *APIKey) parseAndValidateAPIKeyID(keyID string, rawKeyID string, validationSource string) (int64, bool) {
+	if rawKeyID == "" {
+		rawKeyID = keyID
+	}
+
 	if !containsOnlyDigits(keyID) {
 		s.log.Warn("Invalid API key ID", "apiKeyID", keyID, "apiKeyIDRaw", rawKeyID, "validationReason", validationReasonMustContainDigitsOnly, "validationSource", validationSource)
 		return 0, false
