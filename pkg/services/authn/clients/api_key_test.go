@@ -38,6 +38,7 @@ const (
 	fullwidthAPIKeyIDString                = "１２３"
 	leadingZeroAPIKeyIDString              = "000123"
 	internalWhitespaceAPIKeyIDString       = "12 3"
+	baseAPIKeyIDString                     = "123"
 	parsedAPIKeyIDValue              int64 = 123
 	maxInt64APIKeyIDValue            int64 = 9223372036854775807
 )
@@ -320,7 +321,7 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		service := &updateLastUsedService{}
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 
-		client.syncAPIKeyLastUsed("123")
+		client.syncAPIKeyLastUsed(baseAPIKeyIDString)
 
 		assert.True(t, service.called)
 		assertUpdatedID(t, service, parsedAPIKeyIDValue)
@@ -468,7 +469,7 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 	}{
 		{
 			name:       "valid numeric id",
-			keyID:      "123",
+			keyID:      baseAPIKeyIDString,
 			expectedID: 123,
 			expectedOK: true,
 		},
@@ -745,6 +746,13 @@ func TestAPIKey_Hook(t *testing.T) {
 		assert.NoError(t, err)
 
 		assertNoUpdateCall(t, service)
+	})
+
+	t.Run("should skip update when request is nil and tracer is nil", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, nil)
+
+		assertHookNoUpdate(t, context.Background(), client, nil, service)
 	})
 
 	t.Run("should skip update when both context and request are nil", func(t *testing.T) {
