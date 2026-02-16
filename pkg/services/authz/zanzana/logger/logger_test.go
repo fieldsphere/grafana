@@ -38,7 +38,7 @@ func TestZanzanaLoggerLevelRouting(t *testing.T) {
 }
 
 func TestZanzanaLoggerInfoFieldNormalization(t *testing.T) {
-	testCases := []infoFieldCase{
+	testCases := []targetFieldCase{
 		{
 			name: "adds structured context",
 			emit: func(logger *ZanzanaLogger) {
@@ -118,7 +118,7 @@ func TestZanzanaLoggerInfoFieldNormalization(t *testing.T) {
 		},
 	}
 
-	runInfoFieldMatrix(t, testCases, "token checked")
+	runTargetFieldMatrix(t, "info", "token checked", "info", testCases)
 }
 
 func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
@@ -482,7 +482,7 @@ func TestZanzanaLoggerUnknownLevelFallsBackToInfo(t *testing.T) {
 }
 
 func TestZanzanaLoggerUnknownLevelFieldPayloadsIncludeNormalizedFields(t *testing.T) {
-	testCases := []unknownLevelFieldCase{
+	testCases := []targetFieldCase{
 		{
 			name: "flat fields",
 			emit: func(logger *ZanzanaLogger) {
@@ -530,7 +530,7 @@ func TestZanzanaLoggerUnknownLevelFieldPayloadsIncludeNormalizedFields(t *testin
 		},
 	}
 
-	runUnknownLevelFieldMatrix(t, testCases, "trace message", "trace")
+	runTargetFieldMatrix(t, "info", "trace message", "trace", testCases)
 }
 
 func TestZanzanaLoggerInfoWithContextAndNestedNamespaceFieldKeepsNestedPayload(t *testing.T) {
@@ -1123,13 +1123,7 @@ type loggerFieldCase struct {
 	expectedMessage string
 }
 
-type unknownLevelFieldCase struct {
-	name         string
-	emit         func(*ZanzanaLogger)
-	assertFields func(*testing.T, []any)
-}
-
-type infoFieldCase struct {
+type targetFieldCase struct {
 	name         string
 	emit         func(*ZanzanaLogger)
 	expectFields bool
@@ -1187,23 +1181,7 @@ func runLoggerLevelMatrix(t *testing.T, testCases []loggerFieldCase) {
 	}
 }
 
-func runUnknownLevelFieldMatrix(t *testing.T, testCases []unknownLevelFieldCase, expectedMessage, expectedLevel string) {
-	t.Helper()
-
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			fake := &logtest.Fake{}
-			logger := New(fake)
-
-			tc.emit(logger)
-			fields := assertTargetLevelContext(t, fake, "info", expectedMessage, expectedLevel, true)
-			tc.assertFields(t, fields)
-		})
-	}
-}
-
-func runInfoFieldMatrix(t *testing.T, testCases []infoFieldCase, expectedMessage string) {
+func runTargetFieldMatrix(t *testing.T, targetLogger, expectedMessage, expectedLevel string, testCases []targetFieldCase) {
 	t.Helper()
 
 	for _, tc := range testCases {
@@ -1215,7 +1193,7 @@ func runInfoFieldMatrix(t *testing.T, testCases []infoFieldCase, expectedMessage
 			tc.emit(logger)
 
 			expectFields := tc.expectFields || tc.assertFields != nil
-			fields := assertTargetLevelContext(t, fake, "info", expectedMessage, "info", expectFields)
+			fields := assertTargetLevelContext(t, fake, targetLogger, expectedMessage, expectedLevel, expectFields)
 			if tc.assertFields != nil {
 				tc.assertFields(t, fields)
 			}
