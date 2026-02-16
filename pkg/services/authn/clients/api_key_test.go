@@ -477,16 +477,6 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assertUpdatedID(t, service, maxInt64APIKeyIDValue)
 	})
 
-	t.Run("should update last used for max int64 key id with control-character whitespace", func(t *testing.T) {
-		service := &updateLastUsedService{}
-		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-
-		client.syncAPIKeyLastUsed("\n" + maxInt64APIKeyIDString + "\t")
-
-		assert.True(t, service.called)
-		assertUpdatedID(t, service, maxInt64APIKeyIDValue)
-	})
-
 	t.Run("should still attempt update when service returns error", func(t *testing.T) {
 		service := newUpdateLastUsedServiceWithExpectedError(errUpdateFailed)
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -550,6 +540,16 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 
 		client.syncAPIKeyLastUsed(signedAPIKeyIDWithControlWhitespace)
 
+		assert.False(t, service.called)
+	})
+
+	t.Run("should skip signed key id with control whitespace before panic-capable update service", func(t *testing.T) {
+		service := &updateLastUsedService{panicValue: "boom"}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		assert.NotPanics(t, func() {
+			client.syncAPIKeyLastUsed(signedAPIKeyIDWithControlWhitespace)
+		})
 		assert.False(t, service.called)
 	})
 
@@ -892,6 +892,15 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, nil)
 		assertHookNoUpdateForKeyID(t, nil, client, signedAPIKeyIDWithControlWhitespace, false, service)
+	})
+
+	t.Run("should skip signed key id with control whitespace before panic-capable update service", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		service.panicValue = "boom"
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		assertHookNoUpdateForKeyID(t, context.Background(), client, signedAPIKeyIDWithControlWhitespace, false, service)
+		assert.False(t, service.called)
 	})
 
 	t.Run("should skip update when key id uses arabic-indic digits", func(t *testing.T) {
