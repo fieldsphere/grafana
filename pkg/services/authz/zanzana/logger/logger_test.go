@@ -343,14 +343,12 @@ func TestZanzanaLoggerWithContextNormalization(t *testing.T) {
 			},
 		},
 		{
-			name:          "without fields keeps empty context",
-			withFields:    nil,
-			expectContext: false,
+			name:       "without fields keeps empty context",
+			withFields: nil,
 		},
 		{
-			name:          "only skipped fields keep empty context",
-			withFields:    []zap.Field{zap.Skip()},
-			expectContext: false,
+			name:       "only skipped fields keep empty context",
+			withFields: []zap.Field{zap.Skip()},
 		},
 		{
 			name:       "mixed skipped fields filter skipped",
@@ -538,11 +536,10 @@ func TestZanzanaLoggerContextMethodsWithNestedNamespaceIncludeStructuredFields(t
 }
 
 type loggerFieldCase struct {
-	name            string
-	emit            func(*ZanzanaLogger)
-	targetLogger    string
-	expectedLevel   string
-	expectedMessage string
+	name          string
+	emit          func(*ZanzanaLogger)
+	targetLogger  string
+	expectedLevel string
 }
 
 type targetFieldCase struct {
@@ -553,10 +550,9 @@ type targetFieldCase struct {
 }
 
 type withContextCase struct {
-	name          string
-	withFields    []zap.Field
-	expectContext bool
-	assertFields  func(*testing.T, []any)
+	name         string
+	withFields   []zap.Field
+	assertFields func(*testing.T, []any)
 }
 
 func standardMethodCases(message string, withContext bool, fields ...zap.Field) []loggerFieldCase {
@@ -689,10 +685,7 @@ func runLoggerFieldMatrix(t *testing.T, testCases []loggerFieldCase, expectedMes
 
 			tc.emit(logger)
 
-			message := tc.expectedMessage
-			if message == "" {
-				message = expectedMessage
-			}
+			message := expectedMessage
 			if message == "" {
 				message = tc.expectedLevel + " message"
 			}
@@ -740,8 +733,7 @@ func runWithContextMatrix(t *testing.T, testCases []withContextCase) {
 				t.Fatal("expected non-nil logger")
 			}
 
-			expectContext := tc.expectContext || tc.assertFields != nil
-			if !expectContext {
+			if tc.assertFields == nil {
 				assertSingleNewCallWithoutContext(t, capturing)
 				return
 			}
