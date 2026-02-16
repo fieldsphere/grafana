@@ -120,12 +120,12 @@ func TestRuleguardRecoverVariableKeyMatchersUseFullPanicKeySet(t *testing.T) {
 			continue
 		}
 
-		scopeText := blockScopeText(lines, blocks, i)
-		if !strings.Contains(scopeText, `m["key"].Text.Matches(`) {
+		postamble := blockPostambleText(lines, blocks, i)
+		if !strings.Contains(postamble, `m["key"].Text.Matches(`) {
 			t.Fatalf("recover matcher block at line %d uses $key but has no m[\"key\"].Text.Matches(...) guard", block.startLine)
 		}
 
-		if !strings.Contains(scopeText, requiredKeySet) {
+		if !strings.Contains(postamble, requiredKeySet) {
 			t.Fatalf("recover matcher block at line %d uses $key but does not enforce %s", block.startLine, requiredKeySet)
 		}
 	}
@@ -142,8 +142,8 @@ func TestRuleguardRecoverVariableKeyMatchersReportPanicValueGuidance(t *testing.
 			continue
 		}
 
-		scopeText := blockScopeText(lines, blocks, i)
-		if !strings.Contains(scopeText, "Report(") || !strings.Contains(scopeText, "\"panicValue\"") {
+		reportText := blockReportText(lines, blocks, i)
+		if reportText == "" || !strings.Contains(reportText, "\"panicValue\"") {
 			t.Fatalf("recover matcher block at line %d does not report canonical panicValue guidance", block.startLine)
 		}
 	}
@@ -219,14 +219,24 @@ func loadRuleguardRulesContent(t *testing.T) string {
 	return string(content)
 }
 
-func blockScopeText(lines []string, blocks []matchBlock, idx int) string {
-	start := blocks[idx].startLine - 1
+func blockPostambleText(lines []string, blocks []matchBlock, idx int) string {
+	start := blocks[idx].endLine
 	end := len(lines)
 	if idx+1 < len(blocks) {
 		end = blocks[idx+1].startLine - 1
 	}
 
 	return strings.Join(lines[start:end], "\n")
+}
+
+func blockReportText(lines []string, blocks []matchBlock, idx int) string {
+	postamble := blockPostambleText(lines, blocks, idx)
+	reportStart := strings.Index(postamble, "Report(")
+	if reportStart == -1 {
+		return ""
+	}
+
+	return postamble[reportStart:]
 }
 
 func matcherLineSet(blocks []matchBlock) map[string]struct{} {
