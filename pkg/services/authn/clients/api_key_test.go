@@ -550,6 +550,12 @@ func TestAPIKey_Hook(t *testing.T) {
 		assertHookUpdateForKeyID(t, context.Background(), client, "456", service)
 	})
 
+	t.Run("should call update when tracer and context are nil", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, nil)
+		assertHookUpdateForKeyID(t, nil, client, "456", service)
+	})
+
 	t.Run("should handle nil context when skip marker is absent", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
@@ -589,6 +595,12 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when key id is invalid", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		assertHookNoUpdateForKeyID(t, context.Background(), client, "bad-id", false, service)
+	})
+
+	t.Run("should skip update when key id is invalid and tracer is nil", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, nil)
 		assertHookNoUpdateForKeyID(t, context.Background(), client, "bad-id", false, service)
 	})
 
