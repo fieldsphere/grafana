@@ -357,13 +357,14 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 					return true
 				}
 
-				for argIdx, arg := range call.Args {
-					if spreadArg, ok := arg.(*ast.Ellipsis); ok {
-						if alias := recoverAliasViolationInSliceExpr(spreadArg.Elt, recoverDerived, badSpreadSlices, constValues, constNameValues, localNames); alias != "" {
-							position := fset.Position(spreadArg.Pos())
-							violations = append(violations, position.String()+": recover logging uses forbidden key alias "+strconv.Quote(alias))
-						}
+				if spreadExpr, ok := spreadArgExpr(call); ok {
+					if alias := recoverAliasViolationInSliceExpr(spreadExpr, recoverDerived, badSpreadSlices, constValues, constNameValues, localNames); alias != "" {
+						position := fset.Position(spreadExpr.Pos())
+						violations = append(violations, position.String()+": recover logging uses forbidden key alias "+strconv.Quote(alias))
 					}
+				}
+
+				for argIdx, arg := range call.Args {
 					if argIdx+1 >= len(call.Args) {
 						continue
 					}
@@ -439,14 +440,14 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 					return true
 				}
 
-				for argIdx, arg := range call.Args {
-					if spreadArg, ok := arg.(*ast.Ellipsis); ok {
-						if alias := recoverAliasViolationInSliceExpr(spreadArg.Elt, recoverDerived, badSpreadSlices, constValues, constNameValues, localNames); alias != "" {
-							position := fset.Position(spreadArg.Pos())
-							violationSet[position.String()+": recover-derived spread args must use key \"panicValue\", found "+strconv.Quote(alias)] = struct{}{}
-						}
+				if spreadExpr, ok := spreadArgExpr(call); ok {
+					if alias := recoverAliasViolationInSliceExpr(spreadExpr, recoverDerived, badSpreadSlices, constValues, constNameValues, localNames); alias != "" {
+						position := fset.Position(spreadExpr.Pos())
+						violationSet[position.String()+": recover-derived spread args must use key \"panicValue\", found "+strconv.Quote(alias)] = struct{}{}
 					}
+				}
 
+				for argIdx, arg := range call.Args {
 					if !exprDependsOnRecover(arg, recoverDerived) {
 						continue
 					}
@@ -772,6 +773,55 @@ func f() {
 	}
 }
 
+func TestRecoverAliasViolationInSliceExprDetectsSpreadCompositeLiteral(t *testing.T) {
+	const src = `package p
+
+func f(logger interface{ Error(string, ...any) }) {
+	panicVal := recover()
+	logger.Error("msg", []any{"reason", panicVal}...)
+}
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "spread_literal.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse source: %v", err)
+	}
+
+	var body *ast.BlockStmt
+	var spreadExpr ast.Expr
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok || fn.Name.Name != "f" {
+			continue
+		}
+		body = fn.Body
+		inspectBodyWithoutNestedFuncLits(body, func(node ast.Node) bool {
+			call, ok := node.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			if expr, ok := spreadArgExpr(call); ok {
+				spreadExpr = expr
+				return false
+			}
+			return true
+		})
+	}
+	if body == nil || spreadExpr == nil {
+		t.Fatal("failed to locate spread expression in parsed function")
+	}
+
+	constValues := stringConstValueMap(file)
+	constNameValues := constNameValueMap(constValues)
+	recoverDerived := recoverDerivedIdentifiers(body)
+	localNames := declaredNamesInBody(body)
+
+	alias := recoverAliasViolationInSliceExpr(spreadExpr, recoverDerived, map[string]string{}, constValues, constNameValues, localNames)
+	if alias != "reason" {
+		t.Fatalf("expected spread expression to resolve forbidden alias \"reason\", got %q", alias)
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
@@ -925,6 +975,13 @@ func selectorName(expr ast.Expr) (string, bool) {
 		return "", false
 	}
 	return sel.Sel.Name, true
+}
+
+func spreadArgExpr(call *ast.CallExpr) (ast.Expr, bool) {
+	if call == nil || !call.Ellipsis.IsValid() || len(call.Args) == 0 {
+		return nil, false
+	}
+	return call.Args[len(call.Args)-1], true
 }
 
 func structuredLogMethodNames() map[string]struct{} {
