@@ -191,13 +191,13 @@ func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) 
 	defer span.End()
 
 	if r == nil {
-		s.log.Warn("Skipping API key last-used hook", "skipReason", skipReasonRequestIsNil)
+		s.log.Warn("Skipping API key last-used hook", "skipReason", skipReasonRequestIsNil, "validationSource", validationSourceHook)
 		return nil
 	}
 
 	keyID := strings.TrimSpace(r.GetMeta(metaKeyID))
 	if r.GetMeta(metaKeySkipLastUsed) != "" {
-		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonSkipMarkerPresent, "apiKeyID", keyID)
+		s.log.Debug("Skipping API key last-used hook", "skipReason", skipReasonSkipMarkerPresent, "apiKeyID", keyID, "validationSource", validationSourceHook)
 		return nil
 	}
 
