@@ -65,6 +65,18 @@ func assertUpdatedID(t *testing.T, service *updateLastUsedService, expectedID in
 	assert.Equal(t, expectedID, service.updatedID)
 }
 
+func newHookRequestWithMeta(keyID string, shouldSkipLastUsed bool) *authn.Request {
+	req := &authn.Request{}
+	if keyID != "" {
+		req.SetMeta(metaKeyID, keyID)
+	}
+	if shouldSkipLastUsed {
+		req.SetMeta(metaKeySkipLastUsed, "true")
+	}
+
+	return req
+}
+
 func TestAPIKey_Authenticate(t *testing.T) {
 	type TestCase struct {
 		desc             string
@@ -480,8 +492,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should call update when skip marker is absent", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "456")
+		req := newHookRequestWithMeta("456", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -493,8 +504,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should call update when tracer is nil", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, nil)
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "456")
+		req := newHookRequestWithMeta("456", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -506,8 +516,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should handle nil context when skip marker is absent", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "457")
+		req := newHookRequestWithMeta("457", false)
 
 		err := client.Hook(nil, nil, req)
 		assert.NoError(t, err)
@@ -519,8 +528,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should trim key id metadata before update", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, " 458 ")
+		req := newHookRequestWithMeta(" 458 ", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -532,8 +540,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should trim control whitespace in key id metadata before update", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "\n459\t")
+		req := newHookRequestWithMeta("\n459\t", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -545,8 +552,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should update when key id metadata has leading zeros", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, leadingZeroAPIKeyIDString)
+		req := newHookRequestWithMeta(leadingZeroAPIKeyIDString, false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -558,8 +564,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should update when key id is max int64", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, maxInt64APIKeyIDString)
+		req := newHookRequestWithMeta(maxInt64APIKeyIDString, false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -571,9 +576,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when skip marker is present", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "456")
-		req.SetMeta(metaKeySkipLastUsed, "true")
+		req := newHookRequestWithMeta("456", true)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -584,8 +587,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when key id is invalid", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "bad-id")
+		req := newHookRequestWithMeta("bad-id", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -596,8 +598,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when key id contains a sign", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, signedAPIKeyIDString)
+		req := newHookRequestWithMeta(signedAPIKeyIDString, false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -608,8 +609,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when key id uses arabic-indic digits", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, arabicIndicAPIKeyIDString)
+		req := newHookRequestWithMeta(arabicIndicAPIKeyIDString, false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -620,8 +620,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when key id uses fullwidth digits", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, fullwidthAPIKeyIDString)
+		req := newHookRequestWithMeta(fullwidthAPIKeyIDString, false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -632,8 +631,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when key id metadata has internal whitespace", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, internalWhitespaceAPIKeyIDString)
+		req := newHookRequestWithMeta(internalWhitespaceAPIKeyIDString, false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -644,8 +642,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when key id overflows int64", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, overflowInt64APIKeyIDString)
+		req := newHookRequestWithMeta(overflowInt64APIKeyIDString, false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -656,8 +653,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when key id is non-positive", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "-1")
+		req := newHookRequestWithMeta("-1", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -668,8 +664,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when key id is zero", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "0")
+		req := newHookRequestWithMeta("0", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -680,7 +675,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when key id is missing", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
+		req := newHookRequestWithMeta("", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -691,8 +686,7 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when key id metadata is whitespace only", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "   ")
+		req := newHookRequestWithMeta("   ", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -704,7 +698,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		service.panicValue = "boom"
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
+		req := newHookRequestWithMeta("", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -717,8 +711,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		service.panicValue = "boom"
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "789")
+		req := newHookRequestWithMeta("789", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -731,9 +724,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		service.panicValue = "boom"
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "789")
-		req.SetMeta(metaKeySkipLastUsed, "true")
+		req := newHookRequestWithMeta("789", true)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -745,8 +736,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		service.ExpectedError = errors.New("update failed")
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "987")
+		req := newHookRequestWithMeta("987", false)
 
 		err := client.Hook(context.Background(), nil, req)
 		assert.NoError(t, err)
@@ -759,8 +749,7 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		service.blockCh = make(chan struct{})
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := &authn.Request{}
-		req.SetMeta(metaKeyID, "654")
+		req := newHookRequestWithMeta("654", false)
 
 		doneCh := make(chan error, 1)
 		go func() {
