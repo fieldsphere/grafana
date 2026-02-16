@@ -9,6 +9,7 @@ import (
 
 type matchBlock struct {
 	startLine int
+	endLine   int
 	lines     []string
 }
 
@@ -109,39 +110,42 @@ func TestRuleguardRecoverPanicAndFatalMatchersStaySymmetric(t *testing.T) {
 
 func TestRuleguardRecoverVariableKeyMatchersUseFullPanicKeySet(t *testing.T) {
 	content := loadRuleguardRulesContent(t)
+	lines := strings.Split(content, "\n")
+	blocks := loadRuleguardMatchBlocks(t)
 	const requiredKeySet = "^[\\\"`](error|errorMessage|reason|panic)[\\\"`]$"
 
-	offset := 0
-	for {
-		start := strings.Index(content[offset:], "m.Match(")
-		if start == -1 {
-			break
-		}
-		start += offset
-
-		report := strings.Index(content[start:], ".Report(")
-		if report == -1 {
-			break
-		}
-		report += start
-
-		blockText := content[start:report]
+	for i, block := range blocks {
+		blockText := strings.Join(block.lines, "\n")
 		if !strings.Contains(blockText, "recover()") || !strings.Contains(blockText, "$key") {
-			offset = report + len(".Report(")
 			continue
 		}
 
-		if !strings.Contains(blockText, `m["key"].Text.Matches(`) {
-			line := strings.Count(content[:start], "\n") + 1
-			t.Fatalf("recover matcher block at line %d uses $key but has no m[\"key\"].Text.Matches(...) guard", line)
+		scopeText := blockScopeText(lines, blocks, i)
+		if !strings.Contains(scopeText, `m["key"].Text.Matches(`) {
+			t.Fatalf("recover matcher block at line %d uses $key but has no m[\"key\"].Text.Matches(...) guard", block.startLine)
 		}
 
-		if !strings.Contains(blockText, requiredKeySet) {
-			line := strings.Count(content[:start], "\n") + 1
-			t.Fatalf("recover matcher block at line %d uses $key but does not enforce %s", line, requiredKeySet)
+		if !strings.Contains(scopeText, requiredKeySet) {
+			t.Fatalf("recover matcher block at line %d uses $key but does not enforce %s", block.startLine, requiredKeySet)
+		}
+	}
+}
+
+func TestRuleguardRecoverVariableKeyMatchersReportPanicValueGuidance(t *testing.T) {
+	content := loadRuleguardRulesContent(t)
+	lines := strings.Split(content, "\n")
+	blocks := loadRuleguardMatchBlocks(t)
+
+	for i, block := range blocks {
+		blockText := strings.Join(block.lines, "\n")
+		if !strings.Contains(blockText, "recover()") || !strings.Contains(blockText, "$key") {
+			continue
 		}
 
-		offset = report + len(".Report(")
+		scopeText := blockScopeText(lines, blocks, i)
+		if !strings.Contains(scopeText, "Report(") || !strings.Contains(scopeText, "\"panicValue\"") {
+			t.Fatalf("recover matcher block at line %d does not report canonical panicValue guidance", block.startLine)
+		}
 	}
 }
 
@@ -169,6 +173,7 @@ func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 				copy(copied, current)
 				blocks = append(blocks, matchBlock{
 					startLine: startLine,
+					endLine:   i + 1,
 					lines:     copied,
 				})
 				inBlock = false
@@ -183,6 +188,7 @@ func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 				copy(copied, current)
 				blocks = append(blocks, matchBlock{
 					startLine: startLine,
+					endLine:   i + 1,
 					lines:     copied,
 				})
 				inBlock = false
@@ -211,6 +217,16 @@ func loadRuleguardRulesContent(t *testing.T) string {
 	}
 
 	return string(content)
+}
+
+func blockScopeText(lines []string, blocks []matchBlock, idx int) string {
+	start := blocks[idx].startLine - 1
+	end := len(lines)
+	if idx+1 < len(blocks) {
+		end = blocks[idx+1].startLine - 1
+	}
+
+	return strings.Join(lines[start:end], "\n")
 }
 
 func matcherLineSet(blocks []matchBlock) map[string]struct{} {
