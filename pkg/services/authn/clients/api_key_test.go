@@ -84,6 +84,12 @@ func assertHookNoUpdate(t *testing.T, hookCtx context.Context, client *APIKey, r
 	assertNoUpdateCall(t, service)
 }
 
+func assertHookNoUpdateForKeyID(t *testing.T, hookCtx context.Context, client *APIKey, keyID string, shouldSkipLastUsed bool, service *updateLastUsedService) {
+	t.Helper()
+
+	assertHookNoUpdate(t, hookCtx, client, newHookRequestWithMeta(keyID, shouldSkipLastUsed), service)
+}
+
 func newHookRequestWithMeta(keyID string, shouldSkipLastUsed bool) *authn.Request {
 	req := &authn.Request{}
 	if keyID != "" {
@@ -577,98 +583,75 @@ func TestAPIKey_Hook(t *testing.T) {
 	t.Run("should skip update when skip marker is present", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta("456", true)
-
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, "456", true, service)
 	})
 
 	t.Run("should skip update when key id is invalid", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta("bad-id", false)
-
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, "bad-id", false, service)
 	})
 
 	t.Run("should skip update when key id contains a sign", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta(signedAPIKeyIDString, false)
-
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, signedAPIKeyIDString, false, service)
 	})
 
 	t.Run("should skip update when key id uses arabic-indic digits", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta(arabicIndicAPIKeyIDString, false)
-
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, arabicIndicAPIKeyIDString, false, service)
 	})
 
 	t.Run("should skip update when key id uses fullwidth digits", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta(fullwidthAPIKeyIDString, false)
-
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, fullwidthAPIKeyIDString, false, service)
 	})
 
 	t.Run("should skip update when key id metadata has internal whitespace", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta(internalWhitespaceAPIKeyIDString, false)
-
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, internalWhitespaceAPIKeyIDString, false, service)
 	})
 
 	t.Run("should skip update when key id overflows int64", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta(overflowInt64APIKeyIDString, false)
-
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, overflowInt64APIKeyIDString, false, service)
 	})
 
 	t.Run("should skip update when key id is non-positive", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta("-1", false)
-
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, "-1", false, service)
 	})
 
 	t.Run("should skip update when key id is zero", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta("0", false)
-
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, "0", false, service)
 	})
 
 	t.Run("should skip update when key id is missing", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta("", false)
-
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, "", false, service)
 	})
 
 	t.Run("should skip update when key id metadata is whitespace only", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta("   ", false)
-
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, "   ", false, service)
 	})
 
 	t.Run("should skip missing key id before panic-capable update service", func(t *testing.T) {
 		service := newUpdateLastUsedService()
 		service.panicValue = "boom"
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta("", false)
 
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, "", false, service)
 		assert.False(t, service.called)
 	})
 
@@ -683,9 +666,8 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		service.panicValue = "boom"
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
-		req := newHookRequestWithMeta("789", true)
 
-		assertHookNoUpdate(t, context.Background(), client, req, service)
+		assertHookNoUpdateForKeyID(t, context.Background(), client, "789", true, service)
 	})
 
 	t.Run("should continue when update returns an error", func(t *testing.T) {
