@@ -1,7 +1,7 @@
 import {appendFileSync, writeFileSync} from 'fs';
 import {exec as execCallback} from 'node:child_process';
 import {promisify} from 'node:util';
-import {logChangelogNotice} from './logging.js';
+import {logChangelogNotice, escapeData} from './logging.js';
 import {findPreviousVersion, semverParse} from "./semver.js";
 
 const LOG = (msg) => logChangelogNotice(msg);
