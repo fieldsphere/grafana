@@ -76,6 +76,29 @@ func TestZanzanaLoggerAddsStructuredContext(t *testing.T) {
 	}
 }
 
+func TestZanzanaLoggerInfoWithoutFieldsOmitsZanzanaFields(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.Info("token checked")
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
+	}
+	if fake.InfoLogs.Message != "Zanzana logger event" {
+		t.Fatalf("unexpected message: %q", fake.InfoLogs.Message)
+	}
+	if len(fake.InfoLogs.Ctx) != 4 {
+		t.Fatalf("expected only message+level fields, got %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[0] != "zanzanaMessage" || fake.InfoLogs.Ctx[1] != "token checked" {
+		t.Fatalf("unexpected message context: %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "info" {
+		t.Fatalf("unexpected level context: %#v", fake.InfoLogs.Ctx)
+	}
+}
+
 func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
 	args := zapFieldsToArgs(
 		[]zap.Field{
@@ -343,6 +366,26 @@ func TestZanzanaLoggerContextMethodsPreserveLevelRouting(t *testing.T) {
 				t.Fatalf("expected zanzanaLevel=%q, got %#v", tc.expectedLevel, ctx)
 			}
 		})
+	}
+}
+
+func TestZanzanaLoggerUnknownLevelFallsBackToInfo(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.emit("trace", "trace message")
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected fallback to info logger, got %d info calls", fake.InfoLogs.Calls)
+	}
+	if fake.ErrorLogs.Calls != 0 || fake.WarnLogs.Calls != 0 || fake.DebugLogs.Calls != 0 {
+		t.Fatalf("unexpected non-info calls: debug=%d info=%d warn=%d error=%d", fake.DebugLogs.Calls, fake.InfoLogs.Calls, fake.WarnLogs.Calls, fake.ErrorLogs.Calls)
+	}
+	if len(fake.InfoLogs.Ctx) != 4 {
+		t.Fatalf("expected message+level fields, got %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[2] != "zanzanaLevel" || fake.InfoLogs.Ctx[3] != "trace" {
+		t.Fatalf("unexpected fallback level context: %#v", fake.InfoLogs.Ctx)
 	}
 }
 
