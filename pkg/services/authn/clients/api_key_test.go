@@ -340,6 +340,30 @@ func TestAPIKey_getTokenFromRequest(t *testing.T) {
 
 		assert.Equal(t, "token123", getTokenFromRequest(req))
 	})
+
+	t.Run("should return token from basic auth when username is api_key", func(t *testing.T) {
+		req := &authn.Request{
+			HTTPRequest: &http.Request{
+				Header: map[string][]string{
+					"Authorization": {encodeBasicAuth("api_key", "basicToken")},
+				},
+			},
+		}
+
+		assert.Equal(t, "basicToken", getTokenFromRequest(req))
+	})
+
+	t.Run("should return empty token from basic auth when username is not api_key", func(t *testing.T) {
+		req := &authn.Request{
+			HTTPRequest: &http.Request{
+				Header: map[string][]string{
+					"Authorization": {encodeBasicAuth("user", "basicToken")},
+				},
+			},
+		}
+
+		assert.Equal(t, "", getTokenFromRequest(req))
+	})
 }
 
 func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
