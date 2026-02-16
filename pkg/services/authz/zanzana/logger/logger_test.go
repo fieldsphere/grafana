@@ -65,14 +65,12 @@ func TestZanzanaLoggerInfoFieldNormalization(t *testing.T) {
 			emit: func(logger *ZanzanaLogger) {
 				logger.Info("token checked")
 			},
-			expectFields: false,
 		},
 		{
 			name: "skipped field omits zanzana fields",
 			emit: func(logger *ZanzanaLogger) {
 				logger.Info("token checked", zap.Skip())
 			},
-			expectFields: false,
 		},
 		{
 			name: "namespace field keeps nested payload",
@@ -611,7 +609,6 @@ type loggerFieldCase struct {
 type targetFieldCase struct {
 	name         string
 	emit         func(*ZanzanaLogger)
-	expectFields bool
 	assertFields func(*testing.T, []any)
 }
 
@@ -763,11 +760,13 @@ func runTargetFieldMatrix(t *testing.T, targetLogger, expectedMessage, expectedL
 
 			tc.emit(logger)
 
-			expectFields := tc.expectFields || tc.assertFields != nil
-			fields := assertTargetLevelContext(t, fake, targetLogger, expectedMessage, expectedLevel, expectFields)
-			if tc.assertFields != nil {
-				tc.assertFields(t, fields)
+			if tc.assertFields == nil {
+				assertTargetLevelContext(t, fake, targetLogger, expectedMessage, expectedLevel, false)
+				return
 			}
+
+			fields := assertTargetLevelContext(t, fake, targetLogger, expectedMessage, expectedLevel, true)
+			tc.assertFields(t, fields)
 		})
 	}
 }
