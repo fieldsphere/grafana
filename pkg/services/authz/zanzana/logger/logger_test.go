@@ -123,6 +123,54 @@ func TestZanzanaLoggerInfoWithSkippedFieldOmitsZanzanaFields(t *testing.T) {
 	}
 }
 
+func TestZanzanaLoggerInfoWithNamespaceFieldKeepsNestedPayload(t *testing.T) {
+	fake := &logtest.Fake{}
+	logger := New(fake)
+
+	logger.Info("token checked", zap.Namespace("auth"), zap.String("subject", "user-1"), zap.Int("attempt", 2))
+
+	if fake.InfoLogs.Calls != 1 {
+		t.Fatalf("expected 1 info call, got %d", fake.InfoLogs.Calls)
+	}
+	if len(fake.InfoLogs.Ctx) != 6 {
+		t.Fatalf("expected zanzana fields payload, got %#v", fake.InfoLogs.Ctx)
+	}
+	if fake.InfoLogs.Ctx[4] != "zanzanaFields" {
+		t.Fatalf("expected zanzanaFields key, got %#v", fake.InfoLogs.Ctx)
+	}
+
+	fields, ok := fake.InfoLogs.Ctx[5].([]any)
+	if !ok {
+		t.Fatalf("expected zanzana fields payload as []any, got %#v", fake.InfoLogs.Ctx[5])
+	}
+	if len(fields) != 2 {
+		t.Fatalf("unexpected zanzana fields length: got=%d want=%d (%#v)", len(fields), 2, fields)
+	}
+	if fields[0] != "auth" {
+		t.Fatalf("unexpected namespace key: %#v", fields)
+	}
+
+	namespacePayload, ok := fields[1].(map[string]any)
+	if !ok {
+		t.Fatalf("expected namespace payload as map[string]any, got %#v", fields[1])
+	}
+	if namespacePayload["subject"] != "user-1" {
+		t.Fatalf("unexpected namespace subject payload: %#v", namespacePayload)
+	}
+	switch attempt := namespacePayload["attempt"].(type) {
+	case int:
+		if attempt != 2 {
+			t.Fatalf("unexpected namespace attempt payload: %#v", namespacePayload)
+		}
+	case int64:
+		if attempt != 2 {
+			t.Fatalf("unexpected namespace attempt payload: %#v", namespacePayload)
+		}
+	default:
+		t.Fatalf("unexpected namespace attempt type: %T (%#v)", namespacePayload["attempt"], namespacePayload)
+	}
+}
+
 func TestZapFieldsToArgsPreservesTypedValues(t *testing.T) {
 	args := zapFieldsToArgs(
 		[]zap.Field{
