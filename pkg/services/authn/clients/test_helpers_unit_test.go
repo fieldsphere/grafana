@@ -6,6 +6,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana/pkg/components/satokengen"
 )
 
 func TestPtr(t *testing.T) {
@@ -89,4 +91,11 @@ func TestMustGenAPIKey(t *testing.T) {
 	require.NotEmpty(t, secret)
 	require.NotEmpty(t, hash)
 	require.NotEqual(t, secret, hash)
+
+	decoded, err := satokengen.Decode(secret)
+	require.NoError(t, err)
+
+	regeneratedHash, err := decoded.Hash()
+	require.NoError(t, err)
+	require.Equal(t, hash, regeneratedHash)
 }
