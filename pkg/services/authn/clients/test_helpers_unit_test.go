@@ -57,6 +57,11 @@ func TestEncodeBasicAuth(t *testing.T) {
 			password: "",
 		},
 		{
+			name:     "empty username",
+			username: "",
+			password: "secret",
+		},
+		{
 			name:     "password with colon",
 			username: "api_key",
 			password: "sec:ret",
