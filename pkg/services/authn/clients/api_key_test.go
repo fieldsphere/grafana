@@ -452,6 +452,16 @@ func TestAPIKey_syncAPIKeyLastUsed(t *testing.T) {
 		assertUpdatedID(t, service, maxInt64APIKeyIDValue)
 	})
 
+	t.Run("should update last used for max int64 key id with surrounding whitespace", func(t *testing.T) {
+		service := &updateLastUsedService{}
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+
+		client.syncAPIKeyLastUsed(" " + maxInt64APIKeyIDString + " ")
+
+		assert.True(t, service.called)
+		assertUpdatedID(t, service, maxInt64APIKeyIDValue)
+	})
+
 	t.Run("should still attempt update when service returns error", func(t *testing.T) {
 		service := &updateLastUsedService{
 			Service: apikeytest.Service{
@@ -609,6 +619,12 @@ func TestAPIKey_parseAndValidateAPIKeyID(t *testing.T) {
 			expectedOK: true,
 		},
 		{
+			name:       "valid max int64 id with surrounding whitespace",
+			rawKeyID:   " " + maxInt64APIKeyIDString + " ",
+			expectedID: maxInt64APIKeyIDValue,
+			expectedOK: true,
+		},
+		{
 			name:       "empty id",
 			rawKeyID:   "",
 			expectedID: 0,
@@ -721,6 +737,12 @@ func TestAPIKey_Hook(t *testing.T) {
 		service := newUpdateLastUsedService()
 		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
 		assertHookUpdateForKeyID(t, context.Background(), client, maxInt64APIKeyIDString, service)
+	})
+
+	t.Run("should update when key id is max int64 with surrounding whitespace", func(t *testing.T) {
+		service := newUpdateLastUsedService()
+		client := ProvideAPIKey(service, tracing.InitializeTracerForTest())
+		assertHookUpdateForKeyID(t, context.Background(), client, " "+maxInt64APIKeyIDString+" ", service)
 	})
 
 	t.Run("should skip update when skip marker is present", func(t *testing.T) {
