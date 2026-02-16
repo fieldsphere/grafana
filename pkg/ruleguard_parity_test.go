@@ -149,6 +149,38 @@ func TestRuleguardRecoverVariableKeyMatchersReportPanicValueGuidance(t *testing.
 	}
 }
 
+func TestRuleguardRecoverForbiddenKeyMatchersReportPanicValueGuidance(t *testing.T) {
+	content := loadRuleguardRulesContent(t)
+	lines := strings.Split(content, "\n")
+	blocks := loadRuleguardMatchBlocks(t)
+	forbiddenKeys := []string{`"error"`, `"errorMessage"`, `"reason"`, `"panic"`, "`error`", "`errorMessage`", "`reason`", "`panic`"}
+
+	for i, block := range blocks {
+		blockText := strings.Join(block.lines, "\n")
+		if !strings.Contains(blockText, "recover()") {
+			continue
+		}
+
+		hasForbiddenKeyGuidanceTarget := strings.Contains(blockText, "(error|errorMessage|reason|panic)")
+		if !hasForbiddenKeyGuidanceTarget {
+			for _, key := range forbiddenKeys {
+				if strings.Contains(blockText, key) {
+					hasForbiddenKeyGuidanceTarget = true
+					break
+				}
+			}
+		}
+		if !hasForbiddenKeyGuidanceTarget {
+			continue
+		}
+
+		reportText := blockReportText(lines, blocks, i)
+		if reportText == "" || !strings.Contains(reportText, "\"panicValue\"") {
+			t.Fatalf("recover forbidden-key matcher block at line %d does not report canonical panicValue guidance", block.startLine)
+		}
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
