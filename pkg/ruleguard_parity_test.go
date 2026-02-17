@@ -1334,6 +1334,35 @@ func TestWalkRuntimeGoFilesInRootsDeduplicatesRoots(t *testing.T) {
 	}
 }
 
+func TestUniqueNonEmptyCleanPaths(t *testing.T) {
+	input := []string{
+		"",
+		"   ",
+		".",
+		"./",
+		"/tmp/runtime",
+		"/tmp/runtime/",
+		" /tmp/runtime ",
+		"/tmp/runtime/../runtime",
+		"/tmp/other",
+	}
+
+	got := uniqueNonEmptyCleanPaths(input)
+	want := []string{
+		"/tmp/runtime",
+		"/tmp/other",
+	}
+
+	if len(got) != len(want) {
+		t.Fatalf("uniqueNonEmptyCleanPaths length = %d, want %d; got=%v", len(got), len(want), got)
+	}
+	for idx := range want {
+		if got[idx] != want[idx] {
+			t.Fatalf("uniqueNonEmptyCleanPaths[%d] = %q, want %q (full=%v)", idx, got[idx], want[idx], got)
+		}
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
@@ -1522,7 +1551,12 @@ func uniqueNonEmptyCleanPaths(paths []string) []string {
 	unique := make([]string, 0, len(paths))
 
 	for _, path := range paths {
-		cleaned := filepath.Clean(path)
+		raw := strings.TrimSpace(path)
+		if raw == "" {
+			continue
+		}
+
+		cleaned := filepath.Clean(raw)
 		if cleaned == "" || cleaned == "." {
 			continue
 		}
