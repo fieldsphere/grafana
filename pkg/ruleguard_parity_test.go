@@ -1310,6 +1310,30 @@ func TestWalkRuntimeGoFilesInRootsSkipsNonDirectoryRoots(t *testing.T) {
 	}
 }
 
+func TestWalkRuntimeGoFilesInRootsDeduplicatesRoots(t *testing.T) {
+	tempDir := t.TempDir()
+	root := filepath.Join(tempDir, "pkg")
+	if err := os.MkdirAll(root, 0o755); err != nil {
+		t.Fatalf("mkdir root: %v", err)
+	}
+	filePath := filepath.Join(root, "keep.go")
+	if err := os.WriteFile(filePath, []byte("package p\n"), 0o644); err != nil {
+		t.Fatalf("write go file: %v", err)
+	}
+
+	visitCount := 0
+	err := walkRuntimeGoFilesInRoots([]string{root, filepath.Clean(root), root}, func(path string) error {
+		visitCount++
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk duplicate roots: %v", err)
+	}
+	if visitCount != 1 {
+		t.Fatalf("expected deduplicated roots to visit file once, visited %d times", visitCount)
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
@@ -1463,7 +1487,7 @@ func walkRuntimeGoFiles(t *testing.T, visit func(path string) error) error {
 }
 
 func walkRuntimeGoFilesInRoots(roots []string, visit func(path string) error) error {
-	for _, root := range roots {
+	for _, root := range uniqueNonEmptyCleanPaths(roots) {
 		info, err := os.Stat(root)
 		if err != nil {
 			if os.IsNotExist(err) {
@@ -1491,6 +1515,25 @@ func walkRuntimeGoFilesInRoots(roots []string, visit func(path string) error) er
 	}
 
 	return nil
+}
+
+func uniqueNonEmptyCleanPaths(paths []string) []string {
+	seen := map[string]struct{}{}
+	unique := make([]string, 0, len(paths))
+
+	for _, path := range paths {
+		cleaned := filepath.Clean(path)
+		if cleaned == "" || cleaned == "." {
+			continue
+		}
+		if _, exists := seen[cleaned]; exists {
+			continue
+		}
+		seen[cleaned] = struct{}{}
+		unique = append(unique, cleaned)
+	}
+
+	return unique
 }
 
 func isRuntimeGoSourcePath(path string) bool {
