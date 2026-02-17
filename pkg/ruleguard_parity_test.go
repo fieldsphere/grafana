@@ -1513,6 +1513,45 @@ func TestCanonicalPathKeyNormalization(t *testing.T) {
 	}
 }
 
+func TestWindowsPathShapeHelpers(t *testing.T) {
+	testCases := []struct {
+		name          string
+		path          string
+		wantDrivePath bool
+		wantUNCPath   bool
+	}{
+		{
+			name:          "windows drive path",
+			path:          `C:\repo\pkg`,
+			wantDrivePath: true,
+			wantUNCPath:   false,
+		},
+		{
+			name:          "windows unc path",
+			path:          `\\server\share\pkg`,
+			wantDrivePath: false,
+			wantUNCPath:   true,
+		},
+		{
+			name:          "linux absolute path",
+			path:          "/tmp/runtime",
+			wantDrivePath: false,
+			wantUNCPath:   false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := isWindowsDrivePath(tc.path); got != tc.wantDrivePath {
+				t.Fatalf("isWindowsDrivePath(%q) = %v, want %v", tc.path, got, tc.wantDrivePath)
+			}
+			if got := isWindowsUNCPath(tc.path); got != tc.wantUNCPath {
+				t.Fatalf("isWindowsUNCPath(%q) = %v, want %v", tc.path, got, tc.wantUNCPath)
+			}
+		})
+	}
+}
+
 func TestCollapseConsecutiveSlashes(t *testing.T) {
 	testCases := []struct {
 		name string
