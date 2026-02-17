@@ -404,6 +404,14 @@ test: test-go test-js ## Run all tests.
 verify-structured-logging-closeout: ## Run structured logging closeout verification checks.
 	./scripts/verify-structured-logging-closeout.sh
 
+.PHONY: verify-structured-logging-closeout-quick
+verify-structured-logging-closeout-quick: ## Run structured logging closeout checks without race tests.
+	./scripts/verify-structured-logging-closeout.sh --quick
+
+.PHONY: verify-structured-logging-closeout-probes
+verify-structured-logging-closeout-probes: ## Run structured logging closeout query probes only.
+	./scripts/verify-structured-logging-closeout.sh --probes-only
+
 ##@ Linting
 .PHONY: golangci-lint
 golangci-lint:

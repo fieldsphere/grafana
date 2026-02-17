@@ -65,6 +65,20 @@ You can run the same full verification through `make`:
 make verify-structured-logging-closeout
 ```
 
+You can also run dedicated `make` shortcuts for partial modes:
+
+```sh
+make verify-structured-logging-closeout-quick
+make verify-structured-logging-closeout-probes
+```
+
+For `make` shortcuts that map to script modes:
+
+```sh
+make verify-structured-logging-closeout-quick
+make verify-structured-logging-closeout-probes
+```
+
 You can also run the script through `make`:
 
 ```sh
