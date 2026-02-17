@@ -1290,6 +1290,26 @@ func TestWalkRuntimeGoFilesInRootsPropagatesVisitError(t *testing.T) {
 	}
 }
 
+func TestWalkRuntimeGoFilesInRootsSkipsNonDirectoryRoots(t *testing.T) {
+	tempDir := t.TempDir()
+	nonDirRoot := filepath.Join(tempDir, "not_a_directory")
+	if err := os.WriteFile(nonDirRoot, []byte("package p\n"), 0o644); err != nil {
+		t.Fatalf("write non-directory root file: %v", err)
+	}
+
+	visited := false
+	err := walkRuntimeGoFilesInRoots([]string{nonDirRoot}, func(path string) error {
+		visited = true
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk non-directory root: %v", err)
+	}
+	if visited {
+		t.Fatal("expected non-directory roots to be skipped")
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
@@ -1444,11 +1464,15 @@ func walkRuntimeGoFiles(t *testing.T, visit func(path string) error) error {
 
 func walkRuntimeGoFilesInRoots(roots []string, visit func(path string) error) error {
 	for _, root := range roots {
-		if _, err := os.Stat(root); err != nil {
+		info, err := os.Stat(root)
+		if err != nil {
 			if os.IsNotExist(err) {
 				continue
 			}
 			return err
+		}
+		if !info.IsDir() {
+			continue
 		}
 		if err := filepath.WalkDir(root, func(path string, d os.DirEntry, walkErr error) error {
 			if walkErr != nil {
