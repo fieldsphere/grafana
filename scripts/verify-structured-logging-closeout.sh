@@ -80,6 +80,22 @@ if [[ "$matrix_mode" == "true" ]]; then
     date +%s
   }
 
+  format_duration_seconds() {
+    local total_seconds="$1"
+    local minutes
+    local seconds
+
+    minutes="$((total_seconds / 60))"
+    seconds="$((total_seconds % 60))"
+
+    if [[ "$minutes" -gt 0 ]]; then
+      printf '%dm%02ds' "$minutes" "$seconds"
+      return
+    fi
+
+    printf '%ds' "$seconds"
+  }
+
   run_matrix_mode() {
     local mode_label="$1"
     shift
@@ -95,7 +111,7 @@ if [[ "$matrix_mode" == "true" ]]; then
     fi
     mode_end="$(now_epoch_seconds)"
     mode_duration="$((mode_end - mode_start))"
-    echo "<== Matrix mode passed: $mode_label (${mode_duration}s)"
+    echo "<== Matrix mode passed: $mode_label ($(format_duration_seconds "$mode_duration"))"
     modes_run="$((modes_run + 1))"
   }
 
@@ -107,7 +123,7 @@ if [[ "$matrix_mode" == "true" ]]; then
   run_matrix_mode "tests-only-quick" --tests-only --quick
   matrix_end_time="$(date +%s)"
   matrix_duration="$((matrix_end_time - matrix_start_time))"
-  echo "Structured logging closeout verification matrix passed (${modes_run} modes, ${matrix_duration}s)."
+  echo "Structured logging closeout verification matrix passed (${modes_run} modes, $(format_duration_seconds "$matrix_duration"))."
   exit 0
 fi
 
