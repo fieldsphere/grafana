@@ -81,6 +81,20 @@ rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" --glob "*.{ts,tsx,js,
 rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," apps --glob "*.go" -U
 ```
 
+- **Run structured key casing probes:** These commands validate there are no runtime `*Id` or `*Uid` structured key regressions in logging and context vectors:
+
+```sh
+rg "\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Id\"" pkg --glob "*.go"
+rg "\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Uid\"" pkg --glob "*.go"
+```
+
+- **Run trace event naming probes:** These commands validate there are no remaining PascalCase or separator-shaped `AddEvent` names in runtime paths:
+
+```sh
+rg "\\.AddEvent\\(\\s*\"[A-Z][^\"]*\"" pkg --glob "*.go"
+rg "\\.AddEvent\\(\\s*\"[^\"]*[\\s:_/\\-][^\"]*\"" pkg --glob "*.go"
+```
+
 ## Related resources
 
 - The project plan and execution notes track the detailed sequence of closeout updates.
