@@ -28,6 +28,4 @@ function logE2eError(message, context) {
 
 module.exports = {
   logE2eInfo,
-  logE2eWarning,
-  logE2eError,
 };
