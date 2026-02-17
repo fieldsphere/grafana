@@ -7,6 +7,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"regexp"
 	"runtime"
 	"sort"
 	"strconv"
@@ -23,6 +24,8 @@ type matchBlock struct {
 const errRuntimeFileWalkerVisitorNil = "runtime file walker visitor is nil"
 
 var errRuntimeFileWalkerVisitor = errors.New(errRuntimeFileWalkerVisitorNil)
+
+var printCallPattern = regexp.MustCompile(`\bfmt\.Print(f|ln)?\s*\(|\blog\.Print(f|ln)?\s*\(`)
 
 func TestRuleguardRecoverErrorBlocksIncludePanicAndFatal(t *testing.T) {
 	blocks := loadRuleguardMatchBlocks(t)
@@ -473,6 +476,28 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 		}
 		sort.Strings(violations)
 		t.Fatalf("found recover-derived runtime logging without panicValue key:\n%s", strings.Join(violations, "\n"))
+	}
+}
+
+func TestRuntimeGoSourcesDoNotUsePrintCalls(t *testing.T) {
+	violations := make([]string, 0, 4)
+	err := walkRuntimeGoFiles(t, func(path string) error {
+		content, readErr := os.ReadFile(path)
+		if readErr != nil {
+			return readErr
+		}
+
+		if printCallPattern.Match(content) {
+			violations = append(violations, path)
+		}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("scan runtime go sources for print calls: %v", err)
+	}
+	if len(violations) > 0 {
+		sort.Strings(violations)
+		t.Fatalf("runtime go sources contain disallowed fmt/log print calls:\n%s", strings.Join(violations, "\n"))
 	}
 }
 
@@ -1187,6 +1212,26 @@ func TestIsRuntimeGoSourcePath(t *testing.T) {
 		{
 			name: "windows-style testdata path excluded",
 			path: `C:\repo\pkg\module\testdata\fixture.go`,
+			want: false,
+		},
+		{
+			name: "windows-style mixed-case testdata path excluded",
+			path: `C:\repo\pkg\module\TestData\fixture.go`,
+			want: false,
+		},
+		{
+			name: "windows-style runtime uppercase go file included",
+			path: `C:\repo\pkg\module\client.GO`,
+			want: true,
+		},
+		{
+			name: "windows-style uppercase test suffix excluded",
+			path: `C:\repo\pkg\module\client_TEST.GO`,
+			want: false,
+		},
+		{
+			name: "windows-style uppercase ruleguard rules excluded",
+			path: `C:\repo\pkg\RULEGUARD.RULES.GO`,
 			want: false,
 		},
 		{
@@ -1982,7 +2027,8 @@ func collapseConsecutiveSlashes(path string) string {
 
 func isRuntimeGoSourcePath(path string) bool {
 	lowerPath := strings.ToLower(path)
-	lowerBase := strings.ToLower(filepath.Base(path))
+	normalizedPath := strings.ReplaceAll(path, "\\", "/")
+	lowerBase := strings.ToLower(filepath.Base(normalizedPath))
 	if !strings.HasSuffix(lowerPath, ".go") || strings.HasSuffix(lowerPath, "_test.go") || lowerBase == "ruleguard.rules.go" {
 		return false
 	}
