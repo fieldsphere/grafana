@@ -432,6 +432,14 @@ verify-structured-logging-closeout-modes: ## List supported closeout verificatio
 verify-structured-logging-closeout-modes-json: ## List supported closeout verification modes as JSON.
 	./scripts/verify-structured-logging-closeout.sh --list-modes-json
 
+.PHONY: verify-structured-logging-closeout-mode
+verify-structured-logging-closeout-mode: ## Run structured logging closeout verification for a specific mode (use mode=<name>).
+	@if [ -z "$(mode)" ]; then \
+		echo "mode is required. Use one of: full, quick, probes-only, tests-only, tests-only-quick, matrix"; \
+		exit 1; \
+	fi
+	./scripts/verify-structured-logging-closeout.sh --mode "$(mode)"
+
 ##@ Linting
 .PHONY: golangci-lint
 golangci-lint:
