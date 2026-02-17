@@ -156,6 +156,14 @@ Some probes can return known non-runtime matches that are expected:
 - **Recover alias probe in `pkg/**`:** `pkg/ruleguard.rules.go` and `pkg/ruleguard_parity_test.go` can match because they contain rule/test literals used to enforce policy.
 - **Other probes:** Any additional hit in runtime production code should be treated as a regression candidate and investigated.
 
+To assert the `pkg/**` recover-alias probe matches only the two expected files, use this strict check:
+
+```sh
+EXPECTED="$(printf '%s\n' 'pkg/ruleguard.rules.go' 'pkg/ruleguard_parity_test.go')"
+ACTUAL="$(rg \"recover\\(\\)[\\s\\S]{0,260}\\\"(error|errorMessage|reason|panic)\\\"\\s*,\" pkg --glob \"*.go\" -U --files-with-matches | sort)"
+[ "$ACTUAL" = "$EXPECTED" ]
+```
+
 ## Example gate output snapshot
 
 The following output patterns show what successful closeout execution looks like:
