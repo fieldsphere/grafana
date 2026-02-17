@@ -1385,6 +1385,31 @@ func TestWalkRuntimeGoFilesInRootsRejectsNilVisitor(t *testing.T) {
 	}
 }
 
+func TestWalkRuntimeGoFilesInRootsHandlesEmptyRoots(t *testing.T) {
+	visited := false
+	err := walkRuntimeGoFilesInRoots(nil, func(path string) error {
+		visited = true
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk empty roots: %v", err)
+	}
+	if visited {
+		t.Fatal("expected empty root list to produce no visits")
+	}
+
+	err = walkRuntimeGoFilesInRoots([]string{"", "   "}, func(path string) error {
+		visited = true
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk whitespace roots: %v", err)
+	}
+	if visited {
+		t.Fatal("expected whitespace-only roots to produce no visits")
+	}
+}
+
 func TestWalkRuntimeGoFilesInRootsDeduplicatesRoots(t *testing.T) {
 	tempDir := t.TempDir()
 	root := filepath.Join(tempDir, "pkg")
