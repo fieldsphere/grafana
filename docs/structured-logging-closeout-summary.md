@@ -86,6 +86,7 @@ For probe-only triage without tests, run:
 ```
 
 Use `--probes-only` by itself. It can't be combined with `--quick` or `--tests-only`.
+This mode skips all `go test` commands.
 
 For test-only execution without probes, run:
 

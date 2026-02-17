@@ -99,10 +99,14 @@ assert_no_matches() {
 }
 
 require_cmd git
-require_cmd go
-require_cmd rg
-require_cmd sed
-require_cmd sort
+if [[ "$probes_only" != "true" ]]; then
+  require_cmd go
+fi
+if [[ "$tests_only" != "true" ]]; then
+  require_cmd rg
+  require_cmd sed
+  require_cmd sort
+fi
 
 if [[ "$probes_only" != "true" ]]; then
   echo "Running parity and runtime tests..."
