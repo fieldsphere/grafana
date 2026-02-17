@@ -20,6 +20,8 @@ type matchBlock struct {
 	lines     []string
 }
 
+const errRuntimeFileWalkerVisitorNil = "runtime file walker visitor is nil"
+
 func TestRuleguardRecoverErrorBlocksIncludePanicAndFatal(t *testing.T) {
 	blocks := loadRuleguardMatchBlocks(t)
 	allMatcherLines := matcherLineSet(blocks)
@@ -1338,6 +1340,9 @@ func TestWalkRuntimeGoFilesInRootsRejectsNilVisitor(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected nil visitor to return an error")
 	}
+	if err.Error() != errRuntimeFileWalkerVisitorNil {
+		t.Fatalf("expected nil visitor error %q, got %q", errRuntimeFileWalkerVisitorNil, err.Error())
+	}
 }
 
 func TestWalkRuntimeGoFilesInRootsDeduplicatesRoots(t *testing.T) {
@@ -1744,7 +1749,7 @@ func walkRuntimeGoFiles(t *testing.T, visit func(path string) error) error {
 
 func walkRuntimeGoFilesInRoots(roots []string, visit func(path string) error) error {
 	if visit == nil {
-		return errors.New("runtime file walker visitor is nil")
+		return errors.New(errRuntimeFileWalkerVisitorNil)
 	}
 
 	for _, root := range uniqueNonEmptyCleanPaths(roots) {
