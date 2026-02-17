@@ -402,27 +402,27 @@ test: test-go test-js ## Run all tests.
 
 .PHONY: verify-structured-logging-closeout
 verify-structured-logging-closeout: ## Run structured logging closeout verification checks.
-	./scripts/verify-structured-logging-closeout.sh
+	./scripts/verify-structured-logging-closeout.sh --mode full
 
 .PHONY: verify-structured-logging-closeout-quick
 verify-structured-logging-closeout-quick: ## Run structured logging closeout checks without race tests.
-	./scripts/verify-structured-logging-closeout.sh --quick
+	./scripts/verify-structured-logging-closeout.sh --mode quick
 
 .PHONY: verify-structured-logging-closeout-probes
 verify-structured-logging-closeout-probes: ## Run structured logging closeout query probes only.
-	./scripts/verify-structured-logging-closeout.sh --probes-only
+	./scripts/verify-structured-logging-closeout.sh --mode probes-only
 
 .PHONY: verify-structured-logging-closeout-tests
 verify-structured-logging-closeout-tests: ## Run structured logging closeout tests only.
-	./scripts/verify-structured-logging-closeout.sh --tests-only
+	./scripts/verify-structured-logging-closeout.sh --mode tests-only
 
 .PHONY: verify-structured-logging-closeout-tests-quick
 verify-structured-logging-closeout-tests-quick: ## Run structured logging closeout tests only without race tests.
-	./scripts/verify-structured-logging-closeout.sh --tests-only --quick
+	./scripts/verify-structured-logging-closeout.sh --mode tests-only-quick
 
 .PHONY: verify-structured-logging-closeout-matrix
 verify-structured-logging-closeout-matrix: ## Run all closeout verification modes.
-	./scripts/verify-structured-logging-closeout.sh --matrix
+	./scripts/verify-structured-logging-closeout.sh --mode matrix
 
 .PHONY: verify-structured-logging-closeout-modes
 verify-structured-logging-closeout-modes: ## List supported closeout verification modes.

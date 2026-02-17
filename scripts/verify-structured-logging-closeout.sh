@@ -3,9 +3,10 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: ./scripts/verify-structured-logging-closeout.sh [--quick] [--probes-only] [--tests-only] [--matrix] [--list-modes] [--list-modes-json] [--help]
+Usage: ./scripts/verify-structured-logging-closeout.sh [--mode <MODE>] [--quick] [--probes-only] [--tests-only] [--matrix] [--list-modes] [--list-modes-json] [--help]
 
 Options:
+  --mode <MODE> Select a predefined mode (full, quick, probes-only, tests-only, tests-only-quick, matrix).
   --quick        Skip race tests for a faster local pass.
   --probes-only  Skip all tests and run query probes only.
   --tests-only   Skip query probes and run tests only.
@@ -15,6 +16,7 @@ Options:
   --help         Show this help message.
 
 Notes:
+  --mode cannot be combined with other mode flags.
   --quick cannot be combined with --probes-only.
   --probes-only and --tests-only are mutually exclusive.
   --matrix runs as a standalone mode and cannot be combined with other flags.
@@ -23,14 +25,27 @@ Notes:
 EOF
 }
 
+ALL_MODES=(full quick probes-only tests-only tests-only-quick matrix)
+MATRIX_MODES=(full quick probes-only tests-only tests-only-quick)
+
 quick_mode=false
 probes_only=false
 tests_only=false
 matrix_mode=false
 list_modes=false
 list_modes_json=false
+selected_mode=""
 while (($# > 0)); do
   case "$1" in
+    --mode)
+      if (($# < 2)); then
+        echo "closeout verification failed: --mode requires an argument" >&2
+        usage >&2
+        exit 1
+      fi
+      selected_mode="$2"
+      shift 2
+      ;;
     --quick)
       quick_mode=true
       shift
@@ -67,6 +82,39 @@ while (($# > 0)); do
   esac
 done
 
+if [[ -n "$selected_mode" && ( "$quick_mode" == "true" || "$probes_only" == "true" || "$tests_only" == "true" || "$matrix_mode" == "true" || "$list_modes" == "true" || "$list_modes_json" == "true" ) ]]; then
+  echo "closeout verification failed: --mode cannot be combined with other mode flags" >&2
+  exit 1
+fi
+
+if [[ -n "$selected_mode" ]]; then
+  case "$selected_mode" in
+    full)
+      ;;
+    quick)
+      quick_mode=true
+      ;;
+    probes-only)
+      probes_only=true
+      ;;
+    tests-only)
+      tests_only=true
+      ;;
+    tests-only-quick)
+      tests_only=true
+      quick_mode=true
+      ;;
+    matrix)
+      matrix_mode=true
+      ;;
+    *)
+      echo "closeout verification failed: unknown mode '$selected_mode'" >&2
+      echo "supported modes: ${ALL_MODES[*]}" >&2
+      exit 1
+      ;;
+  esac
+fi
+
 if [[ "$probes_only" == "true" && "$tests_only" == "true" ]]; then
   echo "closeout verification failed: --probes-only and --tests-only cannot be used together" >&2
   exit 1
@@ -95,8 +143,6 @@ fi
 ROOT_DIR="$(git rev-parse --show-toplevel)"
 cd "$ROOT_DIR"
 SCRIPT_PATH="$ROOT_DIR/scripts/verify-structured-logging-closeout.sh"
-ALL_MODES=(full quick probes-only tests-only tests-only-quick matrix)
-MATRIX_MODES=(full quick probes-only tests-only tests-only-quick)
 
 print_modes_plain() {
   local mode_name
