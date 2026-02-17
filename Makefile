@@ -435,7 +435,8 @@ verify-structured-logging-closeout-modes-json: ## List supported closeout verifi
 .PHONY: verify-structured-logging-closeout-mode
 verify-structured-logging-closeout-mode: ## Run structured logging closeout verification for a specific mode (use mode=<name>).
 	@if [ -z "$(mode)" ]; then \
-		echo "mode is required. Use one of: full, quick, probes-only, tests-only, tests-only-quick, matrix"; \
+		modes="$$(./scripts/verify-structured-logging-closeout.sh --list-modes | tr '\n' ',' | sed 's/,$$//' | sed 's/,/, /g')"; \
+		echo "mode is required. Use one of: $$modes"; \
 		exit 1; \
 	fi
 	./scripts/verify-structured-logging-closeout.sh --mode "$(mode)"

@@ -28,6 +28,18 @@ EOF
 ALL_MODES=(full quick probes-only tests-only tests-only-quick matrix)
 MATRIX_MODES=(full quick probes-only tests-only tests-only-quick)
 
+modes_for_display() {
+  local mode_name
+  local display=""
+  for mode_name in "${ALL_MODES[@]}"; do
+    if [[ -n "$display" ]]; then
+      display="${display}, "
+    fi
+    display="${display}${mode_name}"
+  done
+  echo "$display"
+}
+
 quick_mode=false
 probes_only=false
 tests_only=false
@@ -109,7 +121,8 @@ if [[ -n "$selected_mode" ]]; then
       ;;
     *)
       echo "closeout verification failed: unknown mode '$selected_mode'" >&2
-      echo "supported modes: ${ALL_MODES[*]}" >&2
+      echo "supported modes: $(modes_for_display)" >&2
+      echo "hint: run --list-modes" >&2
       exit 1
       ;;
   esac
