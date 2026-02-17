@@ -185,6 +185,8 @@ If a closeout command fails, use this workflow to isolate and fix the regression
 - **Re-run targeted tests first:** Re-run parity and touched package tests before re-running the full gate checklist.
 - **Re-run all closeout probes:** After the fix passes locally, run the full verification command list to confirm no secondary regressions.
 
+Use this process for each failing gate independently. Avoid combining multiple unrelated fixes in one change.
+
 ## When to add or update parity tests
 
 Add or update parity tests when you change logging behavior that can bypass existing guardrails:
