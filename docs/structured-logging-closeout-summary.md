@@ -115,6 +115,7 @@ make verify-structured-logging-closeout-mode mode=tests-only-quick
 The matrix run prints per-mode labels and pass durations so you can quickly identify which mode failed and how long each mode took.
 At the end, it prints a matrix summary line with total modes executed and total elapsed time, using compact duration formatting (for example `42s` or `2m05s`).
 If any mode fails, the script exits with a mode-specific failure line that names the failing mode.
+Matrix mode executes the same named modes shown by `--list-modes`.
 
 For a faster local pass that skips race tests, run:
 

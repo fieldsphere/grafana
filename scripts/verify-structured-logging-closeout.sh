@@ -233,34 +233,9 @@ if [[ "$matrix_mode" == "true" ]]; then
     modes_run="$((modes_run + 1))"
   }
 
-  run_matrix_mode_by_name() {
-    local mode_name="$1"
-    case "$mode_name" in
-      full)
-        run_matrix_mode "$mode_name"
-        ;;
-      quick)
-        run_matrix_mode "$mode_name" --quick
-        ;;
-      probes-only)
-        run_matrix_mode "$mode_name" --probes-only
-        ;;
-      tests-only)
-        run_matrix_mode "$mode_name" --tests-only
-        ;;
-      tests-only-quick)
-        run_matrix_mode "$mode_name" --tests-only --quick
-        ;;
-      *)
-        echo "closeout verification matrix failed: unknown matrix mode '$mode_name'" >&2
-        exit 1
-        ;;
-    esac
-  }
-
   echo "Running closeout verification matrix..."
   for mode_name in "${MATRIX_MODES[@]}"; do
-    run_matrix_mode_by_name "$mode_name"
+    run_matrix_mode "$mode_name" --mode "$mode_name"
   done
   matrix_end_time="$(date +%s)"
   matrix_duration="$((matrix_end_time - matrix_start_time))"
