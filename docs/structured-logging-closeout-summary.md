@@ -118,3 +118,11 @@ When closeout gates are healthy, you should see the following outcomes:
 
 - The project plan and execution notes track the detailed sequence of closeout updates.
 - The parity test suite in `pkg/ruleguard_parity_test.go` contains the regression checks used to enforce these guarantees.
+
+## Next steps
+
+After closeout, you can continue with these follow-up activities:
+
+- **Monitor regressions:** Keep running the verification commands in CI and during local review for logging-related changes.
+- **Extend guardrails as needed:** Add targeted parity tests when new structured logging vectors or wrappers are introduced.
+- **Use the closeout baseline:** Refer to this summary when triaging future logging policy changes or migration exceptions.
