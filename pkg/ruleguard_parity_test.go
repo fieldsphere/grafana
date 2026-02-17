@@ -1260,6 +1260,19 @@ func TestRuntimeScanRootsCanonicalOrder(t *testing.T) {
 	}
 }
 
+func TestRuntimeScanRootsExistAsDirectories(t *testing.T) {
+	roots := runtimeScanRoots(t)
+	for _, root := range roots {
+		info, err := os.Stat(root)
+		if err != nil {
+			t.Fatalf("expected runtime scan root %q to exist: %v", root, err)
+		}
+		if !info.IsDir() {
+			t.Fatalf("expected runtime scan root %q to be a directory", root)
+		}
+	}
+}
+
 func TestWalkRuntimeGoFilesInRootsFiltersRuntimeFiles(t *testing.T) {
 	tempDir := t.TempDir()
 	pkgRoot := filepath.Join(tempDir, "pkg")
