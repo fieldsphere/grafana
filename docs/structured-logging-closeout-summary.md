@@ -72,7 +72,10 @@ make verify-structured-logging-closeout-quick
 make verify-structured-logging-closeout-probes
 make verify-structured-logging-closeout-tests
 make verify-structured-logging-closeout-tests-quick
+make verify-structured-logging-closeout-matrix
 ```
+
+Use `make verify-structured-logging-closeout-matrix` when you want one command that runs all supported closeout script modes.
 
 For a faster local pass that skips race tests, run:
 

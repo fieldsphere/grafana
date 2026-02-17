@@ -420,6 +420,14 @@ verify-structured-logging-closeout-tests: ## Run structured logging closeout tes
 verify-structured-logging-closeout-tests-quick: ## Run structured logging closeout tests only without race tests.
 	./scripts/verify-structured-logging-closeout.sh --tests-only --quick
 
+.PHONY: verify-structured-logging-closeout-matrix
+verify-structured-logging-closeout-matrix: ## Run all closeout verification modes.
+	./scripts/verify-structured-logging-closeout.sh
+	./scripts/verify-structured-logging-closeout.sh --quick
+	./scripts/verify-structured-logging-closeout.sh --probes-only
+	./scripts/verify-structured-logging-closeout.sh --tests-only
+	./scripts/verify-structured-logging-closeout.sh --tests-only --quick
+
 ##@ Linting
 .PHONY: golangci-lint
 golangci-lint:
