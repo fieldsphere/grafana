@@ -77,6 +77,12 @@ For a faster local pass that skips race tests, run:
 ./scripts/verify-structured-logging-closeout.sh --quick
 ```
 
+For probe-only triage without tests, run:
+
+```sh
+./scripts/verify-structured-logging-closeout.sh --probes-only
+```
+
 - **Run recover and parity tests:** This command validates recover parity and runtime guardrail tests:
 
 ```sh

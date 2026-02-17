@@ -3,19 +3,25 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: ./scripts/verify-structured-logging-closeout.sh [--quick] [--help]
+Usage: ./scripts/verify-structured-logging-closeout.sh [--quick] [--probes-only] [--help]
 
 Options:
-  --quick  Skip race tests for a faster local pass.
-  --help   Show this help message.
+  --quick        Skip race tests for a faster local pass.
+  --probes-only  Skip all tests and run query probes only.
+  --help         Show this help message.
 EOF
 }
 
 quick_mode=false
+probes_only=false
 while (($# > 0)); do
   case "$1" in
     --quick)
       quick_mode=true
+      shift
+      ;;
+    --probes-only)
+      probes_only=true
       shift
       ;;
     --help)
@@ -78,11 +84,13 @@ require_cmd rg
 require_cmd sed
 require_cmd sort
 
-echo "Running parity and runtime tests..."
-go test ./pkg -run 'TestRuntimeRecover|TestRuleguardRecover'
-go test ./pkg/services/authn/clients/... ./pkg/services/authz/zanzana/logger ./pkg/infra/log/...
-if [[ "$quick_mode" != "true" ]]; then
-  go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/logger ./pkg/infra/log
+if [[ "$probes_only" != "true" ]]; then
+  echo "Running parity and runtime tests..."
+  go test ./pkg -run 'TestRuntimeRecover|TestRuleguardRecover'
+  go test ./pkg/services/authn/clients/... ./pkg/services/authz/zanzana/logger ./pkg/infra/log/...
+  if [[ "$quick_mode" != "true" ]]; then
+    go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/logger ./pkg/infra/log
+  fi
 fi
 
 echo "Running query probes..."
