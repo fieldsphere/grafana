@@ -109,6 +109,14 @@ rg "\\.AddEvent\\(\\s*\"[A-Z][^\"]*\"" pkg --glob "*.go" --files-with-matches
 rg "\\.AddEvent\\(\\s*\"[^\"]*[\\s:_/\\-][^\"]*\"" pkg --glob "*.go" --files-with-matches
 ```
 
+## Quick verification checklist
+
+Use this checklist when you want a fast pass over closeout health:
+
+- **Run tests:** Run parity, package, and race commands.
+- **Run probe commands:** Run all query probes listed in this document.
+- **Compare outputs:** Confirm outputs match the expected outcomes and known exceptions.
+
 ## Expected command outcomes
 
 When closeout gates are healthy, you should see the following outcomes:
