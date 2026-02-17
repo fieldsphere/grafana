@@ -114,6 +114,31 @@ When closeout gates are healthy, you should see the following outcomes:
 - **Key-casing probes:** Return no matches for `*Id` and `*Uid` patterns.
 - **Trace event naming probes:** Return no matches for PascalCase and separator-shaped event names.
 
+## Example gate output snapshot
+
+The following output patterns show what successful closeout execution looks like:
+
+The targeted parity and runtime tests return `ok`:
+
+```text
+ok  	github.com/grafana/grafana/pkg	1.2s
+ok  	github.com/grafana/grafana/pkg/services/authn/clients	(cached)
+ok  	github.com/grafana/grafana/pkg/services/authz/zanzana/logger	(cached)
+ok  	github.com/grafana/grafana/pkg/infra/log	(cached)
+```
+
+The print/log gate returns only ruleguard rule definitions:
+
+```text
+./pkg/ruleguard.rules.go
+```
+
+The frontend console and `apps/**` recover-alias probes return no matches:
+
+```text
+No files with matches found
+```
+
 ## Related resources
 
 - The [ruleguard parity test suite](../pkg/ruleguard_parity_test.go) contains the regression checks that enforce these guarantees.
