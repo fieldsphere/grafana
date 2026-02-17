@@ -1483,6 +1483,9 @@ func TestUniqueNonEmptyCleanPathsDeduplicatesRelativeAndAbsoluteEquivalent(t *te
 	if len(got) != 1 {
 		t.Fatalf("expected relative/absolute equivalent roots to dedupe, got %v", got)
 	}
+	if got[0] != filepath.Clean(absRoot) {
+		t.Fatalf("expected deduped root to normalize to absolute path %q, got %q", filepath.Clean(absRoot), got[0])
+	}
 }
 
 func TestCanonicalPathKeyNormalization(t *testing.T) {
@@ -1810,6 +1813,7 @@ func uniqueNonEmptyCleanPaths(paths []string) []string {
 		if !filepath.IsAbs(cleaned) && !isWindowsDrivePath(cleaned) && !isWindowsUNCPath(cleaned) {
 			if absPath, err := filepath.Abs(cleaned); err == nil {
 				key = canonicalPathKey(absPath)
+				cleaned = filepath.Clean(absPath)
 			}
 		}
 		if _, exists := seen[key]; exists {
