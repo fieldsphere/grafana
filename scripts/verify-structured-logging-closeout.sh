@@ -73,15 +73,26 @@ cd "$ROOT_DIR"
 SCRIPT_PATH="$ROOT_DIR/scripts/verify-structured-logging-closeout.sh"
 
 if [[ "$matrix_mode" == "true" ]]; then
+  now_epoch_seconds() {
+    date +%s
+  }
+
   run_matrix_mode() {
     local mode_label="$1"
     shift
+    local mode_start
+    local mode_end
+    local mode_duration
+
+    mode_start="$(now_epoch_seconds)"
     echo "==> Matrix mode: $mode_label"
     if ! "$SCRIPT_PATH" "$@"; then
       echo "closeout verification matrix failed in mode: $mode_label" >&2
       exit 1
     fi
-    echo "<== Matrix mode passed: $mode_label"
+    mode_end="$(now_epoch_seconds)"
+    mode_duration="$((mode_end - mode_start))"
+    echo "<== Matrix mode passed: $mode_label (${mode_duration}s)"
   }
 
   echo "Running closeout verification matrix..."
