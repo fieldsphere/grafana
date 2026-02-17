@@ -1374,6 +1374,36 @@ func TestWalkRuntimeGoFilesInRootsDeduplicatesRoots(t *testing.T) {
 	}
 }
 
+func TestWalkRuntimeGoFilesInRootsDeduplicatesRelativeAndAbsoluteEquivalentRoots(t *testing.T) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("getwd: %v", err)
+	}
+
+	root := t.TempDir()
+	relRoot, err := filepath.Rel(cwd, root)
+	if err != nil {
+		t.Fatalf("build relative root: %v", err)
+	}
+
+	goFile := filepath.Join(root, "keep.go")
+	if err := os.WriteFile(goFile, []byte("package p\n"), 0o644); err != nil {
+		t.Fatalf("write go file: %v", err)
+	}
+
+	visitCount := 0
+	err = walkRuntimeGoFilesInRoots([]string{relRoot, root}, func(path string) error {
+		visitCount++
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk relative+absolute roots: %v", err)
+	}
+	if visitCount != 1 {
+		t.Fatalf("expected relative/absolute equivalent roots to visit once, visited %d times", visitCount)
+	}
+}
+
 func TestWalkRuntimeGoFilesInRootsDeterministicRootOrder(t *testing.T) {
 	tempDir := t.TempDir()
 	rootA := filepath.Join(tempDir, "a_root")
