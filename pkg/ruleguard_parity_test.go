@@ -22,6 +22,8 @@ type matchBlock struct {
 
 const errRuntimeFileWalkerVisitorNil = "runtime file walker visitor is nil"
 
+var errRuntimeFileWalkerVisitor = errors.New(errRuntimeFileWalkerVisitorNil)
+
 func TestRuleguardRecoverErrorBlocksIncludePanicAndFatal(t *testing.T) {
 	blocks := loadRuleguardMatchBlocks(t)
 	allMatcherLines := matcherLineSet(blocks)
@@ -1340,6 +1342,9 @@ func TestWalkRuntimeGoFilesInRootsRejectsNilVisitor(t *testing.T) {
 	if err == nil {
 		t.Fatal("expected nil visitor to return an error")
 	}
+	if !errors.Is(err, errRuntimeFileWalkerVisitor) {
+		t.Fatalf("expected nil visitor error to match sentinel")
+	}
 	if err.Error() != errRuntimeFileWalkerVisitorNil {
 		t.Fatalf("expected nil visitor error %q, got %q", errRuntimeFileWalkerVisitorNil, err.Error())
 	}
@@ -1749,7 +1754,7 @@ func walkRuntimeGoFiles(t *testing.T, visit func(path string) error) error {
 
 func walkRuntimeGoFilesInRoots(roots []string, visit func(path string) error) error {
 	if visit == nil {
-		return errors.New(errRuntimeFileWalkerVisitorNil)
+		return errRuntimeFileWalkerVisitor
 	}
 
 	for _, root := range uniqueNonEmptyCleanPaths(roots) {
