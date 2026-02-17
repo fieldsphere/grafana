@@ -1154,6 +1154,11 @@ func TestIsRuntimeGoSourcePath(t *testing.T) {
 			path: filepath.Join(base, "pkg", "services", "authn", "README.md"),
 			want: false,
 		},
+		{
+			name: "slash-separated testdata path excluded",
+			path: "/repo/pkg/module/testdata/fixture.go",
+			want: false,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -1163,6 +1168,25 @@ func TestIsRuntimeGoSourcePath(t *testing.T) {
 				t.Fatalf("isRuntimeGoSourcePath(%q) = %v, want %v", tc.path, got, tc.want)
 			}
 		})
+	}
+}
+
+func TestRuntimeScanRootsIncludePkgAndApps(t *testing.T) {
+	roots := runtimeScanRoots(t)
+	if len(roots) != 2 {
+		t.Fatalf("expected exactly 2 runtime scan roots, got %d (%v)", len(roots), roots)
+	}
+
+	rootNames := map[string]struct{}{}
+	for _, root := range roots {
+		rootNames[filepath.Base(root)] = struct{}{}
+	}
+
+	if _, ok := rootNames["pkg"]; !ok {
+		t.Fatalf("runtime scan roots missing pkg: %v", roots)
+	}
+	if _, ok := rootNames["apps"]; !ok {
+		t.Fatalf("runtime scan roots missing apps: %v", roots)
 	}
 }
 
@@ -1346,8 +1370,8 @@ func isRuntimeGoSourcePath(path string) bool {
 		return false
 	}
 
-	cleanPath := filepath.Clean(path)
-	pathSegments := strings.Split(cleanPath, string(filepath.Separator))
+	cleanPath := filepath.ToSlash(filepath.Clean(path))
+	pathSegments := strings.Split(cleanPath, "/")
 	for _, segment := range pathSegments {
 		if segment == "testdata" {
 			return false
