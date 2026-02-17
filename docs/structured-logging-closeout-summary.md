@@ -75,6 +75,7 @@ make verify-structured-logging-closeout-tests-quick
 make verify-structured-logging-closeout-matrix
 make verify-structured-logging-closeout-modes
 make verify-structured-logging-closeout-modes-json
+make verify-structured-logging-closeout-help
 make verify-structured-logging-closeout-mode mode=tests-only-quick
 make verify-structured-logging-closeout-dry-run
 make verify-structured-logging-closeout-matrix-dry-run

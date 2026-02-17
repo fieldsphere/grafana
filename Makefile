@@ -432,6 +432,10 @@ verify-structured-logging-closeout-modes: ## List supported closeout verificatio
 verify-structured-logging-closeout-modes-json: ## List supported closeout verification modes as JSON.
 	./scripts/verify-structured-logging-closeout.sh --list-modes-json
 
+.PHONY: verify-structured-logging-closeout-help
+verify-structured-logging-closeout-help: ## Show closeout verification script options and modes.
+	./scripts/verify-structured-logging-closeout.sh --help
+
 .PHONY: verify-structured-logging-closeout-mode
 verify-structured-logging-closeout-mode: ## Run structured logging closeout verification for a specific mode (use mode=<name>).
 	@if [ -z "$(mode)" ]; then \
