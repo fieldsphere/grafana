@@ -4,11 +4,12 @@ import { UserDTO, UserOrg, UserSession } from 'app/types/user';
 
 import { ChangePasswordFields, ProfileUpdateFields } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 async function changePassword(payload: ChangePasswordFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user/password', payload);
   } catch (err) {
-    console.error(err);
+    structuredLogFromConsole('error', err);
   }
 }
 
@@ -42,7 +43,7 @@ async function updateUserProfile(payload: ProfileUpdateFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user', payload);
   } catch (err) {
-    console.error(err);
+    structuredLogFromConsole('error', err);
   }
 }
 

@@ -9,6 +9,7 @@ import { getPublicOrAbsoluteUrl } from 'app/features/dimensions/resource';
 import { defaultStyleConfig, DEFAULT_SIZE, StyleConfigValues, StyleMaker } from './types';
 import { getDisplacement } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface SymbolMaker extends RegistryItem {
   aliasIds: string[];
   make: StyleMaker;
@@ -297,7 +298,7 @@ async function prepareSVG(url: string, size?: number, backgroundOpacity?: number
       return `data:image/svg+xml,${svgURI}`;
     })
     .catch((error) => {
-      console.error(error); // eslint-disable-line no-console
+      structuredLogFromConsole('error', error); // eslint-disable-line no-console
       return '';
     });
 }

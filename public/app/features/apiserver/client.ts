@@ -24,6 +24,7 @@ import {
   GroupVersionResource,
 } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export class ScopedResourceClient<T = object, S = object, K = string> implements ResourceClient<T, S, K> {
   readonly url: string;
   readonly gvr: GroupVersionResource;
@@ -85,14 +86,14 @@ export class ScopedResourceClient<T = object, S = object, K = string> implements
           try {
             return JSON.parse(line);
           } catch (e) {
-            console.warn('Invalid JSON in watch stream:', e, line);
+            structuredLogFromConsole('warn', 'Invalid JSON in watch stream:', e, line);
             return null;
           }
         }),
         filter((event): event is ResourceEvent<T, S, K> => event !== null),
         retry({ count: 3, delay: 1000 }),
         catchError((error) => {
-          console.error('Watch stream error:', error);
+          structuredLogFromConsole('error', 'Watch stream error:', error);
           throw error;
         })
       );

@@ -1,6 +1,7 @@
 import { store } from '@grafana/data';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * Utility function to register a performance observer with the global tracker
  * Reduces duplication between ScenePerformanceLogger and DashboardAnalyticsAggregator
@@ -86,10 +87,10 @@ export function writePerformanceGroupLog(logger: string, message: string, data?:
   if (isPerformanceLoggingEnabled()) {
     if (data) {
       // eslint-disable-next-line no-console
-      console.log(message, data);
+      structuredLogFromConsole('log', message, data);
     } else {
       // eslint-disable-next-line no-console
-      console.log(message);
+      structuredLogFromConsole('log', message);
     }
   }
 }
@@ -117,7 +118,7 @@ export function createPerformanceMark(name: string, timestamp?: number): void {
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
+    structuredLogFromConsole('error', `❌ Failed to create performance mark: ${name}`, { timestamp, error });
   }
 }
 
@@ -134,6 +135,6 @@ export function createPerformanceMeasure(name: string, startMark: string, endMar
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
+    structuredLogFromConsole('error', `❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
   }
 }

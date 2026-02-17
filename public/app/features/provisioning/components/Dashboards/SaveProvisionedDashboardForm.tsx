@@ -31,6 +31,7 @@ import { getProvisionedMeta } from '../utils/getProvisionedMeta';
 
 import { SaveProvisionedDashboardProps } from './SaveProvisionedDashboard';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface Props extends SaveProvisionedDashboardProps {
   isNew: boolean;
   defaultValues: ProvisionedDashboardFormData;
@@ -178,7 +179,7 @@ export function SaveProvisionedDashboardForm({
   }: ProvisionedDashboardFormData) => {
     // Validate required fields
     if (!repo || !path) {
-      console.error('Missing required fields for saving:', { repo, path });
+      structuredLogFromConsole('error', 'Missing required fields for saving:', { repo, path });
       return;
     }
 

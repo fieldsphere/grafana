@@ -25,6 +25,7 @@ import {
   ruleTypeFilter,
 } from './filterPredicates';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * Determines if client-side filtering is needed for Grafana-managed rules.
  */
@@ -151,7 +152,7 @@ function labelMatchersToBackendFormat(labels: string[]): string[] {
     const result = attempt(() => JSON.stringify(parseMatcher(label)));
 
     if (isError(result)) {
-      console.warn('Failed to parse label matcher:', label, result);
+      structuredLogFromConsole('warn', 'Failed to parse label matcher:', label, result);
     } else {
       acc.push(result);
     }

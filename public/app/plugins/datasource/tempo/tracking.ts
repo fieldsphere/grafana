@@ -4,6 +4,7 @@ import { getTemplateSrv, reportInteraction } from '@grafana/runtime';
 import pluginJson from './plugin.json';
 import { TempoQuery } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 type TempoOnDashboardLoadedTrackingEvent = {
   grafana_version?: string;
   dashboard_id?: string;
@@ -58,7 +59,7 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_tempo_dashboard_loaded', stats);
   } catch (error) {
-    console.error('error in tempo tracking handler', error);
+    structuredLogFromConsole('error', 'error in tempo tracking handler', error);
   }
 };
 

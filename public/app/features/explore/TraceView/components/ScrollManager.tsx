@@ -15,6 +15,7 @@
 import TNil from './types/TNil';
 import { TraceSpan, TraceSpanReference, Trace } from './types/trace';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * `Accessors` is necessary because `ScrollManager` needs to be created by
  * `TracePage` so it can be passed into the keyboard shortcut manager. But,
@@ -106,7 +107,7 @@ export default class ScrollManager {
     const position = xrs.getRowPosition(rowIndex);
     if (!position) {
       // eslint-disable-next-line no-console
-      console.warn('Invalid row index');
+      structuredLogFromConsole('warn', 'Invalid row index');
       return;
     }
     let { y } = position;

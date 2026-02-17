@@ -14,6 +14,7 @@ import {
 
 import { LOADING_FRAME_NAME } from './querySplitting';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 function getFrameKey(frame: DataFrame): string | undefined {
   // Metric range query data
   if (frame.meta?.type === DataFrameType.TimeSeriesMulti) {
@@ -142,7 +143,7 @@ export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const sourceIdField = source.fields.find((field) => field.type === FieldType.string && field.name === 'id');
 
   if (!destTimeField || !sourceTimeField) {
-    console.error(new Error(`Time fields not found in the data frames`));
+    structuredLogFromConsole('error', new Error(`Time fields not found in the data frames`));
     return;
   }
 

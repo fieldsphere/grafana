@@ -20,6 +20,7 @@ import { sandboxPluginComponents } from './sandboxComponents';
 import { CompartmentDependencyModule, PluginFactoryFunction, SandboxEnvironment, SandboxPluginMeta } from './types';
 import { logError, logInfo } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 // Loads near membrane custom formatter for near membrane proxy objects.
 if (process.env.NODE_ENV !== 'production') {
   require('@locker/near-membrane-dom/custom-devtools-formatter');
@@ -134,7 +135,7 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
               `Error in ${meta.id}: Plugins should not use window.grafanaBootData. Use "config" from "@grafana/runtime" instead.`
             );
           } else {
-            console.error(
+            structuredLogFromConsole('error', 
               `${meta.id.toUpperCase()}: Plugins should not use window.grafanaBootData. Use "config" from "@grafana/runtime" instead.`
             );
           }

@@ -2,6 +2,7 @@ import { FormatVariable, SceneObject, sceneUtils } from '@grafana/scenes';
 
 import { getDashboardSceneFor } from '../utils/utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * Handles expressions like ${__dashboard.uid}
  */
@@ -39,7 +40,7 @@ export function registerDashboardMacro() {
 
     return () => unregister();
   } catch (e) {
-    console.error('Error registering dashboard macro', e);
+    structuredLogFromConsole('error', 'Error registering dashboard macro', e);
     return () => {};
   }
 }

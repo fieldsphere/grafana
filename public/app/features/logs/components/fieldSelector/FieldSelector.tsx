@@ -19,6 +19,7 @@ import { LogListModel } from '../panel/processing';
 import { FieldList } from './FieldList';
 import { FieldSearch } from './FieldSearch';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * FieldSelector wrapper for the LogList visualization.
  */
@@ -106,7 +107,7 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
   const fields = useMemo(() => getFieldsWithStats(dataFrames), [dataFrames]);
 
   if (!onClickShowField || !onClickHideField || !setDisplayedFields) {
-    console.warn(
+    structuredLogFromConsole('warn', 
       'LogListFieldSelector: Missing required props: onClickShowField, onClickHideField, setDisplayedFields'
     );
     return null;

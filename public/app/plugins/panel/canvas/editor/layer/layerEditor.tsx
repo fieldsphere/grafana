@@ -13,6 +13,7 @@ import { optionBuilder } from '../options';
 
 import { TreeNavigationEditor } from './TreeNavigationEditor';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface LayerEditorProps {
   scene: Scene;
   layer: FrameState;
@@ -53,7 +54,7 @@ export function getLayerEditor(opts: InstanceState): NestedPanelOptions<LayerEdi
       },
       onChange: (path, value) => {
         if (path === 'type' && value) {
-          console.warn('unable to change layer type');
+          structuredLogFromConsole('warn', 'unable to change layer type');
           return;
         }
         const c = setOptionImmutably(options, path, value);

@@ -58,6 +58,7 @@ import { RowRepeaterBehavior } from './RowRepeaterBehavior';
 import { findSpaceForNewPanel } from './findSpaceForNewPanel';
 import { RowActions } from './row-actions/RowActions';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface DefaultGridLayoutManagerState extends SceneObjectState {
   grid: SceneGridLayout;
 }
@@ -250,7 +251,7 @@ export class DefaultGridLayoutManager
   public duplicatePanel(vizPanel: VizPanel) {
     const gridItem = vizPanel.parent;
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
+      structuredLogFromConsole('error', 'Trying to duplicate a panel that is not inside a DashboardGridItem');
       return;
     }
 

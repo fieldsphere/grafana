@@ -12,6 +12,7 @@ import {
 } from './functions';
 import { CloudMonitoringVariableQuery, MetricDescriptor } from './types/types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export default class CloudMonitoringMetricFindQuery {
   constructor(private datasource: CloudMonitoringDatasource) {}
 
@@ -50,7 +51,7 @@ export default class CloudMonitoringMetricFindQuery {
           return [];
       }
     } catch (error) {
-      console.error(`Could not run CloudMonitoringMetricFindQuery ${query}`, error);
+      structuredLogFromConsole('error', `Could not run CloudMonitoringMetricFindQuery ${query}`, error);
       return [];
     }
   }

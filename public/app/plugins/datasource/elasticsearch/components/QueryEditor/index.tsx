@@ -22,6 +22,7 @@ import { QueryTypeSelector } from './QueryTypeSelector';
 import { RawQueryEditor } from './RawQueryEditor';
 import { changeAliasPattern, changeEditorTypeAndResetQuery, changeQuery, changeRawDSLQuery } from './state';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export type ElasticQueryEditorProps = QueryEditorProps<ElasticDatasource, ElasticsearchDataQuery, ElasticsearchOptions>;
 
 // a react hook that returns the elasticsearch database version,
@@ -38,7 +39,7 @@ function useElasticVersion(datasource: ElasticDatasource): SemVer | null {
       },
       (error) => {
         // we do nothing
-        console.log(error);
+        structuredLogFromConsole('log', error);
       }
     );
 

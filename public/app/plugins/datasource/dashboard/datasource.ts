@@ -31,6 +31,7 @@ import { MIXED_REQUEST_PREFIX } from '../mixed/MixedDataSource';
 
 import { DashboardQuery } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * This should not really be called
  */
@@ -270,7 +271,7 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         options: { value: filter.value },
       });
     } catch (error) {
-      console.warn('Failed to create value matcher for filter:', filter, error);
+      structuredLogFromConsole('warn', 'Failed to create value matcher for filter:', filter, error);
       return null;
     }
   }

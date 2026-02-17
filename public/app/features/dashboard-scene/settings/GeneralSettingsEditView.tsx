@@ -34,6 +34,7 @@ import { getDashboardSceneFor } from '../utils/utils';
 import { DeleteDashboardButton } from './DeleteDashboardButton';
 import { DashboardEditView, DashboardEditViewState, useDashboardEditPageNav } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface GeneralSettingsEditViewState extends DashboardEditViewState {
   showMoveModal?: boolean;
   moveModalProps?: {
@@ -149,7 +150,7 @@ export class GeneralSettingsEditView
       const liveNow = this.getLiveNowTimer();
       enable ? liveNow.enable() : liveNow.disable();
     } catch (err) {
-      console.error(err);
+      structuredLogFromConsole('error', err);
     }
   };
 

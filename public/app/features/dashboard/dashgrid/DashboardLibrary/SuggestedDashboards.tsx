@@ -31,6 +31,7 @@ import {
 } from './utils/communityDashboardHelpers';
 import { getProvisionedDashboardImageUrl } from './utils/provisionedDashboardHelpers';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface Props {
   datasourceUid?: string;
 }
@@ -136,7 +137,7 @@ export const SuggestedDashboards = ({ datasourceUid }: Props) => {
 
       return { dashboards: mixed, hasMoreDashboards };
     } catch (error) {
-      console.error('Error loading suggested dashboards', error);
+      structuredLogFromConsole('error', 'Error loading suggested dashboards', error);
       return { dashboards: [], hasMoreDashboards: false };
     }
   }, [datasourceUid]);

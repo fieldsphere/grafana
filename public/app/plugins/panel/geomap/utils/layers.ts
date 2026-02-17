@@ -15,6 +15,7 @@ import { MapLayerState } from '../types';
 
 import { getNextLayerName } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const layerStateMap = new WeakMap<BaseLayer, MapLayerState>();
 
 export const applyLayerFilter = (
@@ -91,7 +92,7 @@ export async function updateLayer(panel: GeomapPanel, uid: string, newOptions: M
     // initialize with new data
     applyLayerFilter(info.handler, newOptions, panel.props.data);
   } catch (err) {
-    console.warn('ERROR', err); // eslint-disable-line no-console
+    structuredLogFromConsole('warn', 'ERROR', err); // eslint-disable-line no-console
     return false;
   }
 

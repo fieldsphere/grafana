@@ -17,6 +17,7 @@ import { getAllPanelPluginMeta } from '../state/util';
 
 import { panelsToCheckFirst } from './consts';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface PluginLoadResult {
   plugins: PanelPlugin[];
   hasErrors: boolean;
@@ -49,7 +50,7 @@ export async function loadPlugins(pluginIds: string[]): Promise<PluginLoadResult
       plugins.push(settled.value);
     } else {
       const pluginId = pluginIds[i];
-      console.error(`Failed to load ${pluginId} for visualization suggestions:`, settled.reason);
+      structuredLogFromConsole('error', `Failed to load ${pluginId} for visualization suggestions:`, settled.reason);
 
       if (isBuiltInPlugin(pluginId)) {
         hasErrors = true;
@@ -141,7 +142,7 @@ export async function getAllSuggestions(data?: PanelData): Promise<SuggestionsRe
         list.push(...suggestions);
       }
     } catch (e) {
-      console.warn(`error when loading suggestions from plugin "${plugin.meta.id}"`, e);
+      structuredLogFromConsole('warn', `error when loading suggestions from plugin "${plugin.meta.id}"`, e);
       pluginSuggestionsError = true;
     }
   }

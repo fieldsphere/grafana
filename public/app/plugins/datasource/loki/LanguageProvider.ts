@@ -16,6 +16,7 @@ import {
 } from './responseUtils';
 import { DetectedFieldsResult, LabelType, LokiQuery, ParserAndLabelKeysResult } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const NS_IN_MS = 1000000;
 const EMPTY_SELECTOR = '{}';
 const HIDDEN_LABELS = ['__aggregated_metric__', '__tenant_id__', '__stream_shard__'];
@@ -56,7 +57,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
       if (throwError) {
         throw error;
       } else {
-        console.error(error);
+        structuredLogFromConsole('error', error);
       }
     }
 
@@ -286,7 +287,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         const data = await this.request(url, params, true, requestOptions);
         resolve(data);
       } catch (error) {
-        console.error('error', error);
+        structuredLogFromConsole('error', 'error', error);
         reject(error);
       }
     });
@@ -367,7 +368,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         if (queryOptions?.throwError) {
           reject(error);
         } else {
-          console.error(error);
+          structuredLogFromConsole('error', error);
           resolve([]);
         }
       }
@@ -437,7 +438,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
           resolve(labelValues);
         }
       } catch (error) {
-        console.error(error);
+        structuredLogFromConsole('error', error);
         resolve([]);
       }
     });

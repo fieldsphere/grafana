@@ -15,6 +15,7 @@ import { AddPermission } from './AddPermission';
 import { PermissionList } from './PermissionList';
 import { PermissionTarget, ResourcePermission, SetPermission, Description } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const EMPTY_PERMISSION = '';
 
 const INITIAL_DESCRIPTION: Description = {
@@ -101,7 +102,7 @@ export const Permissions = ({
   };
 
   const onChange = (item: ResourcePermission, permission: string) => {
-    console.log('onChange', item, permission);
+    structuredLogFromConsole('log', 'onChange', item, permission);
     if (item.permission === permission) {
       return;
     }
@@ -247,7 +248,7 @@ const getDescription = async (resource: string): Promise<Description> => {
   try {
     return await getBackendSrv().get(`/api/access-control/${resource}/description`);
   } catch (e) {
-    console.error('failed to load resource description: ', e);
+    structuredLogFromConsole('error', 'failed to load resource description: ', e);
     return INITIAL_DESCRIPTION;
   }
 };

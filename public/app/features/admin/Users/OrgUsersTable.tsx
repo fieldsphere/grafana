@@ -31,6 +31,7 @@ import { OrgUser } from 'app/types/user';
 
 import { OrgRolePicker } from '../OrgRolePicker';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 type Cell<T extends keyof OrgUser = keyof OrgUser> = CellProps<OrgUser, OrgUser[T]>;
 
 const disabledRoleMessage = `This user's role is not editable because it is synchronized from your auth provider.
@@ -79,7 +80,7 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        structuredLogFromConsole('error', 'Error loading options');
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

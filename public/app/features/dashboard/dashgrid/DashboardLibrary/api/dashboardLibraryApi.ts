@@ -4,6 +4,7 @@ import { PluginDashboard } from 'app/types/plugins';
 
 import { GnetDashboard, GnetDashboardsResponse, Link } from '../types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * Panel types that are known to allow JavaScript code execution.
  * These panels are filtered out due to security concerns.
@@ -109,7 +110,7 @@ export async function fetchCommunityDashboards(
   }
 
   // Fallback for unexpected response format
-  console.warn('Unexpected API response format from Grafana.com:', result);
+  structuredLogFromConsole('warn', 'Unexpected API response format from Grafana.com:', result);
   return {
     page: params.page,
     pages: 1,
@@ -134,7 +135,7 @@ export async function fetchProvisionedDashboards(datasourceType: string): Promis
     });
     return Array.isArray(dashboards) ? dashboards : [];
   } catch (error) {
-    console.error('Error loading provisioned dashboards', error);
+    structuredLogFromConsole('error', 'Error loading provisioned dashboards', error);
     return [];
   }
 }
@@ -147,7 +148,7 @@ const filterNonSafeDashboards = (dashboards: GnetDashboard[]): GnetDashboard[] =
     const hasLowDownloads = typeof item.downloads === 'number' && item.downloads < MIN_DOWNLOADS_FILTER;
 
     if (hasUnsafePanelTypes || hasLowDownloads) {
-      console.warn(
+      structuredLogFromConsole('warn', 
         `Community dashboard ${item.id} ${item.name} filtered out due to low downloads ${item.downloads} or panel types ${item.panelTypeSlugs?.join(', ')} that can embed JavaScript`
       );
       return false;

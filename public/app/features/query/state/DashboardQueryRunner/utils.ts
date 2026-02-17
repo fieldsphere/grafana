@@ -10,6 +10,7 @@ import { notifyApp } from '../../../../core/reducers/appNotification';
 
 import { DashboardQueryRunnerWorkerResult } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export function handleAnnotationQueryRunnerError(err: any): Observable<AnnotationEvent[]> {
   if (err.cancelled) {
     return of([]);
@@ -38,7 +39,7 @@ export function handleDashboardQueryRunnerWorkerError(err: any): Observable<Dash
 
 function notifyWithError(title: string, err: any) {
   const error = toDataQueryError(err);
-  console.error('handleAnnotationQueryRunnerError', error);
+  structuredLogFromConsole('error', 'handleAnnotationQueryRunnerError', error);
   const notification = createErrorNotification(title, error.message);
   dispatch(notifyApp(notification));
 }

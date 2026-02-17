@@ -88,6 +88,7 @@ import {
 } from './transformToV1TypesUtils';
 import { LEGACY_STRING_VALUE_KEY } from './transformToV2TypesUtils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const DEFAULT_DATASOURCE = 'default';
 
 export type TypedVariableModelV2 =
@@ -287,7 +288,7 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec) {
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structuredLogFromConsole('error', err);
         return null;
       }
     })
@@ -561,7 +562,7 @@ export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVar
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        structuredLogFromConsole('error', err);
         return null;
       }
     })

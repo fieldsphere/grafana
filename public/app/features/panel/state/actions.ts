@@ -9,6 +9,7 @@ import { ThunkResult } from 'app/types/store';
 
 import { changePanelKey, panelModelAndPluginReady, removePanel } from './reducers';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export function initPanelState(panel: PanelModel): ThunkResult<Promise<void>> {
   return async (dispatch, getStore) => {
     if (panel.libraryPanel?.uid && !('model' in panel.libraryPanel)) {
@@ -165,7 +166,7 @@ export function loadLibraryPanelAndUpdate(panel: PanelModel): ThunkResult<void> 
 
       await dispatch(initPanelState(panel));
     } catch (ex) {
-      console.log('ERROR: ', ex);
+      structuredLogFromConsole('log', 'ERROR: ', ex);
       dispatch(
         panelModelAndPluginReady({
           key: panel.key,

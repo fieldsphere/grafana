@@ -41,6 +41,7 @@ import {
 } from '../utils/utils';
 import { isPanelKindV2 } from '../v2schema/validation';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export type ShowContent = 'panel-json' | 'panel-data' | 'data-frames';
 
 export interface InspectJsonTabState extends SceneObjectState {
@@ -157,7 +158,7 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
       const newState = sceneUtils.cloneSceneObjectState(gridItem.state);
 
       if (!(panel.parent instanceof DashboardGridItem)) {
-        console.error('Cannot update state of panel', panel, gridItem);
+        structuredLogFromConsole('error', 'Cannot update state of panel', panel, gridItem);
         return;
       }
 

@@ -12,6 +12,7 @@ import { ServiceAccountDTO } from 'app/types/serviceaccount';
 import { ServiceAccountProfileRow } from './ServiceAccountProfileRow';
 import { ServiceAccountRoleRow } from './ServiceAccountRoleRow';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface Props {
   serviceAccount: ServiceAccountDTO;
   timeZone: TimeZone;
@@ -39,7 +40,7 @@ export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Pr
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options for service account');
+        structuredLogFromConsole('error', 'Error loading options for service account');
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

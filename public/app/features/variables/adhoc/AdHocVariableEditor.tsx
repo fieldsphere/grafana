@@ -13,11 +13,12 @@ import { toKeyedVariableIdentifier } from '../utils';
 
 import { changeVariableDatasource } from './actions';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
 
   if (!rootStateKey) {
-    console.error('AdHocVariableEditor: variable has no rootStateKey');
+    structuredLogFromConsole('error', 'AdHocVariableEditor: variable has no rootStateKey');
     return {
       extended: getAdhocVariableEditorState(initialVariableEditorState),
     };
@@ -44,7 +45,7 @@ export class AdHocVariableEditorUnConnected extends PureComponent<Props> {
   componentDidMount() {
     const { rootStateKey } = this.props.variable;
     if (!rootStateKey) {
-      console.error('AdHocVariableEditor: variable has no rootStateKey');
+      structuredLogFromConsole('error', 'AdHocVariableEditor: variable has no rootStateKey');
       return;
     }
   }

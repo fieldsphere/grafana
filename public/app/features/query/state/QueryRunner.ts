@@ -22,6 +22,7 @@ import { getNextRequestId } from './PanelQueryRunner';
 import { setStructureRevision } from './processing/revision';
 import { runRequest } from './runRequest';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export class QueryRunner implements QueryRunnerSrv {
   private subject: ReplaySubject<PanelData>;
   private subscription?: Unsubscribable;
@@ -113,7 +114,7 @@ export class QueryRunner implements QueryRunnerSrv {
             },
           });
         },
-        error: (error) => console.error('PanelQueryRunner Error', error),
+        error: (error) => structuredLogFromConsole('error', 'PanelQueryRunner Error', error),
       });
   }
 

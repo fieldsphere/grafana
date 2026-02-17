@@ -25,6 +25,7 @@ import { isRetriableError } from './responseUtils';
 import { trackGroupedQueries } from './tracking';
 import { LokiGroupedRequest, LokiQuery } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export function partitionTimeRange(
   isLogsQuery: boolean,
   originalTimeRange: TimeRange,
@@ -173,7 +174,7 @@ export function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        structuredLogFromConsole('error', e);
         shouldStop = true;
         return false;
       }

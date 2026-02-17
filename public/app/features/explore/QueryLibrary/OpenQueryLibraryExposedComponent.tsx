@@ -34,7 +34,8 @@ interface Props {
  * Usage from a plugin:
  * ```tsx
  * import { usePluginComponent } from '@grafana/runtime';
- *
+ import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
+*
  * const { component: OpenQueryLibraryComponent, isLoading } = usePluginComponent(
  *   'grafana/open-query-library/v1'
  * );
@@ -78,7 +79,7 @@ export const OpenQueryLibraryExposedComponent = ({
   }, [datasourceFilters, onSelectQuery, openDrawer, query]);
 
   if (!queryLibraryEnabled) {
-    console.warn(
+    structuredLogFromConsole('warn', 
       '[OpenQueryLibraryExposedComponent]: Attempted to use unsupported exposed component. Query library is not enabled.'
     );
     return null;

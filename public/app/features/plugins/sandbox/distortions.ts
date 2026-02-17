@@ -10,6 +10,7 @@ import { recursivePatchObjectAsLiveTarget } from './documentSandbox';
 import { SandboxEnvironment, SandboxPluginMeta } from './types';
 import { logWarning, unboxRegexesFromMembraneProxy } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * Distortions are near-membrane mechanisms to altert JS instrics and DOM APIs.
  *
@@ -140,7 +141,7 @@ function distortConsole(distortions: DistortionMap) {
       const pluginId = meta.id;
 
       function sandboxLog(...args: unknown[]) {
-        console.log(`[plugin ${pluginId}]`, ...args);
+        structuredLogFromConsole('log', `[plugin ${pluginId}]`, ...args);
       }
       return {
         log: sandboxLog,
@@ -170,7 +171,7 @@ function distortAlert(distortions: DistortionMap) {
     });
 
     return function (...args: unknown[]) {
-      console.log(`[plugin ${pluginId}]`, ...args);
+      structuredLogFromConsole('log', `[plugin ${pluginId}]`, ...args);
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, 'alert');

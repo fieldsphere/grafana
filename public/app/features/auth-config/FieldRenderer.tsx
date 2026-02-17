@@ -9,6 +9,7 @@ import { fieldMap } from './fields';
 import { SSOProviderDTO, SSOSettingsField } from './types';
 import { isSelectableValueArray } from './utils/guards';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface FieldRendererProps
   extends Pick<
     UseFormReturn<SSOProviderDTO>,
@@ -78,7 +79,7 @@ export const FieldRenderer = ({
   }, [isDisabled, disabledWhen?.disabledValue, name, setValue]);
 
   if (!field) {
-    console.log('missing field:', name);
+    structuredLogFromConsole('log', 'missing field:', name);
     return null;
   }
 
@@ -190,7 +191,7 @@ export const FieldRenderer = ({
         </Field>
       );
     default:
-      console.error(`Unknown field type: ${fieldData.type}`);
+      structuredLogFromConsole('error', `Unknown field type: ${fieldData.type}`);
       return null;
   }
 };

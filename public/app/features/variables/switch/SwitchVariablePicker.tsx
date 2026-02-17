@@ -2,6 +2,7 @@ import { ChangeEvent, ReactElement, useCallback } from 'react';
 
 import { SwitchVariableModel } from '@grafana/data';
 import { Switch } from '@grafana/ui';
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 
 import { variableAdapters } from '../adapters';
 import { VariablePickerProps } from '../pickers/types';
@@ -12,7 +13,7 @@ export function SwitchVariablePicker({ variable, onVariableChange }: Props): Rea
   const updateVariable = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       if (!variable.rootStateKey) {
-        console.error('Cannot update variable without rootStateKey');
+        structuredLogFromConsole('error', 'Cannot update variable without rootStateKey');
         return;
       }
 

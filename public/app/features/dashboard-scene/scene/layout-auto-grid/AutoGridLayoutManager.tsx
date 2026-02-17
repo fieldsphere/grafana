@@ -33,6 +33,7 @@ import { AutoGridItem } from './AutoGridItem';
 import { AutoGridLayout } from './AutoGridLayout';
 import { getEditOptions } from './AutoGridLayoutManagerEditor';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface AutoGridLayoutManagerState extends SceneObjectState {
   layout: AutoGridLayout;
   maxColumnCount: number;
@@ -233,7 +234,7 @@ export class AutoGridLayoutManager
   public duplicatePanel(panel: VizPanel) {
     const gridItem = panel.parent;
     if (!(gridItem instanceof AutoGridItem)) {
-      console.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
+      structuredLogFromConsole('error', 'Trying to duplicate a panel that is not inside a DashboardGridItem');
       return;
     }
 

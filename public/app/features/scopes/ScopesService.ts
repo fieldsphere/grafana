@@ -8,6 +8,7 @@ import { ScopesDashboardsService } from './dashboards/ScopesDashboardsService';
 import { deserializeFolderPath, serializeFolderPath } from './dashboards/scopeNavgiationUtils';
 import { ScopesSelectorService } from './selector/ScopesSelectorService';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface State {
   enabled: boolean;
   readOnly: boolean;
@@ -93,7 +94,7 @@ export class ScopesService implements ScopesContextValue {
     const nodeToPreload = scopeNodeId;
     if (nodeToPreload) {
       this.selectorService.resolvePathToRoot(nodeToPreload, this.selectorService.state.tree!).catch((error) => {
-        console.error('Failed to pre-load node path', error);
+        structuredLogFromConsole('error', 'Failed to pre-load node path', error);
       });
     }
 

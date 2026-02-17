@@ -30,6 +30,7 @@ import { SubformArrayField } from './SubformArrayField';
 import { SubformField } from './SubformField';
 import { WrapWithTemplateSelection } from './TemplateSelector';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface Props {
   defaultValue: any;
   option: NotificationChannelOption;
@@ -292,7 +293,7 @@ const OptionInput: FC<Props & { id: string }> = ({
       );
 
     default:
-      console.error('Element not supported', option.element);
+      structuredLogFromConsole('error', 'Element not supported', option.element);
       return null;
   }
 };

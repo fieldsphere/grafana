@@ -13,6 +13,7 @@ import { pluginsLogger } from '../utils';
 import { addTranslationsToI18n } from './addTranslationsToI18n';
 import { PluginImportInfo } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export async function importPluginModule({
   path,
   pluginId,
@@ -68,7 +69,7 @@ export async function importPluginModule({
 
   return SystemJS.import(modulePath).catch((e) => {
     let error = new Error('Could not load plugin', { cause: e });
-    console.error(error);
+    structuredLogFromConsole('error', error);
     pluginsLogger.logError(error, {
       path,
       pluginId,

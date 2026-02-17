@@ -21,6 +21,7 @@ import {
 import LokiLanguageProvider from '../LanguageProvider';
 import { escapeLabelValueInExactSelector, escapeLabelValueInRegexSelector } from '../languageUtils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 // Hard limit on labels to render
 const MAX_LABEL_COUNT = 1000;
 const MAX_VALUE_COUNT = 10000;
@@ -376,7 +377,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
       const values: FacettableValue[] = rawValues.map((value) => ({ name: value }));
       this.updateLabelState(name, { values, loading: false });
     } catch (error) {
-      console.error(error);
+      structuredLogFromConsole('error', error);
     }
   }
 
@@ -404,7 +405,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
         this.updateLabelState(lastFacetted, { loading: false });
       }
     } catch (error) {
-      console.error(error);
+      structuredLogFromConsole('error', error);
     }
   }
 

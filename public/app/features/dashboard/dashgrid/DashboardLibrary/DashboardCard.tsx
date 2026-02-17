@@ -9,6 +9,7 @@ import { PluginDashboard } from 'app/types/plugins';
 
 import { GnetDashboard } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface Details {
   id: string;
   datasource: string;
@@ -57,7 +58,7 @@ function DashboardCardComponent({
               kind === 'suggested_dashboard' ? styles.thumbnailCoverImage : styles.thumbnailContainImage
             )}
             onError={(e) => {
-              console.error('Failed to load image for:', title, 'URL:', imageUrl);
+              structuredLogFromConsole('error', 'Failed to load image for:', title, 'URL:', imageUrl);
               e.currentTarget.style.display = 'none';
             }}
           />

@@ -27,6 +27,7 @@ import {
 
 import { convertDurationToMilliseconds, niceLinearIncrs, niceTimeIncrs } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface HeatmapTransformerOptions extends HeatmapCalculationOptions {
   /** the raw values will still exist in results after transformation */
   keepOriginalData?: boolean;
@@ -592,7 +593,7 @@ function heatmap(xs: number[], ys: number[], opts?: HeatmapOpts) {
     yBinIncr = yIncrs[Math.max(yIncrIdx, 0)];
   }
 
-  // console.log({
+  // structuredLogFromConsole('log', {
   //   yBinIncr,
   //   xBinIncr,
   // });

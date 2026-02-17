@@ -25,6 +25,7 @@ import { AlertQuery } from 'app/types/unified-alerting-dto';
 import { LinkError, createDAGFromQueriesSafe, getDescendants } from '../components/rule-editor/dag';
 import { getTimeRangeForExpression } from '../utils/timeRange';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface AlertingQueryResult {
   error?: string;
   status?: number; // HTTP status error
@@ -210,7 +211,7 @@ const getTimeRange = (query: AlertQuery, queries: AlertQuery[]): TimeRange => {
   }
 
   if (!query.relativeTimeRange) {
-    console.warn(`Query with refId: ${query.refId} did not have any relative time range, using default.`);
+    structuredLogFromConsole('warn', `Query with refId: ${query.refId} did not have any relative time range, using default.`);
     return getDefaultTimeRange();
   }
 

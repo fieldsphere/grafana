@@ -7,6 +7,7 @@ import { AzureQueryEditorFieldProps } from '../../types/types';
 
 import { setKustoQuery } from './setQueryValue';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface MonacoEditorValues {
   editor: MonacoEditor;
   monaco: Monaco;
@@ -29,11 +30,11 @@ const QueryField = ({ query, onQueryChange, schema }: AzureQueryEditorFieldProps
           await kustoMode.setSchema(schema);
         }
       } catch (err) {
-        console.error(err);
+        structuredLogFromConsole('error', err);
       }
     };
 
-    setupEditor(monaco, schema).catch((err) => console.error(err));
+    setupEditor(monaco, schema).catch((err) => structuredLogFromConsole('error', err));
   }, [schema, monaco]);
 
   const handleEditorMount = useCallback((editor: MonacoEditor, monaco: Monaco) => {

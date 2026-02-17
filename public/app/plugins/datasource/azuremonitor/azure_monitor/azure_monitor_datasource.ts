@@ -33,6 +33,7 @@ import migrateQuery from '../utils/migrateQuery';
 import ResponseParser from './response_parser';
 import UrlBuilder from './url_builder';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const defaultDropdownValue = 'select';
 
 function hasValue(item?: string) {
@@ -218,7 +219,7 @@ export default class AzureMonitorDatasource extends DataSourceWithBackend<
         return result;
       })
       .catch((reason) => {
-        console.error(`Failed to get metric namespaces: ${reason}`);
+        structuredLogFromConsole('error', `Failed to get metric namespaces: ${reason}`);
         return [];
       });
   }

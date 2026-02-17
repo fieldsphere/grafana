@@ -35,6 +35,7 @@ import { loadSupplementaryQueries } from '../utils/supplementaryQueries';
 
 import { DEFAULT_RANGE } from './constants';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export const MAX_HISTORY_AUTOCOMPLETE_ITEMS = 100;
 
 const GRAPH_STYLE_KEY = 'grafana.explore.style.graph';
@@ -118,7 +119,7 @@ export async function loadAndInitDatasource(
       instance.init();
     } catch (err) {
       // TODO: should probably be handled better
-      console.error(err);
+      structuredLogFromConsole('error', err);
     }
   }
 

@@ -1,5 +1,7 @@
 import { omitBy, isNil, isNumber, defaultTo, groupBy, omit } from 'lodash';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
+
 import {
   PanelModel,
   FieldMatcherID,
@@ -23,7 +25,7 @@ import { Options } from './panelcfg.gen';
 export const tableMigrationHandler = (panel: PanelModel<Options>): Partial<Options> => {
   // Table was saved as an angular table, lets just swap to the 'table-old' panel
   if (!panel.pluginVersion && 'columns' in panel) {
-    console.log('Was angular table', panel);
+    structuredLogFromConsole('log', 'Was angular table', panel);
   }
 
   migrateTextWrapToFieldLevel(panel);

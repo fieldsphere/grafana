@@ -51,6 +51,7 @@ import { restoreDashboardStateFromLocalStorage } from '../utils/dashboardSession
 
 import { processQueryParamsForDashboardLoad, updateNavModel } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * Initialize both performance services to ensure they're ready before profiling starts
  */
@@ -408,7 +409,7 @@ abstract class DashboardScenePageStateManagerBase<T>
       });
 
       if (!isFetchError(err)) {
-        console.error('Error loading dashboard:', err);
+        structuredLogFromConsole('error', 'Error loading dashboard:', err);
       }
 
       // If the error is a DashboardVersionError, we want to throw it so that the error boundary is triggered
@@ -753,7 +754,7 @@ export class DashboardScenePageStateManager extends DashboardScenePageStateManag
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          structuredLogFromConsole('log', 'not correct url correcting', dashboardUrl, currentPath);
         }
       }
 
@@ -965,7 +966,7 @@ export class DashboardScenePageStateManagerV2 extends DashboardScenePageStateMan
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          structuredLogFromConsole('log', 'not correct url correcting', dashboardUrl, currentPath);
         }
       }
       // Populate nav model in global store according to the folder

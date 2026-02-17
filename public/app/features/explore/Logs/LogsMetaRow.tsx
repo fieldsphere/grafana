@@ -22,6 +22,7 @@ import { MetaInfoText, MetaItemProps } from '../MetaInfoText';
 import { LogsVisualisationType } from './Logs';
 import { SETTINGS_KEYS } from './utils/logs';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const getStyles = () => ({
   metaContainer: css({
     flex: 1,
@@ -161,6 +162,6 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
   if (kind === LogsMetaKind.Error) {
     return <span className="logs-meta-item__error">{value.toString()}</span>;
   }
-  console.error(`Meta type ${typeof value} ${value} not recognized.`);
+  structuredLogFromConsole('error', `Meta type ${typeof value} ${value} not recognized.`);
   return <></>;
 }

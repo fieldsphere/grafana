@@ -16,6 +16,7 @@ import { TeamDTO } from 'app/types/teams';
 
 import { useCreateTeam } from './hooks';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const pageNav: NavModelItem = {
   icon: 'users-alt',
   id: 'team-new',
@@ -58,7 +59,7 @@ const CreateTeam = (): JSX.Element => {
       }
     } catch (e) {
       notifyApp.error(t('teams.create-team.failed-to-create', 'Failed to create team'));
-      console.error(e);
+      structuredLogFromConsole('error', e);
     }
   };
 

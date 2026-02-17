@@ -3,6 +3,7 @@ import { isFetchError } from '@grafana/runtime';
 
 import { HttpError, isHttpError } from '../guards';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface RepositoryInfo {
   owner: string;
   repo: string;
@@ -69,7 +70,7 @@ export async function makeApiRequest(request: ApiRequest) {
 
   if (!response.ok) {
     const errorData = await response.text();
-    console.error('API Error Response:', errorData);
+    structuredLogFromConsole('error', 'API Error Response:', errorData);
     const error: HttpError = new Error(
       t('provisioning.http-utils.http-error', 'HTTP {{status}}: {{statusText}}', {
         status: response.status,

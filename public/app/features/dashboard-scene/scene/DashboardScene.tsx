@@ -92,6 +92,7 @@ import { clearClipboard } from './layouts-shared/paste';
 import { DashboardLayoutManager } from './types/DashboardLayoutManager';
 import { LayoutParent } from './types/LayoutParent';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export const PERSISTED_PROPS = ['title', 'description', 'tags', 'editable', 'graphTooltip', 'links', 'meta', 'preload'];
 export const PANEL_SEARCH_VAR = 'systemPanelFilterVar';
 export const PANELS_PER_ROW_VAR = 'systemDynamicRowSizeVar';
@@ -311,7 +312,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
 
   public exitEditMode({ skipConfirm, restoreInitialState }: { skipConfirm: boolean; restoreInitialState?: boolean }) {
     if (!this.canDiscard()) {
-      console.error('Trying to discard back to a state that does not exist, initialState undefined');
+      structuredLogFromConsole('error', 'Trying to discard back to a state that does not exist, initialState undefined');
       return;
     }
 
@@ -413,7 +414,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
    */
   public discardChangesAndKeepEditing() {
     if (!this.canDiscard()) {
-      console.error('Trying to discard back to a state that does not exist, initialState undefined');
+      structuredLogFromConsole('error', 'Trying to discard back to a state that does not exist, initialState undefined');
       return;
     }
 
@@ -603,7 +604,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
         clearClipboard();
         store.set(LS_PANEL_COPY_KEY, JSON.stringify({ elements, gridItem: gridItemKind }));
       } else {
-        console.error('Trying to copy a panel that is not DashboardGridItem child');
+        structuredLogFromConsole('error', 'Trying to copy a panel that is not DashboardGridItem child');
         throw new Error('Trying to copy a panel that is not DashboardGridItem child');
       }
       return;
@@ -616,7 +617,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
     let gridItem = vizPanel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Trying to copy a panel that is not DashboardGridItem child');
+      structuredLogFromConsole('error', 'Trying to copy a panel that is not DashboardGridItem child');
       throw new Error('Trying to copy a panel that is not DashboardGridItem child');
     }
 
@@ -660,7 +661,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
       return;
     }
 
-    console.error('Trying to unlink a lib panel in a layout that is not DashboardGridItem or AutoGridItem');
+    structuredLogFromConsole('error', 'Trying to unlink a lib panel in a layout that is not DashboardGridItem or AutoGridItem');
   }
 
   public showModal(modal: SceneObject) {
@@ -687,7 +688,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
         },
       });
     } catch (err) {
-      console.error('Failed to star dashboard', err);
+      structuredLogFromConsole('error', 'Failed to star dashboard', err);
     }
   }
 

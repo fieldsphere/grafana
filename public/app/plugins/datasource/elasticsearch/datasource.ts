@@ -268,7 +268,8 @@ export class ElasticDatasource
     annotation: ElasticsearchAnnotationQuery;
     // Should be DashboardModel but cannot import that here from the main app. This is a temporary solution as we need to move from deprecated annotations.
     dashboard: { getVariables: () => TypedVariableModel[] };
-    range: TimeRange;
+    import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
+range: TimeRange;
   }) {
     const annotation = options.annotation;
     const timeField = annotation.timeField || '@timestamp';
@@ -1172,12 +1173,12 @@ export class ElasticDatasource
         try {
           return new SemVer(versionNumber);
         } catch (error) {
-          console.error(error);
+          structuredLogFromConsole('error', error);
           return null;
         }
       },
       (error) => {
-        console.error(error);
+        structuredLogFromConsole('error', error);
         return null;
       }
     );

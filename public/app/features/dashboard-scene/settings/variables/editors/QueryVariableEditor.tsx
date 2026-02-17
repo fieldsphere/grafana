@@ -25,6 +25,7 @@ import { QueryVariableEditorForm } from '../components/QueryVariableForm';
 import { VariableValuesPreview } from '../components/VariableValuesPreview';
 import { hasVariableOptions } from '../utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface QueryVariableEditorProps {
   variable: QueryVariable;
   onRunQuery: () => void;
@@ -131,7 +132,7 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
 
 export function getQueryVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof QueryVariable)) {
-    console.warn('getQueryVariableOptions: variable is not a QueryVariable');
+    structuredLogFromConsole('warn', 'getQueryVariableOptions: variable is not a QueryVariable');
     return [];
   }
 

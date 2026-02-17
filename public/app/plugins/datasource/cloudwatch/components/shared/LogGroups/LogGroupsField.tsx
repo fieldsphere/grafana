@@ -13,6 +13,7 @@ import { LegacyLogGroupSelection } from './LegacyLogGroupNamesSelection';
 import { LogGroupsSelector } from './LogGroupsSelector';
 import { SelectedLogGroups } from './SelectedLogGroups';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 type Props = {
   datasource: CloudWatchDatasource;
   onChange: (logGroups: LogGroup[]) => void;
@@ -72,7 +73,7 @@ export const LogGroupsField = ({
           onChange([...logGroups, ...variables.map((v) => ({ name: v, arn: v }))]);
         })
         .catch((err) => {
-          console.error(err);
+          structuredLogFromConsole('error', err);
         });
     }
   }, [datasource, legacyLogGroupNames, logGroups, onChange, region, loadingLogGroupsStarted]);

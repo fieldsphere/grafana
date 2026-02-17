@@ -1,5 +1,7 @@
 import { omitBy, pickBy, isNil, isNumber, isString } from 'lodash';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
+
 import {
   ConfigOverrideRule,
   DynamicConfigValue,
@@ -283,7 +285,7 @@ export function graphToTimeseriesOptions(angular: any): {
             });
             break;
           default:
-            console.log('Ignore override migration:', seriesOverride.alias, p, v);
+            structuredLogFromConsole('log', 'Ignore override migration:', seriesOverride.alias, p, v);
         }
       }
       if (dashOverride) {

@@ -18,6 +18,7 @@ import { optionBuilder } from '../options';
 
 import { PlacementEditor } from './PlacementEditor';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface CanvasEditorOptions {
   element: ElementState;
   scene: Scene;
@@ -45,7 +46,7 @@ export function getElementEditor(opts: CanvasEditorOptions): NestedPanelOptions<
         if (path === 'type' && value) {
           const layer = canvasElementRegistry.getIfExists(value);
           if (!layer) {
-            console.warn('layer does not exist', value);
+            structuredLogFromConsole('warn', 'layer does not exist', value);
             return;
           }
           options = {

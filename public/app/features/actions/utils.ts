@@ -26,6 +26,7 @@ import { getNextRequestId } from '../query/state/PanelQueryRunner';
 
 import { reportActionTrigger } from './analytics';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /** @internal */
 export const isInfinityActionWithAuth = (action: Action): boolean => {
   return (grafanaConfig.featureToggles.vizActionsAuth ?? false) && action.type === ActionType.Infinity;
@@ -120,7 +121,7 @@ export const getActions = (
                   appEvents.emit(AppEvents.alertError, [
                     'An error has occurred. Check console output for more details.',
                   ]);
-                  console.error(error);
+                  structuredLogFromConsole('error', error);
                 },
                 complete: () => {
                   appEvents.emit(AppEvents.alertSuccess, ['API call was successful']);
@@ -128,7 +129,7 @@ export const getActions = (
               });
           } catch (error) {
             appEvents.emit(AppEvents.alertError, ['An error has occurred. Check console output for more details.']);
-            console.error(error);
+            structuredLogFromConsole('error', error);
             return;
           }
         },

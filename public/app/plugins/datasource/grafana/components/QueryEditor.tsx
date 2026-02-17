@@ -22,6 +22,7 @@ import { defaultQuery, GrafanaQuery, GrafanaQueryType } from '../types';
 
 import { RandomWalkEditor } from './RandomWalkEditor';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface Props extends QueryEditorProps<GrafanaDatasource, GrafanaQuery>, Themeable2 {}
 
 const labelWidth = 12;
@@ -142,7 +143,7 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         try {
           buffer = rangeUtil.intervalToSeconds(txt) * 1000;
         } catch (err) {
-          console.warn('ERROR', err);
+          structuredLogFromConsole('warn', 'ERROR', err);
         }
       }
       onChange({

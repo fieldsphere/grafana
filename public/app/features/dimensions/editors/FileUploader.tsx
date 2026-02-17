@@ -8,6 +8,7 @@ import { SanitizedSVG } from 'app/core/components/SVG/SanitizedSVG';
 
 import { MediaType } from '../types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface Props {
   setFormData: Dispatch<SetStateAction<FormData>>;
   mediaType: MediaType;
@@ -47,7 +48,7 @@ export const FileUploader = ({ mediaType, setFormData, setUpload, error }: Props
   const onFileRemove = (file: DropzoneFile) => {
     fetch(`/api/storage/delete/upload/${file.file.name}`, {
       method: 'DELETE',
-    }).catch((error) => console.error('cannot delete file', error));
+    }).catch((error) => structuredLogFromConsole('error', 'cannot delete file', error));
   };
 
   const acceptableFiles =

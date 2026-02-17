@@ -17,6 +17,7 @@ import {
 } from '@grafana/ui';
 import { FacetedData, TimeRange2, TooltipHoverMode } from '@grafana/ui/internal';
 import { ColorScale } from 'app/core/components/ColorScale/ColorScale';
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 import { readHeatmapRowsCustomMeta } from 'app/features/transformers/calculateHeatmap/heatmap';
 
 import { getXAxisConfig } from '../../../core/components/TimeSeries/utils';
@@ -54,7 +55,7 @@ export const HeatmapPanel = (props: HeatmapPanelProps) => {
         timeRange,
       });
     } catch (ex) {
-      console.error(ex);
+      structuredLogFromConsole('error', ex);
       return { warning: `${ex}` };
     }
   }, [data.series, data.annotations, options, palette, theme, replaceVariables, timeRange]);

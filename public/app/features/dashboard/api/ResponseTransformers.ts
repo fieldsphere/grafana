@@ -83,6 +83,7 @@ import { DashboardDataDTO, DashboardDTO } from 'app/types/dashboard';
 import { DashboardWithAccessInfo } from './types';
 import { isDashboardResource, isDashboardV0Spec, isDashboardV2Resource, isDashboardV2Spec } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export function ensureV2Response(
   dto: DashboardDTO | DashboardWithAccessInfo<DashboardDataDTO> | DashboardWithAccessInfo<DashboardV2Spec>
 ): DashboardWithAccessInfo<DashboardV2Spec> {
@@ -706,7 +707,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         let query = v.query || {};
 
         if (typeof query === 'string') {
-          console.warn(
+          structuredLogFromConsole('warn', 
             'Query variable query is a string which is deprecated in the schema v2. It should extend DataQuery'
           );
           query = {
@@ -919,7 +920,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v.type}`);
+        structuredLogFromConsole('error', `Variable transformation not implemented: ${v.type}`);
     }
   }
   return variables;
@@ -1132,7 +1133,7 @@ function getVariablesV1(vars: DashboardV2Spec['variables']): VariableModel[] {
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v}`);
+        structuredLogFromConsole('error', `Variable transformation not implemented: ${v}`);
     }
   }
   return variables;

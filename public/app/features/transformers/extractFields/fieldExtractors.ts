@@ -2,6 +2,7 @@ import { escapeStringForRegex, Registry, RegistryItem, stringStartsAsRegEx, stri
 
 import { ExtractFieldsOptions, FieldExtractorID } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 type Parser = (v: string) => Record<string, any> | undefined;
 
 export interface FieldExtractor extends RegistryItem {
@@ -29,7 +30,7 @@ const extRegExp: FieldExtractor = {
         regex = stringToJsRegex(options.regExp!);
       } catch (error) {
         if (error instanceof Error) {
-          console.warn(error.message);
+          structuredLogFromConsole('warn', error.message);
         }
       }
     }

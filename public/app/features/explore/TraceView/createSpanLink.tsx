@@ -32,6 +32,7 @@ import { ExploreFieldLinkModel, getFieldLinksForExplore, getVariableUsageInfo } 
 import { SpanLinkDef, SpanLinkFunc, SpanLinkType } from './components/types/links';
 import { Trace, TraceSpan, TraceSpanReference } from './components/types/trace';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * This is a factory for the link creator. It returns the function mainly so it can return undefined in which case
  * the trace view won't create any links and to capture the datasource and split function making it easier to memoize
@@ -123,7 +124,7 @@ export function createSpanLinkFactory({
         spanLinks.push.apply(spanLinks, newSpanLinks);
       } catch (error) {
         // It's fairly easy to crash here for example if data source defines wrong interpolation in the data link
-        console.error(error);
+        structuredLogFromConsole('error', error);
         return spanLinks;
       }
     }

@@ -20,6 +20,7 @@ import { SnapshotVariable } from '../serialization/custom-variables/SnapshotVari
 
 import { getCurrentValueForOldIntervalModel, getIntervalsFromQueryString } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const DEFAULT_DATASOURCE = 'default';
 
 export function createVariablesForDashboard(oldModel: DashboardModel) {
@@ -28,7 +29,7 @@ export function createVariablesForDashboard(oldModel: DashboardModel) {
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structuredLogFromConsole('error', err);
         return null;
       }
     })
@@ -74,7 +75,7 @@ export function createVariablesForSnapshot(oldModel: DashboardModel) {
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        structuredLogFromConsole('error', err);
         return null;
       }
     })

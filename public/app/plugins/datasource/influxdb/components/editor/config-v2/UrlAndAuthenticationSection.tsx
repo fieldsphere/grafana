@@ -31,6 +31,7 @@ import {
 import { Props } from './types';
 import { INFLUXDB_VERSION_MAP, InfluxDBProduct } from './versions';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const getQueryLanguageOptions = (productName: string): Array<{ value: string }> => {
   const product = INFLUXDB_VERSION_MAP.find(({ name }) => name === productName);
   return product?.queryLanguages?.map(({ name }) => ({ value: name })) ?? [];
@@ -104,7 +105,7 @@ export const UrlAndAuthenticationSection = (props: Props) => {
         }
       }
     } catch (err) {
-      console.error('Failed to get InfluxDB version:', err);
+      structuredLogFromConsole('error', 'Failed to get InfluxDB version:', err);
     }
 
     return { product: undefined, version: undefined };

@@ -42,6 +42,7 @@ import { getUpdatedHoverHeader } from '../getPanelFrameOptions';
 
 import { PanelDataPaneTab, TabId, PanelDataTabHeaderProps } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface PanelDataQueriesTabState extends SceneObjectState {
   datasource?: DataSourceApi;
   dsSettings?: DataSourceInstanceSettings;
@@ -145,7 +146,7 @@ export class PanelDataQueriesTab extends SceneObjectBase<PanelDataQueriesTabStat
         });
       }
 
-      console.error(err);
+      structuredLogFromConsole('error', err);
     }
   }
 

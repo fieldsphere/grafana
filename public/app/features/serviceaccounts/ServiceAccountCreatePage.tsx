@@ -16,6 +16,7 @@ import { ServiceAccountDTO, ServiceAccountCreateApiResponse } from 'app/types/se
 
 import { OrgRolePicker } from '../admin/OrgRolePicker';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface Props {}
 
 const createServiceAccount = async (sa: ServiceAccountDTO) => {
@@ -68,7 +69,7 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options', e); // TODO: handle error
+        structuredLogFromConsole('error', 'Error loading options', e); // TODO: handle error
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {
@@ -101,7 +102,7 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           await updateUserRoles(pendingRoles, newAccount.id, newAccount.orgId);
         }
       } catch (e) {
-        console.error(e); // TODO: handle error
+        structuredLogFromConsole('error', e); // TODO: handle error
       }
       locationService.push(`/org/serviceaccounts/${response.uid}`);
     },

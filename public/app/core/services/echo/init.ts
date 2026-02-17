@@ -5,6 +5,7 @@ import { contextSrv } from '../context_srv';
 
 import { Echo } from './Echo';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 // Initialise EchoSrv backends, calls during frontend app startup
 export async function initEchoSrv() {
   setEchoSrv(new Echo({ debug: process.env.NODE_ENV === 'development' }));
@@ -28,43 +29,43 @@ export async function initEchoSrv() {
   try {
     await initPerformanceBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Performance backend', error);
+    structuredLogFromConsole('error', 'Error initializing EchoSrv Performance backend', error);
   }
 
   try {
     await initFaroBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Faro backend', error);
+    structuredLogFromConsole('error', 'Error initializing EchoSrv Faro backend', error);
   }
 
   try {
     await initGoogleAnalyticsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalytics backend', error);
+    structuredLogFromConsole('error', 'Error initializing EchoSrv GoogleAnalytics backend', error);
   }
 
   try {
     await initGoogleAnalaytics4Backend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalaytics4 backend', error);
+    structuredLogFromConsole('error', 'Error initializing EchoSrv GoogleAnalaytics4 backend', error);
   }
 
   try {
     await initRudderstackBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Rudderstack backend', error);
+    structuredLogFromConsole('error', 'Error initializing EchoSrv Rudderstack backend', error);
   }
 
   try {
     await initAzureAppInsightsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv AzureAppInsights backend', error);
+    structuredLogFromConsole('error', 'Error initializing EchoSrv AzureAppInsights backend', error);
   }
 
   try {
     await initConsoleBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Console backend', error);
+    structuredLogFromConsole('error', 'Error initializing EchoSrv Console backend', error);
   }
 }
 

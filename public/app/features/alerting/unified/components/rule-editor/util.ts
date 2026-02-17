@@ -17,6 +17,7 @@ import { AlertQuery } from 'app/types/unified-alerting-dto';
 
 import { createDagFromQueries, getOriginOfRefId } from './dag';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export function queriesWithUpdatedReferences(
   queries: AlertQuery[],
   previousRefId: string,
@@ -210,7 +211,7 @@ export function getThresholdsForQueries(queries: AlertQuery[], condition: string
           }
         });
       } catch (err) {
-        console.error('Failed to parse thresholds', err);
+        structuredLogFromConsole('error', 'Failed to parse thresholds', err);
         return;
       }
     });

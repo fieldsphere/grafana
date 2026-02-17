@@ -22,6 +22,7 @@ import { Sorters } from '../helpers';
 import { useHistory } from '../hooks/useHistory';
 import { useGetAll, useGetUpdatable, useIsRemotePluginsAvailable } from '../state/hooks';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export default function Browse() {
   const location = useLocation();
   const locationSearch = locationSearchToObject(location.search);
@@ -72,7 +73,7 @@ export default function Browse() {
 
   // How should we handle errors?
   if (error) {
-    console.error(error.message);
+    structuredLogFromConsole('error', error.message);
     return null;
   }
 
