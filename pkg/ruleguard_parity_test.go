@@ -1511,6 +1511,11 @@ func TestCanonicalPathKeyNormalization(t *testing.T) {
 			in:   `\\server\share\pkg`,
 			want: "//server/share/pkg",
 		},
+		{
+			name: "unc with repeated slashes normalizes and keeps prefix",
+			in:   "////server//share//pkg",
+			want: "//server/share/pkg",
+		},
 	}
 
 	for _, tc := range testCases {
