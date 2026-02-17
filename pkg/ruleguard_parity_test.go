@@ -1116,6 +1116,56 @@ func f() {
 	}
 }
 
+func TestIsRuntimeGoSourcePath(t *testing.T) {
+	base := filepath.Join(string(filepath.Separator), "repo")
+
+	testCases := []struct {
+		name string
+		path string
+		want bool
+	}{
+		{
+			name: "runtime pkg go file",
+			path: filepath.Join(base, "pkg", "services", "authn", "client.go"),
+			want: true,
+		},
+		{
+			name: "runtime apps go file",
+			path: filepath.Join(base, "apps", "dashboard", "migration.go"),
+			want: true,
+		},
+		{
+			name: "test file excluded",
+			path: filepath.Join(base, "pkg", "services", "authn", "client_test.go"),
+			want: false,
+		},
+		{
+			name: "ruleguard rules excluded",
+			path: filepath.Join(base, "pkg", "ruleguard.rules.go"),
+			want: false,
+		},
+		{
+			name: "testdata path excluded",
+			path: filepath.Join(base, "pkg", "services", "testdata", "fixture.go"),
+			want: false,
+		},
+		{
+			name: "non go file excluded",
+			path: filepath.Join(base, "pkg", "services", "authn", "README.md"),
+			want: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := isRuntimeGoSourcePath(tc.path)
+			if got != tc.want {
+				t.Fatalf("isRuntimeGoSourcePath(%q) = %v, want %v", tc.path, got, tc.want)
+			}
+		})
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
@@ -1265,8 +1315,13 @@ func runtimeScanRoots(t *testing.T) []string {
 func walkRuntimeGoFiles(t *testing.T, visit func(path string) error) error {
 	t.Helper()
 
-	testdataSegment := string(filepath.Separator) + "testdata" + string(filepath.Separator)
 	for _, root := range runtimeScanRoots(t) {
+		if _, err := os.Stat(root); err != nil {
+			if os.IsNotExist(err) {
+				continue
+			}
+			return err
+		}
 		if err := filepath.WalkDir(root, func(path string, d os.DirEntry, walkErr error) error {
 			if walkErr != nil {
 				return walkErr
@@ -1274,10 +1329,7 @@ func walkRuntimeGoFiles(t *testing.T, visit func(path string) error) error {
 			if d.IsDir() {
 				return nil
 			}
-			if strings.Contains(path, testdataSegment) {
-				return nil
-			}
-			if !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "ruleguard.rules.go") {
+			if !isRuntimeGoSourcePath(path) {
 				return nil
 			}
 			return visit(path)
@@ -1287,6 +1339,22 @@ func walkRuntimeGoFiles(t *testing.T, visit func(path string) error) error {
 	}
 
 	return nil
+}
+
+func isRuntimeGoSourcePath(path string) bool {
+	if !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "ruleguard.rules.go") {
+		return false
+	}
+
+	cleanPath := filepath.Clean(path)
+	pathSegments := strings.Split(cleanPath, string(filepath.Separator))
+	for _, segment := range pathSegments {
+		if segment == "testdata" {
+			return false
+		}
+	}
+
+	return true
 }
 
 func blockContainsRecover(body *ast.BlockStmt) bool {
