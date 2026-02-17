@@ -8,11 +8,11 @@ function emit(level: 'warn' | 'error', message: string, context?: LogContext): v
   }
 
   if (context) {
-    method(message, context);
+    method.call(sink, message, context);
     return;
   }
 
-  method(message);
+  method.call(sink, message);
 }
 
 export function logI18nError(message: string, context?: LogContext): void {
