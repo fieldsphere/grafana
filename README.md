@@ -26,6 +26,7 @@ Unsure if Grafana is for you? Watch Grafana in action on [play.grafana.org](http
 
 The Grafana documentation is available at [grafana.com/docs](https://grafana.com/docs/).
 For structured logging verification and closeout gates, refer to the [structured logging closeout summary](docs/structured-logging-closeout-summary.md).
+For a one-command all-modes closeout run, use `make verify-structured-logging-closeout-matrix`.
 
 ## Contributing
 
