@@ -84,7 +84,7 @@ rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," apps
 - **Run recover alias probe in `pkg/**`:** This command validates recover-window forbidden alias usage does not exist in runtime package code:
 
 ```sh
-rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," pkg --glob "*.go" -U
+rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," pkg --glob "*.go" -U --files-with-matches
 ```
 
 - **Run structured key casing probes:** These commands validate there are no runtime `*Id` or `*Uid` structured key regressions in logging and context vectors:
