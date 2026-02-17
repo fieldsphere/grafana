@@ -66,19 +66,19 @@ go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/lo
 - **Run print/log gate probe:** This command validates there are no runtime `fmt.Print*` or `log.Print*` regressions:
 
 ```sh
-rg "fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(" --glob "*.go"
+rg "fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(" --glob "*.go" --files-with-matches
 ```
 
 - **Run frontend console gate probe:** This command validates there are no production `console.*` regressions:
 
 ```sh
-rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" --glob "*.{ts,tsx,js,mjs,html}"
+rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" --glob "*.{ts,tsx,js,mjs,html}" --files-with-matches
 ```
 
 - **Run recover alias probe in `apps/**`:** This command validates recover-window forbidden alias usage is absent in application runtime paths:
 
 ```sh
-rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," apps --glob "*.go" -U
+rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," apps --glob "*.go" -U --files-with-matches
 ```
 
 - **Run recover alias probe in `pkg/**`:** This command validates recover-window forbidden alias usage does not exist in runtime package code:
@@ -90,15 +90,15 @@ rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," pkg 
 - **Run structured key casing probes:** These commands validate there are no runtime `*Id` or `*Uid` structured key regressions in logging and context vectors:
 
 ```sh
-rg "\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Id\"" pkg --glob "*.go"
-rg "\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Uid\"" pkg --glob "*.go"
+rg "\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Id\"" pkg --glob "*.go" --files-with-matches
+rg "\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Uid\"" pkg --glob "*.go" --files-with-matches
 ```
 
 - **Run trace event naming probes:** These commands validate there are no remaining PascalCase or separator-shaped `AddEvent` names in runtime paths:
 
 ```sh
-rg "\\.AddEvent\\(\\s*\"[A-Z][^\"]*\"" pkg --glob "*.go"
-rg "\\.AddEvent\\(\\s*\"[^\"]*[\\s:_/\\-][^\"]*\"" pkg --glob "*.go"
+rg "\\.AddEvent\\(\\s*\"[A-Z][^\"]*\"" pkg --glob "*.go" --files-with-matches
+rg "\\.AddEvent\\(\\s*\"[^\"]*[\\s:_/\\-][^\"]*\"" pkg --glob "*.go" --files-with-matches
 ```
 
 ## Expected command outcomes
