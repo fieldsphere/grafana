@@ -116,8 +116,9 @@ When closeout gates are healthy, you should see the following outcomes:
 
 ## Related resources
 
-- The project plan and execution notes track the detailed sequence of closeout updates.
-- The parity test suite in `pkg/ruleguard_parity_test.go` contains the regression checks used to enforce these guarantees.
+- The [ruleguard parity test suite](../pkg/ruleguard_parity_test.go) contains the regression checks that enforce these guarantees.
+- The [ruleguard definitions](../pkg/ruleguard.rules.go) contain the static-analysis rules enforced during closeout.
+- The [project README](../README.md) contains repository-level development context for follow-up work.
 
 ## Next steps
 
