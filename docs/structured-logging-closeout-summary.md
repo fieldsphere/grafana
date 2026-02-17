@@ -70,19 +70,7 @@ You can also run dedicated `make` shortcuts for partial modes:
 ```sh
 make verify-structured-logging-closeout-quick
 make verify-structured-logging-closeout-probes
-```
-
-For `make` shortcuts that map to script modes:
-
-```sh
-make verify-structured-logging-closeout-quick
-make verify-structured-logging-closeout-probes
-```
-
-You can also run the script through `make`:
-
-```sh
-make verify-structured-logging-closeout
+make verify-structured-logging-closeout-tests
 ```
 
 For a faster local pass that skips race tests, run:
@@ -95,6 +83,12 @@ For probe-only triage without tests, run:
 
 ```sh
 ./scripts/verify-structured-logging-closeout.sh --probes-only
+```
+
+For test-only execution without probes, run:
+
+```sh
+./scripts/verify-structured-logging-closeout.sh --tests-only
 ```
 
 - **Run recover and parity tests:** This command validates recover parity and runtime guardrail tests:
