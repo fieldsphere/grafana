@@ -1364,6 +1364,39 @@ func TestWalkRuntimeGoFilesInRootsDeduplicatesRoots(t *testing.T) {
 	}
 }
 
+func TestWalkRuntimeGoFilesInRootsDeterministicRootOrder(t *testing.T) {
+	tempDir := t.TempDir()
+	rootA := filepath.Join(tempDir, "a_root")
+	rootB := filepath.Join(tempDir, "b_root")
+	if err := os.MkdirAll(rootA, 0o755); err != nil {
+		t.Fatalf("mkdir rootA: %v", err)
+	}
+	if err := os.MkdirAll(rootB, 0o755); err != nil {
+		t.Fatalf("mkdir rootB: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(rootA, "keep.go"), []byte("package a\n"), 0o644); err != nil {
+		t.Fatalf("write rootA file: %v", err)
+	}
+	if err := os.WriteFile(filepath.Join(rootB, "keep.go"), []byte("package b\n"), 0o644); err != nil {
+		t.Fatalf("write rootB file: %v", err)
+	}
+
+	visited := make([]string, 0, 2)
+	err := walkRuntimeGoFilesInRoots([]string{rootB, rootA}, func(path string) error {
+		visited = append(visited, filepath.Base(filepath.Dir(path)))
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk roots deterministic order: %v", err)
+	}
+	if len(visited) != 2 {
+		t.Fatalf("expected 2 visited files, got %d (%v)", len(visited), visited)
+	}
+	if visited[0] != "a_root" || visited[1] != "b_root" {
+		t.Fatalf("expected deterministic root order [a_root b_root], got %v", visited)
+	}
+}
+
 func TestUniqueNonEmptyCleanPaths(t *testing.T) {
 	input := []string{
 		"",
