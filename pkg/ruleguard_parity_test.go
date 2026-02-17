@@ -1761,6 +1761,44 @@ func TestCollapseConsecutiveSlashes(t *testing.T) {
 	}
 }
 
+func TestSlashNormalizedPath(t *testing.T) {
+	testCases := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			name: "windows backslashes normalize to forward slashes",
+			in:   `C:\repo\pkg\file.go`,
+			want: "C:/repo/pkg/file.go",
+		},
+		{
+			name: "forward slashes preserved",
+			in:   "/tmp/runtime/file.go",
+			want: "/tmp/runtime/file.go",
+		},
+		{
+			name: "mixed slashes normalize",
+			in:   `\\server/share\pkg/file.go`,
+			want: "//server/share/pkg/file.go",
+		},
+		{
+			name: "mixed drive separators normalize",
+			in:   `C:\repo/pkg\mixed/path.go`,
+			want: "C:/repo/pkg/mixed/path.go",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := slashNormalizedPath(tc.in)
+			if got != tc.want {
+				t.Fatalf("slashNormalizedPath(%q) = %q, want %q", tc.in, got, tc.want)
+			}
+		})
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
