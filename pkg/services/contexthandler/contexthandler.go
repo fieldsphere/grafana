@@ -144,11 +144,11 @@ func (h *ContextHandler) setRequestContext(ctx context.Context) context.Context 
 
 	h.excludeSensitiveHeadersFromRequest(reqContext.Req)
 
-	reqContext.Logger = reqContext.Logger.New("userId", reqContext.UserID, "orgId", reqContext.OrgID, "uname", reqContext.Login)
-	span.AddEvent("user", trace.WithAttributes(
-		attribute.String("uname", reqContext.Login),
-		attribute.Int64("orgId", reqContext.OrgID),
-		attribute.Int64("userId", reqContext.UserID),
+	reqContext.Logger = reqContext.Logger.New("userID", reqContext.UserID, "orgID", reqContext.OrgID, "userLogin", reqContext.Login)
+	span.AddEvent("authenticatedUser", trace.WithAttributes(
+		attribute.String("userLogin", reqContext.Login),
+		attribute.Int64("orgID", reqContext.OrgID),
+		attribute.Int64("userID", reqContext.UserID),
 	))
 
 	if h.cfg.IDResponseHeaderEnabled && reqContext.SignedInUser != nil {

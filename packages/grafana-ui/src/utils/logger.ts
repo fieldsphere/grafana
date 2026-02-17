@@ -1,12 +1,13 @@
 import { throttle } from 'lodash';
+import { logUiDebug } from './structuredLogging';
 
-type Args = Parameters<typeof console.log>;
+type Args = unknown[];
 
 /**
  * @internal
  * */
 const throttledLog = throttle((...t: Args) => {
-  console.log(...t);
+  logUiDebug('Grafana UI throttled debug log', { operation: 'throttledLog', args: t });
 }, 500);
 
 /**
@@ -32,8 +33,16 @@ export const createLogger = (name: string): Logger => {
       if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test' || !loggingEnabled) {
         return;
       }
-      const fn = throttle ? throttledLog : console.log;
-      fn(`[${name}: ${id}]:`, ...t);
+      if (throttle) {
+        throttledLog(`[${name}: ${id}]:`, ...t);
+      } else {
+        logUiDebug('Grafana UI debug log', {
+          operation: 'createLogger.logger',
+          loggerName: name,
+          id,
+          args: t,
+        });
+      }
     },
     enable: () => (loggingEnabled = true),
     disable: () => (loggingEnabled = false),

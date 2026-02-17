@@ -30,7 +30,7 @@ func NewFileStore(orgID int64, store kvstore.KVStore) *FileStore {
 	return &FileStore{
 		orgID:  orgID,
 		kv:     kvstore.WithNamespace(store, orgID, KVNamespace),
-		logger: log.New("ngalert.notifier.alertmanager.file_store", orgID),
+		logger: log.New("ngalert.notifier.alertmanager.file_store", "orgID", orgID),
 	}
 }
 

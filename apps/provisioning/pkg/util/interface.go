@@ -17,8 +17,8 @@ import "reflect"
 //
 //	var p *int = nil        // p is a nil pointer
 //	var i interface{} = p   // i holds a typed nil (*int)(nil)
-//	fmt.Println(i == nil)   // prints: false (this is the gotcha!)
-//	fmt.Println(IsInterfaceNil(i)) // prints: true (correctly identifies nil)
+//	_ = i == nil            // false (this is the gotcha!)
+//	_ = IsInterfaceNil(i)   // true (correctly identifies nil)
 //
 // Common scenario with error interfaces:
 //

@@ -3,7 +3,7 @@ package search_test
 import (
 	"context"
 	"fmt"
-	"log"
+	"log/slog"
 	"strings"
 	"testing"
 	"time"
@@ -297,16 +297,16 @@ func debugAnalyzer(index bleve.Index, analyzerName string, text string) {
 	// Get the analyzer (default: "standard")
 	analyzer := index.Mapping().AnalyzerNamed(analyzerName)
 	if analyzer == nil {
-		log.Fatal("Analyzer not found")
+		panic("Analyzer not found")
 	}
 
 	// Analyze text to see generated tokens
 	analysisResult := analyzer.Analyze([]byte(text))
 
 	// Print tokens
-	fmt.Println("Generated tokens for analyzer:", analyzerName)
+	slog.Debug("Generated tokens for analyzer", "analyzer", analyzerName)
 	for _, token := range analysisResult {
-		fmt.Println(string(token.Term))
+		slog.Debug("Analyzer token", "term", string(token.Term))
 	}
 }
 
@@ -316,7 +316,7 @@ func debugIndexedTerms(index bleve.Index, field string) {
 	// Check what terms exist for the title field
 	fieldTerms, err := index.FieldDict(field)
 	if err != nil {
-		log.Fatal(err)
+		panic(err)
 	}
 
 	for {
@@ -325,7 +325,7 @@ func debugIndexedTerms(index bleve.Index, field string) {
 			break
 		}
 		if term != nil {
-			fmt.Println(term.Term)
+			slog.Debug("Indexed term", "field", field, "term", term.Term)
 		}
 	}
 }

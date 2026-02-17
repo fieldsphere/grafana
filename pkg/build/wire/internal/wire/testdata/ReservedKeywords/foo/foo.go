@@ -16,11 +16,12 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 func main() {
 	i := injectInterface()
-	fmt.Println(i)
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", i))
 }
 
 type Interface int

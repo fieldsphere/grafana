@@ -271,7 +271,7 @@ func (e *DataSourceHandler) handleQueryError(frameErr string, err error, query s
 
 func (e *DataSourceHandler) handlePanic(logger log.Logger, queryResult *DBDataResponse, ch chan DBDataResponse) {
 	if r := recover(); r != nil {
-		logger.Error("ExecuteQuery panic", "error", r, "stack", string(debug.Stack()))
+		logger.Error("ExecuteQuery panic", "panicValue", r, "stack", string(debug.Stack()))
 		if theErr, ok := r.(error); ok {
 			queryResult.dataResponse.Error = theErr
 			queryResult.dataResponse.ErrorSource = backend.ErrorSourcePlugin
@@ -370,7 +370,7 @@ func (e *DataSourceHandler) processFrame(frame *data.Frame, qm *dataQueryModel, 
 			var err error
 			frame, err = sqlutil.ResampleWideFrame(frame, qm.FillMissing, alignedTimeRange, qm.Interval) //nolint:staticcheck
 			if err != nil {
-				logger.Error("Failed to resample dataframe", "err", err)
+				logger.Error("Failed to resample dataframe", "error", err)
 				frame.AppendNotices(data.Notice{Text: "Failed to resample dataframe", Severity: data.NoticeSeverityWarning})
 				return
 			}

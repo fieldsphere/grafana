@@ -32,7 +32,7 @@ func GetFirstSubscriptionOrDefault(ctx context.Context, dsInfo types.DatasourceI
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			logger.Warn("Failed to close response body", "err", err)
+			logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -60,7 +60,7 @@ func ParseSubscriptions(res *http.Response, logger log.Logger) ([]string, error)
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			logger.Warn("Failed to close response body", "err", err)
+			logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

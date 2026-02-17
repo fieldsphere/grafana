@@ -44,17 +44,17 @@ func Test_prepareLog(t *testing.T) {
 
 			expectFields: map[string]any{
 				"method":      "GET",
-				"path":        "/",
-				"status":      0,
-				"remote_addr": "",
-				"time_ms":     0,
+				"requestPath": "/",
+				"statusCode":  0,
+				"remoteAddr":  "",
+				"timeMs":      0,
 				"duration":    "0s",
 				"size":        0,
 				"referer":     "",
 			},
 			expectAbsence: map[string]struct{}{
-				"error":         {},
-				"db_call_count": {},
+				"error":       {},
+				"dbCallCount": {},
 			},
 		},
 		{
@@ -64,17 +64,17 @@ func Test_prepareLog(t *testing.T) {
 
 			expectFields: map[string]any{
 				"method":      "GET",
-				"path":        "/",
-				"status":      0,
-				"remote_addr": "",
-				"time_ms":     0,
+				"requestPath": "/",
+				"statusCode":  0,
+				"remoteAddr":  "",
+				"timeMs":      0,
 				"duration":    "0s",
 				"size":        0,
 				"referer":     "",
 			},
 			expectAbsence: map[string]struct{}{
-				"error":         {},
-				"db_call_count": {},
+				"error":       {},
+				"dbCallCount": {},
 			},
 			expectedLevel: errutil.LevelInfo,
 		},
@@ -87,12 +87,13 @@ func Test_prepareLog(t *testing.T) {
 			error: fmt.Errorf("got an error"),
 
 			expectFields: map[string]any{
-				"status": http.StatusInternalServerError,
-				"error":  "got an error",
+				"statusCode": http.StatusInternalServerError,
+				"error":      fmt.Errorf("got an error"),
 			},
 			expectAbsence: map[string]struct{}{
 				"errorReason":    {},
 				"errorMessageID": {},
+				"errorMessage":   {},
 			},
 			expectedLevel: errutil.LevelError,
 		},
@@ -104,8 +105,8 @@ func Test_prepareLog(t *testing.T) {
 			},
 			error: grafanaFlavoredErr,
 			expectFields: map[string]any{
-				"status":         http.StatusNotFound,
-				"error":          "got error",
+				"statusCode":     http.StatusNotFound,
+				"errorMessage":   "got error",
 				"errorReason":    errutil.StatusNotFound,
 				"errorMessageID": "test.notFound",
 			},

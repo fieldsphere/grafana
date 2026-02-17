@@ -16,12 +16,13 @@ package main
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/grafana/grafana/pkg/build/wire"
 )
 
 func main() {
-	fmt.Println(injectFooer().Foo())
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", injectFooer().Foo()))
 }
 
 type Fooer interface {

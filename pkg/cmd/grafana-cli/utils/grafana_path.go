@@ -40,7 +40,7 @@ func getGrafanaRoot() (string, error) {
 func tryGetRootForDevEnvironment() (string, bool) {
 	rootPath, err := getGrafanaRoot()
 	if err != nil {
-		logger.Error("Could not get executable path. Assuming non dev environment.", err)
+		logger.Error("Could not get executable path. Assuming non dev environment.", "error", err)
 		return "", false
 	}
 

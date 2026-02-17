@@ -134,12 +134,12 @@ func errorHandler(logger glog.Logger) func(http.ResponseWriter, *http.Request, e
 
 		// nolint:errorlint
 		if timeoutErr, ok := err.(timeoutError); ok && timeoutErr.Timeout() {
-			ctxLogger.Error("Proxy request timed out", "err", err)
+			ctxLogger.Error("Proxy request timed out", "error", err)
 			w.WriteHeader(http.StatusGatewayTimeout)
 			return
 		}
 
-		ctxLogger.Error("Proxy request failed", "err", err)
+		ctxLogger.Error("Proxy request failed", "error", err)
 		w.WriteHeader(http.StatusBadGateway)
 	}
 }
@@ -151,7 +151,7 @@ type logWrapper struct {
 // Write writes log messages as bytes from proxy.
 func (lw *logWrapper) Write(p []byte) (n int, err error) {
 	withoutNewline := strings.TrimSuffix(string(p), "\n")
-	lw.logger.Error("Proxy request error", "error", withoutNewline)
+	lw.logger.Error("Proxy request error", "errorMessage", withoutNewline)
 	return len(p), nil
 }
 

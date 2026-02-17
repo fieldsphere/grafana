@@ -215,7 +215,7 @@ func (s *Store) UpdateAuthInfo(ctx context.Context, cmd *login.UpdateAuthInfoCom
 			Where("user_id = ? AND auth_module = ?", cmd.UserId, cmd.AuthModule).
 			Update(authUser)
 
-		s.logger.Debug("Updated user_auth", "user_id", cmd.UserId, "auth_id", cmd.AuthId, "auth_module", cmd.AuthModule, "rows", upd)
+		s.logger.Debug("Updated user_auth", "userID", cmd.UserId, "authID", cmd.AuthId, "authModule", cmd.AuthModule, "rows", upd)
 
 		// Clean up duplicated entries
 		if upd > 1 {

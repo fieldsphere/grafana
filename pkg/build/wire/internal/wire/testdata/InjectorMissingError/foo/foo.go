@@ -16,11 +16,12 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 func main() {
 	foo := injectFoo()
-	fmt.Println(foo)
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", foo))
 }
 
 type Foo int

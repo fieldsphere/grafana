@@ -133,9 +133,9 @@ func (s *Service) Check(ctx context.Context, req *authzv1.CheckRequest) (*authzv
 	span.SetAttributes(
 		attribute.String("subject", req.Subject),
 		attribute.String("namespace", checkReq.Namespace.Value),
-		attribute.String("action", checkReq.Action),
-		attribute.String("name", checkReq.Name),
-		attribute.String("folder", checkReq.ParentFolder),
+		attribute.String("permissionAction", checkReq.Action),
+		attribute.String("resourceName", checkReq.Name),
+		attribute.String("parentFolderUID", checkReq.ParentFolder),
 		attribute.Bool("allowed", false),
 	)
 
@@ -204,13 +204,13 @@ func (s *Service) BatchCheck(ctx context.Context, req *authzv1.BatchCheckRequest
 	span.SetAttributes(
 		attribute.String("namespace", req.GetNamespace()),
 		attribute.String("subject", req.GetSubject()),
-		attribute.Int("check_count", len(checks)),
+		attribute.Int("checkCount", len(checks)),
 	)
 
 	ctxLogger := s.logger.FromContext(ctx).New(
 		"subject", req.GetSubject(),
 		"namespace", req.GetNamespace(),
-		"check_count", len(checks),
+		"checkCount", len(checks),
 	)
 	defer func(start time.Time) {
 		ctxLogger.Debug("BatchCheck execution time", "duration", time.Since(start).Milliseconds())
@@ -263,7 +263,7 @@ func (s *Service) BatchCheck(ctx context.Context, req *authzv1.BatchCheckRequest
 		}
 	}
 
-	span.SetAttributes(attribute.Int("groups_processed", len(groups)))
+	span.SetAttributes(attribute.Int("groupsProcessed", len(groups)))
 
 	return &authzv1.BatchCheckResponse{Results: results}, nil
 }
@@ -356,7 +356,7 @@ func (s *Service) processBatchCheckGroup(
 ) {
 	permissions, err := s.getPermissionsForGroup(ctx, group, ns, idType, userUID)
 	if err != nil {
-		ctxLogger.Error("could not get permissions", "namespace", ns.Value, "action", group.action, "error", err)
+		ctxLogger.Error("could not get permissions", "namespace", ns.Value, "permissionAction", group.action, "error", err)
 		for _, item := range group.items {
 			results[item.GetCorrelationId()] = &authzv1.BatchCheckResult{Allowed: false, Error: err.Error()}
 		}
@@ -420,7 +420,7 @@ func (s *Service) List(ctx context.Context, req *authzv1.ListRequest) (*authzv1.
 	span.SetAttributes(
 		attribute.String("subject", req.Subject),
 		attribute.String("namespace", listReq.Namespace.Value),
-		attribute.String("action", listReq.Action),
+		attribute.String("permissionAction", listReq.Action),
 	)
 
 	var permissions map[string]bool
@@ -566,7 +566,7 @@ func (s *Service) validateSubject(ctx context.Context, subject string) (string, 
 
 	// Permission check currently only checks user, anonymous user, service account and renderer permissions
 	if !types.IsIdentityType(identityType, types.TypeUser, types.TypeServiceAccount, types.TypeAnonymous, types.TypeRenderService) {
-		ctxLogger.Error("unsupported identity type", "type", identityType)
+		ctxLogger.Error("unsupported identity type", "identityType", identityType)
 		return "", "", status.Error(codes.PermissionDenied, "unsupported identity type")
 	}
 
@@ -680,7 +680,7 @@ func (s *Service) getUserPermissions(ctx context.Context, ns types.NamespaceInfo
 		}
 
 		s.permCache.Set(ctx, userPermKey, scopeMap)
-		span.SetAttributes(attribute.Int("num_permissions_fetched", len(permissions)))
+		span.SetAttributes(attribute.Int("numPermissionsFetched", len(permissions)))
 
 		return scopeMap, nil
 	})
@@ -783,7 +783,7 @@ func (s *Service) getUserTeams(ctx context.Context, ns types.NamespaceInfo, user
 		}
 	}
 	s.userTeamCache.Set(ctx, teamsCacheKey, teamIDs)
-	span.SetAttributes(attribute.Int("num_user_teams", len(teamIDs)))
+	span.SetAttributes(attribute.Int("numUserTeams", len(teamIDs)))
 
 	return teamIDs, nil
 }
@@ -811,7 +811,7 @@ func (s *Service) getUserBasicRole(ctx context.Context, ns types.NamespaceInfo, 
 
 func (s *Service) checkPermission(ctx context.Context, scopeMap map[string]bool, req *checkRequest) (bool, error) {
 	ctx, span := s.tracer.Start(ctx, "authz_direct_db.service.checkPermission", trace.WithAttributes(
-		attribute.Int("scope_count", len(scopeMap))))
+		attribute.Int("scopeCount", len(scopeMap))))
 	defer span.End()
 	ctxLogger := s.logger.FromContext(ctx)
 
@@ -897,7 +897,7 @@ func (s *Service) checkInheritedPermissions(ctx context.Context, scopeMap map[st
 		if !s.isFolderInTree(tree, req.ParentFolder) {
 			// Not erroring here as the permission might exist but the folder wasn't synchronized yet
 			// Once in mode 5 we can deny access here
-			ctxLogger.Error("parent folder not found in folder tree", "folder", req.ParentFolder)
+			ctxLogger.Error("parent folder not found in folder tree", "parentFolderUID", req.ParentFolder)
 		}
 	}
 
@@ -942,7 +942,7 @@ func (s *Service) buildFolderTree(ctx context.Context, ns types.NamespaceInfo) (
 		if err != nil {
 			return nil, fmt.Errorf("could not get folders: %w", err)
 		}
-		span.SetAttributes(attribute.Int("num_folders", len(folders)))
+		span.SetAttributes(attribute.Int("numFolders", len(folders)))
 
 		tree := newFolderTree(folders)
 		if len(tree.Nodes) != len(folders) {
@@ -1007,7 +1007,7 @@ func (s *Service) listPermission(ctx context.Context, scopeMap map[string]bool, 
 		res.Zookie = &authzv1.Zookie{Timestamp: time.Now().Unix()}
 	}
 
-	span.SetAttributes(attribute.Int("num_folders", len(res.Folders)), attribute.Int("num_items", len(res.Items)))
+	span.SetAttributes(attribute.Int("numFolders", len(res.Folders)), attribute.Int("numItems", len(res.Items)))
 	return res, nil
 }
 

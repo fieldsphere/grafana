@@ -14,10 +14,10 @@ func (s *UserAuthTokenService) Run(ctx context.Context) error {
 
 	err := s.serverLockService.LockAndExecute(ctx, "cleanup expired auth tokens", time.Hour*12, func(context.Context) {
 		if _, err := s.deleteExpiredTokens(ctx, maxInactiveLifetime, maxLifetime); err != nil {
-			s.log.Error("An error occurred while deleting expired tokens", "err", err)
+			s.log.Error("An error occurred while deleting expired tokens", "error", err)
 		}
 		if err := s.deleteOrphanedExternalSessions(ctx); err != nil {
-			s.log.Error("An error occurred while deleting orphaned external sessions", "err", err)
+			s.log.Error("An error occurred while deleting orphaned external sessions", "error", err)
 		}
 	})
 	if err != nil {
@@ -29,10 +29,10 @@ func (s *UserAuthTokenService) Run(ctx context.Context) error {
 		case <-ticker.C:
 			err = s.serverLockService.LockAndExecute(ctx, "cleanup expired auth tokens", time.Hour*12, func(context.Context) {
 				if _, err := s.deleteExpiredTokens(ctx, maxInactiveLifetime, maxLifetime); err != nil {
-					s.log.Error("An error occurred while deleting expired tokens", "err", err)
+					s.log.Error("An error occurred while deleting expired tokens", "error", err)
 				}
 				if err := s.deleteOrphanedExternalSessions(ctx); err != nil {
-					s.log.Error("An error occurred while deleting orphaned external sessions", "err", err)
+					s.log.Error("An error occurred while deleting orphaned external sessions", "error", err)
 				}
 			})
 			if err != nil {

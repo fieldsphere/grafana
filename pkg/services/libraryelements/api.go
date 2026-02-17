@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"hash/fnv"
 	"net/http"
+	"strconv"
 	"strings"
 
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -325,7 +326,11 @@ func (l *LibraryElementService) getConnectionsHandler(c *contextmodel.ReqContext
 			// note: the connection ID cannot be used to get, update, or delete a connection, so this is solely to keep the api returning the same fields for now,
 			// while we deprecate the endpoint.
 			hash := fnv.New64a()
-			_, err := fmt.Fprintf(hash, "%d:%s:%d:%d", element.ID, dashboard.UID, c.GetOrgID(), element.Meta.Created.Unix())
+			hashInput := strconv.FormatInt(element.ID, 10) + ":" +
+				dashboard.UID + ":" +
+				strconv.FormatInt(c.GetOrgID(), 10) + ":" +
+				strconv.FormatInt(element.Meta.Created.Unix(), 10)
+			_, err := hash.Write([]byte(hashInput))
 			if err != nil {
 				return l.toLibraryElementError(err, "Failed to generate connection id")
 			}
@@ -432,7 +437,7 @@ func (l *LibraryElementService) toLibraryElementError(err error, message string)
 	}
 
 	// Log errors that cause internal server error status code.
-	l.log.Error(message, "error", err)
+	l.log.Error("Library elements request failed", "responseMessage", message, "error", err)
 	return response.ErrOrFallback(http.StatusInternalServerError, message, err)
 }
 

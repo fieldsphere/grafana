@@ -79,7 +79,7 @@ func (client *GcomClient) GetInstanceByID(ctx context.Context, requestID string,
 	}
 	defer func() {
 		if err := response.Body.Close(); err != nil {
-			client.log.Error("closing http response body", "err", err.Error())
+			client.log.Error("closing http response body", "error", err)
 		}
 	}()
 
@@ -116,7 +116,7 @@ func (client *GcomClient) GetPlugins(ctx context.Context, requestID string) (map
 	}
 	defer func() {
 		if err := response.Body.Close(); err != nil {
-			client.log.Error("closing http response body", "err", err.Error())
+			client.log.Error("closing http response body", "error", err)
 		}
 	}()
 

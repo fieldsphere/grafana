@@ -64,7 +64,7 @@ func (uss *UsageStats) GetUsageReport(ctx context.Context) (usagestats.Report, e
 		return true
 	})
 
-	uss.log.FromContext(ctx).Debug("Collected usage stats", "metricCount", metricCount, "version", report.Version, "os", report.Os, "arch", report.Arch, "edition", report.Edition, "duration", time.Since(start))
+	uss.log.FromContext(ctx).Debug("Collected usage stats", "metricCount", metricCount, "version", report.Version, "operatingSystem", report.Os, "architecture", report.Arch, "edition", report.Edition, "duration", time.Since(start))
 	return report, nil
 }
 
@@ -109,7 +109,7 @@ func (uss *UsageStats) runMetricsFunc(ctx context.Context, fn usagestats.Metrics
 	start := time.Now()
 	ctx, span := uss.tracer.Start(ctx, "UsageStats.Gather")
 	fnName := runtime.FuncForPC(reflect.ValueOf(fn).Pointer()).Name()
-	span.SetAttributes(attribute.String("usageStats.function", fnName))
+	span.SetAttributes(attribute.String("usageStatsFunction", fnName))
 	defer span.End()
 
 	fnMetrics, err := fn(ctx)
@@ -134,7 +134,7 @@ func (uss *UsageStats) sendUsageStats(ctx context.Context) (string, error) {
 	ctx, span := uss.tracer.Start(ctx, "UsageStats.BackgroundJob")
 	defer span.End()
 	traceID := tracing.TraceIDFromContext(ctx, false)
-	uss.log.FromContext(ctx).Debug("Sending anonymous usage stats", "url", usageStatsURL)
+	uss.log.FromContext(ctx).Debug("Sending anonymous usage stats", "usageStatsURL", usageStatsURL)
 	start := time.Now()
 
 	report, err := uss.GetUsageReport(ctx)
@@ -178,7 +178,7 @@ var sendUsageStats = func(uss *UsageStats, ctx context.Context, data *bytes.Buff
 		return err
 	}
 	if err := resp.Body.Close(); err != nil {
-		uss.log.FromContext(ctx).Warn("Failed to close response body after sending usage stats", "err", err)
+		uss.log.FromContext(ctx).Warn("Failed to close response body after sending usage stats", "error", err)
 	}
 	return nil
 }

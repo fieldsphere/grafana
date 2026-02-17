@@ -1,6 +1,6 @@
 import { PanelModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { locationService } from '@grafana/runtime';
+import { createMonitoringLogger, locationService } from '@grafana/runtime';
 import { createErrorNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { DataSourceInput, DashboardJson } from 'app/features/manage-dashboards/types';
@@ -13,6 +13,8 @@ import { CONTENT_KINDS, ContentKind, CREATION_ORIGINS, EventLocation, SOURCE_ENT
 import { GnetDashboard, Link } from '../types';
 
 import { InputMapping, tryAutoMapDatasources, parseConstantInputs, isDataSourceInput } from './autoMapDatasources';
+
+const logger = createMonitoringLogger('features.dashboard.library.community-helpers');
 
 // Constants for community dashboard pagination and API params
 // We want to get the most 6 downloaded dashboards, but we first query 12
@@ -150,7 +152,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
   try {
     panelJson = JSON.stringify(panelWithoutSanitizedFields);
   } catch (e) {
-    console.warn('Failed to stringify panel', e);
+    logger.logWarning('Failed to stringify panel', { error: String(e) });
     return true;
   }
 
@@ -181,7 +183,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousValue = valuePatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in value');
+      logger.logWarning('Panel contains JavaScript code in value');
       return true;
     }
     return false;
@@ -189,7 +191,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousKey = keyPatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in key');
+      logger.logWarning('Panel contains JavaScript code in key');
       return true;
     }
     return false;
@@ -301,7 +303,15 @@ export async function onUseCommunityDashboard({
       }
     }
   } catch (err) {
-    console.error('Error loading community dashboard:', err);
+    if (err instanceof Error) {
+      logger.logError(err, { operation: 'onUseCommunityDashboard', dashboardId: dashboard.id });
+    } else {
+      logger.logWarning('Error loading community dashboard', {
+        operation: 'onUseCommunityDashboard',
+        dashboardId: dashboard.id,
+        error: String(err),
+      });
+    }
     dispatch(
       notifyApp(
         createErrorNotification(t('dashboard-library.community-error-title', 'Error loading community dashboard'))

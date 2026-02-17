@@ -1,5 +1,5 @@
 import { AppEvents, textUtil } from '@grafana/data';
-import { BackendSrvRequest, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
+import { BackendSrvRequest, createMonitoringLogger, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { createAbsoluteUrl, RelativeUrl } from 'app/features/alerting/unified/utils/url';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
@@ -9,6 +9,7 @@ import { HttpRequestMethod } from '../../panelcfg.gen';
 import { APIEditorConfig } from './APIEditor';
 
 type IsLoadingCallback = (loading: boolean) => void;
+const logger = createMonitoringLogger('plugins.panel.canvas.element-utils');
 
 export const callApi = (api: APIEditorConfig, updateLoadingStateCallback?: IsLoadingCallback) => {
   if (!api.endpoint) {
@@ -22,8 +23,12 @@ export const callApi = (api: APIEditorConfig, updateLoadingStateCallback?: IsLoa
     .fetch(request)
     .subscribe({
       error: (error) => {
-        appEvents.emit(AppEvents.alertError, ['An error has occurred. Check console output for more details.']);
-        console.error('API call error: ', error);
+        appEvents.emit(AppEvents.alertError, ['An error has occurred. Check logs for more details.']);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'callApi' });
+        } else {
+          logger.logWarning('API call error', { operation: 'callApi', error: String(error) });
+        }
         updateLoadingStateCallback && updateLoadingStateCallback(false);
       },
       complete: () => {

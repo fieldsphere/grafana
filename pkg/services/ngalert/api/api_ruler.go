@@ -162,7 +162,7 @@ func (srv RulerSrv) RouteDeleteAlertRules(c *contextmodel.ReqContext, namespaceU
 			if err != nil {
 				return err
 			}
-			logger.Info("Alert rules were deleted", "ruleUid", strings.Join(rulesToDelete, ","))
+			logger.Info("Alert rules were deleted", "ruleUID", strings.Join(rulesToDelete, ","))
 			return nil
 		}
 		// if none rules were deleted return an error.
@@ -336,7 +336,7 @@ func (srv RulerSrv) RouteGetRulesConfig(c *contextmodel.ReqContext) response.Res
 		if !ok {
 			id, _ := c.GetInternalID()
 			userNamespace := c.GetIdentityType()
-			srv.log.Error("Namespace not visible to the user", "user", id, "userNamespace", userNamespace, "namespace", groupKey.NamespaceUID)
+			srv.log.Error("Namespace not visible to the user", "userID", id, "userNamespace", userNamespace, "namespaceUID", groupKey.NamespaceUID)
 			continue
 		}
 		result[folder.Fullpath] = append(result[folder.Fullpath], toGettableRuleGroupConfig(groupKey.RuleGroup, rules, provenanceRecords, userUIDmapping))
@@ -489,7 +489,7 @@ func (srv RulerSrv) updateAlertRulesInGroup(c *contextmodel.ReqContext, groupKey
 		// This isn't strictly necessary since the alertmanager config is periodically synced.
 		err := srv.amRefresher.ApplyConfig(c.Req.Context(), groupKey.OrgID, amConfig)
 		if err != nil {
-			srv.log.Warn("Failed to refresh Alertmanager config for org after change in notification settings", "org", c.GetOrgID(), "error", err)
+			srv.log.Warn("Failed to refresh Alertmanager config for org after change in notification settings", "orgID", c.GetOrgID(), "error", err)
 		}
 	}
 
@@ -503,8 +503,8 @@ func (srv RulerSrv) performUpdateAlertRules(ctx context.Context, c *contextmodel
 		id, _ := c.GetInternalID()
 		userNamespace := c.GetIdentityType()
 
-		logger := srv.log.New("namespace_uid", groupKey.NamespaceUID, "group",
-			groupKey.RuleGroup, "org_id", groupKey.OrgID, "user_id", id, "userNamespace", userNamespace)
+		logger := srv.log.New("namespaceUID", groupKey.NamespaceUID, "group",
+			groupKey.RuleGroup, "orgID", groupKey.OrgID, "userID", id, "userNamespace", userNamespace)
 		groupChanges, err := store.CalculateChanges(tranCtx, srv.store, groupKey, rules)
 		if err != nil {
 			return err
@@ -548,7 +548,7 @@ func (srv RulerSrv) performUpdateAlertRules(ctx context.Context, c *contextmodel
 		}
 
 		finalChanges = store.UpdateCalculatedRuleFields(groupChanges)
-		logger.Debug("Updating database with the authorized changes", "add", len(finalChanges.New), "update", len(finalChanges.New), "delete", len(finalChanges.Delete))
+		logger.Debug("Updating database with the authorized changes", "addedRulesCount", len(finalChanges.New), "updatedRulesCount", len(finalChanges.Update), "deletedRulesCount", len(finalChanges.Delete))
 
 		// Delete first as this could prevent future unique constraint violations.
 		if len(finalChanges.Delete) > 0 {
@@ -565,7 +565,7 @@ func (srv RulerSrv) performUpdateAlertRules(ctx context.Context, c *contextmodel
 		if len(finalChanges.Update) > 0 {
 			updates := make([]ngmodels.UpdateRule, 0, len(finalChanges.Update))
 			for _, update := range finalChanges.Update {
-				logger.Debug("Updating rule", "rule_uid", update.New.UID, "diff", update.Diff.String())
+				logger.Debug("Updating rule", "ruleUID", update.New.UID, "diff", update.Diff.String())
 				if ngmodels.IsNoGroupRuleGroup(update.Existing.RuleGroup) && !ngmodels.IsNoGroupRuleGroup(update.New.RuleGroup) {
 					return fmt.Errorf("%w: cannot move rule out of this group", ngmodels.ErrAlertRuleFailedValidation)
 				}

@@ -2,10 +2,9 @@ package build
 
 import (
 	"bytes"
-	"log"
+	"log/slog"
 	"os"
 	"os/exec"
-	"strings"
 )
 
 func runError(cmd string, args ...string) ([]byte, error) {
@@ -21,7 +20,7 @@ func runError(cmd string, args ...string) ([]byte, error) {
 }
 
 func runPrint(cmd string, args ...string) {
-	log.Println(cmd, strings.Join(args, " "))
+	slog.Info("Running command", "command", cmd, "commandArgs", args)
 	// Can ignore gosec G204 because this function is not used in Grafana, only in the build process.
 	//nolint:gosec
 	ecmd := exec.Command(cmd, args...)
@@ -29,6 +28,7 @@ func runPrint(cmd string, args ...string) {
 	ecmd.Stderr = os.Stderr
 	err := ecmd.Run()
 	if err != nil {
-		log.Fatal(err)
+		slog.Error("Command failed", "command", cmd, "commandArgs", args, "error", err)
+		os.Exit(1)
 	}
 }

@@ -85,7 +85,7 @@ func (ss *SQLStore) retryOnLocks(ctx context.Context, callback DBTransactionFunc
 		ctxLogger := tsclogger.FromContext(ctx)
 
 		if r, ok := dialect.(xorm.DialectWithRetryableErrors); ok && r.RetryOnError(err) {
-			ctxLogger.Info("Database locked, sleeping then retrying", "error", err, "retry", retry, "code")
+			ctxLogger.Info("Database locked, sleeping then retrying", "error", err, "retry", retry, "retryLimit", ss.dbCfg.QueryRetries)
 			// retryer immediately returns the error (if there is one) without checking the response
 			// therefore we only have to send it if we have reached the maximum retries
 			if retry >= ss.dbCfg.QueryRetries {

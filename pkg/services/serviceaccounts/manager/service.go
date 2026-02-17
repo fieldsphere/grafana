@@ -94,7 +94,7 @@ func ProvideServiceAccountsService(
 		if errSecret != nil {
 			s.secretScanEnabled = false
 			s.log.Warn("Failed to initialize secret scan service. secret scan is disabled",
-				"error", errSecret.Error())
+				"error", errSecret)
 		}
 	}
 
@@ -105,13 +105,13 @@ func (sa *ServiceAccountsService) Run(ctx context.Context) error {
 	sa.backgroundLog.Debug("Service initialized")
 
 	if _, err := sa.getUsageMetrics(ctx); err != nil {
-		sa.log.Warn("Failed to get usage metrics", "error", err.Error())
+		sa.log.Warn("Failed to get usage metrics", "error", err)
 	}
 
 	err := sa.serverLock.LockAndExecute(ctx, "migrate API keys to service accounts", time.Minute*30, func(context.Context) {
 		err := sa.migrateAPIKeysForAllOrgs(ctx)
 		if err != nil {
-			sa.log.Warn("Failed to migrate API keys", "error", err.Error())
+			sa.log.Warn("Failed to migrate API keys", "error", err)
 		}
 	})
 
@@ -124,8 +124,7 @@ func (sa *ServiceAccountsService) Run(ctx context.Context) error {
 
 	// Enforce a minimum interval of 1 minute.
 	if sa.secretScanEnabled && sa.secretScanInterval < time.Minute {
-		sa.backgroundLog.Warn("Secret scan interval is too low, increasing to " +
-			defaultSecretScanInterval.String())
+		sa.backgroundLog.Warn("Secret scan interval is too low, increasing", "defaultSecretScanInterval", defaultSecretScanInterval.String())
 
 		sa.secretScanInterval = defaultSecretScanInterval
 	}
@@ -137,7 +136,7 @@ func (sa *ServiceAccountsService) Run(ctx context.Context) error {
 	} else {
 		sa.backgroundLog.Debug("Enabled token secret check and executing first check")
 		if err := sa.secretScanService.CheckTokens(ctx); err != nil {
-			sa.backgroundLog.Warn("Failed to check for leaked tokens", "error", err.Error())
+			sa.backgroundLog.Warn("Failed to check for leaked tokens", "error", err)
 		}
 
 		defer tokenCheckTicker.Stop()
@@ -157,13 +156,13 @@ func (sa *ServiceAccountsService) Run(ctx context.Context) error {
 			sa.backgroundLog.Debug("Updating usage metrics")
 
 			if _, err := sa.getUsageMetrics(ctx); err != nil {
-				sa.backgroundLog.Warn("Failed to get usage metrics", "error", err.Error())
+				sa.backgroundLog.Warn("Failed to get usage metrics", "error", err)
 			}
 		case <-tokenCheckTicker.C:
 			sa.backgroundLog.Debug("Checking for leaked tokens")
 
 			if err := sa.secretScanService.CheckTokens(ctx); err != nil {
-				sa.backgroundLog.Warn("Failed to check for leaked tokens", "error", err.Error())
+				sa.backgroundLog.Warn("Failed to check for leaked tokens", "error", err)
 			}
 		}
 	}
@@ -318,7 +317,7 @@ func (sa *ServiceAccountsService) migrateAPIKeysForAllOrgs(ctx context.Context) 
 
 	defer func() {
 		if total > 0 || errorsTotal > 0 {
-			sa.log.Info("API key migration finished", "total_keys", total, "successful_keys", migrated, "failed_keys", failed, "errors", errorsTotal)
+			sa.log.Info("API key migration finished", "totalKeys", total, "successfulKeys", migrated, "failedKeys", failed, "errors", errorsTotal)
 		}
 		setAPIKeyMigrationStats(total, migrated, failed)
 	}()
@@ -329,20 +328,20 @@ func (sa *ServiceAccountsService) migrateAPIKeysForAllOrgs(ctx context.Context) 
 	}
 
 	for _, o := range orgs {
-		sa.log.Debug("Migrating API keys for an org", "orgId", o.ID)
+		sa.log.Debug("Migrating API keys for an org", "orgID", o.ID)
 
 		result, err := sa.store.MigrateApiKeysToServiceAccounts(ctx, o.ID)
 		if err != nil {
-			sa.log.Warn("Failed to migrate API keys", "error", err.Error(), "orgId", o.ID)
+			sa.log.Warn("Failed to migrate API keys", "error", err, "orgID", o.ID)
 			errorsTotal += 1
 			continue
 		}
 		if result.Failed > 0 {
-			sa.log.Warn("Some API keys failed to be migrated", "total_keys", result.Total, "failed_keys", result.Failed, "orgId", o.ID)
+			sa.log.Warn("Some API keys failed to be migrated", "totalKeys", result.Total, "failedKeys", result.Failed, "orgID", o.ID)
 		} else if result.Total > 0 {
-			sa.log.Info("API key migration was successful", "orgId", o.ID, "total_keys", result.Total)
+			sa.log.Info("API key migration was successful", "orgID", o.ID, "totalKeys", result.Total)
 		} else {
-			sa.log.Debug("No API keys found to migrate", "orgId", o.ID)
+			sa.log.Debug("No API keys found to migrate", "orgID", o.ID)
 		}
 
 		total += result.Total

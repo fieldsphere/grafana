@@ -41,7 +41,7 @@ type ServerLockService struct {
 func (sl *ServerLockService) LockAndExecute(ctx context.Context, actionName string, maxInterval time.Duration, fn func(ctx context.Context)) error {
 	start := time.Now()
 	ctx, span := sl.tracer.Start(ctx, "ServerLockService.LockAndExecute")
-	span.SetAttributes(attribute.String("serverlock.actionName", actionName))
+	span.SetAttributes(attribute.String("serverlockActionName", actionName))
 	defer span.End()
 
 	ctxLogger := sl.log.FromContext(ctx)
@@ -142,7 +142,7 @@ func (sl *ServerLockService) getOrCreate(ctx context.Context, actionName string)
 func (sl *ServerLockService) LockExecuteAndRelease(ctx context.Context, actionName string, maxInterval time.Duration, fn func(ctx context.Context)) error {
 	start := time.Now()
 	ctx, span := sl.tracer.Start(ctx, "ServerLockService.LockExecuteAndRelease")
-	span.SetAttributes(attribute.String("serverlock.actionName", actionName))
+	span.SetAttributes(attribute.String("serverlockActionName", actionName))
 	defer span.End()
 
 	ctxLogger := sl.log.FromContext(ctx)
@@ -184,7 +184,7 @@ type LockTimeConfig struct {
 func (sl *ServerLockService) LockExecuteAndReleaseWithRetries(ctx context.Context, actionName string, timeConfig LockTimeConfig, fn func(ctx context.Context), retryOpts ...RetryOpt) error {
 	start := time.Now()
 	ctx, span := sl.tracer.Start(ctx, "ServerLockService.LockExecuteAndReleaseWithRetries")
-	span.SetAttributes(attribute.String("serverlock.actionName", actionName))
+	span.SetAttributes(attribute.String("serverlockActionName", actionName))
 	defer span.End()
 
 	ctxLogger := sl.log.FromContext(ctx)
@@ -399,7 +399,7 @@ func (sl *ServerLockService) createLock(ctx context.Context,
 		sl.log.FromContext(ctx).Error("Expected rows affected to be 1 if there was no error",
 			"actionName", lockRow.OperationUID,
 			"rowsAffected", affected,
-			"lockRow ID", lockRow.Id)
+			"lockRowID", lockRow.Id)
 	}
 
 	return lockRow, nil

@@ -136,7 +136,7 @@ func (r *retryResourceInterface) retryWithBackoff(ctx context.Context, fn func()
 
 		// Transient error, retry
 		lastErr = err
-		logger.Info("Transient error encountered, retrying", "attempt", attempt, "max_attempts", r.backoff.Steps, "error", err)
+		logger.Info("Transient error encountered, retrying", "attempt", attempt, "maxAttempts", r.backoff.Steps, "error", err)
 		return false, nil
 	})
 
@@ -144,7 +144,7 @@ func (r *retryResourceInterface) retryWithBackoff(ctx context.Context, fn func()
 	if err != nil {
 		if lastErr != nil {
 			// We had transient errors and exhausted all retry attempts
-			logger.Warn("All retry attempts exhausted", "total_attempts", attempt, "error", lastErr)
+			logger.Warn("All retry attempts exhausted", "totalAttempts", attempt, "error", lastErr)
 			return lastErr
 		}
 		// Non-transient error or context cancellation - no retries were attempted

@@ -293,7 +293,7 @@ func (w PrometheusWriter) WriteDatasource(ctx context.Context, dsUID string, nam
 	l := w.logger.FromContext(ctx)
 
 	if dsUID != "" {
-		l.Error("Writing to specific data sources is not enabled", "org_id", orgID, "datasource_uid", dsUID)
+		l.Error("Writing to specific data sources is not enabled", "orgID", orgID, "datasourceUID", dsUID)
 		return errors.New("writing to specific data sources is not enabled")
 	}
 
@@ -321,7 +321,7 @@ func (w PrometheusWriter) Write(ctx context.Context, name string, t time.Time, f
 		})
 	}
 
-	l.Debug("Writing metric", "name", name)
+	l.Debug("Writing metric", "metricName", name)
 	writeStart := w.clock.Now()
 	res, writeErr := w.client.WriteTimeSeries(ctx, series, promremote.WriteOptions{})
 	w.metrics.WriteDuration.WithLabelValues(lvs...).Observe(w.clock.Now().Sub(writeStart).Seconds())
@@ -333,7 +333,7 @@ func (w PrometheusWriter) Write(ctx context.Context, name string, t time.Time, f
 		if err, ignored := checkWriteError(writeErr); err != nil {
 			return err
 		} else if ignored {
-			l.Debug("Ignored write error", "error", err, "status_code", res.StatusCode)
+			l.Debug("Ignored write error", "error", err, "statusCode", res.StatusCode)
 		}
 	}
 

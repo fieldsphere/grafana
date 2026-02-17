@@ -145,7 +145,7 @@ func (out *RemoteWriteFrameOutput) flush(timeSeries []prompb.TimeSeries) error {
 	if err != nil {
 		return fmt.Errorf("error converting time series to bytes: %v", err)
 	}
-	logger.Debug("Sending to remote write endpoint", "url", out.Endpoint, "bodyLength", len(remoteWriteData))
+	logger.Debug("Sending to remote write endpoint", "endpointURL", out.Endpoint, "bodyLength", len(remoteWriteData))
 	req, err := http.NewRequest(http.MethodPost, out.Endpoint, bytes.NewReader(remoteWriteData))
 	if err != nil {
 		return fmt.Errorf("error constructing remote write request: %w", err)
@@ -164,10 +164,10 @@ func (out *RemoteWriteFrameOutput) flush(timeSeries []prompb.TimeSeries) error {
 	}
 	_ = resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		logger.Error("Unexpected response code from remote write endpoint", "code", resp.StatusCode)
+		logger.Error("Unexpected response code from remote write endpoint", "statusCode", resp.StatusCode)
 		return errors.New("unexpected response code from remote write endpoint")
 	}
-	logger.Debug("Successfully sent to remote write endpoint", "url", out.Endpoint, "elapsed", time.Since(started))
+	logger.Debug("Successfully sent to remote write endpoint", "endpointURL", out.Endpoint, "elapsed", time.Since(started))
 	return nil
 }
 

@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { logDataScriptInfo } from './logging';
 import { NewThemeOptionsSchema } from '../src/themes/createTheme';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -19,4 +20,7 @@ fs.writeFileSync(
   )
 );
 
-console.log('Successfully generated theme schema');
+logDataScriptInfo('Successfully generated theme schema', {
+  operation: 'generateSchema',
+  outputPath: jsonOut,
+});

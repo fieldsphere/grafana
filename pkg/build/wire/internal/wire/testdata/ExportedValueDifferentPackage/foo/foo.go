@@ -14,8 +14,6 @@
 
 package main
 
-import "fmt"
-
 func main() {
-	fmt.Fprintln(injectedFile(), "Hello, World!")
+	_, _ = injectedFile().WriteString("Hello, World!\n")
 }

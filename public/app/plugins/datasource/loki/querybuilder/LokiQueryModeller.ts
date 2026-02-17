@@ -5,9 +5,12 @@ import {
   QueryBuilderOperation,
   VisualQueryBinary,
 } from '@grafana/plugin-ui';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { operationDefinitions } from './operations';
 import { LokiOperationId, LokiQueryPattern, LokiQueryPatternType, LokiVisualQueryOperationCategory } from './types';
+
+const logger = createMonitoringLogger('plugins.datasource.loki.query-modeller');
 
 export class LokiQueryModeller extends QueryModellerBase {
   constructor() {
@@ -30,7 +33,10 @@ export class LokiQueryModeller extends QueryModellerBase {
       }
       const def = this.operationsRegistry.getIfExists(operation.id);
       if (!def) {
-        console.error(`Could not find operation ${operation.id} in the registry`);
+        logger.logWarning('Could not find operation in registry', {
+          operation: 'renderOperations',
+          operationId: operation.id,
+        });
         continue;
       }
       queryString = def.renderer(operation, def, queryString);

@@ -243,7 +243,7 @@ func (moa *MultiOrgAlertmanager) setupClustering(cfg *setting.Cfg) error {
 
 		err = peer.Join(alertingCluster.DefaultReconnectInterval, cfg.UnifiedAlerting.HAReconnectTimeout)
 		if err != nil {
-			moa.logger.Error("Msg", "Unable to join gossip mesh while initializing cluster for high availability mode", "error", err)
+			moa.logger.Error("Unable to join gossip mesh while initializing cluster for high availability mode", "error", err)
 		}
 		// Attempt to verify the number of peers for 30s every 2s. The risk here is what we send a notification "too soon".
 		// Which should _never_ happen given we share the notification log via the database so the risk of double notification is very low.
@@ -351,7 +351,7 @@ func (moa *MultiOrgAlertmanager) SyncAlertmanagersForOrgs(ctx context.Context, o
 	moa.alertmanagersMtx.Lock()
 	for _, orgID := range orgIDs {
 		if _, isDisabledOrg := moa.settings.UnifiedAlerting.DisabledOrgs[orgID]; isDisabledOrg {
-			moa.logger.Debug("Skipping syncing Alertmanager for disabled org", "org", orgID)
+			moa.logger.Debug("Skipping syncing Alertmanager for disabled org", "orgID", orgID)
 			continue
 		}
 		orgsFound[orgID] = struct{}{}
@@ -364,7 +364,7 @@ func (moa *MultiOrgAlertmanager) SyncAlertmanagersForOrgs(ctx context.Context, o
 			// then aggregate them on the main registry.
 			am, err := moa.factory(ctx, orgID)
 			if err != nil {
-				moa.logger.Error("Unable to create Alertmanager for org", "org", orgID, "error", err)
+				moa.logger.Error("Unable to create Alertmanager for org", "orgID", orgID, "error", err)
 				continue
 			}
 			moa.alertmanagers[orgID] = am
@@ -375,11 +375,11 @@ func (moa *MultiOrgAlertmanager) SyncAlertmanagersForOrgs(ctx context.Context, o
 		if !cfgFound {
 			if found {
 				// This means that the configuration is gone but the organization, as well as the Alertmanager, exists.
-				moa.logger.Warn("Alertmanager exists for org but the configuration is gone. Applying the default configuration", "org", orgID)
+				moa.logger.Warn("Alertmanager exists for org but the configuration is gone. Applying the default configuration", "orgID", orgID)
 			}
 			err := alertmanager.SaveAndApplyDefaultConfig(ctx)
 			if err != nil {
-				moa.logger.Error("Failed to apply the default Alertmanager configuration", "org", orgID)
+				moa.logger.Error("Failed to apply the default Alertmanager configuration", "orgID", orgID)
 				continue
 			}
 			moa.alertmanagers[orgID] = alertmanager
@@ -388,7 +388,7 @@ func (moa *MultiOrgAlertmanager) SyncAlertmanagersForOrgs(ctx context.Context, o
 
 		err := alertmanager.ApplyConfig(ctx, dbConfig)
 		if err != nil {
-			moa.logger.Error("Failed to apply Alertmanager config for org", "org", orgID, "id", dbConfig.ID, "error", err)
+			moa.logger.Error("Failed to apply Alertmanager config for org", "orgID", orgID, "configID", dbConfig.ID, "error", err)
 			continue
 		}
 		moa.alertmanagers[orgID] = alertmanager
@@ -407,9 +407,9 @@ func (moa *MultiOrgAlertmanager) SyncAlertmanagersForOrgs(ctx context.Context, o
 
 	// Now, we can stop the Alertmanagers without having to hold a lock.
 	for orgID, am := range amsToStop {
-		moa.logger.Info("Stopping Alertmanager", "org", orgID)
+		moa.logger.Info("Stopping Alertmanager", "orgID", orgID)
 		am.StopAndWait()
-		moa.logger.Info("Stopped Alertmanager", "org", orgID)
+		moa.logger.Info("Stopped Alertmanager", "orgID", orgID)
 	}
 
 	moa.cleanupOrphanLocalOrgState(ctx, orgsFound)
@@ -426,7 +426,7 @@ func (moa *MultiOrgAlertmanager) cleanupOrphanLocalOrgState(ctx context.Context,
 		keys, err := moa.kvStore.Keys(ctx, kvstore.AllOrganizations, KVNamespace, fileName)
 		if err != nil {
 			moa.logger.Error("Failed to fetch items from kvstore", "error", err,
-				"namespace", KVNamespace, "key", fileName)
+				"namespace", KVNamespace, "kvFileName", fileName)
 		}
 		for _, key := range keys {
 			if _, exists := activeOrganizations[key.OrgId]; exists {
@@ -435,7 +435,7 @@ func (moa *MultiOrgAlertmanager) cleanupOrphanLocalOrgState(ctx context.Context,
 			err = moa.kvStore.Del(ctx, key.OrgId, key.Namespace, key.Key)
 			if err != nil {
 				moa.logger.Error("Failed to delete item from kvstore", "error", err,
-					"orgID", key.OrgId, "namespace", KVNamespace, "key", key.Key)
+					"orgID", key.OrgId, "namespace", KVNamespace, "kvKey", key.Key)
 			}
 		}
 	}

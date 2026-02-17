@@ -1,5 +1,5 @@
 import { DashboardLoadedEvent } from '@grafana/data';
-import { config, reportInteraction } from '@grafana/runtime';
+import { config, createMonitoringLogger, reportInteraction } from '@grafana/runtime';
 
 import {
   CloudWatchLogsQuery,
@@ -15,6 +15,8 @@ import { migrateMetricQuery } from './migrations/metricQueryMigrations';
 import pluginJson from './plugin.json';
 import { CloudWatchQuery } from './types';
 import { filterMetricsQuery } from './utils/utils';
+
+const logger = createMonitoringLogger('plugins.datasource.cloudwatch.tracking');
 
 type CloudWatchOnDashboardLoadedTrackingEvent = {
   grafana_version?: string;
@@ -146,7 +148,14 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_ds_cloudwatch_dashboard_loaded', e);
   } catch (error) {
-    console.error('error in cloudwatch tracking handler', error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'onDashboardLoadedHandler' });
+    } else {
+      logger.logWarning('Error in cloudwatch tracking handler', {
+        operation: 'onDashboardLoadedHandler',
+        error: String(error),
+      });
+    }
   }
 };
 

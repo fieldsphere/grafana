@@ -30,7 +30,7 @@ func listVersionsCommand(c utils.CommandLine) error {
 	}
 
 	for _, i := range plugin.Versions {
-		logger.Infof("%v\n", i.Version)
+		logger.Info("Plugin available version", "pluginID", pluginToList, "version", i.Version)
 	}
 
 	return nil

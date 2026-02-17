@@ -348,7 +348,7 @@ func (sch *schedule) processTick(ctx context.Context, dispatcherGroup *errgroup.
 
 		if item.Type() != ruleRoutine.Type() {
 			// Restart rules that need it. For now we just replace them, we'll shut them down at the end of the tick.
-			logger.Debug("Rule restarted because type changed", "old", ruleRoutine.Type(), "new", item.Type())
+			logger.Debug("Rule restarted because type changed", "previousRuleType", ruleRoutine.Type(), "newRuleType", item.Type())
 			restartedRules = append(restartedRules, ruleRoutine)
 			sch.registry.del(key)
 			ruleRoutine, newRoutine = sch.registry.getOrCreate(ctx, rf, ruleFactory)

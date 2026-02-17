@@ -52,7 +52,7 @@ func (s *Service) RunQuery(ctx context.Context, req *backend.QueryDataRequest, d
 	}
 
 	if len(emptyQueries) != 0 {
-		s.logger.Warn("Found query models without targets", "models without targets", strings.Join(emptyQueries, "\n"))
+		s.logger.Warn("Found query models without targets", "modelsWithoutTargets", strings.Join(emptyQueries, "\n"))
 		// If no queries had a valid target, return an error; otherwise, attempt with the targets we have
 		if len(emptyQueries) == len(req.Queries) {
 			if result.Responses == nil {
@@ -73,16 +73,16 @@ func (s *Service) RunQuery(ctx context.Context, req *backend.QueryDataRequest, d
 		defer span.End()
 		targetStr := strings.Join(graphiteReq.formData["target"], ",")
 		span.SetAttributes(
-			attribute.String("refId", refId),
+			attribute.String("refID", refId),
 			attribute.String("target", targetStr),
 			attribute.String("from", graphiteReq.formData["from"][0]),
 			attribute.String("until", graphiteReq.formData["until"][0]),
-			attribute.Int64("datasource_id", dsInfo.Id),
-			attribute.Int64("org_id", req.PluginContext.OrgID),
+			attribute.Int64("datasourceID", dsInfo.Id),
+			attribute.Int64("orgID", req.PluginContext.OrgID),
 		)
 		res, err := dsInfo.HTTPClient.Do(graphiteReq.req)
 		if res != nil {
-			span.SetAttributes(attribute.Int("graphite.response.code", res.StatusCode))
+			span.SetAttributes(attribute.Int("graphiteResponseCode", res.StatusCode))
 		}
 		if err != nil {
 			span.RecordError(err)
@@ -131,14 +131,14 @@ func (s *Service) processQuery(query backend.DataQuery) (string, *GraphiteQuery,
 	if err != nil {
 		return "", &queryJSON, false, backend.PluginError(fmt.Errorf("failed to decode the Graphite query: %w", err))
 	}
-	s.logger.Debug("Graphite", "query", queryJSON)
+	s.logger.Debug("Graphite", "queryModel", queryJSON)
 	currTarget := queryJSON.TargetFull
 
 	if currTarget == "" {
 		currTarget = queryJSON.Target
 	}
 	if currTarget == "" {
-		s.logger.Debug("Graphite", "empty query target", queryJSON)
+		s.logger.Debug("Graphite", "emptyQueryTarget", queryJSON)
 		return "", &queryJSON, false, nil
 	}
 	target := fixIntervalFormat(currTarget)
@@ -166,7 +166,7 @@ func (s *Service) createGraphiteRequest(ctx context.Context, query backend.DataQ
 	}
 
 	if emptyQuery != nil {
-		s.logger.Debug("Graphite", "empty query target", emptyQuery)
+		s.logger.Debug("Graphite", "emptyQueryTarget", emptyQuery)
 		return nil, formData, emptyQuery, "", nil
 	}
 
@@ -243,13 +243,13 @@ func (s *Service) parseResponse(res *http.Response) ([]TargetResponseDTO, error)
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			s.logger.Warn("Failed to close response body", "err", err)
+			s.logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
 	if res.StatusCode/100 != 2 {
 		graphiteError := parseGraphiteError(res.StatusCode, string(body))
-		s.logger.Info("Request failed", "status", res.Status, "error", graphiteError, "body", string(body))
+		s.logger.Info("Request failed", "statusText", res.Status, "errorMessage", graphiteError, "responseBody", string(body))
 		err := fmt.Errorf("request failed with error: %s", graphiteError)
 		if backend.ErrorSourceFromHTTPStatus(res.StatusCode) == backend.ErrorSourceDownstream {
 			return nil, backend.DownstreamError(err)
@@ -264,7 +264,7 @@ func (s *Service) parseResponse(res *http.Response) ([]TargetResponseDTO, error)
 		var legacyData LegacyTargetResponseDTO
 		err = json.Unmarshal(body, &legacyData)
 		if err != nil {
-			s.logger.Info("Failed to unmarshal legacy graphite response", "error", err, "status", res.Status, "body", string(body))
+			s.logger.Info("Failed to unmarshal legacy graphite response", "error", err, "statusText", res.Status, "responseBody", string(body))
 			return nil, backend.PluginError(err)
 		}
 		return legacyData.Series, nil

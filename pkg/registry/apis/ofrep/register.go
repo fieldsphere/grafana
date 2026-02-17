@@ -257,12 +257,12 @@ func (b *APIBuilder) oneFlagHandler(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		_ = tracing.Errorf(span, namespaceMismatchMsg)
 		span.SetAttributes(semconv.HTTPStatusCode(http.StatusUnauthorized))
-		b.logger.Error(namespaceMismatchMsg)
+		b.logger.Error("Rejecting request with namespace mismatch", "namespace", ns, "flagKey", flagKey)
 		http.Error(w, namespaceMismatchMsg, http.StatusUnauthorized)
 		return
 	}
 
-	span.SetAttributes(attribute.String("flag_key", flagKey))
+	span.SetAttributes(attribute.String("flagKey", flagKey))
 
 	isAuthedReq := b.isAuthenticatedRequest(r)
 	span.SetAttributes(attribute.Bool("authenticated", isAuthedReq))
@@ -296,7 +296,7 @@ func (b *APIBuilder) allFlagsHandler(w http.ResponseWriter, r *http.Request) {
 	if !valid {
 		_ = tracing.Errorf(span, namespaceMismatchMsg)
 		span.SetAttributes(semconv.HTTPStatusCode(http.StatusUnauthorized))
-		b.logger.Error(namespaceMismatchMsg)
+		b.logger.Error("Rejecting request with namespace mismatch", "namespace", ns)
 		http.Error(w, namespaceMismatchMsg, http.StatusUnauthorized)
 		return
 	}
@@ -323,7 +323,7 @@ func writeResponse(statusCode int, result any, logger log.Logger, w http.Respons
 
 func (b *APIBuilder) namespaceFromEvalCtx(body []byte) string {
 	// TODO: eval ctx should be added to span attributes, not log
-	b.logger.Debug("evaluation context from request", "ctx", string(body))
+	b.logger.Debug("evaluation context from request", "evaluationContextJSON", string(body))
 
 	var evalCtx struct {
 		// Extract namespace from request body without consuming it
@@ -333,7 +333,7 @@ func (b *APIBuilder) namespaceFromEvalCtx(body []byte) string {
 	}
 
 	if err := json.Unmarshal(body, &evalCtx); err != nil {
-		b.logger.Debug("Failed to unmarshal evaluation context", "error", err, "body", string(body))
+		b.logger.Debug("Failed to unmarshal evaluation context", "error", err, "requestBody", string(body))
 		return ""
 	}
 
@@ -376,20 +376,20 @@ func (b *APIBuilder) validateNamespace(r *http.Request) (bool, string) {
 	if err != nil {
 		_ = tracing.Errorf(span, "failed to read request body: %w", err)
 		b.logger.Error("Error reading evaluation request body", "error", err)
-		span.SetAttributes(attribute.Bool("validation.success", false))
+		span.SetAttributes(attribute.Bool("validationSuccess", false))
 		return false, ""
 	}
 	r.Body = io.NopCloser(bytes.NewBuffer(body))
 
-	span.SetAttributes(attribute.String("request.body", string(body)))
+	span.SetAttributes(attribute.String("requestBody", string(body)))
 
 	evalCtxNamespace := b.namespaceFromEvalCtx(body)
 	// "default" namespace case can only occur in on-prem grafana
 	if (namespace == "default" && evalCtxNamespace == "") || (evalCtxNamespace == namespace) {
-		span.SetAttributes(attribute.Bool("validation.success", true))
+		span.SetAttributes(attribute.Bool("validationSuccess", true))
 		return true, evalCtxNamespace
 	}
 
-	span.SetAttributes(attribute.Bool("validation.success", false))
+	span.SetAttributes(attribute.Bool("validationSuccess", false))
 	return false, evalCtxNamespace
 }

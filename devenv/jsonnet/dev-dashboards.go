@@ -8,6 +8,7 @@ import (
 	"context"
 	"embed"
 	"fmt"
+	"log/slog"
 	"os"
 	"path"
 	"sort"
@@ -46,13 +47,13 @@ func main() {
 	if _, set := os.LookupEnv("CODEGEN_VERIFY"); set {
 		err = fs.Verify(context.Background(), "")
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "generated code is not up to date:\n%s\nrun `make gen-jsonnet` to regenerate\n\n", err)
+			slog.Error("Generated code is not up to date", "error", err, "hint", "run `make gen-jsonnet` to regenerate")
 			os.Exit(1)
 		}
 	} else {
 		err = fs.Write(context.Background(), "")
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error while writing generated code to disk:\n%s\n", err)
+			slog.Error("Error while writing generated code to disk", "error", err)
 			os.Exit(1)
 		}
 	}

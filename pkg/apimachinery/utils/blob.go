@@ -2,7 +2,6 @@ package utils
 
 import (
 	"bytes"
-	"fmt"
 	"mime"
 	"strconv"
 	"strings"
@@ -42,7 +41,8 @@ func (b *BlobInfo) ContentType() string {
 func (b *BlobInfo) String() string {
 	sb := bytes.NewBufferString(b.UID)
 	if b.Size > 0 {
-		fmt.Fprintf(sb, "; size=%d", b.Size)
+		sb.WriteString("; size=")
+		sb.WriteString(strconv.FormatInt(b.Size, 10))
 	}
 	if b.Hash != "" {
 		sb.WriteString("; hash=")

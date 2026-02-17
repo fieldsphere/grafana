@@ -144,7 +144,7 @@ func (s *SocialAzureAD) UserInfo(ctx context.Context, client *http.Client, token
 		return nil, fmt.Errorf("failed to extract groups: %w", err)
 	}
 
-	s.log.Debug("AzureAD OAuth: extracted groups", "email", email, "groups", fmt.Sprintf("%v", groups))
+	s.log.Debug("AzureAD OAuth: extracted groups", "email", email, "groups", groups)
 
 	userInfo := &social.BasicUserInfo{
 		Id:     claims.ID,
@@ -168,7 +168,7 @@ func (s *SocialAzureAD) UserInfo(ctx context.Context, client *http.Client, token
 			return nil, errRoleAttributeStrictViolation.Errorf("could not evaluate any valid roles using IdP provided data")
 		}
 
-		s.log.Debug("AzureAD OAuth: mapped org roles", "email", email, "roles", fmt.Sprintf("%v", userInfo.OrgRoles))
+		s.log.Debug("AzureAD OAuth: mapped org roles", "email", email, "roles", userInfo.OrgRoles)
 	}
 
 	if s.info.AllowAssignGrafanaAdmin && s.info.SkipOrgRoleSync {
@@ -321,12 +321,12 @@ func (s *SocialAzureAD) validateClaims(ctx context.Context, client *http.Client,
 		return nil, &SocialError{"AzureAD OAuth: version 1.0 is not supported. Please ensure the auth_url and token_url are set to the v2.0 endpoints."}
 	}
 
-	s.log.Debug("Validating audience", "audience", claims.Audience, "client_id", s.ClientID)
+	s.log.Debug("Validating audience", "audience", claims.Audience, "clientID", s.ClientID)
 	if claims.Audience != s.ClientID {
 		return nil, &SocialError{"AzureAD OAuth: audience mismatch"}
 	}
 
-	s.log.Debug("Validating tenant", "tenant", claims.TenantID, "allowed_tenants", s.allowedOrganizations)
+	s.log.Debug("Validating tenant", "tenant", claims.TenantID, "allowedTenants", s.allowedOrganizations)
 	if !s.isAllowedTenant(claims.TenantID) {
 		return nil, &SocialError{"AzureAD OAuth: tenant mismatch"}
 	}
@@ -486,7 +486,7 @@ func (s *SocialAzureAD) extractGroups(ctx context.Context, client *http.Client, 
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			s.log.Warn("AzureAD OAuth: failed to close response body", "err", err)
+			s.log.Warn("AzureAD OAuth: failed to close response body", "error", err)
 		}
 	}()
 
@@ -495,7 +495,7 @@ func (s *SocialAzureAD) extractGroups(ctx context.Context, client *http.Client, 
 			s.log.Warn("AzureAD OAuth: Token need GroupMember.Read.All permission to fetch all groups")
 		} else {
 			body, _ := io.ReadAll(res.Body)
-			s.log.Warn("AzureAD OAuth: could not fetch user groups", "code", res.StatusCode, "body", string(body))
+			s.log.Warn("AzureAD OAuth: could not fetch user groups", "statusCode", res.StatusCode, "responseBody", string(body))
 		}
 		return []string{}, nil
 	}
@@ -515,7 +515,7 @@ func (s *SocialAzureAD) groupsGraphAPIURL(claims *azureClaims, token *oauth2.Tok
 	// First check if an endpoint was specified in the claims
 	if claims.ClaimNames.Groups != "" {
 		endpoint = claims.ClaimSources[claims.ClaimNames.Groups].Endpoint
-		s.log.Debug(fmt.Sprintf("endpoint to fetch groups specified in the claims: %s", endpoint))
+		s.log.Debug("Endpoint to fetch groups specified in the claims", "endpoint", endpoint)
 	}
 
 	// If no endpoint was specified or if the endpoints provided in _claim_source is pointing to the deprecated
@@ -538,7 +538,7 @@ func (s *SocialAzureAD) groupsGraphAPIURL(claims *azureClaims, token *oauth2.Tok
 		}
 
 		endpoint = fmt.Sprintf("https://graph.microsoft.com/v1.0/%s/users/%s/getMemberObjects", tenantID, claims.ID)
-		s.log.Debug(fmt.Sprintf("handcrafted endpoint to fetch groups: %s", endpoint))
+		s.log.Debug("Using handcrafted endpoint to fetch groups", "endpoint", endpoint)
 	}
 	return endpoint, nil
 }
@@ -549,8 +549,8 @@ func (s *SocialAzureAD) SupportBundleContent(bf *bytes.Buffer) error {
 
 	bf.WriteString("## AzureAD specific configuration\n\n")
 	bf.WriteString("```ini\n")
-	fmt.Fprintf(bf, "allowed_groups = %v\n", s.info.AllowedGroups)
-	fmt.Fprintf(bf, "forceUseGraphAPI = %v\n", s.forceUseGraphAPI)
+	writeSupportBundleConfigLine(bf, "allowed_groups", s.info.AllowedGroups)
+	writeSupportBundleConfigLine(bf, "forceUseGraphAPI", s.forceUseGraphAPI)
 	bf.WriteString("```\n\n")
 
 	return s.getBaseSupportBundleContent(bf)

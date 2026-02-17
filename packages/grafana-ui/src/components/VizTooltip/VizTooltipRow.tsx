@@ -6,6 +6,7 @@ import * as React from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
 
 import { useStyles2 } from '../../themes/ThemeContext';
+import { logUiError } from '../../utils/structuredLogging';
 import { InlineToast } from '../InlineToast/InlineToast';
 import { Tooltip } from '../Tooltip/Tooltip';
 
@@ -112,7 +113,10 @@ export const VizTooltipRow = ({
         setShowCopySuccess(true);
       }
     } catch (err) {
-      console.error('Unable to copy to clipboard', err);
+      logUiError('Unable to copy to clipboard', {
+        operation: 'fallbackCopyToClipboard',
+        error: String(err),
+      });
     }
 
     textarea.remove();

@@ -511,7 +511,7 @@ func (s *Service) getDashUIDMaybeEmpty(ctx context.Context, id int64) (string, e
 			s.log.Debug("dashboard not found")
 			return "", nil
 		} else {
-			s.log.Error("error getting dashboard", err)
+			s.log.Error("error getting dashboard", "error", err)
 			return "", err
 		}
 	}

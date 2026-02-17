@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/md5"
 	"encoding/binary"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"strconv"
@@ -420,7 +421,7 @@ func (am *alertmanager) applyConfig(ctx context.Context, cfg *apimodels.Postable
 		}
 	}
 
-	am.logger.Info("Applying new configuration to Alertmanager", "configHash", fmt.Sprintf("%x", configHash))
+	am.logger.Info("Applying new configuration to Alertmanager", "configHash", hex.EncodeToString(configHash[:]))
 	err = am.Base.ApplyConfig(alertingNotify.NotificationsConfiguration{
 		RoutingTree:       amConfig.Route.AsAMRoute(),
 		InhibitRules:      amConfig.InhibitRules,

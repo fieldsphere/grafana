@@ -57,7 +57,7 @@ func (az *AzureBlobUploader) Upload(ctx context.Context, imageDiskPath string) (
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
-			az.log.Warn("Failed to close file", "path", imageDiskPath, "err", err)
+			az.log.Warn("Failed to close file", "imageFilePath", imageDiskPath, "error", err)
 		}
 	}()
 
@@ -68,14 +68,14 @@ func (az *AzureBlobUploader) Upload(ctx context.Context, imageDiskPath string) (
 
 	randomFileName += pngExt
 	// upload image
-	az.log.Debug("Uploading image to azure_blob", "container_name", az.container_name, "blob_name", randomFileName)
+	az.log.Debug("Uploading image to azure_blob", "containerName", az.container_name, "blobName", randomFileName)
 	resp, err := blob.FileUpload(ctx, az.container_name, randomFileName, file)
 	if err != nil {
 		return "", err
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			logger.Warn("Failed to close response body", "err", err)
+			logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

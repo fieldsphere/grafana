@@ -27,7 +27,6 @@ import (
 	"github.com/grafana/grafana/pkg/apimachinery/utils"
 	grafanaregistry "github.com/grafana/grafana/pkg/apiserver/registry/generic"
 	grafanarest "github.com/grafana/grafana/pkg/apiserver/rest"
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
 	"github.com/grafana/grafana/pkg/registry/fieldselectors"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	grafanaauthorizer "github.com/grafana/grafana/pkg/services/apiserver/auth/authorizer"
@@ -234,7 +233,7 @@ func (b *FolderAPIBuilder) setDefaultFolderPermissions(ctx context.Context, key 
 	}
 
 	log := logging.FromContext(ctx)
-	log.Debug("setting default folder permissions", "uid", obj.GetName(), "namespace", obj.GetNamespace())
+	log.Debug("setting default folder permissions", "folderUID", obj.GetName(), "namespace", obj.GetNamespace())
 
 	client := (*b.resourcePermissionsSvc).Namespace(obj.GetNamespace())
 	name := fmt.Sprintf("%s-%s-%s", folders.FolderResourceInfo.GroupVersionResource().Group, folders.FolderResourceInfo.GroupVersionResource().Resource, obj.GetName())
@@ -258,7 +257,7 @@ func (b *FolderAPIBuilder) setDefaultFolderPermissions(ctx context.Context, key 
 			},
 		}, metav1.UpdateOptions{})
 		if err != nil {
-			logger.Error("failed to update root permissions", "error", err)
+			logging.FromContext(ctx).Error("failed to update root permissions", "error", err)
 			return fmt.Errorf("update root permissions: %w", err)
 		}
 
@@ -282,7 +281,7 @@ func (b *FolderAPIBuilder) setDefaultFolderPermissions(ctx context.Context, key 
 		},
 	}, metav1.CreateOptions{})
 	if err != nil {
-		logger.Error("failed to create root permissions", "error", err)
+		logging.FromContext(ctx).Error("failed to create root permissions", "error", err)
 		return fmt.Errorf("create root permissions: %w", err)
 	}
 

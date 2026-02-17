@@ -38,7 +38,7 @@ func GetOpenAPIDefinitions(builders []APIGroupBuilder, additionalGetters ...open
 			},
 		)
 		if err != nil {
-			logging.DefaultLogger.Error("error initializing DataQuery apiequality", "err", err)
+			logging.DefaultLogger.Error("error initializing DataQuery apiequality", "error", err)
 		}
 	})
 
@@ -105,7 +105,7 @@ func addBuilderRoutes(
 		if strings.HasPrefix(path, "/apis/"+targetGroupVersion.String()+"/") {
 			gv := targetGroupVersion.WithResource("")
 			if apiResourceConfig != nil && !apiResourceConfig.ResourceEnabled(gv) {
-				klog.InfoS("removing openapi routes for disabled resource", "gv", gv.String())
+				klog.InfoS("removing openapi routes for disabled resource", "groupVersion", gv.String())
 				delete(openAPISpec.Paths.Paths, path)
 			}
 		}

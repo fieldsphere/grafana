@@ -44,7 +44,12 @@ func (api *API) GetStars(c *contextmodel.ReqContext) response.Response {
 	if api.starService == nil {
 		stars, err := api.client.GetStars(c)
 		if err != nil {
-			logging.FromContext(c.Req.Context()).With("logger", "star.api").Warn("error", "err", err)
+			logging.FromContext(c.Req.Context()).With("logger", "star.api").Warn(
+				"Failed to get stars from Kubernetes backend",
+				"userID", c.UserID,
+				"orgID", c.GetOrgID(),
+				"error", err,
+			)
 		}
 		return response.JSON(http.StatusOK, stars)
 	}

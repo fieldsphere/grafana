@@ -380,25 +380,25 @@ func (st InstanceDBStore) insertInstancesBatch(sess *sqlstore.DBSession, batch [
 
 	for _, instance := range batch {
 		if err := models.ValidateAlertInstance(instance); err != nil {
-			st.Logger.Warn("Skipping invalid alert instance", "err", err, "rule_uid", instance.RuleUID)
+			st.Logger.Warn("Skipping invalid alert instance", "error", err, "ruleUID", instance.RuleUID)
 			continue
 		}
 
 		labelTupleJSON, err := instance.Labels.StringKey()
 		if err != nil {
-			st.Logger.Warn("Skipping instance with invalid labels key", "err", err, "rule_uid", instance.RuleUID)
+			st.Logger.Warn("Skipping instance with invalid labels key", "error", err, "ruleUID", instance.RuleUID)
 			continue
 		}
 
 		annotationsJSON, err := instance.Annotations.ToDB()
 		if err != nil {
-			st.Logger.Warn("Skipping instance with invalid annotations", "err", err, "rule_uid", instance.RuleUID)
+			st.Logger.Warn("Skipping instance with invalid annotations", "error", err, "ruleUID", instance.RuleUID)
 			continue
 		}
 
 		lastResultJSON, err := instance.LastResult.ToDB()
 		if err != nil {
-			st.Logger.Warn("Skipping instance with invalid last result", "err", err, "rule_uid", instance.RuleUID)
+			st.Logger.Warn("Skipping instance with invalid last result", "error", err, "ruleUID", instance.RuleUID)
 			continue
 		}
 

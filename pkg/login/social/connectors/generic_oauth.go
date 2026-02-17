@@ -286,7 +286,7 @@ func (s *SocialGenericOAuth) buildUserInfo(dataSources []*UserInfoJson) (*social
 	var externalOrgs []string
 
 	for _, data := range dataSources {
-		s.log.Debug("Processing external user info", "source", data.source, "data", data)
+		s.log.Debug("Processing external user info", "source", data.source, "externalUserInfoData", data)
 
 		s.extractBasicUserFields(userInfo, data)
 
@@ -327,7 +327,7 @@ func (s *SocialGenericOAuth) extractRoleAndOrgs(userInfo *social.BasicUserInfo, 
 	if userInfo.Role == "" && !s.info.SkipOrgRoleSync {
 		role, grafanaAdmin, err := s.extractRoleAndAdminOptional(data.rawJSON, []string{})
 		if err != nil {
-			s.log.Warn("Failed to extract role", "err", err)
+			s.log.Warn("Failed to extract role", "error", err)
 		} else {
 			userInfo.Role = role
 			if s.info.AllowAssignGrafanaAdmin {
@@ -339,7 +339,7 @@ func (s *SocialGenericOAuth) extractRoleAndOrgs(userInfo *social.BasicUserInfo, 
 	if len(*externalOrgs) == 0 && !s.info.SkipOrgRoleSync {
 		orgs, err := s.extractOrgs(data.rawJSON)
 		if err != nil {
-			s.log.Warn("Failed to extract orgs", "err", err)
+			s.log.Warn("Failed to extract orgs", "error", err)
 			return err
 		}
 		*externalOrgs = orgs
@@ -353,7 +353,7 @@ func (s *SocialGenericOAuth) extractUserGroups(userInfo *social.BasicUserInfo, d
 	if len(userInfo.Groups) == 0 {
 		groups, err := s.extractGroups(data)
 		if err != nil {
-			s.log.Warn("Failed to extract groups", "err", err)
+			s.log.Warn("Failed to extract groups", "error", err)
 		} else if len(groups) > 0 {
 			s.log.Debug("Setting user info groups from extracted groups")
 			userInfo.Groups = groups
@@ -418,18 +418,18 @@ func (s *SocialGenericOAuth) extractFromIDToken(ctx context.Context, token *oaut
 	idTokenAttribute := "id_token"
 	if s.idTokenAttributeName != "" {
 		idTokenAttribute = s.idTokenAttributeName
-		s.log.Debug("Using custom id_token attribute name", "attribute_name", idTokenAttribute)
+		s.log.Debug("Using custom id_token attribute name", "attributeName", idTokenAttribute)
 	}
 
 	idToken := token.Extra(idTokenAttribute)
 	if idToken == nil {
-		s.log.Debug("No id_token found", "token", fmt.Sprintf("%+v", token))
+		s.log.Debug("No id_token found", "token", token)
 		return nil, nil
 	}
 
 	idTokenString, ok := idToken.(string)
 	if !ok {
-		s.log.Warn("ID token is not a string", "token", fmt.Sprintf("%+v", token))
+		s.log.Warn("ID token is not a string", "token", token)
 		return nil, nil
 	}
 
@@ -448,7 +448,7 @@ func (s *SocialGenericOAuth) extractFromIDToken(ctx context.Context, token *oaut
 		// Otherwise, just extract the payload without signature validation
 		rawJSON, err = s.retrieveRawJWTPayload(idTokenString)
 		if err != nil {
-			s.log.Warn("Error retrieving id_token payload", "error", err, "token", fmt.Sprintf("%+v", token))
+			s.log.Warn("Error retrieving id_token payload", "error", err, "token", token)
 			return nil, nil
 		}
 	}
@@ -478,13 +478,13 @@ func (s *SocialGenericOAuth) extractFromAccessToken(token *oauth2.Token) *UserIn
 func (s *SocialGenericOAuth) parseUserInfoFromJSON(rawJSON []byte, source string) *UserInfoJson {
 	var data UserInfoJson
 	if err := json.Unmarshal(rawJSON, &data); err != nil {
-		s.log.Error("Error decoding user info JSON", "raw_json", string(rawJSON), "error", err, "source", source)
+		s.log.Error("Error decoding user info JSON", "rawJSON", string(rawJSON), "error", err, "source", source)
 		return nil
 	}
 
 	data.rawJSON = rawJSON
 	data.source = source
-	s.log.Debug("Parsed user info from JSON", "raw_json", string(rawJSON), "data", data.String(), "source", source)
+	s.log.Debug("Parsed user info from JSON", "rawJSON", string(rawJSON), "parsedUserInfoData", data.String(), "source", source)
 	return &data
 }
 
@@ -497,7 +497,7 @@ func (s *SocialGenericOAuth) extractFromAPI(ctx context.Context, client *http.Cl
 
 	rawUserInfoResponse, err := s.httpGet(ctx, client, s.info.ApiUrl)
 	if err != nil {
-		s.log.Debug("Error getting user info from API", "url", s.info.ApiUrl, "error", err)
+		s.log.Debug("Error getting user info from API", "apiURL", s.info.ApiUrl, "error", err)
 		return nil
 	}
 
@@ -528,7 +528,7 @@ func (s *SocialGenericOAuth) extractEmail(data *UserInfoJson) string {
 		if emailErr == nil {
 			return emailAddr.Address
 		}
-		s.log.Debug("Failed to parse e-mail address", "error", emailErr.Error())
+		s.log.Debug("Failed to parse e-mail address", "error", emailErr)
 	}
 
 	return ""
@@ -604,7 +604,7 @@ func (s *SocialGenericOAuth) fetchPrivateEmail(ctx context.Context, client *http
 
 	response, err := s.httpGet(ctx, client, s.info.ApiUrl+"/emails")
 	if err != nil {
-		s.log.Error("Error getting email address", "url", s.info.ApiUrl+"/emails", "error", err)
+		s.log.Error("Error getting email address", "apiBaseURL", s.info.ApiUrl, "apiEndpoint", "/emails", "error", err)
 		return "", fmt.Errorf("%v: %w", "Error getting email address", err)
 	}
 
@@ -618,7 +618,7 @@ func (s *SocialGenericOAuth) fetchPrivateEmail(ctx context.Context, client *http
 
 		err = json.Unmarshal(response.Body, &data)
 		if err != nil {
-			s.log.Error("Error decoding email addresses response", "raw_json", string(response.Body), "error", err)
+			s.log.Error("Error decoding email addresses response", "rawJSON", string(response.Body), "error", err)
 			return "", fmt.Errorf("%v: %w", "Error decoding email addresses response", err)
 		}
 
@@ -651,7 +651,7 @@ func (s *SocialGenericOAuth) fetchTeamMemberships(ctx context.Context, client *h
 	}
 
 	if err == nil {
-		s.log.Debug("Received team memberships", "ids", ids)
+		s.log.Debug("Received team memberships", "teamIDs", ids)
 	}
 
 	return ids, err
@@ -666,7 +666,7 @@ func (s *SocialGenericOAuth) fetchTeamMembershipsFromDeprecatedTeamsUrl(ctx cont
 
 	response, err := s.httpGet(ctx, client, s.info.ApiUrl+"/teams")
 	if err != nil {
-		s.log.Error("Error getting team memberships", "url", s.info.ApiUrl+"/teams", "error", err)
+		s.log.Error("Error getting team memberships", "apiBaseURL", s.info.ApiUrl, "apiEndpoint", "/teams", "error", err)
 		return []string{}, err
 	}
 
@@ -674,7 +674,7 @@ func (s *SocialGenericOAuth) fetchTeamMembershipsFromDeprecatedTeamsUrl(ctx cont
 
 	err = json.Unmarshal(response.Body, &records)
 	if err != nil {
-		s.log.Error("Error decoding team memberships response", "raw_json", string(response.Body), "error", err)
+		s.log.Error("Error decoding team memberships response", "rawJSON", string(response.Body), "error", err)
 		return []string{}, err
 	}
 
@@ -693,7 +693,7 @@ func (s *SocialGenericOAuth) fetchTeamMembershipsFromTeamsUrl(ctx context.Contex
 
 	response, err := s.httpGet(ctx, client, s.teamsUrl)
 	if err != nil {
-		s.log.Error("Error getting team memberships", "url", s.teamsUrl, "error", err)
+		s.log.Error("Error getting team memberships", "teamsURL", s.teamsUrl, "error", err)
 		return nil, err
 	}
 
@@ -707,7 +707,7 @@ func (s *SocialGenericOAuth) fetchOrganizations(ctx context.Context, client *htt
 
 	response, err := s.httpGet(ctx, client, s.info.ApiUrl+"/orgs")
 	if err != nil {
-		s.log.Error("Error getting organizations", "url", s.info.ApiUrl+"/orgs", "error", err)
+		s.log.Error("Error getting organizations", "apiBaseURL", s.info.ApiUrl, "apiEndpoint", "/orgs", "error", err)
 		return nil, false
 	}
 
@@ -715,7 +715,7 @@ func (s *SocialGenericOAuth) fetchOrganizations(ctx context.Context, client *htt
 
 	err = json.Unmarshal(response.Body, &records)
 	if err != nil {
-		s.log.Error("Error decoding organization response", "response", string(response.Body), "error", err)
+		s.log.Error("Error decoding organization response", "responseBody", string(response.Body), "error", err)
 		return nil, false
 	}
 
@@ -735,14 +735,14 @@ func (s *SocialGenericOAuth) SupportBundleContent(bf *bytes.Buffer) error {
 
 	bf.WriteString("## GenericOAuth specific configuration\n\n")
 	bf.WriteString("```ini\n")
-	fmt.Fprintf(bf, "name_attribute_path = %s\n", s.nameAttributePath)
-	fmt.Fprintf(bf, "login_attribute_path = %s\n", s.loginAttributePath)
-	fmt.Fprintf(bf, "id_token_attribute_name = %s\n", s.idTokenAttributeName)
-	fmt.Fprintf(bf, "team_ids_attribute_path = %s\n", s.teamIdsAttributePath)
-	fmt.Fprintf(bf, "team_ids = %v\n", s.teamIds)
-	fmt.Fprintf(bf, "allowed_organizations = %v\n", s.allowedOrganizations)
-	fmt.Fprintf(bf, "validate_id_token = %v\n", s.info.ValidateIDToken)
-	fmt.Fprintf(bf, "jwk_set_url = %s\n", s.info.JwkSetURL)
+	writeSupportBundleConfigLine(bf, "name_attribute_path", s.nameAttributePath)
+	writeSupportBundleConfigLine(bf, "login_attribute_path", s.loginAttributePath)
+	writeSupportBundleConfigLine(bf, "id_token_attribute_name", s.idTokenAttributeName)
+	writeSupportBundleConfigLine(bf, "team_ids_attribute_path", s.teamIdsAttributePath)
+	writeSupportBundleConfigLine(bf, "team_ids", s.teamIds)
+	writeSupportBundleConfigLine(bf, "allowed_organizations", s.allowedOrganizations)
+	writeSupportBundleConfigLine(bf, "validate_id_token", s.info.ValidateIDToken)
+	writeSupportBundleConfigLine(bf, "jwk_set_url", s.info.JwkSetURL)
 	bf.WriteString("```\n\n")
 
 	return s.getBaseSupportBundleContent(bf)

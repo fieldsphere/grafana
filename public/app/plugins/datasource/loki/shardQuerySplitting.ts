@@ -3,7 +3,7 @@ import { Observable, Subscriber, Subscription } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataQueryRequest, DataQueryResponse, LoadingState, QueryResultMetaStat } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 
 import { LokiDatasource } from './datasource';
 import { combineResponses, replaceResponses } from './mergeResponses';
@@ -16,6 +16,8 @@ import {
 } from './queryUtils';
 import { isRetriableError } from './responseUtils';
 import { LokiQuery } from './types';
+
+const logger = createMonitoringLogger('plugins.datasource.loki.shard-query-splitting');
 /**
  * Query splitting by stream shards.
  * Query splitting was introduced in Loki to optimize querying for long intervals and high volume of data,
@@ -130,7 +132,14 @@ function splitQueriesByStreamShard(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        if (e instanceof Error) {
+          logger.logError(e, { operation: 'runNextRequest.retry' });
+        } else {
+          logger.logWarning('Error when checking shard retry eligibility', {
+            operation: 'runNextRequest.retry',
+            error: String(e),
+          });
+        }
         shouldStop = true;
         return false;
       }
@@ -155,7 +164,12 @@ function splitQueriesByStreamShard(
 
       retryTimer = setTimeout(
         () => {
-          console.warn(`Retrying ${group} ${cycle} (${retries + 1})`);
+          logger.logWarning('Retrying sharded query group', {
+            operation: 'runNextRequest.retry',
+            group,
+            cycle,
+            retryAttempt: retries + 1,
+          });
           runNextRequest(subscriber, group, groups);
           retryTimer = null;
         },
@@ -224,7 +238,11 @@ function splitQueriesByStreamShard(
         nextRequest();
       },
       error: (error: unknown) => {
-        console.error(error, { msg: 'failed to shard' });
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'runNextRequest.error' });
+        } else {
+          logger.logWarning('Failed to shard query', { operation: 'runNextRequest.error', error: String(error) });
+        }
         subscriber.next(mergedResponse);
         if (retry()) {
           return;
@@ -293,7 +311,14 @@ async function groupTargetsByQueryType(
         cycle: 0,
       });
     } catch (error) {
-      console.error(error, { msg: 'failed to fetch label values for __stream_shard__' });
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'groupTargetsByQueryType' });
+      } else {
+        logger.logWarning('Failed to fetch label values for __stream_shard__', {
+          operation: 'groupTargetsByQueryType',
+          error: String(error),
+        });
+      }
       groups.push({
         targets: selectorPartition[selector],
       });
@@ -375,5 +400,8 @@ function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  console.log(message);
+  logger.logDebug('Loki shard query splitting debug event', {
+    operation: 'debug',
+    logMessage: message,
+  });
 }

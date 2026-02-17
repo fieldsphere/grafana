@@ -144,7 +144,7 @@ func (s *Manager) handleDatasourceEvent(orgID int64, dsUID string, resubmit bool
 			_, err := s.SubmitStream(s.baseCtx, sr.user, sr.Channel, sr.Path, sr.Data, sr.PluginContext, sr.StreamRunner, true)
 			if err != nil {
 				// Log error but do not prevent execution of caller routine.
-				logger.Error("Error re-submitting stream", "path", sr.Path, "error", err)
+				logger.Error("Error re-submitting stream", "streamPath", sr.Path, "error", err)
 			}
 		}
 	}
@@ -190,17 +190,17 @@ func (s *Manager) watchStream(ctx context.Context, cancelFn func(), sr streamReq
 				pCtx, err := s.pluginContextGetter.GetPluginContext(ctx, sr.user, sr.PluginContext.PluginID, dsUID, false)
 				if err != nil {
 					if errors.Is(err, plugins.ErrPluginNotRegistered) {
-						logger.Debug("Datasource not found, stop stream", "channel", sr.Channel, "path", sr.Path)
+						logger.Debug("Datasource not found, stop stream", "channel", sr.Channel, "streamPath", sr.Path)
 						return
 					}
-					logger.Error("Error getting datasource context", "channel", sr.Channel, "path", sr.Path, "error", err)
+					logger.Error("Error getting datasource context", "channel", sr.Channel, "streamPath", sr.Path, "error", err)
 					continue
 				}
 				if pCtx.DataSourceInstanceSettings.Updated != sr.PluginContext.DataSourceInstanceSettings.Updated {
-					logger.Debug("Datasource changed, re-establish stream", "channel", sr.Channel, "path", sr.Path)
+					logger.Debug("Datasource changed, re-establish stream", "channel", sr.Channel, "streamPath", sr.Path)
 					err := s.HandleDatasourceUpdate(pCtx.OrgID, dsUID)
 					if err != nil {
-						logger.Error("Error re-establishing stream", "channel", sr.Channel, "path", sr.Path, "error", err)
+						logger.Error("Error re-establishing stream", "channel", sr.Channel, "streamPath", sr.Path, "error", err)
 						continue
 					}
 					return
@@ -209,7 +209,7 @@ func (s *Manager) watchStream(ctx context.Context, cancelFn func(), sr streamReq
 		case <-presenceTicker.C:
 			numSubscribers, err := s.presenceGetter.GetNumLocalSubscribers(sr.Channel)
 			if err != nil {
-				logger.Error("Error checking num subscribers", "channel", sr.Channel, "path", sr.Path, "error", err)
+				logger.Error("Error checking num subscribers", "channel", sr.Channel, "streamPath", sr.Path, "error", err)
 				continue
 			}
 			if numSubscribers > 0 {
@@ -219,7 +219,7 @@ func (s *Manager) watchStream(ctx context.Context, cancelFn func(), sr streamReq
 			}
 			numNoSubscribersChecks++
 			if numNoSubscribersChecks >= s.maxChecks {
-				logger.Debug("Stop stream since no active subscribers", "channel", sr.Channel, "path", sr.Path)
+				logger.Debug("Stop stream since no active subscribers", "channel", sr.Channel, "streamPath", sr.Path)
 				s.stopStream(sr, cancelFn)
 				return
 			}
@@ -293,10 +293,10 @@ func (s *Manager) runStream(ctx context.Context, cancelFn func(), sr streamReque
 			newPluginCtx, err := s.pluginContextGetter.GetPluginContext(ctx, sr.user, pluginCtx.PluginID, datasourceUID, false)
 			if err != nil {
 				if errors.Is(err, plugins.ErrPluginNotRegistered) {
-					logger.Info("No plugin context found, stopping stream", "path", sr.Path)
+					logger.Info("No plugin context found, stopping stream", "streamPath", sr.Path)
 					return
 				}
-				logger.Error("Error getting plugin context", "path", sr.Path, "error", err)
+				logger.Error("Error getting plugin context", "streamPath", sr.Path, "error", err)
 				isReconnect = true
 				continue
 			}
@@ -314,14 +314,14 @@ func (s *Manager) runStream(ctx context.Context, cancelFn func(), sr streamReque
 		)
 		if err != nil {
 			if errors.Is(ctx.Err(), context.Canceled) {
-				logger.Debug("Stream cleanly finished", "path", sr.Path)
+				logger.Debug("Stream cleanly finished", "streamPath", sr.Path)
 				return
 			}
-			logger.Error("Error running stream, re-establishing", "path", sr.Path, "error", err, "wait", delay)
+			logger.Error("Error running stream, re-establishing", "streamPath", sr.Path, "error", err, "wait", delay)
 			isReconnect = true
 			continue
 		}
-		logger.Debug("Stream finished without error, stopping it", "path", sr.Path)
+		logger.Debug("Stream finished without error, stopping it", "streamPath", sr.Path)
 		return
 	}
 }

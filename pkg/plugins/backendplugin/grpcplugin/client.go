@@ -90,9 +90,9 @@ func newClientConfig(descriptor PluginDescriptor, env []string, logger log.Logge
 			return nil, err
 		}
 		cfg.UnixSocketConfig = &goplugin.UnixSocketConfig{TempDir: td}
-		logger.Debug("Using runner mode", "os", runtime.GOOS, "executablePath", executablePath)
+		logger.Debug("Using runner mode", "operatingSystem", runtime.GOOS, "executablePath", executablePath)
 	} else {
-		logger.Debug("Using process mode", "os", runtime.GOOS, "executablePath", executablePath)
+		logger.Debug("Using process mode", "operatingSystem", runtime.GOOS, "executablePath", executablePath)
 		// We can ignore gosec G201 here, since the dynamic part of executablePath comes from the plugin definition
 		// nolint:gosec
 		cfg.Cmd = exec.Command(executablePath, descriptor.executableArgs...)
@@ -103,7 +103,7 @@ func newClientConfig(descriptor PluginDescriptor, env []string, logger log.Logge
 }
 
 func containerClientConfig(executablePath, containerImage, containerTag string, logger log.Logger, versionedPlugins map[int]goplugin.PluginSet, skipHostEnvVars bool, tracer trace.Tracer) *goplugin.ClientConfig {
-	logger.Info("Using container mode", "executable", executablePath, "image", containerImage, "tag", containerTag)
+	logger.Info("Using container mode", "executable", executablePath, "image", containerImage, "containerTag", containerTag)
 	return &goplugin.ClientConfig{
 		RunnerFunc: func(l hclog.Logger, cmd *exec.Cmd, tmpDir string) (runner.Runner, error) {
 			logger.Info("Creating container runner", "executablePath", executablePath, "tmpDir", tmpDir)

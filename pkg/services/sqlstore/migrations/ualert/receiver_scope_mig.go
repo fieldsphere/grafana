@@ -36,13 +36,13 @@ func (p addReceiverActionScopesMigrator) Exec(sess *xorm.Session, migrator *migr
 
 	_, err := sess.Exec("UPDATE permission SET `scope` = 'receivers:*', `kind` = 'receivers', `attribute` = '*', `identifier` = '*' WHERE action = ?", actionAlertingReceiversRead)
 	if err != nil {
-		migrator.Logger.Error("Failed to update permissions for action", "action", actionAlertingReceiversRead, "error", err)
+		migrator.Logger.Error("Failed to update permissions for action", "permissionAction", actionAlertingReceiversRead, "error", err)
 		return err
 	}
 
 	_, err = sess.Exec("UPDATE permission SET `scope` = 'receivers:*', `kind` = 'receivers', `attribute` = '*', `identifier` = '*' WHERE action = ?", actionAlertingReceiversReadSecrets)
 	if err != nil {
-		migrator.Logger.Error("Failed to update permissions for action", "action", actionAlertingReceiversReadSecrets, "error", err)
+		migrator.Logger.Error("Failed to update permissions for action", "permissionAction", actionAlertingReceiversReadSecrets, "error", err)
 		return err
 	}
 	return nil

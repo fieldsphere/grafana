@@ -30,12 +30,15 @@ type TracingMiddleware struct {
 	tracer tracing.Tracer
 }
 
-// setSpanAttributeFromHTTPHeader takes a ReqContext and a span, and adds the specified HTTP header as a span attribute
-// (string value), if the header is present.
-func setSpanAttributeFromHTTPHeader(headers http.Header, span trace.Span, attributeName, headerName string) {
-	// Set the attribute as string
-	if v := headers.Get(headerName); v != "" {
-		span.SetAttributes(attribute.String(attributeName, v))
+func setSpanQueryGroupIDFromHTTPHeader(headers http.Header, span trace.Span) {
+	if queryGroupID := headers.Get(query.HeaderQueryGroupID); queryGroupID != "" {
+		span.SetAttributes(attribute.String("queryGroupID", queryGroupID))
+	}
+}
+
+func setSpanDashboardUIDFromHTTPHeader(headers http.Header, span trace.Span) {
+	if dashboardUID := headers.Get(query.HeaderDashboardUID); dashboardUID != "" {
+		span.SetAttributes(attribute.String("dashboardUID", dashboardUID))
 	}
 }
 
@@ -48,25 +51,25 @@ func (m *TracingMiddleware) traceWrap(
 	endpoint := backend.EndpointFromContext(ctx)
 	ctx, span := m.tracer.Start(ctx, "PluginClient."+string(endpoint), trace.WithAttributes(
 		// Attach some plugin context information to span
-		attribute.String("plugin_id", pluginContext.PluginID),
-		attribute.Int64("org_id", pluginContext.OrgID),
+		attribute.String("pluginID", pluginContext.PluginID),
+		attribute.Int64("orgID", pluginContext.OrgID),
 	))
 
 	if settings := pluginContext.DataSourceInstanceSettings; settings != nil {
-		span.SetAttributes(attribute.String("datasource_name", settings.Name))
-		span.SetAttributes(attribute.String("datasource_uid", settings.UID))
+		span.SetAttributes(attribute.String("datasourceName", settings.Name))
+		span.SetAttributes(attribute.String("datasourceUID", settings.UID))
 	}
 	if u := pluginContext.User; u != nil {
-		span.SetAttributes(attribute.String("user", u.Login))
+		span.SetAttributes(attribute.String("userLogin", u.Login))
 	}
 
 	// Additional attributes from http headers
 	if reqCtx := contexthandler.FromContext(ctx); reqCtx != nil && reqCtx.Req != nil && len(reqCtx.Req.Header) > 0 {
 		if v, err := strconv.Atoi(reqCtx.Req.Header.Get(query.HeaderPanelID)); err == nil {
-			span.SetAttributes(attribute.Int("panel_id", v))
+			span.SetAttributes(attribute.Int("panelID", v))
 		}
-		setSpanAttributeFromHTTPHeader(reqCtx.Req.Header, span, "query_group_id", query.HeaderQueryGroupID)
-		setSpanAttributeFromHTTPHeader(reqCtx.Req.Header, span, "dashboard_uid", query.HeaderDashboardUID)
+		setSpanQueryGroupIDFromHTTPHeader(reqCtx.Req.Header, span)
+		setSpanDashboardUIDFromHTTPHeader(reqCtx.Req.Header, span)
 	}
 
 	// Return ctx with span + cleanup func

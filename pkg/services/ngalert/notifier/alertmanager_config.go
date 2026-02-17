@@ -165,10 +165,10 @@ func (moa *MultiOrgAlertmanager) ActivateHistoricalConfiguration(ctx context.Con
 	previousConfig, cleanPermissionsErr := moa.configStore.GetLatestAlertmanagerConfiguration(ctx, orgId)
 
 	if err := am.SaveAndApplyConfig(ctx, cfg); err != nil {
-		moa.logger.Error("Unable to save and apply historical alertmanager configuration", "error", err, "org", orgId, "id", id)
+		moa.logger.Error("Unable to save and apply historical alertmanager configuration", "error", err, "orgID", orgId, "configID", id)
 		return AlertmanagerConfigRejectedError{err}
 	}
-	moa.logger.Info("Applied historical alertmanager configuration", "org", orgId, "id", id)
+	moa.logger.Info("Applied historical alertmanager configuration", "orgID", orgId, "configID", id)
 
 	// Attempt to cleanup permissions for receivers that are no longer defined and add defaults for new receivers.
 	// Failure should not prevent the default config from being applied.
@@ -201,7 +201,7 @@ func (moa *MultiOrgAlertmanager) GetAppliedAlertmanagerConfigurations(ctx contex
 		gettableConfig, err := moa.gettableUserConfigFromAMConfigString(ctx, org, config.AlertmanagerConfiguration, false)
 		if err != nil {
 			// If there are invalid records, skip them and return the valid ones.
-			moa.logger.Warn("Invalid configuration found in alert configuration history table", "id", config.ID, "orgID", org)
+			moa.logger.Warn("Invalid configuration found in alert configuration history table", "configID", config.ID, "orgID", org)
 			continue
 		}
 
@@ -411,11 +411,11 @@ func (moa *MultiOrgAlertmanager) modifyAndApplyExtraConfiguration(
 	}
 
 	if err := am.SaveAndApplyConfig(ctx, cfg); err != nil {
-		moa.logger.Error("Unable to save and apply alertmanager configuration with extra config", "error", err, "org", org)
+		moa.logger.Error("Unable to save and apply alertmanager configuration with extra config", "error", err, "orgID", org)
 		return AlertmanagerConfigRejectedError{err}
 	}
 
-	moa.logger.Info("Applied alertmanager configuration with extra config", "org", org)
+	moa.logger.Info("Applied alertmanager configuration with extra config", "orgID", org)
 	return nil
 }
 
@@ -437,7 +437,7 @@ func (moa *MultiOrgAlertmanager) SaveAndApplyExtraConfiguration(ctx context.Cont
 		return err
 	}
 
-	moa.logger.Info("Applied alertmanager configuration with extra config", "org", org, "identifier", extraConfig.Identifier)
+	moa.logger.Info("Applied alertmanager configuration with extra config", "orgID", org, "identifier", extraConfig.Identifier)
 	return nil
 }
 

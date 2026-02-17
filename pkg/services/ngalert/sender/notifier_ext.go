@@ -151,7 +151,7 @@ func (n *Manager) sendAll(alerts ...*Alert) bool {
 
 					cachedPayload, err = json.Marshal(openAPIAlerts)
 					if err != nil {
-						n.logger.Error("Encoding alerts for Alertmanager API v2 failed", "err", err)
+						n.logger.Error("Encoding alerts for Alertmanager API v2 failed", "error", err)
 						ams.mtx.RUnlock()
 						return false
 					}
@@ -162,8 +162,9 @@ func (n *Manager) sendAll(alerts ...*Alert) bool {
 		default:
 			{
 				n.logger.Error(
-					fmt.Sprintf("Invalid Alertmanager API version '%v', expected one of '%v'", ams.cfg.APIVersion, config.SupportedAlertmanagerAPIVersions),
-					"err", err,
+					"Invalid Alertmanager API version",
+					"apiVersion", ams.cfg.APIVersion,
+					"supportedAPIVersions", config.SupportedAlertmanagerAPIVersions,
 				)
 				ams.mtx.RUnlock()
 				return false
@@ -187,7 +188,7 @@ func (n *Manager) sendAll(alerts ...*Alert) bool {
 			go func(ctx context.Context, k string, client *http.Client, url string, payload []byte, count int, headers http.Header) {
 				err := n.sendOne(ctx, client, url, payload, headers)
 				if err != nil {
-					n.logger.Error("Error sending alerts", "alertmanager", url, "count", count, "err", err)
+					n.logger.Error("Error sending alerts", "alertmanager", url, "count", count, "error", err)
 					n.metrics.errors.WithLabelValues(url).Add(float64(count))
 				} else {
 					amSetCovered.CompareAndSwap(k, false, true)

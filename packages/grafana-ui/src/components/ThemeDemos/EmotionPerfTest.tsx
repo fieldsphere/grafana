@@ -11,8 +11,6 @@ import { Button } from '../Button/Button';
 import { Stack } from '../Layout/Stack/Stack';
 
 export function EmotionPerfTest() {
-  console.log('process.env.NODE_ENV', process.env.NODE_ENV);
-
   return (
     <Stack direction="column">
       <div>Emotion performance tests</div>
@@ -125,9 +123,7 @@ function NoStyles({ index }: TestComponentProps) {
 }
 
 function MeasureRender({ children, id }: { children: React.ReactNode; id: string }) {
-  const onRender: ProfilerOnRenderCallback = (id, phase, actualDuration, baseDuration, startTime, commitTime) => {
-    console.log('Profile ' + id, actualDuration);
-  };
+  const onRender: ProfilerOnRenderCallback = () => {};
 
   return (
     <Profiler id={id} onRender={onRender}>

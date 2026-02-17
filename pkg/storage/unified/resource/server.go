@@ -554,11 +554,11 @@ func (s *server) newEvent(ctx context.Context, user claims.AuthInfo, key *resour
 	if obj.GetUID() == "" {
 		// TODO! once https://github.com/grafana/grafana/pull/96086 is deployed everywhere
 		// return nil, NewBadRequestError("object is missing UID")
-		l.Error("object is missing UID", "key", key)
+		l.Error("object is missing UID", "resourceKey", key)
 	}
 
 	if obj.GetResourceVersion() != "" {
-		l.Error("object must not include a resource version", "key", key)
+		l.Error("object must not include a resource version", "resourceKey", key)
 	}
 
 	// Make sure the command labels are not saved
@@ -792,7 +792,7 @@ func (s *server) create(ctx context.Context, user claims.AuthInfo, req *resource
 	if err != nil {
 		rsp.Error = AsErrorResult(err)
 	}
-	s.log.FromContext(ctx).Debug("server.WriteEvent", "type", event.Type, "rv", rsp.ResourceVersion, "previousRV", event.PreviousRV, "group", event.Key.Group, "namespace", event.Key.Namespace, "name", event.Key.Name, "resource", event.Key.Resource)
+	s.log.FromContext(ctx).Debug("server.WriteEvent", "resourceEventType", event.Type, "resourceVersion", rsp.ResourceVersion, "previousRV", event.PreviousRV, "group", event.Key.Group, "namespace", event.Key.Namespace, "resourceName", event.Key.Name, "resource", event.Key.Resource)
 	return rsp, nil
 }
 
@@ -829,7 +829,7 @@ func (s *server) sleepAfterSuccessfulWriteOperation(operation string, key *resou
 		"group", key.Group,
 		"resource", key.Resource,
 		"namespace", key.Namespace,
-		"name", key.Name)
+		"resourceName", key.Name)
 
 	time.Sleep(s.artificialSuccessfulWriteDelay)
 	return true
@@ -1262,7 +1262,7 @@ func (s *server) initWatcher() error {
 					continue
 				}
 
-				s.log.Debug("Server. Streaming Event", "type", v.Type, "previousRV", v.PreviousRV, "group", v.Key.Group, "namespace", v.Key.Namespace, "resource", v.Key.Resource, "name", v.Key.Name)
+				s.log.Debug("Server. Streaming Event", "resourceEventType", v.Type, "previousRV", v.PreviousRV, "group", v.Key.Group, "namespace", v.Key.Namespace, "resource", v.Key.Resource, "resourceName", v.Key.Name)
 				s.mostRecentRV.Store(v.ResourceVersion)
 				out <- v
 			}
@@ -1335,7 +1335,7 @@ func (s *server) Watch(req *resourcepb.WatchRequest, srv resourcepb.ResourceStor
 			// Fallback to the broadcasterʼs view if the backend lookup fails.
 			// This preserves previous behaviour while still eliminating the
 			// common race in the majority of cases.
-			s.log.Warn("watch: failed to fetch current RV from backend, falling back to broadcaster", "err", err)
+			s.log.Warn("watch: failed to fetch current RV from backend, falling back to broadcaster", "error", err)
 			mostRecentRV = s.mostRecentRV.Load()
 		} else {
 			mostRecentRV = rv
@@ -1400,7 +1400,7 @@ func (s *server) Watch(req *resourcepb.WatchRequest, srv resourcepb.ResourceStor
 				s.log.Debug("watch events closed")
 				return nil
 			}
-			s.log.Debug("Server Broadcasting", "type", event.Type, "rv", event.ResourceVersion, "previousRV", event.PreviousRV, "group", event.Key.Group, "namespace", event.Key.Namespace, "resource", event.Key.Resource, "name", event.Key.Name)
+			s.log.Debug("Server Broadcasting", "resourceEventType", event.Type, "resourceVersion", event.ResourceVersion, "previousRV", event.PreviousRV, "group", event.Key.Group, "namespace", event.Key.Namespace, "resource", event.Key.Resource, "resourceName", event.Key.Name)
 			if event.ResourceVersion > since && matchesQueryKey(req.Options.Key, event.Key) {
 				if !checker(event.Key.Name, event.Folder) {
 					continue
@@ -1424,10 +1424,10 @@ func (s *server) Watch(req *resourcepb.WatchRequest, srv resourcepb.ResourceStor
 					if err != nil {
 						// This scenario should never happen, but if it does, we should log it and continue
 						// sending the event without the previous object. The client will decide what to do.
-						s.log.Error("error reading previous object", "key", event.Key, "resource_version", event.PreviousRV, "error", prevObj.Error)
+						s.log.Error("error reading previous object", "resourceKey", event.Key, "resourceVersion", event.PreviousRV, "error", err)
 					} else {
 						if prevObj.ResourceVersion != event.PreviousRV {
-							s.log.Error("resource version mismatch", "key", event.Key, "resource_version", event.PreviousRV, "actual", prevObj.ResourceVersion)
+							s.log.Error("resource version mismatch", "resourceKey", event.Key, "resourceVersion", event.PreviousRV, "actual", prevObj.ResourceVersion)
 							return fmt.Errorf("resource version mismatch")
 						}
 						resp.Previous = &resourcepb.WatchEvent_Resource{
@@ -1692,7 +1692,7 @@ func (s *server) checkQuota(ctx context.Context, nsr NamespacedResource) error {
 	}
 
 	if len(stats) > 0 && stats[0].Count >= int64(quota.Limit) {
-		s.log.FromContext(ctx).Info("Quota exceeded on create", "namespace", nsr.Namespace, "group", nsr.Group, "resource", nsr.Resource, "quota", quota.Limit, "count", stats[0].Count, "stats_resource", stats[0].Resource)
+		s.log.FromContext(ctx).Info("Quota exceeded on create", "namespace", nsr.Namespace, "group", nsr.Group, "resource", nsr.Resource, "quota", quota.Limit, "count", stats[0].Count, "statsResource", stats[0].Resource)
 		if s.quotasConfig.EnforceQuotas {
 			return QuotaExceededError{
 				Resource:       nsr.Resource,

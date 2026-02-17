@@ -1,6 +1,9 @@
+import { createMonitoringLogger } from './logging';
+
 type ReturnToPreviousHook = () => (title: string, href?: string) => void;
 
 let rtpHook: ReturnToPreviousHook | undefined = undefined;
+const logger = createMonitoringLogger('runtime.return-to-previous');
 
 export const setReturnToPreviousHook = (hook: ReturnToPreviousHook) => {
   rtpHook = hook;
@@ -16,7 +19,11 @@ export const useReturnToPrevious: ReturnToPreviousHook = () => {
     if (process.env.NODE_ENV !== 'production') {
       throw new Error('useReturnToPrevious hook not found in @grafana/runtime');
     }
-    return () => console.error('ReturnToPrevious hook not found');
+    return (title: string, href?: string) =>
+      logger.logWarning('ReturnToPrevious hook not found', {
+        title,
+        href,
+      });
   }
 
   return rtpHook();

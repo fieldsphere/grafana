@@ -89,7 +89,7 @@ func (s *Service) GetJWKS(ctx context.Context) (jose.JSONWebKeySet, error) {
 	jwksBytes, err := json.Marshal(jwks)
 	if err == nil {
 		if err := s.remoteCache.Set(ctx, jwksCacheKey, jwksBytes, jwksTTL); err != nil {
-			s.log.Warn("Failed to cache JWKS", "err", err)
+			s.log.Warn("Failed to cache JWKS", "error", err)
 		}
 	}
 
@@ -120,7 +120,7 @@ func (s *Service) buildJWKS(ctx context.Context, keys []signingkeys.SigningKey) 
 func (s *Service) GetOrCreatePrivateKey(ctx context.Context,
 	keyPrefix string, alg jose.SignatureAlgorithm) (string, crypto.Signer, error) {
 	if alg != jose.ES256 {
-		s.log.Error("Only ES256 is supported", "alg", alg)
+		s.log.Error("Only ES256 is supported", "algorithm", alg)
 		return "", nil, signingkeys.ErrKeyGenerationFailed.Errorf("Only ES256 is supported: %v", alg)
 	}
 
@@ -135,7 +135,7 @@ func (s *Service) GetOrCreatePrivateKey(ctx context.Context,
 		return "", nil, err
 	}
 
-	s.log.Debug("Private key not found, generating new key", "keyID", keyID, "err", err)
+	s.log.Debug("Private key not found, generating new key", "keyID", keyID, "error", err)
 
 	signer, err = s.addPrivateKey(ctx, keyID, alg, false)
 	if err != nil {
@@ -167,13 +167,13 @@ func (s *Service) getPrivateKey(ctx context.Context, keyID string) (crypto.Signe
 func (s *Service) addPrivateKey(ctx context.Context, keyID string, alg jose.SignatureAlgorithm, force bool) (crypto.Signer, error) {
 	privateKey, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	if err != nil {
-		s.log.Error("Error generating private key", "err", err)
+		s.log.Error("Error generating private key", "error", err)
 		return nil, signingkeys.ErrKeyGenerationFailed.Errorf("Error generating private key: %v", err)
 	}
 
 	encoded, err := s.encodePrivateKey(ctx, privateKey)
 	if err != nil {
-		s.log.Error("Error encoding private key", "err", err)
+		s.log.Error("Error encoding private key", "error", err)
 		return nil, err
 	}
 
@@ -202,7 +202,7 @@ func (s *Service) addPrivateKey(ctx context.Context, keyID string, alg jose.Sign
 	// invalidate cache
 	if err := s.remoteCache.Delete(ctx, jwksCacheKey); err != nil {
 		// not a critical error, key might not be in cache
-		s.log.Debug("Failed to invalidate JWKS cache", "err", err)
+		s.log.Debug("Failed to invalidate JWKS cache", "error", err)
 	}
 
 	return signer, nil
@@ -304,7 +304,7 @@ type RetrieveJWKSResponse struct {
 func (s *Service) exposeJWKS(ctx *contextmodel.ReqContext) response.Response {
 	jwks, err := s.GetJWKS(ctx.Req.Context())
 	if err != nil {
-		s.log.Error("Failed to get JWKS", "err", err)
+		s.log.Error("Failed to get JWKS", "error", err)
 		return response.Error(http.StatusInternalServerError, "Failed to get JWKS", err)
 	}
 

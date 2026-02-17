@@ -37,16 +37,16 @@ func (s *OrgSync) SyncOrgRolesHook(ctx context.Context, id *authn.Identity, _ *a
 		return nil
 	}
 
-	ctxLogger := s.log.FromContext(ctx).New("id", id.ID, "login", id.Login)
+	ctxLogger := s.log.FromContext(ctx).New("identityID", id.ID, "login", id.Login)
 
 	if !id.IsIdentityType(claims.TypeUser) {
-		ctxLogger.Warn("Failed to sync org role, invalid namespace for identity", "type", id.GetIdentityType())
+		ctxLogger.Warn("Failed to sync org role, invalid namespace for identity", "identityType", id.GetIdentityType())
 		return nil
 	}
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		ctxLogger.Warn("Failed to sync org role, invalid ID for identity", "type", id.GetIdentityType(), "err", err)
+		ctxLogger.Warn("Failed to sync org role, invalid ID for identity", "identityType", id.GetIdentityType(), "error", err)
 		return nil
 	}
 
@@ -110,10 +110,10 @@ func (s *OrgSync) SyncOrgRolesHook(ctx context.Context, id *authn.Identity, _ *a
 
 	// delete any removed org roles
 	for _, orgID := range deleteOrgIds {
-		ctxLogger.Debug("Removing user's organization membership as part of syncing with OAuth login", "orgId", orgID)
+		ctxLogger.Debug("Removing user's organization membership as part of syncing with OAuth login", "orgID", orgID)
 		cmd := &org.RemoveOrgUserCommand{OrgID: orgID, UserID: userID}
 		if err := s.orgService.RemoveOrgUser(ctx, cmd); err != nil {
-			ctxLogger.Error("Failed to remove user from org", "orgId", orgID, "error", err)
+			ctxLogger.Error("Failed to remove user from org", "orgID", orgID, "error", err)
 			if errors.Is(err, org.ErrLastOrgAdmin) {
 				continue
 			}
@@ -122,7 +122,7 @@ func (s *OrgSync) SyncOrgRolesHook(ctx context.Context, id *authn.Identity, _ *a
 		}
 
 		if err := s.accessControl.DeleteUserPermissions(ctx, orgID, cmd.UserID); err != nil {
-			ctxLogger.Error("Failed to delete permissions for user", "orgId", orgID, "error", err)
+			ctxLogger.Error("Failed to delete permissions for user", "orgID", orgID, "error", err)
 		}
 	}
 
@@ -153,30 +153,30 @@ func (s *OrgSync) SetDefaultOrgHook(ctx context.Context, currentIdentity *authn.
 	ctxLogger := s.log.FromContext(ctx)
 
 	if !currentIdentity.IsIdentityType(claims.TypeUser) {
-		ctxLogger.Debug("Skipping default org sync, not a user", "type", currentIdentity.GetIdentityType())
+		ctxLogger.Debug("Skipping default org sync, not a user", "identityType", currentIdentity.GetIdentityType())
 		return
 	}
 
 	userID, err := currentIdentity.GetInternalID()
 	if err != nil {
-		ctxLogger.Debug("Skipping default org sync, invalid ID for identity", "id", currentIdentity.ID, "type", currentIdentity.GetIdentityType(), "err", err)
+		ctxLogger.Debug("Skipping default org sync, invalid ID for identity", "identityID", currentIdentity.ID, "identityType", currentIdentity.GetIdentityType(), "error", err)
 		return
 	}
 
 	hasAssignedToOrg, err := s.validateUsingOrg(ctx, userID, s.cfg.LoginDefaultOrgId)
 	if err != nil {
-		ctxLogger.Error("Skipping default org sync, failed to validate user's organizations", "id", currentIdentity.ID, "err", err)
+		ctxLogger.Error("Skipping default org sync, failed to validate user's organizations", "identityID", currentIdentity.ID, "error", err)
 		return
 	}
 
 	if !hasAssignedToOrg {
-		ctxLogger.Debug("Skipping default org sync, user is not assigned to org", "id", currentIdentity.ID, "org", s.cfg.LoginDefaultOrgId)
+		ctxLogger.Debug("Skipping default org sync, user is not assigned to org", "identityID", currentIdentity.ID, "orgID", s.cfg.LoginDefaultOrgId)
 		return
 	}
 
 	cmd := user.UpdateUserCommand{UserID: userID, OrgID: &s.cfg.LoginDefaultOrgId}
 	if svcErr := s.userService.Update(ctx, &cmd); svcErr != nil {
-		ctxLogger.Error("Failed to set default org", "id", currentIdentity.ID, "err", svcErr)
+		ctxLogger.Error("Failed to set default org", "identityID", currentIdentity.ID, "error", svcErr)
 	}
 }
 

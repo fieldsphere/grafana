@@ -2,6 +2,7 @@ import type { JSX } from 'react';
 
 import { SelectableValue } from '@grafana/data';
 import { AccessoryButton } from '@grafana/plugin-ui';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { InfluxQueryTag } from '../../../../../types';
 import { adjustOperatorIfNeeded, getCondition, getOperator } from '../utils/tagUtils';
@@ -18,6 +19,7 @@ const knownConditions: KnownCondition[] = ['AND', 'OR'];
 
 const operatorOptions: Array<SelectableValue<KnownOperator>> = knownOperators.map(toSelectableValue);
 const condititonOptions: Array<SelectableValue<KnownCondition>> = knownConditions.map(toSelectableValue);
+const logger = createMonitoringLogger('plugins.datasource.influxdb.tags-section');
 
 type Props = {
   tags: InfluxQueryTag[];
@@ -54,7 +56,14 @@ const Tag = ({ tag, isFirst, onRemove, onChange, getTagKeyOptions, getTagValueOp
         // to avoid it, we catch any potential errors coming from `getTagKeyOptions`,
         // log the error, and pretend that the list of options is an empty list.
         // this way the remove-item option can always be added to the list.
-        console.error(err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'getTagKeySegmentOptions' });
+        } else {
+          logger.logWarning('Failed to load tag key options', {
+            operation: 'getTagKeySegmentOptions',
+            error: String(err),
+          });
+        }
         return [];
       })
       .then((tags) => tags.map(toSelectableValue));

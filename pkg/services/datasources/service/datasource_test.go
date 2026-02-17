@@ -1600,7 +1600,6 @@ func TestIntegrationService_getConnections(t *testing.T) {
 		require.NoError(t, err)
 
 		jj, _ := json.MarshalIndent(res, "", "  ")
-		//fmt.Printf("%s", string(jj))
 		require.JSONEq(t, `{
 			"kind": "DataSourceConnectionList",
 			"apiVersion": "query.grafana.app/v0alpha1",

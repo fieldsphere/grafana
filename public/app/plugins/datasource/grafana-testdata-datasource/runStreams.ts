@@ -18,10 +18,12 @@ import {
   getDisplayProcessor,
   createTheme,
 } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getBackendSrv } from '@grafana/runtime';
 
 import { getRandomLine } from './LogIpsum';
 import { TestDataDataQuery, StreamingQuery } from './dataquery';
+
+const logger = createMonitoringLogger('plugins.datasource.grafana-testdata.streams');
 
 export const defaultStreamQuery: StreamingQuery = {
   type: 'signal',
@@ -125,7 +127,7 @@ export function runSignalStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logger.logDebug('Unsubscribing from stream', { operation: 'runSignalStream', streamId });
       clearTimeout(timeoutId);
     };
   });
@@ -171,7 +173,7 @@ export function runLogsStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logger.logDebug('Unsubscribing from stream', { operation: 'runLogsStream', streamId });
       clearTimeout(timeoutId);
     };
   });
@@ -219,7 +221,7 @@ export function runWatchStream(
       .subscribe({
         next: (chunk) => {
           if (!chunk.data || !chunk.ok) {
-            console.info('chunk missing data', chunk);
+            logger.logInfo('Chunk missing data', { operation: 'runWatchStream', streamId });
             return;
           }
           decoder
@@ -240,21 +242,30 @@ export function runWatchStream(
                     state: LoadingState.Streaming,
                   });
                 } catch (err) {
-                  console.warn('error parsing line', line, err);
+                  logger.logWarning('Error parsing stream line', {
+                    operation: 'runWatchStream',
+                    streamId,
+                    line,
+                    error: String(err),
+                  });
                 }
               }
             });
         },
         error: (err) => {
-          console.warn('error in stream', streamId, err);
+          logger.logWarning('Error in stream', {
+            operation: 'runWatchStream',
+            streamId,
+            error: String(err),
+          });
         },
         complete: () => {
-          console.info('complete stream', streamId);
+          logger.logInfo('Complete stream', { operation: 'runWatchStream', streamId });
         },
       });
 
     return () => {
-      console.log('unsubscribing to stream', streamId);
+      logger.logDebug('Unsubscribing from stream', { operation: 'runWatchStream', streamId });
       sub.unsubscribe();
     };
   });
@@ -314,7 +325,7 @@ export function runFetchStream(
       });
 
       if (value.done) {
-        console.log('Finished stream');
+        logger.logInfo('Finished stream', { operation: 'runFetchStream', streamId });
         subscriber.complete(); // necessary?
         return;
       }
@@ -335,7 +346,7 @@ export function runFetchStream(
 
     return () => {
       // Cancel fetch?
-      console.log('unsubscribing to stream ' + streamId);
+      logger.logDebug('Unsubscribing from stream', { operation: 'runFetchStream', streamId });
     };
   });
 }
@@ -368,7 +379,7 @@ export function runTracesStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logger.logDebug('Unsubscribing from stream', { operation: 'runTracesStream', streamId });
       clearTimeout(timeoutId);
     };
   });

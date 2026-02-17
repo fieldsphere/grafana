@@ -81,7 +81,7 @@ func (h *historySubresource) Connect(ctx context.Context, name string, opts runt
 			return
 		}
 
-		logger = logger.With("ref", ref, "path", filePath)
+		logger = logger.With("gitRef", ref, "resourcePath", filePath)
 		ctx = logging.Context(r.Context(), logger)
 
 		// TODO: Add history pagination

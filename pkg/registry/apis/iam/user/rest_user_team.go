@@ -107,7 +107,7 @@ func (s *UserTeamREST) Connect(ctx context.Context, name string, options runtime
 		span.SetAttributes(attribute.Int("limit", limit),
 			attribute.Int("page", page),
 			attribute.Int("offset", offset),
-			attribute.String("name", name))
+			attribute.String("userName", name))
 
 		searchRequest := &resourcepb.ResourceSearchRequest{
 			Options: &resourcepb.ListOptions{

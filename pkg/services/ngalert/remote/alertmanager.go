@@ -258,16 +258,16 @@ func (am *Alertmanager) ApplyConfig(ctx context.Context, config *models.AlertCon
 	if am.ready {
 		am.log.Debug("Alertmanager previously marked as ready, skipping readiness check and state sync")
 	} else {
-		am.log.Debug("Start readiness check for remote Alertmanager", "url", am.url)
+		am.log.Debug("Start readiness check for remote Alertmanager", "alertmanagerURL", am.url)
 		if err := am.checkReadiness(ctx); err != nil {
 			return fmt.Errorf("unable to pass the readiness check: %w", err)
 		}
-		am.log.Debug("Completed readiness check for remote Alertmanager, starting state upload", "url", am.url)
+		am.log.Debug("Completed readiness check for remote Alertmanager, starting state upload", "alertmanagerURL", am.url)
 
 		if err := am.SendState(ctx); err != nil {
 			return fmt.Errorf("unable to upload the state to the remote Alertmanager: %w", err)
 		}
-		am.log.Debug("Completed state upload to remote Alertmanager", "url", am.url)
+		am.log.Debug("Completed state upload to remote Alertmanager", "alertmanagerURL", am.url)
 	}
 
 	if time.Since(am.lastConfigSync) < am.syncInterval {
@@ -275,11 +275,11 @@ func (am *Alertmanager) ApplyConfig(ctx context.Context, config *models.AlertCon
 		return nil
 	}
 
-	am.log.Debug("Start configuration upload to remote Alertmanager", "url", am.url)
+	am.log.Debug("Start configuration upload to remote Alertmanager", "alertmanagerURL", am.url)
 	if err := am.CompareAndSendConfiguration(ctx, config); err != nil {
 		return fmt.Errorf("unable to upload the configuration to the remote Alertmanager: %w", err)
 	}
-	am.log.Debug("Completed configuration upload to remote Alertmanager", "url", am.url)
+	am.log.Debug("Completed configuration upload to remote Alertmanager", "alertmanagerURL", am.url)
 	return nil
 }
 
@@ -465,7 +465,7 @@ func (am *Alertmanager) SaveAndApplyConfig(ctx context.Context, cfg *apimodels.P
 
 // SaveAndApplyDefaultConfig sends the default Grafana Alertmanager configuration to the remote Alertmanager.
 func (am *Alertmanager) SaveAndApplyDefaultConfig(ctx context.Context) error {
-	am.log.Debug("Sending default configuration to a remote Alertmanager", "url", am.url)
+	am.log.Debug("Sending default configuration to a remote Alertmanager", "alertmanagerURL", am.url)
 	payload, err := am.buildConfiguration(ctx, []byte(am.defaultConfig), time.Now().Unix(), notifier.LogInvalidReceivers)
 	if err != nil {
 		return fmt.Errorf("unable to build default configuration: %w", err)
@@ -480,7 +480,7 @@ func (am *Alertmanager) SaveAndApplyDefaultConfig(ctx context.Context) error {
 func (am *Alertmanager) CreateSilence(ctx context.Context, silence *apimodels.PostableSilence) (string, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while creating silence", "err", r)
+			am.log.Error("Panic while creating silence", "panicValue", r)
 		}
 	}()
 
@@ -508,7 +508,7 @@ func (am *Alertmanager) CreateSilence(ctx context.Context, silence *apimodels.Po
 func (am *Alertmanager) DeleteSilence(ctx context.Context, silenceID string) error {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while deleting silence", "err", r)
+			am.log.Error("Panic while deleting silence", "panicValue", r)
 		}
 	}()
 
@@ -523,7 +523,7 @@ func (am *Alertmanager) DeleteSilence(ctx context.Context, silenceID string) err
 func (am *Alertmanager) GetSilence(ctx context.Context, silenceID string) (apimodels.GettableSilence, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while getting silence", "err", r)
+			am.log.Error("Panic while getting silence", "panicValue", r)
 		}
 	}()
 
@@ -539,7 +539,7 @@ func (am *Alertmanager) GetSilence(ctx context.Context, silenceID string) (apimo
 func (am *Alertmanager) ListSilences(ctx context.Context, filter []string) (apimodels.GettableSilences, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while listing silences", "err", r)
+			am.log.Error("Panic while listing silences", "panicValue", r)
 		}
 	}()
 
@@ -555,7 +555,7 @@ func (am *Alertmanager) ListSilences(ctx context.Context, filter []string) (apim
 func (am *Alertmanager) GetAlerts(ctx context.Context, active, silenced, inhibited bool, filter []string, receiver string) (apimodels.GettableAlerts, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while getting alerts", "err", r)
+			am.log.Error("Panic while getting alerts", "panicValue", r)
 		}
 	}()
 
@@ -577,7 +577,7 @@ func (am *Alertmanager) GetAlerts(ctx context.Context, active, silenced, inhibit
 func (am *Alertmanager) GetAlertGroups(ctx context.Context, active, silenced, inhibited bool, filter []string, receiver string) (apimodels.AlertGroups, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while getting alert groups", "err", r)
+			am.log.Error("Panic while getting alert groups", "panicValue", r)
 		}
 	}()
 
@@ -607,7 +607,7 @@ func (am *Alertmanager) PutAlerts(ctx context.Context, alerts apimodels.Postable
 			}
 		}
 	}
-	am.log.Debug("Sending alerts to a remote alertmanager", "url", am.url, "alerts", len(alerts.PostableAlerts))
+	am.log.Debug("Sending alerts to a remote alertmanager", "alertmanagerURL", am.url, "alerts", len(alerts.PostableAlerts))
 	am.sender.SendAlerts(alerts)
 	return nil
 }
@@ -616,7 +616,7 @@ func (am *Alertmanager) PutAlerts(ctx context.Context, alerts apimodels.Postable
 func (am *Alertmanager) GetStatus(ctx context.Context) (apimodels.GettableStatus, error) {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Error("Panic while getting status", "err", r)
+			am.log.Error("Panic while getting status", "panicValue", r)
 		}
 	}()
 
@@ -784,7 +784,7 @@ func (am *Alertmanager) shouldSendConfig(ctx context.Context, newCfg remoteClien
 	rc, err := am.mimirClient.GetGrafanaAlertmanagerConfig(ctx)
 	if err != nil {
 		// Log the error and return true so we try to upload our config anyway.
-		am.log.Warn("Unable to get the remote Alertmanager configuration for comparison, sending the configuration without comparing", "err", err)
+		am.log.Warn("Unable to get the remote Alertmanager configuration for comparison, sending the configuration without comparing", "error", err)
 		return true
 	}
 	if rc.Hash != newCfg.Hash {
@@ -809,7 +809,7 @@ func calculateUserGrafanaConfigHash(config remoteClient.UserGrafanaConfig) (stri
 func (am *Alertmanager) logDiff(curCfg, newCfg *remoteClient.UserGrafanaConfig) []string {
 	defer func() {
 		if r := recover(); r != nil {
-			am.log.Warn("Panic while comparing configurations", "err", r)
+			am.log.Warn("Panic while comparing configurations", "panicValue", r)
 		}
 	}()
 	var reporter cmputil.DiffReporter

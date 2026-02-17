@@ -21,7 +21,7 @@ func (b *APIBuilder) evalAllFlagsStatic(ctx context.Context, isAuthedUser bool, 
 		return
 	}
 
-	span.SetAttributes(attribute.Int("total_flags_count", len(result.Flags)))
+	span.SetAttributes(attribute.Int("totalFlagsCount", len(result.Flags)))
 
 	if !isAuthedUser {
 		var publicOnly []goffmodel.OFREPFlagBulkEvaluateSuccessResponse
@@ -33,7 +33,7 @@ func (b *APIBuilder) evalAllFlagsStatic(ctx context.Context, isAuthedUser bool, 
 		}
 
 		result.Flags = publicOnly
-		span.SetAttributes(attribute.Int("public_flags_count", len(publicOnly)))
+		span.SetAttributes(attribute.Int("publicFlagsCount", len(publicOnly)))
 	}
 
 	writeResponse(http.StatusOK, result, b.logger, w)
@@ -43,12 +43,12 @@ func (b *APIBuilder) evalFlagStatic(ctx context.Context, flagKey string, w http.
 	_, span := tracing.Start(ctx, "ofrep.static.evalFlag")
 	defer span.End()
 
-	span.SetAttributes(attribute.String("flag_key", flagKey))
+	span.SetAttributes(attribute.String("flagKey", flagKey))
 
 	result, err := b.staticEvaluator.EvalFlag(ctx, flagKey)
 	if err != nil {
 		err = tracing.Error(span, err)
-		b.logger.Error("Failed to evaluate static flag", "key", flagKey, "error", err)
+		b.logger.Error("Failed to evaluate static flag", "flagKey", flagKey, "error", err)
 		http.Error(w, "failed to evaluate flag", http.StatusInternalServerError)
 		return
 	}

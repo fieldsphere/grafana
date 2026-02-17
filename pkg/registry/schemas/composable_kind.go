@@ -374,13 +374,11 @@ func GetComposableKinds() ([]ComposableKind, error) {
 func loadCueFileWithCommon(root string, entrypoint string) (cue.Value, error) {
 	commonFS, err := mockCommonFS(root)
 	if err != nil {
-		fmt.Printf("cannot load common cue files: %s\n", err)
 		return cue.Value{}, err
 	}
 
 	overlay, err := buildOverlay(commonFS)
 	if err != nil {
-		fmt.Printf("Cannot build overlay: %s\n", err)
 		return cue.Value{}, err
 	}
 
@@ -391,7 +389,6 @@ func loadCueFileWithCommon(root string, entrypoint string) (cue.Value, error) {
 
 	values, err := cuecontext.New().BuildInstances(bis)
 	if err != nil {
-		fmt.Printf("Cannot build instance: %s\n", err)
 		return cue.Value{}, err
 	}
 

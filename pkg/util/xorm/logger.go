@@ -5,9 +5,10 @@
 package xorm
 
 import (
+	"context"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 
 	"github.com/grafana/grafana/pkg/util/xorm/core"
 )
@@ -15,7 +16,6 @@ import (
 // default log options
 const (
 	DEFAULT_LOG_PREFIX = "[xorm]"
-	DEFAULT_LOG_FLAG   = log.Ldate | log.Lmicroseconds
 	DEFAULT_LOG_LEVEL  = core.LOG_DEBUG
 )
 
@@ -66,10 +66,7 @@ func (DiscardLogger) IsShowSQL() bool {
 
 // SimpleLogger is the default implment of core.ILogger
 type SimpleLogger struct {
-	DEBUG   *log.Logger
-	ERR     *log.Logger
-	INFO    *log.Logger
-	WARN    *log.Logger
+	logger  *slog.Logger
 	level   core.LogLevel
 	showSQL bool
 }
@@ -78,68 +75,118 @@ var _ core.ILogger = &SimpleLogger{}
 
 // NewSimpleLogger use a special io.Writer as logger output
 func NewSimpleLogger(out io.Writer) *SimpleLogger {
+	baseLogger := slog.New(slog.NewTextHandler(out, &slog.HandlerOptions{})).With("logger", DEFAULT_LOG_PREFIX)
 	return &SimpleLogger{
-		DEBUG: log.New(out, fmt.Sprintf("%s [debug] ", DEFAULT_LOG_PREFIX), DEFAULT_LOG_FLAG),
-		ERR:   log.New(out, fmt.Sprintf("%s [error] ", DEFAULT_LOG_PREFIX), DEFAULT_LOG_FLAG),
-		INFO:  log.New(out, fmt.Sprintf("%s [info]  ", DEFAULT_LOG_PREFIX), DEFAULT_LOG_FLAG),
-		WARN:  log.New(out, fmt.Sprintf("%s [warn]  ", DEFAULT_LOG_PREFIX), DEFAULT_LOG_FLAG),
-		level: DEFAULT_LOG_LEVEL,
+		logger: baseLogger,
+		level:  DEFAULT_LOG_LEVEL,
 	}
+}
+
+func splitLogArgs(args ...any) (string, []any) {
+	if len(args) == 0 {
+		return "", nil
+	}
+
+	if len(args) == 1 {
+		if err, ok := args[0].(error); ok {
+			return "XORM error", []any{"error", err}
+		}
+	}
+
+	msg, isString := args[0].(string)
+	if !isString {
+		return fmt.Sprint(args...), nil
+	}
+
+	if len(args) == 1 {
+		return msg, nil
+	}
+
+	rest := args[1:]
+	if len(rest) == 1 {
+		if err, ok := rest[0].(error); ok {
+			return msg, []any{"error", err}
+		}
+		return fmt.Sprint(args...), nil
+	}
+
+	if len(rest)%2 != 0 {
+		return fmt.Sprint(args...), nil
+	}
+
+	for i := 0; i < len(rest); i += 2 {
+		if _, ok := rest[i].(string); !ok {
+			return fmt.Sprint(args...), nil
+		}
+	}
+
+	return msg, rest
+}
+
+func (s *SimpleLogger) emit(level slog.Level, args ...any) {
+	message, attrs := splitLogArgs(args...)
+	s.logger.Log(context.Background(), level, "XORM log event", append([]any{"message", message}, attrs...)...)
+}
+
+func (s *SimpleLogger) emitf(level slog.Level, format string, args ...any) {
+	s.logger.Log(context.Background(), level, "XORM log event",
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 // Error implement core.ILogger
 func (s *SimpleLogger) Error(v ...any) {
 	if s.level <= core.LOG_ERR {
-		s.ERR.Output(2, fmt.Sprint(v...))
+		s.emit(slog.LevelError, v...)
 	}
 }
 
 // Errorf implement core.ILogger
 func (s *SimpleLogger) Errorf(format string, v ...any) {
 	if s.level <= core.LOG_ERR {
-		s.ERR.Output(2, fmt.Sprintf(format, v...))
+		s.emitf(slog.LevelError, format, v...)
 	}
 }
 
 // Debug implement core.ILogger
 func (s *SimpleLogger) Debug(v ...any) {
 	if s.level <= core.LOG_DEBUG {
-		s.DEBUG.Output(2, fmt.Sprint(v...))
+		s.emit(slog.LevelDebug, v...)
 	}
 }
 
 // Debugf implement core.ILogger
 func (s *SimpleLogger) Debugf(format string, v ...any) {
 	if s.level <= core.LOG_DEBUG {
-		s.DEBUG.Output(2, fmt.Sprintf(format, v...))
+		s.emitf(slog.LevelDebug, format, v...)
 	}
 }
 
 // Info implement core.ILogger
 func (s *SimpleLogger) Info(v ...any) {
 	if s.level <= core.LOG_INFO {
-		s.INFO.Output(2, fmt.Sprint(v...))
+		s.emit(slog.LevelInfo, v...)
 	}
 }
 
 // Infof implement core.ILogger
 func (s *SimpleLogger) Infof(format string, v ...any) {
 	if s.level <= core.LOG_INFO {
-		s.INFO.Output(2, fmt.Sprintf(format, v...))
+		s.emitf(slog.LevelInfo, format, v...)
 	}
 }
 
 // Warn implement core.ILogger
 func (s *SimpleLogger) Warn(v ...any) {
 	if s.level <= core.LOG_WARNING {
-		s.WARN.Output(2, fmt.Sprint(v...))
+		s.emit(slog.LevelWarn, v...)
 	}
 }
 
 // Warnf implement core.ILogger
 func (s *SimpleLogger) Warnf(format string, v ...any) {
 	if s.level <= core.LOG_WARNING {
-		s.WARN.Output(2, fmt.Sprintf(format, v...))
+		s.emitf(slog.LevelWarn, format, v...)
 	}
 }
 

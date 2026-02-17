@@ -26,6 +26,7 @@ import {
   StreamingFrameAction,
   StreamingFrameOptions,
   BackendDataSourceResponse,
+  createMonitoringLogger,
   getBackendSrv,
 } from '@grafana/runtime';
 
@@ -44,6 +45,7 @@ export type CentrifugeSrvDeps = {
 };
 
 export type StreamingDataQueryResponse = Omit<DataQueryResponse, 'data'> & { data: [StreamingResponseData] };
+const logger = createMonitoringLogger('features.live.centrifuge-service');
 
 export type CentrifugeSrv = Omit<GrafanaLiveSrv, 'getDataStream' | 'getQueryData'> & {
   getDataStream: (options: LiveDataStreamOptions) => Observable<StreamingDataQueryResponse>;
@@ -125,7 +127,10 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.log('Publication from server-side channel', context);
+    logger.logDebug('Publication from server-side channel', {
+      operation: 'onServerSideMessage',
+      offset: context.offset,
+    });
   };
 
   private onError = (context: ErrorContext) => {

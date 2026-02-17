@@ -406,7 +406,7 @@ func (hs *HTTPServer) redirectCDNPluginAsset(c *contextmodel.ReqContext, plugin 
 		"assetPath", assetPath,
 		"remoteURL", remoteURL,
 		"referer", c.Req.Referer(),
-		"user", c.Login,
+		"userLogin", c.Login,
 	)
 	pluginsCDNFallbackRedirectRequests.With(prometheus.Labels{
 		"plugin_id":      plugin.ID,
@@ -465,7 +465,7 @@ func (hs *HTTPServer) InstallPlugin(c *contextmodel.ReqContext) response.Respons
 	}
 	pluginID := web.Params(c.Req)[":pluginId"]
 
-	hs.log.Info("Plugin install/update requested", "pluginId", pluginID, "user", c.Login)
+	hs.log.Info("Plugin install/update requested", "pluginID", pluginID, "userLogin", c.Login)
 
 	for hs.pluginPreinstall.IsPinned(pluginID) {
 		return response.Error(http.StatusConflict, "Cannot update a pinned pre-installed plugin", nil)
@@ -504,7 +504,7 @@ func (hs *HTTPServer) InstallPlugin(c *contextmodel.ReqContext) response.Respons
 func (hs *HTTPServer) UninstallPlugin(c *contextmodel.ReqContext) response.Response {
 	pluginID := web.Params(c.Req)[":pluginId"]
 
-	hs.log.Info("Plugin uninstall requested", "pluginId", pluginID, "user", c.Login)
+	hs.log.Info("Plugin uninstall requested", "pluginID", pluginID, "userLogin", c.Login)
 
 	plugin, exists := hs.pluginStore.Plugin(c.Req.Context(), pluginID)
 	if !exists {
@@ -576,7 +576,7 @@ func (hs *HTTPServer) hasPluginRequestedPermissions(c *contextmodel.ReqContext, 
 
 	// Log a warning if the user does not have the plugin requested permissions
 	if !hasAccess(evaluator) {
-		hs.log.Warn("Plugin installer has less permission than what the plugin requires.", "Permissions", evaluator.String())
+		hs.log.Warn("Plugin installer has less permission than what the plugin requires.", "permissions", evaluator.String())
 	}
 }
 

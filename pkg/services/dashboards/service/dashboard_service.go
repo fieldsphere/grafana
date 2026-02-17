@@ -222,7 +222,7 @@ func (dr *DashboardServiceImpl) cleanupOrganizationK8sDashboards(ctx context.Con
 
 	ctx, span := tracer.Start(ctx, "dashboards.service.cleanupK8sDashboardResources.org")
 	defer span.End()
-	span.SetAttributes(attribute.Int64("org_id", orgID))
+	span.SetAttributes(attribute.Int64("orgID", orgID))
 
 	ctx, _ = identity.WithServiceIdentity(ctx, orgID)
 
@@ -375,7 +375,7 @@ func (dr *DashboardServiceImpl) processDashboardBatch(ctx context.Context, orgID
 		resourceVersion, _ := meta["resourceVersion"].(string)
 
 		dr.log.Info("K8s dashboard resource previously got deleted, cleaning up",
-			"UID", dash.UID,
+			"dashboardUID", dash.UID,
 			"orgID", orgID,
 			"deletionTimestamp", deletionTimestamp,
 			"resourceVersion", resourceVersion)
@@ -773,7 +773,7 @@ func (dr *DashboardServiceImpl) BuildSaveDashboardCommand(ctx context.Context, d
 	if id, err := identity.UserIdentifier(dto.User.GetID()); err == nil {
 		userID = id
 	} else if !identity.IsServiceIdentity(ctx) {
-		dr.log.Debug("User does not belong to a user or service account namespace, using 0 as user ID", "id", dto.User.GetID())
+		dr.log.Debug("User does not belong to a user or service account namespace, using 0 as user ID", "userID", dto.User.GetID())
 	}
 
 	metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Dashboard).Inc()
@@ -898,7 +898,7 @@ func (dr *DashboardServiceImpl) canCreateDashboard(ctx context.Context, user ide
 func (dr *DashboardServiceImpl) waitForSearchQuery(ctx context.Context, query *dashboards.FindPersistedDashboardsQuery, maxRetries int, expectedHits int64) error {
 	return retryer.Retry(func() (retryer.RetrySignal, error) {
 		results, err := dr.searchDashboardsThroughK8sRaw(ctx, query)
-		dr.log.Debug("waitForSearchQuery", "dashboardUIDs", strings.Join(query.DashboardUIDs, ","), "total_hits", results.TotalHits, "err", err)
+		dr.log.Debug("waitForSearchQuery", "dashboardUIDs", strings.Join(query.DashboardUIDs, ","), "totalHits", results.TotalHits, "error", err)
 		if err != nil {
 			return retryer.FuncError, err
 		}
@@ -941,7 +941,7 @@ func (dr *DashboardServiceImpl) DeleteOrphanedProvisionedDashboards(ctx context.
 		if err != nil {
 			return err
 		}
-		dr.log.Debug("Found dashboards to be deleted", "orgId", org.ID, "count", len(foundDashs))
+		dr.log.Debug("Found dashboards to be deleted", "orgID", org.ID, "count", len(foundDashs))
 
 		// delete them
 		var deletedUids []string
@@ -1026,7 +1026,7 @@ func (dr *DashboardServiceImpl) searchExistingProvisionedData(
 // process to start from scratch after this function returns.
 func (dr *DashboardServiceImpl) maybeResetProvisioning(ctx context.Context, orgs []int64, configs []dashboards.ProvisioningConfig) {
 	if skipReason := canBeAutomaticallyCleanedUp(configs); skipReason != "" {
-		dr.log.Info("not eligible for automated cleanup", "reason", skipReason)
+		dr.log.Info("not eligible for automated cleanup", "skipReason", skipReason)
 		return
 	}
 
@@ -1040,13 +1040,13 @@ func (dr *DashboardServiceImpl) maybeResetProvisioning(ctx context.Context, orgs
 		ctx, user := identity.WithServiceIdentity(ctx, orgID)
 		provFolders, resources, err := dr.searchExistingProvisionedData(ctx, orgID, folderTitle)
 		if err != nil {
-			dr.log.Error("failed to search for provisioned data for cleanup", "org", orgID, "error", err)
+			dr.log.Error("failed to search for provisioned data for cleanup", "orgID", orgID, "error", err)
 			continue
 		}
 
 		steps, err := cleanupSteps(provFolders, resources, provisionedNames)
 		if err != nil {
-			dr.log.Warn("not possible to perform automated duplicate cleanup", "org", orgID, "error", err)
+			dr.log.Warn("not possible to perform automated duplicate cleanup", "orgID", orgID, "error", err)
 			continue
 		}
 
@@ -1066,11 +1066,11 @@ func (dr *DashboardServiceImpl) maybeResetProvisioning(ctx context.Context, orgs
 
 			if err == nil {
 				dr.log.Info("deleted duplicated provisioned resource",
-					"type", step.Type, "uid", step.UID,
+					"resourceType", step.Type, "stepUID", step.UID,
 				)
 			} else {
 				dr.log.Error("failed to delete duplicated provisioned resource",
-					"type", step.Type, "uid", step.UID, "error", err,
+					"resourceType", step.Type, "stepUID", step.UID, "error", err,
 				)
 			}
 		}
@@ -1144,7 +1144,7 @@ func (dr *DashboardServiceImpl) SaveProvisionedDashboard(ctx context.Context, dt
 	defer span.End()
 
 	if err := dr.ValidateDashboardRefreshInterval(dr.cfg.MinRefreshInterval, dto.Dashboard.Data.Get("refresh").MustString("")); err != nil {
-		dr.log.Warn("Changing refresh interval for provisioned dashboard to minimum refresh interval", "dashboardUid",
+		dr.log.Warn("Changing refresh interval for provisioned dashboard to minimum refresh interval", "dashboardUID",
 			dto.Dashboard.UID, "dashboardTitle", dto.Dashboard.Title, "minRefreshInterval", dr.cfg.MinRefreshInterval)
 		dto.Dashboard.Data.Set("refresh", dr.cfg.MinRefreshInterval)
 	}
@@ -1184,7 +1184,7 @@ func (dr *DashboardServiceImpl) SaveFolderForProvisionedDashboards(ctx context.C
 
 	f, err := dr.folderService.Create(ctx, dto)
 	if err != nil {
-		dr.log.Error("failed to create folder for provisioned dashboards", "folder", dto.Title, "org", dto.OrgID, "err", err)
+		dr.log.Error("failed to create folder for provisioned dashboards", "folderTitle", dto.Title, "orgID", dto.OrgID, "error", err)
 		return nil, err
 	}
 
@@ -1206,7 +1206,7 @@ func (dr *DashboardServiceImpl) UpdateFolderWithManagedByAnnotation(ctx context.
 		Version:              f.Version,
 	})
 	if err != nil {
-		dr.log.Error("failed to update folder for provisioned dashboards", "folder", f.Title, "org", f.OrgID, "err", err)
+		dr.log.Error("failed to update folder for provisioned dashboards", "folderTitle", f.Title, "orgID", f.OrgID, "error", err)
 		return nil, err
 	}
 	return updated, nil
@@ -1219,7 +1219,7 @@ func (dr *DashboardServiceImpl) SaveDashboard(ctx context.Context, dto *dashboar
 
 	if err := dr.ValidateDashboardRefreshInterval(dr.cfg.MinRefreshInterval, dto.Dashboard.Data.Get("refresh").MustString("")); err != nil {
 		dr.log.Warn("Changing refresh interval for imported dashboard to minimum refresh interval",
-			"dashboardUid", dto.Dashboard.UID, "dashboardTitle", dto.Dashboard.Title, "minRefreshInterval",
+			"dashboardUID", dto.Dashboard.UID, "dashboardTitle", dto.Dashboard.Title, "minRefreshInterval",
 			dr.cfg.MinRefreshInterval)
 		dto.Dashboard.Data.Set("refresh", dr.cfg.MinRefreshInterval)
 	}
@@ -1283,7 +1283,7 @@ func (dr *DashboardServiceImpl) ImportDashboard(ctx context.Context, dto *dashbo
 
 	if err := dr.ValidateDashboardRefreshInterval(dr.cfg.MinRefreshInterval, dto.Dashboard.Data.Get("refresh").MustString("")); err != nil {
 		dr.log.Warn("Changing refresh interval for imported dashboard to minimum refresh interval",
-			"dashboardUid", dto.Dashboard.UID, "dashboardTitle", dto.Dashboard.Title,
+			"dashboardUID", dto.Dashboard.UID, "dashboardTitle", dto.Dashboard.Title,
 			"minRefreshInterval", dr.cfg.MinRefreshInterval)
 		dto.Dashboard.Data.Set("refresh", dr.cfg.MinRefreshInterval)
 	}
@@ -1432,7 +1432,7 @@ func (dr *DashboardServiceImpl) SetDefaultPermissions(ctx context.Context, dto *
 	if !provisioned && dto.User.IsIdentityType(claims.TypeUser, claims.TypeServiceAccount) {
 		userID, err := dto.User.GetInternalID()
 		if err != nil {
-			dr.log.Error("Could not make user admin", "dashboard", dash.Title, "id", dto.User.GetID(), "error", err)
+			dr.log.Error("Could not make user admin", "dashboardTitle", dash.Title, "userID", dto.User.GetID(), "error", err)
 		} else {
 			permissions = append(permissions, accesscontrol.SetResourcePermissionCommand{
 				UserID: userID, Permission: dashboardaccess.PERMISSION_ADMIN.String(),
@@ -1449,7 +1449,7 @@ func (dr *DashboardServiceImpl) SetDefaultPermissions(ctx context.Context, dto *
 
 	svc := dr.getPermissionsService(dash.IsFolder)
 	if _, err := svc.SetPermissions(ctx, dto.OrgID, dash.UID, permissions...); err != nil {
-		dr.log.Error("Could not set default permissions", "dashboard", dash.Title, "error", err)
+		dr.log.Error("Could not set default permissions", "dashboardTitle", dash.Title, "error", err)
 	}
 
 	// Clear permission cache for the user who created the dashboard, so that new permissions are fetched for their next call

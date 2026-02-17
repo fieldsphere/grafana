@@ -115,17 +115,17 @@ func (s *ServiceAccountsStoreImpl) assignApiKeyToServiceAccount(ctx context.Cont
 		key := apikey.APIKey{ID: apiKeyId}
 		exists, err := sess.Get(&key)
 		if err != nil {
-			s.log.Warn("API key not loaded", "err", err)
+			s.log.Warn("API key not loaded", "error", err)
 			return err
 		}
 		if !exists {
-			s.log.Warn("API key not found", "err", err)
+			s.log.Warn("API key not found", "error", err)
 			return apikey.ErrNotFound
 		}
 		key.ServiceAccountId = &serviceAccountId
 
 		if _, err := sess.ID(key.ID).Update(&key); err != nil {
-			s.log.Warn("Could not update api key", "err", err)
+			s.log.Warn("Could not update api key", "error", err)
 			return err
 		}
 		return nil

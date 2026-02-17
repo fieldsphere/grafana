@@ -14,13 +14,13 @@
 
 package main
 
-import "fmt"
+import "os"
 
 func main() {
 	// Mutating value; value should have been stored at package initialization.
 	msg = "Hello, World!"
 
-	fmt.Println(injectedMessage())
+	_, _ = os.Stdout.WriteString(injectedMessage() + "\n")
 }
 
 var msg string = "Package init"

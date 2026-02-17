@@ -54,7 +54,15 @@ const panelPluginPostImport: PostImportStrategy<PanelPlugin, PanelPluginMeta> = 
     throw new Error('missing export: plugin');
   } catch (error) {
     // TODO, maybe a different error plugin
-    console.warn('Error loading panel plugin: ' + meta.id, error);
+    if (error instanceof Error) {
+      pluginsLogger.logWarning('Error loading panel plugin', {
+        pluginId: meta.id,
+        error: error.message,
+        stack: error.stack ?? '',
+      });
+    } else {
+      pluginsLogger.logWarning('Error loading panel plugin', { pluginId: meta.id, error: String(error) });
+    }
     return getPanelPluginLoadError(meta, error);
   }
 };
@@ -137,7 +145,7 @@ const importPlugin = <M extends PluginMeta, P extends PanelPlugin | GenericDataS
 ): Promise<P> => {
   const cached = getPluginFromCache<P>(meta.id);
   if (cached) {
-    pluginsLogger.logDebug(`Retrieving plugin from cache`, {
+    pluginsLogger.logDebug('Retrieving plugin from cache', {
       path: meta.module,
       pluginId: meta.id,
       pluginVersion: meta.info?.version ?? '',
@@ -149,7 +157,7 @@ const importPlugin = <M extends PluginMeta, P extends PanelPlugin | GenericDataS
   }
 
   if (promisesCache.has(meta.id)) {
-    pluginsLogger.logDebug(`Retrieving plugin from inflight plugin load request`, {
+    pluginsLogger.logDebug('Retrieving plugin from inflight plugin load request', {
       path: meta.module,
       pluginId: meta.id,
       pluginVersion: meta.info?.version ?? '',

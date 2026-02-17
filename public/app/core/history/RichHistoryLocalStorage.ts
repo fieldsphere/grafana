@@ -178,7 +178,7 @@ export default class RichHistoryLocalStorage implements RichHistoryStorage {
     );
   }
 
-  private async trackLocalStorageUsage(message: string, additionalInfo?: Record<string, string>) {
+  private async trackLocalStorageUsage(logMessage: string, additionalInfo?: Record<string, string>) {
     const allQueriesCount =
       (
         await this.getRichHistory({
@@ -199,9 +199,10 @@ export default class RichHistoryLocalStorage implements RichHistoryStorage {
       allQueriesCount: allQueriesCount?.toString(),
     };
 
-    logger.logWarning(message, {
+    logger.logWarning('Rich history local storage usage warning', {
       ...localStats,
       ...additionalInfo,
+      logMessage,
     });
   }
 }

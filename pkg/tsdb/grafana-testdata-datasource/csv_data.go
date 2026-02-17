@@ -111,7 +111,7 @@ func (s *Service) loadCsvFile(fileName string) (*data.Frame, error) {
 
 	defer func() {
 		if err := fileReader.Close(); err != nil {
-			s.logger.Warn("Failed to close file", "err", err, "path", fileName)
+			s.logger.Warn("Failed to close file", "error", err, "csvFileName", fileName)
 		}
 	}()
 

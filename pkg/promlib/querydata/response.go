@@ -22,7 +22,7 @@ import (
 func (s *QueryData) parseResponse(ctx context.Context, q *models.Query, res *http.Response) backend.DataResponse {
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			s.log.FromContext(ctx).Error("Failed to close response body", "err", err)
+			s.log.FromContext(ctx).Error("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -76,7 +76,7 @@ func (s *QueryData) parseResponse(ctx context.Context, q *models.Query, res *htt
 		lr := io.LimitReader(res.Body, maxBodySize)
 		tb, _ := io.ReadAll(lr)
 
-		s.log.FromContext(ctx).Error("Unexpected response received", "status", statusCode, "body", tb)
+		s.log.FromContext(ctx).Error("Unexpected response received", "statusCode", statusCode, "responseBody", string(tb))
 
 		errResp := backend.DataResponse{
 			Error:       fmt.Errorf("unexpected response with status code %d: %s", statusCode, tb),

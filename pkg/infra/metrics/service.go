@@ -22,8 +22,32 @@ type logWrapper struct {
 	logger log.Logger
 }
 
-func (lw *logWrapper) Println(v ...any) {
-	lw.logger.Info("graphite metric bridge", v...)
+func normalizeGraphiteLogArgs(args ...any) []any {
+	if len(args) == 0 {
+		return nil
+	}
+
+	if len(args)%2 != 0 {
+		return []any{"graphiteArgs", args}
+	}
+
+	for i := 0; i < len(args); i += 2 {
+		if _, ok := args[i].(string); !ok {
+			return []any{"graphiteArgs", args}
+		}
+	}
+
+	return args
+}
+
+func (lw *logWrapper) Warn(msg string, args ...any) {
+	context := append([]any{"graphiteMessage", msg}, normalizeGraphiteLogArgs(args...)...)
+	lw.logger.Warn("Graphite bridge event", context...)
+}
+
+func (lw *logWrapper) Error(msg string, args ...any) {
+	context := append([]any{"graphiteMessage", msg}, normalizeGraphiteLogArgs(args...)...)
+	lw.logger.Error("Graphite bridge event", context...)
 }
 
 func ProvideService(cfg *setting.Cfg, reg prometheus.Registerer, gatherer prometheus.Gatherer) (*InternalMetricsService, error) {

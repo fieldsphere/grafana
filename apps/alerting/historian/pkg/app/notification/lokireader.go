@@ -174,7 +174,7 @@ func (l *LokiReader) runQuery(ctx context.Context, logql string, from, to time.T
 		for _, s := range stream.Values {
 			entry, err := parseLokiEntry(s)
 			if err != nil {
-				l.logger.Warn("Ignoring notification history entry", "err", err)
+				l.logger.Warn("Ignoring notification history entry", "error", err)
 				continue
 			}
 			entries = append(entries, entry)

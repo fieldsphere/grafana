@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const fs = require('fs');
+const { logScriptError, logScriptInfo } = require('./logging');
 
 const COVERAGE_MAIN_PATH = './coverage-main/coverage-summary.json';
 const COVERAGE_PR_PATH = './coverage-pr/coverage-summary.json';
@@ -16,7 +17,11 @@ function readCoverageFile(filePath) {
     const content = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(content);
   } catch (err) {
-    console.error(`Error reading coverage file ${filePath}: ${err.message}`);
+    logScriptError('Error reading coverage file', {
+      operation: 'readCoverageFile',
+      filePath,
+      error: err.message,
+    });
     process.exit(1);
   }
 }
@@ -154,7 +159,9 @@ function compareCoverageByCodeowner(
   const prCoverage = readCoverageFile(prPath);
 
   if (!mainCoverage.summary || !prCoverage.summary) {
-    console.error('Error: Coverage summary data is missing or invalid');
+    logScriptError('Coverage summary data is missing or invalid', {
+      operation: 'compareCoverageByCodeowner',
+    });
     process.exit(1);
   }
 
@@ -163,9 +170,16 @@ function compareCoverageByCodeowner(
 
   try {
     fs.writeFileSync(outputPath, markdown, 'utf8');
-    console.log(`✅ Coverage comparison written to ${outputPath}`);
+    logScriptInfo('Coverage comparison written', {
+      operation: 'compareCoverageByCodeowner',
+      outputPath,
+    });
   } catch (err) {
-    console.error(`Error writing output file: ${err.message}`);
+    logScriptError('Error writing coverage comparison output file', {
+      operation: 'compareCoverageByCodeowner',
+      outputPath,
+      error: err.message,
+    });
     process.exit(1);
   }
 
@@ -175,10 +189,14 @@ function compareCoverageByCodeowner(
 if (require.main === module) {
   const passed = compareCoverageByCodeowner();
   if (!passed) {
-    console.error('❌ Coverage check failed: One or more metrics decreased');
+    logScriptError('Coverage check failed: one or more metrics decreased', {
+      operation: 'main',
+    });
     process.exit(1);
   }
-  console.log('✅ Coverage check passed: All metrics maintained or improved');
+  logScriptInfo('Coverage check passed: all metrics maintained or improved', {
+    operation: 'main',
+  });
 }
 
 module.exports = { compareCoverageByCodeowner, generateMarkdown, getOverallStatus };

@@ -7,6 +7,7 @@ import { GrafanaTheme2, isIconName } from '@grafana/data';
 import { useStyles2 } from '../../themes/ThemeContext';
 import { IconName, IconType, IconSize } from '../../types/icon';
 import { spin } from '../../utils/keyframes';
+import { logUiWarning } from '../../utils/structuredLogging';
 
 import { getIconPath, getSvgSize } from './utils';
 
@@ -53,7 +54,10 @@ export const Icon = React.memo(
       const styles = useStyles2(getIconStyles);
 
       if (!isIconName(name)) {
-        console.warn('Icon component passed an invalid icon name', name);
+        logUiWarning('Icon component passed an invalid icon name', {
+          operation: 'Icon.render',
+          iconName: name,
+        });
       }
 
       // handle the deprecated 'fa fa-spinner'

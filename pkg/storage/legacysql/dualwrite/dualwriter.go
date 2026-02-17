@@ -50,7 +50,7 @@ func (d *dualWriter) Get(ctx context.Context, name string, options *metav1.GetOp
 			attribute.Bool("readUnified", d.readUnified)))
 	defer span.End()
 
-	log := logging.FromContext(ctx).With("method", "Get", "name", name)
+	log := logging.FromContext(ctx).With("method", "Get", "resourceName", name)
 	// If we read from unified, we can just do that and return.
 	if d.readUnified {
 		return d.unified.Get(ctx, name, options)
@@ -58,7 +58,7 @@ func (d *dualWriter) Get(ctx context.Context, name string, options *metav1.GetOp
 	// If legacy is still our main store, lets first read from it.
 	legacyGet, err := d.legacy.Get(ctx, name, options)
 	if err != nil {
-		log.Error("failed to GET object from legacy storage", "err", err)
+		log.Error("failed to GET object from legacy storage", "error", err)
 		return nil, err
 	}
 	// Once we have successfully read from legacy, we can check if we want to fail on a unified read.
@@ -67,7 +67,7 @@ func (d *dualWriter) Get(ctx context.Context, name string, options *metav1.GetOp
 		go func(ctxBg context.Context, cancel context.CancelFunc) {
 			defer cancel()
 			if _, err := d.unified.Get(ctxBg, name, options); err != nil {
-				log.Error("failed background GET to unified", "err", err)
+				log.Error("failed background GET to unified", "error", err)
 			}
 		}(context.WithTimeout(context.WithoutCancel(ctx), backgroundReqTimeout))
 		return legacyGet, nil
@@ -75,7 +75,7 @@ func (d *dualWriter) Get(ctx context.Context, name string, options *metav1.GetOp
 	// If it's not okay to fail, we have to check it in the foreground.
 	_, unifiedErr := d.unified.Get(ctx, name, options)
 	if unifiedErr != nil && !apierrors.IsNotFound(unifiedErr) {
-		log.Error("failed to GET object from unified storage", "err", unifiedErr)
+		log.Error("failed to GET object from unified storage", "error", unifiedErr)
 		return nil, unifiedErr
 	}
 	return legacyGet, nil
@@ -107,7 +107,7 @@ func (d *dualWriter) List(ctx context.Context, options *metainternalversion.List
 	if d.readUnified {
 		unifiedList, err := d.unified.List(ctx, unifiedOptions)
 		if err != nil {
-			log.Error("failed to list objects from unified storage", "err", err)
+			log.Error("failed to list objects from unified storage", "error", err)
 			return nil, err
 		}
 		unifiedMeta, err := meta.ListAccessor(unifiedList)
@@ -137,7 +137,7 @@ func (d *dualWriter) List(ctx context.Context, options *metainternalversion.List
 	// If legacy is still the main store, lets first read from it.
 	legacyList, err := d.legacy.List(ctx, legacyOptions)
 	if err != nil {
-		log.Error("failed to list objects from legacy storage", "err", err)
+		log.Error("failed to list objects from legacy storage", "error", err)
 		return nil, err
 	}
 	legacyMeta, err := meta.ListAccessor(legacyList)
@@ -158,12 +158,12 @@ func (d *dualWriter) List(ctx context.Context, options *metainternalversion.List
 			defer close(out)
 			unifiedList, err := d.unified.List(ctxBg, unifiedOptions)
 			if err != nil {
-				log.Error("failed background LIST to unified", "err", err)
+				log.Error("failed background LIST to unified", "error", err)
 				return
 			}
 			unifiedMeta, err := meta.ListAccessor(unifiedList)
 			if err != nil {
-				log.Error("failed background LIST to unified", "err",
+				log.Error("failed background LIST to unified", "error",
 					fmt.Errorf("failed to access unified List MetaData: %w", err))
 			}
 			out <- unifiedMeta.GetContinue()
@@ -181,7 +181,7 @@ func (d *dualWriter) List(ctx context.Context, options *metainternalversion.List
 		// If it's not okay to fail, we have to check it in the foreground.
 		unifiedList, err := d.unified.List(ctx, unifiedOptions)
 		if err != nil {
-			log.Error("failed to list objects from unified storage", "err", err)
+			log.Error("failed to list objects from unified storage", "error", err)
 			return nil, err
 		}
 		unifiedMeta, err := meta.ListAccessor(unifiedList)
@@ -237,7 +237,7 @@ func (d *dualWriter) Create(ctx context.Context, in runtime.Object, createValida
 	// will try to cleanup the object in legacy.
 	createdFromLegacy, err := d.legacy.Create(ctx, in, createValidation, options)
 	if err != nil {
-		log.With("objectInfo", objectInfo(in)).Error("failed to CREATE object in legacy storage", "err", err)
+		log.With("objectInfo", objectInfo(in)).Error("failed to CREATE object in legacy storage", "error", err)
 		return nil, err
 	}
 
@@ -278,12 +278,12 @@ func (d *dualWriter) Create(ctx context.Context, in runtime.Object, createValida
 	if d.readUnified {
 		storageObj, errObjectSt := d.unified.Create(ctx, createdCopy, createValidation, options)
 		if errObjectSt != nil {
-			log.With("objectInfo", objectInfo(createdCopy)).Error("failed to CREATE object in unified storage", "err", errObjectSt)
+			log.With("objectInfo", objectInfo(createdCopy)).Error("failed to CREATE object in unified storage", "error", errObjectSt)
 			// If we cannot create in unified storage, attempt to clean up legacy.
 			go func(ctxBg context.Context, cancel context.CancelFunc) {
 				defer cancel()
 				if _, asyncDelete, err := d.legacy.Delete(ctxBg, accCreated.GetName(), nil, &metav1.DeleteOptions{}); err != nil {
-					log.With("name", accCreated.GetName()).Error("failed to CLEANUP object in legacy storage", "err", err, "asyncDelete", asyncDelete)
+					log.With("resourceName", accCreated.GetName()).Error("failed to CLEANUP object in legacy storage", "error", err, "asyncDelete", asyncDelete)
 				}
 			}(context.WithTimeout(context.WithoutCancel(ctx), backgroundReqTimeout))
 			return nil, errObjectSt
@@ -294,13 +294,13 @@ func (d *dualWriter) Create(ctx context.Context, in runtime.Object, createValida
 		go func(ctxBg context.Context, cancel context.CancelFunc) {
 			defer cancel()
 			if _, err := d.unified.Create(ctxBg, createdCopy, createValidation, options); err != nil {
-				log.With("objectInfo", objectInfo(createdCopy)).Error("failed to CREATE object in unified storage", "err", err)
+				log.With("objectInfo", objectInfo(createdCopy)).Error("failed to CREATE object in unified storage", "error", err)
 			}
 		}(context.WithTimeout(context.WithoutCancel(ctx), backgroundReqTimeout))
 	} else {
 		// Otherwise let's create it in the foreground and return any error.
 		if _, err := d.unified.Create(ctx, createdCopy, createValidation, options); err != nil {
-			log.With("objectInfo", objectInfo(createdCopy)).Error("failed to CREATE object in unified storage", "err", err)
+			log.With("objectInfo", objectInfo(createdCopy)).Error("failed to CREATE object in unified storage", "error", err)
 			if d.errorIsOK {
 				return createdFromLegacy, nil
 			}
@@ -308,7 +308,7 @@ func (d *dualWriter) Create(ctx context.Context, in runtime.Object, createValida
 			go func(ctxBg context.Context, cancel context.CancelFunc) {
 				defer cancel()
 				if _, asyncDelete, err := d.legacy.Delete(ctxBg, accCreated.GetName(), nil, &metav1.DeleteOptions{}); err != nil {
-					log.With("name", accCreated.GetName()).Error("failed to CLEANUP object in legacy storage", "err", err, "asyncDelete", asyncDelete)
+					log.With("resourceName", accCreated.GetName()).Error("failed to CLEANUP object in legacy storage", "error", err, "asyncDelete", asyncDelete)
 				}
 			}(context.WithTimeout(context.WithoutCancel(ctx), backgroundReqTimeout))
 			return nil, err
@@ -333,12 +333,12 @@ func (d *dualWriter) Delete(ctx context.Context, name string, deleteValidation r
 			attribute.Bool("errorIsOK", d.errorIsOK),
 			attribute.Bool("readUnified", d.readUnified)))
 	defer span.End()
-	log := logging.FromContext(ctx).With("method", "Delete", "name", name)
+	log := logging.FromContext(ctx).With("method", "Delete", "resourceName", name)
 	ctx = utils.SetFolderRemovePermissions(ctx, false)
 
 	objFromLegacy, asyncLegacy, err := d.legacy.Delete(ctx, name, deleteValidation, options)
 	if err != nil && (!d.readUnified || !d.errorIsOK && !apierrors.IsNotFound(err)) {
-		log.Error("failed to DELETE object in legacy storage", "err", err)
+		log.Error("failed to DELETE object in legacy storage", "error", err)
 		return nil, false, err
 	}
 
@@ -349,7 +349,7 @@ func (d *dualWriter) Delete(ctx context.Context, name string, deleteValidation r
 	if d.readUnified {
 		objFromStorage, asyncStorage, err := d.unified.Delete(ctx, name, deleteValidation, options)
 		if err != nil && !apierrors.IsNotFound(err) && !d.errorIsOK {
-			log.Error("failed to DELETE object in unified storage", "err", err)
+			log.Error("failed to DELETE object in unified storage", "error", err)
 			return nil, false, err
 		}
 		return objFromStorage, asyncStorage, nil
@@ -359,14 +359,14 @@ func (d *dualWriter) Delete(ctx context.Context, name string, deleteValidation r
 			defer cancel()
 			_, _, err := d.unified.Delete(ctxBg, name, deleteValidation, options)
 			if err != nil && !apierrors.IsNotFound(err) && !d.errorIsOK {
-				log.Error("failed background DELETE in unified storage", "err", err)
+				log.Error("failed background DELETE in unified storage", "error", err)
 			}
 		}(context.WithTimeout(context.WithoutCancel(ctx), backgroundReqTimeout))
 	}
 	// Otherwise we just run it in the foreground and return an error if any might happen.
 	_, _, err = d.unified.Delete(ctx, name, deleteValidation, options)
 	if err != nil && !apierrors.IsNotFound(err) && !d.errorIsOK {
-		log.Error("failed to DELETE object in unified storage", "err", err)
+		log.Error("failed to DELETE object in unified storage", "error", err)
 		return nil, false, err
 	}
 	return objFromLegacy, asyncLegacy, nil
@@ -379,7 +379,7 @@ func (d *dualWriter) Update(ctx context.Context, name string, objInfo rest.Updat
 			attribute.Bool("errorIsOK", d.errorIsOK),
 			attribute.Bool("readUnified", d.readUnified)))
 	defer span.End()
-	log := logging.FromContext(ctx).With("method", "Update", "name", name)
+	log := logging.FromContext(ctx).With("method", "Update", "resourceName", name)
 	// update in legacy first, and then unistore. Will return a failure if either fails.
 	//
 	// we want to update in legacy first, otherwise if the update from unistore was successful,
@@ -401,7 +401,7 @@ func (d *dualWriter) Update(ctx context.Context, name string, objInfo rest.Updat
 
 	objFromLegacy, createdLegacy, err := d.legacy.Update(ctx, name, legacyInfo, createValidation, updateValidation, legacyForceCreate, options)
 	if err != nil {
-		log.Error("failed to UPDATE in legacy storage", "err", err)
+		log.Error("failed to UPDATE in legacy storage", "error", err)
 		return nil, false, err
 	}
 
@@ -410,7 +410,7 @@ func (d *dualWriter) Update(ctx context.Context, name string, objInfo rest.Updat
 	if createdLegacy {
 		legacyMeta, err := utils.MetaAccessor(objFromLegacy)
 		if err != nil {
-			log.Error("failed to get meta accessor for legacy object", "err", err)
+			log.Error("failed to get meta accessor for legacy object", "error", err)
 			return nil, false, err
 		}
 		unifiedInfo = &wrappedUpdateInfo{
@@ -435,20 +435,20 @@ func (d *dualWriter) Update(ctx context.Context, name string, objInfo rest.Updat
 		go func(ctxBg context.Context, cancel context.CancelFunc) {
 			defer cancel()
 			if _, _, err := d.unified.Update(ctxBg, name, unifiedInfo, createValidation, updateValidation, unifiedForceCreate, options); err != nil {
-				log.With("objectInfo", objectInfo(objFromLegacy)).Error("failed background UPDATE to unified storage", "err", err)
+				log.With("objectInfo", objectInfo(objFromLegacy)).Error("failed background UPDATE to unified storage", "error", err)
 			}
 		}(context.WithTimeout(context.WithoutCancel(ctx), backgroundReqTimeout))
 		return objFromLegacy, createdLegacy, nil
 	}
 	// If we want to check unified errors just run it in foreground.
 	if _, _, err := d.unified.Update(ctx, name, unifiedInfo, createValidation, updateValidation, unifiedForceCreate, options); err != nil {
-		log.With("objectInfo", objectInfo(objFromLegacy)).Error("failed to UPDATE in unified storage", "err", err)
+		log.With("objectInfo", objectInfo(objFromLegacy)).Error("failed to UPDATE in unified storage", "error", err)
 		// cleanup the legacy object if we created it there
 		if createdLegacy {
 			go func(ctxBg context.Context, cancel context.CancelFunc) {
 				defer cancel()
 				if _, asyncDelete, err := d.legacy.Delete(ctxBg, name, nil, &metav1.DeleteOptions{}); err != nil {
-					log.With("name", name).Error("failed to CLEANUP object in legacy storage after unified storage update failure", "err", err, "asyncDelete", asyncDelete)
+					log.With("resourceName", name).Error("failed to CLEANUP object in legacy storage after unified storage update failure", "error", err, "asyncDelete", asyncDelete)
 				}
 			}(context.WithTimeout(context.WithoutCancel(ctx), backgroundReqTimeout))
 		}
@@ -475,7 +475,7 @@ func (d *dualWriter) DeleteCollection(ctx context.Context, deleteValidation rest
 
 	deletedLegacy, err := d.legacy.DeleteCollection(ctx, deleteValidation, options, listOptions)
 	if err != nil {
-		log.With("options", options).Error("failed to DELETE collection successfully from legacy storage", "err", err)
+		log.With("options", options).Error("failed to DELETE collection successfully from legacy storage", "error", err)
 		return nil, err
 	}
 
@@ -487,14 +487,14 @@ func (d *dualWriter) DeleteCollection(ctx context.Context, deleteValidation rest
 		go func(ctxBg context.Context, cancel context.CancelFunc) {
 			defer cancel()
 			if _, err := d.unified.DeleteCollection(ctxBg, deleteValidation, options, listOptions); err != nil {
-				log.With("objectInfo", objectInfo(deletedLegacy)).Error("failed background DELETE collection to unified storage", "err", err)
+				log.With("objectInfo", objectInfo(deletedLegacy)).Error("failed background DELETE collection to unified storage", "error", err)
 			}
 		}(context.WithTimeout(context.WithoutCancel(ctx), backgroundReqTimeout))
 		return deletedLegacy, nil
 	}
 	// Otherwise we have to check the error and run it in the foreground.
 	if _, err := d.unified.DeleteCollection(ctx, deleteValidation, options, listOptions); err != nil {
-		log.With("objectInfo", objectInfo(deletedLegacy)).Error("failed to DELETE collection successfully from Storage", "err", err)
+		log.With("objectInfo", objectInfo(deletedLegacy)).Error("failed to DELETE collection successfully from Storage", "error", err)
 		return nil, err
 	}
 	return deletedLegacy, nil

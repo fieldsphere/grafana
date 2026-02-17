@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 const CODEOWNERS_MANIFEST_PATH = '../codeowners-manifest/filenames-by-team.json';
+const { logScriptError, logScriptWarning } = require('./logging.js');
 
 /**
  * Checks if any files owned by a codeowner are in the list of changed files
@@ -14,7 +15,10 @@ function isCodeownerAffected(codeowner, changedFiles, manifestPath = CODEOWNERS_
   const teamFiles = manifest[codeowner] || [];
 
   if (teamFiles.length === 0) {
-    console.warn(`Warning: No files found for codeowner "${codeowner}"`);
+    logScriptWarning('No files found for codeowner', {
+      operation: 'isCodeownerAffected',
+      codeowner,
+    });
     return false;
   }
 
@@ -28,14 +32,19 @@ function isCodeownerAffected(codeowner, changedFiles, manifestPath = CODEOWNERS_
  */
 function checkCodeownerAffected(codeowner, changedFiles) {
   if (!codeowner) {
-    console.error('Usage: node check-codeowner-affected.js <codeowner> <space-separated-files>');
-    console.error('   or: node check-codeowner-affected.js <codeowner> <file1> <file2> ...');
+    logScriptError('Usage: node check-codeowner-affected.js <codeowner> <space-separated-files>', {
+      operation: 'checkCodeownerAffected',
+    });
+    logScriptError('Usage: node check-codeowner-affected.js <codeowner> <file1> <file2> ...', {
+      operation: 'checkCodeownerAffected',
+    });
     process.exit(1);
   }
 
   const filesArray = typeof changedFiles === 'string' ? changedFiles.split(/\s+/).filter(Boolean) : changedFiles;
   const isAffected = isCodeownerAffected(codeowner, filesArray);
-  console.log(isAffected ? 'true' : 'false');
+  // Keep plain stdout output for existing CI consumers.
+  process.stdout.write(`${isAffected ? 'true' : 'false'}\n`);
 }
 
 if (require.main === module) {

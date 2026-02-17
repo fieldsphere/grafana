@@ -191,7 +191,7 @@ func staticHandler(ctx *web.Context, log log.Logger, opt StaticOptions) bool {
 	}
 
 	if !opt.SkipLogging {
-		log.Info("[Static] Serving", "file", file)
+		log.Info("[Static] Serving", "filePath", file)
 	}
 
 	// Add an Expires header to the static content

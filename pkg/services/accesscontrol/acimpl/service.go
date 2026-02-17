@@ -11,6 +11,7 @@ import (
 
 	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 
 	claims "github.com/grafana/authlib/types"
 
@@ -284,7 +285,7 @@ func (s *Service) getCachedUserPermissions(ctx context.Context, user identity.Re
 		return nil, err
 	}
 	permissions = append(permissions, userManagedPermissions...)
-	span.SetAttributes(attribute.Int("num_permissions", len(permissions)))
+	span.SetAttributes(attribute.Int("numPermissions", len(permissions)))
 
 	return permissions, nil
 }
@@ -299,10 +300,13 @@ func (s *Service) getCachedBasicRolesPermissions(ctx context.Context, user ident
 	span.SetAttributes(attribute.Int("roles", len(basicRoles)))
 	for _, role := range basicRoles {
 		perms, err := s.getCachedBasicRolePermissions(ctx, role, user.GetOrgID(), options)
-		span.SetAttributes(attribute.Int(fmt.Sprintf("role_%s_permissions", role), len(perms)))
 		if err != nil {
 			return nil, err
 		}
+		span.AddEvent("rolePermissionsLoaded", trace.WithAttributes(
+			attribute.String("role", role),
+			attribute.Int("permissionsCount", len(perms)),
+		))
 		permissions = append(permissions, perms...)
 	}
 	return permissions, nil
@@ -340,16 +344,16 @@ func (s *Service) getCachedPermissions(ctx context.Context, key string, getPermi
 	if !options.ReloadCache {
 		permissions, ok := s.cache.Get(key)
 		if ok {
-			span.SetAttributes(attribute.Int("num_permissions_cached", len(permissions.([]accesscontrol.Permission))))
+			span.SetAttributes(attribute.Int("numPermissionsCached", len(permissions.([]accesscontrol.Permission))))
 			metrics.MAccessPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheHit).Inc()
 			return permissions.([]accesscontrol.Permission), nil
 		}
 	}
 
-	span.AddEvent("cache miss")
+	span.AddEvent("cacheMiss")
 	metrics.MAccessPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheMiss).Inc()
 	permissions, err := getPermissionsFn(ctx)
-	span.SetAttributes(attribute.Int("num_permissions_fetched", len(permissions)))
+	span.SetAttributes(attribute.Int("numPermissionsFetched", len(permissions)))
 	if err != nil {
 		return nil, err
 	}
@@ -377,7 +381,7 @@ func (s *Service) getCachedTeamsPermissions(ctx context.Context, user identity.R
 			teamPermissions, ok := s.cache.Get(key)
 			if ok {
 				metrics.MAccessPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheHit).Inc()
-				span.SetAttributes(attribute.Int("num_permissions_cached", len(teamPermissions.([]accesscontrol.Permission))))
+				span.SetAttributes(attribute.Int("numPermissionsCached", len(teamPermissions.([]accesscontrol.Permission))))
 				permissions = append(permissions, teamPermissions.([]accesscontrol.Permission)...)
 			} else {
 				miss = append(miss, teamID)
@@ -389,10 +393,10 @@ func (s *Service) getCachedTeamsPermissions(ctx context.Context, user identity.R
 	}
 
 	if len(miss) > 0 {
-		span.AddEvent("cache miss")
+		span.AddEvent("cacheMiss")
 		metrics.MAccessPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheMiss).Inc()
 		teamsPermissions, err := s.getTeamsPermissions(ctx, miss, orgID)
-		span.SetAttributes(attribute.Int("num_permissions_fetched", len(teamsPermissions)))
+		span.SetAttributes(attribute.Int("numPermissionsFetched", len(teamsPermissions)))
 		if err != nil {
 			return nil, err
 		}
@@ -764,7 +768,7 @@ func (s *Service) searchUserPermissions(ctx context.Context, orgID int64, search
 
 	key, err := accesscontrol.GetSearchPermissionCacheKey(s.log, &user.SignedInUser{UserID: searchOptions.UserID, OrgID: orgID}, searchOptions)
 	if err != nil {
-		s.log.Warn("failed to create search permission cache key", "err", err)
+		s.log.Warn("failed to create search permission cache key", "error", err)
 	} else {
 		s.cache.Set(key, permissions, cacheTTL)
 	}
@@ -784,7 +788,7 @@ func (s *Service) searchUserPermissionsFromCache(ctx context.Context, orgID int6
 
 	key, err := accesscontrol.GetSearchPermissionCacheKey(s.log, tempUser, searchOptions)
 	if err != nil {
-		s.log.Warn("failed to create search permission cache key", "err", err)
+		s.log.Warn("failed to create search permission cache key", "error", err)
 		return nil, false
 	}
 	permissions, ok := s.cache.Get((key))
@@ -793,7 +797,7 @@ func (s *Service) searchUserPermissionsFromCache(ctx context.Context, orgID int6
 		return nil, false
 	}
 
-	s.log.Debug("Using cached permissions", "key", key)
+	s.log.Debug("Using cached permissions", "permissionCacheKey", key)
 	metrics.MAccessSearchUserPermissionsCacheUsage.WithLabelValues(accesscontrol.CacheHit).Inc()
 
 	return permissions.([]accesscontrol.Permission), true

@@ -87,7 +87,7 @@ func getNewestAlertInstances(logger log.Logger, firstInstances, secondInstances 
 	maxSecond := maxLastEvalTime(secondInstances)
 
 	if maxSecond.After(maxFirst) {
-		logger.Debug("Newer alert instances found", "first_last_eval_time", maxFirst, "second_last_eval_time", maxSecond, "rule_uid", firstInstances[0].RuleUID)
+		logger.Debug("Newer alert instances found", "firstLastEvalTime", maxFirst, "secondLastEvalTime", maxSecond, "ruleUID", firstInstances[0].RuleUID)
 		return secondInstances
 	}
 	return firstInstances

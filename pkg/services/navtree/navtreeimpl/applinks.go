@@ -347,7 +347,7 @@ func (s *ServiceImpl) addPluginToSection(c *contextmodel.ReqContext, treeRoot *n
 				IsNew: true,
 			})
 		default:
-			s.log.Error("Plugin app nav id not found", "pluginId", plugin.ID, "navId", sectionID)
+			s.log.Error("Plugin app nav id not found", "pluginID", plugin.ID, "navID", sectionID)
 		}
 	}
 }

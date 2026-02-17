@@ -73,8 +73,8 @@ func (s *SecureValueService) Create(ctx context.Context, sv *secretv1beta1.Secur
 		}
 
 		if createdSv != nil {
-			args = append(args, "name", createdSv.GetName())
-			span.SetAttributes(attribute.String("name", createdSv.GetName()))
+			args = append(args, "secureValueName", createdSv.GetName())
+			span.SetAttributes(attribute.String("secureValueName", createdSv.GetName()))
 		}
 
 		success := createErr == nil
@@ -104,7 +104,7 @@ func (s *SecureValueService) Update(ctx context.Context, newSecureValue *secretv
 	name, namespace := newSecureValue.GetName(), newSecureValue.GetNamespace()
 
 	ctx, span := s.tracer.Start(ctx, "SecureValueService.Update", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace),
 		attribute.String("actor", actorUID),
 	))
@@ -112,7 +112,7 @@ func (s *SecureValueService) Update(ctx context.Context, newSecureValue *secretv
 
 	defer func() {
 		args := []any{
-			"name", name,
+			"secureValueName", name,
 			"namespace", namespace,
 			"actorUID", actorUID,
 			"sync", sync,
@@ -146,7 +146,7 @@ func (s *SecureValueService) Update(ctx context.Context, newSecureValue *secretv
 		if err != nil {
 			return nil, false, fmt.Errorf("getting keeper for config: namespace=%+v keeperName=%+v %w", newSecureValue.Namespace, newSecureValue.Status.Keeper, err)
 		}
-		logging.FromContext(ctx).Debug("retrieved keeper", "namespace", newSecureValue.Namespace, "type", keeperCfg.Type())
+		logging.FromContext(ctx).Debug("retrieved keeper", "namespace", newSecureValue.Namespace, "keeperType", keeperCfg.Type())
 
 		secret, err := keeper.Expose(ctx, keeperCfg, xkube.Namespace(newSecureValue.Namespace), newSecureValue.Name, currentVersion.Status.Version)
 		if err != nil {
@@ -192,7 +192,7 @@ func (s *SecureValueService) createNewVersion(ctx context.Context, keeperName st
 	if err != nil {
 		return nil, fmt.Errorf("getting keeper for config: namespace=%+v keeperName=%+v %w", createdSv.Namespace, keeperName, err)
 	}
-	logging.FromContext(ctx).Debug("retrieved keeper", "namespace", createdSv.Namespace, "type", keeperCfg.Type())
+	logging.FromContext(ctx).Debug("retrieved keeper", "namespace", createdSv.Namespace, "keeperType", keeperCfg.Type())
 	// TODO: can we stop using external id?
 	// TODO: store uses only the namespace and returns and id. It could be a kv instead.
 	// TODO: check that the encrypted store works with multiple versions
@@ -239,13 +239,13 @@ func (s *SecureValueService) Read(ctx context.Context, namespace xkube.Namespace
 	start := time.Now()
 
 	ctx, span := s.tracer.Start(ctx, "SecureValueService.Read", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace.String()),
 	))
 
 	defer func() {
 		args := []any{
-			"name", name,
+			"secureValueName", name,
 			"namespace", namespace.String(),
 		}
 
@@ -345,14 +345,14 @@ func (s *SecureValueService) Delete(ctx context.Context, namespace xkube.Namespa
 	start := time.Now()
 
 	ctx, span := s.tracer.Start(ctx, "SecureValueService.Delete", trace.WithAttributes(
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 		attribute.String("namespace", namespace.String()),
 	))
 	defer span.End()
 
 	defer func() {
 		args := []any{
-			"name", name,
+			"secureValueName", name,
 			"namespace", namespace,
 		}
 

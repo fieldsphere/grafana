@@ -169,7 +169,7 @@ func (r *recordingRule) Run() error {
 }
 
 func (r *recordingRule) doEvaluate(ctx context.Context, ev *Evaluation) {
-	logger := r.logger.FromContext(ctx).New("now", ev.scheduledAt, "fingerprint", ev.Fingerprint())
+	logger := r.logger.FromContext(ctx).New("scheduledAt", ev.scheduledAt, "fingerprint", ev.Fingerprint())
 	orgID := fmt.Sprint(ev.rule.OrgID)
 	evalDuration := r.metrics.EvalDuration.WithLabelValues(orgID)
 	evalAttemptTotal := r.metrics.EvalAttemptTotal.WithLabelValues(orgID)
@@ -195,10 +195,10 @@ func (r *recordingRule) doEvaluate(ctx context.Context, ev *Evaluation) {
 	}
 
 	ctx, span := r.tracer.Start(ctx, "recording rule execution", trace.WithAttributes(
-		attribute.String("rule_uid", ev.rule.UID),
-		attribute.Int64("org_id", ev.rule.OrgID),
-		attribute.Int64("rule_version", ev.rule.Version),
-		attribute.String("rule_fingerprint", ev.Fingerprint().String()),
+		attribute.String("ruleUID", ev.rule.UID),
+		attribute.Int64("orgID", ev.rule.OrgID),
+		attribute.Int64("ruleVersion", ev.rule.Version),
+		attribute.String("ruleFingerprint", ev.Fingerprint().String()),
 		attribute.String("tick", ev.scheduledAt.UTC().Format(time.RFC3339Nano)),
 	))
 	defer span.End()
@@ -261,7 +261,7 @@ func (r *recordingRule) doEvaluate(ctx context.Context, ev *Evaluation) {
 		return
 	}
 	logger.Debug("Recording rule evaluation succeeded")
-	span.AddEvent("rule evaluated")
+	span.AddEvent("ruleEvaluated")
 	r.lastError.Store(nil)
 	r.health.Store("ok")
 }
@@ -283,16 +283,16 @@ func (r *recordingRule) tryEvaluation(ctx context.Context, ev *Evaluation, logge
 
 	logger.Debug("Recording rule query completed", "resultCount", len(result.Responses), "duration", evalDur)
 	span := trace.SpanFromContext(ctx)
-	span.AddEvent("query succeeded", trace.WithAttributes(
+	span.AddEvent("querySucceeded", trace.WithAttributes(
 		attribute.Int64("results", int64(len(result.Responses))),
 	))
 
 	frames, err := r.frameRef(ev.rule.Record.From, result)
 	if err != nil {
-		span.AddEvent("query returned no data, nothing to write", trace.WithAttributes(
-			attribute.String("reason", err.Error()),
+		span.AddEvent("queryReturnedNoData", trace.WithAttributes(
+			attribute.String("errorMessage", err.Error()),
 		))
-		logger.Debug("Query returned no data", "reason", err)
+		logger.Debug("Query returned no data", "error", err)
 		r.health.Store("nodata")
 		return nil
 	}
@@ -309,7 +309,7 @@ func (r *recordingRule) tryEvaluation(ctx context.Context, ev *Evaluation, logge
 	}
 
 	logger.Debug("Metrics written", "duration", writeDur)
-	span.AddEvent("metrics written", trace.WithAttributes(
+	span.AddEvent("metricsWritten", trace.WithAttributes(
 		attribute.Int64("frames", int64(len(frames))),
 	))
 

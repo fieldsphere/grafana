@@ -92,13 +92,13 @@ func New(cfg app.Config) (app.App, error) {
 							info.Status.LastSeenAt = time.Now().UnixMilli()
 							ctx, _, err := identity.WithProvisioningIdentity(context.Background(), req.ResourceIdentifier.Namespace)
 							if err != nil {
-								logging.FromContext(ctx).Warn("unable to create background identity", "err", err)
+								logging.FromContext(ctx).Warn("unable to create background identity", "error", err)
 							} else {
 								_, err = client.UpdateStatus(ctx, id, info.Status, resource.UpdateOptions{
 									ResourceVersion: info.ResourceVersion,
 								})
 								if err != nil {
-									logging.FromContext(ctx).Warn("unable to update status", "err", err)
+									logging.FromContext(ctx).Warn("unable to update status", "error", err)
 								}
 							}
 						}()

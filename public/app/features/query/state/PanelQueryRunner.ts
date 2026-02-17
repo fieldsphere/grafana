@@ -30,7 +30,7 @@ import {
   StreamingDataFrame,
   DataTopic,
 } from '@grafana/data';
-import { toDataQueryError } from '@grafana/runtime';
+import { createMonitoringLogger, toDataQueryError } from '@grafana/runtime';
 import { ExpressionDatasourceRef } from '@grafana/runtime/internal';
 import { isStreamingDataFrame } from 'app/features/live/data/utils';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
@@ -42,6 +42,8 @@ import { PanelModel } from '../../dashboard/state/PanelModel';
 import { getDashboardQueryRunner } from './DashboardQueryRunner/DashboardQueryRunner';
 import { mergePanelAndDashData } from './mergePanelAndDashData';
 import { runRequest } from './runRequest';
+
+const logger = createMonitoringLogger('features.query.panel-query-runner');
 
 export interface QueryRunnerOptions<
   TQuery extends DataQuery = DataQuery,
@@ -257,7 +259,11 @@ export class PanelQueryRunner {
         return { ...data, series, annotations };
       }),
       catchError((err) => {
-        console.warn('Error running transformation:', err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'runTransformations' });
+        } else {
+          logger.logWarning('Error running transformation', { operation: 'runTransformations', error: String(err) });
+        }
         return of({
           ...data,
           state: LoadingState.Error,

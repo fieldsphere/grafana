@@ -57,7 +57,7 @@ func (m *MLNode) NeedsVars() []string {
 // Execute initializes plugin API client,  executes a ml.Command and then converts the result of the execution.
 // Returns non-empty mathexp.Results if evaluation was successful. Returns QueryError if command execution failed
 func (m *MLNode) Execute(ctx context.Context, now time.Time, _ mathexp.Vars, s *Service) (r mathexp.Results, e error) {
-	logger := logger.FromContext(ctx).New("datasourceType", mlPluginID, "queryRefId", m.refID)
+	logger := logger.FromContext(ctx).New("datasourceType", mlPluginID, "queryRefID", m.refID)
 	var result mathexp.Results
 	timeRange := m.TimeRange.AbsoluteTime(now)
 

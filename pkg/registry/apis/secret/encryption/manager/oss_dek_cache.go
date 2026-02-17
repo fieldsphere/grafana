@@ -52,7 +52,7 @@ func (c *ossDataKeyCache) GetById(namespace, id string) (_ encryption.DataKeyCac
 		return entry, false
 	}
 	if entry.Namespace != namespace {
-		c.log.Error("Broken invariant!!! Expected %s but got %s. ID: %s", namespace, entry.Namespace, id)
+		c.log.Error("Broken invariant: unexpected namespace for data key id lookup", "expectedNamespace", namespace, "actualNamespace", entry.Namespace, "dataKeyID", id)
 		return encryption.DataKeyCacheEntry{}, false
 	}
 	if entry.IsExpired() {
@@ -80,7 +80,7 @@ func (c *ossDataKeyCache) GetByLabel(namespace, label string) (_ encryption.Data
 		return entry, false
 	}
 	if entry.Namespace != namespace {
-		c.log.Error("Broken invariant!!! Expected %s but got %s. Label: %s", namespace, entry.Namespace, label)
+		c.log.Error("Broken invariant: unexpected namespace for data key label lookup", "expectedNamespace", namespace, "actualNamespace", entry.Namespace, "label", label)
 		return encryption.DataKeyCacheEntry{}, false
 	}
 	if entry.IsExpired() {

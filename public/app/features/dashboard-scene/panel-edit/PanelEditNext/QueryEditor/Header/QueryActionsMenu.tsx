@@ -9,7 +9,7 @@ import {
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
-import { renderLimitedComponents, usePluginComponents } from '@grafana/runtime';
+import { createMonitoringLogger, renderLimitedComponents, usePluginComponents } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
 import { Button, Dropdown, Menu, useStyles2 } from '@grafana/ui';
 import { useQueryLibraryContext } from 'app/features/explore/QueryLibrary/QueryLibraryContext';
@@ -17,6 +17,8 @@ import { QueryActionComponent, RowActionComponents } from 'app/features/query/co
 
 import { QueryEditorType } from '../../constants';
 import { useActionsContext, useQueryEditorUIContext, useQueryRunnerContext } from '../QueryEditorContext';
+
+const logger = createMonitoringLogger('features.dashboard-scene.query-actions-menu');
 
 interface QueryActionsMenuProps {
   app?: CoreApp;
@@ -183,7 +185,14 @@ function useAdaptiveTelemetryComponents(query: DataQuery | null) {
       pluginId: /grafana-adaptive.*/,
     });
   } catch (error) {
-    console.error('Failed to render adaptive telemetry components:', error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'useAdaptiveTelemetryComponents' });
+    } else {
+      logger.logWarning('Failed to render adaptive telemetry components', {
+        operation: 'useAdaptiveTelemetryComponents',
+        error: String(error),
+      });
+    }
     return null;
   }
 }

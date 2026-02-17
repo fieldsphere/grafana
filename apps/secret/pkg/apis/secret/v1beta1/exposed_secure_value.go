@@ -6,6 +6,7 @@ package v1beta1
 
 import (
 	"fmt"
+	"io"
 )
 
 const redacted = "[REDACTED]"
@@ -45,7 +46,7 @@ func (s ExposedSecureValue) String() string {
 
 // Format must not return the exposed secure value.
 func (s ExposedSecureValue) Format(f fmt.State, _verb rune) {
-	_, _ = fmt.Fprint(f, redacted)
+	_, _ = io.WriteString(f, redacted)
 }
 
 // GoString must not return the exposed secure value.

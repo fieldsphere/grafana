@@ -95,11 +95,11 @@ func (proxy *DataSourceProxy) HandleRequest() {
 	}
 
 	proxyErrorLogger := logger.New(
-		"userId", proxy.ctx.UserID,
-		"orgId", proxy.ctx.OrgID,
-		"uname", proxy.ctx.Login,
-		"path", proxy.ctx.Req.URL.Path,
-		"remote_addr", proxy.ctx.RemoteAddr(),
+		"userID", proxy.ctx.UserID,
+		"orgID", proxy.ctx.OrgID,
+		"userLogin", proxy.ctx.Login,
+		"requestPath", proxy.ctx.Req.URL.Path,
+		"remoteAddr", proxy.ctx.RemoteAddr(),
 		"referer", proxy.ctx.Req.Referer(),
 	)
 
@@ -119,7 +119,7 @@ func (proxy *DataSourceProxy) HandleRequest() {
 			_ = resp.Body.Close()
 
 			ctxLogger := proxyErrorLogger.FromContext(resp.Request.Context())
-			ctxLogger.Info("Authentication to data source failed", "body", string(body), "statusCode",
+			ctxLogger.Info("Authentication to data source failed", "responseBody", string(body), "statusCode",
 				resp.StatusCode)
 			msg := "Authentication to data source failed"
 			*resp = http.Response{
@@ -148,25 +148,31 @@ func (proxy *DataSourceProxy) HandleRequest() {
 	proxy.ctx.Req = proxy.ctx.Req.WithContext(ctx)
 
 	span.SetAttributes(
-		attribute.String("datasource_name", proxy.ds.Name),
-		attribute.String("datasource_type", proxy.ds.Type),
-		attribute.String("user", proxy.ctx.Login),
-		attribute.Int64("org_id", proxy.ctx.OrgID),
+		attribute.String("datasourceName", proxy.ds.Name),
+		attribute.String("datasourceType", proxy.ds.Type),
+		attribute.String("userLogin", proxy.ctx.Login),
+		attribute.Int64("orgID", proxy.ctx.OrgID),
 	)
 
-	proxy.addTraceFromHeaderValue(span, "X-Panel-Id", "panel_id")
-	proxy.addTraceFromHeaderValue(span, "X-Dashboard-Id", "dashboard_id")
+	proxy.addPanelIDTraceFromHeader(span)
+	proxy.addDashboardIDTraceFromHeader(span)
 
 	proxy.tracer.Inject(ctx, proxy.ctx.Req.Header, span)
 
 	reverseProxy.ServeHTTP(proxy.ctx.Resp, proxy.ctx.Req)
 }
 
-func (proxy *DataSourceProxy) addTraceFromHeaderValue(span trace.Span, headerName string, tagName string) {
-	panelId := proxy.ctx.Req.Header.Get(headerName)
-	dashId, err := strconv.Atoi(panelId)
+func (proxy *DataSourceProxy) addPanelIDTraceFromHeader(span trace.Span) {
+	panelID, err := strconv.Atoi(proxy.ctx.Req.Header.Get("X-Panel-Id"))
 	if err == nil {
-		span.SetAttributes(attribute.Int(tagName, dashId))
+		span.SetAttributes(attribute.Int("panelID", panelID))
+	}
+}
+
+func (proxy *DataSourceProxy) addDashboardIDTraceFromHeader(span trace.Span) {
+	dashboardID, err := strconv.Atoi(proxy.ctx.Req.Header.Get("X-Dashboard-Id"))
+	if err == nil {
+		span.SetAttributes(attribute.Int("dashboardID", dashboardID))
 	}
 }
 
@@ -353,13 +359,13 @@ func (proxy *DataSourceProxy) hasAccessToRoute(route *plugins.Route) bool {
 		routeEval := pluginac.GetDataSourceRouteEvaluator(proxy.ds.UID, route.ReqAction)
 		hasAccess := routeEval.Evaluate(proxy.ctx.GetPermissions())
 		if !hasAccess {
-			ctxLogger.Debug("plugin route is covered by RBAC, user doesn't have access", "route", proxy.ctx.Req.URL.Path, "action", route.ReqAction, "path", route.Path, "method", route.Method)
+			ctxLogger.Debug("plugin route is covered by RBAC, user doesn't have access", "route", proxy.ctx.Req.URL.Path, "routeAction", route.ReqAction, "routePath", route.Path, "method", route.Method)
 		}
 		return hasAccess
 	}
 	if route.ReqRole.IsValid() {
 		if hasUserRole := proxy.ctx.HasUserRole(route.ReqRole); !hasUserRole {
-			ctxLogger.Debug("plugin route is covered by org role, user doesn't have access", "route", proxy.ctx.Req.URL.Path, "role", route.ReqRole, "path", route.Path, "method", route.Method)
+			ctxLogger.Debug("plugin route is covered by org role, user doesn't have access", "route", proxy.ctx.Req.URL.Path, "role", route.ReqRole, "routePath", route.Path, "method", route.Method)
 			return false
 		}
 	}
@@ -380,7 +386,7 @@ func (proxy *DataSourceProxy) logRequest() {
 		}
 	}
 
-	panelPluginId := proxy.ctx.Req.Header.Get("X-Panel-Plugin-Id")
+	panelPluginID := proxy.ctx.Req.Header.Get("X-Panel-Plugin-Id")
 
 	uri, err := util.SanitizeURI(proxy.ctx.Req.RequestURI)
 	if err != nil {
@@ -389,14 +395,14 @@ func (proxy *DataSourceProxy) logRequest() {
 
 	ctxLogger := logger.FromContext(proxy.ctx.Req.Context())
 	ctxLogger.Info("Proxying incoming request",
-		"userid", proxy.ctx.UserID,
-		"orgid", proxy.ctx.OrgID,
+		"userID", proxy.ctx.UserID,
+		"orgID", proxy.ctx.OrgID,
 		"username", proxy.ctx.Login,
 		"datasource", proxy.ds.Type,
-		"uri", uri,
+		"requestURI", uri,
 		"method", proxy.ctx.Req.Method,
-		"panelPluginId", panelPluginId,
-		"body", body)
+		"panelPluginID", panelPluginID,
+		"requestBody", body)
 }
 
 func (proxy *DataSourceProxy) checkWhiteList() bool {

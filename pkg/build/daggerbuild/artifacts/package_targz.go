@@ -113,7 +113,7 @@ func NewTarballFromString(ctx context.Context, log *slog.Logger, artifact string
 	if err != nil {
 		return nil, err
 	}
-	log.Info("Initializing tar.gz artifact with options", "name", p.Name, "build ID", p.BuildID, "version", p.Version, "distro", p.Distribution, "static", static, "enterprise", p.Enterprise)
+	log.Info("Initializing tar.gz artifact with options", "artifactName", p.Name, "buildID", p.BuildID, "version", p.Version, "distro", p.Distribution, "static", static, "enterprise", p.Enterprise)
 
 	src, err := GrafanaDir(ctx, state, p.Enterprise)
 	if err != nil {

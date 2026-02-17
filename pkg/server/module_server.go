@@ -284,7 +284,7 @@ func (s *ModuleServer) initOperatorServer() (services.Service, error) {
 func (s *ModuleServer) Shutdown(ctx context.Context, reason string) error {
 	var err error
 	s.shutdownOnce.Do(func() {
-		s.log.Info("Shutdown started", "reason", reason)
+		s.log.Info("Shutdown started", "shutdownReason", reason)
 		// Call cancel func to stop background services.
 		s.shutdownFn()
 		// Wait for server to shut down
@@ -314,13 +314,14 @@ func (s *ModuleServer) writePIDFile() error {
 	}
 
 	// Retrieve the PID and write it to file.
-	pid := strconv.Itoa(os.Getpid())
+	processID := os.Getpid()
+	pid := strconv.Itoa(processID)
 	if err := os.WriteFile(s.pidFile, []byte(pid), 0644); err != nil {
 		s.log.Error("Failed to write pidfile", "error", err)
 		return fmt.Errorf("failed to write pidfile: %s", err)
 	}
 
-	s.log.Info("Writing PID file", "path", s.pidFile, "pid", pid)
+	s.log.Info("Writing PID file", "pidFilePath", s.pidFile, "processID", processID)
 	return nil
 }
 
@@ -339,17 +340,17 @@ func (s *ModuleServer) notifySystemd(state string) {
 	}
 	conn, err := net.DialUnix(socketAddr.Net, nil, socketAddr)
 	if err != nil {
-		s.log.Warn("Failed to connect to systemd", "err", err, "socket", notifySocket)
+		s.log.Warn("Failed to connect to systemd", "error", err, "socket", notifySocket)
 		return
 	}
 	defer func() {
 		if err := conn.Close(); err != nil {
-			s.log.Warn("Failed to close connection", "err", err)
+			s.log.Warn("Failed to close connection", "error", err)
 		}
 	}()
 
 	_, err = conn.Write([]byte(state))
 	if err != nil {
-		s.log.Warn("Failed to write notification to systemd", "err", err)
+		s.log.Warn("Failed to write notification to systemd", "error", err)
 	}
 }

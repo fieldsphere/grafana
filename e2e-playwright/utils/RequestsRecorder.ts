@@ -1,6 +1,8 @@
 import { Page, Response, Request } from '@playwright/test';
 import * as prom from 'prom-client';
 
+import { logPlaywrightInfo, logPlaywrightWarning } from './logging';
+
 /**
  * Records and tracks network request body sizes.
  *
@@ -60,7 +62,10 @@ export class RequestsRecorder {
         return Promise.resolve();
       }
 
-      console.log('waiting for', this.#requestsInFlight, 'requests to finish');
+      logPlaywrightInfo('Waiting for pending requests to finish', {
+        operation: 'RequestsRecorder.listen',
+        requestsInFlight: this.#requestsInFlight,
+      });
 
       return new Promise<void>((resolve) => {
         this.#resolve = resolve;
@@ -95,7 +100,10 @@ export class RequestsRecorder {
     // Record when a document response comes in so we can keep track of future requests
     if (type === 'document') {
       if (this.#documentUrl) {
-        console.warn('recieved additional document response', url);
+        logPlaywrightWarning('Received additional document response', {
+          operation: 'RequestsRecorder.#handleResponse',
+          url,
+        });
       }
 
       this.#documentUrl = url;

@@ -61,7 +61,7 @@ func (c *JobCleanupController) Run(ctx context.Context) error {
 		return apifmt.Errorf("failed to grant provisioning identity for cleanup: %w", err)
 	}
 
-	logger.Info("starting job cleanup controller", "cleanup_interval", c.cleanupInterval, "expiry", c.expiry)
+	logger.Info("starting job cleanup controller", "cleanupInterval", c.cleanupInterval, "expiry", c.expiry)
 
 	// Initial cleanup
 	if err := c.Cleanup(ctx); err != nil {
@@ -109,7 +109,7 @@ func (c *JobCleanupController) Cleanup(ctx context.Context) error {
 		duration := c.clock().Sub(startTime)
 		span.SetAttributes(
 			attribute.Int("count", 0),
-			attribute.Int64("duration_ms", duration.Milliseconds()),
+			attribute.Int64("durationMs", duration.Milliseconds()),
 		)
 		return nil
 	}
@@ -119,7 +119,7 @@ func (c *JobCleanupController) Cleanup(ctx context.Context) error {
 	for _, job := range jobs {
 		if err := c.cleanUpExpiredJob(ctx, job); err != nil {
 			// Log error but continue processing other jobs
-			logger.Error("failed to clean up expired job", "error", err, "job", job.GetName(), "namespace", job.GetNamespace())
+			logger.Error("failed to clean up expired job", "error", err, "jobName", job.GetName(), "namespace", job.GetNamespace())
 		}
 	}
 
@@ -128,7 +128,7 @@ func (c *JobCleanupController) Cleanup(ctx context.Context) error {
 
 	span.SetAttributes(
 		attribute.Int("count", len(jobs)),
-		attribute.Int64("duration_ms", duration.Milliseconds()),
+		attribute.Int64("durationMs", duration.Milliseconds()),
 	)
 
 	return nil
@@ -146,13 +146,13 @@ func (c *JobCleanupController) cleanUpExpiredJob(ctx context.Context, job *provi
 	jobCopy.Status.Finished = c.clock().UnixMilli()
 
 	span.SetAttributes(
-		attribute.String("job.name", jobCopy.GetName()),
-		attribute.String("job.namespace", jobCopy.GetNamespace()),
-		attribute.String("job.repository", jobCopy.Spec.Repository),
-		attribute.String("job.action", string(jobCopy.Spec.Action)),
+		attribute.String("jobName", jobCopy.GetName()),
+		attribute.String("jobNamespace", jobCopy.GetNamespace()),
+		attribute.String("jobRepository", jobCopy.Spec.Repository),
+		attribute.String("jobAction", string(jobCopy.Spec.Action)),
 	)
 
-	jobLogger := logging.FromContext(ctx).With("namespace", jobCopy.GetNamespace(), "job", jobCopy.GetName(), "action", jobCopy.Spec.Action)
+	jobLogger := logging.FromContext(ctx).With("namespace", jobCopy.GetNamespace(), "jobName", jobCopy.GetName(), "jobAction", jobCopy.Spec.Action)
 
 	// Delete from active job store first
 	if err := c.store.Complete(ctx, jobCopy); err != nil {

@@ -161,17 +161,17 @@ func (s *persistentStore) Claim(ctx context.Context) (job *provisioning.Job, rol
 		}
 
 		logger.Info("job claim complete",
-			"job", updatedJob.GetName(),
+			"jobName", updatedJob.GetName(),
 			"namespace", updatedJob.GetNamespace(),
-			"repository", updatedJob.Spec.Repository,
-			"action", updatedJob.Spec.Action,
+			"repositoryName", updatedJob.Spec.Repository,
+			"jobAction", updatedJob.Spec.Action,
 		)
 
 		span.SetAttributes(
-			attribute.String("job.name", updatedJob.GetName()),
-			attribute.String("job.namespace", updatedJob.GetNamespace()),
-			attribute.String("job.repository", updatedJob.Spec.Repository),
-			attribute.String("job.action", string(updatedJob.Spec.Action)),
+			attribute.String("jobName", updatedJob.GetName()),
+			attribute.String("jobNamespace", updatedJob.GetNamespace()),
+			attribute.String("jobRepository", updatedJob.Spec.Repository),
+			attribute.String("jobAction", string(updatedJob.Spec.Action)),
 		)
 
 		return updatedJob.DeepCopy(), func() {
@@ -179,7 +179,7 @@ func (s *persistentStore) Claim(ctx context.Context) (job *provisioning.Job, rol
 			// This will also use the parent context (i.e. from the for loop!), ensuring we have permissions to do this.
 			ctx = context.WithoutCancel(ctx)
 
-			logger := logging.FromContext(ctx).With("namespace", updatedJob.GetNamespace(), "job", updatedJob.GetName())
+			logger := logging.FromContext(ctx).With("namespace", updatedJob.GetNamespace(), "jobName", updatedJob.GetName())
 
 			timeoutCtx, cancel := context.WithTimeout(ctx, 5*time.Second)
 			refetched, err := s.client.Jobs(updatedJob.GetNamespace()).Get(timeoutCtx, updatedJob.GetName(), metav1.GetOptions{})
@@ -221,13 +221,13 @@ func (s *persistentStore) Update(ctx context.Context, job *provisioning.Job) (*p
 
 	logger := logging.FromContext(ctx).With(
 		"operation", "update",
-		"job", job.GetName(),
+		"jobName", job.GetName(),
 		"namespace", job.GetNamespace(),
 	)
 
 	span.SetAttributes(
-		attribute.String("job.name", job.GetName()),
-		attribute.String("job.namespace", job.GetNamespace()),
+		attribute.String("jobName", job.GetName()),
+		attribute.String("jobNamespace", job.GetNamespace()),
 	)
 
 	// Set up the provisioning identity for this namespace
@@ -254,13 +254,13 @@ func (s *persistentStore) Get(ctx context.Context, namespace, name string) (*pro
 
 	logger := logging.FromContext(ctx).With(
 		"operation", "get",
-		"job", name,
+		"jobName", name,
 		"namespace", namespace,
 	)
 
 	span.SetAttributes(
-		attribute.String("job.name", name),
-		attribute.String("job.namespace", namespace),
+		attribute.String("jobName", name),
+		attribute.String("jobNamespace", namespace),
 	)
 
 	// Set up provisioning identity to access jobs across all namespaces
@@ -290,13 +290,13 @@ func (s *persistentStore) Complete(ctx context.Context, job *provisioning.Job) e
 	logger := logging.FromContext(ctx).With(
 		"operation", "complete",
 		"namespace", job.GetNamespace(),
-		"job", job.GetName(),
+		"jobName", job.GetName(),
 	)
 
 	span.SetAttributes(
-		attribute.String("job.name", job.GetName()),
-		attribute.String("job.namespace", job.GetNamespace()),
-		attribute.String("job.action", string(job.Spec.Action)),
+		attribute.String("jobName", job.GetName()),
+		attribute.String("jobNamespace", job.GetNamespace()),
+		attribute.String("jobAction", string(job.Spec.Action)),
 	)
 
 	// Set up the provisioning identity for this namespace
@@ -335,7 +335,7 @@ func (s *persistentStore) ListExpiredJobs(ctx context.Context, expiredBefore tim
 	ctx, span := tracing.Start(ctx, "provisioning.jobs.list_expired_jobs")
 	defer span.End()
 
-	logger := logging.FromContext(ctx).With("operation", "list_expired_jobs")
+	logger := logging.FromContext(ctx).With("operation", "listExpiredJobs")
 
 	// Set up provisioning identity to access jobs across all namespaces
 	ctx, _, err := identity.WithProvisioningIdentity(ctx, "*")
@@ -346,7 +346,7 @@ func (s *persistentStore) ListExpiredJobs(ctx context.Context, expiredBefore tim
 
 	// Find jobs with expired leases (older than expiredBefore)
 	expiry := expiredBefore.UnixMilli()
-	logger.Debug("searching for expired jobs", "expiry_threshold", expiredBefore.Format(time.RFC3339))
+	logger.Debug("searching for expired jobs", "expiryThreshold", expiredBefore.Format(time.RFC3339))
 
 	requirement, err := labels.NewRequirement(LabelJobClaim, selection.LessThan, []string{strconv.FormatInt(expiry, 10)})
 	if err != nil {
@@ -355,7 +355,7 @@ func (s *persistentStore) ListExpiredJobs(ctx context.Context, expiredBefore tim
 	}
 
 	span.SetAttributes(
-		attribute.String("expiry_threshold", expiredBefore.Format(time.RFC3339)),
+		attribute.String("expiryThreshold", expiredBefore.Format(time.RFC3339)),
 		attribute.Int("limit", limit),
 	)
 
@@ -373,7 +373,7 @@ func (s *persistentStore) ListExpiredJobs(ctx context.Context, expiredBefore tim
 		result[i] = &jobList.Items[i]
 	}
 
-	span.SetAttributes(attribute.Int("jobs_found", len(result)))
+	span.SetAttributes(attribute.Int("jobsFound", len(result)))
 	logger.Debug("found expired jobs", "count", len(result))
 
 	return result, nil
@@ -386,14 +386,14 @@ func (s *persistentStore) RenewLease(ctx context.Context, job *provisioning.Job)
 	defer span.End()
 
 	logger := logging.FromContext(ctx).With(
-		"operation", "renew_lease",
-		"job", job.GetName(),
+		"operation", "renewLease",
+		"jobName", job.GetName(),
 		"namespace", job.GetNamespace(),
 	)
 
 	span.SetAttributes(
-		attribute.String("job.name", job.GetName()),
-		attribute.String("job.namespace", job.GetNamespace()),
+		attribute.String("jobName", job.GetName()),
+		attribute.String("jobNamespace", job.GetNamespace()),
 	)
 
 	if job.Labels == nil || job.Labels[LabelJobClaim] == "" {
@@ -462,14 +462,14 @@ func (s *persistentStore) Insert(ctx context.Context, namespace string, spec pro
 	logger := logging.FromContext(ctx).With(
 		"operation", "insert",
 		"namespace", namespace,
-		"repository", spec.Repository,
-		"action", spec.Action,
+		"repositoryName", spec.Repository,
+		"jobAction", spec.Action,
 	)
 
 	span.SetAttributes(
-		attribute.String("job.namespace", namespace),
-		attribute.String("job.repository", spec.Repository),
-		attribute.String("job.action", string(spec.Action)),
+		attribute.String("jobNamespace", namespace),
+		attribute.String("jobRepository", spec.Repository),
+		attribute.String("jobAction", string(spec.Action)),
 	)
 
 	if spec.Repository == "" {
@@ -500,8 +500,8 @@ func (s *persistentStore) Insert(ctx context.Context, namespace string, spec pro
 	}
 	generateJobName(job) // Side-effect: updates the job's name.
 
-	logger = logger.With("job", job.GetName())
-	span.SetAttributes(attribute.String("job.name", job.GetName()))
+	logger = logger.With("jobName", job.GetName())
+	span.SetAttributes(attribute.String("jobName", job.GetName()))
 
 	created, err := s.client.Jobs(namespace).Create(ctx, job, metav1.CreateOptions{})
 	if apierrors.IsAlreadyExists(err) {

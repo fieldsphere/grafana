@@ -33,7 +33,7 @@ func (s *Service) newResourceMux() *http.ServeMux {
 
 func handleResourceReq[T any](handlerFn resourceHandler[T], s *Service) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
-		s.logger.Debug("Received resource call", "url", req.URL.String(), "method", req.Method)
+		s.logger.Debug("Received resource call", "requestURL", req.URL.String(), "method", req.Method)
 
 		pluginCtx := backend.PluginConfigFromContext(req.Context())
 		ctx := req.Context()
@@ -46,7 +46,7 @@ func handleResourceReq[T any](handlerFn resourceHandler[T], s *Service) func(rw 
 		defer func() {
 			if req.Body != nil {
 				if err := req.Body.Close(); err != nil {
-					s.logger.Warn("Failed to close request body", "err", err)
+					s.logger.Warn("Failed to close request body", "error", err)
 					writeErrorResponse(rw, http.StatusInternalServerError, fmt.Sprintf("unexpected error %v", err))
 					return
 				}
@@ -315,11 +315,11 @@ func doGraphiteRequest[T any](ctx context.Context, dsInfo *datasourceInfo, logge
 	_, span := tracing.DefaultTracer().Start(ctx, "graphite request")
 	defer span.End()
 	span.SetAttributes(
-		attribute.Int64("datasource_id", dsInfo.Id),
+		attribute.Int64("datasourceID", dsInfo.Id),
 	)
 	res, err := dsInfo.HTTPClient.Do(req)
 	if res != nil {
-		span.SetAttributes(attribute.Int("graphite.response.code", res.StatusCode))
+		span.SetAttributes(attribute.Int("graphiteResponseCode", res.StatusCode))
 	}
 	if err != nil {
 		span.RecordError(err)
@@ -329,7 +329,7 @@ func doGraphiteRequest[T any](ctx context.Context, dsInfo *datasourceInfo, logge
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			logger.Warn("Failed to close response body", "err", err)
+			logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -359,7 +359,7 @@ func parseResponse[V any](res *http.Response, isRaw bool, logger log.Logger) (*V
 	}
 
 	if res.StatusCode/100 != 2 {
-		logger.Warn("Request failed", "status", res.Status, "body", string(body))
+		logger.Warn("Request failed", "statusText", res.Status, "responseBody", string(body))
 		return nil, nil, fmt.Errorf("request failed, status: %d", res.StatusCode)
 	}
 

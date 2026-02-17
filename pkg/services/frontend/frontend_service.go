@@ -69,7 +69,7 @@ func ProvideFrontendService(cfg *setting.Cfg, features featuremgmt.FeatureToggle
 	// Initialize Settings Service client if configured
 	var settingsService settingservice.Service
 	if settingsSvc, err := setupSettingsService(cfg, promRegister); err != nil {
-		logger.Error("Settings Service failed to initialize", "err", err)
+		logger.Error("Settings Service failed to initialize", "error", err)
 		return nil, err
 	} else {
 		settingsService = settingsSvc
@@ -109,7 +109,7 @@ func (s *frontendService) running(ctx context.Context) error {
 }
 
 func (s *frontendService) stop(failureReason error) error {
-	s.log.Info("stopping frontend server", "reason", failureReason)
+	s.log.Info("stopping frontend server", "failureReason", failureReason)
 
 	if err := s.httpServ.Shutdown(context.Background()); err != nil {
 		s.log.Error("failed to shutdown frontend server", "error", err)
@@ -119,7 +119,7 @@ func (s *frontendService) stop(failureReason error) error {
 }
 
 func (s *frontendService) newFrontendServer(ctx context.Context) *http.Server {
-	s.log.Info("starting frontend server", "addr", ":"+s.cfg.HTTPPort)
+	s.log.Info("starting frontend server", "listenPort", s.cfg.HTTPPort)
 
 	// Use the same web.Mux as the main grafana server for consistency + middleware reuse
 	handler := web.New()
@@ -204,7 +204,7 @@ func (s *frontendService) handleBootError(w http.ResponseWriter, r *http.Request
 
 	defer func() {
 		if err := r.Body.Close(); err != nil {
-			s.log.Warn("Failed to close response body", "err", err)
+			s.log.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -212,7 +212,7 @@ func (s *frontendService) handleBootError(w http.ResponseWriter, r *http.Request
 	bootErrorMetric.Inc()
 
 	// Log the error details
-	s.log.Error("frontend boot error reported", "error", body)
+	s.log.Error("frontend boot error reported", "errorMessage", string(body))
 
 	// Return success response
 	w.WriteHeader(http.StatusOK)

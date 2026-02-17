@@ -79,7 +79,7 @@ func (c *ContextCommandLine) PluginRepoURL() string {
 		cfg, err := c.Config()
 
 		if err != nil {
-			logger.Debug("Could not parse config file", err)
+			logger.Debug("Could not parse config file", "error", err)
 		} else if cfg.GrafanaComAPIURL != "" {
 			return cfg.GrafanaComAPIURL + "/plugins"
 		}
@@ -101,7 +101,7 @@ func (c *ContextCommandLine) GcomToken() string {
 	cfg, err := c.Config()
 
 	if err != nil {
-		logger.Debug("Could not parse config file", err)
+		logger.Debug("Could not parse config file", "error", err)
 		return ""
 	}
 	return cfg.GrafanaComSSOAPIToken

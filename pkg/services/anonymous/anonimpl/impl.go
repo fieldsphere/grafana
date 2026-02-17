@@ -102,7 +102,7 @@ func (a *AnonDeviceService) tagDeviceUI(ctx context.Context, device *anonstore.D
 	a.localCache.SetDefault(key, true)
 
 	if a.cfg.Env == setting.Dev {
-		a.log.Debug("Tagging device for UI", "deviceID", device.DeviceID, "device", device, "key", key)
+		a.log.Debug("Tagging device for UI", "deviceID", device.DeviceID, "device", device, "cacheKey", key)
 	}
 
 	if err := a.anonStore.CreateOrUpdateDevice(ctx, device); err != nil {
@@ -143,7 +143,7 @@ func (a *AnonDeviceService) TagDevice(ctx context.Context, httpReq *http.Request
 	addr := web.RemoteAddr(httpReq)
 	ip, err := network.GetIPFromAddress(addr)
 	if err != nil {
-		a.log.Debug("Failed to parse ip from address", "addr", addr)
+		a.log.Debug("Failed to parse ip from address", "clientAddress", addr)
 		return nil
 	}
 
@@ -205,7 +205,7 @@ func (a *AnonDeviceService) Run(ctx context.Context) error {
 		case <-ticker.C:
 			err := a.serverLock.LockAndExecute(ctx, "cleanup old anon devices", time.Hour*10, func(context.Context) {
 				if err := a.anonStore.DeleteDevicesOlderThan(ctx, time.Now().Add(-keepFor)); err != nil {
-					a.log.Error("An error occurred while deleting old anon devices", "err", err)
+					a.log.Error("An error occurred while deleting old anon devices", "error", err)
 				}
 			})
 			if err != nil {

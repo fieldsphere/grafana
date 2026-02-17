@@ -15,6 +15,21 @@ import {
   onUseCommunityDashboard,
 } from './communityDashboardHelpers';
 
+var mockLogError: jest.Mock;
+
+jest.mock('@grafana/runtime', () => ({
+  ...jest.requireActual('@grafana/runtime'),
+  createMonitoringLogger: () => {
+    mockLogError = jest.fn();
+    return {
+      logWarning: jest.fn(),
+      logError: mockLogError,
+      logInfo: jest.fn(),
+      logDebug: jest.fn(),
+    };
+  },
+}));
+
 jest.mock('../api/dashboardLibraryApi', () => ({
   fetchCommunityDashboard: jest.fn(),
 }));
@@ -164,8 +179,6 @@ describe('communityDashboardHelpers', () => {
   });
 
   describe('onUseCommunityDashboard', () => {
-    let consoleWarnSpy: jest.SpyInstance;
-    let consoleErrorSpy: jest.SpyInstance;
     let locationServicePushSpy: jest.SpyInstance;
 
     async function setup(options?: {
@@ -204,15 +217,12 @@ describe('communityDashboardHelpers', () => {
     }
 
     beforeEach(() => {
-      consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-      consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+      mockLogError?.mockClear();
       locationServicePushSpy = jest.spyOn(locationService, 'push').mockImplementation();
     });
 
     afterEach(() => {
       jest.clearAllMocks();
-      consoleWarnSpy.mockRestore();
-      consoleErrorSpy.mockRestore();
       locationServicePushSpy.mockRestore();
     });
 
@@ -298,7 +308,6 @@ describe('communityDashboardHelpers', () => {
     });
 
     it('should handle API errors gracefully', async () => {
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       mockFetchCommunityDashboard.mockRejectedValue(new Error('API failed'));
 
       await expect(
@@ -310,10 +319,11 @@ describe('communityDashboardHelpers', () => {
         })
       ).rejects.toThrow('API failed');
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+      expect(mockLogError).toHaveBeenCalledWith(
+        expect.any(Error),
+        expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+      );
       expect(locationServicePushSpy).not.toHaveBeenCalled();
-
-      consoleErrorSpy.mockRestore();
     });
 
     describe('when the dashboard contains JavaScript code', () => {
@@ -327,7 +337,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -352,7 +365,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -386,7 +402,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -413,7 +432,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -439,7 +461,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -460,7 +485,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -481,7 +509,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -502,7 +533,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -522,7 +556,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -542,7 +579,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -562,7 +602,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -583,7 +626,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
 
@@ -604,7 +650,10 @@ describe('communityDashboardHelpers', () => {
           'Community dashboard 123 "Test Dashboard" might contain JavaScript code'
         );
 
-        expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboard:', expect.any(Error));
+        expect(mockLogError).toHaveBeenCalledWith(
+          expect.any(Error),
+          expect.objectContaining({ operation: 'onUseCommunityDashboard' })
+        );
         expect(locationServicePushSpy).not.toHaveBeenCalled();
       });
     });

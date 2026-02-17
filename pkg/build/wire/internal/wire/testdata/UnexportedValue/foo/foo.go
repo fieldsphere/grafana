@@ -14,8 +14,11 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 func main() {
-	fmt.Println(injectedMessage())
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", injectedMessage()))
 }

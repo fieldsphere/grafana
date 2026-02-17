@@ -31,7 +31,7 @@ func (m *keyvalueDB) get(ctx context.Context, gr schema.GroupResource) (status S
 	if ok {
 		err = json.Unmarshal([]byte(val), &status)
 		if err != nil {
-			m.logger.Warn("error reading filedb", "err", err)
+			m.logger.Warn("error reading filedb", "error", err)
 			save = true
 		}
 	}

@@ -1,6 +1,6 @@
 import { DataQuery, locationUtil, setWeekStart, DashboardLoadedEvent, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, isFetchError, locationService } from '@grafana/runtime';
+import { config, createMonitoringLogger, isFetchError, locationService } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { createErrorNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
@@ -41,6 +41,7 @@ import { emitDashboardViewEvent } from './analyticsProcessor';
 import { dashboardInitCompleted, dashboardInitFailed, dashboardInitFetching, dashboardInitServices } from './reducers';
 
 const INIT_DASHBOARD_MEASUREMENT = 'initDashboard';
+const logger = createMonitoringLogger('features.dashboard.init');
 
 export interface InitDashboardArgs {
   urlUid?: string;
@@ -109,7 +110,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            logger.logDebug('Dashboard URL mismatch corrected', { dashboardUrl, currentPath });
           }
         }
         return dashDTO;
@@ -138,7 +139,15 @@ async function fetchDashboard(
         error: err,
       })
     );
-    console.error(err);
+    if (err instanceof Error) {
+      logger.logError(err, { operation: 'fetchDashboard', routeName: args.routeName });
+    } else {
+      logger.logWarning('Failed to fetch dashboard', {
+        operation: 'fetchDashboard',
+        routeName: args.routeName,
+        error: String(err),
+      });
+    }
     return null;
   }
 }
@@ -206,7 +215,15 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
           error: err,
         })
       );
-      console.error(err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'createDashboardModel', dashboardUid: dashDTO.dashboard.uid });
+      } else {
+        logger.logWarning('Failed to create dashboard model', {
+          operation: 'createDashboardModel',
+          dashboardUid: dashDTO.dashboard.uid,
+          error: String(err),
+        });
+      }
       return;
     }
 
@@ -263,8 +280,14 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
     } catch (err) {
       if (err instanceof Error) {
         dispatch(notifyApp(createErrorNotification('Dashboard init failed', err)));
+        logger.logError(err, { operation: 'initDashboardServices', dashboardUid: dashboard.uid });
+      } else {
+        logger.logWarning('Dashboard init failed', {
+          operation: 'initDashboardServices',
+          dashboardUid: dashboard.uid,
+          error: String(err),
+        });
       }
-      console.error(err);
     }
 
     // send open dashboard event

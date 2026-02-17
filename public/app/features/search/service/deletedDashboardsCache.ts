@@ -2,9 +2,12 @@ import { isResourceList } from 'app/features/apiserver/guards';
 import { ResourceList } from 'app/features/apiserver/types';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
 import { DashboardDataDTO } from 'app/types/dashboard';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { SearchHit } from './unified';
 import { resourceToSearchResult } from './utils';
+
+const logger = createMonitoringLogger('features.search.deleted-dashboards-cache');
 
 /**
  * Store deleted dashboards in the cache to avoid multiple calls to the API.
@@ -79,7 +82,14 @@ class DeletedDashboardsCache {
         items: [],
       };
     } catch (error) {
-      console.error('Failed to fetch deleted dashboards:', error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'fetchResourceList' });
+      } else {
+        logger.logWarning('Failed to fetch deleted dashboards', {
+          operation: 'fetchResourceList',
+          error: String(error),
+        });
+      }
       return {
         apiVersion: 'v1',
         kind: 'List',

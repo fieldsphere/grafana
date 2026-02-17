@@ -5,7 +5,7 @@ import * as React from 'react';
 import { FixedSizeList } from 'react-window';
 
 import { CoreApp, GrafanaTheme2, TimeRange } from '@grafana/data';
-import { reportInteraction } from '@grafana/runtime';
+import { createMonitoringLogger, reportInteraction } from '@grafana/runtime';
 import {
   Button,
   HighlightPart,
@@ -27,6 +27,7 @@ const MAX_VALUE_COUNT = 10000;
 const MAX_AUTO_SELECT = 4;
 const EMPTY_SELECTOR = '{}';
 const collator = new Intl.Collator('en', { sensitivity: 'accent' });
+const logger = createMonitoringLogger('plugins.datasource.loki.label-browser');
 
 export interface BrowserProps {
   languageProvider: LokiLanguageProvider;
@@ -376,7 +377,15 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
       const values: FacettableValue[] = rawValues.map((value) => ({ name: value }));
       this.updateLabelState(name, { values, loading: false });
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'fetchValues', labelName: name });
+      } else {
+        logger.logWarning('Failed to fetch label values', {
+          operation: 'fetchValues',
+          labelName: name,
+          error: String(error),
+        });
+      }
     }
   }
 
@@ -404,7 +413,15 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
         this.updateLabelState(lastFacetted, { loading: false });
       }
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'fetchSeries', selector });
+      } else {
+        logger.logWarning('Failed to fetch series labels', {
+          operation: 'fetchSeries',
+          selector,
+          error: String(error),
+        });
+      }
     }
   }
 

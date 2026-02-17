@@ -14,12 +14,15 @@
 
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+)
 
 func main() {
-	fmt.Println(injectMissingOutputType())
-	fmt.Println(injectMultipleMissingTypes())
-	fmt.Println(injectMissingRecursiveType())
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", injectMissingOutputType()))
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", injectMultipleMissingTypes()))
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", injectMissingRecursiveType()))
 }
 
 type Foo int

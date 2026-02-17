@@ -79,10 +79,10 @@ func (s *LocalSource) Discover(_ context.Context) ([]*plugins.FoundBundle, error
 	for _, path := range s.paths {
 		if _, err := os.Stat(path); err != nil {
 			if os.IsNotExist(err) {
-				s.log.Warn("Skipping finding plugins as directory does not exist", "path", path)
+				s.log.Warn("Skipping finding plugins as directory does not exist", "directoryPath", path)
 				continue
 			}
-			s.log.Warn("Skipping finding plugins as an error occurred", "path", path, "error", err)
+			s.log.Warn("Skipping finding plugins as an error occurred", "directoryPath", path, "error", err)
 			continue
 		}
 
@@ -98,13 +98,13 @@ func (s *LocalSource) Discover(_ context.Context) ([]*plugins.FoundBundle, error
 	for _, pluginJSONPath := range pluginJSONPaths {
 		plugin, err := s.readPluginJSON(pluginJSONPath)
 		if err != nil {
-			s.log.Warn("Skipping plugin loading as its plugin.json could not be read", "path", pluginJSONPath, "error", err)
+			s.log.Warn("Skipping plugin loading as its plugin.json could not be read", "pluginJSONPath", pluginJSONPath, "error", err)
 			continue
 		}
 
 		pluginJSONAbsPath, err := filepath.Abs(pluginJSONPath)
 		if err != nil {
-			s.log.Warn("Skipping plugin loading as absolute plugin.json path could not be calculated", "pluginId", plugin.ID, "error", err)
+			s.log.Warn("Skipping plugin loading as absolute plugin.json path could not be calculated", "pluginID", plugin.ID, "error", err)
 			continue
 		}
 
@@ -143,12 +143,12 @@ func (s *LocalSource) Discover(_ context.Context) ([]*plugins.FoundBundle, error
 
 			relPath, err := filepath.Rel(dir, dir2)
 			if err != nil {
-				s.log.Error("Cannot calculate relative path. Skipping", "pluginId", p2.Primary.JSONData.ID, "err", err)
+				s.log.Error("Cannot calculate relative path. Skipping", "pluginID", p2.Primary.JSONData.ID, "error", err)
 				continue
 			}
 			if !strings.Contains(relPath, "..") {
 				child := p2.Primary
-				s.log.Debug("Adding child", "parent", p.Primary.JSONData.ID, "child", child.JSONData.ID, "relPath", relPath)
+				s.log.Debug("Adding child", "parentPluginID", p.Primary.JSONData.ID, "childPluginID", child.JSONData.ID, "relPath", relPath)
 				p.Children = append(p.Children, &child)
 				childPlugins[dir2] = struct{}{}
 			}
@@ -173,16 +173,16 @@ func (s *LocalSource) readPluginJSON(pluginJSONPath string) (plugins.JSONData, e
 			return
 		}
 		if err = reader.Close(); err != nil {
-			s.log.Warn("Failed to close plugin JSON file", "path", pluginJSONPath, "error", err)
+			s.log.Warn("Failed to close plugin JSON file", "pluginJSONPath", pluginJSONPath, "error", err)
 		}
 	}()
 	if err != nil {
-		s.log.Warn("Skipping plugin loading as its plugin.json could not be read", "path", pluginJSONPath, "error", err)
+		s.log.Warn("Skipping plugin loading as its plugin.json could not be read", "pluginJSONPath", pluginJSONPath, "error", err)
 		return plugins.JSONData{}, err
 	}
 	plugin, err := plugins.ReadPluginJSON(reader)
 	if err != nil {
-		s.log.Warn("Skipping plugin loading as its plugin.json could not be read", "path", pluginJSONPath, "error", err)
+		s.log.Warn("Skipping plugin loading as its plugin.json could not be read", "pluginJSONPath", pluginJSONPath, "error", err)
 		return plugins.JSONData{}, err
 	}
 
@@ -235,7 +235,7 @@ func (s *LocalSource) getAbsPluginJSONPaths(path string) ([]string, error) {
 }
 
 func (s *LocalSource) readFile(pluginJSONPath string) (io.ReadCloser, error) {
-	s.log.Debug("Loading plugin", "path", pluginJSONPath)
+	s.log.Debug("Loading plugin", "pluginJSONPath", pluginJSONPath)
 
 	if !strings.EqualFold(filepath.Ext(pluginJSONPath), ".json") {
 		return nil, ErrInvalidPluginJSONFilePath

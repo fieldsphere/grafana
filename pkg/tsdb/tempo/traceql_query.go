@@ -176,7 +176,7 @@ func (s *Service) createMetricsQuery(ctx context.Context, dsInfo *DatasourceInfo
 	rawUrl := fmt.Sprintf("%s/api/metrics/%s", dsInfo.URL, queryType)
 	searchUrl, err := url.Parse(rawUrl)
 	if err != nil {
-		ctxLogger.Error("Failed to parse URL", "url", rawUrl, "error", err, "function", logEntrypoint())
+		ctxLogger.Error("Failed to parse URL", "requestURL", rawUrl, "error", err, "function", logEntrypoint())
 		return nil, err
 	}
 

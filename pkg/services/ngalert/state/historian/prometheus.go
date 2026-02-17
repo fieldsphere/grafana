@@ -138,7 +138,7 @@ func (b *RemotePrometheusBackend) Record(ctx context.Context, rule history_model
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				logger.Error("Panic in prometheus historian", "error", r)
+				logger.Error("Panic in prometheus historian", "panicValue", r)
 				errCh <- fmt.Errorf("prometheus historian panic: %v", r)
 			}
 			close(errCh)
@@ -198,13 +198,13 @@ func (b *RemotePrometheusBackend) framesFor(ctx context.Context, rule history_mo
 		labels[grafanaAlertStateLabel] = sample.grafanaState
 
 		logger.Debug("Creating metric with labels",
-			"rule_uid", t.AlertRuleUID,
-			"previous_state", t.PreviousState,
-			"current_state", t.State.State,
-			"last_evaluation_time", t.LastEvaluationTime,
-			"rule_title", rule.Title,
+			"ruleUID", t.AlertRuleUID,
+			"previousState", t.PreviousState,
+			"currentState", t.State.State,
+			"lastEvaluationTime", t.LastEvaluationTime,
+			"ruleTitle", rule.Title,
 			"labels", labels,
-			"value", sample.value,
+			"sampleValue", sample.value,
 		)
 
 		field := data.NewField("", labels, []float64{sample.value})

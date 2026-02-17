@@ -82,7 +82,7 @@ func newBackendProcessStarter(processManager process.Manager) *BackendClientStar
 // Start will start the backend plugin process.
 func (b *BackendClientStarter) Start(ctx context.Context, p *plugins.Plugin) (*plugins.Plugin, error) {
 	if err := b.processManager.Start(ctx, p); err != nil {
-		b.log.Error("Could not start plugin backend", "pluginId", p.ID, "error", err)
+		b.log.Error("Could not start plugin backend", "pluginID", p.ID, "error", err)
 		return nil, (&plugins.Error{
 			PluginID:  p.ID,
 			ErrorCode: plugins.ErrorCodeFailedBackendStart,
@@ -112,11 +112,11 @@ func newPluginRegistration(pluginRegistry registry.Service) *PluginRegistration 
 // Initialize registers the plugin with the plugin registry.
 func (r *PluginRegistration) Initialize(ctx context.Context, p *plugins.Plugin) (*plugins.Plugin, error) {
 	if err := r.pluginRegistry.Add(ctx, p); err != nil {
-		r.log.Error("Could not register plugin", "pluginId", p.ID, "error", err)
+		r.log.Error("Could not register plugin", "pluginID", p.ID, "error", err)
 		return nil, err
 	}
 	if !p.IsCorePlugin() {
-		r.log.Info("Plugin registered", "pluginId", p.ID)
+		r.log.Info("Plugin registered", "pluginID", p.ID)
 	}
 
 	return p, nil

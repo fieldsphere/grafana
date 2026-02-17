@@ -92,7 +92,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterResourcePermissionCreate(obj r
 		if err != nil {
 			status = "failure"
 			b.logger.Error("failed to write resource permission to zanzana",
-				"err", err,
+				"error", err,
 				"namespace", rp.Namespace,
 				"resource", resource,
 				"operationsCount", len(operations),
@@ -233,7 +233,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginResourcePermissionUpdate(ctx c
 				if err != nil {
 					status = "failure"
 					b.logger.Error("failed to update resource permission in zanzana",
-						"err", err,
+						"error", err,
 						"namespace", newRP.Namespace,
 					)
 				} else {
@@ -330,7 +330,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterResourcePermissionDelete(obj r
 		if err != nil {
 			status = "failure"
 			b.logger.Error("failed to delete resource permission from zanzana",
-				"err", err,
+				"error", err,
 				"namespace", rp.Namespace,
 				"resource", resource,
 				"operationsCount", len(deleteOperations),

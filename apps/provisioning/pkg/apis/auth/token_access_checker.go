@@ -50,7 +50,7 @@ func (c *tokenAccessChecker) Check(ctx context.Context, req authlib.CheckRequest
 		"resource", req.Resource,
 		"verb", req.Verb,
 		"group", req.Group,
-		"name", req.Name,
+		"resourceName", req.Name,
 		"folder", folder,
 	)
 
@@ -69,7 +69,7 @@ func (c *tokenAccessChecker) Check(ctx context.Context, req authlib.CheckRequest
 		logger.Debug("access check error",
 			"resource", req.Resource,
 			"verb", req.Verb,
-			"error", err.Error(),
+			"error", err,
 		)
 		return apierrors.NewForbidden(gr, req.Name, fmt.Errorf("%s.%s is forbidden: %w", req.Resource, req.Group, err))
 	}

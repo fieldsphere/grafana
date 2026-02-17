@@ -76,7 +76,7 @@ func (s *Service) runMetricsStream(ctx context.Context, req *backend.RunStreamRe
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
-			s.logger.Error("Error Search()", "err", err)
+			s.logger.Error("Error Search()", "error", err)
 			if backend.IsDownstreamHTTPError(err) {
 				return backend.DownstreamError(err)
 			}
@@ -90,7 +90,7 @@ func (s *Service) runMetricsStream(ctx context.Context, req *backend.RunStreamRe
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		s.logger.Error("Error Search()", "err", err)
+		s.logger.Error("Error Search()", "error", err)
 		if backend.IsDownstreamHTTPError(err) {
 			return backend.DownstreamError(err)
 		}
@@ -107,7 +107,7 @@ func (s *Service) processMetricsStream(ctx context.Context, query string, stream
 	for {
 		msg, err := stream.Recv()
 		messageCount++
-		span.SetAttributes(attribute.Int("message_count", messageCount))
+		span.SetAttributes(attribute.Int("messageCount", messageCount))
 		if errors.Is(err, io.EOF) {
 			if err := s.sendResponse(ctx, nil, nil, dataquery.SearchStreamingStateDone, sender); err != nil {
 				span.RecordError(err)
@@ -117,7 +117,7 @@ func (s *Service) processMetricsStream(ctx context.Context, query string, stream
 			break
 		}
 		if err != nil {
-			s.logger.Error("Error receiving message", "err", err)
+			s.logger.Error("Error receiving message", "error", err)
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
 			return err
@@ -142,7 +142,7 @@ func (s *Service) processInstantMetricsStream(ctx context.Context, stream tempop
 	for {
 		msg, err := stream.Recv()
 		messageCount++
-		span.SetAttributes(attribute.Int("message_count", messageCount))
+		span.SetAttributes(attribute.Int("messageCount", messageCount))
 		if errors.Is(err, io.EOF) {
 			if err := s.sendResponse(ctx, nil, nil, dataquery.SearchStreamingStateDone, sender); err != nil {
 				span.RecordError(err)
@@ -152,7 +152,7 @@ func (s *Service) processInstantMetricsStream(ctx context.Context, stream tempop
 			break
 		}
 		if err != nil {
-			s.logger.Error("Error receiving message", "err", err)
+			s.logger.Error("Error receiving message", "error", err)
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
 			return err

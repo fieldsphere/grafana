@@ -192,7 +192,7 @@ func (s *standardStorageService) doDelete(c *contextmodel.ReqContext) response.R
 
 	err := s.Delete(c.Req.Context(), c.SignedInUser, scope+"/"+path)
 	if err != nil {
-		return response.Error(http.StatusBadRequest, "failed to delete the file: "+err.Error(), err)
+		return response.Error(http.StatusBadRequest, "failed to delete the file", err)
 	}
 	return response.JSON(http.StatusOK, map[string]any{
 		"message": "Removed file from storage",
@@ -220,7 +220,7 @@ func (s *standardStorageService) doDeleteFolder(c *contextmodel.ReqContext) resp
 	// full path is api/storage/delete/upload/example.jpg, but we only want the part after upload
 	_, path := getPathAndScope(c)
 	if err := s.DeleteFolder(c.Req.Context(), c.SignedInUser, cmd); err != nil {
-		return response.Error(http.StatusBadRequest, "failed to delete the folder: "+err.Error(), err)
+		return response.Error(http.StatusBadRequest, "failed to delete the folder", err)
 	}
 
 	return response.JSON(http.StatusOK, map[string]any{
@@ -247,7 +247,7 @@ func (s *standardStorageService) doCreateFolder(c *contextmodel.ReqContext) resp
 	}
 
 	if err := s.CreateFolder(c.Req.Context(), c.SignedInUser, cmd); err != nil {
-		return response.Error(http.StatusBadRequest, "failed to create the folder: "+err.Error(), err)
+		return response.Error(http.StatusBadRequest, "failed to create the folder", err)
 	}
 
 	return response.JSON(http.StatusOK, map[string]any{

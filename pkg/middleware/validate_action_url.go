@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gobwas/glob"
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/services/contexthandler"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
@@ -36,7 +35,7 @@ func ValidateActionUrl(cfg *setting.Cfg, logger log.Logger) func(http.Handler) h
 	// get the urls allowed from server config
 	allGlobs, globErr := cacheGlobs(cfg.ActionsAllowPostURL)
 	if globErr != nil {
-		logger.Error("invalid glob settings in config section [security] actions_allow_post_url", "url", cfg.ActionsAllowPostURL)
+		logger.Error("invalid glob settings in config section [security] actions_allow_post_url", "allowlistURLPatterns", cfg.ActionsAllowPostURL)
 	}
 
 	return func(next http.Handler) http.Handler {
@@ -81,10 +80,10 @@ func check(ctx *contextmodel.ReqContext, allGlobs *[]glob.Glob, logger log.Logge
 	// if matches glob
 	// return nil
 	urlToCheck := ctx.Req.URL
-	if matchesAllowedPath(allGlobs, urlToCheck.Path) {
+	if matchesAllowedPath(allGlobs, urlToCheck.Path, logger) {
 		return nil
 	}
-	logger.Warn("POST/PUT to path not allowed", "url", urlToCheck)
+	logger.Warn("POST/PUT to path not allowed", "requestURL", urlToCheck)
 	// return some error
 	return &errorWithStatus{
 		Underlying: fmt.Errorf("method POST/PUT not allowed for path %s", urlToCheck),
@@ -92,13 +91,13 @@ func check(ctx *contextmodel.ReqContext, allGlobs *[]glob.Glob, logger log.Logge
 	}
 }
 
-func matchesAllowedPath(allGlobs *[]glob.Glob, pathToCheck string) bool {
-	logger.Debug("Checking url", "actions", pathToCheck)
+func matchesAllowedPath(allGlobs *[]glob.Glob, pathToCheck string, logger log.Logger) bool {
+	logger.Debug("Checking action URL allowlist", "requestPath", pathToCheck)
 	for _, rule := range *allGlobs {
-		logger.Debug("Checking match", "actions", rule)
+		logger.Debug("Checking action URL allowlist rule", "requestPath", pathToCheck, "allowlistRule", rule)
 		if rule.Match(pathToCheck) {
 			// allowed
-			logger.Debug("POST/PUT call matches allow configuration settings")
+			logger.Debug("POST/PUT call matches allow configuration settings", "requestPath", pathToCheck)
 			return true
 		}
 	}

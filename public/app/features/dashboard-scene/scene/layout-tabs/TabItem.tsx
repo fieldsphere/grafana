@@ -2,7 +2,7 @@ import React from 'react';
 
 import { store } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { logWarning } from '@grafana/runtime';
+import { createMonitoringLogger, logWarning } from '@grafana/runtime';
 import {
   SceneObjectState,
   SceneObjectBase,
@@ -43,6 +43,8 @@ import { useEditOptions } from './TabItemEditor';
 import { TabItemRenderer } from './TabItemRenderer';
 import { TabItems } from './TabItems';
 import { TabsLayoutManager } from './TabsLayoutManager';
+
+const logger = createMonitoringLogger('features.dashboard-scene.tab-item');
 
 export interface TabItemState extends SceneObjectState {
   layout: DashboardLayoutManager;
@@ -220,9 +222,8 @@ export class TabItem
         const newChildren = layout.state.children.filter((child) => child !== gridItem);
         layout.setState({ children: newChildren });
       } else {
-        const warningMessage = 'Grid item has unexpected parent type';
-        console.warn(warningMessage);
-        logWarning(warningMessage);
+        logger.logWarning('Grid item has unexpected parent type');
+        logWarning('Grid item has unexpected parent type');
       }
     }
     this.setIsDropTarget(false);
@@ -242,15 +243,13 @@ export class TabItem
         if (isDashboardLayoutGrid(rowLayout)) {
           rowLayout.addGridItem(gridItem);
         } else {
-          const warningMessage = 'First row layout does not support addGridItem';
-          console.warn(warningMessage);
-          logWarning(warningMessage);
+          logger.logWarning('First row layout does not support addGridItem');
+          logWarning('First row layout does not support addGridItem');
         }
       }
     } else {
-      const warningMessage = 'Layout manager does not support addGridItem';
-      console.warn(warningMessage);
-      logWarning(warningMessage);
+      logger.logWarning('Layout manager does not support addGridItem');
+      logWarning('Layout manager does not support addGridItem');
     }
     this.setIsDropTarget(false);
 

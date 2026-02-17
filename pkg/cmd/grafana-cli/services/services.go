@@ -78,7 +78,7 @@ func GetLocalPlugin(pluginDir, pluginID string) (plugins.FoundPlugin, error) {
 func GetLocalPlugins(pluginDir string) []*plugins.FoundBundle {
 	res, err := sources.NewLocalSource(plugins.ClassExternal, []string{pluginDir}).Discover(context.Background())
 	if err != nil {
-		logger.Error("Could not get local plugins", err)
+		logger.Error("Could not get local plugins", "error", err)
 		return make([]*plugins.FoundBundle, 0)
 	}
 

@@ -1,6 +1,7 @@
 import memoizeOne from 'memoize-one';
 import { useEffect, useState } from 'react';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Spec as DashboardV2Spec } from '@grafana/schema/dist/esm/schema/dashboard/v2';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
 import { DashboardWithAccessInfo } from 'app/features/dashboard/api/types';
@@ -10,6 +11,7 @@ import { DashboardDTO } from 'app/types/dashboard';
 import { DashboardModel } from '../../../../dashboard/state/DashboardModel';
 
 export type DashboardResponse = DashboardDTO | DashboardWithAccessInfo<DashboardV2Spec>;
+const logger = createMonitoringLogger('features.alerting.use-dashboard-query');
 
 const ensureV1PanelsHaveIds = memoizeOne((dashboardDTO: DashboardDTO): DashboardResponse => {
   // RTKQuery freezes all returned objects. DashboardModel constructor runs migrations which might change the internal object
@@ -36,7 +38,7 @@ export function useDashboardQuery(dashboardUid?: string) {
           } else if (isDashboardV2Resource(dashboardDTO)) {
             setDashboard(dashboardDTO);
           } else {
-            console.error('Something went wrong, unexpected dashboard format');
+            logger.logWarning('Something went wrong, unexpected dashboard format', { dashboardUid });
           }
           setIsFetching(false);
         });

@@ -17,7 +17,7 @@ func (h *PluginHandler) AdmissionMutationHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		span := tracing.SpanFromContext(ctx)
-		span.AddEvent("AdmissionMutationHandler")
+		span.AddEvent("admissionMutationHandler")
 		responder := &util.Responder{ResponseWriter: w}
 		ar, err := admission.ParseRequest(h.admissionCodecs, r)
 		if err != nil {
@@ -25,7 +25,7 @@ func (h *PluginHandler) AdmissionMutationHandler() http.Handler {
 			return
 		}
 
-		span.AddEvent("GetPluginContext",
+		span.AddEvent("getPluginContext",
 			grafanasemconv.GrafanaPluginId(h.dataplaneService.Spec.PluginID),
 		)
 		pluginContext, err := h.pluginContextProvider.GetPluginContext(ctx, h.dataplaneService.Spec.PluginID, "")
@@ -41,15 +41,15 @@ func (h *PluginHandler) AdmissionMutationHandler() http.Handler {
 		}
 
 		ctx = backend.WithGrafanaConfig(ctx, pluginContext.GrafanaConfig)
-		span.AddEvent("MutateAdmission start")
+		span.AddEvent("mutateAdmissionStart")
 		rsp, err := h.client.MutateAdmission(ctx, req)
 		if err != nil {
 			responder.Error(w, r, err)
 			return
 		}
-		span.AddEvent("MutateAdmission end")
+		span.AddEvent("mutateAdmissionEnd")
 
-		span.AddEvent("FromMutationResponse start")
+		span.AddEvent("fromMutationResponseStart")
 		res, err := admission.FromMutationResponse(ar.Request.Object.Raw, rsp)
 		if err != nil {
 			responder.Error(w, r, err)
@@ -60,14 +60,14 @@ func (h *PluginHandler) AdmissionMutationHandler() http.Handler {
 
 		respBytes, err := json.Marshal(res)
 		if err != nil {
-			klog.Error(err)
+			klog.ErrorS(err, "Failed to marshal admission mutation response")
 			responder.Error(w, r, err)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		if _, err := w.Write(respBytes); err != nil {
-			klog.Error(err)
+			klog.ErrorS(err, "Failed to write admission mutation response")
 		}
 	})
 }
@@ -76,7 +76,7 @@ func (h *PluginHandler) AdmissionValidationHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 		span := tracing.SpanFromContext(ctx)
-		span.AddEvent("AdmissionValidationHandler")
+		span.AddEvent("admissionValidationHandler")
 		responder := &util.Responder{ResponseWriter: w}
 		ar, err := admission.ParseRequest(h.admissionCodecs, r)
 		if err != nil {
@@ -84,7 +84,7 @@ func (h *PluginHandler) AdmissionValidationHandler() http.Handler {
 			return
 		}
 
-		span.AddEvent("GetPluginContext",
+		span.AddEvent("getPluginContext",
 			grafanasemconv.GrafanaPluginId(h.dataplaneService.Spec.PluginID),
 		)
 		pluginContext, err := h.pluginContextProvider.GetPluginContext(ctx, h.dataplaneService.Spec.PluginID, "")
@@ -100,13 +100,13 @@ func (h *PluginHandler) AdmissionValidationHandler() http.Handler {
 		}
 
 		ctx = backend.WithGrafanaConfig(ctx, pluginContext.GrafanaConfig)
-		span.AddEvent("ValidateAdmission start")
+		span.AddEvent("validateAdmissionStart")
 		rsp, err := h.client.ValidateAdmission(ctx, req)
 		if err != nil {
 			responder.Error(w, r, err)
 			return
 		}
-		span.AddEvent("ValidateAdmission end")
+		span.AddEvent("validateAdmissionEnd")
 
 		res := admission.FromValidationResponse(rsp)
 		res.SetGroupVersionKind(ar.GroupVersionKind())
@@ -114,14 +114,14 @@ func (h *PluginHandler) AdmissionValidationHandler() http.Handler {
 
 		respBytes, err := json.Marshal(res)
 		if err != nil {
-			klog.Error(err)
+			klog.ErrorS(err, "Failed to marshal admission validation response")
 			responder.Error(w, r, err)
 			return
 		}
 
 		w.Header().Set("Content-Type", "application/json")
 		if _, err := w.Write(respBytes); err != nil {
-			klog.Error(err)
+			klog.ErrorS(err, "Failed to write admission validation response")
 		}
 	})
 }

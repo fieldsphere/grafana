@@ -52,7 +52,7 @@ func (c *gmsClientImpl) ValidateKey(ctx context.Context, cm cloudmigration.Cloud
 	// validation is an empty POST to GMS with the authorization header included
 	req, err := http.NewRequestWithContext(ctx, "POST", path, bytes.NewReader(nil))
 	if err != nil {
-		c.log.Error("error creating http request for token validation", "err", err.Error())
+		c.log.Error("error creating http request for token validation", "error", err)
 		return cloudmigration.ErrTokenRequestError.Errorf("create http request error")
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -60,12 +60,12 @@ func (c *gmsClientImpl) ValidateKey(ctx context.Context, cm cloudmigration.Cloud
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		c.log.Error("error sending http request for token validation", "err", err.Error())
+		c.log.Error("error sending http request for token validation", "error", err)
 		return cloudmigration.ErrTokenRequestError.Errorf("send http request error")
 	}
 	defer func() {
 		if closeErr := resp.Body.Close(); closeErr != nil {
-			c.log.Error("error closing the request body", "err", err.Error())
+			c.log.Error("error closing the request body", "error", closeErr)
 			err = errors.Join(err, cloudmigration.ErrTokenRequestError.Errorf("closing response body"))
 		}
 	}()
@@ -93,7 +93,7 @@ func (c *gmsClientImpl) StartSnapshot(ctx context.Context, session cloudmigratio
 	// Send the request to cms with the associated auth token
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, path, nil)
 	if err != nil {
-		c.log.Error("error creating http request to start snapshot", "err", err.Error())
+		c.log.Error("error creating http request to start snapshot", "error", err)
 		return nil, fmt.Errorf("http request error: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -101,7 +101,7 @@ func (c *gmsClientImpl) StartSnapshot(ctx context.Context, session cloudmigratio
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		c.log.Error("error sending http request to start snapshot", "err", err.Error())
+		c.log.Error("error sending http request to start snapshot", "error", err)
 		return nil, fmt.Errorf("http request error: %w", err)
 	} else if resp.StatusCode >= 400 {
 		c.log.Error("received error response for start snapshot", "statusCode", resp.StatusCode)
@@ -132,7 +132,7 @@ func (c *gmsClientImpl) GetSnapshotStatus(ctx context.Context, session cloudmigr
 
 	path, err := c.buildURL(session.ClusterSlug, fmt.Sprintf("/api/v1/snapshots/%s/status?offset=%d", snapshot.GMSSnapshotUID, offset))
 	if err != nil {
-		c.log.Error("error parsing snapshot status url", "err", err.Error())
+		c.log.Error("error parsing snapshot status url", "error", err)
 		return nil, err
 	}
 
@@ -142,7 +142,7 @@ func (c *gmsClientImpl) GetSnapshotStatus(ctx context.Context, session cloudmigr
 	// Send the request to gms with the associated auth token
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, path, nil)
 	if err != nil {
-		c.log.Error("error creating http request to get snapshot status", "err", err.Error())
+		c.log.Error("error creating http request to get snapshot status", "error", err)
 		return nil, fmt.Errorf("http request error: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -151,7 +151,7 @@ func (c *gmsClientImpl) GetSnapshotStatus(ctx context.Context, session cloudmigr
 	c.getStatusLastQueried = time.Now()
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		c.log.Error("error sending http request to get snapshot status", "err", err.Error())
+		c.log.Error("error sending http request to get snapshot status", "error", err)
 		return nil, fmt.Errorf("http request error: %w", err)
 	} else if resp.StatusCode >= 400 {
 		c.log.Error("received error response for get snapshot status", "statusCode", resp.StatusCode)
@@ -164,13 +164,13 @@ func (c *gmsClientImpl) GetSnapshotStatus(ctx context.Context, session cloudmigr
 
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			c.log.Error("closing request body", "err", err.Error())
+			c.log.Error("closing request body", "error", err)
 		}
 	}()
 
 	var result cloudmigration.GetSnapshotStatusResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		c.log.Error("unmarshalling response body", "err", err.Error())
+		c.log.Error("unmarshalling response body", "error", err)
 		return nil, fmt.Errorf("unmarshalling get snapshot status response: %w", err)
 	}
 
@@ -180,7 +180,7 @@ func (c *gmsClientImpl) GetSnapshotStatus(ctx context.Context, session cloudmigr
 func (c *gmsClientImpl) CreatePresignedUploadUrl(ctx context.Context, session cloudmigration.CloudMigrationSession, snapshot cloudmigration.CloudMigrationSnapshot) (string, error) {
 	path, err := c.buildURL(session.ClusterSlug, fmt.Sprintf("/api/v1/snapshots/%s/create-upload-url", snapshot.GMSSnapshotUID))
 	if err != nil {
-		c.log.Error("error parsing upload url", "err", err.Error())
+		c.log.Error("error parsing upload url", "error", err)
 		return "", err
 	}
 
@@ -190,7 +190,7 @@ func (c *gmsClientImpl) CreatePresignedUploadUrl(ctx context.Context, session cl
 	// Send the request to gms with the associated auth token
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, path, nil)
 	if err != nil {
-		c.log.Error("error creating http request to create upload url", "err", err.Error())
+		c.log.Error("error creating http request to create upload url", "error", err)
 		return "", fmt.Errorf("http request error: %w", err)
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -198,7 +198,7 @@ func (c *gmsClientImpl) CreatePresignedUploadUrl(ctx context.Context, session cl
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		c.log.Error("error sending http request to create an upload url", "err", err.Error())
+		c.log.Error("error sending http request to create an upload url", "error", err)
 		return "", fmt.Errorf("http request error: %w", err)
 	} else if resp.StatusCode >= 400 {
 		c.log.Error("received error response to create an upload url", "statusCode", resp.StatusCode)
@@ -211,13 +211,13 @@ func (c *gmsClientImpl) CreatePresignedUploadUrl(ctx context.Context, session cl
 
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			c.log.Error("closing request body", "err", err.Error())
+			c.log.Error("closing request body", "error", err)
 		}
 	}()
 
 	var result CreateSnapshotUploadUrlResponseDTO
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		c.log.Error("unmarshalling response body", "err", err.Error())
+		c.log.Error("unmarshalling response body", "error", err)
 		return "", fmt.Errorf("unmarshalling create upload url response: %w", err)
 	}
 
@@ -234,19 +234,19 @@ func (c *gmsClientImpl) ReportEvent(ctx context.Context, session cloudmigration.
 
 	path, err := c.buildURL(session.ClusterSlug, "/api/v1/events")
 	if err != nil {
-		c.log.Error("parsing events url", "err", err.Error())
+		c.log.Error("parsing events url", "error", err)
 		return
 	}
 
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(event); err != nil {
-		c.log.Error("encoding event", "err", err.Error())
+		c.log.Error("encoding event", "error", err)
 		return
 	}
 	// Send the request to gms with the associated auth token
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, path, &buf)
 	if err != nil {
-		c.log.Error("error creating http request to report event", "err", err.Error())
+		c.log.Error("error creating http request to report event", "error", err)
 		return
 	}
 	req.Header.Set("Content-Type", "application/json")
@@ -254,22 +254,22 @@ func (c *gmsClientImpl) ReportEvent(ctx context.Context, session cloudmigration.
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		c.log.Error("error sending http request for report event", "err", err.Error())
+		c.log.Error("error sending http request for report event", "error", err)
 		return
 	} else if resp.StatusCode >= 400 {
-		c.log.Error("received error response for report event", "type", event.Event, "statusCode", resp.StatusCode)
+		c.log.Error("received error response for report event", "eventType", event.Event, "statusCode", resp.StatusCode)
 		body, err := io.ReadAll(resp.Body)
 		if err != nil {
-			c.log.Error("reading request body", "err", err.Error())
+			c.log.Error("reading request body", "error", err)
 			return
 		}
-		c.log.Error("http request error", "body", string(body))
+		c.log.Error("http request error", "responseBody", string(body))
 		return
 	}
 
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			c.log.Error("closing request body", "err", err.Error())
+			c.log.Error("closing request body", "error", err)
 		}
 	}()
 }

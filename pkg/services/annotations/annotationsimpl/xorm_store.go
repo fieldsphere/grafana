@@ -223,16 +223,16 @@ func (r *xormRepositoryImpl) update(ctx context.Context, item *annotations.Item)
 		existing.Text = item.Text
 
 		if item.Epoch != 0 {
-			r.log.Info("updating epoch for annotation", "id", item.ID, "orgId", item.OrgID, "oldEpoch", existing.Epoch, "newEpoch", item.Epoch)
+			r.log.Info("updating epoch for annotation", "annotationID", item.ID, "orgID", item.OrgID, "oldEpoch", existing.Epoch, "newEpoch", item.Epoch)
 			existing.Epoch = item.Epoch
 		}
 		if item.EpochEnd != 0 {
-			r.log.Info("updating epoch_end for annotation", "id", item.ID, "orgId", item.OrgID, "oldEpochEnd", existing.EpochEnd, "newEpochEnd", item.EpochEnd)
+			r.log.Info("updating epoch_end for annotation", "annotationID", item.ID, "orgID", item.OrgID, "oldEpochEnd", existing.EpochEnd, "newEpochEnd", item.EpochEnd)
 			existing.EpochEnd = item.EpochEnd
 		}
 
 		if item.Data != nil {
-			r.log.Info("updating data for annotation", "id", item.ID, "orgId", item.OrgID)
+			r.log.Info("updating data for annotation", "annotationID", item.ID, "orgID", item.OrgID)
 			existing.Data = item.Data
 		}
 
@@ -346,7 +346,6 @@ func (r *xormRepositoryImpl) Get(ctx context.Context, query annotations.ItemQuer
 		params = append(params, query.OrgID)
 
 		if query.AnnotationID != 0 {
-			// fmt.Println("annotation query")
 			sql.WriteString(` AND a.id = ?`)
 			params = append(params, query.AnnotationID)
 		}
@@ -521,7 +520,7 @@ func (r *xormRepositoryImpl) Delete(ctx context.Context, params *annotations.Del
 			annoTagSQL string
 		)
 
-		r.log.Info("delete", "orgId", params.OrgID)
+		r.log.Info("delete", "orgID", params.OrgID)
 		if params.ID != 0 {
 			annoTagSQL = "DELETE FROM annotation_tag WHERE annotation_id IN (SELECT id FROM annotation WHERE id = ? AND org_id = ?)"
 			sql = "DELETE FROM annotation WHERE id = ? AND org_id = ?"

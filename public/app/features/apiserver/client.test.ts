@@ -9,6 +9,10 @@ jest.mock('@grafana/runtime', () => ({
     get: jest.fn(),
     post: jest.fn(),
   }),
+  createMonitoringLogger: () => ({
+    logWarning: jest.fn(),
+    logError: jest.fn(),
+  }),
   config: {
     buildInfo: { versionString: 'test-version' },
   },

@@ -185,7 +185,6 @@ func convertDataType(fieldType data.FieldType) mysql.Type {
 	case data.FieldTypeJSON, data.FieldTypeNullableJSON: //nolint:staticcheck
 		return types.JSON
 	default:
-		fmt.Printf("------- Unsupported field type: %v", fieldType)
 		return types.JSON
 	}
 }

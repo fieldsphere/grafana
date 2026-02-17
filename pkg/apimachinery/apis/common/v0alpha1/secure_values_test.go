@@ -31,8 +31,7 @@ func TestSecureValues(t *testing.T) {
 		require.Equal(t, expected, fmt.Sprintf("%s", esv))
 
 		buf := new(bytes.Buffer)
-		_, err := fmt.Fprintf(buf, "%#v", esv)
-		require.NoError(t, err)
+		buf.WriteString(fmt.Sprintf("%#v", esv))
 		require.Equal(t, expected, buf.String())
 
 		// MarshalJSON must not return the exposed secure value.
@@ -66,7 +65,6 @@ func TestSecureValues(t *testing.T) {
 		t.Run("Validate OneOf", func(t *testing.T) {
 			def := common.InlineSecureValue{}.OpenAPIDefinition()
 			// jj, _ := json.MarshalIndent(def.Schema, "", "  ")
-			// fmt.Printf("%s", string(jj))
 			// t.FailNow()
 
 			validator := validate.NewSchemaValidator(&def.Schema, nil, "", strfmt.Default)

@@ -126,7 +126,7 @@ func (p *pollingNotifier) poller(ctx context.Context, since groupResourceRV, str
 			// List the latest RVs to see if any of those are not have been seen before.
 			grv, err := p.listLatestRVs(ctx)
 			if err != nil {
-				p.log.Error("poller get latest resource version", "err", err)
+				p.log.Error("poller get latest resource version", "error", err)
 				t.Reset(p.pollingInterval)
 				continue
 			}
@@ -148,7 +148,7 @@ func (p *pollingNotifier) poller(ctx context.Context, since groupResourceRV, str
 					// Poll for new events since the last known RV.
 					next, err := p.poll(ctx, group, resource, since[group][resource], stream)
 					if err != nil {
-						p.log.Error("polling for resource", "err", err)
+						p.log.Error("polling for resource", "error", err)
 						t.Reset(p.pollingInterval)
 						continue
 					}
@@ -205,9 +205,9 @@ func (p *pollingNotifier) poll(ctx context.Context, grp string, res string, sinc
 			"namespace", rec.Key.Namespace,
 			"group", rec.Key.Group,
 			"resource", rec.Key.Resource,
-			"name", rec.Key.Name,
-			"action", rec.Action,
-			"rv", rec.ResourceVersion)
+			"resourceName", rec.Key.Name,
+			"resourceAction", rec.Action,
+			"resourceVersion", rec.ResourceVersion)
 	}
 
 	return nextRV, nil

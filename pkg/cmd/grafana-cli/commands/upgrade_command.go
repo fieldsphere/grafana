@@ -42,6 +42,6 @@ func upgradeCommand(c utils.CommandLine) error {
 		return err
 	}
 
-	logger.Infof("%s %s is up to date \n", color.GreenString("✔"), pluginID)
+	logger.Info("Plugin is already up to date", "operationStatus", color.GreenString("✔"), "pluginID", pluginID)
 	return nil
 }

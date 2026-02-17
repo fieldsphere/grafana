@@ -211,7 +211,6 @@ describe('getV2AngularMigrationHandler', () => {
 
   describe('targets property access during migration', () => {
     it('Should proxy targets with deprecation warning', () => {
-      const warnSpy = jest.spyOn(console, 'warn').mockImplementation();
       let accessedTargets: unknown;
 
       const onPanelTypeChanged: PanelTypeChangedHandler = (panel) => {
@@ -240,13 +239,6 @@ describe('getV2AngularMigrationHandler', () => {
 
       // Verify targets were accessible and returned the cloned value
       expect(accessedTargets).toEqual(originalTargets);
-
-      // Verify deprecation warning was logged
-      expect(warnSpy).toHaveBeenCalledWith(
-        'Accessing the targets property when migrating a panel plugin is deprecated. Changes to this property will be ignored.'
-      );
-
-      warnSpy.mockRestore();
     });
   });
 

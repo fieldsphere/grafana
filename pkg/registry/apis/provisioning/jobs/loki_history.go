@@ -67,7 +67,7 @@ func (h *LokiJobHistory) WriteJob(ctx context.Context, job *provisioning.Job) er
 	writeCtx, cancel := context.WithTimeout(ctx, 30*time.Second)
 	defer cancel()
 
-	logger.Debug("Saving job history to Loki", "namespace", jobCopy.Namespace, "repository", jobCopy.Spec.Repository, "job", jobCopy.Name)
+	logger.Debug("Saving job history to Loki", "namespace", jobCopy.Namespace, "repositoryName", jobCopy.Spec.Repository, "jobName", jobCopy.Name)
 
 	if err := h.client.Push(writeCtx, []loki.Stream{stream}); err != nil {
 		logger.Error("Failed to save job history to Loki", "error", err)
@@ -89,7 +89,7 @@ func (h *LokiJobHistory) RecentJobs(ctx context.Context, namespace, repo string)
 	now := time.Now().UTC()
 	from := now.Add(-defaultJobQueryRange)
 
-	logger.Debug("Querying Loki for recent jobs", "namespace", namespace, "repository", repo, "query", logQL)
+	logger.Debug("Querying Loki for recent jobs", "namespace", namespace, "repositoryName", repo, "logQLQuery", logQL)
 
 	// Execute query
 	result, err := h.client.RangeQuery(ctx, logQL, from.UnixNano(), now.UnixNano(), int64(maxJobsLimit))
@@ -144,7 +144,7 @@ func (h *LokiJobHistory) jobToStream(ctx context.Context, job *provisioning.Job)
 	// Serialize job to JSON
 	jobJSON, err := json.Marshal(job)
 	if err != nil {
-		logger.Error("Failed to marshal job to JSON", "error", err, "job", job.Name)
+		logger.Error("Failed to marshal job to JSON", "error", err, "jobName", job.Name)
 		return loki.Stream{Stream: labels, Values: []loki.Sample{}}
 	}
 

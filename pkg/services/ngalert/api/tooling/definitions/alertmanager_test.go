@@ -246,6 +246,30 @@ func Test_RawMessageMarshaling(t *testing.T) {
 	})
 }
 
+func TestMergeResultLogContext(t *testing.T) {
+	t.Run("returns nil for empty merge result", func(t *testing.T) {
+		var mergeResult MergeResult
+		require.Nil(t, mergeResult.LogContext())
+	})
+
+	t.Run("formats renamed entries in stable order", func(t *testing.T) {
+		mergeResult := MergeResult{}
+		mergeResult.Receivers = map[string]string{
+			"beta":  "zeta",
+			"alpha": "omega",
+		}
+		mergeResult.TimeIntervals = map[string]string{
+			"quiet-hours": "off-hours",
+			"business":    "work-hours",
+		}
+
+		require.Equal(t, []any{
+			"renamedReceivers", "['alpha'->'omega', 'beta'->'zeta']",
+			"renamedTimeIntervals", "['business'->'work-hours', 'quiet-hours'->'off-hours']",
+		}, mergeResult.LogContext())
+	})
+}
+
 func TestPostableUserConfig_GetMergedAlertmanagerConfig(t *testing.T) {
 	alertmanagerCfg := PostableApiAlertingConfig{
 		Config: Config{

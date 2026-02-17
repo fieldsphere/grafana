@@ -1,4 +1,5 @@
 import { merge } from 'lodash';
+import { faro, LogLevel } from '@grafana/faro-web-sdk';
 
 import {
   AppPluginConfig as AppPluginConfigGrafanaData,
@@ -300,6 +301,34 @@ export class GrafanaBootConfig {
 
 // localstorage key: grafana.featureToggles
 // example value: panelEditor=1,panelInspector=1
+const configLogSource = 'runtime.config';
+
+function logConfigInfo(message: string, context?: Record<string, unknown>) {
+  if (bootData?.settings?.grafanaJavascriptAgent?.enabled) {
+    faro.api.pushLog([message], {
+      level: LogLevel.INFO,
+      context: { source: configLogSource, ...context },
+    });
+  }
+}
+
+function logConfigWarning(message: string, context?: Record<string, unknown>) {
+  if (bootData?.settings?.grafanaJavascriptAgent?.enabled) {
+    faro.api.pushLog([message], {
+      level: LogLevel.WARN,
+      context: { source: configLogSource, ...context },
+    });
+  }
+}
+
+function logConfigError(message: string, context?: Record<string, unknown>) {
+  if (bootData?.settings?.grafanaJavascriptAgent?.enabled) {
+    faro.api.pushError(new Error(message), {
+      context: { source: configLogSource, ...context },
+    });
+  }
+}
+
 function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
   const featureToggles = config.featureToggles;
   const localStorageKey = 'grafana.featureToggles';
@@ -311,7 +340,7 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
       const toggleState = featureValue === 'true' || featureValue === '1';
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       featureToggles[featureName as keyof FeatureToggles] = toggleState;
-      console.log(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
+      logConfigInfo('Setting feature toggle via localstorage', { featureName, toggleState });
     }
   }
 }
@@ -337,9 +366,9 @@ function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
       if (toggleState !== featureToggles[key]) {
         if (isDevelopment || safeRuntimeFeatureFlags.has(featureName)) {
           featureToggles[featureName] = toggleState;
-          console.log(`Setting feature toggle ${featureName} = ${toggleState} via url`);
+          logConfigInfo('Setting feature toggle via URL', { featureName, toggleState });
         } else {
-          console.log(`Unable to change feature toggle ${featureName} via url in production.`);
+          logConfigWarning('Unable to change feature toggle via URL in production', { featureName, toggleState });
         }
       }
     }
@@ -350,7 +379,7 @@ let bootData = window.grafanaBootData;
 
 if (!bootData) {
   if (process.env.NODE_ENV !== 'test') {
-    console.error('window.grafanaBootData was not set by the time config was initialized');
+    logConfigError('window.grafanaBootData was not set by the time config was initialized');
   }
 
   bootData = {

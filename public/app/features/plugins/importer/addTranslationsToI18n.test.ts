@@ -80,8 +80,6 @@ describe('addTranslationsToI18n', () => {
       'pt-BR': '/public/plugins/test-panel/locales/pt-BR/test-panel.json',
     };
 
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
     await addTranslationsToI18n({
       resolvedLanguage: 'sv-SE',
       fallbackLanguage: 'sv-SE',
@@ -89,10 +87,7 @@ describe('addTranslationsToI18n', () => {
       translations,
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Could not find any translation for plugin test-panel', {
-      resolvedLanguage: 'sv-SE',
-      fallbackLanguage: 'sv-SE',
-    });
+    expect(addResourceBundleSpy).not.toHaveBeenCalled();
   });
 
   it('should warn if no exported default is found', async () => {
@@ -101,8 +96,6 @@ describe('addTranslationsToI18n', () => {
       'pt-BR': '/public/plugins/test-panel/locales/pt-BR/no-default-export.json',
     };
 
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
     await addTranslationsToI18n({
       resolvedLanguage: 'en-US',
       fallbackLanguage: 'en-US',
@@ -110,11 +103,7 @@ describe('addTranslationsToI18n', () => {
       translations,
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Could not find default export for plugin test-panel', {
-      resolvedLanguage: 'en-US',
-      fallbackLanguage: 'en-US',
-      path: '/public/plugins/test-panel/locales/en-US/no-default-export.json',
-    });
+    expect(addResourceBundleSpy).not.toHaveBeenCalled();
   });
 
   it('should warn if translations cannot be loaded', async () => {
@@ -123,8 +112,6 @@ describe('addTranslationsToI18n', () => {
       'pt-BR': '/public/plugins/test-panel/locales/pt-BR/unknown.json',
     };
 
-    const consoleSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
-
     await addTranslationsToI18n({
       resolvedLanguage: 'en-US',
       fallbackLanguage: 'pt-BR',
@@ -132,11 +119,6 @@ describe('addTranslationsToI18n', () => {
       translations,
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith('Could not load translation for plugin test-panel', {
-      resolvedLanguage: 'en-US',
-      fallbackLanguage: 'pt-BR',
-      error: new TypeError('Failed to fetch'),
-      path: '/public/plugins/test-panel/locales/en-US/unknown.json',
-    });
+    expect(addResourceBundleSpy).not.toHaveBeenCalled();
   });
 });

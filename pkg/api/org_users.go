@@ -317,7 +317,7 @@ func (hs *HTTPServer) searchOrgUsersHelper(c *contextmodel.ReqContext, query *or
 	})
 
 	if err != nil {
-		hs.log.Warn("failed to retrieve users IDP label", err)
+		hs.log.Warn("failed to retrieve users IDP label", "error", err)
 	}
 
 	// Get accesscontrol metadata and IPD labels for users in the target org
@@ -418,9 +418,9 @@ func (hs *HTTPServer) updateOrgUserHelper(c *contextmodel.ReqContext, cmd org.Up
 	authInfo, err := hs.authInfoService.GetAuthInfo(c.Req.Context(), &qAuth)
 	if err != nil {
 		if errors.Is(err, user.ErrUserNotFound) {
-			hs.log.Debug("Failed to get user auth info for basic auth user", cmd.UserID, nil)
+			hs.log.Debug("Failed to get user auth info for basic auth user", "userID", cmd.UserID)
 		} else {
-			hs.log.Error("Failed to get user auth info for external sync check", cmd.UserID, err)
+			hs.log.Error("Failed to get user auth info for external sync check", "userID", cmd.UserID, "error", err)
 			return response.Error(http.StatusInternalServerError, "Failed to get user auth info", nil)
 		}
 	}
@@ -510,14 +510,14 @@ func (hs *HTTPServer) removeOrgUserHelper(ctx context.Context, cmd *org.RemoveOr
 	if cmd.UserWasDeleted {
 		// This should be called from appropriate service when moved
 		if err := hs.accesscontrolService.DeleteUserPermissions(ctx, accesscontrol.GlobalOrgID, cmd.UserID); err != nil {
-			hs.log.Warn("failed to delete permissions for user", "userID", cmd.UserID, "orgID", accesscontrol.GlobalOrgID, "err", err)
+			hs.log.Warn("failed to delete permissions for user", "userID", cmd.UserID, "orgID", accesscontrol.GlobalOrgID, "error", err)
 		}
 		return response.Success("User deleted")
 	}
 
 	// This should be called from appropriate service when moved
 	if err := hs.accesscontrolService.DeleteUserPermissions(ctx, cmd.OrgID, cmd.UserID); err != nil {
-		hs.log.Warn("failed to delete permissions for user", "userID", cmd.UserID, "orgID", cmd.OrgID, "err", err)
+		hs.log.Warn("failed to delete permissions for user", "userID", cmd.UserID, "orgID", cmd.OrgID, "error", err)
 	}
 
 	return response.Success("User removed from organization")

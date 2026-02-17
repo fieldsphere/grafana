@@ -2,7 +2,7 @@ import memoizeOne from 'memoize-one';
 
 import { AbsoluteTimeRange, LogRowModel, UrlQueryMap } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { getBackendSrv, config, locationService } from '@grafana/runtime';
+import { createMonitoringLogger, getBackendSrv, config, locationService } from '@grafana/runtime';
 import { sceneGraph, SceneTimeRangeLike, VizPanel } from '@grafana/scenes';
 import { shortURLAPIv1beta1 } from 'app/api/clients/shorturl/v1beta1';
 import { createErrorNotification, createSuccessNotification } from 'app/core/copy/appNotification';
@@ -16,6 +16,8 @@ import { ShareLinkConfiguration } from '../../features/dashboard-scene/sharing/S
 import { notifyApp } from '../reducers/appNotification';
 
 import { copyStringToClipboard } from './explore';
+
+const logger = createMonitoringLogger('core.utils.short-links');
 
 function buildHostUrl() {
   return `${window.location.protocol}//${window.location.host}${config.appSubUrl}`;
@@ -73,7 +75,11 @@ export const createShortLink = memoizeOne(async (path: string): Promise<string> 
       return await createShortLinkLegacy(path);
     }
   } catch (err) {
-    console.error('Error when creating shortened link: ', err);
+    if (err instanceof Error) {
+      logger.logError(err, { operation: 'createShortLink', path });
+    } else {
+      logger.logWarning('Error when creating shortened link', { operation: 'createShortLink', path, error: String(err) });
+    }
     dispatch(notifyApp(createErrorNotification('Error generating shortened link')));
     throw err; // Re-throw so callers know it failed
   }
@@ -103,7 +109,11 @@ export const createAndCopyShortLink = async (path: string) => {
     }
   } catch (error) {
     // createShortLink already handles error notifications, just log
-    console.error('Error in createAndCopyShortLink:', error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'createAndCopyShortLink', path });
+      return;
+    }
+    logger.logWarning('Error in createAndCopyShortLink', { operation: 'createAndCopyShortLink', path, error: String(error) });
   }
 };
 

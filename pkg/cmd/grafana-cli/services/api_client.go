@@ -15,7 +15,7 @@ import (
 )
 
 func GetPluginInfoFromRepo(pluginId, repoUrl string) (models.Plugin, error) {
-	logger.Debugf("getting plugin metadata from: %v pluginId: %v \n", repoUrl, pluginId)
+	logger.Debug("Getting plugin metadata from repository", "repoURL", repoUrl, "pluginID", pluginId)
 	body, err := sendRequestGetBytes(HttpClient, repoUrl, "repo", pluginId)
 	if err != nil {
 		if errors.Is(err, ErrNotFoundError) {
@@ -28,7 +28,7 @@ func GetPluginInfoFromRepo(pluginId, repoUrl string) (models.Plugin, error) {
 	var data models.Plugin
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		logger.Info("Failed to unmarshal plugin repo response error:", err)
+		logger.Info("Failed to unmarshal plugin repo response", "error", err)
 		return models.Plugin{}, err
 	}
 
@@ -46,7 +46,7 @@ func ListAllPlugins(repoUrl string) (models.PluginRepo, error) {
 	var data models.PluginRepo
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		logger.Info("Failed to unmarshal plugin repo response error:", err)
+		logger.Info("Failed to unmarshal plugin repo response", "error", err)
 		return models.PluginRepo{}, err
 	}
 
@@ -60,7 +60,7 @@ func sendRequestGetBytes(client http.Client, repoUrl string, subPaths ...string)
 	}
 	defer func() {
 		if err := bodyReader.Close(); err != nil {
-			logger.Warn("Failed to close stream", "err", err)
+			logger.Warn("Failed to close stream", "error", err)
 		}
 	}()
 	return io.ReadAll(bodyReader)
@@ -115,7 +115,7 @@ func handleResponse(res *http.Response) (io.ReadCloser, error) {
 		body, err := io.ReadAll(res.Body)
 		defer func() {
 			if err := res.Body.Close(); err != nil {
-				logger.Warn("Failed to close response body", "err", err)
+				logger.Warn("Failed to close response body", "error", err)
 			}
 		}()
 		if err != nil || len(body) == 0 {

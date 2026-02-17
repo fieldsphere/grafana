@@ -157,7 +157,7 @@ func getHealthCheckMessage(logger log.Logger, message string, err error) (*backe
 		}, nil
 	}
 
-	logger.Warn("Error performing influxdb healthcheck", "err", err.Error())
+	logger.Warn("Error performing InfluxDB healthcheck", "error", err)
 	errorMessage := fmt.Sprintf("%s %s", err.Error(), message)
 
 	return &backend.CheckHealthResult{

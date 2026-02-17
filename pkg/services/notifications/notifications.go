@@ -87,7 +87,7 @@ func ProvideService(bus bus.Bus, cfg *setting.Cfg, mailer Mailer, store TempUser
 		if len(invalidTemplates) == len(ns.Cfg.Smtp.TemplatesPatterns) {
 			return nil, fmt.Errorf("provided html/template filepaths matched no files: %s", is)
 		}
-		ns.log.Warn("some provided html/template filepaths matched no files: %s", is)
+		ns.log.Warn("Some provided html/template filepaths matched no files", "patterns", is)
 	}
 
 	if !util.IsEmail(ns.Cfg.Smtp.FromAddress) {
@@ -126,14 +126,14 @@ func (ns *NotificationService) Run(ctx context.Context) error {
 		case msg := <-ns.mailQueue:
 			num, err := ns.Send(ctx, msg)
 			tos := strings.Join(msg.To, "; ")
-			info := ""
+			messageInfo := ""
 			if err != nil {
 				if len(msg.Info) > 0 {
-					info = ", info: " + msg.Info
+					messageInfo = msg.Info
 				}
-				ns.log.Error(fmt.Sprintf("Async sent email %d succeed, not send emails: %s%s err: %s", num, tos, info, err))
+				ns.log.Error("Async send email failed", "sentCount", num, "unsentEmails", tos, "messageInfo", messageInfo, "error", err)
 			} else {
-				ns.log.Debug(fmt.Sprintf("Async sent email %d succeed, sent emails: %s%s", num, tos, info))
+				ns.log.Debug("Async send email succeeded", "sentCount", num, "sentEmails", tos, "messageInfo", messageInfo)
 			}
 		case <-ctx.Done():
 			return ctx.Err()

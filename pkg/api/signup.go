@@ -49,7 +49,7 @@ func (hs *HTTPServer) SignUp(c *contextmodel.ReqContext) response.Response {
 
 	userID, err := identity.UserIdentifier(c.GetID())
 	if err != nil {
-		hs.log.Debug("Failed to parse user id", "err", err)
+		hs.log.Debug("Failed to parse user id", "error", err)
 	}
 
 	cmd := tempuser.CreateTempUserCommand{}

@@ -256,7 +256,7 @@ func (b *backend) initPruner(ctx context.Context) error {
 					"namespace", key.Namespace,
 					"group", key.Group,
 					"resource", key.Resource,
-					"name", key.Name,
+					"resourceName", key.Name,
 					"rows", rows)
 				return nil
 			})
@@ -266,7 +266,7 @@ func (b *backend) initPruner(ctx context.Context) error {
 				"namespace", key.Namespace,
 				"group", key.Group,
 				"resource", key.Resource,
-				"name", key.Name,
+				"resourceName", key.Name,
 				"error", err)
 		},
 		Reg: b.reg,
@@ -394,7 +394,7 @@ func (b *backend) garbageCollectBatch(ctx context.Context, group, resourceName s
 		if len(candidates) == 0 {
 			return nil
 		}
-		span.AddEvent("candidates", trace.WithAttributes(attribute.Int("candidates", len(candidates))))
+		span.AddEvent("garbageCollectionCandidates", trace.WithAttributes(attribute.Int("candidates", len(candidates))))
 		res, err := dbutil.Exec(ctx, tx, sqlResourceHistoryGCDeleteByNames, &sqlGarbageCollectDeleteByNamesRequest{
 			SQLTemplate: sqltemplate.New(b.dialect),
 			Group:       group,
@@ -409,7 +409,7 @@ func (b *backend) garbageCollectBatch(ctx context.Context, group, resourceName s
 			return err
 		}
 		rowsAffected = rows
-		span.AddEvent("rows deleted", trace.WithAttributes(attribute.Int64("rowsDeleted", rowsAffected)))
+		span.AddEvent("rowsDeleted", trace.WithAttributes(attribute.Int64("rowsDeleted", rowsAffected)))
 		return nil
 	})
 	return rowsAffected, err
@@ -915,7 +915,7 @@ func (b *backend) listAtRevision(ctx context.Context, req *resourcepb.ListReques
 
 	// The query below has the potential to be EXTREMELY slow if the resource_history table is big. May be helpful to know
 	// which stack is calling this.
-	b.log.Debug("listAtRevision", "ns", req.Options.Key.Namespace, "group", req.Options.Key.Group, "resource", req.Options.Key.Resource, "rv", iter.listRV)
+	b.log.Debug("listAtRevision", "namespace", req.Options.Key.Namespace, "group", req.Options.Key.Group, "resource", req.Options.Key.Resource, "resourceVersion", iter.listRV)
 
 	err := b.db.WithTx(ctx, ReadCommittedRO, func(ctx context.Context, tx db.Tx) error {
 		limit := int64(0) // ignore limit

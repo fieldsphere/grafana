@@ -143,27 +143,34 @@ func (s *SocialBase) TokenSource(ctx context.Context, t *oauth2.Token) oauth2.To
 	return s.Config.TokenSource(ctx, t)
 }
 
+func writeSupportBundleConfigLine(bf *bytes.Buffer, key string, value any) {
+	bf.WriteString(key)
+	bf.WriteString(" = ")
+	bf.WriteString(fmt.Sprint(value))
+	bf.WriteString("\n")
+}
+
 func (s *SocialBase) getBaseSupportBundleContent(bf *bytes.Buffer) error {
 	bf.WriteString("## Client configuration\n\n")
 	bf.WriteString("```ini\n")
-	fmt.Fprintf(bf, "allow_assign_grafana_admin = %v\n", s.info.AllowAssignGrafanaAdmin)
-	fmt.Fprintf(bf, "allow_sign_up = %v\n", s.info.AllowSignup)
-	fmt.Fprintf(bf, "allowed_domains = %v\n", s.info.AllowedDomains)
-	fmt.Fprintf(bf, "auto_assign_org_role = %v\n", s.cfg.AutoAssignOrgRole)
-	fmt.Fprintf(bf, "role_attribute_path = %v\n", s.info.RoleAttributePath)
-	fmt.Fprintf(bf, "role_attribute_strict = %v\n", s.info.RoleAttributeStrict)
-	fmt.Fprintf(bf, "skip_org_role_sync = %v\n", s.info.SkipOrgRoleSync)
-	fmt.Fprintf(bf, "client_authentication = %v\n", s.info.ClientAuthentication)
-	fmt.Fprintf(bf, "client_id = %v\n", s.ClientID)
-	fmt.Fprintf(bf, "client_secret = %v ; issue if empty\n", strings.Repeat("*", len(s.ClientSecret)))
-	fmt.Fprintf(bf, "managed_identity_client_id = %v\n", s.info.ManagedIdentityClientID)
-	fmt.Fprintf(bf, "federated_credential_audience = %v\n", s.info.FederatedCredentialAudience)
-	fmt.Fprintf(bf, "workload_identity_token_file = %v\n", s.info.WorkloadIdentityTokenFile)
-	fmt.Fprintf(bf, "auth_url = %v\n", s.Endpoint.AuthURL)
-	fmt.Fprintf(bf, "token_url = %v\n", s.Endpoint.TokenURL)
-	fmt.Fprintf(bf, "auth_style = %v\n", s.Endpoint.AuthStyle)
-	fmt.Fprintf(bf, "redirect_url = %v\n", s.RedirectURL)
-	fmt.Fprintf(bf, "scopes = %v\n", s.Scopes)
+	writeSupportBundleConfigLine(bf, "allow_assign_grafana_admin", s.info.AllowAssignGrafanaAdmin)
+	writeSupportBundleConfigLine(bf, "allow_sign_up", s.info.AllowSignup)
+	writeSupportBundleConfigLine(bf, "allowed_domains", s.info.AllowedDomains)
+	writeSupportBundleConfigLine(bf, "auto_assign_org_role", s.cfg.AutoAssignOrgRole)
+	writeSupportBundleConfigLine(bf, "role_attribute_path", s.info.RoleAttributePath)
+	writeSupportBundleConfigLine(bf, "role_attribute_strict", s.info.RoleAttributeStrict)
+	writeSupportBundleConfigLine(bf, "skip_org_role_sync", s.info.SkipOrgRoleSync)
+	writeSupportBundleConfigLine(bf, "client_authentication", s.info.ClientAuthentication)
+	writeSupportBundleConfigLine(bf, "client_id", s.ClientID)
+	writeSupportBundleConfigLine(bf, "client_secret", strings.Repeat("*", len(s.ClientSecret))+" ; issue if empty")
+	writeSupportBundleConfigLine(bf, "managed_identity_client_id", s.info.ManagedIdentityClientID)
+	writeSupportBundleConfigLine(bf, "federated_credential_audience", s.info.FederatedCredentialAudience)
+	writeSupportBundleConfigLine(bf, "workload_identity_token_file", s.info.WorkloadIdentityTokenFile)
+	writeSupportBundleConfigLine(bf, "auth_url", s.Endpoint.AuthURL)
+	writeSupportBundleConfigLine(bf, "token_url", s.Endpoint.TokenURL)
+	writeSupportBundleConfigLine(bf, "auth_style", s.Endpoint.AuthStyle)
+	writeSupportBundleConfigLine(bf, "redirect_url", s.RedirectURL)
+	writeSupportBundleConfigLine(bf, "scopes", s.Scopes)
 	bf.WriteString("```\n\n")
 
 	return nil
@@ -326,7 +333,7 @@ func (s *SocialBase) cacheJWKS(ctx context.Context, cacheKey string, jwks *keySe
 	}
 
 	if err := s.cache.Set(ctx, cacheKey, jsonBuf.Bytes(), cacheExpiration); err != nil {
-		s.log.Warn("Failed to cache key set", "err", err)
+		s.log.Warn("Failed to cache key set", "error", err)
 	}
 
 	return nil
@@ -377,7 +384,7 @@ func (s *SocialBase) retrieveJWKSFromURL(ctx context.Context, client *http.Clien
 	}
 
 	cacheExpiration := getCacheExpiration(resp.Headers.Get("cache-control"))
-	s.log.Debug("Retrieved key set from URL", "url", jwkSetURL, "cacheExpiration", cacheExpiration)
+	s.log.Debug("Retrieved key set from URL", "jwkSetURL", jwkSetURL, "cacheExpiration", cacheExpiration)
 
 	return &jwks, cacheExpiration, nil
 }
@@ -411,13 +418,13 @@ func (s *SocialBase) validateIDTokenSignatureWithURLs(ctx context.Context, clien
 		// Try cache first for this URL
 		keyset, expiry, err := s.retrieveJWKSFromCache(ctx, cacheKey)
 		if err != nil {
-			s.log.Warn("Error retrieving JWKS from cache", "url", jwkSetURL, "error", err)
+			s.log.Warn("Error retrieving JWKS from cache", "jwkSetURL", jwkSetURL, "error", err)
 		}
 		// If cache miss or empty, fetch from URL
 		if keyset == nil || len(keyset.Keys) == 0 {
 			keyset, expiry, err = s.retrieveJWKSFromURL(ctx, client, jwkSetURL)
 			if err != nil {
-				s.log.Warn("Error retrieving JWKS from URL", "url", jwkSetURL, "error", err)
+				s.log.Warn("Error retrieving JWKS from URL", "jwkSetURL", jwkSetURL, "error", err)
 				continue
 			}
 		}
@@ -431,7 +438,7 @@ func (s *SocialBase) validateIDTokenSignatureWithURLs(ctx context.Context, clien
 				if expiry != 0 {
 					s.log.Debug("Caching key set", "kid", key.KeyID, "expiry", expiry)
 					if err := s.cacheJWKS(ctx, cacheKey, keyset, expiry); err != nil {
-						s.log.Warn("Failed to cache key set", "err", err)
+						s.log.Warn("Failed to cache key set", "error", err)
 					}
 				}
 
@@ -441,7 +448,7 @@ func (s *SocialBase) validateIDTokenSignatureWithURLs(ctx context.Context, clien
 				}
 				return rawJSON, nil
 			}
-			s.log.Debug("Failed to verify token with key", "kid", key.KeyID, "err", err)
+			s.log.Debug("Failed to verify token with key", "kid", key.KeyID, "error", err)
 		}
 	}
 

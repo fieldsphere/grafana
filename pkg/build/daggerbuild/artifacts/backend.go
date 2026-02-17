@@ -264,7 +264,7 @@ func NewBackend(ctx context.Context, log *slog.Logger, artifact string, opts *Ne
 		CGOEnabled:        opts.CGOEnabled,
 	}
 
-	log.Info("Initializing backend artifact with options", "static", opts.Static, "version", opts.Version, "name", opts.Name, "distro", opts.Distribution, "cgo enabled", opts.CGOEnabled)
+	log.Info("Initializing backend artifact with options", "static", opts.Static, "version", opts.Version, "artifactName", opts.Name, "distro", opts.Distribution, "cgoEnabled", opts.CGOEnabled)
 	return pipeline.ArtifactWithLogging(ctx, log, &pipeline.Artifact{
 		ArtifactString: artifact,
 		Type:           pipeline.ArtifactTypeDirectory,

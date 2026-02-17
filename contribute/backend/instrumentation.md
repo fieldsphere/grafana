@@ -24,6 +24,27 @@ logger.Warning("Warning msg")
 logger.Error("Error msg", "error", fmt.Errorf("BOOM"))
 ```
 
+### Structured logging patterns
+
+Use stable event messages and put all dynamic values in key/value pairs.
+
+Avoid formatting dynamic values into the message string. These patterns make logs harder to query and aggregate.
+
+Use this pattern:
+
+```go
+logger.Info("Snapshot upload completed", "snapshotUID", snapshotUID, "durationMs", duration.Milliseconds())
+logger.Error("Failed to parse config", "path", configPath, "error", err)
+```
+
+Avoid these patterns:
+
+```go
+logger.Info(fmt.Sprintf("Snapshot %s completed in %d ms", snapshotUID, duration.Milliseconds()))
+logger.Warn("Failed to parse config: %w", err)
+logger.Error("Request failed: " + err.Error())
+```
+
 ### Naming conventions
 
 Name the logger using lowercase characters, for example, `log.New("my-logger")` using snake_case or kebab-case styling.

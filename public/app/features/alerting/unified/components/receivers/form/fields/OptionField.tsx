@@ -4,6 +4,7 @@ import { Controller, DeepMap, FieldError, useFormContext } from 'react-hook-form
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import {
   Checkbox,
   Field,
@@ -29,6 +30,8 @@ import { StringArrayInput } from './StringArrayInput';
 import { SubformArrayField } from './SubformArrayField';
 import { SubformField } from './SubformField';
 import { WrapWithTemplateSelection } from './TemplateSelector';
+
+const logger = createMonitoringLogger('features.alerting.receivers.option-field');
 
 interface Props {
   defaultValue: any;
@@ -292,7 +295,7 @@ const OptionInput: FC<Props & { id: string }> = ({
       );
 
     default:
-      console.error('Element not supported', option.element);
+      logger.logWarning('Element not supported', { element: option.element });
       return null;
   }
 };

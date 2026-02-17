@@ -10,6 +10,7 @@ import (
 	"iter"
 	"math/rand/v2"
 	"net/http"
+	"reflect"
 	"sort"
 	"time"
 
@@ -159,7 +160,11 @@ func NewKVStorageBackend(opts KVBackendOptions) (KVBackend, error) {
 	// Start the cleanup background job.
 	go backend.runCleanups(ctx)
 
-	logger.Info("backend initialized", "kv", fmt.Sprintf("%T", kv))
+	kvType := "<nil>"
+	if kv != nil {
+		kvType = reflect.TypeOf(kv).String()
+	}
+	logger.Info("backend initialized", "kvType", kvType)
 
 	return backend, nil
 }
@@ -203,7 +208,7 @@ func (k *kvStorageBackend) cleanupOldLastImportTimes(ctx context.Context) {
 	if err != nil {
 		k.log.Error("Failed to cleanup last import times", "error", err)
 	} else if deleted > 0 {
-		k.log.Info("Cleaned up last import times", "deleted_count", deleted)
+		k.log.Info("Cleaned up last import times", "deletedCount", deleted)
 	}
 }
 
@@ -217,7 +222,7 @@ func (k *kvStorageBackend) cleanupOldEvents(ctx context.Context) {
 	}
 
 	if deletedCount > 0 {
-		k.log.Info("Cleaned up old events", "deleted_count", deletedCount, "retention_period", k.eventRetentionPeriod)
+		k.log.Info("Cleaned up old events", "deletedCount", deletedCount, "retentionPeriod", k.eventRetentionPeriod)
 	}
 }
 
@@ -275,7 +280,7 @@ func (k *kvStorageBackend) initPruner(ctx context.Context) error {
 				"namespace", key.Namespace,
 				"group", key.Group,
 				"resource", key.Resource,
-				"name", key.Name,
+				"resourceName", key.Name,
 				"error", err)
 		},
 	})
@@ -410,7 +415,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("failed to check latest version: %w", err)
@@ -422,7 +427,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("optimistic locking failed: concurrent modification detected")
@@ -433,7 +438,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("optimistic locking failed: resource was modified concurrently (expected previous RV %d, found %d)", event.PreviousRV, prevKey.ResourceVersion)
@@ -451,7 +456,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("failed to check latest version: %w", err)
@@ -463,7 +468,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("optimistic locking failed: concurrent create detected")
@@ -475,7 +480,7 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			_ = k.dataStore.Delete(ctx, dataKey)
 			if k.rvManager != nil {
 				if err := k.dataStore.applyBackwardsCompatibleOptimisticLockFailure(ctx, k.rvManager.DB(), dataKey); err != nil {
-					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "name", dataKey.Name, "error", err)
+					k.log.Error("Failed to restore resource table after optimistic lock failure", "group", dataKey.Group, "resource", dataKey.Resource, "namespace", dataKey.Namespace, "resourceName", dataKey.Name, "error", err)
 				}
 			}
 			return 0, fmt.Errorf("optimistic locking failed: concurrent create detected")
@@ -1388,13 +1393,13 @@ func (b *kvStorageBackend) ProcessBulk(ctx context.Context, setting BulkSettings
 		events := make([]string, 0)
 		for evtKeyStr, err := range b.eventStore.ListKeysSince(ctx, 1, SortOrderAsc) {
 			if err != nil {
-				b.log.Error("failed to list event: %s", err)
+				b.log.Error("Failed to list event", "error", err)
 				return rsp
 			}
 
 			evtKey, err := ParseEventKey(evtKeyStr)
 			if err != nil {
-				b.log.Error("error parsing event key: %s", err)
+				b.log.Error("Error parsing event key", "error", err)
 				return rsp
 			}
 
@@ -1406,7 +1411,7 @@ func (b *kvStorageBackend) ProcessBulk(ctx context.Context, setting BulkSettings
 		}
 
 		if err := b.eventStore.batchDelete(ctx, events); err != nil {
-			b.log.Error("failed to delete events: %s", err)
+			b.log.Error("Failed to delete events", "error", err)
 			return rsp
 		}
 
@@ -1418,7 +1423,7 @@ func (b *kvStorageBackend) ProcessBulk(ctx context.Context, setting BulkSettings
 			Resource:  key.Resource,
 		}, SortOrderAsc) {
 			if err != nil {
-				b.log.Error("failed to list collection before delete: %s", err)
+				b.log.Error("Failed to list collection before delete", "error", err)
 				return rsp
 			}
 
@@ -1427,7 +1432,7 @@ func (b *kvStorageBackend) ProcessBulk(ctx context.Context, setting BulkSettings
 
 		previousCount := int64(len(historyKeys))
 		if err := b.dataStore.batchDelete(ctx, historyKeys); err != nil {
-			b.log.Error("failed to delete collection: %s", err)
+			b.log.Error("Failed to delete collection", "error", err)
 			return rsp
 		}
 		summaries[NSGR(key)] = &resourcepb.BulkResponse_Summary{
@@ -1443,7 +1448,7 @@ func (b *kvStorageBackend) ProcessBulk(ctx context.Context, setting BulkSettings
 		// we don't have transactions in the kv store, so we simply delete everything we created
 		err = b.dataStore.batchDelete(ctx, saved)
 		if err != nil {
-			b.log.Error("failed to delete during rollback: %s", err)
+			b.log.Error("Failed to delete during rollback", "error", err)
 		}
 	}
 

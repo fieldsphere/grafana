@@ -310,7 +310,7 @@ func (c *client) sendBatch(tenantID string, batch *batch) {
 			break
 		}
 
-		c.logger.Warn("error sending batch, will retry", "status", status, "error", err)
+		c.logger.Warn("error sending batch, will retry", "statusCode", status, "error", err)
 		c.metrics.batchRetries.WithLabelValues(c.cfg.URL.Host).Inc()
 		backoff.Wait()
 
@@ -321,7 +321,7 @@ func (c *client) sendBatch(tenantID string, batch *batch) {
 	}
 
 	if err != nil {
-		c.logger.Error("final error sending batch", "status", status)
+		c.logger.Error("final error sending batch", "statusCode", status)
 		c.metrics.droppedBytes.WithLabelValues(c.cfg.URL.Host).Add(bufBytes)
 		c.metrics.droppedEntries.WithLabelValues(c.cfg.URL.Host).Add(float64(entriesCount))
 	}

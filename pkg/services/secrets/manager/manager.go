@@ -92,7 +92,7 @@ func ProvideSecretsService(
 		return nil, fmt.Errorf("missing configuration for current encryption provider %s", currentProviderID)
 	}
 
-	s.log.Info("Envelope encryption state", "current provider", currentProviderID)
+	s.log.Info("Envelope encryption state", "currentProvider", currentProviderID)
 
 	s.registerUsageMetrics()
 
@@ -340,7 +340,7 @@ func (s *SecretsService) Decrypt(ctx context.Context, payload []byte) ([]byte, e
 
 		dataKey, err = s.dataKeyById(ctx, string(keyId))
 		if err != nil {
-			s.log.FromContext(ctx).Error("Failed to lookup data key by id", "id", string(keyId), "error", err)
+			s.log.FromContext(ctx).Error("Failed to lookup data key by id", "dataKeyID", string(keyId), "error", err)
 			return nil, err
 		}
 	}

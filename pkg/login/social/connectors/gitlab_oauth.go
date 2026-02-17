@@ -126,13 +126,13 @@ func (s *SocialGitlab) getGroupsPage(ctx context.Context, client *http.Client, n
 
 	groupURL, err := url.JoinPath(s.info.ApiUrl, "/groups")
 	if err != nil {
-		s.log.Error("Error joining GitLab API URL", "err", err)
+		s.log.Error("Error joining GitLab API URL", "error", err)
 		return nil, nil
 	}
 
 	parsedUrl, err := url.Parse(groupURL)
 	if err != nil {
-		s.log.Error("Error parsing GitLab API URL", "err", err)
+		s.log.Error("Error parsing GitLab API URL", "error", err)
 		return nil, nil
 	}
 
@@ -144,7 +144,7 @@ func (s *SocialGitlab) getGroupsPage(ctx context.Context, client *http.Client, n
 
 	response, err := s.httpGet(ctx, client, parsedUrl.String())
 	if err != nil {
-		s.log.Error("Error getting groups from GitLab API", "err", err)
+		s.log.Error("Error getting groups from GitLab API", "error", err)
 		return nil, nil
 	}
 
@@ -153,7 +153,7 @@ func (s *SocialGitlab) getGroupsPage(ctx context.Context, client *http.Client, n
 	if respSizeString != "" {
 		foundSize, err := strconv.Atoi(respSizeString)
 		if err != nil {
-			s.log.Warn("Error parsing X-Total header from GitLab API", "err", err)
+			s.log.Warn("Error parsing X-Total header from GitLab API", "error", err)
 		} else {
 			respSize = foundSize
 		}
@@ -161,7 +161,7 @@ func (s *SocialGitlab) getGroupsPage(ctx context.Context, client *http.Client, n
 
 	groups := make([]Group, 0, respSize)
 	if err := json.Unmarshal(response.Body, &groups); err != nil {
-		s.log.Error("Error parsing JSON from GitLab API", "err", err)
+		s.log.Error("Error parsing JSON from GitLab API", "error", err)
 		return nil, nil
 	}
 
@@ -175,7 +175,7 @@ func (s *SocialGitlab) getGroupsPage(ctx context.Context, client *http.Client, n
 	if nextString != "" {
 		foundNext, err := strconv.Atoi(nextString)
 		if err != nil {
-			s.log.Warn("Error parsing X-Next-Page header from GitLab API", "err", err)
+			s.log.Warn("Error parsing X-Next-Page header from GitLab API", "error", err)
 		} else {
 			next = &foundNext
 		}
@@ -217,7 +217,7 @@ func (s *SocialGitlab) UserInfo(ctx context.Context, client *http.Client, token 
 	if !s.info.SkipOrgRoleSync {
 		directlyMappedRole, grafanaAdmin, err := s.extractRoleAndAdminOptional(data.raw, userInfo.Groups)
 		if err != nil {
-			s.log.Warn("Failed to extract role", "err", err)
+			s.log.Warn("Failed to extract role", "error", err)
 		}
 
 		if s.info.AllowAssignGrafanaAdmin {
@@ -267,7 +267,7 @@ func (s *SocialGitlab) extractFromAPI(ctx context.Context, client *http.Client, 
 	}
 
 	if s.cfg.Env == setting.Dev {
-		s.log.Debug("Resolved ID", "data", fmt.Sprintf("%+v", idData))
+		s.log.Debug("Resolved ID", "idData", idData)
 	}
 
 	return idData, nil
@@ -284,7 +284,7 @@ func (s *SocialGitlab) extractFromToken(ctx context.Context, client *http.Client
 
 	idTokenString, ok := idToken.(string)
 	if !ok {
-		s.log.Warn("ID token is not a string", "token", fmt.Sprintf("%+v", idToken))
+		s.log.Warn("ID token is not a string", "token", idToken)
 		return nil, nil
 	}
 
@@ -302,15 +302,15 @@ func (s *SocialGitlab) extractFromToken(ctx context.Context, client *http.Client
 		// Otherwise, just extract the payload without signature validation
 		rawJSON, err = s.retrieveRawJWTPayload(idTokenString)
 		if err != nil {
-			s.log.Warn("Error retrieving id_token", "error", err, "token", fmt.Sprintf("%+v", idToken))
+			s.log.Warn("Error retrieving id_token", "error", err, "token", idToken)
 			return nil, nil
 		}
 	}
 
-	s.log.Debug("Received id_token", "raw_json", string(rawJSON))
+	s.log.Debug("Received id_token", "rawJSON", string(rawJSON))
 	var data userData
 	if err := json.Unmarshal(rawJSON, &data); err != nil {
-		s.log.Warn("Error decoding id_token JSON", "raw_json", string(rawJSON), "error", err)
+		s.log.Warn("Error decoding id_token JSON", "rawJSON", string(rawJSON), "error", err)
 		return nil, nil
 	}
 
@@ -323,14 +323,14 @@ func (s *SocialGitlab) extractFromToken(ctx context.Context, client *http.Client
 	if err != nil {
 		s.log.Warn("Error retrieving groups from userinfo. Using only token provided groups", "error", err)
 	} else {
-		s.log.Debug("Retrieved groups from userinfo", "sub", userInfo.Sub,
-			"original_groups", data.Groups, "groups", userInfo.Groups)
+		s.log.Debug("Retrieved groups from userinfo", "userSubject", userInfo.Sub,
+			"originalGroups", data.Groups, "groups", userInfo.Groups)
 		data.Groups = userInfo.Groups
 	}
 
 	data.raw = rawJSON
 
-	s.log.Debug("Resolved user data", "data", fmt.Sprintf("%+v", data))
+	s.log.Debug("Resolved user data", "userData", data)
 	return &data, nil
 }
 

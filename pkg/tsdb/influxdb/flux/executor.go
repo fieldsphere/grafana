@@ -32,7 +32,7 @@ func executeQuery(ctx context.Context, logger log.Logger, query queryModel, runn
 			dr.ErrorSource = backend.ErrorSourceFromHTTPStatus(influxHttpError.StatusCode)
 			dr.Status = backend.Status(influxHttpError.StatusCode)
 		}
-		logger.Warn("Flux query failed", "err", err, "query", flux)
+		logger.Warn("Flux query failed", "error", err, "fluxQuery", flux)
 		dr.Error = err
 	} else {
 		// we only enforce a larger number than maxDataPoints

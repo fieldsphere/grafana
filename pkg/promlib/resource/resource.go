@@ -49,7 +49,7 @@ func New(
 }
 
 func (r *Resource) Execute(ctx context.Context, req *backend.CallResourceRequest) (*backend.CallResourceResponse, error) {
-	r.log.FromContext(ctx).Debug("Sending resource query", "URL", req.URL)
+	r.log.FromContext(ctx).Debug("Sending resource query", "requestURL", req.URL)
 	resp, err := r.promClient.QueryResource(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("error querying resource: %v", err)
@@ -154,7 +154,7 @@ func (r *Resource) GetSuggestions(ctx context.Context, req *backend.CallResource
 		)
 		s, err := getSelectors(interpolatedQuery)
 		if err != nil {
-			r.log.Warn("error parsing selectors", "error", err, "query", interpolatedQuery)
+			r.log.Warn("error parsing selectors", "error", err, "queryText", interpolatedQuery)
 			continue
 		}
 		selectorList = append(selectorList, s...)

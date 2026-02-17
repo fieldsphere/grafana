@@ -120,7 +120,7 @@ func (a *AvatarCacheServer) Handler(ctx *contextmodel.ReqContext) {
 	ctx.Resp.Header().Set("Cache-Control", "private, max-age=3600")
 
 	if err := avatar.Encode(ctx.Resp); err != nil {
-		ctx.Logger.Warn("avatar encode error:", "err", err)
+		ctx.Logger.Warn("avatar encode error:", "error", err)
 		ctx.Resp.WriteHeader(http.StatusInternalServerError)
 	}
 }
@@ -153,7 +153,7 @@ func (a *AvatarCacheServer) getAvatarForHashContext(ctx context.Context, hash st
 	if !exists {
 		// The cache item is either expired or newly created, update it from the server
 		if err := avatar.update(ctx, baseUrl); err != nil {
-			alog.Debug("avatar update", "err", err)
+			alog.Debug("avatar update", "error", err)
 			avatar = a.notFound
 		}
 	}
@@ -200,7 +200,7 @@ func newNotFound(cfg *setting.Cfg) *Avatar {
 	// variable.
 	// nolint:gosec
 	if data, err := os.ReadFile(path); err != nil {
-		alog.Error("Failed to read user_profile.png", "path", path)
+		alog.Error("Failed to read user_profile.png", "avatarFilePath", path)
 	} else {
 		avatar.data = data
 	}
@@ -280,7 +280,7 @@ func (a *thunderTask) fetch() error {
 func avatarFetch(ctx context.Context, avatar *Avatar, baseURL string) error {
 	avatar.timestamp = time.Now()
 
-	alog.Debug("avatar.fetch(fetch new avatar)", "url", baseURL)
+	alog.Debug("avatar.fetch(fetch new avatar)", "avatarURL", baseURL)
 	// First do the fetch to get the Gravatar with a retro icon fallback
 	err := performGet(ctx, baseURL+gravatarReqParams, avatar, getGravatarHandler)
 	if err == nil {
@@ -333,7 +333,7 @@ func performGet(ctx context.Context, url string, av *Avatar, handler ResponseHan
 	req.Header.Set("Accept-Language", "zh-CN,zh;q=0.8")
 	req.Header.Set("Cache-Control", "no-cache")
 	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/33.0.1750.154 Safari/537.36")
-	alog.Debug("Fetching avatar url with parameters", "url", url)
+	alog.Debug("Fetching avatar url with parameters", "avatarURL", url)
 	resp, err := client.Do(req)
 	if err != nil {
 		av.setAvatarNotFound()
@@ -341,7 +341,7 @@ func performGet(ctx context.Context, url string, av *Avatar, handler ResponseHan
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			alog.Warn("Failed to close response body", "err", err)
+			alog.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"go/build"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -27,8 +27,8 @@ const (
 
 var binaries = []string{BackendBinary, ServerBinary, CLIBinary}
 
-func logError(message string, err error) int {
-	log.Println(message, err)
+func logError(operation string, err error) int {
+	slog.Error("Build command failed", "operation", operation, "error", err)
 
 	return 1
 }
@@ -45,12 +45,12 @@ func RunCmd() int {
 
 	wd, err := os.Getwd()
 	if err != nil {
-		return logError("Error getting working directory", err)
+		return logError("get working directory", err)
 	}
 
 	packageJSON, err := OpenPackageJSON(wd)
 	if err != nil {
-		return logError("Error opening package json", err)
+		return logError("open package json", err)
 	}
 
 	opts.version = packageJSON.Version
@@ -58,14 +58,17 @@ func RunCmd() int {
 	version, iteration := LinuxPackageVersion(packageJSON.Version, opts.buildID)
 
 	if opts.printGenVersion {
-		fmt.Print(genPackageVersion(version, iteration))
+		_, _ = os.Stdout.WriteString(genPackageVersion(version, iteration))
 		return 0
 	}
 
-	log.Printf("Version: %s, Linux Version: %s, Package Iteration: %s\n", version, version, iteration)
+	slog.Info("Build version",
+		"version", version,
+		"linuxVersion", version,
+		"packageIteration", iteration)
 
 	if flag.NArg() == 0 {
-		log.Println("Usage: go run build.go build")
+		slog.Error("Usage: go run build.go build")
 		return 1
 	}
 
@@ -80,7 +83,7 @@ func RunCmd() int {
 			}
 
 			if err := doBuild("grafana", "./pkg/cmd/grafana", opts); err != nil {
-				log.Println(err)
+				slog.Error("Build backend failed", "error", err)
 				return 1
 			}
 
@@ -90,24 +93,24 @@ func RunCmd() int {
 			}
 
 			if err := doBuild("grafana-server", "./pkg/cmd/grafana-server", opts); err != nil {
-				log.Println(err)
+				slog.Error("Build server failed", "error", err)
 				return 1
 			}
 
 		case "build-cli":
 			clean(opts)
 			if err := doBuild("grafana-cli", "./pkg/cmd/grafana-cli", opts); err != nil {
-				log.Println(err)
+				slog.Error("Build CLI failed", "error", err)
 				return 1
 			}
 
 		case "build":
 			// clean()
 			for _, binary := range binaries {
-				log.Println("building binaries", cmd)
+				slog.Info("Building binaries", "command", cmd, "binary", binary)
 				// Can't use filepath.Join here because filepath.Join calls filepath.Clean, which removes the `./` from this path, which upsets `go build`
 				if err := doBuild(binary, fmt.Sprintf("./pkg/cmd/%s", binary), opts); err != nil {
-					log.Println(err)
+					slog.Error("Build failed", "binary", binary, "error", err)
 					return 1
 				}
 			}
@@ -117,14 +120,14 @@ func RunCmd() int {
 
 		case "sha-dist":
 			if err := shaDir("dist"); err != nil {
-				return logError("error packaging dist directory", err)
+				return logError("package dist directory", err)
 			}
 
 		case "clean":
 			clean(opts)
 
 		default:
-			log.Println("Unknown command", cmd)
+			slog.Error("Unknown command", "command", cmd)
 			return 1
 		}
 	}
@@ -158,7 +161,7 @@ func doBuild(binaryName, pkg string, opts BuildOpts) error {
 		binaryName += "-" + opts.binarySuffix
 	}
 
-	log.Println("building", binaryName, pkg)
+	slog.Info("Building target", "binary", binaryName, "package", pkg)
 
 	if err := setBuildEnv(opts); err != nil {
 		return err
@@ -226,7 +229,7 @@ func doBuild(binaryName, pkg string, opts BuildOpts) error {
 	if opts.libc != "" {
 		libcPart = fmt.Sprintf("/%s", opts.libc)
 	}
-	fmt.Printf("Targeting %s/%s%s\n", opts.goos, opts.goarch, libcPart)
+	slog.Info("Targeting build platform", "goos", opts.goos, "goarch", opts.goarch, "libc", opts.libc)
 
 	// Create an md5 checksum of the binary, to be included in the archive for
 	// automatic upgrades.

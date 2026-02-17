@@ -196,7 +196,7 @@ func (hs *HTTPServer) tryAutoLogin(c *contextmodel.ReqContext) bool {
 			if hs.Features.IsEnabledGlobally(featuremgmt.FlagUseSessionStorageForRedirection) {
 				redirectUrl += hs.getRedirectToForAutoLogin(c)
 			}
-			c.Logger.Info("OAuth auto login enabled. Redirecting to " + redirectUrl)
+			c.Logger.Info("OAuth auto login enabled. Redirecting", "redirectUrl", redirectUrl)
 			c.Redirect(redirectUrl, 307)
 			return true
 		}
@@ -208,7 +208,7 @@ func (hs *HTTPServer) tryAutoLogin(c *contextmodel.ReqContext) bool {
 		if hs.Features.IsEnabledGlobally(featuremgmt.FlagUseSessionStorageForRedirection) {
 			redirectUrl += hs.getRedirectToForAutoLogin(c)
 		}
-		c.Logger.Info("SAML auto login enabled. Redirecting to " + redirectUrl)
+		c.Logger.Info("SAML auto login enabled. Redirecting", "redirectUrl", redirectUrl)
 		c.Redirect(redirectUrl, 307)
 		return true
 	}
@@ -281,11 +281,11 @@ func (hs *HTTPServer) loginUserWithUser(user *user.User, c *contextmodel.ReqCont
 	addr := c.RemoteAddr()
 	ip, err := network.GetIPFromAddress(addr)
 	if err != nil {
-		hs.log.Debug("Failed to get IP from client address", "addr", addr)
+		hs.log.Debug("Failed to get IP from client address", "clientAddress", addr)
 		ip = nil
 	}
 
-	hs.log.Debug("Got IP address from client address", "addr", addr, "ip", ip)
+	hs.log.Debug("Got IP address from client address", "clientAddress", addr, "clientIP", ip)
 	ctx := context.WithValue(c.Req.Context(), loginservice.RequestURIKey{}, c.Req.RequestURI)
 	userToken, err := hs.AuthTokenService.CreateToken(ctx, &auth.CreateTokenCommand{User: user, ClientIP: ip, UserAgent: c.Req.UserAgent()})
 	if err != nil {
@@ -293,7 +293,7 @@ func (hs *HTTPServer) loginUserWithUser(user *user.User, c *contextmodel.ReqCont
 	}
 	c.UserToken = userToken
 
-	hs.log.Info("Successful Login", "User", user.Email)
+	hs.log.Info("Successful Login", "userEmail", user.Email)
 	authn.WriteSessionCookie(c.Resp, hs.Cfg, userToken)
 	return nil
 }
@@ -316,7 +316,7 @@ func (hs *HTTPServer) Logout(c *contextmodel.ReqContext) {
 		return
 	}
 
-	hs.log.Info("Successful Logout", "id", c.GetID())
+	hs.log.Info("Successful Logout", "userID", c.GetID())
 	c.Redirect(redirect.URL)
 }
 
@@ -347,19 +347,40 @@ func (hs *HTTPServer) trySetEncryptedCookie(ctx *contextmodel.ReqContext, cookie
 }
 
 func (hs *HTTPServer) redirectWithError(c *contextmodel.ReqContext, err error, v ...any) {
-	c.Logger.Warn(err.Error(), v...)
+	args := appendStructuredLoginErrorArgs(err, v...)
+	c.Logger.Warn("Login redirect error", args...)
 	c.Redirect(hs.redirectURLWithErrorCookie(c, err))
 }
 
 func (hs *HTTPServer) RedirectResponseWithError(c *contextmodel.ReqContext, err error, v ...any) *response.RedirectResponse {
-	c.Logger.Error(err.Error(), v...)
+	args := appendStructuredLoginErrorArgs(err, v...)
+	c.Logger.Error("Login redirect error", args...)
 	location := hs.redirectURLWithErrorCookie(c, err)
 	return response.Redirect(location)
 }
 
+func appendStructuredLoginErrorArgs(err error, extra ...any) []any {
+	args := []any{"error", err}
+	if len(extra) == 0 {
+		return args
+	}
+
+	if len(extra)%2 != 0 {
+		return append(args, "details", fmt.Sprint(extra...))
+	}
+
+	for i := 0; i < len(extra); i += 2 {
+		if _, isStringKey := extra[i].(string); !isStringKey {
+			return append(args, "details", fmt.Sprint(extra...))
+		}
+	}
+
+	return append(args, extra...)
+}
+
 func (hs *HTTPServer) redirectURLWithErrorCookie(c *contextmodel.ReqContext, err error) string {
 	if err := hs.trySetEncryptedCookie(c, loginErrorCookieName, getLoginExternalError(err), 60); err != nil {
-		hs.log.Error("Failed to set encrypted cookie", "err", err)
+		hs.log.Error("Failed to set encrypted cookie", "error", err)
 	}
 
 	return hs.Cfg.AppSubURL + "/login"

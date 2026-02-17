@@ -288,9 +288,15 @@ func (g *gen) frame(tags, genTags string) []byte {
 			// Omit the local package identifier if it matches the package name.
 			info := g.imports[path]
 			if info.differs {
-				fmt.Fprintf(&buf, "\t%s %q\n", info.name, path)
+				buf.WriteString("\t")
+				buf.WriteString(info.name)
+				buf.WriteString(" ")
+				buf.WriteString(strconv.Quote(path))
+				buf.WriteString("\n")
 			} else {
-				fmt.Fprintf(&buf, "\t%q\n", path)
+				buf.WriteString("\t")
+				buf.WriteString(strconv.Quote(path))
+				buf.WriteString("\n")
 			}
 		}
 		buf.WriteString(")\n\n")
@@ -304,7 +310,9 @@ func (g *gen) frame(tags, genTags string) []byte {
 		sort.Strings(anonImps)
 
 		for _, path := range anonImps {
-			fmt.Fprintf(&buf, "\t_ %s\n", path)
+			buf.WriteString("\t_ ")
+			buf.WriteString(path)
+			buf.WriteString("\n")
 		}
 		buf.WriteString(")\n\n")
 	}
@@ -576,7 +584,7 @@ func (g *gen) qualifyPkg(pkg *types.Package) string {
 }
 
 func (g *gen) p(format string, args ...interface{}) {
-	fmt.Fprintf(&g.buf, format, args...)
+	g.buf.WriteString(fmt.Sprintf(format, args...))
 }
 
 // injectorGen is the per-injector pass generator state.

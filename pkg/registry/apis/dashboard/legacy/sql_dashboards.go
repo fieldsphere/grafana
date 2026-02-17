@@ -203,7 +203,7 @@ func (a *dashboardSqlAccess) getRows(ctx context.Context, helper *legacysql.Lega
 	q := rawQuery
 	// if false {
 	// 	 pretty := sqltemplate.RemoveEmptyLines(rawQuery)
-	//	 fmt.Printf("DASHBOARD QUERY: %s [%+v] // %+v\n", pretty, req.GetArgs(), query)
+	//	 debug dashboard query output if needed
 	// }
 
 	rows, err := a.executeQuery(ctx, helper, q, req.GetArgs()...)
@@ -355,8 +355,8 @@ func (a *dashboardSqlAccess) MigrateDashboards(ctx context.Context, orgId int64,
 			a.log.Warn("rejected dashboard",
 				"namespace", opts.Namespace,
 				"dashboard", row.Dash.Name,
-				"uid", row.Dash.UID,
-				"id", id,
+				"dashboardUID", row.Dash.UID,
+				"dashboardID", id,
 				"version", row.Dash.Generation,
 			)
 			opts.Progress(-2, fmt.Sprintf("rejected: id:%s, uid:%s", id, row.Dash.Name))
@@ -876,17 +876,17 @@ func generateFallbackDashboard(data []byte, title, uid string) ([]byte, error) {
 
 func (a *dashboardSqlAccess) parseDashboard(dash *dashboardV1.Dashboard, data []byte, id int64, title string) error {
 	if err := dash.Spec.UnmarshalJSON(data); err != nil {
-		a.log.Warn("error unmarshalling dashboard spec. Generating fallback dashboard data", "error", err, "uid", dash.UID, "id", id, "name", dash.Name)
+		a.log.Warn("error unmarshalling dashboard spec. Generating fallback dashboard data", "error", err, "dashboardUID", dash.UID, "dashboardID", id, "dashboardName", dash.Name)
 		dash.Spec = *dashboardV0.NewDashboardSpec()
 
 		dashboardData, err := generateFallbackDashboard(data, title, string(dash.UID))
 		if err != nil {
-			a.log.Warn("error generating fallback dashboard data", "error", err, "uid", dash.UID, "id", id, "name", dash.Name)
+			a.log.Warn("error generating fallback dashboard data", "error", err, "dashboardUID", dash.UID, "dashboardID", id, "dashboardName", dash.Name)
 			return err
 		}
 
 		if err = dash.Spec.UnmarshalJSON(dashboardData); err != nil {
-			a.log.Warn("error unmarshalling fallback dashboard data", "error", err, "uid", dash.UID, "id", id, "name", dash.Name)
+			a.log.Warn("error unmarshalling fallback dashboard data", "error", err, "dashboardUID", dash.UID, "dashboardID", id, "dashboardName", dash.Name)
 			return err
 		}
 	}
@@ -952,7 +952,7 @@ func (a *dashboardSqlAccess) scanRow(rows *sql.Rows, history bool) (*dashboardRo
 		dash.SetCreationTimestamp(metav1.NewTime(created.Time))
 		meta, err := utils.MetaAccessor(dash)
 		if err != nil {
-			a.log.Debug("failed to get meta accessor for dashboard", "error", err, "uid", dash.UID, "name", dash.Name, "version", version)
+			a.log.Debug("failed to get meta accessor for dashboard", "error", err, "dashboardUID", dash.UID, "dashboardName", dash.Name, "version", version)
 			return nil, err
 		}
 		meta.SetUpdatedTimestamp(&updated.Time)
@@ -1090,7 +1090,7 @@ func (a *dashboardSqlAccess) buildSaveDashboardCommand(ctx context.Context, orgI
 		schemaVersion := schemaversion.GetSchemaVersion(dash.Spec.Object)
 		if schemaVersion < int(schemaversion.LATEST_VERSION) {
 			apiVersion = dashboardV0.VERSION
-			a.log.Info("Downgrading v1alpha1 dashboard to v0alpha1 due to schema version mismatch", "dashboard", dash.Name, "schema_version", schemaVersion)
+			a.log.Info("Downgrading v1alpha1 dashboard to v0alpha1 due to schema version mismatch", "dashboardName", dash.Name, "schemaVersion", schemaVersion)
 		}
 	}
 

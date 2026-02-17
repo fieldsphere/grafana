@@ -3,7 +3,6 @@ package resource
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"os"
 	"testing"
 
@@ -27,7 +26,6 @@ func TestStandardDocumentBuilder(t *testing.T) {
 	require.NoError(t, err)
 
 	jj, _ := json.MarshalIndent(doc, "", "  ")
-	fmt.Printf("%s\n", string(jj))
 	require.JSONEq(t, `{
 		"key": {
 			"namespace": "default",

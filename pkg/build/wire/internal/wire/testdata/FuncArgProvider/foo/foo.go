@@ -16,11 +16,12 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 func main() {
 	bar := injectBar(func() *Foo { return &Foo{42} })
-	fmt.Println(bar.Name)
+	_, _ = os.Stdout.WriteString(bar.Name + "\n")
 }
 
 type Foo struct {

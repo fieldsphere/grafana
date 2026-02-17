@@ -60,7 +60,7 @@ func (v *Validate) Validate(ctx context.Context, ps *plugins.Plugin) error {
 	for _, validate := range v.validateSteps {
 		err := validate(ctx, ps)
 		if err != nil {
-			v.log.Error("Plugin validation failed", "pluginId", ps.ID, "error", err)
+			v.log.Error("Plugin validation failed", "pluginID", ps.ID, "error", err)
 			return tracing.Error(span, err)
 		}
 	}

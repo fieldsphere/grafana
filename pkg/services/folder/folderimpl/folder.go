@@ -191,7 +191,7 @@ func (s *Service) DBMigration(db db.DB) {
 		return err
 	})
 	if err != nil {
-		s.log.Error("DB migration on folder service start failed.", "err", err)
+		s.log.Error("DB migration on folder service start failed.", "error", err)
 	}
 
 	s.log.Debug("syncing dashboard and folder tables finished")
@@ -409,7 +409,7 @@ func (s *Service) getChildrenLegacy(ctx context.Context, q *folder.GetChildrenQu
 		// fetch folder from dashboard store
 		dashFolder, ok := dashFolders[f.UID]
 		if !ok {
-			s.log.Error("failed to fetch folder by UID from dashboard store", "uid", f.UID)
+			s.log.Error("failed to fetch folder by UID from dashboard store", "folderUID", f.UID)
 			continue
 		}
 
@@ -472,7 +472,7 @@ func (s *Service) getRootFolders(ctx context.Context, q *folder.GetChildrenQuery
 		// fetch folder from dashboard store
 		dashFolder, ok := dashFolders[f.UID]
 		if !ok {
-			s.log.Error("failed to fetch folder by UID from dashboard store", "orgID", q.OrgID, "uid", f.UID)
+			s.log.Error("failed to fetch folder by UID from dashboard store", "orgID", q.OrgID, "folderUID", f.UID)
 		}
 		// always expose the dashboard store sequential ID
 		metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Folder).Inc()
@@ -699,7 +699,7 @@ func (s *Service) CreateLegacy(ctx context.Context, cmd *folder.CreateFolderComm
 	if id, err := identity.UserIdentifier(cmd.SignedInUser.GetID()); err == nil {
 		userID = id
 	} else if !identity.IsServiceIdentity(ctx) {
-		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "id", cmd.SignedInUser.GetID())
+		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "userID", cmd.SignedInUser.GetID())
 	}
 
 	if userID == 0 {
@@ -842,7 +842,7 @@ func (s *Service) legacyUpdate(ctx context.Context, cmd *folder.UpdateFolderComm
 	if id, err := identity.UserIdentifier(cmd.SignedInUser.GetID()); err == nil {
 		userID = id
 	} else if !identity.IsServiceIdentity(ctx) {
-		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "id", cmd.SignedInUser.GetID())
+		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "userID", cmd.SignedInUser.GetID())
 	}
 
 	prepareForUpdate(dashFolder, cmd.OrgID, userID, cmd)
@@ -966,7 +966,7 @@ func (s *Service) DeleteLegacy(ctx context.Context, cmd *folder.DeleteFolderComm
 
 		err = s.store.Delete(ctx, []string{cmd.UID}, cmd.OrgID)
 		if err != nil {
-			s.log.InfoContext(ctx, "failed deleting folder", "org_id", cmd.OrgID, "uid", cmd.UID, "err", err)
+			s.log.InfoContext(ctx, "failed deleting folder", "orgID", cmd.OrgID, "folderUID", cmd.UID, "error", err)
 			return err
 		}
 
@@ -1132,7 +1132,7 @@ func (s *Service) publishFolderFullPathUpdatedEvent(ctx context.Context, timesta
 	for _, f := range descFolders {
 		uids = append(uids, f.UID)
 	}
-	span.AddEvent("found folder descendants", trace.WithAttributes(
+	span.AddEvent("foundFolderDescendants", trace.WithAttributes(
 		attribute.Int64("folders", int64(len(uids))),
 	))
 
@@ -1246,11 +1246,11 @@ func (s *Service) nestedFolderDelete(ctx context.Context, cmd *folder.DeleteFold
 	for _, f := range descendants {
 		descendantUIDs = append(descendantUIDs, f.UID)
 	}
-	s.log.InfoContext(ctx, "deleting legacy folder descendants", "org_id", cmd.OrgID, "uid", cmd.UID, "descendantsUIDs", strings.Join(descendantUIDs, ","))
+	s.log.InfoContext(ctx, "deleting legacy folder descendants", "orgID", cmd.OrgID, "folderUID", cmd.UID, "descendantsUIDs", strings.Join(descendantUIDs, ","))
 
 	err = s.store.Delete(ctx, descendantUIDs, cmd.OrgID)
 	if err != nil {
-		s.log.ErrorContext(ctx, "failed to delete legacy folder descendants", "org_id", cmd.OrgID, "parent_uid", cmd.UID, "descendantsUIDs", strings.Join(descendantUIDs, ","), "err", err)
+		s.log.ErrorContext(ctx, "failed to delete legacy folder descendants", "orgID", cmd.OrgID, "parentUID", cmd.UID, "descendantsUIDs", strings.Join(descendantUIDs, ","), "error", err)
 		return descendantUIDs, err
 	}
 	return descendantUIDs, nil
@@ -1324,7 +1324,7 @@ func (s *Service) buildSaveDashboardCommand(ctx context.Context, dto *dashboards
 	if id, err := identity.UserIdentifier(dto.User.GetID()); err == nil {
 		userID = id
 	} else if !identity.IsServiceIdentity(ctx) {
-		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "id", dto.User.GetID())
+		s.log.Warn("User does not belong to a user or service account namespace, using 0 as user ID", "userID", dto.User.GetID())
 	}
 
 	metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Folder).Inc()

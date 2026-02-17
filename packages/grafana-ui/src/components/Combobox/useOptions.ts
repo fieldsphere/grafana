@@ -5,6 +5,7 @@ import { debounce } from 'lodash';
 import { useState, useCallback, useMemo } from 'react';
 
 import { t } from '@grafana/i18n';
+import { logUiError } from '../../utils/structuredLogging';
 
 import { fuzzyFind, itemToString } from './filter';
 import { ComboboxOption } from './types';
@@ -51,7 +52,10 @@ export function useOptions<T extends string | number>(
               setAsyncLoading(false);
 
               if (error) {
-                console.error('Error loading async options for Combobox', error);
+                logUiError('Error loading async options for Combobox', {
+                  operation: 'debouncedLoadOptions',
+                  error: String(error),
+                });
               }
             }
           });

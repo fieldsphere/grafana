@@ -135,14 +135,14 @@ func (s *gPRCServerService) Run(ctx context.Context) error {
 	s.logger.Info("Running GRPC server",
 		"address", s.cfg.Address,
 		"network", s.cfg.Network,
-		"tls", s.cfg.TLSConfig != nil,
-		"max_recv_msg_size", s.cfg.MaxRecvMsgSize,
-		"max_send_msg_size", s.cfg.MaxSendMsgSize,
-		"max_connection_age", s.cfg.MaxConnectionAge,
-		"max_connection_idle", s.cfg.MaxConnectionIdle,
-		"keepalive_time", s.cfg.KeepaliveTime,
-		"keepalive_timeout", s.cfg.KeepaliveTimeout,
-		"keepalive_min_time", s.cfg.KeepaliveMinTime)
+		"tlsEnabled", s.cfg.TLSConfig != nil,
+		"maxRecvMsgSize", s.cfg.MaxRecvMsgSize,
+		"maxSendMsgSize", s.cfg.MaxSendMsgSize,
+		"maxConnectionAge", s.cfg.MaxConnectionAge,
+		"maxConnectionIdle", s.cfg.MaxConnectionIdle,
+		"keepaliveTime", s.cfg.KeepaliveTime,
+		"keepaliveTimeout", s.cfg.KeepaliveTimeout,
+		"keepaliveMinTime", s.cfg.KeepaliveMinTime)
 
 	listener, err := net.Listen(s.cfg.Network, s.cfg.Address)
 	if err != nil {
@@ -156,7 +156,7 @@ func (s *gPRCServerService) Run(ctx context.Context) error {
 	go func() {
 		s.logger.Info("GRPC server: starting")
 		if err := s.server.Serve(listener); err != nil {
-			s.logger.Error("GRPC server: failed to serve", "err", err)
+			s.logger.Error("GRPC server: failed to serve", "error", err)
 			serveErrCh <- err
 		}
 	}()

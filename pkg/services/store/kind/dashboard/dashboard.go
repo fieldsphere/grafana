@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -396,9 +397,13 @@ func checkAndSkipUnexpectedElement(iter *jsoniter.Iterator, jsonPath string, log
 		"expected", valueTypesToString(allowedValues...),
 	}
 
-	// Map iteration is random, so a log message may look different each time if there are multiple entries in the map. That's fine.
-	for k, v := range logContext {
-		params = append(params, k, v)
+	keys := make([]string, 0, len(logContext))
+	for key := range logContext {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	for _, key := range keys {
+		params = append(params, key, logContext[key])
 	}
 
 	logger.Error("Unexpected element in Dashboard JSON", params...)

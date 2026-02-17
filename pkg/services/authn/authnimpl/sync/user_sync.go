@@ -185,7 +185,7 @@ func (s *UserSync) CatalogLoginHook(_ context.Context, identity *authn.Identity,
 
 // ValidateUserProvisioningHook validates if a user should be allowed access based on provisioning status and configuration
 func (s *UserSync) ValidateUserProvisioningHook(ctx context.Context, currentIdentity *authn.Identity, _ *authn.Request) error {
-	log := s.log.FromContext(ctx).New("auth_module", currentIdentity.AuthenticatedBy, "auth_id", currentIdentity.AuthID)
+	log := s.log.FromContext(ctx).New("authModule", currentIdentity.AuthenticatedBy, "authID", currentIdentity.AuthID)
 
 	if !currentIdentity.ClientParams.SyncUser {
 		return nil
@@ -246,7 +246,7 @@ func (s *UserSync) ValidateUserProvisioningHook(ctx context.Context, currentIden
 }
 
 func (s *UserSync) skipProvisioningValidation(ctx context.Context, currentIdentity *authn.Identity) bool {
-	log := s.log.FromContext(ctx).New("auth_module", currentIdentity.AuthenticatedBy, "auth_id", currentIdentity.AuthID, "id", currentIdentity.ID)
+	log := s.log.FromContext(ctx).New("authModule", currentIdentity.AuthenticatedBy, "authID", currentIdentity.AuthID, "identityID", currentIdentity.ID)
 
 	// Use dynamic SCIM settings if available, otherwise fall back to static config
 	effectiveUserSyncEnabled := s.isUserProvisioningEnabled
@@ -292,13 +292,13 @@ func (s *UserSync) SyncUserHook(ctx context.Context, id *authn.Identity, _ *auth
 	// Does user exist in the database?
 	usr, userAuth, err := s.getUser(ctx, id)
 	if err != nil && !errors.Is(err, user.ErrUserNotFound) {
-		s.log.FromContext(ctx).Error("Failed to fetch user", "error", err, "auth_module", id.AuthenticatedBy, "auth_id", id.AuthID)
+		s.log.FromContext(ctx).Error("Failed to fetch user", "error", err, "authModule", id.AuthenticatedBy, "authID", id.AuthID)
 		return errSyncUserInternal.Errorf("unable to retrieve user")
 	}
 
 	if errors.Is(err, user.ErrUserNotFound) {
 		if !id.ClientParams.AllowSignUp {
-			s.log.FromContext(ctx).Warn("Failed to create user, signup is not allowed for module", "auth_module", id.AuthenticatedBy, "auth_id", id.AuthID)
+			s.log.FromContext(ctx).Warn("Failed to create user, signup is not allowed for module", "authModule", id.AuthenticatedBy, "authID", id.AuthID)
 			return errUserSignupDisabled.Errorf("%w", errSignupNotAllowed)
 		}
 
@@ -321,8 +321,8 @@ func (s *UserSync) SyncUserHook(ctx context.Context, id *authn.Identity, _ *auth
 				})
 				if errors.Is(authErr, user.ErrUserNotFound) {
 					s.log.FromContext(ctx).Error("SCIM-provisioned user attempted login via non-SAML auth module",
-						"user_id", usr.ID,
-						"attempted_module", id.AuthenticatedBy,
+						"userID", usr.ID,
+						"attemptedModule", id.AuthenticatedBy,
 					)
 					return errSCIMAuthModuleMismatch.Errorf("user was provisioned via SCIM but attempted login via %s", id.AuthenticatedBy)
 				}
@@ -330,13 +330,13 @@ func (s *UserSync) SyncUserHook(ctx context.Context, id *authn.Identity, _ *auth
 		}
 
 		if err != nil {
-			s.log.FromContext(ctx).Error("Failed to create user", "error", err, "auth_module", id.AuthenticatedBy, "auth_id", id.AuthID)
+			s.log.FromContext(ctx).Error("Failed to create user", "error", err, "authModule", id.AuthenticatedBy, "authID", id.AuthID)
 			return errSyncUserInternal.Errorf("unable to create user: %w", err)
 		}
 	} else {
 		// update user
 		if err := s.updateUserAttributes(ctx, usr, id, userAuth); err != nil {
-			s.log.FromContext(ctx).Error("Failed to update user", "error", err, "auth_module", id.AuthenticatedBy, "auth_id", id.AuthID)
+			s.log.FromContext(ctx).Error("Failed to update user", "error", err, "authModule", id.AuthenticatedBy, "authID", id.AuthID)
 			return errSyncUserInternal.Errorf("unable to update user")
 		}
 	}
@@ -359,7 +359,7 @@ func (s *UserSync) FetchSyncedUserHook(ctx context.Context, id *authn.Identity, 
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "err", err)
+		s.log.FromContext(ctx).Warn("got invalid identity ID", "identityID", id.ID, "error", err)
 		return nil
 	}
 
@@ -400,7 +400,7 @@ func (s *UserSync) SyncLastSeenHook(ctx context.Context, id *authn.Identity, r *
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "err", err)
+		s.log.FromContext(ctx).Warn("got invalid identity ID", "identityID", id.ID, "error", err)
 		return nil
 	}
 
@@ -409,7 +409,7 @@ func (s *UserSync) SyncLastSeenHook(ctx context.Context, id *authn.Identity, r *
 	_, _, _ = s.lastSeenSF.Do(fmt.Sprintf("%d-%d", id.GetOrgID(), userID), func() (interface{}, error) {
 		err := s.userService.UpdateLastSeenAt(goCtx, &user.UpdateUserLastSeenAtCommand{UserID: userID, OrgID: id.GetOrgID()})
 		if err != nil && !errors.Is(err, user.ErrLastSeenUpToDate) {
-			s.log.Error("Failed to update last_seen_at", "err", err, "userId", userID)
+			s.log.Error("Failed to update last_seen_at", "error", err, "userID", userID)
 		}
 		return nil, nil
 	})
@@ -431,7 +431,7 @@ func (s *UserSync) EnableUserHook(ctx context.Context, id *authn.Identity, _ *au
 
 	userID, err := id.GetInternalID()
 	if err != nil {
-		s.log.FromContext(ctx).Warn("got invalid identity ID", "id", id.ID, "err", err)
+		s.log.FromContext(ctx).Warn("got invalid identity ID", "identityID", id.ID, "error", err)
 		return nil
 	}
 
@@ -475,7 +475,7 @@ func (s *UserSync) upsertAuthConnection(ctx context.Context, userID int64, ident
 		updateAuthInfoCmd.OAuthToken = identity.OAuthToken
 	}
 
-	s.log.FromContext(ctx).Debug("Updating auth connection for user", "id", identity.ID)
+	s.log.FromContext(ctx).Debug("Updating auth connection for user", "identityID", identity.ID)
 	return s.authInfoService.UpdateAuthInfo(ctx, updateAuthInfoCmd)
 }
 
@@ -528,14 +528,14 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 	}
 
 	span.SetAttributes(
-		attribute.String("identity.ID", id.ID),
-		attribute.String("identity.ExternalUID", id.ExternalUID),
+		attribute.String("identityID", id.ID),
+		attribute.String("identityExternalUID", id.ExternalUID),
 	)
 
 	ctxLogger := s.log.FromContext(ctx)
 
 	if s.shouldRejectNonProvisionedUsers(ctx, id) && usr.IsProvisioned && id.AuthenticatedBy != login.GrafanaComAuthModule {
-		ctxLogger.Debug("User is provisioned", "id.UID", id.UID)
+		ctxLogger.Debug("User is provisioned", "identityUID", id.UID)
 		needsConnectionCreation = false
 		authInfo, err := s.authInfoService.GetAuthInfo(ctx, &login.GetAuthInfoQuery{UserId: usr.ID, AuthModule: id.AuthenticatedBy})
 		if err != nil {
@@ -546,13 +546,13 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 		}
 
 		if id.ExternalUID == "" {
-			ctxLogger.Error("externalUID is empty for provisioned user", "id", id.UID)
+			ctxLogger.Error("externalUID is empty for provisioned user", "identityUID", id.UID)
 			span.SetStatus(codes.Error, "externalUID is empty for provisioned user")
 			return errEmptyExternalUID.Errorf("externalUID is empty")
 		}
 
 		if id.ExternalUID != authInfo.ExternalUID {
-			ctxLogger.Error("mismatched externalUID for provisioned user", "provisioned_externalUID", authInfo.ExternalUID, "identity_externalUID", id.ExternalUID)
+			ctxLogger.Error("mismatched externalUID for provisioned user", "provisionedExternalUID", authInfo.ExternalUID, "identityExternalUID", id.ExternalUID)
 			span.SetStatus(codes.Error, "mismatched externalUID for provisioned user")
 			return errMismatchedExternalUID.Errorf("externalUID mismatch")
 		}
@@ -565,27 +565,27 @@ func (s *UserSync) updateUserAttributes(ctx context.Context, usr *user.User, id 
 		if !usr.IsProvisioned {
 			finalCmdToExecute = updateCmd
 			shouldExecuteUpdate = true
-			ctxLogger.Debug("Syncing all differing attributes for non-provisioned user", "id", id.ID,
-				"login", finalCmdToExecute.Login, "email", finalCmdToExecute.Email, "name", finalCmdToExecute.Name,
+			ctxLogger.Debug("Syncing all differing attributes for non-provisioned user", "identityID", id.ID,
+				"login", finalCmdToExecute.Login, "email", finalCmdToExecute.Email, "userName", finalCmdToExecute.Name,
 				"isGrafanaAdmin", finalCmdToExecute.IsGrafanaAdmin, "emailVerified", finalCmdToExecute.EmailVerified)
 		} else {
 			if updateCmd.IsGrafanaAdmin != nil {
 				finalCmdToExecute.IsGrafanaAdmin = updateCmd.IsGrafanaAdmin
 				shouldExecuteUpdate = true
-				ctxLogger.Debug("Syncing IsGrafanaAdmin for provisioned user", "id", id.ID, "isAdmin", fmt.Sprintf("%v", *updateCmd.IsGrafanaAdmin))
+				ctxLogger.Debug("Syncing IsGrafanaAdmin for provisioned user", "identityID", id.ID, "isAdmin", *updateCmd.IsGrafanaAdmin)
 			}
 
 			if !shouldExecuteUpdate {
-				ctxLogger.Debug("SAML attributes differed, but no SCIM-overridable attributes changed for provisioned user", "id", id.ID,
-					"login", updateCmd.Login, "email", updateCmd.Email, "name", updateCmd.Name,
+				ctxLogger.Debug("SAML attributes differed, but no SCIM-overridable attributes changed for provisioned user", "identityID", id.ID,
+					"login", updateCmd.Login, "email", updateCmd.Email, "userName", updateCmd.Name,
 					"isGrafanaAdmin", updateCmd.IsGrafanaAdmin, "emailVerified", updateCmd.EmailVerified)
 			}
 		}
 
 		if shouldExecuteUpdate {
 			if err := s.userService.Update(ctx, finalCmdToExecute); err != nil {
-				ctxLogger.Error("Failed to update user attributes", "error", err, "id", id.ID, "isProvisioned", usr.IsProvisioned,
-					"login", finalCmdToExecute.Login, "email", finalCmdToExecute.Email, "name", finalCmdToExecute.Name,
+				ctxLogger.Error("Failed to update user attributes", "error", err, "identityID", id.ID, "isProvisioned", usr.IsProvisioned,
+					"login", finalCmdToExecute.Login, "email", finalCmdToExecute.Email, "userName", finalCmdToExecute.Name,
 					"isGrafanaAdmin", finalCmdToExecute.IsGrafanaAdmin, "emailVerified", finalCmdToExecute.EmailVerified)
 				span.RecordError(err)
 				span.SetStatus(codes.Error, err.Error())
@@ -664,7 +664,7 @@ func (s *UserSync) getUser(ctx context.Context, identity *authn.Identity) (*user
 			// if the user connected to user auth does not exist try to clean it up
 			if errors.Is(errGetByID, user.ErrUserNotFound) {
 				if err := s.authInfoService.DeleteUserAuthInfo(ctx, authInfo.UserId); err != nil {
-					s.log.FromContext(ctx).Error("Failed to clean up user auth", "error", err, "auth_module", identity.AuthenticatedBy, "auth_id", identity.AuthID)
+					s.log.FromContext(ctx).Error("Failed to clean up user auth", "error", err, "authModule", identity.AuthenticatedBy, "authID", identity.AuthID)
 				}
 			}
 		}

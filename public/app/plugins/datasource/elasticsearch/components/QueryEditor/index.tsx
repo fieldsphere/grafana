@@ -3,7 +3,7 @@ import { useCallback, useEffect, useId, useState } from 'react';
 import { SemVer } from 'semver';
 
 import { getDefaultTimeRange, GrafanaTheme2, QueryEditorProps } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 import { Alert, ConfirmModal, InlineField, InlineLabel, Input, QueryField, useStyles2 } from '@grafana/ui';
 
 import { ElasticsearchDataQuery } from '../../dataquery.gen';
@@ -23,6 +23,7 @@ import { RawQueryEditor } from './RawQueryEditor';
 import { changeAliasPattern, changeEditorTypeAndResetQuery, changeQuery, changeRawDSLQuery } from './state';
 
 export type ElasticQueryEditorProps = QueryEditorProps<ElasticDatasource, ElasticsearchDataQuery, ElasticsearchOptions>;
+const logger = createMonitoringLogger('plugins.datasource.elasticsearch.query-editor');
 
 // a react hook that returns the elasticsearch database version,
 // or `null`, while loading, or if it is not possible to determine the value.
@@ -38,7 +39,14 @@ function useElasticVersion(datasource: ElasticDatasource): SemVer | null {
       },
       (error) => {
         // we do nothing
-        console.log(error);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'useElasticVersion' });
+        } else {
+          logger.logWarning('Failed to load Elasticsearch version', {
+            operation: 'useElasticVersion',
+            error: String(error),
+          });
+        }
       }
     );
 

@@ -292,7 +292,7 @@ func (srv PrometheusSrv) RouteGetRuleStatuses(c *contextmodel.ReqContext) respon
 	// Propagate the new context so child spans can attach to it.
 	c.Req = c.Req.WithContext(ctx)
 	orgID := c.GetOrgID()
-	span.SetAttributes(attribute.Int64("org_id", orgID))
+	span.SetAttributes(attribute.Int64("orgID", orgID))
 
 	ruleResponse := apimodels.RuleResponse{
 		DiscoveryBase: apimodels.DiscoveryBase{
@@ -310,7 +310,7 @@ func (srv PrometheusSrv) RouteGetRuleStatuses(c *contextmodel.ReqContext) respon
 		ruleResponse.ErrorType = apiv1.ErrServer
 		return response.JSON(ruleResponse.HTTPStatusCode(), ruleResponse)
 	}
-	span.AddEvent("User visible namespaces retrieved")
+	span.AddEvent("userVisibleNamespacesRetrieved")
 
 	allowedNamespaces := map[string]string{}
 	for namespaceUID, folder := range namespaceMap {
@@ -326,7 +326,7 @@ func (srv PrometheusSrv) RouteGetRuleStatuses(c *contextmodel.ReqContext) respon
 			allowedNamespaces[namespaceUID] = folder.Fullpath
 		}
 	}
-	span.AddEvent("User permissions checked")
+	span.AddEvent("userPermissionsChecked")
 	span.SetAttributes(attribute.Int("allowedNamespaces", len(allowedNamespaces)))
 
 	ruleResponse = PrepareRuleGroupStatusesV2(
@@ -546,10 +546,10 @@ func (ctx *paginationContext) fetchAndFilterPage(log log.Logger, store ListAlert
 	}
 
 	span.SetAttributes(
-		attribute.Int("store_rule_list_len", len(ruleList)),
-		attribute.Bool("store_continue_token_set", newToken != ""),
+		attribute.Int("storeRuleListLen", len(ruleList)),
+		attribute.Bool("storeContinueTokenSet", newToken != ""),
 	)
-	span.AddEvent("Alert rules retrieved from store")
+	span.AddEvent("alertRulesRetrievedFromStore")
 
 	// Load provenance for this page's rules
 	if ctx.provenanceStore != nil {
@@ -580,7 +580,7 @@ func (ctx *paginationContext) fetchAndFilterPage(log log.Logger, store ListAlert
 			}
 		}
 	}
-	span.AddEvent("Provenances retrieved from store")
+	span.AddEvent("provenancesRetrievedFromStore")
 
 	groupedRules := getGroupedRules(log, ruleList, ctx.ruleNamesSet, ctx.opts.AllowedNamespaces)
 
@@ -723,21 +723,21 @@ func PrepareRuleGroupStatusesV2(log log.Logger, store ListAlertRulesStoreV2, opt
 		return ruleResponse
 	}
 	span.SetAttributes(
-		attribute.String("dashboard_uid", dashboardUID),
-		attribute.Int64("panel_id", panelID),
+		attribute.String("dashboardUID", dashboardUID),
+		attribute.Int64("panelID", panelID),
 	)
 
 	limitRulesPerGroup := getInt64WithDefault(opts.Query, "limit_rules", -1)
 	limitAlertsPerRule := getInt64WithDefault(opts.Query, "limit_alerts", -1)
 	span.SetAttributes(
-		attribute.Int64("limit_rules", limitRulesPerGroup),
-		attribute.Int64("limit_alerts", limitAlertsPerRule),
+		attribute.Int64("limitRules", limitRulesPerGroup),
+		attribute.Int64("limitAlerts", limitAlertsPerRule),
 	)
 	matchers, err := getMatchersFromQuery(opts.Query, queryInstanceMatcher)
 	if err != nil {
 		return badRequestError(err)
 	}
-	span.SetAttributes(attribute.Int("matcher_count", len(matchers)))
+	span.SetAttributes(attribute.Int("matcherCount", len(matchers)))
 
 	ruleLabelMatchers, err := getMatchersFromQuery(opts.Query, queryRuleMatcher)
 	if err != nil {
@@ -750,8 +750,8 @@ func PrepareRuleGroupStatusesV2(log log.Logger, store ListAlertRulesStoreV2, opt
 		}
 	}
 	span.SetAttributes(
-		attribute.Int("rule_matcher_count", len(ruleLabelMatchers)),
-		attribute.Int("rule_matcher_regex_count", regexCount),
+		attribute.Int("ruleMatcherCount", len(ruleLabelMatchers)),
+		attribute.Int("ruleMatcherRegexCount", regexCount),
 	)
 
 	stateFilterSet, err := GetStatesFromQuery(opts.Query)
@@ -759,8 +759,8 @@ func PrepareRuleGroupStatusesV2(log log.Logger, store ListAlertRulesStoreV2, opt
 		return badRequestError(err)
 	}
 	span.SetAttributes(
-		attribute.Int("state_filter_count", len(stateFilterSet)),
-		attribute.StringSlice("state_filter", MapStateSetToStrings(stateFilterSet)),
+		attribute.Int("stateFilterCount", len(stateFilterSet)),
+		attribute.StringSlice("stateFilter", MapStateSetToStrings(stateFilterSet)),
 	)
 
 	healthFilterSet, err := GetHealthFromQuery(opts.Query)
@@ -768,8 +768,8 @@ func PrepareRuleGroupStatusesV2(log log.Logger, store ListAlertRulesStoreV2, opt
 		return badRequestError(err)
 	}
 	span.SetAttributes(
-		attribute.Int("health_filter_count", len(healthFilterSet)),
-		attribute.StringSlice("health_filter", slices.Collect(maps.Keys(healthFilterSet))),
+		attribute.Int("healthFilterCount", len(healthFilterSet)),
+		attribute.StringSlice("healthFilter", slices.Collect(maps.Keys(healthFilterSet))),
 	)
 
 	var labelOptions []ngmodels.LabelOption
@@ -777,7 +777,7 @@ func PrepareRuleGroupStatusesV2(log log.Logger, store ListAlertRulesStoreV2, opt
 		labelOptions = append(labelOptions, ngmodels.WithoutInternalLabels())
 	}
 	span.SetAttributes(
-		attribute.Bool("include_internal_labels", len(labelOptions) == 0),
+		attribute.Bool("includeInternalLabels", len(labelOptions) == 0),
 	)
 
 	if len(opts.AllowedNamespaces) == 0 {
@@ -809,9 +809,9 @@ func PrepareRuleGroupStatusesV2(log log.Logger, store ListAlertRulesStoreV2, opt
 	}
 
 	span.SetAttributes(
-		attribute.Bool("folder_uid_set", folderUID != ""),
-		attribute.Bool("search_folder_set", searchFolder != ""),
-		attribute.Int("namespace_count", len(namespaceUIDs)),
+		attribute.Bool("folderUIDSet", folderUID != ""),
+		attribute.Bool("searchFolderSet", searchFolder != ""),
+		attribute.Int("namespaceCount", len(namespaceUIDs)),
 	)
 
 	if searchFolder != "" && len(namespaceUIDs) == 0 {
@@ -823,30 +823,30 @@ func PrepareRuleGroupStatusesV2(log log.Logger, store ListAlertRulesStoreV2, opt
 	ruleUIDs := opts.Query["rule_uid"]
 
 	span.SetAttributes(
-		attribute.Int("rule_group_count", len(ruleGroups)),
-		attribute.Int("rule_uid_count", len(ruleUIDs)),
+		attribute.Int("ruleGroupCount", len(ruleGroups)),
+		attribute.Int("ruleUIDCount", len(ruleUIDs)),
 	)
 
 	receiverName := opts.Query.Get("receiver_name")
-	span.SetAttributes(attribute.Bool("receiver_name_set", receiverName != ""))
+	span.SetAttributes(attribute.Bool("receiverNameSet", receiverName != ""))
 
 	title := opts.Query.Get("search.rule_name")
-	span.SetAttributes(attribute.Bool("search_rule_name_set", title != ""))
+	span.SetAttributes(attribute.Bool("searchRuleNameSet", title != ""))
 
 	searchRuleGroup := opts.Query.Get("search.rule_group")
-	span.SetAttributes(attribute.Bool("search_rule_group_set", searchRuleGroup != ""))
+	span.SetAttributes(attribute.Bool("searchRuleGroupSet", searchRuleGroup != ""))
 
 	dataSourceUIDs := opts.Query["datasource_uid"]
-	span.SetAttributes(attribute.Bool("datasource_uid_set", len(dataSourceUIDs) > 0))
+	span.SetAttributes(attribute.Bool("datasourceUIDSet", len(dataSourceUIDs) > 0))
 
 	var ruleType ngmodels.RuleTypeFilter
 	switch ngmodels.RuleType(opts.Query.Get("rule_type")) {
 	case ngmodels.RuleTypeAlerting:
 		ruleType = ngmodels.RuleTypeFilterAlerting
-		span.SetAttributes(attribute.Bool("alerting_only", true))
+		span.SetAttributes(attribute.Bool("alertingOnly", true))
 	case ngmodels.RuleTypeRecording:
 		ruleType = ngmodels.RuleTypeFilterRecording
-		span.SetAttributes(attribute.Bool("recording_only", true))
+		span.SetAttributes(attribute.Bool("recordingOnly", true))
 	default:
 		ruleType = ngmodels.RuleTypeFilterAll
 	}
@@ -858,7 +858,7 @@ func PrepareRuleGroupStatusesV2(log log.Logger, store ListAlertRulesStoreV2, opt
 	case "only":
 		pluginOriginFilter = ngmodels.PluginOriginFilterOnly
 	}
-	span.SetAttributes(attribute.String("plugins_filter", string(pluginOriginFilter)))
+	span.SetAttributes(attribute.String("pluginsFilter", string(pluginOriginFilter)))
 
 	// Pagination limits
 	//
@@ -875,9 +875,9 @@ func PrepareRuleGroupStatusesV2(log log.Logger, store ListAlertRulesStoreV2, opt
 	maxRules := getInt64WithDefault(opts.Query, "rule_limit", -1)
 	nextToken := opts.Query.Get("group_next_token")
 	span.SetAttributes(
-		attribute.Int64("group_limit", maxGroups),
-		attribute.Int64("rule_limit", maxRules),
-		attribute.Bool("group_next_token_set", nextToken != ""),
+		attribute.Int64("groupLimit", maxGroups),
+		attribute.Int64("ruleLimit", maxRules),
+		attribute.Bool("groupNextTokenSet", nextToken != ""),
 	)
 
 	if maxGroups == 0 || maxRules == 0 {
@@ -889,7 +889,7 @@ func PrepareRuleGroupStatusesV2(log log.Logger, store ListAlertRulesStoreV2, opt
 	for _, rn := range ruleNames {
 		ruleNamesSet[rn] = struct{}{}
 	}
-	span.SetAttributes(attribute.Int("rule_name_count", len(ruleNamesSet)))
+	span.SetAttributes(attribute.Int("ruleNameCount", len(ruleNamesSet)))
 
 	compact := getBoolWithDefault(opts.Query, "compact", false)
 	span.SetAttributes(attribute.Bool("compact", compact))
@@ -1142,7 +1142,7 @@ func getGroupedRules(log log.Logger, ruleList ngmodels.RulesGroup, ruleNamesSet 
 	for groupKey, groupRules := range groupedRules {
 		folder, ok := namespaceMap[groupKey.NamespaceUID]
 		if !ok {
-			log.Warn("Query returned rules that belong to folder the user does not have access to. All rules that belong to that namespace will not be added to the response", "folder_uid", groupKey.NamespaceUID)
+			log.Warn("Query returned rules that belong to folder the user does not have access to. All rules that belong to that namespace will not be added to the response", "folderUID", groupKey.NamespaceUID)
 			continue
 		}
 

@@ -3,6 +3,7 @@ import { useState } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import {
   ClipboardButton,
   CustomCellRendererProps,
@@ -14,6 +15,8 @@ import {
 import { LogsFrame } from 'app/features/logs/logsFrame';
 
 import { BuildLinkToLogLine } from '../types';
+
+const logger = createMonitoringLogger('plugins.panel.logstable.row-actions');
 
 interface Props extends CustomCellRendererProps {
   buildLinkToLog?: BuildLinkToLogLine;
@@ -71,7 +74,10 @@ export function LogsTableRowActionButtons(props: Props) {
                 if (logId) {
                   return buildLinkToLog(logId) ?? '';
                 } else {
-                  console.error('failed to copy log line link!');
+                  logger.logWarning('Failed to copy log line link. Missing log id.', {
+                    operation: 'LogsTableRowActionButtons.getText',
+                    rowIndex,
+                  });
                 }
                 return '';
               }}

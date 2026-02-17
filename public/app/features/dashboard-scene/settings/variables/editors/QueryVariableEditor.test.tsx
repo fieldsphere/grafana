@@ -442,12 +442,9 @@ describe('QueryVariableEditor', () => {
   });
 
   it('should return an empty array if variable is not a QueryVariable', () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
     const variable = new TextBoxVariable({ name: 'test', value: 'test value' });
     const result = getQueryVariableOptions(variable);
     expect(result).toEqual([]);
-    expect(consoleWarnSpy).toHaveBeenCalledWith('getQueryVariableOptions: variable is not a QueryVariable');
-    consoleWarnSpy.mockRestore();
   });
 
   it('should return an OptionsPaneItemDescriptor that renders ModalEditor with expected interactions', async () => {

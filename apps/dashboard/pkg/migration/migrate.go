@@ -65,7 +65,7 @@ func PreloadCacheInBackground(nsInfos []types.NamespaceInfo) {
 	go func() {
 		defer func() {
 			if r := recover(); r != nil {
-				logging.DefaultLogger.Error("panic during cache preloading", "error", r)
+				logging.DefaultLogger.Error("panic during cache preloading", "panicValue", r)
 			}
 		}()
 		PreloadCache(context.Background(), nsInfos)

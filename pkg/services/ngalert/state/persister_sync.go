@@ -36,13 +36,13 @@ func (a *SyncStatePersister) Sync(ctx context.Context, span trace.Span, _ ngMode
 	staleStates := allStates.StaleStates()
 	if len(staleStates) > 0 {
 		a.deleteAlertStates(ctx, staleStates)
-		span.AddEvent("deleted stale states", trace.WithAttributes(
-			attribute.Int64("state_transitions", int64(len(staleStates))),
+		span.AddEvent("deletedStaleStates", trace.WithAttributes(
+			attribute.Int64("stateTransitions", int64(len(staleStates))),
 		))
 	}
 
 	a.saveAlertStates(ctx, allStates...)
-	span.AddEvent("updated database")
+	span.AddEvent("updatedDatabase")
 }
 
 func (a *SyncStatePersister) deleteAlertStates(ctx context.Context, states []StateTransition) {
@@ -124,7 +124,7 @@ func (a *SyncStatePersister) saveAlertStates(ctx context.Context, states ...Stat
 	}
 
 	start := time.Now()
-	logger.Debug("Saving alert states", "count", len(states), "max_state_save_concurrency", a.maxStateSaveConcurrency)
+	logger.Debug("Saving alert states", "count", len(states), "maxStateSaveConcurrency", a.maxStateSaveConcurrency)
 	_ = concurrency.ForEachJob(ctx, len(states), a.maxStateSaveConcurrency, saveState)
-	logger.Debug("Saving alert states done", "count", len(states), "max_state_save_concurrency", a.maxStateSaveConcurrency, "duration", time.Since(start))
+	logger.Debug("Saving alert states done", "count", len(states), "maxStateSaveConcurrency", a.maxStateSaveConcurrency, "duration", time.Since(start))
 }

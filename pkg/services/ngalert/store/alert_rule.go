@@ -47,7 +47,7 @@ func (st DBstore) DeleteAlertRulesByUID(ctx context.Context, orgID int64, user *
 	if len(ruleUID) == 0 {
 		return nil
 	}
-	logger := st.Logger.New("org_id", orgID, "rule_uids", ruleUID)
+	logger := st.Logger.New("orgID", orgID, "ruleUIDs", ruleUID)
 	return st.SQLStore.WithTransactionalDbSession(ctx, func(sess *db.Session) error {
 		rows, err := sess.Table(alertRule{}).Where("org_id = ?", orgID).In("uid", ruleUID).Delete(alertRule{})
 		if err != nil {
@@ -136,7 +136,7 @@ func (st DBstore) getLatestVersionOfRulesByUID(ctx context.Context, orgID int64,
 			rule := new(alertRuleVersion)
 			err = rows.Scan(rule)
 			if err != nil {
-				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "func", "getLatestVersionOfRulesByUID", "error", err)
+				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "function", "getLatestVersionOfRulesByUID", "error", err)
 				continue
 			}
 			result = append(result, *rule)
@@ -208,7 +208,7 @@ func (st DBstore) GetAlertRuleVersions(ctx context.Context, orgID int64, guid st
 			rule := new(alertRuleVersion)
 			err = rows.Scan(rule)
 			if err != nil {
-				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "func", "GetAlertRuleVersions", "error", err)
+				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "function", "GetAlertRuleVersions", "error", err)
 				continue
 			}
 			// skip version that has no diff with previous version
@@ -218,7 +218,7 @@ func (st DBstore) GetAlertRuleVersions(ctx context.Context, orgID int64, guid st
 			}
 			converted, err := alertRuleVersionToModelsAlertRuleVersion(*rule, st.Logger)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "GetAlertRuleVersions", "error", err, "version_id", rule.ID)
+				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "function", "GetAlertRuleVersions", "error", err, "versionID", rule.ID)
 				continue
 			}
 			previousVersion = rule
@@ -278,13 +278,13 @@ func (st DBstore) ListDeletedRules(ctx context.Context, orgID int64) ([]*ngmodel
 			rule := new(alertRuleVersion)
 			err = rows.Scan(rule)
 			if err != nil {
-				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "func", "GetAlertRuleVersions", "error", err)
+				st.Logger.Error("Invalid rule version found in DB store, ignoring it", "function", "GetAlertRuleVersions", "error", err)
 				continue
 			}
 			// Note: Message is not returned as a message cannot be set when deleting rules.
 			converted, err := alertRuleToModelsAlertRule(alertRuleVersionToAlertRule(*rule), st.Logger)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "GetAlertRuleVersions", "error", err, "version_id", rule.ID)
+				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "function", "GetAlertRuleVersions", "error", err, "versionID", rule.ID)
 				continue
 			}
 			alertRules = append(alertRules, &converted)
@@ -506,7 +506,7 @@ func (st DBstore) deleteOldAlertRuleVersions(ctx context.Context, sess *db.Sessi
 		if deleteTo <= 1 {
 			continue
 		}
-		logger := logger.New("org_id", rv.RuleOrgID, "rule_uid", rv.RuleUID, "version", rv.Version, "limit", st.Cfg.RulesPerRuleGroupLimit)
+		logger := logger.New("orgID", rv.RuleOrgID, "ruleUID", rv.RuleUID, "version", rv.Version, "limit", st.Cfg.RulesPerRuleGroupLimit)
 		res, err := sess.Exec(`DELETE FROM alert_rule_version WHERE rule_guid = ? AND version <= ?`, rv.RuleGUID, deleteTo)
 		if err != nil {
 			logger.Error("Failed to delete old alert rule versions", "error", err)
@@ -668,14 +668,14 @@ func (st DBstore) ListAlertRulesByGroup(ctx context.Context, query *ngmodels.Lis
 			rule := new(alertRule)
 			err = rows.Scan(rule)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, ignoring it", "func", "ListAlertRulesByGroup", "error", err)
+				st.Logger.Error("Invalid rule found in DB store, ignoring it", "function", "ListAlertRulesByGroup", "error", err)
 				continue
 			}
 
 			converted, err := convertAlertRuleToModel(*rule, st.Logger, opts)
 
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "ListAlertRulesByGroup", "error", err)
+				st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "function", "ListAlertRulesByGroup", "error", err)
 				continue
 			}
 
@@ -767,7 +767,7 @@ func (st DBstore) ListAlertRules(ctx context.Context, query *ngmodels.ListAlertR
 	// This should never happen, as Limit is 0, which means no pagination.
 	if nextToken != "" {
 		err = fmt.Errorf("unexpected next token %q, expected empty string", nextToken)
-		st.Logger.Error("ListAlertRules returned a next token, but it should not have, this is a bug!", "next_token", nextToken, "query", query)
+		st.Logger.Error("ListAlertRules returned a next token, but it should not have, this is a bug!", "nextToken", nextToken, "listAlertRulesQuery", query)
 	}
 	return result, err
 }
@@ -999,12 +999,12 @@ func (st DBstore) handleRuleRow(rows *xorm.Rows, query *ngmodels.ListAlertRulesE
 	rule := new(alertRule)
 	err := rows.Scan(rule)
 	if err != nil {
-		st.Logger.Error("Invalid rule found in DB store, ignoring it", "func", "ListAlertRules", "error", err)
+		st.Logger.Error("Invalid rule found in DB store, ignoring it", "function", "ListAlertRules", "error", err)
 		return nil, false
 	}
 	converted, err := alertRuleToModelsAlertRule(*rule, st.Logger)
 	if err != nil {
-		st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "func", "ListAlertRules", "error", err)
+		st.Logger.Error("Invalid rule found in DB store, cannot convert, ignoring it", "function", "ListAlertRules", "error", err)
 		return nil, false
 	}
 	if query.ReceiverName != "" { // remove false-positive hits from the result
@@ -1181,12 +1181,12 @@ func (st DBstore) GetAlertRulesForScheduling(ctx context.Context, query *ngmodel
 			rule := new(alertRule)
 			err = rows.Scan(rule)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, ignoring it", "func", "GetAlertRulesForScheduling", "error", err)
+				st.Logger.Error("Invalid rule found in DB store, ignoring it", "function", "GetAlertRulesForScheduling", "error", err)
 				continue
 			}
 			converted, err := alertRuleToModelsAlertRule(*rule, st.Logger)
 			if err != nil {
-				st.Logger.Error("Invalid rule found in DB store, cannot convert it", "func", "GetAlertRulesForScheduling", "error", err)
+				st.Logger.Error("Invalid rule found in DB store, cannot convert it", "function", "GetAlertRulesForScheduling", "error", err)
 				continue
 			}
 			// MySQL (and potentially other databases) uses case-insensitive comparison.
@@ -1199,9 +1199,9 @@ func (st DBstore) GetAlertRulesForScheduling(ctx context.Context, query *ngmodel
 			//nolint:staticcheck // not yet migrated to OpenFeature
 			if st.FeatureToggles.IsEnabled(ctx, featuremgmt.FlagAlertingQueryOptimization) {
 				if optimizations, err := OptimizeAlertQueries(converted.Data); err != nil {
-					st.Logger.Error("Could not migrate rule from range to instant query", "rule", rule.UID, "err", err)
+					st.Logger.Error("Could not migrate rule from range to instant query", "ruleUID", rule.UID, "error", err)
 				} else if len(optimizations) > 0 {
-					st.Logger.Info("Migrated rule from range to instant query", "rule", rule.UID, "migrated_queries", len(optimizations))
+					st.Logger.Info("Migrated rule from range to instant query", "ruleUID", rule.UID, "migratedQueries", len(optimizations))
 				}
 			}
 			rules = append(rules, &converted)
@@ -1256,7 +1256,7 @@ func (st DBstore) DeleteInFolders(ctx context.Context, orgID int64, folderUIDs [
 			return err
 		}
 		if !canSave {
-			st.Logger.Error("user is not allowed to delete alert rules in folder", "folder", folderUID, "user")
+			st.Logger.Error("user is not allowed to delete alert rules in folder", "folderUID", folderUID, "identityID", user.GetID())
 			return dashboards.ErrFolderAccessDenied
 		}
 

@@ -78,7 +78,7 @@ func newChannelNotifier(log log.Logger) *channelNotifier {
 }
 
 func (cn *channelNotifier) Watch(ctx context.Context, opts watchOptions) <-chan Event {
-	cn.log.Info("creating new notifier", "buffer_size", opts.BufferSize)
+	cn.log.Info("creating new notifier", "bufferSize", opts.BufferSize)
 	events := make(chan Event, opts.BufferSize)
 
 	cn.mu.Lock()
@@ -131,9 +131,9 @@ func (n *pollingNotifier) Watch(ctx context.Context, opts watchOptions) <-chan E
 
 	n.log.Info("creating new notifier",
 		"lookback", opts.LookbackPeriod,
-		"buffer_size", opts.BufferSize,
-		"min_backoff", opts.MinBackoff,
-		"max_backoff", opts.MaxBackoff,
+		"bufferSize", opts.BufferSize,
+		"minBackoff", opts.MinBackoff,
+		"maxBackoff", opts.MaxBackoff,
 	)
 
 	cacheTTL := opts.LookbackPeriod

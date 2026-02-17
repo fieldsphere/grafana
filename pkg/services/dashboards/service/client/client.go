@@ -2,10 +2,10 @@ package client
 
 import (
 	"context"
-	"fmt"
 	"sync"
 
 	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/trace"
 	"golang.org/x/sync/errgroup"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -98,12 +98,12 @@ func (h *K8sClientWithFallback) Get(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("dashboard.metadata.name", name),
-		attribute.Int64("org.id", orgID),
+		attribute.String("dashboardMetadataName", name),
+		attribute.Int64("orgID", orgID),
 		attribute.Bool("fallback", false),
 	)
 
-	span.AddEvent("v0alpha1 Get")
+	span.AddEvent("v0alpha1Get")
 	result, err := h.K8sHandler.Get(spanCtx, name, orgID, options, subresources...)
 	if err != nil {
 		return nil, tracing.Error(span, err)
@@ -115,16 +115,16 @@ func (h *K8sClientWithFallback) Get(
 		return result, nil
 	}
 
-	h.log.Info("falling back to stored version", "name", name, "storedVersion", storedVersion, "conversionErr", conversionErr)
+	h.log.Info("falling back to stored version", "dashboardName", name, "storedVersion", storedVersion, "conversionErr", conversionErr)
 	h.metrics.fallbackCounter.WithLabelValues(storedVersion).Inc()
 
 	span.SetAttributes(
 		attribute.Bool("fallback", true),
-		attribute.String("fallback.stored_version", storedVersion),
-		attribute.String("fallback.conversion_error", conversionErr),
+		attribute.String("fallbackStoredVersion", storedVersion),
+		attribute.String("fallbackConversionError", conversionErr),
 	)
 
-	span.AddEvent(fmt.Sprintf("%s Get", storedVersion))
+	span.AddEvent("fallbackGet", trace.WithAttributes(attribute.String("storedVersion", storedVersion)))
 	return h.newClientFunc(spanCtx, storedVersion).Get(spanCtx, name, orgID, options, subresources...)
 }
 
@@ -142,7 +142,7 @@ func (h *K8sClientWithFallback) List(
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.Int64("org.id", orgID),
+		attribute.Int64("orgID", orgID),
 		attribute.Bool("fallback", false),
 	)
 
@@ -167,7 +167,7 @@ func (h *K8sClientWithFallback) List(
 
 		h.log.Debug(
 			"will fetch object with the stored version",
-			"name", item.GetName(),
+			"dashboardName", item.GetName(),
 			"storedVersion", storedVersion,
 			"conversionErr", conversionErr,
 		)
@@ -222,8 +222,8 @@ func (h *K8sClientWithFallback) Update(
 
 	span.SetAttributes(
 		attribute.String("version", version),
-		attribute.String("dashboard.metadata.name", obj.GetName()),
-		attribute.Int64("org.id", orgID),
+		attribute.String("dashboardMetadataName", obj.GetName()),
+		attribute.Int64("orgID", orgID),
 	)
 
 	res, err := h.newClientFunc(ctx, version).Update(ctx, obj, orgID, options)
@@ -324,7 +324,7 @@ func newK8sClientFactory(
 		cacheMutex.RUnlock()
 
 		if exists {
-			span.AddEvent("Client found in cache")
+			span.AddEvent("clientFoundInCache")
 			return cachedClient
 		}
 
@@ -334,7 +334,7 @@ func newK8sClientFactory(
 		// check again in case another goroutine created in between locks
 		cachedClient, exists = clientCache[version]
 		if exists {
-			span.AddEvent("Client found in cache after lock")
+			span.AddEvent("clientFoundInCacheAfterLock")
 			return cachedClient
 		}
 
@@ -344,7 +344,7 @@ func newK8sClientFactory(
 			Resource: "dashboards",
 		}
 
-		span.AddEvent("Creating new client")
+		span.AddEvent("creatingNewClient")
 		newClient := client.NewK8sHandler(dual, request.GetNamespaceMapper(cfg), gvr, restConfigProvider.GetRestConfig, dashboardStore, userService, resourceClient, sorter, features)
 		clientCache[version] = newClient
 

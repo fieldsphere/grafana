@@ -60,7 +60,7 @@ func (c *ShadowClient) Check(ctx context.Context, id authlib.AuthInfo, req authl
 		if acErr == nil {
 			if res.Allowed != acRes.Allowed {
 				c.metrics.evaluationStatusTotal.WithLabelValues("error").Inc()
-				c.logger.Warn("Zanzana check result does not match", "expected", acRes.Allowed, "actual", res.Allowed, "user", id.GetUID(), "request", req)
+				c.logger.Warn("Zanzana check result does not match", "expected", acRes.Allowed, "actual", res.Allowed, "userUID", id.GetUID(), "checkRequest", req)
 			} else {
 				c.metrics.evaluationStatusTotal.WithLabelValues("success").Inc()
 			}
@@ -122,7 +122,7 @@ func (c *ShadowClient) Compile(ctx context.Context, id authlib.AuthInfo, req aut
 				zanzanaRes := zanzanaItemChecker(name, folder)
 				if zanzanaRes != rbacRes {
 					c.metrics.evaluationStatusTotal.WithLabelValues("error").Inc()
-					c.logger.Warn("Zanzana compile result does not match", "expected", rbacRes, "actual", zanzanaRes, "name", name, "folder", folder)
+					c.logger.Warn("Zanzana compile result does not match", "expected", rbacRes, "actual", zanzanaRes, "resourceName", name, "folderUID", folder)
 				} else {
 					c.metrics.evaluationStatusTotal.WithLabelValues("success").Inc()
 				}
@@ -179,13 +179,13 @@ func (c *ShadowClient) compareBatchCheckResults(acRes, zanzanaRes authlib.BatchC
 		zanzanaResult, ok := zanzanaRes.Results[key]
 		if !ok {
 			c.metrics.evaluationStatusTotal.WithLabelValues("error").Inc()
-			c.logger.Warn("Zanzana batch check missing result", "key", key, "user", id.GetUID())
+			c.logger.Warn("Zanzana batch check missing result", "checkKey", key, "userUID", id.GetUID())
 			continue
 		}
 
 		if acResult.Allowed != zanzanaResult.Allowed {
 			c.metrics.evaluationStatusTotal.WithLabelValues("error").Inc()
-			c.logger.Warn("Zanzana batch check result does not match", "key", key, "expected", acResult.Allowed, "actual", zanzanaResult.Allowed, "user", id.GetUID())
+			c.logger.Warn("Zanzana batch check result does not match", "checkKey", key, "expected", acResult.Allowed, "actual", zanzanaResult.Allowed, "userUID", id.GetUID())
 		} else {
 			c.metrics.evaluationStatusTotal.WithLabelValues("success").Inc()
 		}

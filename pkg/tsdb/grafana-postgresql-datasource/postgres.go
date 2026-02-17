@@ -61,14 +61,14 @@ func newPostgres(ctx context.Context, userFacingDefaultError string, rowLimit in
 
 	p, err := pgxpool.NewWithConfig(ctx, pgxConf)
 	if err != nil {
-		logger.Error("Failed connecting to Postgres", "err", err)
+		logger.Error("Failed connecting to Postgres", "error", err)
 		return nil, nil, err
 	}
 
 	handler, err := sqleng.NewQueryDataHandler(userFacingDefaultError, p, config, &queryResultTransformer, newPostgresMacroEngine(dsInfo.JsonData.Timescaledb),
 		logger)
 	if err != nil {
-		logger.Error("Failed connecting to Postgres", "err", err)
+		logger.Error("Failed connecting to Postgres", "error", err)
 		return nil, nil, err
 	}
 
@@ -134,7 +134,7 @@ func NewInstanceSettings(logger log.Logger) datasource.InstanceFactoryFunc {
 		}
 		_, handler, err := newPostgres(ctx, userFacingDefaultError, sqlCfg.RowLimit, dsInfo, cnnstr, pgxlogger, settings)
 		if err != nil {
-			pgxlogger.Error("Failed connecting to Postgres", "err", err)
+			pgxlogger.Error("Failed connecting to Postgres", "error", err)
 			return nil, err
 		}
 		pgxlogger.Debug("Successfully connected to Postgres")

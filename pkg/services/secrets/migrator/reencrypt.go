@@ -39,13 +39,13 @@ func (s simpleSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.Secrets
 		err := sqlStore.InTransaction(ctx, func(ctx context.Context) error {
 			decrypted, err := secretsSrv.Decrypt(ctx, row.Secret)
 			if err != nil {
-				logger.Warn("Could not decrypt secret while re-encrypting it", "table", s.tableName, "id", row.Id, "error", err)
+				logger.Warn("Could not decrypt secret while re-encrypting it", "table", s.tableName, "recordID", row.Id, "error", err)
 				return err
 			}
 
 			encrypted, err := secretsSrv.Encrypt(ctx, decrypted, secrets.WithoutScope())
 			if err != nil {
-				logger.Warn("Could not encrypt secret while re-encrypting it", "table", s.tableName, "id", row.Id, "error", err)
+				logger.Warn("Could not encrypt secret while re-encrypting it", "table", s.tableName, "recordID", row.Id, "error", err)
 				return err
 			}
 
@@ -54,7 +54,7 @@ func (s simpleSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.Secrets
 				_, err := sess.Exec(updateSQL, encrypted, nowInUTC(), row.Id)
 				return err
 			}); err != nil {
-				logger.Warn("Could not update secret while re-encrypting it", "table", s.tableName, "id", row.Id, "error", err)
+				logger.Warn("Could not update secret while re-encrypting it", "table", s.tableName, "recordID", row.Id, "error", err)
 				return err
 			}
 
@@ -67,9 +67,9 @@ func (s simpleSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.Secrets
 	}
 
 	if anyFailure {
-		logger.Warn(fmt.Sprintf("Column %s from %s has been re-encrypted with errors", s.columnName, s.tableName))
+		logger.Warn("Column re-encryption completed with errors", "column", s.columnName, "table", s.tableName)
 	} else {
-		logger.Info(fmt.Sprintf("Column %s from %s has been re-encrypted successfully", s.columnName, s.tableName))
+		logger.Info("Column re-encryption completed successfully", "column", s.columnName, "table", s.tableName)
 	}
 
 	return !anyFailure
@@ -98,19 +98,19 @@ func (s b64Secret) ReEncrypt(ctx context.Context, secretsSrv *manager.SecretsSer
 		err := sqlStore.InTransaction(ctx, func(ctx context.Context) error {
 			decoded, err := s.encoding.DecodeString(row.Secret)
 			if err != nil {
-				logger.Warn("Could not decode base64-encoded secret while re-encrypting it", "table", s.tableName, "id", row.Id, "error", err)
+				logger.Warn("Could not decode base64-encoded secret while re-encrypting it", "table", s.tableName, "recordID", row.Id, "error", err)
 				return err
 			}
 
 			decrypted, err := secretsSrv.Decrypt(ctx, decoded)
 			if err != nil {
-				logger.Warn("Could not decrypt secret while re-encrypting it", "table", s.tableName, "id", row.Id, "error", err)
+				logger.Warn("Could not decrypt secret while re-encrypting it", "table", s.tableName, "recordID", row.Id, "error", err)
 				return err
 			}
 
 			encrypted, err := secretsSrv.Encrypt(ctx, decrypted, secrets.WithoutScope())
 			if err != nil {
-				logger.Warn("Could not encrypt secret while re-encrypting it", "table", s.tableName, "id", row.Id, "error", err)
+				logger.Warn("Could not encrypt secret while re-encrypting it", "table", s.tableName, "recordID", row.Id, "error", err)
 				return err
 			}
 
@@ -125,7 +125,7 @@ func (s b64Secret) ReEncrypt(ctx context.Context, secretsSrv *manager.SecretsSer
 				}
 				return
 			}); err != nil {
-				logger.Warn("Could not update secret while re-encrypting it", "table", s.tableName, "id", row.Id, "error", err)
+				logger.Warn("Could not update secret while re-encrypting it", "table", s.tableName, "recordID", row.Id, "error", err)
 				return err
 			}
 
@@ -138,9 +138,9 @@ func (s b64Secret) ReEncrypt(ctx context.Context, secretsSrv *manager.SecretsSer
 	}
 
 	if anyFailure {
-		logger.Warn(fmt.Sprintf("Column %s from %s has been re-encrypted with errors", s.columnName, s.tableName))
+		logger.Warn("Column re-encryption completed with errors", "column", s.columnName, "table", s.tableName)
 	} else {
-		logger.Info(fmt.Sprintf("Column %s from %s has been re-encrypted successfully", s.columnName, s.tableName))
+		logger.Info("Column re-encryption completed successfully", "column", s.columnName, "table", s.tableName)
 	}
 
 	return !anyFailure
@@ -169,7 +169,7 @@ func (s jsonSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.SecretsSe
 		err := sqlStore.InTransaction(ctx, func(ctx context.Context) error {
 			decrypted, err := secretsSrv.DecryptJsonData(ctx, row.SecureJsonData)
 			if err != nil {
-				logger.Warn("Could not decrypt secrets while re-encrypting them", "table", s.tableName, "id", row.Id, "error", err)
+				logger.Warn("Could not decrypt secrets while re-encrypting them", "table", s.tableName, "recordID", row.Id, "error", err)
 				return err
 			}
 
@@ -180,7 +180,7 @@ func (s jsonSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.SecretsSe
 
 			toUpdate.SecureJsonData, err = secretsSrv.EncryptJsonData(ctx, decrypted, secrets.WithoutScope())
 			if err != nil {
-				logger.Warn("Could not re-encrypt secrets", "table", s.tableName, "id", row.Id, "error", err)
+				logger.Warn("Could not re-encrypt secrets", "table", s.tableName, "recordID", row.Id, "error", err)
 				return err
 			}
 
@@ -188,7 +188,7 @@ func (s jsonSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.SecretsSe
 				_, err := sess.Table(s.tableName).Where("id = ?", row.Id).Update(toUpdate)
 				return err
 			}); err != nil {
-				logger.Warn("Could not update secrets while re-encrypting them", "table", s.tableName, "id", row.Id, "error", err)
+				logger.Warn("Could not update secrets while re-encrypting them", "table", s.tableName, "recordID", row.Id, "error", err)
 				return err
 			}
 
@@ -201,9 +201,9 @@ func (s jsonSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.SecretsSe
 	}
 
 	if anyFailure {
-		logger.Warn(fmt.Sprintf("Secure json data secrets from %s have been re-encrypted with errors", s.tableName))
+		logger.Warn("Secure JSON data secrets re-encryption completed with errors", "table", s.tableName)
 	} else {
-		logger.Info(fmt.Sprintf("Secure json data secrets from %s have been re-encrypted successfully", s.tableName))
+		logger.Info("Secure JSON data secrets re-encryption completed successfully", "table", s.tableName)
 	}
 
 	return !anyFailure
@@ -231,7 +231,7 @@ func (s alertingSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.Secre
 		err := sqlStore.InTransaction(ctx, func(ctx context.Context) error {
 			postableUserConfig, err := notifier.Load([]byte(result.AlertmanagerConfiguration))
 			if err != nil {
-				logger.Warn("Could not load alert_configuration while re-encrypting it", "id", result.Id, "error", err)
+				logger.Warn("Could not load alert_configuration while re-encrypting it", "alertConfigurationID", result.Id, "error", err)
 				return err
 			}
 
@@ -240,19 +240,19 @@ func (s alertingSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.Secre
 					for k, v := range gmr.SecureSettings {
 						decoded, err := base64.StdEncoding.DecodeString(v)
 						if err != nil {
-							logger.Warn("Could not decode base64-encoded alert_configuration secret", "id", result.Id, "key", k, "error", err)
+							logger.Warn("Could not decode base64-encoded alert_configuration secret", "alertConfigurationID", result.Id, "secretFieldKey", k, "error", err)
 							return err
 						}
 
 						decrypted, err := secretsSrv.Decrypt(ctx, decoded)
 						if err != nil {
-							logger.Warn("Could not decrypt alert_configuration secret", "id", result.Id, "key", k, "error", err)
+							logger.Warn("Could not decrypt alert_configuration secret", "alertConfigurationID", result.Id, "secretFieldKey", k, "error", err)
 							return err
 						}
 
 						reencrypted, err := secretsSrv.Encrypt(ctx, decrypted, secrets.WithoutScope())
 						if err != nil {
-							logger.Warn("Could not re-encrypt alert_configuration secret", "id", result.Id, "key", k, "error", err)
+							logger.Warn("Could not re-encrypt alert_configuration secret", "alertConfigurationID", result.Id, "secretFieldKey", k, "error", err)
 							return err
 						}
 
@@ -263,7 +263,7 @@ func (s alertingSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.Secre
 
 			marshalled, err := json.Marshal(postableUserConfig)
 			if err != nil {
-				logger.Warn("Could not marshal alert_configuration while re-encrypting it", "id", result.Id, "error", err)
+				logger.Warn("Could not marshal alert_configuration while re-encrypting it", "alertConfigurationID", result.Id, "error", err)
 				return err
 			}
 
@@ -272,7 +272,7 @@ func (s alertingSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.Secre
 				_, err := sess.Table("alert_configuration").Where("id = ?", result.Id).Update(&result)
 				return err
 			}); err != nil {
-				logger.Warn("Could not update alert_configuration secret while re-encrypting it", "id", result.Id, "error", err)
+				logger.Warn("Could not update alert_configuration secret while re-encrypting it", "alertConfigurationID", result.Id, "error", err)
 				return err
 			}
 
@@ -310,7 +310,7 @@ func (s ssoSettingsSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.Se
 		err := sqlStore.InTransaction(ctx, func(ctx context.Context) error {
 			result.Settings, err = s.reEncryptSecretsInMap(ctx, result.Settings, secretsSrv, nil, "")
 			if err != nil {
-				logger.Warn("failed re-encrypting SSO settings secret", "id", result.ID, "error", err)
+				logger.Warn("failed re-encrypting SSO settings secret", "ssoSettingsID", result.ID, "error", err)
 				return err
 			}
 
@@ -319,7 +319,7 @@ func (s ssoSettingsSecret) ReEncrypt(ctx context.Context, secretsSrv *manager.Se
 				return err
 			})
 			if err != nil {
-				logger.Warn("Could not update SSO settings secrets while re-encrypting it", "id", result.ID, "error", err)
+				logger.Warn("Could not update SSO settings secrets while re-encrypting it", "ssoSettingsID", result.ID, "error", err)
 				return err
 			}
 
@@ -389,7 +389,7 @@ func (s ssoSettingsSecret) reEncryptSecretsInMap(ctx context.Context, m map[stri
 					reencrypted, err = encryptionSrv.Encrypt(ctx, decrypted, secretKey)
 				}
 				if err != nil {
-					logger.Warn("Could not re-encrypt SSO settings secret", "id", "field", k, "error", err)
+					logger.Warn("Could not re-encrypt SSO settings secret", "field", k, "error", err)
 					return nil, err
 				}
 

@@ -91,9 +91,7 @@ func ProvideService(cfg *setting.Cfg, features featuremgmt.FeatureToggles, remot
 
 		u, err := url.Parse(rendererCallbackURL)
 		if err != nil {
-			logger.Warn("Image renderer callback url is not valid. " +
-				"Please provide a valid RendererCallbackUrl. " +
-				"Read more at https://grafana.com/docs/grafana/latest/administration/image_rendering/")
+			logger.Warn("Image renderer callback URL is not valid. Please provide a valid RendererCallbackUrl.", "docsURL", "https://grafana.com/docs/grafana/latest/administration/image_rendering/")
 			return nil, err
 		}
 		domain = u.Hostname()
@@ -158,7 +156,7 @@ func (rs *RenderingService) Run(ctx context.Context) error {
 
 		rs.getRemotePluginVersionWithRetry(func(version string, err error) {
 			if err != nil {
-				rs.log.Info("Couldn't get remote renderer version", "err", err)
+				rs.log.Info("Couldn't get remote renderer version", "error", err)
 			}
 
 			rs.log.Info("Backend rendering via external http server", "version", version)
@@ -199,9 +197,7 @@ func (rs *RenderingService) Run(ctx context.Context) error {
 		return nil
 	}
 
-	rs.log.Debug("No image renderer found/installed. " +
-		"For image rendering support please use the Grafana Image Renderer remote rendering service. " +
-		"Read more at https://grafana.com/docs/grafana/latest/administration/image_rendering/")
+	rs.log.Debug("No image renderer found/installed. Use the Grafana Image Renderer remote rendering service for image rendering support.", "docsURL", "https://grafana.com/docs/grafana/latest/administration/image_rendering/")
 
 	<-ctx.Done()
 	return nil
@@ -271,9 +267,7 @@ func (rs *RenderingService) render(ctx context.Context, renderType RenderType, o
 	logger := rs.log.FromContext(ctx)
 
 	if !rs.IsAvailable(ctx) {
-		logger.Warn("Could not render image, no image renderer found/installed. " +
-			"For image rendering support please use the Grafana Image Renderer remote rendering service. " +
-			"Read more at https://grafana.com/docs/grafana/latest/administration/image_rendering/")
+		logger.Warn("Could not render image: no image renderer found/installed. Use the Grafana Image Renderer remote rendering service for image rendering support.", "docsURL", "https://grafana.com/docs/grafana/latest/administration/image_rendering/")
 		if opts.ErrorRenderUnavailable {
 			return nil, ErrRenderUnavailable
 		}
@@ -288,7 +282,7 @@ func (rs *RenderingService) render(ctx context.Context, renderType RenderType, o
 	metrics.MRenderingQueue.Set(float64(newInProgressCount))
 
 	if opts.ConcurrentLimit > 0 && int(newInProgressCount) > opts.ConcurrentLimit {
-		logger.Warn("Could not render image, hit the currency limit", "concurrencyLimit", opts.ConcurrentLimit, "path", opts.Path)
+		logger.Warn("Could not render image, hit the currency limit", "concurrencyLimit", opts.ConcurrentLimit, "renderPath", opts.Path)
 		if opts.ErrorConcurrentLimitReached {
 			return nil, ErrConcurrentLimitReached
 		}
@@ -309,7 +303,7 @@ func (rs *RenderingService) render(ctx context.Context, renderType RenderType, o
 		}
 	}
 
-	logger.Info("Rendering", "path", opts.Path, "userID", opts.UserID)
+	logger.Info("Rendering", "renderPath", opts.Path, "userID", opts.UserID)
 	if math.IsInf(opts.DeviceScaleFactor, 0) || math.IsNaN(opts.DeviceScaleFactor) || opts.DeviceScaleFactor == 0 {
 		opts.DeviceScaleFactor = 1
 	}
@@ -322,10 +316,10 @@ func (rs *RenderingService) render(ctx context.Context, renderType RenderType, o
 
 	res, err := rs.renderAction(ctx, renderType, renderKey, opts)
 	if err != nil {
-		logger.Error("Failed to render image", "path", opts.Path, "error", err)
+		logger.Error("Failed to render image", "renderPath", opts.Path, "error", err)
 		return nil, err
 	}
-	logger.Debug("Successfully rendered image", "path", opts.Path)
+	logger.Debug("Successfully rendered image", "renderPath", opts.Path)
 
 	return res, nil
 }
@@ -363,7 +357,7 @@ func (rs *RenderingService) renderCSV(ctx context.Context, opts CSVOpts, renderK
 		return nil, ErrConcurrentLimitReached
 	}
 
-	logger.Info("Rendering", "path", opts.Path)
+	logger.Info("Rendering", "renderPath", opts.Path)
 	renderKey, err := renderKeyProvider.get(ctx, opts.AuthOpts)
 	if err != nil {
 		return nil, err

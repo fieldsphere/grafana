@@ -46,14 +46,14 @@ func NewSQLCommand(ctx context.Context, logger log.Logger, refID, format, rawSQL
 	}
 	tables, err := sql.TablesList(ctx, rawSQL)
 	if err != nil {
-		sqlLogger.Warn("invalid sql query", "sql", rawSQL, "error", err)
+		sqlLogger.Warn("invalid sql query", "sqlQuery", rawSQL, "error", err)
 		return nil, sql.MakeErrInvalidQuery(refID, err)
 	}
 	if len(tables) == 0 {
-		sqlLogger.Warn("no tables found in SQL query", "sql", rawSQL)
+		sqlLogger.Warn("no tables found in SQL query", "sqlQuery", rawSQL)
 	}
 	if tables != nil {
-		sqlLogger.Debug("REF tables", "tables", tables, "sql", rawSQL)
+		sqlLogger.Debug("REF tables", "tables", tables, "sqlQuery", rawSQL)
 	}
 
 	return &SQLCommand{
@@ -78,7 +78,7 @@ func UnmarshalSQLCommand(ctx context.Context, rn *rawNode, cfg *setting.Cfg) (*S
 
 	expressionRaw, ok := rn.Query["expression"]
 	if !ok {
-		sqlLogger.Error("no expression in the query", "query", rn.Query)
+		sqlLogger.Error("no expression in the query", "queryModel", rn.Query)
 		return nil, errors.New("no expression in the query")
 	}
 	expression, ok := expressionRaw.(string)
@@ -127,9 +127,9 @@ func (gr *SQLCommand) Execute(ctx context.Context, now time.Time, vars mathexp.V
 				semconv.ExceptionType(errorType),
 				semconv.ExceptionMessage(rsp.Error.Error()),
 			))
-			span.SetAttributes(attribute.String("error.category", errorType))
+			span.SetAttributes(attribute.String("errorCategory", errorType))
 			span.SetStatus(codes.Error, errorType)
-			gr.logger.Error("SQL command execution failed", "error", rsp.Error.Error(), "error_type", errorType)
+			gr.logger.Error("SQL command execution failed", "error", rsp.Error, "errorType", errorType)
 		}
 		span.End()
 
@@ -184,7 +184,7 @@ func (gr *SQLCommand) Execute(ctx context.Context, now time.Time, vars mathexp.V
 	for _, ref := range gr.varsToQuery {
 		results, ok := vars[ref]
 		if !ok {
-			gr.logger.Warn("no results found for", "ref", ref)
+			gr.logger.Warn("no results found for", "queryRefID", ref)
 			continue
 		}
 		frames := results.Values.AsDataFrames(ref)
@@ -199,7 +199,7 @@ func (gr *SQLCommand) Execute(ctx context.Context, now time.Time, vars mathexp.V
 		return rsp, nil
 	}
 
-	gr.logger.Debug("Executing query", "query", gr.query, "frames", len(allFrames))
+	gr.logger.Debug("Executing query", "sqlQuery", gr.query, "frames", len(allFrames))
 
 	db := sql.DB{}
 	frame, err := db.QueryFrames(ctx, tracer, gr.refID, gr.query, allFrames, sql.WithMaxOutputCells(gr.outputLimit), sql.WithTimeout(gr.timeout))
@@ -208,7 +208,7 @@ func (gr *SQLCommand) Execute(ctx context.Context, now time.Time, vars mathexp.V
 		return rsp, nil
 	}
 
-	gr.logger.Debug("Done Executing query", "query", gr.query, "rows", frame.Rows())
+	gr.logger.Debug("Done Executing query", "sqlQuery", gr.query, "rows", frame.Rows())
 
 	if frame.Rows() == 0 {
 		rsp.Values = mathexp.Values{
@@ -373,10 +373,10 @@ func handleSqlInput(ctx context.Context, tracer trace.Tracer, refID string, forR
 		}
 		dataType := categorizeFrameInputType(dataFrames)
 		span.SetAttributes(
-			attribute.String("status", statusLabel),
+			attribute.String("queryStatus", statusLabel),
 			attribute.Float64("duration", duration),
-			attribute.String("data.type", dataType),
-			attribute.String("datasource.type", dsType),
+			attribute.String("dataType", dataType),
+			attribute.String("datasourceType", dsType),
 		)
 
 		if result.Error != nil {
@@ -390,7 +390,7 @@ func handleSqlInput(ctx context.Context, tracer trace.Tracer, refID string, forR
 				semconv.ExceptionType(errorType),
 				semconv.ExceptionMessage(result.Error.Error()),
 			))
-			span.SetAttributes(attribute.String("error.category", errorType))
+			span.SetAttributes(attribute.String("errorCategory", errorType))
 			span.SetStatus(codes.Error, errorType)
 		}
 		span.End()

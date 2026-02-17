@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"path"
 	"strings"
 
@@ -25,8 +26,8 @@ func Example() {
 
 	_, err := CreateShortURL("abc/../def")
 	errors.As(err, &e)
-	fmt.Println(e.Reason.Status().HTTPStatus(), e.MessageID)
-	fmt.Println(e.Error())
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%d %s\n", e.Reason.Status().HTTPStatus(), e.MessageID))
+	_, _ = os.Stdout.WriteString(e.Error() + "\n")
 
 	// Output:
 	// 400 shorturl.invalidPath

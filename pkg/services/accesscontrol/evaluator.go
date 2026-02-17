@@ -67,7 +67,7 @@ func match(scope, target string) bool {
 		logger.Error(
 			"invalid scope",
 			"scope", scope,
-			"reason", "scopes should not contain meta-characters like * or ?, except in the last position",
+			"validationReason", "scopes should not contain meta-characters like * or ?, except in the last position",
 		)
 		return false
 	}
@@ -76,7 +76,7 @@ func match(scope, target string) bool {
 	//Prefix match
 	if last == '*' {
 		if strings.HasPrefix(target, prefix) {
-			logger.Debug("Matched scope", "user scope", scope, "target scope", target)
+			logger.Debug("Matched scope", "userScope", scope, "targetScope", target)
 			return true
 		}
 	}

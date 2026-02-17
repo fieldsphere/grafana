@@ -2,10 +2,13 @@ import { Action } from '@reduxjs/toolkit';
 import { Dispatch } from 'react';
 import { from, merge, of, Subscription, timer } from 'rxjs';
 import { catchError, finalize, mapTo, mergeMap, share, takeUntil } from 'rxjs/operators';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { deleteLibraryPanel as apiDeleteLibraryPanel, getLibraryPanels } from '../../state/api';
 
 import { initialLibraryPanelsViewState, initSearch, searchCompleted } from './reducer';
+
+const logger = createMonitoringLogger('features.library-panels.view-actions');
 
 type SearchDispatchResult = (dispatch: Dispatch<Action>, abortController?: AbortController) => void;
 
@@ -54,7 +57,14 @@ export function searchForLibraryPanels(args: SearchArgs): SearchDispatchResult {
         }
 
         // For real errors, log and show error to user
-        console.error('Error fetching library panels:', err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'searchForLibraryPanels' });
+        } else {
+          logger.logWarning('Error fetching library panels', {
+            operation: 'searchForLibraryPanels',
+            error: String(err),
+          });
+        }
 
         // Update state to show empty results
         return of(searchCompleted({ ...initialLibraryPanelsViewState, page: args.page, perPage: args.perPage }));
@@ -78,7 +88,15 @@ export function deleteLibraryPanel(uid: string, args: SearchArgs) {
       await apiDeleteLibraryPanel(uid);
       searchForLibraryPanels(args)(dispatch);
     } catch (e) {
-      console.error(e);
+      if (e instanceof Error) {
+        logger.logError(e, { operation: 'deleteLibraryPanel', uid });
+      } else {
+        logger.logWarning('Error deleting library panel', {
+          operation: 'deleteLibraryPanel',
+          uid,
+          error: String(e),
+        });
+      }
     }
   };
 }

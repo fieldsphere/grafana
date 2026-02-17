@@ -24,6 +24,7 @@ import (
 	"math"
 	"net"
 	"sort"
+	"strconv"
 	"strings"
 	"time"
 
@@ -114,11 +115,10 @@ type Bridge struct {
 	lastValue map[model.Fingerprint]float64
 }
 
-// Logger is the minimal interface Bridge needs for logging. Note that
-// log.Logger from the standard library implements this interface, and it is
-// easy to implement by custom loggers, if they don't do so already anyway.
+// Logger is the minimal interface Bridge needs for structured logging.
 type Logger interface {
-	Println(v ...any)
+	Warn(msg string, args ...any)
+	Error(msg string, args ...any)
 }
 
 // NewBridge returns a pointer to a new Bridge struct.
@@ -173,7 +173,7 @@ func (b *Bridge) Run(ctx context.Context) {
 		select {
 		case <-ticker.C:
 			if err := b.Push(); err != nil && b.logger != nil {
-				b.logger.Println("error pushing to Graphite:", err)
+				b.logger.Error("Error pushing metrics to Graphite", "error", err)
 			}
 		case <-ctx.Done():
 			return
@@ -190,7 +190,7 @@ func (b *Bridge) Push() error {
 			return err
 		case ContinueOnError:
 			if b.logger != nil {
-				b.logger.Println("continue on error:", err)
+				b.logger.Warn("Continue on Graphite gather error", "error", err)
 			}
 		default:
 			panic("unrecognized error handling value")
@@ -203,7 +203,7 @@ func (b *Bridge) Push() error {
 	}
 	defer func() {
 		if err := conn.Close(); err != nil && b.logger != nil {
-			b.logger.Println("Failed to close connection", "err", err)
+			b.logger.Warn("Failed to close Graphite connection", "error", err)
 		}
 	}()
 
@@ -234,7 +234,19 @@ func (b *Bridge) writeMetrics(w io.Writer, mfs []*dto.MetricFamily, prefix strin
 			}
 
 			value := b.replaceCounterWithDelta(mf, s.Metric, s.Value)
-			if _, err := fmt.Fprintf(buf, " %g %d\n", value, int64(s.Timestamp)/millisecondsPerSecond); err != nil {
+			if err := buf.WriteByte(' '); err != nil {
+				return err
+			}
+			if _, err := io.WriteString(buf, strconv.FormatFloat(float64(value), 'g', -1, 64)); err != nil {
+				return err
+			}
+			if err := buf.WriteByte(' '); err != nil {
+				return err
+			}
+			if _, err := io.WriteString(buf, strconv.FormatInt(int64(s.Timestamp)/millisecondsPerSecond, 10)); err != nil {
+				return err
+			}
+			if err := buf.WriteByte('\n'); err != nil {
 				return err
 			}
 			if err := buf.Flush(); err != nil {
@@ -306,21 +318,21 @@ func addExtensionConventionForRollups(buf io.Writer, mf *dto.MetricFamily, m mod
 	mfType := mf.GetType()
 	var err error
 	if mfType == dto.MetricType_COUNTER {
-		if _, err = fmt.Fprint(buf, ".count"); err != nil {
+		if _, err = io.WriteString(buf, ".count"); err != nil {
 			return err
 		}
 	}
 
 	if mfType == dto.MetricType_SUMMARY || mfType == dto.MetricType_HISTOGRAM {
 		if strings.HasSuffix(string(m[model.MetricNameLabel]), "_count") {
-			if _, err = fmt.Fprint(buf, ".count"); err != nil {
+			if _, err = io.WriteString(buf, ".count"); err != nil {
 				return err
 			}
 		}
 	}
 	if mfType == dto.MetricType_HISTOGRAM {
 		if strings.HasSuffix(string(m[model.MetricNameLabel]), "_sum") {
-			if _, err = fmt.Fprint(buf, ".sum"); err != nil {
+			if _, err = io.WriteString(buf, ".sum"); err != nil {
 				return err
 			}
 		}

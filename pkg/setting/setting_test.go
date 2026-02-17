@@ -110,7 +110,10 @@ func TestLoadingSettings(t *testing.T) {
 		err := cfg.Load(CommandLineArgs{HomePath: "../../"})
 		require.Nil(t, err)
 
-		require.Contains(t, cfg.appliedEnvOverrides, "GF_SECURITY_ADMIN_PASSWORD=*********")
+		require.Contains(t, cfg.appliedEnvOverrides, appliedConfigOverride{
+			key:   "GF_SECURITY_ADMIN_PASSWORD",
+			value: "*********",
+		})
 	})
 
 	t.Run("Should replace password in URL when url environment is defined", func(t *testing.T) {
@@ -120,7 +123,10 @@ func TestLoadingSettings(t *testing.T) {
 		err := cfg.Load(CommandLineArgs{HomePath: "../../"})
 		require.Nil(t, err)
 
-		require.Contains(t, cfg.appliedEnvOverrides, "GF_DATABASE_URL=mysql://user:xxxxx@localhost:3306/database")
+		require.Contains(t, cfg.appliedEnvOverrides, appliedConfigOverride{
+			key:   "GF_DATABASE_URL",
+			value: "mysql://user:xxxxx@localhost:3306/database",
+		})
 	})
 
 	t.Run("Should get property map from command line args array", func(t *testing.T) {
@@ -153,6 +159,22 @@ func TestLoadingSettings(t *testing.T) {
 			require.Equal(t, "/tmp/data", cfg.DataPath)
 			require.Equal(t, "/tmp/logs", cfg.LogsPath)
 		}
+	})
+
+	t.Run("Should redact sensitive values from command line overrides", func(t *testing.T) {
+		cfg := NewCfg()
+		err := cfg.Load(CommandLineArgs{
+			HomePath: "../../",
+			Args: []string{
+				"cfg:security.admin_password=supersecret",
+			},
+		})
+		require.Nil(t, err)
+
+		require.Contains(t, cfg.appliedCommandLineProperties, appliedConfigOverride{
+			key:   "security.admin_password",
+			value: "*********",
+		})
 	})
 
 	t.Run("Should be able to override defaults via command line", func(t *testing.T) {

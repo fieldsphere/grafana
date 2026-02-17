@@ -14,7 +14,6 @@ import (
 	"path"
 	"strconv"
 
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/util/proxyutil"
 
@@ -52,7 +51,7 @@ func (b *APIBuilder) proxyAllFlagReq(ctx context.Context, isAuthedUser bool, w h
 			result.Flags = filteredFlags
 			newBodyBytes, err := json.Marshal(result)
 			if err != nil {
-				logger.Error("Failed to encode filtered result", "error", err)
+				b.logger.Error("Failed to encode filtered result", "error", err)
 				return err
 			}
 
@@ -78,7 +77,7 @@ func (b *APIBuilder) proxyFlagReq(ctx context.Context, flagKey string, isAuthedU
 	proxy, err := b.newProxy(path.Join(ofrepPath, flagKey))
 	if err != nil {
 		err = tracing.Error(span, err)
-		b.logger.Error("Failed to create proxy", "key", flagKey, "error", err)
+		b.logger.Error("Failed to create proxy", "flagKey", flagKey, "error", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}

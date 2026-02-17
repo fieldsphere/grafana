@@ -17,6 +17,7 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/grafana/grafana/pkg/build/wire"
@@ -24,11 +25,11 @@ import (
 
 func main() {
 	foo, err := injectFoo()
-	fmt.Println(foo) // should be zero, the injector should ignore provideFoo's return value.
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", foo)) // should be zero, the injector should ignore provideFoo's return value.
 	if err == nil {
-		fmt.Println("<nil>")
+		_, _ = os.Stdout.WriteString("<nil>\n")
 	} else {
-		fmt.Println(strings.Contains(err.Error(), "there is no Foo"))
+		_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", strings.Contains(err.Error(), "there is no Foo")))
 	}
 }
 

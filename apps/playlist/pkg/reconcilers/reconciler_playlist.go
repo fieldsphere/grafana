@@ -15,23 +15,23 @@ func NewPlaylistReconciler(patchClient operator.PatchClient) (operator.Reconcile
 	inner.ReconcileFunc = func(ctx context.Context, request operator.TypedReconcileRequest[*playlist.Playlist]) (operator.ReconcileResult, error) {
 		switch request.Action {
 		case operator.ReconcileActionCreated:
-			klog.InfoS("Added resource", "name", request.Object.GetStaticMetadata().Identifier().Name)
+			klog.InfoS("Added resource", "playlistName", request.Object.GetStaticMetadata().Identifier().Name)
 			return operator.ReconcileResult{}, nil
 		case operator.ReconcileActionUpdated:
-			klog.InfoS("Updated resource", "name", request.Object.GetStaticMetadata().Identifier().Name)
+			klog.InfoS("Updated resource", "playlistName", request.Object.GetStaticMetadata().Identifier().Name)
 			return operator.ReconcileResult{}, nil
 		case operator.ReconcileActionDeleted:
-			klog.InfoS("Deleted resource", "name", request.Object.GetStaticMetadata().Identifier().Name)
+			klog.InfoS("Deleted resource", "playlistName", request.Object.GetStaticMetadata().Identifier().Name)
 			return operator.ReconcileResult{}, nil
 		case operator.ReconcileActionResynced:
-			klog.InfoS("Possibly updated resource", "name", request.Object.GetStaticMetadata().Identifier().Name)
+			klog.InfoS("Possibly updated resource", "playlistName", request.Object.GetStaticMetadata().Identifier().Name)
 			return operator.ReconcileResult{}, nil
 		case operator.ReconcileActionUnknown:
-			klog.InfoS("error reconciling unknown action for Playlist", "action", request.Action, "object", request.Object)
+			klog.InfoS("error reconciling unknown action for Playlist", "reconcileAction", request.Action, "object", request.Object)
 			return operator.ReconcileResult{}, nil
 		}
 
-		klog.InfoS("error reconciling invalid action for Playlist", "action", request.Action, "object", request.Object)
+		klog.InfoS("error reconciling invalid action for Playlist", "reconcileAction", request.Action, "object", request.Object)
 		return operator.ReconcileResult{}, nil
 	}
 

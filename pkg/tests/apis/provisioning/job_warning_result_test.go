@@ -1,7 +1,6 @@
 package provisioning
 
 import (
-	"fmt"
 	"strings"
 	"testing"
 
@@ -59,7 +58,6 @@ func TestIntegrationProvisioning_JobWarningResult(t *testing.T) {
 	found := false
 	expectedWarningMsg := "writing resource from file dashboard1.json: failed to parse file: resource validation failed: unable to read file (file: dashboard1.json, name: , action: created)"
 	for _, warningMsg := range jobObj.Status.Warnings {
-		fmt.Println(warningMsg)
 		if warningMsg == expectedWarningMsg {
 			found = true
 			break

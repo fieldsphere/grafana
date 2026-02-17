@@ -2,7 +2,6 @@ package resource
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"testing"
 
@@ -25,8 +24,6 @@ func TestCDKBlobStore(t *testing.T) {
 			Metadata:  fileblob.MetadataDontWrite, // skip
 		})
 		require.NoError(t, err)
-
-		fmt.Printf("ROOT: %s\n\n", tmp)
 	}
 	ctx := context.Background()
 

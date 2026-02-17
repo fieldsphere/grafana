@@ -2,6 +2,7 @@ package sqltemplate
 
 import (
 	"fmt"
+	"os"
 	"regexp"
 	"strings"
 	"text/template"
@@ -149,7 +150,7 @@ func Example() {
 	// unnecessary white space from the query.
 	whiteSpaceRE := regexp.MustCompile(`\s+`)
 	query = strings.TrimSpace(whiteSpaceRE.ReplaceAllString(query, " "))
-	fmt.Println(query)
+	_, _ = os.Stdout.WriteString(query + "\n")
 
 	// Output:
 	// SELECT `id`, `type`, `name` FROM `users` WHERE `id` = ?;

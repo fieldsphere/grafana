@@ -102,7 +102,7 @@ func (r *NormalResponse) WriteTo(ctx *contextmodel.ReqContext) {
 	}
 	ctx.Resp.WriteHeader(r.status)
 	if _, err := ctx.Resp.Write(r.body.Bytes()); err != nil {
-		ctx.Logger.Error("Error writing to response", "err", err)
+		ctx.Logger.Error("Error writing to response", "error", err)
 	}
 }
 
@@ -121,7 +121,7 @@ func (r *NormalResponse) writeLogLine(c *contextmodel.ReqContext) {
 	if errors.As(r.err, &gfErr) {
 		logger = gfErr.LogLevel.LogFunc(c.Logger)
 	}
-	logger(r.errMessage, "error", r.err, "remote_addr", c.RemoteAddr(), "traceID", traceID)
+	logger(r.errMessage, "error", r.err, "remoteAddr", c.RemoteAddr(), "traceID", traceID)
 }
 
 func (r *NormalResponse) SetHeader(key, value string) *NormalResponse {
@@ -163,7 +163,7 @@ func (r StreamingResponse) WriteTo(ctx *contextmodel.ReqContext) {
 	jsonCfg := jsoniter.ConfigCompatibleWithStandardLibrary
 	enc := jsonCfg.NewEncoder(ctx.Resp)
 	if err := enc.Encode(r.body); err != nil {
-		ctx.Logger.Error("Error writing to response", "err", err)
+		ctx.Logger.Error("Error writing to response", "error", err)
 	}
 }
 

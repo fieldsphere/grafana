@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 )
@@ -96,20 +97,23 @@ func sqLite3TestDB() (*TestDB, error) {
 		sqliteDb = f.Name()
 
 		ret.Cleanup = func() {
+			sqliteWalPath := sqliteDb + "-wal"
+			sqliteShmPath := sqliteDb + "-shm"
+
 			// remove db file if it exists
 			err := os.Remove(sqliteDb)
 			if err != nil && !errors.Is(err, fs.ErrNotExist) {
-				fmt.Printf("Error removing sqlite db file %s: %v\n", sqliteDb, err)
+				slog.Error("Error removing sqlite db file", "sqliteDbPath", sqliteDb, "error", err)
 			}
 
 			// remove wal & shm files if they exist
-			err = os.Remove(sqliteDb + "-wal")
+			err = os.Remove(sqliteWalPath)
 			if err != nil && !errors.Is(err, fs.ErrNotExist) {
-				fmt.Printf("Error removing sqlite wal file %s: %v\n", sqliteDb+"-wal", err)
+				slog.Error("Error removing sqlite wal file", "sqliteWalPath", sqliteWalPath, "error", err)
 			}
-			err = os.Remove(sqliteDb + "-shm")
+			err = os.Remove(sqliteShmPath)
 			if err != nil && !errors.Is(err, fs.ErrNotExist) {
-				fmt.Printf("Error removing sqlite shm file %s: %v\n", sqliteDb+"-shm", err)
+				slog.Error("Error removing sqlite shm file", "sqliteShmPath", sqliteShmPath, "error", err)
 			}
 		}
 	}

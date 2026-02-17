@@ -6,6 +6,7 @@ import { GrafanaTheme2, dateTimeParse, DateTime, TimeZone } from '@grafana/data'
 import { t } from '@grafana/i18n';
 
 import { useStyles2 } from '../../../themes/ThemeContext';
+import { logUiError } from '../../../utils/structuredLogging';
 import { Icon } from '../../Icon/Icon';
 import { getWeekStart, WeekStart } from '../WeekStartPicker';
 import { adjustDateForReactCalendar } from '../utils/adjustDateForReactCalendar';
@@ -70,7 +71,10 @@ function useOnCalendarChange(onChange: (from: DateTime, to: DateTime) => void, t
   return useCallback<NonNullable<React.ComponentProps<typeof Calendar>['onChange']>>(
     (value) => {
       if (!Array.isArray(value)) {
-        return console.error('onCalendarChange: should be run in selectRange={true}');
+        logUiError('onCalendarChange should run only when selectRange is true', {
+          operation: 'useOnCalendarChange',
+        });
+        return;
       }
 
       if (value[0] && value[1]) {

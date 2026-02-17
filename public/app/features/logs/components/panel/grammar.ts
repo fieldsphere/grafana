@@ -1,8 +1,11 @@
 import { Grammar } from 'prismjs';
 
 import { escapeRegex, parseFlags } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { LogListModel } from './processing';
+
+const logger = createMonitoringLogger('features.logs.panel.grammar');
 
 // The Logs grammar is used for highlight in the logs panel
 const logsGrammar: Grammar = {
@@ -64,7 +67,11 @@ export const generateTextMatchGrammar = (highlightWords: string[] | undefined = 
       try {
         return new RegExp(`(?:${cleaned})`, flags);
       } catch (e) {
-        console.error(`generateTextMatchGrammar: cannot generate regular expression from /${cleaned}/${flags}`, e);
+        logger.logWarning('Cannot generate regular expression for highlighted word', {
+          operation: 'generateTextMatchGrammar',
+          expression: `/${cleaned}/${flags}`,
+          error: String(e),
+        });
       }
       return undefined;
     })
@@ -74,7 +81,11 @@ export const generateTextMatchGrammar = (highlightWords: string[] | undefined = 
     try {
       expressions.push(new RegExp(escapeRegex(search), 'gi'));
     } catch (e) {
-      console.error(`generateTextMatchGrammar: cannot generate regular expression from /${search}/gi`, e);
+      logger.logWarning('Cannot generate regular expression for search text', {
+        operation: 'generateTextMatchGrammar',
+        expression: `/${search}/gi`,
+        error: String(e),
+      });
     }
   }
   if (!expressions.length) {

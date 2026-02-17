@@ -60,7 +60,7 @@ export const toEnrichedCorrelationData = ({ sourceUID, ...correlation }: Correla
     };
   }
 
-  correlationsLogger.logWarning(`Invalid correlation config: Missing source or target.`, {
+  correlationsLogger.logWarning('Invalid correlation config: Missing source or target.', {
     source: JSON.stringify(sourceDatasource),
     target: JSON.stringify(targetDatasource),
   });

@@ -129,8 +129,8 @@ func traceReq(ctx context.Context, req *backend.QueryDataRequest, dsInfo datasou
 		attribute.String("target", target),
 		attribute.String("from", timeRange.From.String()),
 		attribute.String("until", timeRange.To.String()),
-		attribute.Int64("datasource_id", dsInfo.id),
-		attribute.Int64("org_id", req.PluginContext.OrgID),
+		attribute.Int64("datasourceID", dsInfo.id),
+		attribute.Int64("orgID", req.PluginContext.OrgID),
 	))
 	defer span.End()
 	return span

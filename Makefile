@@ -400,6 +400,68 @@ test-js: ## Run tests for frontend.
 .PHONY: test
 test: test-go test-js ## Run all tests.
 
+.PHONY: verify-structured-logging-closeout
+verify-structured-logging-closeout: ## Run structured logging closeout verification checks.
+	./scripts/verify-structured-logging-closeout.sh --mode full
+
+.PHONY: verify-structured-logging-closeout-quick
+verify-structured-logging-closeout-quick: ## Run structured logging closeout checks without race tests.
+	./scripts/verify-structured-logging-closeout.sh --mode quick
+
+.PHONY: verify-structured-logging-closeout-probes
+verify-structured-logging-closeout-probes: ## Run structured logging closeout query probes only.
+	./scripts/verify-structured-logging-closeout.sh --mode probes-only
+
+.PHONY: verify-structured-logging-closeout-tests
+verify-structured-logging-closeout-tests: ## Run structured logging closeout tests only.
+	./scripts/verify-structured-logging-closeout.sh --mode tests-only
+
+.PHONY: verify-structured-logging-closeout-tests-quick
+verify-structured-logging-closeout-tests-quick: ## Run structured logging closeout tests only without race tests.
+	./scripts/verify-structured-logging-closeout.sh --mode tests-only-quick
+
+.PHONY: verify-structured-logging-closeout-matrix
+verify-structured-logging-closeout-matrix: ## Run all closeout verification modes.
+	./scripts/verify-structured-logging-closeout.sh --mode matrix
+
+.PHONY: verify-structured-logging-closeout-modes
+verify-structured-logging-closeout-modes: ## List supported closeout verification modes.
+	./scripts/verify-structured-logging-closeout.sh --list-modes
+
+.PHONY: verify-structured-logging-closeout-modes-json
+verify-structured-logging-closeout-modes-json: ## List supported closeout verification modes as JSON.
+	./scripts/verify-structured-logging-closeout.sh --list-modes-json
+
+.PHONY: verify-structured-logging-closeout-help
+verify-structured-logging-closeout-help: ## Show closeout verification script options and modes.
+	./scripts/verify-structured-logging-closeout.sh --help
+
+.PHONY: verify-structured-logging-closeout-mode
+verify-structured-logging-closeout-mode: ## Run structured logging closeout verification for a specific mode (use mode=<name>).
+	@if [ -z "$(mode)" ]; then \
+		modes="$$(./scripts/verify-structured-logging-closeout.sh --list-modes | tr '\n' ',' | sed 's/,$$//' | sed 's/,/, /g')"; \
+		echo "mode is required. Use one of: $$modes"; \
+		exit 1; \
+	fi
+	./scripts/verify-structured-logging-closeout.sh --mode "$(mode)"
+
+.PHONY: verify-structured-logging-closeout-dry-run
+verify-structured-logging-closeout-dry-run: ## Print full closeout commands without executing.
+	./scripts/verify-structured-logging-closeout.sh --mode full --dry-run
+
+.PHONY: verify-structured-logging-closeout-matrix-dry-run
+verify-structured-logging-closeout-matrix-dry-run: ## Print all matrix mode commands without executing.
+	./scripts/verify-structured-logging-closeout.sh --mode matrix --dry-run
+
+.PHONY: verify-structured-logging-closeout-mode-dry-run
+verify-structured-logging-closeout-mode-dry-run: ## Print closeout commands for a specific mode without executing (use mode=<name>).
+	@if [ -z "$(mode)" ]; then \
+		modes="$$(./scripts/verify-structured-logging-closeout.sh --list-modes | tr '\n' ',' | sed 's/,$$//' | sed 's/,/, /g')"; \
+		echo "mode is required. Use one of: $$modes"; \
+		exit 1; \
+	fi
+	./scripts/verify-structured-logging-closeout.sh --mode "$(mode)" --dry-run
+
 ##@ Linting
 .PHONY: golangci-lint
 golangci-lint:

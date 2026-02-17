@@ -55,8 +55,8 @@ func RunJobController(deps server.OperatorDependencies) error {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
-		<-sigChan
-		fmt.Println("Received shutdown signal, stopping controllers")
+		sig := <-sigChan
+		logger.Info("Received shutdown signal, stopping controllers", "signal", sig.String())
 		cancel()
 	}()
 

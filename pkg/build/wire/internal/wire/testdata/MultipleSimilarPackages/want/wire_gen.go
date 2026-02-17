@@ -10,6 +10,7 @@ import (
 	"example.com/baz"
 	"example.com/foo"
 	"fmt"
+	"os"
 )
 
 // Injectors from wire.go:
@@ -54,5 +55,5 @@ func main() {
 		baz: &baz.Config{3},
 	}
 	svc := newMainService(cfg)
-	fmt.Println(svc.String())
+	_, _ = os.Stdout.WriteString(svc.String() + "\n")
 }

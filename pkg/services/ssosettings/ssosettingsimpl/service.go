@@ -461,7 +461,7 @@ func (s *Service) doReload(ctx context.Context) {
 
 	settingsList, err := s.List(ctx)
 	if err != nil {
-		s.logger.Error("failed to fetch SSO Settings for all providers", "err", err)
+		s.logger.Error("failed to fetch SSO Settings for all providers", "error", err)
 		return
 	}
 
@@ -476,7 +476,7 @@ func (s *Service) doReload(ctx context.Context) {
 		err = connector.Reload(ctx, *settings)
 		if err != nil {
 			s.metrics.reloadFailures.WithLabelValues(provider).Inc()
-			s.logger.Error("failed to reload SSO Settings", "provider", provider, "err", err)
+			s.logger.Error("failed to reload SSO Settings", "provider", provider, "error", err)
 			continue
 		}
 	}
@@ -512,19 +512,19 @@ func (s *Service) decryptSecrets(ctx context.Context, settings map[string]any) (
 			if IsSecretField(k) && v != "" {
 				strValue, ok := v.(string)
 				if !ok {
-					s.logger.FromContext(ctx).Error("Failed to parse secret value, it is not a string", "key", k)
+					s.logger.FromContext(ctx).Error("Failed to parse secret value, it is not a string", "secretFieldKey", k)
 					return nil, fmt.Errorf("secret value is not a string")
 				}
 
 				decoded, err := base64.RawStdEncoding.DecodeString(strValue)
 				if err != nil {
-					s.logger.FromContext(ctx).Error("Failed to decode secret string", "err", err, "value")
+					s.logger.FromContext(ctx).Error("Failed to decode secret string", "error", err, "secretFieldKey", k)
 					return nil, err
 				}
 
 				decrypted, err := s.secrets.Decrypt(ctx, decoded)
 				if err != nil {
-					s.logger.FromContext(ctx).Error("Failed to decrypt secret", "err", err)
+					s.logger.FromContext(ctx).Error("Failed to decrypt secret", "error", err)
 					return nil, err
 				}
 

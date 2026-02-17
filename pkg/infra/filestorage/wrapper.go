@@ -100,7 +100,7 @@ func getName(path string) string {
 
 func (b wrapper) validatePath(path string) error {
 	if err := ValidatePath(path); err != nil {
-		b.log.Error("Path failed validation", "path", path, "error", err)
+		b.log.Error("Path failed validation", "filePath", path, "error", err)
 		return err
 	}
 	return nil
@@ -180,7 +180,7 @@ func (b wrapper) Upsert(ctx context.Context, file *UpsertFileCommand) error {
 	}
 
 	path := getParentFolderPath(file.Path)
-	b.log.Info("Creating folder before upserting file", "file", file.Path, "folder", path)
+	b.log.Info("Creating folder before upserting file", "filePath", file.Path, "folderPath", path)
 	if err := b.CreateFolder(ctx, path); err != nil {
 		return err
 	}

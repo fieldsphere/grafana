@@ -413,7 +413,7 @@ func (s *Seeder) HasSeededAlready() bool {
 func (s *Seeder) RemoveAbsentRoles(ctx context.Context) error {
 	roleMap, errGet := s.roleStore.LoadRoles(ctx)
 	if errGet != nil {
-		s.log.Error("failed to get fixed roles from store", "err", errGet)
+		s.log.Error("failed to get fixed roles from store", "error", errGet)
 		return errGet
 	}
 
@@ -445,7 +445,7 @@ func (s *Seeder) RemoveAbsentRoles(ctx context.Context) error {
 	}
 
 	if errDelete := s.roleStore.DeleteRoles(ctx, toRemove); errDelete != nil {
-		s.log.Error("failed to delete absent fixed and plugin roles", "err", errDelete)
+		s.log.Error("failed to delete absent fixed and plugin roles", "error", errDelete)
 		return errDelete
 	}
 	return nil

@@ -24,7 +24,7 @@ import (
 	"go/token"
 	"go/types"
 	"io/ioutil"
-	"log"
+	"log/slog"
 	"os"
 	"reflect"
 	"sort"
@@ -37,6 +37,8 @@ import (
 	"golang.org/x/tools/go/types/typeutil"
 )
 
+var wireLogger = slog.New(slog.NewTextHandler(os.Stderr, nil)).With("tool", "wire")
+
 func main() {
 	subcommands.Register(subcommands.CommandsCommand(), "")
 	subcommands.Register(subcommands.FlagsCommand(), "")
@@ -47,10 +49,7 @@ func main() {
 	subcommands.Register(&showCmd{}, "")
 	flag.Parse()
 
-	// Initialize the default logger to log to stderr.
-	log.SetFlags(0)
-	log.SetPrefix("wire: ")
-	log.SetOutput(os.Stderr)
+	slog.SetDefault(wireLogger)
 
 	// TODO(rvangent): Use subcommands's VisitCommands instead of hardcoded map,
 	// once there is a release that contains it:
@@ -126,12 +125,12 @@ func (cmd *genCmd) SetFlags(f *flag.FlagSet) {
 func (cmd *genCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Println("failed to get working directory: ", err)
+		wireLogger.Error("Failed to get working directory", "error", err)
 		return subcommands.ExitFailure
 	}
 	opts, err := newGenerateOptions(cmd.headerFile)
 	if err != nil {
-		log.Println(err)
+		wireLogger.Error("Failed to initialize generate options", "error", err)
 		return subcommands.ExitFailure
 	}
 
@@ -142,7 +141,7 @@ func (cmd *genCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interfa
 	outs, errs := wire.Generate(ctx, wd, os.Environ(), packages(f), opts)
 	if len(errs) > 0 {
 		logErrors(errs)
-		log.Println("generate failed")
+		wireLogger.Error("Generate failed")
 		return subcommands.ExitFailure
 	}
 	if len(outs) == 0 {
@@ -152,7 +151,7 @@ func (cmd *genCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interfa
 	for _, out := range outs {
 		if len(out.Errs) > 0 {
 			logErrors(out.Errs)
-			log.Printf("%s: generate failed\n", out.PkgPath)
+			wireLogger.Error("Generate failed for package", "pkgPath", out.PkgPath)
 			success = false
 		}
 		if len(out.Content) == 0 {
@@ -160,14 +159,14 @@ func (cmd *genCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interfa
 			continue
 		}
 		if err := out.Commit(); err == nil {
-			log.Printf("%s: wrote %s\n", out.PkgPath, out.OutputPath)
+			wireLogger.Info("Wrote generated output", "pkgPath", out.PkgPath, "outputPath", out.OutputPath)
 		} else {
-			log.Printf("%s: failed to write %s: %v\n", out.PkgPath, out.OutputPath, err)
+			wireLogger.Error("Failed to write generated output", "pkgPath", out.PkgPath, "outputPath", out.OutputPath, "error", err)
 			success = false
 		}
 	}
 	if !success {
-		log.Println("at least one generate failure")
+		wireLogger.Error("At least one generate failure")
 		return subcommands.ExitFailure
 	}
 	return subcommands.ExitSuccess
@@ -205,12 +204,12 @@ func (cmd *diffCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 	)
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Println("failed to get working directory: ", err)
+		wireLogger.Error("Failed to get working directory", "error", err)
 		return errReturn
 	}
 	opts, err := newGenerateOptions(cmd.headerFile)
 	if err != nil {
-		log.Println(err)
+		wireLogger.Error("Failed to initialize generate options", "error", err)
 		return subcommands.ExitFailure
 	}
 
@@ -219,7 +218,7 @@ func (cmd *diffCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 	outs, errs := wire.Generate(ctx, wd, os.Environ(), packages(f), opts)
 	if len(errs) > 0 {
 		logErrors(errs)
-		log.Println("generate failed")
+		wireLogger.Error("Generate failed")
 		return errReturn
 	}
 	if len(outs) == 0 {
@@ -230,7 +229,7 @@ func (cmd *diffCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 	for _, out := range outs {
 		if len(out.Errs) > 0 {
 			logErrors(out.Errs)
-			log.Printf("%s: generate failed\n", out.PkgPath)
+			wireLogger.Error("Generate failed for package", "pkgPath", out.PkgPath)
 			success = false
 		}
 		if len(out.Content) == 0 {
@@ -245,16 +244,16 @@ func (cmd *diffCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 		}); err == nil {
 			if diff != "" {
 				// Print the actual diff to stdout, not stderr.
-				fmt.Printf("%s: diff from %s:\n%s\n", out.PkgPath, out.OutputPath, diff)
+				_, _ = os.Stdout.WriteString(fmt.Sprintf("%s: diff from %s:\n%s\n", out.PkgPath, out.OutputPath, diff))
 				hadDiff = true
 			}
 		} else {
-			log.Printf("%s: failed to diff %s: %v\n", out.PkgPath, out.OutputPath, err)
+			wireLogger.Error("Failed to diff generated output", "pkgPath", out.PkgPath, "outputPath", out.OutputPath, "error", err)
 			success = false
 		}
 	}
 	if !success {
-		log.Println("at least one generate failure")
+		wireLogger.Error("At least one generate failure")
 		return errReturn
 	}
 	if hadDiff {
@@ -288,7 +287,7 @@ func (cmd *showCmd) SetFlags(f *flag.FlagSet) {
 func (cmd *showCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Println("failed to get working directory: ", err)
+		wireLogger.Error("Failed to get working directory", "error", err)
 		return subcommands.ExitFailure
 	}
 	info, errs := wire.Load(ctx, wd, os.Environ(), cmd.tags, packages(f))
@@ -305,15 +304,15 @@ func (cmd *showCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 		})
 		for i, k := range keys {
 			if i > 0 {
-				fmt.Println()
+				_, _ = os.Stdout.WriteString("\n")
 			}
 			outGroups, imports := gather(info, k)
-			fmt.Println(k)
+			_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", k))
 			for _, imp := range sortSet(imports) {
-				fmt.Printf("\t%s\n", imp)
+				_, _ = os.Stdout.WriteString("\t" + imp + "\n")
 			}
 			for i := range outGroups {
-				fmt.Printf("\tOutputs given %s:\n", outGroups[i].name)
+				_, _ = os.Stdout.WriteString(fmt.Sprintf("\tOutputs given %s:\n", outGroups[i].name))
 				out := make(map[string]token.Pos, outGroups[i].outputs.Len())
 				outGroups[i].outputs.Iterate(func(t types.Type, v interface{}) {
 					switch v := v.(type) {
@@ -328,8 +327,8 @@ func (cmd *showCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 					}
 				})
 				for _, t := range sortSet(out) {
-					fmt.Printf("\t\t%s\n", t)
-					fmt.Printf("\t\t\tat %v\n", info.Fset.Position(out[t]))
+					_, _ = os.Stdout.WriteString("\t\t" + t + "\n")
+					_, _ = os.Stdout.WriteString(fmt.Sprintf("\t\t\tat %v\n", info.Fset.Position(out[t])))
 				}
 			}
 		}
@@ -341,15 +340,15 @@ func (cmd *showCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interf
 				}
 				return injectors[i].ImportPath < injectors[j].ImportPath
 			})
-			fmt.Println("\nInjectors:")
+			_, _ = os.Stdout.WriteString("\nInjectors:\n")
 			for _, in := range injectors {
-				fmt.Printf("\t%v\n", in)
+				_, _ = os.Stdout.WriteString(fmt.Sprintf("\t%v\n", in))
 			}
 		}
 	}
 	if len(errs) > 0 {
 		logErrors(errs)
-		log.Println("error loading packages")
+		wireLogger.Error("Error loading packages")
 		return subcommands.ExitFailure
 	}
 	return subcommands.ExitSuccess
@@ -378,13 +377,13 @@ func (cmd *checkCmd) SetFlags(f *flag.FlagSet) {
 func (cmd *checkCmd) Execute(ctx context.Context, f *flag.FlagSet, args ...interface{}) subcommands.ExitStatus {
 	wd, err := os.Getwd()
 	if err != nil {
-		log.Println("failed to get working directory: ", err)
+		wireLogger.Error("Failed to get working directory", "error", err)
 		return subcommands.ExitFailure
 	}
 	_, errs := wire.Load(ctx, wd, os.Environ(), cmd.tags, packages(f))
 	if len(errs) > 0 {
 		logErrors(errs)
-		log.Println("error loading packages")
+		wireLogger.Error("Error loading packages")
 		return subcommands.ExitFailure
 	}
 	return subcommands.ExitSuccess
@@ -607,6 +606,6 @@ func formatProviderSetName(importPath, varName string) string {
 
 func logErrors(errs []error) {
 	for _, err := range errs {
-		log.Println(strings.Replace(err.Error(), "\n", "\n\t", -1))
+		wireLogger.Error("Wire reported error", "error", err, "errorMessage", strings.Replace(err.Error(), "\n", "\n\t", -1))
 	}
 }

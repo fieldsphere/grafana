@@ -12,6 +12,7 @@ import {
 } from 'react';
 
 import { SelectableValue, TimeRange } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { METRIC_LABEL, PROMETHEUS_QUERY_BUILDER_MAX_RESULTS } from '../../../constants';
 import { PrometheusLanguageProviderInterface } from '../../../language_provider';
@@ -24,6 +25,7 @@ import { MetricData, MetricsData } from './types';
 import { fuzzySearch } from './uFuzzy';
 
 export const DEFAULT_RESULTS_PER_PAGE = 25;
+const logger = createMonitoringLogger('packages.grafana-prometheus.metrics-modal-context');
 
 type Pagination = {
   pageNum: number;
@@ -167,7 +169,14 @@ export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalConte
         } catch (error) {
           // Only update state if this is still the latest search
           if (searchId === latestSearchIdRef.current) {
-            console.error('Backend search failed:', error);
+            if (error instanceof Error) {
+              logger.logError(error, { operation: 'debouncedBackendSearch' });
+            } else {
+              logger.logWarning('Backend search failed', {
+                operation: 'debouncedBackendSearch',
+                error: String(error),
+              });
+            }
             setMetricsData([]); // Clear results on error
             setIsLoading(false);
           }

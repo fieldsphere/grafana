@@ -5,7 +5,7 @@ import { useAsyncFn, useAsyncRetry, useDebounce } from 'react-use';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import { Button, useStyles2, Stack, Grid, EmptyState, Alert, FilterInput, Box } from '@grafana/ui';
 
 import { DashboardCard } from './DashboardCard';
@@ -38,6 +38,7 @@ const DEFAULT_SORT_ORDER = 'downloads';
 const DEFAULT_SORT_DIRECTION = 'desc';
 const INCLUDE_LOGO = true;
 const INCLUDE_SCREENSHOTS = true;
+const logger = createMonitoringLogger('features.dashboard.library.community-section');
 
 export const CommunityDashboardSection = ({ onShowMapping, datasourceType }: Props) => {
   const [searchParams] = useSearchParams();
@@ -97,7 +98,16 @@ export const CommunityDashboardSection = ({ onShowMapping, datasourceType }: Pro
         datasourceType: ds.type,
       };
     } catch (err) {
-      console.error('Error loading community dashboards', err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'fetchCommunityDashboards', datasourceUid, search: debouncedSearchQuery });
+      } else {
+        logger.logWarning('Error loading community dashboards', {
+          operation: 'fetchCommunityDashboards',
+          datasourceUid,
+          search: debouncedSearchQuery,
+          error: String(err),
+        });
+      }
       throw err;
     }
   }, [datasourceUid, debouncedSearchQuery]);

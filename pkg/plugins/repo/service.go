@@ -123,7 +123,7 @@ func (m *Manager) grafanaCompatiblePluginVersions(ctx context.Context, pluginID 
 	var v PluginVersions
 	err = json.Unmarshal(body, &v)
 	if err != nil {
-		m.log.Error("Failed to unmarshal plugin repo response", err)
+		m.log.Error("Failed to unmarshal plugin repo response", "error", err)
 		return nil, err
 	}
 

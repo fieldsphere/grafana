@@ -203,7 +203,7 @@ func (b *bleveBackend) getCachedIndex(key resource.NamespacedResource, now time.
 func (b *bleveBackend) closeIndex(idx *bleveIndex, key resource.NamespacedResource) {
 	err := idx.stopUpdaterAndCloseIndex()
 	if err != nil {
-		b.log.Error("failed to close index", "key", key, "err", err)
+		b.log.Error("failed to close index", "indexKey", key, "error", err)
 	}
 
 	if b.indexMetrics != nil {
@@ -258,16 +258,16 @@ func (b *bleveBackend) runEvictExpiredOrUnownedIndexes(now time.Time) {
 	b.cacheMx.Unlock()
 
 	for key, err := range ownCheckErrors {
-		b.log.Warn("failed to check if index belongs to this instance", "key", key, "err", err)
+		b.log.Warn("failed to check if index belongs to this instance", "indexKey", key, "error", err)
 	}
 
 	for key, idx := range unowned {
-		b.log.Info("index evicted from cache", "reason", "unowned", "key", key, "storage", idx.indexStorage)
+		b.log.Info("index evicted from cache", "evictionReason", "unowned", "indexKey", key, "storage", idx.indexStorage)
 		b.closeIndex(idx, key)
 	}
 
 	for key, idx := range expired {
-		b.log.Info("index evicted from cache", "reason", "expired", "key", key, "storage", idx.indexStorage)
+		b.log.Info("index evicted from cache", "evictionReason", "expired", "indexKey", key, "storage", idx.indexStorage)
 		b.closeIndex(idx, key)
 	}
 }
@@ -374,7 +374,7 @@ func (b *bleveBackend) BuildIndex(
 		attribute.String("group", key.Group),
 		attribute.String("resource", key.Resource),
 		attribute.Int64("size", size),
-		attribute.String("reason", indexBuildReason),
+		attribute.String("indexBuildReason", indexBuildReason),
 	)
 
 	selectableFields := b.selectableFields[strings.ToLower(fmt.Sprintf("%s/%s", key.Group, key.Resource))]
@@ -391,7 +391,7 @@ func (b *bleveBackend) BuildIndex(
 		return nil, err
 	}
 
-	logWithDetails := b.log.FromContext(ctx).New("namespace", key.Namespace, "group", key.Group, "resource", key.Resource, "size", size, "reason", indexBuildReason)
+	logWithDetails := b.log.FromContext(ctx).New("namespace", key.Namespace, "group", key.Group, "resource", key.Resource, "size", size, "indexBuildReason", indexBuildReason)
 
 	// Close the newly created/opened index by default.
 	closeIndex := true
@@ -403,11 +403,11 @@ func (b *bleveBackend) BuildIndex(
 		}
 
 		if closeErr := index.Close(); closeErr != nil {
-			logWithDetails.Error("Failed to close index after index build failure", "err", closeErr)
+			logWithDetails.Error("Failed to close index after index build failure", "error", closeErr)
 		}
 		if indexDir != "" {
 			if removeErr := os.RemoveAll(indexDir); removeErr != nil {
-				logWithDetails.Error("Failed to remove index directory after index build failure", "err", removeErr)
+				logWithDetails.Error("Failed to remove index directory after index build failure", "error", removeErr)
 			}
 		}
 	}
@@ -505,7 +505,7 @@ func (b *bleveBackend) BuildIndex(
 		start := time.Now()
 		listRV, err := builder(idx)
 		if err != nil {
-			logWithDetails.Error("Failed to build index", "err", err)
+			logWithDetails.Error("Failed to build index", "error", err)
 			if b.indexMetrics != nil {
 				b.indexMetrics.IndexBuildFailures.Inc()
 			}
@@ -513,7 +513,7 @@ func (b *bleveBackend) BuildIndex(
 		}
 		err = idx.updateResourceVersion(listRV)
 		if err != nil {
-			logWithDetails.Error("Failed to persist RV to index", "err", err, "rv", listRV)
+			logWithDetails.Error("Failed to persist RV to index", "error", err, "resourceVersion", listRV)
 			return nil, fmt.Errorf("failed to persist RV to index: %w", err)
 		}
 
@@ -540,9 +540,9 @@ func (b *bleveBackend) BuildIndex(
 
 	// Store the index in the cache.
 	if idx.expiration.IsZero() {
-		logWithDetails.Info("Storing index in cache, with no expiration", "key", key)
+		logWithDetails.Info("Storing index in cache, with no expiration", "indexKey", key)
 	} else {
-		logWithDetails.Info("Storing index in cache", "key", key, "expiration", idx.expiration)
+		logWithDetails.Info("Storing index in cache", "indexKey", key, "expiration", idx.expiration)
 	}
 
 	// We're storing index in the cache, so we can't close it.
@@ -561,7 +561,7 @@ func (b *bleveBackend) BuildIndex(
 
 		err := prev.stopUpdaterAndCloseIndex()
 		if err != nil {
-			logWithDetails.Error("failed to close previous index", "key", key, "err", err)
+			logWithDetails.Error("failed to close previous index", "indexKey", key, "error", err)
 		}
 	}
 	if b.indexMetrics != nil {
@@ -676,16 +676,16 @@ func (b *bleveBackend) findPreviousFileBasedIndex(resourceDir string) (bleve.Ind
 			// On timeout, the file probably is locked by another process.
 			// This indicates a setup issue that should be fixed rather than worked around by creating a new index file.
 			if errors.Is(err, bolterrors.ErrTimeout) {
-				b.log.Error("index is locked by another process", "indexDir", indexDir, "err", err)
+				b.log.Error("index is locked by another process", "indexDir", indexDir, "error", err)
 				return nil, "", 0, fmt.Errorf("index is locked by another process: indexDir=%s, err=%w", indexDir, err)
 			}
-			b.log.Error("error opening index", "indexDir", indexDir, "err", err)
+			b.log.Error("error opening index", "indexDir", indexDir, "error", err)
 			continue
 		}
 
 		indexRV, err := getRV(idx)
 		if err != nil {
-			b.log.Error("error getting rv from index", "indexDir", indexDir, "err", err)
+			b.log.Error("error getting rv from index", "indexDir", indexDir, "error", err)
 			_ = idx.Close()
 			continue
 		}
@@ -710,7 +710,7 @@ func (b *bleveBackend) closeAllIndexes() {
 
 	for key, idx := range b.cache {
 		if err := idx.stopUpdaterAndCloseIndex(); err != nil {
-			b.log.Error("Failed to close index", "err", err)
+			b.log.Error("Failed to close index", "error", err)
 		}
 		delete(b.cache, key)
 
@@ -1589,7 +1589,7 @@ func (b *bleveIndex) updateIndexWithLatestModifications(ctx context.Context, req
 			b.updatedDocuments.Observe(float64(docs))
 		}
 	} else {
-		b.logger.Error("Updating of index finished with error", "duration", elapsed, "err", err)
+		b.logger.Error("Updating of index finished with error", "duration", elapsed, "error", err)
 	}
 	return listRV, err
 }
@@ -1974,16 +1974,16 @@ func (q *permissionScopedQuery) Searcher(ctx context.Context, i index.IndexReade
 		parts := strings.Split(d.ID, "/")
 		// Exclude doc if id isn't expected format
 		if len(parts) != 4 {
-			logger.Debug("Unexpected document ID format", "id", d.ID)
+			logger.Debug("Unexpected document ID format", "documentID", d.ID)
 			return false
 		}
-		ns := parts[0]
+		namespace := parts[0]
 		resource := parts[2]
-		name := parts[3]
-		folder := ""
+		resourceName := parts[3]
+		folderUID := ""
 		err = dvReader.VisitDocValues(d.IndexInternalID, func(field string, value []byte) {
 			if field == "folder" {
-				folder = string(value)
+				folderUID = string(value)
 			}
 		})
 		if err != nil {
@@ -1994,9 +1994,9 @@ func (q *permissionScopedQuery) Searcher(ctx context.Context, i index.IndexReade
 			logger.Debug("No resource checker found", "resource", resource)
 			return false
 		}
-		allowed := q.checkers[resource](name, folder)
+		allowed := q.checkers[resource](resourceName, folderUID)
 		if !allowed {
-			logger.Debug("Denying access", "ns", ns, "name", name, "folder", folder)
+			logger.Debug("Denying access", "namespace", namespace, "resourceName", resourceName, "folderUID", folderUID)
 		}
 		return allowed
 	})

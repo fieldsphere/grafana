@@ -1,3 +1,5 @@
+import { logDataError } from '../logging';
+
 type StoreValue = string | number | boolean | null;
 type StoreSubscriber = () => void;
 
@@ -65,7 +67,12 @@ export class Store {
       try {
         ret = JSON.parse(json);
       } catch (error) {
-        console.error(`Error parsing store object: ${key}. Returning default: ${def}. [${error}]`);
+        logDataError('Error parsing store object. Returning default value.', {
+          operation: 'Store.getObject',
+          key,
+          defaultValue: String(def),
+          error: String(error),
+        });
       }
     }
     return ret;

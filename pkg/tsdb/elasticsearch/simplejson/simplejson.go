@@ -11,7 +11,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"log"
 )
 
 // returns the current implementation version
@@ -242,7 +241,7 @@ func (j *Json) GetIndex(index int) *Json {
 // useful for chained operations when success is important:
 //
 //	if data, ok := js.Get("top_level").CheckGetIndex(0); ok {
-//	    log.Println(data)
+//	    _ = data
 //	}
 func (j *Json) CheckGetIndex(index int) (*Json, bool) {
 	a, err := j.Array()
@@ -271,7 +270,7 @@ func (j *Json) SetIndex(index int, val any) {
 // useful for chained operations when success is important:
 //
 //	if data, ok := js.Get("top_level").CheckGet("inner"); ok {
-//	    log.Println(data)
+//	    _ = data
 //	}
 func (j *Json) CheckGet(key string) (*Json, bool) {
 	m, err := j.Map()
@@ -349,7 +348,8 @@ func (j *Json) StringArray() ([]string, error) {
 // useful when you want to iterate over array values in a succinct manner:
 //
 //	for i, v := range js.Get("results").MustArray() {
-//		fmt.Println(i, v)
+//		_ = i
+//		_ = v
 //	}
 func (j *Json) MustArray(args ...[]any) []any {
 	var def []any
@@ -359,7 +359,7 @@ func (j *Json) MustArray(args ...[]any) []any {
 	case 1:
 		def = args[0]
 	default:
-		log.Panicf("MustArray() received too many arguments %d", len(args))
+		panic(fmt.Sprintf("MustArray() received too many arguments %d", len(args)))
 	}
 
 	a, err := j.Array()
@@ -375,7 +375,8 @@ func (j *Json) MustArray(args ...[]any) []any {
 // useful when you want to iterate over map values in a succinct manner:
 //
 //	for k, v := range js.Get("dictionary").MustMap() {
-//		fmt.Println(k, v)
+//		_ = k
+//		_ = v
 //	}
 func (j *Json) MustMap(args ...map[string]any) map[string]any {
 	var def map[string]any
@@ -385,7 +386,7 @@ func (j *Json) MustMap(args ...map[string]any) map[string]any {
 	case 1:
 		def = args[0]
 	default:
-		log.Panicf("MustMap() received too many arguments %d", len(args))
+		panic(fmt.Sprintf("MustMap() received too many arguments %d", len(args)))
 	}
 
 	a, err := j.Map()
@@ -409,7 +410,7 @@ func (j *Json) MustString(args ...string) string {
 	case 1:
 		def = args[0]
 	default:
-		log.Panicf("MustString() received too many arguments %d", len(args))
+		panic(fmt.Sprintf("MustString() received too many arguments %d", len(args)))
 	}
 
 	s, err := j.String()
@@ -425,7 +426,8 @@ func (j *Json) MustString(args ...string) string {
 // useful when you want to iterate over array values in a succinct manner:
 //
 //	for i, s := range js.Get("results").MustStringArray() {
-//		fmt.Println(i, s)
+//		_ = i
+//		_ = s
 //	}
 func (j *Json) MustStringArray(args ...[]string) []string {
 	var def []string
@@ -435,7 +437,7 @@ func (j *Json) MustStringArray(args ...[]string) []string {
 	case 1:
 		def = args[0]
 	default:
-		log.Panicf("MustStringArray() received too many arguments %d", len(args))
+		panic(fmt.Sprintf("MustStringArray() received too many arguments %d", len(args)))
 	}
 
 	a, err := j.StringArray()
@@ -459,7 +461,7 @@ func (j *Json) MustInt(args ...int) int {
 	case 1:
 		def = args[0]
 	default:
-		log.Panicf("MustInt() received too many arguments %d", len(args))
+		panic(fmt.Sprintf("MustInt() received too many arguments %d", len(args)))
 	}
 
 	i, err := j.Int()
@@ -483,7 +485,7 @@ func (j *Json) MustFloat64(args ...float64) float64 {
 	case 1:
 		def = args[0]
 	default:
-		log.Panicf("MustFloat64() received too many arguments %d", len(args))
+		panic(fmt.Sprintf("MustFloat64() received too many arguments %d", len(args)))
 	}
 
 	f, err := j.Float64()
@@ -507,7 +509,7 @@ func (j *Json) MustBool(args ...bool) bool {
 	case 1:
 		def = args[0]
 	default:
-		log.Panicf("MustBool() received too many arguments %d", len(args))
+		panic(fmt.Sprintf("MustBool() received too many arguments %d", len(args)))
 	}
 
 	b, err := j.Bool()
@@ -531,7 +533,7 @@ func (j *Json) MustInt64(args ...int64) int64 {
 	case 1:
 		def = args[0]
 	default:
-		log.Panicf("MustInt64() received too many arguments %d", len(args))
+		panic(fmt.Sprintf("MustInt64() received too many arguments %d", len(args)))
 	}
 
 	i, err := j.Int64()
@@ -555,7 +557,7 @@ func (j *Json) MustUint64(args ...uint64) uint64 {
 	case 1:
 		def = args[0]
 	default:
-		log.Panicf("MustUint64() received too many arguments %d", len(args))
+		panic(fmt.Sprintf("MustUint64() received too many arguments %d", len(args)))
 	}
 
 	i, err := j.Uint64()

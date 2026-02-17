@@ -45,6 +45,11 @@ jest.mock('../../hooks/useProvisionedRequestHandler', () => ({
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
   getAppEvents: jest.fn(),
+  createMonitoringLogger: () => ({
+    logError: jest.fn(),
+    logWarning: jest.fn(),
+    logDebug: jest.fn(),
+  }),
 }));
 jest.mock('react-router-dom-v5-compat', () => ({
   ...jest.requireActual('react-router-dom-v5-compat'),
@@ -237,16 +242,10 @@ describe('DeleteProvisionedDashboardDrawer', () => {
         },
       });
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-
       const deleteButton = screen.getByRole('button', { name: /delete dashboard/i });
       await user.click(deleteButton);
 
-      expect(consoleSpy).toHaveBeenCalledWith('Missing required repository for deletion:', {
-        repo: '',
-      });
       expect(mockDeleteRepoFile).not.toHaveBeenCalled();
-      consoleSpy.mockRestore();
     });
 
     it('should handle missing path', async () => {

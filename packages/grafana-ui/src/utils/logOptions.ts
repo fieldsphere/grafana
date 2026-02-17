@@ -1,3 +1,5 @@
+import { logUiWarning } from './structuredLogging';
+
 /**
  * This function logs a warning if the amount of items exceeds the recommended amount.
  *
@@ -12,8 +14,8 @@ export function logOptions(
   ariaLabelledBy: string | undefined
 ): void {
   if (amount > recommendedAmount) {
-    const msg = `[Combobox] Items exceed the recommended amount ${recommendedAmount}.`;
-    console.warn(msg, {
+    logUiWarning('Combobox items exceed the recommended amount', {
+      operation: 'logOptions',
       itemsCount: '' + amount,
       recommendedAmount: '' + recommendedAmount,
       'aria-labelledby': ariaLabelledBy ?? '',

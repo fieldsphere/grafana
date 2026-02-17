@@ -65,11 +65,11 @@ func (r *ResourcePermissionsAuthorizer) AfterGet(ctx context.Context, obj runtim
 		if !isAccessPolicy(authInfo) && r.parentProvider.HasParent(targetGR) {
 			p, err := r.parentProvider.GetParent(ctx, targetGR, o.Namespace, target.Name)
 			if err != nil {
-				r.logger.Error("after get: error fetching parent", "error", err.Error(),
+				r.logger.Error("after get: error fetching parent", "error", err,
 					"namespace", o.Namespace,
 					"group", target.ApiGroup,
 					"resource", target.Resource,
-					"name", target.Name,
+					"resourceName", target.Name,
 				)
 				return err
 			}
@@ -115,11 +115,11 @@ func (r *ResourcePermissionsAuthorizer) beforeWrite(ctx context.Context, obj run
 		if !isAccessPolicy(authInfo) && r.parentProvider.HasParent(targetGR) {
 			p, err := r.parentProvider.GetParent(ctx, targetGR, o.Namespace, target.Name)
 			if err != nil {
-				r.logger.Error("before write: error fetching parent", "error", err.Error(),
+				r.logger.Error("before write: error fetching parent", "error", err,
 					"namespace", o.Namespace,
 					"group", target.ApiGroup,
 					"resource", target.Resource,
-					"name", target.Name,
+					"resourceName", target.Name,
 				)
 				return err
 			}
@@ -211,11 +211,11 @@ func (r *ResourcePermissionsAuthorizer) FilterList(ctx context.Context, list run
 				if err != nil {
 					// Skip item on error fetching parent
 					r.logger.Warn("filter list: error fetching parent, skipping item",
-						"error", err.Error(),
+						"error", err,
 						"namespace", item.Namespace,
 						"group", target.ApiGroup,
 						"resource", target.Resource,
-						"name", target.Name,
+						"resourceName", target.Name,
 					)
 					continue
 				}

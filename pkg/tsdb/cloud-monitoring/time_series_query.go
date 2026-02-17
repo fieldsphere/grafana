@@ -108,7 +108,7 @@ func (timeSeriesQuery *cloudMonitoringTimeSeriesQuery) buildDeepLink() string {
 	if err != nil {
 		backend.Logger.Error(
 			"Failed to generate deep link: unable to parse metrics explorer URL",
-			"ProjectName", timeSeriesQuery.parameters.Query,
+			"projectName", timeSeriesQuery.parameters.ProjectName,
 			"error", err,
 			"statusSource", backend.ErrorSourcePlugin,
 		)

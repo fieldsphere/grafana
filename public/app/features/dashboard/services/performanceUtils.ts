@@ -1,5 +1,8 @@
 import { store } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
+
+const logger = createMonitoringLogger('features.dashboard.performance-utils');
 
 /**
  * Utility function to register a performance observer with the global tracker
@@ -72,25 +75,22 @@ function isPerformanceLoggingEnabled(): boolean {
 /**
  * Write a collapsible performance log group (follows writePerformanceLog pattern)
  */
-export function writePerformanceGroupStart(logger: string, message: string): void {
+export function writePerformanceGroupStart(loggerName: string, message: string): void {
   if (isPerformanceLoggingEnabled()) {
-    // eslint-disable-next-line no-console
-    console.groupCollapsed(`${logger}: ${message}`);
+    logger.logDebug('Performance group start', {
+      group: loggerName,
+      groupAction: 'start',
+      logMessage: message,
+    });
   }
 }
 
 /**
  * Write a performance log within a group (follows writePerformanceLog pattern)
  */
-export function writePerformanceGroupLog(logger: string, message: string, data?: unknown): void {
+export function writePerformanceGroupLog(loggerName: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
-    if (data) {
-      // eslint-disable-next-line no-console
-      console.log(message, data);
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(message);
-    }
+    logger.logDebug('Performance group log', { group: loggerName, logMessage: message, data });
   }
 }
 
@@ -99,8 +99,7 @@ export function writePerformanceGroupLog(logger: string, message: string, data?:
  */
 export function writePerformanceGroupEnd(): void {
   if (isPerformanceLoggingEnabled()) {
-    // eslint-disable-next-line no-console
-    console.groupEnd();
+    logger.logDebug('Performance group end', { groupAction: 'end' });
   }
 }
 
@@ -117,7 +116,16 @@ export function createPerformanceMark(name: string, timestamp?: number): void {
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'createPerformanceMark', name, timestamp });
+      return;
+    }
+    logger.logWarning('Failed to create performance mark', {
+      operation: 'createPerformanceMark',
+      name,
+      timestamp,
+      error: String(error),
+    });
   }
 }
 
@@ -134,6 +142,16 @@ export function createPerformanceMeasure(name: string, startMark: string, endMar
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'createPerformanceMeasure', name, startMark, endMark });
+      return;
+    }
+    logger.logWarning('Failed to create performance measure', {
+      operation: 'createPerformanceMeasure',
+      name,
+      startMark,
+      endMark,
+      error: String(error),
+    });
   }
 }

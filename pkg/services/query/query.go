@@ -150,7 +150,7 @@ func (s *ServiceImpl) executeConcurrentQueries(ctx context.Context, user identit
 	recoveryFn := func(queries []*simplejson.Json) {
 		if r := recover(); r != nil {
 			var err error
-			s.log.Error("query datasource panic", "error", r, "stack", log.Stack(1))
+			s.log.Error("query datasource panic", "panicValue", r, "stack", log.Stack(1))
 			if theErr, ok := r.(error); ok {
 				err = theErr
 			} else if theErrString, ok := r.(string); ok {
@@ -206,7 +206,7 @@ func (s *ServiceImpl) executeConcurrentQueries(ctx context.Context, user identit
 					if !slices.Contains(reqCtx.Resp.Header().Values(k), val) {
 						reqCtx.Resp.Header().Add(k, val)
 					} else {
-						s.log.Warn("skipped duplicate response header", "header", k, "value", val)
+						s.log.Warn("skipped duplicate response header", "header", k, "headerValue", val)
 					}
 				}
 			}
@@ -452,12 +452,12 @@ func (s *ServiceImpl) parseMetricRequest(ctx context.Context, user identity.Requ
 		req.parsedQueries[ds.UID] = append(req.parsedQueries[ds.UID], pq)
 
 		s.log.Debug("Processed metrics query",
-			"ref_id", pq.query.RefID,
+			"refID", pq.query.RefID,
 			"from", timeRange.GetFromAsMsEpoch(),
 			"to", timeRange.GetToAsMsEpoch(),
 			"interval", pq.query.Interval.Milliseconds(),
-			"max_data_points", pq.query.MaxDataPoints,
-			"query", string(modelJSON))
+			"maxDataPoints", pq.query.MaxDataPoints,
+			"queryJSON", string(modelJSON))
 	}
 
 	return req, req.validateRequest(ctx)

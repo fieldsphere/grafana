@@ -1,8 +1,10 @@
 import { PanelModel } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getBackendSrv } from '@grafana/runtime';
 import { FolderDTO } from 'app/types/folders';
 
 import { Options } from './panelcfg.gen';
+
+const logger = createMonitoringLogger('plugins.panel.dashlist.migrations');
 
 async function getFolderUID(folderID: number): Promise<string> {
   // folderID 0 is always the fake General/Dashboards folder, which always has a UID of empty string
@@ -67,7 +69,15 @@ export async function dashlistMigrationHandler(panel: PanelModel<Options> & Angu
       newOptions.folderUID = folderUID;
       delete newOptions.folderId;
     } catch (err) {
-      console.warn('Dashlist: Error migrating folder ID to UID', err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'dashlistMigrationHandler', folderId });
+      } else {
+        logger.logWarning('Error migrating folder ID to UID', {
+          operation: 'dashlistMigrationHandler',
+          folderId,
+          error: String(err),
+        });
+      }
     }
   }
 

@@ -200,7 +200,7 @@ func resourceToProcess(resource *v1.Resource) (string, []*KeyValue) {
 		}
 		val, err := getAttributeVal(attr.Value)
 		if err != nil {
-			logger.Debug("error transforming resource to process", "err", err)
+			logger.Debug("error transforming resource to process", "error", err)
 		}
 		tags = append(tags, &KeyValue{Key: attr.Key, Value: val})
 	}
@@ -268,7 +268,7 @@ func getSpanTags(span *tracev11.Span) []*KeyValue {
 	for i, attr := range span.Attributes {
 		val, err := getAttributeVal(attr.Value)
 		if err != nil {
-			logger.Debug("error transforming span tags", "err", err)
+			logger.Debug("error transforming span tags", "error", err)
 		}
 		tags[i] = &KeyValue{Key: attr.Key, Value: val}
 	}
@@ -284,7 +284,7 @@ func getScopeTags(scope *commonv11.InstrumentationScope) []*KeyValue {
 	for i, attr := range scope.Attributes {
 		val, err := getAttributeVal(attr.Value)
 		if err != nil {
-			logger.Debug("error transforming scope attributes", "err", err)
+			logger.Debug("error transforming scope attributes", "error", err)
 		}
 		tags[i] = &KeyValue{Key: attr.Key, Value: val}
 	}
@@ -323,7 +323,7 @@ func spanEventsToLogs(events []*tracev11.Span_Event) []*TraceLog {
 		for _, attr := range event.Attributes {
 			val, err := getAttributeVal(attr.Value)
 			if err != nil {
-				logger.Debug("error transforming span events to logs", "err", err)
+				logger.Debug("error transforming span events to logs", "error", err)
 			}
 			fields = append(fields, &KeyValue{Key: attr.Key, Value: val})
 		}
@@ -357,7 +357,7 @@ func spanLinksToReferences(links []*tracev11.Span_Link) []*TraceReference {
 		for _, attr := range link.Attributes {
 			val, err := getAttributeVal(attr.Value)
 			if err != nil {
-				logger.Debug("error transforming span links to references", "err", err)
+				logger.Debug("error transforming span links to references", "error", err)
 			}
 			tags = append(tags, &KeyValue{Key: attr.Key, Value: val})
 		}

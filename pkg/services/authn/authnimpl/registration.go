@@ -103,7 +103,7 @@ func ProvideRegistration(
 	if cfg.AuthProxy.Enabled && len(proxyClients) > 0 {
 		proxy, err := clients.ProvideProxy(cfg, cache, tracer, proxyClients...)
 		if err != nil {
-			logger.Error("Failed to configure auth proxy", "err", err)
+			logger.Error("Failed to configure auth proxy", "error", err)
 		} else {
 			authnSvc.RegisterClient(proxy)
 		}

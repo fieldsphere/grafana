@@ -130,7 +130,7 @@ func GetGravatarHash(text string) ([]byte, bool) {
 
 	hasher := md5.New()
 	if _, err := hasher.Write([]byte(strings.ToLower(text))); err != nil {
-		mlog.Warn("Failed to hash text", "err", err)
+		mlog.Warn("Failed to hash text", "error", err)
 	}
 	return hasher.Sum(nil), true
 }

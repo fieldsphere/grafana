@@ -3,7 +3,6 @@ package influxql
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/url"
 	"path"
@@ -44,7 +43,7 @@ func Query(ctx context.Context, tracer trace.Tracer, dsInfo *models.DatasourceIn
 	if config.FeatureToggles().IsEnabled("influxdbRunQueriesInParallel") {
 		concurrentQueryCount, err := req.PluginContext.GrafanaConfig.ConcurrentQueryCount()
 		if err != nil {
-			logger.Debug(fmt.Sprintf("Concurrent Query Count read/parse error: %v", err), "influxdbRunQueriesInParallel")
+			logger.Debug("Concurrent query count read/parse error", "error", err, "feature", "influxdbRunQueriesInParallel")
 			concurrentQueryCount = 10
 		}
 
@@ -69,7 +68,7 @@ func Query(ctx context.Context, tracer trace.Tracer, dsInfo *models.DatasourceIn
 			query.RawQuery = rawQuery
 
 			if setting.Env == setting.Dev {
-				logger.Debug("Influxdb query", "raw query", rawQuery)
+				logger.Debug("Influxdb query", "rawQuery", rawQuery)
 			}
 
 			request, err := createRequest(ctx, logger, dsInfo, rawQuery, query.Policy)
@@ -96,7 +95,7 @@ func Query(ctx context.Context, tracer trace.Tracer, dsInfo *models.DatasourceIn
 		})
 
 		if err != nil {
-			logger.Debug("Influxdb concurrent query error", "concurrent query", err)
+			logger.Debug("Influxdb concurrent query error", "concurrentQuery", err)
 		}
 	} else {
 		for _, reqQuery := range req.Queries {
@@ -116,7 +115,7 @@ func Query(ctx context.Context, tracer trace.Tracer, dsInfo *models.DatasourceIn
 			query.RawQuery = rawQuery
 
 			if setting.Env == setting.Dev {
-				logger.Debug("Influxdb query", "raw query", rawQuery)
+				logger.Debug("Influxdb query", "rawQuery", rawQuery)
 			}
 
 			request, err := createRequest(ctx, logger, dsInfo, rawQuery, query.Policy)
@@ -194,7 +193,7 @@ func createRequest(ctx context.Context, logger log.Logger, dsInfo *models.Dataso
 
 	req.URL.RawQuery = params.Encode()
 
-	logger.Debug("Influxdb request", "url", req.URL.String())
+	logger.Debug("Influxdb request", "requestURL", req.URL.String())
 	return req, nil
 }
 
@@ -207,7 +206,7 @@ func execute(ctx context.Context, tracer trace.Tracer, dsInfo *models.Datasource
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			logger.Warn("Failed to close response body", "err", err)
+			logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -216,7 +215,7 @@ func execute(ctx context.Context, tracer trace.Tracer, dsInfo *models.Datasource
 
 	var resp *backend.DataResponse
 	if isStreamingParserEnabled {
-		logger.Info("InfluxDB InfluxQL streaming parser enabled: ", "info")
+		logger.Info("InfluxDB InfluxQL streaming parser enabled")
 		resp = querydata.ResponseParse(res.Body, res.StatusCode, query)
 	} else {
 		resp = buffered.ResponseParse(res.Body, res.StatusCode, query)

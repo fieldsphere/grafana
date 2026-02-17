@@ -609,5 +609,5 @@ func AssertTableSnapshot(t *testing.T, path string, table *resourcepb.ResourceTa
 	// nolint:gosec
 	err = os.WriteFile(path, actual, 0600)
 	require.NoError(t, err)
-	fmt.Printf("Updated table snapshot: %s\n", path)
+	t.Logf("Updated table snapshot: %s", path)
 }

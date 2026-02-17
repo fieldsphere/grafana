@@ -1,6 +1,7 @@
 const { readFile } = require('node:fs/promises');
 
 const { CODEOWNERS_JSON_PATH: CODEOWNERS_MANIFEST_CODEOWNERS_PATH } = require('./constants.js');
+const { logCodeownersError } = require('./logging.js');
 
 let _codeownersCache = null;
 
@@ -82,9 +83,15 @@ module.exports = {
         _codeownersCache = JSON.parse(codeownersJson);
       } catch (e) {
         if (e.code === 'ENOENT') {
-          console.error(`Could not read ${CODEOWNERS_MANIFEST_CODEOWNERS_PATH} ...`);
+          logCodeownersError('Could not read codeowners manifest file', {
+            operation: 'getCodeowners',
+            path: CODEOWNERS_MANIFEST_CODEOWNERS_PATH,
+          });
         } else {
-          console.error(e);
+          logCodeownersError('Unexpected error reading codeowners manifest file', {
+            operation: 'getCodeowners',
+            error: String(e),
+          });
         }
         process.exit(1);
       }

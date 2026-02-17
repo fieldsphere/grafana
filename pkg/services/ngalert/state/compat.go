@@ -184,7 +184,7 @@ func AlertInstanceToState(entry *ngModels.AlertInstance, logger log.Logger) *Sta
 	if entry.ResultFingerprint != "" {
 		fp, err := strconv.ParseUint(entry.ResultFingerprint, 16, 64)
 		if err != nil {
-			logger.Error("Failed to parse result fingerprint of alert instance", "error", err, "rule_uid", entry.RuleUID)
+			logger.Error("Failed to parse result fingerprint of alert instance", "error", err, "ruleUID", entry.RuleUID)
 		}
 		resultFp = data.Fingerprint(fp)
 	}

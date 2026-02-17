@@ -60,7 +60,7 @@ type decryptStorage struct {
 func (s *decryptStorage) Decrypt(ctx context.Context, namespace xkube.Namespace, name string) (_ secretv1beta1.ExposedSecureValue, decryptErr error) {
 	ctx, span := s.tracer.Start(ctx, "DecryptStorage.Decrypt", trace.WithAttributes(
 		attribute.String("namespace", namespace.String()),
-		attribute.String("name", name),
+		attribute.String("secureValueName", name),
 	))
 	defer span.End()
 
@@ -77,12 +77,12 @@ func (s *decryptStorage) Decrypt(ctx context.Context, namespace xkube.Namespace,
 			}
 		}
 
-		span.SetAttributes(attribute.String("decrypter.identity", decrypterIdentity))
+		span.SetAttributes(attribute.String("decrypterIdentity", decrypterIdentity))
 
 		args := []any{
 			"namespace", namespace.String(),
-			"secret_name", name,
-			"decrypter_identity", decrypterIdentity,
+			"secretName", name,
+			"decrypterIdentity", decrypterIdentity,
 		}
 
 		// The service identity used for decryption is always what is from the signed token, but if the request is
@@ -91,8 +91,8 @@ func (s *decryptStorage) Decrypt(ctx context.Context, namespace xkube.Namespace,
 		// we do this for auditing purposes.
 		if md, ok := metadata.FromIncomingContext(ctx); ok {
 			if svcIdentities := md.Get(contracts.HeaderGrafanaServiceIdentityName); len(svcIdentities) > 0 {
-				args = append(args, "grafana_decrypter_identity", svcIdentities[0])
-				span.SetAttributes(attribute.String("grafana_decrypter.identity", svcIdentities[0]))
+				args = append(args, "grafanaDecrypterIdentity", svcIdentities[0])
+				span.SetAttributes(attribute.String("grafanaDecrypterIdentity", svcIdentities[0]))
 			}
 		}
 
@@ -100,11 +100,11 @@ func (s *decryptStorage) Decrypt(ctx context.Context, namespace xkube.Namespace,
 
 		if decryptErr == nil {
 			span.SetStatus(codes.Ok, "Decrypt succeeded")
-			args = append(args, "operation", "decrypt_secret_success")
+			args = append(args, "operation", "decryptSecretSuccess")
 		} else {
 			span.SetStatus(codes.Error, "Decrypt failed")
 			span.RecordError(decryptErr)
-			args = append(args, "operation", "decrypt_secret_error", "error", decryptErr.Error(), "result", decryptResultLabel)
+			args = append(args, "operation", "decryptSecretError", "error", decryptErr, "result", decryptResultLabel)
 		}
 
 		logging.FromContext(ctx).Info("Secrets Audit Log", args...)

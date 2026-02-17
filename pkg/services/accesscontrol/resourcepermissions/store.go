@@ -830,5 +830,5 @@ func (s *InMemoryActionSets) StoreActionSet(name string, actions []string) {
 		}
 		s.actionToActionSets[action] = append(s.actionToActionSets[action], name)
 	}
-	s.log.Debug("stored action set", "action set name", name)
+	s.log.Debug("stored action set", "actionSetName", name)
 }

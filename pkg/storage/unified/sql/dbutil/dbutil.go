@@ -18,9 +18,8 @@ import (
 )
 
 const (
-	otelAttrBaseKey         = "dbutil_"
-	otelAttrTemplateNameKey = otelAttrBaseKey + "template"
-	otelAttrDialectKey      = otelAttrBaseKey + "dialect"
+	otelAttrTemplateNameKey = "dbutil.templateName"
+	otelAttrDialectKey      = "dbutil.dialect"
 )
 
 func withOtelAttrs(ctx context.Context, tmplName, dialectName string) context.Context {

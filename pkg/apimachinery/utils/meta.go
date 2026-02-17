@@ -918,8 +918,7 @@ func (m *grafanaMetaAccessor) GetSecureValues() (vals common.InlineSecureValues,
 func (m *grafanaMetaAccessor) SetSecureValues(vals common.InlineSecureValues) (err error) {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Printf("ERR: %v", r)
-			err = fmt.Errorf("error writing secure values")
+			err = fmt.Errorf("error writing secure values: %v", r)
 		}
 	}()
 

@@ -182,7 +182,7 @@ func (client *AuthApiClient) CreateAccessPolicy(ctx context.Context, params Crea
 	}
 	defer func() {
 		if err := response.Body.Close(); err != nil {
-			client.log.Error("closing http response body", "err", err.Error())
+			client.log.Error("closing http response body", "error", err)
 		}
 	}()
 
@@ -219,7 +219,7 @@ func (client *AuthApiClient) DeleteAccessPolicy(ctx context.Context, params Dele
 	}
 	defer func() {
 		if err := response.Body.Close(); err != nil {
-			client.log.Error("closing http response body", "err", err.Error())
+			client.log.Error("closing http response body", "error", err)
 		}
 	}()
 
@@ -259,7 +259,7 @@ func (client *AuthApiClient) ListAccessPolicies(ctx context.Context, params List
 	}
 	defer func() {
 		if err := response.Body.Close(); err != nil {
-			client.log.Error("closing http response body", "err", err.Error())
+			client.log.Error("closing http response body", "error", err)
 		}
 	}()
 
@@ -301,7 +301,7 @@ func (client *AuthApiClient) ListTokens(ctx context.Context, params ListTokenPar
 	}
 	defer func() {
 		if err := response.Body.Close(); err != nil {
-			client.log.Error("closing http response body", "err", err.Error())
+			client.log.Error("closing http response body", "error", err)
 		}
 	}()
 
@@ -344,7 +344,7 @@ func (client *AuthApiClient) CreateToken(ctx context.Context, params CreateToken
 	}
 	defer func() {
 		if err := response.Body.Close(); err != nil {
-			client.log.Error("closing http response body", "err", err.Error())
+			client.log.Error("closing http response body", "error", err)
 		}
 	}()
 
@@ -381,7 +381,7 @@ func (client *AuthApiClient) DeleteToken(ctx context.Context, params DeleteToken
 	}
 	defer func() {
 		if err := response.Body.Close(); err != nil {
-			client.log.Error("closing http response body", "err", err.Error())
+			client.log.Error("closing http response body", "error", err)
 		}
 	}()
 

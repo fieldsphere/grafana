@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"sync"
 
 	"github.com/grafana/grafana/pkg/build/wire"
@@ -23,7 +24,7 @@ import (
 
 func main() {
 	pfb := injectPartFooBar()
-	fmt.Println(pfb.Foo)
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", pfb.Foo))
 }
 
 type Foo int

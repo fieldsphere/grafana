@@ -112,11 +112,11 @@ func (r *jobProgressRecorder) Record(ctx context.Context, result JobResourceResu
 	r.updateSummary(result)
 	r.mu.Unlock()
 
-	logger := logging.FromContext(ctx).With("path", result.Path(), "group", result.Group(), "kind", result.Kind(), "action", result.Action(), "name", result.Name())
+	logger := logging.FromContext(ctx).With("resourcePath", result.Path(), "group", result.Group(), "resourceKind", result.Kind(), "resourceAction", result.Action(), "resourceName", result.Name())
 	if shouldLogError {
-		logger.Error("job resource operation failed", "err", logErr)
+		logger.Error("job resource operation failed", "error", logErr)
 	} else if shouldLogWarning {
-		logger.Warn("job resource operation completed with warning", "err", logWarning)
+		logger.Warn("job resource operation completed with warning", "error", logWarning)
 	} else {
 		logger.Info("job resource operation succeeded")
 	}
@@ -266,7 +266,7 @@ func (r *jobProgressRecorder) notifyImmediately(ctx context.Context) {
 	jobStatus := r.currentStatus()
 	logger := logging.FromContext(ctx)
 	if err := r.notifyImmediatelyFn(ctx, jobStatus); err != nil {
-		logger.Warn("error notifying immediate progress", "err", err)
+		logger.Warn("error notifying immediate progress", "error", err)
 	}
 }
 
@@ -275,7 +275,7 @@ func (r *jobProgressRecorder) maybeNotify(ctx context.Context) {
 
 	logger := logging.FromContext(ctx)
 	if err := r.maybeNotifyFn(ctx, jobStatus); err != nil {
-		logger.Warn("error notifying progress", "err", err)
+		logger.Warn("error notifying progress", "error", err)
 	}
 }
 

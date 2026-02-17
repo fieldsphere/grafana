@@ -14,6 +14,10 @@ import {
 } from './dashboardLibraryApi';
 
 jest.mock('@grafana/runtime', () => ({
+  createMonitoringLogger: jest.fn(() => ({
+    logWarning: jest.fn(),
+    logError: jest.fn(),
+  })),
   getBackendSrv: jest.fn(),
   reportInteraction: jest.fn(),
 }));
@@ -50,20 +54,14 @@ const defaultFetchParams: FetchCommunityDashboardsParams = {
 
 describe('dashboardLibraryApi', () => {
   let mockGet: jest.MockedFunction<BackendSrv['get']>;
-  let consoleWarnSpy: jest.SpyInstance;
-  let consoleErrorSpy: jest.SpyInstance;
 
   beforeEach(() => {
     mockGet = jest.fn();
     mockGetBackendSrv.mockReturnValue(createMockBackendSrv({ get: mockGet }));
-    consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
-    consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
   });
 
   afterEach(() => {
     jest.clearAllMocks();
-    consoleWarnSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
   });
 
   describe('fetchCommunityDashboards', () => {
@@ -178,7 +176,6 @@ describe('dashboardLibraryApi', () => {
 
       const result = await fetchCommunityDashboards(defaultFetchParams);
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith('Unexpected API response format from Grafana.com:', mockResponse);
       expect(result).toEqual({
         page: 1,
         pages: 1,
@@ -281,7 +278,6 @@ describe('dashboardLibraryApi', () => {
 
       const result = await fetchProvisionedDashboards('prometheus');
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading provisioned dashboards', error);
       expect(result).toEqual([]);
     });
 

@@ -110,7 +110,7 @@ func newRedisPeer(cfg redisConfig, logger log.Logger, reg prometheus.Registerer,
 	if cfg.tlsEnabled {
 		tlsClientConfig, err = cfg.tls.GetTLSConfig()
 		if err != nil {
-			logger.Error("Failed to get TLS config", "err", err)
+			logger.Error("Failed to get TLS config", "error", err)
 			return nil, err
 		}
 	}
@@ -131,7 +131,7 @@ func newRedisPeer(cfg redisConfig, logger log.Logger, reg prometheus.Registerer,
 
 	cmd := rdb.Ping(context.Background())
 	if cmd.Err() != nil {
-		logger.Error("Failed to ping redis - redis-based alertmanager clustering may not be available", "err", cmd.Err())
+		logger.Error("Failed to ping redis - redis-based alertmanager clustering may not be available", "error", cmd.Err())
 	}
 
 	// Make sure that the prefix uses a colon at the end as deliminator.
@@ -256,7 +256,7 @@ func (p *redisPeer) heartbeatLoop() {
 			reqDur := time.Since(startTime)
 			if cmd.Err() != nil {
 				p.nodePingFailures.Inc()
-				p.logger.Error("Error setting the heartbeat key", "err", cmd.Err(), "peer", p.withPrefix(p.name))
+				p.logger.Error("Error setting the heartbeat key", "error", cmd.Err(), "peer", p.withPrefix(p.name))
 				continue
 			}
 			p.nodePingDuration.WithLabelValues(redisServerLabel).Observe(reqDur.Seconds())
@@ -284,7 +284,7 @@ func (p *redisPeer) membersSync() {
 	startTime := time.Now()
 	members, err := p.membersScan()
 	if err != nil {
-		p.logger.Error("Error getting keys from redis", "err", err, "pattern", p.withPrefix(peerPattern))
+		p.logger.Error("Error getting keys from redis", "error", err, "pattern", p.withPrefix(peerPattern))
 		// To prevent a spike of duplicate messages, we return for the duration of
 		// membersValidFor the last known members and only empty the list if we do
 		// not eventually recover.
@@ -294,7 +294,7 @@ func (p *redisPeer) membersSync() {
 			p.membersMtx.Unlock()
 			return
 		}
-		p.logger.Warn("Fetching members from redis failed, falling back to last known members", "last_known", p.members)
+		p.logger.Warn("Fetching members from redis failed, falling back to last known members", "lastKnown", p.members)
 		return
 	}
 	// This might happen on startup, when no value is in the store yet.
@@ -306,7 +306,7 @@ func (p *redisPeer) membersSync() {
 	}
 	values := p.redis.MGet(context.Background(), members...)
 	if values.Err() != nil {
-		p.logger.Error("Error getting values from redis", "err", values.Err(), "keys", members)
+		p.logger.Error("Error getting values from redis", "error", values.Err(), "keys", members)
 	}
 	// After getting the list of possible members from redis, we filter
 	// those out that have failed to send a heartbeat during the heartbeatTimeout.
@@ -318,7 +318,7 @@ func (p *redisPeer) membersSync() {
 	peers = slices.Compact(peers)
 
 	dur := time.Since(startTime)
-	p.logger.Debug("Membership sync done", "duration_ms", dur.Milliseconds())
+	p.logger.Debug("Membership sync done", "durationMs", dur.Milliseconds())
 	p.membersMtx.Lock()
 	p.members = peers
 	p.membersMtx.Unlock()
@@ -360,7 +360,7 @@ func (p *redisPeer) filterUnhealthyMembers(members []string, values []any) []str
 		}
 		ts, err := strconv.ParseInt(val.(string), 10, 64)
 		if err != nil {
-			p.logger.Error("Error parsing timestamp value", "err", err, "peer", peer, "val", val)
+			p.logger.Error("Error parsing timestamp value", "error", err, "peer", peer, "timestampValue", val)
 			continue
 		}
 		tm := time.Unix(ts, 0)
@@ -375,7 +375,7 @@ func (p *redisPeer) filterUnhealthyMembers(members []string, values []any) []str
 func (p *redisPeer) Position() int {
 	for i, peer := range p.Members() {
 		if peer == p.withPrefix(p.name) {
-			p.logger.Debug("Cluster position found", "name", p.name, "position", i)
+			p.logger.Debug("Cluster position found", "peerName", p.name, "position", i)
 			return i
 		}
 	}
@@ -388,7 +388,7 @@ func (p *redisPeer) Position() int {
 func (p *redisPeer) ClusterSize() int {
 	members, err := p.membersScan()
 	if err != nil {
-		p.logger.Error("Error getting keys from redis", "err", err, "pattern", p.withPrefix(peerPattern))
+		p.logger.Error("Error getting keys from redis", "error", err, "pattern", p.withPrefix(peerPattern))
 		return 0
 	}
 	return len(members)
@@ -450,7 +450,7 @@ func (p *redisPeer) Settle(ctx context.Context, interval time.Duration) {
 			p.logger.Debug("Gossip looks settled", "elapsed", elapsed)
 		} else {
 			nOkay = 0
-			p.logger.Info("Gossip not settled", "polls", totalPolls, "before", nPeers, "now", n, "elapsed", elapsed)
+			p.logger.Info("Gossip not settled", "polls", totalPolls, "before", nPeers, "currentMembers", n, "elapsed", elapsed)
 		}
 		nPeers = n
 		totalPolls++
@@ -491,7 +491,7 @@ func (p *redisPeer) mergePartialState(buf []byte) {
 
 	var part alertingClusterPB.Part
 	if err := proto.Unmarshal(buf, &part); err != nil {
-		p.logger.Warn("Error decoding the received broadcast message", "err", err)
+		p.logger.Warn("Error decoding the received broadcast message", "error", err)
 		return
 	}
 
@@ -503,10 +503,10 @@ func (p *redisPeer) mergePartialState(buf []byte) {
 		return
 	}
 	if err := s.Merge(part.Data); err != nil {
-		p.logger.Warn("Error merging the received broadcast message", "err", err, "key", part.Key)
+		p.logger.Warn("Error merging the received broadcast message", "error", err, "stateKey", part.Key)
 		return
 	}
-	p.logger.Debug("Partial state was successfully merged", "key", part.Key)
+	p.logger.Debug("Partial state was successfully merged", "stateKey", part.Key)
 }
 
 func (p *redisPeer) fullStateReqReceiveLoop() {
@@ -572,7 +572,7 @@ func (p *redisPeer) mergeFullState(buf []byte) {
 
 	var fs alertingClusterPB.FullState
 	if err := proto.Unmarshal(buf, &fs); err != nil {
-		p.logger.Warn("Error unmarshaling the received remote state", "err", err)
+		p.logger.Warn("Error unmarshaling the received remote state", "error", err)
 		return
 	}
 
@@ -581,11 +581,11 @@ func (p *redisPeer) mergeFullState(buf []byte) {
 	for _, part := range fs.Parts {
 		s, ok := p.states[part.Key]
 		if !ok {
-			p.logger.Warn("Received", "unknown state key", "len", len(buf), "key", part.Key)
+			p.logger.Warn("Received unknown state key", "messageLength", len(buf), "stateKey", part.Key)
 			continue
 		}
 		if err := s.Merge(part.Data); err != nil {
-			p.logger.Warn("Error merging the received remote state", "err", err, "key", part.Key)
+			p.logger.Warn("Error merging the received remote state", "error", err, "stateKey", part.Key)
 			return
 		}
 	}
@@ -596,7 +596,7 @@ func (p *redisPeer) fullStateSyncPublish() {
 	pub := p.redis.Publish(context.Background(), p.withPrefix(fullStateChannel), p.LocalState())
 	if pub.Err() != nil {
 		p.messagesPublishFailures.WithLabelValues(fullState, reasonRedisIssue).Inc()
-		p.logger.Error("Error publishing a message to redis", "err", pub.Err(), "channel", p.withPrefix(fullStateChannel))
+		p.logger.Error("Error publishing a message to redis", "error", pub.Err(), "channel", p.withPrefix(fullStateChannel))
 	}
 }
 
@@ -617,7 +617,7 @@ func (p *redisPeer) requestFullState() {
 	pub := p.redis.Publish(context.Background(), p.withPrefix(fullStateChannelReq), p.name)
 	if pub.Err() != nil {
 		p.messagesPublishFailures.WithLabelValues(fullState, reasonRedisIssue).Inc()
-		p.logger.Error("Error publishing a message to redis", "err", pub.Err(), "channel", p.withPrefix(fullStateChannelReq))
+		p.logger.Error("Error publishing a message to redis", "error", pub.Err(), "channel", p.withPrefix(fullStateChannelReq))
 	}
 }
 
@@ -631,13 +631,13 @@ func (p *redisPeer) LocalState() []byte {
 	for key, s := range p.states {
 		b, err := s.MarshalBinary()
 		if err != nil {
-			p.logger.Warn("Error encoding the local state", "err", err, "key", key)
+			p.logger.Warn("Error encoding the local state", "error", err, "stateKey", key)
 		}
 		all.Parts = append(all.Parts, alertingClusterPB.Part{Key: key, Data: b})
 	}
 	b, err := proto.Marshal(all)
 	if err != nil {
-		p.logger.Warn("Error encoding the local state to proto", "err", err)
+		p.logger.Warn("Error encoding the local state to proto", "error", err)
 	}
 	p.messagesSent.WithLabelValues(fullState).Inc()
 	p.messagesSentSize.WithLabelValues(fullState).Add(float64(len(b)))
@@ -652,6 +652,6 @@ func (p *redisPeer) Shutdown() {
 	defer cancel()
 	del := p.redis.Del(ctx, p.withPrefix(p.name))
 	if del.Err() != nil {
-		p.logger.Error("Error deleting the redis key on shutdown", "err", del.Err(), "key", p.withPrefix(p.name))
+		p.logger.Error("Error deleting the redis key on shutdown", "error", del.Err(), "redisKey", p.withPrefix(p.name))
 	}
 }

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -111,7 +112,7 @@ func ensureDirectoryExists(directory string, mode os.FileMode) error {
 func die(errs ...error) {
 	if len(errs) > 0 && errs[0] != nil {
 		for _, err := range errs {
-			fmt.Fprint(os.Stderr, err, "\n")
+			slog.Error("Kinds verification failed", "error", err)
 		}
 		os.Exit(1)
 	}

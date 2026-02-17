@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"go.opentelemetry.io/otel/trace"
+	"go.opentelemetry.io/otel/trace/noop"
 
 	claims "github.com/grafana/authlib/types"
 	"github.com/grafana/grafana/pkg/apimachinery/errutil"
@@ -33,11 +34,37 @@ var (
 )
 
 const (
-	metaKeyID           = "keyID"
-	metaKeySkipLastUsed = "keySkipLastUsed"
+	metaKeyID             = "keyID"
+	metaKeySkipLastUsed   = "keySkipLastUsed"
+	metaValueSkipLastUsed = "true"
+
+	fieldAPIKeyID         = "apiKeyID"
+	fieldAPIKeyIDRaw      = "apiKeyIDRaw"
+	fieldAPIKeyNumericID  = "apiKeyNumericID"
+	fieldSkipReason       = "skipReason"
+	fieldValidationReason = "validationReason"
+	fieldValidationSource = "validationSource"
+	fieldPanicValue       = "panicValue"
+
+	skipReasonRequestIsNil      = "requestIsNil"
+	skipReasonSkipMarkerPresent = "skipLastUsedMarkerPresent"
+	skipReasonMissingAPIKeyID   = "missingAPIKeyID"
+
+	validationReasonMustBePositiveInteger = "mustBePositiveInteger"
+	validationReasonMustContainDigitsOnly = "mustContainDigitsOnly"
+	validationReasonMustFitInt64          = "mustFitInt64"
+
+	validationSourceHook = "hook"
+	validationSourceSync = "sync"
+
+	errorMessageAPIKeyRequestIsNil = "API key request is nil"
 )
 
 func ProvideAPIKey(apiKeyService apikey.Service, tracer trace.Tracer) *APIKey {
+	if tracer == nil {
+		tracer = noop.NewTracerProvider().Tracer(authn.ClientAPIKey)
+	}
+
 	return &APIKey{
 		log:           log.New(authn.ClientAPIKey),
 		apiKeyService: apiKeyService,
@@ -56,8 +83,17 @@ func (s *APIKey) Name() string {
 }
 
 func (s *APIKey) Authenticate(ctx context.Context, r *authn.Request) (*authn.Identity, error) {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
 	ctx, span := s.tracer.Start(ctx, "authn.apikey.Authenticate")
 	defer span.End()
+
+	if r == nil {
+		return nil, errAPIKeyInvalid.Errorf(errorMessageAPIKeyRequestIsNil)
+	}
+
 	key, err := s.getAPIKey(ctx, getTokenFromRequest(r))
 	if err != nil {
 		if errors.Is(err, satokengen.ErrInvalidApiKey) {
@@ -79,7 +115,7 @@ func (s *APIKey) Authenticate(ctx context.Context, r *authn.Request) (*authn.Ide
 	if !shouldUpdateLastUsedAt(key) {
 		// Hack to just have some value, we will check this key in the hook
 		// and if its not an empty string we will not update last used.
-		r.SetMeta(metaKeySkipLastUsed, "true")
+		r.SetMeta(metaKeySkipLastUsed, metaValueSkipLastUsed)
 	}
 
 	return newServiceAccountIdentity(key), nil
@@ -155,34 +191,106 @@ func (s *APIKey) Priority() uint {
 	return 30
 }
 
-func (s *APIKey) Hook(ctx context.Context, identity *authn.Identity, r *authn.Request) error {
-	ctx, span := s.tracer.Start(ctx, "authn.apikey.Hook") //nolint:ineffassign,staticcheck
+func (s *APIKey) Hook(ctx context.Context, _ *authn.Identity, r *authn.Request) error {
+	if ctx == nil {
+		ctx = context.Background()
+	}
+
+	_, span := s.tracer.Start(ctx, "authn.apikey.Hook")
 	defer span.End()
 
-	if r.GetMeta(metaKeySkipLastUsed) != "" {
+	if r == nil {
+		s.log.Warn("Skipping API key last-used hook", fieldSkipReason, skipReasonRequestIsNil, fieldValidationSource, validationSourceHook)
 		return nil
 	}
 
-	go func(keyID string) {
+	rawKeyID := r.GetMeta(metaKeyID)
+	keyID := strings.TrimSpace(rawKeyID)
+	if r.GetMeta(metaKeySkipLastUsed) != "" {
+		s.log.Debug("Skipping API key last-used hook", fieldSkipReason, skipReasonSkipMarkerPresent, fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldValidationSource, validationSourceHook)
+		return nil
+	}
+
+	if keyID == "" {
+		s.log.Debug("Skipping API key last-used hook", fieldSkipReason, skipReasonMissingAPIKeyID, fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldValidationSource, validationSourceHook)
+		return nil
+	}
+
+	apiKeyID, ok := s.parseAndValidateAPIKeyID(rawKeyID, validationSourceHook)
+	if !ok {
+		return nil
+	}
+
+	go func(apiKeyID int64, keyID string, rawKeyID string) {
 		defer func() {
-			if err := recover(); err != nil {
-				s.log.Error("Panic during user last seen sync", "err", err)
+			if panicValue := recover(); panicValue != nil {
+				s.log.Error("Panic during API key last-used sync", fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldAPIKeyNumericID, apiKeyID, fieldValidationSource, validationSourceHook, fieldPanicValue, panicValue)
 			}
 		}()
 
-		id, err := strconv.ParseInt(keyID, 10, 64)
-		if err != nil {
-			s.log.Warn("Invalid api key id", "id", keyID, "err", err)
-			return
-		}
-
-		if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), id); err != nil {
-			s.log.Warn("Failed to update last used date for api key", "id", keyID, "err", err)
-			return
-		}
-	}(r.GetMeta(metaKeyID))
+		s.syncAPIKeyLastUsedByID(apiKeyID, keyID, rawKeyID, validationSourceHook)
+	}(apiKeyID, keyID, rawKeyID)
 
 	return nil
+}
+
+func (s *APIKey) syncAPIKeyLastUsed(keyID string) {
+	rawKeyID := keyID
+	keyID = strings.TrimSpace(keyID)
+
+	if keyID == "" {
+		s.log.Debug("Skipping API key last-used update", fieldSkipReason, skipReasonMissingAPIKeyID, fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldValidationSource, validationSourceSync)
+		return
+	}
+
+	apiKeyID, ok := s.parseAndValidateAPIKeyID(rawKeyID, validationSourceSync)
+	if !ok {
+		return
+	}
+
+	s.syncAPIKeyLastUsedByID(apiKeyID, keyID, rawKeyID, validationSourceSync)
+}
+
+func (s *APIKey) syncAPIKeyLastUsedByID(apiKeyID int64, keyID string, rawKeyID string, validationSource string) {
+	if err := s.apiKeyService.UpdateAPIKeyLastUsedDate(context.Background(), apiKeyID); err != nil {
+		s.log.Warn("Failed to update last used date for API key", fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldAPIKeyNumericID, apiKeyID, fieldValidationSource, validationSource, "error", err)
+		return
+	}
+}
+
+func (s *APIKey) parseAndValidateAPIKeyID(rawKeyID string, validationSource string) (int64, bool) {
+	keyID := strings.TrimSpace(rawKeyID)
+
+	if !containsOnlyDigits(keyID) {
+		s.log.Warn("Invalid API key ID", fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldValidationReason, validationReasonMustContainDigitsOnly, fieldValidationSource, validationSource)
+		return 0, false
+	}
+
+	apiKeyID, err := strconv.ParseInt(keyID, 10, 64)
+	if err != nil {
+		s.log.Warn("Invalid API key ID", fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldValidationReason, validationReasonMustFitInt64, fieldValidationSource, validationSource, "error", err)
+		return 0, false
+	}
+	if apiKeyID < 1 {
+		s.log.Warn("Invalid API key ID", fieldAPIKeyID, keyID, fieldAPIKeyIDRaw, rawKeyID, fieldAPIKeyNumericID, apiKeyID, fieldValidationReason, validationReasonMustBePositiveInteger, fieldValidationSource, validationSource)
+		return 0, false
+	}
+
+	return apiKeyID, true
+}
+
+func containsOnlyDigits(value string) bool {
+	if value == "" {
+		return false
+	}
+
+	for _, char := range value {
+		if char < '0' || char > '9' {
+			return false
+		}
+	}
+
+	return true
 }
 
 func looksLikeApiKey(token string) bool {
@@ -190,6 +298,10 @@ func looksLikeApiKey(token string) bool {
 }
 
 func getTokenFromRequest(r *authn.Request) string {
+	if r == nil {
+		return ""
+	}
+
 	// api keys are only supported through http requests
 	if r.HTTPRequest == nil {
 		return ""

@@ -62,7 +62,7 @@ func (c *Password) AuthenticatePassword(ctx context.Context, r *authn.Request, u
 		clientErrs = errors.Join(clientErrs, clientErr)
 		// we always try next client on any error
 		if clientErr != nil {
-			c.log.FromContext(ctx).Debug("Failed to authenticate password identity", "client", pwClient, "error", clientErr)
+			c.log.FromContext(ctx).Debug("Failed to authenticate password identity", "authClient", pwClient, "error", clientErr)
 			continue
 		}
 

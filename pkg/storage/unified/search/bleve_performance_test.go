@@ -3,6 +3,7 @@ package search_test
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"runtime"
 	"testing"
 	"time"
@@ -126,8 +127,8 @@ func newTestWriter(size int, batchSize int) resource.BuildFn {
 
 				if verbose {
 					end := time.Now()
-					fmt.Printf("Indexed %d documents\n", i+1)
-					fmt.Printf("Time taken for indexing batch: %s\n", end.Sub(start))
+					logVerbose(fmt.Sprintf("Indexed %d documents", i+1))
+					logVerbose(fmt.Sprintf("Time taken for indexing batch: %s", end.Sub(start)))
 					start = time.Now()
 				}
 
@@ -144,6 +145,6 @@ func newTestWriter(size int, batchSize int) resource.BuildFn {
 
 func logVerbose(msg string) {
 	if verbose {
-		fmt.Println(msg)
+		slog.Info("Bleve performance verbose log", "message", msg)
 	}
 }

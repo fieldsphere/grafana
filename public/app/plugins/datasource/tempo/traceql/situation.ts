@@ -22,9 +22,11 @@ import {
   String as StringNode,
   TraceQL,
 } from '@grafana/lezer-traceql';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 type Direction = 'parent' | 'firstChild' | 'lastChild' | 'nextSibling' | 'prevSibling';
 type NodeType = number;
+const logger = createMonitoringLogger('plugins.datasource.tempo.traceql.situation');
 
 export type Situation = { query: string } & SituationType;
 
@@ -444,7 +446,14 @@ function resolveNewSpansetExpression(node: SyntaxNode, text: string, offset: num
       previousNode = previousNode!.nextSibling;
     }
   } catch (error) {
-    console.error('Unexpected error while searching for previous node', error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'resolveNewSpansetExpression' });
+    } else {
+      logger.logWarning('Unexpected error while searching for previous node', {
+        operation: 'resolveNewSpansetExpression',
+        error: String(error),
+      });
+    }
   }
 
   if (previousNode?.type.id === And || previousNode?.type.id === Or) {

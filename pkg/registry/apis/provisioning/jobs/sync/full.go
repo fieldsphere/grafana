@@ -80,7 +80,7 @@ func FullSync(
 func shouldSkipChange(ctx context.Context, change ResourceFileChange, progress jobs.JobProgressRecorder, tracer tracing.Tracer) bool {
 	if change.Action != repository.FileActionDeleted && progress.HasDirPathFailedCreation(change.Path) {
 		skipCtx, skipSpan := tracer.Start(ctx, "provisioning.sync.full.apply_changes.skip_nested_resource")
-		skipSpan.SetAttributes(attribute.String("path", change.Path))
+		skipSpan.SetAttributes(attribute.String("resourcePath", change.Path))
 
 		progress.Record(skipCtx, jobs.NewPathOnlyResult(change.Path).
 			WithError(fmt.Errorf("resource was not processed because the parent folder could not be created")).
@@ -92,7 +92,7 @@ func shouldSkipChange(ctx context.Context, change ResourceFileChange, progress j
 
 	if change.Action == repository.FileActionDeleted && safepath.IsDir(change.Path) && progress.HasDirPathFailedDeletion(change.Path) {
 		skipCtx, skipSpan := tracer.Start(ctx, "provisioning.sync.full.apply_changes.skip_folder_with_failed_deletions")
-		skipSpan.SetAttributes(attribute.String("path", change.Path))
+		skipSpan.SetAttributes(attribute.String("resourcePath", change.Path))
 		progress.Record(skipCtx, jobs.NewResourceResult().
 			WithGroup(resources.FolderKind.Group).
 			WithKind(resources.FolderKind.Kind).
@@ -202,7 +202,7 @@ func applyChanges(ctx context.Context, changes []ResourceFileChange, clients res
 	progress.SetTotal(ctx, len(changes))
 
 	_, applyChangesSpan := tracer.Start(ctx, "provisioning.sync.full.apply_changes",
-		trace.WithAttributes(attribute.Int("changes_count", len(changes))),
+		trace.WithAttributes(attribute.Int("changesCount", len(changes))),
 	)
 	defer applyChangesSpan.End()
 
@@ -236,10 +236,10 @@ func applyChanges(ctx context.Context, changes []ResourceFileChange, clients res
 	}
 
 	applyChangesSpan.SetAttributes(
-		attribute.Int("file_deletions", len(fileDeletions)),
-		attribute.Int("folder_deletions", len(folderDeletions)),
-		attribute.Int("folder_creations", len(folderCreations)),
-		attribute.Int("file_creations", len(fileCreations)),
+		attribute.Int("fileDeletions", len(fileDeletions)),
+		attribute.Int("folderDeletions", len(folderDeletions)),
+		attribute.Int("folderCreations", len(folderCreations)),
+		attribute.Int("fileCreations", len(fileCreations)),
 	)
 
 	if len(fileDeletions) > 0 {

@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/getkin/kin-openapi/openapi2"
@@ -29,7 +29,7 @@ func main() {
 		outFile = args[1]
 	}
 
-	fmt.Printf("Reading swagger 2 file %s\n", inFile)
+	slog.Info("Reading swagger 2 file", "inputFilePath", inFile)
 	byt, err := os.ReadFile(inFile)
 	if err != nil {
 		panic(err)
@@ -57,5 +57,5 @@ func main() {
 	if err = os.WriteFile(outFile, j3, 0644); err != nil {
 		panic(err)
 	}
-	fmt.Printf("OpenAPI specs generated in file %s\n", outFile)
+	slog.Info("OpenAPI specs generated", "outputFilePath", outFile)
 }

@@ -128,7 +128,7 @@ type ParsedResource struct {
 }
 
 func (r *parser) Parse(ctx context.Context, info *repository.FileInfo) (parsed *ParsedResource, err error) {
-	logger := logging.FromContext(ctx).With("path", info.Path)
+	logger := logging.FromContext(ctx).With("resourcePath", info.Path)
 	parsed = &ParsedResource{
 		Info: info,
 		Repo: r.repo,
@@ -334,7 +334,7 @@ func (f *ParsedResource) Run(ctx context.Context) error {
 	// Handle deletion action
 	if f.Action == provisioning.ResourceActionDelete {
 		deleteCtx, deleteSpan := tracing.Start(actionsCtx, "provisioning.resources.run_resource.delete")
-		deleteSpan.SetAttributes(attribute.String("resource.name", f.Obj.GetName()))
+		deleteSpan.SetAttributes(attribute.String("resourceName", f.Obj.GetName()))
 
 		// If we don't have existing resource from DryRun, fetch it now
 		if f.DryRunResponse == nil {
@@ -390,7 +390,7 @@ func (f *ParsedResource) Run(ctx context.Context) error {
 	if f.DryRunResponse != nil && f.Existing == nil {
 		f.Action = provisioning.ResourceActionCreate
 		createCtx, createSpan := tracing.Start(actionsCtx, "provisioning.resources.run_resource.create")
-		createSpan.SetAttributes(attribute.String("resource.name", f.Obj.GetName()))
+		createSpan.SetAttributes(attribute.String("resourceName", f.Obj.GetName()))
 		f.Upsert, err = f.Client.Create(createCtx, f.Obj, metav1.CreateOptions{
 			FieldValidation: fieldValidation,
 		})
@@ -413,7 +413,7 @@ func (f *ParsedResource) Run(ctx context.Context) error {
 	}
 
 	updateCtx, updateSpan := tracing.Start(actionsCtx, "provisioning.resources.run_resource.update")
-	updateSpan.SetAttributes(attribute.String("resource.name", f.Obj.GetName()))
+	updateSpan.SetAttributes(attribute.String("resourceName", f.Obj.GetName()))
 	f.Upsert, err = f.Client.Update(updateCtx, f.Obj, metav1.UpdateOptions{
 		FieldValidation: fieldValidation,
 	})
@@ -425,7 +425,7 @@ func (f *ParsedResource) Run(ctx context.Context) error {
 	if apierrors.IsNotFound(err) {
 		f.Action = provisioning.ResourceActionCreate
 		fallbackCreateCtx, fallbackCreateSpan := tracing.Start(actionsCtx, "provisioning.resources.run_resource.create_fallback")
-		fallbackCreateSpan.SetAttributes(attribute.String("resource.name", f.Obj.GetName()))
+		fallbackCreateSpan.SetAttributes(attribute.String("resourceName", f.Obj.GetName()))
 		f.Upsert, err = f.Client.Create(fallbackCreateCtx, f.Obj, metav1.CreateOptions{
 			FieldValidation: fieldValidation,
 		})

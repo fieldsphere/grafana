@@ -8,7 +8,7 @@ import {
   LoadingState,
   standardTransformersRegistry,
 } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import { SceneDataTransformer } from '@grafana/scenes';
 import { DataQuery, DataTransformerConfig } from '@grafana/schema';
 import { ExpressionQuery } from 'app/features/expressions/types';
@@ -21,6 +21,8 @@ import { QueryEditorProvider } from './QueryEditorContext';
 import { QueryOptionField, Transformation } from './types';
 import { useQueryOptions } from './useQueryOptions';
 import { getEditorType, isDataTransformerConfig } from './utils';
+
+const logger = createMonitoringLogger('features.dashboard-scene.query-editor-context-wrapper');
 
 /**
  * Bridge component that subscribes to Scene state and provides it via React Context.
@@ -151,7 +153,15 @@ export function QueryEditorContextWrapper({
       const datasource = await getDataSourceSrv().get(selectedQuery.datasource);
       return { datasource, dsSettings };
     } catch (err) {
-      console.error('Failed to load datasource for selected query:', err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'loadDatasourceForSelectedQuery', refId: selectedQuery.refId });
+      } else {
+        logger.logWarning('Failed to load datasource for selected query', {
+          operation: 'loadDatasourceForSelectedQuery',
+          refId: selectedQuery.refId,
+          error: String(err),
+        });
+      }
       return undefined;
     }
   }, [selectedQuery?.datasource?.uid, selectedQuery?.datasource?.type]);

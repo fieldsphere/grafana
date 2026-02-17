@@ -128,11 +128,11 @@ func (s *webhookConnector) Connect(ctx context.Context, name string, opts runtim
 		defer span.End()
 
 		span.SetAttributes(
-			attribute.String("repository", name),
+			attribute.String("repositoryName", name),
 			attribute.String("namespace", namespace),
 		)
 
-		logger := logging.FromContext(ctx).With("logger", "webhook-connector", "repo", name)
+		logger := logging.FromContext(ctx).With("logger", "webhook-connector", "repositoryName", name)
 		ctx = logging.Context(ctx, logger)
 		if !s.webhooksEnabled {
 			responder.Error(errors.NewBadRequest("webhooks are not enabled"))
@@ -175,7 +175,7 @@ func (s *webhookConnector) Connect(ctx context.Context, name string, opts runtim
 		if rsp.Job != nil {
 			rsp.Job.Repository = name
 			actionTaken = string(rsp.Job.Action)
-			span.SetAttributes(attribute.String("job.action", actionTaken))
+			span.SetAttributes(attribute.String("jobAction", actionTaken))
 
 			job, err := s.core.GetJobQueue().Insert(ctx, namespace, *rsp.Job)
 			if err != nil {
@@ -184,8 +184,8 @@ func (s *webhookConnector) Connect(ctx context.Context, name string, opts runtim
 				responder.Error(err)
 				return
 			}
-			span.SetAttributes(attribute.String("job.name", job.Name))
-			logger.Info("webhook job created", "job", job.Name, "action", actionTaken)
+			span.SetAttributes(attribute.String("jobName", job.Name))
+			logger.Info("webhook job created", "jobName", job.Name, "jobAction", actionTaken)
 			responder.Object(rsp.Code, job)
 			return
 		}

@@ -8,7 +8,7 @@ import { loadScriptIntoSandbox } from './codeLoader';
 import { forbiddenElements } from './constants';
 import { recursivePatchObjectAsLiveTarget } from './documentSandbox';
 import { SandboxEnvironment, SandboxPluginMeta } from './types';
-import { logWarning, unboxRegexesFromMembraneProxy } from './utils';
+import { logInfo, logWarning, unboxRegexesFromMembraneProxy } from './utils';
 
 /**
  * Distortions are near-membrane mechanisms to altert JS instrics and DOM APIs.
@@ -140,7 +140,11 @@ function distortConsole(distortions: DistortionMap) {
       const pluginId = meta.id;
 
       function sandboxLog(...args: unknown[]) {
-        console.log(`[plugin ${pluginId}]`, ...args);
+        logInfo('Sandboxed plugin console output', {
+          pluginId,
+          source: 'console',
+          message: args.map((arg) => String(arg)).join(' '),
+        });
       }
       return {
         log: sandboxLog,
@@ -170,7 +174,11 @@ function distortAlert(distortions: DistortionMap) {
     });
 
     return function (...args: unknown[]) {
-      console.log(`[plugin ${pluginId}]`, ...args);
+      logInfo('Sandboxed plugin alert call', {
+        pluginId,
+        source: 'alert',
+        message: args.map((arg) => String(arg)).join(' '),
+      });
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, 'alert');

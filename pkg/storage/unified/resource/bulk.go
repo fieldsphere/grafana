@@ -30,6 +30,17 @@ var metadataKeys = []string{
 	grpcMetaKeySkipValidation,
 }
 
+func traceMetadataAttribute(metadataKey string, value []string) (attribute.KeyValue, bool) {
+	switch metadataKey {
+	case grpcMetaKeyCollection:
+		return attribute.StringSlice("bulkCollection", value), true
+	case grpcMetaKeySkipValidation:
+		return attribute.StringSlice("bulkSkipValidation", value), true
+	default:
+		return attribute.KeyValue{}, false
+	}
+}
+
 func grpcMetaValueIsTrue(vals []string) bool {
 	return len(vals) == 1 && vals[0] == "true"
 }
@@ -107,7 +118,7 @@ func (s *server) BulkProcess(stream resourcepb.BulkStore_BulkProcessServer) erro
 	defer span.End()
 
 	sendAndClose := func(rsp *resourcepb.BulkResponse) error {
-		span.AddEvent("sendAndClose", trace.WithAttributes(attribute.String("msg", rsp.String())))
+		span.AddEvent("sendAndClose", trace.WithAttributes(attribute.String("responseSummary", rsp.String())))
 		return stream.SendAndClose(rsp)
 	}
 
@@ -135,7 +146,9 @@ func (s *server) BulkProcess(stream resourcepb.BulkStore_BulkProcessServer) erro
 	for _, k := range metadataKeys {
 		meta := md.Get(k)
 		if len(meta) > 0 {
-			span.SetAttributes(attribute.StringSlice(k, meta))
+			if attr, ok := traceMetadataAttribute(k, meta); ok {
+				span.SetAttributes(attr)
+			}
 		}
 	}
 
@@ -267,7 +280,7 @@ func (b *batchRunner) Next() bool {
 
 	if b.err != nil {
 		b.rollback = true
-		b.span.AddEvent("next", trace.WithAttributes(attribute.String("error", b.err.Error())))
+		b.span.AddEvent("bulkNext", trace.WithAttributes(attribute.String("errorMessage", b.err.Error())))
 		return true
 	}
 
@@ -285,13 +298,13 @@ func (b *batchRunner) Next() bool {
 
 		// Mention resource in the span.
 		attrs := []attribute.KeyValue{
-			attribute.String("key", nsgrWithName(key)),
+			attribute.String("resourceKey", nsgrWithName(key)),
 		}
 		if b.err != nil {
-			attrs = append(attrs, attribute.String("error", b.err.Error()))
+			attrs = append(attrs, attribute.String("errorMessage", b.err.Error()))
 		}
 
-		b.span.AddEvent("next", trace.WithAttributes(attrs...))
+		b.span.AddEvent("bulkNext", trace.WithAttributes(attrs...))
 		return true
 	}
 	return false

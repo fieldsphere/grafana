@@ -34,7 +34,7 @@ func (s *Server) BatchCheck(ctx context.Context, r *authzv1.BatchCheckRequest) (
 	span.SetAttributes(
 		attribute.String("namespace", r.GetNamespace()),
 		attribute.String("subject", r.GetSubject()),
-		attribute.Int("check_count", len(r.GetChecks())),
+		attribute.Int("checkCount", len(r.GetChecks())),
 	)
 
 	defer func(t time.Time) {

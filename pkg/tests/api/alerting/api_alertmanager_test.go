@@ -311,10 +311,7 @@ func TestIntegrationAMConfigAccess(t *testing.T) {
 
 				// Create request
 				req, err := http.NewRequest("DELETE", url, nil)
-				if err != nil {
-					fmt.Println(err)
-					return
-				}
+				require.NoError(t, err)
 
 				// Fetch Request
 				resp, err := client.Do(req)

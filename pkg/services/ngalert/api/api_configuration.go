@@ -56,9 +56,8 @@ func (srv ConfigSrv) RouteGetNGalertConfig(c *contextmodel.ReqContext) response.
 			return ErrResp(http.StatusNotFound, err, "")
 		}
 
-		msg := "failed to fetch admin configuration from the database"
-		srv.log.Error(msg, "error", err)
-		return ErrResp(http.StatusInternalServerError, err, msg)
+		srv.log.Error("Failed to fetch admin configuration from the database", "error", err)
+		return ErrResp(http.StatusInternalServerError, err, "failed to fetch admin configuration from the database")
 	}
 
 	resp := apimodels.GettableNGalertConfig{
@@ -99,9 +98,8 @@ func (srv ConfigSrv) RoutePostNGalertConfig(c *contextmodel.ReqContext, body api
 
 	cmd := store.UpdateAdminConfigurationCmd{AdminConfiguration: cfg}
 	if err := srv.store.UpdateAdminConfiguration(cmd); err != nil {
-		msg := "failed to save the admin configuration to the database"
-		srv.log.Error(msg, "error", err)
-		return ErrResp(http.StatusBadRequest, err, msg)
+		srv.log.Error("Failed to save admin configuration to the database", "error", err)
+		return ErrResp(http.StatusBadRequest, err, "failed to save admin configuration to the database")
 	}
 
 	return response.JSON(http.StatusCreated, util.DynMap{"message": "admin configuration updated"})
@@ -148,9 +146,8 @@ func (srv ConfigSrv) RouteGetAlertingStatus(c *contextmodel.ReqContext) response
 
 	cfg, err := srv.store.GetAdminConfiguration(c.GetOrgID())
 	if err != nil && !errors.Is(err, store.ErrNoAdminConfiguration) {
-		msg := "failed to fetch configuration from the database"
-		srv.log.Error(msg, "error", err)
-		return ErrResp(http.StatusInternalServerError, err, msg)
+		srv.log.Error("Failed to fetch configuration from the database", "error", err)
+		return ErrResp(http.StatusInternalServerError, err, "failed to fetch configuration from the database")
 	}
 	if cfg != nil {
 		sendsAlertsTo = cfg.SendAlertsTo

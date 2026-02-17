@@ -21,7 +21,7 @@ func ProvideService(db db.DB) star.Service {
 	// the initial migration
 	err := migrations.RunStarMigrations(db.GetEngine().NewSession(), db.GetDialect().DriverName())
 	if err != nil {
-		starLogger.Error("Failed to run star migrations", "err", err)
+		starLogger.Error("Failed to run star migrations", "error", err)
 	}
 	return &Service{
 		store: &sqlStore{

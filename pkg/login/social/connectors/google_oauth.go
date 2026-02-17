@@ -171,7 +171,7 @@ func (s *SocialGoogle) UserInfo(ctx context.Context, client *http.Client, token 
 	if !s.info.SkipOrgRoleSync {
 		directlyMappedRole, grafanaAdmin, err := s.extractRoleAndAdminOptional(data.rawJSON, userInfo.Groups)
 		if err != nil {
-			s.log.Warn("Failed to extract role", "err", err)
+			s.log.Warn("Failed to extract role", "error", err)
 		}
 
 		if s.info.AllowAssignGrafanaAdmin {
@@ -184,7 +184,7 @@ func (s *SocialGoogle) UserInfo(ctx context.Context, client *http.Client, token 
 		}
 	}
 
-	s.log.Debug("Resolved user info", "data", fmt.Sprintf("%+v", userInfo))
+	s.log.Debug("Resolved user info", "userInfoData", userInfo)
 
 	return userInfo, nil
 }
@@ -254,7 +254,7 @@ func (s *SocialGoogle) extractFromToken(ctx context.Context, _ *http.Client, tok
 
 	idTokenString, ok := idToken.(string)
 	if !ok {
-		s.log.Warn("ID token is not a string", "token", fmt.Sprintf("%+v", idToken))
+		s.log.Warn("ID token is not a string", "token", idToken)
 		return nil, nil
 	}
 
@@ -272,13 +272,13 @@ func (s *SocialGoogle) extractFromToken(ctx context.Context, _ *http.Client, tok
 		// Otherwise, just extract the payload without signature validation
 		rawJSON, err = s.retrieveRawJWTPayload(idTokenString)
 		if err != nil {
-			s.log.Warn("Error retrieving id_token", "error", err, "token", fmt.Sprintf("%+v", idToken))
+			s.log.Warn("Error retrieving id_token", "error", err, "token", idToken)
 			return nil, nil
 		}
 	}
 
 	if s.cfg.Env == setting.Dev {
-		s.log.Debug("Received id_token", "raw_json", string(rawJSON))
+		s.log.Debug("Received id_token", "rawJSON", string(rawJSON))
 	}
 
 	var data googleUserData
@@ -335,7 +335,7 @@ func (s *SocialGoogle) getGroupsPage(ctx context.Context, client *http.Client, u
 		url = fmt.Sprintf("%s&pageToken=%s", url, nextPageToken)
 	}
 
-	s.log.Debug("Retrieving groups", "url", url)
+	s.log.Debug("Retrieving groups", "apiURL", url)
 	resp, err := s.httpGet(ctx, client, url)
 	if err != nil {
 		return nil, fmt.Errorf("error getting groups: %s", err)

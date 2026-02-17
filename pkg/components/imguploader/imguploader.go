@@ -119,7 +119,7 @@ func NewImageUploader(cfg *setting.Cfg) (ImageUploader, error) {
 	}
 
 	if cfg.ImageUploadProvider != "" {
-		logger.Error("The external image storage configuration is invalid", "unsupported provider", cfg.ImageUploadProvider)
+		logger.Error("The external image storage configuration is invalid", "unsupportedProvider", cfg.ImageUploadProvider)
 	}
 
 	return NopImageUploader{}, nil

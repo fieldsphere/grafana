@@ -41,7 +41,7 @@ type Worker struct {
 
 func (w *Worker) run(ctx context.Context) {
 	defer w.wg.Done()
-	w.logger.Debug("worker started", "id", w.id)
+	w.logger.Debug("worker started", "workerID", w.id)
 
 	for ctx.Err() == nil {
 		err := w.dequeueWithRetries(ctx)
@@ -49,7 +49,7 @@ func (w *Worker) run(ctx context.Context) {
 			break
 		}
 	}
-	w.logger.Debug("worker stopped", "id", w.id)
+	w.logger.Debug("worker stopped", "workerID", w.id)
 }
 
 func (w *Worker) dequeueWithRetries(ctx context.Context) error {
@@ -67,15 +67,15 @@ func (w *Worker) dequeueWithRetries(ctx context.Context) error {
 		}
 
 		if errors.Is(err, ErrQueueClosed) {
-			w.logger.Error("queue closed, stopping worker", "id", w.id)
+			w.logger.Error("queue closed, stopping worker", "workerID", w.id)
 			return fmt.Errorf("worker %d: queue closed", w.id)
 		}
 
-		w.logger.Error("retrying dequeue", "id", w.id, "error", err, "attempt", boff.NumRetries())
+		w.logger.Error("retrying dequeue", "workerID", w.id, "error", err, "attempt", boff.NumRetries())
 		boff.Wait()
 	}
 	if err := boff.ErrCause(); err != nil {
-		w.logger.Error("failed to dequeue after retries", "id", w.id, "error", err)
+		w.logger.Error("failed to dequeue after retries", "workerID", w.id, "error", err)
 	}
 	return nil
 }

@@ -46,7 +46,7 @@ type RBACSync struct {
 
 func (s *RBACSync) SyncPermissionsHook(ctx context.Context, ident *authn.Identity, _ *authn.Request) error {
 	ctx, span := s.tracer.Start(ctx, "rbac.sync.SyncPermissionsHook", trace.WithAttributes(
-		attribute.String("ident_uid", ident.UID),
+		attribute.String("identityUID", ident.UID),
 	))
 	defer span.End()
 
@@ -112,7 +112,7 @@ func (s *RBACSync) fetchPermissions(ctx context.Context, ident *authn.Identity) 
 
 	permissions, err := s.ac.GetUserPermissions(ctx, ident, accesscontrol.Options{ReloadCache: false})
 	if err != nil {
-		s.log.FromContext(ctx).Error("Failed to fetch permissions from db", "error", err, "id", ident.ID)
+		s.log.FromContext(ctx).Error("Failed to fetch permissions from db", "error", err, "identityID", ident.ID)
 		return nil, errSyncPermissionsForbidden
 	}
 	return permissions, nil
@@ -125,7 +125,7 @@ func (s *RBACSync) fetchPermissions(ctx context.Context, ident *authn.Identity) 
 func (s *RBACSync) addPermissionsForAction(action string, permissions *[]accesscontrol.Permission) {
 	scopes, ok := s.permRegistry.GetScopePrefixes(action)
 	if !ok {
-		s.log.Warn("Unknown action scopes", "action", action)
+		s.log.Warn("Unknown action scopes", "permissionAction", action)
 		return
 	}
 	if len(scopes) == 0 {
@@ -249,7 +249,7 @@ func (s *RBACSync) SyncCloudRoles(ctx context.Context, ident *authn.Identity, r 
 	}
 
 	if !ident.IsIdentityType(claims.TypeUser) {
-		s.log.FromContext(ctx).Debug("Skip syncing cloud role", "id", ident.ID)
+		s.log.FromContext(ctx).Debug("Skip syncing cloud role", "identityID", ident.ID)
 		return nil
 	}
 
@@ -282,7 +282,7 @@ func (s *RBACSync) ClearUserPermissionCacheHook(ctx context.Context, ident *auth
 
 	ctxLogger := s.log.FromContext(ctx)
 	if !ident.IsIdentityType(claims.TypeUser) {
-		ctxLogger.Debug("Skipping user permission cache clear, not a user", "type", ident.GetIdentityType())
+		ctxLogger.Debug("Skipping user permission cache clear, not a user", "identityType", ident.GetIdentityType())
 		return
 	}
 

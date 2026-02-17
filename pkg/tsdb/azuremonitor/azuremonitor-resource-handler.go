@@ -77,16 +77,15 @@ func (s *httpServiceProxy) Do(rw http.ResponseWriter, req *http.Request, cli *ht
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			s.logger.Warn("Failed to close response body", "err", err)
+			s.logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
-		rw.WriteHeader(http.StatusInternalServerError)
-		_, err = fmt.Fprintf(rw, "unexpected error %v", err)
-		if err != nil {
-			return nil, fmt.Errorf("unable to write HTTP response: %v", err)
+		s.logger.Error("failed to read resource proxy response body", "error", err)
+		if writeErr := s.writeErrorResponse(rw, http.StatusInternalServerError, fmt.Sprintf("unexpected error: %v", err)); writeErr != nil {
+			return nil, writeErr
 		}
 		return nil, err
 	}
@@ -136,7 +135,7 @@ func writeErrorResponse(rw http.ResponseWriter, code int, msg string) {
 
 func (s *Service) handleResourceReq(subDataSource string) func(rw http.ResponseWriter, req *http.Request) {
 	return func(rw http.ResponseWriter, req *http.Request) {
-		s.logger.Debug("Received resource call", "url", req.URL.String(), "method", req.Method)
+		s.logger.Debug("Received resource call", "requestURL", req.URL.String(), "method", req.Method)
 
 		newPath, err := getTarget(req.URL.Path)
 		if err != nil {

@@ -69,14 +69,14 @@ func (r *SyncWorker) IsSupported(ctx context.Context, job provisioning.Job) bool
 
 func (r *SyncWorker) Process(ctx context.Context, repo repository.Repository, job provisioning.Job, progress jobs.JobProgressRecorder) error {
 	cfg := repo.Config()
-	logger := logging.FromContext(ctx).With("job", job.GetName(), "namespace", job.GetNamespace())
+	logger := logging.FromContext(ctx).With("jobName", job.GetName(), "namespace", job.GetNamespace())
 	ctx, span := r.tracer.Start(ctx, "provisioning.sync.process",
 		trace.WithAttributes(
-			attribute.String("job.name", job.GetName()),
-			attribute.String("job.namespace", job.GetNamespace()),
-			attribute.String("job.action", string(job.Spec.Action)),
-			attribute.String("repository.name", cfg.Name),
-			attribute.String("repository.namespace", cfg.Namespace),
+			attribute.String("jobName", job.GetName()),
+			attribute.String("jobNamespace", job.GetNamespace()),
+			attribute.String("jobAction", string(job.Spec.Action)),
+			attribute.String("repositoryName", cfg.Name),
+			attribute.String("repositoryNamespace", cfg.Namespace),
 		),
 	)
 	defer span.End()
@@ -88,7 +88,7 @@ func (r *SyncWorker) Process(ctx context.Context, repo repository.Repository, jo
 		r.metrics.RecordJob(string(provisioning.JobActionPull), outcome, totalChangesMade, time.Since(start).Seconds())
 		span.SetAttributes(
 			attribute.String("outcome", outcome),
-			attribute.Int("changes_made", totalChangesMade),
+			attribute.Int("changesMade", totalChangesMade),
 		)
 	}()
 
@@ -197,10 +197,10 @@ func (r *SyncWorker) Process(ctx context.Context, repo repository.Repository, jo
 	switch {
 	case err != nil:
 		logger.Error("unable to read stats", "error", err)
-		finalSpan.SetAttributes(attribute.String("stats.error", err.Error()))
+		finalSpan.SetAttributes(attribute.String("statsErrorMessage", err.Error()))
 	case stats == nil:
 		logger.Error("stats are nil")
-		finalSpan.SetAttributes(attribute.Bool("stats.nil", true))
+		finalSpan.SetAttributes(attribute.Bool("statsNil", true))
 	case len(stats.Managed) == 1:
 		repoStats = stats.Managed[0].Stats
 		patchOperations = append(patchOperations, map[string]interface{}{
@@ -210,7 +210,7 @@ func (r *SyncWorker) Process(ctx context.Context, repo repository.Repository, jo
 		})
 	default:
 		logger.Warn("unexpected number of managed stats", "count", len(stats.Managed))
-		finalSpan.SetAttributes(attribute.Int("stats.unexpected_count", len(stats.Managed)))
+		finalSpan.SetAttributes(attribute.Int("statsUnexpectedCount", len(stats.Managed)))
 	}
 
 	// Update Quota condition based on stats and configured limits.

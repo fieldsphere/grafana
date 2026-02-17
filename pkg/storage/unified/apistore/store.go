@@ -338,7 +338,7 @@ func (s *Storage) Delete(
 	}
 
 	if err = handleSecureValuesDelete(ctx, s.opts.SecureValues, meta); err != nil {
-		logging.FromContext(ctx).Warn("failed to delete inline secure values", "err", err)
+		logging.FromContext(ctx).Warn("failed to delete inline secure values", "error", err)
 	}
 
 	if err := s.versioner.UpdateObject(out, uint64(rsp.ResourceVersion)); err != nil {

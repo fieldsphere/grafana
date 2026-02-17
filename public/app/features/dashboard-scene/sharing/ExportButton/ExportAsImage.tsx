@@ -5,7 +5,7 @@ import { useAsyncFn } from 'react-use';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase } from '@grafana/scenes';
 import { Alert, Button, TextLink, useStyles2 } from '@grafana/ui';
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
@@ -15,6 +15,8 @@ import { ImagePreview } from '../components/ImagePreview';
 import { SceneShareTabState, ShareView } from '../types';
 
 import { generateDashboardImage } from './utils';
+
+const logger = createMonitoringLogger('features.dashboard-scene.export-image');
 
 export class ExportAsImage extends SceneObjectBase<SceneShareTabState> implements ShareView {
   static Component = ExportAsImageRenderer;
@@ -48,7 +50,11 @@ function ExportAsImageRenderer({ model }: SceneComponentProps<ExportAsImage>) {
 
       return result.blob;
     } catch (error) {
-      console.error('Error exporting image:', error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'exportAsImage' });
+      } else {
+        logger.logWarning('Error exporting image', { operation: 'exportAsImage', error: String(error) });
+      }
       DashboardInteractions.generateDashboardImageClicked({
         scale: config.rendererDefaultImageScale || 1,
         shareResource: 'dashboard',

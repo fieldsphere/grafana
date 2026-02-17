@@ -144,7 +144,7 @@ func GetConfig(cfg *Config) (*ServersConfig, error) {
 func readConfig(configFile string) (*ServersConfig, error) {
 	result := &ServersConfig{}
 
-	logger.Info("LDAP enabled, reading config file", "file", configFile)
+	logger.Info("LDAP enabled, reading config file", "configFilePath", configFile)
 
 	// nolint:gosec
 	// We can ignore the gosec G304 warning on this one because `filename` comes from grafana configuration file
@@ -182,14 +182,14 @@ func readConfig(configFile string) (*ServersConfig, error) {
 		if server.MinTLSVersion != "" {
 			server.MinTLSVersionID, err = util.TlsNameToVersion(server.MinTLSVersion)
 			if err != nil {
-				logger.Error("Failed to set min TLS version. Ignoring", "err", err)
+				logger.Error("Failed to set min TLS version. Ignoring", "error", err)
 			}
 		}
 
 		if len(server.TLSCiphers) > 0 {
 			server.TLSCipherIDs, err = util.TlsCiphersToIDs(server.TLSCiphers)
 			if err != nil {
-				logger.Error("Unrecognized TLS Cipher(s). Ignoring", "err", err)
+				logger.Error("Unrecognized TLS Cipher(s). Ignoring", "error", err)
 			}
 		}
 
@@ -223,7 +223,7 @@ func assertNotEmptyCfg(val any, propName string) error {
 			return fmt.Errorf("LDAP config file is missing option: %q", propName)
 		}
 	default:
-		fmt.Println("unknown")
+		return fmt.Errorf("LDAP config file has unsupported option type for %q: %T", propName, val)
 	}
 	return nil
 }

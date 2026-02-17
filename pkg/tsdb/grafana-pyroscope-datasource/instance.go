@@ -65,9 +65,9 @@ func NewPyroscopeDatasource(ctx context.Context, httpClientProvider httpclient.P
 
 func (d *PyroscopeDatasource) CallResource(ctx context.Context, req *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {
 	ctxLogger := logger.FromContext(ctx)
-	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.pyroscope.CallResource", trace.WithAttributes(attribute.String("path", req.Path), attribute.String("method", req.Method)))
+	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.pyroscope.CallResource", trace.WithAttributes(attribute.String("requestPath", req.Path), attribute.String("method", req.Method)))
 	defer span.End()
-	ctxLogger.Debug("CallResource", "Path", req.Path, "Method", req.Method, "Body", req.Body, "function", logEntrypoint())
+	ctxLogger.Debug("CallResource", "requestPath", req.Path, "method", req.Method, "requestBody", req.Body, "function", logEntrypoint())
 	if req.Path == "profileTypes" {
 		return d.profileTypes(ctx, req, sender)
 	}
@@ -293,7 +293,7 @@ func (d *PyroscopeDatasource) SubscribeStream(_ context.Context, req *backend.Su
 // Results are shared with everyone subscribed to the same channel.
 func (d *PyroscopeDatasource) RunStream(ctx context.Context, req *backend.RunStreamRequest, sender *backend.StreamSender) error {
 	ctxLogger := logger.FromContext(ctx)
-	ctxLogger.Debug("Running stream", "path", req.Path, "function", logEntrypoint())
+	ctxLogger.Debug("Running stream", "streamPath", req.Path, "function", logEntrypoint())
 
 	// Create the same data frame as for query data.
 	frame := data.NewFrame("response")
@@ -310,7 +310,7 @@ func (d *PyroscopeDatasource) RunStream(ctx context.Context, req *backend.RunStr
 	for {
 		select {
 		case <-ctx.Done():
-			ctxLogger.Info("Context done, finish streaming", "path", req.Path, "function", logEntrypoint())
+			ctxLogger.Info("Context done, finish streaming", "streamPath", req.Path, "function", logEntrypoint())
 			return nil
 		case <-time.After(time.Second):
 			// Send new data periodically.

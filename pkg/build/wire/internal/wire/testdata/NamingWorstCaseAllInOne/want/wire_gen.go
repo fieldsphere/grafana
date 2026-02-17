@@ -28,15 +28,15 @@ type context struct{}
 
 func main() {
 	if _, ok := reflect.TypeOf(context{}).MethodByName("Provide"); !ok {
-		fmt.Println("ERROR: context.Provide renamed")
+		_, _ = os.Stdout.WriteString("ERROR: context.Provide renamed\n")
 		os.Exit(1)
 	}
 	c, err := inject(context2.Background(), struct{}{})
 	if err != nil {
-		fmt.Println("ERROR:", err)
+		_, _ = os.Stdout.WriteString(fmt.Sprintf("ERROR: %v\n", err))
 		os.Exit(1)
 	}
-	fmt.Println(c)
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%v\n", c))
 }
 
 func Provide(context2_2 context2.Context) (context, error) {

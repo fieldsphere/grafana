@@ -27,7 +27,14 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 import { AppEvents, DataQueryErrorType, deprecationWarning } from '@grafana/data';
-import { BackendSrv as BackendService, BackendSrvRequest, config, FetchError, FetchResponse } from '@grafana/runtime';
+import {
+  BackendSrv as BackendService,
+  BackendSrvRequest,
+  config,
+  createMonitoringLogger,
+  FetchError,
+  FetchResponse,
+} from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { getConfig } from 'app/core/config';
 import { getSessionExpiry, hasSessionExpiry } from 'app/core/utils/auth';
@@ -48,6 +55,7 @@ import { ResponseQueue } from './ResponseQueue';
 import { ContextSrv, contextSrv } from './context_srv';
 
 const CANCEL_ALL_REQUESTS_REQUEST_ID = 'cancel_all_requests_request_id';
+const logger = createMonitoringLogger('core.services.backend');
 
 export interface BackendSrvDependencies {
   fromFetch: (input: string | Request, init?: RequestInit) => Observable<Response>;
@@ -110,7 +118,14 @@ export class BackendSrv implements BackendService {
       const result = await fp.get();
       this.deviceID = result.visitorId;
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'initGrafanaDeviceID' });
+        return;
+      }
+      logger.logWarning('Failed to initialize Grafana device ID', {
+        operation: 'initGrafanaDeviceID',
+        error: String(error),
+      });
     }
   }
 
@@ -235,7 +250,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            logger.logWarning('Chunk processing failed', { requestId, error: String(e) });
             observer.error(e);
           }); // from abort
       },

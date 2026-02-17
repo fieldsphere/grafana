@@ -4,10 +4,10 @@
 package setting
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -88,8 +88,8 @@ type Cfg struct {
 
 	// for logging purposes
 	configFiles                  []string
-	appliedCommandLineProperties []string
-	appliedEnvOverrides          []string
+	appliedCommandLineProperties []appliedConfigOverride
+	appliedEnvOverrides          []appliedConfigOverride
 
 	// HTTP Server Settings
 	CertFile          string
@@ -642,6 +642,11 @@ type Cfg struct {
 	SecretsManagement SecretsManagerSettings
 }
 
+type appliedConfigOverride struct {
+	key   string
+	value string
+}
+
 type UnifiedStorageConfig struct {
 	DualWriterMode rest.DualWriterMode
 	// EnableMigration indicates whether migration is enabled for the resource.
@@ -679,7 +684,7 @@ func (cfg *Cfg) parseAppUrlAndSubUrl(section *ini.Section) (string, string, erro
 	// Check if has app suburl.
 	url, err := url.Parse(appUrl)
 	if err != nil {
-		cfg.Logger.Error("Invalid root_url.", "url", appUrl, "error", err)
+		cfg.Logger.Error("Invalid root_url.", "rootURL", appUrl, "error", err)
 		os.Exit(1)
 	}
 
@@ -776,7 +781,7 @@ func RedactedURL(value string) (string, error) {
 }
 
 func (cfg *Cfg) applyEnvVariableOverrides(file *ini.File) error {
-	cfg.appliedEnvOverrides = make([]string, 0)
+	cfg.appliedEnvOverrides = make([]appliedConfigOverride, 0)
 	for _, section := range file.Sections() {
 		for _, key := range section.Keys() {
 			envKey := EnvKey(section.Name(), key.Name())
@@ -784,7 +789,10 @@ func (cfg *Cfg) applyEnvVariableOverrides(file *ini.File) error {
 
 			if len(envValue) > 0 {
 				key.SetValue(envValue)
-				cfg.appliedEnvOverrides = append(cfg.appliedEnvOverrides, fmt.Sprintf("%s=%s", envKey, RedactedValue(envKey, envValue)))
+				cfg.appliedEnvOverrides = append(cfg.appliedEnvOverrides, appliedConfigOverride{
+					key:   envKey,
+					value: RedactedValue(envKey, envValue),
+				})
 			}
 		}
 	}
@@ -895,7 +903,7 @@ func EnvKey(sectionName string, keyName string) string {
 }
 
 func (cfg *Cfg) applyCommandLineDefaultProperties(props map[string]string, file *ini.File) {
-	cfg.appliedCommandLineProperties = make([]string, 0)
+	cfg.appliedCommandLineProperties = make([]appliedConfigOverride, 0)
 	for _, section := range file.Sections() {
 		for _, key := range section.Keys() {
 			keyString := fmt.Sprintf("default.%s.%s", section.Name(), key.Name())
@@ -903,7 +911,10 @@ func (cfg *Cfg) applyCommandLineDefaultProperties(props map[string]string, file 
 			if exists {
 				key.SetValue(value)
 				cfg.appliedCommandLineProperties = append(cfg.appliedCommandLineProperties,
-					fmt.Sprintf("%s=%s", keyString, RedactedValue(keyString, value)))
+					appliedConfigOverride{
+						key:   keyString,
+						value: RedactedValue(keyString, value),
+					})
 			}
 		}
 	}
@@ -919,7 +930,10 @@ func (cfg *Cfg) applyCommandLineProperties(props map[string]string, file *ini.Fi
 			keyString := sectionName + key.Name()
 			value, exists := props[keyString]
 			if exists {
-				cfg.appliedCommandLineProperties = append(cfg.appliedCommandLineProperties, fmt.Sprintf("%s=%s", keyString, value))
+				cfg.appliedCommandLineProperties = append(cfg.appliedCommandLineProperties, appliedConfigOverride{
+					key:   keyString,
+					value: RedactedValue(keyString, value),
+				})
 				key.SetValue(value)
 			}
 		}
@@ -1001,14 +1015,16 @@ func (cfg *Cfg) loadConfiguration(args CommandLineArgs) (*ini.File, error) {
 
 	// check if config file exists
 	if _, err := os.Stat(defaultConfigFile); os.IsNotExist(err) {
-		fmt.Println("Grafana-server Init Failed: Could not find config defaults, make sure homepath command line parameter is set or working directory is homepath")
+		slog.Error("Grafana server init failed: config defaults not found",
+			"defaultConfigFilePath", defaultConfigFile,
+			"hint", "make sure homepath command line parameter is set or working directory is homepath")
 		os.Exit(1)
 	}
 
 	// load defaults
 	parsedFile, err := ini.Load(defaultConfigFile)
 	if err != nil {
-		fmt.Printf("Failed to parse defaults.ini, %v\n", err)
+		slog.Error("Failed to parse defaults.ini", "defaultConfigFilePath", defaultConfigFile, "error", err)
 		os.Exit(1)
 		return nil, err
 	}
@@ -1025,7 +1041,7 @@ func (cfg *Cfg) loadConfiguration(args CommandLineArgs) (*ini.File, error) {
 		if err2 != nil {
 			return nil, err2
 		}
-		cfg.Logger.Error(err.Error())
+		cfg.Logger.Error("Failed to load specified config file", "error", err)
 		os.Exit(1)
 	}
 
@@ -1053,7 +1069,7 @@ func (cfg *Cfg) loadConfiguration(args CommandLineArgs) (*ini.File, error) {
 		return nil, err
 	}
 
-	cfg.Logger.Info(fmt.Sprintf("Starting %s", ApplicationName), "version", BuildVersion, "commit", BuildCommit, "branch", BuildBranch, "compiled", time.Unix(BuildStamp, 0))
+	cfg.Logger.Info("Starting application", "application", ApplicationName, "version", BuildVersion, "commit", BuildCommit, "branch", BuildBranch, "compiled", time.Unix(BuildStamp, 0))
 
 	return parsedFile, err
 }
@@ -1176,7 +1192,7 @@ func (cfg *Cfg) Load(args CommandLineArgs) error {
 	_, zoneInfoSet := os.LookupEnv(zoneInfo)
 	if !zoneInfoSet {
 		if err := os.Setenv(zoneInfo, filepath.Join(cfg.HomePath, "tools", "zoneinfo.zip")); err != nil {
-			cfg.Logger.Error("Can't set ZONEINFO environment variable", "err", err)
+			cfg.Logger.Error("Can't set ZONEINFO environment variable", "error", err)
 		}
 	}
 
@@ -1421,7 +1437,7 @@ func (cfg *Cfg) parseINIFile(iniFile *ini.File) error {
 	if err != nil {
 		// if the proxy is misconfigured, disable it rather than crashing
 		cfg.SecureSocksDSProxy.Enabled = false
-		cfg.Logger.Error("secure_socks_datasource_proxy unable to start up", "err", err.Error())
+		cfg.Logger.Error("secure_socks_datasource_proxy unable to start up", "error", err)
 	}
 
 	if cfg.VerifyEmailEnabled && !cfg.Smtp.Enabled {
@@ -1530,27 +1546,27 @@ func (cfg *Cfg) handleAWSConfig() {
 	// Also set environment variables that can be used by core plugins
 	err := os.Setenv(awsds.AssumeRoleEnabledEnvVarKeyName, strconv.FormatBool(cfg.AWSAssumeRoleEnabled))
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.AssumeRoleEnabledEnvVarKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "envVarKey", awsds.AssumeRoleEnabledEnvVarKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.AllowedAuthProvidersEnvVarKeyName, allowedAuthProviders)
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.AllowedAuthProvidersEnvVarKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "envVarKey", awsds.AllowedAuthProvidersEnvVarKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.ListMetricsPageLimitKeyName, strconv.Itoa(cfg.AWSListMetricsPageLimit))
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.ListMetricsPageLimitKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "envVarKey", awsds.ListMetricsPageLimitKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.GrafanaAssumeRoleExternalIdKeyName, cfg.AWSExternalId)
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.GrafanaAssumeRoleExternalIdKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "envVarKey", awsds.GrafanaAssumeRoleExternalIdKeyName, "error", err)
 	}
 
 	err = os.Setenv(awsds.SessionDurationEnvVarKeyName, cfg.AWSSessionDuration)
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.SessionDurationEnvVarKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "envVarKey", awsds.SessionDurationEnvVarKeyName, "error", err)
 	}
 }
 
@@ -1578,32 +1594,29 @@ func (cfg *Cfg) initLogging(file *ini.File) error {
 }
 
 func (cfg *Cfg) LogConfigSources() {
-	var text bytes.Buffer
-
 	for _, file := range cfg.configFiles {
-		cfg.Logger.Info("Config loaded from", "file", file)
+		cfg.Logger.Info("Config loaded from", "configFilePath", file)
 	}
 
 	if len(cfg.appliedCommandLineProperties) > 0 {
 		for _, prop := range cfg.appliedCommandLineProperties {
-			cfg.Logger.Info("Config overridden from command line", "arg", prop)
+			cfg.Logger.Info("Config overridden from command line", "configKey", prop.key, "configValue", prop.value)
 		}
 	}
 
 	if len(cfg.appliedEnvOverrides) > 0 {
-		text.WriteString("\tEnvironment variables used:\n")
 		for _, prop := range cfg.appliedEnvOverrides {
-			cfg.Logger.Info("Config overridden from Environment variable", "var", prop)
+			cfg.Logger.Info("Config overridden from Environment variable", "envVarKey", prop.key, "envVarValue", prop.value)
 		}
 	}
 
 	cfg.Logger.Info("Target", "target", cfg.Target)
-	cfg.Logger.Info("Path Home", "path", cfg.HomePath)
-	cfg.Logger.Info("Path Data", "path", cfg.DataPath)
-	cfg.Logger.Info("Path Logs", "path", cfg.LogsPath)
-	cfg.Logger.Info("Path Plugins", "path", cfg.PluginsPath)
-	cfg.Logger.Info("Path Provisioning", "path", cfg.ProvisioningPath)
-	cfg.Logger.Info("App mode " + cfg.Env)
+	cfg.Logger.Info("Path Home", "homePath", cfg.HomePath)
+	cfg.Logger.Info("Path Data", "dataPath", cfg.DataPath)
+	cfg.Logger.Info("Path Logs", "logsPath", cfg.LogsPath)
+	cfg.Logger.Info("Path Plugins", "pluginsPath", cfg.PluginsPath)
+	cfg.Logger.Info("Path Provisioning", "provisioningPath", cfg.ProvisioningPath)
+	cfg.Logger.Info("App mode", "mode", cfg.Env)
 }
 
 type DynamicSection struct {
@@ -1624,7 +1637,7 @@ func (s *DynamicSection) Key(k string) *ini.Key {
 	}
 
 	key.SetValue(envValue)
-	s.Logger.Info("Config overridden from Environment variable", "var", fmt.Sprintf("%s=%s", envKey, RedactedValue(envKey, envValue)))
+	s.Logger.Info("Config overridden from Environment variable", "envVarKey", envKey, "envVarValue", RedactedValue(envKey, envValue))
 
 	return key
 }

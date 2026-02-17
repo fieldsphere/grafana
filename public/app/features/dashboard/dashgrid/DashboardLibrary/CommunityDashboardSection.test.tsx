@@ -110,7 +110,6 @@ describe('CommunityDashboardSection', () => {
   });
 
   it('should show error when fetching community dashboards list fails', async () => {
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
     mockFetchCommunityDashboards.mockRejectedValue(new Error('Failed to fetch community dashboards'));
 
     await setup(undefined, false);
@@ -118,8 +117,5 @@ describe('CommunityDashboardSection', () => {
     await waitFor(() => {
       expect(screen.getByText('Error loading community dashboards')).toBeInTheDocument();
     });
-
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading community dashboards', expect.any(Error));
-    consoleErrorSpy.mockRestore();
   });
 });

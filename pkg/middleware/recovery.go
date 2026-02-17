@@ -52,7 +52,7 @@ func stack(skip int) []byte {
 			break
 		}
 		// Print this much at least.  If we can't find the source, it won't show.
-		fmt.Fprintf(buf, "%s:%d (0x%x)\n", file, line, pc)
+		buf.WriteString(fmt.Sprintf("%s:%d (0x%x)\n", file, line, pc))
 		if file != lastFile {
 			// We can ignore the gosec G304 warning on this one because `file`
 			// comes from the runtime.Caller() function.
@@ -64,7 +64,7 @@ func stack(skip int) []byte {
 			lines = bytes.Split(data, []byte{'\n'})
 			lastFile = file
 		}
-		fmt.Fprintf(buf, "\t%s: %s\n", function(pc), source(lines, line))
+		buf.WriteString(fmt.Sprintf("\t%s: %s\n", function(pc), source(lines, line)))
 	}
 	return buf.Bytes()
 }
@@ -125,13 +125,13 @@ func Recovery(cfg *setting.Cfg, license licensing.Licensing) web.Middleware {
 						// and used as a signal for aborting requests. Suppresses stacktrace
 						// since it doesn't add any important information.
 						if errors.Is(err, http.ErrAbortHandler) {
-							panicLogger.Error("Request error", "error", err)
+							panicLogger.Error("Request error", "panicValue", err)
 							return
 						}
 					}
 
 					stack := stack(3)
-					panicLogger.Error("Request error", "error", r, "stack", string(stack))
+					panicLogger.Error("Request error", "panicValue", r, "stack", string(stack))
 
 					// if response has already been written, skip.
 					if c.Resp.Written() {

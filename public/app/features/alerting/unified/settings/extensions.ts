@@ -1,6 +1,7 @@
 import { useLocation } from 'react-router-dom-v5-compat';
 
 import { NavModelItem } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { useSelector } from 'app/types/store';
 
 type SettingsSectionUrl = `/alerting/admin/${string}`;
@@ -9,6 +10,7 @@ type SettingsSectionNav = Pick<NavModelItem, 'id' | 'text' | 'icon'> & {
 };
 
 const settingsExtensions: Map<SettingsSectionUrl, { nav: SettingsSectionNav }> = new Map();
+const logger = createMonitoringLogger('features.alerting.settings.extensions');
 
 /**
  * Registers a new settings section that will appear as a tab in the alerting settings page.
@@ -16,7 +18,7 @@ const settingsExtensions: Map<SettingsSectionUrl, { nav: SettingsSectionNav }> =
  */
 export function addSettingsSection(pageNav: SettingsSectionNav) {
   if (settingsExtensions.has(pageNav.url)) {
-    console.warn('Unable to add settings page, PageNav must have an unique url');
+    logger.logWarning('Unable to add settings page. PageNav URL must be unique.', { url: pageNav.url });
     return;
   }
   settingsExtensions.set(pageNav.url, { nav: pageNav });

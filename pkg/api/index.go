@@ -247,7 +247,7 @@ func (hs *HTTPServer) getUserOrgCount(c *contextmodel.ReqContext, userID int64) 
 
 	userOrgs, err := hs.orgService.GetUserOrgList(c.Req.Context(), &org.GetUserOrgListQuery{UserID: userID})
 	if err != nil {
-		hs.log.FromContext(c.Req.Context()).Error("Failed to count user orgs", "userId", userID, "error", err)
+		hs.log.FromContext(c.Req.Context()).Error("Failed to count user orgs", "userID", userID, "error", err)
 		return 1
 	}
 

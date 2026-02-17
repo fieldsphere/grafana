@@ -1,4 +1,5 @@
 import { escapeStringForRegex, Registry, RegistryItem, stringStartsAsRegEx, stringToJsRegex } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { ExtractFieldsOptions, FieldExtractorID } from './types';
 
@@ -7,6 +8,8 @@ type Parser = (v: string) => Record<string, any> | undefined;
 export interface FieldExtractor extends RegistryItem {
   getParser: (opts: ExtractFieldsOptions) => Parser;
 }
+
+const logger = createMonitoringLogger('features.transformers.field-extractors');
 
 const extJSON: FieldExtractor = {
   id: FieldExtractorID.JSON,
@@ -29,7 +32,10 @@ const extRegExp: FieldExtractor = {
         regex = stringToJsRegex(options.regExp!);
       } catch (error) {
         if (error instanceof Error) {
-          console.warn(error.message);
+          logger.logWarning('Invalid regular expression in extract fields transformer', {
+            operation: 'extRegExp.getParser',
+            error: error.message,
+          });
         }
       }
     }

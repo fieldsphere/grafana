@@ -112,9 +112,9 @@ func (s *Service) cleanup(ctx context.Context) {
 			OlderThan: time.Now().Add(time.Minute * -10),
 		}
 		if deletedLogs, err := s.store.DeleteOldLoginAttempts(ctx, cmd); err != nil {
-			s.logger.Error("Problem deleting expired login attempts", "error", err.Error())
+			s.logger.Error("Problem deleting expired login attempts", "error", err)
 		} else {
-			s.logger.Debug("Deleted expired login attempts", "rows affected", deletedLogs)
+			s.logger.Debug("Deleted expired login attempts", "rowsAffected", deletedLogs)
 		}
 	})
 

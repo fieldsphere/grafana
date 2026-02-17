@@ -119,7 +119,7 @@ func (w *lokiWriter) flush(streams []LokiStream) error {
 	if err != nil {
 		return fmt.Errorf("error converting Loki stream entry to bytes: %v", err)
 	}
-	logger.Debug("Sending to Loki endpoint", "url", w.endpoint, "bodyLength", len(writeData))
+	logger.Debug("Sending to Loki endpoint", "endpointURL", w.endpoint, "bodyLength", len(writeData))
 	req, err := http.NewRequest(http.MethodPost, w.endpoint, bytes.NewReader(writeData))
 	if err != nil {
 		return fmt.Errorf("error constructing loki push request: %w", err)
@@ -136,7 +136,7 @@ func (w *lokiWriter) flush(streams []LokiStream) error {
 	}
 	_ = resp.Body.Close()
 	if resp.StatusCode != http.StatusNoContent {
-		logger.Error("Unexpected response code from Loki endpoint", "code", resp.StatusCode)
+		logger.Error("Unexpected response code from Loki endpoint", "statusCode", resp.StatusCode)
 		return errors.New("unexpected response code Loki endpoint")
 	}
 	logger.Debug("Successfully sent to Loki", "elapsed", time.Since(started))

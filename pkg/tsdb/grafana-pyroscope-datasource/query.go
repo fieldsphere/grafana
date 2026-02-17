@@ -47,7 +47,7 @@ var identityTransformation = func(value float64) float64 { return value }
 
 // query processes single Pyroscope query transforming the response to data.Frame packaged in DataResponse
 func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginContext, query backend.DataQuery) backend.DataResponse {
-	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.pyroscope.query", trace.WithAttributes(attribute.String("query_type", query.QueryType)))
+	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.pyroscope.query", trace.WithAttributes(attribute.String("queryType", query.QueryType)))
 	defer span.End()
 
 	var qm queryModel
@@ -81,7 +81,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 				parsedInterval, err = gtime.ParseDuration(dsJson.MinStep)
 				if err != nil {
 					parsedInterval = time.Second * 15
-					logger.Error("Failed to parse the MinStep using default", "MinStep", dsJson.MinStep, "function", logEntrypoint())
+					logger.Error("Failed to parse the MinStep using default", "minStep", dsJson.MinStep, "function", logEntrypoint())
 				}
 			}
 			exemplarType := typesv1.ExemplarType_EXEMPLAR_TYPE_NONE
@@ -102,7 +102,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 			if err != nil {
 				span.RecordError(err)
 				span.SetStatus(codes.Error, err.Error())
-				logger.Error("Querying SelectSeries()", "err", err, "function", logEntrypoint())
+				logger.Error("Querying SelectSeries()", "error", err, "function", logEntrypoint())
 				return err
 			}
 			// add the frames to the response.
@@ -113,7 +113,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 			if err != nil {
 				span.RecordError(err)
 				span.SetStatus(codes.Error, err.Error())
-				logger.Error("Querying SelectSeries()", "err", err, "function", logEntrypoint())
+				logger.Error("Querying SelectSeries()", "error", err, "function", logEntrypoint())
 				return err
 			}
 			response.Frames = append(response.Frames, frames...)
@@ -131,7 +131,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 				if err != nil {
 					span.RecordError(err)
 					span.SetStatus(codes.Error, err.Error())
-					logger.Error("Error GetSpanProfile()", "err", err, "function", logEntrypoint())
+					logger.Error("Error GetSpanProfile()", "error", err, "function", logEntrypoint())
 					return err
 				}
 				profileResp = prof
@@ -141,7 +141,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 				if err != nil {
 					span.RecordError(err)
 					span.SetStatus(codes.Error, err.Error())
-					logger.Error("Error GetProfile()", "err", err, "function", logEntrypoint())
+					logger.Error("Error GetProfile()", "error", err, "function", logEntrypoint())
 					return err
 				}
 				profileResp = prof
@@ -162,7 +162,7 @@ func (d *PyroscopeDatasource) query(ctx context.Context, pCtx backend.PluginCont
 					parsedInterval, err = gtime.ParseDuration(dsJson.MinStep)
 					if err != nil {
 						parsedInterval = time.Second * 15
-						logger.Error("Failed to parse the MinStep using default", "MinStep", dsJson.MinStep, "function", logEntrypoint())
+						logger.Error("Failed to parse the MinStep using default", "minStep", dsJson.MinStep, "function", logEntrypoint())
 					}
 				}
 				stepDuration := math.Max(query.Interval.Seconds(), parsedInterval.Seconds())

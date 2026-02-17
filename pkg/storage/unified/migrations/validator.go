@@ -93,8 +93,8 @@ func (v *CountValidator) Validate(ctx context.Context, sess *xorm.Session, respo
 					"namespace", rejected.Key.Namespace,
 					"group", rejected.Key.Group,
 					"resource", rejected.Key.Resource,
-					"name", rejected.Key.Name,
-					"reason", rejected.Error)
+					"resourceName", rejected.Key.Name,
+					"errorMessage", rejected.Error)
 			}
 		}
 		// Rejections are not fatal - they may be expected for invalid data
@@ -103,7 +103,8 @@ func (v *CountValidator) Validate(ctx context.Context, sess *xorm.Session, respo
 	// Should have at most one summary after filtering
 	if len(response.Summary) == 0 {
 		log.Debug("No summaries found for resource, skipping count validation",
-			"resource", fmt.Sprintf("%s.%s", v.resource.Resource, v.resource.Group))
+			"resource", v.resource.Resource,
+			"group", v.resource.Group)
 		return nil
 	}
 
@@ -157,11 +158,12 @@ func (v *CountValidator) Validate(ctx context.Context, sess *xorm.Session, respo
 	expectedCount := unifiedCount + int64(len(response.Rejected))
 
 	log.Info("Count validation",
-		"resource", fmt.Sprintf("%s.%s", summary.Resource, summary.Group),
+		"resource", summary.Resource,
+		"group", summary.Group,
 		"namespace", summary.Namespace,
-		"legacy_count", legacyCount,
-		"unified_count", unifiedCount,
-		"migration_summary_count", summary.Count,
+		"legacyCount", legacyCount,
+		"unifiedCount", unifiedCount,
+		"migrationSummaryCount", summary.Count,
 		"rejected", len(response.Rejected),
 		"history", summary.History)
 
@@ -258,8 +260,8 @@ func (v *FolderTreeValidator) Validate(ctx context.Context, sess *xorm.Session, 
 		if !exists {
 			// Folder exists in legacy but not in unified - might be rejected, skip
 			log.Debug("Folder exists in legacy but not in unified storage",
-				"uid", uid,
-				"legacy_parent", legacyParent)
+				"folderUID", uid,
+				"legacyParent", legacyParent)
 			continue
 		}
 
@@ -268,9 +270,9 @@ func (v *FolderTreeValidator) Validate(ctx context.Context, sess *xorm.Session, 
 				uid, legacyParent, unifiedParent)
 			mismatches = append(mismatches, mismatch)
 			log.Warn("Folder parent mismatch",
-				"uid", uid,
-				"legacy_parent", legacyParent,
-				"unified_parent", unifiedParent)
+				"folderUID", uid,
+				"legacyParent", legacyParent,
+				"unifiedParent", unifiedParent)
 		}
 	}
 
@@ -279,20 +281,20 @@ func (v *FolderTreeValidator) Validate(ctx context.Context, sess *xorm.Session, 
 		if _, exists := legacyParentMap[uid]; !exists {
 			mismatch := fmt.Sprintf("folder %s exists in unified but not in legacy", uid)
 			mismatches = append(mismatches, mismatch)
-			log.Warn("Folder exists in unified but not in legacy", "uid", uid)
+			log.Warn("Folder exists in unified but not in legacy", "folderUID", uid)
 		}
 	}
 
 	if len(mismatches) > 0 {
 		log.Error("Folder tree structure validation failed",
-			"mismatch_count", len(mismatches),
-			"total_legacy_folders", len(legacyParentMap),
-			"total_unified_folders", len(unifiedParentMap))
+			"mismatchCount", len(mismatches),
+			"totalLegacyFolders", len(legacyParentMap),
+			"totalUnifiedFolders", len(unifiedParentMap))
 		return fmt.Errorf("folder tree structure mismatch: %d folders have incorrect parents", len(mismatches))
 	}
 
 	log.Info("Folder tree structure validation passed",
-		"folder_count", len(legacyParentMap),
+		"folderCount", len(legacyParentMap),
 		"namespace", summary.Namespace)
 
 	return nil
@@ -315,13 +317,13 @@ func (v *FolderTreeValidator) buildLegacyFolderParentMap(sess *xorm.Session, org
 	}
 
 	if len(parentMap) == 0 {
-		log.Debug("No legacy folders found for org", "org_id", orgID)
+		log.Debug("No legacy folders found for org", "orgID", orgID)
 		return make(map[string]string), nil
 	}
 
 	log.Debug("Built legacy folder parent map",
-		"folder_count", len(parentMap),
-		"org_id", orgID)
+		"folderCount", len(parentMap),
+		"orgID", orgID)
 
 	return parentMap, nil
 }
@@ -371,7 +373,7 @@ func (v *FolderTreeValidator) buildUnifiedFolderParentMap(ctx context.Context, n
 	}
 
 	log.Debug("Built unified folder parent map",
-		"folder_count", len(parentMap),
+		"folderCount", len(parentMap),
 		"namespace", namespace)
 
 	return parentMap, nil
@@ -398,7 +400,7 @@ func (v *FolderTreeValidator) buildUnifiedFolderParentMapSQLite(sess *xorm.Sessi
 	}
 
 	log.Debug("Built unified folder parent map",
-		"folder_count", len(parentMap),
+		"folderCount", len(parentMap),
 		"namespace", namespace)
 
 	return parentMap, nil

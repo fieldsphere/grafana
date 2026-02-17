@@ -40,7 +40,7 @@ func (ns *NotificationService) sendWebRequestSync(ctx context.Context, webhook *
 		webhook.HttpMethod = http.MethodPost
 	}
 
-	ns.log.Debug("Sending webhook", "url", webhook.Url, "http method", webhook.HttpMethod)
+	ns.log.Debug("Sending webhook", "webhookURL", webhook.Url, "httpMethod", webhook.HttpMethod)
 
 	if webhook.HttpMethod != http.MethodPost && webhook.HttpMethod != http.MethodPut {
 		return fmt.Errorf("webhook only supports HTTP methods PUT or POST")
@@ -77,7 +77,7 @@ func (ns *NotificationService) sendWebRequestSync(ctx context.Context, webhook *
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			ns.log.Warn("Failed to close response body", "err", err)
+			ns.log.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -89,17 +89,17 @@ func (ns *NotificationService) sendWebRequestSync(ctx context.Context, webhook *
 	if webhook.Validation != nil {
 		err := webhook.Validation(body, resp.StatusCode)
 		if err != nil {
-			ns.log.Debug("Webhook failed validation", "url", url.Redacted(), "statuscode", resp.Status, "body", string(body), "error", err)
+			ns.log.Debug("Webhook failed validation", "webhookURL", url.Redacted(), "statusCode", resp.StatusCode, "responseBody", string(body), "error", err)
 			return fmt.Errorf("webhook failed validation: %w", err)
 		}
 	}
 
 	if resp.StatusCode/100 == 2 {
-		ns.log.Debug("Webhook succeeded", "url", url.Redacted(), "statuscode", resp.Status)
+		ns.log.Debug("Webhook succeeded", "webhookURL", url.Redacted(), "statusCode", resp.StatusCode)
 		return nil
 	}
 
-	ns.log.Debug("Webhook failed", "url", url.Redacted(), "statuscode", resp.Status, "body", string(body))
+	ns.log.Debug("Webhook failed", "webhookURL", url.Redacted(), "statusCode", resp.StatusCode, "responseBody", string(body))
 	return fmt.Errorf("webhook response status %v", resp.Status)
 }
 

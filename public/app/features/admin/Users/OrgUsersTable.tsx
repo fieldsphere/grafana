@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { OrgRole } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 import {
   Avatar,
   Box,
@@ -42,6 +42,7 @@ const getBasicRoleDisabled = (user: OrgUser) => {
 };
 
 const selectors = e2eSelectors.pages.UserListPage.UsersListPage;
+const logger = createMonitoringLogger('features.admin.org-users-table');
 
 export interface Props {
   users: OrgUser[];
@@ -79,7 +80,7 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        logger.logWarning('Error loading role options', { operation: 'fetchRoleOptions', orgId, error: String(e) });
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

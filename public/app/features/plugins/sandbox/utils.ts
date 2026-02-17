@@ -22,7 +22,7 @@ export function isReactClassComponent(obj: unknown): obj is React.Component {
 }
 
 export function logWarning(message: string, context?: LogContext) {
-  sandboxLogger.logWarning(message, context);
+  sandboxLogger.logWarning('Sandbox warning event', { ...context, logMessage: message });
 }
 
 export function logError(error: Error, context?: LogContext) {
@@ -30,7 +30,7 @@ export function logError(error: Error, context?: LogContext) {
 }
 
 export function logInfo(message: string, context?: LogContext) {
-  sandboxLogger.logInfo(message, context);
+  sandboxLogger.logInfo('Sandbox info event', { ...context, logMessage: message });
 }
 
 function isRegex(value: unknown): value is RegExp {

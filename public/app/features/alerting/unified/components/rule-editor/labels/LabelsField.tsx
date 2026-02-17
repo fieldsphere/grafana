@@ -5,6 +5,7 @@ import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from
 import { AlertLabels } from '@grafana/alerting/unstable';
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Button, ComboboxOption, Field, InlineLabel, Input, Space, Stack, Text, useStyles2 } from '@grafana/ui';
 
 import { labelsApi } from '../../../api/labelsApi';
@@ -19,6 +20,8 @@ import { NeedHelpInfo } from '../NeedHelpInfo';
 import { useGetLabelsFromDataSourceName } from '../useAlertRuleSuggestions';
 
 import { AddButton, RemoveButton } from './LabelsButtons';
+
+const logger = createMonitoringLogger('features.alerting.labels-field');
 
 const useGetOpsLabelsKeys = (skip: boolean) => {
   const { currentData, isLoading: isloadingLabels } = labelsApi.endpoints.getLabels.useQuery(undefined, {
@@ -182,7 +185,15 @@ export function useCombinedLabels(
               opsValues = result.values.map((value) => value.name);
             }
           } catch (error) {
-            console.error('Failed to fetch label values for key:', key, error);
+            if (error instanceof Error) {
+              logger.logError(error, { operation: 'createAsyncValuesLoader', key });
+            } else {
+              logger.logWarning('Failed to fetch label values for key', {
+                operation: 'createAsyncValuesLoader',
+                key,
+                error: String(error),
+              });
+            }
           }
         }
 

@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 
@@ -25,15 +26,15 @@ func main() {
 		printUsage()
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		slog.Error("go-workspace command failed", "command", os.Args[1], "error", err)
 		os.Exit(1)
 	}
 }
 
 func printUsage() {
-	println("Usage: go-workspace <command> [args]")
-	println("Commands:")
-	println("  list-submodules - List submodules in go.work")
+	_, _ = os.Stderr.WriteString("Usage: go-workspace <command> [args]\n")
+	_, _ = os.Stderr.WriteString("Commands:\n")
+	_, _ = os.Stderr.WriteString("  list-submodules - List submodules in go.work\n")
 }
 
 func listSubmodules() error {
@@ -58,7 +59,7 @@ func listSubmodules() error {
 
 	paths := getSubmodulePaths(workfile, *skip)
 	for _, p := range paths {
-		fmt.Printf("%s%s", p, *delimiter)
+		_, _ = os.Stdout.WriteString(p + *delimiter)
 	}
 
 	return nil
@@ -95,7 +96,7 @@ func validateDockerfile() error {
 		}
 	}
 
-	fmt.Println("All submodules are included in the Dockerfile.")
+	slog.Info("All submodules are included in the Dockerfile")
 	return nil
 }
 

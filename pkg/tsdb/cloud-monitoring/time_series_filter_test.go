@@ -2,7 +2,6 @@ package cloudmonitoring
 
 import (
 	"encoding/json"
-	"fmt"
 	"math"
 	"net/url"
 	"os"
@@ -321,7 +320,6 @@ func TestTimeSeriesFilter(t *testing.T) {
 			frames := res.Frames
 			require.NoError(t, err)
 			assert.Equal(t, 3, len(frames))
-			fmt.Println(frames[0].Fields[1].Name)
 			assert.Equal(t, "value1, value2", frames[0].Fields[1].Name)
 			assert.Equal(t, "value1, value2, value3", frames[1].Fields[1].Name)
 			assert.Equal(t, "value1, value2, value4, value5", frames[2].Fields[1].Name)

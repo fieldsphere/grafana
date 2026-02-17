@@ -225,7 +225,7 @@ func (s *Service) GetToken(ctx context.Context) (authapi.TokenView, error) {
 	if err != nil {
 		return authapi.TokenView{}, fmt.Errorf("listing tokens: %w", err)
 	}
-	logger.Info("found access tokens", "num_tokens", len(tokens))
+	logger.Info("found access tokens", "numTokens", len(tokens))
 
 	for _, token := range tokens {
 		if token.Name == accessTokenName {
@@ -273,7 +273,7 @@ func (s *Service) CreateToken(ctx context.Context) (cloudmigration.CreateAccessT
 		}); err != nil {
 			return cloudmigration.CreateAccessTokenResponse{}, fmt.Errorf("deleting access policy: id=%s region=%s %w", existingAccessPolicy.ID, instance.RegionSlug, err)
 		}
-		logger.Info("deleted access policy", existingAccessPolicy.ID, "name", existingAccessPolicy.Name)
+		logger.Info("deleted access policy", "accessPolicyID", existingAccessPolicy.ID, "accessPolicyName", existingAccessPolicy.Name)
 	}
 
 	timeoutCtx, cancel = context.WithTimeout(ctx, s.cfg.CloudMigration.CreateAccessPolicyTimeout)
@@ -292,7 +292,7 @@ func (s *Service) CreateToken(ctx context.Context) (cloudmigration.CreateAccessT
 	if err != nil {
 		return cloudmigration.CreateAccessTokenResponse{}, fmt.Errorf("creating access policy: %w", err)
 	}
-	logger.Info("created access policy", "id", accessPolicy.ID, "name", accessPolicy.Name)
+	logger.Info("created access policy", "accessPolicyID", accessPolicy.ID, "accessPolicyName", accessPolicy.Name)
 
 	// Add the stack id to the token name to ensure tokens in a org have unique names.
 	accessTokenName := fmt.Sprintf("%s-%s", cloudMigrationTokenNamePrefix, s.cfg.StackID)
@@ -314,7 +314,7 @@ func (s *Service) CreateToken(ctx context.Context) (cloudmigration.CreateAccessT
 	if err != nil {
 		return cloudmigration.CreateAccessTokenResponse{}, fmt.Errorf("creating access token: %w", err)
 	}
-	logger.Info("created access token", "id", token.ID, "name", token.Name)
+	logger.Info("created access token", "tokenID", token.ID, "tokenName", token.Name)
 	s.metrics.accessTokenCreated.With(prometheus.Labels{"slug": s.cfg.Slug}).Inc()
 
 	bytes, err := json.Marshal(cloudmigration.Base64EncodedTokenPayload{
@@ -476,7 +476,7 @@ func (s *Service) DeleteSession(ctx context.Context, orgID int64, signedInUser *
 
 func (s *Service) CreateSnapshot(ctx context.Context, signedInUser *user.SignedInUser, cmd cloudmigration.CreateSnapshotCommand) (*cloudmigration.CloudMigrationSnapshot, error) {
 	ctx, span := s.tracer.Start(ctx, "CloudMigrationService.CreateSnapshot", trace.WithAttributes(
-		attribute.String("sessionUid", cmd.SessionUID),
+		attribute.String("sessionUID", cmd.SessionUID),
 	))
 	defer span.End()
 
@@ -546,7 +546,7 @@ func (s *Service) CreateSnapshot(ctx context.Context, signedInUser *user.SignedI
 		if err != nil {
 			asyncSpan.SetStatus(codes.Error, "error building snapshot")
 			asyncSpan.RecordError(err)
-			s.log.Error("building snapshot", "err", err.Error())
+			s.log.Error("building snapshot", "error", err)
 
 			// Update status to error with retries
 			if err := s.updateSnapshotWithRetries(asyncCtx, cloudmigration.UpdateSnapshotCmd{
@@ -598,7 +598,7 @@ func (s *Service) GetSnapshot(ctx context.Context, query cloudmigration.GetSnaps
 
 		localStatus, ok := gmsStateToLocalStatus[snapshotMeta.State]
 		if !ok {
-			s.log.Error("unexpected GMS snapshot state: %s", snapshotMeta.State)
+			s.log.Error("Unexpected GMS snapshot state", "state", snapshotMeta.State)
 			return snapshot, nil
 		}
 		resources := snapshotMeta.Results
@@ -606,7 +606,7 @@ func (s *Service) GetSnapshot(ctx context.Context, query cloudmigration.GetSnaps
 		// Log the errors for resources with errors at migration
 		for _, resource := range resources {
 			if resource.Status == cloudmigration.ItemStatusError && resource.Error != "" {
-				s.log.Error("Could not migrate resource", "resourceID", resource.RefID, "error", resource.Error)
+				s.log.Error("Could not migrate resource", "resourceID", resource.RefID, "errorMessage", resource.Error)
 			}
 		}
 
@@ -715,8 +715,8 @@ func (s *Service) GetSnapshotList(ctx context.Context, query cloudmigration.List
 func (s *Service) UploadSnapshot(ctx context.Context, orgID int64, signedInUser *user.SignedInUser, sessionUid string, snapshotUid string) error {
 	ctx, span := s.tracer.Start(ctx, "CloudMigrationService.UploadSnapshot",
 		trace.WithAttributes(
-			attribute.String("sessionUid", sessionUid),
-			attribute.String("snapshotUid", snapshotUid),
+			attribute.String("sessionUID", sessionUid),
+			attribute.String("snapshotUID", snapshotUid),
 		),
 	)
 	defer span.End()
@@ -775,7 +775,7 @@ func (s *Service) UploadSnapshot(ctx context.Context, orgID int64, signedInUser 
 			asyncSpan.SetStatus(codes.Error, "error uploading snapshot")
 			asyncSpan.RecordError(err)
 
-			s.log.Error("uploading snapshot", "err", err.Error())
+			s.log.Error("uploading snapshot", "error", err)
 			// Update status to error with retries
 			if err := s.updateSnapshotWithRetries(asyncCtx, cloudmigration.UpdateSnapshotCmd{
 				UID:       snapshot.UID,
@@ -796,8 +796,8 @@ func (s *Service) UploadSnapshot(ctx context.Context, orgID int64, signedInUser 
 func (s *Service) CancelSnapshot(ctx context.Context, sessionUid string, snapshotUid string) (err error) {
 	ctx, span := s.tracer.Start(ctx, "CloudMigrationService.CancelSnapshot",
 		trace.WithAttributes(
-			attribute.String("sessionUid", sessionUid),
-			attribute.String("snapshotUid", snapshotUid),
+			attribute.String("sessionUID", sessionUid),
+			attribute.String("snapshotUID", snapshotUid),
 		),
 	)
 	defer span.End()
@@ -824,7 +824,7 @@ func (s *Service) CancelSnapshot(ctx context.Context, sessionUid string, snapsho
 		s.log.Error("critical failure during snapshot cancelation - please report any error logs")
 	}
 
-	s.log.Info("canceled snapshot", "sessionUid", sessionUid, "snapshotUid", snapshotUid)
+	s.log.Info("canceled snapshot", "sessionUID", sessionUid, "snapshotUID", snapshotUid)
 
 	return nil
 }
@@ -842,7 +842,7 @@ func (s *Service) report(
 
 	id, err := s.getLocalEventId(ctx)
 	if err != nil {
-		s.log.Error("failed to report event", "type", t, "error", err.Error())
+		s.log.Error("failed to report event", "eventType", t, "error", err)
 		return
 	}
 
@@ -852,7 +852,7 @@ func (s *Service) report(
 			errMessage = evtErr.Error()
 		}
 
-		s.log.Error("failed to report event", "type", t, "error", errMessage)
+		s.log.Error("failed to report event", "eventType", t, "errorMessage", errMessage)
 
 		return
 	}
@@ -905,7 +905,7 @@ func (s *Service) deleteLocalFiles(snapshots []cloudmigration.CloudMigrationSnap
 			err = os.RemoveAll(snapshot.LocalDir)
 			if err != nil {
 				// in this case we only log the error, don't return it to continue with the process
-				s.log.Error("deleting migration snapshot files", "err", err)
+				s.log.Error("deleting migration snapshot files", "error", err)
 			}
 		}
 	}

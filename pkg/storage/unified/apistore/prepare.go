@@ -55,7 +55,7 @@ func (v *objectForStorage) finish(ctx context.Context, err error, secrets secret
 		// Remove the secure values that were created
 		for _, s := range v.createdSecureValues {
 			if e := secrets.DeleteWhenOwnedByResource(ctx, v.ref, s); e != nil {
-				logging.FromContext(ctx).Warn("unable to clean up new secure value", "name", s, "err", e)
+				logging.FromContext(ctx).Warn("unable to clean up new secure value", "secureValueName", s, "error", e)
 			}
 		}
 		return err
@@ -65,7 +65,7 @@ func (v *objectForStorage) finish(ctx context.Context, err error, secrets secret
 	if len(v.deleteSecureValues) > 0 {
 		for _, s := range v.deleteSecureValues {
 			if e := secrets.DeleteWhenOwnedByResource(ctx, v.ref, s); e != nil {
-				logging.FromContext(ctx).Warn("unable to clean up new secure value", "name", s, "err", e)
+				logging.FromContext(ctx).Warn("unable to clean up new secure value", "secureValueName", s, "error", e)
 			}
 		}
 	}
@@ -174,12 +174,12 @@ func (s *Storage) prepareObjectForUpdate(ctx context.Context, updateObject runti
 	}
 
 	if previous.GetUID() == "" {
-		klog.Errorf("object is missing UID: %s, %s", obj.GetGroupVersionKind().String(), obj.GetName())
+		klog.ErrorS(errors.New("object is missing UID"), "Object is missing UID", "groupVersionKind", obj.GetGroupVersionKind().String(), "resourceName", obj.GetName())
 	} else if obj.GetUID() != previous.GetUID() {
 		// Eventually this should be a real error or logged
 		// However the dashboard dual write behavior hits this every time, so we will ignore it
 		// if obj.GetUID() != "" {
-		// 	klog.Errorf("object UID mismatch: %s, was:%s, now: %s", obj.GetGroupVersionKind().String(), previous.GetName(), obj.GetUID())
+		// 	klog.ErrorS(errors.New("object UID mismatch"), "Object UID mismatch", "groupVersionKind", obj.GetGroupVersionKind().String(), "previousName", previous.GetName(), "objectUID", obj.GetUID())
 		// }
 		obj.SetUID(previous.GetUID())
 	}

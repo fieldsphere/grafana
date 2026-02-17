@@ -84,7 +84,7 @@ func (s *outOfSupportVersionStep) Run(ctx context.Context, log logging.Logger, _
 		_, res, err := s.ghClient.GetReleaseByTag(ctx, "grafana", "grafana", nextMinorVersion)
 		if err != nil && res.StatusCode != 404 {
 			// Unable to get the release info so unable to check if it's out of support
-			log.Error("Unable to get the release info", "version", s.GrafanaVersion, "error", err.Error())
+			log.Error("Unable to get the release info", "version", s.GrafanaVersion, "error", err)
 			return nil, nil
 		}
 		latestMinor := false

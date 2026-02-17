@@ -1,6 +1,7 @@
 import { skipToken } from '@reduxjs/toolkit/query';
 
 import { t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { ToolbarButton } from '@grafana/ui';
 import { useGetCurrentOrgQuotaQuery } from 'app/api/clients/legacy';
 import { useMediaQueryMinWidth } from 'app/core/hooks/useMediaQueryMinWidth';
@@ -13,6 +14,8 @@ import {
   shouldRenderInviteUserButton,
   shouldRenderUpgradeUserButton,
 } from './InviteUserButtonUtils';
+
+const logger = createMonitoringLogger('core.components.invite-user-button');
 
 export function InviteUserButton() {
   const isLargeScreen = useMediaQueryMinWidth('lg');
@@ -42,7 +45,15 @@ export function InviteUserButton() {
         performInviteUserClick('top_bar_right', 'invite-user-top-bar');
       }
     } catch (error) {
-      console.error('Failed to handle invite/upgrade user click:', error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'handleClick', showUpgrade });
+        return;
+      }
+      logger.logWarning('Failed to handle invite/upgrade user click', {
+        operation: 'handleClick',
+        showUpgrade,
+        error: String(error),
+      });
     }
   };
 

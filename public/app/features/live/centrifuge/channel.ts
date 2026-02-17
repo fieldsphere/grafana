@@ -18,6 +18,9 @@ import {
   DataFrameJSON,
   isValidLiveChannelAddress,
 } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('features.live.centrifuge-channel');
 
 /**
  * Internal class that maps Centrifuge support to GrafanaLive
@@ -80,7 +83,22 @@ export class CentrifugeLiveChannel<T = any> {
           this.sendStatus();
         }
       } catch (err) {
-        console.log('publish error', this.addr, err);
+        if (err instanceof Error) {
+          logger.logError(err, {
+            operation: 'subscription.publication',
+            scope: this.addr.scope,
+            stream: this.addr.stream,
+            path: this.addr.path,
+          });
+        } else {
+          logger.logWarning('Publish error', {
+            operation: 'subscription.publication',
+            scope: this.addr.scope,
+            stream: this.addr.stream,
+            path: this.addr.path,
+            error: String(err),
+          });
+        }
         this.currentStatus.error = err;
         this.currentStatus.timestamp = Date.now();
         this.sendStatus();

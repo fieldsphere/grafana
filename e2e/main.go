@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"os"
 	"os/signal"
 
@@ -15,7 +15,7 @@ func main() {
 
 	if err := cmd.Root().Run(ctx, os.Args); err != nil {
 		cancel()
-		fmt.Println(err)
+		slog.Error("E2E command failed", "error", err)
 		os.Exit(1)
 	}
 }

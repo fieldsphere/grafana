@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"strings"
 
 	"dagger.io/dagger"
@@ -52,7 +53,7 @@ func RunTest(
 		WithEnvVariable("PLAYWRIGHT_BLOB_OUTPUT_DIR", blobResultsDir)
 
 	if opts.CloudPluginCreds != nil {
-		fmt.Println("DEBUG: CloudPluginCreds file is provided, mounting to /tmp/outputs.json")
+		slog.Info("Cloud plugin credentials file is provided", "mountPath", "/tmp/outputs.json")
 		e2eContainer = e2eContainer.WithMountedFile("/tmp/outputs.json", opts.CloudPluginCreds)
 	}
 

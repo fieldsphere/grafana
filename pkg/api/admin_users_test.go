@@ -422,7 +422,7 @@ func adminLogoutUserScenario(t *testing.T, desc string, url string, routePattern
 
 		sc := setupScenarioContext(t, url)
 		sc.defaultHandler = routing.Wrap(func(c *contextmodel.ReqContext) response.Response {
-			t.Log("Route handler invoked", "url", c.Req.URL)
+			t.Log("Route handler invoked", "requestURL", c.Req.URL)
 
 			sc.context = c
 			sc.context.UserID = testUserID

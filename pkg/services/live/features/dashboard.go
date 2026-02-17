@@ -10,10 +10,12 @@ import (
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	"github.com/grafana/grafana/pkg/apimachinery/utils"
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
+	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/services/dashboards"
 	"github.com/grafana/grafana/pkg/services/live/model"
 )
+
+var liveDashboardLog = log.New("live.features.dashboard")
 
 type actionType string
 
@@ -62,7 +64,7 @@ func (h *DashboardHandler) OnSubscribe(ctx context.Context, user identity.Reques
 	}
 
 	// Unknown path
-	logger.Error("Unknown dashboard channel", "path", e.Path)
+	liveDashboardLog.Error("Unknown dashboard channel", "channelPath", e.Path)
 	return model.SubscribeReply{}, backend.SubscribeStreamStatusNotFound, nil
 }
 

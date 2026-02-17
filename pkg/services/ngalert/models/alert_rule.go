@@ -653,7 +653,7 @@ type AlertRuleKey struct {
 }
 
 func (k AlertRuleKey) LogContext() []any {
-	return []any{"rule_uid", k.UID, "org_id", k.OrgID}
+	return []any{"ruleUID", k.UID, "orgID", k.OrgID}
 }
 
 type AlertRuleKeyWithVersion struct {

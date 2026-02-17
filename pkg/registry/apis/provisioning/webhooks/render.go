@@ -16,11 +16,13 @@ import (
 	"k8s.io/kube-openapi/pkg/spec3"
 
 	provisioning "github.com/grafana/grafana/apps/provisioning/pkg/apis/provisioning/v0alpha1"
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
+	"github.com/grafana/grafana/pkg/infra/log"
 	provisioningapis "github.com/grafana/grafana/pkg/registry/apis/provisioning"
 	"github.com/grafana/grafana/pkg/storage/unified/resource"
 	"github.com/grafana/grafana/pkg/storage/unified/resourcepb"
 )
+
+var renderLog = log.New("provisioning.webhooks.render")
 
 type renderConnector struct {
 	unified resource.ResourceClient
@@ -119,7 +121,7 @@ func (c *renderConnector) Connect(
 		prefix := fmt.Sprintf("/%s/render", name)
 		idx := strings.Index(r.URL.Path, prefix)
 		if idx == -1 {
-			logger.Debug("failed to find a file path in the URL")
+			renderLog.Debug("Failed to find file path in render URL", "requestPath", r.URL.Path, "repositoryName", name)
 			responder.Error(apierrors.NewBadRequest("invalid request path"))
 			return
 		}

@@ -1,6 +1,7 @@
 import { PureComponent } from 'react';
 import * as React from 'react';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Spinner, Stack } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { Resource } from 'app/features/apiserver/types';
@@ -30,6 +31,8 @@ type State = {
   baseInfo?: DecoratedRevisionModel;
   isNewLatest: boolean;
 };
+
+const logger = createMonitoringLogger('features.dashboard.versions-settings');
 
 export class VersionsSettings extends PureComponent<Props, State> {
   continueToken: string;
@@ -69,7 +72,18 @@ export class VersionsSettings extends PureComponent<Props, State> {
         // Update the continueToken for the next request, if available
         this.continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'getVersions', dashboardUid: this.props.dashboard.uid, append });
+          return;
+        }
+        logger.logWarning('Failed to fetch dashboard versions', {
+          operation: 'getVersions',
+          dashboardUid: this.props.dashboard.uid,
+          append,
+          error: String(err),
+        });
+      })
       .finally(() => this.setState({ isAppending: false }));
   };
 

@@ -3,9 +3,9 @@ package build
 import (
 	"crypto/md5"
 	"crypto/sha256"
-	"fmt"
+	"encoding/hex"
 	"io"
-	"log"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -13,7 +13,7 @@ import (
 
 func logAndClose(c io.Closer) {
 	if err := c.Close(); err != nil {
-		log.Println("error closing:", err)
+		slog.Error("Error closing stream", "error", err)
 	}
 }
 
@@ -27,7 +27,7 @@ func shaDir(dir string) error {
 			return nil
 		}
 		if err := shaFile(path); err != nil {
-			log.Printf("Failed to create sha file. error: %v\n", err)
+			slog.Error("Failed to create sha file", "filePath", path, "error", err)
 		}
 		return nil
 	})
@@ -56,7 +56,7 @@ func shaFile(file string) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(out, "%x\n", h.Sum(nil))
+	_, err = out.Write([]byte(hex.EncodeToString(h.Sum(nil)) + "\n"))
 	if err != nil {
 		return err
 	}
@@ -86,7 +86,7 @@ func md5File(file string) error {
 		return err
 	}
 
-	_, err = fmt.Fprintf(out, "%x\n", h.Sum(nil))
+	_, err = out.Write([]byte(hex.EncodeToString(h.Sum(nil)) + "\n"))
 	if err != nil {
 		return err
 	}
@@ -97,9 +97,9 @@ func md5File(file string) error {
 // basically `rm -r`s the list of files provided
 func rmr(paths ...string) {
 	for _, path := range paths {
-		log.Println("rm -r", path)
+		slog.Info("Removing directory", "directoryPath", path)
 		if err := os.RemoveAll(path); err != nil {
-			log.Println("error deleting folder", path, "error:", err)
+			slog.Error("Error deleting folder", "directoryPath", path, "error", err)
 		}
 	}
 }

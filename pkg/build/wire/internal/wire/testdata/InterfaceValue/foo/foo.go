@@ -15,12 +15,12 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
+	"os"
 )
 
 func main() {
 	r := injectedReader()
 	buf, _ := ioutil.ReadAll(r)
-	fmt.Println(string(buf))
+	_, _ = os.Stdout.WriteString(string(buf) + "\n")
 }

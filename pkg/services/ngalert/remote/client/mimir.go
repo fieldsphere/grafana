@@ -134,26 +134,30 @@ func (mc *Mimir) do(ctx context.Context, p, method string, payload io.Reader, ou
 
 	resp, err := mc.client.Do(r)
 	if err != nil {
-		msg := "Unable to fulfill request to the Mimir API"
-		mc.logger.Error(msg, "err", err, "url", r.URL.String(), "method", r.Method)
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		mc.logger.Error("Unable to fulfill request to the Mimir API", "error", err, "requestURL", r.URL.String(), "method", r.Method)
+		return nil, fmt.Errorf("unable to fulfill request to the Mimir API: %w", err)
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			mc.logger.Error("Error closing HTTP body", "err", err, "url", r.URL.String(), "method", r.Method)
+			mc.logger.Error("Error closing HTTP body", "error", err, "requestURL", r.URL.String(), "method", r.Method)
 		}
 	}()
 
 	ct := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(ct, "application/json") {
-		msg := "Response content-type is not application/json"
-		body, err := io.ReadAll(resp.Body)
-		bodyStr := string(body)
-		if err != nil {
-			bodyStr = fmt.Sprintf("fail_to_read: %s", err)
+		body, readErr := io.ReadAll(resp.Body)
+		logArgs := []any{
+			"contentType", ct,
+			"requestURL", r.URL.String(),
+			"method", r.Method,
+			"statusCode", resp.StatusCode,
+			"responseBody", string(body),
 		}
-		mc.logger.Error(msg, "content-type", ct, "url", r.URL.String(), "method", r.Method, "status", resp.StatusCode, "body", bodyStr)
-		return nil, fmt.Errorf("%s: %s", msg, ct)
+		if readErr != nil {
+			logArgs = append(logArgs, "error", readErr)
+		}
+		mc.logger.Error("Response content-type is not application/json", logArgs...)
+		return nil, fmt.Errorf("response content-type is not application/json: %s", ct)
 	}
 
 	if out == nil {
@@ -162,9 +166,8 @@ func (mc *Mimir) do(ctx context.Context, p, method string, payload io.Reader, ou
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		msg := "Failed to read the request body"
-		mc.logger.Error(msg, "err", err, "url", r.URL.String(), "method", r.Method, "status", resp.StatusCode)
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		mc.logger.Error("Failed to read the request body", "error", err, "requestURL", r.URL.String(), "method", r.Method, "statusCode", resp.StatusCode)
+		return nil, fmt.Errorf("failed to read the request body: %w", err)
 	}
 
 	if resp.StatusCode/100 != 2 {
@@ -172,20 +175,17 @@ func (mc *Mimir) do(ctx context.Context, p, method string, payload io.Reader, ou
 		err = json.Unmarshal(body, errResponse)
 
 		if err == nil && errResponse.Error() != "" {
-			msg := "Error response from the Mimir API"
-			mc.logger.Error(msg, "err", errResponse, "url", r.URL.String(), "method", r.Method, "status", resp.StatusCode)
-			return nil, fmt.Errorf("%s: %w", msg, errResponse)
+			mc.logger.Error("Error response from the Mimir API", "error", errResponse, "requestURL", r.URL.String(), "method", r.Method, "statusCode", resp.StatusCode)
+			return nil, fmt.Errorf("error response from the Mimir API: %w", errResponse)
 		}
 
-		msg := "Failed to decode non-2xx JSON response"
-		mc.logger.Error(msg, "err", err, "url", r.URL.String(), "method", r.Method, "status", resp.StatusCode)
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		mc.logger.Error("Failed to decode non-2xx JSON response", "error", err, "requestURL", r.URL.String(), "method", r.Method, "statusCode", resp.StatusCode)
+		return nil, fmt.Errorf("failed to decode non-2xx JSON response: %w", err)
 	}
 
 	if err = json.Unmarshal(body, out); err != nil {
-		msg := "Failed to decode 2xx JSON response"
-		mc.logger.Error(msg, "err", err, "url", r.URL.String(), "method", r.Method, "status", resp.StatusCode)
-		return nil, fmt.Errorf("%s: %w", msg, err)
+		mc.logger.Error("Failed to decode 2xx JSON response", "error", err, "requestURL", r.URL.String(), "method", r.Method, "statusCode", resp.StatusCode)
+		return nil, fmt.Errorf("failed to decode 2xx JSON response: %w", err)
 	}
 
 	return resp, nil
@@ -199,7 +199,7 @@ func (mc *Mimir) doOK(ctx context.Context, p, method string, payload io.Reader) 
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			mc.logger.Error("Error closing HTTP body", "err", err)
+			mc.logger.Error("Error closing HTTP body", "error", err)
 		}
 	}()
 

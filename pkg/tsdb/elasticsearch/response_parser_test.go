@@ -1499,8 +1499,6 @@ func TestProcessBuckets(t *testing.T) {
 			assert.Equal(t, 1., v)
 
 			frame = dataframes[1]
-			l, _ := frame.MarshalJSON()
-			fmt.Println(string(l))
 			assert.Len(t, frame.Fields, 2)
 			require.Equal(t, frame.Fields[0].Len(), 2)
 			require.Equal(t, frame.Fields[1].Len(), 2)

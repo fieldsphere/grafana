@@ -79,7 +79,7 @@ func (m *FolderUIDMigration) Exec(sess *xorm.Session, mgrtr *migrator.Migrator) 
 		mgrtr.Logger.Error("Failed to get folder rows affected", "error", folderRowsAffectedErr)
 	}
 
-	mgrtr.Logger.Debug("Migrating dashboard data", "dashboards rows", dashboardRowsAffected, "folder rows", folderRowsAffected)
+	mgrtr.Logger.Debug("Migrating dashboard data", "dashboardsRows", dashboardRowsAffected, "folderRows", folderRowsAffected)
 	return nil
 }
 

@@ -156,17 +156,12 @@ describe('InviteUserButton', () => {
         throw new Error('URL generation failed');
       });
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const user = userEvent.setup();
 
       render(<InviteUserButton />);
 
       // Should not crash when URL generation fails
       await user.click(screen.getByRole('button', { name: /invite user/i }));
-
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to handle invite/upgrade user click:', expect.any(Error));
-
-      consoleSpy.mockRestore();
     });
 
     it('should handle popup blocking gracefully', async () => {
@@ -174,17 +169,12 @@ describe('InviteUserButton', () => {
         throw new Error('Popup blocked');
       });
 
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
       const user = userEvent.setup();
 
       render(<InviteUserButton />);
 
       // Should not crash when popup is blocked
       await user.click(screen.getByRole('button', { name: /invite user/i }));
-
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to handle invite/upgrade user click:', expect.any(Error));
-
-      consoleSpy.mockRestore();
     });
   });
 });

@@ -75,7 +75,7 @@ func newResourceDBProvider(grafanaDB infraDB.DB, cfg *setting.Cfg, tracer trace.
 
 	switch {
 	case dbType != "":
-		logger.Info("Using database section", "db_type", dbType)
+		logger.Info("Using database section", "dbType", dbType)
 		dbCfg, err := sqlstore.NewDatabaseConfig(cfg, nil)
 		if err != nil {
 			return nil, err
@@ -105,15 +105,15 @@ func (p *resourceDBProvider) Init(ctx context.Context) (db.DB, error) {
 
 func (p *resourceDBProvider) initDB(ctx context.Context) (db.DB, error) {
 	p.log.Info("Initializing Resource DB",
-		"db_type",
+		"dbType",
 		p.engine.Dialect().DriverName(),
-		"open_conn",
+		"openConn",
 		p.engine.DB().DB.Stats().OpenConnections,
-		"in_use_conn",
+		"inUseConn",
 		p.engine.DB().DB.Stats().InUse,
-		"idle_conn",
+		"idleConn",
 		p.engine.DB().DB.Stats().Idle,
-		"max_open_conn",
+		"maxOpenConn",
 		p.engine.DB().DB.Stats().MaxOpenConnections,
 	)
 

@@ -42,12 +42,12 @@ func (a *AsyncStatePersister) Async(ctx context.Context, instancesProvider Alert
 		select {
 		case <-ticker.C:
 			if err := a.fullSync(ctx, instancesProvider); err != nil {
-				a.log.Error("Failed to do a full state sync to database", "err", err)
+				a.log.Error("Failed to do a full state sync to database", "error", err)
 			}
 		case <-ctx.Done():
 			a.log.Info("Scheduler is shutting down, doing a final state sync.")
 			if err := a.fullSync(context.Background(), instancesProvider); err != nil {
-				a.log.Error("Failed to do a full state sync to database", "err", err)
+				a.log.Error("Failed to do a full state sync to database", "error", err)
 			}
 			a.log.Info("State async worker is shut down.")
 			return

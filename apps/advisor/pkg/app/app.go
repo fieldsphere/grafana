@@ -39,7 +39,7 @@ func New(cfg app.Config) (app.App, error) {
 		return nil, fmt.Errorf("invalid config type")
 	}
 	checkRegistry := specificConfig.CheckRegistry
-	log := logging.DefaultLogger.With("app", "advisor.app")
+	log := logging.DefaultLogger.With("appName", "advisor.app")
 
 	// Prepare storage client
 	clientGenerator := k8s.NewClientRegistry(cfg.KubeConfig, k8s.ClientConfig{})
@@ -90,7 +90,7 @@ func New(cfg app.Config) (app.App, error) {
 							}
 							if req.Action == resource.AdmissionActionCreate {
 								go func() {
-									logger := log.WithContext(ctx).With("check", check.ID())
+									logger := log.WithContext(ctx).With("checkID", check.ID())
 									logger.Debug("Processing check", "namespace", req.Object.GetNamespace())
 									orgID, err := getOrgIDFromNamespace(req.Object.GetNamespace())
 									if err != nil {
@@ -106,8 +106,8 @@ func New(cfg app.Config) (app.App, error) {
 							}
 							if req.Action == resource.AdmissionActionUpdate && retryAnnotationChanged(req.OldObject, req.Object) {
 								go func() {
-									logger := log.WithContext(ctx).With("check", check.ID())
-									logger.Debug("Updating check", "namespace", req.Object.GetNamespace(), "name", req.Object.GetName())
+									logger := log.WithContext(ctx).With("checkID", check.ID())
+									logger.Debug("Updating check", "namespace", req.Object.GetNamespace(), "checkName", req.Object.GetName())
 									orgID, err := getOrgIDFromNamespace(req.Object.GetNamespace())
 									if err != nil {
 										logger.Error("Error getting org ID from namespace", "error", err)

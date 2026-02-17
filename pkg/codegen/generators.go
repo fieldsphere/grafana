@@ -41,7 +41,7 @@ func SlashHeaderMapper(mainGen string) codejen.FileMapper {
 		}); err != nil {
 			return codejen.File{}, fmt.Errorf("failed executing gen header template: %w", err)
 		}
-		fmt.Fprint(buf, string(f.Data))
+		_, _ = buf.Write(f.Data)
 		f.Data = buf.Bytes()
 		return f, nil
 	}
@@ -58,7 +58,7 @@ func PluginsSlashHeaderMapper(mainGen string, path string) codejen.FileMapper {
 		}); err != nil {
 			return codejen.File{}, fmt.Errorf("failed executing gen header template: %w", err)
 		}
-		fmt.Fprint(buf, string(f.Data))
+		_, _ = buf.Write(f.Data)
 		f.Data = buf.Bytes()
 		return f, nil
 	}

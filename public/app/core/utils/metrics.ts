@@ -1,4 +1,8 @@
+import { createMonitoringLogger } from '@grafana/runtime';
+
 import { reportPerformance } from '../services/echo/EchoSrv';
+
+const logger = createMonitoringLogger('core.utils.metrics');
 
 export function startMeasure(eventName: string) {
   if (!performance || !performance.mark) {
@@ -8,7 +12,11 @@ export function startMeasure(eventName: string) {
   try {
     performance.mark(`${eventName}_started`);
   } catch (error) {
-    console.error(`[Metrics] Failed to startMeasure ${eventName}`, error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'startMeasure', eventName });
+      return;
+    }
+    logger.logWarning('Failed to start measure', { eventName, error: String(error) });
   }
 }
 
@@ -31,7 +39,11 @@ export function stopMeasure(eventName: string) {
     performance.clearMeasures(measured);
     return measure;
   } catch (error) {
-    console.error(`[Metrics] Failed to stopMeasure ${eventName}`, error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'stopMeasure', eventName });
+      return;
+    }
+    logger.logWarning('Failed to stop measure', { eventName, error: String(error) });
     return;
   }
 }

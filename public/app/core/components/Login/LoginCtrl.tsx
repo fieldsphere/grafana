@@ -1,10 +1,12 @@
 import { memo, useState, useCallback, type JSX } from 'react';
 
 import { t } from '@grafana/i18n';
-import { FetchError, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
+import { createMonitoringLogger, FetchError, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
 import config from 'app/core/config';
 
 import { LoginDTO, AuthNRedirectDTO } from './types';
+
+const logger = createMonitoringLogger('core.components.login-controller');
 
 const isOauthEnabled = () => {
   return !!config.oauth && Object.keys(config.oauth).length > 0;
@@ -107,7 +109,16 @@ export const LoginCtrl = memo(({ resetCode, children }: Props) => {
           .then(() => {
             toGrafana();
           })
-          .catch((err) => console.error(err));
+          .catch((err) => {
+            if (err instanceof Error) {
+              logger.logError(err, { operation: 'changePassword' });
+              return;
+            }
+            logger.logWarning('Failed to change password', {
+              operation: 'changePassword',
+              error: String(err),
+            });
+          });
       }
     },
     [resetCode, toGrafana]

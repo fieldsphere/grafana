@@ -283,7 +283,7 @@ func (st *Manager) ResetStateByRuleUID(ctx context.Context, rule *ngModels.Alert
 	go func() {
 		err := <-errCh
 		if err != nil {
-			st.log.FromContext(ctx).Error("Error updating historian state reset transitions", append(ruleKey.LogContext(), "reason", reason, "error", err)...)
+			st.log.FromContext(ctx).Error("Error updating historian state reset transitions", append(ruleKey.LogContext(), "stateResetReason", reason, "error", err)...)
 		}
 	}()
 	return transitions
@@ -302,9 +302,9 @@ func (st *Manager) ProcessEvalResults(
 ) StateTransitions {
 	utcTick := evaluatedAt.UTC().Format(time.RFC3339Nano)
 	ctx, span := st.tracer.Start(ctx, "alert rule state calculation", trace.WithAttributes(
-		attribute.String("rule_uid", alertRule.UID),
-		attribute.Int64("org_id", alertRule.OrgID),
-		attribute.Int64("rule_version", alertRule.Version),
+		attribute.String("ruleUID", alertRule.UID),
+		attribute.Int64("orgID", alertRule.OrgID),
+		attribute.Int64("ruleVersion", alertRule.Version),
 		attribute.String("tick", utcTick),
 		attribute.Int("results", len(results))))
 	defer span.End()
@@ -320,13 +320,13 @@ func (st *Manager) ProcessEvalResults(
 			if imageTaken {
 				return image
 			}
-			logger.Debug("Taking image", "dashboard", alertRule.GetDashboardUID(), "panel", alertRule.GetPanelID(), "reason", reason)
+			logger.Debug("Taking image", "dashboardUID", alertRule.GetDashboardUID(), "panelID", alertRule.GetPanelID(), "stateReason", reason)
 			img, err := takeImage(ctx, st.images, alertRule)
 			imageTaken = true
 			if err != nil {
 				logger.Warn("Failed to take an image",
-					"dashboard", alertRule.GetDashboardUID(),
-					"panel", alertRule.GetPanelID(), "reason", reason,
+					"dashboardUID", alertRule.GetDashboardUID(),
+					"panelID", alertRule.GetPanelID(), "stateReason", reason,
 					"error", err)
 				return nil
 			}
@@ -339,9 +339,9 @@ func (st *Manager) ProcessEvalResults(
 	states := st.setNextStateForRule(ctx, alertRule, results, extraLabels, logger, fn, evaluatedAt)
 
 	missingSeriesStates, staleCount := st.processMissingSeriesStates(logger, evaluatedAt, alertRule, fn)
-	span.AddEvent("results processed", trace.WithAttributes(
-		attribute.Int("state_transitions", len(states)),
-		attribute.Int("stale_states", staleCount),
+	span.AddEvent("resultsProcessed", trace.WithAttributes(
+		attribute.Int("stateTransitions", len(states)),
+		attribute.Int("staleStates", staleCount),
 	))
 
 	allChanges := StateTransitions(append(states, missingSeriesStates...))
@@ -511,7 +511,7 @@ func (st *Manager) processMissingSeriesStates(logger log.Logger, evaluatedAt tim
 		isStale := stateIsStale(evaluatedAt, s.LastEvaluationTime, alertRule.IntervalSeconds, missingEvalsToResolve)
 
 		if isStale {
-			logger.Info("Detected stale state entry", "cacheID", s.CacheID, "state", s.State, "reason", s.StateReason)
+			logger.Info("Detected stale state entry", "cacheID", s.CacheID, "state", s.State, "stateReason", s.StateReason)
 
 			s.State = eval.Normal
 			s.StateReason = ngModels.StateReasonMissingSeries

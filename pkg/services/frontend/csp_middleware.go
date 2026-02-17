@@ -17,12 +17,12 @@ func CSPMiddleware() web.Middleware {
 
 			requestConfig, err := FSRequestConfigFromContext(ctx)
 			if err != nil {
-				logger.Error("unable to get request config", "err", err)
+				logger.Error("unable to get request config", "error", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
 
-			logger.Debug("Applying CSP middleware", "enabled", requestConfig.CSPEnabled, "report_only_enabled", requestConfig.CSPReportOnlyEnabled)
+			logger.Debug("Applying CSP middleware", "enabled", requestConfig.CSPEnabled, "reportOnlyEnabled", requestConfig.CSPReportOnlyEnabled)
 
 			// Bail early if CSP is not enabled for this tenant
 			if !requestConfig.CSPEnabled && !requestConfig.CSPReportOnlyEnabled {
@@ -32,7 +32,7 @@ func CSPMiddleware() web.Middleware {
 
 			nonce, err := middleware.GenerateNonce()
 			if err != nil {
-				logger.Error("Failed to generate CSP nonce", "err", err)
+				logger.Error("Failed to generate CSP nonce", "error", err)
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
 			}

@@ -1,4 +1,5 @@
 import { DataFrameView, IconName, fuzzySearch } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { DashboardViewItemWithUIItems } from 'app/features/browse-dashboards/types';
 import { isSharedWithMe } from 'app/features/browse-dashboards/utils/dashboards';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
@@ -9,6 +10,8 @@ import { DashboardSearchHit, DashboardSearchItemType, DashboardViewItem, Dashboa
 
 import { DashboardQueryResult, SearchQuery, SearchResultMeta } from './types';
 import { SearchHit } from './unified';
+
+const logger = createMonitoringLogger('features.search.service-utils');
 
 /** prepare the query replacing folder:current */
 export async function replaceCurrentFolderQuery(query: SearchQuery): Promise<SearchQuery> {
@@ -34,7 +37,11 @@ async function getCurrentFolderUID(): Promise<string | undefined> {
     }
     return Promise.resolve(dash?.meta?.folderUid);
   } catch (e) {
-    console.error(e);
+    if (e instanceof Error) {
+      logger.logError(e, { operation: 'getCurrentFolderUID' });
+    } else {
+      logger.logWarning('Failed to get current folder UID', { operation: 'getCurrentFolderUID', error: String(e) });
+    }
   }
   return undefined;
 }

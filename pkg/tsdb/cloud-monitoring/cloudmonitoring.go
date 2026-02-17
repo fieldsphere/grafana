@@ -104,7 +104,7 @@ func (s *Service) CheckHealth(ctx context.Context, req *backend.CheckHealthReque
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			s.logger.Warn("Failed to close response body", "err", err)
+			s.logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -613,12 +613,12 @@ func unmarshalResponse(res *http.Response, logger log.Logger) (cloudMonitoringRe
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			logger.Warn("Failed to close response body", "err", err)
+			logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
 	if res.StatusCode/100 != 2 {
-		logger.Error("Request failed", "status", res.Status, "body", string(body), "statusSource", backend.ErrorSourceDownstream)
+		logger.Error("Request failed", "statusText", res.Status, "responseBody", string(body), "statusSource", backend.ErrorSourceDownstream)
 		statusErr := fmt.Errorf("query failed: %s", string(body))
 		if backend.ErrorSourceFromHTTPStatus(res.StatusCode) == backend.ErrorSourceDownstream {
 			return cloudMonitoringResponse{}, backend.DownstreamError(statusErr)
@@ -629,7 +629,7 @@ func unmarshalResponse(res *http.Response, logger log.Logger) (cloudMonitoringRe
 	var data cloudMonitoringResponse
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		logger.Error("Failed to unmarshal CloudMonitoring response", "error", err, "status", res.Status, "body", string(body), "statusSource", backend.ErrorSourceDownstream)
+		logger.Error("Failed to unmarshal CloudMonitoring response", "error", err, "statusText", res.Status, "responseBody", string(body), "statusSource", backend.ErrorSourceDownstream)
 		return cloudMonitoringResponse{}, fmt.Errorf("failed to unmarshal query response: %w", err)
 	}
 
@@ -660,7 +660,7 @@ func addConfigData(frames data.Frames, dl string, unit string, period string, lo
 		if period != "" {
 			err := addInterval(period, frames[i].Fields[0])
 			if err != nil {
-				logger.Error("Failed to add interval: %s", err, "statusSource", backend.ErrorSourceDownstream)
+				logger.Error("Failed to add interval", "error", err, "statusSource", backend.ErrorSourceDownstream)
 			}
 		}
 	}

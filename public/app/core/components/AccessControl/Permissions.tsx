@@ -6,6 +6,7 @@ import useAsyncFn from 'react-use/lib/useAsyncFn';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Text, Box, Button, useStyles2, LoadingPlaceholder } from '@grafana/ui';
 import { SlideDown } from 'app/core/components/Animations/SlideDown';
 import { getBackendSrv } from 'app/core/services/backend_srv';
@@ -26,6 +27,7 @@ const INITIAL_DESCRIPTION: Description = {
     builtInRoles: false,
   },
 };
+const logger = createMonitoringLogger('core.components.access-control.permissions');
 
 type ResourceId = string | number;
 type Type = 'users' | 'teams' | 'serviceAccounts' | 'builtInRoles';
@@ -246,7 +248,15 @@ const getDescription = async (resource: string): Promise<Description> => {
   try {
     return await getBackendSrv().get(`/api/access-control/${resource}/description`);
   } catch (e) {
-    console.error('failed to load resource description: ', e);
+    if (e instanceof Error) {
+      logger.logError(e, { operation: 'getDescription', resource });
+      return INITIAL_DESCRIPTION;
+    }
+    logger.logWarning('Failed to load resource description', {
+      operation: 'getDescription',
+      resource,
+      error: String(e),
+    });
     return INITIAL_DESCRIPTION;
   }
 };

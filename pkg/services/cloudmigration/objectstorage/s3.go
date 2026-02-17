@@ -26,7 +26,7 @@ func NewS3(httpClient *http.Client, tracer tracing.Tracer) *S3 {
 
 func (s3 *S3) PresignedURLUpload(ctx context.Context, presignedURL, key string, reader io.Reader) (err error) {
 	ctx, span := s3.tracer.Start(ctx, "objectstorage.S3.PresignedURLUpload")
-	span.SetAttributes(attribute.String("key", key))
+	span.SetAttributes(attribute.String("objectKey", key))
 	defer span.End()
 
 	url, err := url.Parse(presignedURL)

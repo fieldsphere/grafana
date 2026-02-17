@@ -158,7 +158,7 @@ func (ss *SQLStore) getOrCreateOrg(sess *DBSession, orgName string) (int64, erro
 		org.Updated = org.Created
 		org.ID = int64(ss.cfg.AutoAssignOrgId)
 		if err := sess.InsertId(&org, ss.dialect); err != nil {
-			ss.log.Error("failed to insert organization with provided id", "org_id", org.ID, "err", err)
+			ss.log.Error("failed to insert organization with provided id", "orgID", org.ID, "error", err)
 			// ignore failure if for some reason the organization exists
 			if ss.GetDialect().IsUniqueConstraintViolation(err) {
 				return org.ID, nil

@@ -207,7 +207,7 @@ func TestGetRemoteState(t *testing.T) {
 		{
 			name:    "error from the Mimir API",
 			handler: errorHandler,
-			expErr:  "failed to pull remote state: Response content-type is not application/json: text/html; charset=utf-8",
+			expErr:  "failed to pull remote state: response content-type is not application/json: text/html; charset=utf-8",
 		},
 		{
 			name:    "invalid state, base64-encoded",

@@ -2,6 +2,8 @@ import { AnyAction } from '@reduxjs/toolkit';
 import { cloneDeep } from 'lodash';
 import { Action } from 'redux';
 
+import { createMonitoringLogger } from '@grafana/runtime';
+
 import { StoreState } from '../types/store';
 
 type GrafanaReducer<S = StoreState, A extends Action = AnyAction> = (state: S, action: A) => S;
@@ -51,6 +53,7 @@ export const deepFreeze = <T>(obj: T): T => {
 };
 
 interface ReducerTester<State> extends Given<State>, When<State>, Then<State> {}
+const logger = createMonitoringLogger('plugins.datasource.elasticsearch.reducer-tester');
 
 export const reducerTester = <State>(): Given<State> => {
   let reducerUnderTest: GrafanaReducer<State, AnyAction>;
@@ -82,7 +85,10 @@ export const reducerTester = <State>(): Given<State> => {
 
   const thenStateShouldEqual = (state: State): When<State> => {
     if (showDebugOutput) {
-      console.log(JSON.stringify(resultingState, null, 2));
+      logger.logDebug('Reducer tester resulting state', {
+        operation: 'thenStateShouldEqual',
+        state: JSON.stringify(resultingState, null, 2),
+      });
     }
     expect(resultingState).toEqual(state);
 
@@ -91,7 +97,10 @@ export const reducerTester = <State>(): Given<State> => {
 
   const thenStatePredicateShouldEqual = (predicate: (resultingState: State) => boolean): When<State> => {
     if (showDebugOutput) {
-      console.log(JSON.stringify(resultingState, null, 2));
+      logger.logDebug('Reducer tester resulting state', {
+        operation: 'thenStatePredicateShouldEqual',
+        state: JSON.stringify(resultingState, null, 2),
+      });
     }
     expect(predicate(resultingState)).toBe(true);
 

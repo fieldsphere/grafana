@@ -9,7 +9,7 @@ import (
 	"example.com/bar"
 	"example.com/baz"
 	"example.com/foo"
-	"fmt"
+	"os"
 )
 
 // Injectors from wire.go:
@@ -38,5 +38,5 @@ var (
 
 func main() {
 	svc := newBazService()
-	fmt.Println(svc.String())
+	_, _ = os.Stdout.WriteString(svc.String() + "\n")
 }

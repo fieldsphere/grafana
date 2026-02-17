@@ -1,11 +1,14 @@
 import { useCallback, useState } from 'react';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { RulerRulesConfigDTO } from 'app/types/unified-alerting-dto';
 
 import { fetchAlertManagerConfig } from '../../api/alertmanager';
 import { convertToGMAApi } from '../../api/convertToGMAApi';
 
 import type { DryRunValidationResult } from './types';
+
+const logger = createMonitoringLogger('features.alerting.import-to-gma');
 
 interface MigrateNotificationsParams {
   source: 'datasource' | 'yaml';
@@ -249,7 +252,8 @@ export function useDryRunNotifications() {
         // MOCK: For now, simulate a successful dry-run
         // This allows UI development to continue while waiting for the backend
         // Remove this mock once the endpoint is ready
-        console.warn('[useDryRunNotifications] Backend endpoint not implemented yet. Using mock response.', {
+        logger.logWarning('Backend endpoint not implemented yet. Using mock response.', {
+          operation: 'useDryRunNotifications',
           alertmanagerConfig: alertmanagerConfig.substring(0, 100) + '...',
           templateFiles,
           configIdentifier,

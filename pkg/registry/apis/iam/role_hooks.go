@@ -105,7 +105,7 @@ func (h *RoleHooks) AfterRoleCreate(obj runtime.Object, _ *metav1.CreateOptions)
 				"namespace", role.Namespace,
 				"roleUID", role.Name,
 				"roleType", roleType,
-				"err", err,
+				"error", err,
 				"permissionsCnt", len(role.Spec.Permissions),
 			)
 			status = "failure"
@@ -143,7 +143,7 @@ func (h *RoleHooks) AfterRoleCreate(obj runtime.Object, _ *metav1.CreateOptions)
 		})
 		if err != nil {
 			h.logger.Error("failed to write role permissions to zanzana",
-				"err", err,
+				"error", err,
 				"namespace", role.Namespace,
 				"roleUID", role.Name,
 				"roleType", roleType,
@@ -214,7 +214,7 @@ func (h *RoleHooks) AfterRoleDelete(obj runtime.Object, _ *metav1.DeleteOptions)
 				"namespace", role.Namespace,
 				"roleUID", role.Name,
 				"roleType", roleType,
-				"err", err,
+				"error", err,
 				"permissionsCnt", len(role.Spec.Permissions),
 			)
 			return
@@ -253,7 +253,7 @@ func (h *RoleHooks) AfterRoleDelete(obj runtime.Object, _ *metav1.DeleteOptions)
 		})
 		if err != nil {
 			h.logger.Error("failed to delete role permissions from zanzana",
-				"err", err,
+				"error", err,
 				"namespace", role.Namespace,
 				"roleUID", role.Name,
 				"roleType", roleType,
@@ -347,7 +347,7 @@ func (h *RoleHooks) BeginRoleUpdate(ctx context.Context, obj, oldObj runtime.Obj
 						"namespace", namespace,
 						"roleUID", roleUID,
 						"roleType", roleType,
-						"err", err,
+						"error", err,
 					)
 				}
 			}
@@ -359,7 +359,7 @@ func (h *RoleHooks) BeginRoleUpdate(ctx context.Context, obj, oldObj runtime.Obj
 					"namespace", namespace,
 					"roleUID", roleUID,
 					"roleType", roleType,
-					"err", err,
+					"error", err,
 				)
 				return
 			}
@@ -412,7 +412,7 @@ func (h *RoleHooks) BeginRoleUpdate(ctx context.Context, obj, oldObj runtime.Obj
 				err = h.zClient.Write(ctx, req)
 				if err != nil {
 					h.logger.Error("failed to update role permissions in zanzana",
-						"err", err,
+						"error", err,
 						"namespace", namespace,
 						"roleUID", roleUID,
 						"roleType", roleType,

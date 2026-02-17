@@ -69,8 +69,44 @@ func TestLogger(t *testing.T) {
 		wrapper := &logWrapper{
 			logger: log.New("test"),
 		}
-		newLogger := wrapper.With("key", "value")
+		newLogger := wrapper.With("contextKey", "value")
 
 		require.NotSame(t, newLogger.(*logWrapper).logger, wrapper.logger, "`With` should not return the same instance")
+	})
+}
+
+func TestNormalizeCorePluginLogArgs(t *testing.T) {
+	t.Run("keeps structured key value args", func(t *testing.T) {
+		got := normalizeCorePluginLogArgs("pluginID", "test", "attempt", 1)
+		require.Equal(t, []any{"pluginID", "test", "attempt", 1}, got)
+	})
+
+	t.Run("wraps odd args", func(t *testing.T) {
+		got := normalizeCorePluginLogArgs("pluginID", "test", 1)
+		require.Equal(t, "pluginLogArgs", got[0])
+	})
+
+	t.Run("wraps non-string keys", func(t *testing.T) {
+		got := normalizeCorePluginLogArgs(10, "value")
+		require.Equal(t, "pluginLogArgs", got[0])
+	})
+}
+
+func TestWrapCorePluginLogArgsEncapsulatesContext(t *testing.T) {
+	t.Run("adds pluginContext when args are provided", func(t *testing.T) {
+		got := wrapCorePluginLogArgs("plugin started", "info", "pluginID", "test", "attempt", 1)
+		require.Equal(t, []any{
+			"pluginMessage", "plugin started",
+			"pluginLogLevel", "info",
+			"pluginContext", []any{"pluginID", "test", "attempt", 1},
+		}, got)
+	})
+
+	t.Run("omits pluginContext when args are empty", func(t *testing.T) {
+		got := wrapCorePluginLogArgs("plugin started", "info")
+		require.Equal(t, []any{
+			"pluginMessage", "plugin started",
+			"pluginLogLevel", "info",
+		}, got)
 	})
 }

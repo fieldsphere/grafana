@@ -263,13 +263,13 @@ func executeDSNodesGrouped(ctx context.Context, now time.Time, vars mathexp.Vars
 
 			firstNode := nodeGroup[0]
 			logger := logger.FromContext(ctx).New("datasourceType", firstNode.datasource.Type,
-				"queryRefId", firstNode.refID,
-				"datasourceUid", firstNode.datasource.UID,
+				"queryRefID", firstNode.refID,
+				"datasourceUID", firstNode.datasource.UID,
 				"datasourceVersion", firstNode.datasource.Version,
 			)
 			span.SetAttributes(
-				attribute.String("datasource.type", firstNode.datasource.Type),
-				attribute.String("datasource.uid", firstNode.datasource.UID),
+				attribute.String("datasourceType", firstNode.datasource.Type),
+				attribute.String("datasourceUID", firstNode.datasource.UID),
 			)
 
 			req := &backend.QueryDataRequest{
@@ -368,13 +368,13 @@ func executeDSNodesGrouped(ctx context.Context, now time.Time, vars mathexp.Vars
 // other nodes they must have already been executed and their results must
 // already by in vars.
 func (dn *DSNode) Execute(ctx context.Context, now time.Time, _ mathexp.Vars, s *Service) (r mathexp.Results, e error) {
-	logger := logger.FromContext(ctx).New("datasourceType", dn.datasource.Type, "queryRefId", dn.refID, "datasourceUid", dn.datasource.UID, "datasourceVersion", dn.datasource.Version)
+	logger := logger.FromContext(ctx).New("datasourceType", dn.datasource.Type, "queryRefID", dn.refID, "datasourceUID", dn.datasource.UID, "datasourceVersion", dn.datasource.Version)
 	ctx, span := s.tracer.Start(ctx, "SSE.ExecuteDatasourceQuery")
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("datasource.type", dn.datasource.Type),
-		attribute.String("datasource.uid", dn.datasource.UID),
+		attribute.String("datasourceType", dn.datasource.Type),
+		attribute.String("datasourceUID", dn.datasource.UID),
 	)
 
 	req := &backend.QueryDataRequest{

@@ -7,6 +7,7 @@ import { importPanelPlugin } from 'app/features/plugins/importPanelPlugin';
 import { StoreState, ThunkResult } from 'app/types/store';
 
 import { clearPluginInfoInCache } from '../../loader/pluginInfoCache';
+import { pluginsLogger } from '../../utils';
 import {
   getRemotePlugins,
   getPluginErrors,
@@ -38,7 +39,14 @@ export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, t
     const remote$ = from(getRemotePlugins()).pipe(
       catchError((err) => {
         thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchRemote/rejected` });
-        console.error(err);
+        if (err instanceof Error) {
+          pluginsLogger.logError(err, { operation: 'fetchAll.remotePlugins' });
+        } else {
+          pluginsLogger.logWarning('Failed to fetch remote plugins', {
+            operation: 'fetchAll.remotePlugins',
+            error: String(err),
+          });
+        }
         return of([]);
       })
     );
@@ -113,7 +121,10 @@ export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, t
           }
         },
         (error) => {
-          console.log(error);
+          pluginsLogger.logWarning('Plugin fetchAll stream failed', {
+            operation: 'fetchAll.forkJoin',
+            error: String(error),
+          });
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchLocal/rejected` });
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchRemote/rejected` });
           return thunkApi.rejectWithValue('Unknown error.');
@@ -227,7 +238,16 @@ export const install = createAsyncThunk<
 
     return { id, changes };
   } catch (e) {
-    console.error(e);
+    if (e instanceof Error) {
+      pluginsLogger.logError(e, { operation: 'installPlugin', pluginId: id, version: version ?? '' });
+    } else {
+      pluginsLogger.logWarning('Failed to install plugin', {
+        operation: 'installPlugin',
+        pluginId: id,
+        version: version ?? '',
+        error: String(e),
+      });
+    }
     if (isFetchError(e)) {
       // add id to identify errors in multiple requests
       e.data.id = id;
@@ -254,7 +274,15 @@ export const uninstall = createAsyncThunk<Update<CatalogPlugin, string>, string>
         changes: { isInstalled: false, installedVersion: undefined, isFullyInstalled: false },
       };
     } catch (e) {
-      console.error(e);
+      if (e instanceof Error) {
+        pluginsLogger.logError(e, { operation: 'uninstallPlugin', pluginId: id });
+      } else {
+        pluginsLogger.logWarning('Failed to uninstall plugin', {
+          operation: 'uninstallPlugin',
+          pluginId: id,
+          error: String(e),
+        });
+      }
 
       return thunkApi.rejectWithValue('Unknown error.');
     }

@@ -1,7 +1,7 @@
 import { defaults, each, sortBy } from 'lodash';
 
 import { DataSourceRef, PanelPluginMeta, VariableOption, VariableRefresh } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import config from 'app/core/config';
 import { PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { getLibraryPanel } from 'app/features/library-panels/state/api';
@@ -13,6 +13,8 @@ import { DashboardJson } from '../../../manage-dashboards/types';
 import { isConstant } from '../../../variables/guard';
 import { DashboardModel } from '../../state/DashboardModel';
 import { GridPos } from '../../state/PanelModel';
+
+const logger = createMonitoringLogger('features.dashboard.exporter');
 
 export interface InputUsage {
   libraryPanels?: LibraryPanel[];
@@ -317,7 +319,11 @@ export class DashboardExporter {
 
       return newObj;
     } catch (err) {
-      console.error('Export failed:', err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'makeExportable' });
+      } else {
+        logger.logWarning('Export failed', { operation: 'makeExportable', error: String(err) });
+      }
       return {
         error: err,
       };

@@ -3,7 +3,6 @@ package multildap
 import (
 	"errors"
 
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/services/ldap"
 	"github.com/grafana/grafana/pkg/services/login"
@@ -110,7 +109,7 @@ func (multiples *MultiLDAP) Login(query *login.LoginUserQuery) (
 		server := newLDAP(config, multiples.cfg)
 
 		if err := server.Dial(); err != nil {
-			logDialFailure(err, config)
+			logDialFailure(multiples.log, err, config)
 
 			// Only return an error if it is the last server so we can try next server
 			if index == len(multiples.configs)-1 {
@@ -168,7 +167,7 @@ func (multiples *MultiLDAP) User(login string) (
 		server := newLDAP(config, multiples.cfg)
 
 		if err := server.Dial(); err != nil {
-			logDialFailure(err, config)
+			logDialFailure(multiples.log, err, config)
 
 			// Only return an error if it is the last server so we can try next server
 			if index == len(multiples.configs)-1 {
@@ -211,7 +210,7 @@ func (multiples *MultiLDAP) Users(logins []string) (
 		server := newLDAP(config, multiples.cfg)
 
 		if err := server.Dial(); err != nil {
-			logDialFailure(err, config)
+			logDialFailure(multiples.log, err, config)
 
 			// Only return an error if it is the last server so we can try next server
 			if index == len(multiples.configs)-1 {
@@ -250,7 +249,7 @@ func isSilentError(err error) bool {
 	return false
 }
 
-func logDialFailure(err error, config *ldap.ServerConfig) {
+func logDialFailure(logger log.Logger, err error, config *ldap.ServerConfig) {
 	logger.Debug(
 		"unable to dial LDAP server",
 		"host", config.Host,

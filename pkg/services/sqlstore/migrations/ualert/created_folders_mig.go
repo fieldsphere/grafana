@@ -74,7 +74,7 @@ func (c createdFoldersToKVStore) Exec(sess *xorm.Session, mg *migrator.Migrator)
 			Updated:   now,
 		}
 		if _, errCreate := sess.Table("kv_store").Insert(&entry); errCreate != nil {
-			mg.Logger.Error("failed to insert record of created folders to kvstore", "err", errCreate)
+			mg.Logger.Error("failed to insert record of created folders to kvstore", "error", errCreate)
 			return fmt.Errorf("failed to insert record of created folders to kvstore: %w", errCreate)
 		}
 	}

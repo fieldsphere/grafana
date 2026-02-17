@@ -4,6 +4,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import {
   SceneComponentProps,
   SceneDataTransformer,
@@ -42,6 +43,8 @@ import {
   getQueryRunnerFor,
   isLibraryPanel,
 } from '../utils/utils';
+
+const logger = createMonitoringLogger('features.dashboard-scene.inspect-json-tab');
 import { isGridLayoutItemKind, isPanelKindV2 } from '../v2schema/validation';
 
 export type ShowContent = 'panel-json' | 'panel-data' | 'data-frames' | 'panel-layout';
@@ -165,7 +168,7 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
     const gridItem = panel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Cannot update layout: panel parent is not a DashboardGridItem');
+      logger.logWarning('Cannot update layout: panel parent is not a DashboardGridItem');
       return;
     }
 
@@ -259,7 +262,10 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
     const newState = sceneUtils.cloneSceneObjectState(gridItem.state);
 
     if (!(panel.parent instanceof DashboardGridItem)) {
-      console.error('Cannot update state of panel', panel, gridItem);
+      logger.logWarning('Cannot update state of panel because parent is not DashboardGridItem', {
+        panelTitle: panel.state.title,
+        panelKey: panel.state.key,
+      });
       return;
     }
 

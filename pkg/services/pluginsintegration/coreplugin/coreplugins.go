@@ -172,20 +172,45 @@ type logWrapper struct {
 	logger log.Logger
 }
 
+func wrapCorePluginLogArgs(msg, level string, args ...any) []any {
+	normalized := normalizeCorePluginLogArgs(args...)
+	context := make([]any, 0, 6)
+	context = append(context, "pluginMessage", msg, "pluginLogLevel", level)
+	if len(normalized) > 0 {
+		context = append(context, "pluginContext", normalized)
+	}
+	return context
+}
+
+func normalizeCorePluginLogArgs(args ...any) []any {
+	if len(args) == 0 {
+		return nil
+	}
+	if len(args)%2 != 0 {
+		return []any{"pluginLogArgs", args}
+	}
+	for i := 0; i < len(args); i += 2 {
+		if _, ok := args[i].(string); !ok {
+			return []any{"pluginLogArgs", args}
+		}
+	}
+	return args
+}
+
 func (l *logWrapper) Debug(msg string, args ...any) {
-	l.logger.Debug(msg, args...)
+	l.logger.Debug("Core plugin SDK log entry", wrapCorePluginLogArgs(msg, "debug", args...)...)
 }
 
 func (l *logWrapper) Info(msg string, args ...any) {
-	l.logger.Info(msg, args...)
+	l.logger.Info("Core plugin SDK log entry", wrapCorePluginLogArgs(msg, "info", args...)...)
 }
 
 func (l *logWrapper) Warn(msg string, args ...any) {
-	l.logger.Warn(msg, args...)
+	l.logger.Warn("Core plugin SDK log entry", wrapCorePluginLogArgs(msg, "warn", args...)...)
 }
 
 func (l *logWrapper) Error(msg string, args ...any) {
-	l.logger.Error(msg, args...)
+	l.logger.Error("Core plugin SDK log entry", wrapCorePluginLogArgs(msg, "error", args...)...)
 }
 
 func (l *logWrapper) Level() sdklog.Level {
@@ -193,8 +218,15 @@ func (l *logWrapper) Level() sdklog.Level {
 }
 
 func (l *logWrapper) With(args ...any) sdklog.Logger {
+	normalized := normalizeCorePluginLogArgs(args...)
+	if len(normalized) == 0 {
+		return &logWrapper{
+			logger: l.logger.New(),
+		}
+	}
+
 	return &logWrapper{
-		logger: l.logger.New(args...),
+		logger: l.logger.New("pluginContext", normalized),
 	}
 }
 

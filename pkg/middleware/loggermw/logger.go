@@ -104,10 +104,10 @@ func (l *loggerImpl) prepareLogParams(c *contextmodel.ReqContext, duration time.
 
 	logParams := []any{
 		"method", r.Method,
-		"path", r.URL.Path,
-		"status", status,
-		"remote_addr", c.RemoteAddr(),
-		"time_ms", int64(duration / time.Millisecond),
+		"requestPath", r.URL.Path,
+		"statusCode", status,
+		"remoteAddr", c.RemoteAddr(),
+		"timeMs", int64(duration / time.Millisecond),
 		"duration", duration.String(),
 		"size", rw.Size(),
 	}
@@ -121,8 +121,8 @@ func (l *loggerImpl) prepareLogParams(c *contextmodel.ReqContext, duration time.
 	}
 
 	if l.cfg.DatabaseInstrumentQueries {
-		logParams = append(logParams, "db_call_count", log.TotalDBCallCount(c.Req.Context()))
-		logParams = append(logParams, "db_query_time", log.TotalDBQueryTime(c.Req.Context()))
+		logParams = append(logParams, "dbCallCount", log.TotalDBCallCount(c.Req.Context()))
+		logParams = append(logParams, "dbQueryTime", log.TotalDBQueryTime(c.Req.Context()))
 	}
 
 	if handler, exist := middleware.RouteOperationName(c.Req); exist {
@@ -130,7 +130,7 @@ func (l *loggerImpl) prepareLogParams(c *contextmodel.ReqContext, duration time.
 	}
 
 	rmd := requestmeta.GetRequestMetaData(c.Req.Context())
-	logParams = append(logParams, "status_source", rmd.StatusSource)
+	logParams = append(logParams, "statusSource", rmd.StatusSource)
 
 	logParams = append(logParams, errorLogParams(c.Error)...)
 
@@ -144,12 +144,12 @@ func errorLogParams(err error) []any {
 
 	var gfErr errutil.Error
 	if !errors.As(err, &gfErr) {
-		return []any{"error", err.Error()}
+		return []any{"error", err}
 	}
 
 	return []any{
 		"errorReason", gfErr.Reason,
 		"errorMessageID", gfErr.MessageID,
-		"error", gfErr.LogMessage,
+		"errorMessage", gfErr.LogMessage,
 	}
 }

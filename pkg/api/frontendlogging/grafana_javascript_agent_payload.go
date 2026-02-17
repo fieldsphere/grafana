@@ -119,7 +119,7 @@ func (e Exception) String() string {
 func (e Exception) KeyVal() *KeyVal {
 	kv := NewKeyVal()
 	KeyValAdd(kv, "timestamp", e.Timestamp.String())
-	KeyValAdd(kv, "kind", "exception")
+	KeyValAdd(kv, "eventKind", "exception")
 	KeyValAdd(kv, "type", e.Type)
 	KeyValAdd(kv, "value", e.Value)
 	KeyValAdd(kv, "stacktrace", e.String())
@@ -198,7 +198,7 @@ func SpanToKeyVal(s ptrace.Span) *KeyVal {
 	if s.EndTimestamp() > 0 {
 		KeyValAdd(kv, "end_timestamp", s.StartTimestamp().AsTime().String())
 	}
-	KeyValAdd(kv, "kind", "span")
+	KeyValAdd(kv, "eventKind", "span")
 	KeyValAdd(kv, "traceID", traceIDHex)
 	KeyValAdd(kv, "spanID", spanIDHex)
 	KeyValAdd(kv, "span_kind", s.Kind().String())
@@ -245,7 +245,7 @@ type Log struct {
 func (l Log) KeyVal() *KeyVal {
 	kv := NewKeyVal()
 	KeyValAdd(kv, "timestamp", l.Timestamp.String())
-	KeyValAdd(kv, "kind", "log")
+	KeyValAdd(kv, "eventKind", "log")
 	KeyValAdd(kv, "message", l.Message)
 	KeyValAdd(kv, "level", string(l.LogLevel))
 	MergeKeyValWithPrefix(kv, KeyValFromMap(l.Context), "context_")
@@ -272,7 +272,7 @@ func (m Measurement) KeyVal() *KeyVal {
 	kv := NewKeyVal()
 
 	KeyValAdd(kv, "timestamp", m.Timestamp.String())
-	KeyValAdd(kv, "kind", "measurement")
+	KeyValAdd(kv, "eventKind", "measurement")
 
 	keys := make([]string, 0, len(m.Values))
 	for k := range m.Values {

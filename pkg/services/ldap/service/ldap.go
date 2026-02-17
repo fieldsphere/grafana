@@ -89,14 +89,14 @@ func (s *LDAPImpl) Reload(ctx context.Context, settings models.SSOSettings) erro
 		if server.MinTLSVersion != "" {
 			server.MinTLSVersionID, err = util.TlsNameToVersion(server.MinTLSVersion)
 			if err != nil {
-				s.log.Error("failed to set min TLS version, ignoring", "err", err, "server", server.Host)
+				s.log.Error("failed to set min TLS version, ignoring", "error", err, "server", server.Host)
 			}
 		}
 
 		if len(server.TLSCiphers) > 0 {
 			server.TLSCipherIDs, err = util.TlsCiphersToIDs(server.TLSCiphers)
 			if err != nil {
-				s.log.Error("unrecognized TLS Cipher(s), ignoring", "err", err, "server", server.Host)
+				s.log.Error("unrecognized TLS Cipher(s), ignoring", "error", err, "server", server.Host)
 			}
 		}
 

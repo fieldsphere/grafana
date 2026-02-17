@@ -56,11 +56,11 @@ func (c *Client) Download(ctx context.Context, pluginZipURL, checksum string, co
 	}
 	defer func() {
 		if err := os.Remove(tmpFile.Name()); err != nil {
-			c.log.Warn("Failed to remove temporary file", "file", tmpFile.Name(), "error", err)
+			c.log.Warn("Failed to remove temporary file", "temporaryFilePath", tmpFile.Name(), "error", err)
 		}
 	}()
 
-	c.log.Debugf("Installing plugin from %s", pluginZipURL)
+	c.log.Debug("Installing plugin from URL", "pluginZipURL", pluginZipURL)
 
 	err = c.downloadFile(ctx, tmpFile, pluginZipURL, checksum, compatOpts)
 	if err != nil {

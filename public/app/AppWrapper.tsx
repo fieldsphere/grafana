@@ -5,7 +5,7 @@ import CacheProvider from 'react-inlinesvg/provider';
 import { Provider } from 'react-redux';
 import { Route, Routes } from 'react-router-dom-v5-compat';
 
-import { config, navigationLogger, reportInteraction } from '@grafana/runtime';
+import { config, createMonitoringLogger, navigationLogger, reportInteraction } from '@grafana/runtime';
 import { ErrorBoundaryAlert, getPortalContainer, GlobalStyles, PortalContainer, TimeRangeProvider } from '@grafana/ui';
 import { getAppRoutes } from 'app/routes/routes';
 import { store } from 'app/store/store';
@@ -35,6 +35,7 @@ interface AppWrapperState {
 let bodyRenderHooks: ComponentType[] = [];
 let pageBanners: ComponentType[] = [];
 const enterpriseProviders: Array<ComponentType<{ children: ReactNode }>> = [];
+const logger = createMonitoringLogger('app.wrapper');
 
 export function addEnterpriseProviders(provider: ComponentType<{ children: ReactNode }>) {
   enterpriseProviders.push(provider);
@@ -75,7 +76,7 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
     if (preloader) {
       preloader.remove();
     } else {
-      console.warn('Preloader element not found');
+      logger.logWarning('Preloader element not found');
     }
   }
 

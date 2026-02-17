@@ -238,7 +238,7 @@ func (hs *HTTPServer) GetDashboard(c *contextmodel.ReqContext) response.Response
 		if err != nil {
 			// Not sure when this could happen so not sure how to better handle this. Right now ProvisionedExternalId
 			// is for better UX, showing in Save/Delete dialogs and so it won't break anything if it is empty.
-			hs.log.Warn("Failed to create ProvisionedExternalId", "err", err)
+			hs.log.Warn("Failed to create ProvisionedExternalId", "error", err)
 		}
 	}
 
@@ -264,19 +264,19 @@ func (hs *HTTPServer) getAnnotationPermissionsByScope(c *contextmodel.ReqContext
 	evaluate := accesscontrol.EvalPermission(accesscontrol.ActionAnnotationsCreate, scope)
 	actions.CanAdd, err = hs.AccessControl.Evaluate(c.Req.Context(), c.SignedInUser, evaluate)
 	if err != nil {
-		hs.log.Warn("Failed to evaluate permission", "err", err, "action", accesscontrol.ActionAnnotationsCreate, "scope", scope)
+		hs.log.Warn("Failed to evaluate permission", "error", err, "permissionAction", accesscontrol.ActionAnnotationsCreate, "scope", scope)
 	}
 
 	evaluate = accesscontrol.EvalPermission(accesscontrol.ActionAnnotationsDelete, scope)
 	actions.CanDelete, err = hs.AccessControl.Evaluate(c.Req.Context(), c.SignedInUser, evaluate)
 	if err != nil {
-		hs.log.Warn("Failed to evaluate permission", "err", err, "action", accesscontrol.ActionAnnotationsDelete, "scope", scope)
+		hs.log.Warn("Failed to evaluate permission", "error", err, "permissionAction", accesscontrol.ActionAnnotationsDelete, "scope", scope)
 	}
 
 	evaluate = accesscontrol.EvalPermission(accesscontrol.ActionAnnotationsWrite, scope)
 	actions.CanEdit, err = hs.AccessControl.Evaluate(c.Req.Context(), c.SignedInUser, evaluate)
 	if err != nil {
-		hs.log.Warn("Failed to evaluate permission", "err", err, "action", accesscontrol.ActionAnnotationsWrite, "scope", scope)
+		hs.log.Warn("Failed to evaluate permission", "error", err, "permissionAction", accesscontrol.ActionAnnotationsWrite, "scope", scope)
 	}
 }
 
@@ -349,8 +349,8 @@ func (hs *HTTPServer) deleteDashboard(c *contextmodel.ReqContext) response.Respo
 	if err != nil {
 		hs.log.Error(
 			"Failed to disconnect library elements",
-			"dashboard", dash.ID,
-			"identity", c.GetID(),
+			"dashboardID", dash.ID,
+			"identityID", c.GetID(),
 			"error", err)
 	}
 
@@ -510,7 +510,7 @@ func (hs *HTTPServer) GetHomeDashboard(c *contextmodel.ReqContext) response.Resp
 			dashRedirect := dtos.DashboardRedirect{RedirectUri: url}
 			return response.JSON(http.StatusOK, &dashRedirect)
 		}
-		hs.log.Warn("Failed to get slug from database", "err", err)
+		hs.log.Warn("Failed to get slug from database", "error", err)
 	}
 
 	filePath := hs.Cfg.DefaultHomeDashboardPath
@@ -527,7 +527,7 @@ func (hs *HTTPServer) GetHomeDashboard(c *contextmodel.ReqContext) response.Resp
 	}
 	defer func() {
 		if err := file.Close(); err != nil {
-			hs.log.Warn("Failed to close dashboard file", "path", filePath, "err", err)
+			hs.log.Warn("Failed to close dashboard file", "dashboardFilePath", filePath, "error", err)
 		}
 	}()
 

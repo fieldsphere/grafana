@@ -20,6 +20,7 @@ import {
 import { EditorMode } from '@grafana/plugin-ui';
 import {
   BackendDataSourceResponse,
+  createMonitoringLogger,
   DataSourceWithBackend,
   FetchResponse,
   getBackendSrv,
@@ -34,6 +35,8 @@ import { SqlQueryEditorLazy } from '../components/QueryEditorLazy';
 import { MACRO_NAMES } from '../constants';
 import { DB, SQLQuery, SQLOptions, SqlQueryModel, QueryFormat, SQLDialect } from '../types';
 import migrateAnnotation from '../utils/migration';
+
+const logger = createMonitoringLogger('packages.grafana-sql.datasource');
 
 export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLOptions> {
   uid: string;
@@ -215,7 +218,15 @@ export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLO
     try {
       response = await this.runMetaQuery(interpolatedQuery, range);
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'metricFindQuery', refId });
+      } else {
+        logger.logWarning('Error executing SQL query for metric find', {
+          operation: 'metricFindQuery',
+          refId,
+          error: String(error),
+        });
+      }
       throw new Error('error when executing the sql query');
     }
     return this.getResponseParser().transformMetricFindResponse(response);

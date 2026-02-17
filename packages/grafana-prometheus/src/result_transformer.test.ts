@@ -18,6 +18,13 @@ import {
 import { PromQuery } from './types';
 
 jest.mock('@grafana/runtime', () => ({
+  createMonitoringLogger: () => ({
+    logError: jest.fn(),
+    logWarning: jest.fn(),
+    logDebug: jest.fn(),
+    logInfo: jest.fn(),
+    logTrace: jest.fn(),
+  }),
   getTemplateSrv: () => ({
     replace: (str: string) => str,
   }),

@@ -124,13 +124,13 @@ func NewDatasource(ctx context.Context, settings backend.DataSourceInstanceSetti
 // that adds these values to its output.
 // TODO: move this into the sdk (see https://github.com/grafana/grafana/issues/82033)
 func instrumentContext(ctx context.Context, endpoint string, pCtx backend.PluginContext) context.Context {
-	p := []any{"endpoint", endpoint, "pluginId", pCtx.PluginID}
+	p := []any{"endpoint", endpoint, "pluginID", pCtx.PluginID}
 	if pCtx.DataSourceInstanceSettings != nil {
 		p = append(p, "dsName", pCtx.DataSourceInstanceSettings.Name)
 		p = append(p, "dsUID", pCtx.DataSourceInstanceSettings.UID)
 	}
 	if pCtx.User != nil {
-		p = append(p, "uname", pCtx.User.Login)
+		p = append(p, "userLogin", pCtx.User.Login)
 	}
 	return log.WithContextualAttributes(ctx, p)
 }

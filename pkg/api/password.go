@@ -28,19 +28,19 @@ func (hs *HTTPServer) SendResetPasswordEmail(c *contextmodel.ReqContext) respons
 
 	usr, err := hs.userService.GetByLogin(c.Req.Context(), &userQuery)
 	if err != nil {
-		c.Logger.Info("Requested password reset for user that was not found", "user", userQuery.LoginOrEmail, "error", err)
+		c.Logger.Info("Requested password reset for user that was not found", "userLoginOrEmail", userQuery.LoginOrEmail, "error", err)
 		return response.Error(http.StatusOK, "Email sent", nil)
 	}
 
 	if usr.IsDisabled {
-		c.Logger.Info("Requested password reset for disabled user", "user", userQuery.LoginOrEmail)
+		c.Logger.Info("Requested password reset for disabled user", "userLoginOrEmail", userQuery.LoginOrEmail)
 		return response.Error(http.StatusOK, "Email sent", nil)
 	}
 
 	getAuthQuery := login.GetAuthInfoQuery{UserId: usr.ID}
 	if authInfo, err := hs.authInfoService.GetAuthInfo(c.Req.Context(), &getAuthQuery); err == nil {
 		if hs.isProviderEnabled(hs.Cfg, authInfo.AuthModule) {
-			c.Logger.Info("Requested password reset for external user", nil)
+			c.Logger.Info("Requested password reset for external user")
 			return response.Error(http.StatusOK, "Email sent", nil)
 		}
 	}
@@ -97,7 +97,7 @@ func (hs *HTTPServer) ResetPassword(c *contextmodel.ReqContext) response.Respons
 	}
 
 	if err := hs.loginAttemptService.Reset(c.Req.Context(), username); err != nil {
-		c.Logger.Warn("could not reset login attempts", "err", err, "username", username)
+		c.Logger.Warn("could not reset login attempts", "error", err, "username", username)
 	}
 
 	if err := hs.AuthTokenService.RevokeAllUserTokens(c.Req.Context(),

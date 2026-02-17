@@ -96,7 +96,7 @@ func (d *Dynamic) patternsToDetectors(patterns GCOMPatterns) ([]angulardetector.
 			// Fail silently in case of an errUnknownPatternType.
 			// This allows us to introduce new pattern types without breaking old Grafana versions
 			if errors.Is(err, errUnknownPatternType) {
-				d.log.Debug("Unknown angular pattern", "name", pattern.Name, "type", pattern.Type, "error", err)
+				d.log.Debug("Unknown angular pattern", "patternName", pattern.Name, "patternType", pattern.Type, "error", err)
 				continue
 			}
 			// Other error, do not ignore it
@@ -127,7 +127,7 @@ func (d *Dynamic) fetch(ctx context.Context, etag string) (GCOMResponse, error) 
 		return GCOMResponse{}, fmt.Errorf("url joinpath: %w", err)
 	}
 
-	d.log.Debug("Fetching dynamic angular detection patterns", "url", reqURL)
+	d.log.Debug("Fetching dynamic angular detection patterns", "requestURL", reqURL)
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, reqURL, nil)
 	if err != nil {
 		return GCOMResponse{}, fmt.Errorf("new request with context: %w", err)

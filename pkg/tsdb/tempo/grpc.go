@@ -30,7 +30,7 @@ var logger = backend.NewLoggerWith("logger", "tsdb.tempo")
 func newGrpcClient(ctx context.Context, settings backend.DataSourceInstanceSettings, opts httpclient.Options) (tempopb.StreamingQuerierClient, error) {
 	parsedUrl, err := url.Parse(settings.URL)
 	if err != nil {
-		logger.Error("Error parsing URL for gRPC client", "error", err, "URL", settings.URL, "function", logEntrypoint())
+		logger.Error("Error parsing URL for gRPC client", "error", err, "datasourceURL", settings.URL, "function", logEntrypoint())
 		return nil, err
 	}
 
@@ -71,7 +71,7 @@ func newGrpcClient(ctx context.Context, settings backend.DataSourceInstanceSetti
 	// nolint:staticcheck
 	clientConn, err := grpc.Dial(onlyHost, dialOpts...)
 	if err != nil {
-		logger.Error("Error dialing gRPC client", "error", err, "URL", settings.URL, "function", logEntrypoint())
+		logger.Error("Error dialing gRPC client", "error", err, "datasourceURL", settings.URL, "function", logEntrypoint())
 		return nil, err
 	}
 
@@ -97,7 +97,7 @@ func getDialOpts(ctx context.Context, settings backend.DataSourceInstanceSetting
 	if v := backend.GrafanaConfigFromContext(ctx).Get(backend.LiveClientQueueMaxSize); v != "" {
 		parsed, err := strconv.Atoi(v)
 		if err != nil || parsed <= 0 {
-			logger.Debug("Invalid GF_LIVE_CLIENT_QUEUE_MAX_SIZE; using default gRPC max receive size", "value", v, "default", defaultMaxCallRecvMsgSizeBytes, "error", err)
+			logger.Debug("Invalid GF_LIVE_CLIENT_QUEUE_MAX_SIZE; using default gRPC max receive size", "envVarValue", v, "defaultMaxCallRecvMsgSizeBytes", defaultMaxCallRecvMsgSizeBytes, "error", err)
 		} else {
 			maxCallRecvMsgSizeBytes = parsed
 		}

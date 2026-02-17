@@ -3,7 +3,7 @@ import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 
 import { DataFrame, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { reportInteraction } from '@grafana/runtime';
+import { createMonitoringLogger, reportInteraction } from '@grafana/runtime';
 import { getDragStyles, IconButton, useStyles2 } from '@grafana/ui';
 
 import { useLogListContext } from '../panel/LogListContext';
@@ -15,6 +15,8 @@ import { getFieldSelectorWidth } from './fieldSelectorUtils';
 import { getFieldsWithStats } from './getFieldsWithStats';
 import { logsFieldSelectorWrapperStyles } from './styles';
 import { getSuggestedFields } from './suggestedFields';
+
+const logger = createMonitoringLogger('features.logs.field-selector');
 
 /**
  * FieldSelector wrapper for the LogList visualization.
@@ -102,9 +104,12 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
   const fields = useMemo(() => getFieldsWithStats(dataFrames), [dataFrames]);
 
   if (!onClickShowField || !onClickHideField || !setDisplayedFields) {
-    console.warn(
-      'LogListFieldSelector: Missing required props: onClickShowField, onClickHideField, setDisplayedFields'
-    );
+    logger.logWarning('LogListFieldSelector missing required props', {
+      operation: 'LogListFieldSelector',
+      hasOnClickShowField: Boolean(onClickShowField),
+      hasOnClickHideField: Boolean(onClickHideField),
+      hasSetDisplayedFields: Boolean(setDisplayedFields),
+    });
     return null;
   }
   if (sidebarHeight === 0) {

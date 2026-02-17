@@ -419,13 +419,14 @@ const tlsHandshakeErrorPrefix = "http: TLS handshake error from"
 const tlsHandshakeErrorSuffix = "EOF"
 
 func (w *customErrorLogger) Write(msg []byte) (int, error) {
+	logMessage := strings.TrimSpace(string(msg))
+
 	// checks if the error is a TLS handshake error that ends with EOF
-	if strings.Contains(string(msg), tlsHandshakeErrorPrefix) && strings.Contains(string(msg), tlsHandshakeErrorSuffix) {
-		// log at debug level and remove new lines
-		w.log.Debug(strings.ReplaceAll(string(msg), "\n", ""))
+	if strings.Contains(logMessage, tlsHandshakeErrorPrefix) && strings.Contains(logMessage, tlsHandshakeErrorSuffix) {
+		// log at debug level for expected handshake disconnect noise
+		w.log.Debug("HTTP server TLS handshake EOF", "message", logMessage)
 	} else {
-		// log the error as is using the standard logger (the same way as the default http server does)
-		stdlog.Print(string(msg))
+		w.log.Error("HTTP server error", "message", logMessage)
 	}
 
 	return len(msg), nil
@@ -726,7 +727,7 @@ func (hs *HTTPServer) healthzHandler(ctx *web.Context) {
 
 	ctx.Resp.WriteHeader(http.StatusOK)
 	if _, err := ctx.Resp.Write([]byte("Ok")); err != nil {
-		hs.log.Error("could not write to response", "err", err)
+		hs.log.Error("could not write to response", "error", err)
 	}
 }
 
@@ -775,12 +776,12 @@ func (hs *HTTPServer) apiHealthHandler(ctx *web.Context) {
 
 	dataBytes, err := json.MarshalIndent(data, "", "  ")
 	if err != nil {
-		hs.log.Error("Failed to encode data", "err", err)
+		hs.log.Error("Failed to encode data", "error", err)
 		return
 	}
 
 	if _, err := ctx.Resp.Write(dataBytes); err != nil {
-		hs.log.Error("Failed to write to response", "err", err)
+		hs.log.Error("Failed to write to response", "error", err)
 	}
 }
 
@@ -951,8 +952,8 @@ func (hs *HTTPServer) configureTLS() error {
 
 	tlsCiphers := hs.getDefaultCiphers(minTlsVersion, string(hs.Cfg.Protocol))
 
-	hs.log.Info("HTTP Server TLS settings", "scheme", hs.Cfg.Protocol, "Min TLS Version", hs.Cfg.MinTLSVersion,
-		"configured ciphers", util.TlsCipherIdsToString(tlsCiphers))
+	hs.log.Info("HTTP Server TLS settings", "scheme", hs.Cfg.Protocol, "minTLSVersion", hs.Cfg.MinTLSVersion,
+		"configuredCiphers", util.TlsCipherIdsToString(tlsCiphers))
 
 	tlsCfg := &tls.Config{
 		Certificates: tlsCerts,

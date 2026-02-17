@@ -144,8 +144,9 @@ func TestFrontendLoggingEndpointGrafanaJavascriptAgent(t *testing.T) {
 				assertContextContains(t, logs, "page_url", errorEvent.Meta.Page.URL)
 				assertContextContains(t, logs, "user_email", errorEvent.Meta.User.Email)
 				assertContextContains(t, logs, "user_id", errorEvent.Meta.User.ID)
-				assertContextContains(t, logs, "original_timestamp", errorEvent.Exceptions[0].Timestamp)
-				assertContextContains(t, logs, "msg", `UserError: Please replace user and try again
+				assertContextContains(t, logs, "originalTimestamp", errorEvent.Exceptions[0].Timestamp)
+				assertContextContains(t, logs, "msg", "Frontend javascript agent exception")
+				assertContextContains(t, logs, "frontendExceptionMessage", `UserError: Please replace user and try again
   at foofn (foo.js:123:23)
   at barfn (bar.js:113:231)`)
 				assert.NotContains(t, logs, "context")
@@ -163,11 +164,11 @@ func TestFrontendLoggingEndpointGrafanaJavascriptAgent(t *testing.T) {
 		logGrafanaJavascriptAgentEventScenario(t, "Should log received log event", logEvent,
 			func(sc *scenarioContext, logs map[string]any, sourceMapReads []SourceMapReadRecord) {
 				assert.Equal(t, http.StatusAccepted, sc.resp.Code)
-				assert.Len(t, logs, 11)
 				assertContextContains(t, logs, "logger", "frontend")
-				assertContextContains(t, logs, "msg", "This is a test log message")
-				assertContextContains(t, logs, "original_log_level", frontendlogging.LogLevel("info"))
-				assertContextContains(t, logs, "original_timestamp", ts)
+				assertContextContains(t, logs, "msg", "Frontend javascript agent log entry")
+				assertContextContains(t, logs, "frontendLogMessage", "This is a test log message")
+				assertContextContains(t, logs, "originalLogLevel", frontendlogging.LogLevel("info"))
+				assertContextContains(t, logs, "originalTimestamp", ts)
 				assert.NotContains(t, logs, "stacktrace")
 				assert.NotContains(t, logs, "context")
 			})
@@ -287,7 +288,8 @@ func TestFrontendLoggingEndpointGrafanaJavascriptAgent(t *testing.T) {
 		logGrafanaJavascriptAgentEventScenario(t, "Should log web vitals as context", logWebVitals,
 			func(sc *scenarioContext, logs map[string]any, sourceMapReads []SourceMapReadRecord) {
 				assert.Equal(t, http.StatusAccepted, sc.resp.Code)
-				assertContextContains(t, logs, "CLS", float64(1))
+				assertContextContains(t, logs, "measurementName", "CLS")
+				assertContextContains(t, logs, "measurementValue", float64(1))
 			})
 	})
 }
@@ -295,4 +297,32 @@ func TestFrontendLoggingEndpointGrafanaJavascriptAgent(t *testing.T) {
 func assertContextContains(t *testing.T, logRecord map[string]any, label string, value any) {
 	assert.Contains(t, logRecord, label)
 	assert.Equal(t, value, logRecord[label])
+}
+
+func TestAppendSortedFrontendContext(t *testing.T) {
+	base := frontendlogging.CtxVector{"eventKind", "log"}
+	kv := map[string]any{
+		"context_z": "z",
+		"context_a": "a",
+		"context_b": "b",
+	}
+
+	got := appendSortedFrontendContext(base, kv)
+
+	require.Equal(t, frontendlogging.CtxVector{
+		"eventKind", "log",
+		"context_a", "a",
+		"context_b", "b",
+		"context_z", "z",
+	}, got)
+}
+
+func TestSortedMeasurementKeys(t *testing.T) {
+	keys := sortedMeasurementKeys(map[string]float64{
+		"LCP": 1.2,
+		"CLS": 0.3,
+		"FCP": 0.8,
+	})
+
+	require.Equal(t, []string{"CLS", "FCP", "LCP"}, keys)
 }

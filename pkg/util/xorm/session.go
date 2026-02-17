@@ -396,7 +396,7 @@ func (session *Session) slice2Bean(scanResults []any, fields []string, bean any,
 		fieldValue, err := session.getField(dataStruct, key, table, idx)
 		if err != nil {
 			if !strings.Contains(err.Error(), "is not valid") {
-				session.engine.logger.Warn(err)
+				session.engine.logger.Warn("XORM failed to resolve field mapping", "field", key, "error", err)
 			}
 			continue
 		}
@@ -581,7 +581,7 @@ func (session *Session) slice2Bean(scanResults []any, fields []string, bean any,
 					z, _ := t.Zone()
 					// set new location if database don't save timezone or give an incorrect timezone
 					if len(z) == 0 || t.Year() == 0 || t.Location().String() != dbTZ.String() { // !nashtsai! HACK tmp work around for lib/pq doesn't properly time with location
-						session.engine.logger.Debugf("empty zone key[%v] : %v | zone: %v | location: %+v\n", key, t, z, *t.Location())
+						session.engine.logger.Debug("XORM time zone normalization", "column", key, "time", t, "zone", z, "location", t.Location().String())
 						t = time.Date(t.Year(), t.Month(), t.Day(), t.Hour(),
 							t.Minute(), t.Second(), t.Nanosecond(), dbTZ)
 					}
@@ -599,7 +599,7 @@ func (session *Session) slice2Bean(scanResults []any, fields []string, bean any,
 						hasAssigned = true
 						t, err := session.byte2Time(col, d)
 						if err != nil {
-							session.engine.logger.Error("byte2Time error:", err.Error())
+							session.engine.logger.Error("XORM failed to convert bytes to time", "column", key, "error", err)
 							hasAssigned = false
 						} else {
 							fieldValue.Set(reflect.ValueOf(t).Convert(fieldType))
@@ -608,7 +608,7 @@ func (session *Session) slice2Bean(scanResults []any, fields []string, bean any,
 						hasAssigned = true
 						t, err := session.str2Time(col, d)
 						if err != nil {
-							session.engine.logger.Error("byte2Time error:", err.Error())
+							session.engine.logger.Error("XORM failed to convert string to time", "column", key, "error", err)
 							hasAssigned = false
 						} else {
 							fieldValue.Set(reflect.ValueOf(t).Convert(fieldType))
@@ -621,7 +621,7 @@ func (session *Session) slice2Bean(scanResults []any, fields []string, bean any,
 				// !<winxxp>! 增加支持sql.Scanner接口的结构，如sql.NullString
 				hasAssigned = true
 				if err := nulVal.Scan(vv.Interface()); err != nil {
-					session.engine.logger.Error("sql.Sanner error:", err.Error())
+					session.engine.logger.Error("XORM sql.Scanner conversion failed", "column", key, "error", err)
 					hasAssigned = false
 				}
 			} else if col.SQLType.IsJson() {
@@ -789,9 +789,9 @@ func (session *Session) saveLastSQL(sql string, args ...any) {
 func (session *Session) logSQL(sqlStr string, sqlArgs ...any) {
 	if session.showSQL && !session.engine.showExecTime {
 		if len(sqlArgs) > 0 {
-			session.engine.logger.Infof("[SQL] %v %#v", sqlStr, sqlArgs)
+			session.engine.logger.Info("XORM SQL statement", "sqlQuery", sqlStr, "sqlArgs", sqlArgs)
 		} else {
-			session.engine.logger.Infof("[SQL] %v", sqlStr)
+			session.engine.logger.Info("XORM SQL statement", "sqlQuery", sqlStr)
 		}
 	}
 }

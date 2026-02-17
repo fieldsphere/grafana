@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"net"
 	"net/http"
 	"strings"
@@ -271,8 +271,7 @@ func (p *publisher) postRequest(url string, obj any, desc string) error {
 	}
 
 	if p.dryRun {
-		log.Printf("POST to %s:\n", p.apiURL(url))
-		log.Println(string(jsonBytes))
+		slog.Info("Release publisher dry-run request", "requestURL", p.apiURL(url), "payload", string(jsonBytes))
 		return nil
 	}
 
@@ -289,7 +288,7 @@ func (p *publisher) postRequest(url string, obj any, desc string) error {
 	}
 
 	if res.StatusCode == http.StatusOK {
-		log.Printf("Action: %s \t OK", desc)
+		slog.Info("Release publisher action completed", "releaseAction", desc, "actionStatus", "ok")
 		return nil
 	}
 
@@ -301,11 +300,11 @@ func (p *publisher) postRequest(url string, obj any, desc string) error {
 		}
 
 		if strings.Contains(string(body), "already exists") || strings.Contains(string(body), "Nothing to update") {
-			log.Printf("Action: %s \t Already exists", desc)
+			slog.Info("Release publisher action skipped", "releaseAction", desc, "actionStatus", "already_exists")
 		} else {
-			log.Printf("Action: %s \t Failed - Status: %v", desc, res.Status)
-			log.Printf("Resp: %s", body)
-			log.Fatalf("Quitting")
+			slog.Error("Release publisher action failed", "releaseAction", desc, "statusText", res.Status)
+			slog.Error("Release publisher response body", "responseBody", string(body))
+			return fmt.Errorf("release publisher request failed: action=%s status=%s", desc, res.Status)
 		}
 	}
 

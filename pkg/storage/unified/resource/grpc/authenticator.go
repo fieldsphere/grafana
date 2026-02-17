@@ -147,7 +147,7 @@ func wrapContext(ctx context.Context) (context.Context, error) {
 func encodeIdentityInMetadataPairs(user identity.Requester) []string {
 	id, _ := user.GetInternalID()
 
-	logger.Debug("encodeIdentityInMetadataPairs", "user.id", user.GetID(), "user.Login", user.GetLogin(), "user.Name", user.GetName())
+	logger.Debug("encodeIdentityInMetadataPairs", "userID", user.GetID(), "userLogin", user.GetLogin(), "userName", user.GetName())
 
 	return []string{
 		// This should be everything needed to recreate the user

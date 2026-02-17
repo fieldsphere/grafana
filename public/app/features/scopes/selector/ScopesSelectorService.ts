@@ -1,5 +1,5 @@
 import { Scope, ScopeNode, store as storeImpl } from '@grafana/data';
-import { config, locationService } from '@grafana/runtime';
+import { config, createMonitoringLogger, locationService } from '@grafana/runtime';
 import { performanceUtils } from '@grafana/scenes';
 import { getDashboardSceneProfiler } from 'app/features/dashboard/services/DashboardProfiler';
 
@@ -21,6 +21,7 @@ import {
 import { NodesMap, RecentScope, RecentScopeSchema, ScopeSchema, ScopesMap, SelectedScope, TreeNode } from './types';
 
 export const RECENT_SCOPES_KEY = 'grafana.scopes.recent';
+const logger = createMonitoringLogger('features.scopes.selector.service');
 
 export interface ScopesSelectorServiceState {
   // Used to indicate loading of the scopes themselves for example when applying them.
@@ -97,7 +98,11 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
       }
       return node;
     } catch (error) {
-      console.error('Failed to load node', error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'getScopeNode', scopeNodeId });
+      } else {
+        logger.logWarning('Failed to load node', { operation: 'getScopeNode', scopeNodeId, error: String(error) });
+      }
       return undefined;
     }
   };
@@ -105,7 +110,7 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
   private getNodePath = async (scopeNodeId: string, visited: Set<string> = new Set()): Promise<ScopeNode[]> => {
     // Protect against circular references
     if (visited.has(scopeNodeId)) {
-      console.error('Circular reference detected in node path', scopeNodeId);
+      logger.logWarning('Circular reference detected in node path', { operation: 'getNodePath', scopeNodeId });
       return [];
     }
 
@@ -435,7 +440,10 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
 
       // Validate API response is an array
       if (!Array.isArray(fetchedScopes)) {
-        console.error('Expected fetchedScopes to be an array, got:', typeof fetchedScopes);
+        logger.logWarning('Expected fetchedScopes to be an array', {
+          operation: 'applyScopes',
+          fetchedScopesType: typeof fetchedScopes,
+        });
         this.updateState({ scopes: newScopesState, loading: false });
         return;
       }
@@ -644,7 +652,14 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
           newTree = expandNodes(newTree, parentPath);
         }
       } catch (error) {
-        console.error('Failed to expand to selected scope', error);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'open.expandToSelectedScope' });
+        } else {
+          logger.logWarning('Failed to expand to selected scope', {
+            operation: 'open.expandToSelectedScope',
+            error: String(error),
+          });
+        }
       }
     }
 
@@ -727,7 +742,11 @@ function parseScopesFromLocalStorage(content: string | undefined): RecentScope[]
   try {
     recentScopes = JSON.parse(content || '[]');
   } catch (e) {
-    console.error('Failed to parse recent scopes', e, content);
+    logger.logWarning('Failed to parse recent scopes', {
+      operation: 'parseScopesFromLocalStorage',
+      error: String(e),
+      hasContent: Boolean(content),
+    });
     return [];
   }
   if (!(Array.isArray(recentScopes) && Array.isArray(recentScopes[0]))) {

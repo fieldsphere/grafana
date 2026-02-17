@@ -380,7 +380,7 @@ func (n *Manager) reload(tgs map[string][]*targetgroup.Group) {
 	for id, tgroup := range tgs {
 		am, ok := n.alertmanagers[id]
 		if !ok {
-			n.logger.Error("couldn't sync alert manager set", "err", fmt.Sprintf("invalid id:%v", id))
+			n.logger.Error("Could not sync alert manager set", "alertmanagerID", id)
 			continue
 		}
 		am.sync(tgroup)
@@ -403,7 +403,7 @@ func (n *Manager) Send(alerts ...*Alert) {
 	if d := len(alerts) - n.opts.QueueCapacity; d > 0 {
 		alerts = alerts[d:]
 
-		n.logger.Warn("Alert batch larger than queue capacity, dropping alerts", "num_dropped", d)
+		n.logger.Warn("Alert batch larger than queue capacity, dropping alerts", "numDropped", d)
 		n.metrics.dropped.Add(float64(d))
 	}
 
@@ -412,7 +412,7 @@ func (n *Manager) Send(alerts ...*Alert) {
 	if d := (len(n.queue) + len(alerts)) - n.opts.QueueCapacity; d > 0 {
 		n.queue = n.queue[d:]
 
-		n.logger.Warn("Alert notification queue full, dropping alerts", "num_dropped", d)
+		n.logger.Warn("Alert notification queue full, dropping alerts", "numDropped", d)
 		n.metrics.dropped.Add(float64(d))
 	}
 	n.queue = append(n.queue, alerts...)
@@ -585,7 +585,7 @@ func (s *alertmanagerSet) sync(tgs []*targetgroup.Group) {
 	for _, tg := range tgs {
 		ams, droppedAms, err := AlertmanagerFromGroup(tg, s.cfg)
 		if err != nil {
-			s.logger.Error("Creating discovered Alertmanagers failed", "err", err)
+			s.logger.Error("Creating discovered Alertmanagers failed", "error", err)
 			continue
 		}
 		allAms = append(allAms, ams...)

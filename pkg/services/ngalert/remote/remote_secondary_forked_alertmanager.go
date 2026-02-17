@@ -96,7 +96,7 @@ func NewRemoteSecondaryFactory(
 			}
 
 			if remoteAM == nil {
-				l.Error("Failed to create remote Alertmanager, falling back to using only the internal one", "err", err)
+				l.Error("Failed to create remote Alertmanager, falling back to using only the internal one", "error", err)
 				return internalAM, nil
 			}
 
@@ -140,7 +140,7 @@ func (fam *RemoteSecondaryForkedAlertmanager) ApplyConfig(ctx context.Context, c
 		// This will perform a readiness check and sync the Alertmanagers.
 		if !fam.remote.Ready() {
 			if err := fam.remote.ApplyConfig(ctx, config); err != nil {
-				fam.log.Error("Error applying config to the remote Alertmanager", "err", err)
+				fam.log.Error("Error applying config to the remote Alertmanager", "error", err)
 				return
 			}
 			fam.lastSync = time.Now()
@@ -151,7 +151,7 @@ func (fam *RemoteSecondaryForkedAlertmanager) ApplyConfig(ctx context.Context, c
 		if time.Since(fam.lastSync) >= fam.syncInterval {
 			fam.log.Debug("Syncing configuration with the remote Alertmanager", "lastSync", fam.lastSync)
 			if err := fam.remote.CompareAndSendConfiguration(ctx, config); err != nil {
-				fam.log.Error("Unable to upload the configuration to the remote Alertmanager", "err", err)
+				fam.log.Error("Unable to upload the configuration to the remote Alertmanager", "error", err)
 			} else {
 				fam.lastSync = time.Now()
 			}
@@ -259,16 +259,16 @@ func (fam *RemoteSecondaryForkedAlertmanager) StopAndWait() {
 	// Using context.TODO() here as we think we want to allow this operation to finish regardless of time.
 	ctx := context.TODO()
 	if err := fam.remote.SendState(ctx); err != nil {
-		fam.log.Error("Error sending state to the remote Alertmanager while stopping", "err", err)
+		fam.log.Error("Error sending state to the remote Alertmanager while stopping", "error", err)
 	}
 
 	config, err := fam.store.GetLatestAlertmanagerConfiguration(ctx, fam.orgID)
 	if err != nil {
-		fam.log.Error("Error getting latest Alertmanager configuration while stopping", "err", err)
+		fam.log.Error("Error getting latest Alertmanager configuration while stopping", "error", err)
 		return
 	}
 	if err := fam.remote.CompareAndSendConfiguration(ctx, config); err != nil {
-		fam.log.Error("Error sending configuration to the remote Alertmanager while stopping", "err", err)
+		fam.log.Error("Error sending configuration to the remote Alertmanager while stopping", "error", err)
 	}
 }
 

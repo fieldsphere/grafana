@@ -3,6 +3,7 @@ import { memo, ReactElement, useEffect, useRef, useState } from 'react';
 
 import { GrafanaTheme2, OrgRole } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Button, ConfirmButton, Field, Icon, Modal, Tooltip, useStyles2, Stack, TextLink } from '@grafana/ui';
 import { UserRolePicker } from 'app/core/components/RolePicker/UserRolePicker';
 import { fetchRoleOptions, updateUserRoles } from 'app/core/components/RolePicker/api';
@@ -23,6 +24,8 @@ interface Props {
   onOrgRoleChange: (orgId: number, newRole: OrgRole) => void;
   onOrgAdd: (orgId: number, role: OrgRole) => void;
 }
+
+const logger = createMonitoringLogger('features.admin.user-orgs');
 
 export const UserOrgs = memo(({ user, orgs, isExternalUser, onOrgRoleChange, onOrgRemove, onOrgAdd }: Props) => {
   const [showAddOrgModal, setShowAddOrgModal] = useState(false);
@@ -128,7 +131,13 @@ const OrgRow = memo(({ user, org, isExternalUser, onOrgRemove, onOrgRoleChange }
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.orgId)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) =>
+            logger.logWarning('Failed to load role options', {
+              operation: 'OrgRow.fetchRoleOptions',
+              orgId: org.orgId,
+              error: String(e),
+            })
+          );
       }
     }
   }, [org.orgId]);
@@ -266,7 +275,13 @@ export const AddToOrgModal = memo(({ isOpen, user, userOrgs, onOrgAdd, onDismiss
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.value?.id)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) =>
+            logger.logWarning('Failed to load role options', {
+              operation: 'AddToOrgModal.fetchRoleOptions',
+              orgId: org.value?.id,
+              error: String(e),
+            })
+          );
       }
     }
   };

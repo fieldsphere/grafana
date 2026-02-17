@@ -177,7 +177,7 @@ func precedingFolders(path string) []string {
 }
 
 func (c cdkBlobStorage) CreateFolder(ctx context.Context, path string) error {
-	c.log.Info("Creating folder", "path", path)
+	c.log.Info("Creating folder", "folderPath", path)
 
 	precedingFolders := precedingFolders(path)
 	folderToOriginalCasing := make(map[string]string)
@@ -219,7 +219,7 @@ func (c cdkBlobStorage) CreateFolder(ctx context.Context, path string) error {
 		}); err != nil {
 			return err
 		}
-		c.log.Info("Created folder", "path", currentFolderWithOriginalCasing, "marker", metadata[originalPathAttributeKey])
+		c.log.Info("Created folder", "folderPath", currentFolderWithOriginalCasing, "marker", metadata[originalPathAttributeKey])
 	}
 
 	return nil
@@ -247,7 +247,7 @@ func (c cdkBlobStorage) DeleteFolder(ctx context.Context, folderPath string, opt
 		}
 
 		if err != nil {
-			c.log.Error("Force folder delete: failed to retrieve next object", "err", err)
+			c.log.Error("Force folder delete: failed to retrieve next object", "error", err)
 			return err
 		}
 
@@ -266,7 +266,7 @@ func (c cdkBlobStorage) DeleteFolder(ctx context.Context, folderPath string, opt
 
 	for _, path := range pathsToDelete {
 		if !options.AccessFilter.IsAllowed(path) {
-			c.log.Error("Force folder delete: unauthorized access", "path", path)
+			c.log.Error("Force folder delete: unauthorized access", "objectPath", path)
 			return fmt.Errorf("force folder delete error, unauthorized access to %s", path)
 		}
 	}
@@ -274,7 +274,7 @@ func (c cdkBlobStorage) DeleteFolder(ctx context.Context, folderPath string, opt
 	var lastErr error
 	for _, path := range pathsToDelete {
 		if err := c.bucket.Delete(ctx, path); err != nil {
-			c.log.Error("Force folder delete: failed while deleting a file", "err", err, "path", path)
+			c.log.Error("Force folder delete: failed while deleting a file", "error", err, "objectPath", path)
 			lastErr = err
 			// keep going and delete remaining files
 		}
@@ -309,7 +309,7 @@ func (c cdkBlobStorage) list(ctx context.Context, folderPath string, paging *Pag
 		}
 
 		if err != nil {
-			c.log.Error("Failed while iterating over files", "err", err)
+			c.log.Error("Failed while iterating over files", "error", err)
 			return nil, err
 		}
 
@@ -378,11 +378,11 @@ func (c cdkBlobStorage) list(ctx context.Context, folderPath string, paging *Pag
 				if gcerrors.Code(err) == gcerrors.NotFound {
 					attributes, err = c.bucket.Attributes(ctx, path)
 					if err != nil {
-						c.log.Error("Failed while retrieving attributes", "path", path, "err", err)
+						c.log.Error("Failed while retrieving attributes", "objectPath", path, "error", err)
 						return nil, err
 					}
 				} else {
-					c.log.Error("Failed while retrieving attributes", "path", path, "err", err)
+					c.log.Error("Failed while retrieving attributes", "objectPath", path, "error", err)
 					return nil, err
 				}
 			}

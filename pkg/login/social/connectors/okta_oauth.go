@@ -181,7 +181,7 @@ func (s *SocialOkta) UserInfo(ctx context.Context, client *http.Client, token *o
 	if !s.info.SkipOrgRoleSync {
 		directlyMappedRole, grafanaAdmin, err := s.extractRoleAndAdminOptional(data.rawJSON, groups)
 		if err != nil {
-			s.log.Warn("Failed to extract role", "err", err)
+			s.log.Warn("Failed to extract role", "error", err)
 		}
 
 		if s.info.AllowAssignGrafanaAdmin {
@@ -190,7 +190,7 @@ func (s *SocialOkta) UserInfo(ctx context.Context, client *http.Client, token *o
 
 		externalOrgs, err := s.extractOrgs(data.rawJSON)
 		if err != nil {
-			s.log.Warn("Failed to extract orgs", "err", err)
+			s.log.Warn("Failed to extract orgs", "error", err)
 			return nil, err
 		}
 
@@ -210,19 +210,19 @@ func (s *SocialOkta) UserInfo(ctx context.Context, client *http.Client, token *o
 func (s *SocialOkta) extractAPI(ctx context.Context, data *OktaUserInfoJson, client *http.Client) error {
 	rawUserInfoResponse, err := s.httpGet(ctx, client, s.info.ApiUrl)
 	if err != nil {
-		s.log.Debug("Error getting user info response", "url", s.info.ApiUrl, "error", err)
+		s.log.Debug("Error getting user info response", "apiURL", s.info.ApiUrl, "error", err)
 		return fmt.Errorf("error getting user info response: %w", err)
 	}
 	data.rawJSON = rawUserInfoResponse.Body
 
 	err = json.Unmarshal(data.rawJSON, data)
 	if err != nil {
-		s.log.Debug("Error decoding user info response", "raw_json", data.rawJSON, "error", err)
+		s.log.Debug("Error decoding user info response", "rawJSON", data.rawJSON, "error", err)
 		data.rawJSON = []byte{}
 		return fmt.Errorf("error decoding user info response: %w", err)
 	}
 
-	s.log.Debug("Received user info response", "raw_json", string(data.rawJSON), "data", data)
+	s.log.Debug("Received user info response", "rawJSON", string(data.rawJSON), "userInfoData", data)
 	return nil
 }
 

@@ -85,10 +85,8 @@ func TestExecuteSimple(t *testing.T) {
 	require.Len(t, dr.Frames[0].Fields[1].Labels, 2)
 	require.Equal(t, "Time", dr.Frames[0].Fields[0].Name)
 
-	st, err := dr.Frames[0].StringTable(-1, -1)
+	_, err := dr.Frames[0].StringTable(-1, -1)
 	require.NoError(t, err)
-	fmt.Println(st)
-	fmt.Println("----------------------")
 }
 
 func TestExecuteSingle(t *testing.T) {
@@ -103,10 +101,8 @@ func TestExecuteMultiple(t *testing.T) {
 	require.Len(t, dr.Frames[0].Fields[1].Labels, 2)
 	require.Equal(t, "Time", dr.Frames[0].Fields[0].Name)
 
-	st, err := dr.Frames[0].StringTable(-1, -1)
+	_, err := dr.Frames[0].StringTable(-1, -1)
 	require.NoError(t, err)
-	fmt.Println(st)
-	fmt.Println("----------------------")
 }
 
 func TestExecuteColumnNamedTable(t *testing.T) {
@@ -121,19 +117,16 @@ func TestExecuteGrouping(t *testing.T) {
 	require.Len(t, dr.Frames[0].Fields[1].Labels, 1)
 	require.Equal(t, "Time", dr.Frames[0].Fields[0].Name)
 
-	st, err := dr.Frames[0].StringTable(-1, -1)
+	_, err := dr.Frames[0].StringTable(-1, -1)
 	require.NoError(t, err)
-	fmt.Println(st)
-	fmt.Println("----------------------")
 }
 
 func TestAggregateGrouping(t *testing.T) {
 	dr := verifyGoldenResponse(t, "aggregate")
 	require.Len(t, dr.Frames, 1)
 
-	str, err := dr.Frames[0].StringTable(-1, -1)
+	_, err := dr.Frames[0].StringTable(-1, -1)
 	require.NoError(t, err)
-	fmt.Println(str)
 
 	// 	 `Name:
 	// Dimensions: 2 Fields by 3 Rows
@@ -170,9 +163,8 @@ func TestNonStandardTimeColumn(t *testing.T) {
 	dr := verifyGoldenResponse(t, "non_standard_time_column")
 	require.Len(t, dr.Frames, 1)
 
-	str, err := dr.Frames[0].StringTable(-1, -1)
+	_, err := dr.Frames[0].StringTable(-1, -1)
 	require.NoError(t, err)
-	fmt.Println(str)
 
 	// Dimensions: 3 Fields by 1 Rows
 	// +-----------------------------------------+-----------------------------------------+------------------+

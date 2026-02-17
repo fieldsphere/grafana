@@ -69,7 +69,7 @@ func AugmentWebServicesWithCustomRoutes(
 			// Filter out disabled API groups
 			gvr := gv.WithResource("")
 			if apiResourceConfig != nil && !apiResourceConfig.ResourceEnabled(gvr) {
-				klog.InfoS("Skipping custom routes for disabled group version", "gv", gv.String())
+				klog.InfoS("Skipping custom routes for disabled group version", "groupVersion", gv.String())
 				continue
 			}
 

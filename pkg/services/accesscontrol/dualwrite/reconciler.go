@@ -211,7 +211,7 @@ func (r *ZanzanaReconciler) reconcile(ctx context.Context) {
 		for _, reconciler := range r.reconcilers {
 			r.log.Debug("Performing zanzana reconciliation", "reconciler", reconciler.name)
 			if err := reconciler.reconcile(ctx, namespace); err != nil {
-				r.log.Warn("Failed to perform reconciliation for resource", "err", err)
+				r.log.Warn("Failed to perform reconciliation for resource", "error", err)
 				ok = false
 			}
 		}
@@ -223,7 +223,7 @@ func (r *ZanzanaReconciler) reconcile(ctx context.Context) {
 	if r.cfg.StackID != "" {
 		id, err := strconv.ParseInt(r.cfg.StackID, 10, 64)
 		if err != nil {
-			r.log.Error("cannot perform reconciliation, malformed stack id", "id", r.cfg.StackID, "err", err)
+			r.log.Error("cannot perform reconciliation, malformed stack id", "stackID", r.cfg.StackID, "error", err)
 			return
 		}
 
@@ -231,7 +231,7 @@ func (r *ZanzanaReconciler) reconcile(ctx context.Context) {
 	} else {
 		ids, err := r.getOrgs(ctx)
 		if err != nil {
-			r.log.Error("cannot perform reconciliation, failed to fetch orgs", "err", err)
+			r.log.Error("cannot perform reconciliation, failed to fetch orgs", "error", err)
 			return
 		}
 

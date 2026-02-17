@@ -305,7 +305,7 @@ func (ss *FolderStoreImpl) GetParents(ctx context.Context, q folder.GetParentsQu
 			folders[idx].WithURL()
 			return nil
 		}); err != nil {
-			ss.log.Debug("failed to set URL to folders", "err", err)
+			ss.log.Debug("failed to set URL to folders", "error", err)
 		}
 	default:
 		ss.log.Debug("recursive CTE subquery is not supported; it fallbacks to the iterative implementation")
@@ -429,7 +429,7 @@ func (ss *FolderStoreImpl) GetHeight(ctx context.Context, foldrUID string, orgID
 		}
 	}
 	if height > folder.MaxNestedFolderDepth {
-		ss.log.Warn("folder height exceeds the maximum allowed depth, You might have a circular reference", "uid", foldrUID, "orgId", orgID, "maxDepth", folder.MaxNestedFolderDepth)
+		ss.log.Warn("folder height exceeds the maximum allowed depth, You might have a circular reference", "folderUID", foldrUID, "orgID", orgID, "maxDepth", folder.MaxNestedFolderDepth)
 	}
 	return height, nil
 }

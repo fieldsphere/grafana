@@ -124,13 +124,15 @@ func (pr *permissionRegistry) RegisterPluginScope(scope string) {
 	// If the scope contains an attribute part, register the kind and attribute
 	if len(scopeParts) > 2 {
 		attr := scopeParts[1]
-		pr.kindScopePrefix[kind] = kind + ":" + attr + ":"
-		pr.logger.Debug("registered scope prefix", "kind", kind, "scope_prefix", kind+":"+attr+":")
+		scopePrefix := kind + ":" + attr + ":"
+		pr.kindScopePrefix[kind] = scopePrefix
+		pr.logger.Debug("registered scope prefix", "scopeKind", kind, "scopeAttribute", attr, "scopePrefix", scopePrefix)
 		return
 	}
 
-	pr.logger.Debug("registered scope prefix", "kind", kind, "scope_prefix", kind+":")
-	pr.kindScopePrefix[kind] = kind + ":"
+	scopePrefix := kind + ":"
+	pr.logger.Debug("registered scope prefix", "scopeKind", kind, "scopePrefix", scopePrefix)
+	pr.kindScopePrefix[kind] = scopePrefix
 }
 
 func (pr *permissionRegistry) RegisterPermission(action, scope string) error {
@@ -146,7 +148,7 @@ func (pr *permissionRegistry) RegisterPermission(action, scope string) error {
 	kind := strings.Split(scope, ":")[0]
 	scopePrefix, ok := pr.kindScopePrefix[kind]
 	if !ok {
-		pr.logger.Error("unknown kind: please update `kindScopePrefix` with the correct scope prefix", "kind", kind)
+		pr.logger.Error("unknown kind: please update `kindScopePrefix` with the correct scope prefix", "scopeKind", kind)
 		return ErrUnknownKind(kind)
 	}
 

@@ -92,7 +92,7 @@ func (cfg *Cfg) readAzureSettings() {
 
 	if customCloudsJSON := azureSection.Key("clouds_config").MustString(""); customCloudsJSON != "" {
 		if err := azureSettings.SetCustomClouds(customCloudsJSON); err != nil {
-			cfg.Logger.Error("Failed to parse custom Azure cloud settings", "err", err.Error())
+			cfg.Logger.Error("Failed to parse custom Azure cloud settings", "error", err)
 		}
 	}
 

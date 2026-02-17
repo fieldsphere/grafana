@@ -52,7 +52,7 @@ func (s *SecretMigrationProviderImpl) Migrate(ctx context.Context) error {
 			logger.Debug("Starting secret migration service", "service", serviceName)
 			err := service.Migrate(ctx)
 			if err != nil {
-				logger.Error("Stopped secret migration service", "service", serviceName, "reason", err)
+				logger.Error("Stopped secret migration service", "service", serviceName, "error", err)
 			}
 			logger.Debug("Finished secret migration service", "service", serviceName)
 		}

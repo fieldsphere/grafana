@@ -276,7 +276,7 @@ func (a *alertRule) Run() error {
 				return nil
 			}
 			f := ctx.Fingerprint()
-			logger := a.logger.New("version", ctx.rule.Version, "fingerprint", f, "now", ctx.scheduledAt)
+			logger := a.logger.New("version", ctx.rule.Version, "fingerprint", f, "scheduledAt", ctx.scheduledAt)
 			logger.Debug("Processing tick")
 
 			retryer := newExponentialBackoffRetryer(
@@ -304,7 +304,7 @@ func (a *alertRule) Run() error {
 
 					var needReset bool
 					if a.currentFingerprint != f {
-						logger.Debug("Got a new version of alert rule. Clear up the state", "current_fingerprint", a.currentFingerprint, "fingerprint", f)
+						logger.Debug("Got a new version of alert rule. Clear up the state", "currentFingerprint", a.currentFingerprint, "fingerprint", f)
 						needReset = true
 					}
 					// We need to reset state if the loop has started and the alert is already paused. It can happen,
@@ -330,10 +330,10 @@ func (a *alertRule) Run() error {
 					fpStr := a.currentFingerprint.String()
 					utcTick := ctx.scheduledAt.UTC().Format(time.RFC3339Nano)
 					tracingCtx, span := a.tracer.Start(grafanaCtx, "alert rule execution", trace.WithAttributes(
-						attribute.String("rule_uid", ctx.rule.UID),
-						attribute.Int64("org_id", ctx.rule.OrgID),
-						attribute.Int64("rule_version", ctx.rule.Version),
-						attribute.String("rule_fingerprint", fpStr),
+						attribute.String("ruleUID", ctx.rule.UID),
+						attribute.Int64("orgID", ctx.rule.OrgID),
+						attribute.Int64("ruleVersion", ctx.rule.Version),
+						attribute.String("ruleFingerprint", fpStr),
 						attribute.String("tick", utcTick),
 					))
 					logger := logger.FromContext(tracingCtx)
@@ -342,7 +342,7 @@ func (a *alertRule) Run() error {
 					if tracingCtx.Err() != nil {
 						span.SetStatus(codes.Error, "rule evaluation cancelled")
 						span.End()
-						logger.Error("Skip evaluation and updating the state because the context has been cancelled", "version", ctx.rule.Version, "fingerprint", f, "attempt", attempt, "now", ctx.scheduledAt)
+						logger.Error("Skip evaluation and updating the state because the context has been cancelled", "version", ctx.rule.Version, "fingerprint", f, "attempt", attempt, "scheduledAt", ctx.scheduledAt)
 						return
 					}
 					nextDelay := retryer.NextAttemptIn()
@@ -356,7 +356,7 @@ func (a *alertRule) Run() error {
 						return
 					}
 
-					logger.Error("Failed to evaluate rule", "attempt", attempt, "max_attempts", a.retryConfig.MaxAttempts, "next_attempt_in", nextDelay, "error", err)
+					logger.Error("Failed to evaluate rule", "attempt", attempt, "maxAttempts", a.retryConfig.MaxAttempts, "nextAttemptIn", nextDelay, "error", err)
 					attempt++
 
 					select {
@@ -391,7 +391,7 @@ func (a *alertRule) Run() error {
 				a.stateManager.ForgetStateByRuleUID(ngmodels.WithRuleKey(ctx, a.key.AlertRuleKey), a.key)
 			}
 
-			a.logger.Debug("Stopping alert rule routine", "reason", reason)
+			a.logger.Debug("Stopping alert rule routine", "stopReason", reason)
 			return nil
 		}
 	}
@@ -469,7 +469,7 @@ func (a *alertRule) evaluate(ctx context.Context, e *Evaluation, span trace.Span
 		span.RecordError(err)
 	} else {
 		logger.Debug("Alert rule evaluated", "results", len(results), "duration", dur)
-		span.AddEvent("rule evaluated", trace.WithAttributes(
+		span.AddEvent("ruleEvaluated", trace.WithAttributes(
 			attribute.Int64("results", int64(len(results))),
 		))
 	}
@@ -483,8 +483,8 @@ func (a *alertRule) evaluate(ctx context.Context, e *Evaluation, span trace.Span
 		func(ctx context.Context, statesToSend state.StateTransitions) {
 			start := a.clock.Now()
 			alerts := a.send(ctx, logger, statesToSend)
-			span.AddEvent("results sent", trace.WithAttributes(
-				attribute.Int64("alerts_sent", int64(len(alerts.PostableAlerts))),
+			span.AddEvent("resultsSent", trace.WithAttributes(
+				attribute.Int64("alertsSent", int64(len(alerts.PostableAlerts))),
 			))
 			sendDuration.Observe(a.clock.Now().Sub(start).Seconds())
 		},

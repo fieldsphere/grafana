@@ -4,6 +4,7 @@ import { isArray, isBoolean, isNumber, isString } from 'lodash';
 import { isDateTime } from '../datetime/moment_wrapper';
 import { fieldIndexComparer } from '../field/fieldComparers';
 import { getFieldDisplayName } from '../field/fieldState';
+import { logDataWarning } from '../logging';
 import { Column, LoadingState, TableData, TimeSeries, TimeSeriesValue } from '../types/data';
 import {
   DataFrame,
@@ -340,7 +341,10 @@ export function toDataFrame(data: any): DataFrame {
     return arrayToDataFrame(data);
   }
 
-  console.warn('Can not convert', data);
+  logDataWarning('Cannot convert response data format', {
+    operation: 'toDataFrame',
+    dataType: typeof data,
+  });
   throw new Error('Unsupported data format');
 }
 

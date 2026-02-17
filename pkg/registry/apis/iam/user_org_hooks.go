@@ -28,7 +28,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterUserCreate(obj runtime.Object,
 	if user.Spec.Role == "" {
 		b.logger.Debug("user has no role assigned, skipping basic role sync",
 			"namespace", user.Namespace,
-			"name", user.Name,
+			"userName", user.Name,
 		)
 		return
 	}
@@ -53,7 +53,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterUserCreate(obj runtime.Object,
 
 		b.logger.Debug("writing user basic role to zanzana",
 			"namespace", namespace,
-			"name", subjectName,
+			"userName", subjectName,
 			"role", role,
 		)
 
@@ -74,9 +74,9 @@ func (b *IdentityAccessManagementAPIBuilder) AfterUserCreate(obj runtime.Object,
 		if err != nil {
 			status = "failure"
 			b.logger.Error("failed to write user basic role to zanzana",
-				"err", err,
+				"error", err,
 				"namespace", namespace,
-				"name", subjectName,
+				"userName", subjectName,
 				"role", role,
 			)
 		} else {
@@ -129,7 +129,7 @@ func (b *IdentityAccessManagementAPIBuilder) BeginUserUpdate(ctx context.Context
 
 			b.logger.Debug("updating user basic role in zanzana",
 				"namespace", namespace,
-				"name", subjectName,
+				"userName", subjectName,
 				"oldRole", oldRole,
 				"newRole", newRole,
 			)
@@ -154,9 +154,9 @@ func (b *IdentityAccessManagementAPIBuilder) BeginUserUpdate(ctx context.Context
 			if err != nil {
 				status = "failure"
 				b.logger.Error("failed to update user basic role in zanzana",
-					"err", err,
+					"error", err,
 					"namespace", namespace,
-					"name", subjectName,
+					"userName", subjectName,
 					"role", newRole,
 					"oldRole", oldRole,
 				)
@@ -184,7 +184,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterUserDelete(obj runtime.Object,
 	if user.Spec.Role == "" {
 		b.logger.Debug("user had no role assigned, skipping basic role sync",
 			"namespace", user.Namespace,
-			"name", user.Name,
+			"userName", user.Name,
 		)
 		return
 	}
@@ -205,7 +205,7 @@ func (b *IdentityAccessManagementAPIBuilder) AfterUserDelete(obj runtime.Object,
 
 		b.logger.Debug("deleting user basic role from zanzana",
 			"namespace", namespace,
-			"name", subjectName,
+			"userName", subjectName,
 			"role", role,
 		)
 
@@ -226,9 +226,9 @@ func (b *IdentityAccessManagementAPIBuilder) AfterUserDelete(obj runtime.Object,
 		if err != nil {
 			status = "failure"
 			b.logger.Error("failed to delete user basic role from zanzana",
-				"err", err,
+				"error", err,
 				"namespace", namespace,
-				"name", subjectName,
+				"userName", subjectName,
 				"role", role,
 			)
 		} else {

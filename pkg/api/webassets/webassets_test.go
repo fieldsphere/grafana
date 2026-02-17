@@ -3,7 +3,6 @@ package webassets
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -15,7 +14,6 @@ func TestReadWebassets(t *testing.T) {
 
 	dto, err := json.MarshalIndent(assets, "", "  ")
 	require.NoError(t, err)
-	// fmt.Printf("%s\n", string(dto))
 
 	require.JSONEq(t, `{
 	"jsFiles": [
@@ -62,7 +60,6 @@ func TestReadWebassets(t *testing.T) {
 
 	dto, err = json.MarshalIndent(assets, "", "  ")
 	require.NoError(t, err)
-	fmt.Printf("%s\n", string(dto))
 
 	require.JSONEq(t, `{
 	"cdn": "https://grafana-assets.grafana.net/grafana/10.3.0-64123/",
@@ -115,7 +112,6 @@ func TestReadWebassetsFromCDN(t *testing.T) {
 
 	dto, err := json.MarshalIndent(assets, "", "  ")
 	require.NoError(t, err)
-	//fmt.Printf("%s\n", string(dto))
 
 	require.JSONEq(t, `{
 		"cdn": "https://grafana-assets.grafana.net/grafana/10.3.0-64123/",

@@ -17,7 +17,8 @@ import (
 
 // helpful while debugging all the options that may appear
 func logf(format string, a ...any) {
-	// fmt.Printf(format, a...)
+	_ = format
+	_ = a
 }
 
 type Options struct {

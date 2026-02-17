@@ -171,24 +171,41 @@
         // However, it can fail to load in multiple different places
         // To avoid double reporting the error, we use this boolean to check if we've already failed
         let hasFailedToBoot = false;
-        window.__grafana_load_failed = function(err) {
+        window.__grafana_load_failed = function(err, reason = 'unknown') {
           if (hasFailedToBoot) {
             return;
           }
           hasFailedToBoot = true;
-          console.error('Failed to load Grafana', err);
+
+          const errName = err && err.name ? String(err.name) : 'unknown';
+          const errMessage = err && err.message ? String(err.message) : '';
+          window.__grafana_boot_failure = {
+            reason,
+            errorName: errName,
+            errorMessage: errMessage,
+            ts: Date.now(),
+          };
+
           document.querySelector('.fs-variant-loader').classList.add('fs-hidden');
           document.querySelector('.fs-variant-error').classList.remove('fs-hidden');
 
           // not a secure random value, but collisions are highly unlikely and 1/1000_000_000 lost requests
           // doesn't make a difference.
-          fetch(`/-/fe-boot-error?ts=${Date.now()}${Math.random()}`, {
+          const query = new URLSearchParams({
+            ts: `${Date.now()}${Math.random()}`,
+            reason,
+            errorName: errName,
+          });
+          fetch(`/-/fe-boot-error?${query.toString()}`, {
             // This "should" be a POST request, but we must use GET to interact with the correct service.
             // no-store and ?ts=_ are used to ensure the request isn't cached.
             method: 'GET',
             cache: "no-store",
-          }).catch(err => {
-            console.error('Failed to report boot error to backend: ', err);
+          }).catch(() => {
+            window.__grafana_boot_error_report_failed = {
+              reason,
+              ts: Date.now(),
+            };
           });
         };
 
@@ -196,7 +213,7 @@
           if (window.__grafana_app_bundle_loaded) {
             return;
           }
-          window.__grafana_load_failed();
+          window.__grafana_load_failed(undefined, 'app_bundle_not_loaded');
         };
 
         let hasSetLoading = false;
@@ -305,7 +322,6 @@
                 }
               } catch (error) {
                 // Just ignore any errors in session rotation. The user can just log in again.
-                console.warn("Failed to rotate session", error);
               }
 
               try {
@@ -392,8 +408,7 @@
 
         window.__grafana_boot_data_promise = initGrafana()
         window.__grafana_boot_data_promise.catch((err) => {
-          console.error("__grafana_boot_data_promise rejected", err);
-          window.__grafana_load_failed(err);
+          window.__grafana_load_failed(err, 'boot_data_promise_rejected');
         });
       })();
     </script>

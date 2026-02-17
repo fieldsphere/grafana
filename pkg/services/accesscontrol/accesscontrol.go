@@ -240,7 +240,7 @@ func GroupScopesByAction(permissions []Permission) map[string][]string {
 // GroupScopesByAction will group scopes on action
 func GroupScopesByActionContext(ctx context.Context, permissions []Permission) map[string][]string {
 	_, span := tracer.Start(ctx, "accesscontrol.GroupScopesByActionContext", trace.WithAttributes(
-		attribute.Int("permissions_count", len(permissions)),
+		attribute.Int("permissionsCount", len(permissions)),
 	))
 	defer span.End()
 
@@ -301,8 +301,8 @@ func GroupScopesByActionContext(ctx context.Context, permissions []Permission) m
 	}
 
 	span.SetAttributes(
-		attribute.Int("unique_actions", numActions),
-		attribute.Float64("avg_scopes_per_action", float64(len(permissions))/float64(numActions)),
+		attribute.Int("uniqueActions", numActions),
+		attribute.Float64("avgScopesPerAction", float64(len(permissions))/float64(numActions)),
 	)
 
 	return m

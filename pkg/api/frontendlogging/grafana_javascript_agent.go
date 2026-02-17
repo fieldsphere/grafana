@@ -2,6 +2,7 @@ package frontendlogging
 
 import (
 	"fmt"
+	"sort"
 )
 
 type CtxVector []any
@@ -23,8 +24,15 @@ func KeyValToInterfaceMap(kv *KeyVal) map[string]any {
 	return retv
 }
 func (event *FrontendGrafanaJavascriptAgentEvent) AddMetaToContext(ctx CtxVector) []any {
-	for k, v := range KeyValToInterfaceMap(event.Meta.KeyVal()) {
-		ctx = append(ctx, k, v)
+	meta := KeyValToInterfaceMap(event.Meta.KeyVal())
+	keys := make([]string, 0, len(meta))
+	for key := range meta {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+
+	for _, key := range keys {
+		ctx = append(ctx, key, meta[key])
 	}
 	return ctx
 }

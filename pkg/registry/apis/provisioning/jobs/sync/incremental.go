@@ -59,7 +59,7 @@ func IncrementalSync(ctx context.Context, repo repository.Versioned, previousRef
 
 	if len(affectedFolders) > 0 {
 		cleanupStart := time.Now()
-		span.AddEvent("checking if impacted folders should be deleted", trace.WithAttributes(attribute.Int("affected_folders", len(affectedFolders))))
+		span.AddEvent("checkImpactedFoldersForDeletion", trace.WithAttributes(attribute.Int("affectedFolders", len(affectedFolders))))
 		err := cleanupOrphanedFolders(ctx, repo, affectedFolders, repositoryResources, tracer, progress)
 		metrics.RecordIncrementalSyncPhase(jobs.IncrementalSyncPhaseCleanup, time.Since(cleanupStart))
 		if err != nil {
@@ -200,27 +200,27 @@ func cleanupOrphanedFolders(
 	}
 
 	for path, folderName := range affectedFolders {
-		span.SetAttributes(attribute.String("folder", folderName))
+		span.SetAttributes(attribute.String("folderName", folderName))
 
 		// Check if any resources under this folder failed to delete
 		if progress.HasDirPathFailedDeletion(path) {
-			span.AddEvent("skipping orphaned folder cleanup: a child resource in its path failed to be deleted")
+			span.AddEvent("skipOrphanedFolderCleanup")
 			continue
 		}
 
 		// if we can no longer find the folder in git, then we can delete it from grafana
 		_, err := readerRepo.Read(ctx, path, "")
 		if err != nil && (errors.Is(err, repository.ErrFileNotFound) || apierrors.IsNotFound(err)) {
-			span.AddEvent("folder not found in git, removing from grafana")
+			span.AddEvent("folderMissingInGitRemovingFromGrafana")
 			if err := repositoryResources.RemoveFolder(ctx, folderName); err != nil {
 				span.RecordError(err)
 			} else {
-				span.AddEvent("successfully deleted")
+				span.AddEvent("folderDeletedSuccessfully")
 			}
 			continue
 		}
 
-		span.AddEvent("folder still exists in git, continuing")
+		span.AddEvent("folderStillExistsInGit")
 	}
 
 	return nil

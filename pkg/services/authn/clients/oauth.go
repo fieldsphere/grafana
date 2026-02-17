@@ -303,7 +303,7 @@ func (c *OAuth) Logout(ctx context.Context, user identity.Requester, sessionToke
 
 	userID, err := identity.UserIdentifier(user.GetID())
 	if err != nil {
-		c.log.FromContext(ctx).Error("Failed to parse user id", "id", user.GetID(), "error", err)
+		c.log.FromContext(ctx).Error("Failed to parse user id", "userID", user.GetID(), "error", err)
 		return nil, false
 	}
 

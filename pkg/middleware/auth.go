@@ -156,13 +156,13 @@ func RoleAppPluginAuth(accessControl ac.AccessControl, ps pluginstore.Store, log
 
 			u, err := url.Parse(i.Path)
 			if err != nil {
-				logger.Error("failed to parse include path", "pluginId", pluginID, "include", i.Name, "err", err)
+				logger.Error("failed to parse include path", "pluginID", pluginID, "include", i.Name, "error", err)
 				continue
 			}
 
 			if normalizeIncludePath(u.Path) == path {
 				if i.RequiresRBACAction() && !hasAccess(pluginaccesscontrol.GetPluginRouteEvaluator(pluginID, i.Action)) {
-					logger.Debug("Plugin include is covered by RBAC, user doesn't have access", "plugin", pluginID, "include", i.Name)
+					logger.Debug("Plugin include is covered by RBAC, user doesn't have access", "pluginID", pluginID, "include", i.Name)
 					permitted = false
 					break
 				} else if !i.RequiresRBACAction() && !c.HasUserRole(i.Role) {

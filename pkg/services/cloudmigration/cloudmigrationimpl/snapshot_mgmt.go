@@ -61,7 +61,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.PluginDataType) {
 		plugins, err := s.getPlugins(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get plugins", "err", err)
+			s.log.Error("Failed to get plugins", "error", err)
 			return nil, err
 		}
 
@@ -79,7 +79,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.DatasourceDataType) {
 		dataSources, err := s.getDataSourceCommands(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get datasources", "err", err)
+			s.log.Error("Failed to get datasources", "error", err)
 			return nil, err
 		}
 
@@ -97,7 +97,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.DashboardDataType) || resourceTypes.Has(cloudmigration.FolderDataType) {
 		dashs, folders, err := s.getDashboardAndFolderCommands(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get dashboards and folders", "err", err)
+			s.log.Error("Failed to get dashboards and folders", "error", err)
 			return nil, err
 		}
 
@@ -144,7 +144,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.LibraryElementDataType) {
 		libraryElements, err := s.getLibraryElementsCommands(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get library elements", "err", err)
+			s.log.Error("Failed to get library elements", "error", err)
 			return nil, err
 		}
 
@@ -168,7 +168,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.MuteTimingType) {
 		muteTimings, err := s.getAlertMuteTimings(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert mute timings", "err", err)
+			s.log.Error("Failed to get alert mute timings", "error", err)
 			return nil, err
 		}
 
@@ -186,7 +186,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.NotificationTemplateType) {
 		notificationTemplates, err := s.getNotificationTemplates(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert notification templates", "err", err)
+			s.log.Error("Failed to get alert notification templates", "error", err)
 			return nil, err
 		}
 
@@ -204,7 +204,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.ContactPointType) {
 		contactPoints, err := s.getContactPoints(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert contact points", "err", err)
+			s.log.Error("Failed to get alert contact points", "error", err)
 			return nil, err
 		}
 
@@ -222,7 +222,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.NotificationPolicyType) {
 		notificationPolicies, err := s.getNotificationPolicies(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert notification policies", "err", err)
+			s.log.Error("Failed to get alert notification policies", "error", err)
 			return nil, err
 		}
 
@@ -241,7 +241,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.AlertRuleGroupType) {
 		alertRuleGroups, err := s.getAlertRuleGroups(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert rule groups", "err", err)
+			s.log.Error("Failed to get alert rule groups", "error", err)
 			return nil, err
 		}
 
@@ -259,7 +259,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	if resourceTypes.Has(cloudmigration.AlertRuleType) {
 		alertRules, err := s.getAlertRules(ctx, signedInUser)
 		if err != nil {
-			s.log.Error("Failed to get alert rules", "err", err)
+			s.log.Error("Failed to get alert rules", "error", err)
 			return nil, err
 		}
 
@@ -280,7 +280,7 @@ func (s *Service) getMigrationDataJSON(ctx context.Context, signedInUser *user.S
 	// Obtain the names of parent elements for data types that have folders.
 	parentNamesByType, err := s.getParentNames(ctx, signedInUser, folderHierarchy)
 	if err != nil {
-		s.log.Error("Failed to get parent folder names", "err", err)
+		s.log.Error("Failed to get parent folder names", "error", err)
 	}
 
 	migrationData := &cloudmigration.MigrateDataRequest{
@@ -297,7 +297,7 @@ func (s *Service) getDataSourceCommands(ctx context.Context, signedInUser *user.
 
 	dataSources, err := s.dsService.GetDataSources(ctx, &datasources.GetDataSourcesQuery{OrgID: signedInUser.GetOrgID()})
 	if err != nil {
-		s.log.Error("Failed to get all datasources", "err", err)
+		s.log.Error("Failed to get all datasources", "error", err)
 		return nil, err
 	}
 
@@ -306,7 +306,7 @@ func (s *Service) getDataSourceCommands(ctx context.Context, signedInUser *user.
 		// Decrypt secure json to send raw credentials
 		decryptedData, err := s.secretsService.DecryptJsonData(ctx, dataSource.SecureJsonData)
 		if err != nil {
-			s.log.Error("Failed to decrypt secure json data", "err", err)
+			s.log.Error("Failed to decrypt secure json data", "error", err)
 			return nil, err
 		}
 		dataSourceCmd := datasources.AddDataSourceCommand{
@@ -473,7 +473,7 @@ func (s *Service) getPlugins(ctx context.Context, signedInUser *user.SignedInUse
 		ac.EvalPermission(pluginaccesscontrol.ActionInstall),
 	))
 	if !userIsOrgAdmin && !hasAccess {
-		s.log.Info("user is not allowed to list non-core plugins", "UID", signedInUser.UserUID)
+		s.log.Info("user is not allowed to list non-core plugins", "userUID", signedInUser.UserUID)
 		return results, nil
 	}
 
@@ -551,7 +551,7 @@ func (s *Service) buildSnapshot(
 
 	start := time.Now()
 	defer func() {
-		s.log.Debug(fmt.Sprintf("buildSnapshot: method completed in %d ms", time.Since(start).Milliseconds()))
+		s.log.Debug("Build snapshot completed", "durationMs", time.Since(start).Milliseconds())
 	}()
 
 	publicKey, privateKey, err := box.GenerateKey(cryptoRand.Reader)
@@ -559,7 +559,7 @@ func (s *Service) buildSnapshot(
 		return fmt.Errorf("nacl: generating public and private key: %w", err)
 	}
 
-	s.log.Debug(fmt.Sprintf("buildSnapshot: generated keys in %d ms", time.Since(start).Milliseconds()))
+	s.log.Debug("Generated snapshot keys", "durationMs", time.Since(start).Milliseconds())
 
 	// Use GMS public key + the grafana generated private key to encrypt snapshot files.
 	snapshotWriter, err := snapshot.NewSnapshotWriter(contracts.AssymetricKeys{
@@ -573,14 +573,14 @@ func (s *Service) buildSnapshot(
 		return fmt.Errorf("instantiating snapshot writer: %w", err)
 	}
 
-	s.log.Debug(fmt.Sprintf("buildSnapshot: created snapshot writing in %d ms", time.Since(start).Milliseconds()))
+	s.log.Debug("Created snapshot writer", "durationMs", time.Since(start).Milliseconds())
 
 	migrationData, err := s.getMigrationDataJSON(ctx, signedInUser, resourceTypes)
 	if err != nil {
 		return fmt.Errorf("fetching migration data: %w", err)
 	}
 
-	s.log.Debug(fmt.Sprintf("buildSnapshot: got migration data json in %d ms", time.Since(start).Milliseconds()))
+	s.log.Debug("Collected migration data JSON", "durationMs", time.Since(start).Milliseconds())
 
 	localSnapshotResource := make([]cloudmigration.CloudMigrationResource, len(migrationData.Items))
 	resourcesGroupedByType := make(map[cloudmigration.MigrateDataType][]snapshot.MigrateDataRequestItemDTO, 0)
@@ -611,13 +611,13 @@ func (s *Service) buildSnapshot(
 		if err := s.buildSnapshotWithDBStorage(ctx, snapshotMeta.UID, snapshotWriter, resourcesGroupedByType, maxItemsPerPartition); err != nil {
 			return fmt.Errorf("building snapshot with database storage: %w", err)
 		}
-		s.log.Debug(fmt.Sprintf("buildSnapshot: wrote data partitions with database storage in %d ms", time.Since(start).Milliseconds()))
+		s.log.Debug("Wrote data partitions with database storage", "durationMs", time.Since(start).Milliseconds())
 
 	case cloudmigration.ResourceStorageTypeFs:
 		if err := s.buildSnapshotWithFSStorage(publicKey[:], metadata, snapshotWriter, resourcesGroupedByType, maxItemsPerPartition); err != nil {
 			return fmt.Errorf("building snapshot with file system storage: %w", err)
 		}
-		s.log.Debug(fmt.Sprintf("buildSnapshot: wrote data partitions with file system storage in %d ms", time.Since(start).Milliseconds()))
+		s.log.Debug("Wrote data partitions with file system storage", "durationMs", time.Since(start).Milliseconds())
 
 	default:
 		return fmt.Errorf("unknown resource storage type, check your configuration and try again: %q", s.cfg.CloudMigration.ResourceStorageType)
@@ -688,7 +688,7 @@ func (s *Service) uploadSnapshot(ctx context.Context, session *cloudmigration.Cl
 
 	start := time.Now()
 	defer func() {
-		s.log.Debug(fmt.Sprintf("uploadSnapshot: method completed in %d ms", time.Since(start).Milliseconds()))
+		s.log.Debug("Upload snapshot completed", "durationMs", time.Since(start).Milliseconds())
 	}()
 
 	switch s.cfg.CloudMigration.ResourceStorageType {
@@ -706,7 +706,7 @@ func (s *Service) uploadSnapshot(ctx context.Context, session *cloudmigration.Cl
 		return fmt.Errorf("unknown resource storage type, check your configuration and try again: %q", s.cfg.CloudMigration.ResourceStorageType)
 	}
 
-	s.log.Info("successfully uploaded snapshot", "snapshotUid", snapshotMeta.UID, "cloud_snapshotUid", snapshotMeta.GMSSnapshotUID)
+	s.log.Info("successfully uploaded snapshot", "snapshotUID", snapshotMeta.UID, "cloudSnapshotUID", snapshotMeta.GMSSnapshotUID)
 
 	// update snapshot status to processing with retries
 	if err := s.updateSnapshotWithRetries(ctx, cloudmigration.UpdateSnapshotCmd{
@@ -782,7 +782,7 @@ func (s *Service) uploadSnapshotWithFSStorage(ctx context.Context, session *clou
 	}
 	defer func() {
 		if closeErr := indexFile.Close(); closeErr != nil {
-			s.log.Error("closing index file", "err", closeErr.Error())
+			s.log.Error("closing index file", "error", closeErr)
 		}
 	}()
 
@@ -810,12 +810,12 @@ func (s *Service) uploadSnapshotWithFSStorage(ctx context.Context, session *clou
 
 				return fmt.Errorf("uploading snapshot file using presigned url: %w", err)
 			}
-			s.log.Debug(fmt.Sprintf("uploadSnapshot: uploaded %s in %d ms", fileName, time.Since(start).Milliseconds()))
+			s.log.Debug("Uploaded snapshot file", "fileName", fileName, "durationMs", time.Since(start).Milliseconds())
 		}
 	}
 	uploadSpan.End()
 
-	s.log.Debug(fmt.Sprintf("uploadSnapshot: uploaded all data files in %d ms", time.Since(start).Milliseconds()))
+	s.log.Debug("Uploaded all snapshot data files", "durationMs", time.Since(start).Milliseconds())
 
 	uploadCtx, uploadSpan = s.tracer.Start(ctx, "CloudMigrationService.uploadSnapshot.uploadIndex")
 
@@ -839,7 +839,7 @@ func (s *Service) uploadSnapshotWithFSStorage(ctx context.Context, session *clou
 
 	uploadSpan.End()
 
-	s.log.Debug(fmt.Sprintf("uploadSnapshot: uploaded index file in %d ms", time.Since(start).Milliseconds()))
+	s.log.Debug("Uploaded snapshot index file", "durationMs", time.Since(start).Milliseconds())
 
 	return nil
 }
@@ -856,7 +856,7 @@ func (s *Service) uploadUsingPresignedURL(ctx context.Context, uploadURL, key st
 	}
 	defer func() {
 		if closeErr := file.Close(); closeErr != nil {
-			s.log.Error("closing file", "path", filePath, "err", closeErr)
+			s.log.Error("closing file", "snapshotFilePath", filePath, "error", closeErr)
 		}
 	}()
 
@@ -872,7 +872,7 @@ func (s *Service) updateSnapshotWithRetries(ctx context.Context, cmd cloudmigrat
 	retries := 0
 	if err := retryer.Retry(func() (retryer.RetrySignal, error) {
 		if err := s.store.UpdateSnapshot(ctx, cmd); err != nil {
-			s.log.Error("updating snapshot in retry loop", "error", err.Error())
+			s.log.Error("updating snapshot in retry loop", "error", err)
 			retries++
 			if retries > maxRetries {
 				return retryer.FuncError, err
@@ -881,7 +881,7 @@ func (s *Service) updateSnapshotWithRetries(ctx context.Context, cmd cloudmigrat
 		}
 		return retryer.FuncComplete, nil
 	}, maxRetries, time.Millisecond*10, time.Second*5); err != nil {
-		s.log.Error("failed to update snapshot status", "snapshotUid", cmd.UID, "status", cmd.Status, "num_local_resources", len(cmd.LocalResourcesToCreate), "num_cloud_resources", len(cmd.CloudResourcesToUpdate), "error", err.Error())
+		s.log.Error("failed to update snapshot status", "snapshotUID", cmd.UID, "snapshotStatus", cmd.Status, "numLocalResources", len(cmd.LocalResourcesToCreate), "numCloudResources", len(cmd.CloudResourcesToUpdate), "error", err)
 		return fmt.Errorf("failed to update snapshot status: %w", err)
 	}
 	return nil
@@ -936,7 +936,7 @@ func (s *Service) getFolderNamesForFolderUIDs(ctx context.Context, signedInUser 
 		WithFullpathUIDs: true,
 	})
 	if err != nil {
-		s.log.Error("Failed to obtain folders from folder UIDs", "err", err)
+		s.log.Error("Failed to obtain folders from folder UIDs", "error", err)
 		return nil, err
 	}
 
@@ -984,7 +984,7 @@ func (s *Service) getParentNames(
 	// Obtain folder names given a list of folderUIDs
 	foldersUIDsToFolderName, err := s.getFolderNamesForFolderUIDs(ctx, signedInUser, parentFolderUIDsSlice)
 	if err != nil {
-		s.log.Error("Failed to get parent folder names from folder UIDs", "err", err)
+		s.log.Error("Failed to get parent folder names from folder UIDs", "error", err)
 		return parentNamesByType, err
 	}
 

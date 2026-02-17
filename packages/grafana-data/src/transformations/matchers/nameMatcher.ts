@@ -1,4 +1,5 @@
 import { getFieldDisplayName } from '../../field/fieldState';
+import { logDataError } from '../../logging';
 import { stringToJsRegex } from '../../text/string';
 import { DataFrame, Field, FieldType, TIME_SERIES_VALUE_FIELD_NAME } from '../../types/dataFrame';
 import { FieldMatcher, FieldMatcherInfo, FrameMatcherInfo } from '../../types/transformations';
@@ -201,7 +202,11 @@ const patternToRegex = (pattern?: string): RegExp | undefined => {
   try {
     return stringToJsRegex(pattern);
   } catch (error) {
-    console.error(error);
+    logDataError('Failed to parse field name matcher regex', {
+      operation: 'patternToRegex',
+      pattern,
+      error: String(error),
+    });
     return undefined;
   }
 };

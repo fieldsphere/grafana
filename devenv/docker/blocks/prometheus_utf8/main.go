@@ -1,10 +1,10 @@
 package main
 
 import (
-	"fmt"
-	"log"
+	"log/slog"
 	"math/rand/v2"
 	"net/http"
+	"os"
 	"strconv"
 	"time"
 
@@ -121,7 +121,10 @@ func main() {
 		}
 	}()
 
-	fmt.Printf("Server started at :9112\n")
+	slog.Info("Prometheus UTF-8 metrics server started", "address", ":9112")
 
-	log.Fatal(http.ListenAndServe(":9112", nil))
+	if err := http.ListenAndServe(":9112", nil); err != nil {
+		slog.Error("Prometheus UTF-8 metrics server failed", "error", err)
+		os.Exit(1)
+	}
 }

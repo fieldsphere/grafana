@@ -27,6 +27,7 @@ import {
 } from '@prometheus-io/lezer-promql';
 
 import { t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { binaryScalarOperatorToOperatorName } from './binaryScalarOperations';
 import {
@@ -43,6 +44,8 @@ import {
 } from './parsingUtils';
 import { QueryBuilderLabelFilter, QueryBuilderOperation } from './shared/types';
 import { PromVisualQuery, PromVisualQueryBinary } from './types';
+
+const logger = createMonitoringLogger('packages.grafana-prometheus.querybuilder.parsing');
 
 /**
  * Parses a PromQL query into a visual query model.
@@ -72,7 +75,14 @@ export function buildVisualQueryFromString(expr: string): Omit<Context, 'replace
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    if (err instanceof Error) {
+      logger.logError(err, { operation: 'buildVisualQueryFromString' });
+    } else {
+      logger.logWarning('Failed to parse Prometheus visual query', {
+        operation: 'buildVisualQueryFromString',
+        error: String(err),
+      });
+    }
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

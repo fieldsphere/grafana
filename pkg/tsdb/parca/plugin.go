@@ -62,8 +62,8 @@ func (d *ParcaDatasource) Dispose() {
 
 func (d *ParcaDatasource) CallResource(ctx context.Context, req *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {
 	ctxLogger := logger.FromContext(ctx)
-	ctxLogger.Debug("CallResource", "Path", req.Path, "Method", req.Method, "Body", req.Body, "function", logEntrypoint())
-	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.parca.CallResource", trace.WithAttributes(attribute.String("path", req.Path), attribute.String("method", req.Method)))
+	ctxLogger.Debug("CallResource", "requestPath", req.Path, "method", req.Method, "requestBody", req.Body, "function", logEntrypoint())
+	ctx, span := tracing.DefaultTracer().Start(ctx, "datasource.parca.CallResource", trace.WithAttributes(attribute.String("requestPath", req.Path), attribute.String("method", req.Method)))
 	defer span.End()
 
 	if req.Path == "profileTypes" {

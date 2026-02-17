@@ -11,8 +11,11 @@ import {
   QueryResultMetaStat,
   shallowCompare,
 } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { LOADING_FRAME_NAME } from './querySplitting';
+
+const logger = createMonitoringLogger('plugins.datasource.loki.merge-responses');
 
 function getFrameKey(frame: DataFrame): string | undefined {
   // Metric range query data
@@ -142,7 +145,11 @@ export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const sourceIdField = source.fields.find((field) => field.type === FieldType.string && field.name === 'id');
 
   if (!destTimeField || !sourceTimeField) {
-    console.error(new Error(`Time fields not found in the data frames`));
+    logger.logWarning('Time fields not found in data frames', {
+      operation: 'mergeFrames',
+      destinationFrameName: dest.name,
+      sourceFrameName: source.name,
+    });
     return;
   }
 

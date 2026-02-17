@@ -39,11 +39,11 @@ func NewChildPluginReconciler(metaManager *meta.ProviderManager, registrar Regis
 func (r *ChildPluginReconciler) reconcile(ctx context.Context, req operator.TypedReconcileRequest[*pluginsv0alpha1.Plugin]) (operator.ReconcileResult, error) {
 	plugin := req.Object
 	logger := logging.FromContext(ctx).With(
-		"pluginId", plugin.Spec.Id,
+		"pluginID", plugin.Spec.Id,
 		"namespace", plugin.Namespace,
 		"version", plugin.Spec.Version,
-		"action", req.Action,
-		"parentId", plugin.Spec.ParentId,
+		"reconcileAction", req.Action,
+		"parentID", plugin.Spec.ParentId,
 	)
 
 	// If the plugin already has a parent ID set, skip the reconciliation
@@ -70,7 +70,7 @@ func (r *ChildPluginReconciler) reconcile(ctx context.Context, req operator.Type
 
 	logger.Debug("Plugin has children, reconciling child plugins",
 		"childCount", len(result.Meta.Children),
-		"action", req.Action,
+		"reconcileAction", req.Action,
 	)
 
 	switch req.Action {
@@ -90,7 +90,7 @@ func (r *ChildPluginReconciler) unregisterChildren(ctx context.Context, namespac
 	for _, childID := range children {
 		err := r.registrar.Unregister(ctx, namespace, childID, SourceChildPluginReconciler)
 		if err != nil && !errorsK8s.IsNotFound(err) {
-			logger.Error("Failed to unregister child plugin", "error", err, "childId", childID)
+			logger.Error("Failed to unregister child plugin", "error", err, "childID", childID)
 			retry = true
 		}
 	}
@@ -113,7 +113,7 @@ func (r *ChildPluginReconciler) registerChildren(ctx context.Context, parent *pl
 		}
 		err := r.registrar.Register(ctx, parent.Namespace, childInstall)
 		if err != nil {
-			logger.Error("Failed to register child plugin", "error", err, "childId", childID)
+			logger.Error("Failed to register child plugin", "error", err, "childID", childID)
 			retry = true
 		}
 	}

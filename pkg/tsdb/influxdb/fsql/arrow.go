@@ -175,7 +175,7 @@ func newDataField[T any](f arrow.Field) *data.Field {
 func copyData(field *data.Field, col arrow.Array) error {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println(fmt.Errorf("panic: %s %s", r, string(debug.Stack())))
+			backend.Logger.Error("Recovered panic while copying Arrow data", "panicValue", r, "stack", string(debug.Stack()))
 		}
 	}()
 
@@ -269,7 +269,7 @@ func copyData(field *data.Field, col arrow.Array) error {
 		copyBasic[int64](field, array.NewInt64Data(colData))
 	default:
 		// FIXME: Should this return an error instead?
-		slog.Error("datatype is unhandled", "type", col.DataType().ID())
+		slog.Error("datatype is unhandled", "dataType", col.DataType().ID())
 	}
 
 	return nil

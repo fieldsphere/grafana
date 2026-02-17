@@ -29,7 +29,7 @@ func (s *Service) registerRoutes() *http.ServeMux {
 
 func (s *Service) testGetHandler(rw http.ResponseWriter, req *http.Request) {
 	ctxLogger := s.logger.FromContext(req.Context())
-	ctxLogger.Debug("Received resource call", "url", req.URL.String(), "method", req.Method)
+	ctxLogger.Debug("Received resource call", "requestURL", req.URL.String(), "method", req.Method)
 
 	if req.Method != http.MethodGet {
 		return
@@ -76,7 +76,7 @@ func (s *Service) getScenariosHandler(rw http.ResponseWriter, req *http.Request)
 
 func (s *Service) testStreamHandler(rw http.ResponseWriter, req *http.Request) {
 	ctxLogger := s.logger.FromContext(req.Context())
-	ctxLogger.Debug("Received resource call", "url", req.URL.String(), "method", req.Method)
+	ctxLogger.Debug("Received resource call", "requestURL", req.URL.String(), "method", req.Method)
 
 	header := rw.Header()
 	header.Set("Cache-Control", "no-store")
@@ -167,13 +167,13 @@ func (s *Service) testStreamHandler(rw http.ResponseWriter, req *http.Request) {
 func createJSONHandler(logger log.Logger) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, req *http.Request) {
 		ctxLogger := logger.FromContext(req.Context())
-		ctxLogger.Debug("Received resource call", "url", req.URL.String(), "method", req.Method)
+		ctxLogger.Debug("Received resource call", "requestURL", req.URL.String(), "method", req.Method)
 
 		var reqData map[string]any
 		if req.Body != nil {
 			defer func() {
 				if err := req.Body.Close(); err != nil {
-					ctxLogger.Warn("Failed to close response body", "err", err)
+					ctxLogger.Warn("Failed to close response body", "error", err)
 				}
 			}()
 			b, err := io.ReadAll(req.Body)
@@ -185,7 +185,7 @@ func createJSONHandler(logger log.Logger) http.Handler {
 					ctxLogger.Error("Failed to unmarshal request body to JSON", "error", err)
 				}
 
-				ctxLogger.Debug("Received resource call body", "body", reqData)
+				ctxLogger.Debug("Received resource call body", "requestBody", reqData)
 			}
 		}
 

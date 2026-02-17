@@ -16,7 +16,7 @@ func TablesList(ctx context.Context, rawSQL string) ([]string, error) {
 	logger := backend.NewLoggerWith("logger", "expr.sql").FromContext(ctx)
 	stmt, err := sqlparser.Parse(rawSQL)
 	if err != nil {
-		logger.Error("error parsing sql", "error", err.Error(), "sql", rawSQL)
+		logger.Error("error parsing sql", "error", err, "sqlQuery", rawSQL)
 		return nil, fmt.Errorf("error parsing sql: %s", err.Error())
 	}
 

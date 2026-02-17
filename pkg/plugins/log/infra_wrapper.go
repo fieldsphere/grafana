@@ -17,41 +17,101 @@ func NewPrettyLogger(name string) *prettyLogger {
 }
 
 func (l *prettyLogger) Successf(format string, args ...any) {
-	l.log.Info(fmt.Sprintf(format, args...))
+	l.log.Info("Operation succeeded",
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 func (l *prettyLogger) Failuref(format string, args ...any) {
-	l.log.Error(fmt.Sprintf(format, args...))
+	l.log.Error("Operation failed",
+		"messageTemplate", format,
+		"messageArgs", args)
+}
+
+func splitPrettyArgs(args ...any) (string, []any, bool) {
+	if len(args) == 0 {
+		return "", nil, false
+	}
+
+	msg, ok := args[0].(string)
+	if !ok {
+		return fmt.Sprint(args...), nil, false
+	}
+
+	if len(args) == 1 {
+		return msg, nil, true
+	}
+
+	rest := args[1:]
+	if len(rest)%2 != 0 {
+		return fmt.Sprint(args...), nil, false
+	}
+
+	for i := 0; i < len(rest); i += 2 {
+		if _, isStringKey := rest[i].(string); !isStringKey {
+			return fmt.Sprint(args...), nil, false
+		}
+	}
+
+	return msg, rest, true
 }
 
 func (l *prettyLogger) Info(args ...any) {
-	l.log.Info(fmt.Sprint(args...))
+	message, attrs, structured := splitPrettyArgs(args...)
+	if structured {
+		l.log.Info("Info", append([]any{"message", message}, attrs...)...)
+		return
+	}
+	l.log.Info("Info", "message", message)
 }
 
 func (l *prettyLogger) Infof(format string, args ...any) {
-	l.log.Info(fmt.Sprintf(format, args...))
+	l.log.Info("Info",
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 func (l *prettyLogger) Debug(args ...any) {
-	l.log.Debug(fmt.Sprint(args...))
+	message, attrs, structured := splitPrettyArgs(args...)
+	if structured {
+		l.log.Debug("Debug", append([]any{"message", message}, attrs...)...)
+		return
+	}
+	l.log.Debug("Debug", "message", message)
 }
 
 func (l *prettyLogger) Debugf(format string, args ...any) {
-	l.log.Debug(fmt.Sprintf(format, args...))
+	l.log.Debug("Debug",
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 func (l *prettyLogger) Warn(args ...any) {
-	l.log.Warn(fmt.Sprint(args...))
+	message, attrs, structured := splitPrettyArgs(args...)
+	if structured {
+		l.log.Warn("Warn", append([]any{"message", message}, attrs...)...)
+		return
+	}
+	l.log.Warn("Warn", "message", message)
 }
 
 func (l *prettyLogger) Warnf(format string, args ...any) {
-	l.log.Warn(fmt.Sprintf(format, args...))
+	l.log.Warn("Warn",
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 func (l *prettyLogger) Error(args ...any) {
-	l.log.Error(fmt.Sprint(args...))
+	message, attrs, structured := splitPrettyArgs(args...)
+	if structured {
+		l.log.Error("Error", append([]any{"message", message}, attrs...)...)
+		return
+	}
+	l.log.Error("Error", "message", message)
 }
 
 func (l *prettyLogger) Errorf(format string, args ...any) {
-	l.log.Error(fmt.Sprintf(format, args...))
+	l.log.Error("Error",
+		"messageTemplate", format,
+		"messageArgs", args)
 }

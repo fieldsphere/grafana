@@ -18,6 +18,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/grafana/grafana/pkg/build/wire"
@@ -27,26 +28,26 @@ func main() {
 	// Create a "real" greeter.
 	// Greet() will include the real current time, so elide it for repeatable
 	// tests.
-	fmt.Printf("Real time greeting: %s [current time elided]\n", initApp().Greet()[0:15])
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("Real time greeting: %s [current time elided]\n", initApp().Greet()[0:15]))
 
 	// There are two approaches for creating an app with mocks.
 
 	// Approach A: create the mocks manually, and pass them to an injector.
 	// This approach is useful if you need to prime the mocks beforehand.
-	fmt.Println("Approach A")
+	_, _ = os.Stdout.WriteString("Approach A\n")
 	mt := newMockTimer()
 	mockedApp := initMockedAppFromArgs(mt)
-	fmt.Println(mockedApp.Greet()) // prints greeting with time = zero time
+	_, _ = os.Stdout.WriteString(mockedApp.Greet() + "\n") // prints greeting with time = zero time
 	mt.T = mt.T.AddDate(1999, 0, 0)
-	fmt.Println(mockedApp.Greet()) // prints greeting with time = year 2000
+	_, _ = os.Stdout.WriteString(mockedApp.Greet() + "\n") // prints greeting with time = year 2000
 
 	// Approach B: allow the injector to create the mocks, and return a struct
 	// that includes the resulting app plus the mocks.
-	fmt.Println("Approach B")
+	_, _ = os.Stdout.WriteString("Approach B\n")
 	appWithMocks := initMockedApp()
-	fmt.Println(appWithMocks.app.Greet()) // prints greeting with time = zero time
+	_, _ = os.Stdout.WriteString(appWithMocks.app.Greet() + "\n") // prints greeting with time = zero time
 	appWithMocks.mt.T = appWithMocks.mt.T.AddDate(999, 0, 0)
-	fmt.Println(appWithMocks.app.Greet()) // prints greeting with time = year 1000
+	_, _ = os.Stdout.WriteString(appWithMocks.app.Greet() + "\n") // prints greeting with time = year 1000
 }
 
 // appSet is a provider set for creating a real app.

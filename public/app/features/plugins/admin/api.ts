@@ -5,6 +5,7 @@ import { isVersionGtOrEq } from 'app/core/utils/version';
 
 import { API_ROOT, GCOM_API_ROOT, INSTANCE_API_ROOT } from './constants';
 import { isLocalPluginVisibleByConfig, isRemotePluginVisibleByConfig } from './helpers';
+import { pluginsLogger } from '../utils';
 import {
   LocalPlugin,
   RemotePlugin,
@@ -91,7 +92,11 @@ export async function getRemotePlugins(): Promise<RemotePlugin[]> {
     if (isFetchError(error)) {
       // It can happen that GCOM is not available, in that case we show a limited set of information to the user.
       error.isHandled = true;
-      console.error('Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
+      pluginsLogger.logWarning('Failed to fetch plugins from catalog', {
+        operation: 'getRemotePlugins',
+        endpoint: `${GCOM_API_ROOT}/plugins`,
+        error: error.data?.message ?? '',
+      });
       return [];
     }
 

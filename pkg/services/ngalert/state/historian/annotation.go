@@ -103,7 +103,7 @@ func (h *AnnotationBackend) Record(ctx context.Context, rule history_model.RuleM
 
 		err := h.store.Save(ctx, panel, annotations, rule.OrgID, logger)
 		if err != nil {
-			logger.Error("Failed to save history batch", "samples", len(annotations), "err", err)
+			logger.Error("Failed to save history batch", "samples", len(annotations), "error", err)
 			errCh <- err
 			return
 		}
@@ -182,7 +182,7 @@ func (h *AnnotationBackend) Query(ctx context.Context, query ngmodels.HistoryQue
 	for _, item := range items {
 		data, err := json.Marshal(item.Data)
 		if err != nil {
-			logger.Error("Annotation service gave an annotation with unparseable data, skipping", "id", item.ID, "err", err)
+			logger.Error("Annotation service gave an annotation with unparseable data, skipping", "annotationID", item.ID, "error", err)
 			continue
 		}
 		times = append(times, time.Unix(item.Time, 0))

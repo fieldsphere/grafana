@@ -72,13 +72,13 @@ func ValidateURL(typeName, urlStr string) (*url.URL, error) {
 	case "mssql":
 		u, err = parseURL(urlStr, logger)
 	default:
-		logger.Debug("Applying default URL parsing for this data source type", "type", typeName, "url", urlStr)
+		logger.Debug("Applying default URL parsing for this data source type", "datasourceType", typeName, "datasourceURL", urlStr)
 
 		// Make sure the URL starts with a protocol specifier, so parsing is unambiguous
 		if !reURL.MatchString(urlStr) {
 			logger.Debug(
 				"Data source URL doesn't specify protocol, so prepending it with http:// in order to make it unambiguous",
-				"type", typeName, "url", urlStr)
+				"datasourceType", typeName, "datasourceURL", urlStr)
 			urlStr = fmt.Sprintf("http://%s", urlStr)
 		}
 		u, err = url.Parse(urlStr)
@@ -96,17 +96,17 @@ type DebugOnlyLogger interface {
 
 // ParseURL tries to parse an URL string into a URL object.
 func parseURL(u string, logger DebugOnlyLogger) (*url.URL, error) {
-	logger.Debug("Parsing URL", "url", u)
+	logger.Debug("Parsing URL", "datasourceURL", u)
 
 	// Recognize ODBC connection strings like host\instance:1234
 	reODBC := regexp.MustCompile(`^[^\\:]+(?:\\[^:]+)?(?::\d+)?(?:;.+)?$`)
 	var host string
 	switch {
 	case reODBC.MatchString(u):
-		logger.Debug("Recognized as ODBC URL format", "url", u)
+		logger.Debug("Recognized as ODBC URL format", "datasourceURL", u)
 		host = u
 	default:
-		logger.Debug("Couldn't recognize as valid MSSQL URL", "url", u)
+		logger.Debug("Couldn't recognize as valid MSSQL URL", "datasourceURL", u)
 		return nil, fmt.Errorf("unrecognized URL format: %q", u)
 	}
 	return &url.URL{

@@ -1,5 +1,5 @@
 import { CoreApp, DataSourceApi, DataSourceInstanceSettings, getDataSourceRef, getNextRefId } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import { SceneObjectBase, SceneObjectRef, SceneObjectState, SceneQueryRunner, VizPanel } from '@grafana/scenes';
 import { DataQuery, DataSourceRef } from '@grafana/schema';
 import { addQuery } from 'app/core/utils/query';
@@ -10,6 +10,8 @@ import { getQueryRunnerFor } from '../../utils/utils';
 import { getUpdatedHoverHeader } from '../getPanelFrameOptions';
 
 import { QueryEditorContent } from './QueryEditor/QueryEditorContent';
+
+const logger = createMonitoringLogger('features.dashboard-scene.panel-data-pane-next');
 
 export interface PanelDataPaneNextState extends SceneObjectState {
   panelRef: SceneObjectRef<VizPanel>;
@@ -76,7 +78,15 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
       const datasource = await getDataSourceSrv().get(dsRef);
       this.setState({ datasource, dsSettings, dsError: undefined });
     } catch (err) {
-      console.error('Failed to load datasource:', err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'loadDatasource', datasourceRef: JSON.stringify(dsRef) });
+      } else {
+        logger.logWarning('Failed to load datasource', {
+          operation: 'loadDatasource',
+          datasourceRef: JSON.stringify(dsRef),
+          error: String(err),
+        });
+      }
       this.setState({
         datasource: undefined,
         dsSettings: undefined,

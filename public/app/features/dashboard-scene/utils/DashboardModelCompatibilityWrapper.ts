@@ -1,7 +1,7 @@
 import { Subscription } from 'rxjs';
 
 import { AnnotationQuery, DashboardCursorSync, dateTimeFormat, DateTimeInput, EventBusSrv } from '@grafana/data';
-import { TimeRangeUpdatedEvent } from '@grafana/runtime';
+import { createMonitoringLogger, TimeRangeUpdatedEvent } from '@grafana/runtime';
 import { behaviors, sceneGraph, SceneObject, VizPanel } from '@grafana/scenes';
 
 import { DashboardDataLayerSet } from '../scene/DashboardDataLayerSet';
@@ -10,6 +10,8 @@ import { dataLayersToAnnotations } from '../serialization/dataLayersToAnnotation
 
 import { PanelModelCompatibilityWrapper } from './PanelModelCompatibilityWrapper';
 import { findVizPanelByKey, getVizPanelKeyForPanelId } from './utils';
+
+const logger = createMonitoringLogger('features.dashboard-scene.dashboard-model-compat');
 
 /**
  * Will move this to make it the main way we remain somewhat compatible with getDashboardSrv().getCurrent
@@ -159,7 +161,7 @@ export class DashboardModelCompatibilityWrapper {
   public removePanel(panel: PanelModelCompatibilityWrapper) {
     const vizPanel = findVizPanelByKey(this._scene, getVizPanelKeyForPanelId(panel.id));
     if (!vizPanel) {
-      console.error('Trying to remove a panel that was not found in scene', panel);
+      logger.logWarning('Trying to remove a panel that was not found in scene', { panelId: panel.id });
       return;
     }
 

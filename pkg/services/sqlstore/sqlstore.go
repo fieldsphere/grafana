@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"strings"
 	"sync"
@@ -215,10 +216,10 @@ func (ss *SQLStore) ensureMainOrgAndAdminUser(test bool) error {
 				return fmt.Errorf("failed to create admin user: %s", err)
 			}
 
-			ss.log.Info("Created default admin", "user", ss.cfg.AdminUser)
+			ss.log.Info("Created default admin", "adminUser", ss.cfg.AdminUser)
 		}
 
-		ss.log.Debug("Creating default org", "name", mainOrgName)
+		ss.log.Debug("Creating default org", "orgName", mainOrgName)
 		if _, err := ss.getOrCreateOrg(sess, mainOrgName); err != nil {
 			return fmt.Errorf("failed to create default organization: %w", err)
 		}
@@ -261,7 +262,7 @@ func (ss *SQLStore) initEngine(engine *xorm.Engine) error {
 
 		const perms = 0640
 		if !exists {
-			ss.log.Info("Creating SQLite database file", "path", ss.dbCfg.Path)
+			ss.log.Info("Creating SQLite database file", "sqliteDatabasePath", ss.dbCfg.Path)
 			f, err := os.OpenFile(ss.dbCfg.Path, os.O_CREATE|os.O_RDWR, perms)
 			if err != nil {
 				return fmt.Errorf("failed to create SQLite database file %q: %w", ss.dbCfg.Path, err)
@@ -277,7 +278,7 @@ func (ss *SQLStore) initEngine(engine *xorm.Engine) error {
 			m := fi.Mode() & os.ModePerm
 			if m|perms != perms {
 				ss.log.Warn("SQLite database file has broader permissions than it should",
-					"path", ss.dbCfg.Path, "mode", m, "expected", os.FileMode(perms))
+					"sqliteDatabasePath", ss.dbCfg.Path, "mode", m, "expected", os.FileMode(perms))
 			}
 		}
 	}
@@ -448,7 +449,7 @@ func SetupTestDB() {
 	testSQLStoreMutex.Lock()
 	defer testSQLStoreMutex.Unlock()
 	if testSQLStoreSetup {
-		fmt.Printf("ERROR: Test DB already set up, SetupTestDB called twice\n")
+		slog.Error("Test DB already set up, SetupTestDB called twice")
 		os.Exit(1)
 	}
 	testSQLStoreSetup = true
@@ -458,12 +459,12 @@ func CleanupTestDB() {
 	testSQLStoreMutex.Lock()
 	defer testSQLStoreMutex.Unlock()
 	if !testSQLStoreSetup {
-		fmt.Printf("ERROR: Test DB not set up, SetupTestDB not called\n")
+		slog.Error("Test DB not set up, SetupTestDB not called")
 		os.Exit(1)
 	}
 	if testSQLStore != nil {
 		if err := testSQLStore.GetEngine().Close(); err != nil {
-			fmt.Printf("Failed to close testSQLStore engine: %s\n", err)
+			slog.Error("Failed to close testSQLStore engine", "error", err)
 		}
 
 		for _, cleanup := range testSQLStoreCleanup {

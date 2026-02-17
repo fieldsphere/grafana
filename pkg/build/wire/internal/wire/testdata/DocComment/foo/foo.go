@@ -15,7 +15,7 @@
 package main
 
 import (
-	"fmt"
+	"os"
 )
 
 type (
@@ -24,5 +24,5 @@ type (
 )
 
 func main() {
-	fmt.Println("Hello, World")
+	_, _ = os.Stdout.WriteString("Hello, World\n")
 }

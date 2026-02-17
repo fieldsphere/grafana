@@ -11,7 +11,6 @@ import (
 	dashboard "github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v1beta1"
 	provisioning "github.com/grafana/grafana/apps/provisioning/pkg/apis/provisioning/v0alpha1"
 	"github.com/grafana/grafana/apps/provisioning/pkg/repository"
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
 	"github.com/grafana/grafana/pkg/infra/slugify"
 	"github.com/grafana/grafana/pkg/registry/apis/provisioning/jobs"
 	"github.com/grafana/grafana/pkg/registry/apis/provisioning/resources"
@@ -83,18 +82,17 @@ func (e *evaluator) Evaluate(ctx context.Context, repo repository.Reader, opts p
 		MissingImageRenderer: !rendererAvailable,
 	}
 
-	logger := logging.FromContext(ctx)
+	ctxLogger := logging.FromContext(ctx)
 
 	for i, change := range changes {
 		// process maximum 10 files
 		if i >= 10 {
 			info.SkippedFiles = len(changes) - i
-			logger.Info("skipping remaining files", "count", info.SkippedFiles)
+			ctxLogger.Info("skipping remaining files", "count", info.SkippedFiles)
 			break
 		}
 
 		progress.SetMessage(ctx, fmt.Sprintf("process %s", change.Path))
-		logger.With("action", change.Action).With("path", change.Path)
 		info.Changes = append(info.Changes, e.evaluateFile(ctx, repo, info.GrafanaBaseURL, change, opts, parser, shouldRender))
 	}
 
@@ -104,6 +102,8 @@ func (e *evaluator) Evaluate(ctx context.Context, repo repository.Reader, opts p
 var dashboardKind = dashboard.DashboardResourceInfo.GroupVersionKind().Kind
 
 func (e *evaluator) evaluateFile(ctx context.Context, repo repository.Reader, baseURL string, change repository.VersionedFileChange, opts provisioning.PullRequestJobOptions, parser resources.Parser, shouldRender bool) fileChangeInfo {
+	logger := logging.FromContext(ctx)
+
 	if change.Action == repository.FileActionDeleted {
 		// TODO: read the old and verify
 		return fileChangeInfo{Change: change, Error: "delete feedback not yet implemented"}
@@ -112,7 +112,7 @@ func (e *evaluator) evaluateFile(ctx context.Context, repo repository.Reader, ba
 	info := fileChangeInfo{Change: change}
 	fileInfo, err := repo.Read(ctx, change.Path, change.Ref)
 	if err != nil {
-		logger.Info("unable to read file", "err", err)
+		logger.Info("unable to read file", "error", err)
 		info.Error = err.Error()
 		return info
 	}
@@ -142,7 +142,7 @@ func (e *evaluator) evaluateFile(ctx context.Context, repo repository.Reader, ba
 		// for testability and decoupling
 		urlBuilder, err := url.Parse(baseURL)
 		if err != nil {
-			logger.Warn("Error parsing baseURL", "err", err)
+			logger.Warn("Error parsing baseURL", "error", err)
 			info.Error = err.Error()
 			return info
 		}
@@ -196,12 +196,12 @@ func renderScreenshotFromGrafanaURL(ctx context.Context,
 	}()
 	parsed, err := url.Parse(grafanaURL)
 	if err != nil {
-		logging.FromContext(ctx).Warn("invalid", "url", grafanaURL, "err", err)
+		logging.FromContext(ctx).Warn("invalid", "grafanaURL", grafanaURL, "error", err)
 		return "", err
 	}
 	snap, err := renderer.RenderScreenshot(ctx, repo, strings.TrimPrefix(parsed.Path, "/"), parsed.Query())
 	if err != nil {
-		logging.FromContext(ctx).Warn("render failed", "url", grafanaURL, "err", err)
+		logging.FromContext(ctx).Warn("render failed", "grafanaURL", grafanaURL, "error", err)
 		return "", fmt.Errorf("error rendering screenshot: %w", err)
 	}
 	if strings.Contains(snap, "://") {
@@ -209,7 +209,7 @@ func renderScreenshotFromGrafanaURL(ctx context.Context,
 	}
 	base, err := url.Parse(baseURL)
 	if err != nil {
-		logger.Warn("invalid base", "url", baseURL, "err", err)
+		logging.FromContext(ctx).Warn("invalid base", "baseURL", baseURL, "error", err)
 		return "", err
 	}
 	outcome = utils.SuccessOutcome

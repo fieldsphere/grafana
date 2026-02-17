@@ -6,6 +6,7 @@ import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 
 import { useStyles2 } from '../../../../themes/ThemeContext';
+import { logUiDebug } from '../../../../utils/structuredLogging';
 import { Button } from '../../../Button/Button';
 import { ButtonSelect } from '../../../Dropdown/ButtonSelect';
 import { FilterInput } from '../../../FilterInput/FilterInput';
@@ -112,7 +113,7 @@ export const FilterPopup = memo(
           return;
         }
         if (event.target instanceof Node && !domNode.contains(event.target)) {
-          console.log('closing from outside click');
+          logUiDebug('Closing filter popup from outside click', { operation: 'onOutsideClick' });
           onClose();
         }
       };

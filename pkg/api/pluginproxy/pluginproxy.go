@@ -99,11 +99,11 @@ func (proxy *PluginProxy) HandleRequest() {
 	}
 
 	proxyErrorLogger := logger.New(
-		"userId", proxy.ctx.UserID,
-		"orgId", proxy.ctx.OrgID,
-		"uname", proxy.ctx.Login,
-		"path", proxy.ctx.Req.URL.Path,
-		"remote_addr", proxy.ctx.RemoteAddr(),
+		"userID", proxy.ctx.UserID,
+		"orgID", proxy.ctx.OrgID,
+		"userLogin", proxy.ctx.Login,
+		"requestPath", proxy.ctx.Req.URL.Path,
+		"remoteAddr", proxy.ctx.RemoteAddr(),
 		"referer", proxy.ctx.Req.Referer(),
 	)
 
@@ -120,8 +120,8 @@ func (proxy *PluginProxy) HandleRequest() {
 	proxy.ctx.Req = proxy.ctx.Req.WithContext(ctx)
 
 	span.SetAttributes(
-		attribute.String("user", proxy.ctx.Login),
-		attribute.Int64("org_id", proxy.ctx.OrgID),
+		attribute.String("userLogin", proxy.ctx.Login),
+		attribute.Int64("orgID", proxy.ctx.OrgID),
 	)
 
 	proxy.tracer.Inject(ctx, proxy.ctx.Req.Header, span)
@@ -213,13 +213,13 @@ func (proxy PluginProxy) logRequest() {
 
 	ctxLogger := logger.FromContext(proxy.ctx.Req.Context())
 	ctxLogger.Info("Proxying incoming request",
-		"userid", proxy.ctx.UserID,
-		"orgid", proxy.ctx.OrgID,
+		"userID", proxy.ctx.UserID,
+		"orgID", proxy.ctx.OrgID,
 		"username", proxy.ctx.Login,
-		"app", proxy.ps.PluginID,
-		"uri", proxy.ctx.Req.RequestURI,
+		"pluginID", proxy.ps.PluginID,
+		"requestURI", proxy.ctx.Req.RequestURI,
 		"method", proxy.ctx.Req.Method,
-		"body", body)
+		"requestBody", body)
 }
 
 type templateData struct {

@@ -333,7 +333,7 @@ func (session *Session) innerInsert(bean any) (int64, error) {
 			}
 			idValue, err := col.ValueOf(bean)
 			if err != nil {
-				session.engine.logger.Error(err)
+				session.engine.logger.Error("XORM failed to resolve random ID field", "column", table.RandomID, "error", err)
 			}
 			if idValue == nil || !idValue.IsValid() || !idValue.CanSet() {
 				return 0, fmt.Errorf("failed to set snowflake ID to bean: %v", err)
@@ -468,7 +468,7 @@ func (session *Session) innerInsert(bean any) (int64, error) {
 		if table.Version != "" && session.statement.checkVersion {
 			verValue, err := table.VersionColumn().ValueOf(bean)
 			if err != nil {
-				session.engine.logger.Error(err)
+				session.engine.logger.Error("XORM failed to resolve version field", "column", table.Version, "error", err)
 			} else if verValue.IsValid() && verValue.CanSet() {
 				session.incrVersionFieldValue(verValue)
 			}
@@ -495,7 +495,7 @@ func (session *Session) innerInsert(bean any) (int64, error) {
 		if table.Version != "" && session.statement.checkVersion {
 			verValue, err := table.VersionColumn().ValueOf(bean)
 			if err != nil {
-				session.engine.logger.Error(err)
+				session.engine.logger.Error("XORM failed to resolve version field", "column", table.Version, "error", err)
 			} else if verValue.IsValid() && verValue.CanSet() {
 				session.incrVersionFieldValue(verValue)
 			}
@@ -522,7 +522,7 @@ func (session *Session) innerInsert(bean any) (int64, error) {
 		if table.Version != "" && session.statement.checkVersion {
 			verValue, err := table.VersionColumn().ValueOf(bean)
 			if err != nil {
-				session.engine.logger.Error(err)
+				session.engine.logger.Error("XORM failed to resolve version field", "column", table.Version, "error", err)
 			} else if verValue.IsValid() && verValue.CanSet() {
 				session.incrVersionFieldValue(verValue)
 			}
@@ -546,7 +546,7 @@ func (session *Session) innerInsert(bean any) (int64, error) {
 	// Set insertID back to the bean.
 	aiValue, err := table.AutoIncrColumn().ValueOf(bean)
 	if err != nil {
-		session.engine.logger.Error(err)
+		session.engine.logger.Error("XORM failed to resolve auto increment field", "column", table.AutoIncrement, "error", err)
 	}
 
 	if aiValue == nil || !aiValue.IsValid() || !aiValue.CanSet() {

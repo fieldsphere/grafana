@@ -104,7 +104,7 @@ func (r *Runner) registerCheckType(ctx context.Context, logger logging.Logger, c
 					continue
 				}
 				// Success
-				logger.Debug("Check type created successfully", "check_type", checkType)
+				logger.Debug("Check type created successfully", "checkType", checkType)
 				break
 			}
 			if !r.shouldRetry(err, logger, i+1, checkType) {
@@ -126,12 +126,12 @@ func (r *Runner) registerCheckType(ctx context.Context, logger logging.Logger, c
 				continue
 			}
 			// Success
-			logger.Debug("Check type updated successfully", "check_type", checkType)
+			logger.Debug("Check type updated successfully", "checkType", checkType)
 			break
 		}
 
 		// Check type is the same, no need to update
-		logger.Debug("Check type already registered", "check_type", checkType)
+		logger.Debug("Check type already registered", "checkType", checkType)
 		break
 	}
 	return nil
@@ -143,7 +143,7 @@ func (r *Runner) shouldRetry(err error, logger logging.Logger, attempt int, chec
 		return false
 	}
 	if attempt == r.retryAttempts-1 {
-		logger.Error("Unable to register check type", "check_type", checkType, "error", err)
+		logger.Error("Unable to register check type", "checkType", checkType, "error", err)
 		return false
 	}
 	// Calculate exponential backoff delay: baseDelay * 2^attempt

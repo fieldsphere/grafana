@@ -95,7 +95,7 @@ func ProvideService(
 // Responses:
 // 410: goneError
 func (s *Service) ReloadLDAPCfg(c *contextmodel.ReqContext) response.Response {
-	s.log.Warn("Obsolete and Permanently moved API endpoint called", "path", c.Req.URL.Path)
+	s.log.Warn("Obsolete and Permanently moved API endpoint called", "requestPath", c.Req.URL.Path)
 
 	// Respond with a 410 Gone status code
 	return response.Error(
@@ -206,7 +206,7 @@ func (s *Service) PostSyncUserWithLDAP(c *contextmodel.ReqContext) response.Resp
 		if errors.Is(err, multildap.ErrDidNotFindUser) { // User was not in the LDAP server - we need to take action:
 			if s.adminUser == usr.Login { // User is *the* Grafana Admin. We cannot disable it.
 				errMsg := fmt.Sprintf(`Refusing to sync grafana super admin "%s" - it would be disabled`, usr.Login)
-				s.log.Error(errMsg)
+				s.log.Error("Refusing to sync Grafana super admin because user would be disabled", "login", usr.Login)
 				return response.Error(http.StatusBadRequest, errMsg, err)
 			}
 
@@ -222,7 +222,7 @@ func (s *Service) PostSyncUserWithLDAP(c *contextmodel.ReqContext) response.Resp
 			return response.Error(http.StatusBadRequest, "User not found in LDAP. Disabled the user without updating information", nil) // should this be a success?
 		}
 
-		s.log.Debug("Failed to sync the user with LDAP", "err", err)
+		s.log.Debug("Failed to sync the user with LDAP", "error", err)
 		return response.Error(http.StatusBadRequest, "Something went wrong while finding the user in LDAP", err)
 	}
 

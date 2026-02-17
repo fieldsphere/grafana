@@ -278,7 +278,8 @@ describe('RichHistoryLocalStorage', () => {
       // Ensure logger was called for the failure, with expected flags
       expect(loggerMock.logWarning).toHaveBeenCalled();
       const [message, payload] = (loggerMock.logWarning as jest.Mock).mock.calls[0];
-      expect(message).toContain('Failed to save rich history to local storage');
+      expect(message).toBe('Rich history local storage usage warning');
+      expect(payload.logMessage).toContain('Failed to save rich history to local storage');
       expect(payload.saveRetriesLeft).toBe('3');
       expect(payload.quotaExceededError).toBe('true');
     });
@@ -307,7 +308,8 @@ describe('RichHistoryLocalStorage', () => {
       // 4 failed tracking attempts (1 save + 3 retries) should be logged (for each failed try)
       expect(loggerMock.logWarning).toHaveBeenCalledTimes(4);
       const calls = (loggerMock.logWarning as jest.Mock).mock.calls;
-      expect(calls[0][0]).toContain('Failed to save rich history to local storage');
+      expect(calls[0][0]).toBe('Rich history local storage usage warning');
+      expect(calls[0][1].logMessage).toContain('Failed to save rich history to local storage');
       expect(calls[0][1].saveRetriesLeft).toBe('3');
       expect(calls[1][1].saveRetriesLeft).toBe('2');
       expect(calls[2][1].saveRetriesLeft).toBe('1');

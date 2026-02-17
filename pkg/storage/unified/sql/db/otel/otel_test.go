@@ -29,10 +29,10 @@ func TestContextAttributes(t *testing.T) {
 	ctx := context.Background()
 
 	// test attributes
-	attr1 := attribute.String("the key", "the value")
-	attr2 := attribute.String("the other key", "the other value")
-	attr3 := attribute.String("why not", "have another value")
-	attr4 := attribute.String("it's free", "they say")
+	attr1 := attribute.String("testKeyOne", "the value")
+	attr2 := attribute.String("testKeyTwo", "the other value")
+	attr3 := attribute.String("testKeyThree", "have another value")
+	attr4 := attribute.String("testKeyFour", "they say")
 
 	// the subtests are not Parallel because we define this test as a storyline,
 	// since we are interested in testing state changes in the context

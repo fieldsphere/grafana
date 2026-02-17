@@ -43,7 +43,7 @@ func (w *Worker) Process(ctx context.Context, repo repository.Repository, job pr
 		return errors.New("missing move settings")
 	}
 	opts := *job.Spec.Move
-	logger := logging.FromContext(ctx).With("job", job.GetName(), "namespace", job.GetNamespace())
+	logger := logging.FromContext(ctx).With("jobName", job.GetName(), "namespace", job.GetNamespace())
 	outcome := utils.ErrorOutcome
 	start := time.Now()
 	resourcesMoved := 0

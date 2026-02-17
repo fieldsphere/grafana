@@ -265,8 +265,8 @@ func (e *AzureMonitorDatasource) retrieveSubscriptionDetails(cli *http.Client, c
 
 	_, span := tracing.DefaultTracer().Start(ctx, "azuremonitor subscription query", trace.WithAttributes(
 		attribute.String("subscription", subscriptionId),
-		attribute.Int64("datasource_id", dsId),
-		attribute.Int64("org_id", orgId),
+		attribute.Int64("datasourceID", dsId),
+		attribute.Int64("orgID", orgId),
 	),
 	)
 	defer span.End()
@@ -282,7 +282,7 @@ func (e *AzureMonitorDatasource) retrieveSubscriptionDetails(cli *http.Client, c
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			e.Logger.Warn("Failed to close response body", "err", err)
+			e.Logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -321,8 +321,8 @@ func (e *AzureMonitorDatasource) executeQuery(ctx context.Context, query *types.
 		attribute.String("target", query.Target),
 		attribute.Int64("from", query.TimeRange.From.UnixNano()/int64(time.Millisecond)),
 		attribute.Int64("until", query.TimeRange.To.UnixNano()/int64(time.Millisecond)),
-		attribute.Int64("datasource_id", dsInfo.DatasourceID),
-		attribute.Int64("org_id", dsInfo.OrgID),
+		attribute.Int64("datasourceID", dsInfo.DatasourceID),
+		attribute.Int64("orgID", dsInfo.OrgID),
 	),
 	)
 	defer span.End()
@@ -334,7 +334,7 @@ func (e *AzureMonitorDatasource) executeQuery(ctx context.Context, query *types.
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			e.Logger.Warn("Failed to close response body", "err", err)
+			e.Logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

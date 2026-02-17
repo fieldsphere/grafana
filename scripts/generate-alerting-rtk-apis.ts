@@ -5,6 +5,7 @@
 
 import { ConfigFile } from '@rtk-query/codegen-openapi';
 import { accessSync } from 'fs';
+import { logScriptError } from './logging';
 
 const schemaFile = '../data/alerting/openapi.json';
 
@@ -13,9 +14,12 @@ try {
   // as this is currently a manual process
   accessSync(schemaFile);
 } catch (e) {
-  console.error('\nCould not find OpenAPI definition.\n');
-  console.error(
-    'Please visit /openapi/v3/apis/notifications.alerting.grafana.app/v0alpha1 and save the OpenAPI definition to data/alerting/openapi.json\n'
+  logScriptError('Could not find OpenAPI definition', {
+    operation: 'generate-alerting-rtk-apis',
+    openApiPath: schemaFile,
+  });
+  logScriptError(
+    'Visit /openapi/v3/apis/notifications.alerting.grafana.app/v0alpha1 and save it to data/alerting/openapi.json'
   );
   throw e;
 }

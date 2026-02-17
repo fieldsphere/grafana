@@ -51,6 +51,34 @@ type slogLogger struct {
 	name   string
 }
 
+func normalizePluginLoggerContext(ctx ...any) []any {
+	if len(ctx) == 0 {
+		return nil
+	}
+
+	if len(ctx)%2 != 0 {
+		return []any{"pluginLogArgs", ctx}
+	}
+
+	for i := 0; i < len(ctx); i += 2 {
+		if _, ok := ctx[i].(string); !ok {
+			return []any{"pluginLogArgs", ctx}
+		}
+	}
+
+	return ctx
+}
+
+func wrapPluginLoggerContext(msg, level string, ctx ...any) []any {
+	normalized := normalizePluginLoggerContext(ctx...)
+	fields := make([]any, 0, 6)
+	fields = append(fields, "pluginMessage", msg, "pluginLogLevel", level)
+	if len(normalized) > 0 {
+		fields = append(fields, "pluginContext", normalized)
+	}
+	return fields
+}
+
 func (l *slogLogger) New(ctx ...any) Logger {
 	if len(ctx) == 0 {
 		return &slogLogger{
@@ -58,26 +86,35 @@ func (l *slogLogger) New(ctx ...any) Logger {
 			name:   l.name,
 		}
 	}
+
+	normalized := normalizePluginLoggerContext(ctx...)
+	if len(normalized) == 0 {
+		return &slogLogger{
+			logger: l.logger,
+			name:   l.name,
+		}
+	}
+
 	return &slogLogger{
-		logger: l.logger.With(ctx...),
+		logger: l.logger.With("pluginContext", normalized),
 		name:   l.name,
 	}
 }
 
 func (l *slogLogger) Debug(msg string, ctx ...any) {
-	l.logger.Debug(msg, ctx...)
+	l.logger.Debug("Plugin logger event", wrapPluginLoggerContext(msg, "debug", ctx...)...)
 }
 
 func (l *slogLogger) Info(msg string, ctx ...any) {
-	l.logger.Info(msg, ctx...)
+	l.logger.Info("Plugin logger event", wrapPluginLoggerContext(msg, "info", ctx...)...)
 }
 
 func (l *slogLogger) Warn(msg string, ctx ...any) {
-	l.logger.Warn(msg, ctx...)
+	l.logger.Warn("Plugin logger event", wrapPluginLoggerContext(msg, "warn", ctx...)...)
 }
 
 func (l *slogLogger) Error(msg string, ctx ...any) {
-	l.logger.Error(msg, ctx...)
+	l.logger.Error("Plugin logger event", wrapPluginLoggerContext(msg, "error", ctx...)...)
 }
 
 func (l *slogLogger) FromContext(_ context.Context) Logger {

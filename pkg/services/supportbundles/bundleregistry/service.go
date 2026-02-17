@@ -21,7 +21,7 @@ func ProvideService() *Service {
 
 func (s *Service) RegisterSupportItemCollector(collector supportbundles.Collector) {
 	if _, ok := s.collectors[collector.UID]; ok {
-		s.log.Warn("Support bundle collector with the same UID already registered", "uid", collector.UID)
+		s.log.Warn("Support bundle collector with the same UID already registered", "collectorUID", collector.UID)
 	}
 
 	s.collectors[collector.UID] = collector

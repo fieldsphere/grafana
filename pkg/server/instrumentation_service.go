@@ -48,7 +48,7 @@ func (s *instrumentationService) running(ctx context.Context) error {
 }
 
 func (s *instrumentationService) stop(failureReason error) error {
-	s.log.Info("stopping instrumentation server", "reason", failureReason)
+	s.log.Info("stopping instrumentation server", "failureReason", failureReason)
 	if err := s.httpServ.Shutdown(context.Background()); err != nil {
 		s.log.Error("failed to shutdown instrumentation server", "error", err)
 		return err

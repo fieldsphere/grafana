@@ -73,25 +73,25 @@ func newCacheWrap[T any](cache cache.Cache, logger log.Logger, tracer tracing.Tr
 func (c *cacheWrapImpl[T]) Get(ctx context.Context, key string) (T, bool) {
 	ctx, span := c.tracer.Start(ctx, "cacheWrap.Get")
 	defer span.End()
-	span.SetAttributes(attribute.Bool("hit", false))
+	span.SetAttributes(attribute.Bool("cacheHit", false))
 	logger := c.logger.FromContext(ctx)
 
 	var value T
 	data, err := c.cache.Get(ctx, key)
 	if err != nil {
 		if !errors.Is(err, cache.ErrNotFound) {
-			logger.Warn("failed to get from cache", "key", key, "error", err)
+			logger.Warn("failed to get from cache", "cacheKey", key, "error", err)
 		}
 		return value, false
 	}
 
 	err = json.Unmarshal(data, &value)
 	if err != nil {
-		logger.Warn("failed to unmarshal from cache", "key", key, "error", err)
+		logger.Warn("failed to unmarshal from cache", "cacheKey", key, "error", err)
 		return value, false
 	}
 
-	span.SetAttributes(attribute.Bool("hit", true))
+	span.SetAttributes(attribute.Bool("cacheHit", true))
 	return value, true
 }
 
@@ -102,13 +102,13 @@ func (c *cacheWrapImpl[T]) Set(ctx context.Context, key string, value T) {
 
 	data, err := json.Marshal(value)
 	if err != nil {
-		logger.Warn("failed to marshal to cache", "key", key, "error", err)
+		logger.Warn("failed to marshal to cache", "cacheKey", key, "error", err)
 		return
 	}
 
 	err = c.cache.Set(ctx, key, data, c.ttl)
 	if err != nil {
-		logger.Warn("failed to set to cache", "key", key, "error", err)
+		logger.Warn("failed to set to cache", "cacheKey", key, "error", err)
 	}
 }
 

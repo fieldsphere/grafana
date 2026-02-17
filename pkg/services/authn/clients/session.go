@@ -76,7 +76,7 @@ func (s *Session) Authenticate(ctx context.Context, r *authn.Request) (*authn.Id
 	info, err := s.authInfoService.GetAuthInfo(ctx, &login.GetAuthInfoQuery{UserId: token.UserId})
 	if err != nil {
 		if !errors.Is(err, user.ErrUserNotFound) {
-			s.log.FromContext(ctx).Error("Failed to fetch auth info", "err", err)
+			s.log.FromContext(ctx).Error("Failed to fetch auth info", "error", err)
 		}
 		return ident, nil
 	}

@@ -91,19 +91,19 @@ func (o *Service) GetCurrentOAuthToken(ctx context.Context, usr identity.Request
 	ctxLogger := logger.FromContext(ctx)
 
 	if usr == nil || usr.IsNil() {
-		ctxLogger.Warn("Can only get OAuth tokens for existing users", "user", "nil")
+		ctxLogger.Warn("Can only get OAuth tokens for existing users", "userState", "nil")
 		// Not user, no token.
 		return nil
 	}
 
 	if !usr.IsIdentityType(claims.TypeUser) {
-		ctxLogger.Warn("Can only get OAuth tokens for users", "id", usr.GetID())
+		ctxLogger.Warn("Can only get OAuth tokens for users", "userID", usr.GetID())
 		return nil
 	}
 
 	userID, err := usr.GetInternalID()
 	if err != nil {
-		logger.Error("Failed to convert user id to int", "id", usr.GetID(), "error", err)
+		logger.Error("Failed to convert user id to int", "userID", usr.GetID(), "error", err)
 		return nil
 	}
 
@@ -211,7 +211,7 @@ func (o *Service) hasOAuthEntry(ctx context.Context, usr identity.Requester) (*l
 	ctxLogger := logger.FromContext(ctx)
 	userID, err := usr.GetInternalID()
 	if err != nil {
-		ctxLogger.Error("Failed to convert user id to int", "id", usr.GetID(), "error", err)
+		ctxLogger.Error("Failed to convert user id to int", "userID", usr.GetID(), "error", err)
 		return nil, false, err
 	}
 
@@ -250,19 +250,19 @@ func (o *Service) TryTokenRefresh(ctx context.Context, usr identity.Requester, t
 	ctxLogger := logger.FromContext(ctx)
 
 	if usr == nil || usr.IsNil() {
-		ctxLogger.Warn("Can only refresh OAuth tokens for existing users", "user", "nil")
+		ctxLogger.Warn("Can only refresh OAuth tokens for existing users", "userState", "nil")
 		// Not user, no token.
 		return nil, nil
 	}
 
 	if !usr.IsIdentityType(claims.TypeUser) {
-		ctxLogger.Warn("Can only refresh OAuth tokens for users", "id", usr.GetID())
+		ctxLogger.Warn("Can only refresh OAuth tokens for users", "userID", usr.GetID())
 		return nil, nil
 	}
 
 	userID, err := usr.GetInternalID()
 	if err != nil {
-		ctxLogger.Warn("Failed to convert user id to int", "id", usr.GetID(), "error", err)
+		ctxLogger.Warn("Failed to convert user id to int", "userID", usr.GetID(), "error", err)
 		return nil, nil
 	}
 
@@ -314,7 +314,7 @@ func (o *Service) TryTokenRefresh(ctx context.Context, usr identity.Requester, t
 			trace.WithAttributes(attribute.Int64("userID", userID)))
 		defer span.End()
 
-		ctxLogger.Debug("Serverlock request for getting a new access token", "key", lockKey)
+		ctxLogger.Debug("Serverlock request for getting a new access token", "lockKey", lockKey)
 
 		var persistedToken *oauth2.Token
 		var externalSession *auth.ExternalSession
@@ -370,7 +370,7 @@ func (o *Service) TryTokenRefresh(ctx context.Context, usr identity.Requester, t
 func (o *Service) InvalidateOAuthTokens(ctx context.Context, usr identity.Requester, tokenRefreshMetadata *TokenRefreshMetadata) error {
 	userID, err := usr.GetInternalID()
 	if err != nil {
-		logger.Error("Failed to convert user id to int", "id", usr.GetID(), "error", err)
+		logger.Error("Failed to convert user id to int", "userID", usr.GetID(), "error", err)
 		return err
 	}
 
@@ -404,7 +404,7 @@ func (o *Service) tryGetOrRefreshOAuthToken(ctx context.Context, persistedToken 
 
 	userID, err := usr.GetInternalID()
 	if err != nil {
-		logger.Error("Failed to convert user id to int", "id", usr.GetID(), "error", err)
+		logger.Error("Failed to convert user id to int", "userID", usr.GetID(), "error", err)
 		span.SetStatus(codes.Error, "Failed to convert user id to int")
 		return nil, err
 	}
@@ -448,7 +448,7 @@ func (o *Service) tryGetOrRefreshOAuthToken(ctx context.Context, persistedToken 
 	o.tokenRefreshDuration.WithLabelValues(tokenRefreshMetadata.AuthModule, fmt.Sprintf("%t", err == nil)).Observe(duration.Seconds())
 
 	if refreshErr != nil {
-		span.SetAttributes(attribute.Bool("token_refreshed", false))
+		span.SetAttributes(attribute.Bool("tokenRefreshed", false))
 		ctxLogger.Error("Failed to retrieve oauth access token",
 			"provider", tokenRefreshMetadata.AuthModule, "error", refreshErr)
 
@@ -460,21 +460,21 @@ func (o *Service) tryGetOrRefreshOAuthToken(ctx context.Context, persistedToken 
 		return nil, refreshErr
 	}
 
-	span.SetAttributes(attribute.Bool("token_refreshed", true))
+	span.SetAttributes(attribute.Bool("tokenRefreshed", true))
 
 	// If the tokens are not the same, update the entry in the DB
 	if !tokensEq(persistedToken, token) {
 		if o.Cfg.Env == setting.Dev {
 			ctxLogger.Debug("Oauth got token",
-				"auth_module", usr.GetAuthenticatedBy(),
-				"expiry", fmt.Sprintf("%v", token.Expiry),
-				"access_token", fmt.Sprintf("%v", token.AccessToken),
-				"refresh_token", fmt.Sprintf("%v", token.RefreshToken),
+				"authModule", usr.GetAuthenticatedBy(),
+				"expiry", token.Expiry,
+				"accessToken", token.AccessToken,
+				"refreshToken", token.RefreshToken,
 			)
 		}
 
 		if token.RefreshToken == "" {
-			ctxLogger.Warn("Refresh token is missing after token refresh", "authmodule", tokenRefreshMetadata.AuthModule)
+			ctxLogger.Warn("Refresh token is missing after token refresh", "authModule", tokenRefreshMetadata.AuthModule)
 		}
 
 		//nolint:staticcheck // not yet migrated to OpenFeature

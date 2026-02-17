@@ -3,7 +3,7 @@ import { FormProvider, useForm } from 'react-hook-form';
 
 import { OrgRole } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { config, getBackendSrv, locationService } from '@grafana/runtime';
+import { config, createMonitoringLogger, getBackendSrv, locationService } from '@grafana/runtime';
 import { Button, Input, Field, FieldSet } from '@grafana/ui';
 import { Form } from 'app/core/components/Form/Form';
 import { Page } from 'app/core/components/Page/Page';
@@ -17,6 +17,8 @@ import { ServiceAccountDTO, ServiceAccountCreateApiResponse } from 'app/types/se
 import { OrgRolePicker } from '../admin/OrgRolePicker';
 
 export interface Props {}
+
+const logger = createMonitoringLogger('features.serviceaccounts.create-page');
 
 const createServiceAccount = async (sa: ServiceAccountDTO) => {
   const result = await getBackendSrv().post('/api/serviceaccounts/', sa);
@@ -68,7 +70,11 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options', e); // TODO: handle error
+        logger.logWarning('Error loading role options', {
+          operation: 'fetchRoleOptions',
+          orgId: currentOrgId,
+          error: String(e),
+        }); // TODO: handle error
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {
@@ -101,7 +107,15 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           await updateUserRoles(pendingRoles, newAccount.id, newAccount.orgId);
         }
       } catch (e) {
-        console.error(e); // TODO: handle error
+        if (e instanceof Error) {
+          logger.logError(e, { operation: 'onSubmit.updateServiceAccount', uid: response.uid });
+        } else {
+          logger.logWarning('Failed to update created service account', {
+            operation: 'onSubmit.updateServiceAccount',
+            uid: response.uid,
+            error: String(e),
+          });
+        } // TODO: handle error
       }
       locationService.push(`/org/serviceaccounts/${response.uid}`);
     },

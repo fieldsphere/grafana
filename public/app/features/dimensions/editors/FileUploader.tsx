@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, useState } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { FileDropzone, useStyles2, Button, DropzoneFile, Field } from '@grafana/ui';
 import { SanitizedSVG } from 'app/core/components/SVG/SanitizedSVG';
 
@@ -18,6 +19,9 @@ interface Props {
 interface ErrorResponse {
   message: string;
 }
+
+const logger = createMonitoringLogger('features.dimensions.file-uploader');
+
 export function FileDropzoneCustomChildren({ secondaryText = 'Drag and drop here or browse' }) {
   const styles = useStyles2(getStyles);
 
@@ -47,7 +51,17 @@ export const FileUploader = ({ mediaType, setFormData, setUpload, error }: Props
   const onFileRemove = (file: DropzoneFile) => {
     fetch(`/api/storage/delete/upload/${file.file.name}`, {
       method: 'DELETE',
-    }).catch((error) => console.error('cannot delete file', error));
+    }).catch((error) => {
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'onFileRemove', fileName: file.file.name });
+        return;
+      }
+      logger.logWarning('Cannot delete file', {
+        operation: 'onFileRemove',
+        fileName: file.file.name,
+        error: String(error),
+      });
+    });
   };
 
   const acceptableFiles =

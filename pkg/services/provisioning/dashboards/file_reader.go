@@ -87,7 +87,7 @@ func (fr *FileReader) pollChanges(ctx context.Context) {
 		if err == nil {
 			return // finished
 		}
-		fr.log.Warn("error watching folder: %w", err)
+		fr.log.Warn("Error watching folder", "error", err)
 		interval = 30
 	}
 
@@ -142,7 +142,7 @@ func (fr *FileReader) watchChanges(ctx context.Context) error {
 // walkDisk traverses the file system for the defined path, reading dashboard definition files,
 // and applies any change to the database.
 func (fr *FileReader) walkDisk(ctx context.Context) error {
-	fr.log.Debug("Start walking disk", "path", fr.Path)
+	fr.log.Debug("Start walking disk", "directoryPath", fr.Path)
 	resolvedPath := fr.resolvedPath()
 	if _, err := os.Stat(resolvedPath); err != nil {
 		return err
@@ -206,7 +206,7 @@ func (fr *FileReader) storeDashboardsInFolder(ctx context.Context, filesFoundOnD
 	for path, fileInfo := range filesFoundOnDisk {
 		provisioningMetadata, err := fr.saveDashboard(ctx, path, folderID, folderUID, fileInfo, dashboardRefs)
 		if err != nil {
-			fr.log.Error("failed to save dashboard", "file", path, "error", err)
+			fr.log.Error("failed to save dashboard", "dashboardFilePath", path, "error", err)
 			continue
 		}
 
@@ -236,7 +236,7 @@ func (fr *FileReader) storeDashboardsInFoldersFromFileStructure(ctx context.Cont
 		provisioningMetadata, err := fr.saveDashboard(ctx, path, folderID, folderUID, fileInfo, dashboardRefs)
 		usageTracker.track(provisioningMetadata)
 		if err != nil {
-			fr.log.Error("failed to save dashboard", "file", path, "error", err)
+			fr.log.Error("failed to save dashboard", "dashboardFilePath", path, "error", err)
 		}
 	}
 	return nil
@@ -258,19 +258,19 @@ func (fr *FileReader) handleMissingDashboardFiles(ctx context.Context, provision
 		// If deletion is disabled for the provisioner we just remove provisioning metadata about the dashboard
 		// so afterwards the dashboard is considered unprovisioned.
 		for _, dashboardID := range dashboardsToDelete {
-			fr.log.Debug("unprovisioning provisioned dashboard. missing on disk", "id", dashboardID)
+			fr.log.Debug("unprovisioning provisioned dashboard. missing on disk", "dashboardID", dashboardID)
 			err := fr.dashboardProvisioningService.UnprovisionDashboard(ctx, dashboardID)
 			if err != nil {
-				fr.log.Error("failed to unprovision dashboard", "dashboard_id", dashboardID, "error", err)
+				fr.log.Error("failed to unprovision dashboard", "dashboardID", dashboardID, "error", err)
 			}
 		}
 	} else {
 		// delete dashboards missing JSON file
 		for _, dashboardID := range dashboardsToDelete {
-			fr.log.Debug("deleting provisioned dashboard, missing on disk", "id", dashboardID)
+			fr.log.Debug("deleting provisioned dashboard, missing on disk", "dashboardID", dashboardID)
 			err := fr.dashboardProvisioningService.DeleteProvisionedDashboard(ctx, dashboardID, fr.Cfg.OrgID)
 			if err != nil {
-				fr.log.Error("failed to delete dashboard", "id", dashboardID, "error", err)
+				fr.log.Error("failed to delete dashboard", "dashboardID", dashboardID, "error", err)
 			}
 		}
 	}
@@ -289,7 +289,7 @@ func (fr *FileReader) saveDashboard(ctx context.Context, path string, folderID i
 
 	jsonFile, err := fr.readDashboardFromFile(path, resolvedFileInfo.ModTime(), folderID, folderUID)
 	if err != nil {
-		fr.log.Error("failed to load dashboard from ", "file", path, "error", err)
+		fr.log.Error("failed to load dashboard from ", "dashboardFilePath", path, "error", err)
 		return provisioningMetadata, nil
 	}
 
@@ -336,7 +336,7 @@ func (fr *FileReader) saveDashboard(ctx context.Context, path string, folderID i
 	if upToDate {
 		metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Provisioning).Inc()
 		// nolint:staticcheck
-		fr.log.Debug("provisioned dashboard is up to date", "provisioner", fr.Cfg.Name, "file", path, "folderId", dash.Dashboard.FolderID, "folderUid", dash.Dashboard.FolderUID)
+		fr.log.Debug("provisioned dashboard is up to date", "provisioner", fr.Cfg.Name, "dashboardFilePath", path, "folderID", dash.Dashboard.FolderID, "folderUID", dash.Dashboard.FolderUID)
 		return provisioningMetadata, nil
 	}
 
@@ -352,7 +352,7 @@ func (fr *FileReader) saveDashboard(ctx context.Context, path string, folderID i
 	if !fr.isDatabaseAccessRestricted() {
 		metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Provisioning).Inc()
 		// nolint:staticcheck
-		fr.log.Debug("saving new dashboard", "provisioner", fr.Cfg.Name, "file", path, "folderId", dash.Dashboard.FolderID, "folderUid", dash.Dashboard.FolderUID)
+		fr.log.Debug("saving new dashboard", "provisioner", fr.Cfg.Name, "dashboardFilePath", path, "folderID", dash.Dashboard.FolderID, "folderUID", dash.Dashboard.FolderUID)
 		dp := &dashboards.DashboardProvisioning{
 			ExternalID: path,
 			Name:       fr.Cfg.Name,
@@ -369,7 +369,7 @@ func (fr *FileReader) saveDashboard(ctx context.Context, path string, folderID i
 		metrics.MFolderIDsServiceCount.WithLabelValues(metrics.Provisioning).Inc()
 		// nolint:staticcheck
 		fr.log.Warn("Not saving new dashboard due to restricted database access", "provisioner", fr.Cfg.Name,
-			"file", path, "folderId", dash.Dashboard.FolderID)
+			"dashboardFilePath", path, "folderID", dash.Dashboard.FolderID)
 	}
 
 	return provisioningMetadata, nil
@@ -522,7 +522,7 @@ func (fr *FileReader) readDashboardFromFile(path string, lastModified time.Time,
 	}
 	defer func() {
 		if err := reader.Close(); err != nil {
-			fr.log.Warn("Failed to close file", "path", path, "err", err)
+			fr.log.Warn("Failed to close file", "dashboardFilePath", path, "error", err)
 		}
 	}()
 
@@ -560,12 +560,12 @@ func (fr *FileReader) resolvedPath() string {
 
 	path, err := filepath.Abs(fr.Path)
 	if err != nil {
-		fr.log.Error("Could not create absolute path", "path", fr.Path, "error", err)
+		fr.log.Error("Could not create absolute path", "directoryPath", fr.Path, "error", err)
 	}
 
 	path, err = filepath.EvalSymlinks(path)
 	if err != nil {
-		fr.log.Error("Failed to read content of symlinked path", "path", fr.Path, "error", err)
+		fr.log.Error("Failed to read content of symlinked path", "directoryPath", fr.Path, "error", err)
 	}
 
 	if path == "" {

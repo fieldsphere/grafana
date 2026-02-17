@@ -102,7 +102,7 @@ func (cr *configReader) readConfig(ctx context.Context) ([]*config, error) {
 
 	files, err := os.ReadDir(cr.path)
 	if err != nil {
-		cr.log.Error("can't read dashboard provisioning files from directory", "path", cr.path, "error", err)
+		cr.log.Error("can't read dashboard provisioning files from directory", "directoryPath", cr.path, "error", err)
 		return dashboards, nil
 	}
 
@@ -145,7 +145,7 @@ func (cr *configReader) readConfig(ctx context.Context) ([]*config, error) {
 
 	for uid, times := range uidUsage {
 		if times > 1 {
-			cr.log.Error("the same folder UID is used more than once", "folderUid", uid)
+			cr.log.Error("the same folder UID is used more than once", "folderUID", uid)
 		}
 	}
 

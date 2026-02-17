@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { EditorField, EditorRow } from '@grafana/plugin-ui';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 import { Box, Stack } from '@grafana/ui';
 
 import { LogGroup, LogGroupClass, LogsQueryLanguage, LogsQueryScope } from '../../../dataquery.gen';
@@ -17,6 +17,8 @@ import { LogGroupPrefixInput } from './LogGroupPrefixInput';
 import { LogGroupQueryScopeSelector } from './LogGroupQueryScopeSelector';
 import { LogGroupsSelector } from './LogGroupsSelector';
 import { SelectedLogGroups } from './SelectedLogGroups';
+
+const logger = createMonitoringLogger('plugins.datasource.cloudwatch.log-groups-field');
 
 type Props = {
   datasource: CloudWatchDatasource;
@@ -92,7 +94,15 @@ export const LogGroupsField = ({
           onChange([...logGroups, ...variables.map((v) => ({ name: v, arn: v }))]);
         })
         .catch((err) => {
-          console.error(err);
+          if (err instanceof Error) {
+            logger.logError(err, { operation: 'loadLegacyLogGroupNames', region });
+          } else {
+            logger.logWarning('Failed to load legacy log group names', {
+              operation: 'loadLegacyLogGroupNames',
+              region,
+              error: String(err),
+            });
+          }
         });
     }
   }, [datasource, legacyLogGroupNames, logGroups, onChange, region, loadingLogGroupsStarted]);

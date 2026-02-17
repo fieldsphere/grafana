@@ -33,7 +33,7 @@ func nonceMiddleware(next http.Handler, logger log.Logger) http.Handler {
 		ctx := contexthandler.FromContext(req.Context())
 		nonce, err := GenerateNonce()
 		if err != nil {
-			logger.Error("Failed to generate CSP nonce", "err", err)
+			logger.Error("Failed to generate CSP nonce", "error", err)
 			ctx.JsonApiErr(500, "Failed to generate CSP nonce", err)
 		}
 		ctx.RequestNonce = nonce

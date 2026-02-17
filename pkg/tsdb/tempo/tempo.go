@@ -283,7 +283,7 @@ func (s *Service) handleTagValues(rw http.ResponseWriter, req *http.Request) {
 	// escape tag
 	tag, err := url.PathUnescape(encodedTag)
 	if err != nil {
-		s.logger.Error("Failed to unescape", "error", err, "tag", encodedTag)
+		s.logger.Error("Failed to unescape", "error", err, "encodedTag", encodedTag)
 		http.Error(rw, "Invalid 'tag' parameter", http.StatusBadRequest)
 		return
 	}
@@ -315,7 +315,7 @@ func (s *Service) proxyToTempo(rw http.ResponseWriter, req *http.Request, tempoP
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		s.logger.Error("Failed to parse data source URL", "error", err, "url", dsInfo.URL)
+		s.logger.Error("Failed to parse data source URL", "error", err, "datasourceURL", dsInfo.URL)
 		http.Error(rw, "Invalid data source URL", http.StatusInternalServerError)
 		return
 	}
@@ -325,7 +325,7 @@ func (s *Service) proxyToTempo(rw http.ResponseWriter, req *http.Request, tempoP
 	// Preserve query parameters from the original request
 	parsedURL.RawQuery = req.URL.RawQuery
 
-	s.logger.Debug("Making resource request to Tempo", "url", parsedURL.String())
+	s.logger.Debug("Making resource request to Tempo", "requestURL", parsedURL.String())
 	start := time.Now()
 
 	// Create the request to Tempo
@@ -350,7 +350,7 @@ func (s *Service) proxyToTempo(rw http.ResponseWriter, req *http.Request, tempoP
 	if err != nil {
 		span.RecordError(err)
 		span.SetStatus(codes.Error, err.Error())
-		s.logger.Error("Failed resource call to Tempo", "error", err, "url", parsedURL.String(), "duration", time.Since(start))
+		s.logger.Error("Failed resource call to Tempo", "error", err, "requestURL", parsedURL.String(), "duration", time.Since(start))
 		http.Error(rw, "Failed to connect to Tempo", http.StatusBadGateway)
 		return
 	}

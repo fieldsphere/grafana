@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"log/slog"
 	"os"
 
 	"github.com/grafana/grafana/pkg/build/daggerbuild/cmd"
@@ -18,6 +18,7 @@ func main() {
 	app := cmd.GlobalCLI.App()
 
 	if err := app.Run(os.Args); err != nil {
-		log.Fatalln(err)
+		slog.Error("Build CLI command failed", "error", err)
+		os.Exit(1)
 	}
 }

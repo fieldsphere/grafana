@@ -644,9 +644,9 @@ func (s *Service) UpdateDataSource(ctx context.Context, cmd *datasources.UpdateD
 		// TODO: Refactor to store lbac rules separate from a datasource
 		if !cmd.AllowLBACRuleUpdates {
 			s.logger.Debug("Overriding LBAC rules with stored ones using updateLBACRules API",
-				"reason", "overriding_lbac_rules_from_datasource_api",
-				"datasource_id", dataSource.ID,
-				"datasource_uid", dataSource.UID)
+				"lbacOverrideReason", "overridingLbacRulesFromDatasourceAPI",
+				"datasourceID", dataSource.ID,
+				"datasourceUID", dataSource.UID)
 
 			cmd.JsonData = RetainExistingLBACRules(dataSource.JsonData, cmd.JsonData)
 		}
@@ -733,7 +733,7 @@ func (s *Service) DecryptedValues(ctx context.Context, ds *datasources.DataSourc
 	if exist {
 		err = json.Unmarshal([]byte(secret), &decryptedValues)
 		if err != nil {
-			s.logger.Debug("Failed to unmarshal secret value, using legacy secrets", "err", err)
+			s.logger.Debug("Failed to unmarshal secret value, using legacy secrets", "error", err)
 		}
 	}
 

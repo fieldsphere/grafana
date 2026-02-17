@@ -32,6 +32,7 @@ import {
   store,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { getConfig } from 'app/core/config';
 
 import { getLogsExtractFields } from '../explore/Logs/LogsTable';
@@ -40,6 +41,8 @@ import { downloadDataFrameAsCsv, downloadLogsModelAsTxt } from '../inspector/uti
 import { getDataframeFields } from './components/logParser';
 import { GetRowContextQueryFn } from './components/panel/LogLineMenu';
 import { DATAPLANE_LABELS_NAME, DATAPLANE_LABEL_TYPES_NAME } from './logsFrame';
+
+const logger = createMonitoringLogger('features.logs.utils');
 
 /**
  * Returns the log level of a log line.
@@ -367,10 +370,10 @@ export function getLogLevelInfo(dataFrame: DataFrame, allDataFrames: DataFrame[]
   const valueField = fieldCache.getFirstFieldOfType(FieldType.number);
 
   if (!timeField) {
-    console.error('Time field missing in data frame');
+    logger.logWarning('Time field missing in data frame', { operation: 'getLogLevelInfo' });
   }
   if (!valueField) {
-    console.error('Value field missing in data frame');
+    logger.logWarning('Value field missing in data frame', { operation: 'getLogLevelInfo' });
   }
 
   const level = valueField ? getFieldDisplayName(valueField, dataFrame, allDataFrames) : 'logs';

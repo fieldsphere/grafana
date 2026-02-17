@@ -21,7 +21,7 @@ func (h *PluginHandler) QueryDataHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		ctx := req.Context()
 		span := tracing.SpanFromContext(ctx)
-		span.AddEvent("QueryDataHandler")
+		span.AddEvent("queryDataHandler")
 		responder := &util.Responder{ResponseWriter: w}
 		dqr := data.QueryDataRequest{}
 		if err := json.NewDecoder(req.Body).Decode(&dqr); err != nil {
@@ -55,12 +55,12 @@ func (h *PluginHandler) QueryDataHandler() http.HandlerFunc {
 		// the UID in the query body should match the UID in the URL
 		if dsRef.UID != dsUID {
 			err := errors.New("invalid datasource UID")
-			klog.ErrorS(err, err.Error(), "path", dsUID, "refUID", dsRef.UID)
+			klog.ErrorS(err, err.Error(), "requestDatasourceUID", dsUID, "refUID", dsRef.UID)
 			responder.Error(w, req, err)
 			return
 		}
 
-		span.AddEvent("GetPluginContext",
+		span.AddEvent("getPluginContext",
 			grafanasemconv.GrafanaDatasourceUid(dsRef.UID),
 			grafanasemconv.GrafanaDatasourceType(dsRef.Type),
 		)
@@ -71,7 +71,7 @@ func (h *PluginHandler) QueryDataHandler() http.HandlerFunc {
 		}
 
 		ctx = backend.WithGrafanaConfig(ctx, pluginContext.GrafanaConfig)
-		span.AddEvent("QueryData start", grafanasemconv.GrafanaDatasourceRequestQueryCount(len(queries)))
+		span.AddEvent("queryDataStart", grafanasemconv.GrafanaDatasourceRequestQueryCount(len(queries)))
 		rsp, err := h.client.QueryData(ctx, &backend.QueryDataRequest{
 			Queries:       queries,
 			PluginContext: pluginContext,
@@ -81,7 +81,7 @@ func (h *PluginHandler) QueryDataHandler() http.HandlerFunc {
 			return
 		}
 		statusCode := 200
-		span.AddEvent("QueryData end", semconv.HTTPResponseStatusCode(statusCode))
+		span.AddEvent("queryDataEnd", semconv.HTTPResponseStatusCode(statusCode))
 		responder.Object(statusCode,
 			&aggregationv0alpha1.QueryDataResponse{QueryDataResponse: *rsp},
 		)

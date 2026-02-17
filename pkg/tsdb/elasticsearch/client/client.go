@@ -60,7 +60,7 @@ var NewClient = func(ctx context.Context, ds *DatasourceInfo, logger log.Logger)
 		return nil, err
 	}
 
-	logger.Debug("Creating new client", "configuredFields", fmt.Sprintf("%#v", ds.ConfiguredFields), "interval", ds.Interval, "index", ds.Database)
+	logger.Debug("Creating new client", "configuredFields", ds.ConfiguredFields, "interval", ds.Interval, "index", ds.Database)
 
 	return &baseClientImpl{
 		logger:           logger,
@@ -113,7 +113,7 @@ func (c *baseClientImpl) ExecuteMultisearch(r *MultiSearchRequest) (*MultiSearch
 	queryParams := c.getMultiSearchQueryParameters()
 	_, span := tracing.DefaultTracer().Start(c.ctx, "datasource.elasticsearch.queryData.executeMultisearch", trace.WithAttributes(
 		attribute.String("queryParams", queryParams),
-		attribute.String("url", c.ds.URL),
+		attribute.String("datasourceURL", c.ds.URL),
 	))
 	defer func() {
 		if err != nil {
@@ -130,7 +130,7 @@ func (c *baseClientImpl) ExecuteMultisearch(r *MultiSearchRequest) (*MultiSearch
 		if errors.Is(err, context.Canceled) {
 			status = "cancelled"
 		}
-		lp := []any{"error", err, "status", status, "duration", time.Since(start), "stage", StageDatabaseRequest}
+		lp := []any{"error", err, "requestStatus", status, "duration", time.Since(start), "stage", StageDatabaseRequest}
 		sourceErr := backend.ErrorWithSource{}
 		if errors.As(err, &sourceErr) {
 			lp = append(lp, "statusSource", sourceErr.ErrorSource())
@@ -148,7 +148,7 @@ func (c *baseClientImpl) ExecuteMultisearch(r *MultiSearchRequest) (*MultiSearch
 		}
 	}()
 
-	c.logger.Info("Response received from Elasticsearch", "status", "ok", "statusCode", res.StatusCode, "contentLength", res.ContentLength, "duration", time.Since(start), "stage", StageDatabaseRequest)
+	c.logger.Info("Response received from Elasticsearch", "requestStatus", "ok", "statusCode", res.StatusCode, "contentLength", res.ContentLength, "duration", time.Since(start), "stage", StageDatabaseRequest)
 
 	_, resSpan := tracing.DefaultTracer().Start(c.ctx, "datasource.elasticsearch.queryData.executeMultisearch.decodeResponse")
 	defer func() {

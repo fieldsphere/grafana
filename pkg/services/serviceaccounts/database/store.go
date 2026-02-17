@@ -341,7 +341,7 @@ func (s *ServiceAccountsStoreImpl) SearchOrgServiceAccounts(ctx context.Context,
 			whereConditions = append(whereConditions, sql)
 			whereParams = append(whereParams, param)
 		default:
-			s.log.Warn("Invalid filter user for service account filtering", "service account search filtering", query.Filter)
+			s.log.Warn("Invalid filter user for service account filtering", "serviceAccountSearchFiltering", query.Filter)
 		}
 
 		// Count the number of accounts
@@ -454,13 +454,13 @@ func (s *ServiceAccountsStoreImpl) MigrateApiKeysToServiceAccounts(ctx context.C
 		for _, key := range basicKeys {
 			err := s.CreateServiceAccountFromApikey(ctx, key)
 			if err != nil {
-				s.log.Error("Migating to service accounts failed with error", err.Error())
+				s.log.Error("Migrating API key to service account failed", "apiKeyID", key.ID, "apiKeyName", key.Name, "error", err)
 				migrationResult.Failed++
 				migrationResult.FailedDetails = append(migrationResult.FailedDetails, fmt.Sprintf("API key name: %s - Error: %s", key.Name, err.Error()))
 				migrationResult.FailedApikeyIDs = append(migrationResult.FailedApikeyIDs, key.ID)
 			} else {
 				migrationResult.Migrated++
-				s.log.Debug("API key converted to service account token", "keyId", key.ID)
+				s.log.Debug("API key converted to service account token", "keyID", key.ID)
 			}
 		}
 	}

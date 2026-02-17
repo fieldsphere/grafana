@@ -2,7 +2,7 @@ package testutil
 
 import (
 	"encoding/json"
-	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -11,10 +11,10 @@ import (
 func PrettyPrint(label string, i interface{}) {
 	b, err := json.MarshalIndent(i, "", "  ")
 	if err != nil {
-		fmt.Println("error:", err)
+		slog.Error("Failed to marshal pretty print value", "label", label, "error", err)
 		return
 	}
-	fmt.Println(label, string(b))
+	slog.Info("Pretty print output", "label", label, "prettyPrintedValue", string(b))
 }
 
 // FindJSONFiles recursively finds all .json files in a directory

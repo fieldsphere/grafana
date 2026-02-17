@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"strconv"
 
 	"github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/services/sqlstore/migrator"
@@ -55,8 +56,15 @@ func dbCollector(sql db.DB) supportbundles.Collector {
 		bWriter.WriteString("\n## Migration Log\n\n")
 
 		for _, logItem := range logItems {
-			fmt.Fprintf(bWriter, "**migrationId**: %s  \nsuccess: %t  \nerror: %s  \ntimestamp: %s\n\n",
-				logItem.MigrationID, logItem.Success, logItem.Error, logItem.Timestamp.UTC())
+			bWriter.WriteString("**migrationId**: ")
+			bWriter.WriteString(logItem.MigrationID)
+			bWriter.WriteString("  \nsuccess: ")
+			bWriter.WriteString(strconv.FormatBool(logItem.Success))
+			bWriter.WriteString("  \nerror: ")
+			bWriter.WriteString(logItem.Error)
+			bWriter.WriteString("  \ntimestamp: ")
+			bWriter.WriteString(logItem.Timestamp.UTC().String())
+			bWriter.WriteString("\n\n")
 		}
 
 		return &supportbundles.SupportItem{

@@ -12,6 +12,8 @@ import (
 	"time"
 
 	"github.com/centrifugal/centrifuge"
+	gokitlog "github.com/go-kit/log"
+	"github.com/go-kit/log/level"
 	"github.com/go-jose/go-jose/v4"
 	"github.com/go-jose/go-jose/v4/jwt"
 	"github.com/stretchr/testify/require"
@@ -187,6 +189,44 @@ func TestCheckOrigin(t *testing.T) {
 			)
 		})
 	}
+}
+
+func TestHandleLogSortsFieldKeys(t *testing.T) {
+	var captured []any
+	testLogger := gokitlog.Logger(gokitlog.LoggerFunc(func(keyvals ...any) error {
+		captured = append([]any(nil), keyvals...)
+		return nil
+	}))
+
+	origHandler := loggerCF.GetLogger()
+	loggerCF.Swap(level.NewFilter(testLogger, level.AllowInfo()))
+	t.Cleanup(func() {
+		loggerCF.Swap(origHandler)
+	})
+
+	handleLog(centrifuge.LogEntry{
+		Level:   centrifuge.LogLevelInfo,
+		Message: "test message",
+		Fields: map[string]any{
+			"z_key": "z",
+			"a_key": "a",
+			"m_key": "m",
+		},
+	})
+
+	keyIndex := map[string]int{}
+	for i := 0; i+1 < len(captured); i += 2 {
+		key, ok := captured[i].(string)
+		if !ok {
+			continue
+		}
+		if _, exists := keyIndex[key]; !exists {
+			keyIndex[key] = i
+		}
+	}
+
+	require.Less(t, keyIndex["a_key"], keyIndex["m_key"])
+	require.Less(t, keyIndex["m_key"], keyIndex["z_key"])
 }
 
 func Test_getHistogramMetric(t *testing.T) {

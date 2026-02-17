@@ -157,7 +157,7 @@ func RegisterAPIService(
 ) *DashboardsAPIBuilder {
 	cfg, err := configProvider.Get(context.Background())
 	if err != nil {
-		logging.DefaultLogger.Error("failed to load settings configuration instance", "stackId", cfg.StackID, "err", err)
+		logging.DefaultLogger.Error("failed to load settings configuration instance", "error", err)
 		return nil
 	}
 
@@ -220,7 +220,7 @@ func RegisterAPIService(
 			}
 		}
 		if err != nil {
-			logging.DefaultLogger.Error("failed to parse namespace for cache preloading", "stackId", cfg.StackID, "err", err)
+			logging.DefaultLogger.Error("failed to parse namespace for cache preloading", "stackID", cfg.StackID, "error", err)
 		}
 	}
 
@@ -818,7 +818,7 @@ func (b *DashboardsAPIBuilder) afterDelete(obj runtime.Object, _ *metav1.DeleteO
 		return
 	}
 
-	log.Debug("deleting dashboard permissions", "uid", meta.GetName(), "namespace", meta.GetNamespace())
+	log.Debug("deleting dashboard permissions", "dashboardUID", meta.GetName(), "namespace", meta.GetNamespace())
 	client := (*b.resourcePermissionsSvc).Namespace(meta.GetNamespace())
 	name := fmt.Sprintf("%s-%s-%s", dashv1.DashboardResourceInfo.GroupVersionResource().Group, dashv1.DashboardResourceInfo.GroupVersionResource().Resource, meta.GetName())
 	err = client.Delete(ctx, name, metav1.DeleteOptions{})
@@ -850,7 +850,7 @@ func (b *DashboardsAPIBuilder) setDefaultDashboardPermissions(ctx context.Contex
 	}
 
 	log := logging.FromContext(ctx)
-	log.Debug("setting default dashboard permissions", "uid", obj.GetName(), "namespace", obj.GetNamespace())
+	log.Debug("setting default dashboard permissions", "dashboardUID", obj.GetName(), "namespace", obj.GetNamespace())
 
 	client := (*b.resourcePermissionsSvc).Namespace(obj.GetNamespace())
 	name := fmt.Sprintf("%s-%s-%s", dashv1.DashboardResourceInfo.GroupVersionResource().Group, dashv1.DashboardResourceInfo.GroupVersionResource().Resource, obj.GetName())
@@ -927,7 +927,7 @@ func (b *DashboardsAPIBuilder) GetOpenAPIDefinitions() common.GetOpenAPIDefiniti
 					Kind:    kind.Kind,
 				}, ref, pkgPrefix)
 				if err != nil {
-					logging.DefaultLogger.Error("unable to generate openAPI for kind %s: %w", kind.Kind, err)
+					logging.DefaultLogger.Error("Unable to generate OpenAPI for kind", "resourceKind", kind.Kind, "error", err)
 					continue
 				}
 				maps.Copy(defs, oapi)

@@ -12,7 +12,7 @@ import {
   ScopeSpecFilter,
   TimeRange,
 } from '@grafana/data';
-import { BackendSrvRequest } from '@grafana/runtime';
+import { BackendSrvRequest, createMonitoringLogger } from '@grafana/runtime';
 
 import { buildCacheHeaders, getDaysToCacheMetadata, getDefaultCacheHeaders } from './caching';
 import { PrometheusDatasource } from './datasource';
@@ -21,6 +21,8 @@ import { promqlGrammar } from './promql';
 import { buildVisualQueryFromString } from './querybuilder/parsing';
 import { LabelsApiClient, ResourceApiClient, SeriesApiClient } from './resource_clients';
 import { PromMetricsMetadata, PromQuery } from './types';
+
+const logger = createMonitoringLogger('packages.grafana-prometheus.language-provider');
 
 interface PrometheusBaseLanguageProvider {
   datasource: PrometheusDatasource;
@@ -132,7 +134,15 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
       return res.data.data;
     } catch (error) {
       if (!isCancelledError(error)) {
-        console.error(error);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'request', url });
+        } else {
+          logger.logWarning('Prometheus metadata request failed', {
+            operation: 'request',
+            url,
+            error: String(error),
+          });
+        }
       }
     }
 

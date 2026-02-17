@@ -174,15 +174,15 @@ func (d *jobDriver) claimAndProcessOneJob(ctx context.Context) error {
 	defer rollback()
 
 	namespace := claimedJob.GetNamespace()
-	logger = logger.With("job", claimedJob.GetName(), "namespace", namespace)
+	logger = logger.With("jobName", claimedJob.GetName(), "namespace", namespace)
 	ctx = logging.Context(ctx, logger)
 	d.currentJob = claimedJob
 
 	span.SetAttributes(
-		attribute.String("job.name", claimedJob.GetName()),
-		attribute.String("job.namespace", namespace),
-		attribute.String("job.repository", claimedJob.Spec.Repository),
-		attribute.String("job.action", string(claimedJob.Spec.Action)),
+		attribute.String("jobName", claimedJob.GetName()),
+		attribute.String("jobNamespace", namespace),
+		attribute.String("jobRepository", claimedJob.Spec.Repository),
+		attribute.String("jobAction", string(claimedJob.Spec.Action)),
 	)
 
 	// Now that we have a job, we need to augment our namespace to grant ourselves permission to work on it.
@@ -265,7 +265,7 @@ func (d *jobDriver) leaseRenewalLoop(ctx context.Context, logger logging.Logger,
 	ticker := time.NewTicker(d.leaseRenewalInterval)
 	defer ticker.Stop()
 
-	logger.Debug("start lease renewal loop", "renewal_interval", d.leaseRenewalInterval)
+	logger.Debug("start lease renewal loop", "renewalInterval", d.leaseRenewalInterval)
 
 	consecutiveFailures := 0
 	maxFailures := 3 // Allow a few failures before giving up
@@ -294,17 +294,17 @@ func (d *jobDriver) leaseRenewalLoop(ctx context.Context, logger logging.Logger,
 					return
 				}
 
-				logger.Warn("failed to renew lease", "error", err, "consecutive_failures", consecutiveFailures)
+				logger.Warn("failed to renew lease", "error", err, "consecutiveFailures", consecutiveFailures)
 
 				if consecutiveFailures >= maxFailures {
 					logger.Error("too many consecutive lease renewal failures - job will be aborted",
-						"consecutive_failures", consecutiveFailures, "max_failures", maxFailures)
+						"consecutiveFailures", consecutiveFailures, "maxFailures", maxFailures)
 					close(leaseExpired)
 					return
 				}
 			} else {
 				if consecutiveFailures > 0 {
-					logger.Debug("lease renewal recovered", "previous_failures", consecutiveFailures)
+					logger.Debug("lease renewal recovered", "previousFailures", consecutiveFailures)
 				}
 				consecutiveFailures = 0
 			}
@@ -350,8 +350,8 @@ func (d *jobDriver) processJob(ctx context.Context, recorder JobProgressRecorder
 	d.mu.Unlock()
 
 	span.SetAttributes(
-		attribute.String("job.repository", repoName),
-		attribute.String("job.action", string(job.Spec.Action)),
+		attribute.String("jobRepository", repoName),
+		attribute.String("jobAction", string(job.Spec.Action)),
 	)
 
 	for _, worker := range d.workers {
@@ -368,7 +368,7 @@ func (d *jobDriver) processJob(ctx context.Context, recorder JobProgressRecorder
 		r := repo.Config()
 		if r.DeletionTimestamp != nil && !r.DeletionTimestamp.IsZero() {
 			logger.Info("repository marked for deletion - skip job",
-				"name", r.Name,
+				"repositoryName", r.Name,
 				"namespace", r.Namespace,
 				"deletionTimestamp", r.DeletionTimestamp,
 			)
@@ -392,7 +392,7 @@ func (d *jobDriver) onProgress() ProgressFn {
 		ctx, span := tracing.Start(ctx, "provisioning.jobs.update_progress")
 		defer span.End()
 
-		logging.FromContext(ctx).Debug("job progress", "status", status)
+		logging.FromContext(ctx).Debug("job progress", "jobStatus", status)
 
 		const maxRetries = 3
 		for attempt := 0; attempt < maxRetries; attempt++ {
@@ -437,7 +437,7 @@ func (d *jobDriver) onProgress() ProgressFn {
 			d.mu.Unlock()
 
 			span.SetAttributes(
-				attribute.String("job.state", string(status.State)),
+				attribute.String("jobState", string(status.State)),
 				attribute.Int("attempt", attempt+1),
 			)
 			return nil

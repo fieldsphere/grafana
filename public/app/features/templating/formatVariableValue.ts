@@ -1,9 +1,12 @@
 import { formatRegistry } from '@grafana/scenes';
 import { VariableFormatID } from '@grafana/schema';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { isAdHoc } from '../variables/guard';
 
 import { getVariableWrapper } from './LegacyVariableWrapper';
+
+const logger = createMonitoringLogger('features.templating.format-variable-value');
 
 export function formatVariableValue(value: any, format?: any, variable?: any, text?: string): string {
   // for some scopedVars there is no variable
@@ -42,7 +45,7 @@ export function formatVariableValue(value: any, format?: any, variable?: any, te
   let formatItem = formatRegistry.getIfExists(format);
 
   if (!formatItem) {
-    console.error(`Variable format ${format} not found. Using glob format as fallback.`);
+    logger.logWarning('Variable format not found. Using glob format as fallback.', { format });
     formatItem = formatRegistry.get(VariableFormatID.Glob);
   }
 

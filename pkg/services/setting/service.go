@@ -234,7 +234,7 @@ func (s *remoteSettingService) List(ctx context.Context, labelSelector metav1.La
 	if !ok || namespace == "" {
 		return nil, tracing.Errorf(span, "missing namespace in context")
 	}
-	log := s.log.FromContext(ctx).New(ns.Key, ns.Value, "function", "remoteSettingService.List", "traceId", span.SpanContext().TraceID())
+	log := s.log.FromContext(ctx).New("namespace", ns.Value, "function", "remoteSettingService.List", "traceID", span.SpanContext().TraceID())
 
 	startTime := time.Now()
 	var status string

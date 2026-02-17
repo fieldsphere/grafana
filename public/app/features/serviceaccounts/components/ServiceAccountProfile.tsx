@@ -3,6 +3,7 @@ import { useEffect, useState, type JSX } from 'react';
 
 import { GrafanaTheme2, OrgRole, TimeZone, dateTimeFormat } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Label, TextLink, useStyles2 } from '@grafana/ui';
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -17,6 +18,8 @@ interface Props {
   timeZone: TimeZone;
   onChange: (serviceAccount: ServiceAccountDTO) => void;
 }
+
+const logger = createMonitoringLogger('features.serviceaccounts.profile');
 
 export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Props): JSX.Element {
   const styles = useStyles2(getStyles);
@@ -39,7 +42,11 @@ export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Pr
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options for service account');
+        logger.logWarning('Error loading options for service account', {
+          operation: 'fetchRoleOptions',
+          orgId: serviceAccount.orgId,
+          error: String(e),
+        });
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

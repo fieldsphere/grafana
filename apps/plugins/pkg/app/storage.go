@@ -121,7 +121,7 @@ func (s *MetaStorage) List(ctx context.Context, options *internalversion.ListOpt
 		})
 		if err != nil {
 			// Log error but continue with other plugins
-			logging.FromContext(ctx).Warn("Failed to fetch metadata for plugin", "pluginId", plugin.Spec.Id, "version", plugin.Spec.Version, "error", err)
+			logging.FromContext(ctx).Warn("Failed to fetch metadata for plugin", "pluginID", plugin.Spec.Id, "version", plugin.Spec.Version, "error", err)
 			continue
 		}
 
@@ -184,7 +184,7 @@ func (s *MetaStorage) Get(ctx context.Context, name string, options *metav1.GetO
 			return nil, apierrors.NewNotFound(gr, plugin.Spec.Id)
 		}
 
-		logging.FromContext(ctx).Error("Failed to fetch plugin metadata", "pluginId", plugin.Spec.Id, "version", plugin.Spec.Version, "error", err)
+		logging.FromContext(ctx).Error("Failed to fetch plugin metadata", "pluginID", plugin.Spec.Id, "version", plugin.Spec.Version, "error", err)
 		return nil, apierrors.NewInternalError(fmt.Errorf("failed to fetch plugin metadata: %w", err))
 	}
 

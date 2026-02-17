@@ -1,8 +1,10 @@
 import { DashboardLoadedEvent } from '@grafana/data';
-import { getTemplateSrv, reportInteraction } from '@grafana/runtime';
+import { createMonitoringLogger, getTemplateSrv, reportInteraction } from '@grafana/runtime';
 
 import pluginJson from './plugin.json';
 import { TempoQuery } from './types';
+
+const logger = createMonitoringLogger('plugins.datasource.tempo.tracking');
 
 type TempoOnDashboardLoadedTrackingEvent = {
   grafana_version?: string;
@@ -58,7 +60,14 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_tempo_dashboard_loaded', stats);
   } catch (error) {
-    console.error('error in tempo tracking handler', error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'onDashboardLoadedHandler' });
+    } else {
+      logger.logWarning('Error in tempo tracking handler', {
+        operation: 'onDashboardLoadedHandler',
+        error: String(error),
+      });
+    }
   }
 };
 

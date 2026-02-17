@@ -242,7 +242,7 @@ func NewDockerFromString(ctx context.Context, log *slog.Logger, artifact string,
 		return nil, err
 	}
 
-	log.Info("initializing Docker artifact", "Org", org, "registry", registry, "repos", repos, "tag", format)
+	log.Info("initializing Docker artifact", "orgName", org, "registry", registry, "repositoryNames", repos, "tagFormat", format)
 
 	return pipeline.ArtifactWithLogging(ctx, log, &pipeline.Artifact{
 		ArtifactString: artifact,

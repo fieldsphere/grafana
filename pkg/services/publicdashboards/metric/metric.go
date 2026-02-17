@@ -63,7 +63,7 @@ func (s *Service) Run(ctx context.Context) error {
 func (s *Service) recordMetrics(ctx context.Context) {
 	records, err := s.store.GetMetrics(ctx)
 	if err != nil {
-		s.log.Error("error collecting background metrics", "err", err)
+		s.log.Error("error collecting background metrics", "error", err)
 		return
 	}
 

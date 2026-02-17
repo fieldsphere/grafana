@@ -3,6 +3,7 @@ import * as React from 'react';
 import { useMemo } from 'react';
 
 import { PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase, sceneGraph } from '@grafana/scenes';
 import { Spinner, Stack } from '@grafana/ui';
 import { useGetDisplayMappingQuery } from 'app/api/clients/iam/v0alpha1';
@@ -24,6 +25,8 @@ import { VersionsHistoryButtons } from './version-history/VersionHistoryButtons'
 import { VersionHistoryComparison } from './version-history/VersionHistoryComparison';
 import { VersionHistoryHeader } from './version-history/VersionHistoryHeader';
 import { VersionHistoryTable } from './version-history/VersionHistoryTable';
+
+const logger = createMonitoringLogger('features.dashboard-scene.versions-edit-view');
 
 export interface VersionsEditViewState extends DashboardEditViewState {
   versions?: DecoratedRevisionModel[];
@@ -111,7 +114,18 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => {
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'fetchVersions', dashboardUid: uid, append });
+          return;
+        }
+        logger.logWarning('Failed to fetch dashboard versions', {
+          operation: 'fetchVersions',
+          dashboardUid: uid,
+          append,
+          error: String(err),
+        });
+      })
       .finally(() => this.setState({ isAppending: false }));
   };
 

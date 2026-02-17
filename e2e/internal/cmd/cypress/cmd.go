@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"log/slog"
 	"os"
 	"os/exec"
 	"path"
@@ -209,7 +210,7 @@ func runAction(ctx context.Context, c *cli.Command) error {
 			cmd.Stdin = nil
 
 			if err := cmd.Run(); err != nil {
-				fmt.Println("Error running Grafana:", err)
+				slog.Error("Error running Grafana", "error", err)
 			}
 		}()
 

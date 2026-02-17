@@ -20,7 +20,7 @@ import {
   VariableRefresh,
   VariableWithOptions,
 } from '@grafana/data';
-import { config, locationService, logWarning } from '@grafana/runtime';
+import { config, createMonitoringLogger, locationService, logWarning } from '@grafana/runtime';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { contextSrv } from 'app/core/services/context_srv';
 import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
@@ -79,6 +79,8 @@ import {
   variablesCompleteTransaction,
   variablesInitTransaction,
 } from './transactionReducer';
+
+const logger = createMonitoringLogger('features.variables.state-actions');
 import { KeyedVariableIdentifier } from './types';
 import { cleanVariables } from './variablesReducer';
 
@@ -808,7 +810,16 @@ export const onTimeRangeUpdated =
       await Promise.all(promises);
       dependencies.events.publish(new VariablesTimeRangeProcessDone({ variableIds }));
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        logger.logError(error, { operation: 'onTimeRangeUpdated', key, variableIds });
+      } else {
+        logger.logWarning('Template variable service failed', {
+          operation: 'onTimeRangeUpdated',
+          key,
+          variableIds,
+          error: String(error),
+        });
+      }
       dispatch(notifyApp(createVariableErrorNotification('Template variable service failed', error)));
     }
   };
@@ -962,7 +973,15 @@ export const initVariablesTransaction =
       dispatch(toKeyedAction(uid, variablesCompleteTransaction({ uid })));
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Templating init failed', err)));
-      console.error(err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'initVariablesTransaction', urlUid });
+      } else {
+        logger.logWarning('Templating init failed', {
+          operation: 'initVariablesTransaction',
+          urlUid,
+          error: String(err),
+        });
+      }
     }
   };
 
@@ -1033,7 +1052,16 @@ export const updateOptions =
       dispatch(toKeyedAction(rootStateKey, variableStateFailed(toVariablePayload(identifier, { error }))));
 
       if (!rethrow) {
-        console.error(error);
+        if (error instanceof Error) {
+          logger.logError(error, { operation: 'updateOptions', id: identifier.id, rootStateKey });
+        } else {
+          logger.logWarning('Error updating options', {
+            operation: 'updateOptions',
+            id: identifier.id,
+            rootStateKey,
+            error: String(error),
+          });
+        }
         dispatch(notifyApp(createVariableErrorNotification('Error updating options:', error, identifier)));
       }
 
@@ -1113,7 +1141,16 @@ export function upgradeLegacyQueries(
       );
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Failed to upgrade legacy queries', err)));
-      console.error(err);
+      if (err instanceof Error) {
+        logger.logError(err, { operation: 'upgradeLegacyQueries', id, rootStateKey });
+      } else {
+        logger.logWarning('Failed to upgrade legacy queries', {
+          operation: 'upgradeLegacyQueries',
+          id,
+          rootStateKey,
+          error: String(err),
+        });
+      }
     }
   };
 }

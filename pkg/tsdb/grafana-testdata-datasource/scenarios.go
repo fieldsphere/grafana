@@ -277,7 +277,7 @@ func (s *Service) handleFallbackScenario(ctx context.Context, req *backend.Query
 
 			scenarioQueries[scenarioID] = append(scenarioQueries[scenarioID], q)
 		} else {
-			ctxLogger.Error("Scenario not found", "scenarioId", scenarioID)
+			ctxLogger.Error("Scenario not found", "scenarioID", scenarioID)
 		}
 	}
 
@@ -291,7 +291,7 @@ func (s *Service) handleFallbackScenario(ctx context.Context, req *backend.Query
 			}
 			handler := instrumentScenarioHandler(s.logger, scenarioID, scenario.handler)
 			if sResp, err := handler(ctx, sReq); err != nil {
-				ctxLogger.Error("Failed to handle scenario", "scenarioId", scenarioID, "error", err)
+				ctxLogger.Error("Failed to handle scenario", "scenarioID", scenarioID, "error", err)
 			} else {
 				for refID, dr := range sResp.Responses {
 					resp.Responses[refID] = dr

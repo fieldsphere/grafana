@@ -1,11 +1,15 @@
 import { DataSourceInstanceSettings, DataSourceJsonData } from '@grafana/data';
 
+import { createMonitoringLogger } from './logging';
+
 interface JsonData extends DataSourceJsonData {
   oauthPassThru?: unknown; // we do not assume boolean, to be more robust
   azureCredentials?: {
     authType?: unknown;
   };
 }
+
+const logger = createMonitoringLogger('runtime.qscheck');
 
 function isOauthEnabled(ds: DataSourceInstanceSettings<JsonData>): boolean {
   const oauth = ds.jsonData.oauthPassThru;
@@ -48,11 +52,11 @@ function parseAllowedTypes(data: unknown): AllowedTypes {
     if (types.every((x) => typeof x === 'string')) {
       return { types };
     } else {
-      console.error('qscheck.parseFlags: non-string item in allowed');
+      logger.logWarning('qscheck.parseFlags: non-string item in allowed');
       return { types: [] };
     }
   } else {
-    console.error('qscheck.parseFlags: invalid data');
+    logger.logWarning('qscheck.parseFlags: invalid data');
     return { types: [] };
   }
 }

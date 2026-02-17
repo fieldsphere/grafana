@@ -114,14 +114,18 @@ func (td *tracingDiagnostics) overrideWithEnv() error {
 	return nil
 }
 
-func setupProfiling(profile bool, profileAddr string, profilePort uint64, blockRate int, mutexFraction int) error {
+func setupProfiling(profile bool, profileAddr string, profilePort uint64, blockRate int, mutexFraction int, logger *log.ConcreteLogger) error {
 	profileDiagnostics := newProfilingDiagnostics(profile, profileAddr, profilePort, blockRate, mutexFraction)
 	if err := profileDiagnostics.overrideWithEnv(); err != nil {
 		return err
 	}
 
 	if profileDiagnostics.enabled {
-		fmt.Println("diagnostics: pprof profiling enabled", "addr", profileDiagnostics.addr, "port", profileDiagnostics.port, "blockProfileRate", profileDiagnostics.blockRate, "mutexProfileRate", profileDiagnostics.mutexRate)
+		logger.Info("Diagnostics pprof profiling enabled",
+			"profileAddress", profileDiagnostics.addr,
+			"port", profileDiagnostics.port,
+			"blockProfileRate", profileDiagnostics.blockRate,
+			"mutexProfileRate", profileDiagnostics.mutexRate)
 		runtime.SetBlockProfileRate(profileDiagnostics.blockRate)
 		runtime.SetMutexProfileFraction(profileDiagnostics.mutexRate)
 
@@ -146,14 +150,14 @@ func setupTracing(tracing bool, tracingFile string, logger *log.ConcreteLogger) 
 	}
 
 	if traceDiagnostics.enabled {
-		fmt.Println("diagnostics: tracing enabled", "file", traceDiagnostics.file)
+		logger.Info("Diagnostics tracing enabled", "traceFilePath", traceDiagnostics.file)
 		f, err := os.Create(traceDiagnostics.file)
 		if err != nil {
 			panic(err)
 		}
 		defer func() {
 			if err := f.Close(); err != nil {
-				logger.Error("Failed to write trace diagnostics", "path", traceDiagnostics.file, "err", err)
+				logger.Error("Failed to write trace diagnostics", "traceFilePath", traceDiagnostics.file, "error", err)
 			}
 		}()
 

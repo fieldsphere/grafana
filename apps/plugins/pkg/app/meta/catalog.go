@@ -82,7 +82,7 @@ func (p *CatalogProvider) GetMeta(ctx context.Context, ref PluginRef) (*Result, 
 	}()
 
 	if resp.StatusCode == http.StatusNotFound {
-		logging.FromContext(ctx).Warn("CatalogProvider: Plugin metadata not found", "pluginID", lookupID, "version", ref.Version, "url", u.String())
+		logging.FromContext(ctx).Warn("CatalogProvider: Plugin metadata not found", "pluginID", lookupID, "version", ref.Version, "requestURL", u.String())
 		return nil, ErrMetaNotFound
 	}
 
@@ -120,8 +120,8 @@ func (p *CatalogProvider) findChildMeta(ctx context.Context, childID string, par
 	}
 
 	logging.FromContext(ctx).Debug("CatalogProvider: Child plugin not found in parent's children",
-		"childId", childID,
-		"parentId", parentMeta.PluginSlug,
+		"childID", childID,
+		"parentID", parentMeta.PluginSlug,
 		"childrenCount", len(parentMeta.Children),
 	)
 	return nil, ErrMetaNotFound

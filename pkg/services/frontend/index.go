@@ -84,7 +84,7 @@ func (p *IndexProvider) HandleRequest(writer http.ResponseWriter, request *http.
 
 	requestConfig, err := FSRequestConfigFromContext(ctx)
 	if err != nil {
-		p.log.Error("unable to get request config", "err", err)
+		p.log.Error("unable to get request config", "error", err)
 		http.Error(writer, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}

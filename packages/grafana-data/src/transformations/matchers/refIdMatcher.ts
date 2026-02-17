@@ -1,4 +1,5 @@
 import { escapeStringForRegex, stringStartsAsRegEx, stringToJsRegex } from '../../text/string';
+import { logDataWarning } from '../../logging';
 import { DataFrame } from '../../types/dataFrame';
 import { FrameMatcherInfo } from '../../types/transformations';
 
@@ -19,7 +20,10 @@ const refIdMatcher: FrameMatcherInfo<string> = {
         regex = stringToJsRegex(pattern);
       } catch (error) {
         if (error instanceof Error) {
-          console.warn(error.message);
+          logDataWarning(error.message, {
+            operation: 'refIdMatcher.get',
+            pattern,
+          });
         }
       }
     }

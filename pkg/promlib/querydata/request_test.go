@@ -406,12 +406,8 @@ func executeWithHeaders(tctx *testContext, query backend.DataQuery, rqr any, eqr
 		return nil, err
 	}
 	defer func() {
-		if err := rangeRes.Body.Close(); err != nil {
-			fmt.Println(fmt.Errorf("rangeRes body close error: %v", err))
-		}
-		if err := exemplarRes.Body.Close(); err != nil {
-			fmt.Println(fmt.Errorf("exemplarRes body close error: %v", err))
-		}
+		_ = rangeRes.Body.Close()
+		_ = exemplarRes.Body.Close()
 	}()
 	tctx.httpProvider.setResponse(rangeRes, exemplarRes)
 
@@ -532,7 +528,6 @@ func (p *fakeHttpClientProvider) setResponse(rangeRes *http.Response, exemplarRe
 		bodyBytes, _ := io.ReadAll(exemplarRes.Body)
 		err := exemplarRes.Body.Close() // Close the original
 		if err != nil {
-			fmt.Println(fmt.Errorf("exemplarRes body close error: %v", err))
 			return
 		}
 

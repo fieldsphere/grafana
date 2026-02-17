@@ -173,7 +173,7 @@ func (t *nestedTree) ListFolder(ctx context.Context, orgId int64, path string, m
 
 		storages := t.getStorages(orgId)
 		count := len(storages)
-		grafanaStorageLogger.Info("Listing root folder", "path", path, "storageCount", len(storages))
+		grafanaStorageLogger.Info("Listing root folder", "directoryPath", path, "storageCount", len(storages))
 
 		names := data.NewFieldFromFieldType(data.FieldTypeString, count)
 		title := data.NewFieldFromFieldType(data.FieldTypeString, count)
@@ -208,7 +208,7 @@ func (t *nestedTree) ListFolder(ctx context.Context, orgId int64, path string, m
 	if root.Meta().Config.Prefix == RootContent && (path == "" || path == "/") {
 		storages = filterStoragesUnderContentRoot(t.getStorages(orgId))
 	}
-	grafanaStorageLogger.Info("Listing folder", "path", path, "storageCount", len(storages), "root", root.Meta().Config.Prefix)
+	grafanaStorageLogger.Info("Listing folder", "directoryPath", path, "storageCount", len(storages), "root", root.Meta().Config.Prefix)
 
 	store := root.Store()
 	if store == nil {

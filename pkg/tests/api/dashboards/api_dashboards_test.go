@@ -535,10 +535,7 @@ providers:
 		t.Run("deleting provisioned dashboard should fail", func(t *testing.T) {
 			u := fmt.Sprintf("http://admin:admin@%s/api/dashboards/uid/%s", grafanaListedAddr, dashboardUID)
 			req, err := http.NewRequest("DELETE", u, nil)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
+			require.NoError(t, err)
 
 			client := &http.Client{}
 			resp, err := client.Do(req)

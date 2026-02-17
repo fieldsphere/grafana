@@ -138,7 +138,7 @@ func CheckQuerySnapshots(t *testing.T, setup TemplateTestSetup) {
 								expect, err := os.ReadFile(fpath)
 								if err != nil || len(expect) < 1 {
 									update = true
-									t.Error("missing " + fpath)
+									t.Errorf("missing %s", fpath)
 								} else {
 									if diff := cmp.Diff(string(expect), clean); diff != "" {
 										t.Errorf("%s: %s", fname, diff)

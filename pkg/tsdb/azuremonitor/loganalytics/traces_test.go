@@ -93,7 +93,7 @@ func TestBuildAppInsightsQuery(t *testing.T) {
 	}
 	appInsightsRegExp, err := regexp.Compile("providers/Microsoft.Insights/components")
 	if err != nil {
-		t.Error("failed to compile reg: %w", err)
+		t.Errorf("failed to compile reg: %v", err)
 	}
 
 	tests := []struct {

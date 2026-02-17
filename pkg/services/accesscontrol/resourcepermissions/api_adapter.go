@@ -140,7 +140,7 @@ func (a *api) convertK8sResourcePermissionToDTO(resourcePerm *iamv0.ResourcePerm
 				"Permission not found in PermissionsToActions map",
 				"permission", permission,
 				"resource", a.service.options.Resource,
-				"availablePermissions", fmt.Sprintf("%v", getMapKeys(a.service.options.PermissionsToActions)),
+				"availablePermissions", getMapKeys(a.service.options.PermissionsToActions),
 			)
 			actions = []string{}
 		}

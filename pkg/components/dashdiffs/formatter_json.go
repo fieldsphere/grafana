@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"html/template"
 	"sort"
+	"strconv"
 
 	diff "github.com/yudai/gojsondiff"
 )
@@ -156,7 +157,6 @@ func (f *JSONFormatter) Format(diff diff.Diff) (result string, err error) {
 	b := &bytes.Buffer{}
 	err = f.tpl.ExecuteTemplate(b, "JSONDiffWrapper", f.Lines)
 	if err != nil {
-		fmt.Printf("%v\n", err)
 		return "", err
 	}
 
@@ -251,7 +251,7 @@ func (f *JSONFormatter) processItem(value any, deltas []diff.Delta, position dif
 
 				f.newLine(ChangeNil)
 				f.printKey(positionStr)
-				f.print("{")
+				f.appendText("{")
 				f.closeLine()
 				f.push(positionStr, len(o), false)
 				if err := f.processObject(o, matchedDelta.Deltas); err != nil {
@@ -261,7 +261,7 @@ func (f *JSONFormatter) processItem(value any, deltas []diff.Delta, position dif
 
 				f.pop()
 				f.newLine(ChangeNil)
-				f.print("}")
+				f.appendText("}")
 				f.printComma()
 				f.closeLine()
 
@@ -276,7 +276,7 @@ func (f *JSONFormatter) processItem(value any, deltas []diff.Delta, position dif
 
 				f.newLine(ChangeNil)
 				f.printKey(positionStr)
-				f.print("[")
+				f.appendText("[")
 				f.closeLine()
 				f.push(positionStr, len(a), true)
 				if err := f.processArray(a, matchedDelta.Deltas); err != nil {
@@ -286,7 +286,7 @@ func (f *JSONFormatter) processItem(value any, deltas []diff.Delta, position dif
 
 				f.pop()
 				f.newLine(ChangeNil)
-				f.print("]")
+				f.appendText("]")
 				f.printComma()
 				f.closeLine()
 
@@ -405,7 +405,8 @@ func (f *JSONFormatter) closeLine() {
 func (f *JSONFormatter) printKey(name string) {
 	if !f.inArray[len(f.inArray)-1] {
 		f.line.key = name
-		fmt.Fprintf(f.line.buffer, `"%s": `, name)
+		f.line.buffer.WriteString(strconv.Quote(name))
+		f.line.buffer.WriteString(": ")
 	}
 }
 
@@ -420,17 +421,17 @@ func (f *JSONFormatter) printValue(value any) {
 	switch value.(type) {
 	case string:
 		f.line.val = value
-		fmt.Fprintf(f.line.buffer, `"%s"`, value)
+		f.line.buffer.WriteString(strconv.Quote(value.(string)))
 	case nil:
 		f.line.val = "null"
 		f.line.buffer.WriteString("null")
 	default:
 		f.line.val = value
-		fmt.Fprintf(f.line.buffer, `%#v`, value)
+		f.line.buffer.WriteString(fmt.Sprintf("%#v", value))
 	}
 }
 
-func (f *JSONFormatter) print(a string) {
+func (f *JSONFormatter) appendText(a string) {
 	f.line.buffer.WriteString(a)
 }
 
@@ -439,7 +440,7 @@ func (f *JSONFormatter) printRecursive(name string, value any, change ChangeType
 	case map[string]any:
 		f.newLine(change)
 		f.printKey(name)
-		f.print("{")
+		f.appendText("{")
 		f.closeLine()
 
 		size := len(value)
@@ -452,14 +453,14 @@ func (f *JSONFormatter) printRecursive(name string, value any, change ChangeType
 		f.pop()
 
 		f.newLine(change)
-		f.print("}")
+		f.appendText("}")
 		f.printComma()
 		f.closeLine()
 
 	case []any:
 		f.newLine(change)
 		f.printKey(name)
-		f.print("[")
+		f.appendText("[")
 		f.closeLine()
 
 		size := len(value)
@@ -470,7 +471,7 @@ func (f *JSONFormatter) printRecursive(name string, value any, change ChangeType
 		f.pop()
 
 		f.newLine(change)
-		f.print("]")
+		f.appendText("]")
 		f.printComma()
 		f.closeLine()
 

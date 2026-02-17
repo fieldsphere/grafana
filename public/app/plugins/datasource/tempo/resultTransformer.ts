@@ -24,10 +24,12 @@ import {
   TraceSpanRow,
 } from '@grafana/data';
 import { createNodeGraphFrames, TraceToProfilesData } from '@grafana/o11y-ds-frontend';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 
 import { SearchTableType } from './dataquery.gen';
 import { Span, SpanAttributes, Spanset, TempoJsonData, TraceSearchMetadata } from './types';
+
+const logger = createMonitoringLogger('plugins.datasource.tempo.result-transformer');
 
 function getAttributeValue(value: collectorTypes.opentelemetryProto.common.v1.AnyValue): any {
   if (value.stringValue) {
@@ -189,7 +191,14 @@ export function transformFromOTLP(
       }
     }
   } catch (error) {
-    console.error(error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'transformFromOTLP' });
+    } else {
+      logger.logWarning('JSON is not valid OpenTelemetry format', {
+        operation: 'transformFromOTLP',
+        error: String(error),
+      });
+    }
     return { error: { message: 'JSON is not valid OpenTelemetry format: ' + error }, data: [] };
   }
 

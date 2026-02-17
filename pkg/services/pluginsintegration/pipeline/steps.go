@@ -10,7 +10,6 @@ import (
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
 
-	"github.com/grafana/grafana/pkg/cmd/grafana-cli/logger"
 	"github.com/grafana/grafana/pkg/infra/metrics"
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/plugins"
@@ -24,6 +23,8 @@ import (
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginaccesscontrol"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/provisionedplugins"
 )
+
+var pipelineLog = log.New("plugins.pipeline")
 
 // ExternalServiceRegistration implements an InitializeFunc for registering external services.
 type ExternalServiceRegistration struct {
@@ -54,14 +55,14 @@ func (r *ExternalServiceRegistration) Register(ctx context.Context, p *plugins.P
 	}
 
 	ctx, span := r.tracer.Start(ctx, "ExternalServiceRegistration.Register")
-	span.SetAttributes(attribute.String("register.pluginId", p.ID))
+	span.SetAttributes(attribute.String("registerPluginID", p.ID))
 	defer span.End()
 
 	ctxLogger := r.log.FromContext(ctx)
 
 	s, err := r.externalServiceRegistry.RegisterExternalService(ctx, p.ID, string(p.Type), p.IAM)
 	if err != nil {
-		ctxLogger.Error("Could not register an external service. Initialization skipped", "pluginId", p.ID, "error", err)
+		ctxLogger.Error("Could not register an external service. Initialization skipped", "pluginID", p.ID, "error", err)
 		span.SetStatus(codes.Error, fmt.Sprintf("could not register external service: %v", err))
 		return nil, err
 	}
@@ -91,7 +92,7 @@ func newRegisterPluginRoles(registry pluginaccesscontrol.RoleRegistry) *Register
 // Register registers the plugin roles with the role registry.
 func (r *RegisterPluginRoles) Register(ctx context.Context, p *plugins.Plugin) (*plugins.Plugin, error) {
 	if err := r.roleRegistry.DeclarePluginRoles(ctx, p.ID, p.Name, p.Roles); err != nil {
-		r.log.Warn("Declare plugin roles failed.", "pluginId", p.ID, "error", err)
+		r.log.Warn("Declare plugin roles failed.", "pluginID", p.ID, "error", err)
 		return nil, err
 	}
 	return p, nil
@@ -118,7 +119,7 @@ func newRegisterActionSets(registry pluginaccesscontrol.ActionSetRegistry) *Regi
 // Register registers the plugin action sets.
 func (r *RegisterActionSets) Register(ctx context.Context, p *plugins.Plugin) (*plugins.Plugin, error) {
 	if err := r.actionSetRegistry.RegisterActionSets(ctx, p.ID, p.ActionSets); err != nil {
-		r.log.Warn("Plugin action set registration failed", "pluginId", p.ID, "error", err)
+		r.log.Warn("Plugin action set registration failed", "pluginID", p.ID, "error", err)
 		return nil, err
 	}
 	return p, nil
@@ -176,7 +177,7 @@ func ReportCloudProvisioningMetrics(ppManaged provisionedplugins.Manager) initia
 	pps, err := ppManaged.ProvisionedPlugins(context.Background())
 	if err != nil {
 		cloudProvisioningMethod = plugins.CloudProvisioningMethodUnknown
-		logger.Warn("Failed to get provisioned plugins", "error", err)
+		pipelineLog.Warn("Failed to get provisioned plugins", "error", err)
 	}
 
 	return func(ctx context.Context, p *plugins.Plugin) (*plugins.Plugin, error) {
@@ -224,7 +225,7 @@ func (v *SignatureValidation) Validate(ctx context.Context, p *plugins.Plugin) e
 		var sigErr *plugins.Error
 		if errors.As(err, &sigErr) {
 			v.log.Warn("Skipping loading plugin due to problem with signature",
-				"pluginId", p.ID, "status", sigErr.SignatureStatus)
+				"pluginID", p.ID, "signatureStatus", sigErr.SignatureStatus)
 			p.Error = sigErr
 		}
 		return err
@@ -332,14 +333,14 @@ func (d *DuplicatePluginIDValidation) Filter(ctx context.Context, bundles []*plu
 		ps := d.registry.Plugins(ctx)
 
 		if slices.ContainsFunc(ps, matchesPluginIDFunc(b.Primary)) {
-			d.log.Warn("Skipping loading of plugin as it's a duplicate", "pluginId", b.Primary.JSONData.ID)
+			d.log.Warn("Skipping loading of plugin as it's a duplicate", "pluginID", b.Primary.JSONData.ID)
 			continue
 		}
 
 		var nonDupeChildren []*plugins.FoundPlugin
 		for _, child := range b.Children {
 			if slices.ContainsFunc(ps, matchesPluginIDFunc(*child)) {
-				d.log.Warn("Skipping loading of child plugin as it's a duplicate", "pluginId", child.JSONData.ID)
+				d.log.Warn("Skipping loading of child plugin as it's a duplicate", "pluginID", child.JSONData.ID)
 				continue
 			}
 			nonDupeChildren = append(nonDupeChildren, child)

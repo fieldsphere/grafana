@@ -44,7 +44,7 @@ func (*refsConnector) NewConnectOptions() (runtime.Object, bool, string) {
 }
 
 func (c *refsConnector) Connect(ctx context.Context, name string, opts runtime.Object, responder rest.Responder) (http.Handler, error) {
-	logger := logging.FromContext(ctx).With("logger", "refs-connector", "repository_name", name)
+	logger := logging.FromContext(ctx).With("logger", "refs-connector", "repositoryName", name)
 	ctx = logging.Context(ctx, logger)
 	repo, err := c.getter.GetRepository(ctx, name)
 	if err != nil {

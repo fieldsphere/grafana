@@ -129,7 +129,7 @@ func callResource(ctx context.Context, req *backend.CallResourceRequest, sender 
 	lokiURL := fmt.Sprintf("/loki/api/v1/%s", url)
 
 	ctx, span := tracer.Start(ctx, "datasource.loki.CallResource", trace.WithAttributes(
-		attribute.String("url", lokiURL),
+		attribute.String("requestPath", lokiURL),
 	))
 	defer span.End()
 
@@ -146,7 +146,7 @@ func callResource(ctx context.Context, req *backend.CallResourceRequest, sender 
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
-			plog.FromContext(ctx).Error("Failed to get suggestions from loki", "err", err)
+			plog.FromContext(ctx).Error("Failed to get suggestions from loki", "error", err)
 			return err
 		}
 	} else {
@@ -154,7 +154,7 @@ func callResource(ctx context.Context, req *backend.CallResourceRequest, sender 
 		if err != nil {
 			span.RecordError(err)
 			span.SetStatus(codes.Error, err.Error())
-			plog.Error("Failed resource call from loki", "err", err, "url", lokiURL)
+			plog.Error("Failed resource call from loki", "error", err, "requestPath", lokiURL)
 			return err
 		}
 	}
@@ -184,7 +184,7 @@ func (s *Service) QueryData(ctx context.Context, req *backend.QueryDataRequest) 
 	_, fromAlert := req.Headers[fromAlertHeaderName]
 	logger := s.logger.FromContext(ctx).With("fromAlert", fromAlert)
 	if err != nil {
-		logger.Debug("Failed to get data source info", "err", err)
+		logger.Debug("Failed to get data source info", "error", err)
 		return nil, err
 	}
 
@@ -214,7 +214,7 @@ func queryData(ctx context.Context, req *backend.QueryDataRequest, dsInfo *datas
 		attribute.Int("queriesLength", len(queries)),
 	))
 	if req.GetHTTPHeader("X-Query-Group-Id") != "" {
-		span.SetAttributes(attribute.String("query_group_id", req.GetHTTPHeader("X-Query-Group-Id")))
+		span.SetAttributes(attribute.String("queryGroupID", req.GetHTTPHeader("X-Query-Group-Id")))
 	}
 	defer span.End()
 	start = time.Now()
@@ -245,11 +245,11 @@ func executeQuery(ctx context.Context, query *lokiQuery, req *backend.QueryDataR
 	ctx, span := tracer.Start(ctx, "datasource.loki.queryData.runQueries.runQuery", trace.WithAttributes(
 		attribute.Bool("runInParallel", runInParallel),
 		attribute.String("expr", query.Expr),
-		attribute.Int64("start_unixnano", query.Start.UnixNano()),
-		attribute.Int64("stop_unixnano", query.End.UnixNano()),
+		attribute.Int64("startUnixNano", query.Start.UnixNano()),
+		attribute.Int64("stopUnixNano", query.End.UnixNano()),
 	))
 	if req.GetHTTPHeader("X-Query-Group-Id") != "" {
-		span.SetAttributes(attribute.String("query_group_id", req.GetHTTPHeader("X-Query-Group-Id")))
+		span.SetAttributes(attribute.String("queryGroupID", req.GetHTTPHeader("X-Query-Group-Id")))
 	}
 
 	defer span.End()

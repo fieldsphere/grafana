@@ -21,6 +21,7 @@ import { UpdateAllModal } from '../components/UpdateAllModal';
 import { Sorters } from '../helpers';
 import { useHistory } from '../hooks/useHistory';
 import { useGetAll, useGetUpdatable, useIsRemotePluginsAvailable } from '../state/hooks';
+import { pluginsLogger } from '../../utils';
 
 export default function Browse() {
   const location = useLocation();
@@ -72,7 +73,10 @@ export default function Browse() {
 
   // How should we handle errors?
   if (error) {
-    console.error(error.message);
+    pluginsLogger.logWarning('Failed to load plugin catalog browse data', {
+      operation: 'Browse',
+      error: error.message,
+    });
     return null;
   }
 

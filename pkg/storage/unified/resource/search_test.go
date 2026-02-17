@@ -16,6 +16,7 @@ import (
 	"github.com/grafana/authlib/types"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	"go.opentelemetry.io/otel/attribute"
 
 	dashboardv1 "github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v1beta1"
 	"github.com/grafana/grafana/pkg/storage/unified/resourcepb"
@@ -983,4 +984,57 @@ func TestSearchValidatesNegativeLimitAndOffset(t *testing.T) {
 		require.Equal(t, http.StatusBadRequest, int(rsp.Error.Code))
 		require.Equal(t, "offset cannot be negative", rsp.Error.Message)
 	})
+}
+
+func TestNormalizeSearchLogArgs(t *testing.T) {
+	t.Run("keeps key value args", func(t *testing.T) {
+		got := normalizeSearchLogArgs("namespace", "default", "limit", 10)
+		require.Equal(t, []any{"namespace", "default", "limit", 10}, got)
+	})
+
+	t.Run("wraps odd args", func(t *testing.T) {
+		got := normalizeSearchLogArgs("namespace", "default", 10)
+		require.Equal(t, "searchLogArgs", got[0])
+	})
+
+	t.Run("wraps non-string keys", func(t *testing.T) {
+		got := normalizeSearchLogArgs(1, "default")
+		require.Equal(t, "searchLogArgs", got[0])
+	})
+}
+
+func TestSearchStatsSpanAttributes(t *testing.T) {
+	stats := &SearchStats{
+		operation:             "search",
+		indexBuildTime:        2 * time.Millisecond,
+		indexUpdateTime:       3 * time.Millisecond,
+		requestConversion:     4 * time.Millisecond,
+		searchTime:            5 * time.Millisecond,
+		totalHits:             7,
+		returnedDocuments:     3,
+		resultsConversionTime: 6 * time.Millisecond,
+	}
+
+	attrs := searchStatsSpanAttributes(stats, 8*time.Millisecond, []any{"namespace", "default"})
+
+	require.True(t, searchSpanAttributeContains(attrs, attribute.String("operation", "search")))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("elapsedTime", int64(8*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("indexBuildTime", int64(2*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("indexUpdateTime", int64(3*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("requestConversionTime", int64(4*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("searchTime", int64(5*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int("totalHits", 7)))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int("returnedDocuments", 3)))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int64("resultsConversionTime", int64(6*time.Millisecond))))
+	require.True(t, searchSpanAttributeContains(attrs, attribute.Int("searchLogArgsCount", 2)))
+}
+
+func searchSpanAttributeContains(attrs []attribute.KeyValue, expected attribute.KeyValue) bool {
+	for _, attr := range attrs {
+		if attr.Key == expected.Key && attr.Value == expected.Value {
+			return true
+		}
+	}
+
+	return false
 }

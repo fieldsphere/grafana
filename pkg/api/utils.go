@@ -20,7 +20,7 @@ func (hs *HTTPServer) GetRedirectURL(c *contextmodel.ReqContext) string {
 		if err := hs.ValidateRedirectTo(redirectTo); err == nil {
 			redirectURL = redirectTo
 		} else {
-			hs.log.FromContext(c.Req.Context()).Debug("Ignored invalid redirect_to cookie value", "redirect_to", redirectTo)
+			hs.log.FromContext(c.Req.Context()).Debug("Ignored invalid redirect_to cookie value", "redirectTo", redirectTo)
 		}
 		cookies.DeleteCookie(c.Resp, "redirect_to", hs.CookieOptionsFromCfg)
 	}

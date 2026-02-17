@@ -42,17 +42,17 @@ type DebugOnlyLogger interface {
 
 // ParseURL tries to parse an MSSQL URL string into a URL object.
 func ParseURL(u string, logger DebugOnlyLogger) (*url.URL, error) {
-	logger.Debug("Parsing MSSQL URL", "url", u)
+	logger.Debug("Parsing MSSQL URL", "datasourceURL", u)
 
 	// Recognize ODBC connection strings like host\instance:1234
 	reODBC := regexp.MustCompile(`^[^\\:]+(?:\\[^:]+)?(?::\d+)?(?:;.+)?$`)
 	var host string
 	switch {
 	case reODBC.MatchString(u):
-		logger.Debug("Recognized as ODBC URL format", "url", u)
+		logger.Debug("Recognized as ODBC URL format", "datasourceURL", u)
 		host = u
 	default:
-		logger.Debug("Couldn't recognize as valid MSSQL URL", "url", u)
+		logger.Debug("Couldn't recognize as valid MSSQL URL", "datasourceURL", u)
 		return nil, fmt.Errorf("unrecognized MSSQL URL format: %q", u)
 	}
 	return &url.URL{

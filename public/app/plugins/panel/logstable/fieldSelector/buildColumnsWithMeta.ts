@@ -1,7 +1,9 @@
 import { DataFrame, FieldWithIndex, getFieldDisplayName } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { FieldNameMeta, FieldNameMetaStore } from 'app/features/explore/Logs/LogsTableWrap';
 
 type FieldName = string;
+const logger = createMonitoringLogger('plugins.panel.logstable.field-selector');
 
 export interface LogsFrameFields {
   extraFields: FieldWithIndex[];
@@ -103,7 +105,11 @@ export const buildColumnsWithMeta = (
       pendingLabelState[fieldName].active = true;
       pendingLabelState[fieldName].index = idx;
     } else {
-      console.error(`Unknown field ${fieldName}`, { pendingLabelState, displayedFields });
+      logger.logWarning('Unknown field in displayed fields', {
+        operation: 'buildColumnsWithMeta',
+        fieldName,
+        displayedFields: displayedFields.join(','),
+      });
     }
   });
 

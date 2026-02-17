@@ -1,4 +1,7 @@
 import { urlUtil } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('plugins.panel.logstable.panel-state');
 
 interface LogsPermalinkUrlState {
   logs?: {
@@ -19,7 +22,14 @@ export function getLogsTablePanelState(): LogsPermalinkUrlState | undefined {
     try {
       return JSON.parse(panelStateEncoded[0]);
     } catch (e) {
-      console.error('error parsing logsPanelState', e);
+      if (e instanceof Error) {
+        logger.logError(e, { operation: 'getLogsTablePanelState' });
+      } else {
+        logger.logWarning('Error parsing logs panel state', {
+          operation: 'getLogsTablePanelState',
+          error: String(e),
+        });
+      }
     }
   }
 

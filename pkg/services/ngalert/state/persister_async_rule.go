@@ -38,12 +38,12 @@ func (a *AsyncRuleStatePersister) Async(ctx context.Context, instancesProvider A
 		select {
 		case <-ticker.C:
 			if err := a.fullSync(ctx, instancesProvider); err != nil {
-				a.log.Error("Failed to do a full compressed state sync to database", "err", err)
+				a.log.Error("Failed to do a full compressed state sync to database", "error", err)
 			}
 		case <-ctx.Done():
 			a.log.Info("Scheduler is shutting down, doing a final state sync.")
 			if err := a.fullSync(context.Background(), instancesProvider); err != nil {
-				a.log.Error("Failed to do a full compressed state sync to database", "err", err)
+				a.log.Error("Failed to do a full compressed state sync to database", "error", err)
 			}
 			a.log.Info("Compressed state async worker is shut down.")
 			return

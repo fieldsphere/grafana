@@ -14,6 +14,7 @@ const { merge } = require('webpack-merge');
 const WebpackBar = require('webpackbar');
 
 const getEnvConfig = require('./env-util.js');
+const { logWebpackError, logWebpackInfo } = require('./logging.js');
 const common = require('./webpack.common.js');
 const esbuildTargets = resolveToEsbuildTarget(browserslist(), { printUnknownTargets: false });
 // esbuild-loader 3.0.0+ requires format to be set to prevent it
@@ -36,11 +37,18 @@ function scenesModule() {
   try {
     const status = fs.lstatSync(scenesPath);
     if (status.isSymbolicLink()) {
-      console.log(`scenes is linked to local scenes repo`);
+      logWebpackInfo('Scenes is linked to local scenes repo', {
+        operation: 'scenesModule',
+        scenesPath,
+      });
       return path.resolve(scenesPath + '/src');
     }
   } catch (error) {
-    console.error(`Error checking scenes path: ${error.message}`);
+    logWebpackError('Error checking scenes path', {
+      operation: 'scenesModule',
+      scenesPath,
+      error: error.message,
+    });
   }
   return scenesPath;
 }

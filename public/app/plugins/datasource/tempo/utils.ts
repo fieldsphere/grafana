@@ -1,5 +1,5 @@
 import { DataSourceApi, parseDuration } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 
 import { generateId } from './SearchTraceQLEditor/TagsInput';
 import { TraceqlFilter, TraceqlSearchScope } from './dataquery.gen';
@@ -7,6 +7,7 @@ import { TempoQuery } from './types';
 
 const LIMIT_MESSAGE = /.*range specified by start and end.*exceeds.*/;
 const LIMIT_MESSAGE_METRICS = /.*metrics query time range exceeds the maximum allowed duration of.*/;
+const logger = createMonitoringLogger('plugins.datasource.tempo.utils');
 
 export function mapErrorMessage(errorMessage: string) {
   if (errorMessage && (LIMIT_MESSAGE.test(errorMessage) || LIMIT_MESSAGE_METRICS.test(errorMessage))) {
@@ -32,7 +33,15 @@ export async function getDS(uid?: string): Promise<DataSourceApi | undefined> {
   try {
     return await dsSrv.get(uid);
   } catch (error) {
-    console.error('Failed to load data source', error);
+    if (error instanceof Error) {
+      logger.logError(error, { operation: 'getDS', datasourceUid: uid });
+    } else {
+      logger.logWarning('Failed to load data source', {
+        operation: 'getDS',
+        datasourceUid: uid,
+        error: String(error),
+      });
+    }
     return undefined;
   }
 }

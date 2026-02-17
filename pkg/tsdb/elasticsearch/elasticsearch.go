@@ -164,7 +164,7 @@ func newInstanceSettings(httpClientProvider *httpclient.Provider) datasource.Ins
 			// Log warning but continue with default (non-serverless) behavior
 			// This handles cases where users don't have permission to access the root endpoint (403)
 			// or other connectivity issues that shouldn't prevent basic datasource functionality
-			backend.Logger.Warn("Failed to get Elasticsearch cluster info, assuming non-serverless cluster", "error", err, "url", settings.URL)
+			backend.Logger.Warn("Failed to get Elasticsearch cluster info, assuming non-serverless cluster", "error", err, "datasourceURL", settings.URL)
 			clusterInfo = es.ClusterInfo{}
 		}
 
@@ -215,7 +215,7 @@ func (s *Service) CallResource(ctx context.Context, req *backend.CallResourceReq
 	// - _field_caps for fetching "root" field capabilities
 	if req.Path != "" && !isFieldCaps(req.Path) && req.Path != "_msearch" &&
 		!strings.HasSuffix(req.Path, "/_mapping") && req.Path != "_mapping" {
-		logger.Error("Invalid resource path", "path", req.Path)
+		logger.Error("Invalid resource path", "resourcePath", req.Path)
 		return fmt.Errorf("invalid resource URL: %s", req.Path)
 	}
 
@@ -227,12 +227,12 @@ func (s *Service) CallResource(ctx context.Context, req *backend.CallResourceReq
 
 	esUrl, err := createElasticsearchURL(req, ds)
 	if err != nil {
-		logger.Error("Failed to create request url", "error", err, "url", ds.URL, "path", req.Path)
+		logger.Error("Failed to create request url", "error", err, "datasourceURL", ds.URL, "resourcePath", req.Path)
 	}
 
 	request, err := http.NewRequestWithContext(ctx, req.Method, esUrl, bytes.NewBuffer(req.Body))
 	if err != nil {
-		logger.Error("Failed to create request", "error", err, "url", esUrl)
+		logger.Error("Failed to create request", "error", err, "requestURL", esUrl)
 		return err
 	}
 
@@ -244,7 +244,7 @@ func (s *Service) CallResource(ctx context.Context, req *backend.CallResourceReq
 		if errors.Is(err, context.Canceled) {
 			status = "cancelled"
 		}
-		lp := []any{"error", err, "status", status, "duration", time.Since(start), "stage", es.StageDatabaseRequest, "resourcePath", req.Path}
+		lp := []any{"error", err, "requestStatus", status, "duration", time.Since(start), "stage", es.StageDatabaseRequest, "resourcePath", req.Path}
 		sourceErr := backend.ErrorWithSource{}
 		if errors.As(err, &sourceErr) {
 			lp = append(lp, "statusSource", sourceErr.ErrorSource())
@@ -255,7 +255,7 @@ func (s *Service) CallResource(ctx context.Context, req *backend.CallResourceReq
 		logger.Error("Error received from Elasticsearch", lp...)
 		return err
 	}
-	logger.Info("Response received from Elasticsearch", "statusCode", response.StatusCode, "status", "ok", "duration", time.Since(start), "stage", es.StageDatabaseRequest, "contentLength", response.Header.Get("Content-Length"), "resourcePath", req.Path)
+	logger.Info("Response received from Elasticsearch", "statusCode", response.StatusCode, "requestStatus", "ok", "duration", time.Since(start), "stage", es.StageDatabaseRequest, "contentLength", response.Header.Get("Content-Length"), "resourcePath", req.Path)
 
 	defer func() {
 		if err := response.Body.Close(); err != nil {

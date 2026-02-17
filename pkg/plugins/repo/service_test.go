@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -119,7 +120,7 @@ func TestPluginIndex(t *testing.T) {
 		require.Equal(t, "includeDeprecated=true&slugIn=grafana-test-datasource", r.URL.RawQuery)
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
-		_, _ = fmt.Fprintf(w, `{"items": [{ "id": 1, "slug": "%s", "status": "active" }]}`, pluginID)
+		_, _ = io.WriteString(w, `{"items": [{ "id": 1, "slug": "`+pluginID+`", "status": "active" }]}`)
 	}))
 	t.Cleanup(srv.Close)
 
@@ -202,7 +203,7 @@ func mockPluginVersionsAPI(t *testing.T, data srvData) *httptest.Server {
 		if data.arch != "" {
 			platform += "-" + data.arch
 		}
-		_, _ = fmt.Fprintf(w, `
+		_, _ = io.WriteString(w, fmt.Sprintf(`
 				{
 					"items": [{
 						"version": "%s",
@@ -215,7 +216,7 @@ func mockPluginVersionsAPI(t *testing.T, data srvData) *httptest.Server {
 						"isCompatible": true
 					}]
 				}
-			`, data.version, platform, data.sha, data.url)
+			`, data.version, platform, data.sha, data.url))
 	})
 
 	// mock plugin archive

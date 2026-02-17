@@ -45,7 +45,7 @@ func writeErrorResponse(rw http.ResponseWriter, statusCode int, message string) 
 	rw.WriteHeader(statusCode)
 
 	// Log the raw error message
-	backend.Logger.Error(message)
+	backend.Logger.Error("Azure Log Analytics response error", "message", message)
 
 	// Set error response to initial error message
 	errorBody := map[string]string{"error": message}
@@ -137,7 +137,7 @@ func (e *AzureLogAnalyticsDatasource) ResourceRequest(rw http.ResponseWriter, re
 
 		defer func() {
 			if err := resp.Body.Close(); err != nil {
-				e.Logger.Warn("Failed to close response body for metadata request", "err", err)
+				e.Logger.Warn("Failed to close response body for metadata request", "error", err)
 			}
 		}()
 
@@ -247,7 +247,7 @@ func (e *AzureLogAnalyticsDatasource) GetBasicLogsUsage(ctx context.Context, url
 
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			e.Logger.Warn("Failed to close response body for data volume request", "err", err)
+			e.Logger.Warn("Failed to close response body for data volume request", "error", err)
 		}
 	}()
 
@@ -266,7 +266,7 @@ func (e *AzureLogAnalyticsDatasource) GetBasicLogsUsage(ctx context.Context, url
 	if err != nil {
 		return rw, err
 	}
-	_, err = fmt.Fprintf(rw, "%f", value)
+	_, err = rw.Write([]byte(strconv.FormatFloat(value, 'f', 6, 64)))
 	if err != nil {
 		return rw, err
 	}
@@ -448,11 +448,11 @@ func (e *AzureLogAnalyticsDatasource) executeQuery(ctx context.Context, query *A
 
 	_, span := tracing.DefaultTracer().Start(ctx, "azure log analytics query", trace.WithAttributes(
 		attribute.String("target", query.Query),
-		attribute.Bool("basic_logs", query.BasicLogs),
+		attribute.Bool("basicLogs", query.BasicLogs),
 		attribute.Int64("from", query.TimeRange.From.UnixNano()/int64(time.Millisecond)),
 		attribute.Int64("until", query.TimeRange.To.UnixNano()/int64(time.Millisecond)),
-		attribute.Int64("datasource_id", dsInfo.DatasourceID),
-		attribute.Int64("org_id", dsInfo.OrgID),
+		attribute.Int64("datasourceID", dsInfo.DatasourceID),
+		attribute.Int64("orgID", dsInfo.OrgID),
 	))
 	defer span.End()
 
@@ -463,7 +463,7 @@ func (e *AzureLogAnalyticsDatasource) executeQuery(ctx context.Context, query *A
 
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			e.Logger.Warn("Failed to close response body", "err", err)
+			e.Logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -774,8 +774,8 @@ func getCorrelationWorkspaces(ctx context.Context, baseResource string, resource
 
 		_, span := tracing.DefaultTracer().Start(ctx, "azure traces correlation request", trace.WithAttributes(
 			attribute.String("target", req.URL.String()),
-			attribute.Int64("datasource_id", dsInfo.DatasourceID),
-			attribute.Int64("org_id", dsInfo.OrgID),
+			attribute.Int64("datasourceID", dsInfo.DatasourceID),
+			attribute.Int64("orgID", dsInfo.OrgID),
 		))
 		defer span.End()
 
@@ -790,7 +790,7 @@ func getCorrelationWorkspaces(ctx context.Context, baseResource string, resource
 
 		defer func() {
 			if err := res.Body.Close(); err != nil {
-				azMonService.Logger.Warn("Failed to close response body", "err", err)
+				azMonService.Logger.Warn("Failed to close response body", "error", err)
 			}
 		}()
 
@@ -857,7 +857,7 @@ func (e *AzureLogAnalyticsDatasource) unmarshalResponse(res *http.Response) (Azu
 	}
 	defer func() {
 		if err := res.Body.Close(); err != nil {
-			e.Logger.Warn("Failed to close response body", "err", err)
+			e.Logger.Warn("Failed to close response body", "error", err)
 		}
 	}()
 

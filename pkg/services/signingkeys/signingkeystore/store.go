@@ -91,7 +91,7 @@ func (s *Store) Add(ctx context.Context, key *signingkeys.SigningKey, force bool
 		go func() {
 			defer func() {
 				if err := recover(); err != nil {
-					s.log.Error("panic during expired signing key cleanup", "err", err)
+					s.log.Error("panic during expired signing key cleanup", "panicValue", err)
 				}
 			}()
 
@@ -99,7 +99,7 @@ func (s *Store) Add(ctx context.Context, key *signingkeys.SigningKey, force bool
 			defer cancel()
 
 			if err := s.cleanupExpiredKeys(ctxGo); err != nil {
-				s.log.Error("Failed to cleanup expired signing keys", "err", err)
+				s.log.Error("Failed to cleanup expired signing keys", "error", err)
 			}
 		}()
 		s.localCache.Set(cleanupRateLimitKey, true, 1*time.Hour)

@@ -129,8 +129,8 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 		ctx, span := b.tracer.Start(httpreq.Context(), "QueryService.Query")
 		defer span.End()
 		ctx = request.WithNamespace(ctx, request.NamespaceValue(connectCtx))
-		traceId := span.SpanContext().TraceID()
-		connectLogger := b.log.New("traceId", traceId.String(), "rule_uid", httpreq.Header.Get("X-Rule-Uid"))
+		traceID := span.SpanContext().TraceID()
+		connectLogger := b.log.New("traceID", traceID.String(), "ruleUID", httpreq.Header.Get("X-Rule-Uid"))
 		responder := newResponderWrapper(incomingResponder,
 			func(statusCode *int, obj runtime.Object) {
 				if *statusCode/100 == 4 {
@@ -144,14 +144,14 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 							if response.ErrorSource == backend.ErrorSourceDownstream {
 								*statusCode = http.StatusBadRequest //force this to be a 400 since it's downstream
 								span.SetStatus(codes.Error, strconv.Itoa(*statusCode))
-								span.SetAttributes(attribute.String("error.source", "downstream"))
+								span.SetAttributes(attribute.String("errorSource", "downstream"))
 								break
 							} else if response.Error != nil {
-								connectLogger.Debug("500 error without downstream error source", "error", response.Error, "errorSource", response.ErrorSource, "refId", refId)
+								connectLogger.Debug("500 error without downstream error source", "error", response.Error, "errorSource", response.ErrorSource, "refID", refId)
 								span.SetStatus(codes.Error, "500 error without downstream error source")
 							} else {
 								span.SetStatus(codes.Error, "500 error without downstream error source and no Error message")
-								span.SetAttributes(attribute.String("error.ref_id", refId))
+								span.SetAttributes(attribute.String("errorRefID", refId))
 							}
 						}
 					}
@@ -161,7 +161,7 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 			},
 
 			func(err error) {
-				connectLogger.Error("error caught in handler", "err", err, "caller", getCaller(ctx))
+				connectLogger.Error("error caught in handler", "error", err, "caller", getCaller(ctx))
 				span.SetStatus(codes.Error, "query error")
 
 				if err == nil {
@@ -186,7 +186,7 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 		raw := &query.QueryDataRequest{}
 		err := web.Bind(httpreq, raw)
 		if err != nil {
-			connectLogger.Error("Hit unexpected error when reading query", "err", err)
+			connectLogger.Error("Hit unexpected error when reading query", "error", err)
 			err = errorsK8s.NewBadRequest("error reading query")
 			// TODO: can we wrap the error so details are not lost?!
 			// errutil.BadRequest(
@@ -200,7 +200,7 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 		qdr, err := handleQuery(ctx, *raw, *b, httpreq, *responder, connectLogger)
 
 		if err != nil {
-			connectLogger.Error("execute error", "http code", query.GetResponseCode(qdr), "err", err)
+			connectLogger.Error("execute error", "httpCode", query.GetResponseCode(qdr), "error", err)
 			logEmptyRefids(raw.Queries, connectLogger)
 			if qdr != nil { // if we have a response, we assume the err is set in the response
 				responder.Object(query.GetResponseCode(qdr), &query.QueryDataResponse{
@@ -227,10 +227,10 @@ func (r *queryREST) Connect(connectCtx context.Context, name string, _ runtime.O
 				if isTypedBadRequestError {
 					errorDataResponse = backend.ErrDataResponseWithSource(backend.StatusBadRequest, backend.ErrorSourceDownstream, err.Error())
 				} else if strings.Contains(err.Error(), "expression request error") {
-					connectLogger.Error("Error calling TransformData in an expression", "err", err)
+					connectLogger.Error("Error calling TransformData in an expression", "error", err)
 					errorDataResponse = backend.ErrDataResponseWithSource(backend.StatusBadRequest, backend.ErrorSourceDownstream, err.Error())
 				} else {
-					connectLogger.Error("unknown error, treated as a 500", "err", err)
+					connectLogger.Error("unknown error, treated as a 500", "error", err)
 					responder.Error(err)
 					return
 				}
@@ -279,19 +279,19 @@ func prepareQuery(
 	jsonQueries := make([]*simplejson.Json, 0, len(raw.Queries))
 	for _, q := range raw.Queries {
 		if dsRef, derr := getValidDataSourceRef(ctx, q.Datasource, q.DatasourceID, b.legacyDatasourceLookup); derr != nil {
-			connectLogger.Error("error getting valid datasource ref", "err", derr)
+			connectLogger.Error("error getting valid datasource ref", "error", derr)
 		} else if dsRef != nil {
 			q.Datasource = dsRef
 		}
 
 		jsonBytes, err := json.Marshal(q)
 		if err != nil {
-			connectLogger.Error("error marshalling query", "err", err)
+			connectLogger.Error("error marshalling query", "error", err)
 		}
 
 		sjQuery, err := simplejson.NewJson(jsonBytes)
 		if err != nil {
-			connectLogger.Error("error creating simplejson for query", "err", err)
+			connectLogger.Error("error creating simplejson for query", "error", err)
 		}
 
 		jsonQueries = append(jsonQueries, sjQuery)
@@ -310,7 +310,7 @@ func prepareQuery(
 
 	instance, err := b.instanceProvider.GetInstance(ctx, connectLogger, headers)
 	if err != nil {
-		connectLogger.Error("failed to get instance configuration settings", "err", err)
+		connectLogger.Error("failed to get instance configuration settings", "error", err)
 		return nil, err
 	}
 
@@ -415,7 +415,7 @@ func logEmptyRefids(queries []v0alpha1.DataQuery, logger log.Logger) {
 	}
 
 	if emptyCount > 0 {
-		logger.Info("empty refid found", "empty_count", emptyCount, "query_count", len(queries))
+		logger.Info("empty refid found", "emptyCount", emptyCount, "queryCount", len(queries))
 	}
 }
 
@@ -426,7 +426,7 @@ func mergeHeaders(main http.Header, extra http.Header, l log.Logger) {
 			if !slices.Contains(mainValues, extraV) {
 				main.Add(headerName, extraV)
 			} else {
-				l.Warn("skipped duplicate response header", "header", headerName, "value", extraV)
+				l.Warn("skipped duplicate response header", "header", headerName, "headerValue", extraV)
 			}
 		}
 	}

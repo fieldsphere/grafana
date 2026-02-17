@@ -9,6 +9,7 @@ import (
 	"context"
 	"fmt"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -35,7 +36,7 @@ var TSCoreKindParentPath = filepath.Join("packages", "grafana-schema", "src", "r
 
 func main() {
 	if len(os.Args) > 1 {
-		fmt.Fprintf(os.Stderr, "code generator does not currently accept any arguments\n, got %q", os.Args)
+		slog.Error("Code generator does not accept arguments", "commandArgs", os.Args)
 		os.Exit(1)
 	}
 
@@ -61,7 +62,7 @@ func main() {
 
 	cwd, err := os.Getwd()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "could not get working directory: %s", err)
+		slog.Error("Could not get working directory", "error", err)
 		os.Exit(1)
 	}
 	groot := filepath.Dir(cwd)
@@ -145,7 +146,7 @@ func packageMapper(f codejen.File) (codejen.File, error) {
 func elsedie[T any](t T, err error) func(msg string) T {
 	if err != nil {
 		return func(msg string) T {
-			fmt.Fprintf(os.Stderr, "%s: %s\n", msg, err)
+			slog.Error("Code generation failed", "stage", msg, "error", err)
 			os.Exit(1)
 			return t
 		}
@@ -156,7 +157,7 @@ func elsedie[T any](t T, err error) func(msg string) T {
 }
 
 func die(err error) {
-	fmt.Fprint(os.Stderr, err, "\n")
+	slog.Error("Code generation failed", "error", err)
 	os.Exit(1)
 }
 
@@ -169,7 +170,7 @@ func loadCueFiles(ctx *cue.Context, dirs []os.DirEntry) ([]codegen.SchemaForGen,
 
 		entries, err := os.ReadDir(dir.Name())
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error opening %s directory: %s", dir, err)
+			slog.Error("Error opening kind directory", "directoryPath", dir.Name(), "error", err)
 			os.Exit(1)
 		}
 
@@ -180,7 +181,7 @@ func loadCueFiles(ctx *cue.Context, dirs []os.DirEntry) ([]codegen.SchemaForGen,
 		entry := filepath.Join(dir.Name(), entries[0].Name())
 		cueFile, err := os.ReadFile(entry)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "unable to open %s/%s file: %s", dir, entries[0].Name(), err)
+			slog.Error("Unable to open CUE file", "directoryPath", dir.Name(), "fileName", entries[0].Name(), "error", err)
 			os.Exit(1)
 		}
 

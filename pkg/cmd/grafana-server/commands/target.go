@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"os"
 	"runtime/debug"
 	"strings"
@@ -36,12 +37,12 @@ func TargetCommand(version, commit, buildBranch, buildstamp string) *cli.Command
 
 func RunTargetServer(opts standalone.BuildInfo, cli *cli.Context) error {
 	if Version || VerboseVersion {
-		fmt.Printf("Version %s (commit: %s, branch: %s)\n", opts.Version, opts.Commit, opts.BuildBranch)
+		_, _ = os.Stdout.WriteString(fmt.Sprintf("Version %s (commit: %s, branch: %s)\n", opts.Version, opts.Commit, opts.BuildBranch))
 		if VerboseVersion {
-			fmt.Println("Dependencies:")
+			_, _ = os.Stdout.WriteString("Dependencies:\n")
 			if info, ok := debug.ReadBuildInfo(); ok {
 				for _, dep := range info.Deps {
-					fmt.Println(dep.Path, dep.Version)
+					_, _ = os.Stdout.WriteString(dep.Path + " " + dep.Version + "\n")
 				}
 			}
 		}
@@ -51,11 +52,11 @@ func RunTargetServer(opts standalone.BuildInfo, cli *cli.Context) error {
 	logger := log.New("cli")
 	defer func() {
 		if err := log.Close(); err != nil {
-			fmt.Fprintf(os.Stderr, "Failed to close log: %s\n", err)
+			slog.Error("Failed to close log", "error", err)
 		}
 	}()
 
-	if err := setupProfiling(Profile, ProfileAddr, ProfilePort, ProfileBlockRate, ProfileMutexFraction); err != nil {
+	if err := setupProfiling(Profile, ProfileAddr, ProfilePort, ProfileBlockRate, ProfileMutexFraction, logger); err != nil {
 		return err
 	}
 	if err := setupTracing(Tracing, TracingFile, logger); err != nil {
@@ -70,14 +71,13 @@ func RunTargetServer(opts standalone.BuildInfo, cli *cli.Context) error {
 		// to log any and all panics that are about to crash Grafana to
 		// our regular log locations before exiting.
 		if r := recover(); r != nil {
-			reason := fmt.Sprintf("%v", r)
-			logger.Error("Critical error", "reason", reason, "stackTrace", string(debug.Stack()))
+			logger.Error("Critical error", "panicValue", r, "stackTrace", string(debug.Stack()))
 			panic(r)
 		}
 	}()
 
 	SetBuildInfo(opts)
-	checkPrivileges()
+	checkPrivileges(logger)
 
 	configOptions := strings.Split(ConfigOverrides, " ")
 	cfg, err := setting.NewCfgFromArgs(setting.CommandLineArgs{
@@ -111,6 +111,6 @@ func RunTargetServer(opts standalone.BuildInfo, cli *cli.Context) error {
 	}
 
 	ctx := context.Background()
-	go listenToSystemSignals(ctx, s)
+	go listenToSystemSignals(ctx, s, logger)
 	return s.Run()
 }

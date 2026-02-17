@@ -78,8 +78,8 @@ func (r *FolderReconciler) reconcile(ctx context.Context, req operator.TypedReco
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	ctx, span := tracer.Start(ctx, "folder.reconcile",
 		trace.WithAttributes(
-			attribute.String("action", actionToString(req.Action)),
-			attribute.String("folder.uid", req.Object.Name),
+			attribute.String("reconcileAction", actionToString(req.Action)),
+			attribute.String("folderUID", req.Object.Name),
 			attribute.String("namespace", req.Object.Namespace),
 		),
 	)
@@ -149,7 +149,7 @@ func (r *FolderReconciler) handleUpdateFolder(ctx context.Context, folder *folde
 	}
 
 	if (len(parents) == 0 && parentUID == "") || (len(parents) == 1 && parents[0] == parentUID) {
-		logger.Info("Folder is already reconciled", "folder", folderUID, "parent", parentUID, "namespace", namespace)
+		logger.Info("Folder is already reconciled", "folderUID", folderUID, "parentUID", parentUID, "namespace", namespace)
 		if r.metrics != nil {
 			r.metrics.RecordReconcileSuccess(action, "no_changes_needed")
 		}
@@ -165,7 +165,7 @@ func (r *FolderReconciler) handleUpdateFolder(ctx context.Context, folder *folde
 		return operator.ReconcileResult{}, err
 	}
 
-	logger.Info("Folder parent set in permission store", "folder", folderUID, "parent", parentUID, "namespace", namespace)
+	logger.Info("Folder parent set in permission store", "folderUID", folderUID, "parentUID", parentUID, "namespace", namespace)
 
 	if r.metrics != nil {
 		r.metrics.RecordReconcileSuccess(action, "changes_made")
@@ -189,7 +189,7 @@ func (r *FolderReconciler) handleDeleteFolder(ctx context.Context, folder *folde
 		return operator.ReconcileResult{}, err
 	}
 
-	logger.Info("Folder deleted from permission store", "folder", folderUID, "namespace", namespace)
+	logger.Info("Folder deleted from permission store", "folderUID", folderUID, "namespace", namespace)
 
 	if r.metrics != nil {
 		r.metrics.RecordReconcileSuccess(action, "changes_made")
@@ -215,7 +215,7 @@ func getFolderParent(ctx context.Context, folder *foldersKind.Folder) (string, e
 	tracer := otel.GetTracerProvider().Tracer("iam-folder-reconciler")
 	_, span := tracer.Start(ctx, "get-folder-parent",
 		trace.WithAttributes(
-			attribute.String("folder.uid", folder.Name),
+			attribute.String("folderUID", folder.Name),
 		),
 	)
 	defer span.End()

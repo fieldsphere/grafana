@@ -3,7 +3,7 @@
 package main
 
 import (
-	"fmt"
+	"log/slog"
 	"os"
 	"text/template"
 
@@ -23,15 +23,30 @@ export const supportedDatasources = new Set<string>([
 func main() {
 	baseUrl := "https://grafana.com"
 	slugs, err := generate_datasources.GetCompatibleDatasources(baseUrl)
+	if err != nil {
+		slog.Error("Failed to fetch compatible datasources", "baseURL", baseUrl, "error", err)
+		os.Exit(1)
+	}
+
 	tsTemplate := template.Must(template.New("").Parse(tsDatasourcesTemplate))
 
 	// Generate supported datasources for Typescript
 	tsFile, err := os.Create("./../../../../../public/app/features/dashboard/components/ShareModal/SharePublicDashboard/SupportedPubdashDatasources.ts")
 	if err != nil {
-		fmt.Println(err)
+		slog.Error("Failed to create generated datasource file", "error", err)
+		os.Exit(1)
 	}
+	defer func() {
+		if closeErr := tsFile.Close(); closeErr != nil {
+			slog.Error("Failed to close generated datasource file", "error", closeErr)
+		}
+	}()
+
 	err = tsTemplate.Execute(tsFile, slugs)
 	if err != nil {
-		fmt.Println(err)
+		slog.Error("Failed to render generated datasource template", "error", err)
+		os.Exit(1)
 	}
+
+	slog.Info("Successfully generated supported public dashboard datasource file")
 }

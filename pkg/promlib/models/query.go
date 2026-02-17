@@ -273,8 +273,8 @@ func Parse(ctx context.Context, log glog.Logger, span trace.Span, query backend.
 
 	span.SetAttributes(
 		attribute.String("expr", expr),
-		attribute.Int64("start_unixnano", query.TimeRange.From.UnixNano()),
-		attribute.Int64("stop_unixnano", query.TimeRange.To.UnixNano()),
+		attribute.Int64("startUnixNano", query.TimeRange.From.UnixNano()),
+		attribute.Int64("stopUnixNano", query.TimeRange.To.UnixNano()),
 	)
 
 	return &Query{

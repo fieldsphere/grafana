@@ -31,7 +31,7 @@ func (s *Service) startBundleWork(ctx context.Context, collectors []string, uid 
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
-				s.log.Error("Support bundle collector panic", "err", err, "stack", string(debug.Stack()))
+				s.log.Error("Support bundle collector panic", "panicValue", err, "stack", string(debug.Stack()))
 				result <- bundleResult{err: ErrCollectorPanicked}
 			}
 		}()
@@ -53,7 +53,7 @@ func (s *Service) startBundleWork(ctx context.Context, collectors []string, uid 
 		return
 	case r := <-result:
 		if r.err != nil {
-			s.log.Error("Failed to make bundle", "error", r.err, "uid", uid)
+			s.log.Error("Failed to make bundle", "error", r.err, "bundleUID", uid)
 			if err := s.store.Update(ctx, uid, supportbundles.StateError, nil); err != nil {
 				s.log.Error("Failed to update bundle after error")
 			}
@@ -68,7 +68,7 @@ func (s *Service) startBundleWork(ctx context.Context, collectors []string, uid 
 
 func (s *Service) bundle(ctx context.Context, collectors []string, uid string) ([]byte, error) {
 	ctxTracer, span := s.tracer.Start(ctx, "SupportBundle.bundle")
-	span.SetAttributes(attribute.String("SupportBundle.bundle.uid", uid))
+	span.SetAttributes(attribute.String("supportBundleUID", uid))
 	defer span.End()
 
 	lookup := make(map[string]bool, len(collectors))
@@ -90,7 +90,7 @@ func (s *Service) bundle(ctx context.Context, collectors []string, uid string) (
 
 		// Trace the collector run
 		ctxBundler, span := s.tracer.Start(ctxTracer, "SupportBundle.bundle.collector")
-		span.SetAttributes(attribute.String("SupportBundle.bundle.collector.uid", collector.UID))
+		span.SetAttributes(attribute.String("supportBundleCollectorUID", collector.UID))
 
 		item, err := collector.Fn(ctxBundler)
 		if err != nil {

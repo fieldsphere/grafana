@@ -383,7 +383,7 @@ func rolePermissionsCollector(store db.DB) legacyTupleCollector {
 		for roleUID, perms := range rolePermissionsMap {
 			roleTuples, err := zanzana.ConvertRolePermissionsToTuples(roleUID, perms)
 			if err != nil {
-				reconcilerLogger.Warn("Failed to convert role permissions to tuples", "roleUID", roleUID, "err", err)
+				reconcilerLogger.Warn("Failed to convert role permissions to tuples", "roleUID", roleUID, "error", err)
 				continue
 			}
 

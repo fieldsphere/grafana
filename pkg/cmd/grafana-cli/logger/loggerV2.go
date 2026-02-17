@@ -1,8 +1,7 @@
 package logger
 
 import (
-	"fmt"
-	"strings"
+	"log/slog"
 
 	"github.com/fatih/color"
 )
@@ -18,57 +17,80 @@ func New(debugMode bool) *CLILogger {
 }
 
 func (l *CLILogger) Successf(format string, args ...any) {
-	fmt.Printf(fmt.Sprintf("%s %s\n\n", color.GreenString("✔"), format), args...)
+	slog.Info("Grafana CLI success",
+		"messageTemplate", format,
+		"messageArgs", args,
+		"symbol", color.GreenString("✔"))
 }
 
 func (l *CLILogger) Failuref(format string, args ...any) {
-	fmt.Printf(fmt.Sprintf("%s %s %s\n\n", color.RedString("Error"), color.RedString("✗"), format), args...)
+	slog.Error("Grafana CLI failure",
+		"messageTemplate", format,
+		"messageArgs", args,
+		"label", color.RedString("Error"),
+		"symbol", color.RedString("✗"))
 }
 
 func (l *CLILogger) Info(args ...any) {
-	args = append(args, "\n\n")
-	fmt.Print(args...)
+	message, attrs, structured := splitCLIArgs(args...)
+	if structured {
+		slog.Info("Grafana CLI info", append([]any{"message", message}, attrs...)...)
+		return
+	}
+	slog.Info("Grafana CLI info", "message", message)
 }
 
 func (l *CLILogger) Infof(format string, args ...any) {
-	fmt.Printf(addNewlines(format), args...)
+	slog.Info("Grafana CLI info",
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 func (l *CLILogger) Debug(args ...any) {
-	args = append(args, "\n\n")
 	if l.debugMode {
-		fmt.Print(color.HiBlueString(fmt.Sprint(args...)))
+		message, attrs, structured := splitCLIArgs(args...)
+		if structured {
+			slog.Debug("Grafana CLI debug", append([]any{"message", color.HiBlueString(message)}, attrs...)...)
+			return
+		}
+		slog.Debug("Grafana CLI debug", "message", color.HiBlueString(message))
 	}
 }
 
 func (l *CLILogger) Debugf(format string, args ...any) {
 	if l.debugMode {
-		fmt.Print(color.HiBlueString(fmt.Sprintf(addNewlines(format), args...)))
+		slog.Debug("Grafana CLI debug",
+			"messageTemplate", color.HiBlueString(format),
+			"messageArgs", args)
 	}
 }
 
 func (l *CLILogger) Warn(args ...any) {
-	args = append(args, "\n\n")
-	fmt.Print(args...)
+	message, attrs, structured := splitCLIArgs(args...)
+	if structured {
+		slog.Warn("Grafana CLI warning", append([]any{"message", message}, attrs...)...)
+		return
+	}
+	slog.Warn("Grafana CLI warning", "message", message)
 }
 
 func (l *CLILogger) Warnf(format string, args ...any) {
-	fmt.Printf(addNewlines(format), args...)
+	slog.Warn("Grafana CLI warning",
+		"messageTemplate", format,
+		"messageArgs", args)
 }
 
 func (l *CLILogger) Error(args ...any) {
-	args = append(args, "\n\n")
-	fmt.Print(args...)
+	message, attrs, structured := splitCLIArgs(args...)
+	if structured {
+		slog.Error("Grafana CLI error", append([]any{"message", message}, attrs...)...)
+		return
+	}
+	slog.Error("Grafana CLI error", "message", message)
 }
 
 func (l *CLILogger) Errorf(format string, args ...any) {
-	fmt.Printf(addNewlines(format), args...)
-}
-
-func addNewlines(str string) string {
-	var s strings.Builder
-	s.WriteString(str)
-	s.WriteString("\n\n")
-
-	return s.String()
+	slog.Error("Grafana CLI error",
+		"messageTemplate", format,
+		"messageArgs", args)
 }

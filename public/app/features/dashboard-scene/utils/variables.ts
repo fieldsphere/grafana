@@ -1,5 +1,5 @@
 import { AdHocVariableFilter, TypedVariableModel } from '@grafana/data';
-import { config, getDataSourceSrv } from '@grafana/runtime';
+import { config, createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
   ConstantVariable,
@@ -21,6 +21,7 @@ import { SnapshotVariable } from '../serialization/custom-variables/SnapshotVari
 import { getCurrentValueForOldIntervalModel, getIntervalsFromQueryString } from './utils';
 
 const DEFAULT_DATASOURCE = 'default';
+const logger = createMonitoringLogger('features.dashboard-scene.variables-utils');
 
 export function createVariablesForDashboard(oldModel: DashboardModel) {
   const variableObjects = oldModel.templating.list
@@ -28,7 +29,16 @@ export function createVariablesForDashboard(oldModel: DashboardModel) {
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'createVariablesForDashboard', variableName: v.name, type: v.type });
+        } else {
+          logger.logWarning('Failed to create scene variable from variable model', {
+            operation: 'createVariablesForDashboard',
+            variableName: v.name,
+            type: v.type,
+            error: String(err),
+          });
+        }
         return null;
       }
     })
@@ -74,7 +84,16 @@ export function createVariablesForSnapshot(oldModel: DashboardModel) {
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        if (err instanceof Error) {
+          logger.logError(err, { operation: 'createVariablesForSnapshot', variableName: v.name, type: v.type });
+        } else {
+          logger.logWarning('Failed to create snapshot variable', {
+            operation: 'createVariablesForSnapshot',
+            variableName: v.name,
+            type: v.type,
+            error: String(err),
+          });
+        }
         return null;
       }
     })

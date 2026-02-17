@@ -123,7 +123,7 @@ func (m *unifiedMigration) Migrate(ctx context.Context, opts legacy.MigrateOptio
 	}
 
 	// Execute migrations
-	m.log.Info("start migrating legacy resources", "namespace", opts.Namespace, "orgId", info.OrgID, "stackId", info.StackID)
+	m.log.Info("start migrating legacy resources", "namespace", opts.Namespace, "orgID", info.OrgID, "stackID", info.StackID)
 	for _, fn := range migratorFuncs {
 		err := fn(ctx, info.OrgID, opts, stream)
 		if err != nil {
@@ -131,7 +131,7 @@ func (m *unifiedMigration) Migrate(ctx context.Context, opts legacy.MigrateOptio
 			return nil, err
 		}
 	}
-	m.log.Info("finished migrating legacy resources", "namespace", opts.Namespace, "orgId", info.OrgID, "stackId", info.StackID)
+		m.log.Info("finished migrating legacy resources", "namespace", opts.Namespace, "orgID", info.OrgID, "stackID", info.StackID)
 	return stream.CloseAndRecv()
 }
 
@@ -143,8 +143,8 @@ type RebuildIndexOptions struct {
 }
 
 func (m *unifiedMigration) RebuildIndexes(ctx context.Context, opts RebuildIndexOptions) error {
-	m.log.Info("start rebuilding index for resources", "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID, "resources", opts.Resources)
-	defer m.log.Info("finished rebuilding index for resources", "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID, "resources", opts.Resources)
+	m.log.Info("start rebuilding index for resources", "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID, "resources", opts.Resources)
+	defer m.log.Info("finished rebuilding index for resources", "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID, "resources", opts.Resources)
 
 	boff := backoff.New(ctx, backoff.Config{
 		MinBackoff: 500 * time.Millisecond,
@@ -160,12 +160,12 @@ func (m *unifiedMigration) RebuildIndexes(ctx context.Context, opts RebuildIndex
 		}
 
 		lastErr = err
-		m.log.Error("retrying rebuild indexes", "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID, "error", err, "attempt", boff.NumRetries())
+		m.log.Error("retrying rebuild indexes", "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID, "error", err, "attempt", boff.NumRetries())
 		boff.Wait()
 	}
 
 	if err := boff.ErrCause(); err != nil {
-		m.log.Error("failed to rebuild indexes after retries", "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID, "error", lastErr)
+		m.log.Error("failed to rebuild indexes after retries", "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID, "error", lastErr)
 		return lastErr
 	}
 
@@ -190,17 +190,17 @@ func (m *unifiedMigration) rebuildIndexes(ctx context.Context, opts RebuildIndex
 	}
 
 	if response.Error != nil {
-		m.log.Error("error rebuilding index for resource", "error", response.Error.Message, "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID, "resources", opts.Resources)
+		m.log.Error("error rebuilding index for resource", "errorMessage", response.Error.Message, "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID, "resources", opts.Resources)
 		return fmt.Errorf("rebuild index error: %s", response.Error.Message)
 	}
 
 	if opts.UsingDistributor {
 		if !response.ContactedAllInstances {
-			m.log.Error("distributor did not contact all instances", "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID, "resources", opts.Resources)
+			m.log.Error("distributor did not contact all instances", "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID, "resources", opts.Resources)
 			return fmt.Errorf("rebuild index error: distributor did not contact all instances")
 		}
 
-		m.log.Info("distributor contacted all instances", "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID)
+		m.log.Info("distributor contacted all instances", "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID)
 
 		buildTimeMap := make(map[string]int64)
 		for _, bt := range response.BuildTimes {
@@ -217,16 +217,16 @@ func (m *unifiedMigration) rebuildIndexes(ctx context.Context, opts RebuildIndex
 			key := res.Group + "/" + res.Resource
 			buildTime, found := buildTimeMap[key]
 			if !found {
-				m.log.Info("no build time reported for resource, skipping validation (index may not exist)", "resource", key, "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID)
+				m.log.Info("no build time reported for resource, skipping validation (index may not exist)", "resource", key, "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID)
 				continue
 			}
 
 			if buildTime < migrationFinishTime {
-				m.log.Error("index build time is before migration finished", "resource", key, "build_time", time.Unix(buildTime, 0), "migration_finished_at", opts.MigrationFinishedAt, "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID)
+				m.log.Error("index build time is before migration finished", "resource", key, "buildTime", time.Unix(buildTime, 0), "migrationFinishedAt", opts.MigrationFinishedAt, "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID)
 				return fmt.Errorf("rebuild index error: index for %s was built before migration finished (built at %s, migration finished at %s)", key, time.Unix(buildTime, 0), opts.MigrationFinishedAt)
 			}
 
-			m.log.Info("verified index build time", "resource", key, "build_time", time.Unix(buildTime, 0), "migration_finished_at", opts.MigrationFinishedAt, "namespace", opts.NamespaceInfo.Value, "orgId", opts.NamespaceInfo.OrgID)
+			m.log.Info("verified index build time", "resource", key, "buildTime", time.Unix(buildTime, 0), "migrationFinishedAt", opts.MigrationFinishedAt, "namespace", opts.NamespaceInfo.Value, "orgID", opts.NamespaceInfo.OrgID)
 		}
 	}
 

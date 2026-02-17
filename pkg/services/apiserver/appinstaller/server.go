@@ -50,7 +50,7 @@ func (s *serverWrapper) InstallAPIGroup(apiGroupInfo *genericapiserver.APIGroupI
 			}
 			gvr := gr.WithVersion(v)
 			if s.apiResourceConfig != nil && !s.apiResourceConfig.ResourceEnabled(gvr) {
-				log.Debug("Skipping storage for disabled resource", "gvr", gvr.String(), "storagePath", storagePath)
+				log.Debug("Skipping storage for disabled resource", "groupVersionResource", gvr.String(), "storagePath", storagePath)
 				delete(apiGroupInfo.VersionedResourcesStorageMap[v], storagePath)
 				continue
 			}

@@ -1,5 +1,7 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
+import { logPlaywrightInfo } from '../../../utils/logging';
+
 test.use({
   openFeature: {
     flags: {
@@ -46,7 +48,9 @@ test(
         expect(testFlagFalse.variant).toBe('playwright-override');
       }
     } catch {
-      console.log('OFREP endpoint not called - OpenFeature may not be enabled');
+      logPlaywrightInfo('OFREP endpoint not called. OpenFeature may not be enabled.', {
+        operation: 'openFeature.spec.overrideFlags',
+      });
     }
   }
 );
@@ -92,7 +96,9 @@ test(
       expect(testFlagFalse?.value).toBe(false);
       expect(testFlagFalse?.variant).toBe('playwright-override');
     } catch {
-      console.log('OFREP endpoint not called - OpenFeature may not be enabled');
+      logPlaywrightInfo('OFREP endpoint not called. OpenFeature may not be enabled.', {
+        operation: 'openFeature.spec.mergeFlags',
+      });
     }
   }
 );

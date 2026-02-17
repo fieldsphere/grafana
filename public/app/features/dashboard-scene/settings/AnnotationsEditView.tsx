@@ -1,5 +1,5 @@
 import { AnnotationQuery, getDataSourceRef, NavModel, NavModelItem, PageLayoutType } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase, VizPanel, dataLayers } from '@grafana/scenes';
 import { Page } from 'app/core/components/Page/Page';
 
@@ -14,6 +14,8 @@ import { EditListViewSceneUrlSync } from './EditListViewSceneUrlSync';
 import { AnnotationSettingsEdit, newAnnotationName } from './annotations/AnnotationSettingsEdit';
 import { AnnotationSettingsList } from './annotations/AnnotationSettingsList';
 import { DashboardEditView, DashboardEditViewState, useDashboardEditPageNav } from './utils';
+
+const logger = createMonitoringLogger('features.dashboard-scene.annotations-edit-view');
 
 export enum MoveDirection {
   UP = -1,
@@ -58,7 +60,7 @@ export class AnnotationsEditView extends SceneObjectBase<AnnotationsEditViewStat
     const defaultInstanceDS = getDataSourceSrv().getInstanceSettings(null);
     // check for an annotation flag in the plugin json to see if it supports annotations
     if (!defaultInstanceDS || !defaultInstanceDS.meta.annotations) {
-      console.error('Default datasource does not support annotations');
+      logger.logWarning('Default datasource does not support annotations');
       return undefined;
     }
     return getDataSourceRef(defaultInstanceDS);

@@ -27,6 +27,7 @@ import {
 import { NodeGraphOptions, SpanBarOptions, TraceToLogsOptions } from '@grafana/o11y-ds-frontend';
 import {
   config,
+  createMonitoringLogger,
   DataSourceWithBackend,
   getDataSourceSrv,
   getTemplateSrv,
@@ -66,6 +67,7 @@ import { TempoVariableSupport } from './variables';
 
 export const DEFAULT_LIMIT = 20;
 export const DEFAULT_SPSS = 3; // spans per span set
+const logger = createMonitoringLogger('plugins.datasource.tempo.datasource');
 
 export enum FeatureName {
   searchStreaming = 'searchStreaming',
@@ -295,7 +297,11 @@ export class TempoDatasource extends DataSourceWithBackend<TempoQuery, TempoJson
 
       return false;
     } catch (error) {
-      console.warn('Failed to check for native histograms:', error);
+      logger.logWarning('Failed to check for native histograms', {
+        operation: 'getNativeHistograms',
+        datasourceUid: this.serviceMap.datasourceUid,
+        error: String(error),
+      });
       return false;
     }
   }

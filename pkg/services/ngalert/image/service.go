@@ -132,7 +132,7 @@ func (s *ScreenshotImageService) NewImage(ctx context.Context, r *models.AlertRu
 		return nil, models.ErrNoPanel
 	}
 
-	logger = logger.New("dashboard", dashboardUID, "panel", panelID)
+	logger = logger.New("dashboardUID", dashboardUID, "panelID", panelID)
 
 	opts := screenshot.ScreenshotOptions{
 		OrgID:        r.OrgID,
@@ -171,7 +171,7 @@ func (s *ScreenshotImageService) NewImage(ctx context.Context, r *models.AlertRu
 			return nil, err
 		}
 
-		logger.Debug("Took screenshot", "path", screenshot.Path)
+		logger.Debug("Took screenshot", "screenshotPath", screenshot.Path)
 		image := models.Image{Path: screenshot.Path}
 
 		// Uploading images is optional
@@ -179,7 +179,7 @@ func (s *ScreenshotImageService) NewImage(ctx context.Context, r *models.AlertRu
 			if image, err = s.uploads.Upload(ctx, image); err != nil {
 				logger.Warn("Failed to upload image", "error", err)
 			} else {
-				logger.Debug("Uploaded image", "url", image.URL)
+				logger.Debug("Uploaded image", "imageURL", image.URL)
 			}
 		}
 

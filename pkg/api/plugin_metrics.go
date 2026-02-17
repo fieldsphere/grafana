@@ -41,6 +41,6 @@ func (hs *HTTPServer) pluginMetricsEndpoint(ctx *web.Context) {
 
 	ctx.Resp.Header().Set("Content-Type", "text/plain")
 	if _, err := ctx.Resp.Write(resp.PrometheusMetrics); err != nil {
-		hs.log.Error("Failed to write to response", "err", err)
+		hs.log.Error("Failed to write to response", "error", err)
 	}
 }

@@ -175,7 +175,7 @@ func (api *LokiAPI) DataQuery(ctx context.Context, query lokiQuery, responseOpts
 		return nil, err
 	}
 
-	queryAttrs := []any{"start", query.Start, "end", query.End, "step", query.Step, "query", query.Expr, "queryType", query.QueryType, "direction", query.Direction, "maxLines", query.MaxLines, "supportingQueryType", query.SupportingQueryType, "lokiHost", req.URL.Host, "lokiPath", req.URL.Path}
+	queryAttrs := []any{"start", query.Start, "end", query.End, "step", query.Step, "queryText", query.Expr, "queryType", query.QueryType, "direction", query.Direction, "maxLines", query.MaxLines, "supportingQueryType", query.SupportingQueryType, "lokiHost", req.URL.Host, "lokiPath", req.URL.Path}
 	api.log.Debug("Sending query to loki", queryAttrs...)
 	start := time.Now()
 	resp, err := api.client.Do(req)
@@ -184,7 +184,7 @@ func (api *LokiAPI) DataQuery(ctx context.Context, query lokiQuery, responseOpts
 		if errors.Is(err, context.Canceled) {
 			status = "cancelled"
 		}
-		lp := []any{"error", err, "status", status, "duration", time.Since(start), "stage", stageDatabaseRequest}
+		lp := []any{"error", err, "requestStatus", status, "duration", time.Since(start), "stage", stageDatabaseRequest}
 		lp = append(lp, queryAttrs...)
 		if resp != nil {
 			lp = append(lp, "statusCode", resp.StatusCode)
@@ -212,11 +212,11 @@ func (api *LokiAPI) DataQuery(ctx context.Context, query lokiQuery, responseOpts
 			ErrorSource: backend.ErrorSourceFromHTTPStatus(resp.StatusCode),
 			Status:      backend.Status(resp.StatusCode),
 		}
-		lp = append(lp, "status", "error", "error", err, "statusSource", res.ErrorSource)
+		lp = append(lp, "requestStatus", "error", "error", err, "statusSource", res.ErrorSource)
 		api.log.Debug("Error received from Loki", lp...)
 		return &res, nil
 	} else {
-		lp = append(lp, "status", "ok")
+		lp = append(lp, "requestStatus", "ok")
 		api.log.Info("Response received from loki", lp...)
 	}
 
@@ -281,7 +281,7 @@ func (api *LokiAPI) RawQuery(ctx context.Context, resourcePath string) (RawLokiR
 		if errors.Is(err, context.Canceled) {
 			status = "cancelled"
 		}
-		lp := []any{"error", err, "resourcePath", resourcePath, "status", status, "duration", time.Since(start), "stage", stageDatabaseRequest}
+		lp := []any{"error", err, "resourcePath", resourcePath, "requestStatus", status, "duration", time.Since(start), "stage", stageDatabaseRequest}
 		if resp != nil {
 			lp = append(lp, "statusCode", resp.StatusCode)
 		}
@@ -295,7 +295,7 @@ func (api *LokiAPI) RawQuery(ctx context.Context, resourcePath string) (RawLokiR
 		}
 	}()
 
-	api.log.Info("Response received from loki", "status", "ok", "statusCode", resp.StatusCode, "contentLength", resp.Header.Get("Content-Length"), "duration", time.Since(start), "contentEncoding", resp.Header.Get("Content-Encoding"), "stage", stageDatabaseRequest)
+	api.log.Info("Response received from loki", "requestStatus", "ok", "statusCode", resp.StatusCode, "contentLength", resp.Header.Get("Content-Length"), "duration", time.Since(start), "contentEncoding", resp.Header.Get("Content-Encoding"), "stage", stageDatabaseRequest)
 
 	// server errors are handled by the plugin-proxy to hide the error message
 	if resp.StatusCode/100 == 5 {
@@ -311,7 +311,7 @@ func (api *LokiAPI) RawQuery(ctx context.Context, resourcePath string) (RawLokiR
 	// client errors are passed as a json struct to the client
 	if resp.StatusCode/100 != 2 {
 		lokiResponseErr := lokiResponseError{Message: makeLokiError(body).Error()}
-		api.log.Warn("Non 200 HTTP status received from loki", "error", lokiResponseErr.Message, "statusCode", resp.StatusCode, "resourcePath", resourcePath)
+		api.log.Warn("Non 200 HTTP status received from loki", "errorMessage", lokiResponseErr.Message, "statusCode", resp.StatusCode, "resourcePath", resourcePath)
 		traceID := tracing.TraceIDFromContext(ctx, false)
 		if traceID != "" {
 			lokiResponseErr.TraceID = traceID
@@ -376,10 +376,10 @@ func setXScopeOrgIDHeader(req *http.Request, ctx context.Context) *http.Request 
 		logger.Debug("Tenant ID not present. Header not set")
 	} else if len(tenantids) > 1 {
 		// Loki supports multiple tenant IDs, but we should receive them from different contexts
-		logger.Error(strconv.Itoa(len(tenantids)) + " tenant IDs found. Header not set")
+		logger.Error("Multiple tenant IDs found. Header not set", "tenantIDCount", len(tenantids))
 	} else {
 		req.Header.Add("X-Scope-OrgID", tenantids[0])
-		logger.Debug("Tenant ID " + tenantids[0] + " added to Loki request")
+		logger.Debug("Tenant ID added to Loki request", "tenantID", tenantids[0])
 	}
 	return req
 }

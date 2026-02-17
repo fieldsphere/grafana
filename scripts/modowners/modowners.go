@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/fs"
-	"log"
+	"log/slog"
 	"strings"
 
 	"os"
@@ -18,6 +18,18 @@ type Module struct {
 	Name     string
 	Owners   []string
 	Indirect bool
+}
+
+type linePrinter interface {
+	WriteLine(v ...any)
+}
+
+type stdioPrinter struct {
+	out io.Writer
+}
+
+func (p stdioPrinter) WriteLine(v ...any) {
+	_, _ = io.WriteString(p.out, fmt.Sprintln(v...))
 }
 
 func parseModule(mod *modfile.Require) Module {
@@ -71,7 +83,7 @@ func parseGoMod(fileSystem fs.FS, name string) ([]Module, error) {
 
 // Validate that each module has an owner.
 // An example CLI command is `go run scripts/modowners/modowners.go check go.mod`
-func check(fileSystem fs.FS, logger *log.Logger, args []string) error {
+func check(fileSystem fs.FS, emit linePrinter, args []string) error {
 	m, err := parseGoMod(fileSystem, args[0])
 	if err != nil {
 		return err
@@ -79,7 +91,7 @@ func check(fileSystem fs.FS, logger *log.Logger, args []string) error {
 	fail := false
 	for _, mod := range m {
 		if !mod.Indirect && len(mod.Owners) == 0 {
-			logger.Println(mod.Name)
+			emit.WriteLine(mod.Name)
 			fail = true
 		}
 	}
@@ -92,7 +104,7 @@ func check(fileSystem fs.FS, logger *log.Logger, args []string) error {
 // Print owner(s) for a given dependency.
 // An example CLI command to get a list of all owners in go.mod with a count of the number of dependencies they own is `go run scripts/modowners/modowners.go owners -a -c go.mod`
 // An example CLI command to get the owner for a specific dependency is `go run scripts/modowners/modowners.go owners -d cloud.google.com/go/storage@v1.30.1 go.mod`. You must use `dependency@version`, not `dependency version`.
-func owners(fileSystem fs.FS, logger *log.Logger, args []string) error {
+func owners(fileSystem fs.FS, emit linePrinter, args []string) error {
 	fs := flag.NewFlagSet("owners", flag.ExitOnError)
 	allOwners := fs.Bool("a", false, "print all owners in specified file")
 	count := fs.Bool("c", false, "print count of dependencies per owner")
@@ -106,7 +118,7 @@ func owners(fileSystem fs.FS, logger *log.Logger, args []string) error {
 	for _, mod := range m {
 		if len(*dep) > 0 && mod.Name == *dep {
 			for _, owner := range mod.Owners {
-				logger.Println(owner)
+				emit.WriteLine(owner)
 				break
 			}
 		}
@@ -119,9 +131,9 @@ func owners(fileSystem fs.FS, logger *log.Logger, args []string) error {
 	if *allOwners {
 		for owner, n := range owners {
 			if *count {
-				logger.Println(owner, n)
+				emit.WriteLine(owner, n)
 			} else {
-				logger.Println(owner)
+				emit.WriteLine(owner)
 			}
 		}
 	}
@@ -130,7 +142,7 @@ func owners(fileSystem fs.FS, logger *log.Logger, args []string) error {
 
 // Print dependencies for a given owner. Can specify one or more owners.
 // An example CLI command to list all direct dependencies owned by Delivery and Authnz `go run scripts/modowners/modowners.go modules -o @grafana/grafana-release-guild,@grafana/identity-access-team go.mod`
-func modules(fileSystem fs.FS, logger *log.Logger, args []string) error {
+func modules(fileSystem fs.FS, emit linePrinter, args []string) error {
 	fs := flag.NewFlagSet("modules", flag.ExitOnError)
 	indirect := fs.Bool("i", false, "print indirect dependencies")
 	owner := fs.String("o", "", "one or more owners")
@@ -144,7 +156,7 @@ func modules(fileSystem fs.FS, logger *log.Logger, args []string) error {
 	for _, mod := range m {
 		if len(*owner) == 0 || hasCommonElement(mod.Owners, ownerFlags) {
 			if *indirect || !mod.Indirect {
-				logger.Println(mod.Name)
+				emit.WriteLine(mod.Name)
 			}
 		}
 	}
@@ -163,17 +175,18 @@ func hasCommonElement(a []string, b []string) bool {
 }
 
 func main() {
-	log.SetFlags(0)
-	log.SetOutput(os.Stdout)
+	emit := stdioPrinter{out: os.Stdout}
 	if len(os.Args) < 2 {
-		fmt.Println("usage: modowners subcommand go.mod...")
+		slog.Error("Missing modowners subcommand", "usage", "modowners subcommand go.mod...")
 		os.Exit(1)
 	}
-	type CmdFunc func(fs.FS, *log.Logger, []string) error
+	type CmdFunc func(fs.FS, linePrinter, []string) error
 	cmds := map[string]CmdFunc{"check": check, "owners": owners, "modules": modules}
 	if f, ok := cmds[os.Args[1]]; !ok {
-		log.Fatal("invalid command")
-	} else if err := f(os.DirFS("."), log.Default(), os.Args[2:]); err != nil {
-		log.Fatal(err)
+		slog.Error("Invalid modowners command", "command", os.Args[1])
+		os.Exit(1)
+	} else if err := f(os.DirFS("."), emit, os.Args[2:]); err != nil {
+		slog.Error("Modowners command failed", "command", os.Args[1], "error", err)
+		os.Exit(1)
 	}
 }

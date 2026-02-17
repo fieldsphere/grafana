@@ -34,7 +34,6 @@ describe('OpenQueryLibraryExposedComponent', () => {
   });
 
   it('returns null and logs warning when query library is disabled', () => {
-    const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation();
     mockUseQueryLibraryContext.mockReturnValue({
       openDrawer: mockOpenDrawer,
       queryLibraryEnabled: false,
@@ -42,11 +41,6 @@ describe('OpenQueryLibraryExposedComponent', () => {
 
     const { container } = render(<OpenQueryLibraryExposedComponent />);
     expect(container.firstChild).toBeNull();
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      '[OpenQueryLibraryExposedComponent]: Attempted to use unsupported exposed component. Query library is not enabled.'
-    );
-
-    consoleWarnSpy.mockRestore();
   });
 
   it('renders button with custom icon prop', () => {

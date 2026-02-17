@@ -87,7 +87,7 @@ func (s *AuthService) initKeySet() error {
 		}
 		defer func() {
 			if err := file.Close(); err != nil {
-				s.log.Warn("Failed to close file", "path", keyFilePath, "err", err)
+				s.log.Warn("Failed to close file", "keyFilePath", keyFilePath, "error", err)
 			}
 		}()
 
@@ -140,7 +140,7 @@ func (s *AuthService) initKeySet() error {
 		}
 		defer func() {
 			if err := file.Close(); err != nil {
-				s.log.Warn("Failed to close file", "path", keyFilePath, "err", err)
+				s.log.Warn("Failed to close file", "keyFilePath", keyFilePath, "error", err)
 			}
 		}()
 
@@ -166,13 +166,13 @@ func (s *AuthService) initKeySet() error {
 			// We can ignore the gosec G304 warning on this one because `tlsClientCa` comes from grafana configuration file
 			caCert, err := os.ReadFile(s.Cfg.JWTAuth.TlsClientCa)
 			if err != nil {
-				s.log.Error("Failed to read TlsClientCa", "path", s.Cfg.JWTAuth.TlsClientCa, "error", err)
+				s.log.Error("Failed to read TlsClientCa", "tlsClientCAPath", s.Cfg.JWTAuth.TlsClientCa, "error", err)
 				return fmt.Errorf("failed to read TlsClientCa: %w", err)
 			}
 
 			caCertPool = x509.NewCertPool()
 			if !caCertPool.AppendCertsFromPEM(caCert) {
-				s.log.Error("failed to decode provided PEM certs", "path", s.Cfg.JWTAuth.TlsClientCa)
+				s.log.Error("failed to decode provided PEM certs", "tlsClientCAPath", s.Cfg.JWTAuth.TlsClientCa)
 				return fmt.Errorf("failed to decode provided PEM certs file from TlsClientCa")
 			}
 		}
@@ -248,14 +248,14 @@ func (ks *keySetHTTP) getJWKS(ctx context.Context) (keySetJWKS, error) {
 		if val, err := ks.cache.Get(ctx, ks.cacheKey); err == nil {
 			err := json.Unmarshal(val, &jwks)
 			if err != nil {
-				ks.log.Warn("Failed to unmarshal key set from cache", "err", err)
+				ks.log.Warn("Failed to unmarshal key set from cache", "error", err)
 			} else {
 				return jwks, err
 			}
 		}
 	}
 
-	ks.log.Debug("Getting key set from endpoint", "url", ks.url)
+	ks.log.Debug("Getting key set from endpoint", "keySetURL", ks.url)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, ks.url, nil)
 	if err != nil {
@@ -269,7 +269,7 @@ func (ks *keySetHTTP) getJWKS(ctx context.Context) (keySetJWKS, error) {
 			return jwks, err
 		}
 
-		ks.log.Debug("adding Authorization header", "token_len", len(token))
+		ks.log.Debug("adding Authorization header", "tokenLen", len(token))
 		req.Header.Set("Authorization", token)
 	}
 
@@ -279,7 +279,7 @@ func (ks *keySetHTTP) getJWKS(ctx context.Context) (keySetJWKS, error) {
 	}
 	defer func() {
 		if err := resp.Body.Close(); err != nil {
-			ks.log.Warn("Failed to close response body", "err", err)
+			ks.log.Warn("Failed to close response body", "error", err)
 		}
 	}()
 
@@ -291,7 +291,7 @@ func (ks *keySetHTTP) getJWKS(ctx context.Context) (keySetJWKS, error) {
 	if ks.cacheExpiration > 0 {
 		cacheExpiration := ks.getCacheExpiration(resp.Header.Get("cache-control"))
 
-		ks.log.Debug("Setting key set in cache", "url", ks.url,
+		ks.log.Debug("Setting key set in cache", "keySetURL", ks.url,
 			"cacheExpiration", cacheExpiration, "cacheControl", resp.Header.Get("cache-control"))
 		err = ks.cache.Set(ctx, ks.cacheKey, jsonBuf.Bytes(), cacheExpiration)
 	}

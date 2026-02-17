@@ -16,6 +16,7 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 type foo struct {
@@ -33,5 +34,5 @@ func newBar(v int) *bar {
 func main() {
 	f := &foo{V: 42}
 	b := injectBar(f)
-	fmt.Printf("%d\n", b.V)
+	_, _ = os.Stdout.WriteString(fmt.Sprintf("%d\n", b.V))
 }

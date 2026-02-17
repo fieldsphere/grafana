@@ -1,6 +1,7 @@
 import { Page } from '@playwright/test';
 
 import { test, expect } from '@grafana/plugin-e2e';
+import { logPlaywrightWarning } from '../utils/logging';
 
 // Enable required feature toggles for Saved Searches (part of RuleList.v2)
 test.use({
@@ -64,7 +65,10 @@ async function clearSavedSearches(page: Page) {
   } catch (error) {
     // Ignore 404 errors (resource doesn't exist)
     if (!(error && typeof error === 'object' && 'status' in error && error.status === 404)) {
-      console.warn('Failed to clear saved searches:', error);
+      logPlaywrightWarning('Failed to clear saved searches', {
+        operation: 'clearSavedSearches',
+        error: String(error),
+      });
     }
   }
 

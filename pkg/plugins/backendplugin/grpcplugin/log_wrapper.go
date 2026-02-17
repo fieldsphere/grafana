@@ -17,17 +17,34 @@ type logWrapper struct {
 	impliedArgs []any
 }
 
+func wrapPluginLogArgs(msg, level string, args ...any) []any {
+	formattedArgs := formatArgs(args...)
+	context := make([]any, 0, 6)
+	context = append(context, "pluginMessage", msg, "pluginLogLevel", level)
+	if len(formattedArgs) > 0 {
+		context = append(context, "pluginContext", formattedArgs)
+	}
+	return context
+}
+
 func formatArgs(args ...any) []any {
-	if len(args) == 0 || len(args)%2 != 0 {
-		return args
+	if len(args) == 0 {
+		return []any{}
 	}
 
-	res := []any{}
+	if len(args)%2 != 0 {
+		return []any{"pluginLogArgs", args}
+	}
+
+	res := make([]any, 0, len(args))
 
 	for n := 0; n < len(args); n += 2 {
-		key := args[n]
+		key, ok := args[n].(string)
+		if !ok {
+			return []any{"pluginLogArgs", args}
+		}
 
-		if stringKey, ok := key.(string); ok && stringKey == "timestamp" {
+		if key == "timestamp" {
 			continue
 		}
 
@@ -40,17 +57,18 @@ func formatArgs(args ...any) []any {
 
 // Emit a message and key/value pairs at a provided log level
 func (lw logWrapper) Log(level hclog.Level, msg string, args ...any) {
+	fields := wrapPluginLogArgs(msg, level.String(), args...)
 	switch level {
 	case hclog.Trace:
-		lw.Trace(msg, args...)
+		lw.Logger.Debug("Backend plugin log entry", fields...)
 	case hclog.Debug:
-		lw.Debug(msg, args...)
+		lw.Logger.Debug("Backend plugin log entry", fields...)
 	case hclog.Info:
-		lw.Info(msg, args...)
+		lw.Logger.Info("Backend plugin log entry", fields...)
 	case hclog.Warn:
-		lw.Warn(msg, args...)
+		lw.Logger.Warn("Backend plugin log entry", fields...)
 	case hclog.Error:
-		lw.Error(msg, args...)
+		lw.Logger.Error("Backend plugin log entry", fields...)
 	default:
 		// TODO: Handle hclog.NoLevel
 	}
@@ -58,27 +76,27 @@ func (lw logWrapper) Log(level hclog.Level, msg string, args ...any) {
 
 // Emit a message and key/value pairs at the TRACE level
 func (lw logWrapper) Trace(msg string, args ...any) {
-	lw.Logger.Debug(msg, formatArgs(args...)...)
+	lw.Logger.Debug("Backend plugin log entry", wrapPluginLogArgs(msg, "trace", args...)...)
 }
 
 // Emit a message and key/value pairs at the DEBUG level
 func (lw logWrapper) Debug(msg string, args ...any) {
-	lw.Logger.Debug(msg, formatArgs(args...)...)
+	lw.Logger.Debug("Backend plugin log entry", wrapPluginLogArgs(msg, "debug", args...)...)
 }
 
 // Emit a message and key/value pairs at the INFO level
 func (lw logWrapper) Info(msg string, args ...any) {
-	lw.Logger.Info(msg, formatArgs(args...)...)
+	lw.Logger.Info("Backend plugin log entry", wrapPluginLogArgs(msg, "info", args...)...)
 }
 
 // Emit a message and key/value pairs at the WARN level
 func (lw logWrapper) Warn(msg string, args ...any) {
-	lw.Logger.Warn(msg, formatArgs(args...)...)
+	lw.Logger.Warn("Backend plugin log entry", wrapPluginLogArgs(msg, "warn", args...)...)
 }
 
 // Emit a message and key/value pairs at the ERROR level
 func (lw logWrapper) Error(msg string, args ...any) {
-	lw.Logger.Error(msg, formatArgs(args...)...)
+	lw.Logger.Error("Backend plugin log entry", wrapPluginLogArgs(msg, "error", args...)...)
 }
 
 // Indicate if TRACE logs would be emitted.
@@ -103,8 +121,17 @@ func (lw logWrapper) ImpliedArgs() []any {
 
 // Creates a sublogger that will always have the given key/value pairs
 func (lw logWrapper) With(args ...any) hclog.Logger {
+	formattedArgs := formatArgs(args...)
+	if len(formattedArgs) == 0 {
+		return logWrapper{
+			Logger:      lw.Logger.New(),
+			name:        lw.name,
+			impliedArgs: args,
+		}
+	}
+
 	return logWrapper{
-		Logger:      lw.Logger.New(args...),
+		Logger:      lw.Logger.New("pluginContext", formattedArgs),
 		name:        lw.name,
 		impliedArgs: args,
 	}

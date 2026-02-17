@@ -9,7 +9,7 @@ import (
 
 func main() {
 	if err := datasource.Manage("tempo", NewDatasource, datasource.ManageOpts{}); err != nil {
-		log.DefaultLogger.Error(err.Error())
+		log.DefaultLogger.Error("Standalone datasource startup failed", "error", err)
 		os.Exit(1)
 	}
 }

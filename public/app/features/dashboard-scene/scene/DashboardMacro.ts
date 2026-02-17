@@ -1,6 +1,9 @@
 import { FormatVariable, SceneObject, sceneUtils } from '@grafana/scenes';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { getDashboardSceneFor } from '../utils/utils';
+
+const logger = createMonitoringLogger('features.dashboard-scene.dashboard-macro');
 
 /**
  * Handles expressions like ${__dashboard.uid}
@@ -39,7 +42,11 @@ export function registerDashboardMacro() {
 
     return () => unregister();
   } catch (e) {
-    console.error('Error registering dashboard macro', e);
+    if (e instanceof Error) {
+      logger.logError(e, { operation: 'registerDashboardMacro' });
+    } else {
+      logger.logWarning('Error registering dashboard macro', { operation: 'registerDashboardMacro', error: String(e) });
+    }
     return () => {};
   }
 }

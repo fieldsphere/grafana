@@ -67,7 +67,7 @@ func (g *Gateway) Handle(ctx *contextmodel.ReqContext) {
 	}
 	logger.Debug("Live Push request",
 		"protocol", "http",
-		"streamId", streamID,
+		"streamID", streamID,
 		"bodyLength", len(body),
 		"frameFormat", frameFormat,
 	)
@@ -89,7 +89,7 @@ func (g *Gateway) Handle(ctx *contextmodel.ReqContext) {
 	for _, mf := range metricFrames {
 		err := stream.Push(ctx.Req.Context(), mf.Key(), mf.Frame())
 		if err != nil {
-			logger.Error("Error pushing frame", "error", err, "data", string(body))
+			logger.Error("Error pushing frame", "error", err, "requestBody", string(body))
 			ctx.Resp.WriteHeader(http.StatusInternalServerError)
 			return
 		}
@@ -115,7 +115,7 @@ func (g *Gateway) HandlePipelinePush(ctx *contextmodel.ReqContext) {
 
 	ruleFound, err := g.GrafanaLive.Pipeline.ProcessInput(ctx.Req.Context(), ctx.GetNamespace(), channelID, body)
 	if err != nil {
-		logger.Error("Pipeline input processing error", "error", err, "body", string(body))
+		logger.Error("Pipeline input processing error", "error", err, "requestBody", string(body))
 		if errors.Is(err, liveDto.ErrInvalidChannelID) {
 			ctx.Resp.WriteHeader(http.StatusBadRequest)
 		} else {

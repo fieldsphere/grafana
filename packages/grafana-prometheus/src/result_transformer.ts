@@ -18,12 +18,13 @@ import {
   TIME_SERIES_TIME_FIELD_NAME,
   TIME_SERIES_VALUE_FIELD_NAME,
 } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 
 import { ExemplarTraceIdDestination, PromMetric, PromQuery, PromValue } from './types';
 
 // handles case-insensitive Inf, +Inf, -Inf (with optional "inity" suffix)
 const INFINITY_SAMPLE_REGEX = /^[+-]?inf(?:inity)?$/i;
+const logger = createMonitoringLogger('packages.grafana-prometheus.result-transformer');
 
 const isTableResult = (dataFrame: DataFrame, options: DataQueryRequest<PromQuery>): boolean => {
   // We want to process vector and scalar results in Explore as table
@@ -419,7 +420,14 @@ export function sortSeriesByLabel(s1: DataFrame, s2: DataFrame): number {
     le2 = parseSampleValue(s2.fields[1].state?.displayName ?? s2.name ?? s2.fields[1].name);
   } catch (err) {
     // fail if not integer. might happen with bad queries
-    console.error(err);
+    if (err instanceof Error) {
+      logger.logError(err, { operation: 'sortSeriesByLabel' });
+    } else {
+      logger.logWarning('Failed to parse sample value when sorting series', {
+        operation: 'sortSeriesByLabel',
+        error: String(err),
+      });
+    }
     return 0;
   }
 

@@ -2052,14 +2052,11 @@ describe('ScopesSelectorService', () => {
 
       // This should not hang or crash
       // Implementation should detect circular references and stop recursion
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       const result = await service.resolvePathToRoot('node1', tree);
 
       expect(result).toBeDefined();
       // When circular reference is detected, it returns partial path (up to the circular point)
       expect(result.path.length).toBeGreaterThan(0);
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Circular reference detected in node path', expect.any(String));
-      consoleErrorSpy.mockRestore();
     });
 
     it('should stop at root node (empty parentName)', async () => {
@@ -2187,13 +2184,11 @@ describe('ScopesSelectorService', () => {
       });
 
       // Mock API to fail
-      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
       apiClient.fetchMultipleScopeNodes = jest.fn().mockRejectedValue(new Error('API Error'));
 
       // Should not crash
       await expect(service.open()).resolves.not.toThrow();
       expect(service.state.opened).toBe(true);
-      consoleErrorSpy.mockRestore();
     });
   });
 

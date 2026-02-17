@@ -176,8 +176,8 @@ func (m *ResourceVersionManager) ExecWithRV(ctx context.Context, key *resourcepb
 			span.RecordError(res.err)
 		}
 		span.SetAttributes(
-			attribute.String("guid", res.guid),
-			attribute.Int64("resource_version", res.rv),
+			attribute.String("resourceGUID", res.guid),
+			attribute.Int64("resourceVersion", res.rv),
 		)
 		span.AddLink(res.batchTraceLink)
 
@@ -235,7 +235,7 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 
 	// Add batch size attribute
 	span.SetAttributes(
-		attribute.Int("batch_size", len(batch)),
+		attribute.Int("batchSize", len(batch)),
 		attribute.String("group", group),
 		attribute.String("resource", resource),
 	)
@@ -259,7 +259,7 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 	rvs := make([]int64, len(batch))    // The RVs of the created resources in the same order as the batch
 
 	err = m.db.WithTx(ctx, readCommitted, func(ctx context.Context, tx db.Tx) error {
-		span.AddEvent("starting_batch_transaction")
+		span.AddEvent("startingBatchTransaction")
 
 		writeTimer := prometheus.NewTimer(prometheus.ObserverFunc(func(v float64) {
 			rvmExecBatchPhaseDuration.WithLabelValues(group, resource, "write_ops").Observe(v)
@@ -267,16 +267,16 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 		for i := range batch {
 			guid, err := batch[i].fn(tx)
 			if err != nil {
-				span.AddEvent("batch_operation_failed", trace.WithAttributes(
-					attribute.Int("operation_index", i),
-					attribute.String("error", err.Error()),
+				span.AddEvent("batchOperationFailed", trace.WithAttributes(
+					attribute.Int("operationIndex", i),
+					attribute.String("errorMessage", err.Error()),
 				))
 				return err
 			}
 			guids[i] = guid
 		}
 		writeTimer.ObserveDuration()
-		span.AddEvent("batch_operations_completed")
+		span.AddEvent("batchOperationsCompleted")
 
 		lockTimer := prometheus.NewTimer(prometheus.ObserverFunc(func(v float64) {
 			rvmExecBatchPhaseDuration.WithLabelValues(group, resource, "waiting_for_lock").Observe(v)
@@ -284,13 +284,13 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 		rv, err := m.Lock(ctx, tx, group, resource)
 		lockTimer.ObserveDuration()
 		if err != nil {
-			span.AddEvent("resource_version_lock_failed", trace.WithAttributes(
-				attribute.String("error", err.Error()),
+			span.AddEvent("resourceVersionLockFailed", trace.WithAttributes(
+				attribute.String("errorMessage", err.Error()),
 			))
 			return fmt.Errorf("failed to increment resource version: %w", err)
 		}
-		span.AddEvent("resource_version_locked", trace.WithAttributes(
-			attribute.Int64("initial_rv", rv),
+		span.AddEvent("resourceVersionLocked", trace.WithAttributes(
+			attribute.Int64("initialRV", rv),
 		))
 
 		rvUpdateTimer := prometheus.NewTimer(prometheus.ObserverFunc(func(v float64) {
@@ -309,41 +309,41 @@ func (m *ResourceVersionManager) execBatch(ctx context.Context, group, resource 
 			SQLTemplate: sqltemplate.New(m.dialect),
 			GUIDToRV:    guidToRV,
 		}); err != nil {
-			span.AddEvent("resource_update_rv_failed", trace.WithAttributes(
-				attribute.String("error", err.Error()),
+			span.AddEvent("resourceUpdateRVFailed", trace.WithAttributes(
+				attribute.String("errorMessage", err.Error()),
 			))
 			return fmt.Errorf("update resource version: %w", err)
 		}
-		span.AddEvent("resource_versions_updated")
+		span.AddEvent("resourceVersionsUpdated")
 
 		if _, err := dbutil.Exec(ctx, tx, SqlResourceHistoryUpdateRV, SqlResourceUpdateRVRequest{
 			SQLTemplate:       sqltemplate.New(m.dialect),
 			GUIDToRV:          guidToRV,
 			GUIDToSnowflakeRV: guidToSnowflakeRV,
 		}); err != nil {
-			span.AddEvent("resource_history_update_rv_failed", trace.WithAttributes(
-				attribute.String("error", err.Error()),
+			span.AddEvent("resourceHistoryUpdateRVFailed", trace.WithAttributes(
+				attribute.String("errorMessage", err.Error()),
 			))
 			return fmt.Errorf("update resource history version: %w", err)
 		}
-		span.AddEvent("resource_history_versions_updated")
+		span.AddEvent("resourceHistoryVersionsUpdated")
 
 		// Record the latest RV in the resource version table
 		err = m.SaveRV(ctx, tx, group, resource, rv)
 		if err != nil {
-			span.AddEvent("save_rv_failed", trace.WithAttributes(
-				attribute.String("error", err.Error()),
+			span.AddEvent("saveRVFailed", trace.WithAttributes(
+				attribute.String("errorMessage", err.Error()),
 			))
 		}
 		return err
 	})
 
 	if err != nil {
-		span.AddEvent("batch_transaction_failed", trace.WithAttributes(
-			attribute.String("error", err.Error()),
+		span.AddEvent("batchTransactionFailed", trace.WithAttributes(
+			attribute.String("errorMessage", err.Error()),
 		))
 	} else {
-		span.AddEvent("batch_transaction_completed")
+		span.AddEvent("batchTransactionCompleted")
 	}
 
 	// notify the caller that the operations are done

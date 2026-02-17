@@ -212,7 +212,7 @@ func (rc *RepositoryController) processNextWorkItem(ctx context.Context) bool {
 	defer rc.queue.Done(item)
 
 	// TODO: should we move tracking work to trace ids instead?
-	logger := logging.FromContext(ctx).With("work_key", item.key)
+	logger := logging.FromContext(ctx).With("workKey", item.key)
 	logger.Info("RepositoryController processing key")
 
 	err := rc.processFn(item)
@@ -284,7 +284,7 @@ func (rc *RepositoryController) handleDelete(ctx context.Context, obj *provision
 
 func (rc *RepositoryController) updateDeleteStatus(ctx context.Context, obj *provisioning.Repository, err error) error {
 	logger := logging.FromContext(ctx)
-	logger.Info("updating repository status with deletion error", "error", err.Error())
+	logger.Info("updating repository status with deletion error", "error", err)
 	return rc.statusPatcher.Patch(ctx, obj, map[string]interface{}{
 		"op":    "replace",
 		"path":  "/status/deleteError",
@@ -320,14 +320,14 @@ func (rc *RepositoryController) shouldResync(ctx context.Context, obj *provision
 			// Only trigger if sync interval has elapsed to avoid unnecessary operations
 			if syncAge >= (syncInterval - tolerance) {
 				logger := logging.FromContext(ctx)
-				logger.Info("detected stale sync status", "job_id", obj.Status.Sync.JobID)
+				logger.Info("detected stale sync status", "jobID", obj.Status.Sync.JobID)
 				return true
 			}
 		}
 		// For other errors, log but continue with normal logic
 		if err != nil {
 			logger := logging.FromContext(ctx)
-			logger.Warn("failed to check job existence for stale sync status", "error", err, "job_id", obj.Status.Sync.JobID)
+			logger.Warn("failed to check job existence for stale sync status", "error", err, "jobID", obj.Status.Sync.JobID)
 		}
 	}
 
@@ -355,7 +355,7 @@ func (rc *RepositoryController) runHooks(ctx context.Context, repo repository.Re
 		return patchOperations, nil
 	}
 
-	logger.Info("handle repository spec update", "Generation", obj.Generation, "ObservedGeneration", obj.Status.ObservedGeneration)
+	logger.Info("handle repository spec update", "generation", obj.Generation, "observedGeneration", obj.Status.ObservedGeneration)
 	patchOperations, err := hooks.OnUpdate(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error running OnUpdate: %w", err)
@@ -391,7 +391,7 @@ func (rc *RepositoryController) determineSyncStrategy(
 		return nil
 	case isBlocked:
 		logger.Info("skip sync for repository over quota",
-			"repository", obj.Name,
+			"repositoryName", obj.Name,
 			"namespace", obj.Namespace,
 		)
 		return nil
@@ -463,7 +463,7 @@ func (rc *RepositoryController) addSyncJob(ctx context.Context, obj *provisionin
 	defer span.End()
 
 	span.SetAttributes(
-		attribute.String("repository", obj.GetName()),
+		attribute.String("repositoryName", obj.GetName()),
 		attribute.String("namespace", obj.Namespace),
 		attribute.Bool("incremental", syncOptions != nil && syncOptions.Incremental),
 	)
@@ -483,7 +483,7 @@ func (rc *RepositoryController) addSyncJob(ctx context.Context, obj *provisionin
 		return fmt.Errorf("error adding sync job: %w", err)
 	}
 
-	span.SetAttributes(attribute.String("job.name", job.Name))
+	span.SetAttributes(attribute.String("jobName", job.Name))
 	return nil
 }
 
@@ -532,7 +532,7 @@ func (rc *RepositoryController) determineSyncStatusOps(obj *provisioning.Reposit
 
 //nolint:gocyclo
 func (rc *RepositoryController) process(item *queueItem) error {
-	logger := rc.logger.With("key", item.key)
+	logger := rc.logger.With("repositoryQueueKey", item.key)
 	ctx := logging.Context(context.Background(), logger)
 
 	namespace, name, err := cache.SplitMetaNamespaceKey(item.key)
@@ -589,17 +589,17 @@ func (rc *RepositoryController) process(item *queueItem) error {
 		logger.Info("repository blocked and over quota, skipping reconciliation")
 		return nil
 	case hasSpecChanged:
-		logger.Info("spec changed", "Generation", obj.Generation, "ObservedGeneration", obj.Status.ObservedGeneration)
+		logger.Info("spec changed", "generation", obj.Generation, "observedGeneration", obj.Status.ObservedGeneration)
 	case shouldResync:
-		logger.Info("sync interval triggered", "sync_interval", time.Duration(obj.Spec.Sync.IntervalSeconds)*time.Second, "sync_status", obj.Status.Sync)
+		logger.Info("sync interval triggered", "syncInterval", time.Duration(obj.Spec.Sync.IntervalSeconds)*time.Second, "syncStatus", obj.Status.Sync)
 	case shouldCheckHealth:
-		logger.Info("health is stale", "health_status", obj.Status.Health.Healthy)
+		logger.Info("health is stale", "healthStatus", obj.Status.Health.Healthy)
 	case forceProcessForUnblock:
 		logger.Info("repository was blocked but now within quota, processing to unblock")
 	case shouldGenerateToken:
 		logger.Info("repository token needs to be generated", "connection", obj.Spec.Connection.Name)
 	default:
-		logger.Info("skipping as conditions are not met", "status", obj.Status, "generation", obj.Generation, "sync_spec", obj.Spec.Sync)
+		logger.Info("skipping as conditions are not met", "repositoryStatus", obj.Status, "generation", obj.Generation, "syncSpec", obj.Spec.Sync)
 		return nil
 	}
 
@@ -634,7 +634,7 @@ func (rc *RepositoryController) process(item *queueItem) error {
 		// Rule 1: Not blocked + over quota -> Block and exit
 		logger.Info("namespace over quota, blocking repository",
 			"namespace", namespace,
-			"max_repositories", newQuota.MaxRepositories,
+			"maxRepositories", newQuota.MaxRepositories,
 		)
 
 		// Mark the repository as unhealthy

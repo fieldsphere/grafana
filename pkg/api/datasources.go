@@ -327,7 +327,7 @@ func (hs *HTTPServer) DeleteDataSourceByName(c *contextmodel.ReqContext) respons
 
 func validateURL(cmdType string, url string) response.Response {
 	if _, err := datasource.ValidateURL(cmdType, url); err != nil {
-		datasourcesLogger.Error("Failed to validate URL", "url", url)
+		datasourcesLogger.Error("Failed to validate URL", "datasourceURL", url)
 		return response.Error(http.StatusBadRequest, "Validation error, invalid URL", err)
 	}
 
@@ -387,7 +387,7 @@ func (hs *HTTPServer) AddDataSource(c *contextmodel.ReqContext) response.Respons
 
 	userID, _ := identity.UserIdentifier(c.GetID())
 
-	datasourcesLogger.Debug("Received command to add data source", "url", cmd.URL)
+	datasourcesLogger.Debug("Received command to add data source", "datasourceURL", cmd.URL)
 	cmd.OrgID = c.GetOrgID()
 	cmd.UserID = userID
 	if cmd.URL != "" {
@@ -456,7 +456,7 @@ func (hs *HTTPServer) UpdateDataSourceByID(c *contextmodel.ReqContext) response.
 	if err := web.Bind(c.Req, &cmd); err != nil {
 		return response.Error(http.StatusBadRequest, "bad request data", err)
 	}
-	datasourcesLogger.Debug("Received command to update data source", "url", cmd.URL)
+	datasourcesLogger.Debug("Received command to update data source", "datasourceURL", cmd.URL)
 	cmd.OrgID = c.GetOrgID()
 	var err error
 	if cmd.ID, err = strconv.ParseInt(web.Params(c.Req)[":id"], 10, 64); err != nil {
@@ -505,7 +505,7 @@ func (hs *HTTPServer) UpdateDataSourceByUID(c *contextmodel.ReqContext) response
 	if err := web.Bind(c.Req, &cmd); err != nil {
 		return response.Error(http.StatusBadRequest, "bad request data", err)
 	}
-	datasourcesLogger.Debug("Received command to update data source", "url", cmd.URL)
+	datasourcesLogger.Debug("Received command to update data source", "datasourceURL", cmd.URL)
 	cmd.OrgID = c.GetOrgID()
 	if resp := validateURL(cmd.Type, cmd.URL); resp != nil {
 		return resp
@@ -534,7 +534,7 @@ func (hs *HTTPServer) updateDataSourceByID(c *contextmodel.ReqContext, ds *datas
 	_, err := hs.DataSourcesService.UpdateDataSource(c.Req.Context(), &cmd)
 	if err != nil {
 		if errors.Is(err, datasources.ErrDataSourceNameExists) {
-			return response.Error(http.StatusConflict, "Failed to update datasource: "+err.Error(), err)
+			return response.Error(http.StatusConflict, "Failed to update datasource", err)
 		}
 
 		if errors.Is(err, datasources.ErrDataSourceUpdatingOldVersion) {
