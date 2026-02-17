@@ -3,23 +3,26 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: ./scripts/verify-structured-logging-closeout.sh [--quick] [--probes-only] [--tests-only] [--help]
+Usage: ./scripts/verify-structured-logging-closeout.sh [--quick] [--probes-only] [--tests-only] [--matrix] [--help]
 
 Options:
   --quick        Skip race tests for a faster local pass.
   --probes-only  Skip all tests and run query probes only.
   --tests-only   Skip query probes and run tests only.
+  --matrix       Run all supported mode combinations in sequence.
   --help         Show this help message.
 
 Notes:
   --quick cannot be combined with --probes-only.
   --probes-only and --tests-only are mutually exclusive.
+  --matrix runs as a standalone mode and cannot be combined with other flags.
 EOF
 }
 
 quick_mode=false
 probes_only=false
 tests_only=false
+matrix_mode=false
 while (($# > 0)); do
   case "$1" in
     --quick)
@@ -32,6 +35,10 @@ while (($# > 0)); do
       ;;
     --tests-only)
       tests_only=true
+      shift
+      ;;
+    --matrix)
+      matrix_mode=true
       shift
       ;;
     --help)
@@ -56,8 +63,25 @@ if [[ "$quick_mode" == "true" && "$probes_only" == "true" ]]; then
   exit 1
 fi
 
+if [[ "$matrix_mode" == "true" && ( "$quick_mode" == "true" || "$probes_only" == "true" || "$tests_only" == "true" ) ]]; then
+  echo "closeout verification failed: --matrix cannot be combined with other mode flags" >&2
+  exit 1
+fi
+
 ROOT_DIR="$(git rev-parse --show-toplevel)"
 cd "$ROOT_DIR"
+SCRIPT_PATH="$ROOT_DIR/scripts/verify-structured-logging-closeout.sh"
+
+if [[ "$matrix_mode" == "true" ]]; then
+  echo "Running closeout verification matrix..."
+  "$SCRIPT_PATH"
+  "$SCRIPT_PATH" --quick
+  "$SCRIPT_PATH" --probes-only
+  "$SCRIPT_PATH" --tests-only
+  "$SCRIPT_PATH" --tests-only --quick
+  echo "Structured logging closeout verification matrix passed."
+  exit 0
+fi
 
 require_cmd() {
   local cmd="$1"
