@@ -27,6 +27,7 @@ const errRuntimeFileWalkerVisitorNil = "runtime file walker visitor is nil"
 var errRuntimeFileWalkerVisitor = errors.New(errRuntimeFileWalkerVisitorNil)
 
 var printCallPattern = regexp.MustCompile(`\bfmt\.Print(f|ln)?\s*\(|\blog\.Print(f|ln)?\s*\(`)
+var recoverAliasProbePattern = regexp.MustCompile(`(?s)recover\(\).{0,260}"(error|errorMessage|reason|panic)"\s*,`)
 
 func TestRuleguardRecoverErrorBlocksIncludePanicAndFatal(t *testing.T) {
 	blocks := loadRuleguardMatchBlocks(t)
@@ -499,6 +500,70 @@ func TestRuntimeGoSourcesDoNotUsePrintCalls(t *testing.T) {
 	if len(violations) > 0 {
 		sort.Strings(violations)
 		t.Fatalf("runtime go sources contain disallowed fmt/log print calls:\n%s", strings.Join(violations, "\n"))
+	}
+}
+
+func TestPkgRecoverAliasProbeMatchesOnlyRuleguardArtifacts(t *testing.T) {
+	roots := runtimeScanRoots(t)
+	if len(roots) == 0 {
+		t.Fatal("runtime scan roots are empty")
+	}
+
+	var pkgRoot string
+	for _, root := range roots {
+		if filepath.Base(root) == "pkg" {
+			pkgRoot = root
+			break
+		}
+	}
+	if pkgRoot == "" {
+		t.Fatalf("failed to resolve pkg root from runtime scan roots %v", roots)
+	}
+	repoRoot := filepath.Clean(filepath.Join(roots[0], ".."))
+
+	actual := map[string]struct{}{}
+	err := filepath.WalkDir(pkgRoot, func(path string, d os.DirEntry, walkErr error) error {
+		if walkErr != nil {
+			return walkErr
+		}
+		if d.IsDir() || !strings.HasSuffix(path, ".go") {
+			return nil
+		}
+
+		content, err := os.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		if !recoverAliasProbePattern.Match(content) {
+			return nil
+		}
+
+		relPath, err := filepath.Rel(repoRoot, path)
+		if err != nil {
+			return err
+		}
+		actual[slashNormalizedPath(relPath)] = struct{}{}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("scan pkg recover alias probe matches: %v", err)
+	}
+
+	expected := map[string]struct{}{
+		"pkg/ruleguard.rules.go":       {},
+		"pkg/ruleguard_parity_test.go": {},
+	}
+	if len(actual) != len(expected) {
+		t.Fatalf("pkg recover alias probe files = %v, expected exactly %v", actual, expected)
+	}
+	for file := range actual {
+		if _, ok := expected[file]; !ok {
+			t.Fatalf("unexpected pkg recover alias probe file %q (actual=%v)", file, actual)
+		}
+		delete(expected, file)
+	}
+	if len(expected) > 0 {
+		t.Fatalf("missing expected pkg recover alias probe files %v", expected)
 	}
 }
 
