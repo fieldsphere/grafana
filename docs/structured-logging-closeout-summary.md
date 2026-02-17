@@ -91,6 +91,8 @@ To print supported script modes without running checks, use:
 ./scripts/verify-structured-logging-closeout.sh --list-modes
 ```
 
+The mode list is stable and ordered for easy scripting.
+
 To print supported script modes as JSON (for CI scripting), use:
 
 ```sh

@@ -95,21 +95,39 @@ fi
 ROOT_DIR="$(git rev-parse --show-toplevel)"
 cd "$ROOT_DIR"
 SCRIPT_PATH="$ROOT_DIR/scripts/verify-structured-logging-closeout.sh"
+ALL_MODES=(full quick probes-only tests-only tests-only-quick matrix)
+MATRIX_MODES=(full quick probes-only tests-only tests-only-quick)
+
+print_modes_plain() {
+  local mode_name
+  for mode_name in "${ALL_MODES[@]}"; do
+    printf '%s\n' "$mode_name"
+  done
+}
+
+print_modes_json() {
+  local mode_name
+  local first_mode=true
+
+  printf '['
+  for mode_name in "${ALL_MODES[@]}"; do
+    if [[ "$first_mode" == "true" ]]; then
+      first_mode=false
+    else
+      printf ','
+    fi
+    printf '"%s"' "$mode_name"
+  done
+  printf ']\n'
+}
 
 if [[ "$list_modes" == "true" ]]; then
-  cat <<'EOF'
-full
-quick
-probes-only
-tests-only
-tests-only-quick
-matrix
-EOF
+  print_modes_plain
   exit 0
 fi
 
 if [[ "$list_modes_json" == "true" ]]; then
-  echo '["full","quick","probes-only","tests-only","tests-only-quick","matrix"]'
+  print_modes_json
   exit 0
 fi
 
@@ -156,12 +174,35 @@ if [[ "$matrix_mode" == "true" ]]; then
     modes_run="$((modes_run + 1))"
   }
 
+  run_matrix_mode_by_name() {
+    local mode_name="$1"
+    case "$mode_name" in
+      full)
+        run_matrix_mode "$mode_name"
+        ;;
+      quick)
+        run_matrix_mode "$mode_name" --quick
+        ;;
+      probes-only)
+        run_matrix_mode "$mode_name" --probes-only
+        ;;
+      tests-only)
+        run_matrix_mode "$mode_name" --tests-only
+        ;;
+      tests-only-quick)
+        run_matrix_mode "$mode_name" --tests-only --quick
+        ;;
+      *)
+        echo "closeout verification matrix failed: unknown matrix mode '$mode_name'" >&2
+        exit 1
+        ;;
+    esac
+  }
+
   echo "Running closeout verification matrix..."
-  run_matrix_mode "full"
-  run_matrix_mode "quick" --quick
-  run_matrix_mode "probes-only" --probes-only
-  run_matrix_mode "tests-only" --tests-only
-  run_matrix_mode "tests-only-quick" --tests-only --quick
+  for mode_name in "${MATRIX_MODES[@]}"; do
+    run_matrix_mode_by_name "$mode_name"
+  done
   matrix_end_time="$(date +%s)"
   matrix_duration="$((matrix_end_time - matrix_start_time))"
   echo "Structured logging closeout verification matrix passed (${modes_run} modes, $(format_duration_seconds "$matrix_duration"))."
