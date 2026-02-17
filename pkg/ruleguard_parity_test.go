@@ -1244,11 +1244,14 @@ func TestWalkRuntimeGoFilesInRootsFiltersRuntimeFiles(t *testing.T) {
 
 	keepFiles := []string{
 		filepath.Join(pkgRoot, "keep.go"),
+		filepath.Join(pkgRoot, "keep_upper.GO"),
 		filepath.Join(appsRoot, "nested", "keep.go"),
 	}
 	skipFiles := []string{
 		filepath.Join(pkgRoot, "skip_test.go"),
+		filepath.Join(pkgRoot, "skip_TEST.GO"),
 		filepath.Join(pkgRoot, "ruleguard.rules.go"),
+		filepath.Join(pkgRoot, "RULEGUARD.RULES.GO"),
 		filepath.Join(pkgRoot, "testdata", "skip.go"),
 		filepath.Join(appsRoot, "nested", "testdata", "skip.go"),
 		filepath.Join(appsRoot, "nested", "TestData", "skip.go"),
