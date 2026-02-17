@@ -77,7 +77,10 @@ if [[ "$matrix_mode" == "true" ]]; then
     local mode_label="$1"
     shift
     echo "==> Matrix mode: $mode_label"
-    "$SCRIPT_PATH" "$@"
+    if ! "$SCRIPT_PATH" "$@"; then
+      echo "closeout verification matrix failed in mode: $mode_label" >&2
+      exit 1
+    fi
   }
 
   echo "Running closeout verification matrix..."

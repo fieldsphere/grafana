@@ -84,6 +84,7 @@ To run the same all-modes sequence directly from the script, use:
 ```
 
 The matrix run prints per-mode labels so you can quickly identify which mode failed if a regression appears.
+If any mode fails, the script exits with a mode-specific failure line that names the failing mode.
 
 For a faster local pass that skips race tests, run:
 
