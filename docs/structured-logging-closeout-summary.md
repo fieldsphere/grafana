@@ -162,3 +162,13 @@ Use this checklist when you review pull requests that touch runtime logging:
 - **Run query gates:** Run print/log, console, recover-alias, key-casing, and trace-event probes from this document.
 - **Compare outcomes:** Confirm output matches the expected closeout outcomes described in this summary.
 - **Add targeted tests:** If a new logging vector appears, add a parity regression before merging.
+
+## Troubleshoot failing closeout gates
+
+If a closeout command fails, use this workflow to isolate and fix the regression:
+
+- **Start with the first failing command:** Fix one failing gate at a time to avoid mixing unrelated changes.
+- **Confirm runtime scope:** Ensure matches are in runtime production code and not in rule definitions or parity test fixtures.
+- **Apply minimal fixes:** Update only the affected log callsites, key names, or event names needed to satisfy the gate.
+- **Re-run targeted tests first:** Re-run parity and touched package tests before re-running the full gate checklist.
+- **Re-run all closeout probes:** After the fix passes locally, run the full verification command list to confirm no secondary regressions.
