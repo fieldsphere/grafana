@@ -400,6 +400,10 @@ test-js: ## Run tests for frontend.
 .PHONY: test
 test: test-go test-js ## Run all tests.
 
+.PHONY: verify-structured-logging-closeout
+verify-structured-logging-closeout: ## Run structured logging closeout verification checks.
+	./scripts/verify-structured-logging-closeout.sh
+
 ##@ Linting
 .PHONY: golangci-lint
 golangci-lint:

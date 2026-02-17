@@ -59,6 +59,18 @@ The closeout used repeatable command checks to validate the migration gates and 
 ./scripts/verify-structured-logging-closeout.sh
 ```
 
+You can run the same full verification through `make`:
+
+```sh
+make verify-structured-logging-closeout
+```
+
+You can also run the script through `make`:
+
+```sh
+make verify-structured-logging-closeout
+```
+
 For a faster local pass that skips race tests, run:
 
 ```sh
