@@ -1,5 +1,5 @@
-const http = require('http');
-const { logDevenvInfo } = require('../../../logging');
+import http from 'http';
+import { logDevenvInfo } from '../../../logging.js';
 
 if (process.argv.length !== 3) {
   throw new Error('invalid command line: use node sendLogs.js ELASTIC_BASE_URL');
