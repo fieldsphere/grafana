@@ -6,6 +6,7 @@ import (
 	"go/parser"
 	"go/token"
 	"os"
+	pathpkg "path"
 	"path/filepath"
 	"regexp"
 	"runtime"
@@ -1983,7 +1984,7 @@ func uniqueNonEmptyCleanPaths(paths []string) []string {
 }
 
 func canonicalPathKey(path string) string {
-	key := strings.ReplaceAll(filepath.ToSlash(path), "\\", "/")
+	key := slashNormalizedPath(path)
 	uncPrefix := strings.HasPrefix(key, "//")
 	key = collapseConsecutiveSlashes(key)
 	if uncPrefix && !strings.HasPrefix(key, "//") {
@@ -1996,12 +1997,12 @@ func canonicalPathKey(path string) string {
 }
 
 func isWindowsDrivePath(path string) bool {
-	normalized := strings.ReplaceAll(filepath.ToSlash(path), "\\", "/")
+	normalized := slashNormalizedPath(path)
 	return len(normalized) >= 2 && normalized[1] == ':'
 }
 
 func isWindowsUNCPath(path string) bool {
-	normalized := strings.ReplaceAll(filepath.ToSlash(path), "\\", "/")
+	normalized := slashNormalizedPath(path)
 	return strings.HasPrefix(normalized, "//")
 }
 
@@ -2026,15 +2027,14 @@ func collapseConsecutiveSlashes(path string) string {
 }
 
 func isRuntimeGoSourcePath(path string) bool {
-	lowerPath := strings.ToLower(path)
-	normalizedPath := strings.ReplaceAll(path, "\\", "/")
-	lowerBase := strings.ToLower(filepath.Base(normalizedPath))
+	normalizedPath := slashNormalizedPath(path)
+	lowerPath := strings.ToLower(normalizedPath)
+	lowerBase := strings.ToLower(pathpkg.Base(normalizedPath))
 	if !strings.HasSuffix(lowerPath, ".go") || strings.HasSuffix(lowerPath, "_test.go") || lowerBase == "ruleguard.rules.go" {
 		return false
 	}
 
-	cleanPath := filepath.ToSlash(filepath.Clean(path))
-	cleanPath = strings.ReplaceAll(cleanPath, "\\", "/")
+	cleanPath := pathpkg.Clean(normalizedPath)
 	pathSegments := strings.Split(cleanPath, "/")
 	for _, segment := range pathSegments {
 		if strings.EqualFold(segment, "testdata") {
@@ -2043,6 +2043,10 @@ func isRuntimeGoSourcePath(path string) bool {
 	}
 
 	return true
+}
+
+func slashNormalizedPath(path string) string {
+	return strings.ReplaceAll(filepath.ToSlash(path), "\\", "/")
 }
 
 func blockContainsRecover(body *ast.BlockStmt) bool {
