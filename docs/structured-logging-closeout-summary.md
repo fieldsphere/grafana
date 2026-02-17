@@ -95,6 +95,18 @@ rg "\\.AddEvent\\(\\s*\"[A-Z][^\"]*\"" pkg --glob "*.go"
 rg "\\.AddEvent\\(\\s*\"[^\"]*[\\s:_/\\-][^\"]*\"" pkg --glob "*.go"
 ```
 
+## Expected command outcomes
+
+When closeout gates are healthy, you should see the following outcomes:
+
+- **Parity and runtime test commands:** Return `ok` for the targeted packages.
+- **Race validation command:** Returns `ok` for the same targeted packages under `-race`.
+- **Print/log probe:** Returns only rule definitions, not runtime production callsites.
+- **Frontend console probe:** Returns no matches in production source paths.
+- **Recover alias probe in `apps/**`:** Returns no matches.
+- **Key-casing probes:** Return no matches for `*Id` and `*Uid` patterns.
+- **Trace event naming probes:** Return no matches for PascalCase and separator-shaped event names.
+
 ## Related resources
 
 - The project plan and execution notes track the detailed sequence of closeout updates.
