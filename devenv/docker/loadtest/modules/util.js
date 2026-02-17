@@ -1,5 +1,3 @@
-import { logDevenvWarning } from '../../logging.js';
-
 export const createTestOrgIfNotExists = (client) => {
   let orgId = 0;
 
@@ -15,11 +13,6 @@ export const createTestOrgIfNotExists = (client) => {
   // This can happen e.g. in Hosted Grafana instances, where even admins
   // cannot see organisations
   if (res.status !== 200) {
-    logDevenvWarning('Unable to get orgs from instance, continuing with default orgId', {
-      operation: 'createTestOrgIfNotExists',
-      orgId,
-      status: res.status,
-    });
     return orgId;
   }
 
