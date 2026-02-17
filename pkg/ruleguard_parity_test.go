@@ -6,6 +6,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -318,20 +319,7 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 	}
 	logMethodNames := structuredLogMethodNames()
 
-	err := filepath.WalkDir(".", func(path string, d os.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-		if d.IsDir() {
-			return nil
-		}
-		if strings.Contains(path, "/testdata/") {
-			return nil
-		}
-		if !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "ruleguard.rules.go") {
-			return nil
-		}
-
+	err := walkRuntimeGoFiles(t, func(path string) error {
 		file, parseErr := parser.ParseFile(fset, path, nil, 0)
 		if parseErr != nil {
 			return parseErr
@@ -409,20 +397,7 @@ func TestRuntimeRecoverDerivedValuesUsePanicValueKey(t *testing.T) {
 	violationSet := map[string]struct{}{}
 	logMethodNames := structuredLogMethodNames()
 
-	err := filepath.WalkDir(".", func(path string, d os.DirEntry, walkErr error) error {
-		if walkErr != nil {
-			return walkErr
-		}
-		if d.IsDir() {
-			return nil
-		}
-		if strings.Contains(path, "/testdata/") {
-			return nil
-		}
-		if !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "ruleguard.rules.go") {
-			return nil
-		}
-
+	err := walkRuntimeGoFiles(t, func(path string) error {
 		file, parseErr := parser.ParseFile(fset, path, nil, 0)
 		if parseErr != nil {
 			return parseErr
@@ -1269,6 +1244,49 @@ func recoverAliasMentionsInMatcherLines(lines []string) map[string]struct{} {
 	}
 
 	return aliases
+}
+
+func runtimeScanRoots(t *testing.T) []string {
+	t.Helper()
+
+	_, thisFile, _, ok := runtime.Caller(0)
+	if !ok {
+		t.Fatal("resolve current test file path")
+	}
+
+	pkgDir := filepath.Dir(thisFile)
+	repoRoot := filepath.Clean(filepath.Join(pkgDir, ".."))
+	return []string{
+		filepath.Join(repoRoot, "pkg"),
+		filepath.Join(repoRoot, "apps"),
+	}
+}
+
+func walkRuntimeGoFiles(t *testing.T, visit func(path string) error) error {
+	t.Helper()
+
+	testdataSegment := string(filepath.Separator) + "testdata" + string(filepath.Separator)
+	for _, root := range runtimeScanRoots(t) {
+		if err := filepath.WalkDir(root, func(path string, d os.DirEntry, walkErr error) error {
+			if walkErr != nil {
+				return walkErr
+			}
+			if d.IsDir() {
+				return nil
+			}
+			if strings.Contains(path, testdataSegment) {
+				return nil
+			}
+			if !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "ruleguard.rules.go") {
+				return nil
+			}
+			return visit(path)
+		}); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func blockContainsRecover(body *ast.BlockStmt) bool {
