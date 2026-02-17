@@ -1367,6 +1367,39 @@ func TestUniqueNonEmptyCleanPaths(t *testing.T) {
 	}
 }
 
+func TestCanonicalPathKeyNormalization(t *testing.T) {
+	testCases := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			name: "windows backslashes normalize",
+			in:   `C:\repo\pkg`,
+			want: "c:/repo/pkg",
+		},
+		{
+			name: "windows slashes normalize",
+			in:   `C:/repo/pkg`,
+			want: "c:/repo/pkg",
+		},
+		{
+			name: "linux path unchanged",
+			in:   "/tmp/runtime",
+			want: "/tmp/runtime",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := canonicalPathKey(tc.in)
+			if got != tc.want {
+				t.Fatalf("canonicalPathKey(%q) = %q, want %q", tc.in, got, tc.want)
+			}
+		})
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
