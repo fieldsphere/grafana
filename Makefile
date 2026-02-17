@@ -424,6 +424,10 @@ verify-structured-logging-closeout-tests-quick: ## Run structured logging closeo
 verify-structured-logging-closeout-matrix: ## Run all closeout verification modes.
 	./scripts/verify-structured-logging-closeout.sh --matrix
 
+.PHONY: verify-structured-logging-closeout-modes
+verify-structured-logging-closeout-modes: ## List supported closeout verification modes.
+	./scripts/verify-structured-logging-closeout.sh --list-modes
+
 ##@ Linting
 .PHONY: golangci-lint
 golangci-lint:

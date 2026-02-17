@@ -73,6 +73,7 @@ make verify-structured-logging-closeout-probes
 make verify-structured-logging-closeout-tests
 make verify-structured-logging-closeout-tests-quick
 make verify-structured-logging-closeout-matrix
+make verify-structured-logging-closeout-modes
 ```
 
 Use `make verify-structured-logging-closeout-matrix` when you want one command that runs all supported closeout script modes.
@@ -81,6 +82,12 @@ To run the same all-modes sequence directly from the script, use:
 
 ```sh
 ./scripts/verify-structured-logging-closeout.sh --matrix
+```
+
+To print supported script modes without running checks, use:
+
+```sh
+./scripts/verify-structured-logging-closeout.sh --list-modes
 ```
 
 The matrix run prints per-mode labels and pass durations so you can quickly identify which mode failed and how long each mode took.
