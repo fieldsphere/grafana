@@ -25,6 +25,7 @@ Unsure if Grafana is for you? Watch Grafana in action on [play.grafana.org](http
 ## Documentation
 
 The Grafana documentation is available at [grafana.com/docs](https://grafana.com/docs/).
+For structured logging verification and closeout gates, refer to the [structured logging closeout summary](docs/structured-logging-closeout-summary.md).
 
 ## Contributing
 

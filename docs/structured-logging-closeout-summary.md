@@ -59,6 +59,12 @@ The closeout used repeatable command checks to validate the migration gates and 
 ./scripts/verify-structured-logging-closeout.sh
 ```
 
+For a faster local pass that skips race tests, run:
+
+```sh
+./scripts/verify-structured-logging-closeout.sh --quick
+```
+
 - **Run recover and parity tests:** This command validates recover parity and runtime guardrail tests:
 
 ```sh

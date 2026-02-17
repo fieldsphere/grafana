@@ -1,6 +1,35 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+usage() {
+  cat <<'EOF'
+Usage: ./scripts/verify-structured-logging-closeout.sh [--quick] [--help]
+
+Options:
+  --quick  Skip race tests for a faster local pass.
+  --help   Show this help message.
+EOF
+}
+
+quick_mode=false
+while (($# > 0)); do
+  case "$1" in
+    --quick)
+      quick_mode=true
+      shift
+      ;;
+    --help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "unknown argument: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
+
 ROOT_DIR="$(git rev-parse --show-toplevel)"
 cd "$ROOT_DIR"
 
@@ -52,7 +81,9 @@ require_cmd sort
 echo "Running parity and runtime tests..."
 go test ./pkg -run 'TestRuntimeRecover|TestRuleguardRecover'
 go test ./pkg/services/authn/clients/... ./pkg/services/authz/zanzana/logger ./pkg/infra/log/...
-go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/logger ./pkg/infra/log
+if [[ "$quick_mode" != "true" ]]; then
+  go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/logger ./pkg/infra/log
+fi
 
 echo "Running query probes..."
 print_matches="$(rg 'fmt\.Print(f|ln)?\(|\blog\.Print(f|ln)?\(' pkg apps --glob '*.go' --files-with-matches | normalize_matches || true)"
