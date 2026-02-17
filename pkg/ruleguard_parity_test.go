@@ -1325,6 +1325,13 @@ func TestWalkRuntimeGoFilesInRootsSkipsNonDirectoryRoots(t *testing.T) {
 	}
 }
 
+func TestWalkRuntimeGoFilesInRootsRejectsNilVisitor(t *testing.T) {
+	err := walkRuntimeGoFilesInRoots([]string{t.TempDir()}, nil)
+	if err == nil {
+		t.Fatal("expected nil visitor to return an error")
+	}
+}
+
 func TestWalkRuntimeGoFilesInRootsDeduplicatesRoots(t *testing.T) {
 	tempDir := t.TempDir()
 	root := filepath.Join(tempDir, "pkg")
@@ -1568,6 +1575,10 @@ func walkRuntimeGoFiles(t *testing.T, visit func(path string) error) error {
 }
 
 func walkRuntimeGoFilesInRoots(roots []string, visit func(path string) error) error {
+	if visit == nil {
+		return errors.New("runtime file walker visitor is nil")
+	}
+
 	for _, root := range uniqueNonEmptyCleanPaths(roots) {
 		info, err := os.Stat(root)
 		if err != nil {
