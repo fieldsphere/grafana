@@ -1159,6 +1159,11 @@ func TestIsRuntimeGoSourcePath(t *testing.T) {
 			path: "/repo/pkg/module/testdata/fixture.go",
 			want: false,
 		},
+		{
+			name: "windows-style testdata path excluded",
+			path: `C:\repo\pkg\module\testdata\fixture.go`,
+			want: false,
+		},
 	}
 
 	for _, tc := range testCases {
@@ -1371,6 +1376,7 @@ func isRuntimeGoSourcePath(path string) bool {
 	}
 
 	cleanPath := filepath.ToSlash(filepath.Clean(path))
+	cleanPath = strings.ReplaceAll(cleanPath, "\\", "/")
 	pathSegments := strings.Split(cleanPath, "/")
 	for _, segment := range pathSegments {
 		if segment == "testdata" {
