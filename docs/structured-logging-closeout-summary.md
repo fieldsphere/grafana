@@ -117,6 +117,16 @@ Use this checklist when you want a fast pass over closeout health:
 - **Run probe commands:** Run all query probes listed in this document.
 - **Compare outputs:** Confirm outputs match the expected outcomes and known exceptions.
 
+To run a single terminal pass for the core checks, use this command bundle:
+
+```sh
+go test ./pkg -run 'TestRuntimeRecover|TestRuleguardRecover' && \
+go test ./pkg/services/authn/clients/... ./pkg/services/authz/zanzana/logger ./pkg/infra/log/... && \
+go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/logger ./pkg/infra/log && \
+rg "fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(" --glob "*.go" --files-with-matches && \
+rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" --glob "*.{ts,tsx,js,mjs,html}" --files-with-matches || true
+```
+
 ## Expected command outcomes
 
 When closeout gates are healthy, you should see the following outcomes:
