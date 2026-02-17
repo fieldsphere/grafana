@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: ./scripts/verify-structured-logging-closeout.sh [--quick] [--probes-only] [--tests-only] [--matrix] [--list-modes] [--help]
+Usage: ./scripts/verify-structured-logging-closeout.sh [--quick] [--probes-only] [--tests-only] [--matrix] [--list-modes] [--list-modes-json] [--help]
 
 Options:
   --quick        Skip race tests for a faster local pass.
@@ -11,6 +11,7 @@ Options:
   --tests-only   Skip query probes and run tests only.
   --matrix       Run all supported mode combinations in sequence.
   --list-modes   Print supported execution modes and exit.
+  --list-modes-json  Print supported execution modes as JSON and exit.
   --help         Show this help message.
 
 Notes:
@@ -18,6 +19,7 @@ Notes:
   --probes-only and --tests-only are mutually exclusive.
   --matrix runs as a standalone mode and cannot be combined with other flags.
   --list-modes runs as a standalone mode and cannot be combined with other flags.
+  --list-modes-json runs as a standalone mode and cannot be combined with other flags.
 EOF
 }
 
@@ -26,6 +28,7 @@ probes_only=false
 tests_only=false
 matrix_mode=false
 list_modes=false
+list_modes_json=false
 while (($# > 0)); do
   case "$1" in
     --quick)
@@ -46,6 +49,10 @@ while (($# > 0)); do
       ;;
     --list-modes)
       list_modes=true
+      shift
+      ;;
+    --list-modes-json)
+      list_modes_json=true
       shift
       ;;
     --help)
@@ -80,6 +87,11 @@ if [[ "$list_modes" == "true" && ( "$quick_mode" == "true" || "$probes_only" == 
   exit 1
 fi
 
+if [[ "$list_modes_json" == "true" && ( "$quick_mode" == "true" || "$probes_only" == "true" || "$tests_only" == "true" || "$matrix_mode" == "true" || "$list_modes" == "true" ) ]]; then
+  echo "closeout verification failed: --list-modes-json cannot be combined with other mode flags" >&2
+  exit 1
+fi
+
 ROOT_DIR="$(git rev-parse --show-toplevel)"
 cd "$ROOT_DIR"
 SCRIPT_PATH="$ROOT_DIR/scripts/verify-structured-logging-closeout.sh"
@@ -93,6 +105,11 @@ tests-only
 tests-only-quick
 matrix
 EOF
+  exit 0
+fi
+
+if [[ "$list_modes_json" == "true" ]]; then
+  echo '["full","quick","probes-only","tests-only","tests-only-quick","matrix"]'
   exit 0
 fi
 
