@@ -85,6 +85,8 @@ For probe-only triage without tests, run:
 ./scripts/verify-structured-logging-closeout.sh --probes-only
 ```
 
+Use `--probes-only` by itself. It can't be combined with `--quick` or `--tests-only`.
+
 For test-only execution without probes, run:
 
 ```sh

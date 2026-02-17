@@ -10,6 +10,10 @@ Options:
   --probes-only  Skip all tests and run query probes only.
   --tests-only   Skip query probes and run tests only.
   --help         Show this help message.
+
+Notes:
+  --quick cannot be combined with --probes-only.
+  --probes-only and --tests-only are mutually exclusive.
 EOF
 }
 
@@ -44,6 +48,11 @@ done
 
 if [[ "$probes_only" == "true" && "$tests_only" == "true" ]]; then
   echo "closeout verification failed: --probes-only and --tests-only cannot be used together" >&2
+  exit 1
+fi
+
+if [[ "$quick_mode" == "true" && "$probes_only" == "true" ]]; then
+  echo "closeout verification failed: --quick cannot be used with --probes-only" >&2
   exit 1
 fi
 
