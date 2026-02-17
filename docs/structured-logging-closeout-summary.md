@@ -6,6 +6,12 @@ title: Structured logging closeout summary
 
 This summary documents the final closeout for the structured logging migration. It shows what changed, what remains out of scope, and the final gate status used for completion.
 
+Use this summary in three ways:
+
+- **Understand scope:** Review what changed and what stayed out of scope.
+- **Re-run verification:** Use the command checklist and expected outcomes to validate current state.
+- **Maintain guardrails:** Use the PR checklist and parity-test guidance for follow-up logging work.
+
 Before you begin, ensure you have the following:
 
 - **Repository access:** You can access the latest branch state for this migration.
