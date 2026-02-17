@@ -172,3 +172,12 @@ If a closeout command fails, use this workflow to isolate and fix the regression
 - **Apply minimal fixes:** Update only the affected log callsites, key names, or event names needed to satisfy the gate.
 - **Re-run targeted tests first:** Re-run parity and touched package tests before re-running the full gate checklist.
 - **Re-run all closeout probes:** After the fix passes locally, run the full verification command list to confirm no secondary regressions.
+
+## When to add or update parity tests
+
+Add or update parity tests when you change logging behavior that can bypass existing guardrails:
+
+- **New logging vectors:** Add parity coverage when introducing new wrappers, helper paths, or argument composition patterns.
+- **New recover patterns:** Add recover-focused parity checks when adding new recover branches or payload propagation shapes.
+- **New key semantics:** Add targeted tests when you introduce or rename canonical keys enforced by ruleguard rules.
+- **New normalization helpers:** Add direct helper tests when path, key, or payload normalization logic changes.
