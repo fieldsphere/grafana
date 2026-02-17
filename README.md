@@ -28,6 +28,7 @@ The Grafana documentation is available at [grafana.com/docs](https://grafana.com
 For structured logging verification and closeout gates, refer to the [structured logging closeout summary](docs/structured-logging-closeout-summary.md).
 For a one-command all-modes closeout run, use `make verify-structured-logging-closeout-matrix`.
 For a single closeout mode run, use `make verify-structured-logging-closeout-mode mode=<MODE>`.
+To preview closeout commands without executing, use `make verify-structured-logging-closeout-dry-run`.
 
 ## Contributing
 

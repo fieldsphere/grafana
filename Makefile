@@ -441,6 +441,19 @@ verify-structured-logging-closeout-mode: ## Run structured logging closeout veri
 	fi
 	./scripts/verify-structured-logging-closeout.sh --mode "$(mode)"
 
+.PHONY: verify-structured-logging-closeout-dry-run
+verify-structured-logging-closeout-dry-run: ## Print full closeout commands without executing.
+	./scripts/verify-structured-logging-closeout.sh --mode full --dry-run
+
+.PHONY: verify-structured-logging-closeout-mode-dry-run
+verify-structured-logging-closeout-mode-dry-run: ## Print closeout commands for a specific mode without executing (use mode=<name>).
+	@if [ -z "$(mode)" ]; then \
+		modes="$$(./scripts/verify-structured-logging-closeout.sh --list-modes | tr '\n' ',' | sed 's/,$$//' | sed 's/,/, /g')"; \
+		echo "mode is required. Use one of: $$modes"; \
+		exit 1; \
+	fi
+	./scripts/verify-structured-logging-closeout.sh --mode "$(mode)" --dry-run
+
 ##@ Linting
 .PHONY: golangci-lint
 golangci-lint:

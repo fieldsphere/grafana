@@ -3,7 +3,7 @@ set -euo pipefail
 
 usage() {
   cat <<'EOF'
-Usage: ./scripts/verify-structured-logging-closeout.sh [--mode <MODE>] [--quick] [--probes-only] [--tests-only] [--matrix] [--list-modes] [--list-modes-json] [--help]
+Usage: ./scripts/verify-structured-logging-closeout.sh [--mode <MODE>] [--quick] [--probes-only] [--tests-only] [--matrix] [--list-modes] [--list-modes-json] [--dry-run] [--help]
 
 Options:
   --mode <MODE> Select a predefined mode.
@@ -13,6 +13,7 @@ Options:
   --matrix       Run all supported mode combinations in sequence.
   --list-modes   Print supported execution modes and exit.
   --list-modes-json  Print supported execution modes as JSON and exit.
+  --dry-run      Print commands for the selected mode without executing.
   --help         Show this help message.
 
 Notes:
@@ -55,6 +56,7 @@ tests_only=false
 matrix_mode=false
 list_modes=false
 list_modes_json=false
+dry_run=false
 selected_mode=""
 while (($# > 0)); do
   case "$1" in
@@ -89,6 +91,10 @@ while (($# > 0)); do
       ;;
     --list-modes-json)
       list_modes_json=true
+      shift
+      ;;
+    --dry-run)
+      dry_run=true
       shift
       ;;
     --help)
@@ -226,13 +232,18 @@ if [[ "$matrix_mode" == "true" ]]; then
   run_matrix_mode() {
     local mode_label="$1"
     shift
+    local mode_args=("$@")
     local mode_start
     local mode_end
     local mode_duration
 
+    if [[ "$dry_run" == "true" ]]; then
+      mode_args+=(--dry-run)
+    fi
+
     mode_start="$(now_epoch_seconds)"
     echo "==> Matrix mode: $mode_label"
-    if ! "$SCRIPT_PATH" "$@"; then
+    if ! "$SCRIPT_PATH" "${mode_args[@]}"; then
       echo "closeout verification matrix failed in mode: $mode_label" >&2
       exit 1
     fi
@@ -248,7 +259,11 @@ if [[ "$matrix_mode" == "true" ]]; then
   done
   matrix_end_time="$(date +%s)"
   matrix_duration="$((matrix_end_time - matrix_start_time))"
-  echo "Structured logging closeout verification matrix passed (${modes_run} modes, $(format_duration_seconds "$matrix_duration"))."
+  if [[ "$dry_run" == "true" ]]; then
+    echo "Structured logging closeout verification matrix dry-run completed (${modes_run} modes, $(format_duration_seconds "$matrix_duration"))."
+  else
+    echo "Structured logging closeout verification matrix passed (${modes_run} modes, $(format_duration_seconds "$matrix_duration"))."
+  fi
   exit 0
 fi
 
@@ -302,33 +317,58 @@ if [[ "$tests_only" != "true" ]]; then
 fi
 
 if [[ "$probes_only" != "true" ]]; then
-  echo "Running parity and runtime tests..."
-  go test ./pkg -run 'TestRuntimeRecover|TestRuleguardRecover'
-  go test ./pkg/services/authn/clients/... ./pkg/services/authz/zanzana/logger ./pkg/infra/log/...
-  if [[ "$quick_mode" != "true" ]]; then
-    go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/logger ./pkg/infra/log
+  if [[ "$dry_run" == "true" ]]; then
+    echo "Dry-run parity and runtime tests:"
+    echo "go test ./pkg -run 'TestRuntimeRecover|TestRuleguardRecover'"
+    echo "go test ./pkg/services/authn/clients/... ./pkg/services/authz/zanzana/logger ./pkg/infra/log/..."
+    if [[ "$quick_mode" != "true" ]]; then
+      echo "go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/logger ./pkg/infra/log"
+    fi
+  else
+    echo "Running parity and runtime tests..."
+    go test ./pkg -run 'TestRuntimeRecover|TestRuleguardRecover'
+    go test ./pkg/services/authn/clients/... ./pkg/services/authz/zanzana/logger ./pkg/infra/log/...
+    if [[ "$quick_mode" != "true" ]]; then
+      go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/logger ./pkg/infra/log
+    fi
   fi
 fi
 
 if [[ "$tests_only" != "true" ]]; then
-  echo "Running query probes..."
-  print_matches="$(rg 'fmt\.Print(f|ln)?\(|\blog\.Print(f|ln)?\(' pkg apps --glob '*.go' --files-with-matches | normalize_matches || true)"
-  console_matches="$(rg 'console\.(log|warn|error|info|debug|time|timeEnd)\(' public/app packages --glob '*.{ts,tsx,js,mjs,html}' --files-with-matches | normalize_matches || true)"
-  apps_recover_matches="$(rg 'recover\(\)[\s\S]{0,260}"(error|errorMessage|reason|panic)"\s*,' apps --glob '*.go' -U --files-with-matches | normalize_matches || true)"
-  pkg_recover_matches="$(rg 'recover\(\)[\s\S]{0,260}"(error|errorMessage|reason|panic)"\s*,' pkg --glob '*.go' -U --files-with-matches | normalize_matches || true)"
-  id_key_matches="$(rg '\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\([^\n]*"[A-Za-z0-9]*Id"' pkg --glob '*.go' --files-with-matches | normalize_matches || true)"
-  uid_key_matches="$(rg '\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\([^\n]*"[A-Za-z0-9]*Uid"' pkg --glob '*.go' --files-with-matches | normalize_matches || true)"
-  add_event_pascal_matches="$(rg '\.AddEvent\(\s*"[A-Z][^"]*"' pkg --glob '*.go' --files-with-matches | normalize_matches || true)"
-  add_event_separator_matches="$(rg '\.AddEvent\(\s*"[^"]*[\s:_/\-][^"]*"' pkg --glob '*.go' --files-with-matches | normalize_matches || true)"
+  if [[ "$dry_run" == "true" ]]; then
+    echo "Dry-run query probes:"
+    echo "rg 'fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(' pkg apps --glob '*.go' --files-with-matches"
+    echo "rg 'console\\.(log|warn|error|info|debug|time|timeEnd)\\(' public/app packages --glob '*.{ts,tsx,js,mjs,html}' --files-with-matches"
+    echo "rg 'recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*,' apps --glob '*.go' -U --files-with-matches"
+    echo "rg 'recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*,' pkg --glob '*.go' -U --files-with-matches"
+    echo "rg '\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Id\"' pkg --glob '*.go' --files-with-matches"
+    echo "rg '\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Uid\"' pkg --glob '*.go' --files-with-matches"
+    echo "rg '\\.AddEvent\\(\\s*\"[A-Z][^\"]*\"' pkg --glob '*.go' --files-with-matches"
+    echo "rg '\\.AddEvent\\(\\s*\"[^\"]*[\\s:_/\\-][^\"]*\"' pkg --glob '*.go' --files-with-matches"
+  else
+    echo "Running query probes..."
+    print_matches="$(rg 'fmt\.Print(f|ln)?\(|\blog\.Print(f|ln)?\(' pkg apps --glob '*.go' --files-with-matches | normalize_matches || true)"
+    console_matches="$(rg 'console\.(log|warn|error|info|debug|time|timeEnd)\(' public/app packages --glob '*.{ts,tsx,js,mjs,html}' --files-with-matches | normalize_matches || true)"
+    apps_recover_matches="$(rg 'recover\(\)[\s\S]{0,260}"(error|errorMessage|reason|panic)"\s*,' apps --glob '*.go' -U --files-with-matches | normalize_matches || true)"
+    pkg_recover_matches="$(rg 'recover\(\)[\s\S]{0,260}"(error|errorMessage|reason|panic)"\s*,' pkg --glob '*.go' -U --files-with-matches | normalize_matches || true)"
+    id_key_matches="$(rg '\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\([^\n]*"[A-Za-z0-9]*Id"' pkg --glob '*.go' --files-with-matches | normalize_matches || true)"
+    uid_key_matches="$(rg '\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\([^\n]*"[A-Za-z0-9]*Uid"' pkg --glob '*.go' --files-with-matches | normalize_matches || true)"
+    add_event_pascal_matches="$(rg '\.AddEvent\(\s*"[A-Z][^"]*"' pkg --glob '*.go' --files-with-matches | normalize_matches || true)"
+    add_event_separator_matches="$(rg '\.AddEvent\(\s*"[^"]*[\s:_/\-][^"]*"' pkg --glob '*.go' --files-with-matches | normalize_matches || true)"
 
-  assert_exact_matches "print/log probe should match ruleguard rules only" "pkg/ruleguard.rules.go" "$print_matches"
-  assert_no_matches "frontend console probe should have no matches" "$console_matches"
-  assert_no_matches "apps recover alias probe should have no matches" "$apps_recover_matches"
-  assert_exact_matches "pkg recover alias probe should match ruleguard artifacts only" $'pkg/ruleguard_parity_test.go\npkg/ruleguard.rules.go' "$pkg_recover_matches"
-  assert_no_matches "structured key *Id probe should have no matches" "$id_key_matches"
-  assert_no_matches "structured key *Uid probe should have no matches" "$uid_key_matches"
-  assert_no_matches "AddEvent PascalCase probe should have no matches" "$add_event_pascal_matches"
-  assert_no_matches "AddEvent separator probe should have no matches" "$add_event_separator_matches"
+    assert_exact_matches "print/log probe should match ruleguard rules only" "pkg/ruleguard.rules.go" "$print_matches"
+    assert_no_matches "frontend console probe should have no matches" "$console_matches"
+    assert_no_matches "apps recover alias probe should have no matches" "$apps_recover_matches"
+    assert_exact_matches "pkg recover alias probe should match ruleguard artifacts only" $'pkg/ruleguard_parity_test.go\npkg/ruleguard.rules.go' "$pkg_recover_matches"
+    assert_no_matches "structured key *Id probe should have no matches" "$id_key_matches"
+    assert_no_matches "structured key *Uid probe should have no matches" "$uid_key_matches"
+    assert_no_matches "AddEvent PascalCase probe should have no matches" "$add_event_pascal_matches"
+    assert_no_matches "AddEvent separator probe should have no matches" "$add_event_separator_matches"
+  fi
 fi
 
-echo "Structured logging closeout verification passed."
+if [[ "$dry_run" == "true" ]]; then
+  echo "Structured logging closeout verification dry-run completed."
+else
+  echo "Structured logging closeout verification passed."
+fi
