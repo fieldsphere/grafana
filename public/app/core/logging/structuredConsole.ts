@@ -1,15 +1,20 @@
-import { logError, logInfo, logWarning } from '@grafana/runtime';
+import { config, logError, logInfo, logWarning } from '@grafana/runtime';
 
 type ConsoleLevel = 'log' | 'info' | 'warn' | 'error';
 
 /**
  * Converts console.* calls to structured logging using Grafana's logging infrastructure.
- * 
+ *
  * @param level - The console method level ('log'|'info'|'warn'|'error')
  * @param args - Original arguments passed to console.*
  */
 export function structuredLogFromConsole(level: ConsoleLevel, ...args: unknown[]): void {
   if (args.length === 0) {
+    return;
+  }
+
+  if (!config.grafanaJavascriptAgent.enabled) {
+    console[level](...args);
     return;
   }
 
@@ -20,7 +25,7 @@ export function structuredLogFromConsole(level: ConsoleLevel, ...args: unknown[]
   // Separate string and non-string args for context
   const stringArgs: string[] = [];
   const nonStringArgs: unknown[] = [];
-  
+
   for (const arg of args) {
     if (typeof arg === 'string') {
       stringArgs.push(arg);
@@ -36,6 +41,9 @@ export function structuredLogFromConsole(level: ConsoleLevel, ...args: unknown[]
   }
   if (stringArgs.length > 1) {
     context.stringArgs = stringArgs.slice(1);
+  }
+  if (typeof firstArg === 'string') {
+    context.consoleMessage = firstArg;
   }
 
   // Route to appropriate structured logger
@@ -53,8 +61,14 @@ export function structuredLogFromConsole(level: ConsoleLevel, ...args: unknown[]
       if (errorArg) {
         logError(errorArg, context);
       } else {
-        // Create Error from message and include original args in context
-        const error = new Error(message);
+        const objectArg = args.find((arg): arg is Record<string, unknown> => typeof arg === 'object' && arg !== null);
+        if (objectArg) {
+          logError(objectArg as Error, context);
+          break;
+        }
+
+        const primitiveArg = args.find((arg) => typeof arg !== 'string');
+        const error = new Error(primitiveArg !== undefined ? String(primitiveArg) : message);
         logError(error, context);
       }
       break;
