@@ -1,6 +1,7 @@
 package pkg_test
 
 import (
+	"errors"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -1195,6 +1196,91 @@ func TestRuntimeScanRootsIncludePkgAndApps(t *testing.T) {
 	}
 }
 
+func TestWalkRuntimeGoFilesInRootsFiltersRuntimeFiles(t *testing.T) {
+	tempDir := t.TempDir()
+	pkgRoot := filepath.Join(tempDir, "pkg")
+	appsRoot := filepath.Join(tempDir, "apps")
+	missingRoot := filepath.Join(tempDir, "missing")
+
+	if err := os.MkdirAll(filepath.Join(pkgRoot, "testdata"), 0o755); err != nil {
+		t.Fatalf("mkdir pkg testdata: %v", err)
+	}
+	if err := os.MkdirAll(filepath.Join(appsRoot, "nested", "testdata"), 0o755); err != nil {
+		t.Fatalf("mkdir apps nested testdata: %v", err)
+	}
+
+	writeFile := func(path string) {
+		t.Helper()
+		if err := os.MkdirAll(filepath.Dir(path), 0o755); err != nil {
+			t.Fatalf("mkdir parent for %s: %v", path, err)
+		}
+		if err := os.WriteFile(path, []byte("package p\n"), 0o644); err != nil {
+			t.Fatalf("write file %s: %v", path, err)
+		}
+	}
+
+	keepFiles := []string{
+		filepath.Join(pkgRoot, "keep.go"),
+		filepath.Join(appsRoot, "nested", "keep.go"),
+	}
+	skipFiles := []string{
+		filepath.Join(pkgRoot, "skip_test.go"),
+		filepath.Join(pkgRoot, "ruleguard.rules.go"),
+		filepath.Join(pkgRoot, "testdata", "skip.go"),
+		filepath.Join(appsRoot, "nested", "testdata", "skip.go"),
+		filepath.Join(appsRoot, "README.md"),
+	}
+
+	for _, path := range append(append([]string{}, keepFiles...), skipFiles...) {
+		if strings.HasSuffix(path, ".md") {
+			if err := os.WriteFile(path, []byte("not go"), 0o644); err != nil {
+				t.Fatalf("write file %s: %v", path, err)
+			}
+			continue
+		}
+		writeFile(path)
+	}
+
+	visitedSet := map[string]struct{}{}
+	err := walkRuntimeGoFilesInRoots([]string{pkgRoot, appsRoot, missingRoot}, func(path string) error {
+		visitedSet[filepath.Clean(path)] = struct{}{}
+		return nil
+	})
+	if err != nil {
+		t.Fatalf("walk runtime roots: %v", err)
+	}
+
+	if len(visitedSet) != len(keepFiles) {
+		t.Fatalf("visited %d files, expected %d (%v)", len(visitedSet), len(keepFiles), visitedSet)
+	}
+	for _, path := range keepFiles {
+		if _, ok := visitedSet[filepath.Clean(path)]; !ok {
+			t.Fatalf("expected runtime walk to include %s, visited=%v", path, visitedSet)
+		}
+	}
+}
+
+func TestWalkRuntimeGoFilesInRootsPropagatesVisitError(t *testing.T) {
+	tempDir := t.TempDir()
+	pkgRoot := filepath.Join(tempDir, "pkg")
+	if err := os.MkdirAll(pkgRoot, 0o755); err != nil {
+		t.Fatalf("mkdir pkg root: %v", err)
+	}
+
+	goPath := filepath.Join(pkgRoot, "keep.go")
+	if err := os.WriteFile(goPath, []byte("package p\n"), 0o644); err != nil {
+		t.Fatalf("write go file: %v", err)
+	}
+
+	visitErr := errors.New("visit failed")
+	err := walkRuntimeGoFilesInRoots([]string{pkgRoot}, func(path string) error {
+		return visitErr
+	})
+	if !errors.Is(err, visitErr) {
+		t.Fatalf("expected visit error %v, got %v", visitErr, err)
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
@@ -1344,7 +1430,11 @@ func runtimeScanRoots(t *testing.T) []string {
 func walkRuntimeGoFiles(t *testing.T, visit func(path string) error) error {
 	t.Helper()
 
-	for _, root := range runtimeScanRoots(t) {
+	return walkRuntimeGoFilesInRoots(runtimeScanRoots(t), visit)
+}
+
+func walkRuntimeGoFilesInRoots(roots []string, visit func(path string) error) error {
+	for _, root := range roots {
 		if _, err := os.Stat(root); err != nil {
 			if os.IsNotExist(err) {
 				continue
