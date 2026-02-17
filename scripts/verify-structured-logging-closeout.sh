@@ -73,12 +73,19 @@ cd "$ROOT_DIR"
 SCRIPT_PATH="$ROOT_DIR/scripts/verify-structured-logging-closeout.sh"
 
 if [[ "$matrix_mode" == "true" ]]; then
+  run_matrix_mode() {
+    local mode_label="$1"
+    shift
+    echo "==> Matrix mode: $mode_label"
+    "$SCRIPT_PATH" "$@"
+  }
+
   echo "Running closeout verification matrix..."
-  "$SCRIPT_PATH"
-  "$SCRIPT_PATH" --quick
-  "$SCRIPT_PATH" --probes-only
-  "$SCRIPT_PATH" --tests-only
-  "$SCRIPT_PATH" --tests-only --quick
+  run_matrix_mode "full"
+  run_matrix_mode "quick" --quick
+  run_matrix_mode "probes-only" --probes-only
+  run_matrix_mode "tests-only" --tests-only
+  run_matrix_mode "tests-only-quick" --tests-only --quick
   echo "Structured logging closeout verification matrix passed."
   exit 0
 fi

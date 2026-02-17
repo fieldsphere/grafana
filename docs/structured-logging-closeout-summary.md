@@ -83,6 +83,8 @@ To run the same all-modes sequence directly from the script, use:
 ./scripts/verify-structured-logging-closeout.sh --matrix
 ```
 
+The matrix run prints per-mode labels so you can quickly identify which mode failed if a regression appears.
+
 For a faster local pass that skips race tests, run:
 
 ```sh
