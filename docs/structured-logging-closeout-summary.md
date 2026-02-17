@@ -75,6 +75,12 @@ rg "fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(" --glob "*.go"
 rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" --glob "*.{ts,tsx,js,mjs,html}"
 ```
 
+- **Run recover alias probe in `apps/**`:** This command validates recover-window forbidden alias usage is absent in application runtime paths:
+
+```sh
+rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," apps --glob "*.go" -U
+```
+
 ## Related resources
 
 - The project plan and execution notes track the detailed sequence of closeout updates.
