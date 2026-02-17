@@ -81,6 +81,12 @@ rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" --glob "*.{ts,tsx,js,
 rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," apps --glob "*.go" -U
 ```
 
+- **Run recover alias probe in `pkg/**`:** This command validates recover-window forbidden alias usage does not exist in runtime package code:
+
+```sh
+rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," pkg --glob "*.go" -U
+```
+
 - **Run structured key casing probes:** These commands validate there are no runtime `*Id` or `*Uid` structured key regressions in logging and context vectors:
 
 ```sh
@@ -104,6 +110,7 @@ When closeout gates are healthy, you should see the following outcomes:
 - **Print/log probe:** Returns only rule definitions, not runtime production callsites.
 - **Frontend console probe:** Returns no matches in production source paths.
 - **Recover alias probe in `apps/**`:** Returns no matches.
+- **Recover alias probe in `pkg/**`:** Returns only rule definitions and parity-test assertions, not runtime production callsites.
 - **Key-casing probes:** Return no matches for `*Id` and `*Uid` patterns.
 - **Trace event naming probes:** Return no matches for PascalCase and separator-shaped event names.
 
