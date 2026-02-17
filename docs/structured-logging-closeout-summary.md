@@ -134,6 +134,7 @@ rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," pkg 
 ```
 
 In this bundle, `! rg ...` means the probe must return no matches for the command to pass.
+The final `pkg/**` recover probe in the bundle is expected to return rule/test files only.
 
 ## Expected command outcomes
 
