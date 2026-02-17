@@ -1397,6 +1397,24 @@ func TestUniqueNonEmptyCleanPaths(t *testing.T) {
 	}
 }
 
+func TestUniqueNonEmptyCleanPathsDeduplicatesRelativeAndAbsoluteEquivalent(t *testing.T) {
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatalf("getwd: %v", err)
+	}
+
+	absRoot := t.TempDir()
+	relRoot, err := filepath.Rel(cwd, absRoot)
+	if err != nil {
+		t.Fatalf("rel path: %v", err)
+	}
+
+	got := uniqueNonEmptyCleanPaths([]string{relRoot, absRoot})
+	if len(got) != 1 {
+		t.Fatalf("expected relative/absolute equivalent roots to dedupe, got %v", got)
+	}
+}
+
 func TestCanonicalPathKeyNormalization(t *testing.T) {
 	testCases := []struct {
 		name string
@@ -1632,6 +1650,11 @@ func uniqueNonEmptyCleanPaths(paths []string) []string {
 			continue
 		}
 		key := canonicalPathKey(cleaned)
+		if !isWindowsDrivePath(cleaned) {
+			if absPath, err := filepath.Abs(cleaned); err == nil {
+				key = canonicalPathKey(absPath)
+			}
+		}
 		if _, exists := seen[key]; exists {
 			continue
 		}
@@ -1648,6 +1671,11 @@ func canonicalPathKey(path string) string {
 		key = strings.ToLower(string(key[0])) + key[1:]
 	}
 	return key
+}
+
+func isWindowsDrivePath(path string) bool {
+	normalized := strings.ReplaceAll(filepath.ToSlash(path), "\\", "/")
+	return len(normalized) >= 2 && normalized[1] == ':'
 }
 
 func isRuntimeGoSourcePath(path string) bool {
