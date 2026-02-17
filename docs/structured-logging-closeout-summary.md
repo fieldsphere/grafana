@@ -129,6 +129,8 @@ rg "fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(" --glob "*.go" --files-with-m
 rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," pkg --glob "*.go" -U --files-with-matches
 ```
 
+In this bundle, `! rg ...` means the probe must return no matches for the command to pass.
+
 ## Expected command outcomes
 
 When closeout gates are healthy, you should see the following outcomes:
