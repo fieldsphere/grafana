@@ -152,3 +152,13 @@ After closeout, you can continue with these follow-up activities:
 - **Monitor regressions:** Keep running the verification commands in CI and during local review for logging-related changes.
 - **Extend guardrails as needed:** Add targeted parity tests when new structured logging vectors or wrappers are introduced.
 - **Use the closeout baseline:** Refer to this summary when triaging future logging policy changes or migration exceptions.
+
+## Use this checklist in pull requests
+
+Use this checklist when you review pull requests that touch runtime logging:
+
+- **Run the parity tests:** Run the parity and recover-focused test commands first to confirm guardrails still hold.
+- **Run scoped package tests:** Run tests for touched logging packages and rerun with `-race` when runtime paths changed.
+- **Run query gates:** Run print/log, console, recover-alias, key-casing, and trace-event probes from this document.
+- **Compare outcomes:** Confirm output matches the expected closeout outcomes described in this summary.
+- **Add targeted tests:** If a new logging vector appears, add a parity regression before merging.
