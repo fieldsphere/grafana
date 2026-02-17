@@ -1213,6 +1213,9 @@ func TestWalkRuntimeGoFilesInRootsFiltersRuntimeFiles(t *testing.T) {
 	if err := os.MkdirAll(filepath.Join(appsRoot, "nested", "testdata"), 0o755); err != nil {
 		t.Fatalf("mkdir apps nested testdata: %v", err)
 	}
+	if err := os.MkdirAll(filepath.Join(appsRoot, "nested", "TestData"), 0o755); err != nil {
+		t.Fatalf("mkdir apps nested TestData: %v", err)
+	}
 
 	writeFile := func(path string) {
 		t.Helper()
@@ -1233,6 +1236,7 @@ func TestWalkRuntimeGoFilesInRootsFiltersRuntimeFiles(t *testing.T) {
 		filepath.Join(pkgRoot, "ruleguard.rules.go"),
 		filepath.Join(pkgRoot, "testdata", "skip.go"),
 		filepath.Join(appsRoot, "nested", "testdata", "skip.go"),
+		filepath.Join(appsRoot, "nested", "TestData", "skip.go"),
 		filepath.Join(appsRoot, "README.md"),
 	}
 
