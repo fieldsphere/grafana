@@ -309,7 +309,7 @@ func TestRuleguardRecoverMatcherBlocksAlwaysReport(t *testing.T) {
 
 func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 	fset := token.NewFileSet()
-	violations := make([]string, 0, 8)
+	violationSet := map[string]struct{}{}
 	forbiddenAliases := map[string]struct{}{
 		"error":        {},
 		"errorMessage": {},
@@ -360,7 +360,7 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 				if spreadExpr, ok := spreadArgExpr(call); ok {
 					if alias := recoverAliasViolationInSliceExpr(spreadExpr, recoverDerived, badSpreadSlices, constValues, constNameValues, localNames); alias != "" {
 						position := fset.Position(spreadExpr.Pos())
-						violations = append(violations, position.String()+": recover logging uses forbidden key alias "+strconv.Quote(alias))
+						violationSet[position.String()+": recover logging uses forbidden key alias "+strconv.Quote(alias)] = struct{}{}
 					}
 				}
 
@@ -381,7 +381,7 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 							continue
 						}
 						position := fset.Position(call.Args[argIdx].Pos())
-						violations = append(violations, position.String()+": recover logging uses forbidden key alias "+strconv.Quote(key))
+						violationSet[position.String()+": recover logging uses forbidden key alias "+strconv.Quote(key)] = struct{}{}
 					}
 				}
 
@@ -394,7 +394,11 @@ func TestRuntimeRecoverBlocksDoNotLogForbiddenPanicAliases(t *testing.T) {
 	if err != nil {
 		t.Fatalf("scan runtime recover logging: %v", err)
 	}
-	if len(violations) > 0 {
+	if len(violationSet) > 0 {
+		violations := make([]string, 0, len(violationSet))
+		for violation := range violationSet {
+			violations = append(violations, violation)
+		}
 		sort.Strings(violations)
 		t.Fatalf("found recover logging forbidden key aliases:\n%s", strings.Join(violations, "\n"))
 	}
