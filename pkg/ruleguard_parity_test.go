@@ -1378,6 +1378,7 @@ func TestUniqueNonEmptyCleanPaths(t *testing.T) {
 		`C:\repo\pkg`,
 		`C:/repo/pkg`,
 		`c:/repo/pkg`,
+		`\\server\share\pkg`,
 	}
 
 	got := uniqueNonEmptyCleanPaths(input)
@@ -1385,6 +1386,7 @@ func TestUniqueNonEmptyCleanPaths(t *testing.T) {
 		"/tmp/runtime",
 		"/tmp/other",
 		`C:\repo\pkg`,
+		`\\server\share\pkg`,
 	}
 
 	if len(got) != len(want) {
@@ -1650,7 +1652,7 @@ func uniqueNonEmptyCleanPaths(paths []string) []string {
 			continue
 		}
 		key := canonicalPathKey(cleaned)
-		if !isWindowsDrivePath(cleaned) {
+		if !filepath.IsAbs(cleaned) && !isWindowsDrivePath(cleaned) && !isWindowsUNCPath(cleaned) {
 			if absPath, err := filepath.Abs(cleaned); err == nil {
 				key = canonicalPathKey(absPath)
 			}
@@ -1667,6 +1669,7 @@ func uniqueNonEmptyCleanPaths(paths []string) []string {
 
 func canonicalPathKey(path string) string {
 	key := strings.ReplaceAll(filepath.ToSlash(path), "\\", "/")
+	key = collapseConsecutiveSlashes(key)
 	if len(key) >= 2 && key[1] == ':' {
 		key = strings.ToLower(string(key[0])) + key[1:]
 	}
@@ -1676,6 +1679,31 @@ func canonicalPathKey(path string) string {
 func isWindowsDrivePath(path string) bool {
 	normalized := strings.ReplaceAll(filepath.ToSlash(path), "\\", "/")
 	return len(normalized) >= 2 && normalized[1] == ':'
+}
+
+func isWindowsUNCPath(path string) bool {
+	normalized := strings.ReplaceAll(filepath.ToSlash(path), "\\", "/")
+	return strings.HasPrefix(normalized, "//")
+}
+
+func collapseConsecutiveSlashes(path string) string {
+	var b strings.Builder
+	b.Grow(len(path))
+
+	prevSlash := false
+	for _, r := range path {
+		if r == '/' {
+			if prevSlash {
+				continue
+			}
+			prevSlash = true
+		} else {
+			prevSlash = false
+		}
+		b.WriteRune(r)
+	}
+
+	return b.String()
 }
 
 func isRuntimeGoSourcePath(path string) bool {
