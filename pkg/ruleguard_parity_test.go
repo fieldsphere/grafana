@@ -1463,6 +1463,11 @@ func TestCanonicalPathKeyNormalization(t *testing.T) {
 			in:   "/tmp/runtime",
 			want: "/tmp/runtime",
 		},
+		{
+			name: "windows unc keeps double slash",
+			in:   `\\server\share\pkg`,
+			want: "//server/share/pkg",
+		},
 	}
 
 	for _, tc := range testCases {
@@ -1698,7 +1703,11 @@ func uniqueNonEmptyCleanPaths(paths []string) []string {
 
 func canonicalPathKey(path string) string {
 	key := strings.ReplaceAll(filepath.ToSlash(path), "\\", "/")
+	uncPrefix := strings.HasPrefix(key, "//")
 	key = collapseConsecutiveSlashes(key)
+	if uncPrefix && !strings.HasPrefix(key, "//") {
+		key = "/" + key
+	}
 	if len(key) >= 2 && key[1] == ':' {
 		key = strings.ToLower(string(key[0])) + key[1:]
 	}
