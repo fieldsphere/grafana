@@ -41,6 +41,40 @@ The final closeout gates pass for in-scope runtime targets:
 - **Trace event naming probes:** No remaining runtime `AddEvent` naming-shape regressions in checked vectors.
 - **Runtime test gates:** Targeted package tests and race runs for touched areas pass.
 
+## Verification commands used at closeout
+
+The closeout used repeatable command checks to validate the migration gates and runtime tests:
+
+- **Run recover and parity tests:** This command validates recover parity and runtime guardrail tests:
+
+```sh
+go test ./pkg -run 'TestRuntimeRecover|TestRuleguardRecover'
+```
+
+- **Run touched package tests:** This command validates touched runtime packages:
+
+```sh
+go test ./pkg/services/authn/clients/... ./pkg/services/authz/zanzana/logger ./pkg/infra/log/...
+```
+
+- **Run race validation:** This command validates the same runtime paths with race detection:
+
+```sh
+go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/logger ./pkg/infra/log
+```
+
+- **Run print/log gate probe:** This command validates there are no runtime `fmt.Print*` or `log.Print*` regressions:
+
+```sh
+rg "fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(" --glob "*.go"
+```
+
+- **Run frontend console gate probe:** This command validates there are no production `console.*` regressions:
+
+```sh
+rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" --glob "*.{ts,tsx,js,mjs,html}"
+```
+
 ## Related resources
 
 - The project plan and execution notes track the detailed sequence of closeout updates.
