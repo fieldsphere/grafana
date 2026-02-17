@@ -126,6 +126,10 @@ go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/lo
 rg "fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(" --glob "*.go" --files-with-matches && \
 ! rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" --glob "*.{ts,tsx,js,mjs,html}" --files-with-matches && \
 ! rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," apps --glob "*.go" -U --files-with-matches && \
+! rg "\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Id\"" pkg --glob "*.go" --files-with-matches && \
+! rg "\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Uid\"" pkg --glob "*.go" --files-with-matches && \
+! rg "\\.AddEvent\\(\\s*\"[A-Z][^\"]*\"" pkg --glob "*.go" --files-with-matches && \
+! rg "\\.AddEvent\\(\\s*\"[^\"]*[\\s:_/\\-][^\"]*\"" pkg --glob "*.go" --files-with-matches && \
 rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," pkg --glob "*.go" -U --files-with-matches
 ```
 
