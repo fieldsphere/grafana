@@ -61,14 +61,8 @@ export function structuredLogFromConsole(level: ConsoleLevel, ...args: unknown[]
       if (errorArg) {
         logError(errorArg, context);
       } else {
-        const objectArg = args.find((arg): arg is Record<string, unknown> => typeof arg === 'object' && arg !== null);
-        if (objectArg) {
-          logError(objectArg as Error, context);
-          break;
-        }
-
-        const primitiveArg = args.find((arg) => typeof arg !== 'string');
-        const error = new Error(primitiveArg !== undefined ? String(primitiveArg) : message);
+        // Create a proper Error object - original args are preserved in context.args
+        const error = new Error(message);
         logError(error, context);
       }
       break;
