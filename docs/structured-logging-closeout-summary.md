@@ -74,13 +74,13 @@ go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/lo
 - **Run print/log gate probe:** This command validates there are no runtime `fmt.Print*` or `log.Print*` regressions:
 
 ```sh
-rg "fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(" --glob "*.go" --files-with-matches
+rg "fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(" pkg apps --glob "*.go" --files-with-matches
 ```
 
 - **Run frontend console gate probe:** This command validates there are no production `console.*` regressions:
 
 ```sh
-rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" --glob "*.{ts,tsx,js,mjs,html}" --files-with-matches
+rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" public/app packages --glob "*.{ts,tsx,js,mjs,html}" --files-with-matches
 ```
 
 - **Run recover alias probe in `apps/**`:** This command validates recover-window forbidden alias usage is absent in application runtime paths:
@@ -123,8 +123,8 @@ To run a single terminal pass for the core checks, use this command bundle:
 go test ./pkg -run 'TestRuntimeRecover|TestRuleguardRecover' && \
 go test ./pkg/services/authn/clients/... ./pkg/services/authz/zanzana/logger ./pkg/infra/log/... && \
 go test -race ./pkg ./pkg/services/authn/clients ./pkg/services/authz/zanzana/logger ./pkg/infra/log && \
-rg "fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(" --glob "*.go" --files-with-matches && \
-! rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" --glob "*.{ts,tsx,js,mjs,html}" --files-with-matches && \
+rg "fmt\\.Print(f|ln)?\\(|\\blog\\.Print(f|ln)?\\(" pkg apps --glob "*.go" --files-with-matches && \
+! rg "console\\.(log|warn|error|info|debug|time|timeEnd)\\(" public/app packages --glob "*.{ts,tsx,js,mjs,html}" --files-with-matches && \
 ! rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," apps --glob "*.go" -U --files-with-matches && \
 ! rg "\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Id\"" pkg --glob "*.go" --files-with-matches && \
 ! rg "\\.(Debug|Info|Warn|Error|Panic|Fatal|InfoCtx|WarnCtx|ErrorCtx|DebugCtx|With|New)\\([^\\n]*\"[A-Za-z0-9]*Uid\"" pkg --glob "*.go" --files-with-matches && \
@@ -160,7 +160,7 @@ Some probes can return known non-runtime matches that are expected:
 To assert the `pkg/**` recover-alias probe matches only the two expected files, use this strict check:
 
 ```sh
-EXPECTED="$(printf '%s\n' 'pkg/ruleguard.rules.go' 'pkg/ruleguard_parity_test.go')"
+EXPECTED="$(printf '%s\n' 'pkg/ruleguard_parity_test.go' 'pkg/ruleguard.rules.go')"
 ACTUAL="$(rg \"recover\\(\\)[\\s\\S]{0,260}\\\"(error|errorMessage|reason|panic)\\\"\\s*,\" pkg --glob \"*.go\" -U --files-with-matches | sort)"
 [ "$ACTUAL" = "$EXPECTED" ]
 ```
@@ -183,7 +183,7 @@ ok  	github.com/grafana/grafana/pkg/infra/log	(cached)
 The print/log gate returns only ruleguard rule definitions:
 
 ```text
-./pkg/ruleguard.rules.go
+pkg/ruleguard.rules.go
 ```
 
 The frontend console and `apps/**` recover-alias probes return no matches:
@@ -195,14 +195,14 @@ No files with matches found
 The `pkg/**` recover-alias probe returns only expected rule and parity files:
 
 ```text
-/workspace/pkg/ruleguard.rules.go
-/workspace/pkg/ruleguard_parity_test.go
+pkg/ruleguard_parity_test.go
+pkg/ruleguard.rules.go
 ```
 
 For a strict one-pass variant that asserts the exact expected `pkg/**` recover-probe file set, use:
 
 ```sh
-EXPECTED="$(printf '%s\n' 'pkg/ruleguard.rules.go' 'pkg/ruleguard_parity_test.go')"
+EXPECTED="$(printf '%s\n' 'pkg/ruleguard_parity_test.go' 'pkg/ruleguard.rules.go')"
 ACTUAL="$(rg \"recover\\(\\)[\\s\\S]{0,260}\\\"(error|errorMessage|reason|panic)\\\"\\s*,\" pkg --glob \"*.go\" -U --files-with-matches | sed 's#^./##' | sort)"
 [ "$ACTUAL" = "$EXPECTED" ]
 ```
