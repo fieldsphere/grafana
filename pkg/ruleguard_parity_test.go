@@ -1161,6 +1161,11 @@ func TestIsRuntimeGoSourcePath(t *testing.T) {
 			want: false,
 		},
 		{
+			name: "non-ruleguard file with suffix fragment is included",
+			path: filepath.Join(base, "pkg", "custom_ruleguard.rules.go"),
+			want: true,
+		},
+		{
 			name: "testdata path excluded",
 			path: filepath.Join(base, "pkg", "services", "testdata", "fixture.go"),
 			want: false,
@@ -1647,7 +1652,8 @@ func canonicalPathKey(path string) string {
 
 func isRuntimeGoSourcePath(path string) bool {
 	lowerPath := strings.ToLower(path)
-	if !strings.HasSuffix(lowerPath, ".go") || strings.HasSuffix(lowerPath, "_test.go") || strings.HasSuffix(lowerPath, "ruleguard.rules.go") {
+	lowerBase := strings.ToLower(filepath.Base(path))
+	if !strings.HasSuffix(lowerPath, ".go") || strings.HasSuffix(lowerPath, "_test.go") || lowerBase == "ruleguard.rules.go" {
 		return false
 	}
 
