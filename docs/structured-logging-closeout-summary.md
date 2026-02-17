@@ -22,6 +22,8 @@ The closeout finished the migration and guardrail work across runtime logging an
 - **Runtime parity tests:** The parity suite now includes stronger runtime AST checks for recover-derived values, spread handling, constant-resolution behavior, and deterministic diagnostics.
 - **Traversal robustness:** Runtime scan helpers now include stable root dedupe, deterministic ordering, cross-platform path normalization, case-insensitive runtime file filtering where required, and explicit regression coverage for edge path shapes.
 
+For detailed implementation progress, refer to the project plan and execution notes.
+
 ## Intentionally out of scope
 
 The closeout intentionally excludes areas that are not runtime structured logging migration targets:
