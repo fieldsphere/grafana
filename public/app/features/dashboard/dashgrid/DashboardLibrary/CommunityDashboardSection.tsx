@@ -28,6 +28,7 @@ import {
   COMMUNITY_RESULT_SIZE,
 } from './utils/communityDashboardHelpers';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface Props {
   onShowMapping: (context: MappingContext) => void;
   datasourceType?: string;
@@ -97,7 +98,7 @@ export const CommunityDashboardSection = ({ onShowMapping, datasourceType }: Pro
         datasourceType: ds.type,
       };
     } catch (err) {
-      console.error('Error loading community dashboards', err);
+      structuredLogFromConsole('error', 'Error loading community dashboards', err);
       throw err;
     }
   }, [datasourceUid, debouncedSearchQuery]);

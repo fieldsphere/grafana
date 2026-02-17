@@ -20,6 +20,7 @@ import { useGetLabelsFromDataSourceName } from '../useAlertRuleSuggestions';
 
 import { AddButton, RemoveButton } from './LabelsButtons';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const useGetOpsLabelsKeys = (skip: boolean) => {
   const { currentData, isLoading: isloadingLabels } = labelsApi.endpoints.getLabels.useQuery(undefined, {
     skip,
@@ -182,7 +183,7 @@ export function useCombinedLabels(
               opsValues = result.values.map((value) => value.name);
             }
           } catch (error) {
-            console.error('Failed to fetch label values for key:', key, error);
+            structuredLogFromConsole('error', 'Failed to fetch label values for key:', key, error);
           }
         }
 

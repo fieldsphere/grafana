@@ -7,6 +7,7 @@ import { AccessControlAction, Role } from 'app/types/accessControl';
 import { RolePicker } from './RolePicker';
 import { fetchTeamRoles, updateTeamRoles } from './api';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface Props {
   teamId: number;
   orgId?: number;
@@ -57,7 +58,7 @@ export const TeamRolePicker = ({
           return await fetchTeamRoles(teamId);
         }
       } catch (e) {
-        console.error('Error fetching roles', e);
+        structuredLogFromConsole('error', 'Error fetching roles', e);
       }
       return [];
     },

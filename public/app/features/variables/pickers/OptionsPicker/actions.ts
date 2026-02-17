@@ -23,6 +23,7 @@ import {
   updateSearchQuery,
 } from './reducer';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export const navigateOptions = (rootStateKey: string, key: NavigationKey, clearOthers: boolean): ThunkResult<void> => {
   return async (dispatch, getState) => {
     if (key === NavigationKey.cancel) {
@@ -180,7 +181,7 @@ const searchForOptions = async (
 
     dispatch(toKeyedAction(key, updateOptionsFromSearch(updated.options)));
   } catch (error) {
-    console.error(error);
+    structuredLogFromConsole('error', error);
   }
 };
 

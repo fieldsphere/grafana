@@ -5,6 +5,7 @@ import { sandboxPluginDependencies } from '../sandbox/pluginDependencies';
 import { SHARED_DEPENDENCY_PREFIX } from './constants';
 import { SystemJS } from './systemjs';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export function buildImportMap(importMap: Record<string, System.Module>) {
   return Object.keys(importMap).reduce<Record<string, string>>((acc, key) => {
     // Use the 'package:' prefix to act as a URL instead of a bare specifier
@@ -29,7 +30,7 @@ function addPreload(id: string, preload: (() => Promise<System.Module>) | System
   try {
     resolvedId = SystemJS.resolve(id);
   } catch (e) {
-    console.log(e);
+    structuredLogFromConsole('log', e);
   }
 
   if (resolvedId && SystemJS.has(resolvedId)) {

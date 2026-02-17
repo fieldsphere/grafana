@@ -6,6 +6,7 @@ import { DashboardDataDTO } from 'app/types/dashboard';
 import { SearchHit } from './unified';
 import { resourceToSearchResult } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * Store deleted dashboards in the cache to avoid multiple calls to the API.
  */
@@ -79,7 +80,7 @@ class DeletedDashboardsCache {
         items: [],
       };
     } catch (error) {
-      console.error('Failed to fetch deleted dashboards:', error);
+      structuredLogFromConsole('error', 'Failed to fetch deleted dashboards:', error);
       return {
         apiVersion: 'v1',
         kind: 'List',

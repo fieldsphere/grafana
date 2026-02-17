@@ -7,6 +7,7 @@ import { SearchState } from 'app/features/search/types';
 import { deletedDashboardsCache } from '../../search/service/deletedDashboardsCache';
 import { initialState, SearchStateManager } from '../../search/state/SearchStateManager';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 // Subclass SearchStateManager to customize the setStateAndDoSearch behavior.
 // We want to clear the search results when the user clears any search input
 // to trigger the skeleton state.
@@ -65,7 +66,7 @@ export class TrashStateManager extends SearchStateManager {
 
       return termCounts.sort((a, b) => b.count - a.count);
     } catch (error) {
-      console.error('Failed to get tags from deleted dashboards:', error);
+      structuredLogFromConsole('error', 'Failed to get tags from deleted dashboards:', error);
       return [];
     }
   };

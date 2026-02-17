@@ -19,6 +19,7 @@ import {
   settingsUpdated,
 } from './reducers';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export function loadSettings(showSpinner = true): ThunkResult<Promise<Settings>> {
   return async (dispatch) => {
     if (contextSrv.hasPermission(AccessControlAction.SettingsRead)) {
@@ -78,7 +79,7 @@ export function saveSettings(data: UpdateSettingsQuery): ThunkResult<Promise<boo
         dispatch(resetError());
         return true;
       } catch (error) {
-        console.log(error);
+        structuredLogFromConsole('log', error);
         if (isFetchError(error)) {
           error.isHandled = true;
           const updateErr: SettingsError = {

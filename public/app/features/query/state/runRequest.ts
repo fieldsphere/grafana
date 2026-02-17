@@ -29,6 +29,7 @@ import { queryLogger } from '../utils';
 import { cancelNetworkRequestsOnUnsubscribe } from './processing/canceler';
 import { emitDataRequestEvent } from './queryAnalytics';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 type MapOfResponsePackets = { [str: string]: DataQueryResponse };
 
 interface RunningQueryState {
@@ -163,7 +164,7 @@ export function runRequest(
     }),
     // handle errors
     catchError((err) => {
-      console.error('runRequest.catchError', err);
+      structuredLogFromConsole('error', 'runRequest.catchError', err);
       queryLogger.logError(err);
       return of({
         ...state.panelData,

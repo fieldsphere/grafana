@@ -8,6 +8,7 @@ import { AccessControlAction, Role } from 'app/types/accessControl';
 import { RolePicker } from './RolePicker';
 import { fetchUserRoles, updateUserRoles } from './api';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface Props {
   basicRole: OrgRole;
   roles?: Role[];
@@ -67,7 +68,7 @@ export const UserRolePicker = ({
           return await fetchUserRoles(userId, orgId);
         }
       } catch (e) {
-        console.error('Error fetching user roles');
+        structuredLogFromConsole('error', 'Error fetching user roles');
       }
       return [];
     },

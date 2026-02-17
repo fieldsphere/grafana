@@ -29,6 +29,7 @@ import { getNavModel } from '../../core/selectors/navModel';
 import { ThemeProvider } from '../../core/utils/ConfigProvider';
 import { useDispatch, useSelector } from '../../types/store';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const themeMap: Record<string, NewThemeOptions> = {
   dark: {
     name: 'Dark',
@@ -65,7 +66,7 @@ const experimentalDefinitions: Record<string, unknown> = {
 for (const [name, json] of Object.entries(experimentalDefinitions)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    structuredLogFromConsole('error', `Invalid theme definition for theme ${name}: ${result.error.message}`);
   } else {
     themeMap[result.data.id] = result.data;
   }

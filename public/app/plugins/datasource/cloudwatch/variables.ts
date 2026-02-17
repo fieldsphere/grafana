@@ -18,6 +18,7 @@ import { ResourcesAPI } from './resources/ResourcesAPI';
 import { standardStatistics } from './standardStatistics';
 import { VariableQuery, VariableQueryType } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchDatasource, VariableQuery> {
   constructor(private readonly resources: ResourcesAPI) {
     super();
@@ -57,7 +58,7 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
           return this.handleAccountsQuery(query);
       }
     } catch (error) {
-      console.error(`Could not run CloudWatchMetricFindQuery ${query}`, error);
+      structuredLogFromConsole('error', `Could not run CloudWatchMetricFindQuery ${query}`, error);
       return [];
     }
   }

@@ -14,6 +14,7 @@ import {
   shouldRenderUpgradeUserButton,
 } from './InviteUserButtonUtils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export function InviteUserButton() {
   const isLargeScreen = useMediaQueryMinWidth('lg');
   const shouldRender = shouldRenderInviteUserButton();
@@ -38,7 +39,7 @@ export function InviteUserButton() {
         performInviteUserClick('top_bar_right', 'invite-user-top-bar');
       }
     } catch (error) {
-      console.error('Failed to handle invite/upgrade user click:', error);
+      structuredLogFromConsole('error', 'Failed to handle invite/upgrade user click:', error);
     }
   };
 

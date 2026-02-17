@@ -4,6 +4,7 @@ import { DataSourceRef, DataTransformerConfig } from '@grafana/schema';
 
 import { getPanelIdForVizPanel, getQueryRunnerFor } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export class PanelModelCompatibilityWrapper implements PanelModel {
   constructor(private _vizPanel: VizPanel) {}
 
@@ -11,7 +12,7 @@ export class PanelModelCompatibilityWrapper implements PanelModel {
     const id = getPanelIdForVizPanel(this._vizPanel);
 
     if (isNaN(id)) {
-      console.error('VizPanel key could not be translated to a legacy numeric panel id', this._vizPanel);
+      structuredLogFromConsole('error', 'VizPanel key could not be translated to a legacy numeric panel id', this._vizPanel);
       return 0;
     }
 

@@ -9,6 +9,7 @@ import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/Pan
 
 import { AdHocVariableForm } from '../components/AdHocVariableForm';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface AdHocFiltersVariableEditorProps {
   variable: AdHocFiltersVariable;
   onRunQuery: (variable: AdHocFiltersVariable) => void;
@@ -63,7 +64,7 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
 
 export function getAdHocFilterOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof AdHocFiltersVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    structuredLogFromConsole('warn', 'getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
 

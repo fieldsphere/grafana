@@ -18,6 +18,7 @@ import memoize from 'lru-memoize';
 import { Trace } from '../types/trace';
 import { getConfigValue } from '../utils/config/get-config';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const parameterRegExp = /#\{([^{}]*)\}/g;
 
 type ProcessedTemplate = {
@@ -112,7 +113,7 @@ export function processLinkPattern(pattern: any): ProcessedLinkPattern | null {
     };
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error(`Ignoring invalid link pattern: ${error}`, pattern);
+    structuredLogFromConsole('error', `Ignoring invalid link pattern: ${error}`, pattern);
     return null;
   }
 }

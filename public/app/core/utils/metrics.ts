@@ -1,3 +1,4 @@
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 import { reportPerformance } from '../services/echo/EchoSrv';
 
 export function startMeasure(eventName: string) {
@@ -8,7 +9,7 @@ export function startMeasure(eventName: string) {
   try {
     performance.mark(`${eventName}_started`);
   } catch (error) {
-    console.error(`[Metrics] Failed to startMeasure ${eventName}`, error);
+    structuredLogFromConsole('error', `[Metrics] Failed to startMeasure ${eventName}`, error);
   }
 }
 
@@ -31,7 +32,7 @@ export function stopMeasure(eventName: string) {
     performance.clearMeasures(measured);
     return measure;
   } catch (error) {
-    console.error(`[Metrics] Failed to stopMeasure ${eventName}`, error);
+    structuredLogFromConsole('error', `[Metrics] Failed to stopMeasure ${eventName}`, error);
     return;
   }
 }

@@ -16,6 +16,7 @@ import { DashboardDataDTO, DashboardDTO } from 'app/types/dashboard';
 import { validateFiltersOrigin } from '../serialization/sceneVariablesSetToVariables';
 import { jsonDiff } from '../settings/version-history/utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export function get(obj: any, keys: string[]) {
   try {
     let val = obj;
@@ -144,12 +145,12 @@ export function getHasTimeChanged(
 
 export function adHocVariableFiltersEqual(filtersA?: AdHocFilterWithLabels[], filtersB?: AdHocFilterWithLabels[]) {
   if (filtersA === undefined && filtersB === undefined) {
-    console.warn('Adhoc variable filter property is undefined');
+    structuredLogFromConsole('warn', 'Adhoc variable filter property is undefined');
     return true;
   }
 
   if ((filtersA === undefined && filtersB !== undefined) || (filtersB === undefined && filtersA !== undefined)) {
-    console.warn('Adhoc variable filter property is undefined');
+    structuredLogFromConsole('warn', 'Adhoc variable filter property is undefined');
     return false;
   }
 

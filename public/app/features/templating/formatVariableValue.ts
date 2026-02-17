@@ -5,6 +5,7 @@ import { isAdHoc } from '../variables/guard';
 
 import { getVariableWrapper } from './LegacyVariableWrapper';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export function formatVariableValue(value: any, format?: any, variable?: any, text?: string): string {
   // for some scopedVars there is no variable
   variable = variable || {};
@@ -42,7 +43,7 @@ export function formatVariableValue(value: any, format?: any, variable?: any, te
   let formatItem = formatRegistry.getIfExists(format);
 
   if (!formatItem) {
-    console.error(`Variable format ${format} not found. Using glob format as fallback.`);
+    structuredLogFromConsole('error', `Variable format ${format} not found. Using glob format as fallback.`);
     formatItem = formatRegistry.get(VariableFormatID.Glob);
   }
 

@@ -4,6 +4,7 @@ import { DataQuery } from '@grafana/schema';
 
 import { standardAnnotationSupport } from '../standardAnnotationSupport';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * Converts an AnnotationQuery to DataQuery format for SavedQueryButtons.
  * Supports both v1 dashboards (uses target field) and v2 dashboards (uses query.spec field).
@@ -122,7 +123,7 @@ export async function updateAnnotationFromSavedQuery(
 
     return preparedAnnotation;
   } catch (error) {
-    console.warn('Could not prepare annotation with new datasource:', error);
+    structuredLogFromConsole('warn', 'Could not prepare annotation with new datasource:', error);
     // Return structurally correct annotation even if preparation fails
     const { datasource, ...queryFields } = replacedQuery;
     return { ...cleanAnnotation, target: queryFields };

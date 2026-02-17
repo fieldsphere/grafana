@@ -40,6 +40,7 @@ import { PanelModel } from './PanelModel';
 import { emitDashboardViewEvent } from './analyticsProcessor';
 import { dashboardInitCompleted, dashboardInitFailed, dashboardInitFetching, dashboardInitServices } from './reducers';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const INIT_DASHBOARD_MEASUREMENT = 'initDashboard';
 
 export interface InitDashboardArgs {
@@ -109,7 +110,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            structuredLogFromConsole('log', 'not correct url correcting', dashboardUrl, currentPath);
           }
         }
         return dashDTO;
@@ -138,7 +139,7 @@ async function fetchDashboard(
         error: err,
       })
     );
-    console.error(err);
+    structuredLogFromConsole('error', err);
     return null;
   }
 }
@@ -206,7 +207,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
           error: err,
         })
       );
-      console.error(err);
+      structuredLogFromConsole('error', err);
       return;
     }
 
@@ -264,7 +265,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
       if (err instanceof Error) {
         dispatch(notifyApp(createErrorNotification('Dashboard init failed', err)));
       }
-      console.error(err);
+      structuredLogFromConsole('error', err);
     }
 
     // send open dashboard event

@@ -22,6 +22,7 @@ import { refetchChildren } from '../../../../features/browse-dashboards/state/ac
 import { handleError } from '../../../utils';
 import { createOnCacheEntryAdded } from '../utils/createOnCacheEntryAdded';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const handleProvisioningFormError = (e: unknown, dispatch: ThunkDispatch, title: string) => {
   if (typeof e === 'object' && e && 'error' in e && isFetchError(e.error)) {
     if (e.error.data.kind === 'Status' && e.error.data.status === 'Failure') {
@@ -248,7 +249,7 @@ export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
             dispatch(clearFolders(childrenKeys));
           }
         } catch (e) {
-          console.error('Error in getRepositoryJobsWithPath:', e);
+          structuredLogFromConsole('error', 'Error in getRepositoryJobsWithPath:', e);
         }
       },
     },

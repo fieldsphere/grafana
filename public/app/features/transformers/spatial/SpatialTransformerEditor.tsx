@@ -24,6 +24,7 @@ import { SpatialCalculation, SpatialOperation, SpatialAction, SpatialTransformOp
 import { getDefaultOptions, getTransformerOptionPane } from './optionsHelper';
 import { isLineBuilderOption, getSpatialTransformer } from './spatialTransformer';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 // Nothing defined in state
 const supplier = (
   builder: PanelOptionsEditorBuilder<SpatialTransformOptions>,
@@ -138,7 +139,7 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     if (!props.options.source?.mode) {
       const opts = getDefaultOptions(supplier);
       props.onChange({ ...opts, ...props.options });
-      console.log('geometry useEffect', opts);
+      structuredLogFromConsole('log', 'geometry useEffect', opts);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

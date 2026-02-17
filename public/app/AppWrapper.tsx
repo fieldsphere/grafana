@@ -22,6 +22,7 @@ import { pluginExtensionRegistries } from './features/plugins/extensions/registr
 import { ScopesContextProvider } from './features/scopes/ScopesContextProvider';
 import { RouterWrapper } from './routes/RoutesWrapper';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface AppWrapperProps {
   app: GrafanaApp;
 }
@@ -73,7 +74,7 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
     if (preloader) {
       preloader.remove();
     } else {
-      console.warn('Preloader element not found');
+      structuredLogFromConsole('warn', 'Preloader element not found');
     }
   }
 

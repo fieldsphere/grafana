@@ -16,6 +16,7 @@ import {
 } from './queryUtils';
 import { isRetriableError } from './responseUtils';
 import { LokiQuery } from './types';
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * Query splitting by stream shards.
  * Query splitting was introduced in Loki to optimize querying for long intervals and high volume of data,
@@ -130,7 +131,7 @@ function splitQueriesByStreamShard(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        structuredLogFromConsole('error', e);
         shouldStop = true;
         return false;
       }
@@ -155,7 +156,7 @@ function splitQueriesByStreamShard(
 
       retryTimer = setTimeout(
         () => {
-          console.warn(`Retrying ${group} ${cycle} (${retries + 1})`);
+          structuredLogFromConsole('warn', `Retrying ${group} ${cycle} (${retries + 1})`);
           runNextRequest(subscriber, group, groups);
           retryTimer = null;
         },
@@ -224,7 +225,7 @@ function splitQueriesByStreamShard(
         nextRequest();
       },
       error: (error: unknown) => {
-        console.error(error, { msg: 'failed to shard' });
+        structuredLogFromConsole('error', error, { msg: 'failed to shard' });
         subscriber.next(mergedResponse);
         if (retry()) {
           return;
@@ -293,7 +294,7 @@ async function groupTargetsByQueryType(
         cycle: 0,
       });
     } catch (error) {
-      console.error(error, { msg: 'failed to fetch label values for __stream_shard__' });
+      structuredLogFromConsole('error', error, { msg: 'failed to fetch label values for __stream_shard__' });
       groups.push({
         targets: selectorPartition[selector],
       });
@@ -375,5 +376,5 @@ function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  console.log(message);
+  structuredLogFromConsole('log', message);
 }

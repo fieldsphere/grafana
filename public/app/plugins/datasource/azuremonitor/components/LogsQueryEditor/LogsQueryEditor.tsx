@@ -26,6 +26,7 @@ import { onLoad, setBasicLogsQuery, setFormatAs, setKustoQuery } from './setQuer
 import useMigrations from './useMigrations';
 import { shouldShowBasicLogsToggle } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface LogsQueryEditorProps {
   query: AzureMonitorQuery;
   datasource: Datasource;
@@ -193,11 +194,11 @@ const LogsQueryEditor = ({
           setDataIngestedWarning(null);
         }
       } catch (err) {
-        console.error(err);
+        structuredLogFromConsole('error', err);
       }
     };
 
-    getBasicLogsUsage(query).catch((err) => console.error(err));
+    getBasicLogsUsage(query).catch((err) => structuredLogFromConsole('error', err));
   }, [datasource.azureLogAnalyticsDatasource, query, showBasicLogsToggle, from, to]);
   let portalLinkButton = null;
 

@@ -8,6 +8,7 @@ import { getQueryRunnerFor } from '../../utils/utils';
 
 import { QueryEditorContent } from './QueryEditor/QueryEditorContent';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface PanelDataPaneNextState extends SceneObjectState {
   panelRef: SceneObjectRef<VizPanel>;
   datasource?: DataSourceApi;
@@ -73,7 +74,7 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
       const datasource = await getDataSourceSrv().get(dsRef);
       this.setState({ datasource, dsSettings, dsError: undefined });
     } catch (err) {
-      console.error('Failed to load datasource:', err);
+      structuredLogFromConsole('error', 'Failed to load datasource:', err);
       this.setState({
         datasource: undefined,
         dsSettings: undefined,

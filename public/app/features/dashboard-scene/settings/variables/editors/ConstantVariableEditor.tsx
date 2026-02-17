@@ -8,6 +8,7 @@ import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/Pan
 
 import { ConstantVariableForm } from '../components/ConstantVariableForm';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface ConstantVariableEditorProps {
   variable: ConstantVariable;
 }
@@ -24,7 +25,7 @@ export function ConstantVariableEditor({ variable }: ConstantVariableEditorProps
 
 export function getConstantVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof ConstantVariable)) {
-    console.warn('getConstantVariableOptions: variable is not a ConstantVariable');
+    structuredLogFromConsole('warn', 'getConstantVariableOptions: variable is not a ConstantVariable');
     return [];
   }
 

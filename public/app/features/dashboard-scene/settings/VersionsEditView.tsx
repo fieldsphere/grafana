@@ -16,6 +16,7 @@ import { VersionHistoryComparison } from './version-history/VersionHistoryCompar
 import { VersionHistoryHeader } from './version-history/VersionHistoryHeader';
 import { VersionHistoryTable } from './version-history/VersionHistoryTable';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export const VERSIONS_FETCH_LIMIT = 10;
 
 export type DecoratedRevisionModel = RevisionsModel & {
@@ -119,7 +120,7 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.continueToken ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => structuredLogFromConsole('log', err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

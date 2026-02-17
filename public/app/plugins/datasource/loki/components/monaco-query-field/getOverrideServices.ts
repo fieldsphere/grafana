@@ -1,5 +1,6 @@
 import { monacoTypes } from '@grafana/ui';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 // this thing here is a workaround in a way.
 // what we want to achieve, is that when the autocomplete-window
 // opens, the "second, extra popup" with the extra help,
@@ -81,7 +82,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      structuredLogFromConsole('log', 'logStorage: not implemented');
     },
 
     migrate: (): Promise<void> => {

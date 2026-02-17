@@ -7,6 +7,7 @@ import { deleteLibraryPanel as apiDeleteLibraryPanel, getLibraryPanels } from '.
 
 import { initialLibraryPanelsViewState, initSearch, searchCompleted } from './reducer';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 type SearchDispatchResult = (dispatch: Dispatch<Action>, abortController?: AbortController) => void;
 
 interface SearchArgs {
@@ -54,7 +55,7 @@ export function searchForLibraryPanels(args: SearchArgs): SearchDispatchResult {
         }
 
         // For real errors, log and show error to user
-        console.error('Error fetching library panels:', err);
+        structuredLogFromConsole('error', 'Error fetching library panels:', err);
 
         // Update state to show empty results
         return of(searchCompleted({ ...initialLibraryPanelsViewState, page: args.page, perPage: args.perPage }));
@@ -78,7 +79,7 @@ export function deleteLibraryPanel(uid: string, args: SearchArgs) {
       await apiDeleteLibraryPanel(uid);
       searchForLibraryPanels(args)(dispatch);
     } catch (e) {
-      console.error(e);
+      structuredLogFromConsole('error', e);
     }
   };
 }

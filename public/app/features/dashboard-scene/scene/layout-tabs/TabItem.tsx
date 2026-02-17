@@ -44,6 +44,7 @@ import { TabItemRenderer } from './TabItemRenderer';
 import { TabItems } from './TabItems';
 import { TabsLayoutManager } from './TabsLayoutManager';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface TabItemState extends SceneObjectState {
   layout: DashboardLayoutManager;
   title?: string;
@@ -221,7 +222,7 @@ export class TabItem
         layout.setState({ children: newChildren });
       } else {
         const warningMessage = 'Grid item has unexpected parent type';
-        console.warn(warningMessage);
+        structuredLogFromConsole('warn', warningMessage);
         logWarning(warningMessage);
       }
     }
@@ -243,13 +244,13 @@ export class TabItem
           rowLayout.addGridItem(gridItem);
         } else {
           const warningMessage = 'First row layout does not support addGridItem';
-          console.warn(warningMessage);
+          structuredLogFromConsole('warn', warningMessage);
           logWarning(warningMessage);
         }
       }
     } else {
       const warningMessage = 'Layout manager does not support addGridItem';
-      console.warn(warningMessage);
+      structuredLogFromConsole('warn', warningMessage);
       logWarning(warningMessage);
     }
     this.setIsDropTarget(false);

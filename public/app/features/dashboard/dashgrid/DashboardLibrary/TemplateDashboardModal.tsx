@@ -22,6 +22,7 @@ import {
 } from './interactions';
 import { GnetDashboard, GnetDashboardsResponse, Link } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const SourceEntryPointMap: Record<string, SourceEntryPoint> = {
   quickAdd: TemplateDashboardSourceEntryPoint.QUICK_ADD_BUTTON,
   commandPalette: TemplateDashboardSourceEntryPoint.COMMAND_PALETTE,
@@ -87,7 +88,7 @@ export const TemplateDashboardModal = () => {
 
       return response.items;
     } catch (error) {
-      console.error('Error loading template dashboards ', error);
+      structuredLogFromConsole('error', 'Error loading template dashboards ', error);
       return [];
     }
   }, [isOpen]);

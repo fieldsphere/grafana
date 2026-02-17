@@ -15,6 +15,7 @@ import { AnnotationSettingsEdit, newAnnotationName } from './annotations/Annotat
 import { AnnotationSettingsList } from './annotations/AnnotationSettingsList';
 import { DashboardEditView, DashboardEditViewState, useDashboardEditPageNav } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export enum MoveDirection {
   UP = -1,
   DOWN = 1,
@@ -58,7 +59,7 @@ export class AnnotationsEditView extends SceneObjectBase<AnnotationsEditViewStat
     const defaultInstanceDS = getDataSourceSrv().getInstanceSettings(null);
     // check for an annotation flag in the plugin json to see if it supports annotations
     if (!defaultInstanceDS || !defaultInstanceDS.meta.annotations) {
-      console.error('Default datasource does not support annotations');
+      structuredLogFromConsole('error', 'Default datasource does not support annotations');
       return undefined;
     }
     return getDataSourceRef(defaultInstanceDS);

@@ -20,6 +20,7 @@ import {
 } from './types';
 import { getAnnotationsByPanelId } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 class DashboardQueryRunnerImpl implements DashboardQueryRunner {
   private readonly results: ReplaySubject<DashboardQueryRunnerWorkerResult>;
   private readonly runs: Subject<DashboardQueryRunnerOptions>;
@@ -73,7 +74,7 @@ class DashboardQueryRunnerImpl implements DashboardQueryRunner {
       takeUntil(this.runs.asObservable()),
       mergeAll(),
       reduce((acc: DashboardQueryRunnerWorkerResult, value: DashboardQueryRunnerWorkerResult) => {
-        // console.log({ acc: acc.annotations.length, value: value.annotations.length });
+        // structuredLogFromConsole('log', { acc: acc.annotations.length, value: value.annotations.length });
         // should we use scan or reduce here
         // reduce will only emit when all observables are completed
         // scan will emit when any observable is completed

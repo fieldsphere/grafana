@@ -15,6 +15,7 @@ import { getNormalizedLokiQuery, isLogsQuery, obfuscate } from './queryUtils';
 import { variableRegex } from './querybuilder/parsingUtils';
 import { LokiGroupedRequest, LokiQuery } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 type LokiOnDashboardLoadedTrackingEvent = {
   grafana_version?: string;
   dashboard_id?: string;
@@ -97,7 +98,7 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_loki_dashboard_loaded', event);
   } catch (error) {
-    console.error('error in loki tracking handler', error);
+    structuredLogFromConsole('error', 'error in loki tracking handler', error);
   }
 };
 

@@ -48,6 +48,7 @@ import { FetchQueueWorker } from './FetchQueueWorker';
 import { ResponseQueue } from './ResponseQueue';
 import { ContextSrv, contextSrv } from './context_srv';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const CANCEL_ALL_REQUESTS_REQUEST_ID = 'cancel_all_requests_request_id';
 
 export interface BackendSrvDependencies {
@@ -111,7 +112,7 @@ export class BackendSrv implements BackendService {
       const result = await fp.get();
       this.deviceID = result.visitorId;
     } catch (error) {
-      console.error(error);
+      structuredLogFromConsole('error', error);
     }
   }
 
@@ -236,7 +237,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            structuredLogFromConsole('log', requestId, 'catch', e);
             observer.error(e);
           }); // from abort
       },

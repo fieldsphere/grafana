@@ -15,6 +15,7 @@ import {
 import { getCloneKey, getLocalVariableValueSet } from '../../utils/clone';
 import { getMultiVariableValues } from '../../utils/utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface RowRepeaterBehaviorState extends SceneObjectState {
   variableName: string;
 }
@@ -91,12 +92,12 @@ export class RowRepeaterBehavior extends SceneObjectBase<RowRepeaterBehaviorStat
     const variable = sceneGraph.lookupVariable(this.state.variableName, this.parent?.parent!);
 
     if (!variable) {
-      console.error('RepeatedRowBehavior: Variable not found');
+      structuredLogFromConsole('error', 'RepeatedRowBehavior: Variable not found');
       return;
     }
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('RepeatedRowBehavior: Variable is not a MultiValueVariable');
+      structuredLogFromConsole('error', 'RepeatedRowBehavior: Variable is not a MultiValueVariable');
       return;
     }
 

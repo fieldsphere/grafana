@@ -5,6 +5,7 @@ import { generateId } from './SearchTraceQLEditor/TagsInput';
 import { TraceqlFilter, TraceqlSearchScope } from './dataquery.gen';
 import { TempoQuery } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const LIMIT_MESSAGE = /.*range specified by start and end.*exceeds.*/;
 const LIMIT_MESSAGE_METRICS = /.*metrics query time range exceeds the maximum allowed duration of.*/;
 
@@ -32,7 +33,7 @@ export async function getDS(uid?: string): Promise<DataSourceApi | undefined> {
   try {
     return await dsSrv.get(uid);
   } catch (error) {
-    console.error('Failed to load data source', error);
+    structuredLogFromConsole('error', 'Failed to load data source', error);
     return undefined;
   }
 }

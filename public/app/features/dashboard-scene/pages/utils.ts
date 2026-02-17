@@ -5,12 +5,13 @@ import { updateNavIndex } from 'app/core/reducers/navModel';
 import { buildNavModel } from 'app/features/folders/state/navModel';
 import { store } from 'app/store/store';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export async function updateNavModel(folderUid: string) {
   try {
     const folder = await getFolderByUidFacade(folderUid);
     store.dispatch(updateNavIndex(buildNavModel(folder)));
   } catch (err) {
-    console.warn('Error fetching parent folder', folderUid, 'for dashboard', err);
+    structuredLogFromConsole('warn', 'Error fetching parent folder', folderUid, 'for dashboard', err);
   }
 }
 

@@ -16,6 +16,7 @@ import { CurrentUserInternal } from 'app/types/config';
 
 import config from '../../core/config';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 // When set to auto, the interval will be based on the query range
 // NOTE: this is defined here rather than TimeSrv so we avoid circular dependencies
 export const AutoRefreshInterval = 'auto';
@@ -112,7 +113,7 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      structuredLogFromConsole('error', e);
     }
   }
 
@@ -262,7 +263,7 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        structuredLogFromConsole('error', e);
       });
   }
 }

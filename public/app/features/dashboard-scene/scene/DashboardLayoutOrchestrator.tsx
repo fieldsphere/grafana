@@ -32,6 +32,7 @@ import {
   isDashboardDropTarget,
 } from './types/DashboardDropTarget';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const TAB_ACTIVATION_DELAY_MS = 600;
 
 interface DashboardLayoutOrchestratorState extends SceneObjectState {
@@ -203,7 +204,7 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
             }
           } else {
             const warningMessage = 'No grid item to drag';
-            console.warn(warningMessage);
+            structuredLogFromConsole('warn', warningMessage);
             logWarning(warningMessage);
           }
         });

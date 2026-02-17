@@ -13,6 +13,7 @@ import { PanelModel } from '../../state/PanelModel';
 
 import { getDebugDashboard, getGithubMarkdown } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface SupportSnapshotState {
   currentTab: SnapshotTab;
   showMessage: ShowMessage;
@@ -88,7 +89,7 @@ export class SupportSnapshotService extends StateManagerBase<SupportSnapshotStat
       const dash = createDashboardSceneFromDashboardModel(oldModel, snapshot);
       scene = dash.state.body; // skip the wrappers
     } catch (ex) {
-      console.log('Error creating scene:', ex);
+      structuredLogFromConsole('log', 'Error creating scene:', ex);
     }
 
     this.setState({ snapshot, snapshotText, markdownText, snapshotSize, snapshotUpdate: snapshotUpdate + 1, scene });

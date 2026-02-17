@@ -28,7 +28,9 @@ async function bootstrapWindowData() {
   await import(/* webpackMode: "eager" */ './initApp');
 }
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
+
 bootstrapWindowData().catch((error) => {
-  console.error('Error bootstrapping Grafana', error);
+  structuredLogFromConsole('error', 'Error bootstrapping Grafana', error);
   window.__grafana_load_failed();
 });

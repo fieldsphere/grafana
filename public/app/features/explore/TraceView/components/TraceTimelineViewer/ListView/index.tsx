@@ -18,6 +18,7 @@ import TNil from '../../types/TNil';
 
 import Positions from './Positions';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 type TWrapperProps = {
   style: React.CSSProperties;
   ref: (elm: HTMLDivElement) => void;
@@ -388,7 +389,7 @@ export default class ListView extends React.Component<TListViewProps> {
         const itemKey = node.getAttribute('data-item-key');
         if (!itemKey) {
           // eslint-disable-next-line no-console
-          console.warn('itemKey not found');
+          structuredLogFromConsole('warn', 'itemKey not found');
           continue;
         }
         // measure the first child, if it's available, otherwise the node itself

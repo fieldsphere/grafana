@@ -15,6 +15,7 @@ import {
   ProvisionedPlugin,
 } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export async function getPluginDetails(id: string): Promise<CatalogPluginDetails> {
   const remote = await getRemotePlugin(id);
   const isPublished = Boolean(remote);
@@ -76,7 +77,7 @@ export async function getRemotePlugins(): Promise<RemotePlugin[]> {
     if (isFetchError(error)) {
       // It can happen that GCOM is not available, in that case we show a limited set of information to the user.
       error.isHandled = true;
-      console.error('Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
+      structuredLogFromConsole('error', 'Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
       return [];
     }
 

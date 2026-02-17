@@ -16,6 +16,7 @@ import {
   QueryBuilderOperation,
 } from '@grafana/plugin-ui';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 import { testIds } from '../../components/LokiQueryEditor';
 import { LokiDatasource } from '../../datasource';
 import { escapeLabelValueInSelector } from '../../languageUtils';
@@ -126,7 +127,7 @@ export const LokiQueryBuilder = memo<Props>(({ datasource, query, onChange, onRu
         Math.abs(timeRange.from.valueOf() - prevTimeRange.from.valueOf()) > TIME_SPAN_TO_TRIGGER_SAMPLES);
     const updateBasedOnChangedQuery = !isEqual(prevQuery, query);
     if (updateBasedOnChangedTimeRange || updateBasedOnChangedQuery) {
-      onGetSampleData().catch(console.error);
+      onGetSampleData().catch((error) => structuredLogFromConsole('error', error));
     }
   }, [datasource, query, timeRange, prevQuery, prevTimeRange]);
 

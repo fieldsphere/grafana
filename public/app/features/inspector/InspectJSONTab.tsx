@@ -20,6 +20,7 @@ import { reportPanelInspectInteraction } from '../search/page/reporting';
 import { InspectTab } from './types';
 import { getPrettyJSON } from './utils/utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 enum ShowContent {
   PanelJSON = 'panel',
   PanelData = 'data',
@@ -104,7 +105,7 @@ export function InspectJSONTab({ panel, dashboard, data, onClose }: Props) {
           appEvents.emit(AppEvents.alertSuccess, ['Panel model updated']);
         }
       } catch (err) {
-        console.error('Error applying updates', err);
+        structuredLogFromConsole('error', 'Error applying updates', err);
         appEvents.emit(AppEvents.alertError, ['Invalid JSON text']);
       }
 

@@ -12,6 +12,7 @@ import {
   serviceAccountTokensLoaded,
 } from './reducers';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 const BASE_URL = `/api/serviceaccounts`;
 
 export function loadServiceAccount(saUid: string): ThunkResult<void> {
@@ -21,7 +22,7 @@ export function loadServiceAccount(saUid: string): ThunkResult<void> {
       const response = await getBackendSrv().get(`${BASE_URL}/${saUid}`, accessControlQueryParam());
       dispatch(serviceAccountLoaded(response));
     } catch (error) {
-      console.error(error);
+      structuredLogFromConsole('error', error);
     } finally {
       dispatch(serviceAccountFetchEnd());
     }
@@ -69,7 +70,7 @@ export function loadServiceAccountTokens(saUid: string): ThunkResult<void> {
       const response = await getBackendSrv().get(`${BASE_URL}/${saUid}/tokens`);
       dispatch(serviceAccountTokensLoaded(response));
     } catch (error) {
-      console.error(error);
+      structuredLogFromConsole('error', error);
     }
   };
 }

@@ -7,6 +7,7 @@ import { IconButton, useStyles2, Stack, InlineToast, Tooltip, Icon } from '@graf
 
 import { SqlExpressionQuery } from '../types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface QueryToolboxProps {
   onFormatCode?: () => void;
   onExpand?: (isExpanded: boolean) => void;
@@ -39,7 +40,7 @@ export const QueryToolbox = ({ onFormatCode, onExpand, isExpanded, query }: Quer
       await navigator.clipboard.writeText(query.expression ?? '');
       setShowCopySuccess(true);
     } catch (e) {
-      console.error(e);
+      structuredLogFromConsole('error', e);
     }
   }, [query.expression]);
 

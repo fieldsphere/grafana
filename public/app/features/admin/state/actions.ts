@@ -36,6 +36,7 @@ import {
   anonPageChanged,
   anonQueryChanged,
 } from './reducers';
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 // UserAdminPage
 
 export function loadAdminUserPage(userUid: string): ThunkResult<void> {
@@ -50,7 +51,7 @@ export function loadAdminUserPage(userUid: string): ThunkResult<void> {
       }
       dispatch(userAdminPageLoadedAction(true));
     } catch (error) {
-      console.error(error);
+      structuredLogFromConsole('error', error);
 
       if (isFetchError(error)) {
         const userError = {
@@ -300,7 +301,7 @@ export function fetchUsers(): ThunkResult<void> {
       dispatch(usersFetched(result));
     } catch (error) {
       usersFetchEnd();
-      console.error(error);
+      structuredLogFromConsole('error', error);
     }
   };
 }
@@ -366,7 +367,7 @@ export function fetchUsersAnonymousDevices(): ThunkResult<void> {
       const result = await getBackendSrv().get(url);
       dispatch(usersAnonymousDevicesFetched(result));
     } catch (error) {
-      console.error(error);
+      structuredLogFromConsole('error', error);
     }
   };
 }
@@ -409,7 +410,7 @@ export function changeAnonPage(page: number): ThunkResult<void> {
 //       dispatch(usersAnonymousDevicesFetched({ devices: result }));
 //     } catch (error) {
 //       usersFetchEnd();
-//       console.error(error);
+//       structuredLogFromConsole('error', error);
 //     }
 //   };
 // }

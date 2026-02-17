@@ -45,6 +45,7 @@ import {
 } from './utils/utils';
 import { centerPointRegistry, MapCenterID } from './view';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 // Allows multiple panels to share the same view instance
 let sharedView: View | undefined = undefined;
 
@@ -260,7 +261,7 @@ export class GeomapPanel extends Component<Props, State> {
         layers.push(await initLayer(this, map, lyr, false));
       }
     } catch (ex) {
-      console.error('error loading layers', ex);
+      structuredLogFromConsole('error', 'error loading layers', ex);
     }
 
     for (const lyr of layers) {

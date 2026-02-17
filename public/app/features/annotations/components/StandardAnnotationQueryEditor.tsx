@@ -25,6 +25,7 @@ import { updateAnnotationFromSavedQuery } from '../utils/savedQueryUtils';
 import { AnnotationQueryEditorActionsWrapper } from './AnnotationQueryEditorActionsWrapper';
 import { AnnotationFieldMapper } from './AnnotationResultMapper';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface Props {
   datasource: DataSourceApi;
   datasourceInstanceSettings: DataSourceInstanceSettings;
@@ -260,7 +261,7 @@ export default class StandardAnnotationQueryEditor extends PureComponent<Props, 
       this.setState({ skipNextVerification: true });
       onChange(preparedAnnotation);
     } catch (error) {
-      console.error('Failed to replace annotation query:', error);
+      structuredLogFromConsole('error', 'Failed to replace annotation query:', error);
       // On error, reset the replacing state but don't change the annotation
     }
   };

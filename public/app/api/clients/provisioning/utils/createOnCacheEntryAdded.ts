@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs';
 import { ScopedResourceClient } from 'app/features/apiserver/client';
 import { ListOptions, GeneratedResourceList as ResourceList } from 'app/features/apiserver/types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 /**
  * Creates a cache entry handler for RTK Query that watches for changes to a resource
  * and updates the cache accordingly.
@@ -57,7 +58,7 @@ export function createOnCacheEntryAdded<Spec, Status>(resourceName: string) {
         });
       });
     } catch (error) {
-      console.error('Error in onCacheEntryAdded:', error);
+      structuredLogFromConsole('error', 'Error in onCacheEntryAdded:', error);
       return;
     }
 

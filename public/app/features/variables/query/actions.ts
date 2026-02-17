@@ -17,6 +17,7 @@ import { hasOngoingTransaction, toKeyedVariableIdentifier, toVariablePayload } f
 import { getVariableQueryRunner } from './VariableQueryRunner';
 import { variableQueryObserver } from './variableQueryObserver';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export const updateQueryVariableOptions = (
   identifier: KeyedVariableIdentifier,
   searchFilter?: string
@@ -109,7 +110,7 @@ export const changeQueryVariableDataSource = (
         )
       );
     } catch (err) {
-      console.error(err);
+      structuredLogFromConsole('error', err);
     }
   };
 };

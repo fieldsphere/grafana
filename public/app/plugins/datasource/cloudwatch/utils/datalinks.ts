@@ -13,6 +13,7 @@ import { AwsUrl, encodeUrl } from '../aws_url';
 import { CloudWatchLogsQuery } from '../dataquery.gen';
 import { CloudWatchQuery } from '../types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 type ReplaceFn = (
   target?: string,
   scopedVars?: ScopedVars,
@@ -66,7 +67,7 @@ async function createInternalXrayLink(datasourceUid: string, region: string): Pr
   try {
     ds = await getDataSourceSrv().get(datasourceUid);
   } catch (e) {
-    console.error('Could not load linked xray data source, it was probably deleted after it was linked', e);
+    structuredLogFromConsole('error', 'Could not load linked xray data source, it was probably deleted after it was linked', e);
     return undefined;
   }
 

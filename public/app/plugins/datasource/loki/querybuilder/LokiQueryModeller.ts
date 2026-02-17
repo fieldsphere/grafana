@@ -9,6 +9,7 @@ import {
 import { operationDefinitions } from './operations';
 import { LokiOperationId, LokiQueryPattern, LokiQueryPatternType, LokiVisualQueryOperationCategory } from './types';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export class LokiQueryModeller extends QueryModellerBase {
   constructor() {
     super(operationDefinitions, '<expr>');
@@ -30,7 +31,7 @@ export class LokiQueryModeller extends QueryModellerBase {
       }
       const def = this.operationsRegistry.getIfExists(operation.id);
       if (!def) {
-        console.error(`Could not find operation ${operation.id} in the registry`);
+        structuredLogFromConsole('error', `Could not find operation ${operation.id} in the registry`);
         continue;
       }
       queryString = def.renderer(operation, def, queryString);

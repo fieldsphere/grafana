@@ -20,6 +20,7 @@ import { getTransformationContent } from '../docs/getTransformationContent';
 import darkImage from '../images/dark/filterFieldsByName.svg';
 import lightImage from '../images/light/filterFieldsByName.svg';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 interface FilterByNameTransformerEditorProps extends TransformerUIProps<FilterFieldsByNameTransformerOptions> {}
 
 interface FilterByNameTransformerEditorState {
@@ -102,7 +103,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        structuredLogFromConsole('error', error);
       }
     }
 

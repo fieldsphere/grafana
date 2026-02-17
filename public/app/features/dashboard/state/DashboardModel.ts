@@ -52,6 +52,7 @@ import { PanelModel } from './PanelModel';
 import { TimeModel } from './TimeModel';
 import { deleteScopeVars, isOnTheSameGridRow } from './utils';
 
+import { structuredLogFromConsole } from 'app/core/logging/structuredConsole';
 export interface CloneOptions {
   saveVariables?: boolean;
   saveTimerange?: boolean;
@@ -1115,13 +1116,13 @@ export class DashboardModel implements TimeModel {
 
   /** @deprecated */
   on<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.on is deprecated use events.subscribe');
+    structuredLogFromConsole('log', 'DashboardModel.on is deprecated use events.subscribe');
     this.events.on(event, callback);
   }
 
   /** @deprecated */
   off<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.off is deprecated');
+    structuredLogFromConsole('log', 'DashboardModel.off is deprecated');
     this.events.off(event, callback);
   }
 
