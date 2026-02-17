@@ -29,6 +29,7 @@ For structured logging verification and closeout gates, refer to the [structured
 For a one-command all-modes closeout run, use `make verify-structured-logging-closeout-matrix`.
 For a single closeout mode run, use `make verify-structured-logging-closeout-mode mode=<MODE>`.
 To preview closeout commands without executing, use `make verify-structured-logging-closeout-dry-run`.
+To preview all matrix-mode commands without executing, use `make verify-structured-logging-closeout-matrix-dry-run`.
 
 ## Contributing
 

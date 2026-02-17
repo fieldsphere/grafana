@@ -77,6 +77,7 @@ make verify-structured-logging-closeout-modes
 make verify-structured-logging-closeout-modes-json
 make verify-structured-logging-closeout-mode mode=tests-only-quick
 make verify-structured-logging-closeout-dry-run
+make verify-structured-logging-closeout-matrix-dry-run
 make verify-structured-logging-closeout-mode-dry-run mode=tests-only-quick
 ```
 
@@ -120,7 +121,9 @@ To preview commands without executing tests or probes, use:
 
 ```sh
 ./scripts/verify-structured-logging-closeout.sh --mode full --dry-run
+./scripts/verify-structured-logging-closeout.sh --mode matrix --dry-run
 make verify-structured-logging-closeout-dry-run
+make verify-structured-logging-closeout-matrix-dry-run
 make verify-structured-logging-closeout-mode-dry-run mode=tests-only-quick
 ```
 

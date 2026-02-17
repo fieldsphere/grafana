@@ -23,6 +23,7 @@ Notes:
   --matrix runs as a standalone mode and cannot be combined with other flags.
   --list-modes runs as a standalone mode and cannot be combined with other flags.
   --list-modes-json runs as a standalone mode and cannot be combined with other flags.
+  --dry-run cannot be combined with --list-modes or --list-modes-json.
 EOF
   printf '\nAvailable modes: %s\n' "$(modes_for_display)"
 }
@@ -165,6 +166,11 @@ fi
 
 if [[ "$list_modes_json" == "true" && ( "$quick_mode" == "true" || "$probes_only" == "true" || "$tests_only" == "true" || "$matrix_mode" == "true" || "$list_modes" == "true" ) ]]; then
   echo "closeout verification failed: --list-modes-json cannot be combined with other mode flags" >&2
+  exit 1
+fi
+
+if [[ "$dry_run" == "true" && ( "$list_modes" == "true" || "$list_modes_json" == "true" ) ]]; then
+  echo "closeout verification failed: --dry-run cannot be combined with --list-modes or --list-modes-json" >&2
   exit 1
 fi
 

@@ -445,6 +445,10 @@ verify-structured-logging-closeout-mode: ## Run structured logging closeout veri
 verify-structured-logging-closeout-dry-run: ## Print full closeout commands without executing.
 	./scripts/verify-structured-logging-closeout.sh --mode full --dry-run
 
+.PHONY: verify-structured-logging-closeout-matrix-dry-run
+verify-structured-logging-closeout-matrix-dry-run: ## Print all matrix mode commands without executing.
+	./scripts/verify-structured-logging-closeout.sh --mode matrix --dry-run
+
 .PHONY: verify-structured-logging-closeout-mode-dry-run
 verify-structured-logging-closeout-mode-dry-run: ## Print closeout commands for a specific mode without executing (use mode=<name>).
 	@if [ -z "$(mode)" ]; then \
