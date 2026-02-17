@@ -1480,6 +1480,44 @@ func TestCanonicalPathKeyNormalization(t *testing.T) {
 	}
 }
 
+func TestCollapseConsecutiveSlashes(t *testing.T) {
+	testCases := []struct {
+		name string
+		in   string
+		want string
+	}{
+		{
+			name: "already normalized",
+			in:   "/tmp/runtime",
+			want: "/tmp/runtime",
+		},
+		{
+			name: "collapses middle runs",
+			in:   "/tmp//runtime///file",
+			want: "/tmp/runtime/file",
+		},
+		{
+			name: "collapses leading runs to single slash",
+			in:   "////server/share",
+			want: "/server/share",
+		},
+		{
+			name: "empty stays empty",
+			in:   "",
+			want: "",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			got := collapseConsecutiveSlashes(tc.in)
+			if got != tc.want {
+				t.Fatalf("collapseConsecutiveSlashes(%q) = %q, want %q", tc.in, got, tc.want)
+			}
+		})
+	}
+}
+
 func loadRuleguardMatchBlocks(t *testing.T) []matchBlock {
 	t.Helper()
 
