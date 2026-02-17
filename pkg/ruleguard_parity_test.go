@@ -1034,6 +1034,58 @@ func f(logger interface{ Error(string, ...any) }) {
 	}
 }
 
+func TestRecoverAliasViolationInSliceExprSupportsParenthesizedAppendSpreadExpr(t *testing.T) {
+	const src = `package p
+
+func f(logger interface{ Error(string, ...any) }) {
+	panicVal := recover()
+	bad := []any{"error", panicVal}
+	args := []any{"ctx", 1}
+	logger.Error("msg", (append(args, bad...))...)
+}
+`
+
+	file, err := parser.ParseFile(token.NewFileSet(), "spread_append_paren.go", src, 0)
+	if err != nil {
+		t.Fatalf("parse source: %v", err)
+	}
+
+	var body *ast.BlockStmt
+	var spreadExpr ast.Expr
+	for _, decl := range file.Decls {
+		fn, ok := decl.(*ast.FuncDecl)
+		if !ok || fn.Name.Name != "f" {
+			continue
+		}
+		body = fn.Body
+		inspectBodyWithoutNestedFuncLits(body, func(node ast.Node) bool {
+			call, ok := node.(*ast.CallExpr)
+			if !ok {
+				return true
+			}
+			if expr, ok := spreadArgExpr(call); ok {
+				spreadExpr = expr
+				return false
+			}
+			return true
+		})
+	}
+	if body == nil || spreadExpr == nil {
+		t.Fatal("failed to locate parenthesized append spread expression")
+	}
+
+	constValues := stringConstValueMap(file)
+	constNameValues := constNameValueMap(constValues)
+	recoverDerived := recoverDerivedIdentifiers(body)
+	localNames := declaredNamesInBody(body)
+	badSlices := recoverDerivedSlicesWithAliasViolations(body, recoverDerived, constValues, constNameValues, localNames)
+
+	alias := recoverAliasViolationInSliceExpr(spreadExpr, recoverDerived, badSlices, constValues, constNameValues, localNames)
+	if alias != "error" {
+		t.Fatalf("expected parenthesized append spread alias to resolve forbidden key \"error\", got %q", alias)
+	}
+}
+
 func TestKeyValueFromExprResolvesParenthesizedConstIdentifier(t *testing.T) {
 	const src = `package p
 
