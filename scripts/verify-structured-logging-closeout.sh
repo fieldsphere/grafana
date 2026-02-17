@@ -6,7 +6,7 @@ usage() {
 Usage: ./scripts/verify-structured-logging-closeout.sh [--mode <MODE>] [--quick] [--probes-only] [--tests-only] [--matrix] [--list-modes] [--list-modes-json] [--help]
 
 Options:
-  --mode <MODE> Select a predefined mode (full, quick, probes-only, tests-only, tests-only-quick, matrix).
+  --mode <MODE> Select a predefined mode.
   --quick        Skip race tests for a faster local pass.
   --probes-only  Skip all tests and run query probes only.
   --tests-only   Skip query probes and run tests only.
@@ -23,6 +23,7 @@ Notes:
   --list-modes runs as a standalone mode and cannot be combined with other flags.
   --list-modes-json runs as a standalone mode and cannot be combined with other flags.
 EOF
+  printf '\nAvailable modes: %s\n' "$(modes_for_display)"
 }
 
 ALL_MODES=(full quick probes-only tests-only tests-only-quick matrix)
@@ -38,6 +39,14 @@ modes_for_display() {
     display="${display}${mode_name}"
   done
   echo "$display"
+}
+
+print_modes_error_list() {
+  local mode_name
+  echo "supported modes:" >&2
+  for mode_name in "${ALL_MODES[@]}"; do
+    echo "  - $mode_name" >&2
+  done
 }
 
 quick_mode=false
@@ -121,7 +130,7 @@ if [[ -n "$selected_mode" ]]; then
       ;;
     *)
       echo "closeout verification failed: unknown mode '$selected_mode'" >&2
-      echo "supported modes: $(modes_for_display)" >&2
+      print_modes_error_list
       echo "hint: run --list-modes" >&2
       exit 1
       ;;
