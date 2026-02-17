@@ -149,6 +149,13 @@ The frontend console and `apps/**` recover-alias probes return no matches:
 No files with matches found
 ```
 
+The `pkg/**` recover-alias probe returns only expected rule and parity files:
+
+```text
+/workspace/pkg/ruleguard.rules.go
+/workspace/pkg/ruleguard_parity_test.go
+```
+
 ## Related resources
 
 - **Ruleguard parity tests:** The [ruleguard parity test suite](../pkg/ruleguard_parity_test.go) contains the regression checks that enforce these guarantees.
