@@ -1225,6 +1225,26 @@ func TestRuntimeScanRootsIncludePkgAndApps(t *testing.T) {
 	}
 }
 
+func TestRuntimeScanRootsAreAbsoluteAndUnique(t *testing.T) {
+	roots := runtimeScanRoots(t)
+	if len(roots) == 0 {
+		t.Fatal("expected runtime scan roots to be non-empty")
+	}
+
+	seen := map[string]struct{}{}
+	for _, root := range roots {
+		if !filepath.IsAbs(root) {
+			t.Fatalf("expected runtime scan root to be absolute, got %q", root)
+		}
+
+		key := canonicalPathKey(root)
+		if _, ok := seen[key]; ok {
+			t.Fatalf("duplicate runtime scan root key %q in %v", key, roots)
+		}
+		seen[key] = struct{}{}
+	}
+}
+
 func TestWalkRuntimeGoFilesInRootsFiltersRuntimeFiles(t *testing.T) {
 	tempDir := t.TempDir()
 	pkgRoot := filepath.Join(tempDir, "pkg")
@@ -1778,10 +1798,10 @@ func runtimeScanRoots(t *testing.T) []string {
 
 	pkgDir := filepath.Dir(thisFile)
 	repoRoot := filepath.Clean(filepath.Join(pkgDir, ".."))
-	return []string{
+	return uniqueNonEmptyCleanPaths([]string{
 		filepath.Join(repoRoot, "pkg"),
 		filepath.Join(repoRoot, "apps"),
-	}
+	})
 }
 
 func walkRuntimeGoFiles(t *testing.T, visit func(path string) error) error {
