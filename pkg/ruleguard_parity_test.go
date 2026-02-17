@@ -1245,6 +1245,21 @@ func TestRuntimeScanRootsAreAbsoluteAndUnique(t *testing.T) {
 	}
 }
 
+func TestRuntimeScanRootsCanonicalOrder(t *testing.T) {
+	roots := runtimeScanRoots(t)
+	if len(roots) < 2 {
+		t.Fatalf("expected at least two runtime scan roots, got %v", roots)
+	}
+
+	for idx := 1; idx < len(roots); idx++ {
+		prev := canonicalPathKey(roots[idx-1])
+		curr := canonicalPathKey(roots[idx])
+		if prev > curr {
+			t.Fatalf("runtime scan roots not in canonical order at index %d: %v", idx, roots)
+		}
+	}
+}
+
 func TestWalkRuntimeGoFilesInRootsFiltersRuntimeFiles(t *testing.T) {
 	tempDir := t.TempDir()
 	pkgRoot := filepath.Join(tempDir, "pkg")
