@@ -164,6 +164,8 @@ ACTUAL="$(rg \"recover\\(\\)[\\s\\S]{0,260}\\\"(error|errorMessage|reason|panic)
 [ "$ACTUAL" = "$EXPECTED" ]
 ```
 
+If this comparison fails, treat the output as a potential runtime regression and investigate before merging.
+
 ## Example gate output snapshot
 
 The following output patterns show what successful closeout execution looks like:
