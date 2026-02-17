@@ -1345,12 +1345,16 @@ func TestUniqueNonEmptyCleanPaths(t *testing.T) {
 		" /tmp/runtime ",
 		"/tmp/runtime/../runtime",
 		"/tmp/other",
+		`C:\repo\pkg`,
+		`C:/repo/pkg`,
+		`c:/repo/pkg`,
 	}
 
 	got := uniqueNonEmptyCleanPaths(input)
 	want := []string{
 		"/tmp/runtime",
 		"/tmp/other",
+		`C:\repo\pkg`,
 	}
 
 	if len(got) != len(want) {
@@ -1560,14 +1564,23 @@ func uniqueNonEmptyCleanPaths(paths []string) []string {
 		if cleaned == "" || cleaned == "." {
 			continue
 		}
-		if _, exists := seen[cleaned]; exists {
+		key := canonicalPathKey(cleaned)
+		if _, exists := seen[key]; exists {
 			continue
 		}
-		seen[cleaned] = struct{}{}
+		seen[key] = struct{}{}
 		unique = append(unique, cleaned)
 	}
 
 	return unique
+}
+
+func canonicalPathKey(path string) string {
+	key := strings.ReplaceAll(filepath.ToSlash(path), "\\", "/")
+	if len(key) >= 2 && key[1] == ':' {
+		key = strings.ToLower(string(key[0])) + key[1:]
+	}
+	return key
 }
 
 func isRuntimeGoSourcePath(path string) bool {
