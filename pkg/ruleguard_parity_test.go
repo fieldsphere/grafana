@@ -1441,10 +1441,7 @@ func TestWalkRuntimeGoFilesInRootsDeduplicatesRelativeAndAbsoluteEquivalentRoots
 	}
 
 	root := t.TempDir()
-	relRoot, err := filepath.Rel(cwd, root)
-	if err != nil {
-		t.Fatalf("build relative root: %v", err)
-	}
+	relRoot := relativePathOrSkip(t, cwd, root)
 
 	goFile := filepath.Join(root, "keep.go")
 	if err := os.WriteFile(goFile, []byte("package p\n"), 0o644); err != nil {
@@ -1564,10 +1561,7 @@ func TestUniqueNonEmptyCleanPathsDeduplicatesRelativeAndAbsoluteEquivalent(t *te
 	}
 
 	absRoot := t.TempDir()
-	relRoot, err := filepath.Rel(cwd, absRoot)
-	if err != nil {
-		t.Fatalf("rel path: %v", err)
-	}
+	relRoot := relativePathOrSkip(t, cwd, absRoot)
 
 	got := uniqueNonEmptyCleanPaths([]string{relRoot, absRoot})
 	if len(got) != 1 {
@@ -1619,6 +1613,16 @@ func TestCanonicalPathKeyNormalization(t *testing.T) {
 			}
 		})
 	}
+}
+
+func relativePathOrSkip(t *testing.T, base, target string) string {
+	t.Helper()
+
+	rel, err := filepath.Rel(base, target)
+	if err != nil {
+		t.Skipf("cannot build relative path from %q to %q: %v", base, target, err)
+	}
+	return rel
 }
 
 func TestWindowsPathShapeHelpers(t *testing.T) {
