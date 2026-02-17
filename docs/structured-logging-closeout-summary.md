@@ -114,6 +114,14 @@ When closeout gates are healthy, you should see the following outcomes:
 - **Key-casing probes:** Return no matches for `*Id` and `*Uid` patterns.
 - **Trace event naming probes:** Return no matches for PascalCase and separator-shaped event names.
 
+## Known expected probe exceptions
+
+Some probes can return known non-runtime matches that are expected:
+
+- **Print/log probe:** `pkg/ruleguard.rules.go` contains rule pattern literals for `fmt.Print*` and `log.Print*`.
+- **Recover alias probe in `pkg/**`:** `pkg/ruleguard.rules.go` and `pkg/ruleguard_parity_test.go` can match because they contain rule/test literals used to enforce policy.
+- **Other probes:** Any additional hit in runtime production code should be treated as a regression candidate and investigated.
+
 ## Example gate output snapshot
 
 The following output patterns show what successful closeout execution looks like:
