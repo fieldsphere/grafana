@@ -4,6 +4,14 @@ set -euo pipefail
 ROOT_DIR="$(git rev-parse --show-toplevel)"
 cd "$ROOT_DIR"
 
+require_cmd() {
+  local cmd="$1"
+  if ! command -v "$cmd" >/dev/null 2>&1; then
+    echo "closeout verification failed: required command '$cmd' is not available" >&2
+    exit 1
+  fi
+}
+
 normalize_matches() {
   sed 's#^./##' | sort
 }
@@ -34,6 +42,12 @@ assert_no_matches() {
     exit 1
   fi
 }
+
+require_cmd git
+require_cmd go
+require_cmd rg
+require_cmd sed
+require_cmd sort
 
 echo "Running parity and runtime tests..."
 go test ./pkg -run 'TestRuntimeRecover|TestRuleguardRecover'

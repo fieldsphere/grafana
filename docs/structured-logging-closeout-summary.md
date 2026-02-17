@@ -53,6 +53,12 @@ The final closeout gates pass for in-scope runtime targets:
 
 The closeout used repeatable command checks to validate the migration gates and runtime tests:
 
+- **Run the full closeout script:** This command runs the full closeout verification sequence with strict assertions:
+
+```sh
+./scripts/verify-structured-logging-closeout.sh
+```
+
 - **Run recover and parity tests:** This command validates recover parity and runtime guardrail tests:
 
 ```sh
