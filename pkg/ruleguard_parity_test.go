@@ -1131,6 +1131,11 @@ func TestIsRuntimeGoSourcePath(t *testing.T) {
 			want: true,
 		},
 		{
+			name: "runtime pkg go file uppercase extension",
+			path: filepath.Join(base, "pkg", "services", "authn", "client.GO"),
+			want: true,
+		},
+		{
 			name: "runtime apps go file",
 			path: filepath.Join(base, "apps", "dashboard", "migration.go"),
 			want: true,
@@ -1141,8 +1146,18 @@ func TestIsRuntimeGoSourcePath(t *testing.T) {
 			want: false,
 		},
 		{
+			name: "test file excluded uppercase suffix",
+			path: filepath.Join(base, "pkg", "services", "authn", "client_TEST.GO"),
+			want: false,
+		},
+		{
 			name: "ruleguard rules excluded",
 			path: filepath.Join(base, "pkg", "ruleguard.rules.go"),
+			want: false,
+		},
+		{
+			name: "ruleguard rules excluded uppercase suffix",
+			path: filepath.Join(base, "pkg", "RULEGUARD.RULES.GO"),
 			want: false,
 		},
 		{
@@ -1617,7 +1632,8 @@ func canonicalPathKey(path string) string {
 }
 
 func isRuntimeGoSourcePath(path string) bool {
-	if !strings.HasSuffix(path, ".go") || strings.HasSuffix(path, "_test.go") || strings.HasSuffix(path, "ruleguard.rules.go") {
+	lowerPath := strings.ToLower(path)
+	if !strings.HasSuffix(lowerPath, ".go") || strings.HasSuffix(lowerPath, "_test.go") || strings.HasSuffix(lowerPath, "ruleguard.rules.go") {
 		return false
 	}
 
