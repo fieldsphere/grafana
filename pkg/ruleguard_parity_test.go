@@ -1392,9 +1392,34 @@ func TestUniqueNonEmptyCleanPaths(t *testing.T) {
 	if len(got) != len(want) {
 		t.Fatalf("uniqueNonEmptyCleanPaths length = %d, want %d; got=%v", len(got), len(want), got)
 	}
-	for idx := range want {
-		if got[idx] != want[idx] {
-			t.Fatalf("uniqueNonEmptyCleanPaths[%d] = %q, want %q (full=%v)", idx, got[idx], want[idx], got)
+	wantSet := map[string]struct{}{}
+	for _, path := range want {
+		wantSet[path] = struct{}{}
+	}
+	for _, path := range got {
+		if _, ok := wantSet[path]; !ok {
+			t.Fatalf("uniqueNonEmptyCleanPaths contains unexpected path %q (full=%v)", path, got)
+		}
+		delete(wantSet, path)
+	}
+	if len(wantSet) > 0 {
+		t.Fatalf("uniqueNonEmptyCleanPaths missing expected paths %v (full=%v)", wantSet, got)
+	}
+}
+
+func TestUniqueNonEmptyCleanPathsDeterministicAcrossInputOrder(t *testing.T) {
+	pathsA := []string{"/tmp/runtime-b", "/tmp/runtime-a", "/tmp/runtime-b"}
+	pathsB := []string{"/tmp/runtime-a", "/tmp/runtime-b"}
+
+	gotA := uniqueNonEmptyCleanPaths(pathsA)
+	gotB := uniqueNonEmptyCleanPaths(pathsB)
+
+	if len(gotA) != len(gotB) {
+		t.Fatalf("deterministic order length mismatch: gotA=%v gotB=%v", gotA, gotB)
+	}
+	for idx := range gotA {
+		if gotA[idx] != gotB[idx] {
+			t.Fatalf("deterministic order mismatch at %d: gotA=%v gotB=%v", idx, gotA, gotB)
 		}
 	}
 }
@@ -1663,6 +1688,10 @@ func uniqueNonEmptyCleanPaths(paths []string) []string {
 		seen[key] = struct{}{}
 		unique = append(unique, cleaned)
 	}
+
+	sort.SliceStable(unique, func(i, j int) bool {
+		return canonicalPathKey(unique[i]) < canonicalPathKey(unique[j])
+	})
 
 	return unique
 }
