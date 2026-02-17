@@ -38,6 +38,7 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 			featuremgmt.FlagKubernetesCorrelations,
 			featuremgmt.FlagKubernetesAlertingHistorian,
 			featuremgmt.FlagKubernetesLogsDrilldown,
+			featuremgmt.FlagKubernetesAnnotations,
 		},
 		// Explicitly configure with mode 5 the resources supported by provisioning.
 		UnifiedStorageConfig: map[string]setting.UnifiedStorageConfig{
@@ -120,6 +121,9 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 		Version: "v0alpha1",
 	}, {
 		Group:   "correlations.grafana.app",
+		Version: "v0alpha1",
+	}, {
+		Group:   "annotation.grafana.app",
 		Version: "v0alpha1",
 	}, {
 		Group:   "shorturl.grafana.app",
