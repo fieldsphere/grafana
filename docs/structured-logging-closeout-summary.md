@@ -153,6 +153,8 @@ After closeout, you can continue with these follow-up activities:
 - **Extend guardrails as needed:** Add targeted parity tests when new structured logging vectors or wrappers are introduced.
 - **Use the closeout baseline:** Refer to this summary when triaging future logging policy changes or migration exceptions.
 
+For implementation and style constraints in this repository, refer to [AGENTS.md](../AGENTS.md).
+
 ## Use this checklist in pull requests
 
 Use this checklist when you review pull requests that touch runtime logging:
