@@ -196,6 +196,12 @@ rg "recover\\(\\)[\\s\\S]{0,260}\"(error|errorMessage|reason|panic)\"\\s*," pkg 
 In this bundle, `! rg ...` means the probe must return no matches for the command to pass.
 The final `pkg/**` recover probe in the bundle is expected to return rule/test files only.
 
+For a full all-modes pass with clearer mode-by-mode start and pass markers, run:
+
+```sh
+./scripts/verify-structured-logging-closeout.sh --matrix
+```
+
 ## Expected command outcomes
 
 When closeout gates are healthy, you should see the following outcomes:

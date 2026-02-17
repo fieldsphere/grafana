@@ -81,6 +81,7 @@ if [[ "$matrix_mode" == "true" ]]; then
       echo "closeout verification matrix failed in mode: $mode_label" >&2
       exit 1
     fi
+    echo "<== Matrix mode passed: $mode_label"
   }
 
   echo "Running closeout verification matrix..."
