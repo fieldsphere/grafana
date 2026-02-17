@@ -149,9 +149,9 @@ No files with matches found
 
 ## Related resources
 
-- The [ruleguard parity test suite](../pkg/ruleguard_parity_test.go) contains the regression checks that enforce these guarantees.
-- The [ruleguard definitions](../pkg/ruleguard.rules.go) contain the static-analysis rules enforced during closeout.
-- The [project README](../README.md) contains repository-level development context for follow-up work.
+- **Ruleguard parity tests:** The [ruleguard parity test suite](../pkg/ruleguard_parity_test.go) contains the regression checks that enforce these guarantees.
+- **Ruleguard definitions:** The [ruleguard definitions](../pkg/ruleguard.rules.go) contain the static-analysis rules enforced during closeout.
+- **Repository context:** The [project README](../README.md) contains repository-level development context for follow-up work.
 
 ## Next steps
 
