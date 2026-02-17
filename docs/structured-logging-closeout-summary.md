@@ -199,6 +199,14 @@ The `pkg/**` recover-alias probe returns only expected rule and parity files:
 /workspace/pkg/ruleguard_parity_test.go
 ```
 
+For a strict one-pass variant that asserts the exact expected `pkg/**` recover-probe file set, use:
+
+```sh
+EXPECTED="$(printf '%s\n' 'pkg/ruleguard.rules.go' 'pkg/ruleguard_parity_test.go')"
+ACTUAL="$(rg \"recover\\(\\)[\\s\\S]{0,260}\\\"(error|errorMessage|reason|panic)\\\"\\s*,\" pkg --glob \"*.go\" -U --files-with-matches | sed 's#^./##' | sort)"
+[ "$ACTUAL" = "$EXPECTED" ]
+```
+
 ## Related resources
 
 - **Ruleguard parity tests:** The [ruleguard parity test suite](../pkg/ruleguard_parity_test.go) contains the regression checks that enforce these guarantees.
