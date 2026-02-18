@@ -112,7 +112,6 @@ export const FilterPopup = memo(
           return;
         }
         if (event.target instanceof Node && !domNode.contains(event.target)) {
-          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/components/Table/TableNG/Filter/FilterPopup.tsx', args: ['closing from outside click'] }]);
           onClose();
         }
       };
