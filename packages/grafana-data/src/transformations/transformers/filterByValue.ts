@@ -139,7 +139,7 @@ const createFilterValueMatchers = (
     const fieldIndex = fieldIndexByName[filter.fieldName] ?? -1;
 
     if (fieldIndex < 0) {
-      console.warn(`[FilterByValue] Could not find index for field name: ${filter.fieldName}`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'packages/grafana-data/src/transformations/transformers/filterByValue.ts', args: [`[FilterByValue] Could not find index for field name: ${filter.fieldName}`] }]);
       return noop;
     }
 

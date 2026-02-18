@@ -76,7 +76,7 @@ export function DeleteProvisionedDashboardForm({
 
   const handleSubmitForm = async ({ repo, path, comment }: ProvisionedDashboardFormData) => {
     if (!repo || !repository) {
-      console.error('Missing required repository for deletion:', { repo });
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/provisioning/components/Dashboards/DeleteProvisionedDashboardForm.tsx', args: ['Missing required repository for deletion:', { repo }] }]);
       return;
     }
 

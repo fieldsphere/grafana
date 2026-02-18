@@ -64,7 +64,7 @@ async function clearSavedSearches(page: Page) {
   } catch (error) {
     // Ignore 404 errors (resource doesn't exist)
     if (!(error && typeof error === 'object' && 'status' in error && error.status === 404)) {
-      console.warn('Failed to clear saved searches:', error);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'e2e-playwright/alerting-suite/saved-searches.spec.ts', args: ['Failed to clear saved searches:', error] }]);
     }
   }
 

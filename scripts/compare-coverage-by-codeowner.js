@@ -16,7 +16,7 @@ function readCoverageFile(filePath) {
     const content = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(content);
   } catch (err) {
-    console.error(`Error reading coverage file ${filePath}: ${err.message}`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/compare-coverage-by-codeowner.js', args: [`Error reading coverage file ${filePath}: ${err.message}`] }]);
     process.exit(1);
   }
 }
@@ -154,7 +154,7 @@ function compareCoverageByCodeowner(
   const prCoverage = readCoverageFile(prPath);
 
   if (!mainCoverage.summary || !prCoverage.summary) {
-    console.error('Error: Coverage summary data is missing or invalid');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/compare-coverage-by-codeowner.js', args: ['Error: Coverage summary data is missing or invalid'] }]);
     process.exit(1);
   }
 
@@ -163,9 +163,9 @@ function compareCoverageByCodeowner(
 
   try {
     fs.writeFileSync(outputPath, markdown, 'utf8');
-    console.log(`✅ Coverage comparison written to ${outputPath}`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/compare-coverage-by-codeowner.js', args: [`✅ Coverage comparison written to ${outputPath}`] }]);
   } catch (err) {
-    console.error(`Error writing output file: ${err.message}`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/compare-coverage-by-codeowner.js', args: [`Error writing output file: ${err.message}`] }]);
     process.exit(1);
   }
 
@@ -175,10 +175,10 @@ function compareCoverageByCodeowner(
 if (require.main === module) {
   const passed = compareCoverageByCodeowner();
   if (!passed) {
-    console.error('❌ Coverage check failed: One or more metrics decreased');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/compare-coverage-by-codeowner.js', args: ['❌ Coverage check failed: One or more metrics decreased'] }]);
     process.exit(1);
   }
-  console.log('✅ Coverage check passed: All metrics maintained or improved');
+  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/compare-coverage-by-codeowner.js', args: ['✅ Coverage check passed: All metrics maintained or improved'] }]);
 }
 
 module.exports = { compareCoverageByCodeowner, generateMarkdown, getOverallStatus };

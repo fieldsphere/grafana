@@ -152,7 +152,7 @@ export function transformSceneToSaveModelSchemaV2(scene: DashboardScene, isSnaps
     // should never reach this point, validation should throw an error
     throw new Error('Error we could transform the dashboard to schema v2: ' + dashboardSchemaV2);
   } catch (reason) {
-    console.error('Error transforming dashboard to schema v2: ' + reason, dashboardSchemaV2);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/serialization/transformSceneToSaveModelSchemaV2.ts', args: ['Error transforming dashboard to schema v2: ' + reason, dashboardSchemaV2] }]);
     throw new Error('Error transforming dashboard to schema v2: ' + reason);
   }
 }
@@ -533,11 +533,11 @@ function getAnnotations(state: DashboardSceneState, dsReferencesMapping?: DSRefe
       // for layers created for v2 schema. See transform transformSaveModelSchemaV2ToScene.ts.
       // In this case we will resolve default data source
       layerDs = getDefaultDataSourceRef();
-      console.error(
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/serialization/transformSceneToSaveModelSchemaV2.ts', args: [
         'Misconfigured AnnotationsDataLayer: Data source is required for annotations. Resolving default data source',
         layer,
         layerDs
-      );
+      ] }]);
     }
 
     const result = transformV1ToV2AnnotationQuery(layer.state.query, layerDs.type!, layerDs.uid!, {

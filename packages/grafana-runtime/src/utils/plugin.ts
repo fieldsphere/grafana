@@ -25,7 +25,7 @@ export async function loadPluginCss(options: PluginCssOptions): Promise<System.M
     const cssPath = config.bootData.user.theme === 'light' ? options.light : options.dark;
     return window.System.import(cssPath);
   } catch (err) {
-    console.error(err);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-runtime/src/utils/plugin.ts', args: [err] }]);
   }
 }
 

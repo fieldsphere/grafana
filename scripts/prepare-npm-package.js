@@ -30,6 +30,6 @@ try {
     await pkgJson.save();
   }
 } catch (e) {
-  console.error(e);
+  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/prepare-npm-package.js', args: [e] }]);
   process.exit(1);
 }

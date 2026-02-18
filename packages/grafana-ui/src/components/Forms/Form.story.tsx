@@ -70,11 +70,11 @@ const renderForm = (defaultValues?: FormDTO) => {
     <Form
       defaultValues={defaultValues}
       onSubmit={(data: FormDTO) => {
-        console.log(data);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/components/Forms/Form.story.tsx', args: [data] }]);
       }}
     >
       {({ register, control, errors }) => {
-        console.log(errors);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/components/Forms/Form.story.tsx', args: [errors] }]);
         return (
           <>
             <Legend>Edit user</Legend>
@@ -162,7 +162,7 @@ export const AsyncValidation: StoryFn = ({ passAsyncValidation }) => {
         }}
       >
         {({ register, control, errors, formState }) => {
-          console.log(errors);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/components/Forms/Form.story.tsx', args: [errors] }]);
           return (
             <>
               <Legend>Edit user</Legend>
@@ -201,7 +201,7 @@ const validateAsync = (shouldPass: boolean) => async () => {
     });
     return true;
   } catch (e) {
-    console.log(e);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/components/Forms/Form.story.tsx', args: [e] }]);
     return false;
   }
 };

@@ -44,7 +44,7 @@ export async function loadNamespacedResources(namespace: string, language: strin
         const resources = await loader(resolvedLanguage);
         addResourceBundle(resolvedLanguage, namespace, resources);
       } catch (error) {
-        console.error(`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, error);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-i18n/src/i18n.tsx', args: [`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, error] }]);
       }
     })
   );
@@ -202,9 +202,9 @@ export const t: TFunction = (id: string, defaultMessage: string, values?: Record
   initDefaultI18nInstance();
   if (!tFunc) {
     if (process.env.NODE_ENV !== 'test') {
-      console.warn(
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'packages/grafana-i18n/src/i18n.tsx', args: [
         't() was called before i18n was initialized. This is probably caused by calling t() in the root module scope, instead of lazily on render'
-      );
+      ] }]);
     }
 
     if (process.env.NODE_ENV === 'development') {

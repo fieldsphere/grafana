@@ -25,7 +25,7 @@ export function AlertIndicator() {
     // if (alertRules.length > 0) {
     //   setSelectedAlert(alertRules[0]);
     // }
-    console.log('Alert indicator clicked');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Sidebar/AlertIndicator.tsx', args: ['Alert indicator clicked'] }]);
   };
 
   return (

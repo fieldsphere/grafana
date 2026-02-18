@@ -227,7 +227,7 @@ export function getAnnotationsFromData(
       }
 
       if (!hasTime || !hasText) {
-        console.error('Cannot process annotation fields. No time or text present.');
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/annotations/standardAnnotationSupport.ts', args: ['Cannot process annotation fields. No time or text present.'] }]);
         return [];
       }
 

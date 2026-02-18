@@ -59,7 +59,7 @@ export function useOrganizeFields({
         }
       })
       .catch((err) => {
-        console.error('LogsTable: Organize fields transform error', err);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/panel/logstable/hooks/useOrganizeFields.tsx', args: ['LogsTable: Organize fields transform error', err] }]);
       });
   }, [
     bodyFieldName,

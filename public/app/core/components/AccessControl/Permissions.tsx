@@ -246,7 +246,7 @@ const getDescription = async (resource: string): Promise<Description> => {
   try {
     return await getBackendSrv().get(`/api/access-control/${resource}/description`);
   } catch (e) {
-    console.error('failed to load resource description: ', e);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/components/AccessControl/Permissions.tsx', args: ['failed to load resource description: ', e] }]);
     return INITIAL_DESCRIPTION;
   }
 };

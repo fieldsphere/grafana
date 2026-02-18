@@ -106,7 +106,7 @@ export default class ScrollManager {
     const position = xrs.getRowPosition(rowIndex);
     if (!position) {
       // eslint-disable-next-line no-console
-      console.warn('Invalid row index');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/explore/TraceView/components/ScrollManager.tsx', args: ['Invalid row index'] }]);
       return;
     }
     let { y } = position;

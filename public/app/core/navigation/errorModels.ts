@@ -1,7 +1,7 @@
 import { NavModel, NavModelItem } from '@grafana/data';
 
 export function getExceptionNav(error: unknown): NavModel {
-  console.error(error);
+  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/navigation/errorModels.ts', args: [error] }]);
   return getWarningNav('Exception thrown', 'See console for details');
 }
 

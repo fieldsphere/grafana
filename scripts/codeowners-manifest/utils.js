@@ -82,9 +82,9 @@ module.exports = {
         _codeownersCache = JSON.parse(codeownersJson);
       } catch (e) {
         if (e.code === 'ENOENT') {
-          console.error(`Could not read ${CODEOWNERS_MANIFEST_CODEOWNERS_PATH} ...`);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/codeowners-manifest/utils.js', args: [`Could not read ${CODEOWNERS_MANIFEST_CODEOWNERS_PATH} ...`] }]);
         } else {
-          console.error(e);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/codeowners-manifest/utils.js', args: [e] }]);
         }
         process.exit(1);
       }

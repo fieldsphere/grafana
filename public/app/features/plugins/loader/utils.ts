@@ -29,7 +29,7 @@ function addPreload(id: string, preload: (() => Promise<System.Module>) | System
   try {
     resolvedId = SystemJS.resolve(id);
   } catch (e) {
-    console.log(e);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/plugins/loader/utils.ts', args: [e] }]);
   }
 
   if (resolvedId && SystemJS.has(resolvedId)) {

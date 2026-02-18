@@ -481,7 +481,7 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
           newSeries = await lastValueFrom(transformDataFrame(panel?.transformations, newSeries));
         }
       } catch (e) {
-        console.error(e);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/panel/logs/LogsPanel.tsx', args: [e] }]);
       } finally {
         setInfiniteScrolling(false);
         loadingRef.current = false;
@@ -842,7 +842,7 @@ export async function requestMoreLogs(
   for (const uid in targetGroups) {
     const dataSource = dataSourcesMap.get(panelData.request.targets[0].refId);
     if (!dataSource) {
-      console.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/plugins/panel/logs/LogsPanel.tsx', args: [`Could not resolve data source for target ${panelData.request.targets[0].refId}`] }]);
       continue;
     }
     dataRequests.push(

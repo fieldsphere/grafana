@@ -88,7 +88,7 @@
 
             function validateInput() {
                 if (points.length/ps !== otherpoints.length/otherps) {
-                    console.error("Refusing to graph inconsistent number of points");
+                    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/vendor/flot/jquery.flot.fillbelow.js', args: ["Refusing to graph inconsistent number of points"] }]);
                     return false;
                 }
 
@@ -99,7 +99,7 @@
                         otherpoints[i * otherps] !== null &&
                         points[i * ps] !== otherpoints[i * otherps]
                     ) {
-                        console.error("Refusing to graph points without matching value");
+                        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/vendor/flot/jquery.flot.fillbelow.js', args: ["Refusing to graph points without matching value"] }]);
                         return false;
                     }
                 }
@@ -184,7 +184,7 @@
                     }
                 }
 
-                console.error("intersectionPoint() should only be called when an intersection happens");
+                Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/vendor/flot/jquery.flot.fillbelow.js', args: ["intersectionPoint() should only be called when an intersection happens"] }]);
             }
 
             function bottomTraversal(start_i, end_i) {

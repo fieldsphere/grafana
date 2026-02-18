@@ -72,7 +72,7 @@ export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
       const panel = findEditPanel(this._scene, values.editPanel);
 
       if (!panel) {
-        console.warn(`Panel ${values.editPanel} not found`);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/dashboard-scene/scene/DashboardSceneUrlSync.ts', args: [`Panel ${values.editPanel} not found`] }]);
         return;
       }
 

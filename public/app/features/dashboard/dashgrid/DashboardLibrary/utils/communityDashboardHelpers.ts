@@ -150,7 +150,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
   try {
     panelJson = JSON.stringify(panelWithoutSanitizedFields);
   } catch (e) {
-    console.warn('Failed to stringify panel', e);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/dashboard/dashgrid/DashboardLibrary/utils/communityDashboardHelpers.ts', args: ['Failed to stringify panel', e] }]);
     return true;
   }
 
@@ -181,7 +181,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousValue = valuePatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in value');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/dashboard/dashgrid/DashboardLibrary/utils/communityDashboardHelpers.ts', args: ['Panel contains JavaScript code in value'] }]);
       return true;
     }
     return false;
@@ -189,7 +189,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousKey = keyPatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in key');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/dashboard/dashgrid/DashboardLibrary/utils/communityDashboardHelpers.ts', args: ['Panel contains JavaScript code in key'] }]);
       return true;
     }
     return false;
@@ -301,7 +301,7 @@ export async function onUseCommunityDashboard({
       }
     }
   } catch (err) {
-    console.error('Error loading community dashboard:', err);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/dashgrid/DashboardLibrary/utils/communityDashboardHelpers.ts', args: ['Error loading community dashboard:', err] }]);
     dispatch(
       notifyApp(
         createErrorNotification(t('dashboard-library.community-error-title', 'Error loading community dashboard'))

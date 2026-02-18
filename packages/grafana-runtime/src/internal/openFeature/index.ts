@@ -18,7 +18,7 @@ function checkDefaultProvider(event?: EventDetails) {
       'OpenFeature default domain provider has been unexpectedly changed. This may be caused by a plugin that is incorrectly using the default domain.',
       { cause: OpenFeature.getProvider() }
     );
-    console.error(err);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-runtime/src/internal/openFeature/index.ts', args: [err] }]);
     logError(err);
   }
 }

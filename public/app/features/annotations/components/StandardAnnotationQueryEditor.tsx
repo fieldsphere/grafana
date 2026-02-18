@@ -270,7 +270,7 @@ export default class StandardAnnotationQueryEditor extends PureComponent<Props, 
       this.setState({ skipNextVerification: true });
       onChange(preparedAnnotation);
     } catch (error) {
-      console.error('Failed to replace annotation query:', error);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/annotations/components/StandardAnnotationQueryEditor.tsx', args: ['Failed to replace annotation query:', error] }]);
       // On error, reset the replacing state but don't change the annotation
     }
   };

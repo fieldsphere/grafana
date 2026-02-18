@@ -167,7 +167,7 @@ const builder = new dashboard.DashboardBuilder('My Dashboard')
 const dashboard = builder.build();
 
 // Output the generated dashboard as JSON
-console.log(JSON.stringify(dashboard, null, 2));
+structuredLog.info(JSON.stringify(dashboard, null, 2));
 ```
 
 {{< /code >}}

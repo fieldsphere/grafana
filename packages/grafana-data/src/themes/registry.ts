@@ -79,7 +79,7 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
 for (const [name, json] of Object.entries(extraThemes)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-data/src/themes/registry.ts', args: [`Invalid theme definition for theme ${name}: ${result.error.message}`] }]);
   } else {
     const theme = result.data;
     themeRegistry.register({

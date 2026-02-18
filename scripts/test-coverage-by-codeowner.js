@@ -66,7 +66,7 @@ if (require.main === module) {
         if (process.env.CI === 'true') {
           throw new Error(msg);
         } else {
-          console.warn(`⚠️ ${msg}`);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'scripts/test-coverage-by-codeowner.js', args: [`⚠️ ${msg}`] }]);
         }
       }
 
@@ -76,10 +76,10 @@ if (require.main === module) {
 
       const noOpen = argv['open'] === false;
 
-      console.log(`🧪 Running test coverage for codeowner: ${codeownerName}`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/test-coverage-by-codeowner.js', args: [`🧪 Running test coverage for codeowner: ${codeownerName}`] }]);
       await runTestCoverageByCodeowner(codeownerName, noOpen);
     } catch (e) {
-      console.error(e.message);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/test-coverage-by-codeowner.js', args: [e.message] }]);
       process.exit(1);
     }
   })();

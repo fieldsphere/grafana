@@ -47,7 +47,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
   const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
     const { rootStateKey } = ownProps.variable;
     if (!rootStateKey) {
-      console.error('OptionPickerFactory: variable has no rootStateKey');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/variables/pickers/OptionsPicker/OptionsPicker.tsx', args: ['OptionPickerFactory: variable has no rootStateKey'] }]);
       return {
         picker: initialOptionPickerState,
       };
@@ -69,7 +69,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
       this.props.openOptions(toKeyedVariableIdentifier(this.props.variable), this.props.onVariableChange);
     onHideOptions = () => {
       if (!this.props.variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/variables/pickers/OptionsPicker/OptionsPicker.tsx', args: ['Variable has no rootStateKey'] }]);
         return;
       }
 
@@ -103,7 +103,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
 
     onNavigate = (key: NavigationKey, clearOthers: boolean) => {
       if (!this.props.variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/variables/pickers/OptionsPicker/OptionsPicker.tsx', args: ['Variable has no rootStateKey'] }]);
         return;
       }
 

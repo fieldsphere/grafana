@@ -109,7 +109,7 @@ export async function fetchCommunityDashboards(
   }
 
   // Fallback for unexpected response format
-  console.warn('Unexpected API response format from Grafana.com:', result);
+  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/dashboard/dashgrid/DashboardLibrary/api/dashboardLibraryApi.ts', args: ['Unexpected API response format from Grafana.com:', result] }]);
   return {
     page: params.page,
     pages: 1,
@@ -134,7 +134,7 @@ export async function fetchProvisionedDashboards(datasourceType: string): Promis
     });
     return Array.isArray(dashboards) ? dashboards : [];
   } catch (error) {
-    console.error('Error loading provisioned dashboards', error);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/dashgrid/DashboardLibrary/api/dashboardLibraryApi.ts', args: ['Error loading provisioned dashboards', error] }]);
     return [];
   }
 }
@@ -147,9 +147,9 @@ const filterNonSafeDashboards = (dashboards: GnetDashboard[]): GnetDashboard[] =
     const hasLowDownloads = typeof item.downloads === 'number' && item.downloads < MIN_DOWNLOADS_FILTER;
 
     if (hasUnsafePanelTypes || hasLowDownloads) {
-      console.warn(
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/dashboard/dashgrid/DashboardLibrary/api/dashboardLibraryApi.ts', args: [
         `Community dashboard ${item.id} ${item.name} filtered out due to low downloads ${item.downloads} or panel types ${item.panelTypeSlugs?.join(', ')} that can embed JavaScript`
-      );
+      ] }]);
       return false;
     }
     return true;

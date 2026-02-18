@@ -74,7 +74,7 @@ export class LogLineVirtualization {
     const domCharWidth = this.measureTextWidthWithDOM('e');
     const diff = domCharWidth - canvasCharWidth;
     if (diff >= 0.1) {
-      console.warn('Virtualized log list: falling back to DOM for measurement');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/logs/components/panel/virtualization.ts', args: ['Virtualized log list: falling back to DOM for measurement'] }]);
       this.measurementMode = 'dom';
     }
   };

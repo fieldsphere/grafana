@@ -149,7 +149,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onError = (err: unknown) => {
-    console.log('LiveQuery [error]', { err }, this.deps.channelId);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/live/centrifuge/LiveDataStream.ts', args: ['LiveQuery [error]', { err }, this.deps.channelId] }]);
     this.stream.next({
       type: InternalStreamMessageType.Error,
       error: toDataQueryError(err),
@@ -158,7 +158,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onComplete = () => {
-    console.log('LiveQuery [complete]', this.deps.channelId);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/live/centrifuge/LiveDataStream.ts', args: ['LiveQuery [complete]', this.deps.channelId] }]);
     this.shutdown();
   };
 
@@ -275,7 +275,7 @@ export class LiveDataStream<T = unknown> {
       }
 
       if (!messages.length) {
-        console.warn(`expected to find at least one non error message ${messages.map(({ type }) => type)}`);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/live/centrifuge/LiveDataStream.ts', args: [`expected to find at least one non error message ${messages.map(({ type }) => type)}`] }]);
         // send empty frame
         return {
           key: subKey,
@@ -353,7 +353,7 @@ export class LiveDataStream<T = unknown> {
 
         const newValueSameSchemaMessages = filterMessages(messages, InternalStreamMessageType.NewValuesSameSchema);
         if (newValueSameSchemaMessages.length !== messages.length) {
-          console.warn(`unsupported message type ${messages.map(({ type }) => type)}`);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/live/centrifuge/LiveDataStream.ts', args: [`unsupported message type ${messages.map(({ type }) => type)}`] }]);
         }
 
         return getNewValuesSameSchemaResponseData(newValueSameSchemaMessages);

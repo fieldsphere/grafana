@@ -265,7 +265,7 @@ export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
             dispatch(clearFolders(childrenKeys));
           }
         } catch (e) {
-          console.error('Error in getRepositoryJobsWithPath:', e);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/api/clients/provisioning/v0alpha1/index.ts', args: ['Error in getRepositoryJobsWithPath:', e] }]);
         }
       },
     },

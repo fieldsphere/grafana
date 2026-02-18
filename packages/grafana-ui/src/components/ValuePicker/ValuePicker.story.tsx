@@ -43,7 +43,7 @@ const options = generateOptions();
 export const Simple: StoryFn<typeof ValuePicker> = (args) => {
   return (
     <div style={{ width: '200px' }}>
-      <ValuePicker {...args} options={options} onChange={(v) => console.log(v)} />
+      <ValuePicker {...args} options={options} onChange={(v) => Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/components/ValuePicker/ValuePicker.story.tsx', args: [v] }])} />
     </div>
   );
 };

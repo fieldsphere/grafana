@@ -108,7 +108,7 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
     // Aggregate panel metrics without verbose logging (handled by ScenePerformanceLogger)
     const panel = this.panelMetrics.get(data.panelKey);
     if (!panel) {
-      console.warn('Panel not found for operation completion:', data.panelKey);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/dashboard/services/DashboardAnalyticsAggregator.ts', args: ['Panel not found for operation completion:', data.panelKey] }]);
       return;
     }
 

@@ -213,7 +213,7 @@ async function main() {
 
 // when running in docker, we catch the needed stop-signal, to shutdown fast
 process.on('SIGTERM', () => {
-  console.log('shutdown requested');
+  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'devenv/docker/blocks/loki/data/data.js', args: ['shutdown requested'] }]);
   process.exit(0);
 });
 

@@ -82,7 +82,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-prometheus/src/components/monaco-query-field/getOverrideServices.ts', args: ['logStorage: not implemented'] }]);
     },
 
     migrate: (): Promise<void> => {

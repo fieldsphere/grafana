@@ -13,11 +13,11 @@ export function logOptions(
 ): void {
   if (amount > recommendedAmount) {
     const msg = `[Combobox] Items exceed the recommended amount ${recommendedAmount}.`;
-    console.warn(msg, {
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'packages/grafana-ui/src/utils/logOptions.ts', args: [msg, {
       itemsCount: '' + amount,
       recommendedAmount: '' + recommendedAmount,
       'aria-labelledby': ariaLabelledBy ?? '',
       id: id ?? '',
-    });
+    }] }]);
   }
 }

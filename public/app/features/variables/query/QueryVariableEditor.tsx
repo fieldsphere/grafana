@@ -25,7 +25,7 @@ import { changeQueryVariableDataSource, changeQueryVariableQuery, initQueryVaria
 const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
   if (!rootStateKey) {
-    console.error('QueryVariableEditor: variable has no rootStateKey');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/variables/query/QueryVariableEditor.tsx', args: ['QueryVariableEditor: variable has no rootStateKey'] }]);
     return {
       extended: getQueryVariableEditorState(initialVariableEditorState),
     };

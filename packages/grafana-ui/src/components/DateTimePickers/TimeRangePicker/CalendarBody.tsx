@@ -70,7 +70,7 @@ function useOnCalendarChange(onChange: (from: DateTime, to: DateTime) => void, t
   return useCallback<NonNullable<React.ComponentProps<typeof Calendar>['onChange']>>(
     (value) => {
       if (!Array.isArray(value)) {
-        return console.error('onCalendarChange: should be run in selectRange={true}');
+        return Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-ui/src/components/DateTimePickers/TimeRangePicker/CalendarBody.tsx', args: ['onCalendarChange: should be run in selectRange={true}'] }]);
       }
 
       if (value[0] && value[1]) {

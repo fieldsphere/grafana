@@ -11,7 +11,7 @@ A component for selecting notification policy routing trees in Grafana. Only wor
 import { RoutingTreeSelector } from '@grafana/alerting/unstable';
 
 function MyComponent() {
-  return <RoutingTreeSelector onChange={(tree) => console.log('Selected:', tree.metadata.name)} />;
+  return <RoutingTreeSelector onChange={(tree) => structuredLog.info('Selected:', tree.metadata.name)} />;
 }
 ```
 

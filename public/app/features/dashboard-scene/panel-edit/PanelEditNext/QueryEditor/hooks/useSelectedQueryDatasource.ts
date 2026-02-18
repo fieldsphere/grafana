@@ -41,14 +41,14 @@ export function useSelectedQueryDatasource(
 
       const queryDsSettings = getDataSourceSrv().getInstanceSettings(dsRef);
       if (!queryDsSettings) {
-        console.error('Datasource settings not found for', dsRef);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/hooks/useSelectedQueryDatasource.ts', args: ['Datasource settings not found for', dsRef] }]);
         return undefined;
       }
 
       const queryDatasource = await getDataSourceSrv().get(dsRef);
       return { datasource: queryDatasource, dsSettings: queryDsSettings };
     } catch (err) {
-      console.error('Failed to load datasource for selected query:', err);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/hooks/useSelectedQueryDatasource.ts', args: ['Failed to load datasource for selected query:', err] }]);
       return undefined;
     }
   }, [

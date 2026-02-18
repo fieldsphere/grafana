@@ -29,6 +29,6 @@ async function bootstrapWindowData() {
 }
 
 bootstrapWindowData().catch((error) => {
-  console.error('Error bootstrapping Grafana', error);
+  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/index.ts', args: ['Error bootstrapping Grafana', error] }]);
   window.__grafana_load_failed();
 });

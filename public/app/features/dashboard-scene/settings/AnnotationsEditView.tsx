@@ -59,7 +59,7 @@ export class AnnotationsEditView extends SceneObjectBase<AnnotationsEditViewStat
     const defaultInstanceDS = getDataSourceSrv().getInstanceSettings(null);
     // check for an annotation flag in the plugin json to see if it supports annotations
     if (!defaultInstanceDS || !defaultInstanceDS.meta.annotations) {
-      console.error('Default datasource does not support annotations');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/settings/AnnotationsEditView.tsx', args: ['Default datasource does not support annotations'] }]);
       return undefined;
     }
     return getDataSourceRef(defaultInstanceDS);

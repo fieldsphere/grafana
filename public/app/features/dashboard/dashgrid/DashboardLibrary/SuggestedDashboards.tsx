@@ -136,7 +136,7 @@ export const SuggestedDashboards = ({ datasourceUid }: Props) => {
 
       return { dashboards: mixed, hasMoreDashboards };
     } catch (error) {
-      console.error('Error loading suggested dashboards', error);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/dashgrid/DashboardLibrary/SuggestedDashboards.tsx', args: ['Error loading suggested dashboards', error] }]);
       return { dashboards: [], hasMoreDashboards: false };
     }
   }, [datasourceUid]);

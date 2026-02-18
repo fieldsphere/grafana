@@ -36,7 +36,7 @@ export function useDashboardQuery(dashboardUid?: string) {
           } else if (isDashboardV2Resource(dashboardDTO)) {
             setDashboard(dashboardDTO);
           } else {
-            console.error('Something went wrong, unexpected dashboard format');
+            Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/alerting/unified/components/rule-editor/useDashboardQuery.ts', args: ['Something went wrong, unexpected dashboard format'] }]);
           }
           setIsFetching(false);
         });

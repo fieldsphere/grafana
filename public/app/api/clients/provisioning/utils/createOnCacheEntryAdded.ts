@@ -69,7 +69,7 @@ export function createOnCacheEntryAdded<Spec, Status>(
         },
       });
     } catch (error) {
-      console.error('Error in onCacheEntryAdded:', error);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/api/clients/provisioning/utils/createOnCacheEntryAdded.ts', args: ['Error in onCacheEntryAdded:', error] }]);
       return;
     }
 

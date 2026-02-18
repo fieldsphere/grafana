@@ -106,7 +106,7 @@ export function getRGBValues(colorString: string): ColorValue | null {
 
   // Handle other color formats if needed
   else {
-    console.warn(`Unsupported color format: ${colorString}`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/plugins/panel/geomap/style/utils.ts', args: [`Unsupported color format: ${colorString}`] }]);
   }
   return null;
 }
@@ -142,10 +142,10 @@ function getRGBFromRGBString(rgbString: string): ColorValue | null {
         a: parseFloat(matches[3]), // Using parseFloat for alpha as it can be decimal (0-1)
       };
     } else {
-      console.warn(`Unsupported color format: ${rgbString}`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/plugins/panel/geomap/style/utils.ts', args: [`Unsupported color format: ${rgbString}`] }]);
     }
   } else {
-    console.warn(`Unsupported color format: ${rgbString}`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/plugins/panel/geomap/style/utils.ts', args: [`Unsupported color format: ${rgbString}`] }]);
   }
   return null;
 }

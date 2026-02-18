@@ -242,7 +242,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
       mutationClient = new DashboardMutationClient(this);
       setDashboardMutationClient(mutationClient);
     } catch (error) {
-      console.error('Failed to register Dashboard Mutation API:', error);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/scene/DashboardScene.tsx', args: ['Failed to register Dashboard Mutation API:', error] }]);
     }
 
     this._initializePanelSearch();
@@ -339,7 +339,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
 
   public exitEditMode({ skipConfirm, restoreInitialState }: { skipConfirm: boolean; restoreInitialState?: boolean }) {
     if (!this.canDiscard()) {
-      console.error('Trying to discard back to a state that does not exist, initialState undefined');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/scene/DashboardScene.tsx', args: ['Trying to discard back to a state that does not exist, initialState undefined'] }]);
       return;
     }
 
@@ -441,7 +441,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
    */
   public discardChangesAndKeepEditing() {
     if (!this.canDiscard()) {
-      console.error('Trying to discard back to a state that does not exist, initialState undefined');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/scene/DashboardScene.tsx', args: ['Trying to discard back to a state that does not exist, initialState undefined'] }]);
       return;
     }
 
@@ -642,7 +642,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
         clearClipboard();
         store.set(LS_PANEL_COPY_KEY, JSON.stringify({ elements, gridItem: gridItemKind }));
       } else {
-        console.error('Trying to copy a panel that is not DashboardGridItem child');
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/scene/DashboardScene.tsx', args: ['Trying to copy a panel that is not DashboardGridItem child'] }]);
         throw new Error('Trying to copy a panel that is not DashboardGridItem child');
       }
       return;
@@ -655,7 +655,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
     let gridItem = vizPanel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Trying to copy a panel that is not DashboardGridItem child');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/scene/DashboardScene.tsx', args: ['Trying to copy a panel that is not DashboardGridItem child'] }]);
       throw new Error('Trying to copy a panel that is not DashboardGridItem child');
     }
 
@@ -805,7 +805,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
 
       appEvents.emit('alert-success', ['Panel styles applied.']);
     } catch (e) {
-      console.error('Error pasting panel styles:', e);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/scene/DashboardScene.tsx', args: ['Error pasting panel styles:', e] }]);
       appEvents.emit('alert-error', ['Error pasting panel styles.']);
       DashboardInteractions.panelStylesMenuClicked(
         'paste',
@@ -838,7 +838,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
       return;
     }
 
-    console.error('Trying to unlink a lib panel in a layout that is not DashboardGridItem or AutoGridItem');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/scene/DashboardScene.tsx', args: ['Trying to unlink a lib panel in a layout that is not DashboardGridItem or AutoGridItem'] }]);
   }
 
   public showModal(modal: SceneObject) {
@@ -865,7 +865,7 @@ export class DashboardScene extends SceneObjectBase<DashboardSceneState> impleme
         },
       });
     } catch (err) {
-      console.error('Failed to star dashboard', err);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/scene/DashboardScene.tsx', args: ['Failed to star dashboard', err] }]);
     }
   }
 

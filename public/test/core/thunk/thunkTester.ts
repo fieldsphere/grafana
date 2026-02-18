@@ -28,7 +28,7 @@ export const thunkTester = (initialState: unknown, debug?: boolean): ThunkGiven 
 
     dispatchedActions = store.getActions();
     if (debug) {
-      console.log('resultingActions:', JSON.stringify(dispatchedActions, null, 2));
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/test/core/thunk/thunkTester.ts', args: ['resultingActions:', JSON.stringify(dispatchedActions, null, 2)] }]);
     }
 
     return dispatchedActions;

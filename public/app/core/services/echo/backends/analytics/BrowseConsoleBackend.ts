@@ -16,12 +16,12 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
 
   addEvent = (e: PageviewEchoEvent) => {
     if (isPageviewEvent(e)) {
-      console.log('[EchoSrv:pageview]', e.payload.page);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts', args: ['[EchoSrv:pageview]', e.payload.page] }]);
     }
 
     if (isInteractionEvent(e)) {
       const eventName = e.payload.interactionName;
-      console.log('[EchoSrv:event]', eventName, e.payload.properties);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts', args: ['[EchoSrv:event]', eventName, e.payload.properties] }]);
 
       // Warn for non-scalar property values. We're not yet making this a hard a
       const invalidTypeProperties = Object.entries(e.payload.properties ?? {}).filter(([_, value]) => {
@@ -32,17 +32,17 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
       });
 
       if (invalidTypeProperties.length > 0) {
-        console.warn(
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts', args: [
           'Event',
           eventName,
           'has invalid property types. Event properties should only be string, number or boolean. Invalid properties:',
           Object.fromEntries(invalidTypeProperties)
-        );
+        ] }]);
       }
     }
 
     if (isExperimentViewEvent(e)) {
-      console.log('[EchoSrv:experiment]', e.payload);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts', args: ['[EchoSrv:experiment]', e.payload] }]);
     }
   };
 

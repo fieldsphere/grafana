@@ -90,7 +90,7 @@ export const UserRolePicker = ({
           },
         }).unwrap();
       } catch (error) {
-        console.error('Error updating user roles', error);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/components/RolePicker/UserRolePicker.tsx', args: ['Error updating user roles', error] }]);
       }
     } else if (onApplyRoles) {
       onApplyRoles(newRoles, userId, orgId);

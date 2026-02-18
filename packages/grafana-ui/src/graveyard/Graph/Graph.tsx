@@ -370,7 +370,7 @@ export class Graph extends PureComponent<GraphProps, GraphState> {
         flotOptions
       );
     } catch (err) {
-      console.error('Graph rendering error', err, flotOptions, series);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-ui/src/graveyard/Graph/Graph.tsx', args: ['Graph rendering error', err, flotOptions, series] }]);
       throw new Error('Error rendering panel');
     }
   }

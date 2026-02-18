@@ -42,7 +42,7 @@ export function InviteUserButton() {
         performInviteUserClick('top_bar_right', 'invite-user-top-bar');
       }
     } catch (error) {
-      console.error('Failed to handle invite/upgrade user click:', error);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/components/AppChrome/TopBar/InviteUserButton.tsx', args: ['Failed to handle invite/upgrade user click:', error] }]);
     }
   };
 

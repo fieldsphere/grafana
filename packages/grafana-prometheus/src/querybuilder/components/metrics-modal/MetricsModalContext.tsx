@@ -167,7 +167,7 @@ export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalConte
         } catch (error) {
           // Only update state if this is still the latest search
           if (searchId === latestSearchIdRef.current) {
-            console.error('Backend search failed:', error);
+            Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-prometheus/src/querybuilder/components/metrics-modal/MetricsModalContext.tsx', args: ['Backend search failed:', error] }]);
             setMetricsData([]); // Clear results on error
             setIsLoading(false);
           }

@@ -93,7 +93,7 @@ export const Tags: StoryFn<typeof Card> = (args) => {
       <Card.Heading>Test dashboard</Card.Heading>
       <Card.Description>Card with a list of tags</Card.Description>
       <Card.Tags>
-        <TagList tags={['tag1', 'tag2', 'tag3']} onClick={(tag) => console.log(tag)} />
+        <TagList tags={['tag1', 'tag2', 'tag3']} onClick={(tag) => Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/components/Card/Card.story.tsx', args: [tag] }])} />
       </Card.Tags>
     </Card>
   );

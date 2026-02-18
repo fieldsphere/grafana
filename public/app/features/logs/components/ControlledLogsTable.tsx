@@ -38,7 +38,7 @@ export const ControlledLogsTable = ({
   const styles = useStyles2(getStyles);
 
   if (!splitOpen || !width || !updatePanelState) {
-    console.error('<ControlledLogsTable>: Missing required props.');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/logs/components/ControlledLogsTable.tsx', args: ['<ControlledLogsTable>: Missing required props.'] }]);
     return;
   }
 

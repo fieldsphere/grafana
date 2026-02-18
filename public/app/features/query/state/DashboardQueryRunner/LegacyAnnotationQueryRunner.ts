@@ -26,13 +26,13 @@ export class LegacyAnnotationQueryRunner implements AnnotationQueryRunner {
     }
 
     if (datasource?.annotationQuery === undefined) {
-      console.warn('datasource does not have an annotation query');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/query/state/DashboardQueryRunner/LegacyAnnotationQueryRunner.ts', args: ['datasource does not have an annotation query'] }]);
       return of([]);
     }
 
     const annotationQuery = datasource.annotationQuery({ range, rangeRaw: range.raw, annotation, dashboard });
     if (annotationQuery === undefined) {
-      console.warn('datasource does not have an annotation query');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/query/state/DashboardQueryRunner/LegacyAnnotationQueryRunner.ts', args: ['datasource does not have an annotation query'] }]);
       return of([]);
     }
 

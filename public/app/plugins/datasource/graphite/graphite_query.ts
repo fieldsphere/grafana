@@ -94,7 +94,7 @@ export default class GraphiteQuery {
       }
     } catch (err) {
       if (err instanceof Error) {
-        console.error('error parsing target:', err.message);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/graphite/graphite_query.ts', args: ['error parsing target:', err.message] }]);
         this.error = err.message;
       }
       this.target.textEditor = true;

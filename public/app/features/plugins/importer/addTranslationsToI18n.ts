@@ -21,29 +21,29 @@ export async function addTranslationsToI18n({
   const path = resolvedPath ?? fallbackPath;
 
   if (!path) {
-    console.warn(`Could not find any translation for plugin ${pluginId}`, { resolvedLanguage, fallbackLanguage });
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/plugins/importer/addTranslationsToI18n.ts', args: [`Could not find any translation for plugin ${pluginId}`, { resolvedLanguage, fallbackLanguage }] }]);
     return;
   }
 
   try {
     const module = await SystemJS.import(resolveModulePath(path));
     if (!module.default) {
-      console.warn(`Could not find default export for plugin ${pluginId}`, {
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/plugins/importer/addTranslationsToI18n.ts', args: [`Could not find default export for plugin ${pluginId}`, {
         resolvedLanguage,
         fallbackLanguage,
         path,
-      });
+      }] }]);
       return;
     }
 
     const language = resolvedPath ? resolvedLanguage : fallbackLanguage;
     addResourceBundle(language, pluginId, module.default);
   } catch (error) {
-    console.warn(`Could not load translation for plugin ${pluginId}`, {
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/plugins/importer/addTranslationsToI18n.ts', args: [`Could not load translation for plugin ${pluginId}`, {
       resolvedLanguage,
       fallbackLanguage,
       error,
       path,
-    });
+    }] }]);
   }
 }

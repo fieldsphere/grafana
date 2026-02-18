@@ -48,7 +48,7 @@ function ExportAsImageRenderer({ model }: SceneComponentProps<ExportAsImage>) {
 
       return result.blob;
     } catch (error) {
-      console.error('Error exporting image:', error);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/sharing/ExportButton/ExportAsImage.tsx', args: ['Error exporting image:', error] }]);
       DashboardInteractions.generateDashboardImageClicked({
         scale: config.rendererDefaultImageScale || 1,
         shareResource: 'dashboard',

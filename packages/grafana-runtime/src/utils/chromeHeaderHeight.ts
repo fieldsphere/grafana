@@ -11,7 +11,7 @@ export const useChromeHeaderHeight = () => {
     if (process.env.NODE_ENV !== 'production') {
       throw new Error('useChromeHeaderHeight hook not found in @grafana/runtime');
     }
-    console.error('useChromeHeaderHeight hook not found');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-runtime/src/utils/chromeHeaderHeight.ts', args: ['useChromeHeaderHeight hook not found'] }]);
   }
 
   return chromeHeaderHeightHook?.();

@@ -491,7 +491,7 @@ export const browseDashboardsAPI = createApi({
           } catch (error) {
             if (isFetchError(error)) {
               if (error.status !== 404) {
-                console.error('Error fetching dashboard', error);
+                Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/browse-dashboards/api/browseDashboardsAPI.ts', args: ['Error fetching dashboard', error] }]);
               } else {
                 // Do not show the error alert if the dashboard does not exist
                 // this is expected when importing a new dashboard

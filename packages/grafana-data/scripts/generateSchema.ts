@@ -19,4 +19,4 @@ fs.writeFileSync(
   )
 );
 
-console.log('Successfully generated theme schema');
+Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-data/scripts/generateSchema.ts', args: ['Successfully generated theme schema'] }]);

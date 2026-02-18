@@ -46,6 +46,6 @@ async function preload(config: AppPluginConfig): Promise<void> {
       return;
     }
 
-    console.error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/plugins/pluginPreloader.ts', args: [`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error] }]);
   }
 }

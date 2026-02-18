@@ -125,7 +125,7 @@ export const insertPathNodesIntoTree = (tree: TreeNode, path: ScopeNode[]) => {
     newTree = modifyTreeNodeAtPath(newTree, pathSlice, (treeNode) => {
       treeNode.children = { ...treeNode.children };
       if (!childNodeName) {
-        console.warn('Failed to insert full path into tree. Did not find child to' + stringPath[index]);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/scopes/selector/scopesTreeUtils.ts', args: ['Failed to insert full path into tree. Did not find child to' + stringPath[index]] }]);
         treeNode.childrenLoaded = treeNode.childrenLoaded ?? false;
         return;
       }

@@ -79,7 +79,7 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/admin/Users/OrgUsersTable.tsx', args: ['Error loading options'] }]);
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

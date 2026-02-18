@@ -317,7 +317,7 @@ export class DashboardExporter {
 
       return newObj;
     } catch (err) {
-      console.error('Export failed:', err);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/components/DashExportModal/DashboardExporter.ts', args: ['Export failed:', err] }]);
       return {
         error: err,
       };

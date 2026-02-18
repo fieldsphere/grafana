@@ -50,7 +50,7 @@ export default class CloudMonitoringMetricFindQuery {
           return [];
       }
     } catch (error) {
-      console.error(`Could not run CloudMonitoringMetricFindQuery ${query}`, error);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/cloud-monitoring/CloudMonitoringMetricFindQuery.ts', args: [`Could not run CloudMonitoringMetricFindQuery ${query}`, error] }]);
       return [];
     }
   }

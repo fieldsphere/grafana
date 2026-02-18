@@ -11,7 +11,7 @@ export class PanelModelCompatibilityWrapper implements PanelModel {
     const id = getPanelIdForVizPanel(this._vizPanel);
 
     if (isNaN(id)) {
-      console.error('VizPanel key could not be translated to a legacy numeric panel id', this._vizPanel);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/utils/PanelModelCompatibilityWrapper.ts', args: ['VizPanel key could not be translated to a legacy numeric panel id', this._vizPanel] }]);
       return 0;
     }
 

@@ -15,7 +15,7 @@ import tinycolor from 'tinycolor2';
 function clamp(value: number, min = 0, max = 1) {
   if (process.env.NODE_ENV !== 'production') {
     if (value < min || value > max) {
-      console.error(`The value provided ${value} is out of range [${min}, ${max}].`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-data/src/themes/colorManipulator.ts', args: [`The value provided ${value} is out of range [${min}, ${max}].`] }]);
     }
   }
 

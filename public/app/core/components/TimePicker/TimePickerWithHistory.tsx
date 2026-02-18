@@ -129,7 +129,7 @@ function convertToISOString(value: DateTime | string): string {
   }
 
   if (!value?.toISOString) {
-    throw console.error('Invalid DateTime object passed to convertToISOString');
+    throw Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/components/TimePicker/TimePickerWithHistory.tsx', args: ['Invalid DateTime object passed to convertToISOString'] }]);
   }
 
   return value.toISOString();

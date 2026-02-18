@@ -91,7 +91,7 @@ export async function updateLayer(panel: GeomapPanel, uid: string, newOptions: M
     // initialize with new data
     applyLayerFilter(info.handler, newOptions, panel.props.data);
   } catch (err) {
-    console.warn('ERROR', err); // eslint-disable-line no-console
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/plugins/panel/geomap/utils/layers.ts', args: ['ERROR', err] }]); // eslint-disable-line no-console
     return false;
   }
 

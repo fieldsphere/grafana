@@ -79,7 +79,7 @@ export const TeamRolePicker = ({
           },
         }).unwrap();
       } catch (error) {
-        console.error('Error updating team roles', error);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/components/RolePicker/TeamRolePicker.tsx', args: ['Error updating team roles', error] }]);
       }
     } else if (onApplyRoles) {
       onApplyRoles(newRoles);

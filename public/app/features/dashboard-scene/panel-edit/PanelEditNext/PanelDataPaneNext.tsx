@@ -119,7 +119,7 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
       const datasource = await getDataSourceSrv().get(dsRef);
       this.setState({ datasource, dsSettings, dsError: undefined });
     } catch (err) {
-      console.error('Failed to load datasource:', err);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/panel-edit/PanelEditNext/PanelDataPaneNext.tsx', args: ['Failed to load datasource:', err] }]);
       this.setState({
         datasource: undefined,
         dsSettings: undefined,

@@ -74,7 +74,7 @@ export class ScopedResourceClient<T = object, S = object, K = string> implements
           // at the protocol level. Non-temporary errors (e.g. permission denied)
           // should surface immediately rather than being retried.
           catchError((error) => {
-            console.error('Live channel watch stream error:', error);
+            Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/apiserver/client.ts', args: ['Live channel watch stream error:', error] }]);
             throw error;
           })
         );
@@ -105,14 +105,14 @@ export class ScopedResourceClient<T = object, S = object, K = string> implements
           try {
             return JSON.parse(line);
           } catch (e) {
-            console.warn('Invalid JSON in watch stream:', e, line);
+            Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/apiserver/client.ts', args: ['Invalid JSON in watch stream:', e, line] }]);
             return null;
           }
         }),
         filter((event): event is ResourceEvent<T, S, K> => event !== null),
         retry({ count: 3, delay: 1000 }),
         catchError((error) => {
-          console.error('Watch stream error:', error);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/apiserver/client.ts', args: ['Watch stream error:', error] }]);
           throw error;
         })
       );

@@ -35,7 +35,7 @@ export class ArrayVector<T = unknown> extends Array<T> {
     this.buffer = buffer ?? [];
 
     if (!notified) {
-      console.warn(notice);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'packages/grafana-data/src/vector/ArrayVector.ts', args: [notice] }]);
       notified = true;
     }
   }

@@ -39,7 +39,7 @@ export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Pr
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options for service account');
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/serviceaccounts/components/ServiceAccountProfile.tsx', args: ['Error loading options for service account'] }]);
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

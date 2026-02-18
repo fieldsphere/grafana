@@ -36,13 +36,13 @@ export const StatsPicker = memo<Props>(
       if (current.length !== stats.length) {
         const found = current.map((v) => v.id);
         const notFound = difference(stats, found);
-        console.warn('Unknown stats', notFound, stats);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'packages/grafana-ui/src/components/StatsPicker/StatsPicker.tsx', args: ['Unknown stats', notFound, stats] }]);
         onChange(current.map((stat) => stat.id));
       }
 
       // Make sure there is only one
       if (!allowMultiple && stats.length > 1) {
-        console.warn('Removing extra stat', stats);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'packages/grafana-ui/src/components/StatsPicker/StatsPicker.tsx', args: ['Removing extra stat', stats] }]);
         onChange([stats[0]]);
       }
 

@@ -280,7 +280,7 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec) {
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/serialization/transformSaveModelSchemaV2ToScene.ts', args: [err] }]);
         return null;
       }
     })
@@ -555,7 +555,7 @@ export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVar
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/serialization/transformSaveModelSchemaV2ToScene.ts', args: [err] }]);
         return null;
       }
     })

@@ -257,7 +257,7 @@ export class PanelQueryRunner {
         return { ...data, series, annotations };
       }),
       catchError((err) => {
-        console.warn('Error running transformation:', err);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/query/state/PanelQueryRunner.ts', args: ['Error running transformation:', err] }]);
         return of({
           ...data,
           state: LoadingState.Error,

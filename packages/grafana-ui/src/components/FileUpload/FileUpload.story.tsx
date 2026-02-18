@@ -28,7 +28,7 @@ export const Basic: StoryFn<typeof FileUpload> = (args) => {
   return (
     <FileUpload
       size={args.size}
-      onFileUpload={({ currentTarget }) => console.log('file', currentTarget?.files && currentTarget.files[0])}
+      onFileUpload={({ currentTarget }) => Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/components/FileUpload/FileUpload.story.tsx', args: ['file', currentTarget?.files && currentTarget.files[0]] }])}
     />
   );
 };

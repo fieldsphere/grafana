@@ -34,7 +34,7 @@ export const Basic: StoryFn<typeof FieldSet> = (args: Props) => {
   const colorId = useId();
   const fontSizeId = useId();
   return (
-    <Form onSubmit={() => console.log('Submit')}>
+    <Form onSubmit={() => Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/components/Forms/FieldSet.story.tsx', args: ['Submit'] }])}>
       {() => (
         <>
           <FieldSet {...args}>

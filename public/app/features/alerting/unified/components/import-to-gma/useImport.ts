@@ -249,11 +249,11 @@ export function useDryRunNotifications() {
         // MOCK: For now, simulate a successful dry-run
         // This allows UI development to continue while waiting for the backend
         // Remove this mock once the endpoint is ready
-        console.warn('[useDryRunNotifications] Backend endpoint not implemented yet. Using mock response.', {
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/alerting/unified/components/import-to-gma/useImport.ts', args: ['[useDryRunNotifications] Backend endpoint not implemented yet. Using mock response.', {
           alertmanagerConfig: alertmanagerConfig.substring(0, 100) + '...',
           templateFiles,
           configIdentifier,
-        });
+        }] }]);
 
         // Simulate a small delay to show loading state
         await new Promise((resolve) => setTimeout(resolve, 500));

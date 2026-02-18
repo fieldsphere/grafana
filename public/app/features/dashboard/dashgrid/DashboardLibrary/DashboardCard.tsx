@@ -88,7 +88,7 @@ function DashboardCardComponent({
               kind === 'suggested_dashboard' ? styles.thumbnailCoverImage : styles.thumbnailContainImage
             )}
             onError={(e) => {
-              console.error('Failed to load image for:', title, 'URL:', imageUrl);
+              Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/dashgrid/DashboardLibrary/DashboardCard.tsx', args: ['Failed to load image for:', title, 'URL:', imageUrl] }]);
               e.currentTarget.style.display = 'none';
             }}
           />

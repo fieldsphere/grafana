@@ -292,7 +292,7 @@ const OptionInput: FC<Props & { id: string }> = ({
       );
 
     default:
-      console.error('Element not supported', option.element);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/alerting/unified/components/receivers/form/fields/OptionField.tsx', args: ['Element not supported', option.element] }]);
       return null;
   }
 };

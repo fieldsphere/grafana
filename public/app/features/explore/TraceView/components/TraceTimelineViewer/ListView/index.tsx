@@ -388,7 +388,7 @@ export default class ListView extends React.Component<TListViewProps> {
         const itemKey = node.getAttribute('data-item-key');
         if (!itemKey) {
           // eslint-disable-next-line no-console
-          console.warn('itemKey not found');
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/explore/TraceView/components/TraceTimelineViewer/ListView/index.tsx', args: ['itemKey not found'] }]);
           continue;
         }
         // measure the first child, if it's available, otherwise the node itself

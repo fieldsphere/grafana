@@ -1109,7 +1109,7 @@ export function parseStyleJson(rawValue: unknown): CSSProperties | void {
       }
     } catch (e) {
       if (!warnedAboutStyleJsonSet.has(rawValue)) {
-        console.error(`encountered invalid cell style JSON: ${rawValue}`, e);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-ui/src/components/Table/TableNG/utils.ts', args: [`encountered invalid cell style JSON: ${rawValue}`, e] }]);
         warnedAboutStyleJsonSet.add(rawValue);
       }
     }

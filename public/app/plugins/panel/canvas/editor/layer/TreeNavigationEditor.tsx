@@ -130,7 +130,7 @@ export const TreeNavigationEditor = ({ item }: StandardEditorProps<unknown, Tree
     if (layer.scene) {
       frameSelection(layer.scene);
     } else {
-      console.warn('no scene!');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/plugins/panel/canvas/editor/layer/TreeNavigationEditor.tsx', args: ['no scene!'] }]);
     }
   };
 

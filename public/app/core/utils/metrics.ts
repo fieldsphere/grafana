@@ -8,7 +8,7 @@ export function startMeasure(eventName: string) {
   try {
     performance.mark(`${eventName}_started`);
   } catch (error) {
-    console.error(`[Metrics] Failed to startMeasure ${eventName}`, error);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/utils/metrics.ts', args: [`[Metrics] Failed to startMeasure ${eventName}`, error] }]);
   }
 }
 
@@ -31,7 +31,7 @@ export function stopMeasure(eventName: string) {
     performance.clearMeasures(measured);
     return measure;
   } catch (error) {
-    console.error(`[Metrics] Failed to stopMeasure ${eventName}`, error);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/utils/metrics.ts', args: [`[Metrics] Failed to stopMeasure ${eventName}`, error] }]);
     return;
   }
 }

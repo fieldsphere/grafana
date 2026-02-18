@@ -38,7 +38,7 @@ export function handleDashboardQueryRunnerWorkerError(err: any): Observable<Dash
 
 function notifyWithError(title: string, err: any) {
   const error = toDataQueryError(err);
-  console.error('handleAnnotationQueryRunnerError', error);
+  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/query/state/DashboardQueryRunner/utils.ts', args: ['handleAnnotationQueryRunnerError', error] }]);
   const notification = createErrorNotification(title, error.message);
   dispatch(notifyApp(notification));
 }

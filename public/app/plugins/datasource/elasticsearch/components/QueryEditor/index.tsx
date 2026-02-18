@@ -38,7 +38,7 @@ function useElasticVersion(datasource: ElasticDatasource): SemVer | null {
       },
       (error) => {
         // we do nothing
-        console.log(error);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/plugins/datasource/elasticsearch/components/QueryEditor/index.tsx', args: [error] }]);
       }
     );
 

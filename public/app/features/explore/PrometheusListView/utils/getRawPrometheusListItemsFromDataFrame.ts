@@ -51,7 +51,7 @@ export const getRawPrometheusListItemsFromDataFrame = (dataFrame: DataFrame): in
             }
           }
         } else {
-          console.warn('Field display method is missing!');
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/explore/PrometheusListView/utils/getRawPrometheusListItemsFromDataFrame.ts', args: ['Field display method is missing!'] }]);
         }
       }
     }

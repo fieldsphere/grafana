@@ -283,7 +283,7 @@ export function graphToTimeseriesOptions(angular: any): {
             });
             break;
           default:
-            console.log('Ignore override migration:', seriesOverride.alias, p, v);
+            Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/plugins/panel/timeseries/migrations.ts', args: ['Ignore override migration:', seriesOverride.alias, p, v] }]);
         }
       }
       if (dashOverride) {

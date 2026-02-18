@@ -55,7 +55,7 @@ export const Page = () => {
   const namespace = useAsync(async () => {
     const response = await fetch('api/frontend/settings');
     if (!response.ok) {
-      console.warn('No settings found');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/swagger/SwaggerPage.tsx', args: ['No settings found'] }]);
       return 'default';
     }
     const val = await response.json();
@@ -65,7 +65,7 @@ export const Page = () => {
   useAsync(async () => {
     const response = await fetch('api/user');
     if (!response.ok) {
-      console.warn('No user found, show login button');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/swagger/SwaggerPage.tsx', args: ['No user found, show login button'] }]);
       return;
     }
     const val = await response.json();

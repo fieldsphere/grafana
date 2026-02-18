@@ -706,9 +706,9 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         let query = v.query || {};
 
         if (typeof query === 'string') {
-          console.warn(
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/dashboard/api/ResponseTransformers.ts', args: [
             'Query variable query is a string which is deprecated in the schema v2. It should extend DataQuery'
-          );
+          ] }]);
           query = {
             [LEGACY_STRING_VALUE_KEY]: query,
           };
@@ -919,7 +919,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v.type}`);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/api/ResponseTransformers.ts', args: [`Variable transformation not implemented: ${v.type}`] }]);
     }
   }
   return variables;
@@ -1132,7 +1132,7 @@ function getVariablesV1(vars: DashboardV2Spec['variables']): VariableModel[] {
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v}`);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/api/ResponseTransformers.ts', args: [`Variable transformation not implemented: ${v}`] }]);
     }
   }
   return variables;

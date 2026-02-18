@@ -43,7 +43,7 @@ async function generateCodeownersManifest(
   let filenamesByCodeowner = new Map();
 
   lineReader.on('error', (error) => {
-    console.error('Error reading file:', error);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/codeowners-manifest/generate.js', args: ['Error reading file:', error] }]);
     throw error;
   });
 
@@ -62,7 +62,7 @@ async function generateCodeownersManifest(
         filenamesByCodeowner.set(owner, filenames.concat(path));
       }
     } catch (parseError) {
-      console.error(`Error parsing line: ${line}`, parseError);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/codeowners-manifest/generate.js', args: [`Error parsing line: ${line}`, parseError] }]);
       throw parseError;
     }
   });
@@ -79,19 +79,19 @@ async function generateCodeownersManifest(
 if (require.main === module) {
   (async () => {
     try {
-      console.log(`📋 Generating files ↔ teams manifests from ${RAW_AUDIT_JSONL_PATH} ...`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/codeowners-manifest/generate.js', args: [`📋 Generating files ↔ teams manifests from ${RAW_AUDIT_JSONL_PATH} ...`] }]);
       await generateCodeownersManifest(
         RAW_AUDIT_JSONL_PATH,
         CODEOWNERS_JSON_PATH,
         CODEOWNERS_BY_FILENAME_JSON_PATH,
         FILENAMES_BY_CODEOWNER_JSON_PATH
       );
-      console.log('✅ Manifest files generated:');
-      console.log(`   • ${CODEOWNERS_JSON_PATH}`);
-      console.log(`   • ${CODEOWNERS_BY_FILENAME_JSON_PATH}`);
-      console.log(`   • ${FILENAMES_BY_CODEOWNER_JSON_PATH}`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/codeowners-manifest/generate.js', args: ['✅ Manifest files generated:'] }]);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/codeowners-manifest/generate.js', args: [`   • ${CODEOWNERS_JSON_PATH}`] }]);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/codeowners-manifest/generate.js', args: [`   • ${CODEOWNERS_BY_FILENAME_JSON_PATH}`] }]);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/codeowners-manifest/generate.js', args: [`   • ${FILENAMES_BY_CODEOWNER_JSON_PATH}`] }]);
     } catch (e) {
-      console.error(e);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/codeowners-manifest/generate.js', args: [e] }]);
       process.exit(1);
     }
   })();

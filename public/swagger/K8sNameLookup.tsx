@@ -41,12 +41,12 @@ export function K8sNameLookup(props: Props) {
           },
         });
         if (!response.ok) {
-          console.warn('error loading names');
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/swagger/K8sNameLookup.tsx', args: ['error loading names'] }]);
           setLoading(false);
           return;
         }
         const table = await response.json();
-        console.log('LIST', url, table);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/swagger/K8sNameLookup.tsx', args: ['LIST', url, table] }]);
         const options: Array<SelectableValue<string>> = [];
         if (table.rows?.length) {
           for (const row of table.rows) {

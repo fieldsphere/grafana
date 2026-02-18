@@ -419,7 +419,7 @@ export function sortSeriesByLabel(s1: DataFrame, s2: DataFrame): number {
     le2 = parseSampleValue(s2.fields[1].state?.displayName ?? s2.name ?? s2.fields[1].name);
   } catch (err) {
     // fail if not integer. might happen with bad queries
-    console.error(err);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-prometheus/src/result_transformer.ts', args: [err] }]);
     return 0;
   }
 

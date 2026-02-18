@@ -100,9 +100,9 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
   const fields = useMemo(() => getFieldsWithStats(dataFrames), [dataFrames]);
 
   if (!onClickShowField || !onClickHideField || !setDisplayedFields) {
-    console.warn(
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/logs/components/fieldSelector/LogListFieldSelector.tsx', args: [
       'LogListFieldSelector: Missing required props: onClickShowField, onClickHideField, setDisplayedFields'
-    );
+    ] }]);
     return null;
   }
   if (sidebarHeight === 0) {

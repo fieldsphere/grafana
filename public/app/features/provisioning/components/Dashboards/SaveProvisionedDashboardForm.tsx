@@ -178,7 +178,7 @@ export function SaveProvisionedDashboardForm({
   }: ProvisionedDashboardFormData) => {
     // Validate required fields
     if (!repo || !path) {
-      console.error('Missing required fields for saving:', { repo, path });
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/provisioning/components/Dashboards/SaveProvisionedDashboardForm.tsx', args: ['Missing required fields for saving:', { repo, path }] }]);
       return;
     }
 

@@ -312,7 +312,7 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
       const toggleState = featureValue === 'true' || featureValue === '1';
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       featureToggles[featureName as keyof FeatureToggles] = toggleState;
-      console.log(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-runtime/src/config.ts', args: [`Setting feature toggle ${featureName} = ${toggleState} via localstorage`] }]);
     }
   }
 }
@@ -338,9 +338,9 @@ function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
       if (toggleState !== featureToggles[key]) {
         if (isDevelopment || safeRuntimeFeatureFlags.has(featureName)) {
           featureToggles[featureName] = toggleState;
-          console.log(`Setting feature toggle ${featureName} = ${toggleState} via url`);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-runtime/src/config.ts', args: [`Setting feature toggle ${featureName} = ${toggleState} via url`] }]);
         } else {
-          console.log(`Unable to change feature toggle ${featureName} via url in production.`);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-runtime/src/config.ts', args: [`Unable to change feature toggle ${featureName} via url in production.`] }]);
         }
       }
     }
@@ -351,7 +351,7 @@ let bootData = window.grafanaBootData;
 
 if (!bootData) {
   if (process.env.NODE_ENV !== 'test') {
-    console.error('window.grafanaBootData was not set by the time config was initialized');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-runtime/src/config.ts', args: ['window.grafanaBootData was not set by the time config was initialized'] }]);
   }
 
   bootData = {

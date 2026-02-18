@@ -210,7 +210,7 @@ const getTimeRange = (query: AlertQuery, queries: AlertQuery[]): TimeRange => {
   }
 
   if (!query.relativeTimeRange) {
-    console.warn(`Query with refId: ${query.refId} did not have any relative time range, using default.`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/alerting/unified/state/AlertingQueryRunner.ts', args: [`Query with refId: ${query.refId} did not have any relative time range, using default.`] }]);
     return getDefaultTimeRange();
   }
 

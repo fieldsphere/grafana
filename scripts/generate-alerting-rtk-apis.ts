@@ -13,10 +13,10 @@ try {
   // as this is currently a manual process
   accessSync(schemaFile);
 } catch (e) {
-  console.error('\nCould not find OpenAPI definition.\n');
-  console.error(
+  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/generate-alerting-rtk-apis.ts', args: ['\nCould not find OpenAPI definition.\n'] }]);
+  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/generate-alerting-rtk-apis.ts', args: [
     'Please visit /openapi/v3/apis/notifications.alerting.grafana.app/v0alpha1 and save the OpenAPI definition to data/alerting/openapi.json\n'
-  );
+  ] }]);
   throw e;
 }
 

@@ -104,7 +104,7 @@ export function InspectJSONTab({ panel, dashboard, data, onClose }: Props) {
           appEvents.emit(AppEvents.alertSuccess, ['Panel model updated']);
         }
       } catch (err) {
-        console.error('Error applying updates', err);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/inspector/InspectJSONTab.tsx', args: ['Error applying updates', err] }]);
         appEvents.emit(AppEvents.alertError, ['Invalid JSON text']);
       }
 

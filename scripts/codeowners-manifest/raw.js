@@ -70,12 +70,12 @@ if (require.main === module) {
         fs.mkdirSync(CODEOWNERS_MANIFEST_DIR, { recursive: true });
       }
 
-      console.log(`🍣 Getting raw CODEOWNERS data for manifest ...`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/codeowners-manifest/raw.js', args: [`🍣 Getting raw CODEOWNERS data for manifest ...`] }]);
       await generateCodeownersRawAudit(CODEOWNERS_FILE_PATH, RAW_AUDIT_JSONL_PATH);
-      console.log('✅ Raw audit generated:');
-      console.log(`   • ${RAW_AUDIT_JSONL_PATH}`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/codeowners-manifest/raw.js', args: ['✅ Raw audit generated:'] }]);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/codeowners-manifest/raw.js', args: [`   • ${RAW_AUDIT_JSONL_PATH}`] }]);
     } catch (e) {
-      console.error('❌ Error generating raw audit:', e.message);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/codeowners-manifest/raw.js', args: ['❌ Error generating raw audit:', e.message] }]);
       process.exit(1);
     }
   })();

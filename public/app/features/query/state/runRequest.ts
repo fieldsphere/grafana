@@ -163,7 +163,7 @@ export function runRequest(
     }),
     // handle errors
     catchError((err) => {
-      console.error('runRequest.catchError', err);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/query/state/runRequest.ts', args: ['runRequest.catchError', err] }]);
       queryLogger.logError(err);
       return of({
         ...state.panelData,

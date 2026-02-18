@@ -109,7 +109,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/dashboard/state/initDashboard.ts', args: ['not correct url correcting', dashboardUrl, currentPath] }]);
           }
         }
         return dashDTO;
@@ -138,7 +138,7 @@ async function fetchDashboard(
         error: err,
       })
     );
-    console.error(err);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/state/initDashboard.ts', args: [err] }]);
     return null;
   }
 }
@@ -206,7 +206,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
           error: err,
         })
       );
-      console.error(err);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/state/initDashboard.ts', args: [err] }]);
       return;
     }
 
@@ -264,7 +264,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
       if (err instanceof Error) {
         dispatch(notifyApp(createErrorNotification('Dashboard init failed', err)));
       }
-      console.error(err);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/state/initDashboard.ts', args: [err] }]);
     }
 
     // send open dashboard event

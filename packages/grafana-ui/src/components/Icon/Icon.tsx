@@ -96,7 +96,7 @@ export const Icon = memo(
       const { nameToUse: name, handleLoad } = useIconWorkaround(nameProp);
 
       if (!isIconName(name)) {
-        console.warn('Icon component passed an invalid icon name', name);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'packages/grafana-ui/src/components/Icon/Icon.tsx', args: ['Icon component passed an invalid icon name', name] }]);
       }
 
       // handle the deprecated 'fa fa-spinner'

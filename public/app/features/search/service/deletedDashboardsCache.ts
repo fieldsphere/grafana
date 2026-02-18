@@ -79,7 +79,7 @@ class DeletedDashboardsCache {
         items: [],
       };
     } catch (error) {
-      console.error('Failed to fetch deleted dashboards:', error);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/search/service/deletedDashboardsCache.ts', args: ['Failed to fetch deleted dashboards:', error] }]);
       return {
         apiVersion: 'v1',
         kind: 'List',

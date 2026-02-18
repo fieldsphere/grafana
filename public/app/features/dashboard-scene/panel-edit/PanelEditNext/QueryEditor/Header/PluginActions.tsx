@@ -90,7 +90,7 @@ function useAdaptiveTelemetryComponents(query: DataQuery | null) {
       pluginId: /grafana-adaptive.*/,
     });
   } catch (error) {
-    console.error('Failed to render adaptive telemetry components:', error);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Header/PluginActions.tsx', args: ['Failed to render adaptive telemetry components:', error] }]);
     return null;
   }
 }

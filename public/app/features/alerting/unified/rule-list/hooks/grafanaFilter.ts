@@ -151,7 +151,7 @@ function labelMatchersToBackendFormat(labels: string[]): string[] {
     const result = attempt(() => JSON.stringify(parseMatcher(label)));
 
     if (isError(result)) {
-      console.warn('Failed to parse label matcher:', label, result);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/alerting/unified/rule-list/hooks/grafanaFilter.ts', args: ['Failed to parse label matcher:', label, result] }]);
     } else {
       acc.push(result);
     }

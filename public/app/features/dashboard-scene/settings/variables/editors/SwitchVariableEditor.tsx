@@ -44,7 +44,7 @@ export function SwitchVariableEditor({ variable, inline = false }: SwitchVariabl
 
 export function getSwitchVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof SwitchVariable)) {
-    console.warn('getSwitchVariableOptions: variable is not a SwitchVariable');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/dashboard-scene/settings/variables/editors/SwitchVariableEditor.tsx', args: ['getSwitchVariableOptions: variable is not a SwitchVariable'] }]);
     return [];
   }
 

@@ -199,7 +199,7 @@ export async function getGazetteer(path?: string): Promise<Gazetteer> {
       const data = await response.json();
       lookup = loadGazetteer(path, data);
     } catch (err) {
-      console.warn('Error loading placename lookup', path, err);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/geo/gazetteer/gazetteer.ts', args: ['Error loading placename lookup', path, err] }]);
       lookup = {
         path,
         error: 'Error loading URL',

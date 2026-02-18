@@ -100,7 +100,7 @@ export const buildColumnsWithMeta = (
       pendingLabelState[fieldName].active = true;
       pendingLabelState[fieldName].index = idx;
     } else {
-      console.error(`Unknown field ${fieldName}`, { pendingLabelState, displayedFields });
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/panel/logstable/fieldSelector/buildColumnsWithMeta.ts', args: [`Unknown field ${fieldName}`, { pendingLabelState, displayedFields }] }]);
     }
   });
 

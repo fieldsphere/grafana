@@ -38,7 +38,7 @@ function generateCodeownersMetadata(codeownersFilePath, manifestDir, metadataFil
 if (require.main === module) {
   (async () => {
     try {
-      console.log('⚙️ Generating codeowners-manifest metadata ...');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/codeowners-manifest/metadata.js', args: ['⚙️ Generating codeowners-manifest metadata ...'] }]);
 
       try {
         await access(CODEOWNERS_MANIFEST_DIR);
@@ -49,10 +49,10 @@ if (require.main === module) {
       const metadata = generateCodeownersMetadata(CODEOWNERS_FILE_PATH, CODEOWNERS_MANIFEST_DIR, METADATA_JSON_PATH);
 
       await writeFile(METADATA_JSON_PATH, JSON.stringify(metadata, null, 2), 'utf8');
-      console.log('✅ Metadata generated:');
-      console.log(`   • ${METADATA_JSON_PATH}`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/codeowners-manifest/metadata.js', args: ['✅ Metadata generated:'] }]);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/codeowners-manifest/metadata.js', args: [`   • ${METADATA_JSON_PATH}`] }]);
     } catch (error) {
-      console.error('❌ Error generating codeowners metadata:', error.message);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/codeowners-manifest/metadata.js', args: ['❌ Error generating codeowners metadata:', error.message] }]);
       process.exit(1);
     }
   })();

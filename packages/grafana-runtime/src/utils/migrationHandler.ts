@@ -20,7 +20,7 @@ export function isMigrationHandler(object: unknown): object is MigrationHandler 
 
 async function postMigrateRequest<TQuery extends DataQuery>(queries: TQuery[]): Promise<TQuery[]> {
   if (!(config.featureToggles.grafanaAPIServerWithExperimentalAPIs || config.featureToggles.datasourceAPIServers)) {
-    console.warn('migrateQuery is only available with the experimental API server');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'packages/grafana-runtime/src/utils/migrationHandler.ts', args: ['migrateQuery is only available with the experimental API server'] }]);
     return queries;
   }
 

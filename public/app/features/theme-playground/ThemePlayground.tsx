@@ -65,7 +65,7 @@ const experimentalDefinitions: Record<string, unknown> = {
 for (const [name, json] of Object.entries(experimentalDefinitions)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/theme-playground/ThemePlayground.tsx', args: [`Invalid theme definition for theme ${name}: ${result.error.message}`] }]);
   } else {
     themeMap[result.data.id] = result.data;
   }

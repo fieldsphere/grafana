@@ -112,7 +112,7 @@ export const VizTooltipRow = ({
         setShowCopySuccess(true);
       }
     } catch (err) {
-      console.error('Unable to copy to clipboard', err);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-ui/src/components/VizTooltip/VizTooltipRow.tsx', args: ['Unable to copy to clipboard', err] }]);
     }
 
     textarea.remove();

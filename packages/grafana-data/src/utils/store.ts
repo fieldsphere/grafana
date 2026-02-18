@@ -65,7 +65,7 @@ export class Store {
       try {
         ret = JSON.parse(json);
       } catch (error) {
-        console.error(`Error parsing store object: ${key}. Returning default: ${def}. [${error}]`);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-data/src/utils/store.ts', args: [`Error parsing store object: ${key}. Returning default: ${def}. [${error}]`] }]);
       }
     }
     return ret;

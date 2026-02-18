@@ -17,7 +17,7 @@ export const mockSystemModule = `System.register(['./dependencyA'], function (_e
 
 export const mockAmdModule = `define([], function() {
   return function() {
-    console.log('AMD module loaded');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/plugins/loader/pluginLoader.mock.ts', args: ['AMD module loaded'] }]);
     var pluginPath = "/public/plugins/";
   }
 });`;

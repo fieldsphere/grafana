@@ -36,7 +36,7 @@ export class FieldCache {
       });
 
       if (this.fieldByName[field.name]) {
-        console.warn('Duplicate field names in DataFrame: ', field.name);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'packages/grafana-data/src/dataframe/FieldCache.ts', args: ['Duplicate field names in DataFrame: ', field.name] }]);
       } else {
         this.fieldByName[field.name] = { ...field, index: i };
       }

@@ -36,11 +36,11 @@ function scenesModule() {
   try {
     const status = fs.lstatSync(scenesPath);
     if (status.isSymbolicLink()) {
-      console.log(`scenes is linked to local scenes repo`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'scripts/webpack/webpack.dev.js', args: [`scenes is linked to local scenes repo`] }]);
       return path.resolve(scenesPath + '/src');
     }
   } catch (error) {
-    console.error(`Error checking scenes path: ${error.message}`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/webpack/webpack.dev.js', args: [`Error checking scenes path: ${error.message}`] }]);
   }
   return scenesPath;
 }

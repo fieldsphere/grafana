@@ -64,7 +64,7 @@ export const generateTextMatchGrammar = (highlightWords: string[] | undefined = 
       try {
         return new RegExp(`(?:${cleaned})`, flags);
       } catch (e) {
-        console.error(`generateTextMatchGrammar: cannot generate regular expression from /${cleaned}/${flags}`, e);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/logs/components/panel/grammar.ts', args: [`generateTextMatchGrammar: cannot generate regular expression from /${cleaned}/${flags}`, e] }]);
       }
       return undefined;
     })
@@ -74,7 +74,7 @@ export const generateTextMatchGrammar = (highlightWords: string[] | undefined = 
     try {
       expressions.push(new RegExp(escapeRegex(search), 'gi'));
     } catch (e) {
-      console.error(`generateTextMatchGrammar: cannot generate regular expression from /${search}/gi`, e);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/logs/components/panel/grammar.ts', args: [`generateTextMatchGrammar: cannot generate regular expression from /${search}/gi`, e] }]);
     }
   }
   if (!expressions.length) {

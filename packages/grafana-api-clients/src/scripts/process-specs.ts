@@ -154,7 +154,7 @@ function processDirectory(sourceDir: string, outputDir: string) {
     const inputPath = path.join(sourceDir, file);
     const outputPath = path.join(outputDir, file);
 
-    console.log(`Processing file "${file}"...`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-api-clients/src/scripts/process-specs.ts', args: [`Processing file "${file}"...`] }]);
 
     const fileContent = fs.readFileSync(inputPath, 'utf-8');
 
@@ -162,13 +162,13 @@ function processDirectory(sourceDir: string, outputDir: string) {
     try {
       inputSpec = JSON.parse(fileContent);
     } catch (err) {
-      console.error(`Invalid JSON file "${file}". Skipping this file.`);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-api-clients/src/scripts/process-specs.ts', args: [`Invalid JSON file "${file}". Skipping this file.`] }]);
       continue;
     }
 
     const outputSpec = processOpenAPISpec(inputSpec);
     fs.writeFileSync(outputPath, JSON.stringify(outputSpec, null, 2), 'utf-8');
-    console.log(`Processing completed for file "${file}".`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-api-clients/src/scripts/process-specs.ts', args: [`Processing completed for file "${file}".`] }]);
   }
 }
 

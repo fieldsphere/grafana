@@ -46,7 +46,7 @@ test(
         expect(testFlagFalse.variant).toBe('playwright-override');
       }
     } catch {
-      console.log('OFREP endpoint not called - OpenFeature may not be enabled');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'e2e-playwright/plugin-e2e/plugin-e2e-api-tests/as-admin-user/openFeature.spec.ts', args: ['OFREP endpoint not called - OpenFeature may not be enabled'] }]);
     }
   }
 );
@@ -92,7 +92,7 @@ test(
       expect(testFlagFalse?.value).toBe(false);
       expect(testFlagFalse?.variant).toBe('playwright-override');
     } catch {
-      console.log('OFREP endpoint not called - OpenFeature may not be enabled');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'e2e-playwright/plugin-e2e/plugin-e2e-api-tests/as-admin-user/openFeature.spec.ts', args: ['OFREP endpoint not called - OpenFeature may not be enabled'] }]);
     }
   }
 );

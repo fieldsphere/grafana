@@ -6,7 +6,7 @@ import { Field } from '../Forms/Field';
 import { Cascader, CascaderOption } from './Cascader';
 import mdx from './Cascader.mdx';
 
-const onSelect = (val: string) => console.log(val);
+const onSelect = (val: string) => Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/components/Cascader/Cascader.story.tsx', args: [val] }]);
 const options = [
   {
     label: 'First',

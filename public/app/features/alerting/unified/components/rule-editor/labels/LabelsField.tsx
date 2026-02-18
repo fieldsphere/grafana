@@ -182,7 +182,7 @@ export function useCombinedLabels(
               opsValues = result.values.map((value) => value.name);
             }
           } catch (error) {
-            console.error('Failed to fetch label values for key:', key, error);
+            Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/alerting/unified/components/rule-editor/labels/LabelsField.tsx', args: ['Failed to fetch label values for key:', key, error] }]);
           }
         }
 

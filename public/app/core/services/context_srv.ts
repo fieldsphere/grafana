@@ -112,7 +112,7 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/services/context_srv.ts', args: [e] }]);
     }
   }
 
@@ -262,7 +262,7 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/services/context_srv.ts', args: [e] }]);
       });
   }
 }

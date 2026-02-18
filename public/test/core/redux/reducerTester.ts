@@ -82,7 +82,7 @@ export const reducerTester = <State>(): Given<State> => {
 
   const thenStateShouldEqual = (state: State): When<State> => {
     if (showDebugOutput) {
-      console.log(JSON.stringify(resultingState, null, 2));
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/test/core/redux/reducerTester.ts', args: [JSON.stringify(resultingState, null, 2)] }]);
     }
     expect(resultingState).toEqual(state);
 
@@ -91,7 +91,7 @@ export const reducerTester = <State>(): Given<State> => {
 
   const thenStatePredicateShouldEqual = (predicate: (resultingState: State) => boolean): When<State> => {
     if (showDebugOutput) {
-      console.log(JSON.stringify(resultingState, null, 2));
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/test/core/redux/reducerTester.ts', args: [JSON.stringify(resultingState, null, 2)] }]);
     }
     expect(predicate(resultingState)).toBe(true);
 

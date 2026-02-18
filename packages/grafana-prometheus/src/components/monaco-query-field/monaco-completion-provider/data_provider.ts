@@ -80,7 +80,7 @@ export class DataProvider {
 
       return Array.isArray(result) ? result : [];
     } catch (error) {
-      console.warn('Failed to query metric names:', error);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'packages/grafana-prometheus/src/components/monaco-query-field/monaco-completion-provider/data_provider.ts', args: ['Failed to query metric names:', error] }]);
       return [];
     }
   };

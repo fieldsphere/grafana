@@ -127,20 +127,20 @@ define(['react', '@grafana/data'], function (React, grafanaData) {
     const globalTests = [
       function () {
         try {
-          console.log(window.Prism.languages);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js', args: [window.Prism.languages] }]);
           return 'Prism';
         } catch (e) {}
       },
       function () {
         try {
-          console.log(window.jQuery.fn.jquery);
-          console.log(window.$.fn.jquery);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js', args: [window.jQuery.fn.jquery] }]);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js', args: [window.$.fn.jquery] }]);
           return 'jQuery';
         } catch (e) {}
       },
       function () {
         try {
-          console.log(window.locationSandbox);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js', args: [window.locationSandbox] }]);
           return 'location';
         } catch (e) {}
       },

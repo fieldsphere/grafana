@@ -98,7 +98,7 @@ function useLogFilters(
 
   return useMemo(() => {
     if (data && data?.series.length > 1) {
-      console.warn('LogViewFilter does not support multiple series in query result.');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/plugins/extensions/logs/LogViewFilters.tsx', args: ['LogViewFilter does not support multiple series in query result.'] }]);
     }
 
     const frame = data?.series[0];

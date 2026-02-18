@@ -46,9 +46,11 @@ jobs:
             const keywords = process.env.PLUGIN_EXTENSION_KEYWORDS.split(',');
             const baseSha = '${{ github.event.pull_request.base.sha }}';
             const headSha = '${{ github.event.pull_request.head.sha }}';
+            const structuredLog = (level, ...args) =>
+              Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, level === 'error' ? 'error' : level === 'warn' ? 'warn' : 'info'), console, [{ timestamp: new Date().toISOString(), level, source: '.github/workflows/detect-plugin-extension-changes.yml', args }]);
             
-            console.log('Checking for plugin extension changes...');
-            console.log('Keywords:', keywords);
+            structuredLog('info', 'Checking for plugin extension changes...');
+            structuredLog('info', 'Keywords:', keywords);
             
             // Get changed files in packages/ and public/ directories
             let changedFiles = [];
@@ -66,7 +68,7 @@ jobs:
               });
             }
             
-            console.log('Changed files to check:', changedFiles);
+            structuredLog('info', 'Changed files to check:', changedFiles);
             
             // Check each file for plugin extension keywords
             const filesWithChanges = new Set();
@@ -83,14 +85,14 @@ jobs:
                 // Check if any keywords are in the diff
                 for (const keyword of keywords) {
                   if (fileDiff.includes(keyword)) {
-                    console.log(`Found ${keyword} in ${file}`);
+                    structuredLog('info', `Found ${keyword} in ${file}`);
                     filesWithChanges.add(file);
                     hasPluginExtensionChanges = true;
                     break; // Found at least one keyword, move to next file
                   }
                 }
               } catch (error) {
-                console.log(`Error checking file ${file}:`, error.message);
+                structuredLog('error', `Error checking file ${file}:`, error.message);
               }
             }
             
@@ -104,10 +106,10 @@ jobs:
             core.setOutput('formatted_changed_files', formattedFiles);
 
             if (hasPluginExtensionChanges) {
-              console.log('The following files have changes that may affect plugin extensions:');
-              console.log(filesArray);
+              structuredLog('info', 'The following files have changes that may affect plugin extensions:');
+              structuredLog('info', filesArray);
             } else {
-              console.log('No changes detected in core Grafana extensions or extension points.');
+              structuredLog('info', 'No changes detected in core Grafana extensions or extension points.');
             }
 
       - name: Send Slack Message via Payload

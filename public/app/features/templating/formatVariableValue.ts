@@ -42,7 +42,7 @@ export function formatVariableValue(value: any, format?: any, variable?: any, te
   let formatItem = formatRegistry.getIfExists(format);
 
   if (!formatItem) {
-    console.error(`Variable format ${format} not found. Using glob format as fallback.`);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/templating/formatVariableValue.ts', args: [`Variable format ${format} not found. Using glob format as fallback.`] }]);
     formatItem = formatRegistry.get(VariableFormatID.Glob);
   }
 

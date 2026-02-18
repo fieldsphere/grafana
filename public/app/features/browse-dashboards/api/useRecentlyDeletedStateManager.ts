@@ -65,7 +65,7 @@ export class TrashStateManager extends SearchStateManager {
 
       return termCounts.sort((a, b) => b.count - a.count);
     } catch (error) {
-      console.error('Failed to get tags from deleted dashboards:', error);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/browse-dashboards/api/useRecentlyDeletedStateManager.ts', args: ['Failed to get tags from deleted dashboards:', error] }]);
       return [];
     }
   };

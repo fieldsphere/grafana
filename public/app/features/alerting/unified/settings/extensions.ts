@@ -16,7 +16,7 @@ const settingsExtensions: Map<SettingsSectionUrl, { nav: SettingsSectionNav }> =
  */
 export function addSettingsSection(pageNav: SettingsSectionNav) {
   if (settingsExtensions.has(pageNav.url)) {
-    console.warn('Unable to add settings page, PageNav must have an unique url');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/alerting/unified/settings/extensions.ts', args: ['Unable to add settings page, PageNav must have an unique url'] }]);
     return;
   }
   settingsExtensions.set(pageNav.url, { nav: pageNav });

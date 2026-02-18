@@ -19,7 +19,7 @@ const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
     variable: { rootStateKey },
   } = ownProps;
   if (!rootStateKey) {
-    console.error('DataSourceVariableEditor: variable has no rootStateKey');
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/variables/datasource/DataSourceVariableEditor.tsx', args: ['DataSourceVariableEditor: variable has no rootStateKey'] }]);
     return {
       extended: getDatasourceVariableEditorState(initialVariableEditorState),
     };
@@ -46,7 +46,7 @@ export class DataSourceVariableEditorUnConnected extends PureComponent<Props> {
   componentDidMount() {
     const { rootStateKey } = this.props.variable;
     if (!rootStateKey) {
-      console.error('DataSourceVariableEditor: variable has no rootStateKey');
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/variables/datasource/DataSourceVariableEditor.tsx', args: ['DataSourceVariableEditor: variable has no rootStateKey'] }]);
       return;
     }
 

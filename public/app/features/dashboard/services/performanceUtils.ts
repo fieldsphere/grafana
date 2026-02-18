@@ -86,10 +86,10 @@ export function writePerformanceGroupLog(logger: string, message: string, data?:
   if (isPerformanceLoggingEnabled()) {
     if (data) {
       // eslint-disable-next-line no-console
-      console.log(message, data);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/dashboard/services/performanceUtils.ts', args: [message, data] }]);
     } else {
       // eslint-disable-next-line no-console
-      console.log(message);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/dashboard/services/performanceUtils.ts', args: [message] }]);
     }
   }
 }
@@ -117,7 +117,7 @@ export function createPerformanceMark(name: string, timestamp?: number): void {
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/services/performanceUtils.ts', args: [`❌ Failed to create performance mark: ${name}`, { timestamp, error }] }]);
   }
 }
 
@@ -134,6 +134,6 @@ export function createPerformanceMeasure(name: string, startMark: string, endMar
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/dashboard/services/performanceUtils.ts', args: [`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error }] }]);
   }
 }

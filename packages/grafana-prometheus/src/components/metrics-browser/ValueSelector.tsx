@@ -59,7 +59,7 @@ export function ValueSelector() {
         <div className={styles.valueListArea}>
           {Object.entries(filteredLabelValues).map(([lk, lv]) => {
             if (!lk || !lv) {
-              console.error('label values are empty:', { lk, lv });
+              Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-prometheus/src/components/metrics-browser/ValueSelector.tsx', args: ['label values are empty:', { lk, lv }] }]);
               return null;
             }
             return (

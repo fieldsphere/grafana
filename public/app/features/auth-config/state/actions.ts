@@ -78,7 +78,7 @@ export function saveSettings(data: UpdateSettingsQuery): ThunkResult<Promise<boo
         dispatch(resetError());
         return true;
       } catch (error) {
-        console.log(error);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/auth-config/state/actions.ts', args: [error] }]);
         if (isFetchError(error)) {
           error.isHandled = true;
           const updateErr: SettingsError = {

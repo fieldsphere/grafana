@@ -129,7 +129,7 @@ export class FrameState extends ElementState {
         break;
       case LayerActionID.Duplicate:
         if (element.item.id === 'frame') {
-          console.log('Can not duplicate frames (yet)', action, element);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/canvas/runtime/frame.tsx', args: ['Can not duplicate frames (yet)', action, element] }]);
           return;
         }
         const opts = cloneDeep(element.options);
@@ -239,7 +239,7 @@ export class FrameState extends ElementState {
         break;
 
       default:
-        console.log('DO action', action, element);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/canvas/runtime/frame.tsx', args: ['DO action', action, element] }]);
         return;
     }
   };

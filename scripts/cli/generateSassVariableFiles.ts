@@ -15,7 +15,7 @@ async function writeVariablesFile(path: string, data: string) {
   try {
     await writeFile(path, data);
   } catch (error) {
-    console.error('\nWriting SASS variable files failed', error);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/cli/generateSassVariableFiles.ts', args: ['\nWriting SASS variable files failed', error] }]);
     process.exit(1);
   }
 }
@@ -28,7 +28,7 @@ async function generateSassVariableFiles() {
     await writeVariablesFile(lightThemeVariablesPath, lightThemeVarsTemplate(lightTheme));
     await writeVariablesFile(defaultThemeVariablesPath, commonThemeVarsTemplate(darkTheme));
   } catch (error) {
-    console.error('\nWriting SASS variable files failed', error);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'scripts/cli/generateSassVariableFiles.ts', args: ['\nWriting SASS variable files failed', error] }]);
     process.exit(1);
   }
 }

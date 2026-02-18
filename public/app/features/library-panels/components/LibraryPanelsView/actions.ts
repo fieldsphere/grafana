@@ -54,7 +54,7 @@ export function searchForLibraryPanels(args: SearchArgs): SearchDispatchResult {
         }
 
         // For real errors, log and show error to user
-        console.error('Error fetching library panels:', err);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/library-panels/components/LibraryPanelsView/actions.ts', args: ['Error fetching library panels:', err] }]);
 
         // Update state to show empty results
         return of(searchCompleted({ ...initialLibraryPanelsViewState, page: args.page, perPage: args.perPage }));
@@ -78,7 +78,7 @@ export function deleteLibraryPanel(uid: string, args: SearchArgs) {
       await apiDeleteLibraryPanel(uid);
       searchForLibraryPanels(args)(dispatch);
     } catch (e) {
-      console.error(e);
+      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/library-panels/components/LibraryPanelsView/actions.ts', args: [e] }]);
     }
   };
 }

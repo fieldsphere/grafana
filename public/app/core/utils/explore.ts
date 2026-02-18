@@ -159,7 +159,7 @@ export const safeStringifyValue = (value: unknown, space?: number) => {
   try {
     return JSON.stringify(value, null, space);
   } catch (error) {
-    console.error(error);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/utils/explore.ts', args: [error] }]);
   }
 
   return '';
@@ -232,7 +232,7 @@ export async function ensureQueries(
         try {
           await getDataSourceSrv().get(query.datasource.uid);
         } catch {
-          console.error(`One of the queries has a datasource that is no longer available and was removed.`);
+          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/core/utils/explore.ts', args: [`One of the queries has a datasource that is no longer available and was removed.`] }]);
           validDS = false;
         }
       }

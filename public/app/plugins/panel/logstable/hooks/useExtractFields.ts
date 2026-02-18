@@ -56,7 +56,7 @@ export function useExtractFields({ rawTableFrame, fieldConfig, timeZone }: Props
         }
       })
       .catch((err) => {
-        console.error('LogsTable: Extract fields transform error', err);
+        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/panel/logstable/hooks/useExtractFields.ts', args: ['LogsTable: Extract fields transform error', err] }]);
       });
     // @todo hook re-renders unexpectedly when data frame isn't changing if we add `rawTableFrame` as dependency, so we check for changes in the timestamps instead
     // eslint-disable-next-line react-hooks/exhaustive-deps

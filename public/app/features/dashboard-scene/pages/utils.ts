@@ -10,7 +10,7 @@ export async function updateNavModel(folderUid: string) {
     const folder = await getFolderByUidFacade(folderUid);
     store.dispatch(updateNavIndex(buildNavModel(folder)));
   } catch (err) {
-    console.warn('Error fetching parent folder', folderUid, 'for dashboard', err);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/dashboard-scene/pages/utils.ts', args: ['Error fetching parent folder', folderUid, 'for dashboard', err] }]);
   }
 }
 

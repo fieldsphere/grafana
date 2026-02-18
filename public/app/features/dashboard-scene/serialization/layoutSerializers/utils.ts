@@ -358,9 +358,9 @@ export function getDataSourceForQuery(querySpecDS: DataSourceRef | undefined | n
     // In the datasource list from bootData "id" is the type and the uid could be uid or the name
     // in cases like grafana, dashboard or mixed datasource
 
-    console.warn(
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/dashboard-scene/serialization/layoutSerializers/utils.ts', args: [
       `Could not find datasource for query kind ${queryKind}, defaulting to ${dsList[defaultDatasource].meta.id}`
-    );
+    ] }]);
     return {
       uid: dsList[defaultDatasource].uid || dsList[defaultDatasource].name,
       type: dsList[defaultDatasource].meta.id,

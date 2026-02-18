@@ -13,7 +13,7 @@ export async function fakeSearchAPI(urlString: string): Promise<Array<ComboboxOp
 
   if (!fakeApiOptions) {
     fakeApiOptions = await generateOptions(1000);
-    console.log('fakeApiOptions', fakeApiOptions);
+    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/components/Combobox/storyUtils.ts', args: ['fakeApiOptions', fakeApiOptions] }]);
   }
 
   if (!searchQuery || searchQuery.length === 0) {

@@ -6,7 +6,7 @@ type Args = Parameters<typeof console.log>;
  * @internal
  * */
 const throttledLog = throttle((...t: Args) => {
-  console.log(...t);
+  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'packages/grafana-ui/src/utils/logger.ts', args: [...t] }]);
 }, 500);
 
 /**

@@ -15,7 +15,7 @@ export const useMegaMenuOpen: MegaMenuOpenHook = () => {
     if (process.env.NODE_ENV !== 'production') {
       throw new Error('useMegaMenuOpen hook not found in @grafana/runtime');
     }
-    return [false, () => console.error('MegaMenuOpen hook not found')];
+    return [false, () => Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'packages/grafana-runtime/src/utils/megaMenuOpen.ts', args: ['MegaMenuOpen hook not found'] }])];
   }
 
   return megaMenuOpenHook();
