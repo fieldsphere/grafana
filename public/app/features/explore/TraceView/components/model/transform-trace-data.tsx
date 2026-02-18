@@ -115,10 +115,10 @@ export default function transformTraceData(data: TraceResponse | undefined): Tra
     const idCount = spanIdCounts.get(spanID);
     if (idCount != null) {
       // eslint-disable-next-line no-console
-      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/explore/TraceView/components/model/transform-trace-data.tsx', args: [`Dupe spanID, ${idCount + 1} x ${spanID}`, span, spanMap.get(spanID)] }]);
+      console.warn(`Dupe spanID, ${idCount + 1} x ${spanID}`, span, spanMap.get(spanID));
       if (_isEqual(span, spanMap.get(spanID))) {
         // eslint-disable-next-line no-console
-        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/features/explore/TraceView/components/model/transform-trace-data.tsx', args: ['\t two spans with same ID have `isEqual(...) === true`'] }]);
+        console.warn('\t two spans with same ID have `isEqual(...) === true`');
       }
       spanIdCounts.set(spanID, idCount + 1);
       spanID = `${spanID}_${idCount}`;

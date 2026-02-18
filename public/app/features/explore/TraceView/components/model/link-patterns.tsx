@@ -112,7 +112,7 @@ export function processLinkPattern(pattern: any): ProcessedLinkPattern | null {
     };
   } catch (error) {
     // eslint-disable-next-line no-console
-    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/explore/TraceView/components/model/link-patterns.tsx', args: [`Ignoring invalid link pattern: ${error}`, pattern] }]);
+    console.error(`Ignoring invalid link pattern: ${error}`, pattern);
     return null;
   }
 }

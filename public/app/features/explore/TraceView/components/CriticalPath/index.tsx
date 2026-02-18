@@ -104,7 +104,7 @@ function criticalPathForTrace(trace: Trace) {
       criticalPath = computeCriticalPath(sanitizedSpanMap, rootSpanId, criticalPath);
     } catch (error) {
       /* eslint-disable no-console */
-      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/features/explore/TraceView/components/CriticalPath/index.tsx', args: ['error while computing critical path for a trace', error] }]);
+      console.log('error while computing critical path for a trace', error);
     }
   }
   return criticalPath;

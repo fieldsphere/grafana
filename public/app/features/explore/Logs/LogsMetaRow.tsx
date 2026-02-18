@@ -161,6 +161,6 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
   if (kind === LogsMetaKind.Error) {
     return <span className="logs-meta-item__error">{value.toString()}</span>;
   }
-  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/features/explore/Logs/LogsMetaRow.tsx', args: [`Meta type ${typeof value} ${value} not recognized.`] }]);
+  console.error(`Meta type ${typeof value} ${value} not recognized.`);
   return <></>;
 }
