@@ -189,7 +189,7 @@ export function transformFromOTLP(
       }
     }
   } catch (error) {
-    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/tempo/resultTransformer.ts', args: [error] }]);
+    console.error(error);
     return { error: { message: 'JSON is not valid OpenTelemetry format: ' + error }, data: [] };
   }
 

@@ -57,7 +57,7 @@ function getLegacyCredentials(
     return { authType: options.jsonData.azureAuthType };
   } catch (e) {
     if (e instanceof Error) {
-      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/azuremonitor/credentials.ts', args: ['Unable to restore legacy credentials: %s', e.message] }]);
+      console.error('Unable to restore legacy credentials: %s', e.message);
     }
     return undefined;
   }

@@ -32,7 +32,7 @@ export async function getDS(uid?: string): Promise<DataSourceApi | undefined> {
   try {
     return await dsSrv.get(uid);
   } catch (error) {
-    Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/tempo/utils.ts', args: ['Failed to load data source', error] }]);
+    console.error('Failed to load data source', error);
     return undefined;
   }
 }

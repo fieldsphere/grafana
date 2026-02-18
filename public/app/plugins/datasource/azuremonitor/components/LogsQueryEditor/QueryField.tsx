@@ -29,11 +29,11 @@ const QueryField = ({ query, onQueryChange, schema }: AzureQueryEditorFieldProps
           await kustoMode.setSchema(schema);
         }
       } catch (err) {
-        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/azuremonitor/components/LogsQueryEditor/QueryField.tsx', args: [err] }]);
+        console.error(err);
       }
     };
 
-    setupEditor(monaco, schema).catch((err) => Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/azuremonitor/components/LogsQueryEditor/QueryField.tsx', args: [err] }]));
+    setupEditor(monaco, schema).catch((err) => console.error(err));
   }, [schema, monaco]);
 
   const handleEditorMount = useCallback((editor: MonacoEditor, monaco: Monaco) => {

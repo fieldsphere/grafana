@@ -388,7 +388,7 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
         // then put inside parenthesis.
         return typeof value === 'string' ? escapeRegex(value) : `(${value.map((v) => escapeRegex(v)).join('|')})`;
       } catch (e) {
-        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/plugins/datasource/influxdb/datasource.ts', args: [`Supplied match is not valid regex: ${match}`] }]);
+        console.warn(`Supplied match is not valid regex: ${match}`);
       }
     }
 

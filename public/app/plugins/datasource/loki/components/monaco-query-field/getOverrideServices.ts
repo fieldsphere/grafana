@@ -81,7 +81,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/plugins/datasource/loki/components/monaco-query-field/getOverrideServices.ts', args: ['logStorage: not implemented'] }]);
+      console.log('logStorage: not implemented');
     },
 
     migrate: (): Promise<void> => {

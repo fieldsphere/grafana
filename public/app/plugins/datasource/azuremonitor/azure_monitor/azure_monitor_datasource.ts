@@ -218,7 +218,7 @@ export default class AzureMonitorDatasource extends DataSourceWithBackend<
         return result;
       })
       .catch((reason) => {
-        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/azuremonitor/azure_monitor/azure_monitor_datasource.ts', args: [`Failed to get metric namespaces: ${reason}`] }]);
+        console.error(`Failed to get metric namespaces: ${reason}`);
         return [];
       });
   }

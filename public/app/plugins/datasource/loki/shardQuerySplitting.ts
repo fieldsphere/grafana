@@ -130,7 +130,7 @@ function splitQueriesByStreamShard(
           return false;
         }
       } catch (e) {
-        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/loki/shardQuerySplitting.ts', args: [e] }]);
+        console.error(e);
         shouldStop = true;
         return false;
       }
@@ -155,7 +155,7 @@ function splitQueriesByStreamShard(
 
       retryTimer = setTimeout(
         () => {
-          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'public/app/plugins/datasource/loki/shardQuerySplitting.ts', args: [`Retrying ${group} ${cycle} (${retries + 1})`] }]);
+          console.warn(`Retrying ${group} ${cycle} (${retries + 1})`);
           runNextRequest(subscriber, group, groups);
           retryTimer = null;
         },
@@ -224,7 +224,7 @@ function splitQueriesByStreamShard(
         nextRequest();
       },
       error: (error: unknown) => {
-        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/loki/shardQuerySplitting.ts', args: [error, { msg: 'failed to shard' }] }]);
+        console.error(error, { msg: 'failed to shard' });
         subscriber.next(mergedResponse);
         if (retry()) {
           return;
@@ -293,7 +293,7 @@ async function groupTargetsByQueryType(
         cycle: 0,
       });
     } catch (error) {
-      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/loki/shardQuerySplitting.ts', args: [error, { msg: 'failed to fetch label values for __stream_shard__' }] }]);
+      console.error(error, { msg: 'failed to fetch label values for __stream_shard__' });
       groups.push({
         targets: selectorPartition[selector],
       });
@@ -375,5 +375,5 @@ function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'info'), console, [{ timestamp: new Date().toISOString(), level: 'info', source: 'public/app/plugins/datasource/loki/shardQuerySplitting.ts', args: [message] }]);
+  console.log(message);
 }

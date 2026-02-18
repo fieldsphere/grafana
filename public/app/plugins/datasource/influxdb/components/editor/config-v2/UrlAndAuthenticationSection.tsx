@@ -104,7 +104,7 @@ export const UrlAndAuthenticationSection = (props: Props) => {
         }
       }
     } catch (err) {
-      Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/influxdb/components/editor/config-v2/UrlAndAuthenticationSection.tsx', args: ['Failed to get InfluxDB version:', err] }]);
+      console.error('Failed to get InfluxDB version:', err);
     }
 
     return { product: undefined, version: undefined };

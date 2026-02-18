@@ -173,7 +173,7 @@ export function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/loki/querySplitting.ts', args: [e] }]);
+        console.error(e);
         shouldStop = true;
         return false;
       }

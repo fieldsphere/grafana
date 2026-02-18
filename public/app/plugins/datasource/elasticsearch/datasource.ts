@@ -1172,12 +1172,12 @@ export class ElasticDatasource
         try {
           return new SemVer(versionNumber);
         } catch (error) {
-          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/elasticsearch/datasource.ts', args: [error] }]);
+          console.error(error);
           return null;
         }
       },
       (error) => {
-        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/elasticsearch/datasource.ts', args: [error] }]);
+        console.error(error);
         return null;
       }
     );

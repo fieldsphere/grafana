@@ -193,11 +193,11 @@ const LogsQueryEditor = ({
           setDataIngestedWarning(null);
         }
       } catch (err) {
-        Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/azuremonitor/components/LogsQueryEditor/LogsQueryEditor.tsx', args: [err] }]);
+        console.error(err);
       }
     };
 
-    getBasicLogsUsage(query).catch((err) => Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'public/app/plugins/datasource/azuremonitor/components/LogsQueryEditor/LogsQueryEditor.tsx', args: [err] }]));
+    getBasicLogsUsage(query).catch((err) => console.error(err));
   }, [datasource.azureLogAnalyticsDatasource, query, showBasicLogsToggle, from, to]);
   let portalLinkButton = null;
 
