@@ -176,7 +176,7 @@
             return;
           }
           hasFailedToBoot = true;
-          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'pkg/services/frontend/index.html', args: ['Failed to load Grafana', err] }]);
+          console.error('Failed to load Grafana', err);
           document.querySelector('.fs-variant-loader').classList.add('fs-hidden');
           document.querySelector('.fs-variant-error').classList.remove('fs-hidden');
 
@@ -188,7 +188,7 @@
             method: 'GET',
             cache: "no-store",
           }).catch(err => {
-            Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'pkg/services/frontend/index.html', args: ['Failed to report boot error to backend: ', err] }]);
+            console.error('Failed to report boot error to backend: ', err);
           });
         };
 
@@ -305,7 +305,7 @@
                 }
               } catch (error) {
                 // Just ignore any errors in session rotation. The user can just log in again.
-                Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'warn'), console, [{ timestamp: new Date().toISOString(), level: 'warn', source: 'pkg/services/frontend/index.html', args: ["Failed to rotate session", error] }]);
+                console.warn("Failed to rotate session", error);
               }
 
               try {
@@ -392,7 +392,7 @@
 
         window.__grafana_boot_data_promise = initGrafana()
         window.__grafana_boot_data_promise.catch((err) => {
-          Reflect.apply(Reflect.get(globalThis, '__structuredLog') ?? Reflect.get(console, 'error'), console, [{ timestamp: new Date().toISOString(), level: 'error', source: 'pkg/services/frontend/index.html', args: ["__grafana_boot_data_promise rejected", err] }]);
+          console.error("__grafana_boot_data_promise rejected", err);
           window.__grafana_load_failed(err);
         });
       })();
