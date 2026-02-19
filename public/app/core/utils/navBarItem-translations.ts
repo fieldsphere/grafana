@@ -193,6 +193,10 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.detect.title', 'Detect');
     case 'plugin-page-grafana-quaderno-app':
       return t('nav.grafana-quaderno.title', 'Grafana Quaderno');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
+    case 'labs/feature-toggles':
+      return t('nav.labs-feature-toggles.title', 'Feature toggles');
     default:
       return undefined;
   }
@@ -311,6 +315,10 @@ export function getNavSubTitle(navId: string | undefined) {
       );
     case 'plugin-page-grafana-ml-app':
       return t('nav.machine-learning.subtitle', 'Explore AI and machine learning features');
+    case 'labs':
+      return t('nav.labs.subtitle', 'Manage feature flags and experimental features');
+    case 'labs/feature-toggles':
+      return t('nav.labs-feature-toggles.subtitle', 'View feature flags enabled in this Grafana instance');
     default:
       return undefined;
   }

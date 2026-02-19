@@ -11,10 +11,12 @@ import (
 
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -156,5 +158,45 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "A Dashboard", navLinks[0].Text)
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
+	})
+}
+
+func TestBuildLabsNavLink(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	cfg := setting.NewCfg()
+
+	t.Run("Should return nil when user is not signed in", func(t *testing.T) {
+		reqCtx := &contextmodel.ReqContext{
+			SignedInUser: nil,
+			Context:      &web.Context{Req: httpReq},
+		}
+
+		service := ServiceImpl{cfg: cfg}
+		labsSection := service.buildLabsNavLink(reqCtx)
+		require.Nil(t, labsSection)
+	})
+
+	t.Run("Should return Labs section with feature toggles child and IsNew badge when signed in", func(t *testing.T) {
+		reqCtx := &contextmodel.ReqContext{
+			IsSignedIn: true,
+			SignedInUser: &user.SignedInUser{
+				UserID: 1,
+				OrgID:  1,
+			},
+			Context: &web.Context{Req: httpReq},
+		}
+
+		service := ServiceImpl{cfg: cfg}
+		labsSection := service.buildLabsNavLink(reqCtx)
+		require.NotNil(t, labsSection)
+		require.Equal(t, navtree.NavIDLabs, labsSection.Id)
+		require.Equal(t, "Labs", labsSection.Text)
+		require.True(t, labsSection.IsNew, "Labs section should have IsNew badge")
+		require.Len(t, labsSection.Children, 1)
+
+		featureTogglesChild := labsSection.Children[0]
+		require.Equal(t, navtree.NavIDLabsFeatureToggles, featureTogglesChild.Id)
+		require.Equal(t, "Feature toggles", featureTogglesChild.Text)
+		require.Contains(t, featureTogglesChild.Url, "/labs/feature-toggles")
 	})
 }
