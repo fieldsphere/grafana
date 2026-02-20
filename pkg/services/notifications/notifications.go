@@ -129,7 +129,7 @@ func (ns *NotificationService) Run(ctx context.Context) error {
 			info := ""
 			if err != nil {
 				if len(msg.Info) > 0 {
-					info = ", info: " + msg.Info
+					info = msg.Info
 				}
 				ns.log.Error("Async email sending failed", "numSucceeded", num, "recipients", tos, "info", info, "error", err)
 			} else {
