@@ -104,16 +104,16 @@ func Krb5ParseAuthCredentials(host string, port string, db string, user string, 
 }
 
 func getCredentialCacheFromLookup(lookupFile string, host string, port string, dbName string, user string) string {
-	logger.Info(fmt.Sprintf("reading credential cache lookup: %s", lookupFile))
+	logger.Info("reading credential cache lookup", "lookupFile", lookupFile)
 	content, err := os.ReadFile(filepath.Clean(lookupFile))
 	if err != nil {
-		logger.Error(fmt.Sprintf("error reading: %s, %v", lookupFile, err))
+		logger.Error("error reading credential cache lookup file", "lookupFile", lookupFile, "error", err)
 		return ""
 	}
 	var lookups []KerberosLookup
 	err = json.Unmarshal(content, &lookups)
 	if err != nil {
-		logger.Error(fmt.Sprintf("error parsing: %s, %v", lookupFile, err))
+		logger.Error("error parsing credential cache lookup file", "lookupFile", lookupFile, "error", err)
 		return ""
 	}
 	// find cache file
@@ -122,10 +122,10 @@ func getCredentialCacheFromLookup(lookupFile string, host string, port string, d
 			item.Address = host + ":0"
 		}
 		if item.Address == host+":"+port && item.DBName == dbName && item.User == user {
-			logger.Info(fmt.Sprintf("matched: %+v", item))
+			logger.Info("matched credential cache lookup", "address", item.Address, "dbName", item.DBName, "user", item.User, "credentialCacheFilename", item.CredentialCacheFilename)
 			return item.CredentialCacheFilename
 		}
 	}
-	logger.Error(fmt.Sprintf("no match found for %s", host+":"+port))
+	logger.Error("no credential cache match found", "host", host, "port", port)
 	return ""
 }
