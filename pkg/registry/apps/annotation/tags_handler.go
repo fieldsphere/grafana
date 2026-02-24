@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"net/url"
+	"strconv"
 
 	"github.com/grafana/grafana-app-sdk/app"
 )
@@ -24,7 +26,8 @@ func newTagsHandler(tagProvider TagProvider) func(ctx context.Context, writer ap
 		if namespace == "" {
 			namespace = "default"
 		}
-		tags, err := tagProvider.ListTags(ctx, namespace, TagListOptions{})
+		opts := tagListOptionsFromQueryParams(request.URL.Query())
+		tags, err := tagProvider.ListTags(ctx, namespace, opts)
 		if err != nil {
 			return err
 		}
@@ -42,4 +45,20 @@ func newTagsHandler(tagProvider TagProvider) func(ctx context.Context, writer ap
 
 		return json.NewEncoder(writer).Encode(response)
 	}
+}
+
+func tagListOptionsFromQueryParams(queryParams url.Values) TagListOptions {
+	opts := TagListOptions{}
+
+	if v := queryParams.Get("tag"); v != "" {
+		opts.Prefix = v
+	}
+
+	if v := queryParams.Get("limit"); v != "" {
+		if limit, err := strconv.Atoi(v); err == nil && limit > 0 {
+			opts.Limit = limit
+		}
+	}
+
+	return opts
 }

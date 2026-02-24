@@ -8,9 +8,6 @@
 # Order is important. The last matching pattern has the most precedence.
 # The folders are ordered as follows:
 
-# Cursor agent config
-/.cursor/skills/ @fieldsphere
-
 # In each subsection folders are ordered first by depth, then alphabetically.
 # This should make it easy to add new rules without breaking existing ones.
 

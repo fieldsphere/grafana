@@ -1073,12 +1073,98 @@
       },
       "parameters": [
         {
+          "name": "continue",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "uniqueItems": true
+          }
+        },
+        {
+          "name": "dashboardUID",
+          "in": "query",
+          "schema": {
+            "type": "string",
+            "uniqueItems": true
+          }
+        },
+        {
+          "name": "from",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "uniqueItems": true
+          }
+        },
+        {
+          "name": "limit",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "uniqueItems": true
+          }
+        },
+        {
           "name": "namespace",
           "in": "path",
           "description": "object name and auth scope, such as for teams and projects",
           "required": true,
           "schema": {
             "type": "string",
+            "uniqueItems": true
+          }
+        },
+        {
+          "name": "panelID",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "uniqueItems": true
+          }
+        },
+        {
+          "name": "scope",
+          "in": "query",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        },
+        {
+          "name": "scopesMatchAny",
+          "in": "query",
+          "schema": {
+            "type": "boolean",
+            "uniqueItems": true
+          }
+        },
+        {
+          "name": "tag",
+          "in": "query",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          }
+        },
+        {
+          "name": "tagsMatchAny",
+          "in": "query",
+          "schema": {
+            "type": "boolean",
+            "uniqueItems": true
+          }
+        },
+        {
+          "name": "to",
+          "in": "query",
+          "schema": {
+            "type": "integer",
             "uniqueItems": true
           }
         }
@@ -1112,10 +1198,26 @@
       },
       "parameters": [
         {
+          "name": "limit",
+          "in": "query",
+          "schema": {
+            "type": "integer",
+            "uniqueItems": true
+          }
+        },
+        {
           "name": "namespace",
           "in": "path",
           "description": "object name and auth scope, such as for teams and projects",
           "required": true,
+          "schema": {
+            "type": "string",
+            "uniqueItems": true
+          }
+        },
+        {
+          "name": "tag",
+          "in": "query",
           "schema": {
             "type": "string",
             "uniqueItems": true

@@ -15,6 +15,12 @@ v0alpha1: {
         namespaced: {
             "/tags": {
                 "GET": {
+                    request: {
+                        query: {
+                            tag?: string
+                            limit?: int64
+                        }
+                    }
                     response: {
                         tags: [...{
                             tag: string
@@ -25,6 +31,20 @@ v0alpha1: {
             }
             "/search": {
                 "GET": {
+                    request: {
+                        query: {
+                            dashboardUID?:  string
+                            panelID?:       int64
+                            from?:          int64
+                            to?:            int64
+                            limit?:         int64 | 100
+                            continue?:      string
+                            tag?:           [...string]
+                            tagsMatchAny?:  bool
+                            scope?:         [...string]
+                            scopesMatchAny?: bool
+                        }
+                    }
                     response: {
                         apiVersion: string
                         kind: string

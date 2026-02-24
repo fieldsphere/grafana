@@ -161,10 +161,30 @@ const injectedRtkApi = api
         invalidatesTags: ['Annotation'],
       }),
       getSearch: build.query<GetSearchApiResponse, GetSearchApiArg>({
-        query: () => ({ url: `/search` }),
+        query: (queryArg) => ({
+          url: `/search`,
+          params: {
+            continue: queryArg['continue'],
+            dashboardUID: queryArg.dashboardUid,
+            from: queryArg['from'],
+            limit: queryArg.limit,
+            panelID: queryArg.panelId,
+            scope: queryArg.scope,
+            scopesMatchAny: queryArg.scopesMatchAny,
+            tag: queryArg.tag,
+            tagsMatchAny: queryArg.tagsMatchAny,
+            to: queryArg.to,
+          },
+        }),
       }),
       getTags: build.query<GetTagsApiResponse, GetTagsApiArg>({
-        query: () => ({ url: `/tags` }),
+        query: (queryArg) => ({
+          url: `/tags`,
+          params: {
+            limit: queryArg.limit,
+            tag: queryArg.tag,
+          },
+        }),
       }),
     }),
     overrideExisting: false,
@@ -375,9 +395,23 @@ export type UpdateAnnotationStatusApiArg = {
   patch: Patch;
 };
 export type GetSearchApiResponse = /** status 200 OK */ GetSearchResponse;
-export type GetSearchApiArg = void;
+export type GetSearchApiArg = {
+  continue?: string;
+  dashboardUid?: string;
+  from?: number;
+  limit?: number;
+  panelId?: number;
+  scope?: string[];
+  scopesMatchAny?: boolean;
+  tag?: string[];
+  tagsMatchAny?: boolean;
+  to?: number;
+};
 export type GetTagsApiResponse = /** status 200 OK */ GetTagsResponse;
-export type GetTagsApiArg = void;
+export type GetTagsApiArg = {
+  limit?: number;
+  tag?: string;
+};
 export type ApiResource = {
   /** categories is a list of the grouped resources this resource belongs to (e.g. 'all') */
   categories?: string[];

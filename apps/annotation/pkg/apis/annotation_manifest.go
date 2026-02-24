@@ -56,6 +56,141 @@ var appManifestData = app.ManifestData{
 
 								OperationId: "getSearch",
 
+								Parameters: []*spec3.Parameter{
+
+									{
+										ParameterProps: spec3.ParameterProps{
+											Name: "continue",
+											In:   "query",
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Type: []string{"string"},
+												},
+											},
+										},
+									},
+
+									{
+										ParameterProps: spec3.ParameterProps{
+											Name: "dashboardUID",
+											In:   "query",
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Type: []string{"string"},
+												},
+											},
+										},
+									},
+
+									{
+										ParameterProps: spec3.ParameterProps{
+											Name: "from",
+											In:   "query",
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Type: []string{"integer"},
+												},
+											},
+										},
+									},
+
+								{
+									ParameterProps: spec3.ParameterProps{
+										Name: "limit",
+										In:   "query",
+										Schema: &spec.Schema{
+											SchemaProps: spec.SchemaProps{
+												Type: []string{"integer"},
+											},
+										},
+									},
+								},
+
+									{
+										ParameterProps: spec3.ParameterProps{
+											Name: "panelID",
+											In:   "query",
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Type: []string{"integer"},
+												},
+											},
+										},
+									},
+
+									{
+										ParameterProps: spec3.ParameterProps{
+											Name: "scope",
+											In:   "query",
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Type: []string{"array"},
+													Items: &spec.SchemaOrArray{
+														Schema: &spec.Schema{
+															SchemaProps: spec.SchemaProps{
+																Type: []string{"string"},
+															}},
+													},
+												},
+											},
+										},
+									},
+
+									{
+										ParameterProps: spec3.ParameterProps{
+											Name: "scopesMatchAny",
+											In:   "query",
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Type: []string{"boolean"},
+												},
+											},
+										},
+									},
+
+									{
+										ParameterProps: spec3.ParameterProps{
+											Name: "tag",
+											In:   "query",
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Type: []string{"array"},
+													Items: &spec.SchemaOrArray{
+														Schema: &spec.Schema{
+															SchemaProps: spec.SchemaProps{
+																Type: []string{"string"},
+															}},
+													},
+												},
+											},
+										},
+									},
+
+									{
+										ParameterProps: spec3.ParameterProps{
+											Name: "tagsMatchAny",
+											In:   "query",
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Type: []string{"boolean"},
+												},
+											},
+										},
+									},
+
+									{
+										ParameterProps: spec3.ParameterProps{
+											Name: "to",
+											In:   "query",
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Type: []string{"integer"},
+												},
+											},
+										},
+									},
+								},
+
 								Responses: &spec3.Responses{
 									ResponsesProps: spec3.ResponsesProps{
 										Default: &spec3.Response{
@@ -118,6 +253,33 @@ var appManifestData = app.ManifestData{
 							OperationProps: spec3.OperationProps{
 
 								OperationId: "getTags",
+
+								Parameters: []*spec3.Parameter{
+
+									{
+										ParameterProps: spec3.ParameterProps{
+											Name: "limit",
+											In:   "query",
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Type: []string{"integer"},
+												},
+											},
+										},
+									},
+
+									{
+										ParameterProps: spec3.ParameterProps{
+											Name: "tag",
+											In:   "query",
+											Schema: &spec.Schema{
+												SchemaProps: spec.SchemaProps{
+													Type: []string{"string"},
+												},
+											},
+										},
+									},
+								},
 
 								Responses: &spec3.Responses{
 									ResponsesProps: spec3.ResponsesProps{
@@ -229,7 +391,10 @@ func ManifestCustomRouteResponsesAssociator(kind, version, path, verb string) (g
 	return goType, exists
 }
 
-var customRouteToGoParamsType = map[string]runtime.Object{}
+var customRouteToGoParamsType = map[string]runtime.Object{
+	"v0alpha1||<namespace>/search|GET": &v0alpha1.GetSearchRequestParamsObject{},
+	"v0alpha1||<namespace>/tags|GET":   &v0alpha1.GetTagsRequestParamsObject{},
+}
 
 func ManifestCustomRouteQueryAssociator(kind, version, path, verb string) (goType runtime.Object, exists bool) {
 	if len(path) > 0 && path[0] == '/' {
