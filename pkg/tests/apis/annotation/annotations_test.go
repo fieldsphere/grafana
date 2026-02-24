@@ -2,6 +2,8 @@ package annotation
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/http"
 	"testing"
 
@@ -34,34 +36,48 @@ func TestIntegrationAnnotations(t *testing.T) {
 		GVR:  kind.GroupVersionResource(),
 	})
 
-	create := helper.PostResource(helper.Org1.Admin, "annotations", apis.AnyResource{
-		TypeMeta: metav1.TypeMeta{
-			APIVersion: "annotation.grafana.app/v0alpha1",
-			Kind:       "Annotation",
-		},
-		ObjectMeta: metav1.ObjectMeta{
-			Name: "a-1",
-		},
-		Spec: map[string]any{
-			"text":   "hello",
-			"time":   int64(1000),
-			"tags":   []string{"tag1"},
-			"scopes": []string{"scope1"},
-		},
-	})
-	require.Equal(t, http.StatusCreated, create.Response.StatusCode, "create annotation")
-	require.NotNil(t, create.Result)
-	require.Equal(t, "a-1", create.Result.Name)
-
-	got, err := client.Resource.Get(ctx, "a-1", metav1.GetOptions{})
+	legacyCmd := map[string]any{
+		"time": int64(1000),
+		"text": "hello",
+		"tags": []string{"tag1"},
+	}
+	legacyBody, err := json.Marshal(legacyCmd)
 	require.NoError(t, err)
-	require.Equal(t, "a-1", got.GetName())
+
+	type legacyCreateResponse struct {
+		Message string `json:"message"`
+		ID      int64  `json:"id"`
+	}
+	legacyCreate := apis.DoRequest(helper, apis.RequestParams{
+		Method: http.MethodPost,
+		Path:   "/api/annotations",
+		User:   helper.Org1.Admin,
+		Body:   legacyBody,
+	}, &legacyCreateResponse{})
+	require.Equal(t, http.StatusOK, legacyCreate.Response.StatusCode, "create annotation via legacy API")
+	require.NotNil(t, legacyCreate.Result)
+	require.NotZero(t, legacyCreate.Result.ID)
+
+	name := fmt.Sprintf("a-%d", legacyCreate.Result.ID)
+
+	got, err := client.Resource.Get(ctx, name, metav1.GetOptions{})
+	require.NoError(t, err)
+	require.Equal(t, name, got.GetName())
 
 	list, err := client.Resource.List(ctx, metav1.ListOptions{})
 	require.NoError(t, err)
 	require.Len(t, list.Items, 1)
 
 	namespace := helper.Namespacer(helper.Org1.OrgID)
+	search := apis.DoRequest(helper, apis.RequestParams{
+		Method: http.MethodGet,
+		Path:   "/apis/annotation.grafana.app/v0alpha1/namespaces/" + namespace + "/search?tag=tag1",
+		User:   helper.Org1.Admin,
+	}, &annotationV0.AnnotationList{})
+	require.Equal(t, http.StatusOK, search.Response.StatusCode, "search annotations")
+	require.NotNil(t, search.Result)
+	require.Len(t, search.Result.Items, 1)
+
 	tags := apis.DoRequest(helper, apis.RequestParams{
 		Method: http.MethodGet,
 		Path:   "/apis/annotation.grafana.app/v0alpha1/namespaces/" + namespace + "/tags",
