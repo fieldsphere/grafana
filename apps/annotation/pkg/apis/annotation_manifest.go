@@ -94,15 +94,17 @@ var appManifestData = app.ManifestData{
 										},
 									},
 
-									{
-										ParameterProps: spec3.ParameterProps{
-											Name: "limit",
-											In:   "query",
-											Schema: &spec.Schema{
-												SchemaProps: spec.SchemaProps{},
+								{
+									ParameterProps: spec3.ParameterProps{
+										Name: "limit",
+										In:   "query",
+										Schema: &spec.Schema{
+											SchemaProps: spec.SchemaProps{
+												Type: []string{"integer"},
 											},
 										},
 									},
+								},
 
 									{
 										ParameterProps: spec3.ParameterProps{

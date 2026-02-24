@@ -28,6 +28,7 @@ func (o *GetSearchRequestParamsObject) DeepCopyInto(dst *GetSearchRequestParamsO
 	dst.TypeMeta.Kind = o.TypeMeta.Kind
 	dstGetSearchRequestParams := GetSearchRequestParams{}
 	_ = resource.CopyObjectInto(&dstGetSearchRequestParams, &o.GetSearchRequestParams)
+	dst.GetSearchRequestParams = dstGetSearchRequestParams
 }
 
 func (GetSearchRequestParamsObject) OpenAPIModelName() string {

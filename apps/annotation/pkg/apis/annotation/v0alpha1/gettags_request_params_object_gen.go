@@ -28,6 +28,7 @@ func (o *GetTagsRequestParamsObject) DeepCopyInto(dst *GetTagsRequestParamsObjec
 	dst.TypeMeta.Kind = o.TypeMeta.Kind
 	dstGetTagsRequestParams := GetTagsRequestParams{}
 	_ = resource.CopyObjectInto(&dstGetTagsRequestParams, &o.GetTagsRequestParams)
+	dst.GetTagsRequestParams = dstGetTagsRequestParams
 }
 
 func (GetTagsRequestParamsObject) OpenAPIModelName() string {
