@@ -449,6 +449,13 @@ func CreateGrafDir(t *testing.T, opts GrafanaOpts) (string, string) {
 		return section, err
 	}
 
+	if opts.KubernetesAnnotationsAppEnabled {
+		annotationsSect, err := getOrCreateSection("annotations")
+		require.NoError(t, err)
+		_, err = annotationsSect.NewKey("kubernetes_annotations_app_enabled", "true")
+		require.NoError(t, err)
+	}
+
 	queryRetries := 10
 	if opts.EnableCSP {
 		securitySect, err := cfg.NewSection("security")
@@ -790,6 +797,7 @@ type GrafanaOpts struct {
 	GlobalUserQuota                       *int64
 	DisableAnonymous                      bool
 	CatalogAppEnabled                     bool
+	KubernetesAnnotationsAppEnabled       bool
 	ViewersCanEdit                        bool
 	PluginAdminEnabled                    bool
 	PluginAdminExternalManageEnabled      bool

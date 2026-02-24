@@ -26,7 +26,8 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
 	h := NewK8sTestHelper(t, testinfra.GrafanaOpts{
-		AppModeProduction: false, // required for experimental APIs
+		AppModeProduction:               false, // required for experimental APIs
+		KubernetesAnnotationsAppEnabled: true,
 		EnableFeatureToggles: []string{
 			featuremgmt.FlagQueryService, // Query Library
 			featuremgmt.FlagProvisioning,
@@ -124,6 +125,9 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 		Version: "v0alpha1",
 	}, {
 		Group:   "historian.alerting.grafana.app",
+		Version: "v0alpha1",
+	}, {
+		Group:   "annotation.grafana.app",
 		Version: "v0alpha1",
 	}, {
 		Group:   "correlations.grafana.app",
