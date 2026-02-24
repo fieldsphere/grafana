@@ -398,18 +398,18 @@ export type GetSearchApiResponse = /** status 200 OK */ GetSearchResponse;
 export type GetSearchApiArg = {
   continue?: string;
   dashboardUid?: string;
-  from?: string;
-  limit?: string;
-  panelId?: string;
-  scope?: string;
-  scopesMatchAny?: string;
-  tag?: string;
-  tagsMatchAny?: string;
-  to?: string;
+  from?: number;
+  limit?: number;
+  panelId?: number;
+  scope?: string[];
+  scopesMatchAny?: boolean;
+  tag?: string[];
+  tagsMatchAny?: boolean;
+  to?: number;
 };
 export type GetTagsApiResponse = /** status 200 OK */ GetTagsResponse;
 export type GetTagsApiArg = {
-  limit?: string;
+  limit?: number;
   tag?: string;
 };
 export type ApiResource = {

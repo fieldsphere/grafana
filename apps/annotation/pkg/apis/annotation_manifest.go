@@ -391,7 +391,10 @@ func ManifestCustomRouteResponsesAssociator(kind, version, path, verb string) (g
 	return goType, exists
 }
 
-var customRouteToGoParamsType = map[string]runtime.Object{}
+var customRouteToGoParamsType = map[string]runtime.Object{
+	"v0alpha1||<namespace>/search|GET": &v0alpha1.GetSearchRequestParamsObject{},
+	"v0alpha1||<namespace>/tags|GET":   &v0alpha1.GetTagsRequestParamsObject{},
+}
 
 func ManifestCustomRouteQueryAssociator(kind, version, path, verb string) (goType runtime.Object, exists bool) {
 	if len(path) > 0 && path[0] == '/' {

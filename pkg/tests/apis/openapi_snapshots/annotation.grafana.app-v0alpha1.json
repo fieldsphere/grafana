@@ -1092,7 +1092,7 @@
           "name": "from",
           "in": "query",
           "schema": {
-            "type": "string",
+            "type": "integer",
             "uniqueItems": true
           }
         },
@@ -1100,7 +1100,7 @@
           "name": "limit",
           "in": "query",
           "schema": {
-            "type": "string",
+            "type": "integer",
             "uniqueItems": true
           }
         },
@@ -1118,7 +1118,7 @@
           "name": "panelID",
           "in": "query",
           "schema": {
-            "type": "string",
+            "type": "integer",
             "uniqueItems": true
           }
         },
@@ -1126,7 +1126,10 @@
           "name": "scope",
           "in": "query",
           "schema": {
-            "type": "string",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
             "uniqueItems": true
           }
         },
@@ -1134,7 +1137,7 @@
           "name": "scopesMatchAny",
           "in": "query",
           "schema": {
-            "type": "string",
+            "type": "boolean",
             "uniqueItems": true
           }
         },
@@ -1142,7 +1145,10 @@
           "name": "tag",
           "in": "query",
           "schema": {
-            "type": "string",
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
             "uniqueItems": true
           }
         },
@@ -1150,7 +1156,7 @@
           "name": "tagsMatchAny",
           "in": "query",
           "schema": {
-            "type": "string",
+            "type": "boolean",
             "uniqueItems": true
           }
         },
@@ -1158,7 +1164,7 @@
           "name": "to",
           "in": "query",
           "schema": {
-            "type": "string",
+            "type": "integer",
             "uniqueItems": true
           }
         }
@@ -1195,7 +1201,7 @@
           "name": "limit",
           "in": "query",
           "schema": {
-            "type": "string",
+            "type": "integer",
             "uniqueItems": true
           }
         },
