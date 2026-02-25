@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 import { DataLinkTransformationConfig } from '@grafana/data';
 import { CorrelationData, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import { createErrorNotification } from 'app/core/copy/appNotification';
+import { exploreLogger } from 'app/core/utils/structuredLogger';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { CreateCorrelationParams } from 'app/features/correlations/types';
 import { createCorrelation, generateDefaultLabel, getCorrelationsFromStorage } from 'app/features/correlations/utils';
@@ -95,7 +96,7 @@ export function saveCurrentCorrelation(
         })
         .catch((err) => {
           dispatch(notifyApp(createErrorNotification('Error creating correlation', err)));
-          console.error(err);
+          exploreLogger.error(err instanceof Error ? err : String(err), { context: 'saveCurrentCorrelation' });
         });
     }
   };

@@ -49,6 +49,7 @@ import {
 } from 'app/types/explore';
 import { createAsyncThunk, StoreState, ThunkDispatch, ThunkResult } from 'app/types/store';
 
+import { exploreLogger } from 'app/core/utils/structuredLogger';
 import { createErrorNotification } from '../../../core/copy/appNotification';
 import { runRequest } from '../../query/state/runRequest';
 import { decorateData, decorateWithLogsResult } from '../utils/decorators';
@@ -657,7 +658,7 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
 
           // Keep scanning for results if this was the last scanning transaction
           if (exploreState!.scanning) {
-            console.log(data.series);
+            exploreLogger.debug('Scanning for results', { seriesCount: String(data.series?.length ?? 0) });
             if (data.state === LoadingState.Done && data.series.length === 0) {
               const range = getShiftedTimeRange(-1, exploreState!.range);
               dispatch(updateTime({ exploreId, absoluteRange: range }));
@@ -671,7 +672,7 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
         error(error) {
           dispatch(notifyApp(createErrorNotification('Query processing error', error)));
           dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Error }));
-          console.error(error);
+          exploreLogger.error(error instanceof Error ? error : String(error), { context: 'runQueries' });
         },
         complete() {
           // In case we don't get any response at all but the observable completed, make sure we stop loading state.
@@ -793,7 +794,7 @@ export const runLoadMoreLogsQueries = createAsyncThunk<void, RunLoadMoreLogsQuer
       error(error) {
         dispatch(notifyApp(createErrorNotification('Query processing error', error)));
         dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Error }));
-        console.error(error);
+        exploreLogger.error(error instanceof Error ? error : String(error), { context: 'runLoadMoreLogsQueries' });
       },
       complete() {
         dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Done }));
