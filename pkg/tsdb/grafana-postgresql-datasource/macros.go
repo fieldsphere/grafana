@@ -15,6 +15,8 @@ import (
 const rsIdentifier = `([_a-zA-Z0-9]+)`
 const sExpr = `\$` + rsIdentifier + `\(([^\)]*)\)`
 
+var macroRegexp = regexp.MustCompile(sExpr)
+
 type postgresMacroEngine struct {
 	*sqleng.SQLMacroEngineBase
 	timescaledb bool
@@ -28,11 +30,9 @@ func newPostgresMacroEngine(timescaledb bool) sqleng.SQLMacroEngine {
 }
 
 func (m *postgresMacroEngine) Interpolate(query *backend.DataQuery, timeRange backend.TimeRange, sql string) (string, error) {
-	// TODO: Handle error
-	rExp, _ := regexp.Compile(sExpr)
 	var macroError error
 
-	sql = m.ReplaceAllStringSubmatchFunc(rExp, sql, func(groups []string) string {
+	sql = m.ReplaceAllStringSubmatchFunc(macroRegexp, sql, func(groups []string) string {
 		// detect if $__timeGroup is supposed to add AS time for pre 5.3 compatibility
 		// if there is a ',' directly after the macro call $__timeGroup is probably used
 		// in the old way. Inside window function ORDER BY $__timeGroup will be followed

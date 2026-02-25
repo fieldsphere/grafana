@@ -1,6 +1,7 @@
 package es
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -160,8 +161,28 @@ func (c *baseClientImpl) ExecuteMultisearch(r *MultiSearchRequest) (*MultiSearch
 	}()
 
 	improvedParsingEnabled := isFeatureEnabled(c.ctx, "elasticsearchImprovedParsing")
-	msr, err := c.parser.parseMultiSearchResponse(res.Body, improvedParsingEnabled)
+
+	var bodyReader io.Reader = res.Body
+	var rawBody []byte
+
+	if res.StatusCode >= 400 {
+		rawBody, err = io.ReadAll(res.Body)
+		if err != nil {
+			return nil, fmt.Errorf("failed to read error response body: %w", err)
+		}
+		bodyReader = bytes.NewReader(rawBody)
+	}
+
+	msr, err := c.parser.parseMultiSearchResponse(bodyReader, improvedParsingEnabled)
 	if err != nil {
+		if res.StatusCode >= 400 && len(rawBody) > 0 {
+			errMsg := strings.TrimSpace(string(rawBody))
+			const maxErrLen = 500
+			if len(errMsg) > maxErrLen {
+				errMsg = errMsg[:maxErrLen]
+			}
+			return nil, backend.DownstreamError(fmt.Errorf("Elasticsearch error (HTTP %d): %s", res.StatusCode, errMsg))
+		}
 		return nil, err
 	}
 

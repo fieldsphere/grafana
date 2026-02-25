@@ -96,7 +96,7 @@ func (e *elasticsearchDataQuery) execute() (*backend.QueryDataResponse, error) {
 	}
 
 	if res.Status >= 400 {
-		statusErr := fmt.Errorf("unexpected status code: %d", res.Status)
+		statusErr := fmt.Errorf("%s", extractESErrorMessage(res))
 		if backend.ErrorSourceFromHTTPStatus(res.Status) == backend.ErrorSourceDownstream {
 			response.Responses[e.dataQueries[0].RefID] = backend.ErrorResponseWithErrorSource(backend.DownstreamError(statusErr))
 		} else {
@@ -106,4 +106,26 @@ func (e *elasticsearchDataQuery) execute() (*backend.QueryDataResponse, error) {
 	}
 
 	return parseResponse(e.ctx, res.Responses, queries, e.client.GetConfiguredFields(), e.keepLabelsInResponse, e.logger)
+}
+
+func extractESErrorMessage(res *es.MultiSearchResponse) string {
+	if len(res.ErrorBody) == 0 {
+		return fmt.Sprintf("unexpected status code: %d", res.Status)
+	}
+
+	// ES error can be a JSON object: {"reason": "...", "type": "...", ...}
+	var errObj map[string]interface{}
+	if json.Unmarshal(res.ErrorBody, &errObj) == nil {
+		if reason, ok := errObj["reason"].(string); ok && reason != "" {
+			return fmt.Sprintf("Elasticsearch error (status %d): %s", res.Status, reason)
+		}
+	}
+
+	// ES error can also be a plain string: "No ElasticsearchException found"
+	var errStr string
+	if json.Unmarshal(res.ErrorBody, &errStr) == nil && errStr != "" {
+		return fmt.Sprintf("Elasticsearch error (status %d): %s", res.Status, errStr)
+	}
+
+	return fmt.Sprintf("unexpected status code: %d", res.Status)
 }
