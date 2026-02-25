@@ -13,6 +13,7 @@ import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 import { DashboardDTO } from 'app/types/dashboard';
 
 import { appEvents } from '../../../core/app_events';
+import { dashboardLogger } from '../../../core/utils/structuredLogger';
 import { ResponseTransformers } from '../api/ResponseTransformers';
 import { getDashboardAPI } from '../api/dashboard_api';
 import { DashboardVersionError, DashboardWithAccessInfo } from '../api/types';
@@ -58,7 +59,7 @@ abstract class DashboardLoaderSrvBase<T> implements DashboardLoaderSrvLike<T> {
           };
         },
         (err) => {
-          console.error('Script dashboard error ' + err);
+          dashboardLogger.error(err instanceof Error ? err : String(err), { context: 'scriptedDashboard' });
           appEvents.emit(AppEvents.alertError, [
             'Script Error',
             'Please make sure it exists and returns a valid dashboard',
@@ -145,7 +146,7 @@ export class DashboardLoaderSrv extends DashboardLoaderSrvBase<DashboardDTO> {
         })
         .catch((e) => {
           if (isFetchError(e) && !(e instanceof DashboardVersionError)) {
-            console.error('Failed to load dashboard', e);
+            dashboardLogger.error(e, { context: 'loadDashboard', uid: uid ?? '' });
             e.isHandled = true;
             if (e.status === 404) {
               appEvents.emit(AppEvents.alertError, ['Dashboard not found']);
@@ -211,7 +212,7 @@ export class DashboardLoaderSrvV2 extends DashboardLoaderSrvBase<DashboardWithAc
         })
         .catch((e) => {
           if (isFetchError(e) && !(e instanceof DashboardVersionError)) {
-            console.error('Failed to load dashboard', e);
+            dashboardLogger.error(e, { context: 'loadDashboardV2', uid: uid ?? '' });
             e.isHandled = true;
             if (e.status === 404) {
               appEvents.emit(AppEvents.alertError, ['Dashboard not found']);

@@ -42,6 +42,8 @@ import { ShowModalReactEvent } from '../../types/events';
 import { isContentTypeJson, parseInitFromOptions, parseResponseBody, parseUrlFromOptions } from '../utils/fetch';
 import { isDataQuery, isLocalUrl } from '../utils/query';
 
+import { coreLogger } from '../utils/structuredLogger';
+
 import { FetchQueue } from './FetchQueue';
 import { FetchQueueWorker } from './FetchQueueWorker';
 import { ResponseQueue } from './ResponseQueue';
@@ -110,7 +112,7 @@ export class BackendSrv implements BackendService {
       const result = await fp.get();
       this.deviceID = result.visitorId;
     } catch (error) {
-      console.error(error);
+      coreLogger.error(error instanceof Error ? error : String(error), { context: 'initGrafanaDeviceID' });
     }
   }
 
@@ -235,7 +237,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            coreLogger.debug('Chunked request error', { requestId, error: String(e) });
             observer.error(e);
           }); // from abort
       },
