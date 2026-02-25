@@ -27,8 +27,11 @@ import (
 	"syscall"
 
 	"github.com/grafana/grafana/pkg/apimachinery/errutil"
+	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/util/errhttp"
 )
+
+var webLogger = log.New("web")
 
 // Context represents the runtime context of current request of Macaron instance.
 // It is the integration of most frequently used middlewares and helper methods.
@@ -147,9 +150,13 @@ func (ctx *Context) parseForm() {
 	contentType := ctx.Req.Header.Get(headerContentType)
 	if (ctx.Req.Method == "POST" || ctx.Req.Method == "PUT") &&
 		len(contentType) > 0 && strings.Contains(contentType, "multipart/form-data") {
-		_ = ctx.Req.ParseMultipartForm(MaxMemory)
+		if err := ctx.Req.ParseMultipartForm(MaxMemory); err != nil {
+			webLogger.Warn("Failed to parse multipart form", "error", err)
+		}
 	} else {
-		_ = ctx.Req.ParseForm()
+		if err := ctx.Req.ParseForm(); err != nil {
+			webLogger.Warn("Failed to parse form", "error", err)
+		}
 	}
 }
 

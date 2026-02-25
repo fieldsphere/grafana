@@ -384,9 +384,10 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			Name:      event.Key.Name,
 		})
 		if err != nil {
-			// If we can't read the latest version, clean up what we wrote
-			_ = k.dataStore.Delete(ctx, dataKey)
-			return 0, fmt.Errorf("failed to check latest version: %w", err)
+			if cleanupErr := k.dataStore.Delete(ctx, dataKey); cleanupErr != nil {
+				return 0, fmt.Errorf("cleanup failed after version check error: %w", errors.Join(err, cleanupErr))
+			}
+			// continue - cleanup succeeded, original error is cleared
 		}
 
 		// Check if the RV we just wrote is the latest. If not, a concurrent write with higher RV happened
@@ -410,9 +411,10 @@ func (k *kvStorageBackend) WriteEvent(ctx context.Context, event WriteEvent) (in
 			Name:      event.Key.Name,
 		})
 		if err != nil {
-			// If we can't read the latest version, clean up what we wrote
-			_ = k.dataStore.Delete(ctx, dataKey)
-			return 0, fmt.Errorf("failed to check latest version: %w", err)
+			if cleanupErr := k.dataStore.Delete(ctx, dataKey); cleanupErr != nil {
+				return 0, fmt.Errorf("cleanup failed after version check error: %w", errors.Join(err, cleanupErr))
+			}
+			// continue - cleanup succeeded, original error is cleared
 		}
 
 		// Check if the RV we just wrote is the latest. If not, a concurrent create with higher RV happened

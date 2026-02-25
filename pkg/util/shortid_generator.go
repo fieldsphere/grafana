@@ -12,6 +12,7 @@ import (
 	"github.com/google/uuid"
 )
 
+
 const MaxUIDLength = 40
 
 var uidrand = rand.New(rand.NewSource(time.Now().UnixNano()))
@@ -54,8 +55,12 @@ func GenerateShortUID() string {
 	defer mtx.Unlock()
 
 	if node == nil {
-		// ignoring the error happens when input outside 0-1023
-		node, _ = snowflake.NewNode(rand.Int63n(1024))
+		node, err := snowflake.NewNode(rand.Int63n(1024))
+		if err != nil {
+			fmt.Println("failed to create snowflake node:", err)
+		} else if node == nil {
+			fmt.Println("snowflake node is nil after initialization")
+		}
 	}
 
 	// Use UUIDs if snowflake failed (should be never)
