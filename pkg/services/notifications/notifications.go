@@ -131,9 +131,9 @@ func (ns *NotificationService) Run(ctx context.Context) error {
 				if len(msg.Info) > 0 {
 					info = ", info: " + msg.Info
 				}
-			ns.log.Error("Async email send partially failed", "sentCount", num, "recipients", tos, "info", info, "error", err)
-		} else {
-			ns.log.Debug("Async email sent successfully", "sentCount", num, "recipients", tos, "info", info)
+				ns.log.Error("Async email send partially failed", "sentCount", num, "recipients", tos, "info", info, "error", err)
+			} else {
+				ns.log.Debug("Async email sent successfully", "sentCount", num, "recipients", tos, "info", info)
 			}
 		case <-ctx.Done():
 			return ctx.Err()
