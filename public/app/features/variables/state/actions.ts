@@ -22,6 +22,7 @@ import {
 } from '@grafana/data';
 import { config, locationService, logWarning } from '@grafana/runtime';
 import { notifyApp } from 'app/core/reducers/appNotification';
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
 import { contextSrv } from 'app/core/services/context_srv';
 import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
 import { DashboardModel } from 'app/features/dashboard/state/DashboardModel';
@@ -81,6 +82,8 @@ import {
 } from './transactionReducer';
 import { KeyedVariableIdentifier } from './types';
 import { cleanVariables } from './variablesReducer';
+
+const variablesLogger = createStructuredLogger('features.variables');
 
 // process flow queryVariable
 // thunk => processVariables
@@ -808,7 +811,10 @@ export const onTimeRangeUpdated =
       await Promise.all(promises);
       dependencies.events.publish(new VariablesTimeRangeProcessDone({ variableIds }));
     } catch (error) {
-      console.error(error);
+      variablesLogger.error(
+        error instanceof Error ? error : new Error(String(error)),
+        { context: 'onTimeRangeUpdated' }
+      );
       dispatch(notifyApp(createVariableErrorNotification('Template variable service failed', error)));
     }
   };
@@ -961,8 +967,11 @@ export const initVariablesTransaction =
       // Set transaction as complete
       dispatch(toKeyedAction(uid, variablesCompleteTransaction({ uid })));
     } catch (err) {
+      variablesLogger.error(
+        err instanceof Error ? err : new Error(String(err)),
+        { context: 'initVariablesTransaction' }
+      );
       dispatch(notifyApp(createVariableErrorNotification('Templating init failed', err)));
-      console.error(err);
     }
   };
 
@@ -1033,7 +1042,10 @@ export const updateOptions =
       dispatch(toKeyedAction(rootStateKey, variableStateFailed(toVariablePayload(identifier, { error }))));
 
       if (!rethrow) {
-        console.error(error);
+        variablesLogger.error(
+          error instanceof Error ? error : new Error(String(error)),
+          { context: 'updateOptions', variableId: identifier.id }
+        );
         dispatch(notifyApp(createVariableErrorNotification('Error updating options:', error, identifier)));
       }
 
@@ -1112,8 +1124,11 @@ export function upgradeLegacyQueries(
         )
       );
     } catch (err) {
+      variablesLogger.error(
+        err instanceof Error ? err : new Error(String(err)),
+        { context: 'upgradeLegacyQueries', variableId: identifier.id }
+      );
       dispatch(notifyApp(createVariableErrorNotification('Failed to upgrade legacy queries', err)));
-      console.error(err);
     }
   };
 }
