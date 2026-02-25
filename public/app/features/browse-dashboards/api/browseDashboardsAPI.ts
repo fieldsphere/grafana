@@ -11,6 +11,7 @@ import { Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.
 import { isProvisionedFolderCheck } from 'app/api/clients/folder/v1beta1/utils';
 import { appEvents } from 'app/core/app_events';
 import { buildNotificationButton } from 'app/core/components/AppNotifications/NotificationButton';
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
 import { createSuccessNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { setStarred } from 'app/core/reducers/navBarTree';
@@ -31,6 +32,8 @@ import { refetchChildren, refreshParents } from '../state/actions';
 
 import { isProvisionedDashboard } from './isProvisioned';
 import { PAGE_SIZE } from './services';
+
+const logger = createStructuredLogger('features.browse-dashboards');
 
 export interface DeleteFoldersArgs {
   folderUIDs: string[];
@@ -491,7 +494,9 @@ export const browseDashboardsAPI = createApi({
           } catch (error) {
             if (isFetchError(error)) {
               if (error.status !== 404) {
-                console.error('Error fetching dashboard', error);
+                logger.error(error instanceof Error ? error : String(error), {
+                  context: 'importDashboard.fetchExistingDashboard',
+                });
               } else {
                 // Do not show the error alert if the dashboard does not exist
                 // this is expected when importing a new dashboard

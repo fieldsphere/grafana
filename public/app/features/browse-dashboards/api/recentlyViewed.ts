@@ -1,5 +1,8 @@
 import impressionSrv from 'app/core/services/impression_srv';
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
 import { getGrafanaSearcher } from 'app/features/search/service/searcher';
+
+const logger = createStructuredLogger('features.browse-dashboards');
 import { DashboardQueryResult } from 'app/features/search/service/types';
 
 /**
@@ -30,7 +33,9 @@ export async function getRecentlyViewedDashboards(maxItems = 5): Promise<Dashboa
     dashboards.sort((a, b) => order(a.uid) - order(b.uid));
     return dashboards;
   } catch (error) {
-    console.error('Failed to load recently viewed dashboards', error);
+    logger.error(error instanceof Error ? error : String(error), {
+      context: 'getRecentlyViewedDashboards',
+    });
     return [];
   }
 }

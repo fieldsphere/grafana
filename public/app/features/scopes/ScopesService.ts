@@ -3,6 +3,9 @@ import { BehaviorSubject, Observable, combineLatest, Subscription } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
 
 import { LocationService, ScopesContextValue, ScopesContextValueState } from '@grafana/runtime';
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
+
+const logger = createStructuredLogger('features.scopes');
 
 import { ScopesDashboardsService } from './dashboards/ScopesDashboardsService';
 import { deserializeFolderPath, serializeFolderPath } from './dashboards/scopeNavgiationUtils';
@@ -93,7 +96,7 @@ export class ScopesService implements ScopesContextValue {
     const nodeToPreload = scopeNodeId;
     if (nodeToPreload) {
       this.selectorService.resolvePathToRoot(nodeToPreload, this.selectorService.state.tree!).catch((error) => {
-        console.error('Failed to pre-load node path', error);
+        logger.error(error instanceof Error ? error : String(error), { context: 'resolvePathToRoot' });
       });
     }
 

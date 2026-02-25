@@ -2,7 +2,11 @@ import { AnnotationQuery, CoreApp, DataSourceApi, hasQueryExportSupport, hasQuer
 import { getDataSourceSrv } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
 
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
+
 import { standardAnnotationSupport } from '../standardAnnotationSupport';
+
+const logger = createStructuredLogger('features.annotations');
 
 /**
  * Converts an AnnotationQuery to DataQuery format for SavedQueryButtons.
@@ -122,7 +126,10 @@ export async function updateAnnotationFromSavedQuery(
 
     return preparedAnnotation;
   } catch (error) {
-    console.warn('Could not prepare annotation with new datasource:', error);
+    logger.warn('Could not prepare annotation with new datasource', {
+      context: 'updateAnnotationFromSavedQuery',
+      error: error instanceof Error ? error.message : String(error),
+    });
     // Return structurally correct annotation even if preparation fails
     const { datasource, ...queryFields } = replacedQuery;
     return { ...cleanAnnotation, target: queryFields };
