@@ -1,6 +1,9 @@
 import { escapeStringForRegex, Registry, RegistryItem, stringStartsAsRegEx, stringToJsRegex } from '@grafana/data';
 
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
 import { ExtractFieldsOptions, FieldExtractorID } from './types';
+
+const logger = createStructuredLogger('features.transformers.extractFields');
 
 type Parser = (v: string) => Record<string, any> | undefined;
 
@@ -29,7 +32,7 @@ const extRegExp: FieldExtractor = {
         regex = stringToJsRegex(options.regExp!);
       } catch (error) {
         if (error instanceof Error) {
-          console.warn(error.message);
+          logger.warn(error.message, { context: 'RegExp parser', regExp: options.regExp ?? '' });
         }
       }
     }

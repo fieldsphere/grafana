@@ -2,6 +2,7 @@ import { PanelModel } from '@grafana/data';
 import { SceneDataTransformer, VizPanel } from '@grafana/scenes';
 import { DataSourceRef, DataTransformerConfig } from '@grafana/schema';
 
+import { dashboardLogger } from 'app/core/utils/structuredLogger';
 import { getPanelIdForVizPanel, getQueryRunnerFor } from './utils';
 
 export class PanelModelCompatibilityWrapper implements PanelModel {
@@ -11,7 +12,9 @@ export class PanelModelCompatibilityWrapper implements PanelModel {
     const id = getPanelIdForVizPanel(this._vizPanel);
 
     if (isNaN(id)) {
-      console.error('VizPanel key could not be translated to a legacy numeric panel id', this._vizPanel);
+      dashboardLogger.error('VizPanel key could not be translated to a legacy numeric panel id', {
+        vizPanelKey: String(this._vizPanel.state.key),
+      });
       return 0;
     }
 

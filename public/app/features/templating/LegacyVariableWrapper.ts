@@ -1,7 +1,10 @@
 import { VariableValue, FormatVariable } from '@grafana/scenes';
 import { VariableModel, VariableType } from '@grafana/schema';
 
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
 import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../variables/constants';
+
+const logger = createStructuredLogger('features.templating');
 
 export class LegacyVariableWrapper implements FormatVariable {
   state: { name: string; value: VariableValue; text: VariableValue; type: VariableType };
@@ -31,7 +34,7 @@ export class LegacyVariableWrapper implements FormatVariable {
       return text.join(' + ');
     }
 
-    console.log('value', text);
+    logger.debug('Variable getValueText: non-string non-array text', { text: String(text) });
     return String(text);
   }
 }
