@@ -62,6 +62,8 @@ const canvasPanel = async () => await import(/* webpackChunkName: "canvasPanel" 
 const xychartPanel = async () => await import(/* webpackChunkName: "xychart" */ 'app/plugins/panel/xychart/module');
 const heatmapPanel = async () =>
   await import(/* webpackChunkName: "heatmapPanel" */ 'app/plugins/panel/heatmap/module');
+const heatmapCalendarPanel = async () =>
+  await import(/* webpackChunkName: "heatmapCalendarPanel" */ 'app/plugins/panel/heatmap-calendar/module');
 
 const nodeGraph = async () =>
   await import(/* webpackChunkName: "nodeGraphPanel" */ 'app/plugins/panel/nodeGraph/module');
@@ -89,6 +91,7 @@ const builtInPlugins: Record<string, System.Module | (() => Promise<System.Modul
   'core:plugin/alertlist': alertListPanel,
   'core:plugin/annolist': annoListPanel,
   'core:plugin/heatmap': heatmapPanel,
+  'core:plugin/heatmap-calendar': heatmapCalendarPanel,
   'core:plugin/table': tablePanel,
   'core:plugin/news': newsPanel,
   'core:plugin/live': livePanel,
