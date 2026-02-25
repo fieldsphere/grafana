@@ -8,7 +8,9 @@ description: Ensure GitHub context, issues, and pull request work targets the fi
 ## Instructions
 
 - Always use `fieldsphere/grafana` for GitHub queries and operations (issues, PRs, commits, code search, and repo context).
-- For `gh` CLI commands, pass `--repo fieldsphere/grafana` unless the local repo and remote are verified as the fork.
+- For mutating `gh` CLI commands (for example `pr create`, `pr edit`, `pr merge`, issue/release writes), always pass `--repo fieldsphere/grafana`.
+- For read-only/sync operations, upstream `grafana/grafana` may be used when explicitly needed (for example comparing, listing, syncing, or fetching context), but never as the target for write actions.
 - For GitHub MCP tools, set owner to `fieldsphere` and repo to `grafana` (or include this in the tool query when required).
-- Do not fetch from `grafana/grafana`. Only use it if the user explicitly requests the upstream repository.
+- For PR creation and PR updates, explicitly state the target repo in user-facing output, e.g. `Target repo: fieldsphere/grafana`, and include the PR URL.
+- Never create, edit, or merge PRs/issues/releases against `grafana/grafana` unless the user explicitly requests upstream.
 - If the target repo is ambiguous, check `git remote -v` and still prefer `fieldsphere/grafana`.
