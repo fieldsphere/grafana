@@ -1,6 +1,8 @@
 import { DashboardLoadedEvent } from '@grafana/data';
 import { config, reportInteraction } from '@grafana/runtime';
 
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
+
 import {
   CloudWatchLogsQuery,
   CloudWatchLogsAnomaliesQuery,
@@ -15,6 +17,8 @@ import { migrateMetricQuery } from './migrations/metricQueryMigrations';
 import pluginJson from './plugin.json';
 import { CloudWatchQuery } from './types';
 import { filterMetricsQuery } from './utils/utils';
+
+const logger = createStructuredLogger('plugins.datasource');
 
 type CloudWatchOnDashboardLoadedTrackingEvent = {
   grafana_version?: string;
@@ -146,7 +150,7 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_ds_cloudwatch_dashboard_loaded', e);
   } catch (error) {
-    console.error('error in cloudwatch tracking handler', error);
+    logger.error(error instanceof Error ? error : String(error), { context: 'cloudwatch tracking handler' });
   }
 };
 
