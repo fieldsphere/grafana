@@ -146,7 +146,11 @@ export class DashboardLoaderSrv extends DashboardLoaderSrvBase<DashboardDTO> {
         })
         .catch((e) => {
           if (isFetchError(e) && !(e instanceof DashboardVersionError)) {
-            dashboardLogger.error(e, { context: 'loadDashboard', uid: uid ?? '' });
+            dashboardLogger.error(e.data?.message ?? e.statusText ?? 'Failed to load dashboard', {
+              context: 'loadDashboard',
+              uid: uid ?? '',
+              status: String(e.status),
+            });
             e.isHandled = true;
             if (e.status === 404) {
               appEvents.emit(AppEvents.alertError, ['Dashboard not found']);
@@ -212,7 +216,11 @@ export class DashboardLoaderSrvV2 extends DashboardLoaderSrvBase<DashboardWithAc
         })
         .catch((e) => {
           if (isFetchError(e) && !(e instanceof DashboardVersionError)) {
-            dashboardLogger.error(e, { context: 'loadDashboardV2', uid: uid ?? '' });
+            dashboardLogger.error(e.data?.message ?? e.statusText ?? 'Failed to load dashboard', {
+              context: 'loadDashboardV2',
+              uid: uid ?? '',
+              status: String(e.status),
+            });
             e.isHandled = true;
             if (e.status === 404) {
               appEvents.emit(AppEvents.alertError, ['Dashboard not found']);

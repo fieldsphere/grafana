@@ -1,6 +1,4 @@
-import { createMonitoringLogger, LogLevel } from '@grafana/runtime';
-
-export { LogLevel };
+import { createMonitoringLogger } from '@grafana/runtime';
 
 export type LogContext = Record<string, string>;
 
