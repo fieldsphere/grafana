@@ -4,8 +4,6 @@ import { cloneDeep, isFunction } from 'lodash';
 
 import { Monaco } from '@grafana/ui';
 
-import { pluginsLogger } from 'app/core/utils/structuredLogger';
-
 import { loadScriptIntoSandbox } from './codeLoader';
 import { forbiddenElements } from './constants';
 import { recursivePatchObjectAsLiveTarget } from './documentSandbox';
@@ -140,18 +138,15 @@ function distortConsole(distortions: DistortionMap) {
   if (descriptor?.value) {
     function getSandboxConsole(originalAttrOrMethod: unknown, meta: SandboxPluginMeta) {
       const pluginId = meta.id;
+      const prefix = `[plugin ${pluginId}]`;
 
-      function sandboxLog(...args: unknown[]) {
-        const message = args.map((a) => (typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a))).join(' ');
-        pluginsLogger.debug(message, { pluginId });
-      }
       return {
-        log: sandboxLog,
-        warn: sandboxLog,
-        error: sandboxLog,
-        info: sandboxLog,
-        debug: sandboxLog,
-        table: sandboxLog,
+        log: (...args: unknown[]) => console.log(prefix, ...args),
+        warn: (...args: unknown[]) => console.warn(prefix, ...args),
+        error: (...args: unknown[]) => console.error(prefix, ...args),
+        info: (...args: unknown[]) => console.info(prefix, ...args),
+        debug: (...args: unknown[]) => console.debug(prefix, ...args),
+        table: (...args: unknown[]) => console.table(...args),
       };
     }
 
@@ -173,8 +168,7 @@ function distortAlert(distortions: DistortionMap) {
     });
 
     return function (...args: unknown[]) {
-      const message = args.map((a) => (typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a))).join(' ');
-      pluginsLogger.info(message, { pluginId, source: 'alert' });
+      console.log(`[plugin ${pluginId}]`, ...args);
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, 'alert');
