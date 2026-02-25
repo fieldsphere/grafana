@@ -30,6 +30,7 @@ import {
 import { StoreState, ThunkDispatch, ThunkResult } from 'app/types/store';
 
 import { contextSrv } from '../../../core/services/context_srv';
+import { dashboardLogger } from '../../../core/utils/structuredLogger';
 import { createDashboardQueryRunner } from '../../query/state/DashboardQueryRunner/DashboardQueryRunner';
 import { initVariablesTransaction } from '../../variables/state/actions';
 import { getIfExistsLastKey } from '../../variables/state/selectors';
@@ -109,7 +110,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            dashboardLogger.debug('URL correction applied', { dashboardUrl, currentPath });
           }
         }
         return dashDTO;
@@ -138,7 +139,7 @@ async function fetchDashboard(
         error: err,
       })
     );
-    console.error(err);
+    dashboardLogger.error(err instanceof Error ? err : String(err), { context: 'fetchDashboard' });
     return null;
   }
 }
@@ -206,7 +207,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
           error: err,
         })
       );
-      console.error(err);
+      dashboardLogger.error(err instanceof Error ? err : String(err), { context: 'createDashboardModel' });
       return;
     }
 
@@ -264,7 +265,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
       if (err instanceof Error) {
         dispatch(notifyApp(createErrorNotification('Dashboard init failed', err)));
       }
-      console.error(err);
+      dashboardLogger.error(err instanceof Error ? err : String(err), { context: 'processRepeats' });
     }
 
     // send open dashboard event

@@ -16,6 +16,7 @@ import { contextSrv } from 'app/core/services/context_srv';
 
 import { ShowModalReactEvent } from '../../../types/events';
 import { getDashboardSrv } from '../../dashboard/services/DashboardSrv';
+import { dashboardLogger } from 'app/core/utils/structuredLogger';
 
 import { DashboardChangedModal } from './DashboardChangedModal';
 import { DashboardEvent, DashboardEventAction } from './types';
@@ -127,7 +128,10 @@ class DashboardWatcher {
 
             const dash = getDashboardSrv().getCurrent();
             if (dash?.uid !== event.message.uid) {
-              console.log('dashboard event for different dashboard?', event, dash);
+              dashboardLogger.debug('dashboard event for different dashboard', {
+                dashboardUid: dash?.uid ?? 'undefined',
+                eventUid: event.message.uid,
+              });
               return;
             }
 

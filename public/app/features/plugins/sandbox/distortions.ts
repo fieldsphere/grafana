@@ -4,6 +4,8 @@ import { cloneDeep, isFunction } from 'lodash';
 
 import { Monaco } from '@grafana/ui';
 
+import { pluginsLogger } from 'app/core/utils/structuredLogger';
+
 import { loadScriptIntoSandbox } from './codeLoader';
 import { forbiddenElements } from './constants';
 import { recursivePatchObjectAsLiveTarget } from './documentSandbox';
@@ -140,7 +142,8 @@ function distortConsole(distortions: DistortionMap) {
       const pluginId = meta.id;
 
       function sandboxLog(...args: unknown[]) {
-        console.log(`[plugin ${pluginId}]`, ...args);
+        const message = args.map((a) => (typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a))).join(' ');
+        pluginsLogger.debug(message, { pluginId });
       }
       return {
         log: sandboxLog,
@@ -170,7 +173,8 @@ function distortAlert(distortions: DistortionMap) {
     });
 
     return function (...args: unknown[]) {
-      console.log(`[plugin ${pluginId}]`, ...args);
+      const message = args.map((a) => (typeof a === 'object' && a !== null ? JSON.stringify(a) : String(a))).join(' ');
+      pluginsLogger.info(message, { pluginId, source: 'alert' });
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, 'alert');

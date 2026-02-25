@@ -7,6 +7,7 @@ import { Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.
 import { GetRepositoryFilesWithPathApiResponse, provisioningAPIv0alpha1 } from 'app/api/clients/provisioning/v0alpha1';
 import { StateManagerBase } from 'app/core/services/StateManagerBase';
 import { contextSrv } from 'app/core/services/context_srv';
+import { dashboardLogger } from 'app/core/utils/structuredLogger';
 import { getMessageFromError, getMessageIdFromError, getStatusFromError } from 'app/core/utils/errors';
 import { startMeasure, stopMeasure } from 'app/core/utils/metrics';
 import {
@@ -408,7 +409,7 @@ abstract class DashboardScenePageStateManagerBase<T>
       });
 
       if (!isFetchError(err)) {
-        console.error('Error loading dashboard:', err);
+        dashboardLogger.error(err instanceof Error ? err : String(err), { context: 'loadDashboard' });
       }
 
       // If the error is a DashboardVersionError, we want to throw it so that the error boundary is triggered
@@ -762,7 +763,10 @@ export class DashboardScenePageStateManager extends DashboardScenePageStateManag
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          dashboardLogger.debug('not correct url correcting', {
+            dashboardUrl,
+            currentPath,
+          });
         }
       }
 
@@ -976,7 +980,10 @@ export class DashboardScenePageStateManagerV2 extends DashboardScenePageStateMan
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          dashboardLogger.debug('not correct url correcting', {
+            dashboardUrl,
+            currentPath,
+          });
         }
       }
       // Populate nav model in global store according to the folder

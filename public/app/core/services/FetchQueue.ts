@@ -2,6 +2,10 @@ import { Observable, Subject } from 'rxjs';
 
 import { BackendSrvRequest } from '@grafana/runtime';
 
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
+
+const logger = createStructuredLogger('core.FetchQueue');
+
 export interface QueueState extends Record<string, { state: FetchStatus; options: BackendSrvRequest }> {}
 
 export enum FetchStatus {
@@ -90,8 +94,10 @@ export class FetchQueue {
       []
     );
 
-    console.log('FetchQueue noOfStarted', update.noOfInProgress);
-    console.log('FetchQueue noOfNotStarted', update.noOfPending);
-    console.log('FetchQueue state', entriesWithoutOptions);
+    logger.debug('FetchQueue state update', {
+      noOfStarted: String(update.noOfInProgress),
+      noOfNotStarted: String(update.noOfPending),
+      state: JSON.stringify(entriesWithoutOptions),
+    });
   };
 }

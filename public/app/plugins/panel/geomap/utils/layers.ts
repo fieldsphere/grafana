@@ -8,7 +8,11 @@ import { Subject } from 'rxjs';
 import { getFrameMatchers, MapLayerHandler, MapLayerOptions, PanelData, textUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
 
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
+
 import { GeomapPanel } from '../GeomapPanel';
+
+const logger = createStructuredLogger('plugins.panel');
 import { MARKERS_LAYER_ID } from '../layers/data/markersLayer';
 import { DEFAULT_BASEMAP_CONFIG, geomapLayerRegistry } from '../layers/registry';
 import { MapLayerState } from '../types';
@@ -91,7 +95,7 @@ export async function updateLayer(panel: GeomapPanel, uid: string, newOptions: M
     // initialize with new data
     applyLayerFilter(info.handler, newOptions, panel.props.data);
   } catch (err) {
-    console.warn('ERROR', err); // eslint-disable-line no-console
+    logger.warn(err instanceof Error ? err.message : String(err), { context: 'geomap updateLayer' });
     return false;
   }
 

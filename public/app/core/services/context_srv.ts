@@ -11,6 +11,7 @@ import {
 } from '@grafana/data';
 import { featureEnabled, getBackendSrv } from '@grafana/runtime';
 import { getSessionExpiry } from 'app/core/utils/auth';
+import { coreLogger } from 'app/core/utils/structuredLogger';
 import { UserPermission, AccessControlAction } from 'app/types/accessControl';
 import { CurrentUserInternal } from 'app/types/config';
 
@@ -112,7 +113,7 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      coreLogger.error(e instanceof Error ? e : new Error(String(e)), { context: 'fetchUserPermissions' });
     }
   }
 
@@ -262,7 +263,7 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        coreLogger.error(e instanceof Error ? e : new Error(String(e)), { context: 'rotateToken' });
       });
   }
 }

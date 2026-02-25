@@ -2,6 +2,8 @@ import { isString } from 'lodash';
 import { Observable, of, OperatorFunction } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
+
 import {
   AnnotationEvent,
   AnnotationEventFieldSource,
@@ -19,6 +21,8 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
+
+const logger = createStructuredLogger('features.annotations');
 
 export const standardAnnotationSupport: AnnotationSupport = {
   /**
@@ -227,7 +231,9 @@ export function getAnnotationsFromData(
       }
 
       if (!hasTime || !hasText) {
-        console.error('Cannot process annotation fields. No time or text present.');
+        logger.error('Cannot process annotation fields. No time or text present.', {
+          context: 'getAnnotationsFromData',
+        });
         return [];
       }
 

@@ -1,7 +1,11 @@
 import { CoreApp, DashboardLoadedEvent, DataQueryRequest, DataQueryResponse } from '@grafana/data';
 import { config, reportInteraction } from '@grafana/runtime';
 
+import { createStructuredLogger } from 'app/core/utils/structuredLogger';
+
 import { ElasticsearchDataQuery } from './dataquery.gen';
+
+const logger = createStructuredLogger('plugins.datasource');
 import { REF_ID_STARTER_LOG_VOLUME } from './datasource';
 import pluginJson from './plugin.json';
 import { ElasticsearchAnnotationQuery } from './types';
@@ -71,7 +75,7 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_elasticsearch_dashboard_loaded', event);
   } catch (error) {
-    console.error('error in elasticsearch tracking handler', error);
+    logger.error(error instanceof Error ? error : String(error), { context: 'elasticsearch tracking handler' });
   }
 };
 

@@ -24,6 +24,7 @@ import {
   toUtc,
 } from '@grafana/data';
 import { RefreshEvent } from '@grafana/runtime';
+import { dashboardLogger } from 'app/core/utils/structuredLogger';
 import { VizLegendOptions } from '@grafana/schema';
 import {
   ErrorBoundary,
@@ -254,7 +255,7 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
       const delta = liveTime.to.valueOf() - data.timeRange.to.valueOf();
       if (delta < 100) {
         // 10hz
-        console.log('Skip tick render', this.props.panel.title, delta);
+        dashboardLogger.debug('Skip tick render', { panelTitle: this.props.panel.title, delta: String(delta) });
         return;
       }
     }
