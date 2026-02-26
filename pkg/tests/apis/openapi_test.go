@@ -129,6 +129,9 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 		Group:   "correlations.grafana.app",
 		Version: "v0alpha1",
 	}, {
+		Group:   "annotation.grafana.app",
+		Version: "v0alpha1",
+	}, {
 		Group:   "shorturl.grafana.app",
 		Version: "v1beta1",
 	}, {
