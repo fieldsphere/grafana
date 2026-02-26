@@ -3,15 +3,10 @@
 name: Create security patch
 run-name: create-security-patch
 on:
-  pull_request:
-    types:
-      - opened
-      - reopened
-      - synchronize
-    branches:
-      - "main"
-      - "v*.*.*"
-      - "release-*.*.*"
+  # This workflow is only intended to be used in Grafana's security mirror repositories.
+  # Keeping it disabled for PRs in forks avoids failing CI due to restricted access
+  # to the reusable workflow repository.
+  workflow_dispatch: {}
 
 # This is run before the pull request has been merged, so we'll run against the src branch
 jobs:

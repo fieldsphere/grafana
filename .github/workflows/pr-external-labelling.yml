@@ -2,6 +2,11 @@ name: External PR labelling
 
 on:
   # We need "write" permissions on the PR to be able to add a label.
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - synchronize
   pull_request_target: # zizmor: ignore[dangerous-triggers] We need this to have labelling permissions. There are no user inputs here, so we should be fine.
     types:
       - opened
@@ -19,7 +24,9 @@ jobs:
     steps:
       - name: Add the 'pr/external' label
         env:
+          GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
         run: |
           echo "Adding 'pr/external' label to the PR"
-          gh pr edit "$PR_NUMBER" --add-label pr/external
+          gh pr edit "$PR_NUMBER" --repo "${GITHUB_REPOSITORY}" --add-label pr/external || \
+            echo "Skipping label add (label may not exist or token lacks permissions)."
