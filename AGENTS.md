@@ -133,3 +133,24 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 - **Config**: Defaults in `conf/defaults.ini`, overrides in `conf/custom.ini`.
 - **Database migrations**: Live in `pkg/services/sqlstore/migrations/`. Test with `make devenv sources=postgres_tests,mysql_tests` then `make test-go-integration-postgres`.
 - **CI sharding**: Backend tests use `SHARD`/`SHARDS` env vars for parallelization.
+
+## Cursor Cloud specific instructions
+
+### Toolchain
+
+- **Node.js v24.11.0** is required (see `.nvmrc`). The VM snapshot has it pre-installed via nvm. Run `nvm use` if you get version mismatches.
+- **Go 1.25.7** is pre-installed.
+- **Yarn 4.11.0** via Corepack. The update script runs `corepack enable && corepack install && yarn install --immutable` on startup.
+
+### Running services
+
+- **Backend**: `make run` — starts the Go backend with hot reload via `air` at `localhost:3000`. Default login: `admin`/`admin`. Uses embedded SQLite3, no external DB needed.
+- **Frontend**: `yarn start` — starts the webpack dev server that proxies to the backend. Wait for "compiled successfully" before testing.
+- Both commands are documented in the Commands section above. Run them in separate background shells.
+
+### Gotchas
+
+- `yarn test <path>` may fail to match files if you pass a relative path directly. Use `yarn jest <path>` or `yarn jest --testPathPattern="<pattern>"` instead for single-file test runs.
+- The first `make run` after a clean checkout triggers a full Go build (~2-3 minutes). Subsequent runs with `air` hot-reload are fast.
+- The first `go test` in a large package like `pkg/api/` also takes a few minutes to compile; prefer smaller packages like `pkg/util/` for quick validation.
+- No external services (Docker, Postgres, etc.) are needed for core development. The built-in `testdata` datasource is provisioned by default.
