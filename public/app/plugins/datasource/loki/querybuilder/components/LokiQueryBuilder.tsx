@@ -127,7 +127,7 @@ export const LokiQueryBuilder = memo<Props>(({ datasource, query, onChange, onRu
         Math.abs(timeRange.from.valueOf() - prevTimeRange.from.valueOf()) > TIME_SPAN_TO_TRIGGER_SAMPLES);
     const updateBasedOnChangedQuery = !isEqual(prevQuery, query);
     if (updateBasedOnChangedTimeRange || updateBasedOnChangedQuery) {
-      onGetSampleData().catch(console.error);
+      onGetSampleData().catch((error) => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error));
     }
   }, [datasource, query, timeRange, prevQuery, prevTimeRange]);
 

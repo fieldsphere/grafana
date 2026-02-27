@@ -1,6 +1,6 @@
 import { throttle } from 'lodash';
 
-type Args = Parameters<typeof console.log>;
+type Args = Parameters<(typeof console)['log']>;
 
 /**
  * @internal
@@ -32,7 +32,7 @@ export const createLogger = (name: string): Logger => {
       if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test' || !loggingEnabled) {
         return;
       }
-      const fn = throttle ? throttledLog : console.log;
+      const fn = throttle ? throttledLog : (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log;
       fn(`[${name}: ${id}]:`, ...t);
     },
     enable: () => (loggingEnabled = true),
