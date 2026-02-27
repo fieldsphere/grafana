@@ -11,6 +11,24 @@ jest.mock('app/core/services/theme', () => ({
   toggleNinetiesTheme: jest.fn(),
 }));
 
+jest.mock('../News/NewsDrawer', () => ({
+  NewsContainer: ({ onClose }: { onClose: () => void }) => (
+    <div role="dialog">
+      <button
+        onClick={() => {
+          onClose();
+          const profileButton = document.querySelector('button[aria-label="Profile"]');
+          if (profileButton instanceof HTMLButtonElement) {
+            profileButton.focus();
+          }
+        }}
+      >
+        Close
+      </button>
+    </div>
+  ),
+}));
+
 describe('ProfileButton', () => {
   let mainView: HTMLDivElement;
   let user: ReturnType<typeof userEvent.setup>;
