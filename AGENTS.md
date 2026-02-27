@@ -133,3 +133,29 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 - **Config**: Defaults in `conf/defaults.ini`, overrides in `conf/custom.ini`.
 - **Database migrations**: Live in `pkg/services/sqlstore/migrations/`. Test with `make devenv sources=postgres_tests,mysql_tests` then `make test-go-integration-postgres`.
 - **CI sharding**: Backend tests use `SHARD`/`SHARDS` env vars for parallelization.
+
+## Cursor Cloud specific instructions
+
+### Services overview
+
+| Service | Required | How to start |
+| --- | --- | --- |
+| Go backend | Yes | `make run` (hot-reloading, serves on `:3000`) |
+| Frontend webpack dev server | Yes | `yarn start` (watches for changes, proxied through backend) |
+| SQLite (embedded) | Yes | Bundled with the backend — no extra setup |
+| External datasources (Postgres, Prometheus, Loki, etc.) | No | `make devenv sources=<list>` (requires Docker) |
+
+### Running the dev environment
+
+- Start the backend in one terminal with `make run`, then the frontend in another with `yarn start`. See skill files in `.cursor/skills/` for the exact sequence.
+- The backend first-build takes ~3-4 minutes (Go compilation + Wire DI). Subsequent rebuilds via hot-reload are fast (~5 s).
+- The frontend first-build takes ~2 minutes (webpack + NX plugin builds). Wait for `Compiled successfully` before testing in browser.
+- Default login: `admin` / `admin`. The password-change prompt can be skipped.
+- Backend logs `HTTP Server Listen` when ready. Verify with `curl -sI http://localhost:3000/` — expect `HTTP/1.1 302` to `/login`.
+
+### Gotchas
+
+- Network-restricted environments will produce `ERROR` log lines about failed update checks and plugin manifest downloads from `grafana.com`. These are harmless and do not affect local development.
+- `yarn install --immutable` may warn about disabled build scripts (e.g. `@swc/core`, `esbuild`). These packages use pre-built binaries and work correctly despite the warnings.
+- Go 1.25.7 is required (see `go.mod`). Node.js version is pinned in `.nvmrc` (currently v24.11.0).
+- The repo uses Yarn 4 via Corepack. Always run `corepack enable && corepack install` before `yarn install` if `yarn` is not available or at the wrong version.
