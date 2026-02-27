@@ -50,7 +50,7 @@ export default class CloudMonitoringMetricFindQuery {
           return [];
       }
     } catch (error) {
-      console.error(`Could not run CloudMonitoringMetricFindQuery ${query}`, error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Could not run CloudMonitoringMetricFindQuery ${query}`, error);
       return [];
     }
   }

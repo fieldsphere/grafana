@@ -41,15 +41,15 @@ export class ExtensionsLog {
 
   warning(message: string, labels?: Labels): void {
     monitoringLogger.logWarning(message, { ...this.baseLabels, ...labels });
-    config.buildInfo.env === 'development' && console.warn(message, { ...this.baseLabels, ...labels });
+    config.buildInfo.env === 'development' && (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(message, { ...this.baseLabels, ...labels });
     this.log(LogLevel.warning, message, labels);
   }
 
   error(message: string, labels?: Labels): void {
     // TODO: If Faro has console instrumentation, then the following will track the same error message twice
-    // (first: `monitoringLogger.logError()`, second: `console.error()` which gets picked up by Faro)
+    // (first: `monitoringLogger.logError()`, second: `(Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error()` which gets picked up by Faro)
     monitoringLogger.logError(new Error(message), { ...this.baseLabels, ...labels });
-    console.error(message, { ...this.baseLabels, ...labels });
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(message, { ...this.baseLabels, ...labels });
     this.log(LogLevel.error, message, labels);
   }
 

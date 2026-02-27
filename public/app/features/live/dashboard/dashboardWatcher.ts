@@ -127,7 +127,7 @@ class DashboardWatcher {
 
             const dash = getDashboardSrv().getCurrent();
             if (dash?.uid !== event.message.uid) {
-              console.log('dashboard event for different dashboard?', event, dash);
+              (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('dashboard event for different dashboard?', event, dash);
               return;
             }
 

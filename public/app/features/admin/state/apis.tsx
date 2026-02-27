@@ -28,7 +28,7 @@ export const getServerStats = async (): Promise<ServerStat | null> => {
   return getBackendSrv()
     .get('api/admin/stats')
     .catch((err) => {
-      console.error(err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
       return null;
     });
 };

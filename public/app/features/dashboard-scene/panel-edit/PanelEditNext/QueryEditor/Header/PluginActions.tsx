@@ -90,7 +90,7 @@ function useAdaptiveTelemetryComponents(query: DataQuery | null) {
       pluginId: /grafana-adaptive.*/,
     });
   } catch (error) {
-    console.error('Failed to render adaptive telemetry components:', error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to render adaptive telemetry components:', error);
     return null;
   }
 }

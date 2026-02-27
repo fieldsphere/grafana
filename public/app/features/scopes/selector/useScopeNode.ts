@@ -21,7 +21,7 @@ export function useScopeNode(scopeNodeId?: string) {
         const node = await scopesSelectorService.getScopeNode(scopeNodeId);
         setNode(node);
       } catch (error) {
-        console.error('Failed to load node', error);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to load node', error);
       } finally {
         setIsLoading(false);
       }

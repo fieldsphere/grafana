@@ -60,7 +60,7 @@ export class RequestsRecorder {
         return Promise.resolve();
       }
 
-      console.log('waiting for', this.#requestsInFlight, 'requests to finish');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('waiting for', this.#requestsInFlight, 'requests to finish');
 
       return new Promise<void>((resolve) => {
         this.#resolve = resolve;
@@ -95,7 +95,7 @@ export class RequestsRecorder {
     // Record when a document response comes in so we can keep track of future requests
     if (type === 'document') {
       if (this.#documentUrl) {
-        console.warn('recieved additional document response', url);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('recieved additional document response', url);
       }
 
       this.#documentUrl = url;

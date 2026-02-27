@@ -123,7 +123,7 @@ function DashboardCardComponent({
               kind === 'suggested_dashboard' ? styles.thumbnailCoverImage : styles.thumbnailContainImage
             )}
             onError={(e) => {
-              console.error('Failed to load image for:', title, 'URL:', imageUrl);
+              (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to load image for:', title, 'URL:', imageUrl);
               e.currentTarget.style.display = 'none';
             }}
           />

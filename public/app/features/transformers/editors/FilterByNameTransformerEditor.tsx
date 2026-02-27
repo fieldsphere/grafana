@@ -102,7 +102,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
       }
     }
 

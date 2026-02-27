@@ -146,7 +146,7 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_ds_cloudwatch_dashboard_loaded', e);
   } catch (error) {
-    console.error('error in cloudwatch tracking handler', error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('error in cloudwatch tracking handler', error);
   }
 };
 

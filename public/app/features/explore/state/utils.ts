@@ -118,7 +118,7 @@ export async function loadAndInitDatasource(
       instance.init();
     } catch (err) {
       // TODO: should probably be handled better
-      console.error(err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
     }
   }
 

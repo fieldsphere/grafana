@@ -53,7 +53,7 @@ export function getLayerEditor(opts: InstanceState): NestedPanelOptions<LayerEdi
       },
       onChange: (path, value) => {
         if (path === 'type' && value) {
-          console.warn('unable to change layer type');
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('unable to change layer type');
           return;
         }
         const c = setOptionImmutably(options, path, value);

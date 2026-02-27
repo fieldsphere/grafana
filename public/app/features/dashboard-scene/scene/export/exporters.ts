@@ -347,7 +347,7 @@ export async function makeExportableV1(dashboard: DashboardModel) {
 
     return newObj;
   } catch (err) {
-    console.error('Export failed:', err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Export failed:', err);
     return {
       error: err,
     };
@@ -369,7 +369,7 @@ async function convertLibraryPanelToInlinePanel(libraryPanelElement: LibraryPane
     inlinePanel.spec.id = id;
     return inlinePanel;
   } catch (error) {
-    console.error(`Failed to load library panel ${libraryPanel.uid}:`, error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Failed to load library panel ${libraryPanel.uid}:`, error);
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     dispatch(
@@ -492,7 +492,7 @@ export async function makeExportableV2(dashboard: DashboardV2Spec, isSharingExte
 
     return dashboard;
   } catch (err) {
-    console.error('Export failed:', err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Export failed:', err);
     return {
       error: err,
     };

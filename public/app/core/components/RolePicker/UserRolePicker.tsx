@@ -90,7 +90,7 @@ export const UserRolePicker = ({
           },
         }).unwrap();
       } catch (error) {
-        console.error('Error updating user roles', error);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error updating user roles', error);
       }
     } else if (onApplyRoles) {
       onApplyRoles(newRoles, userId, orgId);

@@ -159,7 +159,7 @@ export class DashboardModelCompatibilityWrapper {
   public removePanel(panel: PanelModelCompatibilityWrapper) {
     const vizPanel = findVizPanelByKey(this._scene, getVizPanelKeyForPanelId(panel.id));
     if (!vizPanel) {
-      console.error('Trying to remove a panel that was not found in scene', panel);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Trying to remove a panel that was not found in scene', panel);
       return;
     }
 

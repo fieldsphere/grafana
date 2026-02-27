@@ -113,7 +113,7 @@ module.exports = (env = {}) =>
       function () {
         this.hooks.done.tap('Done', function (stats) {
           if (stats.compilation.errors && stats.compilation.errors.length) {
-            console.log(stats.compilation.errors);
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(stats.compilation.errors);
             process.exit(1);
           }
         });

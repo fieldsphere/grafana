@@ -41,12 +41,12 @@ export function K8sNameLookup(props: Props) {
           },
         });
         if (!response.ok) {
-          console.warn('error loading names');
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('error loading names');
           setLoading(false);
           return;
         }
         const table = await response.json();
-        console.log('LIST', url, table);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('LIST', url, table);
         const options: Array<SelectableValue<string>> = [];
         if (table.rows?.length) {
           for (const row of table.rows) {

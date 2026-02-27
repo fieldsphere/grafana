@@ -67,7 +67,7 @@ export async function dashlistMigrationHandler(panel: PanelModel<Options> & Angu
       newOptions.folderUID = folderUID;
       delete newOptions.folderId;
     } catch (err) {
-      console.warn('Dashlist: Error migrating folder ID to UID', err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Dashlist: Error migrating folder ID to UID', err);
     }
   }
 

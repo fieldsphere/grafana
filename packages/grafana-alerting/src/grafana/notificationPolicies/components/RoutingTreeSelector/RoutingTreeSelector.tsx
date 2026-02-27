@@ -91,7 +91,7 @@ function RoutingTreeSelector(props: RoutingTreeSelectorProps) {
     if (selectedOption) {
       const tree = treeLookup.get(selectedOption.value);
       if (!tree) {
-        console.warn(`RoutingTreeSelector: could not find routing tree for value "${selectedOption.value}"`);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`RoutingTreeSelector: could not find routing tree for value "${selectedOption.value}"`);
         return;
       }
 

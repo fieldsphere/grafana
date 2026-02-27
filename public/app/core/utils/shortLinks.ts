@@ -73,7 +73,7 @@ export const createShortLink = memoizeOne(async (path: string): Promise<string> 
       return await createShortLinkLegacy(path);
     }
   } catch (err) {
-    console.error('Error when creating shortened link: ', err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error when creating shortened link: ', err);
     dispatch(notifyApp(createErrorNotification('Error generating shortened link')));
     throw err; // Re-throw so callers know it failed
   }
@@ -103,7 +103,7 @@ export const createAndCopyShortLink = async (path: string) => {
     }
   } catch (error) {
     // createShortLink already handles error notifications, just log
-    console.error('Error in createAndCopyShortLink:', error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error in createAndCopyShortLink:', error);
   }
 };
 

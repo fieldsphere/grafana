@@ -60,7 +60,7 @@ export function GroupByVariableEditor(props: GroupByVariableEditorProps) {
 
 export function getGroupByVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof GroupByVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
 

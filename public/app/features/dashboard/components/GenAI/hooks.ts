@@ -71,7 +71,7 @@ export function useLLMStream(options: Options = defaultOptions): UseLLMStreamRes
         'Failed to generate content using LLM',
         'Please try again or if the problem persists, contact your organization admin.'
       );
-      console.error(e);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
       genAILogger.logError(e, { messages: JSON.stringify(messages), model, temperature: String(temperature) });
     },
     [messages, model, temperature, notifyError]

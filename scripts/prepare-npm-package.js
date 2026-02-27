@@ -30,6 +30,6 @@ try {
     await pkgJson.save();
   }
 } catch (e) {
-  console.error(e);
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
   process.exit(1);
 }

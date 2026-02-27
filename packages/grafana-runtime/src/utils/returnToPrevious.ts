@@ -16,7 +16,7 @@ export const useReturnToPrevious: ReturnToPreviousHook = () => {
     if (process.env.NODE_ENV !== 'production') {
       throw new Error('useReturnToPrevious hook not found in @grafana/runtime');
     }
-    return () => console.error('ReturnToPrevious hook not found');
+    return () => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('ReturnToPrevious hook not found');
   }
 
   return rtpHook();

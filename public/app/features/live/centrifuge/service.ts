@@ -125,7 +125,7 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.log('Publication from server-side channel', context);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('Publication from server-side channel', context);
   };
 
   private onError = (context: ErrorContext) => {

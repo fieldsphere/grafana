@@ -16,7 +16,7 @@ function readCoverageFile(filePath) {
     const content = fs.readFileSync(filePath, 'utf8');
     return JSON.parse(content);
   } catch (err) {
-    console.error(`Error reading coverage file ${filePath}: ${err.message}`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Error reading coverage file ${filePath}: ${err.message}`);
     process.exit(1);
   }
 }
@@ -154,7 +154,7 @@ function compareCoverageByCodeowner(
   const prCoverage = readCoverageFile(prPath);
 
   if (!mainCoverage.summary || !prCoverage.summary) {
-    console.error('Error: Coverage summary data is missing or invalid');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error: Coverage summary data is missing or invalid');
     process.exit(1);
   }
 
@@ -163,9 +163,9 @@ function compareCoverageByCodeowner(
 
   try {
     fs.writeFileSync(outputPath, markdown, 'utf8');
-    console.log(`✅ Coverage comparison written to ${outputPath}`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(`✅ Coverage comparison written to ${outputPath}`);
   } catch (err) {
-    console.error(`Error writing output file: ${err.message}`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Error writing output file: ${err.message}`);
     process.exit(1);
   }
 
@@ -175,10 +175,10 @@ function compareCoverageByCodeowner(
 if (require.main === module) {
   const passed = compareCoverageByCodeowner();
   if (!passed) {
-    console.error('❌ Coverage check failed: One or more metrics decreased');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('❌ Coverage check failed: One or more metrics decreased');
     process.exit(1);
   }
-  console.log('✅ Coverage check passed: All metrics maintained or improved');
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('✅ Coverage check passed: All metrics maintained or improved');
 }
 
 module.exports = { compareCoverageByCodeowner, generateMarkdown, getOverallStatus };

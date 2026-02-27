@@ -18,7 +18,7 @@ export function getLogsPanelState(): LogsPermalinkUrlState | undefined {
     try {
       return JSON.parse(panelStateEncoded[0]);
     } catch (e) {
-      console.error('error parsing logsPanelState', e);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('error parsing logsPanelState', e);
     }
   }
 

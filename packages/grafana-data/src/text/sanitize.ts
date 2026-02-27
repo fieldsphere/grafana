@@ -68,7 +68,7 @@ export function sanitize(unsanitizedString: string): string {
       ADD_ATTR: ['target'],
     });
   } catch (error) {
-    console.error('String could not be sanitized', unsanitizedString);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('String could not be sanitized', unsanitizedString);
     return escapeHtml(unsanitizedString);
   } finally {
     DOMPurify.removeHook('afterSanitizeAttributes');
@@ -99,7 +99,7 @@ export function sanitizeTextPanelContent(unsanitizedString: string): string {
   try {
     return sanitizeTextPanelWhitelist.process(unsanitizedString);
   } catch (error) {
-    console.error('String could not be sanitized', unsanitizedString);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('String could not be sanitized', unsanitizedString);
     return 'Text string could not be sanitized';
   }
 }

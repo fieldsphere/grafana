@@ -43,7 +43,7 @@ class UnthemedCodeEditor extends PureComponent<Props> {
       }
 
       if (!this.monaco) {
-        console.warn('Monaco instance not loaded yet');
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Monaco instance not loaded yet');
         return;
       }
 

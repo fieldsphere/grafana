@@ -79,7 +79,7 @@ async function loadDefaultControlsByRefs(refs: DataSourceRef[], traceId: string)
         }
       }
     } catch (e) {
-      console.warn('Failed to load default controls from datasource', ds.type, e);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Failed to load default controls from datasource', ds.type, e);
     }
   }
 
@@ -97,7 +97,7 @@ const loadDatasources = async (refs: DataSourceRef[]) => {
       const ds = await getDataSourceSrv().get(ref);
       datasources.push(ds);
     } catch (e) {
-      console.warn('Failed to load datasource', ref, e);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Failed to load datasource', ref, e);
     }
   }
   return datasources;

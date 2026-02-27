@@ -125,7 +125,7 @@ export const insertPathNodesIntoTree = (tree: TreeNode, path: ScopeNode[]) => {
     newTree = modifyTreeNodeAtPath(newTree, pathSlice, (treeNode) => {
       treeNode.children = { ...treeNode.children };
       if (!childNodeName) {
-        console.warn('Failed to insert full path into tree. Did not find child to' + stringPath[index]);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Failed to insert full path into tree. Did not find child to' + stringPath[index]);
         treeNode.childrenLoaded = treeNode.childrenLoaded ?? false;
         return;
       }

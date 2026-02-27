@@ -112,7 +112,7 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
     }
   }
 
@@ -262,7 +262,7 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
       });
   }
 }

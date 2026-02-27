@@ -51,7 +51,7 @@ export const getRawPrometheusListItemsFromDataFrame = (dataFrame: DataFrame): in
             }
           }
         } else {
-          console.warn('Field display method is missing!');
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Field display method is missing!');
         }
       }
     }

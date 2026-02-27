@@ -110,7 +110,7 @@ export class BackendSrv implements BackendService {
       const result = await fp.get();
       this.deviceID = result.visitorId;
     } catch (error) {
-      console.error(error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
     }
   }
 
@@ -235,7 +235,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(requestId, 'catch', e);
             observer.error(e);
           }); // from abort
       },

@@ -57,7 +57,7 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
           return this.handleAccountsQuery(query);
       }
     } catch (error) {
-      console.error(`Could not run CloudWatchMetricFindQuery ${query}`, error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Could not run CloudWatchMetricFindQuery ${query}`, error);
       return [];
     }
   }

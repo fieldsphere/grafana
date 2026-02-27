@@ -413,7 +413,7 @@ abstract class DashboardScenePageStateManagerBase<T>
       });
 
       if (!isFetchError(err)) {
-        console.error('Error loading dashboard:', err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error loading dashboard:', err);
       }
 
       // If the error is a DashboardVersionError, we want to throw it so that the error boundary is triggered
@@ -779,7 +779,7 @@ export class DashboardScenePageStateManager extends DashboardScenePageStateManag
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('not correct url correcting', dashboardUrl, currentPath);
         }
       }
 
@@ -1001,7 +1001,7 @@ export class DashboardScenePageStateManagerV2 extends DashboardScenePageStateMan
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('not correct url correcting', dashboardUrl, currentPath);
         }
       }
       // Populate nav model in global store according to the folder

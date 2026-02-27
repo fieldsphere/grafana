@@ -129,7 +129,7 @@ function convertToISOString(value: DateTime | string): string {
   }
 
   if (!value?.toISOString) {
-    throw console.error('Invalid DateTime object passed to convertToISOString');
+    throw (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Invalid DateTime object passed to convertToISOString');
   }
 
   return value.toISOString();

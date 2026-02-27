@@ -97,7 +97,7 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_loki_dashboard_loaded', event);
   } catch (error) {
-    console.error('error in loki tracking handler', error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('error in loki tracking handler', error);
   }
 };
 

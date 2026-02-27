@@ -80,6 +80,6 @@ const updatePluginSettingsAndReload = async (id: string, data: Partial<PluginMet
     // Reloading the page as the plugin meta changes made here wouldn't be propagated throughout the app.
     window.location.reload();
   } catch (e) {
-    console.error('Error while updating the plugin', e);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error while updating the plugin', e);
   }
 };

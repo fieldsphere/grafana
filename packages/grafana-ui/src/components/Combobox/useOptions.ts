@@ -51,7 +51,7 @@ export function useOptions<T extends string | number>(
               setAsyncLoading(false);
 
               if (error) {
-                console.error('Error loading async options for Combobox', error);
+                (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error loading async options for Combobox', error);
               }
             }
           });

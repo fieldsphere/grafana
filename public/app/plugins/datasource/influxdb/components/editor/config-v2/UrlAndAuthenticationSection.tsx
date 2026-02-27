@@ -104,7 +104,7 @@ export const UrlAndAuthenticationSection = (props: Props) => {
         }
       }
     } catch (err) {
-      console.error('Failed to get InfluxDB version:', err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to get InfluxDB version:', err);
     }
 
     return { product: undefined, version: undefined };

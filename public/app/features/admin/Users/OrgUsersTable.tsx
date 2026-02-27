@@ -79,7 +79,7 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error loading options');
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

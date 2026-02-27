@@ -36,7 +36,7 @@ export function useDashboardQuery(dashboardUid?: string) {
           } else if (isDashboardV2Resource(dashboardDTO)) {
             setDashboard(dashboardDTO);
           } else {
-            console.error('Something went wrong, unexpected dashboard format');
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Something went wrong, unexpected dashboard format');
           }
           setIsFetching(false);
         });

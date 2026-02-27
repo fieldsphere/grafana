@@ -23,7 +23,7 @@ export function TextBoxVariablePicker({ variable, onVariableChange, readOnly }: 
 
   const updateVariable = useCallback(() => {
     if (!variable.rootStateKey) {
-      console.error('Cannot update variable without rootStateKey');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Cannot update variable without rootStateKey');
       return;
     }
 

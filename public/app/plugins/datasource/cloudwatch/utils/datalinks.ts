@@ -66,7 +66,7 @@ async function createInternalXrayLink(datasourceUid: string, region: string): Pr
   try {
     ds = await getDataSourceSrv().get(datasourceUid);
   } catch (e) {
-    console.error('Could not load linked xray data source, it was probably deleted after it was linked', e);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Could not load linked xray data source, it was probably deleted after it was linked', e);
     return undefined;
   }
 

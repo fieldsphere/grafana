@@ -180,7 +180,7 @@ const searchForOptions = async (
 
     dispatch(toKeyedAction(key, updateOptionsFromSearch(updated.options)));
   } catch (error) {
-    console.error(error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
   }
 };
 

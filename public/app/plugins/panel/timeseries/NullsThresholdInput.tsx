@@ -31,7 +31,7 @@ export const NullsThresholdInput = ({ value, onChange, inputPrefix, isTime }: Pr
           val = Number(txt);
         }
       } catch (err) {
-        console.warn('ERROR', err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('ERROR', err);
       }
     }
     onChange(val);

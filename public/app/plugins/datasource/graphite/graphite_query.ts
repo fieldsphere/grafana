@@ -94,7 +94,7 @@ export default class GraphiteQuery {
       }
     } catch (err) {
       if (err instanceof Error) {
-        console.error('error parsing target:', err.message);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('error parsing target:', err.message);
         this.error = err.message;
       }
       this.target.textEditor = true;

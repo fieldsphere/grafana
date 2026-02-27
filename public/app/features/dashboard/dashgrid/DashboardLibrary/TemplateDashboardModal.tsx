@@ -85,7 +85,7 @@ export const TemplateDashboardModal = () => {
 
       return response.items;
     } catch (error) {
-      console.error('Error loading template dashboards ', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error loading template dashboards ', error);
       return [];
     }
   }, [isOpen]);

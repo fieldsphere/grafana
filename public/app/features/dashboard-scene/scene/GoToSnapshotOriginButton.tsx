@@ -59,6 +59,6 @@ export const onOpenSnapshotOriginalDashboard = (originalUrl: string) => {
       locationService.push(sanitizedRelativeURL);
     }
   } catch (err) {
-    console.error('Failed to open original dashboard', err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to open original dashboard', err);
   }
 };

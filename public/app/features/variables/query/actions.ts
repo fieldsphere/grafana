@@ -109,7 +109,7 @@ export const changeQueryVariableDataSource = (
         )
       );
     } catch (err) {
-      console.error(err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
     }
   };
 };

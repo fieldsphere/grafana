@@ -171,7 +171,7 @@ export function updatePanelEditorUIState(uiState: Partial<PanelEditorUIState>): 
     try {
       store.setObject(PANEL_EDITOR_UI_STATE_STORAGE_KEY, nextState);
     } catch (error) {
-      console.error(error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
     }
   };
 }

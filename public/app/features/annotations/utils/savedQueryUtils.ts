@@ -122,7 +122,7 @@ export async function updateAnnotationFromSavedQuery(
 
     return preparedAnnotation;
   } catch (error) {
-    console.warn('Could not prepare annotation with new datasource:', error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Could not prepare annotation with new datasource:', error);
     // Return structurally correct annotation even if preparation fails
     const { datasource, ...queryFields } = replacedQuery;
     return { ...cleanAnnotation, target: queryFields };

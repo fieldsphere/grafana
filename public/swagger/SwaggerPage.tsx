@@ -55,7 +55,7 @@ export const Page = () => {
   const namespace = useAsync(async () => {
     const response = await fetch('api/frontend/settings');
     if (!response.ok) {
-      console.warn('No settings found');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('No settings found');
       return 'default';
     }
     const val = await response.json();
@@ -65,7 +65,7 @@ export const Page = () => {
   useAsync(async () => {
     const response = await fetch('api/user');
     if (!response.ok) {
-      console.warn('No user found, show login button');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('No user found, show login button');
       return;
     }
     const val = await response.json();

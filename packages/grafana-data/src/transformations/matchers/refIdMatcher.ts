@@ -19,7 +19,7 @@ const refIdMatcher: FrameMatcherInfo<string> = {
         regex = stringToJsRegex(pattern);
       } catch (error) {
         if (error instanceof Error) {
-          console.warn(error.message);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(error.message);
         }
       }
     }

@@ -27,7 +27,7 @@ export function useRegisterRecentDashboardsActions() {
     getRecentDashboardActions()
       .then((recentDashboardActions) => setRecentDashboardActions(recentDashboardActions))
       .catch((err) => {
-        console.error('Error loading recent dashboard actions', err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error loading recent dashboard actions', err);
       });
   }, []);
 

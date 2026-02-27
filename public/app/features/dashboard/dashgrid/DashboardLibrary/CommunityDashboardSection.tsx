@@ -113,7 +113,7 @@ export const CommunityDashboardSection = ({ onShowMapping, datasourceType }: Pro
         datasourceType: ds.type,
       };
     } catch (err) {
-      console.error('Error loading community dashboards', err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error loading community dashboards', err);
       throw err;
     }
   }, [datasourceUid, debouncedSearchQuery]);
@@ -226,7 +226,7 @@ export const CommunityDashboardSection = ({ onShowMapping, datasourceType }: Pro
           eventLocation: EVENT_LOCATIONS.MODAL_COMMUNITY_TAB,
         });
       } catch (err) {
-        console.error('Error checking dashboard compatibility:', err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error checking dashboard compatibility:', err);
 
         const errorMessage = isFetchError(err) ? err.data?.message : 'Failed to check compatibility';
         const errorCode = isFetchError(err) ? err.data?.code : undefined;

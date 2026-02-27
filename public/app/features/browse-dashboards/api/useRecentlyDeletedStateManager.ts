@@ -65,7 +65,7 @@ export class TrashStateManager extends SearchStateManager {
 
       return termCounts.sort((a, b) => b.count - a.count);
     } catch (error) {
-      console.error('Failed to get tags from deleted dashboards:', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to get tags from deleted dashboards:', error);
       return [];
     }
   };

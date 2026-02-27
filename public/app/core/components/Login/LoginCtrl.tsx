@@ -107,7 +107,7 @@ export const LoginCtrl = memo(({ resetCode, children }: Props) => {
           .then(() => {
             toGrafana();
           })
-          .catch((err) => console.error(err));
+          .catch((err) => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err));
       }
     },
     [resetCode, toGrafana]

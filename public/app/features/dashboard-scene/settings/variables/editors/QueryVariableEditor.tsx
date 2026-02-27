@@ -133,7 +133,7 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
 
 export function getQueryVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof QueryVariable)) {
-    console.warn('getQueryVariableOptions: variable is not a QueryVariable');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('getQueryVariableOptions: variable is not a QueryVariable');
     return [];
   }
 

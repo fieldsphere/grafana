@@ -79,7 +79,7 @@ function QueryLibraryButton({ layer, onQuerySelected }: { layer: AnnotationLayer
           layer.setState({ query: updatedQuery });
           layer.runLayer();
         } catch (error) {
-          console.error('Failed to replace annotation query!', error);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to replace annotation query!', error);
           getAppEvents().publish({
             type: AppEvents.alertError.name,
             payload: ['Failed to create annotation query!', error instanceof Error ? error.message : error],

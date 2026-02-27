@@ -77,7 +77,7 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
     if (preloader) {
       preloader.remove();
     } else {
-      console.warn('Preloader element not found');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Preloader element not found');
     }
   }
 

@@ -32,7 +32,7 @@ export async function getDS(uid?: string): Promise<DataSourceApi | undefined> {
   try {
     return await dsSrv.get(uid);
   } catch (error) {
-    console.error('Failed to load data source', error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to load data source', error);
     return undefined;
   }
 }

@@ -130,7 +130,7 @@ export const TreeNavigationEditor = ({ item }: StandardEditorProps<unknown, Tree
     if (layer.scene) {
       frameSelection(layer.scene);
     } else {
-      console.warn('no scene!');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('no scene!');
     }
   };
 

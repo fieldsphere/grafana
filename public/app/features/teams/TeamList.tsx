@@ -236,7 +236,7 @@ const TeamList = () => {
                     'Failed to check if the team owns folders. Please try again.'
                   )
                 );
-                console.error(error);
+                (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
                 return;
               }
 

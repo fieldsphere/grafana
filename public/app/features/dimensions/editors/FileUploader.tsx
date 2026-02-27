@@ -47,7 +47,7 @@ export const FileUploader = ({ mediaType, setFormData, setUpload, error }: Props
   const onFileRemove = (file: DropzoneFile) => {
     fetch(`/api/storage/delete/upload/${file.file.name}`, {
       method: 'DELETE',
-    }).catch((error) => console.error('cannot delete file', error));
+    }).catch((error) => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('cannot delete file', error));
   };
 
   const acceptableFiles =

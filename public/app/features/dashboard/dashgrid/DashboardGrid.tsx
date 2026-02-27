@@ -115,7 +115,7 @@ export class DashboardGrid extends PureComponent<Props, State> {
       this.panelMap[panel.key] = panel;
 
       if (!panel.gridPos) {
-        console.log('panel without gridpos');
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('panel without gridpos');
         continue;
       }
 

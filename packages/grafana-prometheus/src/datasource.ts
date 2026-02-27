@@ -172,8 +172,8 @@ export class PrometheusDatasource
         this.ruleMappings = extractRuleMappingFromGroups(ruleGroups);
       }
     } catch (err) {
-      console.log('Rules API is experimental. Ignore next error.');
-      console.error(err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('Rules API is experimental. Ignore next error.');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
     }
   }
 
@@ -352,7 +352,7 @@ export class PrometheusDatasource
       } catch (err) {
         // If status code of error is Method Not Allowed (405) and HTTP method is POST, retry with GET
         if (this.httpMethod === 'POST' && isFetchError(err) && (err.status === 405 || err.status === 400)) {
-          console.warn(`Couldn't use configured POST HTTP method for this request. Trying to use GET method instead.`);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`Couldn't use configured POST HTTP method for this request. Trying to use GET method instead.`);
         } else {
           throw err;
         }

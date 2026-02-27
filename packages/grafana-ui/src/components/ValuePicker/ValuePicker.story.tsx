@@ -43,7 +43,7 @@ const options = generateOptions();
 export const Simple: StoryFn<typeof ValuePicker> = (args) => {
   return (
     <div style={{ width: '200px' }}>
-      <ValuePicker {...args} options={options} onChange={(v) => console.log(v)} />
+      <ValuePicker {...args} options={options} onChange={(v) => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(v)} />
     </div>
   );
 };

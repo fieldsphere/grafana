@@ -178,7 +178,7 @@ export function SaveProvisionedDashboardForm({
   }: ProvisionedDashboardFormData) => {
     // Validate required fields
     if (!repo || !path) {
-      console.error('Missing required fields for saving:', { repo, path });
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Missing required fields for saving:', { repo, path });
       return;
     }
 

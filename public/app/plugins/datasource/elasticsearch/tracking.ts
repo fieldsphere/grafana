@@ -71,7 +71,7 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_elasticsearch_dashboard_loaded', event);
   } catch (error) {
-    console.error('error in elasticsearch tracking handler', error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('error in elasticsearch tracking handler', error);
   }
 };
 

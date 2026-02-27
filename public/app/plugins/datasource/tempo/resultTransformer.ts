@@ -189,7 +189,7 @@ export function transformFromOTLP(
       }
     }
   } catch (error) {
-    console.error(error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
     return { error: { message: 'JSON is not valid OpenTelemetry format: ' + error }, data: [] };
   }
 

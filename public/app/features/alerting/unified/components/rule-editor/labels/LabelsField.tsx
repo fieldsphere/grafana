@@ -182,7 +182,7 @@ export function useCombinedLabels(
               opsValues = result.values.map((value) => value.name);
             }
           } catch (error) {
-            console.error('Failed to fetch label values for key:', key, error);
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to fetch label values for key:', key, error);
           }
         }
 

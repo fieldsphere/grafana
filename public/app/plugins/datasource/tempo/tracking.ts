@@ -58,7 +58,7 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_tempo_dashboard_loaded', stats);
   } catch (error) {
-    console.error('error in tempo tracking handler', error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('error in tempo tracking handler', error);
   }
 };
 

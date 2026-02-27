@@ -39,7 +39,7 @@ export const QueryToolbox = ({ onFormatCode, onExpand, isExpanded, query }: Quer
       await navigator.clipboard.writeText(query.expression ?? '');
       setShowCopySuccess(true);
     } catch (e) {
-      console.error(e);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
     }
   }, [query.expression]);
 

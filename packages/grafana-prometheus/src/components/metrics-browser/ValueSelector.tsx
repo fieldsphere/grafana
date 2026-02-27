@@ -59,7 +59,7 @@ export function ValueSelector() {
         <div className={styles.valueListArea}>
           {Object.entries(filteredLabelValues).map(([lk, lv]) => {
             if (!lk || !lv) {
-              console.error('label values are empty:', { lk, lv });
+              (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('label values are empty:', { lk, lv });
               return null;
             }
             return (

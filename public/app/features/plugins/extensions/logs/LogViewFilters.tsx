@@ -98,7 +98,7 @@ function useLogFilters(
 
   return useMemo(() => {
     if (data && data?.series.length > 1) {
-      console.warn('LogViewFilter does not support multiple series in query result.');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('LogViewFilter does not support multiple series in query result.');
     }
 
     const frame = data?.series[0];

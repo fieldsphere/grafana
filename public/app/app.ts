@@ -41,6 +41,7 @@ import {
   setCorrelationsService,
   setPluginFunctionsHook,
   setMegaMenuOpenHook,
+  installStructuredConsole,
 } from '@grafana/runtime';
 import {
   initOpenFeature,
@@ -132,6 +133,7 @@ export class GrafanaApp {
 
   async init() {
     try {
+      installStructuredConsole();
       await preInitTasks();
 
       // Let iframe container know grafana has started loading
@@ -145,7 +147,7 @@ export class GrafanaApp {
         try {
           await initOpenFeature();
         } catch (err) {
-          console.error('Failed to initialize OpenFeature provider', err);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to initialize OpenFeature provider', err);
         }
       }
 
@@ -284,7 +286,7 @@ export class GrafanaApp {
       try {
         cleanupOldExpandedFolders();
       } catch (err) {
-        console.warn('Failed to clean up old expanded folders', err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Failed to clean up old expanded folders', err);
       }
 
       this.context = {
@@ -314,7 +316,7 @@ export class GrafanaApp {
 
       await postInitTasks();
     } catch (error) {
-      console.error('Failed to start Grafana', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to start Grafana', error);
       window.__grafana_load_failed();
     } finally {
       stopMeasure('frontend_app_init');

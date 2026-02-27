@@ -78,7 +78,7 @@ export function saveSettings(data: UpdateSettingsQuery): ThunkResult<Promise<boo
         dispatch(resetError());
         return true;
       } catch (error) {
-        console.log(error);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(error);
         if (isFetchError(error)) {
           error.isHandled = true;
           const updateErr: SettingsError = {

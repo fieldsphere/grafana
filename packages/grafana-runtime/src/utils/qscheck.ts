@@ -48,11 +48,11 @@ function parseAllowedTypes(data: unknown): AllowedTypes {
     if (types.every((x) => typeof x === 'string')) {
       return { types };
     } else {
-      console.error('qscheck.parseFlags: non-string item in allowed');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('qscheck.parseFlags: non-string item in allowed');
       return { types: [] };
     }
   } else {
-    console.error('qscheck.parseFlags: invalid data');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('qscheck.parseFlags: invalid data');
     return { types: [] };
   }
 }

@@ -17,7 +17,7 @@ const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
 
   if (!rootStateKey) {
-    console.error('AdHocVariableEditor: variable has no rootStateKey');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('AdHocVariableEditor: variable has no rootStateKey');
     return {
       extended: getAdhocVariableEditorState(initialVariableEditorState),
     };
@@ -44,7 +44,7 @@ export class AdHocVariableEditorUnConnected extends PureComponent<Props> {
   componentDidMount() {
     const { rootStateKey } = this.props.variable;
     if (!rootStateKey) {
-      console.error('AdHocVariableEditor: variable has no rootStateKey');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('AdHocVariableEditor: variable has no rootStateKey');
       return;
     }
   }

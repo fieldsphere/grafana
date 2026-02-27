@@ -31,7 +31,7 @@ export function fetchACOptions(): ThunkResult<void> {
         dispatch(acOptionsLoaded(options));
       }
     } catch (error) {
-      console.error(error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
     }
   };
 }
@@ -76,7 +76,7 @@ export function fetchServiceAccounts(
         dispatch(serviceAccountsFetched(result));
       }
     } catch (error) {
-      console.error(error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
     } finally {
       dispatch(serviceAccountsFetchEnd());
     }

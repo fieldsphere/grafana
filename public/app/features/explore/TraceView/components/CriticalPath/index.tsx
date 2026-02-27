@@ -104,7 +104,7 @@ function criticalPathForTrace(trace: Trace) {
       criticalPath = computeCriticalPath(sanitizedSpanMap, rootSpanId, criticalPath);
     } catch (error) {
       /* eslint-disable no-console */
-      console.log('error while computing critical path for a trace', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('error while computing critical path for a trace', error);
     }
   }
   return criticalPath;

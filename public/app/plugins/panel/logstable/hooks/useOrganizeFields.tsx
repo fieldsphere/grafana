@@ -59,7 +59,7 @@ export function useOrganizeFields({
         }
       })
       .catch((err) => {
-        console.error('LogsTable: Organize fields transform error', err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('LogsTable: Organize fields transform error', err);
       });
   }, [
     bodyFieldName,

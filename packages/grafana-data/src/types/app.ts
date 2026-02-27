@@ -93,7 +93,7 @@ export class AppPlugin<T extends KeyValue = KeyValue> extends GrafanaPlugin<AppP
           const exp = pluginExports[include.component];
 
           if (!exp) {
-            console.warn('App Page uses unknown component: ', include.component, this.meta);
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('App Page uses unknown component: ', include.component, this.meta);
             continue;
           }
         }

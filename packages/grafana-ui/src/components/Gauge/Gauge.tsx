@@ -158,7 +158,7 @@ export class Gauge extends PureComponent<Props> {
         $.plot(this.canvasElement, [plotSeries], options);
       }
     } catch (err) {
-      console.error('Gauge rendering error', err, options, value);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Gauge rendering error', err, options, value);
     }
   }
 

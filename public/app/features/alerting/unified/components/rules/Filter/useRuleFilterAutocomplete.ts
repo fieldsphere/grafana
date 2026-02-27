@@ -161,7 +161,7 @@ export function useNamespaceAndGroupOptions(): {
 
         return options;
       } catch (error) {
-        console.error('Error fetching groups:', error);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error fetching groups:', error);
         return [createInfoOption(t('alerting.rules-filter.group-search-error', 'Error searching groups'))];
       }
     },

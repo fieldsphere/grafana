@@ -226,7 +226,7 @@ export const urlUtil = {
  */
 export function serializeStateToUrlParam(urlState: Partial<ExploreUrlState>, compact?: boolean): string {
   if (compact !== undefined) {
-    console.warn('`compact` parameter is deprecated and will be removed in a future release');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('`compact` parameter is deprecated and will be removed in a future release');
   }
   return JSON.stringify(urlState);
 }

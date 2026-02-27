@@ -201,7 +201,7 @@ const patternToRegex = (pattern?: string): RegExp | undefined => {
   try {
     return stringToJsRegex(pattern);
   } catch (error) {
-    console.error(error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
     return undefined;
   }
 };

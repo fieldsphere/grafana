@@ -25,7 +25,7 @@ export async function loadPluginCss(options: PluginCssOptions): Promise<System.M
     const cssPath = config.bootData.user.theme === 'light' ? options.light : options.dark;
     return window.System.import(cssPath);
   } catch (err) {
-    console.error(err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
   }
 }
 

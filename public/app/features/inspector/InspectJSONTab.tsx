@@ -104,7 +104,7 @@ export function InspectJSONTab({ panel, dashboard, data, onClose }: Props) {
           appEvents.emit(AppEvents.alertSuccess, ['Panel model updated']);
         }
       } catch (err) {
-        console.error('Error applying updates', err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error applying updates', err);
         appEvents.emit(AppEvents.alertError, ['Invalid JSON text']);
       }
 

@@ -38,7 +38,7 @@ export const ControlledLogsTable = ({
   const styles = useStyles2(getStyles);
 
   if (!splitOpen || !width || !updatePanelState) {
-    console.error('<ControlledLogsTable>: Missing required props.');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('<ControlledLogsTable>: Missing required props.');
     return;
   }
 

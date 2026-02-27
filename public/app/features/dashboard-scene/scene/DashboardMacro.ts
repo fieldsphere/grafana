@@ -39,7 +39,7 @@ export function registerDashboardMacro() {
 
     return () => unregister();
   } catch (e) {
-    console.error('Error registering dashboard macro', e);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error registering dashboard macro', e);
     return () => {};
   }
 }

@@ -122,7 +122,7 @@ export class QueryGroup extends PureComponent<Props, State> {
         defaultDataSource,
       });
     } catch (error) {
-      console.error('failed to load data source', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('failed to load data source', error);
     }
   }
 

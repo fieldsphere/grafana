@@ -10,7 +10,7 @@ export async function updateNavModel(folderUid: string) {
     const folder = await getFolderByUidFacade(folderUid);
     store.dispatch(updateNavIndex(buildNavModel(folder)));
   } catch (err) {
-    console.warn('Error fetching parent folder', folderUid, 'for dashboard', err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Error fetching parent folder', folderUid, 'for dashboard', err);
   }
 }
 

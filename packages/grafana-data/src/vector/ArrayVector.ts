@@ -35,7 +35,7 @@ export class ArrayVector<T = unknown> extends Array<T> {
     this.buffer = buffer ?? [];
 
     if (!notified) {
-      console.warn(notice);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(notice);
       notified = true;
     }
   }

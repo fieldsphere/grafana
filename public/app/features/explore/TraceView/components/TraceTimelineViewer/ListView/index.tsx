@@ -388,7 +388,7 @@ export default class ListView extends React.Component<TListViewProps> {
         const itemKey = node.getAttribute('data-item-key');
         if (!itemKey) {
           // eslint-disable-next-line no-console
-          console.warn('itemKey not found');
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('itemKey not found');
           continue;
         }
         // measure the first child, if it's available, otherwise the node itself

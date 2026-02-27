@@ -193,11 +193,11 @@ const LogsQueryEditor = ({
           setDataIngestedWarning(null);
         }
       } catch (err) {
-        console.error(err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
       }
     };
 
-    getBasicLogsUsage(query).catch((err) => console.error(err));
+    getBasicLogsUsage(query).catch((err) => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err));
   }, [datasource.azureLogAnalyticsDatasource, query, showBasicLogsToggle, from, to]);
   let portalLinkButton = null;
 

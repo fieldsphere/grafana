@@ -72,7 +72,7 @@ export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
       const panel = findEditPanel(this._scene, values.editPanel);
 
       if (!panel) {
-        console.warn(`Panel ${values.editPanel} not found`);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`Panel ${values.editPanel} not found`);
         return;
       }
 

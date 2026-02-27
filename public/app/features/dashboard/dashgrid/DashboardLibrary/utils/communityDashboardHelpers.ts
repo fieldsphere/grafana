@@ -150,7 +150,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
   try {
     panelJson = JSON.stringify(panelWithoutSanitizedFields);
   } catch (e) {
-    console.warn('Failed to stringify panel', e);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Failed to stringify panel', e);
     return true;
   }
 
@@ -181,7 +181,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousValue = valuePatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in value');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Panel contains JavaScript code in value');
       return true;
     }
     return false;
@@ -189,7 +189,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousKey = keyPatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in key');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Panel contains JavaScript code in key');
       return true;
     }
     return false;
@@ -301,7 +301,7 @@ export async function onUseCommunityDashboard({
       }
     }
   } catch (err) {
-    console.error('Error loading community dashboard:', err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error loading community dashboard:', err);
     dispatch(
       notifyApp(
         createErrorNotification(t('dashboard-library.community-error-title', 'Error loading community dashboard'))

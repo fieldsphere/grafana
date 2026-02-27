@@ -63,7 +63,7 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
 
 export function getAdHocFilterOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof AdHocFiltersVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
 

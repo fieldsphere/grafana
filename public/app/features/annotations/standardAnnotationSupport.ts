@@ -227,7 +227,7 @@ export function getAnnotationsFromData(
       }
 
       if (!hasTime || !hasText) {
-        console.error('Cannot process annotation fields. No time or text present.');
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Cannot process annotation fields. No time or text present.');
         return [];
       }
 

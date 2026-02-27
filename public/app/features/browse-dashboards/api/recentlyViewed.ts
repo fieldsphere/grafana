@@ -30,7 +30,7 @@ export async function getRecentlyViewedDashboards(maxItems = 5): Promise<Dashboa
     dashboards.sort((a, b) => order(a.uid) - order(b.uid));
     return dashboards;
   } catch (error) {
-    console.error('Failed to load recently viewed dashboards', error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to load recently viewed dashboards', error);
     return [];
   }
 }

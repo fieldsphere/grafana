@@ -54,7 +54,7 @@ const initialize = (on, config) => {
 
   if (!fs.existsSync(resultsFolder)) {
     fs.mkdirSync(resultsFolder, { recursive: true });
-    console.log(`Created folder for benchmark results ${resultsFolder}`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(`Created folder for benchmark results ${resultsFolder}`);
   }
 
   on('before:browser:launch', async (browser, options) => {
@@ -69,7 +69,7 @@ const initialize = (on, config) => {
 
     args.push('--start-fullscreen');
 
-    console.log(
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(
       `initialized benchmarking plugin with ${collectors.length} collectors: ${collectors
         .map((col) => col.getName())
         .join(', ')}`

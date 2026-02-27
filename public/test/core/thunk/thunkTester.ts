@@ -28,7 +28,7 @@ export const thunkTester = (initialState: unknown, debug?: boolean): ThunkGiven 
 
     dispatchedActions = store.getActions();
     if (debug) {
-      console.log('resultingActions:', JSON.stringify(dispatchedActions, null, 2));
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('resultingActions:', JSON.stringify(dispatchedActions, null, 2));
     }
 
     return dispatchedActions;

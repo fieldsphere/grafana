@@ -82,9 +82,9 @@ module.exports = {
         _codeownersCache = JSON.parse(codeownersJson);
       } catch (e) {
         if (e.code === 'ENOENT') {
-          console.error(`Could not read ${CODEOWNERS_MANIFEST_CODEOWNERS_PATH} ...`);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Could not read ${CODEOWNERS_MANIFEST_CODEOWNERS_PATH} ...`);
         } else {
-          console.error(e);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
         }
         process.exit(1);
       }

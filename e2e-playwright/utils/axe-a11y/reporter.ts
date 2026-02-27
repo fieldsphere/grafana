@@ -39,7 +39,7 @@ class AxeA11yReporter implements Reporter {
     for (const report of axeReports) {
       const reportJson = report.body?.toString();
       if (!reportJson) {
-        console.warn(`Axe a11y report for "${testName}" has no body.`);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`Axe a11y report for "${testName}" has no body.`);
         continue;
       }
 
@@ -55,7 +55,7 @@ class AxeA11yReporter implements Reporter {
         );
         this.failedTests += result.status === 'failed' ? 1 : 0;
       } catch (e) {
-        console.error(`Failed to parse axe-a11y report JSON for test ${test.title}:`, e);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Failed to parse axe-a11y report JSON for test ${test.title}:`, e);
         return;
       }
     }
@@ -75,9 +75,9 @@ class AxeA11yReporter implements Reporter {
           rawReports: this.reports,
         };
         await writeFile(path.join(process.cwd(), process.env.AXE_A11Y_REPORT_PATH), JSON.stringify(report, null, 2));
-        console.info(`Axe a11y report written to ${process.env.AXE_A11Y_REPORT_PATH}`);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).info(`Axe a11y report written to ${process.env.AXE_A11Y_REPORT_PATH}`);
       } catch (e) {
-        console.error('Failed to write axe-a11y report:', e);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to write axe-a11y report:', e);
       }
     }
   }

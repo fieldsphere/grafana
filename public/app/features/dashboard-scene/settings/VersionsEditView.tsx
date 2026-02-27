@@ -112,7 +112,7 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

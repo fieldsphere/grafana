@@ -142,7 +142,7 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         try {
           buffer = rangeUtil.intervalToSeconds(txt) * 1000;
         } catch (err) {
-          console.warn('ERROR', err);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('ERROR', err);
         }
       }
       onChange({

@@ -144,12 +144,12 @@ export function getHasTimeChanged(
 
 export function adHocVariableFiltersEqual(filtersA?: AdHocFilterWithLabels[], filtersB?: AdHocFilterWithLabels[]) {
   if (filtersA === undefined && filtersB === undefined) {
-    console.warn('Adhoc variable filter property is undefined');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Adhoc variable filter property is undefined');
     return true;
   }
 
   if ((filtersA === undefined && filtersB !== undefined) || (filtersB === undefined && filtersA !== undefined)) {
-    console.warn('Adhoc variable filter property is undefined');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Adhoc variable filter property is undefined');
     return false;
   }
 

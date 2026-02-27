@@ -110,7 +110,7 @@ export function updateOptionsState(args: {
       map((results) => {
         const { variable, dispatch, getTemplatedRegexFunc } = args;
         if (!variable.rootStateKey) {
-          console.error('updateOptionsState: variable.rootStateKey is not defined');
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('updateOptionsState: variable.rootStateKey is not defined');
           return;
         }
         const templatedRegex = getTemplatedRegexFunc(variable);

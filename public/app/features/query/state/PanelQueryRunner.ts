@@ -257,7 +257,7 @@ export class PanelQueryRunner {
         return { ...data, series, annotations };
       }),
       catchError((err) => {
-        console.warn('Error running transformation:', err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Error running transformation:', err);
         return of({
           ...data,
           state: LoadingState.Error,

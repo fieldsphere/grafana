@@ -83,7 +83,7 @@ export async function buildSourceLink(annotations: ObjectMeta['annotations']): P
       keepTime: false,
     };
   } catch (e) {
-    console.warn('Failed to fetch repository info for source link:', e);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Failed to fetch repository info for source link:', e);
     return undefined;
   }
 }

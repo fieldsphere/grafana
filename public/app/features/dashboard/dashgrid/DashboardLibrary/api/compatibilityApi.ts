@@ -105,8 +105,8 @@ export interface CompatibilityCheckResult {
  *   [{ uid: "prometheus-uid", type: "prometheus" }]
  * );
  *
- * console.log(`Compatibility: ${result.compatibilityScore}%`);
- * console.log(`Missing metrics: ${result.datasourceResults[0].missingMetrics}`);
+ * (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(`Compatibility: ${result.compatibilityScore}%`);
+ * (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(`Missing metrics: ${result.datasourceResults[0].missingMetrics}`);
  * ```
  */
 export async function checkDashboardCompatibility(
@@ -138,7 +138,7 @@ export async function checkDashboardCompatibility(
     return response;
   } catch (error) {
     // Log error for debugging
-    console.error('Dashboard compatibility check failed:', error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Dashboard compatibility check failed:', error);
 
     // Re-throw original error for caller to handle
     throw error;

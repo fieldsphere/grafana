@@ -149,7 +149,7 @@ export class GeneralSettingsEditView
       const liveNow = this.getLiveNowTimer();
       enable ? liveNow.enable() : liveNow.disable();
     } catch (err) {
-      console.error(err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
     }
   };
 

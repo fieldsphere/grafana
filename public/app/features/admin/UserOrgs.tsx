@@ -128,7 +128,7 @@ const OrgRow = memo(({ user, org, isExternalUser, onOrgRemove, onOrgRoleChange }
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.orgId)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e));
       }
     }
   }, [org.orgId]);
@@ -266,7 +266,7 @@ export const AddToOrgModal = memo(({ isOpen, user, userOrgs, onOrgAdd, onDismiss
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.value?.id)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e));
       }
     }
   };

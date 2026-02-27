@@ -91,7 +91,7 @@ export async function getRemotePlugins(): Promise<RemotePlugin[]> {
     if (isFetchError(error)) {
       // It can happen that GCOM is not available, in that case we show a limited set of information to the user.
       error.isHandled = true;
-      console.error('Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
       return [];
     }
 

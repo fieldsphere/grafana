@@ -92,7 +92,7 @@ export const LogGroupsField = ({
           onChange([...logGroups, ...variables.map((v) => ({ name: v, arn: v }))]);
         })
         .catch((err) => {
-          console.error(err);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
         });
     }
   }, [datasource, legacyLogGroupNames, logGroups, onChange, region, loadingLogGroupsStarted]);

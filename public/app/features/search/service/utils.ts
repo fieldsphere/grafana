@@ -35,7 +35,7 @@ async function getCurrentFolderUID(): Promise<string | undefined> {
     }
     return Promise.resolve(dash?.meta?.folderUid);
   } catch (e) {
-    console.error(e);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
   }
   return undefined;
 }

@@ -54,7 +54,7 @@ const Tag = ({ tag, isFirst, onRemove, onChange, getTagKeyOptions, getTagValueOp
         // to avoid it, we catch any potential errors coming from `getTagKeyOptions`,
         // log the error, and pretend that the list of options is an empty list.
         // this way the remove-item option can always be added to the list.
-        console.error(err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
         return [];
       })
       .then((tags) => tags.map(toSelectableValue));

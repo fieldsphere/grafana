@@ -233,7 +233,7 @@ export class AutoGridLayoutManager
   public duplicatePanel(panel: VizPanel) {
     const gridItem = panel.parent;
     if (!(gridItem instanceof AutoGridItem)) {
-      console.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Trying to duplicate a panel that is not inside a DashboardGridItem');
       return;
     }
 

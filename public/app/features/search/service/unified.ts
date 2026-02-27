@@ -196,11 +196,11 @@ export class UnifiedSearcher implements GrafanaSearcher {
         const resp = await this.fetchResponse(nextPageUrl);
         const frame = toDashboardResults(resp, query.sort ?? '');
         if (!frame) {
-          console.log('no results', frame);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('no results', frame);
           return;
         }
         if (frame.fields.length !== view.dataFrame.fields.length) {
-          console.log('invalid shape', frame, view.dataFrame);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('invalid shape', frame, view.dataFrame);
           return;
         }
 

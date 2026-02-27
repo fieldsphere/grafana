@@ -36,11 +36,11 @@ function scenesModule() {
   try {
     const status = fs.lstatSync(scenesPath);
     if (status.isSymbolicLink()) {
-      console.log(`scenes is linked to local scenes repo`);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(`scenes is linked to local scenes repo`);
       return path.resolve(scenesPath + '/src');
     }
   } catch (error) {
-    console.error(`Error checking scenes path: ${error.message}`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Error checking scenes path: ${error.message}`);
   }
   return scenesPath;
 }

@@ -76,11 +76,11 @@ export function createTypography(colors: ThemeColors, typographyInput: ThemeTypo
 
   if (process.env.NODE_ENV !== 'production') {
     if (typeof fontSize !== 'number') {
-      console.error('Grafana-UI: `fontSize` is required to be a number.');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Grafana-UI: `fontSize` is required to be a number.');
     }
 
     if (typeof htmlFontSize !== 'number') {
-      console.error('Grafana-UI: `htmlFontSize` is required to be a number.');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Grafana-UI: `htmlFontSize` is required to be a number.');
     }
   }
 

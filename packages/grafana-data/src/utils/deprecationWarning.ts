@@ -11,7 +11,7 @@ export const deprecationWarning = (file: string, oldName: string, newName?: stri
   const now = Date.now();
   const last = history[message];
   if (!last || now - last > 10000) {
-    console.warn(message);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(message);
     history[message] = now;
   }
 };

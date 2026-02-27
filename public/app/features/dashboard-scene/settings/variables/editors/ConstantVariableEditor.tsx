@@ -24,7 +24,7 @@ export function ConstantVariableEditor({ variable }: ConstantVariableEditorProps
 
 export function getConstantVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof ConstantVariable)) {
-    console.warn('getConstantVariableOptions: variable is not a ConstantVariable');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('getConstantVariableOptions: variable is not a ConstantVariable');
     return [];
   }
 

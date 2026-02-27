@@ -44,7 +44,7 @@ export function SwitchVariableEditor({ variable, inline = false }: SwitchVariabl
 
 export function getSwitchVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof SwitchVariable)) {
-    console.warn('getSwitchVariableOptions: variable is not a SwitchVariable');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('getSwitchVariableOptions: variable is not a SwitchVariable');
     return [];
   }
 

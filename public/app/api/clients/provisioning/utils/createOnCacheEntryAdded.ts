@@ -69,7 +69,7 @@ export function createOnCacheEntryAdded<Spec, Status>(
         },
       });
     } catch (error) {
-      console.error('Error in onCacheEntryAdded:', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error in onCacheEntryAdded:', error);
       return;
     }
 

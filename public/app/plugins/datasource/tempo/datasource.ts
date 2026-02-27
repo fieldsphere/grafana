@@ -295,7 +295,7 @@ export class TempoDatasource extends DataSourceWithBackend<TempoQuery, TempoJson
 
       return false;
     } catch (error) {
-      console.warn('Failed to check for native histograms:', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Failed to check for native histograms:', error);
       return false;
     }
   }

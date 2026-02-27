@@ -165,7 +165,7 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
     const gridItem = panel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Cannot update layout: panel parent is not a DashboardGridItem');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Cannot update layout: panel parent is not a DashboardGridItem');
       return;
     }
 
@@ -259,7 +259,7 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
     const newState = sceneUtils.cloneSceneObjectState(gridItem.state);
 
     if (!(panel.parent instanceof DashboardGridItem)) {
-      console.error('Cannot update state of panel', panel, gridItem);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Cannot update state of panel', panel, gridItem);
       return;
     }
 

@@ -318,7 +318,7 @@ export class DashboardExporter {
 
       return newObj;
     } catch (err) {
-      console.error('Export failed:', err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Export failed:', err);
       return {
         error: err,
       };

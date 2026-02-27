@@ -21,7 +21,7 @@ export function loadServiceAccount(saUid: string): ThunkResult<void> {
       const response = await getBackendSrv().get(`${BASE_URL}/${saUid}`, accessControlQueryParam());
       dispatch(serviceAccountLoaded(response));
     } catch (error) {
-      console.error(error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
     } finally {
       dispatch(serviceAccountFetchEnd());
     }
@@ -69,7 +69,7 @@ export function loadServiceAccountTokens(saUid: string): ThunkResult<void> {
       const response = await getBackendSrv().get(`${BASE_URL}/${saUid}/tokens`);
       dispatch(serviceAccountTokensLoaded(response));
     } catch (error) {
-      console.error(error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
     }
   };
 }

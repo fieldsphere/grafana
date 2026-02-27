@@ -71,7 +71,7 @@ export function LogsTableRowActionButtons(props: Props) {
                 if (logId) {
                   return buildLinkToLog(logId) ?? '';
                 } else {
-                  console.error('failed to copy log line link!');
+                  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('failed to copy log line link!');
                 }
                 return '';
               }}

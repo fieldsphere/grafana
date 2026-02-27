@@ -39,7 +39,7 @@ export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, t
     const remote$ = from(getRemotePlugins()).pipe(
       catchError((err) => {
         thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchRemote/rejected` });
-        console.error(err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
         return of([]);
       })
     );
@@ -114,7 +114,7 @@ export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, t
           }
         },
         (error) => {
-          console.log(error);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(error);
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchLocal/rejected` });
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchRemote/rejected` });
           return thunkApi.rejectWithValue('Unknown error.');
@@ -228,7 +228,7 @@ export const install = createAsyncThunk<
 
     return { id, changes };
   } catch (e) {
-    console.error(e);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
     if (isFetchError(e)) {
       // add id to identify errors in multiple requests
       e.data.id = id;
@@ -255,7 +255,7 @@ export const uninstall = createAsyncThunk<Update<CatalogPlugin, string>, string>
         changes: { isInstalled: false, installedVersion: undefined, isFullyInstalled: false },
       };
     } catch (e) {
-      console.error(e);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
 
       return thunkApi.rejectWithValue('Unknown error.');
     }

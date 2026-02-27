@@ -95,7 +95,7 @@ export function saveCurrentCorrelation(
         })
         .catch((err) => {
           dispatch(notifyApp(createErrorNotification('Error creating correlation', err)));
-          console.error(err);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
         });
     }
   };

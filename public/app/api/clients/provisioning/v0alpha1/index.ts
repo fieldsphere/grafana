@@ -265,7 +265,7 @@ export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
             dispatch(clearFolders(childrenKeys));
           }
         } catch (e) {
-          console.error('Error in getRepositoryJobsWithPath:', e);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error in getRepositoryJobsWithPath:', e);
         }
       },
     },

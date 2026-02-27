@@ -109,7 +109,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('not correct url correcting', dashboardUrl, currentPath);
           }
         }
         return dashDTO;
@@ -138,7 +138,7 @@ async function fetchDashboard(
         error: err,
       })
     );
-    console.error(err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
     return null;
   }
 }
@@ -206,7 +206,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
           error: err,
         })
       );
-      console.error(err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
       return;
     }
 
@@ -264,7 +264,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
       if (err instanceof Error) {
         dispatch(notifyApp(createErrorNotification('Dashboard init failed', err)));
       }
-      console.error(err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
     }
 
     // send open dashboard event

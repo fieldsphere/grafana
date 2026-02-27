@@ -39,7 +39,7 @@ export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Pr
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options for service account');
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error loading options for service account');
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

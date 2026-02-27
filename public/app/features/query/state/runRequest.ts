@@ -161,7 +161,7 @@ export function runRequest(
     }),
     // handle errors
     catchError((err) => {
-      console.error('runRequest.catchError', err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('runRequest.catchError', err);
       return of({
         ...state.panelData,
         state: LoadingState.Error,

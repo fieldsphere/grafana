@@ -80,7 +80,7 @@ export class DataProvider {
 
       return Array.isArray(result) ? result : [];
     } catch (error) {
-      console.warn('Failed to query metric names:', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Failed to query metric names:', error);
       return [];
     }
   };

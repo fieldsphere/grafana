@@ -1172,12 +1172,12 @@ export class ElasticDatasource
         try {
           return new SemVer(versionNumber);
         } catch (error) {
-          console.error(error);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
           return null;
         }
       },
       (error) => {
-        console.error(error);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
         return null;
       }
     );

@@ -68,7 +68,7 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options', e); // TODO: handle error
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error loading options', e); // TODO: handle error
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {
@@ -101,7 +101,7 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           await updateUserRoles(pendingRoles, newAccount.id, newAccount.orgId);
         }
       } catch (e) {
-        console.error(e); // TODO: handle error
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e); // TODO: handle error
       }
       locationService.push(`/org/serviceaccounts/${response.uid}`);
     },

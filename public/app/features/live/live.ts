@@ -30,7 +30,7 @@ export class GrafanaLiveService implements GrafanaLiveSrv {
     const updateBuffer = (next: StreamingDataQueryResponse): void => {
       const data = next.data[0];
       if (!buffer && !isStreamingResponseData(data, StreamingResponseDataType.FullFrame)) {
-        console.warn(`expected first packet to contain a full frame, received ${data?.type}`);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`expected first packet to contain a full frame, received ${data?.type}`);
         return;
       }
 

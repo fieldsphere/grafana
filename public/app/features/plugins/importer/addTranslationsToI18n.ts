@@ -21,14 +21,14 @@ export async function addTranslationsToI18n({
   const path = resolvedPath ?? fallbackPath;
 
   if (!path) {
-    console.warn(`Could not find any translation for plugin ${pluginId}`, { resolvedLanguage, fallbackLanguage });
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`Could not find any translation for plugin ${pluginId}`, { resolvedLanguage, fallbackLanguage });
     return;
   }
 
   try {
     const module = await SystemJS.import(resolveModulePath(path));
     if (!module.default) {
-      console.warn(`Could not find default export for plugin ${pluginId}`, {
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`Could not find default export for plugin ${pluginId}`, {
         resolvedLanguage,
         fallbackLanguage,
         path,
@@ -39,7 +39,7 @@ export async function addTranslationsToI18n({
     const language = resolvedPath ? resolvedLanguage : fallbackLanguage;
     addResourceBundle(language, pluginId, module.default);
   } catch (error) {
-    console.warn(`Could not load translation for plugin ${pluginId}`, {
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`Could not load translation for plugin ${pluginId}`, {
       resolvedLanguage,
       fallbackLanguage,
       error,

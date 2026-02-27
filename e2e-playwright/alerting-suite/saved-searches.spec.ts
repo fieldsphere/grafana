@@ -64,7 +64,7 @@ async function clearSavedSearches(page: Page) {
   } catch (error) {
     // Ignore 404 errors (resource doesn't exist)
     if (!(error && typeof error === 'object' && 'status' in error && error.status === 404)) {
-      console.warn('Failed to clear saved searches:', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Failed to clear saved searches:', error);
     }
   }
 

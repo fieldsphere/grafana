@@ -210,7 +210,7 @@ const getTimeRange = (query: AlertQuery, queries: AlertQuery[]): TimeRange => {
   }
 
   if (!query.relativeTimeRange) {
-    console.warn(`Query with refId: ${query.refId} did not have any relative time range, using default.`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`Query with refId: ${query.refId} did not have any relative time range, using default.`);
     return getDefaultTimeRange();
   }
 

@@ -657,7 +657,7 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
 
           // Keep scanning for results if this was the last scanning transaction
           if (exploreState!.scanning) {
-            console.log(data.series);
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(data.series);
             if (data.state === LoadingState.Done && data.series.length === 0) {
               const range = getShiftedTimeRange(-1, exploreState!.range);
               dispatch(updateTime({ exploreId, absoluteRange: range }));
@@ -671,7 +671,7 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
         error(error) {
           dispatch(notifyApp(createErrorNotification('Query processing error', error)));
           dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Error }));
-          console.error(error);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
         },
         complete() {
           // In case we don't get any response at all but the observable completed, make sure we stop loading state.
@@ -793,7 +793,7 @@ export const runLoadMoreLogsQueries = createAsyncThunk<void, RunLoadMoreLogsQuer
       error(error) {
         dispatch(notifyApp(createErrorNotification('Query processing error', error)));
         dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Error }));
-        console.error(error);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
       },
       complete() {
         dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Done }));

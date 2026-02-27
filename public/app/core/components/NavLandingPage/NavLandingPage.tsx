@@ -36,7 +36,7 @@ export function NavLandingPage({ navId, header }: Props) {
   // Warn if both extension points are being used (they are mutually exclusive)
   React.useEffect(() => {
     if (components && components.length > 0 && additionalCards && additionalCards.length > 0) {
-      console.warn(
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(
         `[NavLandingPage] Both NavLandingPage and NavLandingPageCards extensions are registered for "${node.id}". ` +
           `The NavLandingPage extension will take precedence and NavLandingPageCards will be ignored. ` +
           `Please use only one extension point.`

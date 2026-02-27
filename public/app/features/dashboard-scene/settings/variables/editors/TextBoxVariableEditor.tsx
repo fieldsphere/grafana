@@ -25,7 +25,7 @@ export function TextBoxVariableEditor({ variable, inline }: TextBoxVariableEdito
 
 export function getTextBoxVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof TextBoxVariable)) {
-    console.warn('getTextBoxVariableOptions: variable is not a TextBoxVariable');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('getTextBoxVariableOptions: variable is not a TextBoxVariable');
     return [];
   }
 

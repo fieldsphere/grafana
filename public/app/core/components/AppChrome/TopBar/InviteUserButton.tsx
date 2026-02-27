@@ -42,7 +42,7 @@ export function InviteUserButton() {
         performInviteUserClick('top_bar_right', 'invite-user-top-bar');
       }
     } catch (error) {
-      console.error('Failed to handle invite/upgrade user click:', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to handle invite/upgrade user click:', error);
     }
   };
 

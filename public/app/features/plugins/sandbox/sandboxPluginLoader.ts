@@ -134,7 +134,7 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
               `Error in ${meta.id}: Plugins should not use window.grafanaBootData. Use "config" from "@grafana/runtime" instead.`
             );
           } else {
-            console.error(
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(
               `${meta.id.toUpperCase()}: Plugins should not use window.grafanaBootData. Use "config" from "@grafana/runtime" instead.`
             );
           }

@@ -25,7 +25,7 @@ import { changeQueryVariableDataSource, changeQueryVariableQuery, initQueryVaria
 const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
   if (!rootStateKey) {
-    console.error('QueryVariableEditor: variable has no rootStateKey');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('QueryVariableEditor: variable has no rootStateKey');
     return {
       extended: getQueryVariableEditorState(initialVariableEditorState),
     };

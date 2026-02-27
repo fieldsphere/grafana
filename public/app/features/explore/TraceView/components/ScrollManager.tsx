@@ -106,7 +106,7 @@ export default class ScrollManager {
     const position = xrs.getRowPosition(rowIndex);
     if (!position) {
       // eslint-disable-next-line no-console
-      console.warn('Invalid row index');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Invalid row index');
       return;
     }
     let { y } = position;

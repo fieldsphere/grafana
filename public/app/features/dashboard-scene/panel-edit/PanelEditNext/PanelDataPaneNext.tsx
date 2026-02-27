@@ -140,7 +140,7 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
         this.setState({ datasource: undefined, dsSettings: undefined, dsError: undefined });
       }
     } catch (err) {
-      console.error('Failed to load datasource:', err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to load datasource:', err);
 
       // Fallback to default datasource (parity with PanelDataQueriesTab)
       try {
@@ -154,7 +154,7 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
           });
         }
       } catch (fallbackErr) {
-        console.error('Failed to load default datasource:', fallbackErr);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to load default datasource:', fallbackErr);
         this.setState({
           datasource: undefined,
           dsSettings: undefined,

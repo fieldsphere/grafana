@@ -45,7 +45,7 @@ export function getElementEditor(opts: CanvasEditorOptions): NestedPanelOptions<
         if (path === 'type' && value) {
           const layer = canvasElementRegistry.getIfExists(value);
           if (!layer) {
-            console.warn('layer does not exist', value);
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('layer does not exist', value);
             return;
           }
           options = {

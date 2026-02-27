@@ -444,7 +444,7 @@ function resolveNewSpansetExpression(node: SyntaxNode, text: string, offset: num
       previousNode = previousNode!.nextSibling;
     }
   } catch (error) {
-    console.error('Unexpected error while searching for previous node', error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Unexpected error while searching for previous node', error);
   }
 
   if (previousNode?.type.id === And || previousNode?.type.id === Or) {

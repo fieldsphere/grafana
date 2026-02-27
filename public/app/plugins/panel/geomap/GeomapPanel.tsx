@@ -323,7 +323,7 @@ export class GeomapPanel extends Component<Props, State> {
         layers.push(await initLayer(this, map, lyr, false));
       }
     } catch (ex) {
-      console.error('error loading layers', ex);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('error loading layers', ex);
     }
 
     for (const lyr of layers) {

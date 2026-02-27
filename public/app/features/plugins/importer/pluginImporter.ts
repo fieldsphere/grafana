@@ -54,7 +54,7 @@ const panelPluginPostImport: PostImportStrategy<PanelPlugin, PanelPluginMeta> = 
     throw new Error('missing export: plugin');
   } catch (error) {
     // TODO, maybe a different error plugin
-    console.warn('Error loading panel plugin: ' + meta.id, error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Error loading panel plugin: ' + meta.id, error);
     return getPanelPluginLoadError(meta, error);
   }
 };

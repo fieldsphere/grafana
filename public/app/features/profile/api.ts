@@ -8,7 +8,7 @@ async function changePassword(payload: ChangePasswordFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user/password', payload);
   } catch (err) {
-    console.error(err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
   }
 }
 
@@ -42,7 +42,7 @@ async function updateUserProfile(payload: ProfileUpdateFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user', payload);
   } catch (err) {
-    console.error(err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
   }
 }
 

@@ -122,7 +122,7 @@ function serializeNotifications(notifs: Record<string, StoredNotification>) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(reducedNotifs));
   } catch (err) {
-    console.error('Unable to persist notifications to local storage');
-    console.error(err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Unable to persist notifications to local storage');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
   }
 }

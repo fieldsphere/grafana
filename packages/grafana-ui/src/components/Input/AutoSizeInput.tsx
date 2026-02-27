@@ -119,7 +119,7 @@ function useControlledState<T>(controlledValue: T, onChange: Function | undefine
 
   const hasLoggedControlledWarning = useRef(false);
   if (isControlledNow !== isControlledRef.current && !hasLoggedControlledWarning.current) {
-    console.warn(
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(
       'An AutoSizeInput is changing from an uncontrolled to a controlled input. If you want to control the input, the empty value should be an empty string.'
     );
     hasLoggedControlledWarning.current = true;

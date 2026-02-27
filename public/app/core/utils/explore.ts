@@ -159,7 +159,7 @@ export const safeStringifyValue = (value: unknown, space?: number) => {
   try {
     return JSON.stringify(value, null, space);
   } catch (error) {
-    console.error(error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
   }
 
   return '';
@@ -232,7 +232,7 @@ export async function ensureQueries(
         try {
           await getDataSourceSrv().get(query.datasource.uid);
         } catch {
-          console.error(`One of the queries has a datasource that is no longer available and was removed.`);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`One of the queries has a datasource that is no longer available and was removed.`);
           validDS = false;
         }
       }

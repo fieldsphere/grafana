@@ -42,7 +42,7 @@ export function getAngularPanelMigrationHandler(oldModel: PanelModel) {
       const targetClone = cloneDeep(oldModel.targets);
       Object.defineProperty(panel, 'targets', {
         get: function () {
-          console.warn(
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(
             'Accessing the targets property when migrating a panel plugin is deprecated. Changes to this property will be ignored.'
           );
           return targetClone;
@@ -108,7 +108,7 @@ export function getV2AngularMigrationHandler(migrationData: AngularMigrationData
     const targetClone = cloneDeep(panel.targets);
     Object.defineProperty(panel, 'targets', {
       get: function () {
-        console.warn(
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(
           'Accessing the targets property when migrating a panel plugin is deprecated. Changes to this property will be ignored.'
         );
         return targetClone;

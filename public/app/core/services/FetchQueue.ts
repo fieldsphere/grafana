@@ -90,8 +90,8 @@ export class FetchQueue {
       []
     );
 
-    console.log('FetchQueue noOfStarted', update.noOfInProgress);
-    console.log('FetchQueue noOfNotStarted', update.noOfPending);
-    console.log('FetchQueue state', entriesWithoutOptions);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('FetchQueue noOfStarted', update.noOfInProgress);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('FetchQueue noOfNotStarted', update.noOfPending);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('FetchQueue state', entriesWithoutOptions);
   };
 }

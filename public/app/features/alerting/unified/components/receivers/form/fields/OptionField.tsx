@@ -292,7 +292,7 @@ const OptionInput: FC<Props & { id: string }> = ({
       );
 
     default:
-      console.error('Element not supported', option.element);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Element not supported', option.element);
       return null;
   }
 };

@@ -340,7 +340,7 @@ export function toDataFrame(data: any): DataFrame {
     return arrayToDataFrame(data);
   }
 
-  console.warn('Can not convert', data);
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Can not convert', data);
   throw new Error('Unsupported data format');
 }
 

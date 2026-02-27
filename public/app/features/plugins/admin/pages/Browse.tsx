@@ -72,7 +72,7 @@ export default function Browse() {
 
   // How should we handle errors?
   if (error) {
-    console.error(error.message);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error.message);
     return null;
   }
 

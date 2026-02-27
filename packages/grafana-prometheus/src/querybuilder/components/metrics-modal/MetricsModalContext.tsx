@@ -167,7 +167,7 @@ export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalConte
         } catch (error) {
           // Only update state if this is still the latest search
           if (searchId === latestSearchIdRef.current) {
-            console.error('Backend search failed:', error);
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Backend search failed:', error);
             setMetricsData([]); // Clear results on error
             setIsLoading(false);
           }

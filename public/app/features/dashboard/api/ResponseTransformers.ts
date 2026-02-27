@@ -706,7 +706,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         let query = v.query || {};
 
         if (typeof query === 'string') {
-          console.warn(
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(
             'Query variable query is a string which is deprecated in the schema v2. It should extend DataQuery'
           );
           query = {
@@ -919,7 +919,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v.type}`);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Variable transformation not implemented: ${v.type}`);
     }
   }
   return variables;
@@ -1132,7 +1132,7 @@ function getVariablesV1(vars: DashboardV2Spec['variables']): VariableModel[] {
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v}`);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Variable transformation not implemented: ${v}`);
     }
   }
   return variables;

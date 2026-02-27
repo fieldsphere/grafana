@@ -138,7 +138,7 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     if (!props.options.source?.mode) {
       const opts = getDefaultOptions(supplier);
       props.onChange({ ...opts, ...props.options });
-      console.log('geometry useEffect', opts);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('geometry useEffect', opts);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

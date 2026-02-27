@@ -123,7 +123,7 @@ export function createSpanLinkFactory({
         spanLinks.push.apply(spanLinks, newSpanLinks);
       } catch (error) {
         // It's fairly easy to crash here for example if data source defines wrong interpolation in the data link
-        console.error(error);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
         return spanLinks;
       }
     }

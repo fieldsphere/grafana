@@ -261,7 +261,7 @@ export default class StandardAnnotationQueryEditor extends PureComponent<Props, 
       this.setState({ skipNextVerification: true });
       onChange(preparedAnnotation);
     } catch (error) {
-      console.error('Failed to replace annotation query:', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to replace annotation query:', error);
       // On error, reset the replacing state but don't change the annotation
     }
   };

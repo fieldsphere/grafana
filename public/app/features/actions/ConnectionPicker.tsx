@@ -78,7 +78,7 @@ export const ConnectionPicker = ({ actionType, datasourceUid, onChange }: Connec
       if (selectedDatasource) {
         onChange(selectedDatasource);
       } else {
-        console.error('ConnectionPicker: Could not find datasource with UID:', selectedValue);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('ConnectionPicker: Could not find datasource with UID:', selectedValue);
       }
     }
   };

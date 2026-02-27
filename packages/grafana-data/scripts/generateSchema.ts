@@ -19,4 +19,4 @@ fs.writeFileSync(
   )
 );
 
-console.log('Successfully generated theme schema');
+(Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('Successfully generated theme schema');

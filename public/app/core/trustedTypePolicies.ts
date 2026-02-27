@@ -8,7 +8,7 @@ export const defaultTrustedTypesPolicy = {
     if (!CSP_REPORT_ONLY_ENABLED) {
       return string.replace(/<script/gi, '&lt;script');
     }
-    console.error('[HTML not sanitized with Trusted Types]', string, source, sink);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('[HTML not sanitized with Trusted Types]', string, source, sink);
     return string;
   },
   createScript: (string: string) => string,
@@ -16,7 +16,7 @@ export const defaultTrustedTypesPolicy = {
     if (!CSP_REPORT_ONLY_ENABLED) {
       return textUtil.sanitizeUrl(string);
     }
-    console.error('[ScriptURL not sanitized with Trusted Types]', string, source, sink);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('[ScriptURL not sanitized with Trusted Types]', string, source, sink);
     return string;
   },
 };

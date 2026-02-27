@@ -48,7 +48,7 @@ function ExportAsImageRenderer({ model }: SceneComponentProps<ExportAsImage>) {
 
       return result.blob;
     } catch (error) {
-      console.error('Error exporting image:', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error exporting image:', error);
       DashboardInteractions.generateDashboardImageClicked({
         scale: config.rendererDefaultImageScale || 1,
         shareResource: 'dashboard',

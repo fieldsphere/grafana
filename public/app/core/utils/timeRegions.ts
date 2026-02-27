@@ -160,7 +160,7 @@ export function calculateTimesWithin(cfg: TimeRegionConfig, tRange: TimeRange): 
     }
   } catch (e) {
     // invalid expression
-    console.error(e);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
   }
 
   return ranges;

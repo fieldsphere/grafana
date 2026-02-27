@@ -9,7 +9,7 @@ const CODEOWNERS_MANIFEST_FILENAMES_BY_TEAM_PATH = 'codeowners-manifest/filename
 
 const codeownerName = process.env.CODEOWNER_NAME;
 if (!codeownerName) {
-  console.error('ERROR: CODEOWNER_NAME environment variable is required');
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('ERROR: CODEOWNER_NAME environment variable is required');
   process.exit(1);
 }
 
@@ -19,8 +19,8 @@ const COVERAGE_SUMMARY_OUTPUT_PATH = './coverage-summary.json';
 const codeownersFilePath = path.join(__dirname, CODEOWNERS_MANIFEST_FILENAMES_BY_TEAM_PATH);
 
 if (!fs.existsSync(codeownersFilePath)) {
-  console.error(`Codeowners file not found at ${codeownersFilePath} ...`);
-  console.error('Please run: yarn codeowners-manifest first to generate the mapping file');
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Codeowners file not found at ${codeownersFilePath} ...`);
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Please run: yarn codeowners-manifest first to generate the mapping file');
   process.exit(1);
 }
 
@@ -28,8 +28,8 @@ const codeownersData = JSON.parse(fs.readFileSync(codeownersFilePath, 'utf8'));
 const teamFiles = codeownersData[codeownerName] || [];
 
 if (teamFiles.length === 0) {
-  console.error(`ERROR: No files found for team "${codeownerName}"`);
-  console.error('Available teams:', Object.keys(codeownersData).join(', '));
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`ERROR: No files found for team "${codeownerName}"`);
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Available teams:', Object.keys(codeownersData).join(', '));
   process.exit(1);
 }
 
@@ -64,11 +64,11 @@ const testFiles = teamFiles.filter((file) => {
 });
 
 if (testFiles.length === 0) {
-  console.log(`No test files found for team ${codeownerName}`);
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(`No test files found for team ${codeownerName}`);
   process.exit(0);
 }
 
-console.log(
+(Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(
   `🧪 Collecting coverage for ${sourceFiles.length} testable files and running ${testFiles.length} test files of ${teamFiles.length} files owned by ${codeownerName}.`
 );
 
@@ -100,7 +100,7 @@ module.exports = {
         cleanCache: true,
         onEnd: (coverageResults) => {
           const reportURL = `file://${path.resolve(outputDir)}/index.html`;
-          console.log(`📄 Coverage report saved to ${reportURL}`);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(`📄 Coverage report saved to ${reportURL}`);
 
           if (process.env.SHOULD_OPEN_COVERAGE_REPORT === 'true') {
             openCoverageReport(reportURL);
@@ -160,9 +160,9 @@ function writeCoverageSummaryArtifact(coverageResults) {
 
   try {
     fs.writeFileSync(COVERAGE_SUMMARY_OUTPUT_PATH, JSON.stringify(summary, null, 2));
-    console.log(`📊 Coverage summary written to ${COVERAGE_SUMMARY_OUTPUT_PATH}`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(`📊 Coverage summary written to ${COVERAGE_SUMMARY_OUTPUT_PATH}`);
   } catch (err) {
-    console.error(`Failed to write coverage summary: ${err}`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Failed to write coverage summary: ${err}`);
   }
 }
 
@@ -192,6 +192,6 @@ async function openCoverageReport(reportURL) {
   try {
     await open(reportURL);
   } catch (err) {
-    console.error(`Failed to open coverage report: ${err}`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Failed to open coverage report: ${err}`);
   }
 }

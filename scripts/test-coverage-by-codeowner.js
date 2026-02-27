@@ -66,7 +66,7 @@ if (require.main === module) {
         if (process.env.CI === 'true') {
           throw new Error(msg);
         } else {
-          console.warn(`⚠️ ${msg}`);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`⚠️ ${msg}`);
         }
       }
 
@@ -76,10 +76,10 @@ if (require.main === module) {
 
       const noOpen = argv['open'] === false;
 
-      console.log(`🧪 Running test coverage for codeowner: ${codeownerName}`);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(`🧪 Running test coverage for codeowner: ${codeownerName}`);
       await runTestCoverageByCodeowner(codeownerName, noOpen);
     } catch (e) {
-      console.error(e.message);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e.message);
       process.exit(1);
     }
   })();

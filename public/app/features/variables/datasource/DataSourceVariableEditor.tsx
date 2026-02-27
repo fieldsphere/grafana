@@ -19,7 +19,7 @@ const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
     variable: { rootStateKey },
   } = ownProps;
   if (!rootStateKey) {
-    console.error('DataSourceVariableEditor: variable has no rootStateKey');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('DataSourceVariableEditor: variable has no rootStateKey');
     return {
       extended: getDatasourceVariableEditorState(initialVariableEditorState),
     };
@@ -46,7 +46,7 @@ export class DataSourceVariableEditorUnConnected extends PureComponent<Props> {
   componentDidMount() {
     const { rootStateKey } = this.props.variable;
     if (!rootStateKey) {
-      console.error('DataSourceVariableEditor: variable has no rootStateKey');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('DataSourceVariableEditor: variable has no rootStateKey');
       return;
     }
 

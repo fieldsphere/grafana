@@ -142,7 +142,7 @@ export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const sourceIdField = source.fields.find((field) => field.type === FieldType.string && field.name === 'id');
 
   if (!destTimeField || !sourceTimeField) {
-    console.error(new Error(`Time fields not found in the data frames`));
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(new Error(`Time fields not found in the data frames`));
     return;
   }
 

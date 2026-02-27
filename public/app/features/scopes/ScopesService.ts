@@ -93,7 +93,7 @@ export class ScopesService implements ScopesContextValue {
     const nodeToPreload = scopeNodeId;
     if (nodeToPreload) {
       this.selectorService.resolvePathToRoot(nodeToPreload, this.selectorService.state.tree!).catch((error) => {
-        console.error('Failed to pre-load node path', error);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to pre-load node path', error);
       });
     }
 

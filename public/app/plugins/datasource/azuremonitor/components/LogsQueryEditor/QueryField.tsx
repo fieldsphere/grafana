@@ -29,11 +29,11 @@ const QueryField = ({ query, onQueryChange, schema }: AzureQueryEditorFieldProps
           await kustoMode.setSchema(schema);
         }
       } catch (err) {
-        console.error(err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
       }
     };
 
-    setupEditor(monaco, schema).catch((err) => console.error(err));
+    setupEditor(monaco, schema).catch((err) => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err));
   }, [schema, monaco]);
 
   const handleEditorMount = useCallback((editor: MonacoEditor, monaco: Monaco) => {

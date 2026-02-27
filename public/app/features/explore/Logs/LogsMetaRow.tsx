@@ -161,6 +161,6 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
   if (kind === LogsMetaKind.Error) {
     return <span className="logs-meta-item__error">{value.toString()}</span>;
   }
-  console.error(`Meta type ${typeof value} ${value} not recognized.`);
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Meta type ${typeof value} ${value} not recognized.`);
   return <></>;
 }

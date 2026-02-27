@@ -81,7 +81,7 @@ export const OpenQueryLibraryExposedComponent = ({
   }, [context, datasourceFilters, onSelectQuery, openDrawer, query]);
 
   if (!queryLibraryEnabled) {
-    console.warn(
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(
       '[OpenQueryLibraryExposedComponent]: Attempted to use unsupported exposed component. Query library is not enabled.'
     );
     return null;

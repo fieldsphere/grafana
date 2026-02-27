@@ -13,8 +13,8 @@ try {
   // as this is currently a manual process
   accessSync(schemaFile);
 } catch (e) {
-  console.error('\nCould not find OpenAPI definition.\n');
-  console.error(
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('\nCould not find OpenAPI definition.\n');
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(
     'Please visit /openapi/v3/apis/notifications.alerting.grafana.app/v0alpha1 and save the OpenAPI definition to data/alerting/openapi.json\n'
   );
   throw e;

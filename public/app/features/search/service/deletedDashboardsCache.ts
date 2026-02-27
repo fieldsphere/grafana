@@ -79,7 +79,7 @@ class DeletedDashboardsCache {
         items: [],
       };
     } catch (error) {
-      console.error('Failed to fetch deleted dashboards:', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to fetch deleted dashboards:', error);
       return {
         apiVersion: 'v1',
         kind: 'List',

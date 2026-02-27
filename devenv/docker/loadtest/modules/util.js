@@ -13,7 +13,7 @@ export const createTestOrgIfNotExists = (client) => {
   // This can happen e.g. in Hosted Grafana instances, where even admins
   // cannot see organisations
   if (res.status !== 200) {
-    console.info(`unable to get orgs from instance, continuing with default orgId ${orgId}`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).info(`unable to get orgs from instance, continuing with default orgId ${orgId}`);
     return orgId;
   }
 

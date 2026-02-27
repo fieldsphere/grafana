@@ -49,7 +49,7 @@ export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
       return fn(...args);
     } catch (e) {
       if (e instanceof Error) {
-        console.warn(`${errorMessagePrefix}${e.message}`);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`${errorMessagePrefix}${e.message}`);
       }
     }
   };

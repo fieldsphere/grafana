@@ -136,7 +136,7 @@ export const SuggestedDashboards = ({ datasourceUid }: Props) => {
 
       return { dashboards: mixed, hasMoreDashboards };
     } catch (error) {
-      console.error('Error loading suggested dashboards', error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error loading suggested dashboards', error);
       return { dashboards: [], hasMoreDashboards: false };
     }
   }, [datasourceUid]);

@@ -12,7 +12,7 @@ export function SwitchVariablePicker({ variable, onVariableChange }: Props): Rea
   const updateVariable = useCallback(
     (event: ChangeEvent<HTMLInputElement>) => {
       if (!variable.rootStateKey) {
-        console.error('Cannot update variable without rootStateKey');
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Cannot update variable without rootStateKey');
         return;
       }
 

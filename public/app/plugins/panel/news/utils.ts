@@ -23,7 +23,7 @@ export function feedToDataFrame(feed: Feed): DataFrame {
         content.push(body);
       }
     } catch (err) {
-      console.warn('Error reading news item:', err, item);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Error reading news item:', err, item);
     }
   }
 

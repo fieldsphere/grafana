@@ -8,13 +8,13 @@ const crowdin = crowdinImport.default as typeof crowdinImport;
 
 const API_TOKEN = process.env.CROWDIN_PERSONAL_TOKEN;
 if (!API_TOKEN) {
-  console.error('Error: CROWDIN_PERSONAL_TOKEN environment variable is not set');
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error: CROWDIN_PERSONAL_TOKEN environment variable is not set');
   process.exit(1);
 }
 
 const PROJECT_ID = process.env.CROWDIN_PROJECT_ID ? parseInt(process.env.CROWDIN_PROJECT_ID, 10) : undefined;
 if (!PROJECT_ID) {
-  console.error('Error: CROWDIN_PROJECT_ID environment variable is not set');
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error: CROWDIN_PROJECT_ID environment variable is not set');
   process.exit(1);
 }
 
@@ -38,12 +38,12 @@ async function getLanguages(projectId: number) {
   try {
     const project = await projectsGroupsApi.getProject(projectId);
     const languages = project.data.targetLanguages;
-    console.log('Fetched languages successfully!');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('Fetched languages successfully!');
     return languages;
   } catch (error) {
-    console.error('Failed to fetch languages: ', error.message);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to fetch languages: ', error.message);
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error details: ', JSON.stringify(error.response.data, null, 2));
     }
     process.exit(1);
   }
@@ -54,12 +54,12 @@ async function getFileIds(projectId: number) {
     const response = await sourceFilesApi.listProjectFiles(projectId);
     const files = response.data;
     const fileIds = files.map(file => file.data.id);
-    console.log('Fetched file ids successfully!');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('Fetched file ids successfully!');
     return fileIds;
   } catch (error) {
-    console.error('Failed to fetch file IDs: ', error.message);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to fetch file IDs: ', error.message);
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error details: ', JSON.stringify(error.response.data, null, 2));
     }
     process.exit(1);
   }
@@ -73,12 +73,12 @@ async function getWorkflowStepId(projectId: number) {
     if (!workflowStepId) {
       throw new Error(`Workflow step with type "${TRANSLATE_BY_VENDOR_WORKFLOW_TYPE}" not found`);
     }
-    console.log('Fetched workflow step ID successfully!');
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('Fetched workflow step ID successfully!');
     return workflowStepId;
   } catch (error) {
-    console.error('Failed to fetch workflow step ID: ', error.message);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to fetch workflow step ID: ', error.message);
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error details: ', JSON.stringify(error.response.data, null, 2));
     }
     process.exit(1);
   }
@@ -95,15 +95,15 @@ async function createTask(projectId: number, title: string, languageId: string, 
       fileIds,
     };
 
-    console.log(`Creating Crowdin task: "${title}" for language ${languageId}`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(`Creating Crowdin task: "${title}" for language ${languageId}`);
 
     const response = await tasksApi.addTask(projectId, taskParams);
-    console.log(`Task created successfully! Task ID: ${response.data.id}`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(`Task created successfully! Task ID: ${response.data.id}`);
     return response.data;
   } catch (error) {
-    console.error('Failed to create Crowdin task: ', error.message);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to create Crowdin task: ', error.message);
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error details: ', JSON.stringify(error.response.data, null, 2));
     }
     process.exit(1);
   }

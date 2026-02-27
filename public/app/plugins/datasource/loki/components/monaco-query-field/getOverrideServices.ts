@@ -81,7 +81,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('logStorage: not implemented');
     },
 
     migrate: (): Promise<void> => {

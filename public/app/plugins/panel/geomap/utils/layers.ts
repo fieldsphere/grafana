@@ -91,7 +91,7 @@ export async function updateLayer(panel: GeomapPanel, uid: string, newOptions: M
     // initialize with new data
     applyLayerFilter(info.handler, newOptions, panel.props.data);
   } catch (err) {
-    console.warn('ERROR', err); // eslint-disable-line no-console
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('ERROR', err); // eslint-disable-line no-console
     return false;
   }
 

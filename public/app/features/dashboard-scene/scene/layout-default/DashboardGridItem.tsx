@@ -150,7 +150,7 @@ export class DashboardGridItem
       });
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('DashboardGridItem: Variable is not a MultiValueVariable');
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('DashboardGridItem: Variable is not a MultiValueVariable');
       return;
     }
 

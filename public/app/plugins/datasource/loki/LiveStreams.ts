@@ -53,7 +53,7 @@ export class LiveStreams {
             if (error.code === 1006 && retryAttempt < 30) {
               if (retryAttempt > 10) {
                 // If more than 10 times retried, consol.warn, but keep reconnecting
-                console.warn(
+                (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(
                   `Websocket connection is being disrupted. We keep reconnecting but consider starting new live tailing again. Error: ${error.reason}`
                 );
               }

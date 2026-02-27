@@ -260,7 +260,7 @@ export class GrafanaPlugin<T extends PluginMeta = PluginMeta> {
    * @deprecated -- this is no longer necessary and will be removed
    */
   setChannelSupport() {
-    console.warn('[deprecation] plugin is using ignored option: setChannelSupport', this.meta);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('[deprecation] plugin is using ignored option: setChannelSupport', this.meta);
     return this;
   }
 

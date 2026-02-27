@@ -54,7 +54,7 @@ export function searchForLibraryPanels(args: SearchArgs): SearchDispatchResult {
         }
 
         // For real errors, log and show error to user
-        console.error('Error fetching library panels:', err);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Error fetching library panels:', err);
 
         // Update state to show empty results
         return of(searchCompleted({ ...initialLibraryPanelsViewState, page: args.page, perPage: args.perPage }));
@@ -78,7 +78,7 @@ export function deleteLibraryPanel(uid: string, args: SearchArgs) {
       await apiDeleteLibraryPanel(uid);
       searchForLibraryPanels(args)(dispatch);
     } catch (e) {
-      console.error(e);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
     }
   };
 }

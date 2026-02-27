@@ -41,14 +41,14 @@ export function useSelectedQueryDatasource(
 
       const queryDsSettings = getDataSourceSrv().getInstanceSettings(dsRef);
       if (!queryDsSettings) {
-        console.error('Datasource settings not found for', dsRef);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Datasource settings not found for', dsRef);
         return undefined;
       }
 
       const queryDatasource = await getDataSourceSrv().get(dsRef);
       return { datasource: queryDatasource, dsSettings: queryDsSettings };
     } catch (err) {
-      console.error('Failed to load datasource for selected query:', err);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('Failed to load datasource for selected query:', err);
       return undefined;
     }
   }, [

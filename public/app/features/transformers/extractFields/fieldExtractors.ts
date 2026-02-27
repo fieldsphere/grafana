@@ -29,7 +29,7 @@ const extRegExp: FieldExtractor = {
         regex = stringToJsRegex(options.regExp!);
       } catch (error) {
         if (error instanceof Error) {
-          console.warn(error.message);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(error.message);
         }
       }
     }

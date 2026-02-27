@@ -481,7 +481,7 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
           newSeries = await lastValueFrom(transformDataFrame(panel?.transformations, newSeries));
         }
       } catch (e) {
-        console.error(e);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
       } finally {
         setInfiniteScrolling(false);
         loadingRef.current = false;
@@ -842,7 +842,7 @@ export async function requestMoreLogs(
   for (const uid in targetGroups) {
     const dataSource = dataSourcesMap.get(panelData.request.targets[0].refId);
     if (!dataSource) {
-      console.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
       continue;
     }
     dataRequests.push(

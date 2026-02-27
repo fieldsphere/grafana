@@ -58,7 +58,7 @@ const CreateTeam = (): JSX.Element => {
       }
     } catch (e) {
       notifyApp.error(t('teams.create-team.failed-to-create', 'Failed to create team'));
-      console.error(e);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
     }
   };
 

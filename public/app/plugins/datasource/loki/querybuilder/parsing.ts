@@ -105,7 +105,7 @@ export function buildVisualQueryFromString(expr: string): Context {
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(err);
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

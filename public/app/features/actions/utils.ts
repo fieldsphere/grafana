@@ -120,7 +120,7 @@ export const getActions = (
                   appEvents.emit(AppEvents.alertError, [
                     'An error has occurred. Check console output for more details.',
                   ]);
-                  console.error(error);
+                  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
                 },
                 complete: () => {
                   appEvents.emit(AppEvents.alertSuccess, ['API call was successful']);
@@ -128,7 +128,7 @@ export const getActions = (
               });
           } catch (error) {
             appEvents.emit(AppEvents.alertError, ['An error has occurred. Check console output for more details.']);
-            console.error(error);
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
             return;
           }
         },

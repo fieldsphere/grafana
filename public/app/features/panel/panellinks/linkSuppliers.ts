@@ -124,7 +124,7 @@ export const getFieldLinksSupplier = (value: FieldDisplay): LinkModelSupplier<Fi
           };
         }
       } else {
-        console.log('VALUE', value);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('VALUE', value);
       }
 
       const replace: InterpolateFunction = (value: string, vars: ScopedVars | undefined, fmt?: string | Function) => {

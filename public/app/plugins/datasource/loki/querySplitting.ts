@@ -173,7 +173,7 @@ export function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(e);
         shouldStop = true;
         return false;
       }

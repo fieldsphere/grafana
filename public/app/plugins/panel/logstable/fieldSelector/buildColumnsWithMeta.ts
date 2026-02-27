@@ -100,7 +100,7 @@ export const buildColumnsWithMeta = (
       pendingLabelState[fieldName].active = true;
       pendingLabelState[fieldName].index = idx;
     } else {
-      console.error(`Unknown field ${fieldName}`, { pendingLabelState, displayedFields });
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Unknown field ${fieldName}`, { pendingLabelState, displayedFields });
     }
   });
 

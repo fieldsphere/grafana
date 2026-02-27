@@ -36,7 +36,7 @@ export const Simple: StoryFn = (args) => {
     people: [{ firstName: 'Janis', lastName: 'Joplin' }],
   };
   return (
-    <Form onSubmit={(values) => console.log(values)} defaultValues={defaultValues}>
+    <Form onSubmit={(values) => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(values)} defaultValues={defaultValues}>
       {({ control, register }) => (
         <div>
           <FieldArray control={control} name="people">

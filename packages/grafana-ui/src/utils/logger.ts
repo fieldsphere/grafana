@@ -6,7 +6,7 @@ type Args = Parameters<typeof console.log>;
  * @internal
  * */
 const throttledLog = throttle((...t: Args) => {
-  console.log(...t);
+  (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log(...t);
 }, 500);
 
 /**

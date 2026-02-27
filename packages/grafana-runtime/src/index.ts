@@ -18,6 +18,7 @@ export {
   logMeasurement,
   type MonitoringLogger,
 } from './utils/logging';
+export { createStructuredConsole, installStructuredConsole, type StructuredConsole } from './utils/structuredConsole';
 export {
   DataSourceWithBackend,
   HealthCheckError,

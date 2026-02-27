@@ -63,13 +63,13 @@ export const maplibreLayer: MapLayerRegistryItem<MaplibreConfig> = {
       const loadStyle = async () => {
         try {
           if (!cfg.url) {
-            console.warn('No URL provided for MapLibre style, layer will be empty');
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('No URL provided for MapLibre style, layer will be empty');
             return;
           }
 
           const res = await fetch(cfg.url);
           if (!res.ok) {
-            console.warn(`Failed to load MapLibre style from ${cfg.url}: ${res.status} ${res.statusText}`);
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`Failed to load MapLibre style from ${cfg.url}: ${res.status} ${res.statusText}`);
             // Try fallback approach
             await tryFallbackApply();
             return;
@@ -90,7 +90,7 @@ export const maplibreLayer: MapLayerRegistryItem<MaplibreConfig> = {
           await apply(layer, style, { styleUrl: cfg.url, accessToken: cfg.accessToken });
           applyNoRepeat();
         } catch (error) {
-          console.warn('Failed to parse or apply MapLibre style JSON:', error);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Failed to parse or apply MapLibre style JSON:', error);
           // Try fallback approach
           await tryFallbackApply();
         }
@@ -99,13 +99,13 @@ export const maplibreLayer: MapLayerRegistryItem<MaplibreConfig> = {
       const tryFallbackApply = async () => {
         try {
           if (!cfg.url) {
-            console.warn('No URL available for MapLibre fallback, layer will be empty');
+            (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('No URL available for MapLibre fallback, layer will be empty');
             return;
           }
           await apply(layer, cfg.url, { accessToken: cfg.accessToken });
           applyNoRepeat();
         } catch (fallbackError) {
-          console.warn('Failed to load MapLibre style from both JSON and direct URL approaches:', fallbackError);
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn('Failed to load MapLibre style from both JSON and direct URL approaches:', fallbackError);
         }
       };
 

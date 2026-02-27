@@ -112,7 +112,7 @@ export const FilterPopup = memo(
           return;
         }
         if (event.target instanceof Node && !domNode.contains(event.target)) {
-          console.log('closing from outside click');
+          (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('closing from outside click');
           onClose();
         }
       };

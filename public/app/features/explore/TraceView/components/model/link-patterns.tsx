@@ -112,7 +112,7 @@ export function processLinkPattern(pattern: any): ProcessedLinkPattern | null {
     };
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error(`Ignoring invalid link pattern: ${error}`, pattern);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Ignoring invalid link pattern: ${error}`, pattern);
     return null;
   }
 }

@@ -113,7 +113,7 @@ export class QueryRunner implements QueryRunnerSrv {
             },
           });
         },
-        error: (error) => console.error('PanelQueryRunner Error', error),
+        error: (error) => (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error('PanelQueryRunner Error', error),
       });
   }
 

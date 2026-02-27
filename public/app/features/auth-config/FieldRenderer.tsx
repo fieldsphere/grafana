@@ -78,7 +78,7 @@ export const FieldRenderer = ({
   }, [isDisabled, disabledWhen?.disabledValue, name, setValue]);
 
   if (!field) {
-    console.log('missing field:', name);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).log('missing field:', name);
     return null;
   }
 
@@ -190,7 +190,7 @@ export const FieldRenderer = ({
         </Field>
       );
     default:
-      console.error(`Unknown field type: ${fieldData.type}`);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`Unknown field type: ${fieldData.type}`);
       return null;
   }
 };

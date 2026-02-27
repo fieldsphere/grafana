@@ -102,7 +102,7 @@ export function decorateSystemJSResolve(
       const url = originalResolve.apply(this, [resolvedUrl, parentUrl]);
       return resolvePluginUrlWithCache(url);
     }
-    console.warn(`SystemJS: failed to resolve '${id}'`);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).warn(`SystemJS: failed to resolve '${id}'`);
     return id;
   }
 }

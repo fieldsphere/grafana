@@ -376,7 +376,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
       const values: FacettableValue[] = rawValues.map((value) => ({ name: value }));
       this.updateLabelState(name, { values, loading: false });
     } catch (error) {
-      console.error(error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
     }
   }
 
@@ -404,7 +404,7 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
         this.updateLabelState(lastFacetted, { loading: false });
       }
     } catch (error) {
-      console.error(error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
     }
   }
 

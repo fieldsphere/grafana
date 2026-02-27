@@ -215,7 +215,7 @@ export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLO
     try {
       response = await this.runMetaQuery(interpolatedQuery, range);
     } catch (error) {
-      console.error(error);
+      (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
       throw new Error('error when executing the sql query');
     }
     return this.getResponseParser().transformMetricFindResponse(response);

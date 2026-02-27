@@ -132,7 +132,7 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
       return res.data.data;
     } catch (error) {
       if (!isCancelledError(error)) {
-        console.error(error);
+        (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(error);
       }
     }
 

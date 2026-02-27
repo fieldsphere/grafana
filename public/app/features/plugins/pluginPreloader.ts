@@ -46,6 +46,6 @@ async function preload(config: AppPluginConfig): Promise<void> {
       return;
     }
 
-    console.error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
+    (Reflect.get(globalThis, '__grafanaStructuredConsole') ?? console).error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
   }
 }
