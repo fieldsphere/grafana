@@ -1,4 +1,4 @@
-import { getThemeById } from '@grafana/data/internal';
+import { getThemeById, NINETIES_THEME_NAME } from '@grafana/data/internal';
 import { config, ThemeChangedEvent } from '@grafana/runtime';
 
 import { appEvents } from '../app_events';
@@ -7,7 +7,6 @@ import { contextSrv } from '../services/context_srv';
 import { PreferencesService } from './PreferencesService';
 
 export const NINETIES_THEME_ID = 'nineties';
-const NINETIES_THEME_NAME = '90s Neon';
 
 export async function changeTheme(themeId: string, runtimeOnly?: boolean) {
   const oldTheme = config.theme2;

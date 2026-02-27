@@ -92,7 +92,7 @@ export { noopTransformer } from '../transformations/transformers/noop';
 export { DataTransformerID } from '../transformations/transformers/ids';
 
 export { mergeTransformer } from '../transformations/transformers/merge';
-export { getThemeById } from '../themes/registry';
+export { getThemeById, NINETIES_THEME_NAME } from '../themes/registry';
 export { GrafanaEdition } from '../types/config';
 export { SIPrefix } from '../valueFormats/symbolFormatters';
 

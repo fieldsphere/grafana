@@ -20,8 +20,10 @@ export interface ThemeRegistryItem extends RegistryItem {
   build: () => GrafanaTheme2;
 }
 
+export const NINETIES_THEME_NAME = '90s Neon';
+
 const ninetiesTheme = {
-  name: '90s Neon',
+  name: NINETIES_THEME_NAME,
   colors: {
     mode: 'dark',
     border: {
