@@ -35,7 +35,7 @@ export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
       <>
         <MenuItem
           icon="palette"
-          onClick={() => toggleNinetiesTheme(false)}
+          onClick={() => toggleNinetiesTheme(true)}
           label={t('profile.toggle-90s-mode', 'Toggle 90s mode')}
         />
         {config.featureToggles.grafanaconThemes && (

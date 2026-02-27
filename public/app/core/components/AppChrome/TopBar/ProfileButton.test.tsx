@@ -86,6 +86,6 @@ describe('ProfileButton', () => {
     const ninetiesMenuItem = await screen.findByRole('menuitem', { name: /toggle 90s mode/i });
     await user.click(ninetiesMenuItem);
 
-    expect(toggleNinetiesTheme).toHaveBeenCalledWith(false);
+    expect(toggleNinetiesTheme).toHaveBeenCalledWith(true);
   });
 });
