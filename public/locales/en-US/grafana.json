@@ -4638,11 +4638,13 @@
   },
   "command-palette": {
     "action": {
+      "90s-theme": "90s Neon",
       "change-theme": "Change theme",
       "dark-theme": "Dark",
       "dashboard-from-template": "Dashboard from template",
       "light-theme": "Light",
-      "scopes": "Scopes"
+      "scopes": "Scopes",
+      "toggle-90s-theme": "Toggle 90s mode"
     },
     "empty-state": {
       "button-title": "Search with Grafana Assistant",
@@ -12357,6 +12359,7 @@
     "input-suffix": {
       "content-login-details-locked-because-managed-another": "Login details locked because they are managed in another system."
     },
+    "toggle-90s-mode": "Toggle 90s mode",
     "user-organizations": {
       "text-loading-organizations": "Loading organizations..."
     },
