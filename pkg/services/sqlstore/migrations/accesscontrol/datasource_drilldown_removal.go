@@ -1,8 +1,6 @@
 package accesscontrol
 
 import (
-	"fmt"
-
 	"github.com/grafana/grafana/pkg/util/xorm"
 
 	"github.com/grafana/grafana/pkg/services/sqlstore/migrator"
@@ -33,7 +31,7 @@ func (m *datasourceDrilldownRemovalMigrator) Exec(sess *xorm.Session, mg *migrat
 	if err != nil {
 		mg.Logger.Error("Failed to get rows affected by the datasources:drilldown removal", "error", err)
 	} else {
-		mg.Logger.Info(fmt.Sprintf("Removed %d datasources:drilldown permissions", rowsAffected))
+		mg.Logger.Info("Removed datasources:drilldown permissions", "rowsAffected", rowsAffected)
 	}
 
 	return nil
