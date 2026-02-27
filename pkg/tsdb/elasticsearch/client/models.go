@@ -79,6 +79,7 @@ type MultiSearchRequest struct {
 type MultiSearchResponse struct {
 	Status    int               `json:"status,omitempty"`
 	Responses []*SearchResponse `json:"responses"`
+	ErrorBody json.RawMessage   `json:"error,omitempty"`
 }
 
 // Query represents a query

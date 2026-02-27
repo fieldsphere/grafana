@@ -3,7 +3,9 @@ package es
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 )
 
 type VersionInfo struct {
@@ -29,7 +31,12 @@ func GetClusterInfo(httpCli *http.Client, url string) (clusterInfo ClusterInfo, 
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return ClusterInfo{}, fmt.Errorf("unexpected status code %d getting ES cluster info", resp.StatusCode)
+		defer resp.Body.Close()
+		body, readErr := io.ReadAll(resp.Body)
+		if readErr != nil || len(body) == 0 {
+			return ClusterInfo{}, fmt.Errorf("unexpected status code %d getting ES cluster info", resp.StatusCode)
+		}
+		return ClusterInfo{}, fmt.Errorf("Elasticsearch error (status %d) getting ES cluster info: %s", resp.StatusCode, strings.TrimSpace(string(body)))
 	}
 
 	defer func() {

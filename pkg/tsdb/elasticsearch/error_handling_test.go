@@ -42,8 +42,7 @@ func TestErrorAvgMissingField(t *testing.T) {
 	result, err := queryDataTestWithResponseCode(query, 400, response)
 	require.NoError(t, err)
 
-	// FIXME: we should return the received error message
-	require.Equal(t, "unexpected status code: 400", result.response.Responses["A"].Error.Error())
+	require.Equal(t, "Elasticsearch error (status 400): Required one of fields [field, script], but none were specified. ", result.response.Responses["A"].Error.Error())
 	require.Equal(t, backend.ErrorSourceDownstream, result.response.Responses["A"].ErrorSource)
 }
 
@@ -71,8 +70,7 @@ func TestErrorAvgMissingFieldNoDetailedErrors(t *testing.T) {
 	result, err := queryDataTestWithResponseCode(query, 400, response)
 	require.NoError(t, err)
 
-	// FIXME: we should return the received error message
-	require.Equal(t, "unexpected status code: 400", result.response.Responses["A"].Error.Error())
+	require.Equal(t, "Elasticsearch error (status 400): No ElasticsearchException found", result.response.Responses["A"].Error.Error())
 }
 
 func TestErrorTooManyDateHistogramBuckets(t *testing.T) {
@@ -147,11 +145,6 @@ func TestNonElasticError(t *testing.T) {
 	response := []byte(`Access to the database is forbidden`)
 
 	res, err := queryDataTestWithResponseCode(query, 403, response)
-	// FIXME: we should return something better.
-	// currently it returns the error-message about being unable to decode JSON
-	// it is not 100% clear what we should return to the browser
-	// (and what to debug-log for example), we could return
-	// at least something like "unknown response, http status code 403"
 	require.NoError(t, err)
-	require.Contains(t, res.response.Responses["A"].Error.Error(), "invalid character")
+	require.Contains(t, res.response.Responses["A"].Error.Error(), "Elasticsearch error (HTTP 403): Access to the database is forbidden")
 }
