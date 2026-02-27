@@ -9,6 +9,8 @@ import { PreferencesService } from './PreferencesService';
 export const NINETIES_THEME_ID = 'nineties';
 const NINETIES_THEME_NAME = '90s Neon';
 
+let previousThemeBeforeNineties: string | null = null;
+
 export async function changeTheme(themeId: string, runtimeOnly?: boolean) {
   const oldTheme = config.theme2;
 
@@ -61,5 +63,13 @@ export async function toggleTheme(runtimeOnly: boolean) {
 export async function toggleNinetiesTheme(runtimeOnly: boolean) {
   const currentTheme = config.theme2;
   const isNinetiesEnabled = currentTheme.name === NINETIES_THEME_NAME;
-  changeTheme(isNinetiesEnabled ? 'dark' : NINETIES_THEME_ID, runtimeOnly);
+  
+  if (isNinetiesEnabled) {
+    const themeToRestore = previousThemeBeforeNineties || 'dark';
+    previousThemeBeforeNineties = null;
+    changeTheme(themeToRestore, runtimeOnly);
+  } else {
+    previousThemeBeforeNineties = currentTheme.id;
+    changeTheme(NINETIES_THEME_ID, runtimeOnly);
+  }
 }
