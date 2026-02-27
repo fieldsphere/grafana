@@ -6,6 +6,9 @@ import { contextSrv } from '../services/context_srv';
 
 import { PreferencesService } from './PreferencesService';
 
+export const NINETIES_THEME_ID = 'nineties';
+const NINETIES_THEME_NAME = '90s Neon';
+
 export async function changeTheme(themeId: string, runtimeOnly?: boolean) {
   const oldTheme = config.theme2;
 
@@ -53,4 +56,10 @@ export async function changeTheme(themeId: string, runtimeOnly?: boolean) {
 export async function toggleTheme(runtimeOnly: boolean) {
   const currentTheme = config.theme2;
   changeTheme(currentTheme.isDark ? 'light' : 'dark', runtimeOnly);
+}
+
+export async function toggleNinetiesTheme(runtimeOnly: boolean) {
+  const currentTheme = config.theme2;
+  const isNinetiesEnabled = currentTheme.name === NINETIES_THEME_NAME;
+  changeTheme(isNinetiesEnabled ? 'dark' : NINETIES_THEME_ID, runtimeOnly);
 }

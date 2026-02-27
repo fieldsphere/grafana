@@ -20,6 +20,63 @@ export interface ThemeRegistryItem extends RegistryItem {
   build: () => GrafanaTheme2;
 }
 
+const ninetiesTheme = {
+  name: '90s Neon',
+  colors: {
+    mode: 'dark',
+    border: {
+      weak: 'rgba(0, 255, 255, 0.2)',
+      medium: 'rgba(255, 0, 255, 0.28)',
+      strong: 'rgba(255, 255, 0, 0.35)',
+    },
+    text: {
+      primary: '#F9F7FF',
+      secondary: 'rgba(249, 247, 255, 0.78)',
+      disabled: 'rgba(249, 247, 255, 0.55)',
+      link: '#00FFFF',
+      maxContrast: '#FFFFFF',
+    },
+    primary: {
+      main: '#FF00FF',
+    },
+    secondary: {
+      main: '#25003F',
+      text: '#F9F7FF',
+      border: 'rgba(0, 255, 255, 0.22)',
+    },
+    background: {
+      canvas: '#10001C',
+      primary: '#16002B',
+      secondary: '#220047',
+      elevated: '#220047',
+    },
+    action: {
+      hover: 'rgba(0, 255, 255, 0.16)',
+      selected: 'rgba(255, 0, 255, 0.14)',
+      selectedBorder: '#00FFFF',
+      focus: 'rgba(255, 255, 0, 0.18)',
+      hoverOpacity: 0.1,
+      disabledText: 'rgba(249, 247, 255, 0.5)',
+      disabledBackground: 'rgba(0, 255, 255, 0.08)',
+      disabledOpacity: 0.38,
+    },
+    gradients: {
+      brandHorizontal: 'linear-gradient(90deg, #FF00FF 0%, #00FFFF 45%, #FFE600 100%)',
+      brandVertical: 'linear-gradient(0deg, #FF00FF 0%, #00FFFF 45%, #FFE600 100%)',
+    },
+    contrastThreshold: 3,
+    hoverFactor: 0.04,
+    tonalOffset: 0.2,
+  },
+  shape: {
+    borderRadius: 2,
+  },
+  typography: {
+    fontFamily: "'Comic Sans MS', 'Trebuchet MS', sans-serif",
+    fontFamilyMonospace: "'Courier New', monospace",
+  },
+} as const;
+
 const extraThemes: { [key: string]: unknown } = {
   aubergine,
   debug,
@@ -73,6 +130,7 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
     { id: 'system', name: 'System preference', build: getSystemPreferenceTheme },
     { id: 'dark', name: 'Dark', build: () => createTheme({ colors: { mode: 'dark' } }) },
     { id: 'light', name: 'Light', build: () => createTheme({ colors: { mode: 'light' } }) },
+    { id: 'nineties', name: ninetiesTheme.name, build: () => createTheme(ninetiesTheme) },
   ];
 });
 

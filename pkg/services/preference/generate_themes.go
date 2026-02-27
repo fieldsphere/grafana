@@ -36,6 +36,7 @@ var themes = []ThemeDTO{
 	{ID: "light", Type: "light"},
 	{ID: "dark", Type: "dark"},
 	{ID: "system", Type: "dark"},
+	{ID: "nineties", Type: "dark"},
 `
 
 	err := filepath.WalkDir(themesPath, func(path string, d os.DirEntry, err error) error {

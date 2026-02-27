@@ -3,8 +3,13 @@ import userEvent from '@testing-library/user-event';
 import { render } from 'test/test-utils';
 
 import { config } from '@grafana/runtime';
+import { toggleNinetiesTheme } from 'app/core/services/theme';
 
 import { ProfileButton } from './ProfileButton';
+
+jest.mock('app/core/services/theme', () => ({
+  toggleNinetiesTheme: jest.fn(),
+}));
 
 describe('ProfileButton', () => {
   let mainView: HTMLDivElement;
@@ -52,5 +57,17 @@ describe('ProfileButton', () => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
     expect(profileButton).toHaveFocus();
+  });
+
+  it('should toggle 90s mode from the profile menu', async () => {
+    render(<ProfileButton {...defaultProps} />);
+
+    const profileButton = screen.getByRole('button', { name: /profile/i });
+    await user.click(profileButton);
+
+    const ninetiesMenuItem = await screen.findByRole('menuitem', { name: /toggle 90s mode/i });
+    await user.click(ninetiesMenuItem);
+
+    expect(toggleNinetiesTheme).toHaveBeenCalledWith(false);
   });
 });
