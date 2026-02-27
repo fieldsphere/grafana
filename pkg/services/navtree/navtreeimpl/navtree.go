@@ -170,6 +170,10 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		return nil, err
 	}
 
+	if labsSection := s.buildLabsNavLink(c); labsSection != nil {
+		treeRoot.AddSection(labsSection)
+	}
+
 	s.addHelpLinks(treeRoot, c)
 
 	if err := s.addAppLinks(treeRoot, c); err != nil {
@@ -639,4 +643,18 @@ func (s *ServiceImpl) buildDataConnectionsNavLink(c *contextmodel.ReqContext) *n
 		return navLink
 	}
 	return nil
+}
+
+func (s *ServiceImpl) buildLabsNavLink(c *contextmodel.ReqContext) *navtree.NavLink {
+	if !c.IsSignedIn {
+		return nil
+	}
+
+	return &navtree.NavLink{
+		Text:       "Labs",
+		Icon:       "beaker",
+		Id:         navtree.NavIDLabs,
+		Url:        s.cfg.AppSubURL + "/labs",
+		SortWeight: navtree.WeightLabs,
+	}
 }
