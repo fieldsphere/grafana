@@ -7,6 +7,7 @@ import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { Dropdown, Menu, MenuItem, ToolbarButton, useStyles2 } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
+import { toggleNinetiesTheme } from 'app/core/services/theme';
 
 import { ThemeSelectorDrawer } from '../../ThemeSelector/ThemeSelectorDrawer';
 import { enrichWithInteractionTracking } from '../MegaMenu/utils';
@@ -32,6 +33,11 @@ export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
   const renderMenu = () => (
     <TopNavBarMenu node={profileNode}>
       <>
+        <MenuItem
+          icon="palette"
+          onClick={() => toggleNinetiesTheme(true)}
+          label={t('profile.toggle-90s-mode', 'Toggle 90s mode')}
+        />
         {config.featureToggles.grafanaconThemes && (
           <MenuItem icon="palette" onClick={onToggleThemeDrawer} label={t('profile.change-theme', 'Change theme')} />
         )}

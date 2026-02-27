@@ -12,5 +12,5 @@ export function getSelectableThemes() {
     allowedExtraThemes.push('gloom');
   }
 
-  return getBuiltInThemes(allowedExtraThemes);
+  return getBuiltInThemes(allowedExtraThemes).filter((theme) => theme.id !== 'nineties');
 }

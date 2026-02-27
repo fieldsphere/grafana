@@ -8,7 +8,7 @@ import {
   shouldRenderInviteUserButton,
   performInviteUserClick,
 } from 'app/core/components/AppChrome/TopBar/InviteUserButtonUtils';
-import { changeTheme } from 'app/core/services/theme';
+import { changeTheme, NINETIES_THEME_ID, toggleNinetiesTheme } from 'app/core/services/theme';
 import { currentMockApiState, toggleMockApiAndReload, togglePseudoLocale } from 'app/dev-utils';
 import {
   CONTENT_KINDS,
@@ -106,6 +106,22 @@ function getGlobalActions(): CommandPaletteAction[] {
       name: t('command-palette.action.light-theme', 'Light'),
       keywords: 'light theme',
       perform: () => changeTheme('light'),
+      parent: 'preferences/theme',
+      priority: PREFERENCES_PRIORITY,
+    },
+    {
+      id: 'preferences/90s-theme',
+      name: t('command-palette.action.90s-theme', '90s Neon'),
+      keywords: '90s nineties retro neon theme',
+      perform: () => changeTheme(NINETIES_THEME_ID, true),
+      parent: 'preferences/theme',
+      priority: PREFERENCES_PRIORITY,
+    },
+    {
+      id: 'preferences/toggle-90s-theme',
+      name: t('command-palette.action.toggle-90s-theme', 'Toggle 90s mode'),
+      keywords: '90s nineties retro neon toggle theme',
+      perform: () => toggleNinetiesTheme(true),
       parent: 'preferences/theme',
       priority: PREFERENCES_PRIORITY,
     },

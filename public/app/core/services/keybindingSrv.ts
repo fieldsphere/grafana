@@ -25,7 +25,7 @@ import { RouteDescriptor } from '../navigation/types';
 import { contextSrv } from '../services/context_srv';
 
 import { mousetrap } from './mousetrap';
-import { toggleTheme } from './theme';
+import { toggleNinetiesTheme, toggleTheme } from './theme';
 
 export class KeybindingSrv {
   constructor(
@@ -61,6 +61,7 @@ export class KeybindingSrv {
 
     this.bind('c t', () => toggleTheme(false));
     this.bind('c r', () => toggleTheme(true));
+    this.bind('c 9', () => toggleNinetiesTheme(true));
 
     if (process.env.NODE_ENV === 'development') {
       // 'change mock'
