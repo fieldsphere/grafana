@@ -61,7 +61,7 @@ export class KeybindingSrv {
 
     this.bind('c t', () => toggleTheme(false));
     this.bind('c r', () => toggleTheme(true));
-    this.bind('c 9', () => toggleNinetiesTheme(true));
+    this.bind('c 9', () => toggleNinetiesTheme(false));
 
     if (process.env.NODE_ENV === 'development') {
       // 'change mock'
