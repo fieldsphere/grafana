@@ -14,6 +14,8 @@ export function BookmarksPage() {
   const pinnedItems = usePinnedItems();
   const navTree = useSelector((state) => state.navBarTree);
 
+  throw new Error('Intentional bookmarks page failure for debug-mode demo');
+
   const validItems = pinnedItems.reduce((acc: NavModelItem[], url) => {
     const item = findByUrl(navTree, url);
     if (item) {
