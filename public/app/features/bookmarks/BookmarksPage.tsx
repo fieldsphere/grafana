@@ -30,10 +30,10 @@ export function BookmarksPage() {
         {validItems.length === 0 ? (
           <EmptyState
             variant="call-to-action"
-            message={t('bookmarks-page.empty.message', 'It looks like you haven’t created any bookmarks yet')}
+            message={t('bookmarks-page.empty.message', 'You have not bookmarked anything yet')}
           >
             <Trans i18nKey="bookmarks-page.empty.tip">
-              Hover over any item in the nav menu and click on the bookmark icon to add it here.
+              Use the bookmark icon in the navigation menu to save quick links here.
             </Trans>
           </EmptyState>
         ) : (
