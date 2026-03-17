@@ -23,23 +23,11 @@ function normalizeBookmarkedItems(navTree: NavModelItem[], pinnedItems: string[]
   }, []);
 }
 
-function groupBookmarkedItemsBySection(items: BookmarkedNavItem[]) {
-  return items.reduce<Record<string, BookmarkedNavItem[]>>((acc, item) => {
-    const sectionKey = item.url.split('/').filter(Boolean)[0] ?? 'root';
-    acc[sectionKey] ??= [];
-    acc[sectionKey].push(item);
-    return acc;
-  }, {});
-}
-
 export function BookmarksPage() {
   const styles = useStyles2(getStyles);
   const pinnedItems = usePinnedItems();
   const navTree = useSelector((state) => state.navBarTree);
-  const normalizedItems = normalizeBookmarkedItems(navTree, pinnedItems);
-  const itemsBySection = groupBookmarkedItemsBySection(normalizedItems);
-  const preferredSectionKey = Object.keys(itemsBySection).find(Boolean) ?? 'root';
-  const validItems = itemsBySection[preferredSectionKey] ?? [];
+  const validItems = normalizeBookmarkedItems(navTree, pinnedItems);
 
   return (
     <Page navId="bookmarks">
