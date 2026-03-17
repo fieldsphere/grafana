@@ -75,6 +75,12 @@ public/css/*.min.css
 !.cursor/skills/
 !.cursor/skills/**
 
+.cursor/
+!.cursor/
+.cursor/*
+!.cursor/skills/
+!.cursor/skills/**
+
 .devcontainer/
 .claude/
 
