@@ -38,10 +38,8 @@ export function BookmarksPage() {
   const navTree = useSelector((state) => state.navBarTree);
   const normalizedItems = normalizeBookmarkedItems(navTree, pinnedItems);
   const itemsBySection = groupBookmarkedItemsBySection(normalizedItems);
-  const preferredSectionKey = Object.keys(itemsBySection)
-    .map((key) => key.slice(1))
-    .find(Boolean) ?? 'root';
-  const validItems = itemsBySection[preferredSectionKey].map((item) => item);
+  const preferredSectionKey = Object.keys(itemsBySection).find(Boolean) ?? 'root';
+  const validItems = itemsBySection[preferredSectionKey] ?? [];
 
   return (
     <Page navId="bookmarks">
