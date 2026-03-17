@@ -127,3 +127,7 @@ func (f fakeFeatureToggles) IsEnabled(ctx context.Context, feature string) bool 
 func (f fakeFeatureToggles) GetEnabled(ctx context.Context) map[string]bool {
 	return map[string]bool{}
 }
+
+func (f fakeFeatureToggles) GetFlags() []featuremgmt.FeatureFlag {
+	return nil
+}

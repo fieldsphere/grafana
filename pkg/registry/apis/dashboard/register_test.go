@@ -262,6 +262,10 @@ func (m *mockFeatureToggles) GetEnabled(ctx context.Context) map[string]bool {
 	return res
 }
 
+func (m *mockFeatureToggles) GetFlags() []featuremgmt.FeatureFlag {
+	return nil
+}
+
 func TestDashboardAPIBuilder_validateFolderManagedBySameManager(t *testing.T) {
 	tests := []struct {
 		name             string

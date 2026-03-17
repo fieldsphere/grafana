@@ -99,6 +99,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.config-plugins.title', 'Plugins and data');
     case 'cfg/access':
       return t('nav.config-access.title', 'Users and access');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'datasources':
       return t('nav.datasources.title', 'Data sources');
     case 'authentication':

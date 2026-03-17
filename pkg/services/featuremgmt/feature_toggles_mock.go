@@ -21,6 +21,53 @@ func (_m *MockFeatureToggles) EXPECT() *MockFeatureToggles_Expecter {
 	return &MockFeatureToggles_Expecter{mock: &_m.Mock}
 }
 
+// GetFlags provides a mock function with no fields
+func (_m *MockFeatureToggles) GetFlags() []FeatureFlag {
+	ret := _m.Called()
+
+	if len(ret) == 0 {
+		panic("no return value specified for GetFlags")
+	}
+
+	var r0 []FeatureFlag
+	if rf, ok := ret.Get(0).(func() []FeatureFlag); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]FeatureFlag)
+		}
+	}
+
+	return r0
+}
+
+// MockFeatureToggles_GetFlags_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetFlags'
+type MockFeatureToggles_GetFlags_Call struct {
+	*mock.Call
+}
+
+// GetFlags is a helper method to define mock.On call
+func (_e *MockFeatureToggles_Expecter) GetFlags() *MockFeatureToggles_GetFlags_Call {
+	return &MockFeatureToggles_GetFlags_Call{Call: _e.mock.On("GetFlags")}
+}
+
+func (_c *MockFeatureToggles_GetFlags_Call) Run(run func()) *MockFeatureToggles_GetFlags_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run()
+	})
+	return _c
+}
+
+func (_c *MockFeatureToggles_GetFlags_Call) Return(_a0 []FeatureFlag) *MockFeatureToggles_GetFlags_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockFeatureToggles_GetFlags_Call) RunAndReturn(run func() []FeatureFlag) *MockFeatureToggles_GetFlags_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // GetEnabled provides a mock function with given fields: ctx
 func (_m *MockFeatureToggles) GetEnabled(ctx context.Context) map[string]bool {
 	ret := _m.Called(ctx)
