@@ -1,0 +1,10 @@
+---
+description: Default Atlassian spaces for Confluence and Jira
+alwaysApply: true
+---
+
+# Atlassian Defaults
+
+- When working with Confluence, use the `Grafana-Demo` space by default unless the user specifies a different space.
+- When working with Jira, use the `GrafanaDev` space/project by default unless the user specifies a different target.
+- If an existing link, ticket key, or page reference points to a different space or project, follow the explicit user-provided context instead of these defaults.

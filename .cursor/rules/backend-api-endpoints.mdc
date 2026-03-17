@@ -1,0 +1,62 @@
+---
+description: Backend API endpoint patterns (reference: pkg/api/short_url.go)
+globs: pkg/api/**/*.go
+alwaysApply: false
+---
+
+# Backend API Endpoint Patterns
+
+Use `pkg/api/short_url.go` as the reference when creating new API endpoints.
+
+## Structure
+
+1. **Registration**: Add a `register*API(apiRoute routing.RouteRegister)` function that wires routes to handlers.
+2. **Wire**: Call `hs.register*API(r)` from `registerRoutes()` in `api.go`.
+
+## Handler Conventions
+
+- **Signature**: `func (hs *HTTPServer) handlerName(c *contextmodel.ReqContext) response.Response` for JSON handlers.
+- **Auth**: Use `middleware.ReqSignedIn` (or `authorize(...)`) on routes.
+- **Request binding**: `web.Bind(c.Req, &cmd)` for request body; `web.Params(c.Req)[":param"]` for path params.
+- **Response**: `response.JSON(http.StatusOK, dto)` for success; `response.Err(err)` for errors.
+- **Redirects**: `c.Redirect(url, status)` for redirects (no `response.Response` return).
+
+## Request/Response Flow
+
+```go
+// 1. Bind request body
+cmd := &dtos.CreateShortURLCmd{}
+if err := web.Bind(c.Req, &cmd); err != nil {
+    return response.Err(shorturls.ErrShortURLBadRequest.Errorf("bad request data: %w", err))
+}
+
+// 2. Validate input
+if !util.IsValidShortUID(shortURLUID) {
+    return response.Err(shorturls.ErrShortURLBadRequest.Errorf("invalid uid"))
+}
+
+// 3. Delegate to service layer (business logic in pkg/services/)
+result, err := hs.ShortURLService.CreateShortURL(c.Req.Context(), c.SignedInUser, cmd)
+if err != nil {
+    return response.Err(err)
+}
+
+// 4. Return JSON
+return response.JSON(http.StatusOK, dto)
+```
+
+## Error Handling
+
+- Use domain errors (e.g. `shorturls.ErrShortURLNotFound`) and check with `.Is(err)`.
+- Wrap errors with `.Errorf("context: %w", err)` when adding context.
+- Use `response.Err(err)` for handlers; the response package maps errors to HTTP status.
+
+## DTOs
+
+- Request/response types live in `pkg/api/dtos/`.
+- Use JSON tags for struct fields.
+
+## Logging
+
+- Use `hs.log.Debug("message", "key", value)` or `c.Logger.Debug(...)` for request/response logging.
+- Log errors with `hs.log.Error("message", "err", err)`.
