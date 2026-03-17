@@ -4,25 +4,30 @@ import { render } from 'test/test-utils';
 
 import { NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
+import * as preferencesApi from '@grafana/api-clients/rtkq/legacy/preferences';
 import { configureStore } from 'app/store/configureStore';
 
+import * as hooks from './hooks';
 import { MegaMenu } from './MegaMenu';
 
-const mockPatchPreferences = jest.fn();
-const mockUpdateQueryData = jest.fn(() => ({ type: 'preferences/updateQueryData' }));
-const mockUsePinnedItems = jest.fn(() => [] as string[]);
+jest.mock('@grafana/api-clients/rtkq/legacy/preferences', () => {
+  const mockPatchPreferences = jest.fn();
+  const mockUpdateQueryData = jest.fn(() => ({ type: 'preferences/updateQueryData' }));
 
-jest.mock('@grafana/api-clients/rtkq/legacy/preferences', () => ({
-  usePatchUserPreferencesMutation: () => [mockPatchPreferences],
-  generatedAPI: {
-    util: {
-      updateQueryData: mockUpdateQueryData,
+  return {
+    usePatchUserPreferencesMutation: () => [mockPatchPreferences],
+    generatedAPI: {
+      util: {
+        updateQueryData: mockUpdateQueryData,
+      },
     },
-  },
-}));
+    __mockPatchPreferences: mockPatchPreferences,
+    __mockUpdateQueryData: mockUpdateQueryData,
+  };
+});
 
 jest.mock('./hooks', () => ({
-  usePinnedItems: () => mockUsePinnedItems(),
+  usePinnedItems: jest.fn(() => [] as string[]),
 }));
 
 const setup = () => {
@@ -53,6 +58,16 @@ const setup = () => {
 };
 
 describe('MegaMenu', () => {
+  const mockPatchPreferences = (preferencesApi as typeof preferencesApi & { __mockPatchPreferences: jest.Mock })
+    .__mockPatchPreferences;
+  const mockUpdateQueryData = (preferencesApi as typeof preferencesApi & { __mockUpdateQueryData: jest.Mock })
+    .__mockUpdateQueryData;
+  const mockUsePinnedItems = hooks.usePinnedItems as jest.Mock;
+
+  beforeEach(() => {
+    mockUsePinnedItems.mockReturnValue([]);
+  });
+
   afterEach(() => {
     jest.clearAllMocks();
     window.localStorage.clear();
