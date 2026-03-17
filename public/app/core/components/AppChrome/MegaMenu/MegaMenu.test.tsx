@@ -10,26 +10,6 @@ import { configureStore } from 'app/store/configureStore';
 import * as hooks from './hooks';
 import { MegaMenu } from './MegaMenu';
 
-jest.mock('@grafana/api-clients/rtkq/legacy/preferences', () => {
-  const mockPatchPreferences = jest.fn();
-  const mockUpdateQueryData = jest.fn(() => ({ type: 'preferences/updateQueryData' }));
-
-  return {
-    usePatchUserPreferencesMutation: () => [mockPatchPreferences],
-    generatedAPI: {
-      util: {
-        updateQueryData: mockUpdateQueryData,
-      },
-    },
-    __mockPatchPreferences: mockPatchPreferences,
-    __mockUpdateQueryData: mockUpdateQueryData,
-  };
-});
-
-jest.mock('./hooks', () => ({
-  usePinnedItems: jest.fn(() => [] as string[]),
-}));
-
 const setup = () => {
   const navBarTree: NavModelItem[] = [
     {
@@ -58,18 +38,25 @@ const setup = () => {
 };
 
 describe('MegaMenu', () => {
-  const mockPatchPreferences = (preferencesApi as typeof preferencesApi & { __mockPatchPreferences: jest.Mock })
-    .__mockPatchPreferences;
-  const mockUpdateQueryData = (preferencesApi as typeof preferencesApi & { __mockUpdateQueryData: jest.Mock })
-    .__mockUpdateQueryData;
-  const mockUsePinnedItems = hooks.usePinnedItems as jest.Mock;
+  let mockPatchPreferences: jest.Mock;
+  let mockUpdateQueryData: jest.SpyInstance;
 
   beforeEach(() => {
-    mockUsePinnedItems.mockReturnValue([]);
+    jest.spyOn(hooks, 'usePinnedItems').mockReturnValue([]);
+
+    mockPatchPreferences = jest.fn().mockResolvedValue({ data: { message: 'ok' } });
+    jest.spyOn(preferencesApi, 'usePatchUserPreferencesMutation').mockReturnValue([
+      mockPatchPreferences,
+      {} as ReturnType<typeof preferencesApi.usePatchUserPreferencesMutation>[1],
+    ]);
+
+    mockUpdateQueryData = jest
+      .spyOn(preferencesApi.generatedAPI.util, 'updateQueryData')
+      .mockReturnValue({ type: 'preferences/updateQueryData' });
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    jest.restoreAllMocks();
     window.localStorage.clear();
   });
   it('should render component', async () => {
@@ -102,8 +89,6 @@ describe('MegaMenu', () => {
   });
 
   it('updates pinned items query cache after pinning', async () => {
-    mockPatchPreferences.mockResolvedValue({ data: { message: 'ok' } });
-
     setup();
 
     await userEvent.click(await screen.findByLabelText('Add Section name to Bookmarks'));
