@@ -4,6 +4,27 @@
  * This file doesn't require any compilation
  */
 define(['react', '@grafana/data'], function (React, grafanaData) {
+  function structuredLog(level, event, context) {
+    const payload = JSON.stringify({
+      timestamp: new Date().toISOString(),
+      level,
+      event,
+      ...(context || {}),
+    });
+
+    if (level === 'warn') {
+      console.warn(payload);
+      return;
+    }
+
+    if (level === 'error') {
+      console.error(payload);
+      return;
+    }
+
+    console.log(payload);
+  }
+
   // This would be a custom editor component
   function Editor() {
     const onChangeInternal = (event) => {
@@ -127,20 +148,27 @@ define(['react', '@grafana/data'], function (React, grafanaData) {
     const globalTests = [
       function () {
         try {
-          console.log(window.Prism.languages);
+          structuredLog('info', 'frontend_sandbox_global_prism_detected', {
+            available: !!window.Prism,
+            languageCount: Object.keys(window.Prism.languages || {}).length,
+          });
           return 'Prism';
         } catch (e) {}
       },
       function () {
         try {
-          console.log(window.jQuery.fn.jquery);
-          console.log(window.$.fn.jquery);
+          structuredLog('info', 'frontend_sandbox_global_jquery_detected', {
+            jQueryVersion: window.jQuery && window.jQuery.fn && window.jQuery.fn.jquery,
+            dollarVersion: window.$ && window.$.fn && window.$.fn.jquery,
+          });
           return 'jQuery';
         } catch (e) {}
       },
       function () {
         try {
-          console.log(window.locationSandbox);
+          structuredLog('info', 'frontend_sandbox_global_location_detected', {
+            locationSandbox: window.locationSandbox,
+          });
           return 'location';
         } catch (e) {}
       },
