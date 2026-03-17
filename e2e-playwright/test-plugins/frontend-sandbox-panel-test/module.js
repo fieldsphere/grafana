@@ -158,8 +158,8 @@ define(['react', '@grafana/data'], function (React, grafanaData) {
       function () {
         try {
           structuredLog('info', 'frontend_sandbox_global_jquery_detected', {
-            jQueryVersion: window.jQuery && window.jQuery.fn && window.jQuery.fn.jquery,
-            dollarVersion: window.$ && window.$.fn && window.$.fn.jquery,
+            jQueryVersion: window.jQuery.fn.jquery,
+            dollarVersion: window.$.fn.jquery,
           });
           return 'jQuery';
         } catch (e) {}
