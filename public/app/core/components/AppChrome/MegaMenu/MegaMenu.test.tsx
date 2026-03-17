@@ -1,4 +1,4 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { render } from 'test/test-utils';
 
@@ -7,6 +7,23 @@ import { selectors } from '@grafana/e2e-selectors';
 import { configureStore } from 'app/store/configureStore';
 
 import { MegaMenu } from './MegaMenu';
+
+const mockPatchPreferences = jest.fn();
+const mockUpdateQueryData = jest.fn(() => ({ type: 'preferences/updateQueryData' }));
+const mockUsePinnedItems = jest.fn(() => [] as string[]);
+
+jest.mock('@grafana/api-clients/rtkq/legacy/preferences', () => ({
+  usePatchUserPreferencesMutation: () => [mockPatchPreferences],
+  generatedAPI: {
+    util: {
+      updateQueryData: mockUpdateQueryData,
+    },
+  },
+}));
+
+jest.mock('./hooks', () => ({
+  usePinnedItems: () => mockUsePinnedItems(),
+}));
 
 const setup = () => {
   const navBarTree: NavModelItem[] = [
@@ -37,6 +54,7 @@ const setup = () => {
 
 describe('MegaMenu', () => {
   afterEach(() => {
+    jest.clearAllMocks();
     window.localStorage.clear();
   });
   it('should render component', async () => {
@@ -66,5 +84,24 @@ describe('MegaMenu', () => {
     setup();
 
     expect(screen.queryByLabelText('Profile')).not.toBeInTheDocument();
+  });
+
+  it('updates pinned items query cache after pinning', async () => {
+    mockPatchPreferences.mockResolvedValue({ data: { message: 'ok' } });
+
+    setup();
+
+    await userEvent.click(await screen.findByLabelText('Add Section name to Bookmarks'));
+
+    await waitFor(() => {
+      expect(mockPatchPreferences).toHaveBeenCalledWith({
+        patchPrefsCmd: {
+          navbar: {
+            bookmarkUrls: ['section'],
+          },
+        },
+      });
+      expect(mockUpdateQueryData).toHaveBeenCalledWith('getUserPreferences', undefined, expect.any(Function));
+    });
   });
 });
