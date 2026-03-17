@@ -9,20 +9,39 @@ import { NavLandingPageCard } from 'app/core/components/NavLandingPage/NavLandin
 import { Page } from 'app/core/components/Page/Page';
 import { useSelector } from 'app/types/store';
 
+type BookmarkedNavItem = NavModelItem & {
+  url: string;
+};
+
+function normalizeBookmarkedItems(navTree: NavModelItem[], pinnedItems: string[]): BookmarkedNavItem[] {
+  return pinnedItems.reduce<BookmarkedNavItem[]>((acc, url) => {
+    const item = findByUrl(navTree, url);
+    if (item?.url) {
+      acc.push({ ...item, url: item.url });
+    }
+    return acc;
+  }, []);
+}
+
+function groupBookmarkedItemsBySection(items: BookmarkedNavItem[]) {
+  return items.reduce<Record<string, BookmarkedNavItem[]>>((acc, item) => {
+    const sectionKey = item.url.split('/').filter(Boolean)[0] ?? 'root';
+    acc[sectionKey] ??= [];
+    acc[sectionKey].push(item);
+    return acc;
+  }, {});
+}
+
 export function BookmarksPage() {
   const styles = useStyles2(getStyles);
   const pinnedItems = usePinnedItems();
   const navTree = useSelector((state) => state.navBarTree);
-
-  throw new Error('Intentional bookmarks page failure for debug-mode demo');
-
-  const validItems = pinnedItems.reduce((acc: NavModelItem[], url) => {
-    const item = findByUrl(navTree, url);
-    if (item) {
-      acc.push(item);
-    }
-    return acc;
-  }, []);
+  const normalizedItems = normalizeBookmarkedItems(navTree, pinnedItems);
+  const itemsBySection = groupBookmarkedItemsBySection(normalizedItems);
+  const preferredSectionKey = Object.keys(itemsBySection)
+    .map((key) => key.slice(1))
+    .find(Boolean) ?? 'root';
+  const validItems = itemsBySection[preferredSectionKey].map((item) => item);
 
   return (
     <Page navId="bookmarks">
