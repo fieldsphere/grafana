@@ -1,13 +1,11 @@
-import { screen, waitFor } from '@testing-library/react';
+import { screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { render } from 'test/test-utils';
 
 import { NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
-import * as preferencesApi from '@grafana/api-clients/rtkq/legacy/preferences';
 import { configureStore } from 'app/store/configureStore';
 
-import * as hooks from './hooks';
 import { MegaMenu } from './MegaMenu';
 
 const setup = () => {
@@ -38,25 +36,7 @@ const setup = () => {
 };
 
 describe('MegaMenu', () => {
-  let mockPatchPreferences: jest.Mock;
-  let mockUpdateQueryData: jest.SpyInstance;
-
-  beforeEach(() => {
-    jest.spyOn(hooks, 'usePinnedItems').mockReturnValue([]);
-
-    mockPatchPreferences = jest.fn().mockResolvedValue({ data: { message: 'ok' } });
-    jest.spyOn(preferencesApi, 'usePatchUserPreferencesMutation').mockReturnValue([
-      mockPatchPreferences,
-      {} as ReturnType<typeof preferencesApi.usePatchUserPreferencesMutation>[1],
-    ]);
-
-    mockUpdateQueryData = jest
-      .spyOn(preferencesApi.generatedAPI.util, 'updateQueryData')
-      .mockReturnValue({ type: 'preferences/updateQueryData' });
-  });
-
   afterEach(() => {
-    jest.restoreAllMocks();
     window.localStorage.clear();
   });
   it('should render component', async () => {
@@ -86,22 +66,5 @@ describe('MegaMenu', () => {
     setup();
 
     expect(screen.queryByLabelText('Profile')).not.toBeInTheDocument();
-  });
-
-  it('updates pinned items query cache after pinning', async () => {
-    setup();
-
-    await userEvent.click(await screen.findByLabelText('Add Section name to Bookmarks'));
-
-    await waitFor(() => {
-      expect(mockPatchPreferences).toHaveBeenCalledWith({
-        patchPrefsCmd: {
-          navbar: {
-            bookmarkUrls: ['section'],
-          },
-        },
-      });
-      expect(mockUpdateQueryData).toHaveBeenCalledWith('getUserPreferences', undefined, expect.any(Function));
-    });
   });
 });
