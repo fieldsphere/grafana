@@ -48,6 +48,8 @@ type datasourceMapping struct {
 
 // checkResponse matches the CUE schema for POST /check response
 type checkResponse struct {
+	APIVersion         string             `json:"apiVersion"`
+	Kind               string             `json:"kind"`
 	CompatibilityScore float64            `json:"compatibilityScore"`
 	DatasourceResults  []datasourceResult `json:"datasourceResults"`
 }
@@ -378,6 +380,8 @@ func handleCheckRoute(
 // convertToCheckResponse converts validator result to API response format
 func convertToCheckResponse(result *validator.DashboardCompatibilityResult) checkResponse {
 	response := checkResponse{
+		APIVersion:         "dashvalidator.grafana.app/v1alpha1",
+		Kind:               "CheckResponse",
 		CompatibilityScore: result.CompatibilityScore,
 		DatasourceResults:  make([]datasourceResult, 0, len(result.DatasourceResults)),
 	}

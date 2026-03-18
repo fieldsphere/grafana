@@ -108,6 +108,8 @@ describe('compatibilityApi', () => {
   describe('checkDashboardCompatibility', () => {
     it('should successfully check compatibility with high score (100%)', async () => {
       const mockResponse: CompatibilityCheckResult = {
+        apiVersion: 'dashvalidator.grafana.app/v1alpha1',
+        kind: 'CheckResponse',
         compatibilityScore: 100,
         datasourceResults: [
           {
@@ -152,6 +154,8 @@ describe('compatibilityApi', () => {
       const result = await checkDashboardCompatibility(dashboard, mappings);
 
       expect(result).toEqual(mockResponse);
+      expect(result.apiVersion).toBe('dashvalidator.grafana.app/v1alpha1');
+      expect(result.kind).toBe('CheckResponse');
       expect(mockPost).toHaveBeenCalledWith(
         '/apis/dashvalidator.grafana.app/v1alpha1/namespaces/default/check',
         {

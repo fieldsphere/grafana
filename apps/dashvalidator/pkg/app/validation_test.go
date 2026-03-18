@@ -359,6 +359,8 @@ func TestConvertToCheckResponse(t *testing.T) {
 
 		result := convertToCheckResponse(input)
 
+		assert.Equal(t, "dashvalidator.grafana.app/v1alpha1", result.APIVersion)
+		assert.Equal(t, "CheckResponse", result.Kind)
 		assert.Equal(t, 0.85, result.CompatibilityScore)
 		require.Len(t, result.DatasourceResults, 1)
 

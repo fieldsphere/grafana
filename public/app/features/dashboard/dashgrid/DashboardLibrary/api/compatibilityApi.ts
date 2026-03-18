@@ -77,6 +77,10 @@ export interface DatasourceResult {
  * Overall compatibility check result
  */
 export interface CompatibilityCheckResult {
+  /** Kubernetes-style API version identifier (e.g., dashvalidator.grafana.app/v1alpha1) */
+  apiVersion?: string;
+  /** Kubernetes-style kind identifier */
+  kind?: string;
   /** Overall compatibility score across all datasources (0-100) */
   compatibilityScore: number;
   /** Results for each datasource checked */
