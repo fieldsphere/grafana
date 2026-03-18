@@ -210,13 +210,17 @@ export function installConsoleStructuredLogging(source = 'browser.console') {
     return;
   }
 
+  const browserConsole = window.console;
   const logger = createMonitoringLogger(source);
 
   for (const method of CONSOLE_METHODS) {
-    const original = console[method].bind(console) as ConsoleMethodImplementation;
+    const originalMethod = browserConsole[method];
+    const original: ConsoleMethodImplementation = (...data: unknown[]) => {
+      Reflect.apply(originalMethod, browserConsole, data);
+    };
     originalConsoleMethods[method] = original;
 
-    console[method] = (...args: unknown[]) => {
+    Reflect.set(browserConsole, method, (...args: unknown[]) => {
       const message = formatConsoleMessage(method, args);
       const context: LogContext = {
         method,
@@ -234,7 +238,7 @@ export function installConsoleStructuredLogging(source = 'browser.console') {
       }
 
       original(...args);
-    };
+    });
   }
 
   isConsoleBridgeInstalled = true;
@@ -246,14 +250,16 @@ export function installConsoleStructuredLogging(source = 'browser.console') {
  * @public
  */
 export function uninstallConsoleStructuredLogging() {
-  if (!isConsoleBridgeInstalled) {
+  if (typeof window === 'undefined' || !isConsoleBridgeInstalled) {
     return;
   }
+
+  const browserConsole = window.console;
 
   for (const method of CONSOLE_METHODS) {
     const original = originalConsoleMethods[method];
     if (original) {
-      console[method] = original as Console[ConsoleMethod];
+      Reflect.set(browserConsole, method, original);
       delete originalConsoleMethods[method];
     }
   }
