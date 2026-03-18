@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { createMonitoringLogger, type MonitoringLogger } from '@grafana/runtime';
 
 type ConsoleLevel = 'log' | 'info' | 'warn' | 'error' | 'debug' | 'trace';
@@ -147,12 +148,20 @@ function createPatchedConsoleMethod(
   };
 }
 
-export function initStructuredConsoleLogging(monitoringLogger: MonitoringLogger = logger) {
+function getBrowserWindowWithPatchFlag(): BrowserWindowWithPatchFlag | undefined {
   if (typeof window === 'undefined') {
+    return undefined;
+  }
+
+  return window;
+}
+
+export function initStructuredConsoleLogging(monitoringLogger: MonitoringLogger = logger) {
+  const browserWindow = getBrowserWindowWithPatchFlag();
+  if (!browserWindow) {
     return;
   }
 
-  const browserWindow = window as BrowserWindowWithPatchFlag;
   if (browserWindow[STRUCTURED_CONSOLE_PATCH_FLAG]) {
     return;
   }
@@ -168,10 +177,10 @@ export function initStructuredConsoleLogging(monitoringLogger: MonitoringLogger 
     trace: console.trace.bind(console),
   };
 
-  console.log = createPatchedConsoleMethod('log', originalConsole.log, monitoringLogger) as typeof console.log;
-  console.info = createPatchedConsoleMethod('info', originalConsole.info, monitoringLogger) as typeof console.info;
-  console.warn = createPatchedConsoleMethod('warn', originalConsole.warn, monitoringLogger) as typeof console.warn;
-  console.error = createPatchedConsoleMethod('error', originalConsole.error, monitoringLogger) as typeof console.error;
-  console.debug = createPatchedConsoleMethod('debug', originalConsole.debug, monitoringLogger) as typeof console.debug;
-  console.trace = createPatchedConsoleMethod('trace', originalConsole.trace, monitoringLogger) as typeof console.trace;
+  console.log = createPatchedConsoleMethod('log', originalConsole.log, monitoringLogger);
+  console.info = createPatchedConsoleMethod('info', originalConsole.info, monitoringLogger);
+  console.warn = createPatchedConsoleMethod('warn', originalConsole.warn, monitoringLogger);
+  console.error = createPatchedConsoleMethod('error', originalConsole.error, monitoringLogger);
+  console.debug = createPatchedConsoleMethod('debug', originalConsole.debug, monitoringLogger);
+  console.trace = createPatchedConsoleMethod('trace', originalConsole.trace, monitoringLogger);
 }
