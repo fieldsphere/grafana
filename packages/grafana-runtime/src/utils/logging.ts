@@ -206,7 +206,15 @@ function getErrorArg(args: unknown[]): Error | undefined {
  * @public
  */
 export function installConsoleStructuredLogging(source = 'browser.console') {
-  if (typeof window === 'undefined' || process.env.NODE_ENV === 'test' || isConsoleBridgeInstalled) {
+  const isFaroConsoleInstrumentationEnabled =
+    config.grafanaJavascriptAgent.enabled && config.grafanaJavascriptAgent.consoleInstrumentalizationEnabled;
+
+  if (
+    typeof window === 'undefined' ||
+    process.env.NODE_ENV === 'test' ||
+    isConsoleBridgeInstalled ||
+    isFaroConsoleInstrumentationEnabled
+  ) {
     return;
   }
 

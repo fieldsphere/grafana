@@ -24,10 +24,12 @@ import { installConsoleStructuredLogging, uninstallConsoleStructuredLogging } fr
 describe('console structured logging bridge', () => {
   const originalNodeEnv = process.env.NODE_ENV;
   const originalAgentEnabled = config.grafanaJavascriptAgent.enabled;
+  const originalConsoleInstrumentalizationEnabled = config.grafanaJavascriptAgent.consoleInstrumentalizationEnabled;
 
   beforeEach(() => {
     process.env.NODE_ENV = 'development';
     config.grafanaJavascriptAgent.enabled = true;
+    config.grafanaJavascriptAgent.consoleInstrumentalizationEnabled = false;
 
     mockPushLog.mockReset();
     mockPushError.mockReset();
@@ -51,6 +53,7 @@ describe('console structured logging bridge', () => {
   afterAll(() => {
     process.env.NODE_ENV = originalNodeEnv;
     config.grafanaJavascriptAgent.enabled = originalAgentEnabled;
+    config.grafanaJavascriptAgent.consoleInstrumentalizationEnabled = originalConsoleInstrumentalizationEnabled;
   });
 
   it('forwards warn logs with structured context', () => {
@@ -89,5 +92,15 @@ describe('console structured logging bridge', () => {
         }),
       })
     );
+  });
+
+  it('does not install when Faro console instrumentation is enabled', () => {
+    config.grafanaJavascriptAgent.consoleInstrumentalizationEnabled = true;
+    installConsoleStructuredLogging();
+
+    console.warn('request failed', { status: 500 });
+
+    expect(mockPushLog).not.toHaveBeenCalled();
+    expect(mockPushError).not.toHaveBeenCalled();
   });
 });

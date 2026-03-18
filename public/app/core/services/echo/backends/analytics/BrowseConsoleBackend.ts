@@ -1,5 +1,4 @@
 import {
-  createMonitoringLogger,
   EchoBackend,
   EchoEventType,
   isExperimentViewEvent,
@@ -7,8 +6,6 @@ import {
   isPageviewEvent,
   PageviewEchoEvent,
 } from '@grafana/runtime';
-
-const logger = createMonitoringLogger('EchoSrv.ConsoleBackend');
 
 export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unknown> {
   options = {};
@@ -18,12 +15,12 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
 
   addEvent = (e: PageviewEchoEvent) => {
     if (isPageviewEvent(e)) {
-      logger.logInfo('[EchoSrv:pageview]', { page: e.payload.page });
+      console.log('[EchoSrv:pageview]', { page: e.payload.page });
     }
 
     if (isInteractionEvent(e)) {
       const eventName = e.payload.interactionName;
-      logger.logInfo('[EchoSrv:event]', { eventName, properties: e.payload.properties });
+      console.log('[EchoSrv:event]', { eventName, properties: e.payload.properties });
 
       // Warn for non-scalar property values. We're not yet making this a hard a
       const invalidTypeProperties = Object.entries(e.payload.properties ?? {}).filter(([_, value]) => {
@@ -34,7 +31,7 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
       });
 
       if (invalidTypeProperties.length > 0) {
-        logger.logWarning('Event has invalid property types.', {
+        console.warn('Event has invalid property types.', {
           eventName,
           invalidProperties: Object.fromEntries(invalidTypeProperties),
         });
@@ -42,7 +39,7 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
     }
 
     if (isExperimentViewEvent(e)) {
-      logger.logInfo('[EchoSrv:experiment]', { payload: e.payload });
+      console.log('[EchoSrv:experiment]', { payload: e.payload });
     }
   };
 

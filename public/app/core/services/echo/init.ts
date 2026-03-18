@@ -30,43 +30,57 @@ export async function initEchoSrv() {
   try {
     await initPerformanceBackend();
   } catch (error) {
-    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv Performance backend'));
+    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv Performance backend'), {
+      backend: 'Performance',
+    });
   }
 
   try {
     await initFaroBackend();
   } catch (error) {
-    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv Faro backend'));
+    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv Faro backend'), {
+      backend: 'Faro',
+    });
   }
 
   try {
     await initGoogleAnalyticsBackend();
   } catch (error) {
-    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv GoogleAnalytics backend'));
+    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv GoogleAnalytics backend'), {
+      backend: 'GoogleAnalytics',
+    });
   }
 
   try {
     await initGoogleAnalaytics4Backend();
   } catch (error) {
-    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv GoogleAnalaytics4 backend'));
+    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv GoogleAnalaytics4 backend'), {
+      backend: 'GoogleAnalytics4',
+    });
   }
 
   try {
     await initRudderstackBackend();
   } catch (error) {
-    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv Rudderstack backend'));
+    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv Rudderstack backend'), {
+      backend: 'Rudderstack',
+    });
   }
 
   try {
     await initAzureAppInsightsBackend();
   } catch (error) {
-    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv AzureAppInsights backend'));
+    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv AzureAppInsights backend'), {
+      backend: 'AzureAppInsights',
+    });
   }
 
   try {
     await initConsoleBackend();
   } catch (error) {
-    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv Console backend'));
+    logger.logError(error instanceof Error ? error : new Error('Error initializing EchoSrv Console backend'), {
+      backend: 'Console',
+    });
   }
 }
 
