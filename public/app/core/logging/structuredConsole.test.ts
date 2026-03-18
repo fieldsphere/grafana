@@ -1,6 +1,6 @@
 import type { MonitoringLogger } from '@grafana/runtime';
 
-import { logStructuredConsole, normalizeConsoleLog } from './structuredConsole';
+import { initStructuredConsoleLogging, logStructuredConsole, normalizeConsoleLog } from './structuredConsole';
 
 function createMonitoringLoggerMock(): jest.Mocked<MonitoringLogger> {
   return {
@@ -74,5 +74,58 @@ describe('logStructuredConsole', () => {
       expect.objectContaining({ message: 'boom' }),
       expect.objectContaining({ console_level: 'error' })
     );
+  });
+});
+
+describe('initStructuredConsoleLogging', () => {
+  const originalConsole = {
+    log: console.log,
+    info: console.info,
+    warn: console.warn,
+    error: console.error,
+    debug: console.debug,
+    trace: console.trace,
+  };
+
+  beforeEach(() => {
+    Reflect.deleteProperty(window, '__grafanaStructuredConsoleLoggingPatched__');
+  });
+
+  afterEach(() => {
+    console.log = originalConsole.log;
+    console.info = originalConsole.info;
+    console.warn = originalConsole.warn;
+    console.error = originalConsole.error;
+    console.debug = originalConsole.debug;
+    console.trace = originalConsole.trace;
+  });
+
+  it('intercepts console calls and forwards them to monitoring logger', () => {
+    const monitoringLogger = createMonitoringLoggerMock();
+    const baseLog = jest.fn();
+    const baseError = jest.fn();
+
+    console.log = baseLog;
+    console.info = jest.fn();
+    console.warn = jest.fn();
+    console.error = baseError;
+    console.debug = jest.fn();
+    console.trace = jest.fn();
+
+    initStructuredConsoleLogging(monitoringLogger);
+
+    console.log('hello', { id: 1 });
+    console.error('boom');
+
+    expect(monitoringLogger.logInfo).toHaveBeenCalledWith(
+      'hello',
+      expect.objectContaining({ console_level: 'log', console_args: [{ id: 1 }] })
+    );
+    expect(monitoringLogger.logError).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'boom' }),
+      expect.objectContaining({ console_level: 'error' })
+    );
+    expect(baseLog).toHaveBeenCalledWith('hello', { id: 1 });
+    expect(baseError).toHaveBeenCalledWith('boom');
   });
 });
