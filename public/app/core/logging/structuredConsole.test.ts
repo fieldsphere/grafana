@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { MonitoringLogger } from '@grafana/runtime';
 
 import { initStructuredConsoleLogging, logStructuredConsole, normalizeConsoleLog } from './structuredConsole';
