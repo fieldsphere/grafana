@@ -1,5 +1,5 @@
-/* eslint-disable no-console */
 import {
+  createMonitoringLogger,
   EchoBackend,
   EchoEventType,
   isExperimentViewEvent,
@@ -7,6 +7,8 @@ import {
   isPageviewEvent,
   PageviewEchoEvent,
 } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('EchoSrv.ConsoleBackend');
 
 export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unknown> {
   options = {};
@@ -16,12 +18,12 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
 
   addEvent = (e: PageviewEchoEvent) => {
     if (isPageviewEvent(e)) {
-      console.log('[EchoSrv:pageview]', e.payload.page);
+      logger.logInfo('[EchoSrv:pageview]', { page: e.payload.page });
     }
 
     if (isInteractionEvent(e)) {
       const eventName = e.payload.interactionName;
-      console.log('[EchoSrv:event]', eventName, e.payload.properties);
+      logger.logInfo('[EchoSrv:event]', { eventName, properties: e.payload.properties });
 
       // Warn for non-scalar property values. We're not yet making this a hard a
       const invalidTypeProperties = Object.entries(e.payload.properties ?? {}).filter(([_, value]) => {
@@ -32,17 +34,15 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
       });
 
       if (invalidTypeProperties.length > 0) {
-        console.warn(
-          'Event',
+        logger.logWarning('Event has invalid property types.', {
           eventName,
-          'has invalid property types. Event properties should only be string, number or boolean. Invalid properties:',
-          Object.fromEntries(invalidTypeProperties)
-        );
+          invalidProperties: Object.fromEntries(invalidTypeProperties),
+        });
       }
     }
 
     if (isExperimentViewEvent(e)) {
-      console.log('[EchoSrv:experiment]', e.payload);
+      logger.logInfo('[EchoSrv:experiment]', { payload: e.payload });
     }
   };
 

@@ -21,6 +21,7 @@ import {
 import { DEFAULT_LANGUAGE } from '@grafana/i18n';
 import { initializeI18n, loadNamespacedResources } from '@grafana/i18n/internal';
 import {
+  createMonitoringLogger,
   locationService,
   setBackendSrv,
   setDataSourceSrv,
@@ -126,6 +127,7 @@ const extensionsIndex = require.context('.', true, /extensions\/index.ts/);
 const extensionsExports = extensionsIndex.keys().map((key) => {
   return extensionsIndex(key);
 });
+const logger = createMonitoringLogger('GrafanaApp');
 
 export class GrafanaApp {
   context!: GrafanaContextType;
@@ -145,7 +147,10 @@ export class GrafanaApp {
         try {
           await initOpenFeature();
         } catch (err) {
-          console.error('Failed to initialize OpenFeature provider', err);
+          logger.logError(
+            err instanceof Error ? err : new Error('Failed to initialize OpenFeature provider'),
+            { stage: 'openFeatureProvider' }
+          );
         }
       }
 
@@ -284,7 +289,9 @@ export class GrafanaApp {
       try {
         cleanupOldExpandedFolders();
       } catch (err) {
-        console.warn('Failed to clean up old expanded folders', err);
+        logger.logWarning('Failed to clean up old expanded folders', {
+          error: err instanceof Error ? { message: err.message, stack: err.stack } : err,
+        });
       }
 
       this.context = {
@@ -318,7 +325,7 @@ export class GrafanaApp {
 
       await postInitTasks();
     } catch (error) {
-      console.error('Failed to start Grafana', error);
+      logger.logError(error instanceof Error ? error : new Error('Failed to start Grafana'));
       window.__grafana_load_failed();
     } finally {
       stopMeasure('frontend_app_init');
