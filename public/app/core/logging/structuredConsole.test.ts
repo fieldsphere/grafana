@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import type { MonitoringLogger } from '@grafana/runtime';
+import config from 'app/core/config';
 
 import { initStructuredConsoleLogging, logStructuredConsole, normalizeConsoleLog } from './structuredConsole';
 
@@ -79,6 +80,11 @@ describe('logStructuredConsole', () => {
 });
 
 describe('initStructuredConsoleLogging', () => {
+  const originalGrafanaJavascriptAgent = {
+    enabled: config.grafanaJavascriptAgent.enabled,
+    consoleInstrumentalizationEnabled: config.grafanaJavascriptAgent.consoleInstrumentalizationEnabled,
+  };
+
   const originalConsole = {
     log: console.log,
     info: console.info,
@@ -90,6 +96,9 @@ describe('initStructuredConsoleLogging', () => {
 
   beforeEach(() => {
     Reflect.deleteProperty(window, '__grafanaStructuredConsoleLoggingPatched__');
+    config.grafanaJavascriptAgent.enabled = originalGrafanaJavascriptAgent.enabled;
+    config.grafanaJavascriptAgent.consoleInstrumentalizationEnabled =
+      originalGrafanaJavascriptAgent.consoleInstrumentalizationEnabled;
   });
 
   afterEach(() => {
@@ -128,5 +137,46 @@ describe('initStructuredConsoleLogging', () => {
     );
     expect(baseLog).toHaveBeenCalledWith('hello', { id: 1 });
     expect(baseError).toHaveBeenCalledWith('boom');
+  });
+
+  it('keeps native console output when structured logging throws', () => {
+    const monitoringLogger = createMonitoringLoggerMock();
+    const baseLog = jest.fn();
+
+    monitoringLogger.logInfo.mockImplementation(() => {
+      throw new Error('logger unavailable');
+    });
+    console.log = baseLog;
+    console.info = jest.fn();
+    console.warn = jest.fn();
+    console.error = jest.fn();
+    console.debug = jest.fn();
+    console.trace = jest.fn();
+
+    initStructuredConsoleLogging(monitoringLogger);
+
+    expect(() => console.log('hello')).not.toThrow();
+    expect(baseLog).toHaveBeenCalledWith('hello');
+  });
+
+  it('does not patch console when Faro captureConsole instrumentation is enabled', () => {
+    const monitoringLogger = createMonitoringLoggerMock();
+    const baseLog = jest.fn();
+
+    config.grafanaJavascriptAgent.enabled = true;
+    config.grafanaJavascriptAgent.consoleInstrumentalizationEnabled = true;
+    console.log = baseLog;
+    console.info = jest.fn();
+    console.warn = jest.fn();
+    console.error = jest.fn();
+    console.debug = jest.fn();
+    console.trace = jest.fn();
+
+    initStructuredConsoleLogging(monitoringLogger);
+    console.log('hello');
+
+    expect(monitoringLogger.logInfo).not.toHaveBeenCalled();
+    expect(console.log).toBe(baseLog);
+    expect(baseLog).toHaveBeenCalledWith('hello');
   });
 });

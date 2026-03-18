@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { createMonitoringLogger, type MonitoringLogger } from '@grafana/runtime';
+import config from 'app/core/config';
 
 type ConsoleLevel = 'log' | 'info' | 'warn' | 'error' | 'debug' | 'trace';
 type ConsoleMethod = (...args: unknown[]) => void;
@@ -143,8 +144,13 @@ function createPatchedConsoleMethod(
   monitoringLogger: MonitoringLogger
 ): ConsoleMethod {
   return (...args: unknown[]) => {
-    logStructuredConsole(level, args, monitoringLogger);
-    originalMethod(...args);
+    try {
+      logStructuredConsole(level, args, monitoringLogger);
+    } catch {
+      // Keep native console behavior even if structured logging fails.
+    } finally {
+      originalMethod(...args);
+    }
   };
 }
 
@@ -157,6 +163,10 @@ function getBrowserWindowWithPatchFlag(): BrowserWindowWithPatchFlag | undefined
 }
 
 export function initStructuredConsoleLogging(monitoringLogger: MonitoringLogger = logger) {
+  if (config.grafanaJavascriptAgent.enabled && config.grafanaJavascriptAgent.consoleInstrumentalizationEnabled) {
+    return;
+  }
+
   const browserWindow = getBrowserWindowWithPatchFlag();
   if (!browserWindow) {
     return;
