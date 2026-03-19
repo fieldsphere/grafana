@@ -14,7 +14,7 @@ import {
 } from '@grafana/ui';
 
 import { specToDashboard } from '../src/mapper/specToDashboard';
-import type { DashboardSpec } from '../src/spec/types';
+import type { DashboardSpec, GenerateDashboardRequest } from '../src/spec/types';
 import pluginJson from '../plugin.json';
 
 export function CreateWizard() {
@@ -53,19 +53,20 @@ export function CreateWizard() {
     }
     setLoading(true);
     try {
+      const request: GenerateDashboardRequest = {
+        prompt: prompt.trim(),
+        datasources: [
+          {
+            uid: selectedDs.uid,
+            type: selectedDs.type,
+            name: selectedDs.name,
+          },
+        ],
+        maxPanels: 12,
+      };
       const res = await getBackendSrv().post<{ spec: DashboardSpec; error?: string }>(
         `/api/plugins/${pluginJson.id}/resources/generate`,
-        {
-          prompt: prompt.trim(),
-          datasources: [
-            {
-              uid: selectedDs.uid,
-              type: selectedDs.type,
-              name: selectedDs.name,
-            },
-          ],
-          maxPanels: 12,
-        },
+        request,
         { validatePath: true }
       );
       if ((res as { error?: string }).error) {

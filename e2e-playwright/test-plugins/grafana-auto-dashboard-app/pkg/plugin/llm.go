@@ -48,7 +48,12 @@ func extractJSON(content string) string {
 	s := strings.TrimSpace(content)
 	if strings.HasPrefix(s, "```") {
 		s = strings.TrimPrefix(s, "```")
-		s = strings.TrimPrefix(s, "json")
+		s = strings.TrimLeft(s, " \t")
+		if nl := strings.IndexByte(s, '\n'); nl >= 0 {
+			if strings.EqualFold(strings.TrimSpace(s[:nl]), "json") {
+				s = s[nl+1:]
+			}
+		}
 		s = strings.TrimSpace(s)
 		if idx := strings.LastIndex(s, "```"); idx >= 0 {
 			s = strings.TrimSpace(s[:idx])
@@ -102,7 +107,11 @@ func callOpenAIForSpec(req generateRequest, apiKey, baseURL, model string) (*Das
 		return nil, err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("openai http %d", resp.StatusCode)
+		body := strings.TrimSpace(string(respBody))
+		if body == "" {
+			return nil, fmt.Errorf("openai http %d", resp.StatusCode)
+		}
+		return nil, fmt.Errorf("openai http %d: %s", resp.StatusCode, truncate(body, 500))
 	}
 
 	var parsed openAIChatResponse
