@@ -162,6 +162,10 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		treeRoot.AddSection(connectionsSection)
 	}
 
+	if labsNode := s.getLabsNode(c); labsNode != nil {
+		treeRoot.AddSection(labsNode)
+	}
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {
@@ -193,6 +197,22 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 	}
 
 	return treeRoot, nil
+}
+
+func (s *ServiceImpl) getLabsNode(c *contextmodel.ReqContext) *navtree.NavLink {
+	hasAccess := ac.HasAccess(s.accessControl, c)
+	if !hasAccess(ac.EvalPermission(ac.ActionSettingsRead, ac.ScopeSettingsAll)) {
+		return nil
+	}
+
+	return &navtree.NavLink{
+		Text:       "Labs",
+		Id:         navtree.NavIDLabs,
+		SubTitle:   "Inspect Grafana feature flags and their current state",
+		Icon:       "rocket",
+		SortWeight: navtree.WeightLabs,
+		Url:        s.cfg.AppSubURL + "/labs",
+	}
 }
 
 func (s *ServiceImpl) getHomeNode(c *contextmodel.ReqContext, prefs *pref.Preference) *navtree.NavLink {

@@ -107,6 +107,18 @@ type ToggleStatus struct {
 	// Is the flag enabled
 	Enabled bool `json:"enabled"`
 
+	// Must be run using in development mode (early dev)
+	RequiresDevMode bool `json:"requiresDevMode,omitempty"`
+
+	// The flag behavior only affects frontend clients
+	FrontendOnly bool `json:"frontend,omitempty"`
+
+	// Do not show the flag in docs
+	HideFromDocs bool `json:"hideFromDocs,omitempty"`
+
+	// The flag is used at startup, so any change requires a restart
+	RequiresRestart bool `json:"requiresRestart,omitempty"`
+
 	// Can this flag be updated
 	Writeable bool `json:"writeable"`
 
