@@ -9,6 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
+	"github.com/grafana/grafana/pkg/api/routing"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	featuretoggleapi "github.com/grafana/grafana/pkg/services/featuremgmt/feature_toggle_api"
 	"github.com/grafana/grafana/pkg/setting"
@@ -26,7 +27,7 @@ func TestIntegrationHTTPServer_GetFeatureToggles(t *testing.T) {
 	require.NoError(t, err)
 
 	m, hs := setupTestEnvironment(t, cfg, features, nil, nil, nil)
-	m.Get("/api/admin/feature-toggles", hs.GetFeatureToggles)
+	m.Get("/api/admin/feature-toggles", routing.Wrap(hs.GetFeatureToggles))
 
 	recorder := httptest.NewRecorder()
 	req := httptest.NewRequest(http.MethodGet, "/api/admin/feature-toggles", nil)

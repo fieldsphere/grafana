@@ -4,12 +4,13 @@ import (
 	"net/http"
 	"sort"
 
+	"github.com/grafana/grafana/pkg/api/response"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	featuretoggleapi "github.com/grafana/grafana/pkg/services/featuremgmt/feature_toggle_api"
 )
 
-func (hs *HTTPServer) GetFeatureToggles(c *contextmodel.ReqContext) {
+func (hs *HTTPServer) GetFeatureToggles(c *contextmodel.ReqContext) response.Response {
 	c, span := hs.injectSpan(c, "api.GetFeatureToggles")
 	defer span.End()
 
@@ -46,7 +47,7 @@ func (hs *HTTPServer) GetFeatureToggles(c *contextmodel.ReqContext) {
 		}
 	}
 
-	c.JSON(http.StatusOK, featuretoggleapi.ResolvedToggleState{
+	return response.JSON(http.StatusOK, featuretoggleapi.ResolvedToggleState{
 		Enabled: enabled,
 		Toggles: statuses,
 	})
