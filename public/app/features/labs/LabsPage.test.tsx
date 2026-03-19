@@ -24,7 +24,7 @@ describe('LabsPage', () => {
     window.localStorage.clear();
   });
 
-  it('shows enabled runtime feature flags', () => {
+  it('shows only safe runtime feature flags', () => {
     config.featureToggles = {
       dashboardScene: true,
       queryServiceFromUI: true,
@@ -32,9 +32,9 @@ describe('LabsPage', () => {
 
     render(<LabsPage />);
 
-    expect(screen.getByText('dashboardScene')).toBeInTheDocument();
+    expect(screen.queryByText('dashboardScene')).not.toBeInTheDocument();
     expect(screen.getByText('queryServiceFromUI')).toBeInTheDocument();
-    expect(screen.getByText('2 enabled')).toBeInTheDocument();
+    expect(screen.getByText('1 enabled')).toBeInTheDocument();
   });
 
   it('loads and persists feature flag overrides to localStorage', async () => {

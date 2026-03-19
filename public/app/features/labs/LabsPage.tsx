@@ -10,6 +10,7 @@ import { Page } from 'app/core/components/Page/Page';
 const FEATURE_TOGGLE_STORAGE_KEY = 'grafana.featureToggles';
 const FEATURE_TOGGLE_NAME_SORTER = new Intl.Collator('en');
 const FEATURE_MANAGEMENT_WRITE_PERMISSION = 'featuremgmt.write';
+const SAFE_RUNTIME_FEATURE_FLAGS = new Set(['queryServiceFromUI']);
 
 type FeatureToggleMap = Record<string, boolean>;
 
@@ -43,7 +44,7 @@ function buildInitialFeatureToggleState(): FeatureToggleMap {
   const runtimeFeatureToggles: FeatureToggleMap = {};
 
   for (const [featureName, featureValue] of Object.entries(config.featureToggles)) {
-    if (typeof featureValue === 'boolean') {
+    if (typeof featureValue === 'boolean' && SAFE_RUNTIME_FEATURE_FLAGS.has(featureName)) {
       runtimeFeatureToggles[featureName] = featureValue;
     }
   }
@@ -76,7 +77,7 @@ export default function LabsPage() {
   }, [featureToggles, search]);
 
   const onToggleChange = (featureName: string, event: ChangeEvent<HTMLInputElement>) => {
-    if (!canWriteFeatureFlags) {
+    if (!canWriteFeatureFlags || !SAFE_RUNTIME_FEATURE_FLAGS.has(featureName)) {
       return;
     }
 
