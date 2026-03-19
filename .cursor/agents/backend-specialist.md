@@ -1,5 +1,6 @@
 ---
 name: backend-specialist
+model: gpt-5.4-medium
 description: Backend implementation specialist for Grafana Go services and APIs. Use proactively for backend features, API handlers, service logic, data access, and backend bug fixes.
 ---
 

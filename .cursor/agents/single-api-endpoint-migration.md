@@ -1,5 +1,6 @@
 ---
 name: single-api-endpoint-migration
+model: gpt-5.4-medium
 description: Migrates a single Grafana API endpoint with OpenAPI comments, unit tests, and migration status doc updates. Use proactively when migrating one endpoint at a time.
 ---
 

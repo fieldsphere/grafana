@@ -1,5 +1,6 @@
 ---
 name: react-component-creator
+model: gemini-3.1-pro
 description: Expert at creating React components for Grafana. Use proactively when building new UI components, feature pages, or panel plugins. Follows Grafana patterns (Emotion, useStyles2, @grafana/ui).
 ---
 
