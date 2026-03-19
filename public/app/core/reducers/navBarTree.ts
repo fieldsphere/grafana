@@ -21,13 +21,54 @@ function translateNav(navTree: NavModelItem[]): NavModelItem[] {
   });
 }
 
+function containsNavItem(navTree: NavModelItem[], itemId: string): boolean {
+  return navTree.some((navItem) => navItem.id === itemId || (navItem.children && containsNavItem(navItem.children, itemId)));
+}
+
+function insertLabsAtMatchingLevel(
+  navTree: NavModelItem[],
+  labsNavItem: NavModelItem
+): { navTree: NavModelItem[]; inserted: boolean } {
+  const connectionsIndex = navTree.findIndex((navItem) => navItem.id === 'connections');
+  const configIndex = navTree.findIndex((navItem) => navItem.id === 'cfg');
+
+  if (connectionsIndex > -1) {
+    const updatedNavTree = [...navTree];
+    updatedNavTree.splice(connectionsIndex + 1, 0, labsNavItem);
+    return { navTree: updatedNavTree, inserted: true };
+  }
+
+  if (configIndex > -1) {
+    const updatedNavTree = [...navTree];
+    updatedNavTree.splice(configIndex, 0, labsNavItem);
+    return { navTree: updatedNavTree, inserted: true };
+  }
+
+  for (const [index, navItem] of navTree.entries()) {
+    if (!navItem.children || navItem.children.length === 0) {
+      continue;
+    }
+
+    const { navTree: updatedChildren, inserted } = insertLabsAtMatchingLevel(navItem.children, labsNavItem);
+    if (!inserted) {
+      continue;
+    }
+
+    const updatedNavTree = [...navTree];
+    updatedNavTree[index] = { ...navItem, children: updatedChildren };
+    return { navTree: updatedNavTree, inserted: true };
+  }
+
+  return { navTree, inserted: false };
+}
+
 export function addLabsSectionToNav(
   navTree: NavModelItem[],
   isSignedIn = config.bootData?.user?.isSignedIn ?? false,
   appSubUrl = config.appSubUrl,
   canReadFeatureManagement = config.bootData?.user?.permissions?.['featuremgmt.read'] === true
 ): NavModelItem[] {
-  if (!isSignedIn || !canReadFeatureManagement || navTree.some((navItem) => navItem.id === 'labs')) {
+  if (!isSignedIn || !canReadFeatureManagement || containsNavItem(navTree, 'labs')) {
     return navTree;
   }
 
@@ -40,23 +81,12 @@ export function addLabsSectionToNav(
     isNew: true,
   };
 
-  const navTreeWithLabs = [...navTree];
-  const connectionsIndex = navTreeWithLabs.findIndex((navItem) => navItem.id === 'connections');
-  const configIndex = navTreeWithLabs.findIndex((navItem) => navItem.id === 'cfg');
-
-  if (connectionsIndex > -1) {
-    const insertionIndex = connectionsIndex + 1;
-    navTreeWithLabs.splice(insertionIndex, 0, labsNavItem);
+  const { navTree: navTreeWithLabs, inserted } = insertLabsAtMatchingLevel(navTree, labsNavItem);
+  if (inserted) {
     return navTreeWithLabs;
   }
 
-  if (configIndex > -1) {
-    navTreeWithLabs.splice(configIndex, 0, labsNavItem);
-    return navTreeWithLabs;
-  }
-
-  navTreeWithLabs.push(labsNavItem);
-  return navTreeWithLabs;
+  return [...navTree, labsNavItem];
 }
 
 // this matches the prefix set in the backend navtree
