@@ -1,0 +1,37 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "app",
+  "name": "Auto Dashboard Creator",
+  "id": "grafana-auto-dashboard-app",
+  "backend": true,
+  "executable": "gpx_grafana_auto_dashboard_app",
+  "info": {
+    "keywords": ["app", "dashboard", "ai"],
+    "description": "Generate Grafana dashboards from natural language via a validated spec.",
+    "author": {
+      "name": "Grafana"
+    },
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "includes": [
+    {
+      "type": "page",
+      "name": "Auto Dashboard Creator",
+      "path": "/a/grafana-auto-dashboard-app/create",
+      "role": "Editor",
+      "addToNav": true,
+      "defaultNav": true
+    }
+  ],
+  "dependencies": {
+    "grafanaDependency": ">=12.0.0",
+    "plugins": []
+  },
+  "languages": ["en-US"]
+}

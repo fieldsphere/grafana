@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://grafana.com/schemas/auto-dashboard/v1",
+  "title": "DashboardSpec",
+  "type": "object",
+  "required": ["title", "panels"],
+  "additionalProperties": false,
+  "properties": {
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "maxItems": 32
+    },
+    "panels": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 24,
+      "items": {
+        "type": "object",
+        "required": ["title", "type", "datasourceUid", "query"],
+        "additionalProperties": false,
+        "properties": {
+          "title": { "type": "string", "minLength": 1 },
+          "type": { "type": "string", "enum": ["timeseries", "stat"] },
+          "datasourceUid": { "type": "string", "minLength": 1 },
+          "query": { "type": "string", "minLength": 1 },
+          "unit": { "type": "string" },
+          "legendFormat": { "type": "string" }
+        }
+      }
+    }
+  }
+}
