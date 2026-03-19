@@ -13,10 +13,10 @@ import (
 )
 
 type generateRequest struct {
-	Prompt       string          `json:"prompt"`
-	Datasources  []dsRef         `json:"datasources"`
-	MaxPanels    int             `json:"maxPanels"`
-	MetricHints  []string        `json:"metricHints,omitempty"`
+	Prompt      string   `json:"prompt"`
+	Datasources []dsRef  `json:"datasources"`
+	MaxPanels   int      `json:"maxPanels"`
+	MetricHints []string `json:"metricHints,omitempty"`
 }
 
 type dsRef struct {
@@ -102,7 +102,7 @@ func callOpenAIForSpec(req generateRequest, apiKey, baseURL, model string) (*Das
 		return nil, err
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return nil, fmt.Errorf("openai http %d: %s", resp.StatusCode, string(respBody))
+		return nil, fmt.Errorf("openai http %d", resp.StatusCode)
 	}
 
 	var parsed openAIChatResponse

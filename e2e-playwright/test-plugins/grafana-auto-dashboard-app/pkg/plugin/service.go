@@ -60,7 +60,7 @@ func (s *service) CallResource(ctx context.Context, req *backend.CallResourceReq
 		spec, err = callOpenAIForSpec(genReq, key, base, model)
 		if err != nil {
 			s.logger.Error("llm call failed", "error", err)
-			return s.jsonErr(sender, http.StatusBadGateway, err.Error())
+			return s.jsonErr(sender, http.StatusBadGateway, "failed to generate dashboard spec")
 		}
 	}
 

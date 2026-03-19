@@ -9,7 +9,7 @@ import {
 
 import { DashboardSpec } from '../spec/types';
 
-const COLS = 12;
+const COLS = 24;
 const TS_H = 8;
 const STAT_H = 4;
 
@@ -152,7 +152,7 @@ export function specToDashboard(spec: DashboardSpec, datasourceTypes: Record<str
   let y = 0;
   let id = 1;
 
-  // Simple 2-column layout for timeseries; stats in a row of 3
+  // Timeseries are full width; stats are placed 3 per row
   let col = 0;
   for (const p of spec.panels) {
     const dsType = datasourceTypes[p.datasourceUid];
@@ -161,7 +161,7 @@ export function specToDashboard(spec: DashboardSpec, datasourceTypes: Record<str
     }
 
     if (p.type === 'stat') {
-      const w = 4;
+      const w = 8;
       const x = col * w;
       panels.push(
         buildStatPanel(id++, { h: STAT_H, w, x, y }, p.title, p.datasourceUid, dsType, p.query, p.unit)
