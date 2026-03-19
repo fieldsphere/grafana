@@ -19,10 +19,11 @@ func TestIntegrationHTTPServer_GetFeatureToggles(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
 	cfg := setting.NewCfg()
-	features := featuremgmt.WithFeatures(
-		featuremgmt.FlagPanelTitleSearch, true,
-		featuremgmt.FlagStorage, false,
-	)
+	cfg.Raw.Section("feature_toggles").Key(featuremgmt.FlagPanelTitleSearch).SetValue("true")
+	cfg.Raw.Section("feature_toggles").Key(featuremgmt.FlagStorage).SetValue("false")
+
+	features, err := featuremgmt.ProvideManagerService(cfg)
+	require.NoError(t, err)
 
 	m, hs := setupTestEnvironment(t, cfg, features, nil, nil, nil)
 	m.Get("/api/admin/feature-toggles", hs.GetFeatureToggles)
@@ -45,10 +46,10 @@ func TestIntegrationHTTPServer_GetFeatureToggles(t *testing.T) {
 	assert.False(t, response.Enabled[featuremgmt.FlagStorage])
 
 	assert.True(t, toggles[featuremgmt.FlagPanelTitleSearch].Enabled)
-	assert.Equal(t, "unknown", toggles[featuremgmt.FlagPanelTitleSearch].Stage)
-	assert.Empty(t, toggles[featuremgmt.FlagPanelTitleSearch].Description)
+	assert.Equal(t, "preview", toggles[featuremgmt.FlagPanelTitleSearch].Stage)
+	assert.NotEmpty(t, toggles[featuremgmt.FlagPanelTitleSearch].Description)
 
 	assert.False(t, toggles[featuremgmt.FlagStorage].Enabled)
-	assert.Equal(t, "unknown", toggles[featuremgmt.FlagStorage].Stage)
-	assert.Empty(t, toggles[featuremgmt.FlagStorage].Description)
+	assert.Equal(t, "experimental", toggles[featuremgmt.FlagStorage].Stage)
+	assert.NotEmpty(t, toggles[featuremgmt.FlagStorage].Description)
 }

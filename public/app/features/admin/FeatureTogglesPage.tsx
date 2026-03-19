@@ -27,7 +27,7 @@ export default function FeatureTogglesPage() {
     []
   );
 
-  const toggles = value?.toggles ?? [];
+  const toggles = useMemo(() => value?.toggles ?? [], [value]);
   const filteredToggles = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
     if (!normalizedQuery) {
@@ -71,15 +71,11 @@ export default function FeatureTogglesPage() {
             placeholder={t('admin.feature-toggles-page.search-placeholder', 'Filter by name, description, or stage')}
           />
           <div className={styles.summary}>
-            {t(
-              'admin.feature-toggles-page.summary',
-              '{{shown}} of {{total}} toggles shown - {{enabled}} enabled',
-              {
-                shown: filteredToggles.length,
-                total: toggles.length,
-                enabled: enabledCount,
-              }
-            )}
+            {t('admin.feature-toggles-page.summary', '{{shown}} of {{total}} toggles shown - {{enabled}} enabled', {
+              shown: filteredToggles.length,
+              total: toggles.length,
+              enabled: enabledCount,
+            })}
           </div>
         </div>
 
@@ -90,7 +86,10 @@ export default function FeatureTogglesPage() {
         )}
 
         {error && !loading && (
-          <Alert severity="warning" title={t('admin.feature-toggles-page.error-title', 'Failed to load feature toggles')}>
+          <Alert
+            severity="warning"
+            title={t('admin.feature-toggles-page.error-title', 'Failed to load feature toggles')}
+          >
             {formatError(error)}
           </Alert>
         )}
@@ -121,7 +120,11 @@ export default function FeatureTogglesPage() {
                     <td>
                       <Badge
                         color={toggle.enabled ? 'green' : 'red'}
-                        text={toggle.enabled ? t('admin.feature-toggles-page.badge.enabled', 'Enabled') : t('admin.feature-toggles-page.badge.disabled', 'Disabled')}
+                        text={
+                          toggle.enabled
+                            ? t('admin.feature-toggles-page.badge.enabled', 'Enabled')
+                            : t('admin.feature-toggles-page.badge.disabled', 'Disabled')
+                        }
                       />
                     </td>
                     <td>
