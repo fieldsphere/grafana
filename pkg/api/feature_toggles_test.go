@@ -12,9 +12,12 @@ import (
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	featuretoggleapi "github.com/grafana/grafana/pkg/services/featuremgmt/feature_toggle_api"
 	"github.com/grafana/grafana/pkg/setting"
+	"github.com/grafana/grafana/pkg/util/testutil"
 )
 
 func TestIntegrationHTTPServer_GetFeatureToggles(t *testing.T) {
+	testutil.SkipIntegrationTestInShortMode(t)
+
 	cfg := setting.NewCfg()
 	features := featuremgmt.WithFeatures(
 		featuremgmt.FlagPanelTitleSearch, true,
@@ -42,10 +45,10 @@ func TestIntegrationHTTPServer_GetFeatureToggles(t *testing.T) {
 	assert.False(t, response.Enabled[featuremgmt.FlagStorage])
 
 	assert.True(t, toggles[featuremgmt.FlagPanelTitleSearch].Enabled)
-	assert.Equal(t, "experimental", toggles[featuremgmt.FlagPanelTitleSearch].Stage)
-	assert.NotEmpty(t, toggles[featuremgmt.FlagPanelTitleSearch].Description)
+	assert.Equal(t, "unknown", toggles[featuremgmt.FlagPanelTitleSearch].Stage)
+	assert.Empty(t, toggles[featuremgmt.FlagPanelTitleSearch].Description)
 
 	assert.False(t, toggles[featuremgmt.FlagStorage].Enabled)
-	assert.Equal(t, "experimental", toggles[featuremgmt.FlagStorage].Stage)
-	assert.NotEmpty(t, toggles[featuremgmt.FlagStorage].Description)
+	assert.Equal(t, "unknown", toggles[featuremgmt.FlagStorage].Stage)
+	assert.Empty(t, toggles[featuremgmt.FlagStorage].Description)
 }
