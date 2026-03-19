@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -62,7 +63,7 @@ func extractJSON(content string) string {
 	return s
 }
 
-func callOpenAIForSpec(req generateRequest, apiKey, baseURL, model string) (*DashboardSpec, error) {
+func callOpenAIForSpec(ctx context.Context, req generateRequest, apiKey, baseURL, model string) (*DashboardSpec, error) {
 	if apiKey == "" {
 		return nil, errors.New("OPENAI_API_KEY is not set")
 	}
@@ -89,7 +90,7 @@ func callOpenAIForSpec(req generateRequest, apiKey, baseURL, model string) (*Das
 		return nil, err
 	}
 
-	httpReq, err := http.NewRequest(http.MethodPost, strings.TrimSuffix(baseURL, "/")+"/chat/completions", bytes.NewReader(raw))
+	httpReq, err := http.NewRequestWithContext(ctx, http.MethodPost, strings.TrimSuffix(baseURL, "/")+"/chat/completions", bytes.NewReader(raw))
 	if err != nil {
 		return nil, err
 	}
