@@ -21,12 +21,80 @@ function translateNav(navTree: NavModelItem[]): NavModelItem[] {
   });
 }
 
+function containsNavItem(navTree: NavModelItem[], itemId: string): boolean {
+  return navTree.some((navItem) => navItem.id === itemId || (navItem.children && containsNavItem(navItem.children, itemId)));
+}
+
+function insertLabsAtMatchingLevel(
+  navTree: NavModelItem[],
+  labsNavItem: NavModelItem
+): { navTree: NavModelItem[]; inserted: boolean } {
+  const connectionsIndex = navTree.findIndex((navItem) => navItem.id === 'connections');
+  const configIndex = navTree.findIndex((navItem) => navItem.id === 'cfg');
+
+  if (connectionsIndex > -1) {
+    const updatedNavTree = [...navTree];
+    updatedNavTree.splice(connectionsIndex + 1, 0, labsNavItem);
+    return { navTree: updatedNavTree, inserted: true };
+  }
+
+  if (configIndex > -1) {
+    const updatedNavTree = [...navTree];
+    updatedNavTree.splice(configIndex, 0, labsNavItem);
+    return { navTree: updatedNavTree, inserted: true };
+  }
+
+  for (const [index, navItem] of navTree.entries()) {
+    if (!navItem.children || navItem.children.length === 0) {
+      continue;
+    }
+
+    const { navTree: updatedChildren, inserted } = insertLabsAtMatchingLevel(navItem.children, labsNavItem);
+    if (!inserted) {
+      continue;
+    }
+
+    const updatedNavTree = [...navTree];
+    updatedNavTree[index] = { ...navItem, children: updatedChildren };
+    return { navTree: updatedNavTree, inserted: true };
+  }
+
+  return { navTree, inserted: false };
+}
+
+export function addLabsSectionToNav(
+  navTree: NavModelItem[],
+  isSignedIn = config.bootData?.user?.isSignedIn ?? false,
+  appSubUrl = config.appSubUrl,
+  canReadFeatureManagement = config.bootData?.user?.permissions?.['featuremgmt.read'] === true
+): NavModelItem[] {
+  if (!isSignedIn || !canReadFeatureManagement || containsNavItem(navTree, 'labs')) {
+    return navTree;
+  }
+
+  const labsNavItem: NavModelItem = {
+    id: 'labs',
+    text: getNavTitle('labs') ?? 'Labs',
+    subTitle: getNavSubTitle('labs') ?? 'View and control feature flags for this app',
+    icon: 'flask',
+    url: `${appSubUrl}/labs`,
+    isNew: true,
+  };
+
+  const { navTree: navTreeWithLabs, inserted } = insertLabsAtMatchingLevel(navTree, labsNavItem);
+  if (inserted) {
+    return navTreeWithLabs;
+  }
+
+  return [...navTree, labsNavItem];
+}
+
 // this matches the prefix set in the backend navtree
 export const ID_PREFIX = 'starred/';
 
 const navTreeSlice = createSlice({
   name: 'navBarTree',
-  initialState: () => translateNav(config.bootData?.navTree ?? []),
+  initialState: () => addLabsSectionToNav(translateNav(config.bootData?.navTree ?? [])),
   reducers: {
     setStarred: (state, action: PayloadAction<{ id: string; title: string; url: string; isStarred: boolean }>) => {
       const starredItems = state.find((navItem) => navItem.id === 'starred');
