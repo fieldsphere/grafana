@@ -317,16 +317,16 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
   }
 }
 
+// Although most flags can not be changed from the URL in production,
+// some of them are safe (and useful!) to change dynamically from the browser.
+export const safeRuntimeFeatureFlags = new Set(['queryServiceFromUI']);
+
 function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
   if (window.location.href.indexOf('__feature') === -1) {
     return;
   }
 
   const isDevelopment = config.buildInfo.env === 'development';
-
-  // Although most flags can not be changed from the URL in production,
-  // some of them are safe (and useful!) to change dynamically from the browser URL
-  const safeRuntimeFeatureFlags = new Set(['queryServiceFromUI']);
 
   const params = new URLSearchParams(window.location.search);
   params.forEach((value, key) => {
