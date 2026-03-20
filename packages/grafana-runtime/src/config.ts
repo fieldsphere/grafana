@@ -319,7 +319,11 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
 
 // Although most flags can not be changed from the URL in production,
 // some of them are safe (and useful!) to change dynamically from the browser.
-export const safeRuntimeFeatureFlags = new Set(['queryServiceFromUI']);
+const safeRuntimeFeatureFlags = new Set(['queryServiceFromUI']);
+
+export function isSafeRuntimeFeatureFlag(featureName: string): boolean {
+  return safeRuntimeFeatureFlags.has(featureName);
+}
 
 function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
   if (window.location.href.indexOf('__feature') === -1) {
@@ -336,7 +340,7 @@ function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
 
       const toggleState = value === 'true' || value === ''; // browser rewrites true as ''
       if (toggleState !== featureToggles[key]) {
-        if (isDevelopment || safeRuntimeFeatureFlags.has(featureName)) {
+        if (isDevelopment || isSafeRuntimeFeatureFlag(featureName)) {
           featureToggles[featureName] = toggleState;
           console.log(`Setting feature toggle ${featureName} = ${toggleState} via url`);
         } else {

@@ -3,7 +3,7 @@ import { ChangeEvent, useMemo, useState } from 'react';
 
 import { GrafanaTheme2, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, safeRuntimeFeatureFlags } from '@grafana/runtime';
+import { config, isSafeRuntimeFeatureFlag } from '@grafana/runtime';
 import { Alert, Badge, Button, Input, Stack, Switch, Text, useStyles2 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 
@@ -43,7 +43,7 @@ function buildInitialFeatureToggleState(): FeatureToggleMap {
   const runtimeFeatureToggles: FeatureToggleMap = {};
 
   for (const [featureName, featureValue] of Object.entries(config.featureToggles)) {
-    if (typeof featureValue === 'boolean' && safeRuntimeFeatureFlags.has(featureName)) {
+    if (typeof featureValue === 'boolean' && isSafeRuntimeFeatureFlag(featureName)) {
       runtimeFeatureToggles[featureName] = featureValue;
     }
   }
@@ -76,7 +76,7 @@ export default function LabsPage() {
   }, [featureToggles, search]);
 
   const onToggleChange = (featureName: string, event: ChangeEvent<HTMLInputElement>) => {
-    if (!canWriteFeatureFlags || !safeRuntimeFeatureFlags.has(featureName)) {
+    if (!canWriteFeatureFlags || !isSafeRuntimeFeatureFlag(featureName)) {
       return;
     }
 
