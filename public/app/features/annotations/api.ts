@@ -108,17 +108,12 @@ const buildAnnotationFieldSelector = (params: Record<string, unknown>) => {
   const selectors: string[] = [];
   const dashboardUID = typeof params.dashboardUID === 'string' ? params.dashboardUID : undefined;
   const panelId = asNumber(params.panelId);
-  const from = asNumber(params.from);
-  const to = asNumber(params.to);
 
   if (dashboardUID) {
     selectors.push(`spec.dashboardUID=${dashboardUID}`);
   }
   if (panelId !== undefined) {
     selectors.push(`spec.panelID=${panelId}`);
-  }
-  if (from !== undefined && to !== undefined) {
-    selectors.push(`spec.time=${from}`, `spec.timeEnd=${to}`);
   }
 
   return selectors.length > 0 ? selectors.join(',') : undefined;

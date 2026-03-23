@@ -89,7 +89,7 @@ describe('annotationServer', () => {
       expect.objectContaining({
         limit: 500,
         continue: undefined,
-        fieldSelector: 'spec.dashboardUID=dash-1,spec.panelID=7,spec.time=10,spec.timeEnd=40',
+        fieldSelector: 'spec.dashboardUID=dash-1,spec.panelID=7',
       }),
       'query-1'
     );
