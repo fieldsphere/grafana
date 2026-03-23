@@ -68,6 +68,32 @@ describe('annotationServer', () => {
     );
   });
 
+  it('preserves generated kubernetes names when updating annotations', async () => {
+    mockConfig.featureToggles.kubernetesAnnotations = true;
+    mockBackendSrv.post.mockResolvedValue({
+      metadata: { name: 'a-9m2p5' },
+      spec: { text: 'created', time: 10, timeEnd: 0, tags: [] },
+    });
+    mockBackendSrv.patch.mockResolvedValue({});
+    mockBackendSrv.get.mockResolvedValue({
+      metadata: { name: 'a-9m2p5' },
+      spec: { text: 'updated', time: 10, timeEnd: 0, tags: [] },
+    });
+
+    const { annotationServer } = await import('./api');
+    const created = await annotationServer().save({ text: 'created', time: 10 } as AnnotationEvent);
+    await annotationServer().update({ ...created, text: 'updated' });
+
+    expect(created.id).toBe('a-9m2p5');
+    expect(mockBackendSrv.patch).toHaveBeenCalledWith(
+      '/apis/annotation.grafana.app/v0alpha1/namespaces/default/annotations/a-9m2p5',
+      expect.any(Object)
+    );
+    expect(mockBackendSrv.get).toHaveBeenLastCalledWith(
+      '/apis/annotation.grafana.app/v0alpha1/namespaces/default/annotations/a-9m2p5'
+    );
+  });
+
   it('uses field selectors for kubernetes annotation queries', async () => {
     mockConfig.featureToggles.kubernetesAnnotations = true;
     mockBackendSrv.get.mockResolvedValue({

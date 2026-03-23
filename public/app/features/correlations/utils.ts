@@ -23,7 +23,8 @@ type DataFrameRefIdToDataSourceUid = Record<string, string>;
 
 interface CorrelationK8sListResponse {
   items: CorrelationK8s[];
-  metadata: {
+  metadata?: {
+    continue?: string;
     remainingItemCount?: number;
   };
 }
@@ -164,10 +165,19 @@ const fixLokiDataplaneFields = (correlations: CorrelationData[], dataFrame: Data
 
 export const getCorrelationsBySourceUIDs = async (sourceUIDs: string[]): Promise<CorrelationsData> => {
   if (config.featureToggles.kubernetesCorrelations) {
-    const response = await getBackendSrv().get<CorrelationK8sListResponse>(k8sCorrelationsURL(), {
-      limit: 1000,
-    });
-    const correlations = response.items
+    const items: CorrelationK8s[] = [];
+    let continueToken: string | undefined;
+
+    do {
+      const response = await getBackendSrv().get<CorrelationK8sListResponse>(k8sCorrelationsURL(), {
+        limit: 1000,
+        continue: continueToken,
+      });
+      items.push(...(response.items ?? []));
+      continueToken = response.metadata?.continue;
+    } while (continueToken);
+
+    const correlations = items
       .map(toEnrichedCorrelationDataFromK8s)
       .filter((correlation): correlation is CorrelationData => correlation !== undefined)
       .filter((correlation) => sourceUIDs.includes(correlation.source.uid));

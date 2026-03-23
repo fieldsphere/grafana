@@ -57,8 +57,9 @@ const annotationIDFromName = (name?: string): number | string | undefined => {
   }
 
   if (name.startsWith('a-')) {
-    const parsed = Number.parseInt(name.slice(2), 10);
-    if (!Number.isNaN(parsed)) {
+    const suffix = name.slice(2);
+    const parsed = Number.parseInt(suffix, 10);
+    if (/^\d+$/.test(suffix) && !Number.isNaN(parsed) && String(parsed) === suffix) {
       return parsed;
     }
   }
