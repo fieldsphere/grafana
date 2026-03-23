@@ -2,6 +2,7 @@ import { lastValueFrom } from 'rxjs';
 
 import { Correlation as CorrelationK8s } from '@grafana/api-clients/rtkq/correlations/v0alpha1';
 import { DataFrame, DataLinkConfigOrigin } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import {
   config,
   CorrelationData,
@@ -200,7 +201,7 @@ export const createCorrelation = async (
   if (config.featureToggles.kubernetesCorrelations) {
     const created = await getBackendSrv().post<CorrelationK8s>(k8sCorrelationsURL(), toK8sCorrelationPayload(correlation));
     return {
-      message: 'Correlation created',
+      message: t('correlations.message.created', 'Correlation created'),
       result: {
         ...correlation,
         sourceUID,
