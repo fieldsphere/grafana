@@ -47,9 +47,26 @@ function safeSerialize(value: unknown): string {
 }
 
 function argsToLogContext(args: readonly unknown[]): LogContext {
-  const ctx: Record<string, string> = {};
+  const ctx: Record<string, string> = {
+    argCount: String(args.length),
+  };
   args.forEach((arg, i) => {
-    ctx[`arg${i}`] = safeSerialize(arg);
+    if (arg === null) {
+      ctx[`arg${i}Type`] = 'null';
+      return;
+    }
+
+    if (Array.isArray(arg)) {
+      ctx[`arg${i}Type`] = 'array';
+      return;
+    }
+
+    if (arg instanceof Error) {
+      ctx[`arg${i}Type`] = `error:${arg.name}`;
+      return;
+    }
+
+    ctx[`arg${i}Type`] = typeof arg;
   });
   return ctx;
 }
@@ -69,6 +86,15 @@ function primaryMessage(args: unknown[]): string {
     return args[0];
   }
   return deriveMessage(args);
+}
+
+function remoteErrorMessage(args: unknown[]): string {
+  const explicitMessage = args.find((arg): arg is string => typeof arg === 'string' && arg.length > 0);
+  if (explicitMessage) {
+    return explicitMessage;
+  }
+
+  return 'Structured logger captured an error';
 }
 
 function passthrough(
@@ -153,7 +179,7 @@ export const structuredLogger = {
     const error = args[0] instanceof Error ? args[0] : new Error(deriveMessage(args));
 
     try {
-      faroLogger.logError(error, context);
+      faroLogger.logError(new Error(remoteErrorMessage(args)), context);
     } catch {
       // Logging transport failures should never break application behavior.
     }

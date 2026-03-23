@@ -401,16 +401,3 @@ export function changeAnonPage(page: number): ThunkResult<void> {
     dispatch(fetchUsersAnonymousDevices());
   };
 }
-
-// export function fetchUsersAnonymousDevices(): ThunkResult<void> {
-//   return async (dispatch, getState) => {
-//     try {
-//       let url = `/api/anonymous/devices`;
-//       const result = await getBackendSrv().get(url);
-//       dispatch(usersAnonymousDevicesFetched({ devices: result }));
-//     } catch (error) {
-//       usersFetchEnd();
-//       structuredLogger.error(error);
-//     }
-//   };
-// }
