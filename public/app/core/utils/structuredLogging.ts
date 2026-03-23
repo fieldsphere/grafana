@@ -3,10 +3,6 @@ import { createMonitoringLogger } from '@grafana/runtime';
 
 const faroLogger = createMonitoringLogger('app.core.structured');
 
-function shouldPassthroughToConsole(): boolean {
-  return true;
-}
-
 function getCircularReplacer() {
   const seen = new WeakSet<object>();
   return (_key: string, value: unknown) => {
@@ -79,9 +75,6 @@ function passthrough(
   method: 'log' | 'info' | 'warn' | 'error' | 'debug' | 'dir' | 'trace' | 'table',
   args: unknown[]
 ): void {
-  if (!shouldPassthroughToConsole()) {
-    return;
-  }
   switch (method) {
     case 'log':
       // Intentional console passthrough for local debugging (dev/test only).
@@ -155,13 +148,17 @@ export const structuredLogger = {
     passthrough('table', args);
   },
 
-  error: (...args: unknown[]) => {
+  error: (...args: unknown[]): Error => {
     const context = argsToLogContext(args);
-    if (args[0] instanceof Error) {
-      faroLogger.logError(args[0], context);
-    } else {
-      faroLogger.logError(new Error(deriveMessage(args)), context);
+    const error = args[0] instanceof Error ? args[0] : new Error(deriveMessage(args));
+
+    try {
+      faroLogger.logError(error, context);
+    } catch {
+      // Logging transport failures should never break application behavior.
     }
+
     passthrough('error', args);
+    return error;
   },
 };
