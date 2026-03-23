@@ -4,7 +4,7 @@ This repository fork uses a **minimal GitHub Actions workflow** ([`.github/workf
 
 ## What runs in CI
 
-- **Backend:** `CGO_ENABLED=0 go test -short -timeout=40m ./...` from the repo root (Go workspace).
+- **Backend:** `CGO_ENABLED=0 go test -short -timeout=40m work` from the repo root (Go workspace).
 - **Frontend:** `yarn run prettier:check`, `yarn run lint`, `yarn run typecheck` (same commands as the upstream fork path in the old `frontend-lint` workflow).
 
 Fork-local paths (`.cursor/`, `.vscode/`, and root `manifest.json`) are listed in [`.prettierignore`](../.prettierignore) so `prettier:check` matches upstream expectations without formatting IDE tooling.

@@ -35,7 +35,7 @@ jobs:
             go.sum
             **/*.sum
       - name: Run Go unit tests
-        run: CGO_ENABLED=0 go test -short -timeout=40m ./...
+        run: CGO_ENABLED=0 go test -short -timeout=40m work
 
   frontend:
     name: Frontend lint and typecheck
