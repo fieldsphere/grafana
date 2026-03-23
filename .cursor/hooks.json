@@ -1,10 +1,28 @@
 {
   "version": 1,
   "hooks": {
+    "sessionEnd": [
+      {
+        "command": "./hooks/audit.sh"
+      }
+    ],
     "beforeShellExecution": [
       {
         "command": ".cursor/hooks/enforce-fieldsphere-gh.sh",
         "matcher": "(^|\\s)gh(\\s|$)"
+      },
+      {
+        "command": "./hooks/audit.sh"
+      }
+    ],
+    "afterFileEdit": [
+      {
+        "command": "./hooks/audit.sh"
+      }
+    ],
+    "beforeSubmitPrompt": [
+      {
+        "command": "./hooks/audit.sh"
       }
     ]
   }
