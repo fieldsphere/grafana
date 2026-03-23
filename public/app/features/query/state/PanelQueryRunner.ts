@@ -32,6 +32,7 @@ import {
 } from '@grafana/data';
 import { toDataQueryError } from '@grafana/runtime';
 import { ExpressionDatasourceRef } from '@grafana/runtime/internal';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { isStreamingDataFrame } from 'app/features/live/data/utils';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 import { getTemplateSrv } from 'app/features/templating/template_srv';
@@ -257,7 +258,7 @@ export class PanelQueryRunner {
         return { ...data, series, annotations };
       }),
       catchError((err) => {
-        console.warn('Error running transformation:', err);
+        structuredLogger.warn('Error running transformation:', err);
         return of({
           ...data,
           state: LoadingState.Error,

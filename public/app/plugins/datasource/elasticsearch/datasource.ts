@@ -48,6 +48,7 @@ import {
   getTemplateSrv,
   config,
 } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { IndexPattern, intervalMap } from './IndexPattern';
 import LanguageProvider from './LanguageProvider';
@@ -1172,12 +1173,12 @@ export class ElasticDatasource
         try {
           return new SemVer(versionNumber);
         } catch (error) {
-          console.error(error);
+          structuredLogger.error(error);
           return null;
         }
       },
       (error) => {
-        console.error(error);
+        structuredLogger.error(error);
         return null;
       }
     );

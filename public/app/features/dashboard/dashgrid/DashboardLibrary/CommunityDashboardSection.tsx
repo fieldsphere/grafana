@@ -7,6 +7,7 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { Button, useStyles2, Stack, Grid, EmptyState, Alert, FilterInput, Box } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { DashboardCard } from './DashboardCard';
 import { MappingContext } from './SuggestedDashboardsModal';
@@ -97,7 +98,7 @@ export const CommunityDashboardSection = ({ onShowMapping, datasourceType }: Pro
         datasourceType: ds.type,
       };
     } catch (err) {
-      console.error('Error loading community dashboards', err);
+      structuredLogger.error('Error loading community dashboards', err);
       throw err;
     }
   }, [datasourceUid, debouncedSearchQuery]);

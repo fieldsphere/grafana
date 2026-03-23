@@ -24,6 +24,7 @@ import { PromQuery } from '@grafana/prometheus';
 import { getTemplateSrv } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
 import { Icon } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 
 import { LokiQuery } from '../../../plugins/datasource/loki/types';
@@ -123,7 +124,7 @@ export function createSpanLinkFactory({
         spanLinks.push.apply(spanLinks, newSpanLinks);
       } catch (error) {
         // It's fairly easy to crash here for example if data source defines wrong interpolation in the data link
-        console.error(error);
+        structuredLogger.error(error);
         return spanLinks;
       }
     }

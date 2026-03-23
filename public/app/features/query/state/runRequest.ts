@@ -21,6 +21,7 @@ import {
 import { config, isMigrationHandler, migrateRequest, toDataQueryError, isExpressionReference } from '@grafana/runtime';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { queryIsEmpty } from 'app/core/utils/query';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { dataSource as expressionDatasource } from 'app/features/expressions/ExpressionDatasource';
 import { ExpressionQuery } from 'app/features/expressions/types';
 
@@ -163,7 +164,7 @@ export function runRequest(
     }),
     // handle errors
     catchError((err) => {
-      console.error('runRequest.catchError', err);
+      structuredLogger.error('runRequest.catchError', err);
       queryLogger.logError(err);
       return of({
         ...state.panelData,

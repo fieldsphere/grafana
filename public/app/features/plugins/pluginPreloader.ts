@@ -5,6 +5,7 @@ import type {
   PluginExtensionAddedComponentConfig,
 } from '@grafana/data';
 import { contextSrv } from 'app/core/services/context_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { getPluginSettings } from 'app/features/plugins/pluginSettings';
 
 import { pluginImporter } from './importer/pluginImporter';
@@ -46,6 +47,6 @@ async function preload(config: AppPluginConfig): Promise<void> {
       return;
     }
 
-    console.error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
+    structuredLogger.error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
   }
 }

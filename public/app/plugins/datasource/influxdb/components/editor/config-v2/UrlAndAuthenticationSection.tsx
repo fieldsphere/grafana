@@ -17,6 +17,7 @@ import {
   Alert,
   useStyles2,
 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { InfluxVersion } from '../../../types';
 
@@ -104,7 +105,7 @@ export const UrlAndAuthenticationSection = (props: Props) => {
         }
       }
     } catch (err) {
-      console.error('Failed to get InfluxDB version:', err);
+      structuredLogger.error('Failed to get InfluxDB version:', err);
     }
 
     return { product: undefined, version: undefined };

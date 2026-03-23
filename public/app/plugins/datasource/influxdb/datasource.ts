@@ -36,6 +36,7 @@ import {
 } from '@grafana/runtime';
 import { QueryFormat, SQLQuery } from '@grafana/sql';
 import config from 'app/core/config';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { AnnotationEditor } from './components/editor/annotation/AnnotationEditor';
 import { FluxQueryEditor } from './components/editor/query/flux/FluxQueryEditor';
@@ -388,7 +389,7 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
         // then put inside parenthesis.
         return typeof value === 'string' ? escapeRegex(value) : `(${value.map((v) => escapeRegex(v)).join('|')})`;
       } catch (e) {
-        console.warn(`Supplied match is not valid regex: ${match}`);
+        structuredLogger.warn(`Supplied match is not valid regex: ${match}`);
       }
     }
 

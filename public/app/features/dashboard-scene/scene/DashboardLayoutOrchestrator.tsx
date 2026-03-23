@@ -14,6 +14,7 @@ import {
   SceneGridItemLike,
 } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { getLayoutType } from 'app/features/dashboard/utils/tracking';
 
 import { DashboardInteractions } from '../utils/interactions';
@@ -203,7 +204,7 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
             }
           } else {
             const warningMessage = 'No grid item to drag';
-            console.warn(warningMessage);
+            structuredLogger.warn(warningMessage);
             logWarning(warningMessage);
           }
         });

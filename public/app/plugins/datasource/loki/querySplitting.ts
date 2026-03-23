@@ -14,6 +14,7 @@ import {
   TimeRange,
 } from '@grafana/data';
 import { config } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { LokiQueryType, LokiQueryDirection } from './dataquery.gen';
 import { LokiDatasource } from './datasource';
@@ -173,7 +174,7 @@ export function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        structuredLogger.error(e);
         shouldStop = true;
         return false;
       }

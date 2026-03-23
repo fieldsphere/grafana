@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { NavModel, NavModelItem, PageLayoutType } from '@grafana/data';
 import { SceneComponentProps, SceneObjectBase, SceneVariable, SceneVariables, sceneGraph } from '@grafana/scenes';
 import { Page } from 'app/core/components/Page/Page';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { DashboardScene } from '../scene/DashboardScene';
 import { NavToolbarActions } from '../scene/NavToolbarActions';
@@ -58,7 +59,7 @@ export class VariablesEditView extends SceneObjectBase<VariablesEditViewState> i
 
     if (!variable) {
       // Handle the case where the variable is not found
-      console.error('Variable not found');
+      structuredLogger.error('Variable not found');
       return;
     }
 
@@ -74,7 +75,7 @@ export class VariablesEditView extends SceneObjectBase<VariablesEditViewState> i
     const { variables } = this.getVariableSet().state;
     if (variableIndex === -1) {
       // Handle the case where the variable is not found
-      console.error('Variable not found');
+      structuredLogger.error('Variable not found');
       return;
     }
 
@@ -96,7 +97,7 @@ export class VariablesEditView extends SceneObjectBase<VariablesEditViewState> i
     const variables = this.getVariableSet().state.variables;
 
     if (variableIndex === -1) {
-      console.error('Variable not found');
+      structuredLogger.error('Variable not found');
       return;
     }
 
@@ -129,7 +130,7 @@ export class VariablesEditView extends SceneObjectBase<VariablesEditViewState> i
     }
     // check the index are within the variables array
     if (fromIndex < 0 || fromIndex >= variables.length || toIndex < 0 || toIndex >= variables.length) {
-      console.error('Invalid index');
+      structuredLogger.error('Invalid index');
       return;
     }
     const updatedVariables = [...variables];
@@ -143,7 +144,7 @@ export class VariablesEditView extends SceneObjectBase<VariablesEditViewState> i
   public onEdit = (identifier: string) => {
     const variableIndex = this.getVariableIndex(identifier);
     if (variableIndex === -1) {
-      console.error('Variable not found');
+      structuredLogger.error('Variable not found');
       return;
     }
     this.setState({ editIndex: variableIndex });
@@ -167,7 +168,7 @@ export class VariablesEditView extends SceneObjectBase<VariablesEditViewState> i
 
     if (!variable) {
       // Handle the case where the variable is not found
-      console.error('Variable not found');
+      structuredLogger.error('Variable not found');
       return;
     }
 

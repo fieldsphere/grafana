@@ -4,6 +4,7 @@ import tinycolor from 'tinycolor2';
 
 import { Registry, RegistryItem, textUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { getPublicOrAbsoluteUrl } from 'app/features/dimensions/resource';
 
 import { defaultStyleConfig, DEFAULT_SIZE, StyleConfigValues, StyleMaker } from './types';
@@ -297,7 +298,7 @@ async function prepareSVG(url: string, size?: number, backgroundOpacity?: number
       return `data:image/svg+xml,${svgURI}`;
     })
     .catch((error) => {
-      console.error(error); // eslint-disable-line no-console
+      structuredLogger.error(error); // eslint-disable-line no-console
       return '';
     });
 }

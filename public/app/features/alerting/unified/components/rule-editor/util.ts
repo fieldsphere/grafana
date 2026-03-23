@@ -10,6 +10,7 @@ import {
 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { GraphThresholdsStyleMode } from '@grafana/schema';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { EvalFunction } from 'app/features/alerting/state/alertDef';
 import { isExpressionQuery } from 'app/features/expressions/guards';
 import { ClassicCondition, ExpressionQueryType } from 'app/features/expressions/types';
@@ -210,7 +211,7 @@ export function getThresholdsForQueries(queries: AlertQuery[], condition: string
           }
         });
       } catch (err) {
-        console.error('Failed to parse thresholds', err);
+        structuredLogger.error('Failed to parse thresholds', err);
         return;
       }
     });

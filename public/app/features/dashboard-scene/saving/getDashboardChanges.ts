@@ -9,6 +9,7 @@ import {
   TextVariableSpec,
   VariableKind,
 } from '@grafana/schema/dist/esm/schema/dashboard/v2';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { ResponseTransformers } from 'app/features/dashboard/api/ResponseTransformers';
 import { isDashboardV2Spec } from 'app/features/dashboard/api/utils';
 import { DashboardDataDTO, DashboardDTO } from 'app/types/dashboard';
@@ -144,12 +145,12 @@ export function getHasTimeChanged(
 
 export function adHocVariableFiltersEqual(filtersA?: AdHocFilterWithLabels[], filtersB?: AdHocFilterWithLabels[]) {
   if (filtersA === undefined && filtersB === undefined) {
-    console.warn('Adhoc variable filter property is undefined');
+    structuredLogger.warn('Adhoc variable filter property is undefined');
     return true;
   }
 
   if ((filtersA === undefined && filtersB !== undefined) || (filtersB === undefined && filtersA !== undefined)) {
-    console.warn('Adhoc variable filter property is undefined');
+    structuredLogger.warn('Adhoc variable filter property is undefined');
     return false;
   }
 

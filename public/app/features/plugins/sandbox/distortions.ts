@@ -3,6 +3,7 @@ import DOMPurify from 'dompurify';
 import { cloneDeep, isFunction } from 'lodash';
 
 import { Monaco } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { loadScriptIntoSandbox } from './codeLoader';
 import { forbiddenElements } from './constants';
@@ -140,7 +141,7 @@ function distortConsole(distortions: DistortionMap) {
       const pluginId = meta.id;
 
       function sandboxLog(...args: unknown[]) {
-        console.log(`[plugin ${pluginId}]`, ...args);
+        structuredLogger.log(`[plugin ${pluginId}]`, ...args);
       }
       return {
         log: sandboxLog,
@@ -170,7 +171,7 @@ function distortAlert(distortions: DistortionMap) {
     });
 
     return function (...args: unknown[]) {
-      console.log(`[plugin ${pluginId}]`, ...args);
+      structuredLogger.log(`[plugin ${pluginId}]`, ...args);
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, 'alert');

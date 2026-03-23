@@ -3,6 +3,7 @@ import { defaults, each, sortBy } from 'lodash';
 import { DataSourceRef, PanelPluginMeta, VariableOption, VariableRefresh } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import config from 'app/core/config';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { getLibraryPanel } from 'app/features/library-panels/state/api';
 import { variableRegex } from 'app/features/variables/utils';
@@ -318,7 +319,7 @@ export class DashboardExporter {
 
       return newObj;
     } catch (err) {
-      console.error('Export failed:', err);
+      structuredLogger.error('Export failed:', err);
       return {
         error: err,
       };

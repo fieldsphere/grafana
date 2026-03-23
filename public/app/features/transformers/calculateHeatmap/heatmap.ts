@@ -24,6 +24,7 @@ import {
   HeatmapCalculationMode,
   HeatmapCalculationOptions,
 } from '@grafana/schema';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { convertDurationToMilliseconds, niceLinearIncrs, niceTimeIncrs } from './utils';
 
@@ -592,7 +593,7 @@ function heatmap(xs: number[], ys: number[], opts?: HeatmapOpts) {
     yBinIncr = yIncrs[Math.max(yIncrIdx, 0)];
   }
 
-  // console.log({
+  // structuredLogger.log({
   //   yBinIncr,
   //   xBinIncr,
   // });

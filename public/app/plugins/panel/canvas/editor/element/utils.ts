@@ -1,6 +1,7 @@
 import { AppEvents, textUtil } from '@grafana/data';
 import { BackendSrvRequest, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { createAbsoluteUrl, RelativeUrl } from 'app/features/alerting/unified/utils/url';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 
@@ -23,7 +24,7 @@ export const callApi = (api: APIEditorConfig, updateLoadingStateCallback?: IsLoa
     .subscribe({
       error: (error) => {
         appEvents.emit(AppEvents.alertError, ['An error has occurred. Check console output for more details.']);
-        console.error('API call error: ', error);
+        structuredLogger.error('API call error: ', error);
         updateLoadingStateCallback && updateLoadingStateCallback(false);
       },
       complete: () => {

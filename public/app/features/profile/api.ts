@@ -1,4 +1,5 @@
 import { getBackendSrv } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { Team } from 'app/types/teams';
 import { UserDTO, UserOrg, UserSession } from 'app/types/user';
 
@@ -8,7 +9,7 @@ async function changePassword(payload: ChangePasswordFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user/password', payload);
   } catch (err) {
-    console.error(err);
+    structuredLogger.error(err);
   }
 }
 
@@ -42,7 +43,7 @@ async function updateUserProfile(payload: ProfileUpdateFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user', payload);
   } catch (err) {
-    console.error(err);
+    structuredLogger.error(err);
   }
 }
 

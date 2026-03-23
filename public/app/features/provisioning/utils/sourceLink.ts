@@ -2,6 +2,7 @@ import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { DashboardLink } from '@grafana/schema';
 import { provisioningAPIv0alpha1, RepositoryView } from 'app/api/clients/provisioning/v0alpha1';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import {
   AnnoKeyManagerIdentity,
   AnnoKeyManagerKind,
@@ -83,7 +84,7 @@ export async function buildSourceLink(annotations: ObjectMeta['annotations']): P
       keepTime: false,
     };
   } catch (e) {
-    console.warn('Failed to fetch repository info for source link:', e);
+    structuredLogger.warn('Failed to fetch repository info for source link:', e);
     return undefined;
   }
 }

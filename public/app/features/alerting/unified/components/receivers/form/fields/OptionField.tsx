@@ -18,6 +18,7 @@ import {
   Tooltip,
   useStyles2,
 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import {
   NotificationChannelOption,
   NotificationChannelSecureFields,
@@ -292,7 +293,7 @@ const OptionInput: FC<Props & { id: string }> = ({
       );
 
     default:
-      console.error('Element not supported', option.element);
+      structuredLogger.error('Element not supported', option.element);
       return null;
   }
 };

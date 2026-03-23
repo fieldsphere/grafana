@@ -11,6 +11,7 @@ import { UserRolePicker } from 'app/core/components/RolePicker/UserRolePicker';
 import { fetchRoleOptions, updateUserRoles } from 'app/core/components/RolePicker/api';
 import { RolePickerSelect } from 'app/core/components/RolePickerDrawer/RolePickerSelect';
 import { contextSrv } from 'app/core/services/context_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { Role, AccessControlAction } from 'app/types/accessControl';
 import { ServiceAccountDTO, ServiceAccountCreateApiResponse } from 'app/types/serviceaccount';
 
@@ -68,7 +69,7 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options', e); // TODO: handle error
+        structuredLogger.error('Error loading options', e); // TODO: handle error
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {
@@ -101,7 +102,7 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           await updateUserRoles(pendingRoles, newAccount.id, newAccount.orgId);
         }
       } catch (e) {
-        console.error(e); // TODO: handle error
+        structuredLogger.error(e); // TODO: handle error
       }
       locationService.push(`/org/serviceaccounts/${response.uid}`);
     },

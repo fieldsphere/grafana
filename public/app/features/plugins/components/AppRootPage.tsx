@@ -25,6 +25,7 @@ import { useGrafana } from 'app/core/context/GrafanaContext';
 import { getNotFoundNav, getWarningNav, getExceptionNav } from 'app/core/navigation/errorModels';
 import { contextSrv } from 'app/core/services/context_srv';
 import { getMessageFromError } from 'app/core/utils/errors';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import {
   ExtensionRegistriesProvider,
@@ -249,7 +250,7 @@ async function loadAppPlugin(pluginId: string, dispatch: React.Dispatch<AnyActio
     );
     const error = err instanceof Error ? err : new Error(getMessageFromError(err));
     pluginsLogger.logError(error);
-    console.error(error);
+    structuredLogger.error(error);
   }
 }
 

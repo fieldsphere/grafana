@@ -33,6 +33,7 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getConfig } from 'app/core/config';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { getLogsExtractFields } from '../explore/Logs/LogsTable';
 import { downloadDataFrameAsCsv, downloadLogsModelAsTxt } from '../inspector/utils/download';
@@ -367,10 +368,10 @@ export function getLogLevelInfo(dataFrame: DataFrame, allDataFrames: DataFrame[]
   const valueField = fieldCache.getFirstFieldOfType(FieldType.number);
 
   if (!timeField) {
-    console.error('Time field missing in data frame');
+    structuredLogger.error('Time field missing in data frame');
   }
   if (!valueField) {
-    console.error('Value field missing in data frame');
+    structuredLogger.error('Value field missing in data frame');
   }
 
   const level = valueField ? getFieldDisplayName(valueField, dataFrame, allDataFrames) : 'logs';

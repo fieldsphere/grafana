@@ -4,6 +4,7 @@ import { DataLinkTransformationConfig } from '@grafana/data';
 import { CorrelationData, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import { createErrorNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { CreateCorrelationParams } from 'app/features/correlations/types';
 import { getCorrelationsBySourceUIDs, createCorrelation, generateDefaultLabel } from 'app/features/correlations/utils';
 import { store } from 'app/store/store';
@@ -99,7 +100,7 @@ export function saveCurrentCorrelation(
         })
         .catch((err) => {
           dispatch(notifyApp(createErrorNotification('Error creating correlation', err)));
-          console.error(err);
+          structuredLogger.error(err);
         });
     }
   };

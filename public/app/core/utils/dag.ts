@@ -1,3 +1,5 @@
+import { structuredLogger } from 'app/core/utils/structuredLogging';
+
 export class Edge {
   inputNode?: Node;
   outputNode?: Node;
@@ -268,7 +270,7 @@ export const printGraph = (g: Graph) => {
     if (!inputEdges) {
       inputEdges = '<none>';
     }
-    console.log(`${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
+    structuredLogger.log(`${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
   });
 };
 

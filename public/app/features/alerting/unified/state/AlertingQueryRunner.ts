@@ -17,6 +17,7 @@ import {
 import { t } from '@grafana/i18n';
 import { DataSourceWithBackend, FetchResponse, getDataSourceSrv, toDataQueryError } from '@grafana/runtime';
 import { BackendSrv, getBackendSrv } from 'app/core/services/backend_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { isExpressionQuery } from 'app/features/expressions/guards';
 import { cancelNetworkRequestsOnUnsubscribe } from 'app/features/query/state/processing/canceler';
 import { setStructureRevision } from 'app/features/query/state/processing/revision';
@@ -210,7 +211,7 @@ const getTimeRange = (query: AlertQuery, queries: AlertQuery[]): TimeRange => {
   }
 
   if (!query.relativeTimeRange) {
-    console.warn(`Query with refId: ${query.refId} did not have any relative time range, using default.`);
+    structuredLogger.warn(`Query with refId: ${query.refId} did not have any relative time range, using default.`);
     return getDefaultTimeRange();
   }
 

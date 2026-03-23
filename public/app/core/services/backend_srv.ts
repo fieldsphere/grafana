@@ -31,6 +31,7 @@ import { BackendSrv as BackendService, BackendSrvRequest, config, FetchError, Fe
 import { appEvents } from 'app/core/app_events';
 import { getConfig } from 'app/core/config';
 import { getSessionExpiry, hasSessionExpiry } from 'app/core/utils/auth';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { loadUrlToken } from 'app/core/utils/urlToken';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
 import { DashboardModel } from 'app/features/dashboard/state/DashboardModel';
@@ -111,7 +112,7 @@ export class BackendSrv implements BackendService {
       const result = await fp.get();
       this.deviceID = result.visitorId;
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
     }
   }
 
@@ -236,7 +237,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            structuredLogger.log(requestId, 'catch', e);
             observer.error(e);
           }); // from abort
       },

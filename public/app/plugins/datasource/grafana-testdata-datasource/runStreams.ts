@@ -19,6 +19,7 @@ import {
   createTheme,
 } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { getRandomLine } from './LogIpsum';
 import { TestDataDataQuery, StreamingQuery } from './dataquery';
@@ -125,7 +126,7 @@ export function runSignalStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      structuredLogger.log('unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });
@@ -171,7 +172,7 @@ export function runLogsStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      structuredLogger.log('unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });
@@ -219,7 +220,7 @@ export function runWatchStream(
       .subscribe({
         next: (chunk) => {
           if (!chunk.data || !chunk.ok) {
-            console.info('chunk missing data', chunk);
+            structuredLogger.info('chunk missing data', chunk);
             return;
           }
           decoder
@@ -240,21 +241,21 @@ export function runWatchStream(
                     state: LoadingState.Streaming,
                   });
                 } catch (err) {
-                  console.warn('error parsing line', line, err);
+                  structuredLogger.warn('error parsing line', line, err);
                 }
               }
             });
         },
         error: (err) => {
-          console.warn('error in stream', streamId, err);
+          structuredLogger.warn('error in stream', streamId, err);
         },
         complete: () => {
-          console.info('complete stream', streamId);
+          structuredLogger.info('complete stream', streamId);
         },
       });
 
     return () => {
-      console.log('unsubscribing to stream', streamId);
+      structuredLogger.log('unsubscribing to stream', streamId);
       sub.unsubscribe();
     };
   });
@@ -314,7 +315,7 @@ export function runFetchStream(
       });
 
       if (value.done) {
-        console.log('Finished stream');
+        structuredLogger.log('Finished stream');
         subscriber.complete(); // necessary?
         return;
       }
@@ -335,7 +336,7 @@ export function runFetchStream(
 
     return () => {
       // Cancel fetch?
-      console.log('unsubscribing to stream ' + streamId);
+      structuredLogger.log('unsubscribing to stream ' + streamId);
     };
   });
 }
@@ -368,7 +369,7 @@ export function runTracesStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      structuredLogger.log('unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });

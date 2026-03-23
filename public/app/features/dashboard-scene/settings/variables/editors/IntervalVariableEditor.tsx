@@ -3,6 +3,7 @@ import { ChangeEvent, FormEvent } from 'react';
 
 import { SelectableValue } from '@grafana/data';
 import { IntervalVariable, SceneVariable } from '@grafana/scenes';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 import {
   getIntervalsFromQueryString,
@@ -65,7 +66,7 @@ export function IntervalVariableEditor({ variable, onRunQuery, inline }: Interva
 
 export function getIntervalVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof IntervalVariable)) {
-    console.warn('getIntervalVariableOptions: variable is not an IntervalVariable');
+    structuredLogger.warn('getIntervalVariableOptions: variable is not an IntervalVariable');
     return [];
   }
 

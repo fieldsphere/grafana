@@ -3,6 +3,7 @@ import { LRUCache } from 'lru-cache';
 
 import { AbstractQuery, getDefaultTimeRange, KeyValue, LanguageProvider, ScopedVars, TimeRange } from '@grafana/data';
 import { BackendSrvRequest, config } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { LokiQueryType } from './dataquery.gen';
 import { DEFAULT_MAX_LINES_SAMPLE, LokiDatasource } from './datasource';
@@ -56,7 +57,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
       if (throwError) {
         throw error;
       } else {
-        console.error(error);
+        structuredLogger.error(error);
       }
     }
 
@@ -286,7 +287,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         const data = await this.request(url, params, true, requestOptions);
         resolve(data);
       } catch (error) {
-        console.error('error', error);
+        structuredLogger.error('error', error);
         reject(error);
       }
     });
@@ -367,7 +368,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         if (queryOptions?.throwError) {
           reject(error);
         } else {
-          console.error(error);
+          structuredLogger.error(error);
           resolve([]);
         }
       }
@@ -437,7 +438,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
           resolve(labelValues);
         }
       } catch (error) {
-        console.error(error);
+        structuredLogger.error(error);
         resolve([]);
       }
     });

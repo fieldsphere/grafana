@@ -34,6 +34,7 @@ import {
   TemplateSrv,
 } from '@grafana/runtime';
 import { BarGaugeDisplayMode, TableCellDisplayMode, VariableFormatID } from '@grafana/schema';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { interpolateFilters } from './SearchTraceQLEditor/utils';
 import { TempoVariableQuery, TempoVariableQueryType } from './VariableQueryEditor';
@@ -295,7 +296,7 @@ export class TempoDatasource extends DataSourceWithBackend<TempoQuery, TempoJson
 
       return false;
     } catch (error) {
-      console.warn('Failed to check for native histograms:', error);
+      structuredLogger.warn('Failed to check for native histograms:', error);
       return false;
     }
   }

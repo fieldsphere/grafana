@@ -9,6 +9,7 @@ import { Trans, t } from '@grafana/i18n';
 import { Text, Box, Button, useStyles2, LoadingPlaceholder } from '@grafana/ui';
 import { SlideDown } from 'app/core/components/Animations/SlideDown';
 import { getBackendSrv } from 'app/core/services/backend_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { DescendantCount } from 'app/features/browse-dashboards/components/BrowseActions/DescendantCount';
 
 import { AddPermission } from './AddPermission';
@@ -101,7 +102,7 @@ export const Permissions = ({
   };
 
   const onChange = (item: ResourcePermission, permission: string) => {
-    console.log('onChange', item, permission);
+    structuredLogger.log('onChange', item, permission);
     if (item.permission === permission) {
       return;
     }
@@ -247,7 +248,7 @@ const getDescription = async (resource: string): Promise<Description> => {
   try {
     return await getBackendSrv().get(`/api/access-control/${resource}/description`);
   } catch (e) {
-    console.error('failed to load resource description: ', e);
+    structuredLogger.error('failed to load resource description: ', e);
     return INITIAL_DESCRIPTION;
   }
 };

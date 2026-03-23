@@ -1,5 +1,6 @@
 import { attempt, isError } from 'lodash';
 
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { PromRuleDTO, PromRuleGroupDTO } from 'app/types/unified-alerting-dto';
 
 import { GrafanaPromRulesOptions } from '../../api/prometheusApi';
@@ -151,7 +152,7 @@ function labelMatchersToBackendFormat(labels: string[]): string[] {
     const result = attempt(() => JSON.stringify(parseMatcher(label)));
 
     if (isError(result)) {
-      console.warn('Failed to parse label matcher:', label, result);
+      structuredLogger.warn('Failed to parse label matcher:', label, result);
     } else {
       acc.push(result);
     }

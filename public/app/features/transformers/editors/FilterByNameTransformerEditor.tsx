@@ -15,6 +15,7 @@ import { FilterFieldsByNameTransformerOptions } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
 import { getTemplateSrv } from '@grafana/runtime';
 import { Input, FilterPill, InlineFieldRow, InlineField, InlineSwitch, Select } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { getTransformationContent } from '../docs/getTransformationContent';
 import darkImage from '../images/dark/filterFieldsByName.svg';
@@ -102,7 +103,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        structuredLogger.error(error);
       }
     }
 

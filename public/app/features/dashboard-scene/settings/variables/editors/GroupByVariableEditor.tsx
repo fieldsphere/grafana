@@ -5,6 +5,7 @@ import { useAsync } from 'react-use';
 import { DataSourceInstanceSettings, MetricFindValue, getDataSourceRef } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { GroupByVariable, SceneVariable } from '@grafana/scenes';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
 import { GroupByVariableForm } from '../components/GroupByVariableForm';
@@ -61,7 +62,7 @@ export function GroupByVariableEditor(props: GroupByVariableEditorProps) {
 
 export function getGroupByVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof GroupByVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    structuredLogger.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
 
