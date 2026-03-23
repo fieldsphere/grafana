@@ -16,7 +16,7 @@ import {
   UpdateCorrelationParams,
   UpdateCorrelationResponse,
 } from './types';
-import { correlationsLogger } from './utils';
+import { correlationsLogger, k8sCorrelationsURL, toK8sCorrelationPayload } from './utils';
 
 export interface CorrelationsResponse {
   correlations: Correlation[];
@@ -131,8 +131,6 @@ export function getData<T>(response: FetchResponse<T>) {
   return response.data;
 }
 
-const k8sCorrelationsURL = () => `/apis/correlations.grafana.app/v0alpha1/namespaces/${config.namespace}/correlations`;
-
 const transformCorrelationPayload = (correlation: Pick<Correlation, 'config'>) => ({
   field: correlation.config.field,
   target: correlation.config.target ?? {},
@@ -141,44 +139,6 @@ const transformCorrelationPayload = (correlation: Pick<Correlation, 'config'>) =
     type: transformation.type === 'regex' ? 'regex' : 'logfmt',
   })),
 });
-
-const toK8sCorrelation = (correlation: CreateCorrelationParams): CorrelationK8s => {
-  const sourceDs = getDataSourceSrv().getInstanceSettings(correlation.sourceUID);
-  if (!sourceDs) {
-    throw new Error(`Source datasource ${correlation.sourceUID} was not found`);
-  }
-
-  const spec: CorrelationK8s['spec'] = {
-    type: correlation.type,
-    label: correlation.label,
-    description: correlation.description,
-    source: {
-      group: sourceDs.type,
-      name: sourceDs.uid,
-    },
-    config: transformCorrelationPayload(correlation),
-  };
-
-  if (correlation.type === 'query') {
-    const targetDs = getDataSourceSrv().getInstanceSettings(correlation.targetUID);
-    if (!targetDs) {
-      throw new Error(`Target datasource ${correlation.targetUID} was not found`);
-    }
-    spec.target = {
-      group: targetDs.type,
-      name: targetDs.uid,
-    };
-  }
-
-  return {
-    apiVersion: 'correlations.grafana.app/v0alpha1',
-    kind: 'Correlation',
-    metadata: {
-      generateName: 'corr-',
-    },
-    spec,
-  };
-};
 
 const toK8sCorrelationPatch = (correlation: UpdateCorrelationParams) => ({
   spec: {
@@ -220,7 +180,7 @@ export const useCorrelations = () => {
       if (config.featureToggles.kubernetesCorrelations) {
         const created = await backend.post<CorrelationK8s>(
           k8sCorrelationsURL(),
-          toK8sCorrelation({ sourceUID, ...correlation })
+          toK8sCorrelationPayload({ sourceUID, ...correlation })
         );
         const enrichedCorrelation = toEnrichedCorrelationDataFromK8s(created);
         if (enrichedCorrelation !== undefined) {

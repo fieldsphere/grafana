@@ -104,6 +104,26 @@ const asStringArray = (value: unknown): string[] => {
   return value.filter((item): item is string => typeof item === 'string');
 };
 
+const buildAnnotationFieldSelector = (params: Record<string, unknown>) => {
+  const selectors: string[] = [];
+  const dashboardUID = typeof params.dashboardUID === 'string' ? params.dashboardUID : undefined;
+  const panelId = asNumber(params.panelId);
+  const from = asNumber(params.from);
+  const to = asNumber(params.to);
+
+  if (dashboardUID) {
+    selectors.push(`spec.dashboardUID=${dashboardUID}`);
+  }
+  if (panelId !== undefined) {
+    selectors.push(`spec.panelID=${panelId}`);
+  }
+  if (from !== undefined && to !== undefined) {
+    selectors.push(`spec.time=${from}`, `spec.timeEnd=${to}`);
+  }
+
+  return selectors.length > 0 ? selectors.join(',') : undefined;
+};
+
 const annotationMatchesQuery = (annotation: AnnotationEvent, params: Record<string, unknown>) => {
   const from = asNumber(params.from);
   const to = asNumber(params.to);
@@ -179,30 +199,32 @@ class KubernetesAnnotationServer implements AnnotationServer {
 
   async query(rawParams: Record<string, unknown>, requestId: string): Promise<DataFrame> {
     const params = rawParams ?? {};
-    const limit = asNumber(params.limit) ?? 1000;
+    const limit = Math.max(0, asNumber(params.limit) ?? 1000);
+    const maxItems = Math.min(limit, 5000);
+    const fieldSelector = buildAnnotationFieldSelector(params);
 
-    const items: AnnotationResource[] = [];
+    const items: AnnotationEvent[] = [];
     let continueToken: string | undefined;
 
     do {
+      const queryParams: Record<string, unknown> = {
+        limit: 500,
+        continue: continueToken,
+      };
+      if (fieldSelector !== undefined) {
+        queryParams.fieldSelector = fieldSelector;
+      }
+
       const response = await getBackendSrv().get<AnnotationListResponse>(
         `${annotationAPIBaseURL()}/annotations`,
-        {
-          limit: 500,
-          continue: continueToken,
-        },
+        queryParams,
         requestId
       );
-      items.push(...(response.items ?? []));
+      items.push(...(response.items ?? []).map(annotationResourceToEvent).filter((annotation) => annotationMatchesQuery(annotation, params)));
       continueToken = response.metadata?.continue;
-    } while (continueToken && items.length < 5000);
+    } while (continueToken && items.length < maxItems);
 
-    const filtered = items
-      .map(annotationResourceToEvent)
-      .filter((annotation) => annotationMatchesQuery(annotation, params))
-      .slice(0, limit);
-
-    return toDataFrame(filtered);
+    return toDataFrame(items.slice(0, maxItems));
   }
 
   // Alert state history still relies on legacy fields that are not in the new API spec.

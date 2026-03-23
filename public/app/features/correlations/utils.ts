@@ -28,9 +28,9 @@ interface CorrelationK8sListResponse {
   };
 }
 
-const k8sCorrelationsURL = () => `/apis/correlations.grafana.app/v0alpha1/namespaces/${config.namespace}/correlations`;
+export const k8sCorrelationsURL = () => `/apis/correlations.grafana.app/v0alpha1/namespaces/${config.namespace}/correlations`;
 
-const toK8sCorrelationPayload = (correlation: CreateCorrelationParams): CorrelationK8s => {
+export const toK8sCorrelationPayload = (correlation: CreateCorrelationParams): CorrelationK8s => {
   const sourceDs = getDataSourceSrv().getInstanceSettings(correlation.sourceUID);
   if (!sourceDs) {
     throw new Error(`Source datasource ${correlation.sourceUID} was not found`);
@@ -176,7 +176,7 @@ export const getCorrelationsBySourceUIDs = async (sourceUIDs: string[]): Promise
       correlations,
       page: 1,
       limit: correlations.length || 1000,
-      totalCount: correlations.length + (response.metadata.remainingItemCount ?? 0),
+      totalCount: correlations.length,
     };
   }
 

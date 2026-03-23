@@ -67,4 +67,31 @@ describe('annotationServer', () => {
       '/apis/annotation.grafana.app/v0alpha1/namespaces/default/annotations/a-99'
     );
   });
+
+  it('uses field selectors for kubernetes annotation queries', async () => {
+    mockConfig.featureToggles.kubernetesAnnotations = true;
+    mockBackendSrv.get.mockResolvedValue({
+      items: [
+        {
+          metadata: { name: 'a-42' },
+          spec: { dashboardUID: 'dash-1', panelID: 7, text: 'query result', time: 20, timeEnd: 30, tags: ['ops'] },
+        },
+      ],
+      metadata: { continue: 'next-page' },
+    });
+
+    const { annotationServer } = await import('./api');
+    await annotationServer().query({ dashboardUID: 'dash-1', panelId: 7, from: 10, to: 40, limit: 1 }, 'query-1');
+
+    expect(mockBackendSrv.get).toHaveBeenCalledTimes(1);
+    expect(mockBackendSrv.get).toHaveBeenCalledWith(
+      '/apis/annotation.grafana.app/v0alpha1/namespaces/default/annotations',
+      expect.objectContaining({
+        limit: 500,
+        continue: undefined,
+        fieldSelector: 'spec.dashboardUID=dash-1,spec.panelID=7,spec.time=10,spec.timeEnd=40',
+      }),
+      'query-1'
+    );
+  });
 });
