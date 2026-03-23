@@ -102,7 +102,6 @@ export const Permissions = ({
   };
 
   const onChange = (item: ResourcePermission, permission: string) => {
-    structuredLogger.log('onChange', item, permission);
     if (item.permission === permission) {
       return;
     }

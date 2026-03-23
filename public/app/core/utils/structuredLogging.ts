@@ -1,10 +1,10 @@
 import type { LogContext } from '@grafana/faro-web-sdk';
-import { createMonitoringLogger, config } from '@grafana/runtime';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 const faroLogger = createMonitoringLogger('app.core.structured');
 
 function shouldPassthroughToConsole(): boolean {
-  return config.buildInfo.env === 'development' || process.env.NODE_ENV === 'test';
+  return true;
 }
 
 function getCircularReplacer() {
