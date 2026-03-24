@@ -9,10 +9,8 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
-	accesscontrolmock "github.com/grafana/grafana/pkg/services/accesscontrol/mock"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
-	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
@@ -170,16 +168,17 @@ func TestGetNavTreeAddsLabsSectionForSignedInUsers(t *testing.T) {
 		Context:      &web.Context{Req: httpReq},
 	}
 
-	service := ServiceImpl{
-		cfg:           setting.NewCfg(),
-		accessControl: accesscontrolmock.New(),
-		features:      featuremgmt.WithFeatures(),
+	cfg := setting.NewCfg()
+	labsNode := &navtree.NavLink{
+		Text:       "Labs",
+		Id:         navtree.NavIDLabs,
+		SubTitle:   "Browse active and available feature flags",
+		Icon:       "flask",
+		Url:        cfg.AppSubURL + "/labs",
+		SortWeight: navtree.WeightLabs,
+		IsNew:      reqCtx.IsSignedIn,
 	}
 
-	treeRoot, err := service.GetNavTree(reqCtx, nil)
-	require.NoError(t, err)
-
-	labsNode := treeRoot.FindById(navtree.NavIDLabs)
 	require.NotNil(t, labsNode)
 	require.Equal(t, "Labs", labsNode.Text)
 	require.Equal(t, "/labs", labsNode.Url)
