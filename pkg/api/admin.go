@@ -2,13 +2,16 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/grafana/grafana/pkg/api/response"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/stats"
 	"github.com/grafana/grafana/pkg/setting"
 )
@@ -45,6 +48,46 @@ func (hs *HTTPServer) AdminGetVerboseSettings(c *contextmodel.ReqContext) respon
 		return response.Error(http.StatusForbidden, "Failed to authorize settings", err)
 	}
 	return response.JSON(http.StatusOK, verboseSettings)
+}
+
+type AdminFeatureToggle struct {
+	Name            string                       `json:"name"`
+	Description     string                       `json:"description"`
+	Stage           featuremgmt.FeatureFlagStage `json:"stage"`
+	Expression      string                       `json:"expression"`
+	Enabled         bool                         `json:"enabled"`
+	FrontendOnly    bool                         `json:"frontendOnly"`
+	RequiresDevMode bool                         `json:"requiresDevMode"`
+	RequiresRestart bool                         `json:"requiresRestart"`
+}
+
+func (hs *HTTPServer) AdminGetFeatureToggles(c *contextmodel.ReqContext) response.Response {
+	manager, ok := hs.Features.(*featuremgmt.FeatureManager)
+	if !ok {
+		return response.Error(http.StatusInternalServerError, "Failed to load feature flags", fmt.Errorf("feature registry unavailable"))
+	}
+
+	enabled := hs.Features.GetEnabled(c.Req.Context())
+	flags := manager.GetFlags()
+	sort.Slice(flags, func(i, j int) bool {
+		return flags[i].Name < flags[j].Name
+	})
+
+	toggles := make([]AdminFeatureToggle, 0, len(flags))
+	for _, flag := range flags {
+		toggles = append(toggles, AdminFeatureToggle{
+			Name:            flag.Name,
+			Description:     flag.Description,
+			Stage:           flag.Stage,
+			Expression:      flag.Expression,
+			Enabled:         enabled[flag.Name],
+			FrontendOnly:    flag.FrontendOnly,
+			RequiresDevMode: flag.RequiresDevMode,
+			RequiresRestart: flag.RequiresRestart,
+		})
+	}
+
+	return response.JSON(http.StatusOK, toggles)
 }
 
 // swagger:route GET /admin/stats admin adminGetStats
