@@ -12,6 +12,7 @@ import (
 	accesscontrolmock "github.com/grafana/grafana/pkg/services/accesscontrol/mock"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
@@ -175,11 +176,10 @@ func TestGetNavTreeAddsLabsSectionForSignedInUsers(t *testing.T) {
 		features:      featuremgmt.WithFeatures(),
 	}
 
-	labsNode := service.GetNavTree(reqCtx, nil)
 	treeRoot, err := service.GetNavTree(reqCtx, nil)
 	require.NoError(t, err)
 
-	labsNode = treeRoot.FindById(navtree.NavIDLabs)
+	labsNode := treeRoot.FindById(navtree.NavIDLabs)
 	require.NotNil(t, labsNode)
 	require.Equal(t, "Labs", labsNode.Text)
 	require.Equal(t, "/labs", labsNode.Url)
