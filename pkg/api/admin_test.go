@@ -102,8 +102,17 @@ func TestAPI_AdminGetSettings(t *testing.T) {
 }
 
 func TestAPI_AdminGetFeatureToggles(t *testing.T) {
+	cfg, err := setting.NewCfgFromBytes([]byte(`
+[feature_toggles]
+enable = panelTitleSearch
+`))
+	require.NoError(t, err)
+
+	features, err := featuremgmt.ProvideManagerService(cfg)
+	require.NoError(t, err)
+
 	server := SetupAPITestServer(t, func(hs *HTTPServer) {
-		hs.Features = featuremgmt.WithFeatures(featuremgmt.FlagStorage)
+		hs.Features = features
 	})
 
 	res, err := server.Send(
@@ -133,11 +142,11 @@ func TestAPI_AdminGetFeatureToggles(t *testing.T) {
 	}
 
 	require.NotNil(t, storageFlag)
-	assert.True(t, storageFlag.Enabled)
+	assert.False(t, storageFlag.Enabled)
 	assert.Equal(t, "Configurable storage for dashboards, datasources, and resources", storageFlag.Description)
 
 	require.NotNil(t, panelTitleSearchFlag)
-	assert.False(t, panelTitleSearchFlag.Enabled)
+	assert.True(t, panelTitleSearchFlag.Enabled)
 }
 
 func TestAdmin_AccessControl(t *testing.T) {
