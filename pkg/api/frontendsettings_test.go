@@ -115,8 +115,58 @@ func setupTestEnvironment(t *testing.T, cfg *setting.Cfg, features featuremgmt.F
 	m.Use(getContextHandler(t, cfg).Middleware)
 	m.UseMiddleware(web.Renderer(filepath.Join("", "views"), "[[", "]]"))
 	m.Get("/api/frontend/settings/", hs.GetFrontendSettings)
+	m.Get("/api/labs/feature-toggles", hs.GetLabsFeatureToggles)
 
 	return m, hs
+}
+
+func TestIntegrationHTTPServer_GetLabsFeatureToggles(t *testing.T) {
+	testutil.SkipIntegrationTestInShortMode(t)
+
+	type toggleStatus struct {
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Stage       string `json:"stage"`
+		Enabled     bool   `json:"enabled"`
+	}
+	type response struct {
+		AllowEditing bool           `json:"allowEditing"`
+		Toggles      []toggleStatus `json:"toggles"`
+	}
+
+	cfg := setting.NewCfg()
+	m, _ := setupTestEnvironment(t, cfg, featuremgmt.WithFeatures(featuremgmt.FlagAlertRuleRestore), nil, nil, nil)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/labs/feature-toggles", nil)
+	recorder := httptest.NewRecorder()
+
+	m.ServeHTTP(recorder, req)
+
+	require.Equal(t, http.StatusOK, recorder.Code)
+
+	var got response
+	err := json.Unmarshal(recorder.Body.Bytes(), &got)
+	require.NoError(t, err)
+
+	require.False(t, got.AllowEditing)
+	require.NotEmpty(t, got.Toggles)
+
+	var foundEnabled, foundDisabled bool
+	for _, toggle := range got.Toggles {
+		if toggle.Name == featuremgmt.FlagAlertRuleRestore {
+			foundEnabled = true
+			require.True(t, toggle.Enabled)
+			require.NotEmpty(t, toggle.Description)
+			require.NotEmpty(t, toggle.Stage)
+		}
+		if toggle.Name == featuremgmt.FlagPanelTitleSearch {
+			foundDisabled = true
+			require.False(t, toggle.Enabled)
+		}
+	}
+
+	require.True(t, foundEnabled)
+	require.True(t, foundDisabled)
 }
 
 func TestIntegrationHTTPServer_GetFrontendSettings_hideVersionAnonymous(t *testing.T) {
