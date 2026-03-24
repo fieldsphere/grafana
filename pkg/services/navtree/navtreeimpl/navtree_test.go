@@ -165,6 +165,7 @@ func TestGetNavTreeAddsLabsSectionForSignedInUsers(t *testing.T) {
 	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
 	reqCtx := &contextmodel.ReqContext{
 		SignedInUser: &user.SignedInUser{UserID: 1, OrgID: 1},
+		IsSignedIn:   true,
 		Context:      &web.Context{Req: httpReq},
 	}
 
