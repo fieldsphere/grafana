@@ -9,12 +9,15 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	accesscontrolmock "github.com/grafana/grafana/pkg/services/accesscontrol/mock"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -157,4 +160,26 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
 	})
+}
+
+func TestGetNavTreeAddsLabsSectionForSignedInUsers(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		SignedInUser: &user.SignedInUser{UserID: 1, OrgID: 1},
+		Context:      &web.Context{Req: httpReq},
+	}
+
+	service := ServiceImpl{
+		cfg:           setting.NewCfg(),
+		accessControl: accesscontrolmock.New(),
+	}
+
+	treeRoot, err := service.GetNavTree(reqCtx, nil)
+	require.NoError(t, err)
+
+	labsNode := treeRoot.FindById(navtree.NavIDLabs)
+	require.NotNil(t, labsNode)
+	require.Equal(t, "Labs", labsNode.Text)
+	require.Equal(t, "/labs", labsNode.Url)
+	require.True(t, labsNode.IsNew)
 }

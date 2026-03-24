@@ -181,6 +181,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.search-dashboards.title', 'Search dashboards');
     case 'connections':
       return t('nav.connections.title', 'Connections');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'connections-add-new-connection':
       return t('nav.add-new-connections.title', 'Add new connection');
     case 'standalone-plugin-page-/connections/collector':
@@ -259,6 +261,8 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.alerts-recently-deleted.subtitle', 'See recently deleted alert rules');
     case 'datasources':
       return t('nav.datasources.subtitle', 'Add and configure data sources');
+    case 'labs':
+      return t('nav.labs.subtitle', 'Browse active and available feature flags');
     case 'correlations':
       return t('nav.correlations.subtitle', 'Add and configure correlations');
     case 'users':

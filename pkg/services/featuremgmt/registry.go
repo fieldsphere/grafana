@@ -2621,6 +2621,13 @@ var (
 	}
 )
 
+// GetStandardFeatureFlags returns a copy of the registered feature flag catalog.
+func GetStandardFeatureFlags() []FeatureFlag {
+	flags := make([]FeatureFlag, len(standardFeatureFlags))
+	copy(flags, standardFeatureFlags)
+	return flags
+}
+
 //go:embed toggles_gen.json
 var f embed.FS
 
