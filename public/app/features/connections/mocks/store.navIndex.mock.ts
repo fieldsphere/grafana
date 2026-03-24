@@ -268,6 +268,22 @@ export const navIndex: NavIndex = {
       sortWeight: -2000,
     },
   },
+  labs: {
+    id: 'labs',
+    text: 'Labs',
+    subTitle: 'Browse feature flags and their current status',
+    icon: 'flask',
+    url: '/labs',
+    sortWeight: -1200,
+    isNew: true,
+    parentItem: {
+      id: 'home',
+      text: 'Home',
+      icon: 'home-alt',
+      url: '/',
+      sortWeight: -2000,
+    },
+  },
   'connections-datasources': {
     id: 'connections-datasources',
     text: 'Data sources',

@@ -376,6 +376,32 @@ func TestAddAppLinks(t *testing.T) {
 	})
 }
 
+func TestGetNavTreeAddsLabsForSignedInUsers(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		SignedInUser: &user.SignedInUser{OrgID: 1},
+		Context:      &web.Context{Req: httpReq},
+	}
+
+	service := ServiceImpl{
+		log:            log.New("navtree"),
+		cfg:            setting.NewCfg(),
+		accessControl:  accesscontrolmock.New(),
+		pluginSettings: &pluginsettings.FakePluginSettings{},
+		features:       featuremgmt.WithFeatures(),
+		pluginStore:    &pluginstore.FakePluginStore{},
+	}
+
+	treeRoot, err := service.GetNavTree(reqCtx, nil)
+	require.NoError(t, err)
+
+	labsNode := treeRoot.FindById(navtree.NavIDLabs)
+	require.NotNil(t, labsNode)
+	require.Equal(t, "Labs", labsNode.Text)
+	require.Equal(t, "/labs", labsNode.Url)
+	require.True(t, labsNode.IsNew)
+}
+
 func TestReadingNavigationSettings(t *testing.T) {
 	t.Run("Should include defaults", func(t *testing.T) {
 		service := ServiceImpl{

@@ -10,6 +10,7 @@ package featuremgmt
 import (
 	"embed"
 	"encoding/json"
+	"sync"
 
 	featuretoggleapi "github.com/grafana/grafana/pkg/services/featuremgmt/feature_toggle_api"
 )
@@ -2624,12 +2625,29 @@ var (
 //go:embed toggles_gen.json
 var f embed.FS
 
+var (
+	embeddedFeatureListOnce sync.Once
+	embeddedFeatureList     featuretoggleapi.FeatureList
+	embeddedFeatureListErr  error
+)
+
 // Get the cached feature list (exposed as a k8s resource)
 func GetEmbeddedFeatureList() (featuretoggleapi.FeatureList, error) {
-	features := featuretoggleapi.FeatureList{}
-	body, err := f.ReadFile("toggles_gen.json")
-	if err == nil {
-		err = json.Unmarshal(body, &features)
+	embeddedFeatureListOnce.Do(func() {
+		body, err := f.ReadFile("toggles_gen.json")
+		if err != nil {
+			embeddedFeatureListErr = err
+			return
+		}
+		embeddedFeatureListErr = json.Unmarshal(body, &embeddedFeatureList)
+	})
+
+	if embeddedFeatureListErr != nil {
+		return featuretoggleapi.FeatureList{}, embeddedFeatureListErr
 	}
-	return features, err
+
+	featureListCopy := embeddedFeatureList
+	featureListCopy.Items = append([]featuretoggleapi.Feature(nil), embeddedFeatureList.Items...)
+
+	return featureListCopy, nil
 }

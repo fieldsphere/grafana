@@ -51,7 +51,7 @@ func (hs *HTTPServer) setIndexViewData(c *contextmodel.ReqContext) (*dtos.IndexV
 	c, span := hs.injectSpan(c, "api.setIndexViewData")
 	defer span.End()
 
-	settings, err := hs.getFrontendSettings(c)
+	settings, err := hs.getFrontendSettings(c, false)
 	if err != nil {
 		return nil, err
 	}

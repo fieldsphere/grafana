@@ -20,6 +20,7 @@ import (
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/datasources"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	featuretoggleapi "github.com/grafana/grafana/pkg/services/featuremgmt/feature_toggle_api"
 	"github.com/grafana/grafana/pkg/services/folder"
 	"github.com/grafana/grafana/pkg/services/licensing"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginsettings"
@@ -103,7 +104,7 @@ func sortedHash(vals []string, hash hash.Hash) string {
 }
 
 func (hs *HTTPServer) GetFrontendSettings(c *contextmodel.ReqContext) {
-	settings, err := hs.getFrontendSettings(c)
+	settings, err := hs.getFrontendSettings(c, true)
 	if err != nil {
 		c.JsonApiErr(400, "Failed to get frontend settings", err)
 		return
@@ -112,10 +113,24 @@ func (hs *HTTPServer) GetFrontendSettings(c *contextmodel.ReqContext) {
 	c.JSON(http.StatusOK, settings)
 }
 
+func (hs *HTTPServer) GetFeatureToggleList(c *contextmodel.ReqContext) {
+	featureToggleList, err := getFeatureToggleList(hs.Features.GetEnabled(c.Req.Context()))
+	if err != nil {
+		c.JsonApiErr(http.StatusInternalServerError, "Failed to get frontend settings feature toggle list", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, struct {
+		FeatureToggleList []dtos.FrontendSettingsFeatureToggleDTO `json:"featureToggleList"`
+	}{
+		FeatureToggleList: featureToggleList,
+	})
+}
+
 // getFrontendSettings returns a json object with all the settings needed for front end initialisation.
 //
 //nolint:gocyclo
-func (hs *HTTPServer) getFrontendSettings(c *contextmodel.ReqContext) (*dtos.FrontendSettingsDTO, error) {
+func (hs *HTTPServer) getFrontendSettings(c *contextmodel.ReqContext, includeFeatureToggleList bool) (*dtos.FrontendSettingsDTO, error) {
 	c, span := hs.injectSpan(c, "api.getFrontendSettings")
 	defer span.End()
 
@@ -199,6 +214,13 @@ func (hs *HTTPServer) getFrontendSettings(c *contextmodel.ReqContext) (*dtos.Fro
 	// this is needed for backwards compatibility with external plugins
 	// we should remove this once we can be sure that no external plugins rely on this
 	featureToggles["topnav"] = true
+	featureToggleList := []dtos.FrontendSettingsFeatureToggleDTO{}
+	if includeFeatureToggleList && c.IsSignedIn {
+		featureToggleList, err = getFeatureToggleList(featureToggles)
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	frontendSettings := &dtos.FrontendSettingsDTO{
 		DefaultDatasource:                    defaultDS,
@@ -300,6 +322,7 @@ func (hs *HTTPServer) getFrontendSettings(c *contextmodel.ReqContext) (*dtos.Fro
 		},
 
 		FeatureToggles:                      featureToggles,
+		FeatureToggleList:                   featureToggleList,
 		AnonymousEnabled:                    hs.Cfg.Anonymous.Enabled,
 		AnonymousDeviceLimit:                hs.Cfg.Anonymous.DeviceLimit,
 		RendererAvailable:                   hs.RenderService.IsAvailable(c.Req.Context()),
@@ -462,6 +485,36 @@ func (hs *HTTPServer) getFrontendSettings(c *contextmodel.ReqContext) (*dtos.Fro
 	}
 
 	return frontendSettings, nil
+}
+
+func getFeatureToggleList(enabled map[string]bool) ([]dtos.FrontendSettingsFeatureToggleDTO, error) {
+	features, err := featuremgmt.GetEmbeddedFeatureList()
+	if err != nil {
+		return nil, err
+	}
+
+	toggles := make([]dtos.FrontendSettingsFeatureToggleDTO, 0, len(features.Items))
+	for _, feature := range features.Items {
+		if feature.Spec.HideFromDocs {
+			continue
+		}
+		toggles = append(toggles, toFrontendFeatureToggleDTO(feature, enabled[feature.Name]))
+	}
+
+	sort.Slice(toggles, func(i, j int) bool {
+		return toggles[i].Name < toggles[j].Name
+	})
+
+	return toggles, nil
+}
+
+func toFrontendFeatureToggleDTO(feature featuretoggleapi.Feature, enabled bool) dtos.FrontendSettingsFeatureToggleDTO {
+	return dtos.FrontendSettingsFeatureToggleDTO{
+		Name:        feature.Name,
+		Description: feature.Spec.Description,
+		Stage:       feature.Spec.Stage,
+		Enabled:     enabled,
+	}
 }
 
 func isSupportBundlesEnabled(hs *HTTPServer) bool {
