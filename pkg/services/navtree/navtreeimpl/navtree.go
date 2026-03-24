@@ -162,7 +162,7 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		treeRoot.AddSection(connectionsSection)
 	}
 
-	if c.IsSignedIn {
+	if c.IsSignedIn && hasAccess(ac.EvalPermission(ac.ActionFeatureManagementRead)) {
 		treeRoot.AddSection(&navtree.NavLink{
 			Text:       "Labs",
 			Id:         navtree.NavIDLabs,

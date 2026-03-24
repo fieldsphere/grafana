@@ -9,7 +9,9 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/accesscontrol/actest"
+	accesscontrolmock "github.com/grafana/grafana/pkg/services/accesscontrol/mock"
 	"github.com/grafana/grafana/pkg/services/authn"
 	"github.com/grafana/grafana/pkg/services/authn/authntest"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
@@ -169,7 +171,35 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 	})
 }
 
-func TestGetNavTreeAddsLabsSectionForSignedInUsers(t *testing.T) {
+func TestGetNavTreeAddsLabsSectionForSignedInUsersWithFeatureManagementRead(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		SignedInUser: &user.SignedInUser{UserID: 1, OrgID: 1},
+		IsSignedIn:   true,
+		Context:      &web.Context{Req: httpReq},
+	}
+
+	service := ServiceImpl{
+		cfg:            setting.NewCfg(),
+		accessControl:  accesscontrolmock.New().WithPermissions([]ac.Permission{{Action: ac.ActionFeatureManagementRead, Scope: "*"}}),
+		authnService:   &authntest.FakeService{ExpectedIdentity: &authn.Identity{}},
+		features:       featuremgmt.WithFeatures(),
+		license:        &licensing.OSSLicensingService{},
+		pluginStore:    &pluginstore.FakePluginStore{},
+		pluginSettings: &pluginsettings.FakePluginSettings{},
+	}
+
+	treeRoot, err := service.GetNavTree(reqCtx, &pref.Preference{})
+	require.NoError(t, err)
+
+	labsNode := treeRoot.FindById(navtree.NavIDLabs)
+	require.NotNil(t, labsNode)
+	require.Equal(t, "Labs", labsNode.Text)
+	require.Equal(t, "/labs", labsNode.Url)
+	require.True(t, labsNode.IsNew)
+}
+
+func TestGetNavTreeDoesNotAddLabsSectionWithoutFeatureManagementRead(t *testing.T) {
 	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
 	reqCtx := &contextmodel.ReqContext{
 		SignedInUser: &user.SignedInUser{UserID: 1, OrgID: 1},
@@ -191,8 +221,5 @@ func TestGetNavTreeAddsLabsSectionForSignedInUsers(t *testing.T) {
 	require.NoError(t, err)
 
 	labsNode := treeRoot.FindById(navtree.NavIDLabs)
-	require.NotNil(t, labsNode)
-	require.Equal(t, "Labs", labsNode.Text)
-	require.Equal(t, "/labs", labsNode.Url)
-	require.True(t, labsNode.IsNew)
+	require.Nil(t, labsNode)
 }
