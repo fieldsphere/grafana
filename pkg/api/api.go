@@ -168,6 +168,8 @@ func (hs *HTTPServer) registerRoutes() {
 	r.Get("/connections/datasources/:id", middleware.CanAdminPlugins(hs.Cfg, hs.AccessControl), hs.Index)
 	r.Get("/connections/datasources/:id/page/:page", middleware.CanAdminPlugins(hs.Cfg, hs.AccessControl), hs.Index)
 
+	r.Get("/labs", reqSignedIn, hs.Index)
+
 	// App Root Page
 	appPluginIDScope := pluginaccesscontrol.ScopeProvider.GetResourceScope(ac.Parameter(":id"))
 	r.Get("/a/:id/*", authorize(ac.EvalPermission(pluginaccesscontrol.ActionAppAccess, appPluginIDScope)), reqSignedIn, reqRoleForAppRoute, hs.Index)
@@ -474,6 +476,7 @@ func (hs *HTTPServer) registerRoutes() {
 
 		apiRoute.Get("/frontend/settings/", hs.GetFrontendSettings)
 		apiRoute.Get("/frontend/assets", hs.GetFrontendAssets)
+		apiRoute.Get("/feature-toggles", routing.Wrap(hs.GetFeatureTogglesList))
 
 		// Folders
 		hs.registerFolderAPI(apiRoute, authorize)
