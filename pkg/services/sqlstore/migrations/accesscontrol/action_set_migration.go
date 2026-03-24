@@ -121,7 +121,7 @@ func (m *actionSetMigrator) addActionSetActions() error {
 
 	if len(toAdd) > 0 {
 		err := batch(len(toAdd), batchSize, func(start, end int) error {
-			m.migrator.Logger.Debug(fmt.Sprintf("inserting permissions %v", toAdd[start:end]))
+			m.migrator.Logger.Debug("inserting permissions", "permissions", toAdd[start:end])
 			if _, err := m.sess.InsertMulti(toAdd[start:end]); err != nil {
 				return fmt.Errorf("failed to add action sets: %w", err)
 			}

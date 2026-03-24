@@ -104,7 +104,7 @@ func (s *QueryData) Execute(ctx context.Context, req *backend.QueryDataRequest) 
 
 	concurrentQueryCount, err := req.PluginContext.GrafanaConfig.ConcurrentQueryCount()
 	if err != nil {
-		logger.Debug(fmt.Sprintf("Concurrent Query Count read/parse error: %v", err), "prometheusRunQueriesInParallel")
+		logger.Debug("Concurrent Query Count read/parse error", "error", err, "context", "prometheusRunQueriesInParallel")
 		concurrentQueryCount = 10
 	}
 
