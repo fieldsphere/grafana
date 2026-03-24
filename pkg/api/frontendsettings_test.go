@@ -284,6 +284,20 @@ func TestIntegrationHTTPServer_GetFrontendSettings_featureToggleList(t *testing.
 	require.Equal(t, http.StatusOK, recorder.Code)
 	require.NotEmpty(t, got.FeatureToggleList)
 
+	featureTogglesByName := make(map[string]featureToggle, len(got.FeatureToggleList))
+	for _, toggle := range got.FeatureToggleList {
+		featureTogglesByName[toggle.Name] = toggle
+	}
+
+	embeddedFeatureList, err := featuremgmt.GetEmbeddedFeatureList()
+	require.NoError(t, err)
+	for _, feature := range embeddedFeatureList.Items {
+		if feature.Spec.HideFromDocs {
+			_, exists := featureTogglesByName[feature.Name]
+			require.Falsef(t, exists, "hidden feature toggle should not be returned: %s", feature.Name)
+		}
+	}
+
 	topnav := slices.IndexFunc(got.FeatureToggleList, func(toggle featureToggle) bool {
 		return toggle.Name == "topnav"
 	})

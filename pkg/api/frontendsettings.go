@@ -481,6 +481,9 @@ func getFeatureToggleList(enabled map[string]bool) ([]dtos.FrontendSettingsFeatu
 
 	toggles := make([]dtos.FrontendSettingsFeatureToggleDTO, 0, len(features.Items))
 	for _, feature := range features.Items {
+		if feature.Spec.HideFromDocs {
+			continue
+		}
 		toggles = append(toggles, toFrontendFeatureToggleDTO(feature, enabled[feature.Name]))
 	}
 
