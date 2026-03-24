@@ -473,6 +473,7 @@ func (hs *HTTPServer) registerRoutes() {
 		})
 
 		apiRoute.Get("/frontend/settings/", hs.GetFrontendSettings)
+		apiRoute.Get("/feature-toggles", hs.GetFeatureToggleList)
 		apiRoute.Get("/frontend/assets", hs.GetFrontendAssets)
 
 		// Folders

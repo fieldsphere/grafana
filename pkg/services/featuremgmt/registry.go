@@ -2642,5 +2642,12 @@ func GetEmbeddedFeatureList() (featuretoggleapi.FeatureList, error) {
 		embeddedFeatureListErr = json.Unmarshal(body, &embeddedFeatureList)
 	})
 
-	return embeddedFeatureList, embeddedFeatureListErr
+	if embeddedFeatureListErr != nil {
+		return featuretoggleapi.FeatureList{}, embeddedFeatureListErr
+	}
+
+	featureListCopy := embeddedFeatureList
+	featureListCopy.Items = append([]featuretoggleapi.Feature(nil), embeddedFeatureList.Items...)
+
+	return featureListCopy, nil
 }

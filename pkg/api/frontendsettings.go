@@ -104,7 +104,7 @@ func sortedHash(vals []string, hash hash.Hash) string {
 }
 
 func (hs *HTTPServer) GetFrontendSettings(c *contextmodel.ReqContext) {
-	settings, err := hs.getFrontendSettings(c)
+	settings, err := hs.getFrontendSettings(c, true)
 	if err != nil {
 		c.JsonApiErr(400, "Failed to get frontend settings", err)
 		return
@@ -113,10 +113,24 @@ func (hs *HTTPServer) GetFrontendSettings(c *contextmodel.ReqContext) {
 	c.JSON(http.StatusOK, settings)
 }
 
+func (hs *HTTPServer) GetFeatureToggleList(c *contextmodel.ReqContext) {
+	featureToggleList, err := getFeatureToggleList(hs.Features.GetEnabled(c.Req.Context()))
+	if err != nil {
+		c.JsonApiErr(http.StatusInternalServerError, "Failed to get frontend settings feature toggle list", err)
+		return
+	}
+
+	c.JSON(http.StatusOK, struct {
+		FeatureToggleList []dtos.FrontendSettingsFeatureToggleDTO `json:"featureToggleList"`
+	}{
+		FeatureToggleList: featureToggleList,
+	})
+}
+
 // getFrontendSettings returns a json object with all the settings needed for front end initialisation.
 //
 //nolint:gocyclo
-func (hs *HTTPServer) getFrontendSettings(c *contextmodel.ReqContext) (*dtos.FrontendSettingsDTO, error) {
+func (hs *HTTPServer) getFrontendSettings(c *contextmodel.ReqContext, includeFeatureToggleList bool) (*dtos.FrontendSettingsDTO, error) {
 	c, span := hs.injectSpan(c, "api.getFrontendSettings")
 	defer span.End()
 
@@ -201,7 +215,7 @@ func (hs *HTTPServer) getFrontendSettings(c *contextmodel.ReqContext) (*dtos.Fro
 	// we should remove this once we can be sure that no external plugins rely on this
 	featureToggles["topnav"] = true
 	featureToggleList := []dtos.FrontendSettingsFeatureToggleDTO{}
-	if c.IsSignedIn {
+	if includeFeatureToggleList && c.IsSignedIn {
 		featureToggleList, err = getFeatureToggleList(featureToggles)
 		if err != nil {
 			return nil, err

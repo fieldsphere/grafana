@@ -1,15 +1,23 @@
 import { css } from '@emotion/css';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { FeatureState, GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { Badge, EmptyState, FeatureBadge, FilterInput, InteractiveTable, Stack, Text, useStyles2 } from '@grafana/ui';
+import { getBackendSrv } from '@grafana/runtime';
+import { Badge, EmptyState, FeatureBadge, FilterInput, InteractiveTable, LoadingPlaceholder, Stack, Text, useStyles2 } from '@grafana/ui';
 import config from 'app/core/config';
 import { Page } from 'app/core/components/Page/Page';
 
 type LabsFeatureRow = {
   name: string;
   description: string;
+  stage?: string;
+  enabled: boolean;
+};
+
+type LabsFeatureToggle = {
+  name: string;
+  description?: string;
   stage?: string;
   enabled: boolean;
 };
@@ -23,9 +31,42 @@ const stageToFeatureState: Record<string, FeatureState | undefined> = {
 export default function LabsPage() {
   const styles = useStyles2(getStyles);
   const [query, setQuery] = useState('');
+  const [featureToggleList, setFeatureToggleList] = useState<LabsFeatureToggle[]>(config.featureToggleList);
+  const [isLoadingFeatureToggleList, setIsLoadingFeatureToggleList] = useState(config.featureToggleList.length === 0);
+
+  useEffect(() => {
+    if (config.featureToggleList.length !== 0) {
+      return;
+    }
+
+    let isSubscribed = true;
+
+    getBackendSrv()
+      .get<{ featureToggleList?: LabsFeatureToggle[] }>('/api/feature-toggles')
+      .then((settings) => {
+        if (!isSubscribed) {
+          return;
+        }
+        setFeatureToggleList(settings.featureToggleList ?? []);
+      })
+      .catch(() => {
+        if (isSubscribed) {
+          setFeatureToggleList([]);
+        }
+      })
+      .finally(() => {
+        if (isSubscribed) {
+          setIsLoadingFeatureToggleList(false);
+        }
+      });
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, []);
 
   const features = useMemo<LabsFeatureRow[]>(() => {
-    return [...config.featureToggleList]
+    return [...featureToggleList]
       .sort((a, b) => a.name.localeCompare(b.name))
       .map((feature) => ({
         name: feature.name,
@@ -33,7 +74,7 @@ export default function LabsPage() {
         stage: feature.stage,
         enabled: feature.enabled,
       }));
-  }, []);
+  }, [featureToggleList]);
 
   const filteredFeatures = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -115,7 +156,9 @@ export default function LabsPage() {
             onChange={setQuery}
           />
 
-          {filteredFeatures.length === 0 ? (
+          {isLoadingFeatureToggleList ? (
+            <LoadingPlaceholder text={t('labs.page.loading', 'Loading feature flags...')} />
+          ) : filteredFeatures.length === 0 ? (
             <EmptyState
               variant="not-found"
               message={t('labs.page.empty-state', 'No feature flags found')}

@@ -1,11 +1,21 @@
-import { screen } from '@testing-library/react';
+import { screen, waitFor } from '@testing-library/react';
 
-import { config } from '@grafana/runtime';
+import { config, getBackendSrv } from '@grafana/runtime';
 import { render } from 'test/test-utils';
 
 import { navIndex } from '../connections/mocks/store.navIndex.mock';
 
 import LabsPage from './LabsPage';
+
+const mockGet = jest.fn();
+
+jest.mock('@grafana/runtime', () => {
+  const runtime = jest.requireActual('@grafana/runtime');
+  return {
+    ...runtime,
+    getBackendSrv: jest.fn(() => ({ get: mockGet })),
+  };
+});
 
 describe('LabsPage', () => {
   const originalFeatureToggleList = config.featureToggleList;
@@ -25,6 +35,7 @@ describe('LabsPage', () => {
         enabled: true,
       },
     ];
+    mockGet.mockReset();
   });
 
   afterEach(() => {
@@ -65,4 +76,26 @@ describe('LabsPage', () => {
 
     expect(screen.getByText('No feature flags found')).toBeInTheDocument();
   });
+
+  it('fetches feature toggles when boot data list is empty', async () => {
+    mockGet.mockResolvedValue({
+      featureToggleList: [
+        {
+          name: 'fetchedFeature',
+          description: 'Fetched feature description',
+          stage: 'experimental',
+          enabled: true,
+        },
+      ],
+    });
+    config.featureToggleList = [];
+
+    render(<LabsPage />, {
+      preloadedState: { navIndex },
+    });
+
+    await waitFor(() => expect(mockGet).toHaveBeenCalledWith('/api/feature-toggles'));
+    expect(await screen.findByText('fetchedFeature')).toBeInTheDocument();
+  });
+
 });

@@ -18,3 +18,17 @@ func TestFeatureService(t *testing.T) {
 	require.False(t, mgmt.IsEnabledGlobally("a.yes.default"))
 	require.False(t, mgmt.IsEnabledGlobally("a.yes")) // licensed, but not enabled
 }
+
+func TestGetEmbeddedFeatureListReturnsIndependentItemsSlice(t *testing.T) {
+	first, err := GetEmbeddedFeatureList()
+	require.NoError(t, err)
+	require.NotEmpty(t, first.Items)
+
+	originalDescription := first.Items[0].Spec.Description
+	first.Items[0].Spec.Description = "mutated-description"
+
+	second, err := GetEmbeddedFeatureList()
+	require.NoError(t, err)
+	require.NotEmpty(t, second.Items)
+	require.Equal(t, originalDescription, second.Items[0].Spec.Description)
+}
