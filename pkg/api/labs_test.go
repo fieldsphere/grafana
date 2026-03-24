@@ -20,7 +20,7 @@ func TestAPIEndpoint_GetLabsFeatureToggles(t *testing.T) {
 
 	req := webtest.RequestWithSignedInUser(
 		server.NewGetRequest("/api/labs/feature-toggles"),
-		userWithPermissions(1, []accesscontrol.Permission{{Action: accesscontrol.ActionOrgsRead}}),
+		userWithPermissions(1, []accesscontrol.Permission{{Action: accesscontrol.ActionFeatureManagementRead}}),
 	)
 
 	res, err := server.Send(req)
@@ -47,4 +47,21 @@ func TestAPIEndpoint_GetLabsFeatureToggles(t *testing.T) {
 	assert.True(t, panelTitleSearch.Enabled)
 	assert.Equal(t, "Search for dashboards using panel title", panelTitleSearch.Description)
 	assert.Equal(t, "preview", panelTitleSearch.Stage)
+}
+
+func TestAPIEndpoint_GetLabsFeatureToggles_RequiresFeatureManagementReadPermission(t *testing.T) {
+	server := SetupAPITestServer(t, func(hs *HTTPServer) {
+		hs.Features = featuremgmt.WithFeatures(featuremgmt.FlagPanelTitleSearch, "customIniOnlyFlag")
+	})
+
+	req := webtest.RequestWithSignedInUser(
+		server.NewGetRequest("/api/labs/feature-toggles"),
+		userWithPermissions(1, []accesscontrol.Permission{{Action: accesscontrol.ActionOrgsRead}}),
+	)
+
+	res, err := server.Send(req)
+	require.NoError(t, err)
+	defer func() { require.NoError(t, res.Body.Close()) }()
+
+	assert.Equal(t, http.StatusForbidden, res.StatusCode)
 }
