@@ -134,6 +134,10 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		})
 	}
 
+	if labsSection := s.buildLabsNavLink(c); labsSection != nil {
+		treeRoot.AddSection(labsSection)
+	}
+
 	if hasAccess(ac.EvalPermission(ac.ActionDatasourcesExplore)) {
 		treeRoot.AddSection(&navtree.NavLink{
 			Text:       "Drilldown",
@@ -647,4 +651,21 @@ func (s *ServiceImpl) buildDataConnectionsNavLink(c *contextmodel.ReqContext) *n
 		return navLink
 	}
 	return nil
+}
+
+func (s *ServiceImpl) buildLabsNavLink(c *contextmodel.ReqContext) *navtree.NavLink {
+	hasAccess := ac.HasAccess(s.accessControl, c)
+	if !hasAccess(ac.EvalPermission(ac.ActionDatasourcesExplore)) {
+		return nil
+	}
+
+	return &navtree.NavLink{
+		Text:       "Labs",
+		Id:         navtree.NavIDLabs,
+		SubTitle:   "Browse feature flags and their current status",
+		Icon:       "flask",
+		SortWeight: navtree.WeightLabs,
+		Url:        s.cfg.AppSubURL + "/labs",
+		IsNew:      true,
+	}
 }

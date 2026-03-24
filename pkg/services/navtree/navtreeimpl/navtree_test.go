@@ -9,8 +9,12 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
+	acmock "github.com/grafana/grafana/pkg/services/accesscontrol/mock"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
@@ -157,4 +161,29 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
 	})
+}
+
+func TestBuildLabsNavLink(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		SignedInUser: &user.SignedInUser{
+			UserID: 1,
+			OrgID:  1,
+		},
+		Context: &web.Context{Req: httpReq},
+	}
+
+	service := ServiceImpl{
+		cfg: setting.NewCfg(),
+		accessControl: acmock.New().WithPermissions([]accesscontrol.Permission{
+			{Action: accesscontrol.ActionDatasourcesExplore},
+		}),
+		features: featuremgmt.WithFeatures(),
+	}
+
+	labs := service.buildLabsNavLink(reqCtx)
+	require.NotNil(t, labs)
+	require.Equal(t, "Labs", labs.Text)
+	require.Equal(t, "/labs", labs.Url)
+	require.True(t, labs.IsNew)
 }

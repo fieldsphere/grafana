@@ -183,6 +183,11 @@ export function getAppRoutes(): RouteDescriptor[] {
       ),
     },
     {
+      path: '/labs',
+      roles: () => contextSrv.evaluatePermission([AccessControlAction.DataSourcesExplore]),
+      component: SafeDynamicImport(() => import(/* webpackChunkName: "labs-page" */ 'app/features/labs/LabsPage')),
+    },
+    {
       path: '/drilldown',
       component: () => <NavLandingPage navId="drilldown" />,
     },

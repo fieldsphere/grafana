@@ -106,6 +106,22 @@ export const navIndex: NavIndex = {
       sortWeight: -2000,
     },
   },
+  labs: {
+    id: 'labs',
+    text: 'Labs',
+    subTitle: 'View feature flags and their current status',
+    icon: 'flask',
+    url: '/labs',
+    sortWeight: -1400,
+    isNew: true,
+    parentItem: {
+      id: 'home',
+      text: 'Home',
+      icon: 'home-alt',
+      url: '/',
+      sortWeight: -2000,
+    },
+  },
   alerting: {
     id: 'alerting',
     text: 'Alerting',

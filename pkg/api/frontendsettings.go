@@ -20,6 +20,7 @@ import (
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/datasources"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	featuretoggleapi "github.com/grafana/grafana/pkg/services/featuremgmt/feature_toggle_api"
 	"github.com/grafana/grafana/pkg/services/folder"
 	"github.com/grafana/grafana/pkg/services/licensing"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginsettings"
@@ -110,6 +111,37 @@ func (hs *HTTPServer) GetFrontendSettings(c *contextmodel.ReqContext) {
 	}
 
 	c.JSON(http.StatusOK, settings)
+}
+
+func (hs *HTTPServer) GetLabsFeatureToggles(c *contextmodel.ReqContext) {
+	features, err := featuremgmt.GetEmbeddedFeatureList()
+	if err != nil {
+		c.JsonApiErr(http.StatusInternalServerError, "Failed to get feature toggle metadata", err)
+		return
+	}
+
+	enabled := hs.Features.GetEnabled(c.Req.Context())
+	toggles := make([]featuretoggleapi.ToggleStatus, 0, len(features.Items))
+	for _, feature := range features.Items {
+		toggles = append(toggles, featuretoggleapi.ToggleStatus{
+			Name:        feature.Name,
+			Description: feature.Spec.Description,
+			Stage:       feature.Spec.Stage,
+			Enabled:     enabled[feature.Name],
+			Writeable:   false,
+		})
+	}
+
+	sort.SliceStable(toggles, func(i, j int) bool {
+		return toggles[i].Name < toggles[j].Name
+	})
+
+	c.JSON(http.StatusOK, &featuretoggleapi.ResolvedToggleState{
+		AllowEditing:    false,
+		RestartRequired: false,
+		Enabled:         enabled,
+		Toggles:         toggles,
+	})
 }
 
 // getFrontendSettings returns a json object with all the settings needed for front end initialisation.

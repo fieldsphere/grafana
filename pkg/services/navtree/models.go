@@ -16,6 +16,7 @@ const (
 	WeightSavedItems
 	WeightDashboard
 	WeightExplore
+	WeightLabs
 	WeightDrilldown
 	WeightAssistant
 	WeightAlerting
@@ -41,6 +42,7 @@ const (
 	NavIDRoot                 = "root"
 	NavIDDashboards           = "dashboards/browse"
 	NavIDExplore              = "explore"
+	NavIDLabs                 = "labs"
 	NavIDDrilldown            = "drilldown"
 	NavIDAdaptiveTelemetry    = "adaptive-telemetry"
 	NavIDCfg                  = "cfg" // NavIDCfg is the id for org configuration navigation node
