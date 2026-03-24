@@ -200,9 +200,12 @@ func (hs *HTTPServer) getFrontendSettings(c *contextmodel.ReqContext) (*dtos.Fro
 	// this is needed for backwards compatibility with external plugins
 	// we should remove this once we can be sure that no external plugins rely on this
 	featureToggles["topnav"] = true
-	featureToggleList, err := getFeatureToggleList(featureToggles)
-	if err != nil {
-		return nil, err
+	featureToggleList := []dtos.FrontendSettingsFeatureToggleDTO{}
+	if c.IsSignedIn {
+		featureToggleList, err = getFeatureToggleList(featureToggles)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	frontendSettings := &dtos.FrontendSettingsDTO{

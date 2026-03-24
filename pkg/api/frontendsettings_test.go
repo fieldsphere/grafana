@@ -36,6 +36,7 @@ import (
 	datafakes "github.com/grafana/grafana/pkg/services/datasources/fakes"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/licensing"
+	"github.com/grafana/grafana/pkg/services/org"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/managedplugins"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginassets"
 	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginsettings"
@@ -260,6 +261,19 @@ func TestIntegrationHTTPServer_GetFrontendSettings_featureToggleList(t *testing.
 	cfg := setting.NewCfg()
 	m, _ := setupTestEnvironment(t, cfg, featuremgmt.WithFeatures("topnav"), nil, nil, nil)
 	req := httptest.NewRequest(http.MethodGet, "/api/frontend/settings", nil)
+	m.UseMiddleware(func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			reqContext := &contextmodel.ReqContext{
+				Context:      web.FromContext(ctx),
+				SignedInUser: &user.SignedInUser{UserID: 1, OrgID: 0, OrgRole: org.RoleViewer},
+				IsSignedIn:   true,
+			}
+			ctx = context.WithValue(ctx, ctxkey.Key{}, reqContext)
+			*reqContext.Req = *reqContext.Req.WithContext(ctx)
+			next.ServeHTTP(w, r.WithContext(ctx))
+		})
+	})
 
 	recorder := httptest.NewRecorder()
 	m.ServeHTTP(recorder, req)
@@ -282,6 +296,27 @@ func TestIntegrationHTTPServer_GetFrontendSettings_featureToggleList(t *testing.
 	require.Equal(t, "Search for dashboards using panel title", got.FeatureToggleList[panelTitleSearch].Description)
 	require.Equal(t, "preview", got.FeatureToggleList[panelTitleSearch].Stage)
 	require.False(t, got.FeatureToggleList[panelTitleSearch].Enabled)
+}
+
+func TestIntegrationHTTPServer_GetFrontendSettings_featureToggleListAnonymous(t *testing.T) {
+	testutil.SkipIntegrationTestInShortMode(t)
+
+	type settings struct {
+		FeatureToggleList []map[string]any `json:"featureToggleList"`
+	}
+
+	cfg := setting.NewCfg()
+	m, _ := setupTestEnvironment(t, cfg, featuremgmt.WithFeatures("topnav"), nil, nil, nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/frontend/settings", nil)
+
+	recorder := httptest.NewRecorder()
+	m.ServeHTTP(recorder, req)
+
+	var got settings
+	err := json.Unmarshal(recorder.Body.Bytes(), &got)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, recorder.Code)
+	require.Empty(t, got.FeatureToggleList)
 }
 
 func TestIntegrationHTTPServer_GetFrontendSettings_cachingDefaultTTLMs(t *testing.T) {
