@@ -130,20 +130,20 @@ enable = panelTitleSearch
 
 	require.NotEmpty(t, body)
 
-	var storageFlag *AdminFeatureToggle
+	var enabledByDefaultFlag *AdminFeatureToggle
 	var panelTitleSearchFlag *AdminFeatureToggle
 	for i := range body {
 		switch body[i].Name {
-		case featuremgmt.FlagStorage:
-			storageFlag = &body[i]
+		case featuremgmt.FlagCloudWatchCrossAccountQuerying:
+			enabledByDefaultFlag = &body[i]
 		case featuremgmt.FlagPanelTitleSearch:
 			panelTitleSearchFlag = &body[i]
 		}
 	}
 
-	require.NotNil(t, storageFlag)
-	assert.False(t, storageFlag.Enabled)
-	assert.Equal(t, "Configurable storage for dashboards, datasources, and resources", storageFlag.Description)
+	require.NotNil(t, enabledByDefaultFlag)
+	assert.True(t, enabledByDefaultFlag.Enabled)
+	assert.Equal(t, "Enables cross-account querying in CloudWatch datasources", enabledByDefaultFlag.Description)
 
 	require.NotNil(t, panelTitleSearchFlag)
 	assert.True(t, panelTitleSearchFlag.Enabled)
