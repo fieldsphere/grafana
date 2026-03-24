@@ -20,7 +20,7 @@ func TestAPIEndpoint_GetLabsFeatureToggles(t *testing.T) {
 
 	req := webtest.RequestWithSignedInUser(
 		server.NewGetRequest("/api/labs/feature-toggles"),
-		userWithPermissions(1, []accesscontrol.Permission{{Action: accesscontrol.ActionOrgsRead}})
+		userWithPermissions(1, []accesscontrol.Permission{{Action: accesscontrol.ActionOrgsRead}}),
 	)
 
 	res, err := server.Send(req)

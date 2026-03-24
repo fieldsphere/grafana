@@ -172,12 +172,14 @@ func TestGetNavTreeAddsLabsSectionForSignedInUsers(t *testing.T) {
 	service := ServiceImpl{
 		cfg:           setting.NewCfg(),
 		accessControl: accesscontrolmock.New(),
+		features:      featuremgmt.WithFeatures(),
 	}
 
+	labsNode := service.GetNavTree(reqCtx, nil)
 	treeRoot, err := service.GetNavTree(reqCtx, nil)
 	require.NoError(t, err)
 
-	labsNode := treeRoot.FindById(navtree.NavIDLabs)
+	labsNode = treeRoot.FindById(navtree.NavIDLabs)
 	require.NotNil(t, labsNode)
 	require.Equal(t, "Labs", labsNode.Text)
 	require.Equal(t, "/labs", labsNode.Url)
