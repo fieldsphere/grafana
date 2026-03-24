@@ -96,7 +96,6 @@ export enum AccessControlAction {
   ActionSupportBundlesDelete = 'support.bundles:delete',
 
   FeatureManagementRead = 'featuremgmt.read',
-  FeatureManagementWrite = 'featuremgmt.write',
 
   // Alerting rules
   AlertingRuleCreate = 'alert.rules:create',
