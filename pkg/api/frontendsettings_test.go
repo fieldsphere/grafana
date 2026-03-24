@@ -232,10 +232,12 @@ func TestIntegrationHTTPServer_GetLabsFeatureToggles(t *testing.T) {
 	assert.Equal(t, "GA", dashgpt.Stage)
 	assert.True(t, dashgpt.Enabled)
 	assert.Equal(t, "Enable AI powered features in dashboards", dashgpt.Description)
+	assert.False(t, dashgpt.Writeable)
 
 	require.NotNil(t, customUnknown)
 	assert.True(t, customUnknown.Enabled)
 	assert.Equal(t, "Unknown flag configured in [feature_toggles]", customUnknown.Warning)
+	assert.False(t, customUnknown.Writeable)
 }
 
 func TestIntegrationHTTPServer_GetFrontendSettings_pluginsCDNBaseURL(t *testing.T) {

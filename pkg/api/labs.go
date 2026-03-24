@@ -3,6 +3,7 @@ package api
 import (
 	"net/http"
 	"slices"
+	"strings"
 
 	"github.com/grafana/grafana/pkg/api/response"
 	common "github.com/grafana/grafana/pkg/apimachinery/apis/common/v0alpha1"
@@ -39,7 +40,7 @@ func (hs *HTTPServer) GetLabsFeatureToggles(c *contextmodel.ReqContext) response
 			Description: feature.Spec.Description,
 			Stage:       feature.Spec.Stage,
 			Enabled:     hs.Features.IsEnabled(c.Req.Context(), feature.Name),
-			Writeable:   true,
+			Writeable:   false,
 		})
 	}
 
@@ -53,7 +54,7 @@ func (hs *HTTPServer) GetLabsFeatureToggles(c *contextmodel.ReqContext) response
 			statuses = append(statuses, featuretoggleapi.ToggleStatus{
 				Name:      name,
 				Enabled:   hs.Features.IsEnabled(c.Req.Context(), name),
-				Writeable: true,
+				Writeable: false,
 				Source:    unknownSource,
 				Warning:   "Unknown flag configured in [feature_toggles]",
 			})
@@ -63,7 +64,7 @@ func (hs *HTTPServer) GetLabsFeatureToggles(c *contextmodel.ReqContext) response
 	slices.SortFunc(statuses, func(a, b featuretoggleapi.ToggleStatus) int {
 		switch {
 		case a.Enabled == b.Enabled:
-			return compareStrings(a.Name, b.Name)
+			return strings.Compare(a.Name, b.Name)
 		case a.Enabled:
 			return -1
 		default:
@@ -75,15 +76,4 @@ func (hs *HTTPServer) GetLabsFeatureToggles(c *contextmodel.ReqContext) response
 		Enabled: hs.Features.GetEnabled(c.Req.Context()),
 		Toggles: statuses,
 	})
-}
-
-func compareStrings(a, b string) int {
-	switch {
-	case a < b:
-		return -1
-	case a > b:
-		return 1
-	default:
-		return 0
-	}
 }
