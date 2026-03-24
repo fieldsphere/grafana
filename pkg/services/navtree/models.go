@@ -37,7 +37,7 @@ const (
 	WeightHelp
 )
 
-const WeightLabs = -2150
+const WeightLabs = (WeightDataConnections + WeightApps) / 2
 
 const (
 	NavIDRoot                 = "root"

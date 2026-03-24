@@ -45,3 +45,9 @@ func TestNavTreeRoot(t *testing.T) {
 		require.Equal(t, "3", treeRoot.FindByURL("/org/users").Id)
 	})
 }
+
+func TestWeightLabsIsBetweenDataConnectionsAndApps(t *testing.T) {
+	require.Greater(t, WeightLabs, WeightDataConnections)
+	require.Less(t, WeightLabs, WeightApps)
+	require.Equal(t, (WeightDataConnections+WeightApps)/2, WeightLabs)
+}
