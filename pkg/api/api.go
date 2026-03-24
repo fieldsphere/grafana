@@ -224,6 +224,7 @@ func (hs *HTTPServer) registerRoutes() {
 	r.Get("/monitoring/*", reqSignedIn, hs.Index)
 	r.Get("/observability/", reqSignedIn, hs.Index)
 	r.Get("/observability/*", reqSignedIn, hs.Index)
+	r.Get("/labs", authorize(ac.EvalPermission(ac.ActionFeatureManagementRead)), hs.Index)
 	r.Get("/alerts-and-incidents", reqSignedIn, hs.Index)
 	r.Get("/alerts-and-incidents/*", reqSignedIn, hs.Index)
 
@@ -471,6 +472,8 @@ func (hs *HTTPServer) registerRoutes() {
 			pluginRoute.Post("/:pluginId/settings", authorize(ac.EvalPermission(pluginaccesscontrol.ActionWrite, pluginIDScope)), routing.Wrap(hs.UpdatePluginSetting))
 			pluginRoute.Get("/:pluginId/metrics", reqOrgAdmin, routing.Wrap(hs.CollectPluginMetrics))
 		})
+
+		apiRoute.Get("/labs/feature-toggles", authorize(ac.EvalPermission(ac.ActionFeatureManagementRead)), routing.Wrap(hs.GetLabsFeatureToggles))
 
 		apiRoute.Get("/frontend/settings/", hs.GetFrontendSettings)
 		apiRoute.Get("/frontend/assets", hs.GetFrontendAssets)

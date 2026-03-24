@@ -10,11 +10,16 @@ import (
 	"github.com/stretchr/testify/require"
 
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
+	"github.com/grafana/grafana/pkg/infra/log"
+	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
+	accesscontrolmock "github.com/grafana/grafana/pkg/services/accesscontrol/mock"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -156,5 +161,43 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "A Dashboard", navLinks[0].Text)
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
+	})
+}
+
+func TestBuildLabsNavLink(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		SignedInUser: &user.SignedInUser{
+			UserID: 1,
+			OrgID:  1,
+		},
+		Context: &web.Context{Req: httpReq},
+	}
+
+	t.Run("returns nil without feature management access", func(t *testing.T) {
+		service := ServiceImpl{
+			log:           log.New("navtree"),
+			cfg:           setting.NewCfg(),
+			accessControl: accesscontrolmock.New(),
+		}
+
+		require.Nil(t, service.buildLabsNavLink(reqCtx))
+	})
+
+	t.Run("returns labs nav link with new badge", func(t *testing.T) {
+		service := ServiceImpl{
+			log:  log.New("navtree"),
+			cfg:  setting.NewCfg(),
+			accessControl: accesscontrolmock.New().WithPermissions([]ac.Permission{
+				{Action: ac.ActionFeatureManagementRead},
+			}),
+		}
+
+		link := service.buildLabsNavLink(reqCtx)
+		require.NotNil(t, link)
+		require.Equal(t, navtree.NavIDLabs, link.Id)
+		require.Equal(t, "/labs", link.Url)
+		require.Equal(t, int64(navtree.WeightLabs), link.SortWeight)
+		require.True(t, link.IsNew)
 	})
 }
