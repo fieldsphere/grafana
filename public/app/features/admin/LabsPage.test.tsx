@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react';
 
 import LabsPage from './LabsPage';
-import { getFeatureToggles, type AdminFeatureToggle } from './state/apis';
+import { getAdminFeatureToggles, type AdminFeatureToggle } from './state/apis';
 
 jest.mock('./state/apis', () => ({
-  getFeatureToggles: jest.fn(),
+  getAdminFeatureToggles: jest.fn(),
 }));
 
-const mockedGetFeatureToggles = jest.mocked(getFeatureToggles);
+const mockedGetFeatureToggles = jest.mocked(getAdminFeatureToggles);
 
 describe('LabsPage', () => {
   it('renders feature flags and their states', async () => {

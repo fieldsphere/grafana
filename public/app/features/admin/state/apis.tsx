@@ -44,11 +44,6 @@ export const getServerStats = async (): Promise<ServerStat | null> => {
     });
 };
 
-export const getAdminFeatureToggles = async (): Promise<AdminFeatureToggle[] | null> => {
-  return getBackendSrv()
-    .get<AdminFeatureToggle[]>('/api/admin/feature-toggles')
-    .catch((err) => {
-      console.error(err);
-      return null;
-    });
+export const getAdminFeatureToggles = async (): Promise<AdminFeatureToggle[]> => {
+  return getBackendSrv().get<AdminFeatureToggle[]>('/api/admin/feature-toggles');
 };

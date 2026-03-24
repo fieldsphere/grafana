@@ -1,19 +1,18 @@
+import { css } from '@emotion/css';
 import { useMemo, useState } from 'react';
 import { useAsync } from 'react-use';
-
-import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Alert, Badge, FilterInput, InteractiveTable, type Column, Stack, useStyles2 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 
-import { getFeatureToggles, type AdminFeatureToggle } from './state/apis';
+import { getAdminFeatureToggles, type AdminFeatureToggle } from './state/apis';
 
 export function LabsPage() {
   const styles = useStyles2(getStyles);
   const [query, setQuery] = useState('');
-  const { loading, value, error } = useAsync(() => getFeatureToggles(), []);
+  const { loading, value, error } = useAsync(() => getAdminFeatureToggles(), []);
 
   const data = useMemo(() => {
     const toggles = value ?? [];
