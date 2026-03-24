@@ -166,8 +166,10 @@ export default function LabsPage() {
       navId="labs"
       subTitle={
         <>
-          {t('labs.subtitle.long', 'Review every registered feature flag in this Grafana instance and its current status.')}
-          {' '}
+          {t(
+            'labs.subtitle.long',
+            'Review every registered feature flag in this Grafana instance and its current status.'
+          )}{' '}
           <TextLink href="https://grafana.com/docs/grafana/latest/administration/feature-toggles/" external>
             {t('labs.docs-link', 'Feature toggle documentation')}
           </TextLink>
