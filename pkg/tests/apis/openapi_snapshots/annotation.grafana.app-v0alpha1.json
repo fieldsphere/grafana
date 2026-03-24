@@ -1045,6 +1045,45 @@
         }
       ]
     },
+    "/apis/annotation.grafana.app/v0alpha1/namespaces/{namespace}/search": {
+      "get": {
+        "operationId": "getSearch",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetSearchResponse"
+                }
+              },
+              "application/json;stream=watch": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetSearchResponse"
+                }
+              },
+              "application/yaml": {
+                "schema": {
+                  "$ref": "#/components/schemas/com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetSearchResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "name": "namespace",
+          "in": "path",
+          "description": "object name and auth scope, such as for teams and projects",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "uniqueItems": true
+          }
+        }
+      ]
+    },
     "/apis/annotation.grafana.app/v0alpha1/namespaces/{namespace}/tags": {
       "get": {
         "operationId": "getTags",
@@ -1054,17 +1093,17 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetTags"
+                  "$ref": "#/components/schemas/com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetTagsResponse"
                 }
               },
               "application/json;stream=watch": {
                 "schema": {
-                  "$ref": "#/components/schemas/com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetTags"
+                  "$ref": "#/components/schemas/com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetTagsResponse"
                 }
               },
               "application/yaml": {
                 "schema": {
-                  "$ref": "#/components/schemas/com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetTags"
+                  "$ref": "#/components/schemas/com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetTagsResponse"
                 }
               }
             }
@@ -1184,10 +1223,7 @@
           "details": {
             "description": "details contains any extra information that is operator-specific",
             "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "additionalProperties": {}
-            }
+            "additionalProperties": true
           },
           "lastEvaluation": {
             "description": "lastEvaluation is the ResourceVersion last evaluated",
@@ -1218,6 +1254,12 @@
           "panelID": {
             "type": "integer"
           },
+          "scopes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
           "tags": {
             "type": "array",
             "items": {
@@ -1242,10 +1284,7 @@
           "additionalFields": {
             "description": "additionalFields is reserved for future use",
             "type": "object",
-            "additionalProperties": {
-              "type": "object",
-              "additionalProperties": {}
-            }
+            "additionalProperties": true
           },
           "operatorStates": {
             "description": "operatorStates is a map of operator ID to operator state evaluations.\nAny operator which consumes this kind SHOULD add its state evaluation information to this field.",
@@ -1257,7 +1296,34 @@
         },
         "additionalProperties": false
       },
-      "com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetTags": {
+      "com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetSearchResponse": {
+        "type": "object",
+        "required": [
+          "apiVersion",
+          "kind",
+          "items",
+          "apiVersion",
+          "kind"
+        ],
+        "properties": {
+          "apiVersion": {
+            "description": "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+            "type": "string"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": {}
+            }
+          },
+          "kind": {
+            "description": "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+            "type": "string"
+          }
+        }
+      },
+      "com.github.grafana.grafana.apps.annotation.pkg.apis.annotation.v0alpha1.GetTagsResponse": {
         "type": "object",
         "required": [
           "tags",
@@ -1708,8 +1774,7 @@
               {
                 "$ref": "#/components/schemas/io.k8s.apimachinery.pkg.apis.meta.v1.StatusDetails"
               }
-            ],
-            "x-kubernetes-list-type": "atomic"
+            ]
           },
           "kind": {
             "description": "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",

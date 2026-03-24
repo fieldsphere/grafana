@@ -28,14 +28,14 @@ func TestMain(m *testing.M) {
 
 func TestIntegrationAnnotations(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
+	t.Setenv("GF_ANNOTATIONS_APP_PLATFORM_ENABLED", "true")
 
 	for _, mode := range []grafanarest.DualWriterMode{
 		grafanarest.Mode0, // Only legacy for now
 	} {
 		t.Run(fmt.Sprintf("annotations (mode:%d)", mode), func(t *testing.T) {
 			helper := apis.NewK8sTestHelper(t, testinfra.GrafanaOpts{
-				DisableAnonymous:     true,
-				EnableFeatureToggles: []string{"kubernetesAnnotations"},
+				DisableAnonymous: true,
 				UnifiedStorageConfig: map[string]setting.UnifiedStorageConfig{
 					"annotation.annotation.grafana.app": {
 						DualWriterMode: mode,
