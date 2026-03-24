@@ -32,12 +32,18 @@ func (hs *HTTPServer) GetLabsFeatureToggles(c *contextmodel.ReqContext) response
 	flags := featuremgmt.GetStandardFeatureFlags()
 
 	toggles := make([]labsFeatureToggleDTO, 0, len(flags))
+	activeCount := 0
 	for _, flag := range flags {
+		isEnabled := enabled[flag.Name]
+		if isEnabled {
+			activeCount++
+		}
+
 		toggles = append(toggles, labsFeatureToggleDTO{
 			Name:            flag.Name,
 			Description:     flag.Description,
 			Stage:           flag.Stage.String(),
-			Enabled:         enabled[flag.Name],
+			Enabled:         isEnabled,
 			FrontendOnly:    flag.FrontendOnly,
 			HideFromDocs:    flag.HideFromDocs,
 			RequiresDevMode: flag.RequiresDevMode,
@@ -54,7 +60,7 @@ func (hs *HTTPServer) GetLabsFeatureToggles(c *contextmodel.ReqContext) response
 	})
 
 	return response.JSON(http.StatusOK, labsFeatureTogglesResponse{
-		ActiveCount:    len(enabled),
+		ActiveCount:    activeCount,
 		AvailableCount: len(toggles),
 		Toggles:        toggles,
 	})

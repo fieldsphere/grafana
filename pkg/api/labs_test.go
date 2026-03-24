@@ -15,7 +15,7 @@ import (
 
 func TestAPIEndpoint_GetLabsFeatureToggles(t *testing.T) {
 	server := SetupAPITestServer(t, func(hs *HTTPServer) {
-		hs.Features = featuremgmt.WithFeatures(featuremgmt.FlagPanelTitleSearch)
+		hs.Features = featuremgmt.WithFeatures(featuremgmt.FlagPanelTitleSearch, "customIniOnlyFlag")
 	})
 
 	req := webtest.RequestWithSignedInUser(

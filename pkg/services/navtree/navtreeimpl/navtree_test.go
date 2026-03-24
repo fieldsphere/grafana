@@ -9,9 +9,17 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	"github.com/grafana/grafana/pkg/services/accesscontrol/actest"
+	"github.com/grafana/grafana/pkg/services/authn"
+	"github.com/grafana/grafana/pkg/services/authn/authntest"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/licensing"
 	"github.com/grafana/grafana/pkg/services/navtree"
+	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginsettings"
+	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginstore"
+	pref "github.com/grafana/grafana/pkg/services/preference"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
@@ -169,17 +177,20 @@ func TestGetNavTreeAddsLabsSectionForSignedInUsers(t *testing.T) {
 		Context:      &web.Context{Req: httpReq},
 	}
 
-	cfg := setting.NewCfg()
-	labsNode := &navtree.NavLink{
-		Text:       "Labs",
-		Id:         navtree.NavIDLabs,
-		SubTitle:   "Browse active and available feature flags",
-		Icon:       "flask",
-		Url:        cfg.AppSubURL + "/labs",
-		SortWeight: navtree.WeightLabs,
-		IsNew:      reqCtx.IsSignedIn,
+	service := ServiceImpl{
+		cfg:            setting.NewCfg(),
+		accessControl:  actest.FakeAccessControl{ExpectedEvaluate: false},
+		authnService:   &authntest.FakeService{ExpectedIdentity: &authn.Identity{}},
+		features:       featuremgmt.WithFeatures(),
+		license:        &licensing.OSSLicensingService{},
+		pluginStore:    &pluginstore.FakePluginStore{},
+		pluginSettings: &pluginsettings.FakePluginSettings{},
 	}
 
+	treeRoot, err := service.GetNavTree(reqCtx, &pref.Preference{})
+	require.NoError(t, err)
+
+	labsNode := treeRoot.FindById(navtree.NavIDLabs)
 	require.NotNil(t, labsNode)
 	require.Equal(t, "Labs", labsNode.Text)
 	require.Equal(t, "/labs", labsNode.Url)
