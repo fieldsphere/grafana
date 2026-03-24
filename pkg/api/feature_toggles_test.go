@@ -15,7 +15,7 @@ import (
 )
 
 func TestAPI_GetFeatureToggles(t *testing.T) {
-	t.Run("signed-in user gets 200 with toggles list", func(t *testing.T) {
+	t.Run("signed-in user without feature management read permission gets 403", func(t *testing.T) {
 		server := SetupAPITestServer(t, func(hs *HTTPServer) {
 			hs.Features = featuremgmt.WithManager("alpha", true, "beta", false)
 		})
@@ -24,6 +24,22 @@ func TestAPI_GetFeatureToggles(t *testing.T) {
 			webtest.RequestWithSignedInUser(
 				server.NewGetRequest("/api/feature-toggles"),
 				userWithPermissions(1, []accesscontrol.Permission{}),
+			),
+		)
+		require.NoError(t, err)
+		assert.Equal(t, http.StatusForbidden, res.StatusCode)
+		require.NoError(t, res.Body.Close())
+	})
+
+	t.Run("signed-in user with feature management read permission gets 200 with toggles list", func(t *testing.T) {
+		server := SetupAPITestServer(t, func(hs *HTTPServer) {
+			hs.Features = featuremgmt.WithManager("alpha", true, "beta", false)
+		})
+
+		res, err := server.Send(
+			webtest.RequestWithSignedInUser(
+				server.NewGetRequest("/api/feature-toggles"),
+				userWithPermissions(1, []accesscontrol.Permission{{Action: accesscontrol.ActionFeatureManagementRead}}),
 			),
 		)
 		require.NoError(t, err)
