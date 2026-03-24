@@ -90,6 +90,13 @@ export interface LicenseInfo {
   trialExpiry?: number;
 }
 
+export interface FeatureToggleStatus {
+  name: string;
+  description?: string;
+  stage?: string;
+  enabled: boolean;
+}
+
 /**
  * Describes GrafanaJavascriptAgentConfig integration config
  *
@@ -275,6 +282,7 @@ export interface GrafanaConfig {
   anonymousEnabled: boolean;
   anonymousDeviceLimit: number;
   featureToggles: FeatureToggles;
+  featureToggleList: FeatureToggleStatus[];
   licenseInfo: LicenseInfo;
   http2Enabled: boolean;
   dateFormats?: SystemDateFormatSettings;

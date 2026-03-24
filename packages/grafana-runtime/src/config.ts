@@ -8,6 +8,7 @@ import {
   BuildInfo,
   DataSourceInstanceSettings,
   FeatureToggles,
+  FeatureToggleStatus,
   GrafanaTheme,
   GrafanaTheme2,
   LicenseInfo,
@@ -144,6 +145,7 @@ export class GrafanaBootConfig {
   theme: GrafanaTheme;
   theme2: GrafanaTheme2;
   featureToggles: FeatureToggles = {};
+  featureToggleList: FeatureToggleStatus[] = [];
   anonymousEnabled = false;
   anonymousDeviceLimit?: number;
   licenseInfo: LicenseInfo = {} as LicenseInfo;

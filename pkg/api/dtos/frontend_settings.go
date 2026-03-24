@@ -243,6 +243,7 @@ type FrontendSettingsDTO struct {
 	LicenseInfo FrontendSettingsLicenseInfoDTO `json:"licenseInfo"`
 
 	FeatureToggles                      map[string]bool                `json:"featureToggles"`
+	FeatureToggleList                   []FrontendSettingsFeatureToggleDTO `json:"featureToggleList"`
 	AnonymousEnabled                    bool                           `json:"anonymousEnabled"`
 	AnonymousDeviceLimit                int64                          `json:"anonymousDeviceLimit"`
 	RendererAvailable                   bool                           `json:"rendererAvailable"`
@@ -318,4 +319,11 @@ type FrontendSettingsDTO struct {
 	ListScopesEndpoint          string            `json:"listScopesEndpoint"`
 	ListDashboardScopesEndpoint string            `json:"listDashboardScopesEndpoint"`
 	OpenFeatureContext          map[string]string `json:"openFeatureContext"`
+}
+
+type FrontendSettingsFeatureToggleDTO struct {
+	Name        string `json:"name"`
+	Description string `json:"description,omitempty"`
+	Stage       string `json:"stage,omitempty"`
+	Enabled     bool   `json:"enabled"`
 }

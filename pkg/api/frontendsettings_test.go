@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"slices"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -240,6 +241,47 @@ func TestIntegrationHTTPServer_GetFrontendSettings_pluginsCDNBaseURL(t *testing.
 			require.EqualValues(t, test.expected, got)
 		})
 	}
+}
+
+func TestIntegrationHTTPServer_GetFrontendSettings_featureToggleList(t *testing.T) {
+	testutil.SkipIntegrationTestInShortMode(t)
+
+	type featureToggle struct {
+		Name        string `json:"name"`
+		Description string `json:"description"`
+		Stage       string `json:"stage"`
+		Enabled     bool   `json:"enabled"`
+	}
+
+	type settings struct {
+		FeatureToggleList []featureToggle `json:"featureToggleList"`
+	}
+
+	cfg := setting.NewCfg()
+	m, _ := setupTestEnvironment(t, cfg, featuremgmt.WithFeatures("topnav"), nil, nil, nil)
+	req := httptest.NewRequest(http.MethodGet, "/api/frontend/settings", nil)
+
+	recorder := httptest.NewRecorder()
+	m.ServeHTTP(recorder, req)
+
+	var got settings
+	err := json.Unmarshal(recorder.Body.Bytes(), &got)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, recorder.Code)
+	require.NotEmpty(t, got.FeatureToggleList)
+
+	topnav := slices.IndexFunc(got.FeatureToggleList, func(toggle featureToggle) bool {
+		return toggle.Name == "topnav"
+	})
+	require.Equal(t, -1, topnav)
+
+	panelTitleSearch := slices.IndexFunc(got.FeatureToggleList, func(toggle featureToggle) bool {
+		return toggle.Name == featuremgmt.FlagPanelTitleSearch
+	})
+	require.NotEqual(t, -1, panelTitleSearch)
+	require.Equal(t, "Search for dashboards using panel title", got.FeatureToggleList[panelTitleSearch].Description)
+	require.Equal(t, "preview", got.FeatureToggleList[panelTitleSearch].Stage)
+	require.False(t, got.FeatureToggleList[panelTitleSearch].Enabled)
 }
 
 func TestIntegrationHTTPServer_GetFrontendSettings_cachingDefaultTTLMs(t *testing.T) {
