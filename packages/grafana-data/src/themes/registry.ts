@@ -12,6 +12,7 @@ import sapphiredusk from './themeDefinitions/sapphiredusk.json';
 import synthwave from './themeDefinitions/synthwave.json';
 import tron from './themeDefinitions/tron.json';
 import victorian from './themeDefinitions/victorian.json';
+import webcore90s from './themeDefinitions/webcore90s.json';
 import zen from './themeDefinitions/zen.json';
 import { GrafanaTheme2 } from './types';
 
@@ -32,6 +33,7 @@ const extraThemes: { [key: string]: unknown } = {
   synthwave,
   tron,
   victorian,
+  webcore90s,
   zen,
 };
 
