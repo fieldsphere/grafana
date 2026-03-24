@@ -311,10 +311,7 @@ export function getNavSubTitle(navId: string | undefined) {
     case 'testing-and-synthetics':
       return t('nav.testing-and-synthetics.subtitle', 'Optimize performance with k6 and Synthetic Monitoring insights');
     case 'labs':
-      return t(
-        'nav.labs.subtitle',
-        'View feature flags and experimental features in this Grafana instance'
-      );
+      return t('nav.labs.subtitle', 'View feature flags and experimental features in this Grafana instance');
     case 'connections-add-new-connection':
       return t('nav.connections.subtitle', 'Browse and create new connections');
     case 'connections-datasources':
