@@ -139,6 +139,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.monitoring.title', 'Observability');
     case 'infrastructure':
       return t('nav.infrastructure.title', 'Infrastructure');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'frontend':
       return t('nav.frontend.title', 'Frontend');
     case 'apps':
@@ -302,6 +304,8 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.monitoring.subtitle', 'Out-of-the-box observability solutions');
     case 'infrastructure':
       return t('nav.infrastructure.subtitle', "Understand your infrastructure's health");
+    case 'labs':
+      return t('nav.labs.subtitle', 'Explore experimental and preview feature flags enabled for this Grafana instance');
     case 'frontend':
       return t('nav.frontend.subtitle', 'Gain real user monitoring insights');
     case 'alerts-and-incidents':
