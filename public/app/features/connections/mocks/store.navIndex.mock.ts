@@ -112,7 +112,7 @@ export const navIndex: NavIndex = {
     subTitle: 'View feature flags and their current status',
     icon: 'flask',
     url: '/labs',
-    sortWeight: -1400,
+    sortWeight: -1450,
     isNew: true,
     parentItem: {
       id: 'home',
