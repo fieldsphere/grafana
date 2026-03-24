@@ -9,12 +9,17 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
+	"github.com/grafana/grafana/pkg/services/accesscontrol/acimpl"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -156,5 +161,48 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "A Dashboard", navLinks[0].Text)
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
+	})
+}
+
+func TestBuildLabsNavLink(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		SignedInUser: &user.SignedInUser{
+			UserID: 1,
+			OrgID:  1,
+		},
+		Context: &web.Context{Req: httpReq},
+	}
+	service := ServiceImpl{
+		cfg:           setting.NewCfg(),
+		accessControl: acimpl.ProvideAccessControl(featuremgmt.WithFeatures()),
+	}
+
+	t.Run("returns nil when user is not signed in", func(t *testing.T) {
+		reqCtx.IsSignedIn = false
+		reqCtx.SignedInUser.Permissions = nil
+
+		require.Nil(t, service.buildLabsNavLink(reqCtx))
+	})
+
+	t.Run("returns nil without feature management read permission", func(t *testing.T) {
+		reqCtx.IsSignedIn = true
+		reqCtx.SignedInUser.Permissions = map[int64]map[string][]string{
+			1: {"dashboards:read": {"*"}},
+		}
+
+		require.Nil(t, service.buildLabsNavLink(reqCtx))
+	})
+
+	t.Run("returns labs link with feature management read permission", func(t *testing.T) {
+		reqCtx.IsSignedIn = true
+		reqCtx.SignedInUser.Permissions = map[int64]map[string][]string{
+			1: ac.GroupScopesByActionContext(context.Background(), []ac.Permission{{Action: ac.ActionFeatureManagementRead}}),
+		}
+
+		link := service.buildLabsNavLink(reqCtx)
+		require.NotNil(t, link)
+		require.Equal(t, navtree.NavIDLabs, link.Id)
+		require.Equal(t, "/labs", link.Url)
 	})
 }

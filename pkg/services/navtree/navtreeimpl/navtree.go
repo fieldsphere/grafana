@@ -654,7 +654,8 @@ func (s *ServiceImpl) buildDataConnectionsNavLink(c *contextmodel.ReqContext) *n
 }
 
 func (s *ServiceImpl) buildLabsNavLink(c *contextmodel.ReqContext) *navtree.NavLink {
-	if !c.IsSignedIn {
+	hasAccess := ac.HasAccess(s.accessControl, c)
+	if !c.IsSignedIn || !hasAccess(ac.EvalPermission(ac.ActionFeatureManagementRead)) {
 		return nil
 	}
 
