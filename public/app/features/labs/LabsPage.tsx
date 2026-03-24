@@ -79,7 +79,7 @@ const stageColors: Record<string, 'blue' | 'orange' | 'purple' | 'red' | 'darkgr
 };
 
 function getStageLabel(stage: string) {
-  return stageLabels[stage] ?? stage || 'Unknown';
+  return stageLabels[stage] ?? (stage || 'Unknown');
 }
 
 function getStageColor(stage: string): 'blue' | 'orange' | 'purple' | 'red' | 'darkgrey' | 'green' {
