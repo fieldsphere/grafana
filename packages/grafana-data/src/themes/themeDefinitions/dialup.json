@@ -1,0 +1,85 @@
+{
+  "name": "Dial-up",
+  "id": "dialup",
+  "colors": {
+    "mode": "light",
+    "border": {
+      "weak": "rgba(35, 18, 102, 0.16)",
+      "medium": "rgba(35, 18, 102, 0.28)",
+      "strong": "rgba(35, 18, 102, 0.4)"
+    },
+    "text": {
+      "primary": "#231266",
+      "secondary": "rgba(35, 18, 102, 0.78)",
+      "disabled": "rgba(35, 18, 102, 0.52)",
+      "link": "#ff1493",
+      "maxContrast": "#000000"
+    },
+    "primary": {
+      "main": "#ff00a8",
+      "text": "#b40077",
+      "border": "#b40077",
+      "transparent": "rgba(255, 0, 168, 0.18)",
+      "contrastText": "#ffffff"
+    },
+    "secondary": {
+      "main": "#d9fff7",
+      "text": "#231266",
+      "border": "#00d9ff",
+      "transparent": "rgba(0, 217, 255, 0.12)",
+      "contrastText": "#231266"
+    },
+    "info": {
+      "main": "#00d9ff"
+    },
+    "success": {
+      "main": "#19c37d"
+    },
+    "warning": {
+      "main": "#ffe600"
+    },
+    "background": {
+      "canvas": "#fff7d6",
+      "primary": "#fffdf0",
+      "secondary": "#d9fff7",
+      "elevated": "#ffffff"
+    },
+    "action": {
+      "hover": "rgba(0, 217, 255, 0.16)",
+      "selected": "rgba(255, 0, 168, 0.16)",
+      "selectedBorder": "#7b00ff",
+      "focus": "rgba(123, 0, 255, 0.18)",
+      "hoverOpacity": 0.1,
+      "disabledText": "rgba(35, 18, 102, 0.52)",
+      "disabledBackground": "rgba(35, 18, 102, 0.08)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #ff00a8 0%, #00d9ff 55%, #ffe600 100%)",
+      "brandVertical": "linear-gradient(0deg, #ff00a8 0%, #00d9ff 55%, #ffe600 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.05,
+    "tonalOffset": 0.2
+  },
+  "shape": {
+    "borderRadius": 0
+  },
+  "typography": {
+    "fontFamily": "'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive",
+    "fontFamilyMonospace": "'Courier New', 'Lucida Console', monospace",
+    "fontWeightBold": 700
+  },
+  "visualization": {
+    "palette": [
+      "#ff00a8",
+      "#00d9ff",
+      "#ffe600",
+      "#19c37d",
+      "#7b00ff",
+      "#ff6b00",
+      "#00a8ff",
+      "#ff4081"
+    ]
+  }
+}
