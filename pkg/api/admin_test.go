@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"testing"
@@ -11,6 +12,7 @@ import (
 	"github.com/grafana/grafana/pkg/infra/db/dbtest"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/anonymous/anontest"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/stats"
 	"github.com/grafana/grafana/pkg/services/stats/statstest"
 	"github.com/grafana/grafana/pkg/setting"
@@ -99,6 +101,54 @@ func TestAPI_AdminGetSettings(t *testing.T) {
 	}
 }
 
+func TestAPI_AdminGetFeatureToggles(t *testing.T) {
+	cfg, err := setting.NewCfgFromBytes([]byte(`
+[feature_toggles]
+enable = panelTitleSearch
+`))
+	require.NoError(t, err)
+
+	features, err := featuremgmt.ProvideManagerService(cfg)
+	require.NoError(t, err)
+
+	server := SetupAPITestServer(t, func(hs *HTTPServer) {
+		hs.Features = features
+	})
+
+	res, err := server.Send(
+		webtest.RequestWithSignedInUser(
+			server.NewGetRequest("/api/admin/feature-toggles"),
+			userWithPermissions(1, []accesscontrol.Permission{{Action: accesscontrol.ActionSettingsRead}}),
+		),
+	)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, res.StatusCode)
+
+	var body []AdminFeatureToggle
+	require.NoError(t, json.NewDecoder(res.Body).Decode(&body))
+	require.NoError(t, res.Body.Close())
+
+	require.NotEmpty(t, body)
+
+	var enabledByDefaultFlag *AdminFeatureToggle
+	var panelTitleSearchFlag *AdminFeatureToggle
+	for i := range body {
+		switch body[i].Name {
+		case featuremgmt.FlagCloudWatchCrossAccountQuerying:
+			enabledByDefaultFlag = &body[i]
+		case featuremgmt.FlagPanelTitleSearch:
+			panelTitleSearchFlag = &body[i]
+		}
+	}
+
+	require.NotNil(t, enabledByDefaultFlag)
+	assert.True(t, enabledByDefaultFlag.Enabled)
+	assert.Equal(t, "Enables cross-account querying in CloudWatch datasources", enabledByDefaultFlag.Description)
+
+	require.NotNil(t, panelTitleSearchFlag)
+	assert.True(t, panelTitleSearchFlag.Enabled)
+}
+
 func TestAdmin_AccessControl(t *testing.T) {
 	type testCase struct {
 		desc         string
@@ -139,9 +189,29 @@ func TestAdmin_AccessControl(t *testing.T) {
 			},
 		},
 		{
+			expectedCode: http.StatusOK,
+			desc:         "AdminGetFeatureToggles should return 200 for user with correct permissions",
+			url:          "/api/admin/feature-toggles",
+			permissions: []accesscontrol.Permission{
+				{
+					Action: accesscontrol.ActionSettingsRead,
+				},
+			},
+		},
+		{
 			expectedCode: http.StatusForbidden,
 			desc:         "AdminGetSettings should return 403 for user without required permissions",
 			url:          "/api/admin/settings",
+			permissions: []accesscontrol.Permission{
+				{
+					Action: "wrong",
+				},
+			},
+		},
+		{
+			expectedCode: http.StatusForbidden,
+			desc:         "AdminGetFeatureToggles should return 403 for user without required permissions",
+			url:          "/api/admin/feature-toggles",
 			permissions: []accesscontrol.Permission{
 				{
 					Action: "wrong",
@@ -162,6 +232,7 @@ func TestAdmin_AccessControl(t *testing.T) {
 				hs.SettingsProvider = &setting.OSSImpl{Cfg: hs.Cfg}
 				hs.statsService = fakeStatsService
 				hs.anonService = fakeAnonService
+				hs.Features = featuremgmt.WithFeatures()
 			})
 
 			res, err := server.Send(webtest.RequestWithSignedInUser(server.NewGetRequest(tt.url), userWithPermissions(1, tt.permissions)))

@@ -136,6 +136,37 @@
       "team-sync-details": "LDAP, GitHub OAuth, Auth Proxy, Okta",
       "title": "Get Grafana Enterprise"
     },
+    "labs-page": {
+      "alert": {
+        "body": "This page lists all registered feature flags and their current effective state in this Grafana instance.",
+        "title": "Labs feature flags"
+      },
+      "attributes": {
+        "default": "Default",
+        "dev-mode": "Requires dev mode",
+        "frontend": "Frontend only",
+        "restart": "Requires restart"
+      },
+      "columns": {
+        "attributes": "Attributes",
+        "description": "Description",
+        "flag": "Flag",
+        "stage": "Stage",
+        "status": "Status"
+      },
+      "disabled": "Disabled",
+      "enabled": "Enabled",
+      "error": {
+        "body": "Grafana could not fetch the feature-flag registry for this page.",
+        "title": "Unable to load feature flags"
+      },
+      "search": {
+        "aria-label": "Search feature flags",
+        "placeholder": "Search feature flags"
+      },
+      "summary": "{{shown}} of {{total}} flags",
+      "unknown": "unknown"
+    },
     "ldap": {
       "debug-subtitle": "Verify your LDAP and user mapping configuration.",
       "debug-title": "LDAP Diagnostics",
@@ -11604,6 +11635,10 @@
     },
     "kubernetes": {
       "title": "Kubernetes"
+    },
+    "labs": {
+      "subtitle": "Inspect feature flags and their current runtime state",
+      "title": "Labs"
     },
     "library-panels": {
       "subtitle": "Reusable panels that can be added to multiple dashboards",
