@@ -1,0 +1,17 @@
+{
+  "name": "grafana-cursor-toolkit",
+  "version": "0.1.0",
+  "description": "Grafana-focused Cursor skills, agents, and testing guidance for ticket execution, code exploration, debugging, and correlations API migration.",
+  "keywords": [
+    "grafana",
+    "cursor",
+    "skills",
+    "agents",
+    "testing",
+    "jira",
+    "github"
+  ],
+  "rules": "rules",
+  "skills": "skills",
+  "agents": "agents"
+}
