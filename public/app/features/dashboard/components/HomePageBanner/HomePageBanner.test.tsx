@@ -14,7 +14,7 @@ describe('HomePageBanner', () => {
 
     expect(screen.getByText('Welcome home')).toBeInTheDocument();
     expect(
-      screen.getByText('This banner appears only on the Grafana home dashboard.')
+      screen.getByText('Use this home dashboard to discover, create, and organize your dashboards.')
     ).toBeInTheDocument();
   });
 });

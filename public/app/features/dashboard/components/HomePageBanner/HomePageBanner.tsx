@@ -10,7 +10,7 @@ export function HomePageBanner() {
     >
       {t(
         'dashboard.home-page-banner.body',
-        'This banner appears only on the Grafana home dashboard.'
+        'Use this home dashboard to discover, create, and organize your dashboards.'
       )}
     </Alert>
   );
