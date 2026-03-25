@@ -8,6 +8,7 @@ export function getSelectableThemes() {
     allowedExtraThemes.push('desertbloom');
     allowedExtraThemes.push('gildedgrove');
     allowedExtraThemes.push('sapphiredusk');
+    allowedExtraThemes.push('nineties');
     allowedExtraThemes.push('tron');
     allowedExtraThemes.push('gloom');
   }
