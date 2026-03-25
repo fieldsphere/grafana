@@ -17,7 +17,7 @@ import { ID_PREFIX } from 'app/core/reducers/navBarTree';
 import { getNavModel } from 'app/core/selectors/navModel';
 import { PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { dashboardWatcher } from 'app/features/live/dashboard/dashboardWatcher';
-import { KioskMode } from 'app/types/dashboard';
+import { DashboardRoutes, KioskMode } from 'app/types/dashboard';
 import { PanelEditEnteredEvent, PanelEditExitedEvent } from 'app/types/events';
 import { StoreState } from 'app/types/store';
 
@@ -27,6 +27,7 @@ import DashNav from '../components/DashNav/DashNav';
 import { DashboardLoading } from '../components/DashboardLoading/DashboardLoading';
 import { DashboardPrompt } from '../components/DashboardPrompt/DashboardPrompt';
 import { DashboardSettings } from '../components/DashboardSettings/DashboardSettings';
+import { HomePageBanner } from '../components/HomePageBanner/HomePageBanner';
 import { PanelInspector } from '../components/Inspector/PanelInspector';
 import { PanelEditor } from '../components/PanelEditor/PanelEditor';
 import { ShareModal } from '../components/ShareModal/ShareModal';
@@ -396,6 +397,7 @@ export class UnthemedDashboardPage extends PureComponent<Props, State> {
             </header>
           )}
           <DashboardPrompt dashboard={dashboard} />
+          {this.props.route.routeName === DashboardRoutes.Home && !kioskMode && <HomePageBanner />}
           {initError && <DashboardPageError error={initError.error} type={params.type} />}
           {showSubMenu && (
             <section aria-label={selectors.pages.Dashboard.SubMenu.submenu}>

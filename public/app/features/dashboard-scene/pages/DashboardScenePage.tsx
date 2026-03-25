@@ -9,6 +9,7 @@ import { Box } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import PageLoader from 'app/core/components/PageLoader/PageLoader';
 import { GrafanaRouteComponentProps } from 'app/core/navigation/types';
+import { HomePageBanner } from 'app/features/dashboard/components/HomePageBanner/HomePageBanner';
 import {
   DashboardBrandingFooter,
   DashboardBrandingFooterVariant,
@@ -122,6 +123,7 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
   return (
     <UrlSyncContextProvider scene={dashboard} updateUrlOnInit={true} createBrowserHistorySteps={true}>
       <DashboardPreviewBanner queryParams={queryParams} route={route.routeName} slug={slug} path={path} />
+      {route.routeName === DashboardRoutes.Home && !isKioskMode && <HomePageBanner />}
       <DashboardConversionWarningBanner dashboard={dashboard} />
       <dashboard.Component model={dashboard} key={dashboard.state.key} />
       <DashboardPrompt dashboard={dashboard} />
