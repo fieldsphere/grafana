@@ -45,3 +45,19 @@ func TestNavTreeRoot(t *testing.T) {
 		require.Equal(t, "3", treeRoot.FindByURL("/org/users").Id)
 	})
 }
+
+func TestWeightLabsSortsBetweenPluginAndConfig(t *testing.T) {
+	treeRoot := NavTreeRoot{
+		Children: []*NavLink{
+			{Id: "config", SortWeight: WeightConfig},
+			{Id: "labs", SortWeight: WeightLabs},
+			{Id: "plugin", SortWeight: WeightPlugin},
+		},
+	}
+
+	treeRoot.Sort()
+
+	require.Equal(t, "plugin", treeRoot.Children[0].Id)
+	require.Equal(t, "labs", treeRoot.Children[1].Id)
+	require.Equal(t, "config", treeRoot.Children[2].Id)
+}

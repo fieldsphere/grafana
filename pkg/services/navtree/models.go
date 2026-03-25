@@ -38,7 +38,7 @@ const (
 )
 
 // WeightLabs places Labs after Plugins and data (WeightPlugin) and before Administration (WeightConfig).
-const WeightLabs = -501
+const WeightLabs = (WeightPlugin + WeightConfig) / 2
 
 const (
 	NavIDRoot                 = "root"
