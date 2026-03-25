@@ -15,7 +15,7 @@ When using this skill:
 2. Explore the codebase to find the smallest safe implementation.
 3. Ask clarifying questions if the ticket leaves material ambiguity.
 4. Write an implementation plan in Markdown. Publish it to Confluence only if the user wants that or the workflow requires it.
-5. Create a feature branch named `av-<ticket-id>-<short-description>`.
+5. Create a feature branch named `<ticket-id>-<short-description>`.
 6. Implement targeted changes incrementally and validate with lint and the smallest relevant test scope.
 7. Commit only when the user explicitly asks for a commit. Use conventional commit messages.
 8. Create a pull request only when the user explicitly asks for it.
@@ -116,7 +116,7 @@ If publishing fails, keep the plan locally in the conversation and ask how to pr
 Create a local branch with this format:
 
 ```text
-av-<ticket-id>-<short-description>
+<ticket-id>-<short-description>
 ```
 
 Before creating it:
@@ -168,7 +168,7 @@ Use this pull request body template:
 - Brief description of the change.
 
 ## Jira ticket
-- [<TICKET-ID>](https://fe-cursor-demos.atlassian.net/browse/<TICKET-ID>)
+- [<TICKET-ID>](<JIRA-BROWSE-URL>/<TICKET-ID>)
 
 ## Implementation plan
 - <Confluence URL or "Not created">
@@ -202,7 +202,7 @@ Provide:
 - [ ] The Jira ticket was read and understood.
 - [ ] Ambiguities were resolved or explicitly called out.
 - [ ] An implementation plan was drafted.
-- [ ] A branch with the `av-` prefix was created when needed.
+- [ ] A branch named `<ticket-id>-<short-description>` was created when needed.
 - [ ] The code changes were implemented with minimal scope.
 - [ ] Relevant lint and tests were run.
 - [ ] Commits were created only if the user requested them.

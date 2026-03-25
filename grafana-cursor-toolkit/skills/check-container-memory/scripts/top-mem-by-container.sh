@@ -33,7 +33,7 @@ while read -r id; do
     # Header + processes sorted by %MEM (column 4 in ps aux)
     line1="$(ps aux 2>/dev/null | head -1)"
     rest="$(ps aux 2>/dev/null | tail -n +2 | sort -k4 -nr | head -n '"$TOP_N"')"
-    if [[ -z "${rest}" ]]; then
+    if [ -z "${rest}" ]; then
       echo "(ps produced no rows)"
     else
       printf "%s\n%s\n" "${line1}" "${rest}"
