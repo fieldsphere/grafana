@@ -1,8 +1,9 @@
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Alert, useStyles2 } from '@grafana/ui';
+import { Alert, TextLink, useStyles2 } from '@grafana/ui';
 
 export function HomePageBanner() {
   const styles = useStyles2(getStyles);
@@ -12,14 +13,18 @@ export function HomePageBanner() {
   }
 
   return (
-    <Alert severity="info" title="Welcome to Grafana!" className={styles.banner}>
-      <span>
+    <Alert
+      severity="info"
+      title={t('home-page.banner.title', 'Welcome to Grafana!')}
+      className={styles.banner}
+    >
+      <Trans i18nKey="home-page.banner.description">
         Explore dashboards, set up data sources, and start monitoring your infrastructure. Visit the{' '}
-        <a href="https://grafana.com/docs/" target="_blank" rel="noopener noreferrer" className={styles.link}>
+        <TextLink href="https://grafana.com/docs/" external>
           documentation
-        </a>{' '}
+        </TextLink>{' '}
         to learn more.
-      </span>
+      </Trans>
     </Alert>
   );
 }
@@ -28,13 +33,6 @@ function getStyles(theme: GrafanaTheme2) {
   return {
     banner: css({
       flex: 0,
-    }),
-    link: css({
-      color: theme.colors.text.link,
-      textDecoration: 'underline',
-      '&:hover': {
-        textDecoration: 'none',
-      },
     }),
   };
 }
