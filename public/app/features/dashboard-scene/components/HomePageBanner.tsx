@@ -13,11 +13,7 @@ export function HomePageBanner() {
   }
 
   return (
-    <Alert
-      severity="info"
-      title={t('home-page.banner.title', 'Welcome to Grafana!')}
-      className={styles.banner}
-    >
+    <Alert severity="info" title={t('home-page.banner.title', 'Welcome to Grafana!')} className={styles.banner}>
       <Trans i18nKey="home-page.banner.description">
         Explore dashboards, set up data sources, and start monitoring your infrastructure. Visit the{' '}
         <TextLink href="https://grafana.com/docs/" external>
