@@ -5,6 +5,10 @@
 set -euo pipefail
 
 TOP_N="${TOP_N:-15}"
+if [[ ! "${TOP_N}" =~ ^[0-9]+$ ]] || [[ "${TOP_N}" -eq 0 ]]; then
+  echo "TOP_N must be a positive integer" >&2
+  exit 1
+fi
 
 if ! command -v docker >/dev/null 2>&1; then
   echo "docker not found in PATH" >&2
