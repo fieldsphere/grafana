@@ -286,6 +286,19 @@ class DataSourceWithBackend<
     return headers;
   }
 
+  protected getResourceRequestURL(path: string): string {
+    const shouldUseK8sResourceEndpoint =
+      config.featureToggles.datasourcesApiServerEnableResourceEndpointFrontend && Boolean(config.namespace);
+    const normalizedPath = path.replace(/^\/+/, '');
+
+    if (!shouldUseK8sResourceEndpoint) {
+      return `/api/datasources/uid/${this.uid}/resources/${normalizedPath}`;
+    }
+
+    const apiVersion = this.apiVersion ?? `${this.type}.datasource.grafana.app/v0alpha1`;
+    return `/apis/${apiVersion}/namespaces/${config.namespace}/datasources/${this.uid}/resource/${normalizedPath}`;
+  }
+
   /**
    * Apply template variables for explore
    */
@@ -326,7 +339,7 @@ class DataSourceWithBackend<
         method: 'GET',
         headers: options?.headers ? { ...options.headers, ...headers } : headers,
         params: params ?? options?.params,
-        url: `/api/datasources/uid/${this.uid}/resources/${path}`,
+        url: this.getResourceRequestURL(path),
       })
     );
     return result.data;
@@ -347,7 +360,7 @@ class DataSourceWithBackend<
         method: 'POST',
         headers: options?.headers ? { ...options.headers, ...headers } : headers,
         data: data ?? { ...data },
-        url: `/api/datasources/uid/${this.uid}/resources/${path}`,
+        url: this.getResourceRequestURL(path),
       })
     );
     return result.data;

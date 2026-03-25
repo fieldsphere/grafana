@@ -290,7 +290,7 @@ export class PrometheusDatasource
     }
 
     let queryUrl = this.url + url;
-    if (url.startsWith(`/api/datasources/uid/${this.uid}`)) {
+    if (url.startsWith(`/api/datasources/uid/${this.uid}`) || url.startsWith('/apis/')) {
       // This url is meant to be a replacement for the whole URL. Replace the entire URL
       queryUrl = url;
     }
@@ -342,7 +342,7 @@ export class PrometheusDatasource
     if (GET_AND_POST_METADATA_ENDPOINTS.some((endpoint) => url.includes(endpoint))) {
       try {
         return await lastValueFrom(
-          this._request<T>(`/api/datasources/uid/${this.uid}/resources${url}`, params, {
+          this._request<T>(this.getResourceRequestURL(url), params, {
             method: this.httpMethod,
             hideFromInspector: true,
             showErrorAlert: false,
@@ -360,7 +360,7 @@ export class PrometheusDatasource
     }
 
     return await lastValueFrom(
-      this._request<T>(`/api/datasources/uid/${this.uid}/resources${url}`, params, {
+      this._request<T>(this.getResourceRequestURL(url), params, {
         method: 'GET',
         hideFromInspector: true,
         ...options,
