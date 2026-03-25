@@ -136,7 +136,8 @@ func TestGetClusterInfo(t *testing.T) {
 
 		require.Error(t, err)
 		require.Equal(t, ClusterInfo{}, clusterInfo)
-		assert.Contains(t, err.Error(), "unexpected status code 401 getting ES cluster info")
+		assert.Contains(t, err.Error(), "Elasticsearch error (status 401) getting ES cluster info")
+		assert.Contains(t, err.Error(), "Unauthorized")
 	})
 }
 

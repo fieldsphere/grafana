@@ -66,7 +66,8 @@ func (p *responseParser) streamMultiSearchResponse(body io.Reader, msr *MultiSea
 			return err
 		}
 
-		if tok == "responses" {
+		switch tok {
+		case "responses":
 			_, err := dec.Token() // reads the `[` opening bracket for responses array
 			if err != nil {
 				return err
@@ -124,7 +125,11 @@ func (p *responseParser) streamMultiSearchResponse(body io.Reader, msr *MultiSea
 			if err != nil {
 				return err
 			}
-		} else {
+		case "error":
+			if err := dec.Decode(&msr.ErrorBody); err != nil {
+				return err
+			}
+		default:
 			err := skipUnknownField(dec)
 			if err != nil {
 				return err
