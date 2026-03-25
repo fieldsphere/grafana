@@ -22,7 +22,7 @@ fi
 
 while read -r id; do
   [[ -z "${id}" ]] && continue
-  name="$(docker inspect --format '{{.Name}}' "${id}" | sed 's|^/||')"
+  name="$(docker inspect --format '{{.Name}}' "${id}" 2>/dev/null | sed 's|^/||')" || name="unknown"
   echo ""
   echo "=== ${name} (${id:0:12}) ==="
   out="$(docker exec "${id}" sh -c '
