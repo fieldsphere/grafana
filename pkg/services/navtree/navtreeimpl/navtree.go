@@ -162,6 +162,8 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		treeRoot.AddSection(connectionsSection)
 	}
 
+	treeRoot.AddSection(s.buildLabsNavLink(c))
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {
@@ -607,4 +609,16 @@ func (s *ServiceImpl) buildDataConnectionsNavLink(c *contextmodel.ReqContext) *n
 		return navLink
 	}
 	return nil
+}
+
+func (s *ServiceImpl) buildLabsNavLink(_ *contextmodel.ReqContext) *navtree.NavLink {
+	return &navtree.NavLink{
+		Text:       "Labs",
+		Id:         navtree.NavIDLabs,
+		SubTitle:   "See which feature flags are enabled in this Grafana instance",
+		Icon:       "rocket",
+		Url:        s.cfg.AppSubURL + "/labs",
+		Children:   []*navtree.NavLink{},
+		SortWeight: navtree.WeightLabs,
+	}
 }

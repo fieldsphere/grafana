@@ -55,7 +55,11 @@ const (
 	NavIDCfgPlugins           = "cfg/plugins"
 	NavIDCfgAccess            = "cfg/access"
 	NavIDBookmarks            = "bookmarks"
+	NavIDLabs                 = "labs"
 )
+
+// WeightLabs places Labs between Connections and Administration in the mega menu.
+const WeightLabs = WeightDataConnections + 50
 
 type NavLink struct {
 	Id             string     `json:"id,omitempty"`
