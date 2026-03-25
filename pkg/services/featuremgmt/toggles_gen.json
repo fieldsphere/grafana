@@ -2126,6 +2126,20 @@
     },
     {
       "metadata": {
+        "name": "homePageBanner",
+        "resourceVersion": "1774467826170",
+        "creationTimestamp": "2026-03-25T19:43:46Z"
+      },
+      "spec": {
+        "description": "Displays a promotional banner on the home page",
+        "stage": "experimental",
+        "codeowner": "@grafana/grafana-frontend-platform",
+        "frontend": true,
+        "expression": "false"
+      }
+    },
+    {
+      "metadata": {
         "name": "improvedExternalSessionHandling",
         "resourceVersion": "1771434338561",
         "creationTimestamp": "2024-09-17T10:54:39Z"
