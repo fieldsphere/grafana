@@ -65,4 +65,14 @@ func TestFeatureManager(t *testing.T) {
 		require.False(t, ft.IsEnabledGlobally("b"))
 		require.False(t, ft.IsEnabledGlobally("c"))
 	})
+
+	t.Run("GetFlagsWithState sorted by name with enabled state", func(t *testing.T) {
+		ft := WithManager("zebra", true, "alpha", false)
+		states := ft.GetFlagsWithState()
+		require.Len(t, states, 2)
+		require.Equal(t, "alpha", states[0].Name)
+		require.False(t, states[0].Enabled)
+		require.Equal(t, "zebra", states[1].Name)
+		require.True(t, states[1].Enabled)
+	})
 }

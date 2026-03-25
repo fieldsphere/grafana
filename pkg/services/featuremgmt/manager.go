@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"sort"
 
 	"github.com/grafana/grafana/pkg/infra/log"
 )
@@ -125,6 +126,30 @@ func (fm *FeatureManager) GetFlags() []FeatureFlag {
 		v = append(v, *value)
 	}
 	return v
+}
+
+// GetFlagsWithState returns all registered flags sorted by name with current enabled state and optional warnings.
+func (fm *FeatureManager) GetFlagsWithState() []FeatureFlagState {
+	flags := fm.GetFlags()
+	sort.Slice(flags, func(i, j int) bool {
+		return flags[i].Name < flags[j].Name
+	})
+	out := make([]FeatureFlagState, 0, len(flags))
+	for _, f := range flags {
+		out = append(out, FeatureFlagState{
+			Name:            f.Name,
+			Description:     f.Description,
+			Stage:           f.Stage,
+			Expression:      f.Expression,
+			RequiresDevMode: f.RequiresDevMode,
+			FrontendOnly:    f.FrontendOnly,
+			HideFromDocs:    f.HideFromDocs,
+			RequiresRestart: f.RequiresRestart,
+			Enabled:         fm.IsEnabledGlobally(f.Name),
+			Warning:         fm.warnings[f.Name],
+		})
+	}
+	return out
 }
 
 // ############# Test Functions #############

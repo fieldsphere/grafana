@@ -179,6 +179,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.sign-out.title', 'Sign out');
     case 'search':
       return t('nav.search-dashboards.title', 'Search dashboards');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'connections':
       return t('nav.connections.title', 'Connections');
     case 'connections-add-new-connection':
@@ -304,6 +306,8 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.infrastructure.subtitle', "Understand your infrastructure's health");
     case 'frontend':
       return t('nav.frontend.subtitle', 'Gain real user monitoring insights');
+    case 'labs':
+      return t('nav.labs.subtitle', 'Experimental features and feature toggle state');
     case 'alerts-and-incidents':
       return t('nav.alerts-and-incidents.subtitle', 'Alerting and incident management apps');
     case 'testing-and-synthetics':

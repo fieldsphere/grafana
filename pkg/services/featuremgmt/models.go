@@ -152,6 +152,20 @@ type FeatureFlag struct {
 	RequiresRestart bool `json:"requiresRestart,omitempty"`
 }
 
+// FeatureFlagState is metadata plus runtime enabled state for a registered flag (e.g. Labs UI, APIs).
+type FeatureFlagState struct {
+	Name            string           `json:"name"`
+	Description     string           `json:"description"`
+	Stage           FeatureFlagStage `json:"stage,omitempty"`
+	Expression      string           `json:"expression"`
+	RequiresDevMode bool             `json:"requiresDevMode,omitempty"`
+	FrontendOnly    bool             `json:"frontend,omitempty"`
+	HideFromDocs    bool             `json:"hideFromDocs,omitempty"`
+	RequiresRestart bool             `json:"requiresRestart,omitempty"`
+	Enabled         bool             `json:"enabled"`
+	Warning         string           `json:"warning,omitempty"`
+}
+
 type FeatureToggleWebhookPayload struct {
 	FeatureToggles map[string]string `json:"feature_toggles"`
 	User           string            `json:"user"`

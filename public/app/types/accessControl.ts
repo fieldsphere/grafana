@@ -180,6 +180,9 @@ export enum AccessControlAction {
   // Saved Queries
   QueriesRead = 'queries:read',
   QueriesWrite = 'queries:write',
+
+  // Feature management (Labs / feature flags)
+  FeatureManagementRead = 'featuremgmt.read',
 }
 
 export interface Role extends RoleDto {
