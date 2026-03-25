@@ -1652,4 +1652,9 @@ export interface FeatureToggles {
   * @default false
   */
   analyticsFramework?: boolean;
+  /**
+  * Displays a promotional banner on the home page
+  * @default false
+  */
+  homePageBanner?: boolean;
 }
