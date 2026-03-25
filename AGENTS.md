@@ -139,7 +139,7 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 ### Prerequisites
 
 - **Node.js v24.x** (see `.nvmrc` for exact version). Use `nvm install` / `nvm use` to match.
-- **Go 1.25.7** (see `go.mod`). Pre-installed in the VM.
+- **Go 1.25.8** (see `go.mod`). Pre-installed in the VM.
 - **Yarn 4.11.0** via corepack (bundled in `.yarn/releases/`). Run `corepack enable` if `yarn` is not found.
 - **GCC** required for CGo/SQLite compilation of the backend.
 
@@ -152,5 +152,6 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 ### Testing gotchas
 
 - **Frontend tests**: The `yarn test` script includes `--watch` by default. Always use `yarn jest --no-watch` or add `--watchAll=false` to run tests once and exit.
-- **Backend tests**: Some packages (e.g. `pkg/api/`) have slow test compilation (~2 min) due to large dependency graphs. Use targeted test runs with `-run TestName` where possible.
+- **Backend tests**: Some packages (e.g. `pkg/api/`) have slow test compilation (~3–4 min on first run) due to large dependency graphs. Use targeted test runs with `-run TestName` where possible.
+- **Startup ordering**: If `make run` starts before `yarn start` finishes its first compile, the backend logs `Failed to detect generated javascript files in public/build` and `/login` returns 500. Wait for webpack to populate `public/build/` (or retry the curl check) before using the UI.
 - All standard build/test/lint commands are documented in the Commands section above.
