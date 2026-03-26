@@ -475,6 +475,7 @@ func (hs *HTTPServer) registerRoutes() {
 
 		apiRoute.Get("/frontend/settings/", hs.GetFrontendSettings)
 		apiRoute.Get("/frontend/assets", hs.GetFrontendAssets)
+		apiRoute.Get("/labs/feature-toggles", reqSignedIn, routing.Wrap(hs.GetLabsFeatureToggles))
 
 		// Folders
 		hs.registerFolderAPI(apiRoute, authorize)
