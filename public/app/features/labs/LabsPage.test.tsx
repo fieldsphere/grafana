@@ -46,14 +46,14 @@ describe('LabsPage', () => {
   it('renders feature toggle counts and filters rows by search term', async () => {
     const { user } = render(<LabsPage />);
 
-    expect(await screen.findByRole('heading', { name: 'Labs feature flags' })).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Labs' })).toBeInTheDocument();
     expect(await screen.findByText('2 total')).toBeInTheDocument();
     expect(screen.getByText('1 enabled')).toBeInTheDocument();
     expect(screen.getByText('1 disabled')).toBeInTheDocument();
     expect(screen.getByText('alphaToggle')).toBeInTheDocument();
     expect(screen.getByText('betaToggle')).toBeInTheDocument();
 
-    await user.type(screen.getByPlaceholderText('Search feature toggles'), 'alpha');
+    await user.type(screen.getByPlaceholderText('Search feature flags'), 'alpha');
 
     expect(screen.getByText('1 total')).toBeInTheDocument();
     expect(screen.getByText('alphaToggle')).toBeInTheDocument();
