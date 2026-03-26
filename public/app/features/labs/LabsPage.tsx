@@ -12,7 +12,7 @@ import { getLabsFeatureToggles, type LabsFeatureToggle } from './api';
 const LabsPage = () => {
   const styles = useStyles2(getStyles);
   const [query, setQuery] = useState('');
-  const { value: toggles = [], loading, error } = useAsync(async () => getLabsFeatureToggles(), []);
+  const { value: toggles = [], loading, error } = useAsync(async () => (await getLabsFeatureToggles()).toggles, []);
   const normalizedQuery = query.trim().toLowerCase();
 
   const filteredToggles = useMemo(() => {
@@ -47,7 +47,11 @@ const LabsPage = () => {
         accessorFn: (toggle) => (toggle.enabled ? 1 : 0),
         cell: ({ row }) => (
           <Badge
-            text={row.original.enabled ? t('labs.feature-toggles.enabled', 'Enabled') : t('labs.feature-toggles.disabled', 'Disabled')}
+            text={
+              row.original.enabled
+                ? t('labs.feature-toggles.enabled', 'Enabled')
+                : t('labs.feature-toggles.disabled', 'Disabled')
+            }
             color={row.original.enabled ? 'green' : 'red'}
           />
         ),
@@ -64,7 +68,9 @@ const LabsPage = () => {
         header: t('labs.feature-toggles.columns.description', 'Description'),
         accessorFn: (toggle) => toggle.description,
         cell: ({ row }) => (
-          <Text color="secondary">{row.original.description || t('labs.feature-toggles.no-description', 'No description')}</Text>
+          <Text color="secondary">
+            {row.original.description || t('labs.feature-toggles.no-description', 'No description')}
+          </Text>
         ),
       },
     ],
@@ -96,9 +102,18 @@ const LabsPage = () => {
               onChange={setQuery}
             />
             <Stack gap={1}>
-              <Badge text={t('labs.feature-toggles.total-count', '{{count}} total', { count: filteredToggles.length })} color="blue" />
-              <Badge text={t('labs.feature-toggles.enabled-count', '{{count}} enabled', { count: enabledCount })} color="green" />
-              <Badge text={t('labs.feature-toggles.disabled-count', '{{count}} disabled', { count: disabledCount })} color="red" />
+              <Badge
+                text={t('labs.feature-toggles.total-count', '{{count}} total', { count: filteredToggles.length })}
+                color="blue"
+              />
+              <Badge
+                text={t('labs.feature-toggles.enabled-count', '{{count}} enabled', { count: enabledCount })}
+                color="green"
+              />
+              <Badge
+                text={t('labs.feature-toggles.disabled-count', '{{count}} disabled', { count: disabledCount })}
+                color="red"
+              />
             </Stack>
           </div>
 

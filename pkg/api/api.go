@@ -517,7 +517,6 @@ func (hs *HTTPServer) registerRoutes() {
 		// Search
 		apiRoute.Get("/search/sorting", routing.Wrap(hs.ListSortOptions))
 		apiRoute.Get("/search/", routing.Wrap(hs.Search))
-		apiRoute.Get("/labs/feature-toggles", routing.Wrap(hs.GetLabsFeatureToggles))
 
 		// metrics
 		// DataSource w/ expressions
