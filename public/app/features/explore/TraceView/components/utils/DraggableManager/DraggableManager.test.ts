@@ -118,6 +118,15 @@ describe('DraggableManager', () => {
 
       window.removeEventListener = oldFn;
     });
+
+    it('resets cached bounds when resetBounds is called', () => {
+      instance._getPosition(baseClientX);
+      expect(instance._bounds).toBeDefined();
+
+      instance.resetBounds();
+
+      expect(instance._bounds).toBeUndefined();
+    });
   });
 
   describe('minor mouse events', () => {
@@ -181,6 +190,15 @@ describe('DraggableManager', () => {
         ]);
       });
     });
+
+    it('returns early when matching callback is not configured', () => {
+      ctorOpts.onMouseEnter = undefined;
+      instance = new DraggableManager(ctorOpts);
+
+      instance.handleMouseEnter({ ...baseMouseEvt, type: 'mouseenter' } as React.MouseEvent);
+
+      expect(getBounds).not.toHaveBeenCalled();
+    });
   });
 
   describe('drag events', () => {
@@ -230,6 +248,16 @@ describe('DraggableManager', () => {
           ['mousemove', expect.any(Function)],
           ['mouseup', expect.any(Function)],
         ]);
+      });
+
+      it('returns early when drag start callback is not configured', () => {
+        ctorOpts.onDragStart = undefined;
+        instance = new DraggableManager(ctorOpts);
+
+        instance.handleMouseDown({ ...baseMouseEvt, type: 'mousedown' } as React.MouseEvent);
+
+        expect(instance.isDragging()).toBe(true);
+        expect(getBounds).not.toHaveBeenCalled();
       });
     });
 
@@ -302,6 +330,19 @@ describe('DraggableManager', () => {
           [{ event, tag, value, x, manager: instance, type: updateType }],
         ]);
       });
+    });
+
+    it('stops dragging during dispose when active drag exists', () => {
+      startDragging(instance);
+      expect(instance.isDragging()).toBe(true);
+
+      instance.dispose();
+
+      expect(instance.isDragging()).toBe(false);
+      expect(jest.mocked(window.removeEventListener).mock.calls).toEqual([
+        ['mousemove', expect.any(Function)],
+        ['mouseup', expect.any(Function)],
+      ]);
     });
   });
 });
