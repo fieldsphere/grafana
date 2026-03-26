@@ -12,10 +12,11 @@ import { getLabsFeatureToggles, type LabsFeatureToggle } from './api';
 const LabsPage = () => {
   const styles = useStyles2(getStyles);
   const [query, setQuery] = useState('');
-  const { value: toggles = [], loading, error } = useAsync(async () => (await getLabsFeatureToggles()).toggles, []);
+  const { value, loading, error } = useAsync(async () => getLabsFeatureToggles(), []);
   const normalizedQuery = query.trim().toLowerCase();
 
   const filteredToggles = useMemo(() => {
+    const toggles = value?.toggles ?? [];
     if (!normalizedQuery) {
       return toggles;
     }
@@ -27,7 +28,7 @@ const LabsPage = () => {
         toggle.stage.toLowerCase().includes(normalizedQuery)
       );
     });
-  }, [normalizedQuery, toggles]);
+  }, [normalizedQuery, value]);
 
   const enabledCount = filteredToggles.filter((toggle) => toggle.enabled).length;
   const disabledCount = filteredToggles.length - enabledCount;
@@ -82,9 +83,7 @@ const LabsPage = () => {
       <Page.Contents isLoading={loading}>
         <Stack direction="column" gap={2}>
           <div>
-            <Text element="h1" variant="h3">
-              {t('labs.feature-toggles.title', 'Labs')}
-            </Text>
+            <h1>{t('labs.feature-toggles.title', 'Labs feature flags')}</h1>
             <Text color="secondary">
               {t(
                 'labs.feature-toggles.subtitle',
