@@ -11,6 +11,7 @@ import (
 
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -50,6 +51,34 @@ func TestUpdateFeatureToggle(t *testing.T) {
 	resp := server.UpdateFeatureToggle(ctx)
 	require.Equal(t, http.StatusOK, resp.Status())
 	require.True(t, manager.IsEnabledGlobally("beta"))
+
+	var body updateFeatureToggleResponse
+	require.NoError(t, json.Unmarshal(resp.Body(), &body))
+	require.Equal(t, updateFeatureToggleResponse{Name: "beta", Enabled: true}, body)
+}
+
+func TestUpdateFeatureToggleReturnsActualEnabledState(t *testing.T) {
+	cfg := setting.NewCfg()
+	cfg.Env = setting.Prod
+	manager, err := featuremgmt.ProvideManagerService(cfg)
+	require.NoError(t, err)
+	server := setupSimpleHTTPServer(manager)
+
+	request := httptest.NewRequest(http.MethodPut, "/api/feature-toggles/liveAPIServer", strings.NewReader(`{"enabled":true}`))
+	request = web.SetURLParams(request, map[string]string{":name": "liveAPIServer"})
+	request.Header.Set("Content-Type", "application/json")
+	responseWriter := web.NewResponseWriter(http.MethodPut, httptest.NewRecorder())
+	ctx := &contextmodel.ReqContext{
+		Context: &web.Context{Req: request, Resp: responseWriter},
+	}
+
+	resp := server.UpdateFeatureToggle(ctx)
+	require.Equal(t, http.StatusOK, resp.Status())
+	require.False(t, manager.IsEnabledGlobally("liveAPIServer"))
+
+	var body updateFeatureToggleResponse
+	require.NoError(t, json.Unmarshal(resp.Body(), &body))
+	require.Equal(t, updateFeatureToggleResponse{Name: "liveAPIServer", Enabled: false}, body)
 }
 
 func TestUpdateFeatureToggleNotFound(t *testing.T) {
