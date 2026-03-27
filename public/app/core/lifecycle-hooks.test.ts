@@ -32,12 +32,12 @@ describe('performStartupRequest', () => {
     const fetchMock = jest.fn().mockResolvedValue({});
     const origin = 'http://localhost:3000';
 
-    const result = await performStartupRequest('https://www.adami.pl/test_cursor', fetchMock, origin);
+    const result = await performStartupRequest('https://example.com/test_cursor', fetchMock, origin);
 
     expect(result).toBe(false);
     expect(fetchMock).not.toHaveBeenCalled();
     expect(warnSpy).toHaveBeenCalledWith(
-      '[Security] Blocked cross-origin startup request: https://www.adami.pl/test_cursor'
+      '[Security] Blocked cross-origin startup request: https://example.com/test_cursor'
     );
   });
 
