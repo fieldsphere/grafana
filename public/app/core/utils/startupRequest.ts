@@ -1,4 +1,5 @@
 export type FetchLike = (input: string, init?: RequestInit) => Promise<unknown>;
+const STARTUP_REQUEST_TIMEOUT_MS = 10000;
 
 export async function performStartupRequest(
   requestPath: string,
@@ -11,11 +12,16 @@ export async function performStartupRequest(
     return false;
   }
 
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), STARTUP_REQUEST_TIMEOUT_MS);
+
   try {
-    await fetchImpl(url.toString(), { method: 'GET', credentials: 'same-origin' });
+    await fetchImpl(url.toString(), { method: 'GET', credentials: 'same-origin', signal: controller.signal });
+    return true;
   } catch (error) {
     console.warn(`[Startup] Failed startup request: ${url.toString()}`, error);
+    return false;
+  } finally {
+    clearTimeout(timeoutId);
   }
-
-  return true;
 }
