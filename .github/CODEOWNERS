@@ -352,6 +352,7 @@
 /scripts/build/ @grafana/grafana-developer-enablement-squad
 /scripts/list-release-artifacts.sh @grafana/grafana-developer-enablement-squad
 /scripts/releasefinder.sh @baldm0mma
+/.cursor/ @grafana/grafana-developer-enablement-squad
 /.trivyignore @grafana/grafana-backend-services-squad
 
 # OSS Plugin Partnerships backend code
@@ -370,6 +371,7 @@
 # OSS Big Tent backend code
 /pkg/tsdb/mysql/ @grafana/oss-big-tent
 /pkg/tsdb/grafana-postgresql-datasource/ @grafana/oss-big-tent
+/pkg/tsdb/sqlengtest/ @grafana/oss-big-tent @grafana/partner-datasources
 /pkg/tsdb/zipkin/ @grafana/oss-big-tent
 /pkg/tsdb/jaeger/ @grafana/oss-big-tent
 
