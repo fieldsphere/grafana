@@ -351,6 +351,25 @@ func TestFrontendService_IndexHooks(t *testing.T) {
 		// So we just check that the page renders successfully
 		assert.Contains(t, body, "window.grafanaBootData")
 	})
+
+	t.Run("should only allow same-origin bootstrap requests", func(t *testing.T) {
+		service := createTestService(t, cfg)
+
+		mux := web.New()
+		service.addMiddlewares(mux)
+		service.registerRoutes(mux)
+
+		req := httptest.NewRequest("GET", "/", nil)
+		recorder := httptest.NewRecorder()
+		mux.ServeHTTP(recorder, req)
+
+		assert.Equal(t, 200, recorder.Code)
+		body := recorder.Body.String()
+		assert.Contains(t, body, "function toSafeSameOriginURL(path)")
+		assert.Contains(t, body, "Refusing to fetch bootstrap data from non-local origin")
+		assert.Contains(t, body, "fetch(toSafeSameOriginURL('/api/user/auth-tokens/rotate')")
+		assert.Contains(t, body, "const bootDataUrl = toSafeSameOriginURL(path);")
+	})
 }
 
 func TestFrontendService_CSP(t *testing.T) {

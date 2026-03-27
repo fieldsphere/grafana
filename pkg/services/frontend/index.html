@@ -239,8 +239,16 @@
           return expiration;
         }
 
+        function toSafeSameOriginURL(path) {
+          const url = new URL(path, window.location.origin);
+          if (url.origin !== window.location.origin) {
+            throw new Error("Refusing to fetch bootstrap data from non-local origin");
+          }
+          return url;
+        }
+
         async function rotateSession() {
-          await fetch('/api/user/auth-tokens/rotate', { method: 'POST' });
+          await fetch(toSafeSameOriginURL('/api/user/auth-tokens/rotate'), { method: 'POST' });
         }
 
         /**
@@ -258,7 +266,7 @@
           }
           // pass the search params through to the bootdata request
           // this allows for overriding the theme/language etc
-          const bootDataUrl = new URL(path, window.location.origin);
+          const bootDataUrl = toSafeSameOriginURL(path);
           for (const [key, value] of queryParams.entries()) {
             bootDataUrl.searchParams.append(key, value);
           }
