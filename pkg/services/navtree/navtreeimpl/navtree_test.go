@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	claims "github.com/grafana/authlib/types"
+	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
 	accesscontrolmock "github.com/grafana/grafana/pkg/services/accesscontrol/mock"
 	authn "github.com/grafana/grafana/pkg/services/authn"
@@ -17,6 +18,7 @@ import (
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/licensing"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
@@ -186,6 +188,7 @@ func TestGetNavTreeIncludesFeatureTogglesLink(t *testing.T) {
 	service := ServiceImpl{
 		cfg:      setting.NewCfg(),
 		features: featuremgmt.WithFeatures(),
+		license:  &licensing.OSSLicensingService{},
 		accessControl: accesscontrolmock.New().WithPermissions([]ac.Permission{
 			{Action: ac.ActionFeatureManagementRead, Scope: "*"},
 		}),

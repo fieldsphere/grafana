@@ -7,19 +7,18 @@ import { getAppEvents, getBackendSrv } from '@grafana/runtime';
 import { TestProvider } from '../../../test/helpers/TestProvider';
 import { contextSrv } from '../../core/services/context_srv';
 
-import FeatureTogglesPage from './FeatureTogglesPage';
-
 const mockGet = jest.fn();
 const mockPut = jest.fn();
 const mockPublish = jest.fn();
 
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
-  getBackendSrv: jest.fn(() => ({ get: mockGet, put: mockPut })),
-  getAppEvents: jest.fn(() => ({ publish: mockPublish })),
+  getBackendSrv: jest.fn(),
+  getAppEvents: jest.fn(),
 }));
 
 const renderPage = () => {
+  const { default: FeatureTogglesPage } = require('./FeatureTogglesPage');
   render(
     <TestProvider>
       <FeatureTogglesPage />
@@ -30,6 +29,8 @@ const renderPage = () => {
 describe('FeatureTogglesPage', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    jest.mocked(getBackendSrv).mockReturnValue({ get: mockGet, put: mockPut } as never);
+    jest.mocked(getAppEvents).mockReturnValue({ publish: mockPublish } as never);
     mockGet.mockResolvedValue([
       {
         name: 'alphaFlag',

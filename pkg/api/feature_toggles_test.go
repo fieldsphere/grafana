@@ -41,6 +41,7 @@ func TestUpdateFeatureToggle(t *testing.T) {
 
 	request := httptest.NewRequest(http.MethodPut, "/api/feature-toggles/beta", strings.NewReader(`{"enabled":true}`))
 	request = web.SetURLParams(request, map[string]string{":name": "beta"})
+	request.Header.Set("Content-Type", "application/json")
 	responseWriter := web.NewResponseWriter(http.MethodPut, httptest.NewRecorder())
 	ctx := &contextmodel.ReqContext{
 		Context: &web.Context{Req: request, Resp: responseWriter},
@@ -57,6 +58,7 @@ func TestUpdateFeatureToggleNotFound(t *testing.T) {
 
 	request := httptest.NewRequest(http.MethodPut, "/api/feature-toggles/missing", strings.NewReader(`{"enabled":true}`))
 	request = web.SetURLParams(request, map[string]string{":name": "missing"})
+	request.Header.Set("Content-Type", "application/json")
 	responseWriter := web.NewResponseWriter(http.MethodPut, httptest.NewRecorder())
 	ctx := &contextmodel.ReqContext{
 		Context: &web.Context{Req: request, Resp: responseWriter},
