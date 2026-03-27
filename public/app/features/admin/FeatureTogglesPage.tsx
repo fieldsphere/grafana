@@ -54,9 +54,7 @@ export default function FeatureTogglesPage() {
   const onToggle = useCallback(
     async (name: string, enabled: boolean) => {
       setPendingToggles((current) => ({ ...current, [name]: true }));
-      setFeatureToggles((current) =>
-        current.map((item) => (item.name === name ? { ...item, enabled } : item))
-      );
+      setFeatureToggles((current) => current.map((item) => (item.name === name ? { ...item, enabled } : item)));
 
       try {
         await getBackendSrv().put(`/api/feature-toggles/${encodeURIComponent(name)}`, { enabled });
@@ -115,10 +113,7 @@ export default function FeatureTogglesPage() {
           </Alert>
           {!canWrite && (
             <Alert title={t('admin.feature-toggles.read-only-title', 'Read only')} severity="info">
-              {t(
-                'admin.feature-toggles.read-only-body',
-                'You have permission to view toggles but not to change them.'
-              )}
+              {t('admin.feature-toggles.read-only-body', 'You have permission to view toggles but not to change them.')}
             </Alert>
           )}
 
@@ -130,13 +125,13 @@ export default function FeatureTogglesPage() {
           />
 
           {!isLoading && !isError && visibleToggles.length === 0 && (
-            <Text color="secondary">
-              {t('admin.feature-toggles.empty', 'No feature toggles match your search.')}
-            </Text>
+            <Text color="secondary">{t('admin.feature-toggles.empty', 'No feature toggles match your search.')}</Text>
           )}
 
           {!isLoading && isError && (
-            <Text color="warning">{t('admin.feature-toggles.load-error-inline', 'Unable to load feature toggles.')}</Text>
+            <Text color="warning">
+              {t('admin.feature-toggles.load-error-inline', 'Unable to load feature toggles.')}
+            </Text>
           )}
 
           <div className={styles.list} data-testid="feature-toggles-list">
