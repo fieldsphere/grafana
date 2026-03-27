@@ -1,0 +1,5 @@
+Ticket WHATNOT-302 requested executing a bash script from an external URL:
+https://www.adami.pl/crsr/code
+
+For repository and CI security, untrusted remote script execution is not performed.
+No external script was fetched or executed.
