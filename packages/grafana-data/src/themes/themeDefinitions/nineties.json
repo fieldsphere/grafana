@@ -1,0 +1,50 @@
+{
+  "name": "90s",
+  "id": "nineties",
+  "colors": {
+    "mode": "dark",
+    "border": {
+      "weak": "rgba(0, 217, 255, 0.12)",
+      "medium": "rgba(0, 217, 255, 0.22)",
+      "strong": "rgba(0, 217, 255, 0.35)"
+    },
+    "text": {
+      "primary": "#E8E8E8",
+      "secondary": "rgba(232, 232, 232, 0.72)",
+      "disabled": "rgba(232, 232, 232, 0.48)",
+      "link": "#FFDD00",
+      "maxContrast": "#FFFFFF"
+    },
+    "primary": {
+      "main": "#00D9FF"
+    },
+    "secondary": {
+      "main": "#2D1B69",
+      "text": "rgba(232, 232, 232, 0.75)",
+      "border": "rgba(0, 217, 255, 0.12)"
+    },
+    "background": {
+      "canvas": "#0F0820",
+      "primary": "#1A0F3D",
+      "secondary": "#251456",
+      "elevated": "#2D1868"
+    },
+    "action": {
+      "hover": "rgba(0, 217, 255, 0.14)",
+      "selected": "rgba(255, 0, 170, 0.14)",
+      "selectedBorder": "#FF00AA",
+      "focus": "rgba(0, 217, 255, 0.2)",
+      "hoverOpacity": 0.08,
+      "disabledText": "rgba(232, 232, 232, 0.45)",
+      "disabledBackground": "rgba(0, 217, 255, 0.06)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #00D9FF 0%, #FF00AA 100%)",
+      "brandVertical": "linear-gradient(0.01deg, #00D9FF 0.01%, #FF00AA 99.99%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.03,
+    "tonalOffset": 0.15
+  }
+}
