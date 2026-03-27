@@ -49,7 +49,7 @@ describe('FeatureTogglesPage', () => {
         enabled: true,
       },
     ]);
-    mockPut.mockResolvedValue({});
+    mockPut.mockResolvedValue({ name: 'alphaFlag', enabled: true });
   });
 
   it('loads and renders toggles', async () => {
@@ -90,9 +90,40 @@ describe('FeatureTogglesPage', () => {
       expect(mockPut).toHaveBeenCalledWith('/api/feature-toggles/alphaFlag', { enabled: true });
     });
 
+    await waitFor(() => {
+      expect(alphaSwitch).toBeChecked();
+    });
+
     expect(mockPublish).toHaveBeenCalledWith(
       expect.objectContaining({
         type: AppEvents.alertSuccess.name,
+        payload: ['Enabled alphaFlag'],
+      })
+    );
+  });
+
+  it('reconciles optimistic state with the server response', async () => {
+    jest.spyOn(contextSrv, 'hasPermission').mockReturnValue(true);
+    mockPut.mockResolvedValue({ name: 'alphaFlag', enabled: false });
+
+    renderPage();
+    await screen.findByText('alphaFlag');
+
+    const alphaSwitch = screen.getByRole('switch', { name: 'Toggle alphaFlag' });
+    await userEvent.click(alphaSwitch);
+
+    await waitFor(() => {
+      expect(mockPut).toHaveBeenCalledWith('/api/feature-toggles/alphaFlag', { enabled: true });
+    });
+
+    await waitFor(() => {
+      expect(alphaSwitch).not.toBeChecked();
+    });
+
+    expect(mockPublish).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: AppEvents.alertSuccess.name,
+        payload: ['Disabled alphaFlag'],
       })
     );
   });
