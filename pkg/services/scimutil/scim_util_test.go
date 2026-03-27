@@ -616,6 +616,21 @@ func TestSCIMUtil_unstructuredToSCIMConfig(t *testing.T) {
 			},
 			expectedError: true,
 		},
+		{
+			name: "object with invalid spec type",
+			obj: &unstructured.Unstructured{
+				Object: map[string]interface{}{
+					"apiVersion": "scim.grafana.com/v0alpha1",
+					"kind":       "SCIMConfig",
+					"metadata": map[string]interface{}{
+						"name":      "test-config",
+						"namespace": "default",
+					},
+					"spec": []interface{}{"invalid"},
+				},
+			},
+			expectedError: true,
+		},
 	}
 
 	for _, tt := range tests {
