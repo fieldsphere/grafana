@@ -65,4 +65,17 @@ func TestFeatureManager(t *testing.T) {
 		require.False(t, ft.IsEnabledGlobally("b"))
 		require.False(t, ft.IsEnabledGlobally("c"))
 	})
+
+	t.Run("set startup state updates runtime values", func(t *testing.T) {
+		ft := WithManager("a", true, "b", false)
+
+		require.NoError(t, ft.SetStartupState("b", true))
+		require.True(t, ft.IsEnabledGlobally("b"))
+
+		require.NoError(t, ft.SetStartupState("a", false))
+		require.False(t, ft.IsEnabledGlobally("a"))
+
+		err := ft.SetStartupState("missing", true)
+		require.ErrorIs(t, err, ErrFeatureFlagNotFound)
+	})
 }

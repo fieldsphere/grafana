@@ -4,7 +4,10 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 )
+
+var ErrFeatureFlagNotFound = errors.New("feature flag not found")
 
 //go:generate mockery --name FeatureToggles --structname MockFeatureToggles --inpackage --filename feature_toggles_mock.go --with-expecter
 type FeatureToggles interface {

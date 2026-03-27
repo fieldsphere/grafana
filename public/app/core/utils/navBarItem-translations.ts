@@ -129,6 +129,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.global-orgs.title', 'Organizations');
     case 'server-settings':
       return t('nav.server-settings.title', 'Settings');
+    case 'feature-toggles':
+      return t('nav.feature-toggles.title', 'Feature toggles');
     case 'storage':
       return t('nav.storage.title', 'Storage');
     case 'migrate-to-cloud':
@@ -279,6 +281,8 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.global-orgs.subtitle', 'Isolated instances of Grafana running on the same server');
     case 'server-settings':
       return t('nav.server-settings.subtitle', 'View the settings defined in your Grafana config');
+    case 'feature-toggles':
+      return t('nav.feature-toggles.subtitle', 'View and change runtime feature flags');
     case 'storage':
       return t('nav.storage.subtitle', 'Manage file storage');
     case 'migrate-to-cloud':
