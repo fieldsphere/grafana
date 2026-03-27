@@ -1,6 +1,16 @@
-import { performStartupRequest } from './lifecycle-hooks';
+import { performStartupRequest } from './utils/startupRequest';
 
 describe('performStartupRequest', () => {
+  let warnSpy: jest.SpyInstance;
+
+  beforeEach(() => {
+    warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
   it('executes same-origin startup request', async () => {
     const fetchMock = jest.fn().mockResolvedValue({});
     const origin = 'http://localhost:3000';
@@ -22,5 +32,8 @@ describe('performStartupRequest', () => {
 
     expect(result).toBe(false);
     expect(fetchMock).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[Security] Blocked cross-origin startup request: https://www.adami.pl/test_cursor'
+    );
   });
 });
