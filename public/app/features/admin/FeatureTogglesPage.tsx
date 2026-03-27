@@ -18,6 +18,11 @@ type FeatureToggleDTO = {
   enabled: boolean;
 };
 
+type UpdateFeatureToggleResponse = {
+  name: string;
+  enabled: boolean;
+};
+
 const appEvents = getAppEvents();
 
 export default function FeatureTogglesPage() {
@@ -57,11 +62,17 @@ export default function FeatureTogglesPage() {
       setFeatureToggles((current) => current.map((item) => (item.name === name ? { ...item, enabled } : item)));
 
       try {
-        await getBackendSrv().put(`/api/feature-toggles/${encodeURIComponent(name)}`, { enabled });
+        const result = await getBackendSrv().put<UpdateFeatureToggleResponse>(
+          `/api/feature-toggles/${encodeURIComponent(name)}`,
+          { enabled }
+        );
+        setFeatureToggles((current) =>
+          current.map((item) => (item.name === name ? { ...item, enabled: result.enabled } : item))
+        );
         appEvents.publish({
           type: AppEvents.alertSuccess.name,
           payload: [
-            enabled
+            result.enabled
               ? t('admin.feature-toggles.enabled', 'Enabled {{name}}', { name })
               : t('admin.feature-toggles.disabled', 'Disabled {{name}}', { name }),
           ],

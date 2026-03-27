@@ -84,6 +84,6 @@ func (hs *HTTPServer) UpdateFeatureToggle(c *contextmodel.ReqContext) response.R
 
 	return response.JSON(http.StatusOK, updateFeatureToggleResponse{
 		Name:    name,
-		Enabled: cmd.Enabled,
+		Enabled: manager.IsEnabledGlobally(name),
 	})
 }
