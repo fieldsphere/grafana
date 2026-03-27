@@ -91,6 +91,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.alerting-admin.title', 'Settings');
     case 'alerts/recently-deleted':
       return t('nav.alerts-recently-deleted.title', 'Recently deleted');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'cfg':
       return t('nav.config.title', 'Administration');
     case 'cfg/general':
@@ -319,6 +321,8 @@ export function getNavSubTitle(navId: string | undefined) {
       );
     case 'plugin-page-grafana-ml-app':
       return t('nav.machine-learning.subtitle', 'Explore AI and machine learning features');
+    case 'labs':
+      return t('nav.labs.subtitle', 'View feature toggles enabled on this Grafana instance');
     default:
       return undefined;
   }

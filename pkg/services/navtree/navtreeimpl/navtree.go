@@ -170,6 +170,18 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		return nil, err
 	}
 
+	if c.IsSignedIn {
+		treeRoot.AddSection(&navtree.NavLink{
+			Text:          "Labs",
+			Id:            navtree.NavIDLabs,
+			SubTitle:      "View feature toggles enabled on this Grafana instance",
+			Icon:          "flask",
+			Url:           s.cfg.AppSubURL + "/admin/labs",
+			SortWeight:    navtree.WeightConfig + 50,
+			HighlightText: "Experimental",
+		})
+	}
+
 	s.addHelpLinks(treeRoot, c)
 
 	if err := s.addAppLinks(treeRoot, c); err != nil {
