@@ -133,6 +133,26 @@ func (fm *FeatureManager) GetEnabled(ctx context.Context) map[string]bool {
 	return enabled
 }
 
+// GetSnapshot returns a consistent snapshot of flag definitions and enabled states.
+func (fm *FeatureManager) GetSnapshot() ([]FeatureFlag, map[string]bool) {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
+
+	enabled := make(map[string]bool, len(fm.enabled))
+	for key, val := range fm.enabled {
+		if val {
+			enabled[key] = true
+		}
+	}
+
+	flags := make([]FeatureFlag, 0, len(fm.flags))
+	for _, value := range fm.flags {
+		flags = append(flags, *value)
+	}
+
+	return flags, enabled
+}
+
 // GetFlags returns all flag definitions
 func (fm *FeatureManager) GetFlags() []FeatureFlag {
 	fm.mu.RLock()
@@ -190,5 +210,10 @@ func WithManager(spec ...any) *FeatureManager {
 		}
 	}
 
-	return &FeatureManager{enabled: enabled, flags: features, startup: enabled, warnings: map[string]string{}}
+	startup := make(map[string]bool, len(enabled))
+	for key, val := range enabled {
+		startup[key] = val
+	}
+
+	return &FeatureManager{enabled: enabled, flags: features, startup: startup, warnings: map[string]string{}}
 }

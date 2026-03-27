@@ -36,8 +36,7 @@ func (hs *HTTPServer) GetFeatureToggles(c *contextmodel.ReqContext) response.Res
 		return response.Error(http.StatusNotImplemented, "Feature toggle management is unavailable", nil)
 	}
 
-	enabled := manager.GetEnabled(c.Req.Context())
-	flags := manager.GetFlags()
+	flags, enabled := manager.GetSnapshot()
 
 	items := make([]featureToggleDTO, 0, len(flags))
 	for _, flag := range flags {
