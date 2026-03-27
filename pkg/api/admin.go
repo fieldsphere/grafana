@@ -3,12 +3,15 @@ package api
 import (
 	"context"
 	"net/http"
+	"slices"
+	"strings"
 	"time"
 
 	"github.com/grafana/grafana/pkg/api/response"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/stats"
 	"github.com/grafana/grafana/pkg/setting"
 )
@@ -72,6 +75,55 @@ func (hs *HTTPServer) AdminGetStats(c *contextmodel.ReqContext) response.Respons
 	adminStats.ActiveDevices = devicesCount
 
 	return response.JSON(http.StatusOK, adminStats)
+}
+
+type featureFlagDTO struct {
+	Name            string                       `json:"name"`
+	Description     string                       `json:"description"`
+	Stage           featuremgmt.FeatureFlagStage `json:"stage"`
+	Expression      string                       `json:"expression"`
+	Enabled         bool                         `json:"enabled"`
+	FrontendOnly    bool                         `json:"frontendOnly"`
+	RequiresDevMode bool                         `json:"requiresDevMode"`
+	RequiresRestart bool                         `json:"requiresRestart"`
+}
+
+// swagger:route GET /admin/feature-toggles admin adminGetFeatureToggles
+//
+// Fetch feature toggles.
+//
+// If you are running Grafana Enterprise and have Fine-grained access control enabled, you need to have a permission with action `featuremgmt.read`.
+//
+// Responses:
+// 200: adminGetFeatureTogglesResponse
+// 401: unauthorisedError
+// 403: forbiddenError
+func (hs *HTTPServer) AdminGetFeatureToggles(c *contextmodel.ReqContext) response.Response {
+	featureFlags, ok := hs.Features.(interface{ GetFlags() []featuremgmt.FeatureFlag })
+	if !ok {
+		return response.JSON(http.StatusOK, []featureFlagDTO{})
+	}
+
+	flags := featureFlags.GetFlags()
+	slices.SortFunc(flags, func(a, b featuremgmt.FeatureFlag) int {
+		return strings.Compare(a.Name, b.Name)
+	})
+
+	items := make([]featureFlagDTO, 0, len(flags))
+	for _, flag := range flags {
+		items = append(items, featureFlagDTO{
+			Name:            flag.Name,
+			Description:     flag.Description,
+			Stage:           flag.Stage,
+			Expression:      flag.Expression,
+			Enabled:         hs.Features.IsEnabled(c.Req.Context(), flag.Name),
+			FrontendOnly:    flag.FrontendOnly,
+			RequiresDevMode: flag.RequiresDevMode,
+			RequiresRestart: flag.RequiresRestart,
+		})
+	}
+
+	return response.JSON(http.StatusOK, items)
 }
 
 func (hs *HTTPServer) getAuthorizedSettings(ctx context.Context, user identity.Requester, bag setting.SettingsBag) (setting.SettingsBag, error) {
@@ -170,4 +222,10 @@ type GetSettingsResponse struct {
 type GetStatsResponse struct {
 	// in:body
 	Body stats.AdminStats `json:"body"`
+}
+
+// swagger:response adminGetFeatureTogglesResponse
+type GetFeatureTogglesResponse struct {
+	// in:body
+	Body []featureFlagDTO `json:"body"`
 }
