@@ -118,8 +118,8 @@ export type ThemeColorsInput = z.infer<typeof ThemeColorsInputSchema>;
 class DarkColors implements ThemeColorsBase<Partial<ThemeRichColor>> {
   mode: ThemeColorsMode = 'dark';
 
-  // Used to get more white opacity colors
-  whiteBase = '204, 204, 220';
+  // Slight cyan tint (CRT / terminal on navy)
+  whiteBase = '200, 255, 255';
 
   border = {
     weak: `rgba(${this.whiteBase}, 0.12)`,
@@ -177,7 +177,7 @@ class DarkColors implements ThemeColorsBase<Partial<ThemeRichColor>> {
   action = {
     hover: `rgba(${this.whiteBase}, 0.16)`,
     selected: `rgba(${this.whiteBase}, 0.12)`,
-    selectedBorder: palette.orangeDarkMain,
+    selectedBorder: '#ff00ff',
     focus: `rgba(${this.whiteBase}, 0.16)`,
     hoverOpacity: 0.08,
     disabledText: this.text.disabled,
@@ -186,8 +186,8 @@ class DarkColors implements ThemeColorsBase<Partial<ThemeRichColor>> {
   };
 
   gradients = {
-    brandHorizontal: 'linear-gradient(270deg, #F55F3E 0%, #FF8833 100%)',
-    brandVertical: 'linear-gradient(0.01deg, #F55F3E 0.01%, #FF8833 99.99%)',
+    brandHorizontal: 'linear-gradient(90deg, #00ffff 0%, #ff00ff 33%, #ffff00 66%, #00ff00 100%)',
+    brandVertical: 'linear-gradient(180deg, #ff00ff 0%, #00ffff 50%, #ffff00 100%)',
   };
 
   scrollbar = `rgba(${this.whiteBase}, 0.3)`;
@@ -200,7 +200,8 @@ class DarkColors implements ThemeColorsBase<Partial<ThemeRichColor>> {
 class LightColors implements ThemeColorsBase<Partial<ThemeRichColor>> {
   mode: ThemeColorsMode = 'light';
 
-  blackBase = '36, 41, 46';
+  /** Navy body text on cream backgrounds */
+  blackBase = '0, 0, 102';
 
   primary = {
     main: palette.blueLightMain,
@@ -262,7 +263,7 @@ class LightColors implements ThemeColorsBase<Partial<ThemeRichColor>> {
   action = {
     hover: `rgba(${this.blackBase}, 0.12)`,
     selected: `rgba(${this.blackBase}, 0.08)`,
-    selectedBorder: palette.orangeLightMain,
+    selectedBorder: '#000080',
     hoverOpacity: 0.08,
     focus: `rgba(${this.blackBase}, 0.12)`,
     disabledBackground: `rgba(${this.blackBase}, 0.04)`,
@@ -271,8 +272,8 @@ class LightColors implements ThemeColorsBase<Partial<ThemeRichColor>> {
   };
 
   gradients = {
-    brandHorizontal: 'linear-gradient(90deg, #FF8833 0%, #F53E4C 100%)',
-    brandVertical: 'linear-gradient(0.01deg, #F53E4C -31.2%, #FF8833 113.07%)',
+    brandHorizontal: 'linear-gradient(90deg, #000080 0%, #008080 50%, #800080 100%)',
+    brandVertical: 'linear-gradient(180deg, #808080 0%, #c0c0c0 100%)',
   };
 
   scrollbar = `rgba(${this.blackBase}, 0.3)`;

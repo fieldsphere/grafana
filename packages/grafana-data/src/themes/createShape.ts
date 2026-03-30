@@ -44,7 +44,8 @@ export const ThemeShapeInputSchema = z.object({
 export type ThemeShapeInput = z.infer<typeof ThemeShapeInputSchema>;
 
 export function createShape(options: ThemeShapeInput): ThemeShape {
-  const baseBorderRadius = options.borderRadius ?? 6;
+  /** Sharp early-90s UI corners by default */
+  const baseBorderRadius = options.borderRadius ?? 2;
 
   const radius = {
     default: `${baseBorderRadius}px`,
