@@ -78,3 +78,39 @@ jobs:
         env:
           # Root tsc + Nx package graphs are memory-heavy; default heap can OOM on ubuntu-latest.
           NODE_OPTIONS: --max-old-space-size=6144
+
+  # Folder K8s API integration tests against Postgres (see CS-515).
+  backend-folder-integration-postgres:
+    name: Folder API integration (Postgres)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: grafanatest
+          POSTGRES_PASSWORD: grafanatest
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U grafanatest"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: go.mod
+          cache: true
+          cache-dependency-path: |
+            go.sum
+            **/*.sum
+      - name: Run folder integration tests (Postgres)
+        run: |
+          set -euo pipefail
+          GRAFANA_TEST_DB=postgres POSTGRES_HOST=postgres \
+            CGO_ENABLED=1 go test -p=1 -count=1 -timeout=20m -run '^TestIntegration' \
+            ./pkg/tests/apis/folder/...
