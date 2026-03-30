@@ -1,0 +1,543 @@
+import { css, keyframes } from '@emotion/css';
+
+import { GrafanaTheme2 } from '@grafana/data';
+import { Icon, IconName, useStyles2 } from '@grafana/ui';
+import { Page } from 'app/core/components/Page/Page';
+
+interface FeatureCardProps {
+  icon: IconName;
+  title: string;
+  description: string;
+  href: string;
+  accentColor: string;
+}
+
+function FeatureCard({ icon, title, description, href, accentColor }: FeatureCardProps) {
+  const styles = useStyles2(getFeatureCardStyles);
+
+  return (
+    <a href={href} className={styles.card} style={{ '--accent': accentColor } as React.CSSProperties}>
+      <div className={styles.iconWrap}>
+        <Icon name={icon} size="xl" />
+      </div>
+      <h3 className={styles.cardTitle}>{title}</h3>
+      <p className={styles.cardDesc}>{description}</p>
+      <span className={styles.cardLink}>
+        Get started <Icon name="arrow-right" size="md" />
+      </span>
+    </a>
+  );
+}
+
+interface StatCardProps {
+  value: string;
+  label: string;
+}
+
+function StatCard({ value, label }: StatCardProps) {
+  const styles = useStyles2(getStatCardStyles);
+
+  return (
+    <div className={styles.stat}>
+      <span className={styles.value}>{value}</span>
+      <span className={styles.label}>{label}</span>
+    </div>
+  );
+}
+
+export default function HomePage() {
+  const styles = useStyles2(getStyles);
+
+  return (
+    <Page navId="home">
+      <Page.Contents>
+        <div className={styles.root}>
+          {/* Hero Section */}
+          <section className={styles.hero}>
+            <div className={styles.heroContent}>
+              <div className={styles.badge}>Grafana Open Source</div>
+              <h1 className={styles.heroTitle}>
+                Observability &amp; Monitoring
+                <br />
+                <span className={styles.heroAccent}>Built for Scale</span>
+              </h1>
+              <p className={styles.heroSubtitle}>
+                See inside any stack, any app, at any scale. Dashboards, alerting, and visualization for every metric
+                and log in your infrastructure.
+              </p>
+              <div className={styles.heroCtas}>
+                <a href="/dashboard/new" className={styles.primaryCta}>
+                  Create Dashboard
+                </a>
+                <a href="/connections/datasources/new" className={styles.secondaryCta}>
+                  Add Data Source
+                </a>
+              </div>
+            </div>
+            <div className={styles.heroVisual}>
+              <div className={styles.glowOrb} />
+              <div className={styles.gridPattern} />
+            </div>
+          </section>
+
+          {/* Stats Section */}
+          <section className={styles.statsSection}>
+            <StatCard value="500+" label="Integrations" />
+            <StatCard value="20M+" label="Active Users" />
+            <StatCard value="800K+" label="Active Installs" />
+            <StatCard value="60B+" label="Metrics Queried Daily" />
+          </section>
+
+          {/* Feature Grid */}
+          <section className={styles.featureSection}>
+            <div className={styles.sectionHeader}>
+              <h2 className={styles.sectionTitle}>Everything You Need to Monitor</h2>
+              <p className={styles.sectionSubtitle}>
+                From infrastructure to applications, get complete visibility with powerful, flexible tools.
+              </p>
+            </div>
+            <div className={styles.featureGrid}>
+              <FeatureCard
+                icon="apps"
+                title="Dashboards"
+                description="Build beautiful, dynamic dashboards with a powerful visual editor. Drag-and-drop panels, template variables, and real-time streaming."
+                href="/dashboards"
+                accentColor="#FF6600"
+              />
+              <FeatureCard
+                icon="bell"
+                title="Alerting"
+                description="Set up smart alerts with multi-dimensional rules, silences, and routing. Get notified through Slack, PagerDuty, email, and more."
+                href="/alerting"
+                accentColor="#6C63FF"
+              />
+              <FeatureCard
+                icon="compass"
+                title="Explore"
+                description="Ad-hoc query and investigation across all your data sources. Split view, query history, and seamless correlation of metrics and logs."
+                href="/explore"
+                accentColor="#00C9A7"
+              />
+              <FeatureCard
+                icon="database"
+                title="Data Sources"
+                description="Connect to Prometheus, Loki, Elasticsearch, InfluxDB, PostgreSQL, and 500+ other data sources with native query editors."
+                href="/connections/datasources"
+                accentColor="#F5C542"
+              />
+              <FeatureCard
+                icon="plug"
+                title="Plugins"
+                description="Extend Grafana with panels, data sources, and full app plugins from the community or build your own with the plugin SDK."
+                href="/plugins"
+                accentColor="#E74C80"
+              />
+              <FeatureCard
+                icon="shield"
+                title="Infrastructure"
+                description="Monitor Kubernetes, Docker, cloud providers, and bare metal. Auto-discover services, track resources, and optimize performance."
+                href="/connections/infrastructure"
+                accentColor="#29B6F6"
+              />
+            </div>
+          </section>
+
+          {/* Capabilities Section */}
+          <section className={styles.capSection}>
+            <div className={styles.capCard}>
+              <div className={styles.capIcon}>
+                <Icon name="graph-bar" size="xxxl" />
+              </div>
+              <div className={styles.capContent}>
+                <h3 className={styles.capTitle}>Accelerate Troubleshooting</h3>
+                <ul className={styles.capList}>
+                  <li>Automatically catch issues before they escalate with intelligent alerting</li>
+                  <li>Rapidly identify bottlenecks, errors, and slow-running queries</li>
+                  <li>Correlate metrics, logs, and traces in a single view</li>
+                  <li>Push new releases with confidence using deployment markers</li>
+                </ul>
+              </div>
+            </div>
+            <div className={styles.capCard}>
+              <div className={styles.capIcon}>
+                <Icon name="eye" size="xxxl" />
+              </div>
+              <div className={styles.capContent}>
+                <h3 className={styles.capTitle}>Complete Visibility</h3>
+                <ul className={styles.capList}>
+                  <li>Unified view across all your data sources and platforms</li>
+                  <li>Monitor infrastructure, applications, and business metrics</li>
+                  <li>Custom dashboards tailored to every team and use case</li>
+                  <li>Role-based access and team-level permissions</li>
+                </ul>
+              </div>
+            </div>
+          </section>
+
+          {/* Bottom CTA */}
+          <section className={styles.bottomCta}>
+            <h2 className={styles.bottomCtaTitle}>Start monitoring in minutes</h2>
+            <p className={styles.bottomCtaDesc}>
+              Connect your first data source and build your dashboard. No credit card required.
+            </p>
+            <div className={styles.heroCtas}>
+              <a href="/connections/datasources/new" className={styles.primaryCta}>
+                Connect Data Source
+              </a>
+              <a href="/dashboards" className={styles.secondaryCta}>
+                Browse Dashboards
+              </a>
+            </div>
+          </section>
+        </div>
+      </Page.Contents>
+    </Page>
+  );
+}
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const pulse = keyframes`
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+`;
+
+const getStyles = (theme: GrafanaTheme2) => ({
+  root: css({
+    maxWidth: 1200,
+    margin: '0 auto',
+    padding: theme.spacing(0, 2),
+    animation: `${fadeIn} 0.5s ease-out`,
+  }),
+
+  // Hero
+  hero: css({
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 400,
+    padding: theme.spacing(6, 0),
+    overflow: 'hidden',
+  }),
+  heroContent: css({
+    position: 'relative',
+    zIndex: 1,
+    maxWidth: 640,
+  }),
+  badge: css({
+    display: 'inline-block',
+    padding: theme.spacing(0.5, 1.5),
+    borderRadius: theme.shape.radius.pill,
+    background: theme.colors.primary.transparent,
+    color: theme.colors.primary.text,
+    fontSize: theme.typography.bodySmall.fontSize,
+    fontWeight: theme.typography.fontWeightMedium,
+    marginBottom: theme.spacing(2),
+    border: `1px solid ${theme.colors.primary.border}`,
+  }),
+  heroTitle: css({
+    fontSize: 48,
+    fontWeight: 700,
+    lineHeight: 1.1,
+    letterSpacing: '-0.02em',
+    color: theme.colors.text.primary,
+    margin: 0,
+    marginBottom: theme.spacing(2),
+  }),
+  heroAccent: css({
+    background: `linear-gradient(135deg, ${theme.colors.primary.main}, #FF6600)`,
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+  }),
+  heroSubtitle: css({
+    fontSize: theme.typography.h5.fontSize,
+    color: theme.colors.text.secondary,
+    lineHeight: 1.6,
+    maxWidth: 520,
+    margin: 0,
+    marginBottom: theme.spacing(4),
+  }),
+  heroCtas: css({
+    display: 'flex',
+    gap: theme.spacing(2),
+    flexWrap: 'wrap',
+  }),
+  primaryCta: css({
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: theme.spacing(1.5, 3),
+    borderRadius: theme.shape.radius.default,
+    background: `linear-gradient(135deg, ${theme.colors.primary.main}, #FF6600)`,
+    color: '#fff',
+    fontWeight: theme.typography.fontWeightMedium,
+    fontSize: theme.typography.body.fontSize,
+    textDecoration: 'none',
+    transition: 'all 0.2s ease',
+    border: 'none',
+    cursor: 'pointer',
+    '&:hover': {
+      transform: 'translateY(-1px)',
+      boxShadow: `0 4px 20px ${theme.colors.primary.transparent}`,
+      color: '#fff',
+    },
+  }),
+  secondaryCta: css({
+    display: 'inline-flex',
+    alignItems: 'center',
+    padding: theme.spacing(1.5, 3),
+    borderRadius: theme.shape.radius.default,
+    background: 'transparent',
+    color: theme.colors.text.primary,
+    fontWeight: theme.typography.fontWeightMedium,
+    fontSize: theme.typography.body.fontSize,
+    textDecoration: 'none',
+    transition: 'all 0.2s ease',
+    border: `1px solid ${theme.colors.border.medium}`,
+    cursor: 'pointer',
+    '&:hover': {
+      borderColor: theme.colors.primary.border,
+      background: theme.colors.primary.transparent,
+      color: theme.colors.primary.text,
+    },
+  }),
+  heroVisual: css({
+    position: 'absolute',
+    right: -40,
+    top: '50%',
+    transform: 'translateY(-50%)',
+    width: 500,
+    height: 400,
+    pointerEvents: 'none',
+  }),
+  glowOrb: css({
+    position: 'absolute',
+    width: 300,
+    height: 300,
+    borderRadius: '50%',
+    background: `radial-gradient(circle, ${theme.colors.primary.transparent} 0%, transparent 70%)`,
+    top: '50%',
+    left: '50%',
+    transform: 'translate(-50%, -50%)',
+    animation: `${pulse} 4s ease-in-out infinite`,
+    opacity: 0.5,
+  }),
+  gridPattern: css({
+    position: 'absolute',
+    inset: 0,
+    backgroundImage: `linear-gradient(${theme.colors.border.weak} 1px, transparent 1px), linear-gradient(90deg, ${theme.colors.border.weak} 1px, transparent 1px)`,
+    backgroundSize: '40px 40px',
+    opacity: 0.3,
+    maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
+    WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
+  }),
+
+  // Stats
+  statsSection: css({
+    display: 'grid',
+    gridTemplateColumns: 'repeat(4, 1fr)',
+    gap: theme.spacing(3),
+    padding: theme.spacing(4, 0),
+    borderTop: `1px solid ${theme.colors.border.weak}`,
+    borderBottom: `1px solid ${theme.colors.border.weak}`,
+    marginBottom: theme.spacing(6),
+    [theme.breakpoints.down('md')]: {
+      gridTemplateColumns: 'repeat(2, 1fr)',
+    },
+  }),
+
+  // Feature Section
+  featureSection: css({
+    padding: theme.spacing(4, 0),
+    marginBottom: theme.spacing(6),
+  }),
+  sectionHeader: css({
+    textAlign: 'center',
+    marginBottom: theme.spacing(5),
+  }),
+  sectionTitle: css({
+    fontSize: 32,
+    fontWeight: 700,
+    color: theme.colors.text.primary,
+    margin: 0,
+    marginBottom: theme.spacing(1),
+  }),
+  sectionSubtitle: css({
+    fontSize: theme.typography.h5.fontSize,
+    color: theme.colors.text.secondary,
+    margin: 0,
+    maxWidth: 560,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+  }),
+  featureGrid: css({
+    display: 'grid',
+    gridTemplateColumns: 'repeat(3, 1fr)',
+    gap: theme.spacing(3),
+    [theme.breakpoints.down('lg')]: {
+      gridTemplateColumns: 'repeat(2, 1fr)',
+    },
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: '1fr',
+    },
+  }),
+
+  // Capabilities Section
+  capSection: css({
+    display: 'grid',
+    gridTemplateColumns: 'repeat(2, 1fr)',
+    gap: theme.spacing(3),
+    marginBottom: theme.spacing(6),
+    [theme.breakpoints.down('md')]: {
+      gridTemplateColumns: '1fr',
+    },
+  }),
+  capCard: css({
+    background: theme.colors.background.secondary,
+    borderRadius: theme.shape.radius.default,
+    padding: theme.spacing(4),
+    border: `1px solid ${theme.colors.border.weak}`,
+    transition: 'border-color 0.2s ease',
+    '&:hover': {
+      borderColor: theme.colors.border.medium,
+    },
+  }),
+  capIcon: css({
+    color: theme.colors.primary.text,
+    marginBottom: theme.spacing(2),
+  }),
+  capContent: css({}),
+  capTitle: css({
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: 600,
+    color: theme.colors.text.primary,
+    margin: 0,
+    marginBottom: theme.spacing(2),
+  }),
+  capList: css({
+    listStyle: 'none',
+    padding: 0,
+    margin: 0,
+    '& li': {
+      position: 'relative',
+      paddingLeft: theme.spacing(3),
+      marginBottom: theme.spacing(1.5),
+      color: theme.colors.text.secondary,
+      fontSize: theme.typography.body.fontSize,
+      lineHeight: 1.5,
+      '&::before': {
+        content: '""',
+        position: 'absolute',
+        left: 0,
+        top: 8,
+        width: 6,
+        height: 6,
+        borderRadius: '50%',
+        background: theme.colors.primary.main,
+      },
+    },
+  }),
+
+  // Bottom CTA
+  bottomCta: css({
+    textAlign: 'center',
+    padding: theme.spacing(6, 0),
+    borderTop: `1px solid ${theme.colors.border.weak}`,
+    marginBottom: theme.spacing(4),
+  }),
+  bottomCtaTitle: css({
+    fontSize: 28,
+    fontWeight: 700,
+    color: theme.colors.text.primary,
+    margin: 0,
+    marginBottom: theme.spacing(1),
+  }),
+  bottomCtaDesc: css({
+    fontSize: theme.typography.h5.fontSize,
+    color: theme.colors.text.secondary,
+    margin: 0,
+    marginBottom: theme.spacing(4),
+  }),
+});
+
+const getFeatureCardStyles = (theme: GrafanaTheme2) => ({
+  card: css({
+    display: 'flex',
+    flexDirection: 'column',
+    padding: theme.spacing(3),
+    borderRadius: theme.shape.radius.default,
+    border: `1px solid ${theme.colors.border.weak}`,
+    background: theme.colors.background.secondary,
+    textDecoration: 'none',
+    transition: 'all 0.2s ease',
+    cursor: 'pointer',
+    '&:hover': {
+      borderColor: 'var(--accent)',
+      transform: 'translateY(-2px)',
+      boxShadow: `0 8px 24px ${theme.colors.action.hover}`,
+    },
+  }),
+  iconWrap: css({
+    width: 48,
+    height: 48,
+    borderRadius: theme.shape.radius.default,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    background: theme.colors.action.hover,
+    color: 'var(--accent)',
+    marginBottom: theme.spacing(2),
+  }),
+  cardTitle: css({
+    fontSize: theme.typography.h4.fontSize,
+    fontWeight: 600,
+    color: theme.colors.text.primary,
+    margin: 0,
+    marginBottom: theme.spacing(1),
+  }),
+  cardDesc: css({
+    fontSize: theme.typography.body.fontSize,
+    color: theme.colors.text.secondary,
+    lineHeight: 1.5,
+    margin: 0,
+    flex: 1,
+    marginBottom: theme.spacing(2),
+  }),
+  cardLink: css({
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: theme.spacing(0.5),
+    color: 'var(--accent)',
+    fontSize: theme.typography.bodySmall.fontSize,
+    fontWeight: theme.typography.fontWeightMedium,
+    marginTop: 'auto',
+  }),
+});
+
+const getStatCardStyles = (theme: GrafanaTheme2) => ({
+  stat: css({
+    textAlign: 'center',
+    padding: theme.spacing(2),
+  }),
+  value: css({
+    display: 'block',
+    fontSize: 36,
+    fontWeight: 700,
+    background: `linear-gradient(135deg, ${theme.colors.primary.main}, #FF6600)`,
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+    lineHeight: 1.2,
+    marginBottom: theme.spacing(0.5),
+  }),
+  label: css({
+    display: 'block',
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.body.fontSize,
+    fontWeight: theme.typography.fontWeightMedium,
+  }),
+});
