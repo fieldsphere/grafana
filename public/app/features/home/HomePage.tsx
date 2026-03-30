@@ -90,22 +90,10 @@ export default function HomePage() {
 
           {/* Stats Section */}
           <section className={styles.statsSection}>
-            <StatCard
-              value="500+"
-              label={t('home.stats.integrations', 'Integrations')}
-            />
-            <StatCard
-              value="20M+"
-              label={t('home.stats.active-users', 'Active Users')}
-            />
-            <StatCard
-              value="800K+"
-              label={t('home.stats.active-installs', 'Active Installs')}
-            />
-            <StatCard
-              value="60B+"
-              label={t('home.stats.metrics-queried', 'Metrics Queried Daily')}
-            />
+            <StatCard value="500+" label={t('home.stats.integrations', 'Integrations')} />
+            <StatCard value="20M+" label={t('home.stats.active-users', 'Active Users')} />
+            <StatCard value="800K+" label={t('home.stats.active-installs', 'Active Installs')} />
+            <StatCard value="60B+" label={t('home.stats.metrics-queried', 'Metrics Queried Daily')} />
           </section>
 
           {/* Feature Grid */}
@@ -124,42 +112,60 @@ export default function HomePage() {
               <FeatureCard
                 icon="apps"
                 title={t('home.features.dashboards.title', 'Dashboards')}
-                description={t('home.features.dashboards.description', 'Build beautiful, dynamic dashboards with a powerful visual editor. Drag-and-drop panels, template variables, and real-time streaming.')}
+                description={t(
+                  'home.features.dashboards.description',
+                  'Build beautiful, dynamic dashboards with a powerful visual editor. Drag-and-drop panels, template variables, and real-time streaming.'
+                )}
                 href="/dashboards"
                 accentColor="#FF6600"
               />
               <FeatureCard
                 icon="bell"
                 title={t('home.features.alerting.title', 'Alerting')}
-                description={t('home.features.alerting.description', 'Set up smart alerts with multi-dimensional rules, silences, and routing. Get notified through Slack, PagerDuty, email, and more.')}
+                description={t(
+                  'home.features.alerting.description',
+                  'Set up smart alerts with multi-dimensional rules, silences, and routing. Get notified through Slack, PagerDuty, email, and more.'
+                )}
                 href="/alerting"
                 accentColor="#6C63FF"
               />
               <FeatureCard
                 icon="compass"
                 title={t('home.features.explore.title', 'Explore')}
-                description={t('home.features.explore.description', 'Ad-hoc query and investigation across all your data sources. Split view, query history, and seamless correlation of metrics and logs.')}
+                description={t(
+                  'home.features.explore.description',
+                  'Ad-hoc query and investigation across all your data sources. Split view, query history, and seamless correlation of metrics and logs.'
+                )}
                 href="/explore"
                 accentColor="#00C9A7"
               />
               <FeatureCard
                 icon="database"
                 title={t('home.features.data-sources.title', 'Data Sources')}
-                description={t('home.features.data-sources.description', 'Connect to Prometheus, Loki, Elasticsearch, InfluxDB, PostgreSQL, and 500+ other data sources with native query editors.')}
+                description={t(
+                  'home.features.data-sources.description',
+                  'Connect to Prometheus, Loki, Elasticsearch, InfluxDB, PostgreSQL, and 500+ other data sources with native query editors.'
+                )}
                 href="/connections/datasources"
                 accentColor="#F5C542"
               />
               <FeatureCard
                 icon="plug"
                 title={t('home.features.plugins.title', 'Plugins')}
-                description={t('home.features.plugins.description', 'Extend Grafana with panels, data sources, and full app plugins from the community or build your own with the plugin SDK.')}
+                description={t(
+                  'home.features.plugins.description',
+                  'Extend Grafana with panels, data sources, and full app plugins from the community or build your own with the plugin SDK.'
+                )}
                 href="/plugins"
                 accentColor="#E74C80"
               />
               <FeatureCard
                 icon="shield"
                 title={t('home.features.infrastructure.title', 'Infrastructure')}
-                description={t('home.features.infrastructure.description', 'Monitor Kubernetes, Docker, cloud providers, and bare metal. Auto-discover services, track resources, and optimize performance.')}
+                description={t(
+                  'home.features.infrastructure.description',
+                  'Monitor Kubernetes, Docker, cloud providers, and bare metal. Auto-discover services, track resources, and optimize performance.'
+                )}
                 href="/connections/infrastructure"
                 accentColor="#29B6F6"
               />
@@ -177,10 +183,26 @@ export default function HomePage() {
                   <Trans i18nKey="home.capabilities.troubleshooting.title">Accelerate Troubleshooting</Trans>
                 </h3>
                 <ul className={styles.capList}>
-                  <li><Trans i18nKey="home.capabilities.troubleshooting.item1">Automatically catch issues before they escalate with intelligent alerting</Trans></li>
-                  <li><Trans i18nKey="home.capabilities.troubleshooting.item2">Rapidly identify bottlenecks, errors, and slow-running queries</Trans></li>
-                  <li><Trans i18nKey="home.capabilities.troubleshooting.item3">Correlate metrics, logs, and traces in a single view</Trans></li>
-                  <li><Trans i18nKey="home.capabilities.troubleshooting.item4">Push new releases with confidence using deployment markers</Trans></li>
+                  <li>
+                    <Trans i18nKey="home.capabilities.troubleshooting.item1">
+                      Automatically catch issues before they escalate with intelligent alerting
+                    </Trans>
+                  </li>
+                  <li>
+                    <Trans i18nKey="home.capabilities.troubleshooting.item2">
+                      Rapidly identify bottlenecks, errors, and slow-running queries
+                    </Trans>
+                  </li>
+                  <li>
+                    <Trans i18nKey="home.capabilities.troubleshooting.item3">
+                      Correlate metrics, logs, and traces in a single view
+                    </Trans>
+                  </li>
+                  <li>
+                    <Trans i18nKey="home.capabilities.troubleshooting.item4">
+                      Push new releases with confidence using deployment markers
+                    </Trans>
+                  </li>
                 </ul>
               </div>
             </div>
@@ -193,10 +215,26 @@ export default function HomePage() {
                   <Trans i18nKey="home.capabilities.visibility.title">Complete Visibility</Trans>
                 </h3>
                 <ul className={styles.capList}>
-                  <li><Trans i18nKey="home.capabilities.visibility.item1">Unified view across all your data sources and platforms</Trans></li>
-                  <li><Trans i18nKey="home.capabilities.visibility.item2">Monitor infrastructure, applications, and business metrics</Trans></li>
-                  <li><Trans i18nKey="home.capabilities.visibility.item3">Custom dashboards tailored to every team and use case</Trans></li>
-                  <li><Trans i18nKey="home.capabilities.visibility.item4">Role-based access and team-level permissions</Trans></li>
+                  <li>
+                    <Trans i18nKey="home.capabilities.visibility.item1">
+                      Unified view across all your data sources and platforms
+                    </Trans>
+                  </li>
+                  <li>
+                    <Trans i18nKey="home.capabilities.visibility.item2">
+                      Monitor infrastructure, applications, and business metrics
+                    </Trans>
+                  </li>
+                  <li>
+                    <Trans i18nKey="home.capabilities.visibility.item3">
+                      Custom dashboards tailored to every team and use case
+                    </Trans>
+                  </li>
+                  <li>
+                    <Trans i18nKey="home.capabilities.visibility.item4">
+                      Role-based access and team-level permissions
+                    </Trans>
+                  </li>
                 </ul>
               </div>
             </div>

@@ -38,9 +38,7 @@ export function getAppRoutes(): RouteDescriptor[] {
       path: '/',
       pageClass: 'page-home',
       routeName: DashboardRoutes.Home,
-      component: SafeDynamicImport(
-        () => import(/* webpackChunkName: "HomePage" */ '../features/home/HomePage')
-      ),
+      component: SafeDynamicImport(() => import(/* webpackChunkName: "HomePage" */ '../features/home/HomePage')),
     },
     {
       path: '/d/:uid/:slug?',
