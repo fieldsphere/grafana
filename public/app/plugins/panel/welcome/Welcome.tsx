@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, LinkButton, useStyles2 } from '@grafana/ui';
+import { LinkButton, useStyles2 } from '@grafana/ui';
 
 export const WelcomeBanner = () => {
   const styles = useStyles2(getStyles);
@@ -42,10 +42,22 @@ export const WelcomeBanner = () => {
           </p>
         </div>
         <div className={styles.ctaContainer}>
-          <LinkButton href="https://grafana.com/" target="_blank" variant="primary" size="lg" className={styles.ctaButton}>
+          <LinkButton
+            href="https://grafana.com/auth/sign-up/create-user?utm_source=grafana_gettingstarted"
+            target="_blank"
+            variant="primary"
+            size="lg"
+            className={styles.ctaButton}
+          >
             <Trans i18nKey="welcome.marketing.cta-free-trial">Start Your Free Trial</Trans>
           </LinkButton>
-          <LinkButton href="https://grafana.com/contact/" target="_blank" variant="secondary" size="lg" className={styles.ctaButton}>
+          <LinkButton
+            href="https://grafana.com/contact/?utm_source=grafana_gettingstarted"
+            target="_blank"
+            variant="secondary"
+            size="lg"
+            className={styles.ctaButton}
+          >
             <Trans i18nKey="welcome.marketing.cta-demo">Request a Demo</Trans>
           </LinkButton>
         </div>
