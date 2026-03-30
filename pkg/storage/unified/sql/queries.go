@@ -362,7 +362,7 @@ func (r sqlResourceHistoryReadLatestRVRequest) Validate() error {
 	if r.Request == nil {
 		return fmt.Errorf("missing request")
 	}
-	if err := validateResourceKeyHistoryScope(r.Request.Key); err != nil {
+	if err := validateResourceKeyRead(r.Request.Key); err != nil {
 		return err
 	}
 	switch r.Request.EventType {

@@ -138,12 +138,12 @@ func TestSqlResourceHistoryReadLatestRVRequest_Validate(t *testing.T) {
 			t.Fatalf("expected nil, got %v", err)
 		}
 	})
-	t.Run("valid collection scoped without name", func(t *testing.T) {
+	t.Run("invalid collection scoped without name", func(t *testing.T) {
 		r := sqlResourceHistoryReadLatestRVRequest{
 			Request: &historyReadLatestRVRequest{Key: collectionKey, EventType: resourcepb.WatchEvent_DELETED},
 		}
-		if err := r.Validate(); err != nil {
-			t.Fatalf("expected nil, got %v", err)
+		if err := r.Validate(); err == nil || !strings.Contains(err.Error(), "missing name") {
+			t.Fatalf("expected missing name error, got %v", err)
 		}
 	})
 	t.Run("invalid event type", func(t *testing.T) {
