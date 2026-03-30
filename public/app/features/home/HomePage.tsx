@@ -1,6 +1,7 @@
-import { css, keyframes } from '@emotion/css';
+import { css, cx, keyframes } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { t, Trans } from '@grafana/i18n';
 import { Icon, IconName, useStyles2 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 
@@ -14,16 +15,17 @@ interface FeatureCardProps {
 
 function FeatureCard({ icon, title, description, href, accentColor }: FeatureCardProps) {
   const styles = useStyles2(getFeatureCardStyles);
+  const accentCls = css({ '--accent': accentColor });
 
   return (
-    <a href={href} className={styles.card} style={{ '--accent': accentColor } as React.CSSProperties}>
+    <a href={href} className={cx(styles.card, accentCls)}>
       <div className={styles.iconWrap}>
         <Icon name={icon} size="xl" />
       </div>
       <h3 className={styles.cardTitle}>{title}</h3>
       <p className={styles.cardDesc}>{description}</p>
       <span className={styles.cardLink}>
-        Get started <Icon name="arrow-right" size="md" />
+        <Trans i18nKey="home.feature-card.get-started">Get started</Trans> <Icon name="arrow-right" size="md" />
       </span>
     </a>
   );
@@ -55,22 +57,28 @@ export default function HomePage() {
           {/* Hero Section */}
           <section className={styles.hero}>
             <div className={styles.heroContent}>
-              <div className={styles.badge}>Grafana Open Source</div>
+              <div className={styles.badge}>
+                <Trans i18nKey="home.hero.badge">Grafana Open Source</Trans>
+              </div>
               <h1 className={styles.heroTitle}>
-                Observability &amp; Monitoring
+                <Trans i18nKey="home.hero.title">Observability &amp; Monitoring</Trans>
                 <br />
-                <span className={styles.heroAccent}>Built for Scale</span>
+                <span className={styles.heroAccent}>
+                  <Trans i18nKey="home.hero.title-accent">Built for Scale</Trans>
+                </span>
               </h1>
               <p className={styles.heroSubtitle}>
-                See inside any stack, any app, at any scale. Dashboards, alerting, and visualization for every metric
-                and log in your infrastructure.
+                <Trans i18nKey="home.hero.subtitle">
+                  See inside any stack, any app, at any scale. Dashboards, alerting, and visualization for every metric
+                  and log in your infrastructure.
+                </Trans>
               </p>
               <div className={styles.heroCtas}>
                 <a href="/dashboard/new" className={styles.primaryCta}>
-                  Create Dashboard
+                  <Trans i18nKey="home.hero.create-dashboard">Create Dashboard</Trans>
                 </a>
                 <a href="/connections/datasources/new" className={styles.secondaryCta}>
-                  Add Data Source
+                  <Trans i18nKey="home.hero.add-data-source">Add Data Source</Trans>
                 </a>
               </div>
             </div>
@@ -82,60 +90,76 @@ export default function HomePage() {
 
           {/* Stats Section */}
           <section className={styles.statsSection}>
-            <StatCard value="500+" label="Integrations" />
-            <StatCard value="20M+" label="Active Users" />
-            <StatCard value="800K+" label="Active Installs" />
-            <StatCard value="60B+" label="Metrics Queried Daily" />
+            <StatCard
+              value="500+"
+              label={t('home.stats.integrations', 'Integrations')}
+            />
+            <StatCard
+              value="20M+"
+              label={t('home.stats.active-users', 'Active Users')}
+            />
+            <StatCard
+              value="800K+"
+              label={t('home.stats.active-installs', 'Active Installs')}
+            />
+            <StatCard
+              value="60B+"
+              label={t('home.stats.metrics-queried', 'Metrics Queried Daily')}
+            />
           </section>
 
           {/* Feature Grid */}
           <section className={styles.featureSection}>
             <div className={styles.sectionHeader}>
-              <h2 className={styles.sectionTitle}>Everything You Need to Monitor</h2>
+              <h2 className={styles.sectionTitle}>
+                <Trans i18nKey="home.features.title">Everything You Need to Monitor</Trans>
+              </h2>
               <p className={styles.sectionSubtitle}>
-                From infrastructure to applications, get complete visibility with powerful, flexible tools.
+                <Trans i18nKey="home.features.subtitle">
+                  From infrastructure to applications, get complete visibility with powerful, flexible tools.
+                </Trans>
               </p>
             </div>
             <div className={styles.featureGrid}>
               <FeatureCard
                 icon="apps"
-                title="Dashboards"
-                description="Build beautiful, dynamic dashboards with a powerful visual editor. Drag-and-drop panels, template variables, and real-time streaming."
+                title={t('home.features.dashboards.title', 'Dashboards')}
+                description={t('home.features.dashboards.description', 'Build beautiful, dynamic dashboards with a powerful visual editor. Drag-and-drop panels, template variables, and real-time streaming.')}
                 href="/dashboards"
                 accentColor="#FF6600"
               />
               <FeatureCard
                 icon="bell"
-                title="Alerting"
-                description="Set up smart alerts with multi-dimensional rules, silences, and routing. Get notified through Slack, PagerDuty, email, and more."
+                title={t('home.features.alerting.title', 'Alerting')}
+                description={t('home.features.alerting.description', 'Set up smart alerts with multi-dimensional rules, silences, and routing. Get notified through Slack, PagerDuty, email, and more.')}
                 href="/alerting"
                 accentColor="#6C63FF"
               />
               <FeatureCard
                 icon="compass"
-                title="Explore"
-                description="Ad-hoc query and investigation across all your data sources. Split view, query history, and seamless correlation of metrics and logs."
+                title={t('home.features.explore.title', 'Explore')}
+                description={t('home.features.explore.description', 'Ad-hoc query and investigation across all your data sources. Split view, query history, and seamless correlation of metrics and logs.')}
                 href="/explore"
                 accentColor="#00C9A7"
               />
               <FeatureCard
                 icon="database"
-                title="Data Sources"
-                description="Connect to Prometheus, Loki, Elasticsearch, InfluxDB, PostgreSQL, and 500+ other data sources with native query editors."
+                title={t('home.features.data-sources.title', 'Data Sources')}
+                description={t('home.features.data-sources.description', 'Connect to Prometheus, Loki, Elasticsearch, InfluxDB, PostgreSQL, and 500+ other data sources with native query editors.')}
                 href="/connections/datasources"
                 accentColor="#F5C542"
               />
               <FeatureCard
                 icon="plug"
-                title="Plugins"
-                description="Extend Grafana with panels, data sources, and full app plugins from the community or build your own with the plugin SDK."
+                title={t('home.features.plugins.title', 'Plugins')}
+                description={t('home.features.plugins.description', 'Extend Grafana with panels, data sources, and full app plugins from the community or build your own with the plugin SDK.')}
                 href="/plugins"
                 accentColor="#E74C80"
               />
               <FeatureCard
                 icon="shield"
-                title="Infrastructure"
-                description="Monitor Kubernetes, Docker, cloud providers, and bare metal. Auto-discover services, track resources, and optimize performance."
+                title={t('home.features.infrastructure.title', 'Infrastructure')}
+                description={t('home.features.infrastructure.description', 'Monitor Kubernetes, Docker, cloud providers, and bare metal. Auto-discover services, track resources, and optimize performance.')}
                 href="/connections/infrastructure"
                 accentColor="#29B6F6"
               />
@@ -149,12 +173,14 @@ export default function HomePage() {
                 <Icon name="graph-bar" size="xxxl" />
               </div>
               <div className={styles.capContent}>
-                <h3 className={styles.capTitle}>Accelerate Troubleshooting</h3>
+                <h3 className={styles.capTitle}>
+                  <Trans i18nKey="home.capabilities.troubleshooting.title">Accelerate Troubleshooting</Trans>
+                </h3>
                 <ul className={styles.capList}>
-                  <li>Automatically catch issues before they escalate with intelligent alerting</li>
-                  <li>Rapidly identify bottlenecks, errors, and slow-running queries</li>
-                  <li>Correlate metrics, logs, and traces in a single view</li>
-                  <li>Push new releases with confidence using deployment markers</li>
+                  <li><Trans i18nKey="home.capabilities.troubleshooting.item1">Automatically catch issues before they escalate with intelligent alerting</Trans></li>
+                  <li><Trans i18nKey="home.capabilities.troubleshooting.item2">Rapidly identify bottlenecks, errors, and slow-running queries</Trans></li>
+                  <li><Trans i18nKey="home.capabilities.troubleshooting.item3">Correlate metrics, logs, and traces in a single view</Trans></li>
+                  <li><Trans i18nKey="home.capabilities.troubleshooting.item4">Push new releases with confidence using deployment markers</Trans></li>
                 </ul>
               </div>
             </div>
@@ -163,12 +189,14 @@ export default function HomePage() {
                 <Icon name="eye" size="xxxl" />
               </div>
               <div className={styles.capContent}>
-                <h3 className={styles.capTitle}>Complete Visibility</h3>
+                <h3 className={styles.capTitle}>
+                  <Trans i18nKey="home.capabilities.visibility.title">Complete Visibility</Trans>
+                </h3>
                 <ul className={styles.capList}>
-                  <li>Unified view across all your data sources and platforms</li>
-                  <li>Monitor infrastructure, applications, and business metrics</li>
-                  <li>Custom dashboards tailored to every team and use case</li>
-                  <li>Role-based access and team-level permissions</li>
+                  <li><Trans i18nKey="home.capabilities.visibility.item1">Unified view across all your data sources and platforms</Trans></li>
+                  <li><Trans i18nKey="home.capabilities.visibility.item2">Monitor infrastructure, applications, and business metrics</Trans></li>
+                  <li><Trans i18nKey="home.capabilities.visibility.item3">Custom dashboards tailored to every team and use case</Trans></li>
+                  <li><Trans i18nKey="home.capabilities.visibility.item4">Role-based access and team-level permissions</Trans></li>
                 </ul>
               </div>
             </div>
@@ -176,16 +204,20 @@ export default function HomePage() {
 
           {/* Bottom CTA */}
           <section className={styles.bottomCta}>
-            <h2 className={styles.bottomCtaTitle}>Start monitoring in minutes</h2>
+            <h2 className={styles.bottomCtaTitle}>
+              <Trans i18nKey="home.cta.title">Start monitoring in minutes</Trans>
+            </h2>
             <p className={styles.bottomCtaDesc}>
-              Connect your first data source and build your dashboard. No credit card required.
+              <Trans i18nKey="home.cta.subtitle">
+                Connect your first data source and build your dashboard. No credit card required.
+              </Trans>
             </p>
             <div className={styles.heroCtas}>
               <a href="/connections/datasources/new" className={styles.primaryCta}>
-                Connect Data Source
+                <Trans i18nKey="home.cta.connect-data-source">Connect Data Source</Trans>
               </a>
               <a href="/dashboards" className={styles.secondaryCta}>
-                Browse Dashboards
+                <Trans i18nKey="home.cta.browse-dashboards">Browse Dashboards</Trans>
               </a>
             </div>
           </section>
@@ -210,7 +242,9 @@ const getStyles = (theme: GrafanaTheme2) => ({
     maxWidth: 1200,
     margin: '0 auto',
     padding: theme.spacing(0, 2),
-    animation: `${fadeIn} 0.5s ease-out`,
+    [theme.transitions.handleMotion('no-preference')]: {
+      animation: `${fadeIn} 0.5s ease-out`,
+    },
   }),
 
   // Hero
@@ -277,9 +311,13 @@ const getStyles = (theme: GrafanaTheme2) => ({
     fontWeight: theme.typography.fontWeightMedium,
     fontSize: theme.typography.body.fontSize,
     textDecoration: 'none',
-    transition: 'all 0.2s ease',
     border: 'none',
     cursor: 'pointer',
+    [theme.transitions.handleMotion('no-preference')]: {
+      transition: theme.transitions.create(['transform', 'box-shadow'], {
+        duration: theme.transitions.duration.short,
+      }),
+    },
     '&:hover': {
       transform: 'translateY(-1px)',
       boxShadow: `0 4px 20px ${theme.colors.primary.transparent}`,
@@ -296,9 +334,13 @@ const getStyles = (theme: GrafanaTheme2) => ({
     fontWeight: theme.typography.fontWeightMedium,
     fontSize: theme.typography.body.fontSize,
     textDecoration: 'none',
-    transition: 'all 0.2s ease',
     border: `1px solid ${theme.colors.border.medium}`,
     cursor: 'pointer',
+    [theme.transitions.handleMotion('no-preference')]: {
+      transition: theme.transitions.create(['border-color', 'background', 'color'], {
+        duration: theme.transitions.duration.short,
+      }),
+    },
     '&:hover': {
       borderColor: theme.colors.primary.border,
       background: theme.colors.primary.transparent,
@@ -318,12 +360,14 @@ const getStyles = (theme: GrafanaTheme2) => ({
     position: 'absolute',
     width: 300,
     height: 300,
-    borderRadius: '50%',
+    borderRadius: theme.shape.radius.circle,
     background: `radial-gradient(circle, ${theme.colors.primary.transparent} 0%, transparent 70%)`,
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    animation: `${pulse} 4s ease-in-out infinite`,
+    [theme.transitions.handleMotion('no-preference')]: {
+      animation: `${pulse} 4s ease-in-out infinite`,
+    },
     opacity: 0.5,
   }),
   gridPattern: css({
@@ -401,7 +445,11 @@ const getStyles = (theme: GrafanaTheme2) => ({
     borderRadius: theme.shape.radius.default,
     padding: theme.spacing(4),
     border: `1px solid ${theme.colors.border.weak}`,
-    transition: 'border-color 0.2s ease',
+    [theme.transitions.handleMotion('no-preference')]: {
+      transition: theme.transitions.create(['border-color'], {
+        duration: theme.transitions.duration.short,
+      }),
+    },
     '&:hover': {
       borderColor: theme.colors.border.medium,
     },
@@ -436,7 +484,7 @@ const getStyles = (theme: GrafanaTheme2) => ({
         top: 8,
         width: 6,
         height: 6,
-        borderRadius: '50%',
+        borderRadius: theme.shape.radius.circle,
         background: theme.colors.primary.main,
       },
     },
@@ -473,8 +521,12 @@ const getFeatureCardStyles = (theme: GrafanaTheme2) => ({
     border: `1px solid ${theme.colors.border.weak}`,
     background: theme.colors.background.secondary,
     textDecoration: 'none',
-    transition: 'all 0.2s ease',
     cursor: 'pointer',
+    [theme.transitions.handleMotion('no-preference')]: {
+      transition: theme.transitions.create(['border-color', 'transform', 'box-shadow'], {
+        duration: theme.transitions.duration.short,
+      }),
+    },
     '&:hover': {
       borderColor: 'var(--accent)',
       transform: 'translateY(-2px)',
