@@ -184,9 +184,6 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
       borderRadius: theme.shape.radius.xl,
       padding: theme.spacing(2, 0),
       opacity: 0,
-      border: `1px solid ${theme.colors.border.weak}`,
-      boxShadow: theme.shadows.z3,
-      backdropFilter: 'blur(22px)',
       [theme.transitions.handleMotion('no-preference')]: {
         transition: 'opacity 0.5s ease-in-out',
       },
@@ -215,7 +212,7 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
       justifyContent: 'center',
     }),
     loginInnerBox: css({
-      padding: theme.spacing(0, 4, 4),
+      padding: theme.spacing(0, 2, 2, 2),
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
