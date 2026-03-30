@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 
 import { PanelProps, GrafanaTheme2 } from '@grafana/data';
+import { Trans } from '@grafana/i18n';
 import { IconName } from '@grafana/schema';
 import { Icon, LinkButton, TextLink, useStyles2 } from '@grafana/ui';
 
@@ -32,14 +33,22 @@ export function HomeHighlightsPanel(_props: PanelProps) {
   const styles = useStyles2(getStyles);
 
   return (
-    <section className={styles.container} aria-label="Grafana home highlights">
+    <section className={styles.container} aria-labelledby="grafana-home-highlights-title" data-testid="grafana-home-highlights">
       <div className={styles.header}>
         <div>
-          <div className={styles.eyebrow}>Platform overview</div>
-          <h2 className={styles.title}>Start from a clearer operating picture.</h2>
+          <div className={styles.eyebrow}>
+            <Trans i18nKey="home-highlights.home-highlights.platform-overview">Platform overview</Trans>
+          </div>
+          <h2 id="grafana-home-highlights-title" className={styles.title}>
+            <Trans i18nKey="home-highlights.home-highlights.start-from-clearer-operating-picture">
+              Start from a clearer operating picture.
+            </Trans>
+          </h2>
           <p className={styles.description}>
-            Use Grafana home as the handoff between exploration, setup, and day-to-day monitoring so teams know what to
-            do next.
+            <Trans i18nKey="home-highlights.home-highlights.use-grafana-home-as-handoff">
+              Use Grafana home as the handoff between exploration, setup, and day-to-day monitoring so teams know what
+              to do next.
+            </Trans>
           </p>
         </div>
         <div className={styles.proofGrid}>
@@ -69,14 +78,16 @@ export function HomeHighlightsPanel(_props: PanelProps) {
       <div className={styles.footer}>
         <div className={styles.actions}>
           <LinkButton href="/explore" variant="secondary" fill="outline">
-            Explore data
+            <Trans i18nKey="home-highlights.home-highlights.explore-data">Explore data</Trans>
           </LinkButton>
           <LinkButton href="/alerting/list" variant="secondary" fill="outline">
-            Review alerts
+            <Trans i18nKey="home-highlights.home-highlights.review-alerts">Review alerts</Trans>
           </LinkButton>
         </div>
         <TextLink href="https://grafana.com/docs/grafana/latest/fundamentals/" external>
-          Learn the Grafana fundamentals
+          <Trans i18nKey="home-highlights.home-highlights.learn-grafana-fundamentals">
+            Learn the Grafana fundamentals
+          </Trans>
         </TextLink>
       </div>
     </section>

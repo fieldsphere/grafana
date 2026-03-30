@@ -39,16 +39,20 @@ export const WelcomeBanner = () => {
   const styles = useStyles2(getStyles);
 
   return (
-    <section className={styles.container} aria-label="Grafana home hero">
+    <section className={styles.container} aria-labelledby="grafana-home-hero-title">
       <div className={styles.heroSurface}>
         <div className={styles.copyColumn}>
-          <div className={styles.eyebrow}>Grafana home</div>
-          <h1 className={styles.title}>
+          <div className={styles.eyebrow}>
+            <Trans i18nKey="welcome.welcome-banner.home-label">Grafana home</Trans>
+          </div>
+          <h1 id="grafana-home-hero-title" className={styles.title}>
             <Trans i18nKey="welcome.welcome-banner.welcome-to-grafana">Welcome to Grafana</Trans>
           </h1>
           <p className={styles.summary}>
-            Bring telemetry, dashboards, and investigation workflows together so your team can move from signal to
-            action faster.
+            <Trans i18nKey="welcome.welcome-banner.summary">
+              Bring telemetry, dashboards, and investigation workflows together so your team can move from signal to
+              action faster.
+            </Trans>
           </p>
           <div className={styles.actionRow}>
             {quickActions.map((action) => (
@@ -63,7 +67,7 @@ export const WelcomeBanner = () => {
               target="_blank"
               rel="noreferrer"
             >
-              Explore tutorials
+              <Trans i18nKey="welcome.welcome-banner.explore-tutorials">Explore tutorials</Trans>
             </LinkButton>
           </div>
         </div>
