@@ -243,7 +243,10 @@ class LocationFolderCache {
         }
         offset += folderListPageSize;
       }
-    })();
+    })().catch((error) => {
+      this.bulkLoadPromise = undefined;
+      throw error;
+    });
     return this.bulkLoadPromise;
   }
 }
