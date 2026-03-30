@@ -14977,6 +14977,33 @@
       "link": "Link"
     }
   },
+  "welcome": {
+    "welcome-banner": {
+      "create-a-dashboard": "Create a dashboard",
+      "explore-data": "Explore data",
+      "feature-alerting-description": "Define alert rules and get notified before issues escalate.",
+      "feature-alerting-title": "Alerting",
+      "feature-connections-description": "Connect to databases, cloud services, and more.",
+      "feature-connections-title": "Connections",
+      "feature-dashboards-description": "Build rich, interactive dashboards with powerful visualizations.",
+      "feature-dashboards-title": "Dashboards",
+      "feature-explore-description": "Query and drill into your data across any data source.",
+      "feature-explore-title": "Explore",
+      "help-link-community": "Community",
+      "help-link-documentation": "Documentation",
+      "help-link-public-slack": "Public Slack",
+      "help-link-tutorials": "Tutorials",
+      "need-help": "Need help?",
+      "open-observability-platform": "The open observability platform",
+      "stat-active-installations": "Active installations",
+      "stat-community-dashboards": "Community dashboards",
+      "stat-data-sources": "Data sources",
+      "value-prop-alerting": "Powerful alerting and incident response",
+      "value-prop-data-sources": "Seamless integration with 60+ data sources",
+      "value-prop-unified-observability": "Unified observability for metrics, logs, traces, and profiles",
+      "welcome-to-grafana": "Welcome to Grafana"
+    }
+  },
   "xychart": {
     "category-xychart": "XY Chart",
     "name-fill-opacity": "Fill opacity",

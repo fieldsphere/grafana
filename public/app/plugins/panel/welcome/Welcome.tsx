@@ -4,99 +4,106 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Icon, useStyles2 } from '@grafana/ui';
 
-const helpOptions = [
-  {
-    labelKey: 'welcome.welcome-banner.help-link-documentation',
-    defaultLabel: 'Documentation',
-    href: 'https://grafana.com/docs/grafana/latest',
-  },
-  {
-    labelKey: 'welcome.welcome-banner.help-link-tutorials',
-    defaultLabel: 'Tutorials',
-    href: 'https://grafana.com/tutorials',
-  },
-  {
-    labelKey: 'welcome.welcome-banner.help-link-community',
-    defaultLabel: 'Community',
-    href: 'https://community.grafana.com',
-  },
-  {
-    labelKey: 'welcome.welcome-banner.help-link-public-slack',
-    defaultLabel: 'Public Slack',
-    href: 'http://slack.grafana.com',
-  },
-];
-
-const valueProps = [
-  {
-    key: 'welcome.welcome-banner.value-prop-unified-observability',
-    defaultValue: 'Unified observability for metrics, logs, traces, and profiles',
-  },
-  {
-    key: 'welcome.welcome-banner.value-prop-data-sources',
-    defaultValue: 'Seamless integration with 60+ data sources',
-  },
-  {
-    key: 'welcome.welcome-banner.value-prop-alerting',
-    defaultValue: 'Powerful alerting and incident response',
-  },
-];
-
-const features = [
-  {
-    icon: 'apps' as const,
-    titleKey: 'welcome.welcome-banner.feature-dashboards-title',
-    defaultTitle: 'Dashboards',
-    descriptionKey: 'welcome.welcome-banner.feature-dashboards-description',
-    defaultDescription: 'Build rich, interactive dashboards with powerful visualizations.',
-    href: '/dashboards',
-  },
-  {
-    icon: 'bell' as const,
-    titleKey: 'welcome.welcome-banner.feature-alerting-title',
-    defaultTitle: 'Alerting',
-    descriptionKey: 'welcome.welcome-banner.feature-alerting-description',
-    defaultDescription: 'Define alert rules and get notified before issues escalate.',
-    href: '/alerting',
-  },
-  {
-    icon: 'compass' as const,
-    titleKey: 'welcome.welcome-banner.feature-explore-title',
-    defaultTitle: 'Explore',
-    descriptionKey: 'welcome.welcome-banner.feature-explore-description',
-    defaultDescription: 'Query and drill into your data across any data source.',
-    href: '/explore',
-  },
-  {
-    icon: 'plug' as const,
-    titleKey: 'welcome.welcome-banner.feature-connections-title',
-    defaultTitle: 'Connections',
-    descriptionKey: 'welcome.welcome-banner.feature-connections-description',
-    defaultDescription: 'Connect to databases, cloud services, and more.',
-    href: '/connections',
-  },
-];
-
-const stats = [
-  {
-    value: '60+',
-    labelKey: 'welcome.welcome-banner.stat-data-sources',
-    defaultLabel: 'Data sources',
-  },
-  {
-    value: '1000+',
-    labelKey: 'welcome.welcome-banner.stat-community-dashboards',
-    defaultLabel: 'Community dashboards',
-  },
-  {
-    value: '20M+',
-    labelKey: 'welcome.welcome-banner.stat-active-installations',
-    defaultLabel: 'Active installations',
-  },
-];
-
 export const WelcomeBanner = () => {
   const styles = useStyles2(getStyles);
+  const helpOptions = [
+    {
+      key: 'documentation',
+      label: t('welcome.welcome-banner.help-link-documentation', 'Documentation'),
+      href: 'https://grafana.com/docs/grafana/latest',
+    },
+    {
+      key: 'tutorials',
+      label: t('welcome.welcome-banner.help-link-tutorials', 'Tutorials'),
+      href: 'https://grafana.com/tutorials',
+    },
+    {
+      key: 'community',
+      label: t('welcome.welcome-banner.help-link-community', 'Community'),
+      href: 'https://community.grafana.com',
+    },
+    {
+      key: 'public-slack',
+      label: t('welcome.welcome-banner.help-link-public-slack', 'Public Slack'),
+      href: 'http://slack.grafana.com',
+    },
+  ];
+  const valueProps = [
+    {
+      key: 'unified-observability',
+      label: t(
+        'welcome.welcome-banner.value-prop-unified-observability',
+        'Unified observability for metrics, logs, traces, and profiles'
+      ),
+    },
+    {
+      key: 'data-sources',
+      label: t('welcome.welcome-banner.value-prop-data-sources', 'Seamless integration with 60+ data sources'),
+    },
+    {
+      key: 'alerting',
+      label: t('welcome.welcome-banner.value-prop-alerting', 'Powerful alerting and incident response'),
+    },
+  ];
+  const features = [
+    {
+      id: 'dashboards',
+      icon: 'apps' as const,
+      title: t('welcome.welcome-banner.feature-dashboards-title', 'Dashboards'),
+      description: t(
+        'welcome.welcome-banner.feature-dashboards-description',
+        'Build rich, interactive dashboards with powerful visualizations.'
+      ),
+      href: '/dashboards',
+    },
+    {
+      id: 'alerting',
+      icon: 'bell' as const,
+      title: t('welcome.welcome-banner.feature-alerting-title', 'Alerting'),
+      description: t(
+        'welcome.welcome-banner.feature-alerting-description',
+        'Define alert rules and get notified before issues escalate.'
+      ),
+      href: '/alerting',
+    },
+    {
+      id: 'explore',
+      icon: 'compass' as const,
+      title: t('welcome.welcome-banner.feature-explore-title', 'Explore'),
+      description: t(
+        'welcome.welcome-banner.feature-explore-description',
+        'Query and drill into your data across any data source.'
+      ),
+      href: '/explore',
+    },
+    {
+      id: 'connections',
+      icon: 'plug' as const,
+      title: t('welcome.welcome-banner.feature-connections-title', 'Connections'),
+      description: t(
+        'welcome.welcome-banner.feature-connections-description',
+        'Connect to databases, cloud services, and more.'
+      ),
+      href: '/connections',
+    },
+  ];
+  const stats = [
+    {
+      key: 'data-sources',
+      value: '60+',
+      label: t('welcome.welcome-banner.stat-data-sources', 'Data sources'),
+    },
+    {
+      key: 'community-dashboards',
+      value: '1000+',
+      label: t('welcome.welcome-banner.stat-community-dashboards', 'Community dashboards'),
+    },
+    {
+      key: 'active-installations',
+      value: '20M+',
+      label: t('welcome.welcome-banner.stat-active-installations', 'Active installations'),
+    },
+  ];
 
   return (
     <div className={styles.root}>
@@ -113,7 +120,7 @@ export const WelcomeBanner = () => {
             {valueProps.map((prop) => (
               <li key={prop.key} className={styles.valueProp}>
                 <Icon name="check" className={styles.checkIcon} />
-                {t(prop.key, prop.defaultValue)}
+                {prop.label}
               </li>
             ))}
           </ul>
@@ -131,12 +138,12 @@ export const WelcomeBanner = () => {
       {/* Feature cards */}
       <div className={styles.featuresGrid}>
         {features.map((f) => (
-          <a key={f.titleKey} href={f.href} className={styles.featureCard}>
+          <a key={f.id} href={f.href} className={styles.featureCard}>
             <div className={styles.featureIconWrap}>
               <Icon name={f.icon} size="xl" />
             </div>
-            <h3 className={styles.featureTitle}>{t(f.titleKey, f.defaultTitle)}</h3>
-            <p className={styles.featureDesc}>{t(f.descriptionKey, f.defaultDescription)}</p>
+            <h3 className={styles.featureTitle}>{f.title}</h3>
+            <p className={styles.featureDesc}>{f.description}</p>
           </a>
         ))}
       </div>
@@ -144,9 +151,9 @@ export const WelcomeBanner = () => {
       {/* Stats */}
       <div className={styles.statsRow}>
         {stats.map((s) => (
-          <div key={s.labelKey} className={styles.statItem}>
+          <div key={s.key} className={styles.statItem}>
             <span className={styles.statValue}>{s.value}</span>
-            <span className={styles.statLabel}>{t(s.labelKey, s.defaultLabel)}</span>
+            <span className={styles.statLabel}>{s.label}</span>
           </div>
         ))}
       </div>
@@ -157,8 +164,8 @@ export const WelcomeBanner = () => {
           <Trans i18nKey="welcome.welcome-banner.need-help">Need help?</Trans>
         </span>
         {helpOptions.map((opt) => (
-          <a key={opt.labelKey} className={styles.helpLink} href={`${opt.href}?utm_source=grafana_gettingstarted`}>
-            {t(opt.labelKey, opt.defaultLabel)}
+          <a key={opt.key} className={styles.helpLink} href={`${opt.href}?utm_source=grafana_gettingstarted`}>
+            {opt.label}
           </a>
         ))}
       </div>
