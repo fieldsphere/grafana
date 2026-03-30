@@ -50,9 +50,6 @@
   "peerDependencies": {
     "@grafana/runtime": "*"
   },
-  "resolutions": {
-    "redux": "^5.0.0"
-  },
   "scripts": {
     "build": "webpack -c ./webpack.config.ts --env production",
     "build:commit": "webpack -c ./webpack.config.ts --env production --env commit=$(git rev-parse --short HEAD)",
