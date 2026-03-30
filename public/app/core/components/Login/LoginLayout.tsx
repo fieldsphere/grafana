@@ -287,7 +287,7 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
       gap: theme.spacing(0.5),
     }),
     heroStatValue: css({
-      fontSize: theme.typography.size.xl,
+      fontSize: theme.typography.h3.fontSize,
       fontWeight: theme.typography.fontWeightBold,
       color: theme.colors.text.primary,
       lineHeight: 1.2,
