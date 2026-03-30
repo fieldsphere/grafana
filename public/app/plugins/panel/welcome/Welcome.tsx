@@ -1,52 +1,98 @@
 import { css, keyframes } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
+import { Trans, t } from '@grafana/i18n';
 import { Icon, useStyles2 } from '@grafana/ui';
 
 const helpOptions = [
-  { label: 'Documentation', href: 'https://grafana.com/docs/grafana/latest' },
-  { label: 'Tutorials', href: 'https://grafana.com/tutorials' },
-  { label: 'Community', href: 'https://community.grafana.com' },
-  { label: 'Public Slack', href: 'http://slack.grafana.com' },
+  {
+    labelKey: 'welcome.welcome-banner.help-link-documentation',
+    defaultLabel: 'Documentation',
+    href: 'https://grafana.com/docs/grafana/latest',
+  },
+  {
+    labelKey: 'welcome.welcome-banner.help-link-tutorials',
+    defaultLabel: 'Tutorials',
+    href: 'https://grafana.com/tutorials',
+  },
+  {
+    labelKey: 'welcome.welcome-banner.help-link-community',
+    defaultLabel: 'Community',
+    href: 'https://community.grafana.com',
+  },
+  {
+    labelKey: 'welcome.welcome-banner.help-link-public-slack',
+    defaultLabel: 'Public Slack',
+    href: 'http://slack.grafana.com',
+  },
 ];
 
 const valueProps = [
-  'Unified observability for metrics, logs, traces, and profiles',
-  'Seamless integration with 60+ data sources',
-  'Powerful alerting and incident response',
+  {
+    key: 'welcome.welcome-banner.value-prop-unified-observability',
+    defaultValue: 'Unified observability for metrics, logs, traces, and profiles',
+  },
+  {
+    key: 'welcome.welcome-banner.value-prop-data-sources',
+    defaultValue: 'Seamless integration with 60+ data sources',
+  },
+  {
+    key: 'welcome.welcome-banner.value-prop-alerting',
+    defaultValue: 'Powerful alerting and incident response',
+  },
 ];
 
 const features = [
   {
     icon: 'apps' as const,
-    title: 'Dashboards',
-    description: 'Build rich, interactive dashboards with powerful visualizations.',
+    titleKey: 'welcome.welcome-banner.feature-dashboards-title',
+    defaultTitle: 'Dashboards',
+    descriptionKey: 'welcome.welcome-banner.feature-dashboards-description',
+    defaultDescription: 'Build rich, interactive dashboards with powerful visualizations.',
     href: '/dashboards',
   },
   {
     icon: 'bell' as const,
-    title: 'Alerting',
-    description: 'Define alert rules and get notified before issues escalate.',
+    titleKey: 'welcome.welcome-banner.feature-alerting-title',
+    defaultTitle: 'Alerting',
+    descriptionKey: 'welcome.welcome-banner.feature-alerting-description',
+    defaultDescription: 'Define alert rules and get notified before issues escalate.',
     href: '/alerting',
   },
   {
     icon: 'compass' as const,
-    title: 'Explore',
-    description: 'Query and drill into your data across any data source.',
+    titleKey: 'welcome.welcome-banner.feature-explore-title',
+    defaultTitle: 'Explore',
+    descriptionKey: 'welcome.welcome-banner.feature-explore-description',
+    defaultDescription: 'Query and drill into your data across any data source.',
     href: '/explore',
   },
   {
     icon: 'plug' as const,
-    title: 'Connections',
-    description: 'Connect to databases, cloud services, and more.',
+    titleKey: 'welcome.welcome-banner.feature-connections-title',
+    defaultTitle: 'Connections',
+    descriptionKey: 'welcome.welcome-banner.feature-connections-description',
+    defaultDescription: 'Connect to databases, cloud services, and more.',
     href: '/connections',
   },
 ];
 
 const stats = [
-  { value: '60+', label: 'Data sources' },
-  { value: '1000+', label: 'Community dashboards' },
-  { value: '20M+', label: 'Active installations' },
+  {
+    value: '60+',
+    labelKey: 'welcome.welcome-banner.stat-data-sources',
+    defaultLabel: 'Data sources',
+  },
+  {
+    value: '1000+',
+    labelKey: 'welcome.welcome-banner.stat-community-dashboards',
+    defaultLabel: 'Community dashboards',
+  },
+  {
+    value: '20M+',
+    labelKey: 'welcome.welcome-banner.stat-active-installations',
+    defaultLabel: 'Active installations',
+  },
 ];
 
 export const WelcomeBanner = () => {
@@ -57,22 +103,26 @@ export const WelcomeBanner = () => {
       {/* Hero */}
       <div className={styles.hero}>
         <div className={styles.heroContent}>
-          <h1 className={styles.heroTitle}>Welcome to Grafana</h1>
-          <p className={styles.heroSubtitle}>The open observability platform</p>
+          <h1 className={styles.heroTitle}>
+            <Trans i18nKey="welcome.welcome-banner.welcome-to-grafana">Welcome to Grafana</Trans>
+          </h1>
+          <p className={styles.heroSubtitle}>
+            {t('welcome.welcome-banner.open-observability-platform', 'The open observability platform')}
+          </p>
           <ul className={styles.valueProps}>
             {valueProps.map((prop) => (
-              <li key={prop} className={styles.valueProp}>
+              <li key={prop.key} className={styles.valueProp}>
                 <Icon name="check" className={styles.checkIcon} />
-                {prop}
+                {t(prop.key, prop.defaultValue)}
               </li>
             ))}
           </ul>
           <div className={styles.ctaRow}>
             <a href="/dashboard/new" className={styles.ctaPrimary}>
-              Create a dashboard
+              {t('welcome.welcome-banner.create-a-dashboard', 'Create a dashboard')}
             </a>
             <a href="/explore" className={styles.ctaSecondary}>
-              Explore data
+              {t('welcome.welcome-banner.explore-data', 'Explore data')}
             </a>
           </div>
         </div>
@@ -81,12 +131,12 @@ export const WelcomeBanner = () => {
       {/* Feature cards */}
       <div className={styles.featuresGrid}>
         {features.map((f) => (
-          <a key={f.title} href={f.href} className={styles.featureCard}>
+          <a key={f.titleKey} href={f.href} className={styles.featureCard}>
             <div className={styles.featureIconWrap}>
               <Icon name={f.icon} size="xl" />
             </div>
-            <h3 className={styles.featureTitle}>{f.title}</h3>
-            <p className={styles.featureDesc}>{f.description}</p>
+            <h3 className={styles.featureTitle}>{t(f.titleKey, f.defaultTitle)}</h3>
+            <p className={styles.featureDesc}>{t(f.descriptionKey, f.defaultDescription)}</p>
           </a>
         ))}
       </div>
@@ -94,23 +144,21 @@ export const WelcomeBanner = () => {
       {/* Stats */}
       <div className={styles.statsRow}>
         {stats.map((s) => (
-          <div key={s.label} className={styles.statItem}>
+          <div key={s.labelKey} className={styles.statItem}>
             <span className={styles.statValue}>{s.value}</span>
-            <span className={styles.statLabel}>{s.label}</span>
+            <span className={styles.statLabel}>{t(s.labelKey, s.defaultLabel)}</span>
           </div>
         ))}
       </div>
 
       {/* Help links */}
       <div className={styles.helpRow}>
-        <span className={styles.helpLabel}>Need help?</span>
+        <span className={styles.helpLabel}>
+          <Trans i18nKey="welcome.welcome-banner.need-help">Need help?</Trans>
+        </span>
         {helpOptions.map((opt) => (
-          <a
-            key={opt.label}
-            className={styles.helpLink}
-            href={`${opt.href}?utm_source=grafana_gettingstarted`}
-          >
-            {opt.label}
+          <a key={opt.labelKey} className={styles.helpLink} href={`${opt.href}?utm_source=grafana_gettingstarted`}>
+            {t(opt.labelKey, opt.defaultLabel)}
           </a>
         ))}
       </div>
