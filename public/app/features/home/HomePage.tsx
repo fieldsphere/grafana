@@ -107,23 +107,23 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* Stats Section */}
-          <section className={styles.statsSection}>
-            <StatCard
-              value={t('home.stats.dashboards.value', 'Dashboards')}
-              label={t('home.stats.dashboards.label', 'Visualize metrics, logs, and traces')}
+          {/* Feature Highlights Section */}
+          <section className={styles.featureHighlightsSection}>
+            <FeatureHighlightCard
+              title={t('home.stats.dashboards.value', 'Dashboards')}
+              description={t('home.stats.dashboards.label', 'Visualize metrics, logs, and traces')}
             />
-            <StatCard
-              value={t('home.stats.alerting.value', 'Alerting')}
-              label={t('home.stats.alerting.label', 'Detect issues and route notifications')}
+            <FeatureHighlightCard
+              title={t('home.stats.alerting.value', 'Alerting')}
+              description={t('home.stats.alerting.label', 'Detect issues and route notifications')}
             />
-            <StatCard
-              value={t('home.stats.explore.value', 'Explore')}
-              label={t('home.stats.explore.label', 'Investigate and correlate signals')}
+            <FeatureHighlightCard
+              title={t('home.stats.explore.value', 'Explore')}
+              description={t('home.stats.explore.label', 'Investigate and correlate signals')}
             />
-            <StatCard
-              value={t('home.stats.plugins.value', 'Plugins')}
-              label={t('home.stats.plugins.label', 'Extend Grafana with integrations')}
+            <FeatureHighlightCard
+              title={t('home.stats.plugins.value', 'Plugins')}
+              description={t('home.stats.plugins.label', 'Extend Grafana with integrations')}
             />
           </section>
 
@@ -447,8 +447,8 @@ const getStyles = (theme: GrafanaTheme2) => ({
     WebkitMaskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)',
   }),
 
-  // Stats
-  statsSection: css({
+  // Feature highlights
+  featureHighlightsSection: css({
     display: 'grid',
     gridTemplateColumns: 'repeat(4, 1fr)',
     gap: theme.spacing(3),
@@ -637,39 +637,36 @@ const getFeatureCardStyles = (theme: GrafanaTheme2) => ({
   }),
 });
 
-interface StatCardProps {
-  value: string;
-  label: string;
+interface FeatureHighlightCardProps {
+  title: string;
+  description: string;
 }
 
-function StatCard({ value, label }: StatCardProps) {
-  const styles = useStyles2(getStatCardStyles);
+function FeatureHighlightCard({ title, description }: FeatureHighlightCardProps) {
+  const styles = useStyles2(getFeatureHighlightCardStyles);
 
   return (
-    <div className={styles.stat}>
-      <span className={styles.value}>{value}</span>
-      <span className={styles.label}>{label}</span>
+    <div className={styles.card}>
+      <span className={styles.title}>{title}</span>
+      <span className={styles.description}>{description}</span>
     </div>
   );
 }
 
-const getStatCardStyles = (theme: GrafanaTheme2) => ({
-  stat: css({
+const getFeatureHighlightCardStyles = (theme: GrafanaTheme2) => ({
+  card: css({
     textAlign: 'center',
     padding: theme.spacing(2),
   }),
-  value: css({
+  title: css({
     display: 'block',
-    fontSize: 36,
-    fontWeight: 700,
-    background: `linear-gradient(135deg, ${theme.colors.primary.main}, #FF6600)`,
-    WebkitBackgroundClip: 'text',
-    WebkitTextFillColor: 'transparent',
-    backgroundClip: 'text',
+    fontSize: 24,
+    fontWeight: 600,
+    color: theme.colors.text.primary,
     lineHeight: 1.2,
     marginBottom: theme.spacing(0.5),
   }),
-  label: css({
+  description: css({
     display: 'block',
     color: theme.colors.text.secondary,
     fontSize: theme.typography.body.fontSize,
