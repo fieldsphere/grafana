@@ -1,8 +1,8 @@
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { t, Trans } from '@grafana/i18n';
+import { TextLink, useStyles2 } from '@grafana/ui';
 
 const helpOptions = [
   { value: 0, label: 'Documentation', href: 'https://grafana.com/docs/grafana/latest' },
@@ -12,11 +12,32 @@ const helpOptions = [
 ];
 
 const actionOptions = [
-  { label: 'Explore dashboards', href: '/dashboards' },
-  { label: 'Connect data sources', href: '/connections/datasources' },
+  {
+    i18nKey: 'welcome.welcome-banner.action-explore-dashboards',
+    label: 'Explore dashboards',
+    href: '/dashboards',
+  },
+  {
+    i18nKey: 'welcome.welcome-banner.action-connect-data-sources',
+    label: 'Connect data sources',
+    href: '/connections/datasources',
+  },
 ];
 
-const valuePoints = ['Faster issue detection', 'Clear service health context', 'Lower monitoring toil'];
+const valuePoints = [
+  {
+    i18nKey: 'welcome.welcome-banner.value-point-faster-issue-detection',
+    label: 'Faster issue detection',
+  },
+  {
+    i18nKey: 'welcome.welcome-banner.value-point-clear-service-health-context',
+    label: 'Clear service health context',
+  },
+  {
+    i18nKey: 'welcome.welcome-banner.value-point-lower-monitoring-toil',
+    label: 'Lower monitoring toil',
+  },
+];
 
 export const WelcomeBanner = () => {
   const styles = useStyles2(getStyles);
@@ -38,16 +59,21 @@ export const WelcomeBanner = () => {
         <div className={styles.actions}>
           {actionOptions.map((option, index) => {
             return (
-              <a key={`${option.label}-${index}`} className={styles.actionLink} href={option.href}>
-                {option.label}
-              </a>
+              <TextLink
+                key={`${option.i18nKey}-${index}`}
+                className={styles.actionLink}
+                external={false}
+                href={option.href}
+              >
+                {t(option.i18nKey, option.label)}
+              </TextLink>
             );
           })}
         </div>
         <ul className={styles.valueList}>
           {valuePoints.map((point) => (
-            <li key={point} className={styles.valueListItem}>
-              {point}
+            <li key={point.i18nKey} className={styles.valueListItem}>
+              {t(point.i18nKey, point.label)}
             </li>
           ))}
         </ul>

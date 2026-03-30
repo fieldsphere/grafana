@@ -14979,10 +14979,15 @@
   },
   "welcome": {
     "welcome-banner": {
+      "action-connect-data-sources": "Connect data sources",
+      "action-explore-dashboards": "Explore dashboards",
       "grafana-observability": "Grafana observability",
       "headline": "See issues sooner and ship with confidence",
       "need-help": "Need help?",
-      "subtitle": "Monitor metrics, logs, traces, and profiles in one place so your team can respond faster."
+      "subtitle": "Monitor metrics, logs, traces, and profiles in one place so your team can respond faster.",
+      "value-point-clear-service-health-context": "Clear service health context",
+      "value-point-faster-issue-detection": "Faster issue detection",
+      "value-point-lower-monitoring-toil": "Lower monitoring toil"
     }
   },
   "xychart": {
