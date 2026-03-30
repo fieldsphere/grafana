@@ -1,4 +1,4 @@
-import { of } from 'rxjs';
+import { firstValueFrom, of } from 'rxjs';
 import { BackendSrv, BackendSrvRequest, FetchResponse } from 'src/services';
 
 import {
@@ -50,6 +50,12 @@ class MyDataSource extends DataSourceWithBackend<MyQuery, DataSourceJsonData> {
 }
 
 const mockDatasourceRequest = jest.fn<Promise<FetchResponse>, BackendSrvRequest[]>();
+const mockGetGrafanaLiveSrv = jest.fn();
+const mockGetInstanceSettings = jest.fn((ref?: DataSourceRef) => ({
+  type: ref?.type ?? '<mocktype>',
+  uid: ref?.uid ?? '<mockuid>',
+  jsonData: {},
+}));
 
 const backendSrv = {
   fetch: (options: BackendSrvRequest) => {
@@ -60,22 +66,22 @@ const backendSrv = {
 jest.mock('../services', () => ({
   ...jest.requireActual('../services'),
   getBackendSrv: () => backendSrv,
+  getGrafanaLiveSrv: () => mockGetGrafanaLiveSrv(),
   getDataSourceSrv: () => {
     return {
-      getInstanceSettings: (ref?: DataSourceRef) => ({
-        type: ref?.type ?? '<mocktype>',
-        uid: ref?.uid ?? '<mockuid>',
-      }),
+      getInstanceSettings: (ref?: DataSourceRef) => mockGetInstanceSettings(ref),
     };
   },
 }));
 jest.mock('./publicDashboardQueryHandler');
 
 const mockGetBooleanValue = jest.fn().mockReturnValue(false);
+const mockGetObjectValue = jest.fn().mockReturnValue({ types: [] });
 jest.mock('../internal/openFeature', () => ({
   ...jest.requireActual('../internal/openFeature'),
   getFeatureFlagClient: () => ({
     getBooleanValue: mockGetBooleanValue,
+    getObjectValue: mockGetObjectValue,
   }),
 }));
 
@@ -83,6 +89,15 @@ describe('DataSourceWithBackend', () => {
   beforeEach(async () => {
     jest.useFakeTimers();
     jest.setSystemTime(new Date('2023-10-13'));
+    config.featureToggles.queryServiceFromUI = false;
+    config.featureToggles.datasourcesApiServerEnableHealthEndpointFrontend = false;
+    mockGetObjectValue.mockReset().mockReturnValue({ types: [] });
+    mockGetGrafanaLiveSrv.mockReset().mockReturnValue(undefined);
+    mockGetInstanceSettings.mockReset().mockImplementation((ref?: DataSourceRef) => ({
+      type: ref?.type ?? '<mocktype>',
+      uid: ref?.uid ?? '<mockuid>',
+      jsonData: {},
+    }));
   });
 
   afterEach(() => {
@@ -425,6 +440,64 @@ describe('DataSourceWithBackend', () => {
     `);
   });
 
+  test('returns empty data and skips backend call when query has no targets', async () => {
+    const { mock, ds } = createMockDatasource();
+    const result = await firstValueFrom(
+      ds.query({
+        maxDataPoints: 10,
+        intervalMs: 5000,
+        targets: [],
+        range: getDefaultTimeRange(),
+      } as DataQueryRequest)
+    );
+
+    expect(result).toEqual({ data: [] });
+    expect(mock.calls.length).toBe(0);
+  });
+
+  test('throws when a target references an unknown datasource', () => {
+    const { ds } = createMockDatasource();
+    mockGetInstanceSettings.mockReturnValueOnce(undefined);
+
+    expect(() =>
+      ds.query({
+        maxDataPoints: 10,
+        intervalMs: 5000,
+        targets: [{ refId: 'A', datasource: { type: 'sample' } }],
+        range: getDefaultTimeRange(),
+      } as DataQueryRequest)
+    ).toThrow('Unknown Datasource');
+  });
+
+  test('uses query service URL when queryServiceFromUI is enabled and datasource is compatible', () => {
+    config.featureToggles.queryServiceFromUI = true;
+    mockGetObjectValue.mockReturnValue({ types: ['sample'] });
+
+    const { mock, ds } = createMockDatasource();
+    ds.query({
+      maxDataPoints: 10,
+      intervalMs: 5000,
+      targets: [{ refId: 'A', datasource: { type: 'sample' } }],
+      range: getDefaultTimeRange(),
+    } as DataQueryRequest);
+
+    expect(mock.calls.length).toBe(1);
+    expect(mock.calls[0][0].url).toBe('/apis/query.grafana.app/v0alpha1/namespaces/default/query?ds_type=dummy');
+  });
+
+  test('correctly passes panel plugin id header', () => {
+    const { mock, ds } = createMockDatasource();
+    ds.query({
+      maxDataPoints: 10,
+      intervalMs: 5000,
+      targets: [{ refId: 'A' }],
+      panelPluginId: 'timeseries',
+      range: getDefaultTimeRange(),
+    } as DataQueryRequest);
+
+    expect(mock.calls[0][0].headers['X-Panel-Plugin-Id']).toBe('timeseries');
+  });
+
   test('it converts results with channels to streaming queries', () => {
     const request: DataQueryRequest = {
       intervalMs: 100,
@@ -447,6 +520,54 @@ describe('DataSourceWithBackend', () => {
     rsp.data = [frame];
     obs = toStreamingDataResponse(rsp, request, standardStreamOptionsProvider);
     expect(obs).toBeDefined();
+  });
+
+  test('returns the same observable when exactly one stream is produced', () => {
+    const frame = createDataFrame({
+      meta: {
+        channel: 'a/b/c',
+      },
+      fields: [],
+    });
+    const streamResponse = of({ data: [frame] });
+    const getDataStream = jest.fn().mockReturnValue(streamResponse);
+    mockGetGrafanaLiveSrv.mockReturnValue({ getDataStream });
+
+    const obs = toStreamingDataResponse({ data: [frame] }, { intervalMs: 100 } as DataQueryRequest, standardStreamOptionsProvider);
+
+    expect(obs).toBe(streamResponse);
+    expect(getDataStream).toHaveBeenCalledTimes(1);
+  });
+
+  test('merges stream and static frames when both are present', async () => {
+    const streamFrame = createDataFrame({
+      meta: {
+        channel: 'a/b/c',
+      },
+      fields: [],
+    });
+    const staticFrame = createDataFrame({
+      fields: [],
+    });
+    const streamResponse = of({ data: [streamFrame] });
+    const getDataStream = jest.fn().mockReturnValue(streamResponse);
+    mockGetGrafanaLiveSrv.mockReturnValue({ getDataStream });
+
+    const emissions: DataQueryResponseData[] = [];
+    await new Promise<void>((resolve) => {
+      toStreamingDataResponse(
+        { data: [streamFrame, staticFrame] },
+        { intervalMs: 100, range: getDefaultTimeRange(), rangeRaw: { to: 'now' } } as DataQueryRequest,
+        standardStreamOptionsProvider
+      ).subscribe({
+        next: (value) => emissions.push(value),
+        complete: resolve,
+      });
+    });
+
+    expect(getDataStream).toHaveBeenCalledTimes(1);
+    expect(emissions.some((e) => e.data[0] === streamFrame)).toBe(true);
+    expect(emissions.some((e) => e.data[0] === staticFrame)).toBe(true);
   });
 
   test('check that getResource uses the data source UID', () => {
@@ -747,6 +868,86 @@ describe('DataSourceWithBackend', () => {
 
       await ds.setValue('multiplier', '1');
       expect(await ds.getValue('multiplier')).toBe('1');
+    });
+  });
+
+  test('interpolateVariablesInQueries applies templates to all queries', () => {
+    const { ds } = createMockDatasource();
+    const interpolated = ds.interpolateVariablesInQueries(
+      [{ refId: 'A' } as MyQuery, { refId: 'B' } as MyQuery],
+      {},
+      [{ key: 'k', operator: '=', value: 'v' }]
+    );
+
+    expect(interpolated).toEqual([
+      expect.objectContaining({ refId: 'A', applyTemplateVariablesCalled: true }),
+      expect.objectContaining({ refId: 'B', applyTemplateVariablesCalled: true }),
+    ]);
+  });
+
+  test('base applyTemplateVariables returns query unchanged', () => {
+    const settings = {
+      name: 'test',
+      id: 1234,
+      uid: 'abc',
+      type: 'dummy',
+      jsonData: {},
+    } as DataSourceInstanceSettings<DataSourceJsonData>;
+    const baseDataSource = new DataSourceWithBackend(settings);
+    const query = { refId: 'A' } as DataQuery;
+
+    expect(baseDataSource.applyTemplateVariables(query, {})).toBe(query);
+  });
+
+  test('testDatasource resolves success when health check is OK', async () => {
+    const { ds } = createMockDatasource();
+    jest.spyOn(ds, 'callHealthCheck').mockResolvedValue({
+      status: HealthStatus.OK,
+      message: 'Datasource is healthy',
+      details: undefined,
+    });
+
+    await expect(ds.testDatasource()).resolves.toEqual({
+      status: 'success',
+      message: 'Datasource is healthy',
+    });
+  });
+
+  test('testDatasource rejects with HealthCheckError when health check fails', async () => {
+    const { ds } = createMockDatasource();
+    jest.spyOn(ds, 'callHealthCheck').mockResolvedValue({
+      status: HealthStatus.Error,
+      message: 'Datasource is unhealthy',
+      details: { reason: 'failed auth' },
+    });
+
+    try {
+      await ds.testDatasource();
+      throw new Error('expected testDatasource to reject');
+    } catch (err) {
+      expect(err).toMatchObject({
+        status: 'error',
+        message: 'Datasource is unhealthy',
+      });
+      expect((err as { error: Error }).error.name).toBe('HealthCheckError');
+      expect((err as { error: { details: unknown } }).error.details).toEqual({ reason: 'failed auth' });
+    }
+  });
+
+  describe('standardStreamOptionsProvider', () => {
+    test('adds maxDelta when rangeRaw.to is now', () => {
+      const range = getDefaultTimeRange();
+      const options = standardStreamOptionsProvider(
+        {
+          range,
+          rangeRaw: { to: 'now' },
+          maxDataPoints: 250,
+        } as DataQueryRequest,
+        createDataFrame({ fields: [] })
+      );
+
+      expect(options.maxLength).toBe(250);
+      expect(options.maxDelta).toBe(range.to.valueOf() - range.from.valueOf());
     });
   });
 
