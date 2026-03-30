@@ -29,19 +29,6 @@
     },
     {
       "datasource": null,
-      "gridPos": {
-        "h": 16,
-        "w": 12,
-        "x": 0,
-        "y": 22
-      },
-      "id": 5,
-      "title": "",
-      "transparent": false,
-      "type": "gettingstarted"
-    },
-    {
-      "datasource": null,
       "folderId": 0,
       "gridPos": {
         "h": 16,

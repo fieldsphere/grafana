@@ -122,7 +122,7 @@ const getStyles = (theme: GrafanaTheme2) => {
       gridTemplateColumns: 'minmax(0, 1.35fr) minmax(0, 1fr)',
       gap: theme.spacing(2),
       padding: theme.spacing(3),
-      minHeight: '100%',
+      flex: 1,
       borderRadius: theme.shape.radius.lg,
       border: `1px solid ${theme.colors.border.weak}`,
       background: `linear-gradient(180deg, ${theme.colors.background.primary} 0%, ${theme.colors.background.secondary} 100%)`,
