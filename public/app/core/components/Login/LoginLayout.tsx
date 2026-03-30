@@ -22,9 +22,15 @@ export interface LoginLayoutProps {
   /** Custom branding settings that can be used e.g. for previewing the Login page changes */
   branding?: BrandingSettings;
   isChangingPassword?: boolean;
+  showHeroPanel?: boolean;
 }
 
-export const LoginLayout = ({ children, branding, isChangingPassword }: React.PropsWithChildren<LoginLayoutProps>) => {
+export const LoginLayout = ({
+  children,
+  branding,
+  isChangingPassword,
+  showHeroPanel = false,
+}: React.PropsWithChildren<LoginLayoutProps>) => {
   const loginStyles = useStyles2(getLoginStyles);
   const [startAnim, setStartAnim] = useState(false);
   const subTitle = branding?.loginSubtitle ?? Branding.GetLoginSubTitle();
@@ -32,6 +38,7 @@ export const LoginLayout = ({ children, branding, isChangingPassword }: React.Pr
   const loginBoxBackground = branding?.loginBoxBackground;
   const loginLogo = branding?.loginLogo;
   const hideEdition = branding?.hideEdition ?? Branding.HideEdition;
+  const shouldShowHeroPanel = showHeroPanel && !isChangingPassword;
 
   useEffect(() => setStartAnim(true), []);
 
@@ -41,7 +48,7 @@ export const LoginLayout = ({ children, branding, isChangingPassword }: React.Pr
     >
       <div className={loginStyles.loginMain}>
         <div className={cx(loginStyles.loginContent, loginBoxBackground, 'login-content-box')}>
-          {!isChangingPassword && (
+          {shouldShowHeroPanel && (
             <div className={loginStyles.heroPanel}>
               <div className={loginStyles.loginLogoWrapper}>
                 <Branding.LoginLogo className={loginStyles.loginLogo} logo={loginLogo} />
@@ -77,7 +84,7 @@ export const LoginLayout = ({ children, branding, isChangingPassword }: React.Pr
               </div>
             </div>
           )}
-          <div className={cx(loginStyles.loginOuterBox, isChangingPassword && loginStyles.loginOuterBoxFullWidth)}>
+          <div className={cx(loginStyles.loginOuterBox, !shouldShowHeroPanel && loginStyles.loginOuterBoxFullWidth)}>
             {isChangingPassword && (
               <div className={loginStyles.loginLogoWrapper}>
                 <Branding.LoginLogo className={loginStyles.loginLogo} logo={loginLogo} />

@@ -38,7 +38,7 @@ const LoginPage = () => {
           showDefaultPasswordWarning,
           loginErrorMessage,
         }) => (
-          <LoginLayout isChangingPassword={isChangingPassword}>
+          <LoginLayout isChangingPassword={isChangingPassword} showHeroPanel>
             {!isChangingPassword && (
               <InnerBox>
                 {loginErrorMessage && (
