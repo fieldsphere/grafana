@@ -181,7 +181,7 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
       justifyContent: 'flex-start',
       zIndex: 1,
       minHeight: 320,
-      borderRadius: theme.shape.radius.xl,
+      borderRadius: theme.shape.radius.default,
       padding: theme.spacing(2, 0),
       opacity: 0,
       [theme.transitions.handleMotion('no-preference')]: {

@@ -155,7 +155,7 @@ const getStyles = (theme: GrafanaTheme2) => {
     heroPanel: css({
       position: 'relative',
       padding: theme.spacing(4),
-      borderRadius: theme.shape.radius.xl,
+      borderRadius: theme.shape.radius.default,
       color: theme.colors.text.primary,
       background: theme.isDark
         ? 'linear-gradient(145deg, rgba(20,18,11,0.9) 0%, rgba(34,26,23,0.86) 50%, rgba(52,27,18,0.92) 100%)'
