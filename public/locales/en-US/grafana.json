@@ -9607,6 +9607,16 @@
     "name-line-width": "Line width",
     "name-stacking": "Stacking"
   },
+  "home-highlights": {
+    "home-highlights": {
+      "explore-data": "Explore data",
+      "learn-grafana-fundamentals": "Learn the Grafana fundamentals",
+      "platform-overview": "Platform overview",
+      "review-alerts": "Review alerts",
+      "start-from-clearer-operating-picture": "Start from a clearer operating picture.",
+      "use-grafana-home-as-handoff": "Use Grafana home as the handoff between exploration, setup, and day-to-day monitoring so teams know what to do next."
+    }
+  },
   "inspector": {
     "inspect-data-tab": {
       "loading": "Loading",
@@ -14979,7 +14989,10 @@
   },
   "welcome": {
     "welcome-banner": {
+      "explore-tutorials": "Explore tutorials",
+      "home-label": "Grafana home",
       "need-help": "Need help?",
+      "summary": "Bring telemetry, dashboards, and investigation workflows together so your team can move from signal to action faster.",
       "welcome-to-grafana": "Welcome to Grafana"
     }
   },
