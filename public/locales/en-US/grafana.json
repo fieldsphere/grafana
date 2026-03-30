@@ -13248,11 +13248,11 @@
     },
     "github": {
       "branch-required": "Branch is required",
-      "token-placeholder": "ghp_xxxxxxxxxxxxxxxxxxxx",
       "pr-workflow-description": "Allows users to choose whether to open a pull request when saving changes. If the repository does not allow direct changes to the main branch, a pull request may still be required.",
       "pr-workflow-label": "Enable pull request option when saving",
       "token-description": "GitHub Personal Access Token with repository permissions",
       "token-label": "Personal Access Token",
+      "token-placeholder": "ghp_xxxxxxxxxxxxxxxxxxxx",
       "token-required": "GitHub token is required",
       "url-description": "The GitHub repository URL",
       "url-placeholder": "https://github.com/owner/repository",
@@ -13260,7 +13260,6 @@
     },
     "gitlab": {
       "branch-required": "Branch is required",
-      "token-placeholder": "glpat-xxxxxxxxxxxxxxxxxxx",
       "permissions": {
         "api": "API",
         "api-read-write": "Read and write",
@@ -13273,6 +13272,7 @@
       "pr-workflow-label": "Enable merge request option when saving",
       "token-description": "GitLab Project Access Token with repository permissions",
       "token-label": "Project Access Token",
+      "token-placeholder": "glpat-xxxxxxxxxxxxxxxxxxx",
       "token-required": "GitLab token is required",
       "url-description": "The GitLab repository URL",
       "url-placeholder": "https://gitlab.com/owner/repository",
