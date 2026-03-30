@@ -7,6 +7,7 @@ import { getBackendSrv, isFetchError } from '@grafana/runtime';
 import {
   Alert,
   Badge,
+  FilterInput,
   InteractiveTable,
   LoadingPlaceholder,
   type CellProps,
@@ -29,10 +30,30 @@ interface LabsFlagsResponse {
   flags: LabsFeatureFlagRow[];
 }
 
+function rowMatchesQuery(f: LabsFeatureFlagRow, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) {
+    return true;
+  }
+  const haystack = [
+    f.name,
+    f.stage,
+    f.description ?? '',
+    f.enabled ? 'enabled' : 'disabled',
+    f.requiresDevMode ? 'dev mode' : '',
+    f.frontendOnly ? 'frontend' : '',
+    f.requiresRestart ? 'restart' : '',
+  ]
+    .join(' ')
+    .toLowerCase();
+  return haystack.includes(q);
+}
+
 export default function LabsPage() {
   const styles = useStyles2(getStyles);
   const [flags, setFlags] = useState<LabsFeatureFlagRow[] | undefined>();
   const [error, setError] = useState<unknown>();
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -102,6 +123,13 @@ export default function LabsPage() {
     [styles.mono, styles.notes]
   );
 
+  const filteredFlags = useMemo(() => {
+    if (!flags) {
+      return undefined;
+    }
+    return flags.filter((f) => rowMatchesQuery(f, searchQuery));
+  }, [flags, searchQuery]);
+
   return (
     <Page navId="labs">
       <Page.Contents>
@@ -121,7 +149,35 @@ export default function LabsPage() {
             <LoadingPlaceholder text={t('labs.flags.loading', 'Loading feature flags…')} />
           </div>
         )}
-        {flags && <InteractiveTable columns={columns} data={flags} getRowId={(f) => f.name} />}
+        {flags && (
+          <>
+            <div className={styles.toolbar}>
+              <FilterInput
+                placeholder={t('labs.flags.search-placeholder', 'Search by flag name, stage, or description')}
+                value={searchQuery}
+                escapeRegex={false}
+                onChange={setSearchQuery}
+              />
+              {filteredFlags && (
+                <span className={styles.resultCount}>
+                  {t('labs.flags.result-count', '{{shown}} of {{total}} flags', {
+                    shown: filteredFlags.length,
+                    total: flags.length,
+                  })}
+                </span>
+              )}
+            </div>
+            {filteredFlags && filteredFlags.length === 0 ? (
+              <p className={styles.noResults}>
+                <Trans i18nKey="labs.flags.no-results">No flags match your search.</Trans>
+              </p>
+            ) : (
+              filteredFlags && (
+                <InteractiveTable columns={columns} data={filteredFlags} getRowId={(f) => f.name} />
+              )
+            )}
+          </>
+        )}
       </Page.Contents>
     </Page>
   );
@@ -145,5 +201,22 @@ const getStyles = (theme: GrafanaTheme2) => ({
   notes: css({
     color: theme.colors.text.secondary,
     fontSize: theme.typography.bodySmall.fontSize,
+  }),
+  toolbar: css({
+    display: 'flex',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+    maxWidth: '560px',
+  }),
+  resultCount: css({
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.bodySmall.fontSize,
+    whiteSpace: 'nowrap',
+  }),
+  noResults: css({
+    color: theme.colors.text.secondary,
+    marginTop: theme.spacing(2),
   }),
 });
