@@ -15,23 +15,9 @@ import { LoginLayout, InnerBox } from './LoginLayout';
 import { LoginServiceButtons } from './LoginServiceButtons';
 import { UserSignup } from './UserSignup';
 
-const heroPoints = [
-  'See signal across metrics, logs, traces, and frontend performance in one place.',
-  'Move from incident detection to root cause analysis without switching tools.',
-  'Roll out observability with opinionated dashboards and fast setup.',
-];
-
-const heroStats = [
-  { label: 'Coverage', value: 'Full-stack' },
-  { label: 'Setup', value: 'Minutes' },
-  { label: 'Teams', value: 'One workspace' },
-];
-
 const LoginPage = () => {
   const styles = useStyles2(getStyles);
   const loginBranding = {
-    loginTitle: 'Observe your stack with Grafana',
-    loginSubtitle: 'Bring dashboards, logs, metrics, traces, and app performance into one focused workspace.',
     loginBackground: styles.pageBackground,
     loginBoxBackground: styles.loginCardBackground,
   };
@@ -108,14 +94,30 @@ export default LoginPage;
 
 const LoginHero = () => {
   const styles = useStyles2(getStyles);
+  const heroStats = [
+    { label: t('login.hero.stat.coverage', 'Coverage'), value: t('login.hero.value.coverage', 'Full-stack') },
+    { label: t('login.hero.stat.setup', 'Setup'), value: t('login.hero.value.setup', 'Minutes') },
+    { label: t('login.hero.stat.teams', 'Teams'), value: t('login.hero.value.teams', 'One workspace') },
+  ];
+  const heroPoints = [
+    t('login.hero.point.unify', 'See signal across metrics, logs, traces, and frontend performance in one place.'),
+    t('login.hero.point.root-cause', 'Move from incident detection to root cause analysis without switching tools.'),
+    t('login.hero.point.setup', 'Roll out observability with opinionated dashboards and fast setup.'),
+  ];
 
   return (
     <div className={styles.heroPanel}>
-      <div className={styles.heroEyebrow}>Observability platform</div>
-      <h2 className={styles.heroTitle}>Understand production health before issues reach users.</h2>
+      <div className={styles.heroEyebrow}>
+        <Trans i18nKey="login.hero.eyebrow">Observability platform</Trans>
+      </div>
+      <h2 className={styles.heroTitle}>
+        <Trans i18nKey="login.hero.title">Understand production health before issues reach users.</Trans>
+      </h2>
       <p className={styles.heroDescription}>
-        A sharper landing experience inspired by modern observability products, adapted for Grafana&apos;s voice and
-        product surface.
+        <Trans i18nKey="login.hero.description">
+          Unify dashboards, telemetry, and troubleshooting workflows so teams can detect issues earlier and resolve them
+          faster.
+        </Trans>
       </p>
 
       <div className={styles.heroStats}>
@@ -167,7 +169,7 @@ const getStyles = (theme: GrafanaTheme2) => {
         inset: 'auto -15% -30% auto',
         width: 280,
         height: 280,
-        borderRadius: '50%',
+        borderRadius: theme.shape.radius.circle,
         background: 'radial-gradient(circle, rgba(245,78,0,0.26) 0%, rgba(245,78,0,0) 72%)',
         pointerEvents: 'none',
       },
@@ -254,7 +256,7 @@ const getStyles = (theme: GrafanaTheme2) => {
     heroListMarker: css({
       width: 10,
       height: 10,
-      borderRadius: '50%',
+      borderRadius: theme.shape.radius.circle,
       background: theme.colors.warning.main,
       boxShadow: `0 0 0 6px ${theme.isDark ? 'rgba(245,78,0,0.14)' : 'rgba(245,78,0,0.12)'}`,
       marginTop: theme.spacing(0.75),

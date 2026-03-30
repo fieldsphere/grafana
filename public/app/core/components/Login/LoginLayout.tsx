@@ -33,6 +33,7 @@ export const LoginLayout = ({
 }: React.PropsWithChildren<LoginLayoutProps>) => {
   const loginStyles = useStyles2(getLoginStyles);
   const [startAnim, setStartAnim] = useState(false);
+  const hasSideContent = Boolean(sideContent) && !isChangingPassword;
   const subTitle = branding?.loginSubtitle ?? Branding.GetLoginSubTitle();
   const loginTitle = branding?.loginTitle ?? Branding.LoginTitle;
   const loginBoxBackground = branding?.loginBoxBackground || Branding.LoginBoxBackground();
@@ -46,8 +47,8 @@ export const LoginLayout = ({
       className={cx(loginStyles.container, startAnim && loginStyles.loginAnim, branding?.loginBackground)}
     >
       <div className={loginStyles.loginMain}>
-        <div className={loginStyles.loginSurface}>
-          {sideContent && !isChangingPassword && <div className={loginStyles.sideContent}>{sideContent}</div>}
+        <div className={cx(loginStyles.loginSurface, hasSideContent && loginStyles.loginSurfaceWithSideContent)}>
+          {hasSideContent && <div className={loginStyles.sideContent}>{sideContent}</div>}
           <div className={cx(loginStyles.loginContent, loginBoxBackground, 'login-content-box')}>
             <div className={loginStyles.loginLogoWrapper}>
               <Branding.LoginLogo className={loginStyles.loginLogo} logo={loginLogo} />
@@ -123,12 +124,15 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
     loginSurface: css({
       width: '100%',
       maxWidth: 1180,
-      display: 'grid',
-      gap: theme.spacing(3),
-      alignItems: 'stretch',
+      display: 'flex',
+      justifyContent: 'center',
+    }),
+    loginSurfaceWithSideContent: css({
       [theme.breakpoints.up('lg')]: {
+        display: 'grid',
         gridTemplateColumns: 'minmax(0, 1.1fr) minmax(420px, 0.9fr)',
         gap: theme.spacing(4),
+        alignItems: 'stretch',
       },
     }),
     submitButton: css({
@@ -170,6 +174,7 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
     }),
     loginContent: css({
       width: '100%',
+      maxWidth: 520,
       display: 'flex',
       alignItems: 'stretch',
       flexDirection: 'column',
