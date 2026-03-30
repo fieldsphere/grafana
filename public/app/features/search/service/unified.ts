@@ -348,6 +348,7 @@ export class UnifiedSearcher implements GrafanaSearcher {
     if (query.deleted) {
       const data = await deletedDashboardsCache.get();
       const results = filterSearchResults(data, query);
+      await this.folderCache.ensureFolders(collectFolderUidsFromHits(results));
       rsp = { hits: results, totalHits: results.length };
     } else {
       rsp = await this.fetchSearchResponse(firstPageArg);

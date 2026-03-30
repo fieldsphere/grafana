@@ -6,6 +6,7 @@ import server, { setupMockServer } from '@grafana/test-utils/server';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { configureStore } from 'app/store/configureStore';
 
+import { deletedDashboardsCache } from './deletedDashboardsCache';
 import { GrafanaSearcher, SearchQuery } from './types';
 import { toDashboardResults, SearchHit, SearchAPIResponse, UnifiedSearcher } from './unified';
 
@@ -200,6 +201,50 @@ describe('Unified Storage Searcher', () => {
     expect(response.view.get(0).folder).toBe(parentUid);
     expect(response.view.get(0).location).toBe(parentUid);
     expect(response.view.dataFrame.meta?.custom?.locationInfo?.[parentUid].name).toBe('Parent Folder');
+  });
+
+  it('should resolve folder metadata for deleted dashboards', async () => {
+    const folderUid = 'deleted-folder';
+    const searchRoute = '/apis/dashboard.grafana.app/v0alpha1/namespaces/:namespace/search';
+    const deletedGetSpy = jest.spyOn(deletedDashboardsCache, 'get').mockResolvedValue([
+      {
+        resource: 'dashboards',
+        name: 'deleted-dash',
+        title: 'Deleted Dashboard',
+        location: 'general',
+        folder: folderUid,
+        tags: [],
+        field: {},
+        url: '',
+      },
+    ]);
+
+    server.use(
+      http.get(searchRoute, ({ request }) => {
+        const url = new URL(request.url);
+        const type = url.searchParams.get('type');
+        const nameFilters = url.searchParams.getAll('name');
+        if (type === 'folder' && nameFilters.includes(folderUid)) {
+          return HttpResponse.json({
+            totalHits: 1,
+            hits: [{ name: folderUid, title: 'Deleted Folder', resource: 'folder' }],
+          });
+        }
+        return HttpResponse.json({ totalHits: 0, hits: [] });
+      })
+    );
+
+    try {
+      const searcher = new UnifiedSearcher(mockFallbackSearcher);
+      const response = await searcher.search({ query: '*', deleted: true, limit: 50 });
+
+      expect(response.view.length).toBe(1);
+      expect(response.view.get(0).folder).toBe(folderUid);
+      expect(response.view.dataFrame.meta?.custom?.locationInfo?.[folderUid].name).toBe('Deleted Folder');
+      expect(deletedGetSpy).toHaveBeenCalled();
+    } finally {
+      deletedGetSpy.mockRestore();
+    }
   });
 });
 
