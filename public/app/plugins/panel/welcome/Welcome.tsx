@@ -6,55 +6,6 @@ import { LinkButton, Stack, Text, useStyles2 } from '@grafana/ui';
 
 const UTM = 'utm_source=grafana_gettingstarted';
 
-const helpOptions = [
-  { value: 0, labelKey: 'welcome.welcome-banner.link-documentation', defaultLabel: 'Documentation', href: 'https://grafana.com/docs/grafana/latest' },
-  { value: 1, labelKey: 'welcome.welcome-banner.link-tutorials', defaultLabel: 'Tutorials', href: 'https://grafana.com/tutorials' },
-  { value: 2, labelKey: 'welcome.welcome-banner.link-community', defaultLabel: 'Community', href: 'https://community.grafana.com' },
-  { value: 3, labelKey: 'welcome.welcome-banner.link-public-slack', defaultLabel: 'Public Slack', href: 'http://slack.grafana.com' },
-] as const;
-
-const pillars = [
-  {
-    titleKey: 'welcome.welcome-banner.pillar-visualize-title',
-    titleDefault: 'Visualize and alert',
-    bodyKey: 'welcome.welcome-banner.pillar-visualize-body',
-    bodyDefault: 'Build dashboards and alert on metrics, logs, traces, and profiles in one place.',
-  },
-  {
-    titleKey: 'welcome.welcome-banner.pillar-unify-title',
-    titleDefault: 'Unify your data',
-    bodyKey: 'welcome.welcome-banner.pillar-unify-body',
-    bodyDefault: 'Connect 100+ data sources and query without switching tools.',
-  },
-  {
-    titleKey: 'welcome.welcome-banner.pillar-collaborate-title',
-    titleDefault: 'Collaborate',
-    bodyKey: 'welcome.welcome-banner.pillar-collaborate-body',
-    bodyDefault: 'Share dashboards and foster a data-driven culture with your team.',
-  },
-] as const;
-
-const stats = [
-  {
-    valueKey: 'welcome.welcome-banner.stat-sources-value',
-    valueDefault: '100+',
-    labelKey: 'welcome.welcome-banner.stat-sources-label',
-    labelDefault: 'Data sources',
-  },
-  {
-    valueKey: 'welcome.welcome-banner.stat-viz-value',
-    valueDefault: 'Many',
-    labelKey: 'welcome.welcome-banner.stat-viz-label',
-    labelDefault: 'Visualization types',
-  },
-  {
-    valueKey: 'welcome.welcome-banner.stat-oss-value',
-    valueDefault: 'Open source',
-    labelKey: 'welcome.welcome-banner.stat-oss-label',
-    labelDefault: 'Core platform',
-  },
-] as const;
-
 const grafanaCloudSignupUrl = `https://grafana.com/auth/sign-up/create-user?src=oss-grafana&cnt=welcome-home&${UTM}`;
 
 export const WelcomeBanner = () => {
@@ -83,16 +34,36 @@ export const WelcomeBanner = () => {
             <Trans i18nKey="welcome.welcome-banner.pillars-heading">Why teams choose Grafana</Trans>
           </h2>
           <div className={styles.pillarGrid}>
-            {pillars.map((pillar) => (
-              <div key={pillar.titleKey} className={styles.pillarCard}>
-                <h3 className={styles.pillarTitle}>
-                  <Trans i18nKey={pillar.titleKey}>{pillar.titleDefault}</Trans>
-                </h3>
-                <Text element="p" variant="bodySmall" color="secondary">
-                  <Trans i18nKey={pillar.bodyKey}>{pillar.bodyDefault}</Trans>
-                </Text>
-              </div>
-            ))}
+            <div className={styles.pillarCard}>
+              <h3 className={styles.pillarTitle}>
+                <Trans i18nKey="welcome.welcome-banner.pillar-visualize-title">Visualize and alert</Trans>
+              </h3>
+              <Text element="p" variant="bodySmall" color="secondary">
+                <Trans i18nKey="welcome.welcome-banner.pillar-visualize-body">
+                  Build dashboards and alert on metrics, logs, traces, and profiles in one place.
+                </Trans>
+              </Text>
+            </div>
+            <div className={styles.pillarCard}>
+              <h3 className={styles.pillarTitle}>
+                <Trans i18nKey="welcome.welcome-banner.pillar-unify-title">Unify your data</Trans>
+              </h3>
+              <Text element="p" variant="bodySmall" color="secondary">
+                <Trans i18nKey="welcome.welcome-banner.pillar-unify-body">
+                  Connect 100+ data sources and query without switching tools.
+                </Trans>
+              </Text>
+            </div>
+            <div className={styles.pillarCard}>
+              <h3 className={styles.pillarTitle}>
+                <Trans i18nKey="welcome.welcome-banner.pillar-collaborate-title">Collaborate</Trans>
+              </h3>
+              <Text element="p" variant="bodySmall" color="secondary">
+                <Trans i18nKey="welcome.welcome-banner.pillar-collaborate-body">
+                  Share dashboards and foster a data-driven culture with your team.
+                </Trans>
+              </Text>
+            </div>
           </div>
         </section>
 
@@ -101,16 +72,30 @@ export const WelcomeBanner = () => {
             <Trans i18nKey="welcome.welcome-banner.stats-heading">At a glance</Trans>
           </h2>
           <div className={styles.statRow}>
-            {stats.map((stat) => (
-              <div key={stat.valueKey} className={styles.statItem}>
-                <div className={styles.statValue}>
-                  <Trans i18nKey={stat.valueKey}>{stat.valueDefault}</Trans>
-                </div>
-                <Text variant="bodySmall" color="secondary">
-                  <Trans i18nKey={stat.labelKey}>{stat.labelDefault}</Trans>
-                </Text>
+            <div className={styles.statItem}>
+              <div className={styles.statValue}>
+                <Trans i18nKey="welcome.welcome-banner.stat-sources-value">100+</Trans>
               </div>
-            ))}
+              <Text variant="bodySmall" color="secondary">
+                <Trans i18nKey="welcome.welcome-banner.stat-sources-label">Data sources</Trans>
+              </Text>
+            </div>
+            <div className={styles.statItem}>
+              <div className={styles.statValue}>
+                <Trans i18nKey="welcome.welcome-banner.stat-viz-value">Many</Trans>
+              </div>
+              <Text variant="bodySmall" color="secondary">
+                <Trans i18nKey="welcome.welcome-banner.stat-viz-label">Visualization types</Trans>
+              </Text>
+            </div>
+            <div className={styles.statItem}>
+              <div className={styles.statValue}>
+                <Trans i18nKey="welcome.welcome-banner.stat-oss-value">Open source</Trans>
+              </div>
+              <Text variant="bodySmall" color="secondary">
+                <Trans i18nKey="welcome.welcome-banner.stat-oss-label">Core platform</Trans>
+              </Text>
+            </div>
           </div>
         </section>
 
@@ -136,15 +121,21 @@ export const WelcomeBanner = () => {
             <Trans i18nKey="welcome.welcome-banner.need-help">Need help?</Trans>
           </h3>
           <div className={styles.helpLinks}>
-            {helpOptions.map((option, index) => (
-              <a
-                key={`${option.labelKey}-${index}`}
-                className={styles.helpLink}
-                href={`${option.href}?${UTM}`}
-              >
-                <Trans i18nKey={option.labelKey}>{option.defaultLabel}</Trans>
-              </a>
-            ))}
+            <a
+              className={styles.helpLink}
+              href={`https://grafana.com/docs/grafana/latest?${UTM}`}
+            >
+              <Trans i18nKey="welcome.welcome-banner.link-documentation">Documentation</Trans>
+            </a>
+            <a className={styles.helpLink} href={`https://grafana.com/tutorials?${UTM}`}>
+              <Trans i18nKey="welcome.welcome-banner.link-tutorials">Tutorials</Trans>
+            </a>
+            <a className={styles.helpLink} href={`https://community.grafana.com?${UTM}`}>
+              <Trans i18nKey="welcome.welcome-banner.link-community">Community</Trans>
+            </a>
+            <a className={styles.helpLink} href={`http://slack.grafana.com?${UTM}`}>
+              <Trans i18nKey="welcome.welcome-banner.link-public-slack">Public Slack</Trans>
+            </a>
           </div>
         </div>
       </div>
