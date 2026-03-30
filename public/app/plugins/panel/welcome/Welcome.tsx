@@ -68,7 +68,7 @@ export const WelcomeBanner = () => {
         </section>
 
         <section className={styles.stats} aria-labelledby="welcome-stats-heading">
-          <h2 id="welcome-stats-heading" className={styles.visuallyHidden}>
+          <h2 id="welcome-stats-heading" className="sr-only">
             <Trans i18nKey="welcome.welcome-banner.stats-heading">At a glance</Trans>
           </h2>
           <div className={styles.statRow}>
@@ -206,17 +206,6 @@ const getStyles = (theme: GrafanaTheme2) => {
       padding: theme.spacing(2, 3),
       background: theme.colors.background.secondary,
       border: `1px solid ${theme.colors.border.weak}`,
-    }),
-    visuallyHidden: css({
-      position: 'absolute',
-      width: '1px',
-      height: '1px',
-      padding: 0,
-      margin: '-1px',
-      overflow: 'hidden',
-      clip: 'rect(0, 0, 0, 0)',
-      whiteSpace: 'nowrap',
-      border: 0,
     }),
     statRow: css({
       display: 'grid',
