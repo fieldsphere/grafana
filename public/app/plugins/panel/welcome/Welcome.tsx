@@ -99,10 +99,7 @@ export const WelcomeBanner = () => {
           </div>
         </section>
 
-        <section
-          className={styles.ctas}
-          aria-label={t('welcome.welcome-banner.cta-section-aria', 'Get started')}
-        >
+        <section className={styles.ctas} aria-label={t('welcome.welcome-banner.cta-section-aria', 'Get started')}>
           <Stack direction="row" gap={2} wrap alignItems="center">
             <LinkButton href={grafanaCloudSignupUrl} variant="primary" icon="cloud" target="_blank" rel="noreferrer">
               <Trans i18nKey="welcome.welcome-banner.cta-cloud">Try Grafana Cloud</Trans>
@@ -121,10 +118,7 @@ export const WelcomeBanner = () => {
             <Trans i18nKey="welcome.welcome-banner.need-help">Need help?</Trans>
           </h3>
           <div className={styles.helpLinks}>
-            <a
-              className={styles.helpLink}
-              href={`https://grafana.com/docs/grafana/latest?${UTM}`}
-            >
+            <a className={styles.helpLink} href={`https://grafana.com/docs/grafana/latest?${UTM}`}>
               <Trans i18nKey="welcome.welcome-banner.link-documentation">Documentation</Trans>
             </a>
             <a className={styles.helpLink} href={`https://grafana.com/tutorials?${UTM}`}>
