@@ -1,9 +1,12 @@
 import { css, cx, keyframes } from '@emotion/css';
+import { useEffect } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme2, locationUtil } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
+import { getBackendSrv, locationService } from '@grafana/runtime';
 import { Icon, IconName, useStyles2 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
+import { DashboardDTO, HomeDashboardRedirectDTO, isRedirectResponse } from 'app/types/dashboard';
 
 interface FeatureCardProps {
   icon: IconName;
@@ -49,6 +52,23 @@ function StatCard({ value, label }: StatCardProps) {
 
 export default function HomePage() {
   const styles = useStyles2(getStyles);
+
+  useEffect(() => {
+    const checkHomeDashboardRedirect = async () => {
+      try {
+        const response = await getBackendSrv().get<DashboardDTO | HomeDashboardRedirectDTO>('/api/dashboards/home');
+
+        if (isRedirectResponse(response)) {
+          const newUrl = locationUtil.processRedirectUri(response.redirectUri, locationService.getLocation());
+          locationService.replace(newUrl);
+        }
+      } catch {
+        // Keep rendering the static homepage when redirect checks fail.
+      }
+    };
+
+    void checkHomeDashboardRedirect();
+  }, []);
 
   return (
     <Page navId="home">
