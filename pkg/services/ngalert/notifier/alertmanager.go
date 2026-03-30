@@ -288,6 +288,11 @@ func (am *alertmanager) applyConfig(cfg alertingNotify.NotificationsConfiguratio
 	if err != nil {
 		return false, fmt.Errorf("unable to apply configuration: %w", err)
 	}
+	// ApplyConfig starts the dispatcher in a new goroutine. If another ApplyConfig runs before that
+	// goroutine assigns cancel, Dispatcher.Stop() is a no-op and we can end up with two Run() calls
+	// racing on the same done channel (panic: close of closed channel). Pause briefly so Run() can init.
+	time.Sleep(50 * time.Microsecond)
+
 	am.appliedHash = configHash
 
 	am.updateConfigMetrics(cfg)
