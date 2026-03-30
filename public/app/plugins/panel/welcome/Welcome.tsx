@@ -1,8 +1,8 @@
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Trans } from '@grafana/i18n';
-import { useStyles2 } from '@grafana/ui';
+import { t, Trans } from '@grafana/i18n';
+import { TextLink, useStyles2 } from '@grafana/ui';
 
 const helpOptions = [
   { value: 0, label: 'Documentation', href: 'https://grafana.com/docs/grafana/latest' },
@@ -11,14 +11,73 @@ const helpOptions = [
   { value: 3, label: 'Public Slack', href: 'http://slack.grafana.com' },
 ];
 
+const actionOptions = [
+  {
+    i18nKey: 'welcome.welcome-banner.action-explore-dashboards',
+    label: 'Explore dashboards',
+    href: '/dashboards',
+  },
+  {
+    i18nKey: 'welcome.welcome-banner.action-connect-data-sources',
+    label: 'Connect data sources',
+    href: '/connections/datasources',
+  },
+];
+
+const valuePoints = [
+  {
+    i18nKey: 'welcome.welcome-banner.value-point-faster-issue-detection',
+    label: 'Faster issue detection',
+  },
+  {
+    i18nKey: 'welcome.welcome-banner.value-point-clear-service-health-context',
+    label: 'Clear service health context',
+  },
+  {
+    i18nKey: 'welcome.welcome-banner.value-point-lower-monitoring-toil',
+    label: 'Lower monitoring toil',
+  },
+];
+
 export const WelcomeBanner = () => {
   const styles = useStyles2(getStyles);
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>
-        <Trans i18nKey="welcome.welcome-banner.welcome-to-grafana">Welcome to Grafana</Trans>
-      </h1>
+      <div className={styles.hero}>
+        <p className={styles.eyebrow}>
+          <Trans i18nKey="welcome.welcome-banner.grafana-observability">Grafana observability</Trans>
+        </p>
+        <h1 className={styles.title}>
+          <Trans i18nKey="welcome.welcome-banner.headline">See issues sooner and ship with confidence</Trans>
+        </h1>
+        <p className={styles.subtitle}>
+          <Trans i18nKey="welcome.welcome-banner.subtitle">
+            Monitor metrics, logs, traces, and profiles in one place so your team can respond faster.
+          </Trans>
+        </p>
+        <div className={styles.actions}>
+          {actionOptions.map((option, index) => {
+            return (
+              <TextLink
+                key={`${option.i18nKey}-${index}`}
+                className={styles.actionLink}
+                external={false}
+                href={option.href}
+              >
+                {t(option.i18nKey, option.label)}
+              </TextLink>
+            );
+          })}
+        </div>
+        <ul className={styles.valueList}>
+          {valuePoints.map((point) => (
+            <li key={point.i18nKey} className={styles.valueListItem}>
+              {t(point.i18nKey, point.label)}
+            </li>
+          ))}
+        </ul>
+      </div>
       <div className={styles.help}>
         <h3 className={styles.helpText}>
           <Trans i18nKey="welcome.welcome-banner.need-help">Need help?</Trans>
@@ -45,65 +104,139 @@ const getStyles = (theme: GrafanaTheme2) => {
   return {
     container: css({
       display: 'flex',
-      backgroundSize: 'cover',
+      background: theme.colors.background.secondary,
+      border: `1px solid ${theme.colors.border.medium}`,
+      borderRadius: theme.shape.radius.default,
       height: '100%',
-      alignItems: 'center',
+      alignItems: 'stretch',
       justifyContent: 'space-between',
-      padding: theme.spacing(0, 3),
+      padding: theme.spacing(2, 3),
+      gap: theme.spacing(2),
 
       [theme.breakpoints.down('lg')]: {
-        backgroundPosition: '0px',
         flexDirection: 'column',
         alignItems: 'flex-start',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
       },
 
       [theme.breakpoints.down('sm')]: {
-        padding: theme.spacing(0, 1),
+        padding: theme.spacing(2),
       },
     }),
+    hero: css({
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      gap: theme.spacing(1),
+      width: '100%',
+      maxWidth: 760,
+    }),
+    eyebrow: css({
+      margin: 0,
+      fontSize: theme.typography.bodySmall.fontSize,
+      color: theme.colors.text.secondary,
+      textTransform: 'uppercase',
+      letterSpacing: '0.08em',
+      fontWeight: theme.typography.fontWeightMedium,
+    }),
     title: css({
-      marginBottom: 0,
+      margin: 0,
+      fontSize: theme.typography.h1.fontSize,
+      lineHeight: theme.typography.h1.lineHeight,
 
       [theme.breakpoints.down('lg')]: {
-        marginBottom: theme.spacing(1),
+        fontSize: theme.typography.h2.fontSize,
+        lineHeight: theme.typography.h2.lineHeight,
       },
 
       [theme.breakpoints.down('md')]: {
-        fontSize: theme.typography.h2.fontSize,
-      },
-      [theme.breakpoints.down('sm')]: {
         fontSize: theme.typography.h3.fontSize,
+        lineHeight: theme.typography.h3.lineHeight,
+      },
+    }),
+    subtitle: css({
+      margin: 0,
+      color: theme.colors.text.secondary,
+      maxWidth: 700,
+      fontSize: theme.typography.h6.fontSize,
+      lineHeight: theme.typography.h6.lineHeight,
+    }),
+    actions: css({
+      display: 'flex',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: theme.spacing(1),
+      marginTop: theme.spacing(1),
+    }),
+    actionLink: css({
+      display: 'inline-flex',
+      alignItems: 'center',
+      borderRadius: theme.shape.radius.default,
+      border: `1px solid ${theme.colors.border.strong}`,
+      padding: theme.spacing(0.75, 1.5),
+      fontWeight: theme.typography.fontWeightMedium,
+      textDecoration: 'none',
+      color: theme.colors.text.primary,
+      background: theme.colors.background.primary,
+      ':hover': {
+        background: theme.colors.background.canvas,
+      },
+    }),
+    valueList: css({
+      margin: theme.spacing(1, 0, 0, 0),
+      padding: 0,
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: theme.spacing(0.75, 1.5),
+      listStyle: 'none',
+    }),
+    valueListItem: css({
+      margin: 0,
+      color: theme.colors.text.secondary,
+      fontSize: theme.typography.bodySmall.fontSize,
+      lineHeight: theme.typography.bodySmall.lineHeight,
+      ':before': {
+        content: '"•"',
+        marginRight: theme.spacing(0.5),
+        color: theme.colors.primary.main,
       },
     }),
     help: css({
       display: 'flex',
-      alignItems: 'baseline',
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      justifyContent: 'center',
+      gap: theme.spacing(0.5),
+      paddingLeft: theme.spacing(2),
+      borderLeft: `1px solid ${theme.colors.border.medium}`,
+      minWidth: 260,
+
+      [theme.breakpoints.down('lg')]: {
+        minWidth: 'auto',
+        width: '100%',
+        borderLeft: 0,
+        borderTop: `1px solid ${theme.colors.border.medium}`,
+        paddingLeft: 0,
+        paddingTop: theme.spacing(1),
+      },
     }),
     helpText: css({
-      marginRight: theme.spacing(2),
-      marginBottom: 0,
+      margin: 0,
 
       [theme.breakpoints.down('md')]: {
-        fontSize: theme.typography.h4.fontSize,
-      },
-
-      [theme.breakpoints.down('sm')]: {
-        display: 'none',
+        fontSize: theme.typography.h6.fontSize,
       },
     }),
     helpLinks: css({
       display: 'flex',
       flexWrap: 'wrap',
+      gap: theme.spacing(0.5, 1),
     }),
     helpLink: css({
-      marginRight: theme.spacing(2),
       textDecoration: 'underline',
       textWrap: 'nowrap',
-
-      [theme.breakpoints.down('sm')]: {
-        marginRight: theme.spacing(1),
-      },
+      color: theme.colors.text.link,
     }),
   };
 };

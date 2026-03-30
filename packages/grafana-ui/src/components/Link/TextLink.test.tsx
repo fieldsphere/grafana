@@ -65,4 +65,16 @@ describe('TextLink', () => {
     await userEvent.click(screen.getByRole('link'));
     expect(onClick).toHaveBeenCalled();
   });
+
+  it('should preserve custom className', () => {
+    render(
+      <MemoryRouter>
+        <TextLink href={link} className="custom-link-class">
+          Link to Grafana
+        </TextLink>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole('link')).toHaveClass('custom-link-class');
+  });
 });
