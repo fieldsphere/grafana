@@ -251,6 +251,9 @@ const injectedRtkApi = api
             permission: queryArg.permission,
             sort: queryArg.sort,
             limit: queryArg.limit,
+            offset: queryArg.offset,
+            name: queryArg.name,
+            field: queryArg.field,
             ownerReference: queryArg.ownerReference,
             createdBy: queryArg.createdBy,
             explain: queryArg.explain,
@@ -693,6 +696,12 @@ export type SearchDashboardsAndFoldersApiArg = {
   sort?: string;
   /** number of results to return */
   limit?: number;
+  /** pagination offset into the result set */
+  offset?: number;
+  /** filter by resource name (k8s name / UID); repeat for multiple values */
+  name?: string[];
+  /** include the given field in each hit (e.g. sort field value) */
+  field?: string;
   /** filter by owner reference in the format {Group}/{Kind}/{Name}. When you pass multiple values, the filter matches any of them. */
   ownerReference?: string[];
   /** filter by the user who created the resource (format: user:<uid>) */

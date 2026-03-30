@@ -1735,6 +1735,34 @@
             }
           },
           {
+            "name": "offset",
+            "in": "query",
+            "description": "pagination offset into the result set",
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          {
+            "name": "name",
+            "in": "query",
+            "description": "filter by resource name (k8s name / UID); repeat for multiple values",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          {
+            "name": "field",
+            "in": "query",
+            "description": "include the given field in each hit (e.g. sort field value)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
             "name": "ownerReference",
             "in": "query",
             "description": "filter by owner reference in the format {Group}/{Kind}/{Name}. When you pass multiple values, the filter matches any of them.",

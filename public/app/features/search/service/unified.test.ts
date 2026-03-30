@@ -1,13 +1,18 @@
+import { HttpResponse, http } from 'msw';
+
 import { config, setBackendSrv } from '@grafana/runtime';
 import { getCustomSearchHandler } from '@grafana/test-utils/handlers';
 import server, { setupMockServer } from '@grafana/test-utils/server';
 import { backendSrv } from 'app/core/services/backend_srv';
+import { configureStore } from 'app/store/configureStore';
 
+import { deletedDashboardsCache } from './deletedDashboardsCache';
 import { GrafanaSearcher, SearchQuery } from './types';
 import { toDashboardResults, SearchHit, SearchAPIResponse, UnifiedSearcher } from './unified';
 
 beforeEach(() => {
   jest.clearAllMocks();
+  configureStore();
 });
 
 const mockFallbackSearcher = {
@@ -75,6 +80,26 @@ describe('Unified Storage Searcher', () => {
     expect(locationInfo?.folder2.name).toBe('Folder 2');
   });
 
+  it('should return tag facets via the search API client', async () => {
+    server.use(
+      getCustomSearchHandler([
+        { name: 'd1', title: 'D1', resource: 'dashboards', tags: ['a', 'b'] },
+        { name: 'd2', title: 'D2', resource: 'dashboards', tags: ['a'] },
+      ])
+    );
+
+    const searcher = new UnifiedSearcher(mockFallbackSearcher);
+    const terms = await searcher.tags({ query: '*' });
+
+    expect(terms).toEqual(
+      expect.arrayContaining([
+        { term: 'a', count: 2 },
+        { term: 'b', count: 1 },
+      ])
+    );
+    expect(terms).toHaveLength(2);
+  });
+
   it('should perform paging even with inconsistent fields', async () => {
     const query: SearchQuery = {
       query: '*',
@@ -96,10 +121,130 @@ describe('Unified Storage Searcher', () => {
     await response.loadMoreItems(0, 1);
 
     expect(response.view.length).toBe(2);
+    expect(response.view.get(0).folder).toBe('general');
     // TODO: right now this does not work (see unified.ts#getNextPage() for details) once the frame appending is fixed
     //  properly these expects should work
     // expect(response.view.get(0).description).toBe(null);
     // expect(response.view.get(1).description).toBe('foobar');
+  });
+
+  it('should not trigger bulk folder load when folder UID request is already inflight', async () => {
+    let bulkLoadCallCount = 0;
+    const folderUid = 'folder-a';
+    const searchRoute = '/apis/dashboard.grafana.app/v0alpha1/namespaces/:namespace/search';
+
+    server.use(
+      http.get(searchRoute, async ({ request }) => {
+        const url = new URL(request.url);
+        const type = url.searchParams.get('type');
+        const limit = url.searchParams.get('limit');
+        const nameFilters = url.searchParams.getAll('name');
+
+        if (type === 'folder' && limit === '5000' && nameFilters.length === 0) {
+          bulkLoadCallCount++;
+          return HttpResponse.json({ totalHits: 0, hits: [] });
+        }
+
+        if (type === 'folder' && nameFilters.includes(folderUid)) {
+          await new Promise((resolve) => setTimeout(resolve, 25));
+          return HttpResponse.json({
+            totalHits: 1,
+            hits: [{ name: folderUid, title: 'Folder A', resource: 'folder' }],
+          });
+        }
+
+        return HttpResponse.json({
+          totalHits: 1,
+          hits: [{ name: 'dash-a', title: 'Dashboard A', resource: 'dashboard', folder: folderUid }],
+        });
+      })
+    );
+
+    const searcher = new UnifiedSearcher(mockFallbackSearcher);
+    const query: SearchQuery = { query: '*', limit: 50 };
+
+    const [first, second] = await Promise.all([searcher.search(query), searcher.search(query)]);
+
+    expect(first.view.get(0).folder).toBe(folderUid);
+    expect(second.view.get(0).folder).toBe(folderUid);
+    expect(bulkLoadCallCount).toBe(0);
+  });
+
+  it('should resolve parent folder metadata for folder hits', async () => {
+    const parentUid = 'parent-folder';
+    const childUid = 'child-folder';
+    const searchRoute = '/apis/dashboard.grafana.app/v0alpha1/namespaces/:namespace/search';
+
+    server.use(
+      http.get(searchRoute, ({ request }) => {
+        const url = new URL(request.url);
+        const type = url.searchParams.get('type');
+        const nameFilters = url.searchParams.getAll('name');
+
+        if (type === 'folder' && nameFilters.includes(parentUid)) {
+          return HttpResponse.json({
+            totalHits: 1,
+            hits: [{ name: parentUid, title: 'Parent Folder', resource: 'folder' }],
+          });
+        }
+
+        return HttpResponse.json({
+          totalHits: 1,
+          hits: [{ name: childUid, title: 'Child Folder', resource: 'folder', folder: parentUid }],
+        });
+      })
+    );
+
+    const searcher = new UnifiedSearcher(mockFallbackSearcher);
+    const response = await searcher.search({ query: '*', limit: 50 });
+
+    expect(response.view.get(0).folder).toBe(parentUid);
+    expect(response.view.get(0).location).toBe(parentUid);
+    expect(response.view.dataFrame.meta?.custom?.locationInfo?.[parentUid].name).toBe('Parent Folder');
+  });
+
+  it('should resolve folder metadata for deleted dashboards', async () => {
+    const folderUid = 'deleted-folder';
+    const searchRoute = '/apis/dashboard.grafana.app/v0alpha1/namespaces/:namespace/search';
+    const deletedGetSpy = jest.spyOn(deletedDashboardsCache, 'get').mockResolvedValue([
+      {
+        resource: 'dashboards',
+        name: 'deleted-dash',
+        title: 'Deleted Dashboard',
+        location: 'general',
+        folder: folderUid,
+        tags: [],
+        field: {},
+        url: '',
+      },
+    ]);
+
+    server.use(
+      http.get(searchRoute, ({ request }) => {
+        const url = new URL(request.url);
+        const type = url.searchParams.get('type');
+        const nameFilters = url.searchParams.getAll('name');
+        if (type === 'folder' && nameFilters.includes(folderUid)) {
+          return HttpResponse.json({
+            totalHits: 1,
+            hits: [{ name: folderUid, title: 'Deleted Folder', resource: 'folder' }],
+          });
+        }
+        return HttpResponse.json({ totalHits: 0, hits: [] });
+      })
+    );
+
+    try {
+      const searcher = new UnifiedSearcher(mockFallbackSearcher);
+      const response = await searcher.search({ query: '*', deleted: true, limit: 50 });
+
+      expect(response.view.length).toBe(1);
+      expect(response.view.get(0).folder).toBe(folderUid);
+      expect(response.view.dataFrame.meta?.custom?.locationInfo?.[folderUid].name).toBe('Deleted Folder');
+      expect(deletedGetSpy).toHaveBeenCalled();
+    } finally {
+      deletedGetSpy.mockRestore();
+    }
   });
 });
 
