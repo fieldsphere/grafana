@@ -1,5 +1,5 @@
 import { cx, css, keyframes } from '@emotion/css';
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import * as React from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
@@ -22,11 +22,18 @@ export interface LoginLayoutProps {
   /** Custom branding settings that can be used e.g. for previewing the Login page changes */
   branding?: BrandingSettings;
   isChangingPassword?: boolean;
+  sideContent?: ReactNode;
 }
 
-export const LoginLayout = ({ children, branding, isChangingPassword }: React.PropsWithChildren<LoginLayoutProps>) => {
+export const LoginLayout = ({
+  children,
+  branding,
+  isChangingPassword,
+  sideContent,
+}: React.PropsWithChildren<LoginLayoutProps>) => {
   const loginStyles = useStyles2(getLoginStyles);
   const [startAnim, setStartAnim] = useState(false);
+  const hasSideContent = Boolean(sideContent) && !isChangingPassword;
   const subTitle = branding?.loginSubtitle ?? Branding.GetLoginSubTitle();
   const loginTitle = branding?.loginTitle ?? Branding.LoginTitle;
   const loginBoxBackground = branding?.loginBoxBackground || Branding.LoginBoxBackground();
@@ -40,23 +47,26 @@ export const LoginLayout = ({ children, branding, isChangingPassword }: React.Pr
       className={cx(loginStyles.container, startAnim && loginStyles.loginAnim, branding?.loginBackground)}
     >
       <div className={loginStyles.loginMain}>
-        <div className={cx(loginStyles.loginContent, loginBoxBackground, 'login-content-box')}>
-          <div className={loginStyles.loginLogoWrapper}>
-            <Branding.LoginLogo className={loginStyles.loginLogo} logo={loginLogo} />
-            <div className={loginStyles.titleWrapper}>
-              {isChangingPassword ? (
-                <h1 className={loginStyles.mainTitle}>
-                  <Trans i18nKey="login.layout.update-password">Update your password</Trans>
-                </h1>
-              ) : (
-                <>
-                  <h1 className={loginStyles.mainTitle}>{loginTitle}</h1>
-                  {subTitle && <h3 className={loginStyles.subTitle}>{subTitle}</h3>}
-                </>
-              )}
+        <div className={cx(loginStyles.loginSurface, hasSideContent && loginStyles.loginSurfaceWithSideContent)}>
+          {hasSideContent && <div className={loginStyles.sideContent}>{sideContent}</div>}
+          <div className={cx(loginStyles.loginContent, loginBoxBackground, 'login-content-box')}>
+            <div className={loginStyles.loginLogoWrapper}>
+              <Branding.LoginLogo className={loginStyles.loginLogo} logo={loginLogo} />
+              <div className={loginStyles.titleWrapper}>
+                {isChangingPassword ? (
+                  <h1 className={loginStyles.mainTitle}>
+                    <Trans i18nKey="login.layout.update-password">Update your password</Trans>
+                  </h1>
+                ) : (
+                  <>
+                    <h1 className={loginStyles.mainTitle}>{loginTitle}</h1>
+                    {subTitle && <h3 className={loginStyles.subTitle}>{subTitle}</h3>}
+                  </>
+                )}
+              </div>
             </div>
+            <div className={loginStyles.loginOuterBox}>{children}</div>
           </div>
-          <div className={loginStyles.loginOuterBox}>{children}</div>
         </div>
       </div>
       {branding?.hideFooter ? <></> : <Footer hideEdition={hideEdition} customLinks={branding?.footerLinks} />}
@@ -84,6 +94,10 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
       alignItems: 'center',
       justifyContent: 'center',
       minWidth: '100%',
+      padding: theme.spacing(3, 2),
+      [theme.breakpoints.up('md')]: {
+        padding: theme.spacing(5, 3),
+      },
     }),
     container: css({
       minHeight: '100%',
@@ -106,6 +120,20 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
         opacity: 1,
       },
     }),
+    loginSurface: css({
+      width: '100%',
+      maxWidth: 1180,
+      display: 'flex',
+      justifyContent: 'center',
+    }),
+    loginSurfaceWithSideContent: css({
+      [theme.breakpoints.up('lg')]: {
+        display: 'grid',
+        gridTemplateColumns: 'minmax(0, 1.1fr) minmax(420px, 0.9fr)',
+        gap: theme.spacing(4),
+        alignItems: 'stretch',
+      },
+    }),
     submitButton: css({
       justifyContent: 'center',
       width: '100%',
@@ -124,13 +152,15 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
       alignItems: 'center',
       justifyContent: 'center',
       flexDirection: 'column',
-      padding: theme.spacing(3),
+      padding: theme.spacing(4, 4, 3),
     }),
     titleWrapper: css({
       textAlign: 'center',
     }),
     mainTitle: css({
       fontSize: 22,
+      margin: 0,
+      lineHeight: 1.15,
 
       [theme.breakpoints.up('sm')]: {
         fontSize: 32,
@@ -139,10 +169,11 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
     subTitle: css({
       fontSize: theme.typography.size.md,
       color: theme.colors.text.secondary,
+      margin: theme.spacing(1, 0, 0),
     }),
     loginContent: css({
-      maxWidth: 478,
-      width: `calc(100% - 2rem)`,
+      width: '100%',
+      maxWidth: 520,
       display: 'flex',
       alignItems: 'stretch',
       flexDirection: 'column',
@@ -150,7 +181,7 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
       justifyContent: 'flex-start',
       zIndex: 1,
       minHeight: 320,
-      borderRadius: theme.shape.radius.lg,
+      borderRadius: theme.shape.radius.default,
       padding: theme.spacing(2, 0),
       opacity: 0,
       [theme.transitions.handleMotion('no-preference')]: {
@@ -163,6 +194,15 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
       [theme.breakpoints.up('sm')]: {
         minHeight: theme.spacing(40),
         justifyContent: 'center',
+      },
+    }),
+    sideContent: css({
+      display: 'none',
+      [theme.breakpoints.up('lg')]: {
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        minWidth: 0,
       },
     }),
     loginOuterBox: css({
