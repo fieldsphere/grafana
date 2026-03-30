@@ -14977,12 +14977,6 @@
       "link": "Link"
     }
   },
-  "welcome": {
-    "welcome-banner": {
-      "need-help": "Need help?",
-      "welcome-to-grafana": "Welcome to Grafana"
-    }
-  },
   "xychart": {
     "category-xychart": "XY Chart",
     "name-fill-opacity": "Fill opacity",
