@@ -12,10 +12,11 @@ import { Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.
 import { isProvisionedFolderCheck } from 'app/api/clients/folder/v1beta1/utils';
 import { appEvents } from 'app/core/app_events';
 import { buildNotificationButton } from 'app/core/components/AppNotifications/NotificationButton';
-import { createSuccessNotification } from 'app/core/copy/appNotification';
+import { createErrorNotification, createSuccessNotification, createWarningNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { setStarred } from 'app/core/reducers/navBarTree';
 import { contextSrv } from 'app/core/services/context_srv';
+import { getMessageFromError } from 'app/core/utils/errors';
 import { AnnoKeyFolder, Resource, ResourceList } from 'app/features/apiserver/types';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
 import { isDashboardV2Resource, isV1DashboardCommand, isV2DashboardCommand } from 'app/features/dashboard/api/utils';
@@ -32,6 +33,61 @@ import { refetchChildren, refreshParents } from '../state/actions';
 
 import { isProvisionedDashboard } from './isProvisioned';
 import { PAGE_SIZE } from './services';
+
+/** Per-UID outcome for bulk folder/dashboard mutations (move/delete). */
+export interface BulkBrowseMutationResult {
+  succeededUIDs: string[];
+  failed: Array<{ uid: string; message: string }>;
+}
+
+function summarizeFailedMessages(failed: Array<{ uid: string; message: string }>, maxItems = 3): string {
+  const lines = failed.slice(0, maxItems).map((f) => `${f.uid}: ${f.message}`);
+  const extra = failed.length - maxItems;
+  if (extra > 0) {
+    lines.push(`…and ${extra} more`);
+  }
+  return lines.join('\n');
+}
+
+function notifyBulkMoveDeleteOutcome(
+  operation: 'move' | 'delete',
+  resource: 'dashboard' | 'folder',
+  succeeded: number,
+  failed: Array<{ uid: string; message: string }>
+) {
+  if (failed.length === 0) {
+    return;
+  }
+  const isMove = operation === 'move';
+  const isDashboard = resource === 'dashboard';
+  const failedSummary = summarizeFailedMessages(failed);
+
+  if (succeeded === 0) {
+    const title = isMove
+      ? isDashboard
+        ? t('browse-dashboards.bulk.move-dashboards-all-failed-title', 'Could not move dashboards')
+        : t('browse-dashboards.bulk.move-folders-all-failed-title', 'Could not move folders')
+      : isDashboard
+        ? t('browse-dashboards.bulk.delete-dashboards-all-failed-title', 'Could not delete dashboards')
+        : t('browse-dashboards.bulk.delete-folders-all-failed-title', 'Could not delete folders');
+    dispatch(notifyApp(createErrorNotification(title, failedSummary)));
+    return;
+  }
+
+  const title = isMove
+    ? isDashboard
+      ? t('browse-dashboards.bulk.move-dashboards-partial-title', 'Some dashboards were not moved')
+      : t('browse-dashboards.bulk.move-folders-partial-title', 'Some folders were not moved')
+    : isDashboard
+      ? t('browse-dashboards.bulk.delete-dashboards-partial-title', 'Some dashboards were not deleted')
+      : t('browse-dashboards.bulk.delete-folders-partial-title', 'Some folders were not deleted');
+  const text = t('browse-dashboards.bulk.partial-detail', '{{succeeded}} succeeded, {{failed}} failed.\n{{details}}', {
+    succeeded,
+    failed: failed.length,
+    details: failedSummary,
+  });
+  dispatch(notifyApp(createWarningNotification(title, text)));
+}
 
 export interface DeleteFoldersArgs {
   folderUIDs: string[];
@@ -251,55 +307,79 @@ export const browseDashboardsAPI = createApi({
     }),
 
     // move *multiple* dashboards. used in the move modal.
-    moveDashboards: builder.mutation<void, MoveDashboardsArgs>({
-      invalidatesTags: ['getFolder'],
-      queryFn: async ({ dashboardUIDs, destinationUID }, _api, _extraOptions, baseQuery) => {
-        // Move all the dashboards sequentially
-        // TODO error handling here
-        const api = await getDashboardAPI();
-        for (const dashboardUID of dashboardUIDs) {
-          const fullDash = await api.getDashboardDTO(dashboardUID);
-          const dashboard = isDashboardV2Resource(fullDash) ? fullDash.spec : fullDash.dashboard;
-          const k8s = isDashboardV2Resource(fullDash) ? fullDash.metadata : undefined;
-
-          if (config.featureToggles.provisioning) {
-            if (isProvisionedDashboard(fullDash)) {
-              appEvents.publish({
-                type: AppEvents.alertWarning.name,
-                payload: ['Cannot move provisioned dashboard'],
-              });
-              continue;
-            }
-          }
-          await api.saveDashboard({
-            dashboard,
-            folderUid: destinationUID,
-            overwrite: false,
-            message: '',
-            k8s,
-          });
+    moveDashboards: builder.mutation<BulkBrowseMutationResult, MoveDashboardsArgs>({
+      invalidatesTags: (result, error) => {
+        if (error || !result) {
+          return [];
         }
-        return { data: undefined };
+        return result.succeededUIDs.length > 0 ? ['getFolder'] : [];
       },
-      onQueryStarted: ({ destinationUID, dashboardUIDs }, { queryFulfilled, dispatch }) => {
-        queryFulfilled.then(() => {
+      queryFn: async ({ dashboardUIDs, destinationUID }, _api, _extraOptions, baseQuery) => {
+        const api = await getDashboardAPI();
+        const succeededUIDs: string[] = [];
+        const failed: Array<{ uid: string; message: string }> = [];
+
+        for (const dashboardUID of dashboardUIDs) {
+          try {
+            const fullDash = await api.getDashboardDTO(dashboardUID);
+            const dashboard = isDashboardV2Resource(fullDash) ? fullDash.spec : fullDash.dashboard;
+            const k8s = isDashboardV2Resource(fullDash) ? fullDash.metadata : undefined;
+
+            if (config.featureToggles.provisioning) {
+              if (isProvisionedDashboard(fullDash)) {
+                appEvents.publish({
+                  type: AppEvents.alertWarning.name,
+                  payload: ['Cannot move provisioned dashboard'],
+                });
+                continue;
+              }
+            }
+            await api.saveDashboard({
+              dashboard,
+              folderUid: destinationUID,
+              overwrite: false,
+              message: '',
+              k8s,
+            });
+            succeededUIDs.push(dashboardUID);
+          } catch (error) {
+            failed.push({ uid: dashboardUID, message: getMessageFromError(error) });
+          }
+        }
+
+        const result: BulkBrowseMutationResult = { succeededUIDs, failed };
+        notifyBulkMoveDeleteOutcome('move', 'dashboard', succeededUIDs.length, failed);
+        return { data: result };
+      },
+      onQueryStarted: ({ destinationUID }, { queryFulfilled, dispatch }) => {
+        queryFulfilled.then(({ data }) => {
+          const succeededUIDs = data?.succeededUIDs ?? [];
+          if (succeededUIDs.length === 0) {
+            return;
+          }
           dispatch(
             refetchChildren({
               parentUID: destinationUID,
               pageSize: PAGE_SIZE,
             })
           );
-          dispatch(refreshParents(dashboardUIDs));
+          dispatch(refreshParents(succeededUIDs));
         });
       },
     }),
 
     // move *multiple* folders. used in the move modal.
-    moveFolders: builder.mutation<void, MoveFoldersArgs>({
-      invalidatesTags: ['getFolder'],
+    moveFolders: builder.mutation<BulkBrowseMutationResult, MoveFoldersArgs>({
+      invalidatesTags: (result, error) => {
+        if (error || !result) {
+          return [];
+        }
+        return result.succeededUIDs.length > 0 ? ['getFolder'] : [];
+      },
       queryFn: async ({ folderUIDs, destinationUID }, _api, _extraOptions, baseQuery) => {
-        // Move all the folders sequentially
-        // TODO error handling here
+        const succeededUIDs: string[] = [];
+        const failed: Array<{ uid: string; message: string }> = [];
+
         for (const folderUID of folderUIDs) {
           if (
             await isProvisionedFolderCheck(dispatch, folderUID, {
@@ -312,40 +392,57 @@ export const browseDashboardsAPI = createApi({
             continue;
           }
 
-          await baseQuery({
+          const res = await baseQuery({
             url: `/folders/${folderUID}/move`,
             method: 'POST',
             body: { parentUID: destinationUID },
           });
+          if ('error' in res && res.error) {
+            failed.push({ uid: folderUID, message: getMessageFromError(res.error) });
+          } else {
+            succeededUIDs.push(folderUID);
+          }
         }
 
-        return { data: undefined };
+        const result: BulkBrowseMutationResult = { succeededUIDs, failed };
+        notifyBulkMoveDeleteOutcome('move', 'folder', succeededUIDs.length, failed);
+        return { data: result };
       },
-      onQueryStarted: ({ destinationUID, folderUIDs }, { queryFulfilled, dispatch }) => {
-        queryFulfilled.then(() => {
+      onQueryStarted: ({ destinationUID }, { queryFulfilled, dispatch }) => {
+        queryFulfilled.then(({ data }) => {
+          const succeededUIDs = data?.succeededUIDs ?? [];
+          if (succeededUIDs.length === 0) {
+            return;
+          }
           dispatch(
             refetchChildren({
               parentUID: destinationUID,
               pageSize: PAGE_SIZE,
             })
           );
-          dispatch(refreshParents(folderUIDs));
+          dispatch(refreshParents(succeededUIDs));
         });
       },
     }),
 
     // delete *multiple* folders. used in the delete modal.
-    deleteFolders: builder.mutation<void, DeleteFoldersArgs>({
-      invalidatesTags: invalidateListOnSuccess,
+    deleteFolders: builder.mutation<BulkBrowseMutationResult, DeleteFoldersArgs>({
+      invalidatesTags: (result, error) => {
+        if (error || !result) {
+          return [];
+        }
+        return result.succeededUIDs.length > 0 ? [{ type: 'getFolder' as const, id: 'LIST' }] : [];
+      },
       queryFn: async ({ folderUIDs }, _api, _extraOptions, baseQuery) => {
-        // Delete all the folders sequentially
-        // TODO error handling here
+        const succeededUIDs: string[] = [];
+        const failed: Array<{ uid: string; message: string }> = [];
+
         for (const folderUID of folderUIDs) {
           // This also shows warning alert
           if (await isProvisionedFolderCheck(dispatch, folderUID)) {
             continue;
           }
-          await baseQuery({
+          const res = await baseQuery({
             url: `/folders/${folderUID}`,
             method: 'DELETE',
             params: {
@@ -354,12 +451,24 @@ export const browseDashboardsAPI = createApi({
               forceDeleteRules: false,
             },
           });
+          if ('error' in res && res.error) {
+            failed.push({ uid: folderUID, message: getMessageFromError(res.error) });
+          } else {
+            succeededUIDs.push(folderUID);
+          }
         }
-        return { data: undefined };
+
+        const result: BulkBrowseMutationResult = { succeededUIDs, failed };
+        notifyBulkMoveDeleteOutcome('delete', 'folder', succeededUIDs.length, failed);
+        return { data: result };
       },
-      onQueryStarted: ({ folderUIDs }, { queryFulfilled, dispatch }) => {
-        queryFulfilled.then(() => {
-          dispatch(refreshParents(folderUIDs));
+      onQueryStarted: (_, { queryFulfilled, dispatch }) => {
+        queryFulfilled.then(({ data }) => {
+          const succeededUIDs = data?.succeededUIDs ?? [];
+          if (succeededUIDs.length === 0) {
+            return;
+          }
+          dispatch(refreshParents(succeededUIDs));
           // Clear the deleted dashboards cache since deleting a folder also deletes its dashboards
           deletedDashboardsCache.clear();
           invalidateQuotaUsage(dispatch);
@@ -368,48 +477,53 @@ export const browseDashboardsAPI = createApi({
     }),
 
     // delete *multiple* dashboards. used in the delete modal.
-    deleteDashboards: builder.mutation<void, DeleteDashboardsArgs>({
-      invalidatesTags: invalidateListOnSuccess,
+    deleteDashboards: builder.mutation<BulkBrowseMutationResult, DeleteDashboardsArgs>({
+      invalidatesTags: (result, error) => {
+        if (error || !result) {
+          return [];
+        }
+        return result.succeededUIDs.length > 0 ? [{ type: 'getFolder' as const, id: 'LIST' }] : [];
+      },
       queryFn: async ({ dashboardUIDs }) => {
         const pageStateManager = getDashboardScenePageStateManager();
         const restoreDashboardsEnabled = config.featureToggles.restoreDashboards;
-        let deletedCount = 0;
-        const deletedDashboardUIDs: string[] = [];
-        // Delete all the dashboards sequentially
-        // TODO error handling here
+        const succeededUIDs: string[] = [];
+        const failed: Array<{ uid: string; message: string }> = [];
         const api = await getDashboardAPI();
         try {
           for (const dashboardUID of dashboardUIDs) {
-            // It's not possible to select a mix of provisioned and non-provisioned dashboards
-            // from the UI, so this is mostly a guard in case that somehow happens
-            if (config.featureToggles.provisioning) {
-              const dto = await api.getDashboardDTO(dashboardUID);
-              if (isProvisionedDashboard(dto)) {
-                appEvents.publish({
-                  type: AppEvents.alertWarning.name,
-                  payload: [
-                    'Cannot delete provisioned dashboard. To remove it, delete it from the repository and synchronise to apply the changes.',
-                  ],
-                });
-                continue;
+            try {
+              // It's not possible to select a mix of provisioned and non-provisioned dashboards
+              // from the UI, so this is mostly a guard in case that somehow happens
+              if (config.featureToggles.provisioning) {
+                const dto = await api.getDashboardDTO(dashboardUID);
+                if (isProvisionedDashboard(dto)) {
+                  appEvents.publish({
+                    type: AppEvents.alertWarning.name,
+                    payload: [
+                      'Cannot delete provisioned dashboard. To remove it, delete it from the repository and synchronise to apply the changes.',
+                    ],
+                  });
+                  continue;
+                }
               }
+              await api.deleteDashboard(dashboardUID, !restoreDashboardsEnabled);
+              succeededUIDs.push(dashboardUID);
+            } catch (error) {
+              failed.push({ uid: dashboardUID, message: getMessageFromError(error) });
             }
-            await api.deleteDashboard(dashboardUID, !restoreDashboardsEnabled);
-
-            deletedCount++;
-            deletedDashboardUIDs.push(dashboardUID);
           }
         } finally {
-          if (deletedCount > 0) {
+          if (succeededUIDs.length > 0) {
             pageStateManager.clearDashboardCache();
             deletedDashboardsCache.clear();
-            for (const uid of deletedDashboardUIDs) {
+            for (const uid of succeededUIDs) {
               pageStateManager.removeSceneCache(uid);
             }
 
-            // Show success notification after all deletions
-            if (restoreDashboardsEnabled) {
-              // Show notification with button to Recently Deleted
+            // Show success notification after successful deletions (count matches succeeded only)
+            if (failed.length === 0 && restoreDashboardsEnabled) {
+              const deletedCount = succeededUIDs.length;
               const title =
                 deletedCount === 1
                   ? t('browse-dashboards.delete.success-single', 'Dashboard deleted')
@@ -421,8 +535,7 @@ export const browseDashboardsAPI = createApi({
                 href: config.appSubUrl + '/dashboard/recently-deleted',
               });
               dispatch(notifyApp(createSuccessNotification('', '', undefined, component)));
-            } else if (config.featureToggles.kubernetesDashboards) {
-              // Legacy notification for kubernetes dashboards
+            } else if (failed.length === 0 && config.featureToggles.kubernetesDashboards) {
               appEvents.publish({
                 type: AppEvents.alertSuccess.name,
                 payload: ['Dashboard deleted'],
@@ -431,14 +544,20 @@ export const browseDashboardsAPI = createApi({
           }
         }
 
-        return { data: undefined };
+        const result: BulkBrowseMutationResult = { succeededUIDs, failed };
+        notifyBulkMoveDeleteOutcome('delete', 'dashboard', succeededUIDs.length, failed);
+        return { data: result };
       },
-      onQueryStarted: ({ dashboardUIDs }, { queryFulfilled, getState }) => {
-        queryFulfilled.then(() => {
-          dispatch(refreshParents(dashboardUIDs));
+      onQueryStarted: (_, { queryFulfilled }) => {
+        queryFulfilled.then(({ data }) => {
+          const succeededUIDs = data?.succeededUIDs ?? [];
+          if (succeededUIDs.length === 0) {
+            return;
+          }
+          dispatch(refreshParents(succeededUIDs));
           dispatch(legacyUserAPI.util.invalidateTags(['dashboardStars']));
           invalidateQuotaUsage(dispatch);
-          for (const uid of dashboardUIDs) {
+          for (const uid of succeededUIDs) {
             dispatch(
               setStarred({
                 id: uid,
