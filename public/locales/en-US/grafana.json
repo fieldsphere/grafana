@@ -4269,6 +4269,17 @@
     "browse-view": {
       "this-folder-is-empty": "This folder is empty"
     },
+    "bulk": {
+      "delete-dashboards-all-failed-title": "Could not delete dashboards",
+      "delete-dashboards-partial-title": "Some dashboards were not deleted",
+      "delete-folders-all-failed-title": "Could not delete folders",
+      "delete-folders-partial-title": "Some folders were not deleted",
+      "move-dashboards-all-failed-title": "Could not move dashboards",
+      "move-dashboards-partial-title": "Some dashboards were not moved",
+      "move-folders-all-failed-title": "Could not move folders",
+      "move-folders-partial-title": "Some folders were not moved",
+      "partial-detail": "{{succeeded}} succeeded, {{failed}} failed.\n{{details}}"
+    },
     "bulk-actions": {
       "error-generic": "Unexpected error happened when creating job"
     },
