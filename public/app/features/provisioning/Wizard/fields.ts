@@ -24,8 +24,7 @@ const getProviderConfigs = (): Record<RepoType, Record<string, FieldConfig>> => 
     branch: {
       label: t('provisioning.shared.branch-label', 'Branch'),
       description: t('provisioning.shared.branch-description', 'The branch to use for provisioning'),
-      // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-      placeholder: 'main',
+      placeholder: t('provisioning.shared.branch-placeholder', 'main'),
     },
     path: {
       label: t('provisioning.shared.path-label', 'Path'),
@@ -46,8 +45,7 @@ const getProviderConfigs = (): Record<RepoType, Record<string, FieldConfig>> => 
     },
     tokenUser: {
       label: t('provisioning.shared.token-user-label', 'Username'),
-      // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-      placeholder: 'username',
+      placeholder: t('provisioning.shared.token-user-placeholder', 'username'),
     },
   };
 
@@ -59,8 +57,7 @@ const getProviderConfigs = (): Record<RepoType, Record<string, FieldConfig>> => 
           'provisioning.github.token-description',
           'GitHub Personal Access Token with repository permissions'
         ),
-        // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-        placeholder: 'ghp_xxxxxxxxxxxxxxxxxxxx',
+        placeholder: t('provisioning.github.token-placeholder', 'ghp_xxxxxxxxxxxxxxxxxxxx'),
         required: true,
         validation: {
           required: t('provisioning.github.token-required', 'GitHub token is required'),
@@ -69,8 +66,7 @@ const getProviderConfigs = (): Record<RepoType, Record<string, FieldConfig>> => 
       url: {
         ...shared.url,
         description: t('provisioning.github.url-description', 'The GitHub repository URL'),
-        // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-        placeholder: 'https://github.com/owner/repository',
+        placeholder: t('provisioning.github.url-placeholder', 'https://github.com/owner/repository'),
         required: true,
         validation: {
           ...shared.url.validation,
@@ -103,8 +99,7 @@ const getProviderConfigs = (): Record<RepoType, Record<string, FieldConfig>> => 
           'provisioning.gitlab.token-description',
           'GitLab Project Access Token with repository permissions'
         ),
-        // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-        placeholder: 'glpat-xxxxxxxxxxxxxxxxxxx',
+        placeholder: t('provisioning.gitlab.token-placeholder', 'glpat-xxxxxxxxxxxxxxxxxxx'),
         required: true,
         validation: {
           required: t('provisioning.gitlab.token-required', 'GitLab token is required'),
@@ -113,8 +108,7 @@ const getProviderConfigs = (): Record<RepoType, Record<string, FieldConfig>> => 
       url: {
         ...shared.url,
         description: t('provisioning.gitlab.url-description', 'The GitLab repository URL'),
-        // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-        placeholder: 'https://gitlab.com/owner/repository',
+        placeholder: t('provisioning.gitlab.url-placeholder', 'https://gitlab.com/owner/repository'),
         required: true,
         validation: {
           ...shared.url.validation,
@@ -144,8 +138,7 @@ const getProviderConfigs = (): Record<RepoType, Record<string, FieldConfig>> => 
       token: {
         label: t('provisioning.bitbucket.token-label', 'API Token'),
         description: t('provisioning.bitbucket.token-description', 'Bitbucket API Token with repository permissions'),
-        // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-        placeholder: 'ATATTxxxxxxxxxxxxxxxx',
+        placeholder: t('provisioning.bitbucket.token-placeholder', 'ATATTxxxxxxxxxxxxxxxx'),
         required: true,
         validation: {
           required: t('provisioning.bitbucket.token-required', 'Bitbucket token is required'),
@@ -165,8 +158,7 @@ const getProviderConfigs = (): Record<RepoType, Record<string, FieldConfig>> => 
       url: {
         ...shared.url,
         description: t('provisioning.bitbucket.url-description', 'The Bitbucket repository URL'),
-        // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-        placeholder: 'https://bitbucket.org/owner/repository',
+        placeholder: t('provisioning.bitbucket.url-placeholder', 'https://bitbucket.org/owner/repository'),
         required: true,
         validation: {
           ...shared.url.validation,
@@ -196,8 +188,7 @@ const getProviderConfigs = (): Record<RepoType, Record<string, FieldConfig>> => 
       token: {
         label: t('provisioning.git.token-label', 'Access Token'),
         description: t('provisioning.git.token-description', 'Git repository access token or password'),
-        // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-        placeholder: 'token or password',
+        placeholder: t('provisioning.git.token-placeholder', 'token or password'),
         required: true,
         validation: {
           required: t('provisioning.git.token-required', 'Git token is required'),
@@ -217,8 +208,7 @@ const getProviderConfigs = (): Record<RepoType, Record<string, FieldConfig>> => 
           'provisioning.git.url-description',
           'The Git repository URL. Most servers require the URL to end with .git (e.g. https://host/owner/repo.git).'
         ),
-        // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-        placeholder: 'https://git.example.com/owner/repository.git',
+        placeholder: t('provisioning.git.url-placeholder', 'https://git.example.com/owner/repository.git'),
         required: true,
         validation: {
           required: t('provisioning.git.url-required', 'Repository URL is required'),
@@ -251,8 +241,7 @@ const getProviderConfigs = (): Record<RepoType, Record<string, FieldConfig>> => 
       path: {
         label: t('provisioning.local.path-label', 'Repository Path'),
         description: t('provisioning.local.path-description', 'Local file system path to the repository'),
-        // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-        placeholder: '/path/to/repository',
+        placeholder: t('provisioning.local.path-placeholder', '/path/to/repository'),
         required: true,
         validation: {
           required: t('provisioning.local.path-required', 'Repository path is required'),
