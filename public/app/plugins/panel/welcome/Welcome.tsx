@@ -1,56 +1,53 @@
 import { css } from '@emotion/css';
 
 import { GrafanaTheme2 } from '@grafana/data';
-import { Button, useStyles2 } from '@grafana/ui';
-
-// eslint-disable-next-line @grafana/i18n/no-untranslated-strings
-const marketingPillars = [
-  {
-    title: 'Accelerate Time to Market',
-    description: 'Automatically catch issues before they escalate and push new releases to market faster.',
-  },
-  {
-    title: 'Improve UX and Easily Optimize Performance',
-    description: 'Pinpoint the root cause of slow load times with end-to-end visibility.',
-  },
-  {
-    title: 'Reduce IT Costs',
-    description: 'Reduce tool sprawl and eliminate compounding investment costs with one unified solution.',
-  },
-  {
-    title: 'Receive Alerts for Only the Issues that Matter',
-    description: 'Automatically detect unanticipated outliers, anomalies, and errors without the noise.',
-  },
-  {
-    title: 'Detect and Defend Against Attacks',
-    description: 'Understand and react to ongoing threats targeting your web and serverless applications.',
-  },
-];
+import { Trans, t } from '@grafana/i18n';
+import { Button, LinkButton, useStyles2 } from '@grafana/ui';
 
 export const WelcomeBanner = () => {
   const styles = useStyles2(getStyles);
 
+  const marketingPillars = [
+    {
+      title: t('welcome.datadog.pillar1-title', 'Accelerate Time to Market'),
+      description: t('welcome.datadog.pillar1-desc', 'Automatically catch issues before they escalate and push new releases to market faster.'),
+    },
+    {
+      title: t('welcome.datadog.pillar2-title', 'Improve UX and Easily Optimize Performance'),
+      description: t('welcome.datadog.pillar2-desc', 'Pinpoint the root cause of slow load times with end-to-end visibility.'),
+    },
+    {
+      title: t('welcome.datadog.pillar3-title', 'Reduce IT Costs'),
+      description: t('welcome.datadog.pillar3-desc', 'Reduce tool sprawl and eliminate compounding investment costs with one unified solution.'),
+    },
+    {
+      title: t('welcome.datadog.pillar4-title', 'Receive Alerts for Only the Issues that Matter'),
+      description: t('welcome.datadog.pillar4-desc', 'Automatically detect unanticipated outliers, anomalies, and errors without the noise.'),
+    },
+    {
+      title: t('welcome.datadog.pillar5-title', 'Detect and Defend Against Attacks'),
+      description: t('welcome.datadog.pillar5-desc', 'Understand and react to ongoing threats targeting your web and serverless applications.'),
+    },
+  ];
+
   return (
-    // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
     <div className={styles.container}>
       <div className={styles.heroSection}>
         <div className={styles.heroContent}>
-          {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings */}
-          <h1 className={styles.title}>Full-Stack Observability & Security Built for Enterprise Scale</h1>
-          {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings */}
+          <h1 className={styles.title}>
+            <Trans i18nKey="welcome.datadog.hero-title">Full-Stack Observability & Security Built for Enterprise Scale</Trans>
+          </h1>
           <p className={styles.subtitle}>
-            Monitor, troubleshoot, and secure your entire stack with one unified platform.
+            <Trans i18nKey="welcome.datadog.hero-subtitle">Monitor, troubleshoot, and secure your entire stack with one unified platform.</Trans>
           </p>
         </div>
         <div className={styles.ctaContainer}>
-          {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings */}
-          <Button variant="primary" size="lg" className={styles.ctaButton}>
-            Start Your Free Trial
-          </Button>
-          {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings */}
-          <Button variant="secondary" size="lg" className={styles.ctaButton}>
-            Request a Demo
-          </Button>
+          <LinkButton href="https://grafana.com/" target="_blank" variant="primary" size="lg" className={styles.ctaButton}>
+            <Trans i18nKey="welcome.datadog.cta-free-trial">Start Your Free Trial</Trans>
+          </LinkButton>
+          <LinkButton href="https://grafana.com/contact/" target="_blank" variant="secondary" size="lg" className={styles.ctaButton}>
+            <Trans i18nKey="welcome.datadog.cta-demo">Request a Demo</Trans>
+          </LinkButton>
         </div>
       </div>
 
