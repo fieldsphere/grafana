@@ -29,7 +29,7 @@ export const LoginLayout = ({ children, branding, isChangingPassword }: React.Pr
   const [startAnim, setStartAnim] = useState(false);
   const subTitle = branding?.loginSubtitle ?? Branding.GetLoginSubTitle();
   const loginTitle = branding?.loginTitle ?? Branding.LoginTitle;
-  const loginBoxBackground = branding?.loginBoxBackground || Branding.LoginBoxBackground();
+  const loginBoxBackground = branding?.loginBoxBackground;
   const loginLogo = branding?.loginLogo;
   const hideEdition = branding?.hideEdition ?? Branding.HideEdition;
 
@@ -239,6 +239,7 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
+      alignSelf: 'center',
       flexGrow: 1,
       maxWidth: 415,
       width: '100%',
