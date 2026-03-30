@@ -172,9 +172,7 @@ export default function LabsPage() {
                 <Trans i18nKey="labs.flags.no-results">No flags match your search.</Trans>
               </p>
             ) : (
-              filteredFlags && (
-                <InteractiveTable columns={columns} data={filteredFlags} getRowId={(f) => f.name} />
-              )
+              filteredFlags && <InteractiveTable columns={columns} data={filteredFlags} getRowId={(f) => f.name} />
             )}
           </>
         )}
