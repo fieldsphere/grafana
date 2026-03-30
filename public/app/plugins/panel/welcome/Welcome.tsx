@@ -28,7 +28,7 @@ export const WelcomeBanner = () => {
           <Trans i18nKey="welcome.welcome-banner.grafana-observability">Grafana observability</Trans>
         </p>
         <h1 className={styles.title}>
-          <Trans i18nKey="welcome.welcome-banner.welcome-to-grafana">See issues sooner and ship with confidence</Trans>
+          <Trans i18nKey="welcome.welcome-banner.headline">See issues sooner and ship with confidence</Trans>
         </h1>
         <p className={styles.subtitle}>
           <Trans i18nKey="welcome.welcome-banner.subtitle">
