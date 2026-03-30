@@ -14,9 +14,6 @@
     "moduleResolution": "bundler",
     "tsBuildInfoFile": "./tsconfig.tsbuildinfo",
     "paths": {
-      "@grafana/data/themes/schema.generated.json": [
-        "../packages/grafana-data/src/themes/schema.generated.json"
-      ],
       "@grafana/schema/dist/esm/*": ["../packages/grafana-schema/src/*"]
     }
   },

@@ -15,13 +15,13 @@ import synthwave from '@grafana/data/themes/definitions/synthwave.json';
 import tron from '@grafana/data/themes/definitions/tron.json';
 import victorian from '@grafana/data/themes/definitions/victorian.json';
 import zen from '@grafana/data/themes/definitions/zen.json';
-import themeJsonSchema from '@grafana/data/themes/schema.generated.json';
 import { t } from '@grafana/i18n';
 import { useChromeHeaderHeight } from '@grafana/runtime';
 import { CodeEditor, Combobox, Field, Stack, useStyles2 } from '@grafana/ui';
 import { ThemeDemo } from '@grafana/ui/internal';
 import { Page } from 'app/core/components/Page/Page';
 
+import themeJsonSchema from '../../../../packages/grafana-data/src/themes/schema.generated.json';
 import { createErrorNotification } from '../../core/copy/appNotification';
 import { notifyApp } from '../../core/reducers/appNotification';
 import { HOME_NAV_ID } from '../../core/reducers/navModel';
