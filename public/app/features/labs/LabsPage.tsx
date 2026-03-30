@@ -1,3 +1,4 @@
+import { css } from '@emotion/css';
 import { useEffect, useMemo, useState } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
@@ -109,13 +110,13 @@ export default function LabsPage() {
             All feature flags registered in this Grafana build and whether each is currently enabled for this instance.
           </Trans>
         </p>
-        {error && (
+        {error != null ? (
           <Alert severity="error" title={t('labs.flags.load-error-title', 'Could not load feature flags')}>
             {(isFetchError(error) && error.data?.message) ||
               t('labs.flags.load-error-body', 'Try again or confirm you have permission to read feature flags.')}
           </Alert>
-        )}
-        {!flags && !error && (
+        ) : null}
+        {!flags && error == null && (
           <div className={styles.loader}>
             <LoadingPlaceholder text={t('labs.flags.loading', 'Loading feature flags…')} />
           </div>
@@ -127,22 +128,22 @@ export default function LabsPage() {
 }
 
 const getStyles = (theme: GrafanaTheme2) => ({
-  intro: {
+  intro: css({
     marginBottom: theme.spacing(2),
     color: theme.colors.text.secondary,
     maxWidth: '720px',
-  },
-  loader: {
+  }),
+  loader: css({
     display: 'flex',
     justifyContent: 'center',
     padding: theme.spacing(4),
-  },
-  mono: {
+  }),
+  mono: css({
     fontFamily: theme.typography.fontFamilyMonospace,
     fontSize: theme.typography.size.sm,
-  },
-  notes: {
+  }),
+  notes: css({
     color: theme.colors.text.secondary,
     fontSize: theme.typography.bodySmall.fontSize,
-  },
+  }),
 });
