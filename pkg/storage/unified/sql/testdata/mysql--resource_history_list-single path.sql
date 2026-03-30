@@ -12,8 +12,10 @@ SELECT
         SELECT `namespace`, `group`, `resource`, `name`,  max(`resource_version`) AS `resource_version`
         FROM `resource_history` AS mkv
         WHERE 1 = 1
-            AND `resource_version` <=  0
+            AND `resource_version` <=  1
                 AND `namespace` = 'ns'
+                AND `group`     = 'group'
+                AND `resource`  = 'res'
         GROUP BY mkv.`namespace`, mkv.`group`, mkv.`resource`, mkv.`name`
     ) AS maxkv
     ON
@@ -24,6 +26,8 @@ SELECT
         AND maxkv.`name`          = kv.`name`
     WHERE kv.`action`  != 3
         AND kv.`namespace` = 'ns'
+        AND kv.`group`     = 'group'
+        AND kv.`resource`  = 'res'
     ORDER BY kv.`namespace` ASC, kv.`name` ASC
     LIMIT 10 OFFSET 0
 ;

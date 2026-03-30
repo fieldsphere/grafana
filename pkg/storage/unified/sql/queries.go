@@ -88,8 +88,66 @@ type sqlResourceRequest struct {
 	ResourceVersion int64
 }
 
+func validateResourceKeyRead(k *resourcepb.ResourceKey) error {
+	if k == nil {
+		return fmt.Errorf("missing key")
+	}
+	if k.Namespace == "" {
+		return fmt.Errorf("missing namespace")
+	}
+	if k.Group == "" {
+		return fmt.Errorf("missing group")
+	}
+	if k.Resource == "" {
+		return fmt.Errorf("missing resource")
+	}
+	if k.Name == "" {
+		return fmt.Errorf("missing name")
+	}
+	return nil
+}
+
+// validateResourceKeyGroupResource matches storage row identity for writes and collection-scoped deletes: group and resource are required; namespace and name may be empty (cluster-scoped or collection-wide operations).
+func validateResourceKeyGroupResource(k *resourcepb.ResourceKey) error {
+	if k == nil {
+		return fmt.Errorf("missing key")
+	}
+	if k.Group == "" {
+		return fmt.Errorf("missing group")
+	}
+	if k.Resource == "" {
+		return fmt.Errorf("missing resource")
+	}
+	return nil
+}
+
+// validateResourceKeyListScope matches list queries: group and resource are required; namespace may be empty (cluster-scoped).
+func validateResourceKeyListScope(k *resourcepb.ResourceKey) error {
+	return validateResourceKeyGroupResource(k)
+}
+
+// validateResourceKeyHistoryScope matches history/trash collection queries: namespace, group, and resource are required; name may be empty.
+func validateResourceKeyHistoryScope(k *resourcepb.ResourceKey) error {
+	if k == nil {
+		return fmt.Errorf("missing key")
+	}
+	if k.Namespace == "" {
+		return fmt.Errorf("missing namespace")
+	}
+	if k.Group == "" {
+		return fmt.Errorf("missing group")
+	}
+	if k.Resource == "" {
+		return fmt.Errorf("missing resource")
+	}
+	return nil
+}
+
 func (r sqlResourceRequest) Validate() error {
-	return nil // TODO
+	if r.WriteEvent.Key == nil {
+		return fmt.Errorf("missing key")
+	}
+	return validateResourceKeyGroupResource(r.WriteEvent.Key)
 }
 
 type sqlBulkResourceHistoryInsertRequest struct {
@@ -165,7 +223,22 @@ type sqlResourceHistoryPollRequest struct {
 }
 
 func (r *sqlResourceHistoryPollRequest) Validate() error {
-	return nil // TODO
+	if r == nil {
+		return fmt.Errorf("missing poll request")
+	}
+	if r.Group == "" {
+		return fmt.Errorf("missing group")
+	}
+	if r.Resource == "" {
+		return fmt.Errorf("missing resource")
+	}
+	if r.SinceResourceVersion < 0 {
+		return fmt.Errorf("since resource version must be greater than or equal to zero")
+	}
+	if r.Response == nil {
+		return fmt.Errorf("missing response")
+	}
+	return nil
 }
 
 func (r *sqlResourceHistoryPollRequest) Results() (*historyPollResponse, error) {
@@ -202,7 +275,19 @@ type sqlResourceReadRequest struct {
 }
 
 func (r *sqlResourceReadRequest) Validate() error {
-	return nil // TODO
+	if r == nil {
+		return fmt.Errorf("missing read request")
+	}
+	if r.Request == nil {
+		return fmt.Errorf("missing request")
+	}
+	if err := validateResourceKeyRead(r.Request.Key); err != nil {
+		return err
+	}
+	if r.Request.ResourceVersion < 0 {
+		return fmt.Errorf("resource version must be greater than or equal to zero")
+	}
+	return nil
 }
 
 func (r *sqlResourceReadRequest) Results() (*resource.BackendReadResponse, error) {
@@ -216,7 +301,22 @@ type sqlResourceListRequest struct {
 }
 
 func (r sqlResourceListRequest) Validate() error {
-	return nil // TODO
+	if r.Request == nil {
+		return fmt.Errorf("missing request")
+	}
+	if r.Request.Options == nil || r.Request.Options.Key == nil {
+		return fmt.Errorf("missing list options key")
+	}
+	if err := validateResourceKeyListScope(r.Request.Options.Key); err != nil {
+		return err
+	}
+	if r.Request.Limit < 0 {
+		return fmt.Errorf("limit must be greater than or equal to zero")
+	}
+	if r.Request.ResourceVersion < 0 {
+		return fmt.Errorf("resource version must be greater than or equal to zero")
+	}
+	return nil
 }
 
 type historyReadRequest struct {
@@ -231,7 +331,16 @@ type sqlResourceHistoryReadRequest struct {
 }
 
 func (r sqlResourceHistoryReadRequest) Validate() error {
-	return nil // TODO
+	if r.Request == nil {
+		return fmt.Errorf("missing request")
+	}
+	if err := validateResourceKeyRead(r.Request.Key); err != nil {
+		return err
+	}
+	if r.Request.ResourceVersion < 0 {
+		return fmt.Errorf("resource version must be greater than or equal to zero")
+	}
+	return nil
 }
 
 func (r sqlResourceHistoryReadRequest) Results() (*resource.BackendReadResponse, error) {
@@ -250,7 +359,24 @@ type sqlResourceHistoryReadLatestRVRequest struct {
 }
 
 func (r sqlResourceHistoryReadLatestRVRequest) Validate() error {
-	return nil // TODO
+	if r.Request == nil {
+		return fmt.Errorf("missing request")
+	}
+	if err := validateResourceKeyHistoryScope(r.Request.Key); err != nil {
+		return err
+	}
+	switch r.Request.EventType {
+	case resourcepb.WatchEvent_UNKNOWN,
+		resourcepb.WatchEvent_ADDED,
+		resourcepb.WatchEvent_MODIFIED,
+		resourcepb.WatchEvent_DELETED,
+		resourcepb.WatchEvent_BOOKMARK,
+		resourcepb.WatchEvent_ERROR:
+		// valid
+	default:
+		return fmt.Errorf("invalid watch event type")
+	}
+	return nil
 }
 
 func (r sqlResourceHistoryReadLatestRVRequest) Results() (*resourceHistoryReadLatestRVResponse, error) {
@@ -277,7 +403,22 @@ type sqlResourceHistoryListRequest struct {
 }
 
 func (r sqlResourceHistoryListRequest) Validate() error {
-	return nil // TODO
+	if r.Request == nil {
+		return fmt.Errorf("missing request")
+	}
+	if r.Request.Options == nil || r.Request.Options.Key == nil {
+		return fmt.Errorf("missing list options key")
+	}
+	if err := validateResourceKeyListScope(r.Request.Options.Key); err != nil {
+		return err
+	}
+	if r.Request.ResourceVersion < 1 {
+		return fmt.Errorf("resource version must be at least 1")
+	}
+	if r.Request.Limit < 0 || r.Request.Offset < 0 {
+		return fmt.Errorf("limit and offset must be greater than or equal to zero")
+	}
+	return nil
 }
 
 func (r sqlResourceHistoryListRequest) Results() (*resourcepb.ResourceWrapper, error) {
@@ -327,7 +468,13 @@ type sqlGetHistoryRequest struct {
 }
 
 func (r sqlGetHistoryRequest) Validate() error {
-	return nil // TODO
+	if err := validateResourceKeyHistoryScope(r.Key); err != nil {
+		return err
+	}
+	if r.StartRV < 0 || r.MinRV < 0 || r.ExactRV < 0 {
+		return fmt.Errorf("resource version bounds must be greater than or equal to zero")
+	}
+	return nil
 }
 
 // prune resource history
@@ -446,7 +593,10 @@ type sqlResourceVersionListRequest struct {
 }
 
 func (r *sqlResourceVersionListRequest) Validate() error {
-	return nil // TODO
+	if r == nil || r.groupResourceVersion == nil {
+		return fmt.Errorf("missing response holder")
+	}
+	return nil
 }
 
 func (r *sqlResourceVersionListRequest) Results() (*groupResourceVersion, error) {
