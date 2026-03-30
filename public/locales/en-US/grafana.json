@@ -14979,8 +14979,10 @@
   },
   "welcome": {
     "welcome-banner": {
+      "grafana-observability": "Grafana observability",
+      "headline": "See issues sooner and ship with confidence",
       "need-help": "Need help?",
-      "welcome-to-grafana": "Welcome to Grafana"
+      "subtitle": "Monitor metrics, logs, traces, and profiles in one place so your team can respond faster."
     }
   },
   "xychart": {
