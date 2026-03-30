@@ -9,6 +9,7 @@ import (
 	"os"
 	"path/filepath"
 	"slices"
+	"strconv"
 	"strings"
 	"testing"
 	"time"
@@ -50,6 +51,16 @@ func TestMain(m *testing.M) {
 	testsuite.Run(m)
 }
 
+// skipFolderIntegrationUnsupportedDB limits these tests to SQLite (default) and Postgres.
+// They were previously SQLite-only; MySQL still shows inconsistent resourceVersion behavior
+// in dual-writer paths (see doFolderTests), so we skip it until that is addressed.
+func skipFolderIntegrationUnsupportedDB(t *testing.T) {
+	t.Helper()
+	if db.IsTestDbMySQL() {
+		t.Skip("folder API integration tests run on sqlite and postgres; skipped on mysql pending resourceVersion stability")
+	}
+}
+
 var gvr = schema.GroupVersionResource{
 	Group:    folders.GROUP,
 	Version:  folders.VERSION,
@@ -66,9 +77,7 @@ func disableProvisioningForNonUnifiedModes(mode grafanarest.DualWriterMode) []st
 func TestIntegrationFoldersApp(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	t.Run("Check discovery client", func(t *testing.T) {
 		helper := apis.NewK8sTestHelper(t, testinfra.GrafanaOpts{
@@ -147,7 +156,7 @@ func TestIntegrationFoldersApp(t *testing.T) {
 		modeDw := grafanarest.DualWriterMode(mode)
 
 		t.Run(fmt.Sprintf("with dual write (unified storage, mode %v)", modeDw), func(t *testing.T) {
-			doFolderTests(t, apis.NewK8sTestHelper(t, testinfra.GrafanaOpts{
+			doFolderTests(t, modeDw, apis.NewK8sTestHelper(t, testinfra.GrafanaOpts{
 				AppModeProduction:     true,
 				DisableAnonymous:      true,
 				APIServerStorageType:  "unified",
@@ -216,7 +225,8 @@ func TestIntegrationFoldersApp(t *testing.T) {
 	// This is a general test for the unified storage list operation. We don't have a common test
 	// directory for now, so we (search and storage) keep it here as we own this part of the tests.
 	t.Run("make sure list works with continue tokens", func(t *testing.T) {
-		t.Skip("Skipping flaky test - list works with continue tokens")
+		// Previously skipped as "flaky"; checkListRequest polls until continue is exhausted and
+		// asserts stable ordering. Re-enabled for sqlite/postgres coverage (skipped on mysql above).
 		modes := []grafanarest.DualWriterMode{
 			grafanarest.Mode1,
 			grafanarest.Mode5,
@@ -224,9 +234,10 @@ func TestIntegrationFoldersApp(t *testing.T) {
 		for _, mode := range modes {
 			t.Run(fmt.Sprintf("mode %d", mode), func(t *testing.T) {
 				doListFoldersTest(t, apis.NewK8sTestHelper(t, testinfra.GrafanaOpts{
-					AppModeProduction:    true,
-					DisableAnonymous:     true,
-					APIServerStorageType: "unified",
+					AppModeProduction:     true,
+					DisableAnonymous:      true,
+					APIServerStorageType:  "unified",
+					DisableFeatureToggles: disableProvisioningForNonUnifiedModes(mode),
 					UnifiedStorageConfig: map[string]setting.UnifiedStorageConfig{
 						folders.RESOURCEGROUP:     {DualWriterMode: mode},
 						setting.DashboardResource: {DualWriterMode: mode},
@@ -243,9 +254,7 @@ func TestIntegrationFoldersApp(t *testing.T) {
 func TestIntegrationFolderDeletionBlockedByAlertRules(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	t.Run("should be blocked by alert rules", func(t *testing.T) {
 		helper := apis.NewK8sTestHelper(t, testinfra.GrafanaOpts{
@@ -322,7 +331,7 @@ func TestIntegrationFolderDeletionBlockedByAlertRules(t *testing.T) {
 	})
 }
 
-func doFolderTests(t *testing.T, helper *apis.K8sTestHelper) *apis.K8sTestHelper {
+func doFolderTests(t *testing.T, dualWriterMode grafanarest.DualWriterMode, helper *apis.K8sTestHelper) *apis.K8sTestHelper {
 	t.Run("Check folder CRUD (just create for now) in legacy API appears in k8s apis", func(t *testing.T) {
 		client := helper.GetResourceClient(apis.ResourceClientArgs{
 			// #TODO: figure out permissions topic
@@ -421,8 +430,15 @@ func doFolderTests(t *testing.T, helper *apis.K8sTestHelper) *apis.K8sTestHelper
 		require.Equal(t, "Test folder (replaced from k8s; 1 item; PUT)", title)
 		require.Equal(t, "New description", description)
 
-		// #TODO figure out why this breaks just for MySQL integration tests
-		// require.Less(t, first.GetResourceVersion(), updated.GetResourceVersion())
+		// resourceVersion is only guaranteed to increase on unified-primary reads (mode 5).
+		// For lower dual-writer modes, legacy and unified paths can disagree on RV semantics.
+		if dualWriterMode == grafanarest.Mode5 && !db.IsTestDbMySQL() {
+			rv0, err0 := strconv.ParseInt(first.GetResourceVersion(), 10, 64)
+			rv1, err1 := strconv.ParseInt(updated.GetResourceVersion(), 10, 64)
+			require.NoError(t, err0)
+			require.NoError(t, err1)
+			require.Less(t, rv0, rv1)
+		}
 
 		// ensure that we get 4 items when listing via k8s
 		l, err := client.Resource.List(context.Background(), metav1.ListOptions{})
@@ -663,9 +679,7 @@ func checkListRequest(t *testing.T, limit int64, client *apis.K8sResourceClient)
 func TestIntegrationFolderCreatePermissions(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	folderWithoutParentInput := "{ \"uid\": \"uid\", \"title\": \"Folder\"}"
 	folderWithParentInput := "{ \"uid\": \"uid\", \"title\": \"Folder\", \"parentUid\": \"parentuid\"}"
@@ -813,9 +827,7 @@ func TestIntegrationFolderCreatePermissions(t *testing.T) {
 func TestIntegrationFolderGetPermissions(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	type testCase struct {
 		description          string
@@ -1004,9 +1016,7 @@ func TestIntegrationFolderGetPermissions(t *testing.T) {
 func TestIntegrationFoldersCreateAPIEndpointK8S(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	folderWithoutParentInput := "{ \"uid\": \"uid\", \"title\": \"Folder\"}"
 	folderWithTitleEmpty := "{ \"title\": \"\"}"
@@ -1172,9 +1182,7 @@ func testDescription(description string, expectedErr error) string {
 func TestIntegrationFoldersGetAPIEndpointK8S(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	type testCase struct {
 		description         string
@@ -1363,9 +1371,7 @@ func TestIntegrationFoldersGetAPIEndpointK8S(t *testing.T) {
 func TestIntegrationFolderDeletionBlockedByLibraryElements(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	for mode := 0; mode <= 5; mode++ {
 		t.Run(fmt.Sprintf("with dual write (unified storage, mode %v, delete blocked by library elements)", grafanarest.DualWriterMode(mode)), func(t *testing.T) {
@@ -1440,9 +1446,7 @@ func TestIntegrationFolderDeletionBlockedByLibraryElements(t *testing.T) {
 func TestIntegrationRootFolderDeletionBlockedByLibraryElementsInSubfolder(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	// TODO: re-enable on mode 4 and 5 when we migrate /api to /apis for library connections, and begin to
 	// use search to return the connections, rather than the connections table.
@@ -1535,9 +1539,7 @@ func TestIntegrationRootFolderDeletionBlockedByLibraryElementsInSubfolder(t *tes
 func TestIntegrationFolderDeletionBlockedByConnectedLibraryPanels(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	// TODO: re-enable on mode 4 and 5 when we migrate /api to /apis for library connections, and begin to
 	// use search to return the connections, rather than the connections table.
@@ -1611,9 +1613,7 @@ func TestIntegrationFolderDeletionBlockedByConnectedLibraryPanels(t *testing.T) 
 func TestIntegrationFolderDeletionWithDanglingLibraryPanels(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	for mode := 0; mode <= 5; mode++ {
 		t.Run(fmt.Sprintf("mode %v - delete succeeds and cleans up dangling library panels in folder and subfolder", grafanarest.DualWriterMode(mode)), func(t *testing.T) {
@@ -1809,9 +1809,7 @@ func verifyDashboardExists(t *testing.T, helper *apis.K8sTestHelper, client *api
 func TestIntegrationMoveNestedFolderToRootK8S(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	helper := apis.NewK8sTestHelper(t, testinfra.GrafanaOpts{
 		AppModeProduction:    true,
@@ -1894,9 +1892,7 @@ func TestIntegrationMoveNestedFolderToRootK8S(t *testing.T) {
 func TestIntegrationDeleteNestedFoldersPostorder(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	for mode := 0; mode <= 5; mode++ {
 		t.Run(fmt.Sprintf("Mode %d: Delete nested folder hierarchy in postorder", mode), func(t *testing.T) {
@@ -2019,9 +2015,7 @@ providers:
 func TestIntegrationDeleteFolderWithProvisionedDashboards(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	for mode := 0; mode <= 5; mode++ {
 		t.Run(fmt.Sprintf("Mode %d: Delete provisioned folders and dashboards", mode), func(t *testing.T) {
@@ -2308,9 +2302,7 @@ func callSearch(t *testing.T, user apis.User, params string) *v0alpha1.SearchRes
 func TestIntegrationFolderDryRun(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	// Test dry-run on dual-writer modes 1-4.
 	// Mode 0 (legacy-only) does not use the dualWriter, so dry-run is not intercepted.

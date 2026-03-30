@@ -23,7 +23,6 @@ import (
 	folderV1 "github.com/grafana/grafana/apps/folder/pkg/apis/folder/v1"
 	"github.com/grafana/grafana/pkg/apimachinery/utils"
 	grafanarest "github.com/grafana/grafana/pkg/apiserver/rest"
-	"github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/services/folder"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/setting"
@@ -62,9 +61,7 @@ func TestIntegrationFolderTreeZanzana(t *testing.T) {
 func TestIntegrationFolderTree(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	modes := []grafanarest.DualWriterMode{
 		grafanarest.Mode0, // legacy only
@@ -93,9 +90,7 @@ func TestIntegrationFolderTree(t *testing.T) {
 }
 
 func runIntegrationFolderTree(t *testing.T, opts testinfra.GrafanaOpts) {
-	if !db.IsTestDbSQLite() {
-		t.Skip("test only on sqlite for now")
-	}
+	skipFolderIntegrationUnsupportedDB(t)
 
 	helper := apis.NewK8sTestHelper(t, opts)
 	defer helper.Shutdown()
