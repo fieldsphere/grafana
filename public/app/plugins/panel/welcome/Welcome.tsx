@@ -2,7 +2,6 @@ import { css } from '@emotion/css';
 
 import { GrafanaTheme2, locationUtil } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
 import { LinkButton, Stack, Text, useStyles2 } from '@grafana/ui';
 
 const UTM = 'utm_source=grafana_gettingstarted';
@@ -60,9 +59,8 @@ const grafanaCloudSignupUrl = `https://grafana.com/auth/sign-up/create-user?src=
 
 export const WelcomeBanner = () => {
   const styles = useStyles2(getStyles);
-  const base = config.appSubUrl ?? '';
-  const createDashboardHref = locationUtil.assureBaseUrl(`${base}/dashboard/new`);
-  const exploreHref = locationUtil.assureBaseUrl(`${base}/explore`);
+  const createDashboardHref = locationUtil.assureBaseUrl('/dashboard/new');
+  const exploreHref = locationUtil.assureBaseUrl('/explore');
 
   return (
     <div className={styles.scroll}>
