@@ -522,7 +522,7 @@ export const browseDashboardsAPI = createApi({
             }
 
             // Show success notification after successful deletions (count matches succeeded only)
-            if (restoreDashboardsEnabled) {
+            if (failed.length === 0 && restoreDashboardsEnabled) {
               const deletedCount = succeededUIDs.length;
               const title =
                 deletedCount === 1
@@ -535,7 +535,7 @@ export const browseDashboardsAPI = createApi({
                 href: config.appSubUrl + '/dashboard/recently-deleted',
               });
               dispatch(notifyApp(createSuccessNotification('', '', undefined, component)));
-            } else if (config.featureToggles.kubernetesDashboards) {
+            } else if (failed.length === 0 && config.featureToggles.kubernetesDashboards) {
               appEvents.publish({
                 type: AppEvents.alertSuccess.name,
                 payload: ['Dashboard deleted'],
