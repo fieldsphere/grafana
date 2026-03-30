@@ -35,7 +35,7 @@ export const LoginLayout = ({
   const [startAnim, setStartAnim] = useState(false);
   const subTitle = branding?.loginSubtitle ?? Branding.GetLoginSubTitle();
   const loginTitle = branding?.loginTitle ?? Branding.LoginTitle;
-  const loginBoxBackground = branding?.loginBoxBackground;
+  const loginBoxBackground = branding?.loginBoxBackground || Branding.LoginBoxBackground();
   const loginLogo = branding?.loginLogo;
   const hideEdition = branding?.hideEdition ?? Branding.HideEdition;
   const shouldShowHeroPanel = showHeroPanel && !isChangingPassword;
@@ -85,13 +85,20 @@ export const LoginLayout = ({
             </div>
           )}
           <div className={cx(loginStyles.loginOuterBox, !shouldShowHeroPanel && loginStyles.loginOuterBoxFullWidth)}>
-            {isChangingPassword && (
+            {!shouldShowHeroPanel && (
               <div className={loginStyles.loginLogoWrapper}>
                 <Branding.LoginLogo className={loginStyles.loginLogo} logo={loginLogo} />
                 <div className={loginStyles.titleWrapper}>
-                  <h1 className={loginStyles.mainTitle}>
-                    <Trans i18nKey="login.layout.update-password">Update your password</Trans>
-                  </h1>
+                  {isChangingPassword ? (
+                    <h1 className={loginStyles.mainTitle}>
+                      <Trans i18nKey="login.layout.update-password">Update your password</Trans>
+                    </h1>
+                  ) : (
+                    <>
+                      <h1 className={loginStyles.mainTitle}>{loginTitle}</h1>
+                      {subTitle && <h3 className={loginStyles.subTitle}>{subTitle}</h3>}
+                    </>
+                  )}
                 </div>
               </div>
             )}
