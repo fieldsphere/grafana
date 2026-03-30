@@ -1,8 +1,7 @@
 import { css } from '@emotion/css';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { GrafanaTheme2, type IconName } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { IconName } from '@grafana/schema';
 import { Icon, LinkButton, TextLink, useStyles2 } from '@grafana/ui';
 
 const quickActions = [
@@ -18,7 +17,8 @@ const capabilityCards: Array<{ title: string; description: string; icon: IconNam
   },
   {
     title: 'Move from issue to root cause',
-    description: 'Open dashboards, inspect incidents, and jump into troubleshooting workflows with less context switching.',
+    description:
+      'Open dashboards, inspect incidents, and jump into troubleshooting workflows with less context switching.',
     icon: 'apps',
   },
   {

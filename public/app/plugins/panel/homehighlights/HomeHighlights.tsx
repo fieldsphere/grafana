@@ -1,24 +1,26 @@
 import { css } from '@emotion/css';
 
-import { PanelProps, GrafanaTheme2 } from '@grafana/data';
+import { PanelProps, GrafanaTheme2, type IconName } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
-import { IconName } from '@grafana/schema';
 import { Icon, LinkButton, TextLink, useStyles2 } from '@grafana/ui';
 
 const valueProps = [
   {
     title: 'Follow key platform flows',
-    description: 'Track dashboards, alerts, and recent work from one place instead of jumping through disconnected screens.',
+    description:
+      'Track dashboards, alerts, and recent work from one place instead of jumping through disconnected screens.',
     icon: 'apps',
   },
   {
     title: 'Keep onboarding moving',
-    description: 'Guide teammates from first data source to usable dashboards with clear next actions and learning paths.',
+    description:
+      'Guide teammates from first data source to usable dashboards with clear next actions and learning paths.',
     icon: 'rocket',
   },
   {
     title: 'Standardize what matters',
-    description: 'Create repeatable views for service health, cost, and performance so every team starts from shared context.',
+    description:
+      'Create repeatable views for service health, cost, and performance so every team starts from shared context.',
     icon: 'layer-group',
   },
 ] satisfies Array<{ title: string; description: string; icon: IconName }>;
@@ -33,7 +35,11 @@ export function HomeHighlightsPanel(_props: PanelProps) {
   const styles = useStyles2(getStyles);
 
   return (
-    <section className={styles.container} aria-labelledby="grafana-home-highlights-title" data-testid="grafana-home-highlights">
+    <section
+      className={styles.container}
+      aria-labelledby="grafana-home-highlights-title"
+      data-testid="grafana-home-highlights"
+    >
       <div className={styles.header}>
         <div>
           <div className={styles.eyebrow}>
