@@ -14978,9 +14978,21 @@
     }
   },
   "welcome": {
-    "welcome-banner": {
-      "need-help": "Need help?",
-      "welcome-to-grafana": "Welcome to Grafana"
+    "marketing": {
+      "cta-demo": "Request a Demo",
+      "cta-free-trial": "Start Your Free Trial",
+      "hero-subtitle": "Monitor, troubleshoot, and secure your entire stack with one unified platform.",
+      "hero-title": "Full-Stack Observability & Security Built for Enterprise Scale",
+      "pillar1-desc": "Automatically catch issues before they escalate and push new releases to market faster.",
+      "pillar1-title": "Accelerate Time to Market",
+      "pillar2-desc": "Pinpoint the root cause of slow load times with end-to-end visibility.",
+      "pillar2-title": "Improve UX and Easily Optimize Performance",
+      "pillar3-desc": "Reduce tool sprawl and eliminate compounding investment costs with one unified solution.",
+      "pillar3-title": "Reduce IT Costs",
+      "pillar4-desc": "Automatically detect unanticipated outliers, anomalies, and errors without the noise.",
+      "pillar4-title": "Receive Alerts for Only the Issues that Matter",
+      "pillar5-desc": "Understand and react to ongoing threats targeting your web and serverless applications.",
+      "pillar5-title": "Detect and Defend Against Attacks"
     }
   },
   "xychart": {
