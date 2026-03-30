@@ -110,7 +110,6 @@ export const getLoginStyles = (theme: GrafanaTheme2) => {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      overflow: 'hidden',
     }),
     loginAnim: css({
       ['&:before']: {
