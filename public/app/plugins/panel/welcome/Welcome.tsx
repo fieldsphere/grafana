@@ -16,34 +16,38 @@ const valueProps = [
   {
     key: 'ship',
     icon: 'rocket' as const,
-    titleKey: 'welcome.welcome-banner.card-ship-title',
-    titleDefault: 'Ship faster',
-    bodyKey: 'welcome.welcome-banner.card-ship-body',
-    bodyDefault: 'Catch regressions in CI and understand production impact after every deploy.',
+    title: <Trans i18nKey="welcome.welcome-banner.card-ship-title">Ship faster</Trans>,
+    body: (
+      <Trans i18nKey="welcome.welcome-banner.card-ship-body">
+        Catch regressions in CI and understand production impact after every deploy.
+      </Trans>
+    ),
   },
   {
     key: 'ux',
     icon: 'heart' as const,
-    titleKey: 'welcome.welcome-banner.card-ux-title',
-    titleDefault: 'Improve user experience',
-    bodyKey: 'welcome.welcome-banner.card-ux-body',
-    bodyDefault: 'Trace requests end-to-end and spot bottlenecks before users do.',
+    title: <Trans i18nKey="welcome.welcome-banner.card-ux-title">Improve user experience</Trans>,
+    body: <Trans i18nKey="welcome.welcome-banner.card-ux-body">Trace requests end-to-end and spot bottlenecks before users do.</Trans>,
   },
   {
     key: 'cost',
     icon: 'sitemap' as const,
-    titleKey: 'welcome.welcome-banner.card-cost-title',
-    titleDefault: 'Reduce tool sprawl',
-    bodyKey: 'welcome.welcome-banner.card-cost-body',
-    bodyDefault: 'Metrics, logs, and traces in one place—less context switching for your team.',
+    title: <Trans i18nKey="welcome.welcome-banner.card-cost-title">Reduce tool sprawl</Trans>,
+    body: (
+      <Trans i18nKey="welcome.welcome-banner.card-cost-body">
+        Metrics, logs, and traces in one place—less context switching for your team.
+      </Trans>
+    ),
   },
   {
     key: 'alerts',
     icon: 'bell' as const,
-    titleKey: 'welcome.welcome-banner.card-alerts-title',
-    titleDefault: 'Alert on what matters',
-    bodyKey: 'welcome.welcome-banner.card-alerts-body',
-    bodyDefault: 'Route signals into actionable notifications instead of noisy pages.',
+    title: <Trans i18nKey="welcome.welcome-banner.card-alerts-title">Alert on what matters</Trans>,
+    body: (
+      <Trans i18nKey="welcome.welcome-banner.card-alerts-body">
+        Route signals into actionable notifications instead of noisy pages.
+      </Trans>
+    ),
   },
 ];
 
@@ -122,14 +126,10 @@ export const WelcomeBanner = () => {
                 <Icon name={card.icon} size="xl" />
               </div>
               <Text element="h3" variant="h5">
-                <Trans i18nKey={card.titleKey} defaults={card.titleDefault}>
-                  {card.titleDefault}
-                </Trans>
+                {card.title}
               </Text>
               <Text element="p" variant="bodySmall" color="secondary">
-                <Trans i18nKey={card.bodyKey} defaults={card.bodyDefault}>
-                  {card.bodyDefault}
-                </Trans>
+                {card.body}
               </Text>
             </div>
           ))}
