@@ -1,11 +1,12 @@
 import { css, cx, keyframes } from '@emotion/css';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 import { GrafanaTheme2, locationUtil } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { getBackendSrv, locationService } from '@grafana/runtime';
 import { Icon, IconName, useStyles2 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
+import PageLoader from 'app/core/components/PageLoader/PageLoader';
 import { DashboardDTO, HomeDashboardRedirectDTO, isRedirectResponse } from 'app/types/dashboard';
 
 interface FeatureCardProps {
@@ -34,24 +35,9 @@ function FeatureCard({ icon, title, description, href, accentColor }: FeatureCar
   );
 }
 
-interface StatCardProps {
-  value: string;
-  label: string;
-}
-
-function StatCard({ value, label }: StatCardProps) {
-  const styles = useStyles2(getStatCardStyles);
-
-  return (
-    <div className={styles.stat}>
-      <span className={styles.value}>{value}</span>
-      <span className={styles.label}>{label}</span>
-    </div>
-  );
-}
-
 export default function HomePage() {
   const styles = useStyles2(getStyles);
+  const [isCheckingHomeRedirect, setIsCheckingHomeRedirect] = useState(true);
 
   useEffect(() => {
     const checkHomeDashboardRedirect = async () => {
@@ -61,14 +47,27 @@ export default function HomePage() {
         if (isRedirectResponse(response)) {
           const newUrl = locationUtil.processRedirectUri(response.redirectUri, locationService.getLocation());
           locationService.replace(newUrl);
+          return;
         }
       } catch {
         // Keep rendering the static homepage when redirect checks fail.
       }
+
+      setIsCheckingHomeRedirect(false);
     };
 
     void checkHomeDashboardRedirect();
   }, []);
+
+  if (isCheckingHomeRedirect) {
+    return (
+      <Page navId="home">
+        <Page.Contents>
+          <PageLoader />
+        </Page.Contents>
+      </Page>
+    );
+  }
 
   return (
     <Page navId="home">
@@ -110,10 +109,22 @@ export default function HomePage() {
 
           {/* Stats Section */}
           <section className={styles.statsSection}>
-            <StatCard value="500+" label={t('home.stats.integrations', 'Integrations')} />
-            <StatCard value="20M+" label={t('home.stats.active-users', 'Active Users')} />
-            <StatCard value="800K+" label={t('home.stats.active-installs', 'Active Installs')} />
-            <StatCard value="60B+" label={t('home.stats.metrics-queried', 'Metrics Queried Daily')} />
+            <StatCard
+              value={t('home.stats.dashboards.value', 'Dashboards')}
+              label={t('home.stats.dashboards.label', 'Visualize metrics, logs, and traces')}
+            />
+            <StatCard
+              value={t('home.stats.alerting.value', 'Alerting')}
+              label={t('home.stats.alerting.label', 'Detect issues and route notifications')}
+            />
+            <StatCard
+              value={t('home.stats.explore.value', 'Explore')}
+              label={t('home.stats.explore.label', 'Investigate and correlate signals')}
+            />
+            <StatCard
+              value={t('home.stats.plugins.value', 'Plugins')}
+              label={t('home.stats.plugins.label', 'Extend Grafana with integrations')}
+            />
           </section>
 
           {/* Feature Grid */}
@@ -266,9 +277,7 @@ export default function HomePage() {
               <Trans i18nKey="home.cta.title">Start monitoring in minutes</Trans>
             </h2>
             <p className={styles.bottomCtaDesc}>
-              <Trans i18nKey="home.cta.subtitle">
-                Connect your first data source and build your dashboard. No credit card required.
-              </Trans>
+              <Trans i18nKey="home.cta.subtitle">Connect your first data source and build your first dashboard.</Trans>
             </p>
             <div className={styles.heroCtas}>
               <a href="/connections/datasources/new" className={styles.primaryCta}>
@@ -627,6 +636,22 @@ const getFeatureCardStyles = (theme: GrafanaTheme2) => ({
     marginTop: 'auto',
   }),
 });
+
+interface StatCardProps {
+  value: string;
+  label: string;
+}
+
+function StatCard({ value, label }: StatCardProps) {
+  const styles = useStyles2(getStatCardStyles);
+
+  return (
+    <div className={styles.stat}>
+      <span className={styles.value}>{value}</span>
+      <span className={styles.label}>{label}</span>
+    </div>
+  );
+}
 
 const getStatCardStyles = (theme: GrafanaTheme2) => ({
   stat: css({
