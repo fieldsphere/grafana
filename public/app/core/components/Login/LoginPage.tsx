@@ -54,11 +54,7 @@ const LoginPage = () => {
           showDefaultPasswordWarning,
           loginErrorMessage,
         }) => (
-          <LoginLayout
-            isChangingPassword={isChangingPassword}
-            branding={loginBranding}
-            sideContent={<LoginHero />}
-          >
+          <LoginLayout isChangingPassword={isChangingPassword} branding={loginBranding} sideContent={<LoginHero />}>
             {!isChangingPassword && (
               <InnerBox>
                 {loginErrorMessage && (
@@ -178,17 +174,15 @@ const getStyles = (theme: GrafanaTheme2) => {
     }),
 
     pageBackground: css({
-      background:
-        theme.isDark
-          ? 'radial-gradient(circle at top left, rgba(245,78,0,0.16), rgba(245,78,0,0) 26%), linear-gradient(180deg, rgba(20,18,11,0.98) 0%, rgba(26,22,18,0.98) 42%, rgba(14,13,11,1) 100%)'
-          : 'radial-gradient(circle at top left, rgba(245,78,0,0.12), rgba(245,78,0,0) 28%), linear-gradient(180deg, rgba(247,247,244,1) 0%, rgba(242,241,237,1) 46%, rgba(235,234,229,1) 100%)',
+      background: theme.isDark
+        ? 'radial-gradient(circle at top left, rgba(245,78,0,0.16), rgba(245,78,0,0) 26%), linear-gradient(180deg, rgba(20,18,11,0.98) 0%, rgba(26,22,18,0.98) 42%, rgba(14,13,11,1) 100%)'
+        : 'radial-gradient(circle at top left, rgba(245,78,0,0.12), rgba(245,78,0,0) 28%), linear-gradient(180deg, rgba(247,247,244,1) 0%, rgba(242,241,237,1) 46%, rgba(235,234,229,1) 100%)',
     }),
 
     loginCardBackground: css({
-      background:
-        theme.isDark
-          ? 'linear-gradient(180deg, rgba(27,25,19,0.92) 0%, rgba(22,20,16,0.94) 100%)'
-          : 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(247,247,244,0.94) 100%)',
+      background: theme.isDark
+        ? 'linear-gradient(180deg, rgba(27,25,19,0.92) 0%, rgba(22,20,16,0.94) 100%)'
+        : 'linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(247,247,244,0.94) 100%)',
     }),
 
     heroEyebrow: css({
