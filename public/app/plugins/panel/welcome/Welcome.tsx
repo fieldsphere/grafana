@@ -9,24 +9,24 @@ export const WelcomeBanner = () => {
 
   const marketingPillars = [
     {
-      title: t('welcome.datadog.pillar1-title', 'Accelerate Time to Market'),
-      description: t('welcome.datadog.pillar1-desc', 'Automatically catch issues before they escalate and push new releases to market faster.'),
+      title: t('welcome.marketing.pillar1-title', 'Accelerate Time to Market'),
+      description: t('welcome.marketing.pillar1-desc', 'Automatically catch issues before they escalate and push new releases to market faster.'),
     },
     {
-      title: t('welcome.datadog.pillar2-title', 'Improve UX and Easily Optimize Performance'),
-      description: t('welcome.datadog.pillar2-desc', 'Pinpoint the root cause of slow load times with end-to-end visibility.'),
+      title: t('welcome.marketing.pillar2-title', 'Improve UX and Easily Optimize Performance'),
+      description: t('welcome.marketing.pillar2-desc', 'Pinpoint the root cause of slow load times with end-to-end visibility.'),
     },
     {
-      title: t('welcome.datadog.pillar3-title', 'Reduce IT Costs'),
-      description: t('welcome.datadog.pillar3-desc', 'Reduce tool sprawl and eliminate compounding investment costs with one unified solution.'),
+      title: t('welcome.marketing.pillar3-title', 'Reduce IT Costs'),
+      description: t('welcome.marketing.pillar3-desc', 'Reduce tool sprawl and eliminate compounding investment costs with one unified solution.'),
     },
     {
-      title: t('welcome.datadog.pillar4-title', 'Receive Alerts for Only the Issues that Matter'),
-      description: t('welcome.datadog.pillar4-desc', 'Automatically detect unanticipated outliers, anomalies, and errors without the noise.'),
+      title: t('welcome.marketing.pillar4-title', 'Receive Alerts for Only the Issues that Matter'),
+      description: t('welcome.marketing.pillar4-desc', 'Automatically detect unanticipated outliers, anomalies, and errors without the noise.'),
     },
     {
-      title: t('welcome.datadog.pillar5-title', 'Detect and Defend Against Attacks'),
-      description: t('welcome.datadog.pillar5-desc', 'Understand and react to ongoing threats targeting your web and serverless applications.'),
+      title: t('welcome.marketing.pillar5-title', 'Detect and Defend Against Attacks'),
+      description: t('welcome.marketing.pillar5-desc', 'Understand and react to ongoing threats targeting your web and serverless applications.'),
     },
   ];
 
@@ -35,18 +35,18 @@ export const WelcomeBanner = () => {
       <div className={styles.heroSection}>
         <div className={styles.heroContent}>
           <h1 className={styles.title}>
-            <Trans i18nKey="welcome.datadog.hero-title">Full-Stack Observability & Security Built for Enterprise Scale</Trans>
+            <Trans i18nKey="welcome.marketing.hero-title">Full-Stack Observability & Security Built for Enterprise Scale</Trans>
           </h1>
           <p className={styles.subtitle}>
-            <Trans i18nKey="welcome.datadog.hero-subtitle">Monitor, troubleshoot, and secure your entire stack with one unified platform.</Trans>
+            <Trans i18nKey="welcome.marketing.hero-subtitle">Monitor, troubleshoot, and secure your entire stack with one unified platform.</Trans>
           </p>
         </div>
         <div className={styles.ctaContainer}>
           <LinkButton href="https://grafana.com/" target="_blank" variant="primary" size="lg" className={styles.ctaButton}>
-            <Trans i18nKey="welcome.datadog.cta-free-trial">Start Your Free Trial</Trans>
+            <Trans i18nKey="welcome.marketing.cta-free-trial">Start Your Free Trial</Trans>
           </LinkButton>
           <LinkButton href="https://grafana.com/contact/" target="_blank" variant="secondary" size="lg" className={styles.ctaButton}>
-            <Trans i18nKey="welcome.datadog.cta-demo">Request a Demo</Trans>
+            <Trans i18nKey="welcome.marketing.cta-demo">Request a Demo</Trans>
           </LinkButton>
         </div>
       </div>
