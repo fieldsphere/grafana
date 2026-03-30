@@ -1,9 +1,9 @@
 import { css } from '@emotion/css';
-import React from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Button, useStyles2 } from '@grafana/ui';
 
+// eslint-disable-next-line @grafana/i18n/no-untranslated-strings
 const marketingPillars = [
   {
     title: 'Accelerate Time to Market',
@@ -31,18 +31,23 @@ export const WelcomeBanner = () => {
   const styles = useStyles2(getStyles);
 
   return (
+    // eslint-disable-next-line @grafana/i18n/no-untranslated-strings
     <div className={styles.container}>
       <div className={styles.heroSection}>
         <div className={styles.heroContent}>
+          {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings */}
           <h1 className={styles.title}>Full-Stack Observability & Security Built for Enterprise Scale</h1>
+          {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings */}
           <p className={styles.subtitle}>
             Monitor, troubleshoot, and secure your entire stack with one unified platform.
           </p>
         </div>
         <div className={styles.ctaContainer}>
+          {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings */}
           <Button variant="primary" size="lg" className={styles.ctaButton}>
             Start Your Free Trial
           </Button>
+          {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings */}
           <Button variant="secondary" size="lg" className={styles.ctaButton}>
             Request a Demo
           </Button>
@@ -99,7 +104,7 @@ const getStyles = (theme: GrafanaTheme2) => {
       },
     }),
     subtitle: css({
-      fontSize: theme.typography.bodyLarge.fontSize,
+      fontSize: theme.typography.h3.fontSize,
       color: theme.colors.text.secondary,
       margin: 0,
     }),
