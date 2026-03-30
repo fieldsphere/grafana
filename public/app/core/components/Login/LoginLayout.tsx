@@ -64,19 +64,25 @@ export const LoginLayout = ({
               </p>
               <div className={loginStyles.heroStats}>
                 <div className={loginStyles.heroStatCard}>
-                  <span className={loginStyles.heroStatValue}>1</span>
+                  <span className={loginStyles.heroStatValue}>
+                    <Trans i18nKey="login.layout.hero-stat-platform-value">1</Trans>
+                  </span>
                   <span className={loginStyles.heroStatLabel}>
                     <Trans i18nKey="login.layout.hero-stat-platform">Unified platform</Trans>
                   </span>
                 </div>
                 <div className={loginStyles.heroStatCard}>
-                  <span className={loginStyles.heroStatValue}>100%</span>
+                  <span className={loginStyles.heroStatValue}>
+                    <Trans i18nKey="login.layout.hero-stat-visibility-value">100%</Trans>
+                  </span>
                   <span className={loginStyles.heroStatLabel}>
                     <Trans i18nKey="login.layout.hero-stat-visibility">Service visibility</Trans>
                   </span>
                 </div>
                 <div className={loginStyles.heroStatCard}>
-                  <span className={loginStyles.heroStatValue}>24/7</span>
+                  <span className={loginStyles.heroStatValue}>
+                    <Trans i18nKey="login.layout.hero-stat-alerting-value">24/7</Trans>
+                  </span>
                   <span className={loginStyles.heroStatLabel}>
                     <Trans i18nKey="login.layout.hero-stat-alerting">Context-aware alerting</Trans>
                   </span>
