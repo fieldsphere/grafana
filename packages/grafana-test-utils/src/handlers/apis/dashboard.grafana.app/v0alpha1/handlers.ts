@@ -31,6 +31,22 @@ type HitFilterArray = Array<(hit: DashboardHit) => boolean>;
 export function getCustomSearchHandler(hits: DashboardHit[]) {
   return http.get(searchRoute, ({ request }) => {
     const url = new URL(request.url);
+    const facetParams = url.searchParams.getAll('facet');
+    if (facetParams.includes('tags')) {
+      const tagCounts = new Map<string, number>();
+      for (const hit of hits) {
+        for (const tag of hit.tags ?? []) {
+          tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+        }
+      }
+      const terms = [...tagCounts.entries()].map(([term, count]) => ({ term, count }));
+      return HttpResponse.json({
+        totalHits: hits.length,
+        hits: [],
+        facets: { tags: { terms } },
+      });
+    }
+
     // TODO: query filter
     const limitFilter = parseInt(url.searchParams.get('limit') || '', 10) || hits.length;
     const folderFilter = url.searchParams.get('folder') || null;

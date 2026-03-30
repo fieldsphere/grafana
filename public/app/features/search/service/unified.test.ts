@@ -2,12 +2,14 @@ import { config, setBackendSrv } from '@grafana/runtime';
 import { getCustomSearchHandler } from '@grafana/test-utils/handlers';
 import server, { setupMockServer } from '@grafana/test-utils/server';
 import { backendSrv } from 'app/core/services/backend_srv';
+import { configureStore } from 'app/store/configureStore';
 
 import { GrafanaSearcher, SearchQuery } from './types';
 import { toDashboardResults, SearchHit, SearchAPIResponse, UnifiedSearcher } from './unified';
 
 beforeEach(() => {
   jest.clearAllMocks();
+  configureStore();
 });
 
 const mockFallbackSearcher = {
@@ -73,6 +75,26 @@ describe('Unified Storage Searcher', () => {
     const locationInfo = df.meta?.custom?.locationInfo;
     expect(locationInfo).toBeDefined();
     expect(locationInfo?.folder2.name).toBe('Folder 2');
+  });
+
+  it('should return tag facets via the search API client', async () => {
+    server.use(
+      getCustomSearchHandler([
+        { name: 'd1', title: 'D1', resource: 'dashboards', tags: ['a', 'b'] },
+        { name: 'd2', title: 'D2', resource: 'dashboards', tags: ['a'] },
+      ])
+    );
+
+    const searcher = new UnifiedSearcher(mockFallbackSearcher);
+    const terms = await searcher.tags({ query: '*' });
+
+    expect(terms).toEqual(
+      expect.arrayContaining([
+        { term: 'a', count: 2 },
+        { term: 'b', count: 1 },
+      ])
+    );
+    expect(terms).toHaveLength(2);
   });
 
   it('should perform paging even with inconsistent fields', async () => {
