@@ -188,7 +188,7 @@ const getStyles = (theme: GrafanaTheme2) => {
       margin: 0,
       fontSize: theme.typography.pxToRem(28),
       lineHeight: 1.2,
-      fontWeight: theme.typography.fontWeight.medium,
+      fontWeight: theme.typography.fontWeightMedium,
       letterSpacing: '-0.02em',
       color: theme.colors.text.primary,
       maxWidth: '42rem',
@@ -230,7 +230,7 @@ const getStyles = (theme: GrafanaTheme2) => {
     sectionTitle: css({
       margin: 0,
       fontSize: theme.typography.h4.fontSize,
-      fontWeight: theme.typography.fontWeight.medium,
+      fontWeight: theme.typography.fontWeightMedium,
       color: theme.colors.text.primary,
     }),
     cardGrid: css({
