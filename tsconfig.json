@@ -14,6 +14,7 @@
     "moduleResolution": "bundler",
     "tsBuildInfoFile": "./tsconfig.tsbuildinfo",
     "paths": {
+      "@grafana/data/themes/schema.generated.json": ["../packages/grafana-data/src/themes/schema.generated.json"],
       "@grafana/schema/dist/esm/*": ["../packages/grafana-schema/src/*"]
     }
   },
@@ -32,6 +33,7 @@
     "public/test/**/*.ts*",
     "public/vendor/**/*.ts",
     "packages/grafana-data/typings",
+    "packages/grafana-data/src/themes/schema.generated.json",
     "packages/grafana-ui/src/types"
   ],
   "exclude": ["public/app/**/webpack.config.ts"]

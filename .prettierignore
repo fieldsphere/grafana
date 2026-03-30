@@ -1,5 +1,7 @@
 .git
 .github
+.cursor
+grafana-cursor-toolkit
 .yarn
 build
 compiled
