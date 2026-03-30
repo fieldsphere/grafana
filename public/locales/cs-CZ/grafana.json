@@ -15093,30 +15093,7 @@
   "welcome": {
     "welcome-banner": {
       "need-help": "Potřebujete pomoc?",
-      "welcome-to-grafana": "Vítejte v Grafaně",
-      "cta-cloud": "Try Grafana Cloud",
-      "cta-create-dashboard": "Create a dashboard",
-      "cta-explore": "Explore",
-      "cta-section-aria": "Get started",
-      "link-community": "Community",
-      "link-documentation": "Documentation",
-      "link-public-slack": "Public Slack",
-      "link-tutorials": "Tutorials",
-      "pillar-collaborate-body": "Share dashboards and foster a data-driven culture with your team.",
-      "pillar-collaborate-title": "Collaborate",
-      "pillar-unify-body": "Connect 100+ data sources and query without switching tools.",
-      "pillar-unify-title": "Unify your data",
-      "pillar-visualize-body": "Build dashboards and alert on metrics, logs, traces, and profiles in one place.",
-      "pillar-visualize-title": "Visualize and alert",
-      "pillars-heading": "Why teams choose Grafana",
-      "stat-oss-label": "Core platform",
-      "stat-oss-value": "Open source",
-      "stat-sources-label": "Data sources",
-      "stat-sources-value": "100+",
-      "stat-viz-label": "Visualization types",
-      "stat-viz-value": "Many",
-      "stats-heading": "At a glance",
-      "subtitle": "The open platform for observability—query, visualize, and alert on your data wherever it lives."
+      "welcome-to-grafana": "Vítejte v Grafaně"
     }
   },
   "xychart": {
