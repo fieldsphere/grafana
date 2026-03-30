@@ -139,7 +139,7 @@ function searchResultsToApiResponse(result: SearchResults): SearchAPIResponse {
 function collectFolderUidsFromHits(hits: SearchHit[]): string[] {
   const uids = new Set<string>();
   for (const hit of hits) {
-    if (resourceIsDashboard(hit.resource) && hit.folder) {
+    if (hit.folder) {
       uids.add(hit.folder);
     }
   }
@@ -176,8 +176,12 @@ class LocationFolderCache {
   }
 
   private async fetchFolderByUid(uid: string): Promise<void> {
-    if (this.map[uid] !== undefined || this.inflight.has(uid)) {
+    if (this.map[uid] !== undefined) {
       return;
+    }
+    const inflight = this.inflight.get(uid);
+    if (inflight) {
+      return inflight;
     }
     const load = (async () => {
       try {
@@ -418,7 +422,7 @@ export class UnifiedSearcher implements GrafanaSearcher {
 
     const locationInfo = this.folderCache.getSnapshot();
     const hits = rsp.hits.map((hit) => {
-      if (hit.folder === undefined) {
+      if (!hit.folder) {
         return { ...hit, location: 'general', folder: 'general' };
       }
 

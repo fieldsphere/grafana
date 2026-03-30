@@ -1,3 +1,5 @@
+import { HttpResponse, http } from 'msw';
+
 import { config, setBackendSrv } from '@grafana/runtime';
 import { getCustomSearchHandler } from '@grafana/test-utils/handlers';
 import server, { setupMockServer } from '@grafana/test-utils/server';
@@ -118,10 +120,86 @@ describe('Unified Storage Searcher', () => {
     await response.loadMoreItems(0, 1);
 
     expect(response.view.length).toBe(2);
+    expect(response.view.get(0).folder).toBe('general');
     // TODO: right now this does not work (see unified.ts#getNextPage() for details) once the frame appending is fixed
     //  properly these expects should work
     // expect(response.view.get(0).description).toBe(null);
     // expect(response.view.get(1).description).toBe('foobar');
+  });
+
+  it('should not trigger bulk folder load when folder UID request is already inflight', async () => {
+    let bulkLoadCallCount = 0;
+    const folderUid = 'folder-a';
+    const searchRoute = '/apis/dashboard.grafana.app/v0alpha1/namespaces/:namespace/search';
+
+    server.use(
+      http.get(searchRoute, async ({ request }) => {
+        const url = new URL(request.url);
+        const type = url.searchParams.get('type');
+        const limit = url.searchParams.get('limit');
+        const nameFilters = url.searchParams.getAll('name');
+
+        if (type === 'folder' && limit === '5000' && nameFilters.length === 0) {
+          bulkLoadCallCount++;
+          return HttpResponse.json({ totalHits: 0, hits: [] });
+        }
+
+        if (type === 'folder' && nameFilters.includes(folderUid)) {
+          await new Promise((resolve) => setTimeout(resolve, 25));
+          return HttpResponse.json({
+            totalHits: 1,
+            hits: [{ name: folderUid, title: 'Folder A', resource: 'folder' }],
+          });
+        }
+
+        return HttpResponse.json({
+          totalHits: 1,
+          hits: [{ name: 'dash-a', title: 'Dashboard A', resource: 'dashboard', folder: folderUid }],
+        });
+      })
+    );
+
+    const searcher = new UnifiedSearcher(mockFallbackSearcher);
+    const query: SearchQuery = { query: '*', limit: 50 };
+
+    const [first, second] = await Promise.all([searcher.search(query), searcher.search(query)]);
+
+    expect(first.view.get(0).folder).toBe(folderUid);
+    expect(second.view.get(0).folder).toBe(folderUid);
+    expect(bulkLoadCallCount).toBe(0);
+  });
+
+  it('should resolve parent folder metadata for folder hits', async () => {
+    const parentUid = 'parent-folder';
+    const childUid = 'child-folder';
+    const searchRoute = '/apis/dashboard.grafana.app/v0alpha1/namespaces/:namespace/search';
+
+    server.use(
+      http.get(searchRoute, ({ request }) => {
+        const url = new URL(request.url);
+        const type = url.searchParams.get('type');
+        const nameFilters = url.searchParams.getAll('name');
+
+        if (type === 'folder' && nameFilters.includes(parentUid)) {
+          return HttpResponse.json({
+            totalHits: 1,
+            hits: [{ name: parentUid, title: 'Parent Folder', resource: 'folder' }],
+          });
+        }
+
+        return HttpResponse.json({
+          totalHits: 1,
+          hits: [{ name: childUid, title: 'Child Folder', resource: 'folder', folder: parentUid }],
+        });
+      })
+    );
+
+    const searcher = new UnifiedSearcher(mockFallbackSearcher);
+    const response = await searcher.search({ query: '*', limit: 50 });
+
+    expect(response.view.get(0).folder).toBe(parentUid);
+    expect(response.view.get(0).location).toBe(parentUid);
+    expect(response.view.dataFrame.meta?.custom?.locationInfo?.[parentUid].name).toBe('Parent Folder');
   });
 });
 
