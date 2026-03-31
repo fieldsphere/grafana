@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import { useAsync } from 'react-use';
 
-import { Alert, Badge, FilterInput, HorizontalGroup, ScrollContainer, Stack, Text } from '@grafana/ui';
+import { Alert, Badge, FilterInput, HorizontalGroup, Stack, Text } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 
 import { FeatureToggle, getFeatureToggles } from './labsApi';
@@ -67,7 +67,7 @@ export default function LabsPage() {
 
 function LabsTable({ toggles }: { toggles: FeatureToggle[] }) {
   return (
-    <ScrollContainer overflowY="visible" overflowX="auto" width="100%">
+    <div style={{ overflowX: 'auto', width: '100%' }}>
       <table className="filter-table">
         <thead>
           <tr>
@@ -106,13 +106,13 @@ function LabsTable({ toggles }: { toggles: FeatureToggle[] }) {
           )}
         </tbody>
       </table>
-    </ScrollContainer>
+    </div>
   );
 }
 
 function LabsTableSkeleton() {
   return (
-    <ScrollContainer overflowY="visible" overflowX="auto" width="100%">
+    <div style={{ overflowX: 'auto', width: '100%' }}>
       <table className="filter-table">
         <thead>
           <tr>
@@ -133,7 +133,7 @@ function LabsTableSkeleton() {
           ))}
         </tbody>
       </table>
-    </ScrollContainer>
+    </div>
   );
 }
 

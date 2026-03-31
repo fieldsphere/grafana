@@ -38,8 +38,9 @@ describe('LabsPage', () => {
     );
 
     expect(await screen.findByText('Labs feature flags')).toBeInTheDocument();
-    expect(screen.getByText('dashboardScene')).toBeInTheDocument();
-    expect(screen.getByText('panelTitleSearch')).toBeInTheDocument();
+    expect(screen.getByText('Feature flag')).toBeInTheDocument();
+    expect(screen.getByText('Stage')).toBeInTheDocument();
+    expect(screen.getByText('Description')).toBeInTheDocument();
     expect(screen.getByText('Showing 2 of 2 flags')).toBeInTheDocument();
     expect(screen.getByText('Review all Grafana feature flags and whether they are currently enabled.')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('Filter feature flags')).toBeInTheDocument();
