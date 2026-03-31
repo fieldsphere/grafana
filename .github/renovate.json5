@@ -5,26 +5,27 @@
     "github>grafana/grafana-renovate-config//presets/labels",
   ],
   ignoreDeps: [
-    // ignoring these until we can upgrade to react 19
-    // see epic here: https://github.com/grafana/grafana/issues/98813
-    '@types/react',
-    '@types/react-dom',
-    'eslint-plugin-react-hooks',
-    'react',
-    'react-dom',
-    'react-refresh',
+    // React 18 stack — revisit when upgrading to React 19 (https://github.com/grafana/grafana/issues/98813)
+    "@types/react",
+    "@types/react-dom",
+    "react",
+    "react-dom",
+    "react-refresh",
 
-    "@types/history", // this can be removed entirely when we upgrade history since v5 exposes types directly
-    "cypress", // cypress use is deprecated, we should not bump it anymore
-    "history", // we should bump this together with react-router-dom (see https://github.com/grafana/grafana/issues/76744)
-    "react-router", // we should bump this together with history and react-router-dom
-    "react-router-dom", // we should bump this together with history (see https://github.com/grafana/grafana/issues/76744)
-    "monaco-editor", // due to us exposing this via @grafana/ui/CodeEditor's props bumping can break plugins
-    "@fingerprintjs/fingerprintjs", // we don't want to bump to v4 due to licensing changes
-    "slate", // we don't want to continue using this on the long run, use Monaco editor instead of Slate
-    "slate-react", // we don't want to continue using this on the long run, use Monaco editor instead of Slate
-    "@types/slate-react", // we don't want to continue using this on the long run, use Monaco editor instead of Slate
-    "@types/slate", // we don't want to continue using this on the long run, use Monaco editor instead of Slate
+    "@types/history", // remove when upgrading history; v5 ships its own types
+    "cypress", // legacy e2e; do not bump (Playwright is preferred)
+    "history", // bump with react-router (https://github.com/grafana/grafana/issues/76744)
+    "react-router",
+    "react-router-dom",
+    "monaco-editor", // public API via @grafana/ui CodeEditor; bumps can break plugins
+    "@fingerprintjs/fingerprintjs", // stay on v3; v4 has licensing changes
+    // Slate — being phased out toward Monaco; no Renovate bumps until removal/migration
+    "slate",
+    "slate-plain-serializer",
+    "slate-react",
+    "@types/slate",
+    "@types/slate-plain-serializer",
+    "@types/slate-react",
   ],
   includePaths: ["package.json", "packages/**", "public/app/plugins/**", "devenv/frontend-service/docker-compose.yaml"],
   ignorePaths: ["emails/**", "**/mocks/**"],
@@ -59,11 +60,6 @@
     {
       groupName: "Moveable",
       matchPackageNames: ["moveable", "react-moveable"],
-      minimumReleaseAge: "7 days",
-    },
-    {
-      groupName: "Slate",
-      matchPackageNames: ["@types/slate", "@types/slate-react", "slate", "slate-react"],
       minimumReleaseAge: "7 days",
     },
     {
