@@ -2,6 +2,7 @@ import { StoryFn } from '@storybook/react';
 import { useId } from 'react';
 import { ValidateResult } from 'react-hook-form';
 
+import { storyStructuredInfo } from '../../utils/storybookStructuredLog';
 import { withStoryContainer } from '../../utils/storybook/withStoryContainer';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
@@ -70,11 +71,11 @@ const renderForm = (defaultValues?: FormDTO) => {
     <Form
       defaultValues={defaultValues}
       onSubmit={(data: FormDTO) => {
-        console.log(data);
+        storyStructuredInfo('storybook.Form', 'onSubmit', { data });
       }}
     >
       {({ register, control, errors }) => {
-        console.log(errors);
+        storyStructuredInfo('storybook.Form', 'form errors snapshot', { errors });
         return (
           <>
             <Legend>Edit user</Legend>
@@ -162,7 +163,7 @@ export const AsyncValidation: StoryFn = ({ passAsyncValidation }) => {
         }}
       >
         {({ register, control, errors, formState }) => {
-          console.log(errors);
+          storyStructuredInfo('storybook.Form', 'async validation errors', { errors });
           return (
             <>
               <Legend>Edit user</Legend>
@@ -201,7 +202,9 @@ const validateAsync = (shouldPass: boolean) => async () => {
     });
     return true;
   } catch (e) {
-    console.log(e);
+    storyStructuredInfo('storybook.Form', 'async validateAsync error', {
+      error: e instanceof Error ? e.message : String(e),
+    });
     return false;
   }
 };

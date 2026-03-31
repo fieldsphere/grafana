@@ -1,3 +1,5 @@
+import { storyStructuredInfo } from '../../utils/storybookStructuredLog';
+
 import { ComboboxOption } from './types';
 
 let fakeApiOptions: Array<ComboboxOption<string>>;
@@ -13,7 +15,9 @@ export async function fakeSearchAPI(urlString: string): Promise<Array<ComboboxOp
 
   if (!fakeApiOptions) {
     fakeApiOptions = await generateOptions(1000);
-    console.log('fakeApiOptions', fakeApiOptions);
+    storyStructuredInfo('storybook.Combobox.fakeSearchAPI', 'Generated fake API options', {
+      optionCount: fakeApiOptions.length,
+    });
   }
 
   if (!searchQuery || searchQuery.length === 0) {

@@ -19,4 +19,13 @@ fs.writeFileSync(
   )
 );
 
-console.log('Successfully generated theme schema');
+// eslint-disable-next-line no-console
+console.info(
+  JSON.stringify({
+    level: 'INFO',
+    source: 'grafana-data.generateSchema',
+    message: 'Successfully generated theme schema',
+    outPath: jsonOut,
+    timestamp: Date.now(),
+  })
+);

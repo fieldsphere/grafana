@@ -7,11 +7,12 @@ import React, { Profiler, ProfilerOnRenderCallback, useState, FC } from 'react';
 import { GrafanaTheme2 } from '@grafana/data';
 
 import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
+import { storyStructuredInfo } from '../../utils/storybookStructuredLog';
 import { Button } from '../Button/Button';
 import { Stack } from '../Layout/Stack/Stack';
 
 export function EmotionPerfTest() {
-  console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+  storyStructuredInfo('storybook.EmotionPerfTest', 'NODE_ENV', { nodeEnv: process.env.NODE_ENV });
 
   return (
     <Stack direction="column">
@@ -126,7 +127,7 @@ function NoStyles({ index }: TestComponentProps) {
 
 function MeasureRender({ children, id }: { children: React.ReactNode; id: string }) {
   const onRender: ProfilerOnRenderCallback = (id, phase, actualDuration, baseDuration, startTime, commitTime) => {
-    console.log('Profile ' + id, actualDuration);
+    storyStructuredInfo('storybook.EmotionPerfTest', 'Profiler render', { id, actualDuration, phase });
   };
 
   return (

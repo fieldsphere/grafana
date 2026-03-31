@@ -71,7 +71,16 @@ export const runGenerateApis =
         command = 'yarn workspace @grafana/api-clients generate-apis';
       }
 
-      console.log(`⏳ Running ${command} to generate endpoints...`);
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify({
+          level: 'INFO',
+          source: 'api-clients.generator',
+          message: 'Running API generation command',
+          command,
+          timestamp: Date.now(),
+        })
+      );
       execSync(command, { stdio: 'inherit', cwd: basePath });
       return '✅ API endpoints generated successfully!';
     } catch (error) {
@@ -94,7 +103,15 @@ export const formatFiles =
     try {
       const filesList = filesToFormat.map((file: string) => `"${file}"`).join(' ');
 
-      console.log('🧹 Running ESLint on generated/modified files...');
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify({
+          level: 'INFO',
+          source: 'api-clients.generator',
+          message: 'Running ESLint on generated files',
+          timestamp: Date.now(),
+        })
+      );
       try {
         execSync(`yarn eslint --fix ${filesList}`, { cwd: basePath });
       } catch (error) {
@@ -102,7 +119,15 @@ export const formatFiles =
         console.warn(`⚠️ Warning: ESLint encountered issues: ${errorMessage}`);
       }
 
-      console.log('🧹 Running Prettier on generated/modified files...');
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify({
+          level: 'INFO',
+          source: 'api-clients.generator',
+          message: 'Running Prettier on generated files',
+          timestamp: Date.now(),
+        })
+      );
       try {
         // '--ignore-path' is necessary so the gitignored files ('local/' folder) can still be formatted
         execSync(`yarn prettier --write ${filesList} --ignore-path=./.prettierignore`, { cwd: basePath });

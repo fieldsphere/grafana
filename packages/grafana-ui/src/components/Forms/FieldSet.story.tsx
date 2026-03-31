@@ -1,6 +1,7 @@
 import { Meta, StoryFn } from '@storybook/react';
 import { useId } from 'react';
 
+import { storyStructuredInfo } from '../../utils/storybookStructuredLog';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 
@@ -34,7 +35,7 @@ export const Basic: StoryFn<typeof FieldSet> = (args: Props) => {
   const colorId = useId();
   const fontSizeId = useId();
   return (
-    <Form onSubmit={() => console.log('Submit')}>
+    <Form onSubmit={() => storyStructuredInfo('storybook.FieldSet', 'Form submit')}>
       {() => (
         <>
           <FieldSet {...args}>

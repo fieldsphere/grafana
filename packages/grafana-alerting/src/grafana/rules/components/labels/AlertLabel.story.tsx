@@ -5,6 +5,11 @@ import { Stack, Text } from '@grafana/ui';
 
 import { AlertLabel } from './AlertLabel';
 
+function storyLog(message: string, context?: Record<string, unknown>) {
+  // eslint-disable-next-line no-console
+  console.info(JSON.stringify({ level: 'INFO', source: 'storybook.AlertLabel', message, timestamp: Date.now(), ...context }));
+}
+
 const meta: Meta<typeof AlertLabel> = {
   component: AlertLabel,
   title: 'Rules/AlertLabel',
@@ -42,7 +47,7 @@ export const Clickable: StoryObj<typeof AlertLabel> = {
       {...args}
       labelKey="region"
       value="eu-central-1"
-      onClick={([value, key]) => console.log('clicked', key, value)}
+      onClick={([value, key]) => storyLog('label clicked', { key, value })}
     />
   ),
 };
