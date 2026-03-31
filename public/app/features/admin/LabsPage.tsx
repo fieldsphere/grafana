@@ -21,7 +21,7 @@ export default function LabsPage() {
     return toggles.filter((toggle) => {
       return (
         toggle.name.toLowerCase().includes(search) ||
-        toggle.description.toLowerCase().includes(search) ||
+        (toggle.description ?? '').toLowerCase().includes(search) ||
         toggle.stage.toLowerCase().includes(search)
       );
     });
