@@ -213,7 +213,16 @@ async function main() {
 
 // when running in docker, we catch the needed stop-signal, to shutdown fast
 process.on('SIGTERM', () => {
-  console.log('shutdown requested');
+  // eslint-disable-next-line no-console
+  console.info(
+    JSON.stringify({
+      level: 'INFO',
+      source: 'devenv.loki.fake-data',
+      message: 'shutdown requested',
+      signal: 'SIGTERM',
+      timestamp: Date.now(),
+    })
+  );
   process.exit(0);
 });
 

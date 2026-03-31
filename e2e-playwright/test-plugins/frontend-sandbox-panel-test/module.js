@@ -127,20 +127,47 @@ define(['react', '@grafana/data'], function (React, grafanaData) {
     const globalTests = [
       function () {
         try {
-          console.log(window.Prism.languages);
+          // eslint-disable-next-line no-console
+          console.info(
+            JSON.stringify({
+              level: 'INFO',
+              source: 'e2e.frontend-sandbox-panel-test',
+              message: 'Prism globals probe',
+              languages: window.Prism?.languages,
+              timestamp: Date.now(),
+            })
+          );
           return 'Prism';
         } catch (e) {}
       },
       function () {
         try {
-          console.log(window.jQuery.fn.jquery);
-          console.log(window.$.fn.jquery);
+          // eslint-disable-next-line no-console
+          console.info(
+            JSON.stringify({
+              level: 'INFO',
+              source: 'e2e.frontend-sandbox-panel-test',
+              message: 'jQuery version probe',
+              jquery: window.jQuery?.fn?.jquery,
+              dollar: window.$?.fn?.jquery,
+              timestamp: Date.now(),
+            })
+          );
           return 'jQuery';
         } catch (e) {}
       },
       function () {
         try {
-          console.log(window.locationSandbox);
+          // eslint-disable-next-line no-console
+          console.info(
+            JSON.stringify({
+              level: 'INFO',
+              source: 'e2e.frontend-sandbox-panel-test',
+              message: 'locationSandbox probe',
+              locationSandbox: window.locationSandbox,
+              timestamp: Date.now(),
+            })
+          );
           return 'location';
         } catch (e) {}
       },

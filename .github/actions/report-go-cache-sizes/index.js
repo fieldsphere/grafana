@@ -11,8 +11,25 @@ function size(dir) {
 try {
   const gomodcache = execSync("go env GOMODCACHE").toString().trim();
   const gocache = execSync("go env GOCACHE").toString().trim();
-  console.log(`GOMODCACHE: ${size(gomodcache)} (${gomodcache})`);
-  console.log(`GOCACHE:    ${size(gocache)} (${gocache})`);
+  // eslint-disable-next-line no-console
+  console.info(
+    JSON.stringify({
+      level: 'INFO',
+      source: 'github-actions.report-go-cache-sizes',
+      gomodcache: { path: gomodcache, size: size(gomodcache) },
+      gocache: { path: gocache, size: size(gocache) },
+      timestamp: Date.now(),
+    })
+  );
 } catch (e) {
-  console.log("Could not determine Go cache sizes:", e.message);
+  // eslint-disable-next-line no-console
+  console.warn(
+    JSON.stringify({
+      level: 'WARN',
+      source: 'github-actions.report-go-cache-sizes',
+      message: 'Could not determine Go cache sizes',
+      error: e.message,
+      timestamp: Date.now(),
+    })
+  );
 }

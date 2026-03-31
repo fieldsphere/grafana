@@ -79,17 +79,32 @@ async function generateCodeownersManifest(
 if (require.main === module) {
   (async () => {
     try {
-      console.log(`📋 Generating files ↔ teams manifests from ${RAW_AUDIT_JSONL_PATH} ...`);
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify({
+          level: 'INFO',
+          source: 'codeowners-manifest.generate',
+          message: 'Generating manifests',
+          rawAuditPath: RAW_AUDIT_JSONL_PATH,
+          timestamp: Date.now(),
+        })
+      );
       await generateCodeownersManifest(
         RAW_AUDIT_JSONL_PATH,
         CODEOWNERS_JSON_PATH,
         CODEOWNERS_BY_FILENAME_JSON_PATH,
         FILENAMES_BY_CODEOWNER_JSON_PATH
       );
-      console.log('✅ Manifest files generated:');
-      console.log(`   • ${CODEOWNERS_JSON_PATH}`);
-      console.log(`   • ${CODEOWNERS_BY_FILENAME_JSON_PATH}`);
-      console.log(`   • ${FILENAMES_BY_CODEOWNER_JSON_PATH}`);
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify({
+          level: 'INFO',
+          source: 'codeowners-manifest.generate',
+          message: 'Manifest files generated',
+          outputs: [CODEOWNERS_JSON_PATH, CODEOWNERS_BY_FILENAME_JSON_PATH, FILENAMES_BY_CODEOWNER_JSON_PATH],
+          timestamp: Date.now(),
+        })
+      );
     } catch (e) {
       console.error(e);
       process.exit(1);

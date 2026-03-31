@@ -113,7 +113,16 @@ module.exports = (env = {}) =>
       function () {
         this.hooks.done.tap('Done', function (stats) {
           if (stats.compilation.errors && stats.compilation.errors.length) {
-            console.log(stats.compilation.errors);
+            // eslint-disable-next-line no-console
+            console.error(
+              JSON.stringify({
+                level: 'ERROR',
+                source: 'webpack.prod',
+                message: 'Compilation failed',
+                errors: stats.compilation.errors.map((e) => (e && e.message ? e.message : String(e))),
+                timestamp: Date.now(),
+              })
+            );
             process.exit(1);
           }
         });

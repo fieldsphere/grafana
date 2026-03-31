@@ -46,7 +46,15 @@ test(
         expect(testFlagFalse.variant).toBe('playwright-override');
       }
     } catch {
-      console.log('OFREP endpoint not called - OpenFeature may not be enabled');
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify({
+          level: 'INFO',
+          source: 'e2e.openFeature',
+          message: 'OFREP endpoint not called; OpenFeature may not be enabled',
+          timestamp: Date.now(),
+        })
+      );
     }
   }
 );
@@ -92,7 +100,15 @@ test(
       expect(testFlagFalse?.value).toBe(false);
       expect(testFlagFalse?.variant).toBe('playwright-override');
     } catch {
-      console.log('OFREP endpoint not called - OpenFeature may not be enabled');
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify({
+          level: 'INFO',
+          source: 'e2e.openFeature',
+          message: 'OFREP endpoint not called; OpenFeature may not be enabled',
+          timestamp: Date.now(),
+        })
+      );
     }
   }
 );

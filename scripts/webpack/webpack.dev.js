@@ -36,7 +36,15 @@ function scenesModule() {
   try {
     const status = fs.lstatSync(scenesPath);
     if (status.isSymbolicLink()) {
-      console.log(`scenes is linked to local scenes repo`);
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify({
+          level: 'INFO',
+          source: 'webpack.dev',
+          message: 'Scenes package is symlinked to local repo',
+          timestamp: Date.now(),
+        })
+      );
       return path.resolve(scenesPath + '/src');
     }
   } catch (error) {

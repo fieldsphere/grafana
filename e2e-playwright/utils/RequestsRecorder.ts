@@ -60,7 +60,16 @@ export class RequestsRecorder {
         return Promise.resolve();
       }
 
-      console.log('waiting for', this.#requestsInFlight, 'requests to finish');
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify({
+          level: 'INFO',
+          source: 'e2e.RequestsRecorder',
+          message: 'Waiting for in-flight requests',
+          requestsInFlight: this.#requestsInFlight,
+          timestamp: Date.now(),
+        })
+      );
 
       return new Promise<void>((resolve) => {
         this.#resolve = resolve;

@@ -163,7 +163,16 @@ function compareCoverageByCodeowner(
 
   try {
     fs.writeFileSync(outputPath, markdown, 'utf8');
-    console.log(`✅ Coverage comparison written to ${outputPath}`);
+    // eslint-disable-next-line no-console
+    console.info(
+      JSON.stringify({
+        level: 'INFO',
+        source: 'compare-coverage-by-codeowner',
+        message: 'Coverage comparison written',
+        outputPath,
+        timestamp: Date.now(),
+      })
+    );
   } catch (err) {
     console.error(`Error writing output file: ${err.message}`);
     process.exit(1);
@@ -178,7 +187,15 @@ if (require.main === module) {
     console.error('❌ Coverage check failed: One or more metrics decreased');
     process.exit(1);
   }
-  console.log('✅ Coverage check passed: All metrics maintained or improved');
+  // eslint-disable-next-line no-console
+  console.info(
+    JSON.stringify({
+      level: 'INFO',
+      source: 'compare-coverage-by-codeowner',
+      message: 'Coverage check passed',
+      timestamp: Date.now(),
+    })
+  );
 }
 
 module.exports = { compareCoverageByCodeowner, generateMarkdown, getOverallStatus };

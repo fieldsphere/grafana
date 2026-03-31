@@ -64,12 +64,31 @@ const testFiles = teamFiles.filter((file) => {
 });
 
 if (testFiles.length === 0) {
-  console.log(`No test files found for team ${codeownerName}`);
+  // eslint-disable-next-line no-console
+  console.info(
+    JSON.stringify({
+      level: 'INFO',
+      source: 'jest.config.codeowner',
+      message: 'No test files found for team',
+      codeownerName,
+      timestamp: Date.now(),
+    })
+  );
   process.exit(0);
 }
 
-console.log(
-  `🧪 Collecting coverage for ${sourceFiles.length} testable files and running ${testFiles.length} test files of ${teamFiles.length} files owned by ${codeownerName}.`
+// eslint-disable-next-line no-console
+console.info(
+  JSON.stringify({
+    level: 'INFO',
+    source: 'jest.config.codeowner',
+    message: 'Starting codeowner coverage run',
+    codeownerName,
+    testableFileCount: sourceFiles.length,
+    testFileCount: testFiles.length,
+    teamFileCount: teamFiles.length,
+    timestamp: Date.now(),
+  })
 );
 
 module.exports = {
@@ -100,7 +119,16 @@ module.exports = {
         cleanCache: true,
         onEnd: (coverageResults) => {
           const reportURL = `file://${path.resolve(outputDir)}/index.html`;
-          console.log(`📄 Coverage report saved to ${reportURL}`);
+          // eslint-disable-next-line no-console
+          console.info(
+            JSON.stringify({
+              level: 'INFO',
+              source: 'jest.config.codeowner',
+              message: 'Coverage report saved',
+              reportURL,
+              timestamp: Date.now(),
+            })
+          );
 
           if (process.env.SHOULD_OPEN_COVERAGE_REPORT === 'true') {
             openCoverageReport(reportURL);
@@ -160,7 +188,16 @@ function writeCoverageSummaryArtifact(coverageResults) {
 
   try {
     fs.writeFileSync(COVERAGE_SUMMARY_OUTPUT_PATH, JSON.stringify(summary, null, 2));
-    console.log(`📊 Coverage summary written to ${COVERAGE_SUMMARY_OUTPUT_PATH}`);
+    // eslint-disable-next-line no-console
+    console.info(
+      JSON.stringify({
+        level: 'INFO',
+        source: 'jest.config.codeowner',
+        message: 'Coverage summary written',
+        path: COVERAGE_SUMMARY_OUTPUT_PATH,
+        timestamp: Date.now(),
+      })
+    );
   } catch (err) {
     console.error(`Failed to write coverage summary: ${err}`);
   }

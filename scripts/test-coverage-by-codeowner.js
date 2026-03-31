@@ -76,7 +76,16 @@ if (require.main === module) {
 
       const noOpen = argv['open'] === false;
 
-      console.log(`🧪 Running test coverage for codeowner: ${codeownerName}`);
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify({
+          level: 'INFO',
+          source: 'test-coverage-by-codeowner',
+          message: 'Running test coverage for codeowner',
+          codeownerName,
+          timestamp: Date.now(),
+        })
+      );
       await runTestCoverageByCodeowner(codeownerName, noOpen);
     } catch (e) {
       console.error(e.message);

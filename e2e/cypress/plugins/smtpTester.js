@@ -8,7 +8,16 @@ const PORT = 7777;
 const initialize = (on, config) => {
   // starts the SMTP server at localhost:7777
   const mailServer = ms.init(PORT);
-  console.log('mail server at port %d', PORT);
+  // eslint-disable-next-line no-console
+  console.info(
+    JSON.stringify({
+      level: 'INFO',
+      source: 'cypress.smtpTester',
+      message: 'SMTP test server listening',
+      port: PORT,
+      timestamp: Date.now(),
+    })
+  );
 
   let lastEmail = {};
 
@@ -20,10 +29,27 @@ const initialize = (on, config) => {
   on('task', {
     resetEmails(recipient) {
       if (recipient) {
-        console.log('reset all emails for recipient %s', recipient);
+        // eslint-disable-next-line no-console
+        console.info(
+          JSON.stringify({
+            level: 'INFO',
+            source: 'cypress.smtpTester',
+            message: 'Reset emails for recipient',
+            recipient,
+            timestamp: Date.now(),
+          })
+        );
         delete lastEmail[recipient];
       } else {
-        console.log('reset all emails');
+        // eslint-disable-next-line no-console
+        console.info(
+          JSON.stringify({
+            level: 'INFO',
+            source: 'cypress.smtpTester',
+            message: 'Reset all emails',
+            timestamp: Date.now(),
+          })
+        );
         lastEmail = {};
       }
     },
@@ -92,14 +118,32 @@ const initialize = (on, config) => {
       removePDFGeneratedOnDate(expectedDoc);
 
       if (inputDoc.numpages !== expectedDoc.numpages) {
-        console.log('PDFs do not contain the same number of pages');
+        // eslint-disable-next-line no-console
+        console.warn(
+          JSON.stringify({
+            level: 'WARN',
+            source: 'cypress.smtpTester.comparePDFs',
+            message: 'PDF page count mismatch',
+            expectedPages: expectedDoc.numpages,
+            inputPages: inputDoc.numpages,
+            timestamp: Date.now(),
+          })
+        );
         return false;
       }
 
       if (inputDoc.text !== expectedDoc.text) {
-        console.log('PDFs do not contain the same text');
-        console.log('PDF expected text: ', expectedDoc.text);
-        console.log('PDF input text: ', inputDoc.text);
+        // eslint-disable-next-line no-console
+        console.warn(
+          JSON.stringify({
+            level: 'WARN',
+            source: 'cypress.smtpTester.comparePDFs',
+            message: 'PDF text mismatch',
+            expectedTextSample: String(expectedDoc.text).slice(0, 200),
+            inputTextSample: String(inputDoc.text).slice(0, 200),
+            timestamp: Date.now(),
+          })
+        );
         return false;
       }
 

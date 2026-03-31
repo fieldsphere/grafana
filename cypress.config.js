@@ -22,7 +22,16 @@ module.exports = defineConfig({
       on('file:preprocessor', typescriptPreprocessor);
       on('task', {
         log({ message, optional }) {
-          optional ? console.log(message, optional) : console.log(message);
+          // eslint-disable-next-line no-console
+          console.info(
+            JSON.stringify({
+              level: 'INFO',
+              source: 'cypress.config.task.log',
+              message,
+              optional,
+              timestamp: Date.now(),
+            })
+          );
           return null;
         },
       });
@@ -55,14 +64,34 @@ module.exports = defineConfig({
       });
 
       on('before:browser:launch', (browser = {}, launchOptions) => {
-        console.log('launching browser %s is headless? %s', browser.name, browser.isHeadless);
+        // eslint-disable-next-line no-console
+        console.info(
+          JSON.stringify({
+            level: 'INFO',
+            source: 'cypress.config.beforeBrowserLaunch',
+            message: 'Launching browser',
+            browserName: browser.name,
+            isHeadless: browser.isHeadless,
+            timestamp: Date.now(),
+          })
+        );
 
         // the browser width and height we want to get
         // our screenshots and videos will be of that resolution
         const width = 1920;
         const height = 1080;
 
-        console.log('setting the browser window size to %d x %d', width, height);
+        // eslint-disable-next-line no-console
+        console.info(
+          JSON.stringify({
+            level: 'INFO',
+            source: 'cypress.config.beforeBrowserLaunch',
+            message: 'Setting browser window size',
+            width,
+            height,
+            timestamp: Date.now(),
+          })
+        );
 
         if (browser.name === 'chrome' && browser.isHeadless) {
           launchOptions.args.push(`--window-size=${width},${height}`);

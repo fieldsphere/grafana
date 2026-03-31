@@ -38,19 +38,14 @@ class LogReporter extends Mocha.reporters.Spec {
       end: this.stats.end.getTime(),
     };
 
-    // Example
-    // CypressStats suites=1 tests=2 testPasses=1 pending=0 failures=1
-    // start=1668783563731 end=1668783645198 duration=81467
-    console.log(`CypressStats ${objToLogAttributes(stats)}`);
+    // eslint-disable-next-line no-console
+    console.info(JSON.stringify({ event: 'CypressStats', ...stats, timestamp: Date.now() }));
   }
 
   reportResults() {
     this._testsResults.map(cleanTest).map((test) => {
-      // Example
-      // CypressTestResult title="Login scenario, create test data source, dashboard, panel, and export scenario"
-      // suite="Smoke tests" file=../../e2e/smoke-tests-suite/1-smoketests.spec.ts duration=68694
-      // currentRetry=0 speed=undefined err=false
-      console.log(`CypressTestResult ${objToLogAttributes(test)}`);
+      // eslint-disable-next-line no-console
+      console.info(JSON.stringify({ event: 'CypressTestResult', ...test, timestamp: Date.now() }));
     });
   }
 
@@ -60,43 +55,12 @@ class LogReporter extends Mocha.reporters.Spec {
       const test = failure.title;
       const error = failure.err;
 
-      // Example
-      // CypressError suite="Smoke tests" test="Login scenario, create test data source, dashboard,
-      // panel, and export scenario" error=false
-      console.error(`CypressError ${objToLogAttributes({ suite, test, error })}`);
+      // eslint-disable-next-line no-console
+      console.error(
+        JSON.stringify({ event: 'CypressError', suite, test, error, timestamp: Date.now(), level: 'ERROR' })
+      );
     });
   }
-}
-
-/**
- * Stringify object to be log friendly
- * @param {Object} obj
- * @returns {String}
- */
-function objToLogAttributes(obj) {
-  return Object.entries(obj)
-    .map(([key, value]) => `${key}=${formatValue(value)}`)
-    .join(' ');
-}
-
-/**
- * Escape double quotes
- * @param {String} str
- * @returns
- */
-function escapeQuotes(str) {
-  return String(str).replaceAll('"', '\\"');
-}
-
-/**
- * Wrap the value within double quote if needed
- * @param {*} value
- * @returns
- */
-function formatValue(value) {
-  const hasWhiteSpaces = /\s/g.test(value);
-
-  return hasWhiteSpaces ? `"${escapeQuotes(value)}"` : value;
 }
 
 /**
