@@ -9,12 +9,23 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
+	accesscontrolmock "github.com/grafana/grafana/pkg/services/accesscontrol/mock"
+	"github.com/grafana/grafana/pkg/services/authn"
+	"github.com/grafana/grafana/pkg/services/authn/authntest"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/licensing"
+	"github.com/grafana/grafana/pkg/services/navtree"
+	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginsettings"
+	"github.com/grafana/grafana/pkg/services/pluginsintegration/pluginstore"
+	pref "github.com/grafana/grafana/pkg/services/preference"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -157,4 +168,39 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
 	})
+}
+
+func TestLabsNavLinkUsesExpectedMetadata(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		SignedInUser: &user.SignedInUser{
+			UserID:         1,
+			OrgID:          1,
+			IsGrafanaAdmin: true,
+		},
+		Context:    &web.Context{Req: httpReq},
+		IsSignedIn: false,
+	}
+
+	service := ServiceImpl{
+		cfg:            setting.NewCfg(),
+		accessControl:  accesscontrolmock.New().WithPermissions([]ac.Permission{}),
+		authnService:   &authntest.FakeService{ExpectedIdentity: &authn.Identity{}},
+		pluginStore:    &pluginstore.FakePluginStore{},
+		pluginSettings: &pluginsettings.FakePluginSettings{Plugins: map[string]*pluginsettings.DTO{}},
+		features:       featuremgmt.WithFeatures(),
+		license:        &licensing.OSSLicensingService{},
+	}
+
+	tree, err := service.GetNavTree(reqCtx, &pref.Preference{})
+	require.NoError(t, err)
+
+	labsLink := tree.FindById(navtree.NavIDLabs)
+	require.NotNil(t, labsLink)
+	require.Equal(t, navtree.NavIDLabs, labsLink.Id)
+	require.Equal(t, "Labs", labsLink.Text)
+	require.Equal(t, "Browse feature flags and their current enabled state", labsLink.SubTitle)
+	require.Equal(t, "flask", labsLink.Icon)
+	require.Equal(t, "/labs", labsLink.Url)
+	require.EqualValues(t, navtree.WeightLabs, labsLink.SortWeight)
 }

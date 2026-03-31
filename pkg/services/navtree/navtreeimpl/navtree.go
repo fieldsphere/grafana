@@ -145,6 +145,17 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		})
 	}
 
+	if c.GetIsGrafanaAdmin() {
+		treeRoot.AddSection(&navtree.NavLink{
+			Text:       "Labs",
+			Id:         navtree.NavIDLabs,
+			SubTitle:   "Browse feature flags and their current enabled state",
+			Icon:       "flask",
+			SortWeight: navtree.WeightLabs,
+			Url:        s.cfg.AppSubURL + "/labs",
+		})
+	}
+
 	if s.cfg.ProfileEnabled && c.IsSignedIn {
 		treeRoot.AddSection(s.getProfileNode(c))
 	}
