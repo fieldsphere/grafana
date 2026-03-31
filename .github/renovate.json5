@@ -21,10 +21,6 @@
     "react-router-dom", // we should bump this together with history (see https://github.com/grafana/grafana/issues/76744)
     "monaco-editor", // due to us exposing this via @grafana/ui/CodeEditor's props bumping can break plugins
     "@fingerprintjs/fingerprintjs", // we don't want to bump to v4 due to licensing changes
-    "slate", // we don't want to continue using this on the long run, use Monaco editor instead of Slate
-    "slate-react", // we don't want to continue using this on the long run, use Monaco editor instead of Slate
-    "@types/slate-react", // we don't want to continue using this on the long run, use Monaco editor instead of Slate
-    "@types/slate", // we don't want to continue using this on the long run, use Monaco editor instead of Slate
   ],
   includePaths: ["package.json", "packages/**", "public/app/plugins/**", "devenv/frontend-service/docker-compose.yaml"],
   ignorePaths: ["emails/**", "**/mocks/**"],
@@ -62,8 +58,16 @@
       minimumReleaseAge: "7 days",
     },
     {
+      // Slate is legacy; long-term plan is Monaco. Until migration, allow grouped patch/minor PRs for security fixes.
       groupName: "Slate",
-      matchPackageNames: ["@types/slate", "@types/slate-react", "slate", "slate-react"],
+      matchPackageNames: [
+        "@types/slate",
+        "@types/slate-plain-serializer",
+        "@types/slate-react",
+        "slate",
+        "slate-plain-serializer",
+        "slate-react",
+      ],
       minimumReleaseAge: "7 days",
     },
     {
