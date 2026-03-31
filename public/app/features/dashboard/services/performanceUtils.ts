@@ -1,5 +1,4 @@
 import { store } from '@grafana/data';
-import { logDebug } from '@grafana/runtime';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
 
 /**
@@ -85,7 +84,18 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
  */
 export function writePerformanceGroupLog(logger: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
-    logDebug(message, { source: 'sceneProfiling', logger, data });
+    // Keep lines inside console.group* visible in all envs (logDebug is dev-only without Faro).
+    // eslint-disable-next-line no-console
+    console.info(
+      JSON.stringify({
+        level: 'DEBUG',
+        source: 'sceneProfiling',
+        logger,
+        message,
+        data,
+        timestamp: Date.now(),
+      })
+    );
   }
 }
 

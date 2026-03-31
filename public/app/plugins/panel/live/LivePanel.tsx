@@ -176,8 +176,10 @@ export class LivePanel extends PureComponent<Props, State> {
             },
           }),
           state: LoadingState.Streaming,
+          timeRange: this.props.timeRange,
         };
-        const props = {
+        // TablePanel expects PanelProps<table Options>; use untyped PanelProps so spread stays valid.
+        const props: PanelProps = {
           ...this.props,
           options: { frameIndex: 0, showHeader: true },
         };

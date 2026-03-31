@@ -4,6 +4,28 @@ import { faro, LogLevel } from '@grafana/faro-web-sdk';
 
 type Args = Parameters<typeof console.log>;
 
+function emitFallbackDebugLine(name: string, id: string, args: Args) {
+  const line = JSON.stringify({
+    level: 'DEBUG',
+    source: `grafana-ui.createLogger.${name}`,
+    id,
+    timestamp: Date.now(),
+    ...(args.length > 0
+      ? {
+          details: (() => {
+            try {
+              return JSON.stringify(args);
+            } catch {
+              return String(args);
+            }
+          })(),
+        }
+      : {}),
+  });
+  // eslint-disable-next-line no-console
+  console.debug(line);
+}
+
 function pushDebugLog(name: string, id: string, args: Args) {
   const message = `[${name}: ${id}]`;
   const context =
@@ -23,6 +45,8 @@ function pushDebugLog(name: string, id: string, args: Args) {
       level: LogLevel.DEBUG,
       context,
     });
+  } else {
+    emitFallbackDebugLine(name, id, args);
   }
 }
 

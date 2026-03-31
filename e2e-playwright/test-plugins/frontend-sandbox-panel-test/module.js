@@ -127,13 +127,14 @@ define(['react', '@grafana/data'], function (React, grafanaData) {
     const globalTests = [
       function () {
         try {
+          // Intentionally no optional chaining: sandbox must throw when globals are blocked.
           // eslint-disable-next-line no-console
           console.info(
             JSON.stringify({
               level: 'INFO',
               source: 'e2e.frontend-sandbox-panel-test',
               message: 'Prism globals probe',
-              languages: window.Prism?.languages,
+              languages: window.Prism.languages,
               timestamp: Date.now(),
             })
           );
@@ -148,8 +149,8 @@ define(['react', '@grafana/data'], function (React, grafanaData) {
               level: 'INFO',
               source: 'e2e.frontend-sandbox-panel-test',
               message: 'jQuery version probe',
-              jquery: window.jQuery?.fn?.jquery,
-              dollar: window.$?.fn?.jquery,
+              jquery: window.jQuery.fn.jquery,
+              dollar: window.$.fn.jquery,
               timestamp: Date.now(),
             })
           );
