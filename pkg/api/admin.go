@@ -3,12 +3,15 @@ package api
 import (
 	"context"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/grafana/grafana/pkg/api/response"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	featuretoggleapi "github.com/grafana/grafana/pkg/services/featuremgmt/feature_toggle_api"
 	"github.com/grafana/grafana/pkg/services/stats"
 	"github.com/grafana/grafana/pkg/setting"
 )
@@ -45,6 +48,34 @@ func (hs *HTTPServer) AdminGetVerboseSettings(c *contextmodel.ReqContext) respon
 		return response.Error(http.StatusForbidden, "Failed to authorize settings", err)
 	}
 	return response.JSON(http.StatusOK, verboseSettings)
+}
+
+func (hs *HTTPServer) AdminGetFeatureToggles(c *contextmodel.ReqContext) response.Response {
+	featureList, err := featuremgmt.GetEmbeddedFeatureList()
+	if err != nil {
+		return response.Error(http.StatusInternalServerError, "Failed to load feature toggle definitions", err)
+	}
+
+	enabled := hs.Features.GetEnabled(c.Req.Context())
+	toggles := make([]featuretoggleapi.ToggleStatus, 0, len(featureList.Items))
+
+	for _, item := range featureList.Items {
+		toggles = append(toggles, featuretoggleapi.ToggleStatus{
+			Name:        item.Name,
+			Description: item.Spec.Description,
+			Stage:       item.Spec.Stage,
+			Enabled:     enabled[item.Name],
+		})
+	}
+
+	sort.Slice(toggles, func(i, j int) bool {
+		return toggles[i].Name < toggles[j].Name
+	})
+
+	return response.JSON(http.StatusOK, featuretoggleapi.ResolvedToggleState{
+		Enabled: enabled,
+		Toggles: toggles,
+	})
 }
 
 // swagger:route GET /admin/stats admin adminGetStats

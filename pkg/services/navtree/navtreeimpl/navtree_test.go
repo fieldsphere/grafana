@@ -11,6 +11,7 @@ import (
 
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
@@ -157,4 +158,20 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
 	})
+}
+
+func TestLabsNavLinkUsesExpectedMetadata(t *testing.T) {
+	link := &navtree.NavLink{
+		Text:       "Labs",
+		Id:         navtree.NavIDLabs,
+		SubTitle:   "Browse feature flags and their current enabled state",
+		Icon:       "flask",
+		SortWeight: navtree.WeightLabs,
+		Url:        "/labs",
+	}
+
+	require.Equal(t, navtree.NavIDLabs, link.Id)
+	require.Equal(t, "Labs", link.Text)
+	require.Equal(t, "/labs", link.Url)
+	require.EqualValues(t, navtree.WeightLabs, link.SortWeight)
 }

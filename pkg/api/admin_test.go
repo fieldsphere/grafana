@@ -10,6 +10,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/infra/db/dbtest"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/anonymous/anontest"
 	"github.com/grafana/grafana/pkg/services/stats"
 	"github.com/grafana/grafana/pkg/services/stats/statstest"
@@ -148,6 +149,22 @@ func TestAdmin_AccessControl(t *testing.T) {
 				},
 			},
 		},
+		{
+			expectedCode: http.StatusOK,
+			desc:         "AdminGetFeatureToggles should return 200 for grafana admin",
+			url:          "/api/admin/feature-toggles",
+			permissions:  nil,
+		},
+		{
+			expectedCode: http.StatusForbidden,
+			desc:         "AdminGetFeatureToggles should return 403 for non grafana admin",
+			url:          "/api/admin/feature-toggles",
+			permissions: []accesscontrol.Permission{
+				{
+					Action: accesscontrol.ActionSettingsRead,
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -162,9 +179,15 @@ func TestAdmin_AccessControl(t *testing.T) {
 				hs.SettingsProvider = &setting.OSSImpl{Cfg: hs.Cfg}
 				hs.statsService = fakeStatsService
 				hs.anonService = fakeAnonService
+				hs.Features = featuremgmt.WithFeatures("testFeature", true)
 			})
 
-			res, err := server.Send(webtest.RequestWithSignedInUser(server.NewGetRequest(tt.url), userWithPermissions(1, tt.permissions)))
+			user := userWithPermissions(1, tt.permissions)
+			if tt.url == "/api/admin/feature-toggles" && tt.expectedCode == http.StatusOK {
+				user.IsGrafanaAdmin = true
+			}
+
+			res, err := server.Send(webtest.RequestWithSignedInUser(server.NewGetRequest(tt.url), user))
 			require.NoError(t, err)
 			assert.Equal(t, tt.expectedCode, res.StatusCode)
 			require.NoError(t, res.Body.Close())

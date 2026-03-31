@@ -226,6 +226,11 @@ export function getAppRoutes(): RouteDescriptor[] {
       component: () => <NavLandingPage navId="frontend" />,
     },
     {
+      path: '/labs',
+      roles: () => (contextSrv.isGrafanaAdmin ? [] : ['Reject']),
+      component: SafeDynamicImport(() => import(/* webpackChunkName: "LabsPage" */ 'app/features/admin/LabsPage')),
+    },
+    {
       path: '/admin/general',
       component: () => <NavLandingPage navId="cfg/general" />,
     },
