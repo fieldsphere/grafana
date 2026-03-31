@@ -21,7 +21,7 @@ export default function LabsPage() {
     return toggles.filter((toggle) => {
       return (
         toggle.name.toLowerCase().includes(search) ||
-        toggle.description.toLowerCase().includes(search) ||
+        (toggle.description ?? '').toLowerCase().includes(search) ||
         toggle.stage.toLowerCase().includes(search)
       );
     });
@@ -35,7 +35,7 @@ export default function LabsPage() {
             This page is read-only and reflects the current resolved state of Grafana feature flags for this instance.
           </Alert>
 
-          <HorizontalGroup justify="space-between" wrap>
+          <Stack direction="row" justifyContent="space-between" alignItems="center" wrap>
             <FilterInput
               value={query}
               onChange={setQuery}
@@ -48,7 +48,7 @@ export default function LabsPage() {
                 Showing {filteredToggles.length} of {value.toggles.length} flags
               </Text>
             )}
-          </HorizontalGroup>
+          </Stack>
 
           {error && (
             <Alert severity="error" title="Unable to load feature flags">
