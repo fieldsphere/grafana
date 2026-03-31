@@ -91,6 +91,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.alerting-admin.title', 'Settings');
     case 'alerts/recently-deleted':
       return t('nav.alerts-recently-deleted.title', 'Recently deleted');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'cfg':
       return t('nav.config.title', 'Administration');
     case 'cfg/general':

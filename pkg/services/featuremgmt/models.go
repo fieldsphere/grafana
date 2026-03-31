@@ -29,6 +29,10 @@ type FeatureToggles interface {
 	// Get the enabled flags -- this *may* also include disabled flags (with value false)
 	// but it is guaranteed to have the enabled ones listed
 	GetEnabled(ctx context.Context) map[string]bool
+
+	// GetFlags returns registered feature flag definitions (metadata). Implementations used only
+	// for runtime enablement checks may return nil or empty.
+	GetFlags() []FeatureFlag
 }
 
 func AnyEnabled(f FeatureToggles, flags ...string) bool {

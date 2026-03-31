@@ -170,6 +170,19 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		return nil, err
 	}
 
+	if hasAccess(ac.EvalPermission(ac.ActionFeatureManagementRead)) {
+		treeRoot.AddSection(&navtree.NavLink{
+			Text:       "Labs",
+			Id:         navtree.NavIDLabs,
+			SubTitle:   "Browse available feature flags for this Grafana instance",
+			Icon:       "rocket",
+			Url:        s.cfg.AppSubURL + "/admin/labs",
+			SortWeight: navtree.WeightLabs,
+			IsNew:      true,
+			Keywords:   []string{"labs", "feature flags", "feature toggles"},
+		})
+	}
+
 	s.addHelpLinks(treeRoot, c)
 
 	if err := s.addAppLinks(treeRoot, c); err != nil {

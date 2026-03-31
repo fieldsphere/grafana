@@ -320,3 +320,7 @@ func (m *mockFeatureToggles) GetEnabled(ctx context.Context) map[string]bool {
 
 	return res
 }
+
+func (m *mockFeatureToggles) GetFlags() []featuremgmt.FeatureFlag {
+	return nil
+}

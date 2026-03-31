@@ -16,6 +16,7 @@ import (
 	"github.com/grafana/grafana/pkg/bus"
 	infraDB "github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/infra/tracing"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/sqlstore"
 	"github.com/grafana/grafana/pkg/setting"
 )
@@ -166,6 +167,8 @@ func (featureTogglesNop) IsEnabledGlobally(string) bool {
 func (featureTogglesNop) GetEnabled(context.Context) map[string]bool {
 	return map[string]bool{}
 }
+
+func (featureTogglesNop) GetFlags() []featuremgmt.FeatureFlag { return nil }
 
 func (nopBus) Publish(context.Context, bus.Msg) error { return nil }
 func (nopBus) AddEventListener(bus.HandlerFunc)       {}

@@ -177,6 +177,8 @@ export enum AccessControlAction {
   // Migration Assistant
   MigrationAssistantMigrate = 'migrationassistant:migrate',
 
+  FeatureManagementRead = 'featuremgmt:read',
+
   // Saved Queries
   QueriesRead = 'queries:read',
   QueriesWrite = 'queries:write',
