@@ -4,16 +4,99 @@ import { config } from '../config';
 
 export { LogLevel };
 
+/** Arbitrary fields attached to a log line (normalized to string values for Faro). */
+export type MonitoringLogFields = Record<string, unknown>;
+
+function isDevelopmentEnv(): boolean {
+  return config.buildInfo.env === 'development';
+}
+
+function normalizeLogContext(fields?: MonitoringLogFields): LogContext | undefined {
+  if (!fields) {
+    return undefined;
+  }
+  const out: LogContext = {};
+  for (const [key, value] of Object.entries(fields)) {
+    if (value === undefined || value === null) {
+      continue;
+    }
+    if (typeof value === 'string') {
+      out[key] = value;
+    } else if (typeof value === 'number' || typeof value === 'boolean') {
+      out[key] = String(value);
+    } else {
+      try {
+        out[key] = JSON.stringify(value);
+      } catch {
+        out[key] = String(value);
+      }
+    }
+  }
+  return Object.keys(out).length > 0 ? out : undefined;
+}
+
+function emitStructuredConsoleLine(level: string, message: string, fields?: MonitoringLogFields): void {
+  if (!isDevelopmentEnv()) {
+    return;
+  }
+  let line: string;
+  try {
+    line = JSON.stringify({
+      level,
+      message,
+      timestamp: Date.now(),
+      ...fields,
+    });
+  } catch {
+    line = JSON.stringify({
+      level,
+      message,
+      timestamp: Date.now(),
+      contextNote: 'Could not serialize log fields',
+    });
+  }
+  switch (level) {
+    case 'DEBUG':
+      // eslint-disable-next-line no-console
+      console.debug(line);
+      break;
+    case 'INFO':
+      // eslint-disable-next-line no-console
+      console.info(line);
+      break;
+    case 'WARN':
+      // eslint-disable-next-line no-console
+      console.warn(line);
+      break;
+    case 'ERROR':
+      // eslint-disable-next-line no-console
+      console.error(line);
+      break;
+    default:
+      // eslint-disable-next-line no-console
+      console.info(line);
+  }
+}
+
+function pushLogToFaro(level: LogLevel, message: string, contexts?: LogContext): void {
+  if (!config.grafanaJavascriptAgent.enabled || typeof faro.api?.pushLog !== 'function') {
+    return;
+  }
+  faro.api.pushLog([message], {
+    level,
+    context: contexts,
+  });
+}
+
 /**
  * Log a message at INFO level
  * @public
  */
-export function logInfo(message: string, contexts?: LogContext) {
-  if (config.grafanaJavascriptAgent.enabled) {
-    faro.api.pushLog([message], {
-      level: LogLevel.INFO,
-      context: contexts,
-    });
+export function logInfo(message: string, fields?: MonitoringLogFields) {
+  const contexts = normalizeLogContext(fields);
+  pushLogToFaro(LogLevel.INFO, message, contexts);
+  if (!config.grafanaJavascriptAgent.enabled) {
+    emitStructuredConsoleLine('INFO', message, fields);
   }
 }
 
@@ -22,12 +105,11 @@ export function logInfo(message: string, contexts?: LogContext) {
  *
  * @public
  */
-export function logWarning(message: string, contexts?: LogContext) {
-  if (config.grafanaJavascriptAgent.enabled) {
-    faro.api.pushLog([message], {
-      level: LogLevel.WARN,
-      context: contexts,
-    });
+export function logWarning(message: string, fields?: MonitoringLogFields) {
+  const contexts = normalizeLogContext(fields);
+  pushLogToFaro(LogLevel.WARN, message, contexts);
+  if (!config.grafanaJavascriptAgent.enabled) {
+    emitStructuredConsoleLine('WARN', message, fields);
   }
 }
 
@@ -36,12 +118,11 @@ export function logWarning(message: string, contexts?: LogContext) {
  *
  * @public
  */
-export function logDebug(message: string, contexts?: LogContext) {
-  if (config.grafanaJavascriptAgent.enabled) {
-    faro.api.pushLog([message], {
-      level: LogLevel.DEBUG,
-      context: contexts,
-    });
+export function logDebug(message: string, fields?: MonitoringLogFields) {
+  const contexts = normalizeLogContext(fields);
+  pushLogToFaro(LogLevel.DEBUG, message, contexts);
+  if (!config.grafanaJavascriptAgent.enabled) {
+    emitStructuredConsoleLine('DEBUG', message, fields);
   }
 }
 
@@ -50,10 +131,21 @@ export function logDebug(message: string, contexts?: LogContext) {
  *
  * @public
  */
-export function logError(err: Error, contexts?: LogContext) {
-  if (config.grafanaJavascriptAgent.enabled) {
+export function logError(err: Error, fields?: MonitoringLogFields) {
+  const contexts = normalizeLogContext({
+    ...fields,
+    name: err.name,
+    stack: err.stack ?? '',
+  });
+  if (config.grafanaJavascriptAgent.enabled && typeof faro.api?.pushError === 'function') {
     faro.api.pushError(err, {
       context: contexts,
+    });
+  } else if (isDevelopmentEnv()) {
+    emitStructuredConsoleLine('ERROR', err.message, {
+      ...fields,
+      name: err.name,
+      stack: err.stack,
     });
   }
 }
@@ -64,82 +156,87 @@ export function logError(err: Error, contexts?: LogContext) {
  * @public
  */
 export type MeasurementValues = Record<string, number>;
-export function logMeasurement(type: string, values: MeasurementValues, context?: LogContext) {
-  if (config.grafanaJavascriptAgent.enabled) {
-    faro.api.pushMeasurement(
-      {
-        type,
-        values,
-      },
-      { context: context }
-    );
+export function logMeasurement(type: string, values: MeasurementValues, fields?: MonitoringLogFields) {
+  const faroContext = normalizeLogContext(fields);
+  if (!config.grafanaJavascriptAgent.enabled || typeof faro.api?.pushMeasurement !== 'function') {
+    if (isDevelopmentEnv()) {
+      emitStructuredConsoleLine('INFO', `measurement:${type}`, { ...fields, type, values });
+    }
+    return;
   }
+  faro.api.pushMeasurement(
+    {
+      type,
+      values,
+    },
+    { context: faroContext }
+  );
 }
 
 export interface MonitoringLogger {
-  logDebug: (message: string, contexts?: LogContext) => void;
-  logInfo: (message: string, contexts?: LogContext) => void;
-  logWarning: (message: string, contexts?: LogContext) => void;
-  logError: (error: Error, contexts?: LogContext) => void;
-  logMeasurement: (type: string, measurement: MeasurementValues, contexts?: LogContext) => void;
+  logDebug: (message: string, fields?: MonitoringLogFields) => void;
+  logInfo: (message: string, fields?: MonitoringLogFields) => void;
+  logWarning: (message: string, fields?: MonitoringLogFields) => void;
+  logError: (error: Error, fields?: MonitoringLogFields) => void;
+  logMeasurement: (type: string, measurement: MeasurementValues, fields?: MonitoringLogFields) => void;
 }
 /**
  * Creates a monitoring logger with five levels of logging methods: `logDebug`, `logInfo`, `logWarning`, `logError`, and `logMeasurement`.
  * These methods use `faro.api.pushX` web SDK methods to report these logs or errors to the Faro collector.
  *
  * @param {string} source - Identifier for the source of the log messages.
- * @param {LogContext} [defaultContext] - Context to be included in every log message.
+ * @param {MonitoringLogFields} [defaultContext] - Context to be included in every log message.
  *
  * @returns {MonitoringLogger} Logger object with five methods:
- * - `logDebug(message: string, contexts?: LogContext)`: Logs a debug message.
- * - `logInfo(message: string, contexts?: LogContext)`: Logs an informational message.
- * - `logWarning(message: string, contexts?: LogContext)`: Logs a warning message.
- * - `logError(error: Error, contexts?: LogContext)`: Logs an error message.
- * - `logMeasurement(measurement: Omit<MeasurementEvent, 'timestamp'>, contexts?: LogContext)`: Logs a measurement.
- * Each method combines the `defaultContext` (if provided), the `source`, and an optional `LogContext` parameter into a full context that is included with the log message.
+ * - `logDebug(message: string, fields?: MonitoringLogFields)`: Logs a debug message.
+ * - `logInfo(message: string, fields?: MonitoringLogFields)`: Logs an informational message.
+ * - `logWarning(message: string, fields?: MonitoringLogFields)`: Logs a warning message.
+ * - `logError(error: Error, fields?: MonitoringLogFields)`: Logs an error message.
+ * - `logMeasurement(measurement: Omit<MeasurementEvent, 'timestamp'>, fields?: MonitoringLogFields)`: Logs a measurement.
+ * Each method combines the `defaultContext` (if provided), the `source`, and an optional `MonitoringLogFields` parameter into a full context that is included with the log message.
  */
-export function createMonitoringLogger(source: string, defaultContext?: LogContext): MonitoringLogger {
-  const createFullContext = (contexts?: LogContext) => ({
+export function createMonitoringLogger(source: string, defaultContext?: MonitoringLogFields): MonitoringLogger {
+  const createFullContext = (fields?: MonitoringLogFields) => ({
     source: source,
     ...defaultContext,
-    ...contexts,
+    ...fields,
   });
 
   return {
     /**
      * Logs a debug message with optional additional context.
      * @param {string} message - The debug message to be logged.
-     * @param {LogContext} [contexts] - Optional additional context to be included.
+     * @param {MonitoringLogFields} [fields] - Optional additional context to be included.
      */
-    logDebug: (message: string, contexts?: LogContext) => logDebug(message, createFullContext(contexts)),
+    logDebug: (message: string, fields?: MonitoringLogFields) => logDebug(message, createFullContext(fields)),
 
     /**
      * Logs an informational message with optional additional context.
      * @param {string} message - The informational message to be logged.
      * @param {LogContext} [contexts] - Optional additional context to be included.
      */
-    logInfo: (message: string, contexts?: LogContext) => logInfo(message, createFullContext(contexts)),
+    logInfo: (message: string, fields?: MonitoringLogFields) => logInfo(message, createFullContext(fields)),
 
     /**
      * Logs a warning message with optional additional context.
      * @param {string} message - The warning message to be logged.
      * @param {LogContext} [contexts] - Optional additional context to be included.
      */
-    logWarning: (message: string, contexts?: LogContext) => logWarning(message, createFullContext(contexts)),
+    logWarning: (message: string, fields?: MonitoringLogFields) => logWarning(message, createFullContext(fields)),
 
     /**
      * Logs an error with optional additional context.
      * @param {Error} error - The error object to be logged.
      * @param {LogContext} [contexts] - Optional additional context to be included.
      */
-    logError: (error: Error, contexts?: LogContext) => logError(error, createFullContext(contexts)),
+    logError: (error: Error, fields?: MonitoringLogFields) => logError(error, createFullContext(fields)),
 
     /**
      * Logs an measurement with optional additional context.
      * @param {MeasurementEvent} measurement - The measurement object to be recorded.
      * @param {LogContext} [contexts] - Optional additional context to be included.
      */
-    logMeasurement: (type: string, measurement: MeasurementValues, contexts?: LogContext) =>
-      logMeasurement(type, measurement, createFullContext(contexts)),
+    logMeasurement: (type: string, measurement: MeasurementValues, fields?: MonitoringLogFields) =>
+      logMeasurement(type, measurement, createFullContext(fields)),
   };
 }

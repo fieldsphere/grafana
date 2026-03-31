@@ -3,6 +3,22 @@ import * as React from 'react';
 
 import { store } from './store';
 
+function logStorageFailure(operation: string, error: unknown) {
+  const err = error instanceof Error ? error : new Error(String(error));
+  // eslint-disable-next-line no-console
+  console.error(
+    JSON.stringify({
+      level: 'ERROR',
+      source: 'LocalStorageValueProvider',
+      operation,
+      message: err.message,
+      name: err.name,
+      stack: err.stack,
+      timestamp: Date.now(),
+    })
+  );
+}
+
 export interface Props<T> {
   storageKey: string;
   defaultValue: T;
@@ -32,7 +48,7 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.setObject(storageKey, value);
     } catch (error) {
-      console.error(error);
+      logStorageFailure('save', error);
     }
     setState({ value });
   };
@@ -41,7 +57,7 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.delete(storageKey);
     } catch (error) {
-      console.log(error);
+      logStorageFailure('delete', error);
     }
     setState({ value: defaultValue });
   };

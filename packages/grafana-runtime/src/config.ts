@@ -313,7 +313,17 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
       const toggleState = featureValue === 'true' || featureValue === '1';
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       featureToggles[featureName as keyof FeatureToggles] = toggleState;
-      console.log(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify({
+          level: 'INFO',
+          source: 'config.featureToggles',
+          message: 'Feature toggle set from localStorage',
+          featureName,
+          toggleState,
+          timestamp: Date.now(),
+        })
+      );
     }
   }
 }
@@ -339,9 +349,28 @@ function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
       if (toggleState !== featureToggles[key]) {
         if (isDevelopment || safeRuntimeFeatureFlags.has(featureName)) {
           featureToggles[featureName] = toggleState;
-          console.log(`Setting feature toggle ${featureName} = ${toggleState} via url`);
+          // eslint-disable-next-line no-console
+          console.info(
+            JSON.stringify({
+              level: 'INFO',
+              source: 'config.featureToggles',
+              message: 'Feature toggle set from URL',
+              featureName,
+              toggleState,
+              timestamp: Date.now(),
+            })
+          );
         } else {
-          console.log(`Unable to change feature toggle ${featureName} via url in production.`);
+          // eslint-disable-next-line no-console
+          console.warn(
+            JSON.stringify({
+              level: 'WARN',
+              source: 'config.featureToggles',
+              message: 'Feature toggle URL override ignored in production',
+              featureName,
+              timestamp: Date.now(),
+            })
+          );
         }
       }
     }
@@ -352,7 +381,15 @@ let bootData = window.grafanaBootData;
 
 if (!bootData) {
   if (process.env.NODE_ENV !== 'test') {
-    console.error('window.grafanaBootData was not set by the time config was initialized');
+    // eslint-disable-next-line no-console
+    console.error(
+      JSON.stringify({
+        level: 'ERROR',
+        source: 'config.boot',
+        message: 'window.grafanaBootData was not set by the time config was initialized',
+        timestamp: Date.now(),
+      })
+    );
   }
 
   bootData = {
