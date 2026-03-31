@@ -1,7 +1,5 @@
 import { DataTransformerConfig, FieldConfigSource, getPanelOptionsWithDefaults } from '@grafana/data';
 import { createMonitoringLogger } from '@grafana/runtime';
-
-const panelStateLogger = createMonitoringLogger('features.panel.state');
 import { PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { getLibraryPanel } from 'app/features/library-panels/state/api';
 import { LibraryElementDTO } from 'app/features/library-panels/types';
@@ -11,6 +9,8 @@ import { DashboardPanelsChangedEvent, PanelOptionsChangedEvent, PanelQueriesChan
 import { ThunkResult } from 'app/types/store';
 
 import { changePanelKey, panelModelAndPluginReady, removePanel } from './reducers';
+
+const panelStateLogger = createMonitoringLogger('features.panel.state');
 
 export function initPanelState(panel: PanelModel): ThunkResult<Promise<void>> {
   return async (dispatch, getStore) => {

@@ -1,8 +1,6 @@
 import { lastValueFrom } from 'rxjs';
 
 import { createMonitoringLogger, getBackendSrv, isFetchError } from '@grafana/runtime';
-
-const authConfigActionsLogger = createMonitoringLogger('features.auth-config.actions');
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
 import { Settings, UpdateSettingsQuery } from 'app/types/settings';
@@ -20,6 +18,8 @@ import {
   setError,
   settingsUpdated,
 } from './reducers';
+
+const authConfigActionsLogger = createMonitoringLogger('features.auth-config.actions');
 
 export function loadSettings(showSpinner = true): ThunkResult<Promise<Settings>> {
   return async (dispatch) => {
@@ -80,10 +80,9 @@ export function saveSettings(data: UpdateSettingsQuery): ThunkResult<Promise<boo
         dispatch(resetError());
         return true;
       } catch (error) {
-        authConfigActionsLogger.logError(
-          error instanceof Error ? error : new Error('Failed to save admin settings'),
-          { phase: 'saveSettings' }
-        );
+        authConfigActionsLogger.logError(error instanceof Error ? error : new Error('Failed to save admin settings'), {
+          phase: 'saveSettings',
+        });
         if (isFetchError(error)) {
           error.isHandled = true;
           const updateErr: SettingsError = {

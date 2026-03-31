@@ -3,8 +3,6 @@ import * as React from 'react';
 
 import { createMonitoringLogger } from '@grafana/runtime';
 import { Spinner, Stack } from '@grafana/ui';
-
-const versionsSettingsLogger = createMonitoringLogger('features.dashboard.versionsSettings');
 import { Page } from 'app/core/components/Page/Page';
 import { Resource } from 'app/features/apiserver/types';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
@@ -20,6 +18,8 @@ import { VersionHistoryComparison } from '../VersionHistory/VersionHistoryCompar
 import { VersionHistoryTable } from '../VersionHistory/VersionHistoryTable';
 
 import { SettingsPageProps } from './types';
+
+const versionsSettingsLogger = createMonitoringLogger('features.dashboard.versionsSettings');
 
 interface Props extends SettingsPageProps {}
 

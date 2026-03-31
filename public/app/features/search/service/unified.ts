@@ -9,8 +9,6 @@ import {
 import { arrayToDataFrame, DataFrame, DataFrameView, getDisplayProcessor, SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, createMonitoringLogger, getBackendSrv } from '@grafana/runtime';
-
-const unifiedSearchLogger = createMonitoringLogger('features.search.unified');
 import { generatedAPI, ListStarsApiResponse } from 'app/api/clients/collections/v1alpha1';
 import { getAPIBaseURL } from 'app/api/utils';
 import { TermCount } from 'app/core/components/TagFilter/TagFilter';
@@ -32,6 +30,8 @@ import { appendFrame, filterSearchResults, replaceCurrentFolderQuery } from './u
 // The backend returns an empty frame with a special name to indicate that the indexing engine is being rebuilt,
 // and that it can not serve any search requests. We are temporarily using the old SQL Search API as a fallback when that happens.
 const loadingFrameName = 'Loading';
+
+const unifiedSearchLogger = createMonitoringLogger('features.search.unified');
 
 const searchURI = `${v0alphaBaseURL}/search`;
 

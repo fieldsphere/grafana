@@ -11,8 +11,6 @@ import {
   LiveChannelScope,
 } from '@grafana/data';
 import { createMonitoringLogger, getGrafanaLiveSrv, locationService } from '@grafana/runtime';
-
-const dashboardWatcherLogger = createMonitoringLogger('features.live.dashboardWatcher');
 import { appEvents } from 'app/core/app_events';
 import { contextSrv } from 'app/core/services/context_srv';
 
@@ -21,6 +19,8 @@ import { getDashboardSrv } from '../../dashboard/services/DashboardSrv';
 
 import { DashboardChangedModal } from './DashboardChangedModal';
 import { DashboardEvent, DashboardEventAction } from './types';
+
+const dashboardWatcherLogger = createMonitoringLogger('features.live.dashboardWatcher');
 
 // sessionId is not a security-sensitive value.
 // It is used for filtering out dashboard edit events from the same browsing session

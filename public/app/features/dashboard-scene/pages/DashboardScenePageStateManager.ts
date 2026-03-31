@@ -808,7 +808,10 @@ export class DashboardScenePageStateManager extends DashboardScenePageStateManag
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          dashboardScenePageStateLogger.logInfo('Correcting dashboard URL to match slug', { dashboardUrl, currentPath });
+          dashboardScenePageStateLogger.logInfo('Correcting dashboard URL to match slug', {
+            dashboardUrl,
+            currentPath,
+          });
         }
       }
 
@@ -1036,7 +1039,10 @@ export class DashboardScenePageStateManagerV2 extends DashboardScenePageStateMan
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          dashboardScenePageStateLogger.logInfo('Correcting dashboard URL to match slug', { dashboardUrl, currentPath });
+          dashboardScenePageStateLogger.logInfo('Correcting dashboard URL to match slug', {
+            dashboardUrl,
+            currentPath,
+          });
         }
       }
       // Populate nav model in global store according to the folder

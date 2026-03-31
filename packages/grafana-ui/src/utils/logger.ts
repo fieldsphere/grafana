@@ -1,5 +1,6 @@
-import { faro, LogLevel } from '@grafana/faro-web-sdk';
 import { throttle } from 'lodash';
+
+import { faro, LogLevel } from '@grafana/faro-web-sdk';
 
 type Args = Parameters<typeof console.log>;
 

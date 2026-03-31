@@ -85,7 +85,13 @@ export const reducerTester = <State>(): Given<State> => {
       // eslint-disable-next-line no-console
       console.info(
         JSON.stringify(
-          { level: 'DEBUG', source: 'test.reducerTester', message: 'resultingState', state: resultingState, timestamp: Date.now() },
+          {
+            level: 'DEBUG',
+            source: 'test.reducerTester',
+            message: 'resultingState',
+            state: resultingState,
+            timestamp: Date.now(),
+          },
           null,
           2
         )
@@ -101,7 +107,13 @@ export const reducerTester = <State>(): Given<State> => {
       // eslint-disable-next-line no-console
       console.info(
         JSON.stringify(
-          { level: 'DEBUG', source: 'test.reducerTester', message: 'resultingState', state: resultingState, timestamp: Date.now() },
+          {
+            level: 'DEBUG',
+            source: 'test.reducerTester',
+            message: 'resultingState',
+            state: resultingState,
+            timestamp: Date.now(),
+          },
           null,
           2
         )

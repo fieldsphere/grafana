@@ -2,8 +2,8 @@ import { StoryFn } from '@storybook/react';
 import { useId } from 'react';
 import { ValidateResult } from 'react-hook-form';
 
-import { storyStructuredInfo } from '../../utils/storybookStructuredLog';
 import { withStoryContainer } from '../../utils/storybook/withStoryContainer';
+import { storyStructuredInfo } from '../../utils/storybookStructuredLog';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 import { InputControl } from '../InputControl';

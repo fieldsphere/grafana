@@ -5,8 +5,6 @@ import ReactGridLayout, { ItemCallback } from 'react-grid-layout';
 import { Subscription } from 'rxjs';
 
 import { config, createMonitoringLogger } from '@grafana/runtime';
-
-const dashboardGridLogger = createMonitoringLogger('features.dashboard.DashboardGrid');
 import { appEvents } from 'app/core/app_events';
 import { GRID_CELL_HEIGHT, GRID_CELL_VMARGIN, GRID_COLUMN_COUNT } from 'app/core/constants';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -20,6 +18,8 @@ import { GridPos, PanelModel } from '../state/PanelModel';
 
 import DashboardEmpty from './DashboardEmpty/DashboardEmpty';
 import { DashboardPanel } from './DashboardPanel';
+
+const dashboardGridLogger = createMonitoringLogger('features.dashboard.DashboardGrid');
 
 export const PANEL_FILTER_VARIABLE = 'systemPanelFilterVar';
 

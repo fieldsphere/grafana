@@ -3859,9 +3859,6 @@
     }
   },
   "public/app/plugins/panel/live/LivePanel.tsx": {
-    "@typescript-eslint/consistent-type-assertions": {
-      "count": 1
-    },
     "react-prefer-function-component/react-prefer-function-component": {
       "count": 1
     }

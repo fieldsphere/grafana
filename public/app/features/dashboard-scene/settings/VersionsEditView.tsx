@@ -3,8 +3,8 @@ import * as React from 'react';
 import { useMemo } from 'react';
 
 import { PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
-import { createMonitoringLogger } from '@grafana/runtime';
 import { Trans } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase, sceneGraph } from '@grafana/scenes';
 import { Alert, Spinner, Stack } from '@grafana/ui';
 import { useGetDisplayMappingQuery } from 'app/api/clients/iam/v0alpha1';

@@ -155,7 +155,15 @@ function processDirectory(sourceDir: string, outputDir: string) {
     const outputPath = path.join(outputDir, file);
 
     // eslint-disable-next-line no-console
-    console.info(JSON.stringify({ level: 'INFO', source: 'openapi.process-specs', message: 'Processing file', file, timestamp: Date.now() }));
+    console.info(
+      JSON.stringify({
+        level: 'INFO',
+        source: 'openapi.process-specs',
+        message: 'Processing file',
+        file,
+        timestamp: Date.now(),
+      })
+    );
 
     const fileContent = fs.readFileSync(inputPath, 'utf-8');
 
@@ -170,7 +178,15 @@ function processDirectory(sourceDir: string, outputDir: string) {
     const outputSpec = processOpenAPISpec(inputSpec);
     fs.writeFileSync(outputPath, JSON.stringify(outputSpec, null, 2), 'utf-8');
     // eslint-disable-next-line no-console
-    console.info(JSON.stringify({ level: 'INFO', source: 'openapi.process-specs', message: 'Processing completed', file, timestamp: Date.now() }));
+    console.info(
+      JSON.stringify({
+        level: 'INFO',
+        source: 'openapi.process-specs',
+        message: 'Processing completed',
+        file,
+        timestamp: Date.now(),
+      })
+    );
   }
 }
 

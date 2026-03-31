@@ -7,7 +7,9 @@ import { AlertLabel } from './AlertLabel';
 
 function storyLog(message: string, context?: Record<string, unknown>) {
   // eslint-disable-next-line no-console
-  console.info(JSON.stringify({ level: 'INFO', source: 'storybook.AlertLabel', message, timestamp: Date.now(), ...context }));
+  console.info(
+    JSON.stringify({ level: 'INFO', source: 'storybook.AlertLabel', message, timestamp: Date.now(), ...context })
+  );
 }
 
 const meta: Meta<typeof AlertLabel> = {

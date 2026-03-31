@@ -36,8 +36,6 @@ import {
 } from 'app/types/events';
 
 import { appEvents } from '../../../core/app_events';
-
-const dashboardModelLogger = createMonitoringLogger('features.dashboard.DashboardModel');
 import { dispatch } from '../../../store/store';
 import {
   VariablesChanged,
@@ -53,6 +51,8 @@ import { DashboardMigrator } from './DashboardMigrator';
 import { PanelModel } from './PanelModel';
 import { TimeModel } from './TimeModel';
 import { deleteScopeVars, isOnTheSameGridRow } from './utils';
+
+const dashboardModelLogger = createMonitoringLogger('features.dashboard.DashboardModel');
 
 export interface CloneOptions {
   saveVariables?: boolean;

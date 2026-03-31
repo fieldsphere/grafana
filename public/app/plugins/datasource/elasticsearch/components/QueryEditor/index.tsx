@@ -4,8 +4,6 @@ import { SemVer } from 'semver';
 
 import { getDefaultTimeRange, GrafanaTheme2, QueryEditorProps } from '@grafana/data';
 import { config, createMonitoringLogger } from '@grafana/runtime';
-
-const elasticQueryEditorLogger = createMonitoringLogger('plugins.datasource.elasticsearch.queryEditor');
 import { Alert, ConfirmModal, InlineField, InlineLabel, Input, QueryField, useStyles2 } from '@grafana/ui';
 
 import { ElasticsearchDataQuery, QueryType } from '../../dataquery.gen';
@@ -23,6 +21,8 @@ import { MetricAggregationsEditor } from './MetricAggregationsEditor';
 import { metricAggregationConfig } from './MetricAggregationsEditor/utils';
 import { QueryTypeSelector } from './QueryTypeSelector';
 import { changeAliasPattern, changeEditorTypeAndResetQuery, changeQuery } from './state';
+
+const elasticQueryEditorLogger = createMonitoringLogger('plugins.datasource.elasticsearch.queryEditor');
 
 export type ElasticQueryEditorProps = QueryEditorProps<
   ElasticDatasourceLike,

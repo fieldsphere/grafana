@@ -3,11 +3,11 @@ import { useState } from 'react';
 
 import { dataFrameToJSON, toDataFrame, toDataFrameDTO } from '@grafana/data';
 import { createMonitoringLogger, toDataQueryResponse } from '@grafana/runtime';
-
-const rawFrameEditorLogger = createMonitoringLogger('plugins.datasource.testdata.rawFrameEditor');
 import { Alert, CodeEditor } from '@grafana/ui';
 
 import { EditorProps } from '../QueryEditor';
+
+const rawFrameEditorLogger = createMonitoringLogger('plugins.datasource.testdata.rawFrameEditor');
 
 export const RawFrameEditor = ({ onChange, query }: EditorProps) => {
   const [error, setError] = useState<string>();
@@ -37,7 +37,10 @@ export const RawFrameEditor = ({ onChange, query }: EditorProps) => {
       }
 
       if (data) {
-        rawFrameEditorLogger.logDebug('Converted raw frame JSON', { originalKeys: Object.keys(json as object), frameCount: data.length });
+        rawFrameEditorLogger.logDebug('Converted raw frame JSON', {
+          originalKeys: json !== null && typeof json === 'object' && !Array.isArray(json) ? Object.keys(json) : [],
+          frameCount: data.length,
+        });
         setError(undefined);
         setWarning('Converted to direct frame result');
         onChange({ ...query, rawFrameContent: JSON.stringify(data, null, 2) });

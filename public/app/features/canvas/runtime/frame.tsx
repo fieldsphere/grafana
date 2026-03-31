@@ -2,8 +2,6 @@ import { cloneDeep } from 'lodash';
 
 import { createMonitoringLogger } from '@grafana/runtime';
 import { notFoundItem } from 'app/features/canvas/elements/notFound';
-
-const canvasFrameLogger = createMonitoringLogger('features.canvas.frame');
 import { DimensionContext } from 'app/features/dimensions/context';
 import { HorizontalConstraint, Placement, VerticalConstraint } from 'app/plugins/panel/canvas/panelcfg.gen';
 import { LayerActionID } from 'app/plugins/panel/canvas/types';
@@ -17,6 +15,8 @@ import { ElementState } from './element';
 import { RootElement } from './root';
 import { Scene } from './scene';
 import { initMoveable } from './sceneAbleManagement';
+
+const canvasFrameLogger = createMonitoringLogger('features.canvas.frame');
 
 const DEFAULT_OFFSET = 10;
 const HORIZONTAL_OFFSET = 50;

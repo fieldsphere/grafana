@@ -24,8 +24,6 @@ import {
   toUtc,
 } from '@grafana/data';
 import { createMonitoringLogger, RefreshEvent } from '@grafana/runtime';
-
-const panelStateWrapperLogger = createMonitoringLogger('features.dashboard.PanelStateWrapper');
 import { VizLegendOptions } from '@grafana/schema';
 import {
   ErrorBoundary,
@@ -58,6 +56,8 @@ import { PanelLoadTimeMonitor } from './PanelLoadTimeMonitor';
 import { seriesVisibilityConfigFactory } from './SeriesVisibilityConfigFactory';
 import { liveTimer } from './liveTimer';
 import { PanelOptionsLogger } from './panelOptionsLogger';
+
+const panelStateWrapperLogger = createMonitoringLogger('features.dashboard.PanelStateWrapper');
 
 const DEFAULT_PLUGIN_ERROR = 'Error in plugin';
 

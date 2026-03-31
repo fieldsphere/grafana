@@ -20,14 +20,14 @@ import {
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, createMonitoringLogger, getGrafanaLiveSrv } from '@grafana/runtime';
-
-const livePanelLogger = createMonitoringLogger('plugins.panel.live');
 import { Alert, stylesFactory, JSONFormatter, CustomScrollbar } from '@grafana/ui';
 
 import { TablePanel } from '../table/TablePanel';
 
 import { LivePublish } from './LivePublish';
 import { LivePanelOptions, MessageDisplayMode, MessagePublishMode } from './types';
+
+const livePanelLogger = createMonitoringLogger('plugins.panel.live');
 
 interface Props extends PanelProps<LivePanelOptions> {}
 
@@ -74,7 +74,11 @@ export class LivePanel extends PureComponent<Props, State> {
       } else if (isLiveChannelMessageEvent(event)) {
         this.setState({ message: event.message, changed: Date.now() });
       } else {
-        livePanelLogger.logDebug('Ignoring unknown live channel event', { eventType: (event as { type?: string }).type });
+        const eventType =
+          typeof event === 'object' && event !== null && 'type' in event
+            ? String(Object.getOwnPropertyDescriptor(event, 'type')?.value)
+            : undefined;
+        livePanelLogger.logDebug('Ignoring unknown live channel event', { eventType });
       }
     },
   };
@@ -172,8 +176,8 @@ export class LivePanel extends PureComponent<Props, State> {
             },
           }),
           state: LoadingState.Streaming,
-        } as PanelData;
-        const props: PanelProps = {
+        };
+        const props = {
           ...this.props,
           options: { frameIndex: 0, showHeader: true },
         };

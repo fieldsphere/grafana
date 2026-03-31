@@ -13,15 +13,16 @@
 // limitations under the License.
 
 import memoizeOne from 'memoize-one';
+
 import { createMonitoringLogger } from '@grafana/runtime';
 
 import { TraceSpan, CriticalPathSection, Trace } from '../types/trace';
 
-const criticalPathLogger = createMonitoringLogger('features.explore.traceView.criticalPath');
-
 import findLastFinishingChildSpan from './utils/findLastFinishingChildSpan';
 import getChildOfSpans from './utils/getChildOfSpans';
 import sanitizeOverFlowingChildren from './utils/sanitizeOverFlowingChildren';
+
+const criticalPathLogger = createMonitoringLogger('features.explore.traceView.criticalPath');
 
 /**
  * Computes the critical path sections of a Jaeger trace.

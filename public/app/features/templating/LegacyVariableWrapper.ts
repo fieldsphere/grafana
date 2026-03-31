@@ -1,10 +1,10 @@
 import { createMonitoringLogger } from '@grafana/runtime';
 import { VariableValue, FormatVariable } from '@grafana/scenes';
-
-const legacyVariableLogger = createMonitoringLogger('features.templating.legacyVariable');
 import { VariableModel, VariableType } from '@grafana/schema';
 
 import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../variables/constants';
+
+const legacyVariableLogger = createMonitoringLogger('features.templating.legacyVariable');
 
 export class LegacyVariableWrapper implements FormatVariable {
   state: { name: string; value: VariableValue; text: VariableValue; type: VariableType };

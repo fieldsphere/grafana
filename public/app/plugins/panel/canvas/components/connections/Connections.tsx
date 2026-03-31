@@ -2,8 +2,6 @@ import * as React from 'react';
 import { BehaviorSubject } from 'rxjs';
 
 import { config, createMonitoringLogger } from '@grafana/runtime';
-
-const canvasConnectionsLogger = createMonitoringLogger('plugins.panel.canvas.connections');
 import { CanvasConnection, ConnectionCoordinates, ConnectionPath } from 'app/features/canvas/element';
 import { ElementState } from 'app/features/canvas/runtime/element';
 import { Scene } from 'app/features/canvas/runtime/scene';
@@ -33,6 +31,8 @@ export const CONNECTION_VERTEX_ID = 'vertex';
 export const CONNECTION_VERTEX_ADD_ID = 'vertexAdd';
 const CONNECTION_VERTEX_ORTHO_TOLERANCE = 0.05; // Cartesian ratio against vertical or horizontal tolerance
 const CONNECTION_VERTEX_SNAP_TOLERANCE = (5 / 180) * Math.PI; // Multi-segment snapping angle in radians to trigger vertex removal
+
+const canvasConnectionsLogger = createMonitoringLogger('plugins.panel.canvas.connections');
 
 export class Connections {
   scene: Scene;

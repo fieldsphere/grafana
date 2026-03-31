@@ -1,6 +1,7 @@
 import { Meta, StoryFn } from '@storybook/react';
 
 import { storyStructuredInfo } from '../../utils/storybookStructuredLog';
+
 import { FileUpload } from './FileUpload';
 import mdx from './FileUpload.mdx';
 

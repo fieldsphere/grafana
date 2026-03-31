@@ -21,8 +21,6 @@ import {
 } from '@grafana/data';
 import { combinePanelData } from '@grafana/o11y-ds-frontend';
 import { config, createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
-
-const exploreQueryLogger = createMonitoringLogger('features.explore.query');
 import { DataQuery } from '@grafana/schema';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import {
@@ -66,6 +64,8 @@ import { addHistoryItem, loadRichHistory } from './history';
 import { changeCorrelationEditorDetails } from './main';
 import { updateTime } from './time';
 import { createCacheKey, filterLogRowsByIndex, getCorrelationsData, getResultsFromCache } from './utils';
+
+const exploreQueryLogger = createMonitoringLogger('features.explore.query');
 
 /**
  * Derives from explore state if a given Explore pane is waiting for more data to be received

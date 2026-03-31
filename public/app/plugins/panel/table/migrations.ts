@@ -26,7 +26,10 @@ const tableMigrationLogger = createMonitoringLogger('plugins.panel.table.migrati
 export const tableMigrationHandler = (panel: PanelModel<Options>): Partial<Options> => {
   // Table was saved as an angular table, lets just swap to the 'table-old' panel
   if (!panel.pluginVersion && 'columns' in panel) {
-    tableMigrationLogger.logDebug('Angular table panel detected for migration', { panelId: panel.id, title: panel.title });
+    tableMigrationLogger.logDebug('Angular table panel detected for migration', {
+      panelId: panel.id,
+      title: panel.title,
+    });
   }
 
   // ensure overrides array exists before applying rest of overrides

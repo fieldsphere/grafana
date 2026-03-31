@@ -1,8 +1,8 @@
 import { Meta, StoryFn } from '@storybook/react';
 import { FieldValues } from 'react-hook-form';
 
-import { storyStructuredInfo } from '../../utils/storybookStructuredLog';
 import { withStoryContainer } from '../../utils/storybook/withStoryContainer';
+import { storyStructuredInfo } from '../../utils/storybookStructuredLog';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 import { Stack } from '../Layout/Stack/Stack';
@@ -37,7 +37,10 @@ export const Simple: StoryFn = (args) => {
     people: [{ firstName: 'Janis', lastName: 'Joplin' }],
   };
   return (
-    <Form onSubmit={(values) => storyStructuredInfo('storybook.FieldArray', 'onSubmit', { values })} defaultValues={defaultValues}>
+    <Form
+      onSubmit={(values) => storyStructuredInfo('storybook.FieldArray', 'onSubmit', { values })}
+      defaultValues={defaultValues}
+    >
       {({ control, register }) => (
         <div>
           <FieldArray control={control} name="people">
