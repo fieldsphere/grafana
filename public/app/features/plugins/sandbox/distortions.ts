@@ -2,6 +2,7 @@ import { ProxyTarget } from '@locker/near-membrane-shared';
 import DOMPurify from 'dompurify';
 import { cloneDeep, isFunction } from 'lodash';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Monaco } from '@grafana/ui';
 
 import { loadScriptIntoSandbox } from './codeLoader';
@@ -68,6 +69,7 @@ type DistortionMap = Map<
 const generalDistortionMap: DistortionMap = new Map();
 
 const SANDBOX_LIVE_API_PATCHED = Symbol.for('@SANDBOX_LIVE_API_PATCHED');
+const sandboxPluginConsoleLogger = createMonitoringLogger('sandbox.pluginConsole');
 
 export function getGeneralSandboxDistortionMap() {
   if (generalDistortionMap.size === 0) {
@@ -140,7 +142,7 @@ function distortConsole(distortions: DistortionMap) {
       const pluginId = meta.id;
 
       function sandboxLog(...args: unknown[]) {
-        console.log(`[plugin ${pluginId}]`, ...args);
+        sandboxPluginConsoleLogger.logDebug('Sandboxed plugin console output', { pluginId, args });
       }
       return {
         log: sandboxLog,
@@ -170,7 +172,7 @@ function distortAlert(distortions: DistortionMap) {
     });
 
     return function (...args: unknown[]) {
-      console.log(`[plugin ${pluginId}]`, ...args);
+      sandboxPluginConsoleLogger.logDebug('Sandboxed plugin alert output', { pluginId, args });
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, 'alert');

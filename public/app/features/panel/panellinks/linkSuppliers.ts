@@ -12,6 +12,9 @@ import {
   ScopedVars,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const linkSuppliersLogger = createMonitoringLogger('features.panel.linkSuppliers');
 import { VizPanel } from '@grafana/scenes';
 import { PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { dashboardSceneGraph } from 'app/features/dashboard-scene/utils/dashboardSceneGraph';
@@ -124,7 +127,10 @@ export const getFieldLinksSupplier = (value: FieldDisplay): LinkModelSupplier<Fi
           };
         }
       } else {
-        console.log('VALUE', value);
+        linkSuppliersLogger.logDebug('Field link supplier missing view context', {
+          hasColIndex: value.colIndex !== undefined,
+          fieldName: value.name,
+        });
       }
 
       const replace: InterpolateFunction = (value: string, vars: ScopedVars | undefined, fmt?: string | Function) => {

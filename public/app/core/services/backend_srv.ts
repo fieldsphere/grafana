@@ -27,7 +27,14 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 
 import { AppEvents, DataQueryErrorType, deprecationWarning } from '@grafana/data';
-import { BackendSrv as BackendService, BackendSrvRequest, config, FetchError, FetchResponse } from '@grafana/runtime';
+import {
+  BackendSrv as BackendService,
+  BackendSrvRequest,
+  config,
+  createMonitoringLogger,
+  FetchError,
+  FetchResponse,
+} from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { getConfig } from 'app/core/config';
 import { getSessionExpiry, hasSessionExpiry } from 'app/core/utils/auth';
@@ -61,6 +68,7 @@ export interface FolderRequestOptions {
 }
 
 const GRAFANA_TRACEID_HEADER = 'grafana-trace-id';
+const backendSrvStreamLogger = createMonitoringLogger('core.backendSrv');
 
 export interface InspectorStream {
   response: FetchResponse | FetchError;
@@ -235,7 +243,10 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            backendSrvStreamLogger.logError(e instanceof Error ? e : new Error(String(e)), {
+              requestId,
+              phase: 'streamRead',
+            });
             observer.error(e);
           }); // from abort
       },

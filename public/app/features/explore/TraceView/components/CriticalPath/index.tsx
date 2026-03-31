@@ -13,8 +13,11 @@
 // limitations under the License.
 
 import memoizeOne from 'memoize-one';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { TraceSpan, CriticalPathSection, Trace } from '../types/trace';
+
+const criticalPathLogger = createMonitoringLogger('features.explore.traceView.criticalPath');
 
 import findLastFinishingChildSpan from './utils/findLastFinishingChildSpan';
 import getChildOfSpans from './utils/getChildOfSpans';
@@ -103,8 +106,9 @@ function criticalPathForTrace(trace: Trace) {
       const sanitizedSpanMap = sanitizeOverFlowingChildren(refinedSpanMap);
       criticalPath = computeCriticalPath(sanitizedSpanMap, rootSpanId, criticalPath);
     } catch (error) {
-      /* eslint-disable no-console */
-      console.log('error while computing critical path for a trace', error);
+      criticalPathLogger.logError(
+        error instanceof Error ? error : new Error('error while computing critical path for a trace')
+      );
     }
   }
   return criticalPath;

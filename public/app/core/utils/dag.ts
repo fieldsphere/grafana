@@ -268,7 +268,17 @@ export const printGraph = (g: Graph) => {
     if (!inputEdges) {
       inputEdges = '<none>';
     }
-    console.log(`${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
+    // eslint-disable-next-line no-console
+    console.info(
+      JSON.stringify({
+        level: 'INFO',
+        source: 'core.dag.printGraph',
+        node: n.name,
+        linksTo: outputEdges,
+        linksFrom: inputEdges,
+        timestamp: Date.now(),
+      })
+    );
   });
 };
 

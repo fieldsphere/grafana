@@ -81,7 +81,17 @@ describe('logs splitTimeRangeAligned', () => {
     const timeRange = makeTimeRange(toUtc('2022-02-01T08:10:03.234Z'), toUtc('2022-02-01T20:10:03.234Z'));
     const result = splitTimeRangeAligned(timeRange, 200);
 
-    console.log(toUtc(result[0][0]).toISOString(), toUtc(result[0][1]).toISOString());
+    // eslint-disable-next-line no-console
+    console.info(
+      JSON.stringify({
+        level: 'DEBUG',
+        source: 'test.loki.metricTimeSplitting',
+        message: 'splitTimeRangeAligned first window',
+        from: toUtc(result[0][0]).toISOString(),
+        to: toUtc(result[0][1]).toISOString(),
+        timestamp: Date.now(),
+      })
+    );
 
     expect(result).toStrictEqual([[Date.parse('2022-02-01T08:10:03.234Z'), Date.parse('2022-02-01T20:10:03.234Z')]]);
   });

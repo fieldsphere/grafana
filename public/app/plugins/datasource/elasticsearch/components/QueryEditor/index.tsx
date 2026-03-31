@@ -3,7 +3,9 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { SemVer } from 'semver';
 
 import { getDefaultTimeRange, GrafanaTheme2, QueryEditorProps } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
+
+const elasticQueryEditorLogger = createMonitoringLogger('plugins.datasource.elasticsearch.queryEditor');
 import { Alert, ConfirmModal, InlineField, InlineLabel, Input, QueryField, useStyles2 } from '@grafana/ui';
 
 import { ElasticsearchDataQuery, QueryType } from '../../dataquery.gen';
@@ -41,8 +43,9 @@ function useElasticVersion(datasource: ElasticDatasourceLike): SemVer | null {
         }
       },
       (error) => {
-        // we do nothing
-        console.log(error);
+        elasticQueryEditorLogger.logWarning('Could not load Elasticsearch database version', {
+          message: error instanceof Error ? error.message : String(error),
+        });
       }
     );
 

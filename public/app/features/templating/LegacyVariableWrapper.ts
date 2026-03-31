@@ -1,4 +1,7 @@
+import { createMonitoringLogger } from '@grafana/runtime';
 import { VariableValue, FormatVariable } from '@grafana/scenes';
+
+const legacyVariableLogger = createMonitoringLogger('features.templating.legacyVariable');
 import { VariableModel, VariableType } from '@grafana/schema';
 
 import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../variables/constants';
@@ -31,7 +34,7 @@ export class LegacyVariableWrapper implements FormatVariable {
       return text.join(' + ');
     }
 
-    console.log('value', text);
+    legacyVariableLogger.logDebug('Legacy variable text has unexpected shape', { text, typeofText: typeof text });
     return String(text);
   }
 }

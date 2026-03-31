@@ -8,7 +8,9 @@ import {
 } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
 import { arrayToDataFrame, DataFrame, DataFrameView, getDisplayProcessor, SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, getBackendSrv } from '@grafana/runtime';
+import { config, createMonitoringLogger, getBackendSrv } from '@grafana/runtime';
+
+const unifiedSearchLogger = createMonitoringLogger('features.search.unified');
 import { generatedAPI, ListStarsApiResponse } from 'app/api/clients/collections/v1alpha1';
 import { getAPIBaseURL } from 'app/api/utils';
 import { TermCount } from 'app/core/components/TagFilter/TagFilter';
@@ -203,7 +205,7 @@ export class UnifiedSearcher implements GrafanaSearcher {
         const resp = await this.fetchResponse(nextPageUrl);
         const frame = toDashboardResults(resp, query.sort ?? '');
         if (!frame) {
-          console.log('no results', frame);
+          unifiedSearchLogger.logDebug('Search pagination returned no frame', { offset, nextPageUrl });
           return;
         }
 

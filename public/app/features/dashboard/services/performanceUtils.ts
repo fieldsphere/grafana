@@ -1,4 +1,5 @@
 import { store } from '@grafana/data';
+import { logDebug } from '@grafana/runtime';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
 
 /**
@@ -84,13 +85,7 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
  */
 export function writePerformanceGroupLog(logger: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
-    if (data) {
-      // eslint-disable-next-line no-console
-      console.log(message, data);
-    } else {
-      // eslint-disable-next-line no-console
-      console.log(message);
-    }
+    logDebug(message, { source: 'sceneProfiling', logger, data });
   }
 }
 

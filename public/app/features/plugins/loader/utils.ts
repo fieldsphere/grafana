@@ -1,4 +1,6 @@
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
+
+const pluginLoaderUtilsLogger = createMonitoringLogger('features.plugins.loader.utils');
 
 import { sandboxPluginDependencies } from '../sandbox/pluginDependencies';
 
@@ -29,7 +31,7 @@ function addPreload(id: string, preload: (() => Promise<System.Module>) | System
   try {
     resolvedId = SystemJS.resolve(id);
   } catch (e) {
-    console.log(e);
+    pluginLoaderUtilsLogger.logError(e instanceof Error ? e : new Error(String(e)), { phase: 'SystemJS.resolve', id });
   }
 
   if (resolvedId && SystemJS.has(resolvedId)) {

@@ -28,7 +28,20 @@ export const thunkTester = (initialState: unknown, debug?: boolean): ThunkGiven 
 
     dispatchedActions = store.getActions();
     if (debug) {
-      console.log('resultingActions:', JSON.stringify(dispatchedActions, null, 2));
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify(
+          {
+            level: 'DEBUG',
+            source: 'test.thunkTester',
+            message: 'Resulting actions',
+            actions: dispatchedActions,
+            timestamp: Date.now(),
+          },
+          null,
+          2
+        )
+      );
     }
 
     return dispatchedActions;

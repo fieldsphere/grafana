@@ -18,7 +18,7 @@ import {
   UrlQueryValue,
 } from '@grafana/data';
 import { PromQuery } from '@grafana/prometheus';
-import { RefreshEvent, TimeRangeUpdatedEvent } from '@grafana/runtime';
+import { RefreshEvent, TimeRangeUpdatedEvent, createMonitoringLogger } from '@grafana/runtime';
 import { Dashboard, DashboardLink, VariableModel } from '@grafana/schema';
 import { DEFAULT_ANNOTATION_COLOR } from '@grafana/ui';
 import { GRID_CELL_HEIGHT, GRID_CELL_VMARGIN, GRID_COLUMN_COUNT, REPEAT_DIR_VERTICAL } from 'app/core/constants';
@@ -36,6 +36,8 @@ import {
 } from 'app/types/events';
 
 import { appEvents } from '../../../core/app_events';
+
+const dashboardModelLogger = createMonitoringLogger('features.dashboard.DashboardModel');
 import { dispatch } from '../../../store/store';
 import {
   VariablesChanged,
@@ -1119,13 +1121,13 @@ export class DashboardModel implements TimeModel {
 
   /** @deprecated */
   on<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.on is deprecated use events.subscribe');
+    dashboardModelLogger.logWarning('DashboardModel.on is deprecated; use events.subscribe');
     this.events.on(event, callback);
   }
 
   /** @deprecated */
   off<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.off is deprecated');
+    dashboardModelLogger.logWarning('DashboardModel.off is deprecated');
     this.events.off(event, callback);
   }
 

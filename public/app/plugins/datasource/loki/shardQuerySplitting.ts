@@ -3,7 +3,7 @@ import { Observable, Subscriber, Subscription } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import { DataQueryRequest, DataQueryResponse, LoadingState, QueryResultMetaStat } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, createMonitoringLogger } from '@grafana/runtime';
 
 import { LokiDatasource } from './datasource';
 import { combineResponses, replaceResponses } from './mergeResponses';
@@ -371,9 +371,10 @@ function getInitialGroupSize(shards: number[]) {
 
 // Enable to output debugging logs
 const DEBUG_ENABLED = Boolean(localStorage.getItem(`loki.sharding_debug_enabled`));
+const lokiShardingDebugLogger = createMonitoringLogger('plugins.datasource.loki.shardQuerySplitting');
 function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  console.log(message);
+  lokiShardingDebugLogger.logDebug(message);
 }

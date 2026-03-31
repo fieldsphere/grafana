@@ -118,7 +118,20 @@ export const reduxTester = <State>(args?: ReduxTesterArguments<State>): ReduxTes
 
   const thenDispatchedActionsShouldEqual = (...actions: AnyAction[]): ReduxTesterWhen<State> => {
     if (debug) {
-      console.log('Dispatched Actions', JSON.stringify(dispatchedActions, null, 2));
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify(
+          {
+            level: 'DEBUG',
+            source: 'test.reduxTester',
+            message: 'Dispatched actions',
+            actions: dispatchedActions,
+            timestamp: Date.now(),
+          },
+          null,
+          2
+        )
+      );
     }
 
     if (!actions.length) {
@@ -133,7 +146,20 @@ export const reduxTester = <State>(args?: ReduxTesterArguments<State>): ReduxTes
     predicate: (dispatchedActions: AnyAction[]) => boolean
   ): ReduxTesterWhen<State> => {
     if (debug) {
-      console.log('Dispatched Actions', JSON.stringify(dispatchedActions, null, 2));
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify(
+          {
+            level: 'DEBUG',
+            source: 'test.reduxTester',
+            message: 'Dispatched actions',
+            actions: dispatchedActions,
+            timestamp: Date.now(),
+          },
+          null,
+          2
+        )
+      );
     }
 
     expect(predicate(dispatchedActions)).toBe(true);
@@ -142,7 +168,20 @@ export const reduxTester = <State>(args?: ReduxTesterArguments<State>): ReduxTes
 
   const thenNoActionsWhereDispatched = (): ReduxTesterWhen<State> => {
     if (debug) {
-      console.log('Dispatched Actions', JSON.stringify(dispatchedActions, null, 2));
+      // eslint-disable-next-line no-console
+      console.info(
+        JSON.stringify(
+          {
+            level: 'DEBUG',
+            source: 'test.reduxTester',
+            message: 'Dispatched actions',
+            actions: dispatchedActions,
+            timestamp: Date.now(),
+          },
+          null,
+          2
+        )
+      );
     }
 
     expect(dispatchedActions.length).toBe(0);

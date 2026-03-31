@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 
 import { SelectableValue } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Select } from '@grafana/ui';
+
+const k8sNameLookupLogger = createMonitoringLogger('swagger.k8sNameLookup');
 
 import { NamespaceContext, ResourceContext } from './plugins';
 
@@ -46,7 +49,10 @@ export function K8sNameLookup(props: Props) {
           return;
         }
         const table = await response.json();
-        console.log('LIST', url, table);
+        k8sNameLookupLogger.logDebug('K8s name list loaded', {
+          url,
+          rowCount: Array.isArray(table.rows) ? table.rows.length : 0,
+        });
         const options: Array<SelectableValue<string>> = [];
         if (table.rows?.length) {
           for (const row of table.rows) {
