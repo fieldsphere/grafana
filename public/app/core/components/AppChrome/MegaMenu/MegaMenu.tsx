@@ -3,7 +3,7 @@ import { DOMAttributes } from '@react-types/shared';
 import { memo, forwardRef, useCallback } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
-import { usePatchUserPreferencesMutation } from '@grafana/api-clients/rtkq/legacy/preferences';
+import { generatedAPI as preferencesUserAPI, usePatchUserPreferencesMutation } from '@grafana/api-clients/rtkq/legacy/preferences';
 import { GrafanaTheme2, NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
@@ -97,6 +97,19 @@ export const MegaMenu = memo(
         }).then((data) => {
           if (!data.error) {
             dispatch(setBookmark({ item: item, isSaved: !isSaved }));
+            dispatch(
+              preferencesUserAPI.util.updateQueryData('getUserPreferences', undefined, (draft) => {
+                if (!draft) {
+                  return;
+                }
+
+                if (!draft.navbar) {
+                  draft.navbar = {};
+                }
+
+                draft.navbar.bookmarkUrls = newItems;
+              })
+            );
           }
         });
       }
