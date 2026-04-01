@@ -8,6 +8,7 @@ import gildedgrove from './themeDefinitions/gildedgrove.json';
 import gloom from './themeDefinitions/gloom.json';
 import mars from './themeDefinitions/mars.json';
 import matrix from './themeDefinitions/matrix.json';
+import purple from './themeDefinitions/purple.json';
 import sapphiredusk from './themeDefinitions/sapphiredusk.json';
 import synthwave from './themeDefinitions/synthwave.json';
 import tron from './themeDefinitions/tron.json';
@@ -69,10 +70,13 @@ export function getBuiltInThemes(allowedExtras: string[]) {
 }
 
 const themeRegistry = new Registry<ThemeRegistryItem>(() => {
+  const { id: _purpleId, ...purpleTheme } = purple;
+
   return [
     { id: 'system', name: 'System preference', build: getSystemPreferenceTheme },
     { id: 'dark', name: 'Dark', build: () => createTheme({ colors: { mode: 'dark' } }) },
     { id: 'light', name: 'Light', build: () => createTheme({ colors: { mode: 'light' } }) },
+    { id: 'purple', name: purple.name, build: () => createTheme(purpleTheme) },
   ];
 });
 

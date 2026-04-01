@@ -976,7 +976,7 @@ Text used as placeholder text on login page for password input.
 
 #### `default_theme`
 
-Sets the default UI theme: `dark`, `light`, or `system`. The default theme is `dark`.
+Sets the default UI theme: `dark`, `light`, `purple`, or `system`. The default theme is `dark`.
 
 `system` matches the user's system theme.
 

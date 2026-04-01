@@ -19,6 +19,10 @@ type ThemeDefinition struct {
 	Id     string `json:"id"`
 }
 
+var standardThemes = map[string]struct{}{
+	"purple": {},
+}
+
 func main() {
 	themesPath := filepath.Join("..", "..", "..", "packages", "grafana-data", "src", "themes", "themeDefinitions")
 
@@ -65,6 +69,11 @@ var themes = []ThemeDTO{
 		themeType := "dark" // default fallback
 		if themeDef.Colors.Mode != "" {
 			themeType = themeDef.Colors.Mode
+		}
+
+		if _, ok := standardThemes[themeId]; ok {
+			output += fmt.Sprintf("\t{ID: %q, Type: %q},\n", themeId, themeType)
+			return nil
 		}
 
 		output += fmt.Sprintf("\t{ID: %q, Type: %q, IsExtra: true},\n", themeId, themeType)

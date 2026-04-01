@@ -1,0 +1,71 @@
+{
+  "name": "Purple",
+  "id": "purple",
+  "colors": {
+    "mode": "dark",
+    "primary": {
+      "main": "#B57CFF",
+      "text": "#E8D8FF",
+      "border": "#C89BFF"
+    },
+    "secondary": {
+      "main": "rgba(181, 124, 255, 0.18)",
+      "shade": "rgba(181, 124, 255, 0.28)",
+      "transparent": "rgba(181, 124, 255, 0.12)",
+      "text": "#F0E8FF",
+      "contrastText": "#F0E8FF",
+      "border": "rgba(200, 155, 255, 0.25)"
+    },
+    "info": {
+      "main": "#8E7CFF",
+      "text": "#E6E1FF"
+    },
+    "success": {
+      "main": "#4BC987",
+      "text": "#D7FFE8"
+    },
+    "warning": {
+      "main": "#F29F4B",
+      "text": "#FFE7CC"
+    },
+    "error": {
+      "main": "#FF6B9A",
+      "text": "#FFD9E5"
+    },
+    "text": {
+      "primary": "#F3EDFF",
+      "secondary": "#C9BFDD",
+      "disabled": "#988FB0",
+      "link": "#D2A8FF",
+      "maxContrast": "#FFFFFF"
+    },
+    "background": {
+      "canvas": "#17101F",
+      "primary": "#21152D",
+      "secondary": "#2C1D3B",
+      "elevated": "#322145"
+    },
+    "border": {
+      "weak": "rgba(200, 155, 255, 0.14)",
+      "medium": "rgba(200, 155, 255, 0.24)",
+      "strong": "rgba(200, 155, 255, 0.38)"
+    },
+    "action": {
+      "hover": "rgba(181, 124, 255, 0.16)",
+      "selected": "rgba(181, 124, 255, 0.2)",
+      "selectedBorder": "#C89BFF",
+      "focus": "rgba(181, 124, 255, 0.24)",
+      "hoverOpacity": 0.08,
+      "disabledText": "#988FB0",
+      "disabledBackground": "rgba(181, 124, 255, 0.06)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #7A5CFA 0%, #C89BFF 100%)",
+      "brandVertical": "linear-gradient(0deg, #7A5CFA 0%, #C89BFF 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.03,
+    "tonalOffset": 0.15
+  }
+}

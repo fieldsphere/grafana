@@ -106,6 +106,14 @@ function getGlobalActions(): CommandPaletteAction[] {
       parent: 'preferences/theme',
       priority: PREFERENCES_PRIORITY,
     },
+    {
+      id: 'preferences/purple-theme',
+      name: t('command-palette.action.purple-theme', 'Purple'),
+      keywords: 'purple theme',
+      perform: () => changeTheme('purple'),
+      parent: 'preferences/theme',
+      priority: PREFERENCES_PRIORITY,
+    },
   ];
 
   if (process.env.NODE_ENV === 'development') {

@@ -63,6 +63,15 @@ describe('SharedPreferences', () => {
     await waitFor(() => expect(themeSelect).toHaveValue('Light'));
   });
 
+  it('includes the purple theme option', async () => {
+    const { user } = await setup();
+    const themeSelect = await screen.findByRole('combobox', { name: 'Interface theme' });
+
+    await user.click(themeSelect);
+
+    expect(await screen.findByRole('option', { name: 'Purple' })).toBeInTheDocument();
+  });
+
   it('renders the home dashboard preference', async () => {
     await setup();
     const dashboardSelect = getSelectParent(screen.getByLabelText('Home Dashboard'));
