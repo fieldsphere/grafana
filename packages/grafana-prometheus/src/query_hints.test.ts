@@ -5,6 +5,7 @@ import { QueryBuilderLabelFilter } from '@grafana/plugin-ui';
 import { PrometheusDatasource } from './datasource';
 import {
   getExpandRulesHints,
+  getInitHints,
   getQueryHints,
   getQueryLabelsForRuleName,
   getRecordingRuleIdentifierIdx,
@@ -239,6 +240,58 @@ describe('getQueryHints()', () => {
 
     let hints = getQueryHints(queryWithNativeHistogramFunction, series, datasource);
     expect(hints!.length).toBe(0);
+  });
+
+  it('includes expand-rule hints when datasource has rule mappings', () => {
+    const query = 'metric_5m';
+    const datasource = {
+      ruleMappings: {
+        metric_5m: [
+          {
+            query: 'expanded_metric_query[5m]',
+            labels: {},
+          },
+        ],
+      },
+    } as unknown as PrometheusDatasource;
+
+    const hints = getQueryHints(query, [], datasource);
+    expect(hints).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          type: 'EXPAND_RULES',
+          fix: expect.objectContaining({
+            action: expect.objectContaining({
+              query,
+              type: 'EXPAND_RULES',
+            }),
+          }),
+        }),
+      ])
+    );
+  });
+});
+
+describe('getInitHints()', () => {
+  it('returns an info hint when lookups are disabled', () => {
+    const datasource = {
+      lookupsDisabled: true,
+    } as unknown as PrometheusDatasource;
+
+    expect(getInitHints(datasource)).toEqual([
+      {
+        label: 'Labels and metrics lookup was disabled in data source settings.',
+        type: 'INFO',
+      },
+    ]);
+  });
+
+  it('returns no hints when lookups are enabled', () => {
+    const datasource = {
+      lookupsDisabled: false,
+    } as unknown as PrometheusDatasource;
+
+    expect(getInitHints(datasource)).toEqual([]);
   });
 });
 
@@ -552,6 +605,26 @@ describe('getRecordingRuleIdentifierIdx', () => {
     expect(identifier).toEqual(`uuid`);
     expect(identifierValue).toEqual('333');
     expect(expandedQuery).toEqual(`expanded_metric_query_333[5m]`);
+  });
+
+  it('returns empty identifier fields when rule metric labels are not present in query', () => {
+    const mapping: RuleQueryMapping[string] = [
+      {
+        query: 'expanded_metric_query_111[5m]',
+        labels: {
+          uuid: '111',
+        },
+      },
+    ];
+    const { idx, identifier, identifierValue, expandedQuery } = getRecordingRuleIdentifierIdx(
+      'metric_7m{uuid="111"}',
+      'metric_5m',
+      mapping
+    );
+    expect(idx).toBe(-1);
+    expect(identifier).toBe('');
+    expect(identifierValue).toBe('');
+    expect(expandedQuery).toBe('');
   });
 });
 
