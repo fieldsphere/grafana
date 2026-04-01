@@ -16,10 +16,13 @@ var themes = []ThemeDTO{
 	{ID: "mars", Type: "dark", IsExtra: true},
 	{ID: "matrix", Type: "dark", IsExtra: true},
 	{ID: "sapphiredusk", Type: "dark", IsExtra: true},
+	{ID: "solarized_dark", Type: "dark", IsExtra: true},
+	{ID: "solarized_light", Type: "light", IsExtra: true},
 	{ID: "synthwave", Type: "dark", IsExtra: true},
 	{ID: "tritanopia_dark", Type: "dark", IsExtra: true},
 	{ID: "tritanopia_light", Type: "light", IsExtra: true},
 	{ID: "tron", Type: "dark", IsExtra: true},
 	{ID: "victorian", Type: "dark", IsExtra: true},
+	{ID: "vscode_dark_blue", Type: "dark", IsExtra: true},
 	{ID: "zen", Type: "light", IsExtra: true},
 }
