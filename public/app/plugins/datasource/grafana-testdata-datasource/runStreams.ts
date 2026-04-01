@@ -126,9 +126,9 @@ export function runSignalStream(
 
     return () => {
       console.info({
-        source: "public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts",
-        message: "log",
-        data: ['unsubscribing to stream ' + streamId]
+        source: 'public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts',
+        message: 'log',
+        data: ['unsubscribing to stream ' + streamId],
       });
       clearTimeout(timeoutId);
     };
@@ -176,9 +176,9 @@ export function runLogsStream(
 
     return () => {
       console.info({
-        source: "public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts",
-        message: "log",
-        data: ['unsubscribing to stream ' + streamId]
+        source: 'public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts',
+        message: 'log',
+        data: ['unsubscribing to stream ' + streamId],
       });
       clearTimeout(timeoutId);
     };
@@ -263,9 +263,9 @@ export function runWatchStream(
 
     return () => {
       console.info({
-        source: "public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts",
+        source: 'public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts',
         message: 'unsubscribing to stream',
-        data: [streamId]
+        data: [streamId],
       });
       sub.unsubscribe();
     };
@@ -327,8 +327,8 @@ export function runFetchStream(
 
       if (value.done) {
         console.info({
-          source: "public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts",
-          message: 'Finished stream'
+          source: 'public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts',
+          message: 'Finished stream',
         });
         subscriber.complete(); // necessary?
         return;
@@ -351,9 +351,9 @@ export function runFetchStream(
     return () => {
       // Cancel fetch?
       console.info({
-        source: "public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts",
-        message: "log",
-        data: ['unsubscribing to stream ' + streamId]
+        source: 'public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts',
+        message: 'log',
+        data: ['unsubscribing to stream ' + streamId],
       });
     };
   });
@@ -388,9 +388,9 @@ export function runTracesStream(
 
     return () => {
       console.info({
-        source: "public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts",
-        message: "log",
-        data: ['unsubscribing to stream ' + streamId]
+        source: 'public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts',
+        message: 'log',
+        data: ['unsubscribing to stream ' + streamId],
       });
       clearTimeout(timeoutId);
     };

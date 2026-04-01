@@ -284,9 +284,9 @@ export function graphToTimeseriesOptions(angular: any): {
             break;
           default:
             console.info({
-              source: "public/app/plugins/panel/timeseries/migrations.ts",
+              source: 'public/app/plugins/panel/timeseries/migrations.ts',
               message: 'Ignore override migration:',
-              data: [seriesOverride.alias, p, v]
+              data: [seriesOverride.alias, p, v],
             });
         }
       }

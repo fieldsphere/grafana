@@ -115,9 +115,9 @@ export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, t
         },
         (error) => {
           console.info({
-            source: "public/app/features/plugins/admin/state/actions.ts",
-            message: "log",
-            data: [error]
+            source: 'public/app/features/plugins/admin/state/actions.ts',
+            message: 'log',
+            data: [error],
           });
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchLocal/rejected` });
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchRemote/rejected` });

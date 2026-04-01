@@ -64,9 +64,9 @@ export const WrappedPlugins = function () {
             v = mime.get('schema').toJS();
           }
           console.info({
-            source: "public/swagger/plugins.tsx",
+            source: 'public/swagger/plugins.tsx',
             message: 'RequestBody',
-            data: [v, mime, props]
+            data: [v, mime, props],
           });
         }
         // console.info('RequestBody PROPS', props);
@@ -80,9 +80,9 @@ export const WrappedPlugins = function () {
       modelExample: (Original: React.ElementType) => (props: UntypedProps) => {
         if (props.isExecute && props.schema) {
           console.info({
-            source: "public/swagger/plugins.tsx",
+            source: 'public/swagger/plugins.tsx',
             message: 'modelExample PROPS',
-            data: [props]
+            data: [props],
           });
           return (
             <SchemaContext.Provider value={props.schema.toJS()}>
@@ -123,7 +123,7 @@ export const WrappedPlugins = function () {
       // https://github.com/swagger-api/swagger-ui/blob/v5.17.14/src/core/plugins/oas3/components/request-body-editor.jsx
       TextArea: (Original: React.ElementType) => (props: UntypedProps) => {
         return (
-          (<SchemaContext.Consumer>
+          <SchemaContext.Consumer>
             {(schema) => {
               if (schema) {
                 const val = props.value ?? props.defaultValue ?? '';
@@ -137,9 +137,9 @@ export const WrappedPlugins = function () {
                   });
                 };
                 console.info({
-                  source: "public/swagger/plugins.tsx",
+                  source: 'public/swagger/plugins.tsx',
                   message: 'CodeEditor',
-                  data: [schema]
+                  data: [schema],
                 });
 
                 return (
@@ -167,7 +167,7 @@ export const WrappedPlugins = function () {
               }
               return <Original {...props} />;
             }}
-          </SchemaContext.Consumer>)
+          </SchemaContext.Consumer>
         );
       },
     },

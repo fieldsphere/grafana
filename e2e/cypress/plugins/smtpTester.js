@@ -9,9 +9,9 @@ const initialize = (on, config) => {
   // starts the SMTP server at localhost:7777
   const mailServer = ms.init(PORT);
   console.info({
-    source: "e2e/cypress/plugins/smtpTester.js",
+    source: 'e2e/cypress/plugins/smtpTester.js',
     message: 'mail server at port %d',
-    data: [PORT]
+    data: [PORT],
   });
 
   let lastEmail = {};
@@ -25,15 +25,15 @@ const initialize = (on, config) => {
     resetEmails(recipient) {
       if (recipient) {
         console.info({
-          source: "e2e/cypress/plugins/smtpTester.js",
+          source: 'e2e/cypress/plugins/smtpTester.js',
           message: 'reset all emails for recipient %s',
-          data: [recipient]
+          data: [recipient],
         });
         delete lastEmail[recipient];
       } else {
         console.info({
-          source: "e2e/cypress/plugins/smtpTester.js",
-          message: 'reset all emails'
+          source: 'e2e/cypress/plugins/smtpTester.js',
+          message: 'reset all emails',
         });
         lastEmail = {};
       }
@@ -104,26 +104,26 @@ const initialize = (on, config) => {
 
       if (inputDoc.numpages !== expectedDoc.numpages) {
         console.info({
-          source: "e2e/cypress/plugins/smtpTester.js",
-          message: 'PDFs do not contain the same number of pages'
+          source: 'e2e/cypress/plugins/smtpTester.js',
+          message: 'PDFs do not contain the same number of pages',
         });
         return false;
       }
 
       if (inputDoc.text !== expectedDoc.text) {
         console.info({
-          source: "e2e/cypress/plugins/smtpTester.js",
-          message: 'PDFs do not contain the same text'
+          source: 'e2e/cypress/plugins/smtpTester.js',
+          message: 'PDFs do not contain the same text',
         });
         console.info({
-          source: "e2e/cypress/plugins/smtpTester.js",
+          source: 'e2e/cypress/plugins/smtpTester.js',
           message: 'PDF expected text: ',
-          data: [expectedDoc.text]
+          data: [expectedDoc.text],
         });
         console.info({
-          source: "e2e/cypress/plugins/smtpTester.js",
+          source: 'e2e/cypress/plugins/smtpTester.js',
           message: 'PDF input text: ',
-          data: [inputDoc.text]
+          data: [inputDoc.text],
         });
         return false;
       }

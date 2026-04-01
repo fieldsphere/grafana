@@ -42,13 +42,19 @@ const options = generateOptions();
 
 export const Simple: StoryFn<typeof ValuePicker> = (args) => {
   return (
-    (<div style={{ width: '200px' }}>
-      <ValuePicker {...args} options={options} onChange={(v) => console.info({
-        source: "packages/grafana-ui/src/components/ValuePicker/ValuePicker.story.tsx",
-        message: "log",
-        data: [v]
-      })} />
-    </div>)
+    <div style={{ width: '200px' }}>
+      <ValuePicker
+        {...args}
+        options={options}
+        onChange={(v) =>
+          console.info({
+            source: 'packages/grafana-ui/src/components/ValuePicker/ValuePicker.story.tsx',
+            message: 'log',
+            data: [v],
+          })
+        }
+      />
+    </div>
   );
 };
 Simple.args = {

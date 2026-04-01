@@ -269,8 +269,8 @@ export const printGraph = (g: Graph) => {
       inputEdges = '<none>';
     }
     console.info({
-      source: "public/app/core/utils/dag.ts",
-      message: `${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`
+      source: 'public/app/core/utils/dag.ts',
+      message: `${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`,
     });
   });
 };

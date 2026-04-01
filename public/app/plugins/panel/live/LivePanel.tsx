@@ -73,9 +73,9 @@ export class LivePanel extends PureComponent<Props, State> {
         this.setState({ message: event.message, changed: Date.now() });
       } else {
         console.info({
-          source: "public/app/plugins/panel/live/LivePanel.tsx",
+          source: 'public/app/plugins/panel/live/LivePanel.tsx',
           message: 'ignore',
-          data: [event]
+          data: [event],
         });
       }
     },
@@ -92,9 +92,9 @@ export class LivePanel extends PureComponent<Props, State> {
     const addr = this.props.options?.channel;
     if (!isValidLiveChannelAddress(addr)) {
       console.info({
-        source: "public/app/plugins/panel/live/LivePanel.tsx",
+        source: 'public/app/plugins/panel/live/LivePanel.tsx',
         message: 'INVALID',
-        data: [addr]
+        data: [addr],
       });
       this.unsubscribe();
       this.setState({
@@ -105,9 +105,9 @@ export class LivePanel extends PureComponent<Props, State> {
 
     if (isEqual(addr, this.state.addr)) {
       console.info({
-        source: "public/app/plugins/panel/live/LivePanel.tsx",
+        source: 'public/app/plugins/panel/live/LivePanel.tsx',
         message: 'Same channel',
-        data: [this.state.addr]
+        data: [this.state.addr],
       });
       return;
     }
@@ -115,9 +115,9 @@ export class LivePanel extends PureComponent<Props, State> {
     const live = getGrafanaLiveSrv();
     if (!live) {
       console.info({
-        source: "public/app/plugins/panel/live/LivePanel.tsx",
+        source: 'public/app/plugins/panel/live/LivePanel.tsx',
         message: 'INVALID',
-        data: [addr]
+        data: [addr],
       });
       this.unsubscribe();
       this.setState({
@@ -128,9 +128,9 @@ export class LivePanel extends PureComponent<Props, State> {
     this.unsubscribe();
 
     console.info({
-      source: "public/app/plugins/panel/live/LivePanel.tsx",
+      source: 'public/app/plugins/panel/live/LivePanel.tsx',
       message: 'LOAD',
-      data: [addr]
+      data: [addr],
     });
 
     // Subscribe to new events

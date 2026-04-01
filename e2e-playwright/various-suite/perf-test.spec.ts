@@ -51,9 +51,9 @@ test('payload-size', { tag: '@performance' }, async ({ page }) => {
   promRegistry.setDefaultLabels({ instance });
   const metricsText = await promRegistry.metrics();
   console.info({
-    source: "e2e-playwright/various-suite/perf-test.spec.ts",
-    message: "log",
-    data: [metricsText]
+    source: 'e2e-playwright/various-suite/perf-test.spec.ts',
+    message: 'log',
+    data: [metricsText],
   });
   fs.writeFileSync(process.env.METRICS_OUTPUT_PATH || '/tmp/asset-metrics.txt', metricsText);
 

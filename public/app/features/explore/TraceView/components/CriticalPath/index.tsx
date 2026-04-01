@@ -105,9 +105,9 @@ function criticalPathForTrace(trace: Trace) {
     } catch (error) {
       /* eslint-disable no-console */
       console.info({
-        source: "public/app/features/explore/TraceView/components/CriticalPath/index.tsx",
+        source: 'public/app/features/explore/TraceView/components/CriticalPath/index.tsx',
         message: 'error while computing critical path for a trace',
-        data: [error]
+        data: [error],
       });
     }
   }

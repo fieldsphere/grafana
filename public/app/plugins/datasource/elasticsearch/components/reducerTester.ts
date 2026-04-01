@@ -83,9 +83,9 @@ export const reducerTester = <State>(): Given<State> => {
   const thenStateShouldEqual = (state: State): When<State> => {
     if (showDebugOutput) {
       console.info({
-        source: "public/app/plugins/datasource/elasticsearch/components/reducerTester.ts",
-        message: "log",
-        data: [JSON.stringify(resultingState, null, 2)]
+        source: 'public/app/plugins/datasource/elasticsearch/components/reducerTester.ts',
+        message: 'log',
+        data: [JSON.stringify(resultingState, null, 2)],
       });
     }
     expect(resultingState).toEqual(state);
@@ -96,9 +96,9 @@ export const reducerTester = <State>(): Given<State> => {
   const thenStatePredicateShouldEqual = (predicate: (resultingState: State) => boolean): When<State> => {
     if (showDebugOutput) {
       console.info({
-        source: "public/app/plugins/datasource/elasticsearch/components/reducerTester.ts",
-        message: "log",
-        data: [JSON.stringify(resultingState, null, 2)]
+        source: 'public/app/plugins/datasource/elasticsearch/components/reducerTester.ts',
+        message: 'log',
+        data: [JSON.stringify(resultingState, null, 2)],
       });
     }
     expect(predicate(resultingState)).toBe(true);

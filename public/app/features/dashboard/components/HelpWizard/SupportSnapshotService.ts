@@ -89,9 +89,9 @@ export class SupportSnapshotService extends StateManagerBase<SupportSnapshotStat
       scene = dash.state.body; // skip the wrappers
     } catch (ex) {
       console.info({
-        source: "public/app/features/dashboard/components/HelpWizard/SupportSnapshotService.ts",
+        source: 'public/app/features/dashboard/components/HelpWizard/SupportSnapshotService.ts',
         message: 'Error creating scene:',
-        data: [ex]
+        data: [ex],
       });
     }
 

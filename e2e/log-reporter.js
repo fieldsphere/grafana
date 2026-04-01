@@ -42,8 +42,8 @@ class LogReporter extends Mocha.reporters.Spec {
     // CypressStats suites=1 tests=2 testPasses=1 pending=0 failures=1
     // start=1668783563731 end=1668783645198 duration=81467
     console.info({
-      source: "e2e/log-reporter.js",
-      message: `CypressStats ${objToLogAttributes(stats)}`
+      source: 'e2e/log-reporter.js',
+      message: `CypressStats ${objToLogAttributes(stats)}`,
     });
   }
 
@@ -54,8 +54,8 @@ class LogReporter extends Mocha.reporters.Spec {
       // suite="Smoke tests" file=../../e2e/smoke-tests-suite/1-smoketests.spec.ts duration=68694
       // currentRetry=0 speed=undefined err=false
       console.info({
-        source: "e2e/log-reporter.js",
-        message: `CypressTestResult ${objToLogAttributes(test)}`
+        source: 'e2e/log-reporter.js',
+        message: `CypressTestResult ${objToLogAttributes(test)}`,
       });
     });
   }

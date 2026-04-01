@@ -39,8 +39,8 @@ if (require.main === module) {
   (async () => {
     try {
       console.info({
-        source: "scripts/codeowners-manifest/metadata.js",
-        message: '⚙️ Generating codeowners-manifest metadata ...'
+        source: 'scripts/codeowners-manifest/metadata.js',
+        message: '⚙️ Generating codeowners-manifest metadata ...',
       });
 
       try {
@@ -53,12 +53,12 @@ if (require.main === module) {
 
       await writeFile(METADATA_JSON_PATH, JSON.stringify(metadata, null, 2), 'utf8');
       console.info({
-        source: "scripts/codeowners-manifest/metadata.js",
-        message: '✅ Metadata generated:'
+        source: 'scripts/codeowners-manifest/metadata.js',
+        message: '✅ Metadata generated:',
       });
       console.info({
-        source: "scripts/codeowners-manifest/metadata.js",
-        message: `   • ${METADATA_JSON_PATH}`
+        source: 'scripts/codeowners-manifest/metadata.js',
+        message: `   • ${METADATA_JSON_PATH}`,
       });
     } catch (error) {
       console.error('❌ Error generating codeowners metadata:', error.message);

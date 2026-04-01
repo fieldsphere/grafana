@@ -376,8 +376,8 @@ function debug(message: string) {
     return;
   }
   console.info({
-    source: "public/app/plugins/datasource/loki/shardQuerySplitting.ts",
-    message: "log",
-    data: [message]
+    source: 'public/app/plugins/datasource/loki/shardQuerySplitting.ts',
+    message: 'log',
+    data: [message],
   });
 }

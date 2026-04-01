@@ -91,19 +91,19 @@ export class FetchQueue {
     );
 
     console.info({
-      source: "public/app/core/services/FetchQueue.ts",
+      source: 'public/app/core/services/FetchQueue.ts',
       message: 'FetchQueue noOfStarted',
-      data: [update.noOfInProgress]
+      data: [update.noOfInProgress],
     });
     console.info({
-      source: "public/app/core/services/FetchQueue.ts",
+      source: 'public/app/core/services/FetchQueue.ts',
       message: 'FetchQueue noOfNotStarted',
-      data: [update.noOfPending]
+      data: [update.noOfPending],
     });
     console.info({
-      source: "public/app/core/services/FetchQueue.ts",
+      source: 'public/app/core/services/FetchQueue.ts',
       message: 'FetchQueue state',
-      data: [entriesWithoutOptions]
+      data: [entriesWithoutOptions],
     });
   };
 }

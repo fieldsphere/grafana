@@ -801,9 +801,9 @@ export class DashboardScenePageStateManager extends DashboardScenePageStateManag
             pathname: dashboardUrl,
           });
           console.info({
-            source: "public/app/features/dashboard-scene/pages/DashboardScenePageStateManager.ts",
+            source: 'public/app/features/dashboard-scene/pages/DashboardScenePageStateManager.ts',
             message: 'not correct url correcting',
-            data: [dashboardUrl, currentPath]
+            data: [dashboardUrl, currentPath],
           });
         }
       }
@@ -1033,9 +1033,9 @@ export class DashboardScenePageStateManagerV2 extends DashboardScenePageStateMan
             pathname: dashboardUrl,
           });
           console.info({
-            source: "public/app/features/dashboard-scene/pages/DashboardScenePageStateManager.ts",
+            source: 'public/app/features/dashboard-scene/pages/DashboardScenePageStateManager.ts',
             message: 'not correct url correcting',
-            data: [dashboardUrl, currentPath]
+            data: [dashboardUrl, currentPath],
           });
         }
       }

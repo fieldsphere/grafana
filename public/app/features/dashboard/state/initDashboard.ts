@@ -110,9 +110,9 @@ async function fetchDashboard(
               pathname: dashboardUrl,
             });
             console.info({
-              source: "public/app/features/dashboard/state/initDashboard.ts",
+              source: 'public/app/features/dashboard/state/initDashboard.ts',
               message: 'not correct url correcting',
-              data: [dashboardUrl, currentPath]
+              data: [dashboardUrl, currentPath],
             });
           }
         }

@@ -7,9 +7,9 @@ type Args = Parameters<typeof console.log>;
  * */
 const throttledLog = throttle((...t: Args) => {
   console.info({
-    source: "packages/grafana-ui/src/utils/logger.ts",
-    message: "log",
-    data: [...t]
+    source: 'packages/grafana-ui/src/utils/logger.ts',
+    message: 'log',
+    data: [...t],
   });
 }, 500);
 

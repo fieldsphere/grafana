@@ -87,16 +87,16 @@ export function writePerformanceGroupLog(logger: string, message: string, data?:
     if (data) {
       // eslint-disable-next-line no-console
       console.info({
-        source: "public/app/features/dashboard/services/performanceUtils.ts",
-        message: "log",
-        data: [message, data]
+        source: 'public/app/features/dashboard/services/performanceUtils.ts',
+        message: 'log',
+        data: [message, data],
       });
     } else {
       // eslint-disable-next-line no-console
       console.info({
-        source: "public/app/features/dashboard/services/performanceUtils.ts",
-        message: "log",
-        data: [message]
+        source: 'public/app/features/dashboard/services/performanceUtils.ts',
+        message: 'log',
+        data: [message],
       });
     }
   }

@@ -72,8 +72,8 @@ export const runGenerateApis =
       }
 
       console.info({
-        source: "packages/grafana-api-clients/src/generator/helpers.ts",
-        message: `⏳ Running ${command} to generate endpoints...`
+        source: 'packages/grafana-api-clients/src/generator/helpers.ts',
+        message: `⏳ Running ${command} to generate endpoints...`,
       });
       execSync(command, { stdio: 'inherit', cwd: basePath });
       return '✅ API endpoints generated successfully!';
@@ -98,8 +98,8 @@ export const formatFiles =
       const filesList = filesToFormat.map((file: string) => `"${file}"`).join(' ');
 
       console.info({
-        source: "packages/grafana-api-clients/src/generator/helpers.ts",
-        message: '🧹 Running ESLint on generated/modified files...'
+        source: 'packages/grafana-api-clients/src/generator/helpers.ts',
+        message: '🧹 Running ESLint on generated/modified files...',
       });
       try {
         execSync(`yarn eslint --fix ${filesList}`, { cwd: basePath });
@@ -109,8 +109,8 @@ export const formatFiles =
       }
 
       console.info({
-        source: "packages/grafana-api-clients/src/generator/helpers.ts",
-        message: '🧹 Running Prettier on generated/modified files...'
+        source: 'packages/grafana-api-clients/src/generator/helpers.ts',
+        message: '🧹 Running Prettier on generated/modified files...',
       });
       try {
         // '--ignore-path' is necessary so the gitignored files ('local/' folder) can still be formatted

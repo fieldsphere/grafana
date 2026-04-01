@@ -119,9 +119,9 @@ export const reduxTester = <State>(args?: ReduxTesterArguments<State>): ReduxTes
   const thenDispatchedActionsShouldEqual = (...actions: AnyAction[]): ReduxTesterWhen<State> => {
     if (debug) {
       console.info({
-        source: "public/test/core/redux/reduxTester.ts",
+        source: 'public/test/core/redux/reduxTester.ts',
         message: 'Dispatched Actions',
-        data: [JSON.stringify(dispatchedActions, null, 2)]
+        data: [JSON.stringify(dispatchedActions, null, 2)],
       });
     }
 
@@ -138,9 +138,9 @@ export const reduxTester = <State>(args?: ReduxTesterArguments<State>): ReduxTes
   ): ReduxTesterWhen<State> => {
     if (debug) {
       console.info({
-        source: "public/test/core/redux/reduxTester.ts",
+        source: 'public/test/core/redux/reduxTester.ts',
         message: 'Dispatched Actions',
-        data: [JSON.stringify(dispatchedActions, null, 2)]
+        data: [JSON.stringify(dispatchedActions, null, 2)],
       });
     }
 
@@ -151,9 +151,9 @@ export const reduxTester = <State>(args?: ReduxTesterArguments<State>): ReduxTes
   const thenNoActionsWhereDispatched = (): ReduxTesterWhen<State> => {
     if (debug) {
       console.info({
-        source: "public/test/core/redux/reduxTester.ts",
+        source: 'public/test/core/redux/reduxTester.ts',
         message: 'Dispatched Actions',
-        data: [JSON.stringify(dispatchedActions, null, 2)]
+        data: [JSON.stringify(dispatchedActions, null, 2)],
       });
     }
 

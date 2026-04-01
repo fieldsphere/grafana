@@ -113,8 +113,8 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
   // if prevMatch is undefined we are going from normal route to home route or vice versa
   if (type !== 'snapshot' && (!prevMatch || uid !== prevMatch?.params.uid)) {
     console.info({
-      source: "public/app/features/dashboard-scene/pages/DashboardScenePage.tsx",
-      message: 'skipping rendering'
+      source: 'public/app/features/dashboard-scene/pages/DashboardScenePage.tsx',
+      message: 'skipping rendering',
     });
     return null;
   }

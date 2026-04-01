@@ -61,9 +61,9 @@ export class RequestsRecorder {
       }
 
       console.info({
-        source: "e2e-playwright/utils/RequestsRecorder.ts",
+        source: 'e2e-playwright/utils/RequestsRecorder.ts',
         message: 'waiting for',
-        data: [this.#requestsInFlight, 'requests to finish']
+        data: [this.#requestsInFlight, 'requests to finish'],
       });
 
       return new Promise<void>((resolve) => {

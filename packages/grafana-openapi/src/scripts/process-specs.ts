@@ -155,8 +155,8 @@ function processDirectory(sourceDir: string, outputDir: string) {
     const outputPath = path.join(outputDir, file);
 
     console.info({
-      source: "packages/grafana-openapi/src/scripts/process-specs.ts",
-      message: `Processing file "${file}"...`
+      source: 'packages/grafana-openapi/src/scripts/process-specs.ts',
+      message: `Processing file "${file}"...`,
     });
 
     const fileContent = fs.readFileSync(inputPath, 'utf-8');
@@ -172,8 +172,8 @@ function processDirectory(sourceDir: string, outputDir: string) {
     const outputSpec = processOpenAPISpec(inputSpec);
     fs.writeFileSync(outputPath, JSON.stringify(outputSpec, null, 2), 'utf-8');
     console.info({
-      source: "packages/grafana-openapi/src/scripts/process-specs.ts",
-      message: `Processing completed for file "${file}".`
+      source: 'packages/grafana-openapi/src/scripts/process-specs.ts',
+      message: `Processing completed for file "${file}".`,
     });
   }
 }

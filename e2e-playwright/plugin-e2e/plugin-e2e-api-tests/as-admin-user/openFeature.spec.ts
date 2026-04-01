@@ -47,8 +47,8 @@ test(
       }
     } catch {
       console.info({
-        source: "e2e-playwright/plugin-e2e/plugin-e2e-api-tests/as-admin-user/openFeature.spec.ts",
-        message: 'OFREP endpoint not called - OpenFeature may not be enabled'
+        source: 'e2e-playwright/plugin-e2e/plugin-e2e-api-tests/as-admin-user/openFeature.spec.ts',
+        message: 'OFREP endpoint not called - OpenFeature may not be enabled',
       });
     }
   }
@@ -96,8 +96,8 @@ test(
       expect(testFlagFalse?.variant).toBe('playwright-override');
     } catch {
       console.info({
-        source: "e2e-playwright/plugin-e2e/plugin-e2e-api-tests/as-admin-user/openFeature.spec.ts",
-        message: 'OFREP endpoint not called - OpenFeature may not be enabled'
+        source: 'e2e-playwright/plugin-e2e/plugin-e2e-api-tests/as-admin-user/openFeature.spec.ts',
+        message: 'OFREP endpoint not called - OpenFeature may not be enabled',
       });
     }
   }

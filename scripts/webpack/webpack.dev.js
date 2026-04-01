@@ -37,8 +37,8 @@ function scenesModule() {
     const status = fs.lstatSync(scenesPath);
     if (status.isSymbolicLink()) {
       console.info({
-        source: "scripts/webpack/webpack.dev.js",
-        message: `scenes is linked to local scenes repo`
+        source: 'scripts/webpack/webpack.dev.js',
+        message: `scenes is linked to local scenes repo`,
       });
       return path.resolve(scenesPath + '/src');
     }

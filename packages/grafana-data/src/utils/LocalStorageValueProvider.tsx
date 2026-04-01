@@ -42,9 +42,9 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
       store.delete(storageKey);
     } catch (error) {
       console.info({
-        source: "packages/grafana-data/src/utils/LocalStorageValueProvider.tsx",
-        message: "log",
-        data: [error]
+        source: 'packages/grafana-data/src/utils/LocalStorageValueProvider.tsx',
+        message: 'log',
+        data: [error],
       });
     }
     setState({ value: defaultValue });

@@ -130,9 +130,9 @@ export class FrameState extends ElementState {
       case LayerActionID.Duplicate:
         if (element.item.id === 'frame') {
           console.info({
-            source: "public/app/features/canvas/runtime/frame.tsx",
+            source: 'public/app/features/canvas/runtime/frame.tsx',
             message: 'Can not duplicate frames (yet)',
-            data: [action, element]
+            data: [action, element],
           });
           return;
         }
@@ -244,9 +244,9 @@ export class FrameState extends ElementState {
 
       default:
         console.info({
-          source: "public/app/features/canvas/runtime/frame.tsx",
+          source: 'public/app/features/canvas/runtime/frame.tsx',
           message: 'DO action',
-          data: [action, element]
+          data: [action, element],
         });
         return;
     }

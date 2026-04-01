@@ -14,9 +14,9 @@ export async function fakeSearchAPI(urlString: string): Promise<Array<ComboboxOp
   if (!fakeApiOptions) {
     fakeApiOptions = await generateOptions(1000);
     console.info({
-      source: "packages/grafana-ui/src/components/Combobox/storyUtils.ts",
+      source: 'packages/grafana-ui/src/components/Combobox/storyUtils.ts',
       message: 'fakeApiOptions',
-      data: [fakeApiOptions]
+      data: [fakeApiOptions],
     });
   }
 

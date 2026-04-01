@@ -47,9 +47,9 @@ export function K8sNameLookup(props: Props) {
         }
         const table = await response.json();
         console.info({
-          source: "public/swagger/K8sNameLookup.tsx",
+          source: 'public/swagger/K8sNameLookup.tsx',
           message: 'LIST',
-          data: [url, table]
+          data: [url, table],
         });
         const options: Array<SelectableValue<string>> = [];
         if (table.rows?.length) {

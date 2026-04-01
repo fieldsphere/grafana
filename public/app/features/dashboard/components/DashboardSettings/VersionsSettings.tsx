@@ -69,11 +69,13 @@ export class VersionsSettings extends PureComponent<Props, State> {
         // Update the continueToken for the next request, if available
         this.continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.info({
-      source: "public/app/features/dashboard/components/DashboardSettings/VersionsSettings.tsx",
-      message: "log",
-      data: [err]
-    }))
+      .catch((err) =>
+        console.info({
+          source: 'public/app/features/dashboard/components/DashboardSettings/VersionsSettings.tsx',
+          message: 'log',
+          data: [err],
+        })
+      )
       .finally(() => this.setState({ isAppending: false }));
   };
 

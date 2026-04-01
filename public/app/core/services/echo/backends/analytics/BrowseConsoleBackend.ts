@@ -17,18 +17,18 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
   addEvent = (e: PageviewEchoEvent) => {
     if (isPageviewEvent(e)) {
       console.info({
-        source: "public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts",
+        source: 'public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts',
         message: '[EchoSrv:pageview]',
-        data: [e.payload.page]
+        data: [e.payload.page],
       });
     }
 
     if (isInteractionEvent(e)) {
       const eventName = e.payload.interactionName;
       console.info({
-        source: "public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts",
+        source: 'public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts',
         message: '[EchoSrv:event]',
-        data: [eventName, e.payload.properties]
+        data: [eventName, e.payload.properties],
       });
 
       // Warn for non-scalar property values. We're not yet making this a hard a
@@ -51,9 +51,9 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
 
     if (isExperimentViewEvent(e)) {
       console.info({
-        source: "public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts",
+        source: 'public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts',
         message: '[EchoSrv:experiment]',
-        data: [e.payload]
+        data: [e.payload],
       });
     }
   };

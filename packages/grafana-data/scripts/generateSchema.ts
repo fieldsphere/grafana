@@ -20,6 +20,6 @@ fs.writeFileSync(
 );
 
 console.info({
-  source: "packages/grafana-data/scripts/generateSchema.ts",
-  message: 'Successfully generated theme schema'
+  source: 'packages/grafana-data/scripts/generateSchema.ts',
+  message: 'Successfully generated theme schema',
 });

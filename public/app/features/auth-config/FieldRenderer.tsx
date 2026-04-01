@@ -79,9 +79,9 @@ export const FieldRenderer = ({
 
   if (!field) {
     console.info({
-      source: "public/app/features/auth-config/FieldRenderer.tsx",
+      source: 'public/app/features/auth-config/FieldRenderer.tsx',
       message: 'missing field:',
-      data: [name]
+      data: [name],
     });
     return null;
   }

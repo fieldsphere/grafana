@@ -127,8 +127,8 @@ export class Connections2 {
 
     if (!element) {
       console.info({
-        source: "public/app/plugins/panel/canvas/components/connections/Connections2.tsx",
-        message: 'no element'
+        source: 'public/app/plugins/panel/canvas/components/connections/Connections2.tsx',
+        message: 'no element',
       });
       return;
     }
@@ -139,8 +139,8 @@ export class Connections2 {
       this.connectionSource = element;
       if (!this.connectionSource) {
         console.info({
-          source: "public/app/plugins/panel/canvas/components/connections/Connections2.tsx",
-          message: 'no connection source'
+          source: 'public/app/plugins/panel/canvas/components/connections/Connections2.tsx',
+          message: 'no connection source',
         });
         return;
       }

@@ -128,9 +128,9 @@ define(['react', '@grafana/data'], function (React, grafanaData) {
       function () {
         try {
           console.info({
-            source: "e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js",
-            message: "log",
-            data: [window.Prism.languages]
+            source: 'e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js',
+            message: 'log',
+            data: [window.Prism.languages],
           });
           return 'Prism';
         } catch (e) {}
@@ -138,14 +138,14 @@ define(['react', '@grafana/data'], function (React, grafanaData) {
       function () {
         try {
           console.info({
-            source: "e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js",
-            message: "log",
-            data: [window.jQuery.fn.jquery]
+            source: 'e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js',
+            message: 'log',
+            data: [window.jQuery.fn.jquery],
           });
           console.info({
-            source: "e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js",
-            message: "log",
-            data: [window.$.fn.jquery]
+            source: 'e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js',
+            message: 'log',
+            data: [window.$.fn.jquery],
           });
           return 'jQuery';
         } catch (e) {}
@@ -153,9 +153,9 @@ define(['react', '@grafana/data'], function (React, grafanaData) {
       function () {
         try {
           console.info({
-            source: "e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js",
-            message: "log",
-            data: [window.locationSandbox]
+            source: 'e2e-playwright/test-plugins/frontend-sandbox-panel-test/module.js',
+            message: 'log',
+            data: [window.locationSandbox],
           });
           return 'location';
         } catch (e) {}

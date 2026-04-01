@@ -29,9 +29,9 @@ export const thunkTester = (initialState: unknown, debug?: boolean): ThunkGiven 
     dispatchedActions = store.getActions();
     if (debug) {
       console.info({
-        source: "public/test/core/thunk/thunkTester.ts",
+        source: 'public/test/core/thunk/thunkTester.ts',
         message: 'resultingActions:',
-        data: [JSON.stringify(dispatchedActions, null, 2)]
+        data: [JSON.stringify(dispatchedActions, null, 2)],
       });
     }
 

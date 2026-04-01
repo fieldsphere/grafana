@@ -26,14 +26,16 @@ const meta: Meta<typeof FileUpload> = {
 
 export const Basic: StoryFn<typeof FileUpload> = (args) => {
   return (
-    (<FileUpload
+    <FileUpload
       size={args.size}
-      onFileUpload={({ currentTarget }) => console.info({
-        source: "packages/grafana-ui/src/components/FileUpload/FileUpload.story.tsx",
-        message: 'file',
-        data: [currentTarget?.files && currentTarget.files[0]]
-      })}
-    />)
+      onFileUpload={({ currentTarget }) =>
+        console.info({
+          source: 'packages/grafana-ui/src/components/FileUpload/FileUpload.story.tsx',
+          message: 'file',
+          data: [currentTarget?.files && currentTarget.files[0]],
+        })
+      }
+    />
   );
 };
 Basic.args = {

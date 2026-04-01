@@ -125,9 +125,9 @@ export const getFieldLinksSupplier = (value: FieldDisplay): LinkModelSupplier<Fi
         }
       } else {
         console.info({
-          source: "public/app/features/panel/panellinks/linkSuppliers.ts",
+          source: 'public/app/features/panel/panellinks/linkSuppliers.ts',
           message: 'VALUE',
-          data: [value]
+          data: [value],
         });
       }
 

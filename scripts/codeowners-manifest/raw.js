@@ -71,17 +71,17 @@ if (require.main === module) {
       }
 
       console.info({
-        source: "scripts/codeowners-manifest/raw.js",
-        message: `🍣 Getting raw CODEOWNERS data for manifest ...`
+        source: 'scripts/codeowners-manifest/raw.js',
+        message: `🍣 Getting raw CODEOWNERS data for manifest ...`,
       });
       await generateCodeownersRawAudit(CODEOWNERS_FILE_PATH, RAW_AUDIT_JSONL_PATH);
       console.info({
-        source: "scripts/codeowners-manifest/raw.js",
-        message: '✅ Raw audit generated:'
+        source: 'scripts/codeowners-manifest/raw.js',
+        message: '✅ Raw audit generated:',
       });
       console.info({
-        source: "scripts/codeowners-manifest/raw.js",
-        message: `   • ${RAW_AUDIT_JSONL_PATH}`
+        source: 'scripts/codeowners-manifest/raw.js',
+        message: `   • ${RAW_AUDIT_JSONL_PATH}`,
       });
     } catch (e) {
       console.error('❌ Error generating raw audit:', e.message);

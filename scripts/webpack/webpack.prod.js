@@ -114,9 +114,9 @@ module.exports = (env = {}) =>
         this.hooks.done.tap('Done', function (stats) {
           if (stats.compilation.errors && stats.compilation.errors.length) {
             console.info({
-              source: "scripts/webpack/webpack.prod.js",
-              message: "log",
-              data: [stats.compilation.errors]
+              source: 'scripts/webpack/webpack.prod.js',
+              message: 'log',
+              data: [stats.compilation.errors],
             });
             process.exit(1);
           }

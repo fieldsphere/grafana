@@ -6,11 +6,12 @@ import { Field } from '../Forms/Field';
 import { Cascader, CascaderOption } from './Cascader';
 import mdx from './Cascader.mdx';
 
-const onSelect = (val: string) => console.info({
-  source: "packages/grafana-ui/src/components/Cascader/Cascader.story.tsx",
-  message: "log",
-  data: [val]
-});
+const onSelect = (val: string) =>
+  console.info({
+    source: 'packages/grafana-ui/src/components/Cascader/Cascader.story.tsx',
+    message: 'log',
+    data: [val],
+  });
 const options = [
   {
     label: 'First',

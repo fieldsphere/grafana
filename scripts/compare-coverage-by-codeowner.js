@@ -164,8 +164,8 @@ function compareCoverageByCodeowner(
   try {
     fs.writeFileSync(outputPath, markdown, 'utf8');
     console.info({
-      source: "scripts/compare-coverage-by-codeowner.js",
-      message: `✅ Coverage comparison written to ${outputPath}`
+      source: 'scripts/compare-coverage-by-codeowner.js',
+      message: `✅ Coverage comparison written to ${outputPath}`,
     });
   } catch (err) {
     console.error(`Error writing output file: ${err.message}`);
@@ -182,8 +182,8 @@ if (require.main === module) {
     process.exit(1);
   }
   console.info({
-    source: "scripts/compare-coverage-by-codeowner.js",
-    message: '✅ Coverage check passed: All metrics maintained or improved'
+    source: 'scripts/compare-coverage-by-codeowner.js',
+    message: '✅ Coverage check passed: All metrics maintained or improved',
   });
 }
 

@@ -19,15 +19,17 @@ module.exports = (on, config) => {
   on('file:preprocessor', typescriptPreprocessor);
   on('task', {
     log({ message, optional }) {
-      optional ? console.info({
-        source: "e2e/cypress/plugins/index.js",
-        message: "log",
-        data: [message, optional]
-      }) : console.info({
-        source: "e2e/cypress/plugins/index.js",
-        message: "log",
-        data: [message]
-      });
+      optional
+        ? console.info({
+            source: 'e2e/cypress/plugins/index.js',
+            message: 'log',
+            data: [message, optional],
+          })
+        : console.info({
+            source: 'e2e/cypress/plugins/index.js',
+            message: 'log',
+            data: [message],
+          });
       return null;
     },
   });
@@ -48,9 +50,9 @@ module.exports = (on, config) => {
   // https://www.cypress.io/blog/2021/03/01/generate-high-resolution-videos-and-screenshots/
   on('before:browser:launch', (browser = {}, launchOptions) => {
     console.info({
-      source: "e2e/cypress/plugins/index.js",
+      source: 'e2e/cypress/plugins/index.js',
       message: 'launching browser %s is headless? %s',
-      data: [browser.name, browser.isHeadless]
+      data: [browser.name, browser.isHeadless],
     });
 
     // the browser width and height we want to get
@@ -59,9 +61,9 @@ module.exports = (on, config) => {
     const height = 1080;
 
     console.info({
-      source: "e2e/cypress/plugins/index.js",
+      source: 'e2e/cypress/plugins/index.js',
       message: 'setting the browser window size to %d x %d',
-      data: [width, height]
+      data: [width, height],
     });
 
     if (browser.name === 'chrome' && browser.isHeadless) {

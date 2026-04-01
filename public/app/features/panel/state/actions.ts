@@ -166,9 +166,9 @@ export function loadLibraryPanelAndUpdate(panel: PanelModel): ThunkResult<void> 
       await dispatch(initPanelState(panel));
     } catch (ex) {
       console.info({
-        source: "public/app/features/panel/state/actions.ts",
+        source: 'public/app/features/panel/state/actions.ts',
         message: 'ERROR: ',
-        data: [ex]
+        data: [ex],
       });
       dispatch(
         panelModelAndPluginReady({

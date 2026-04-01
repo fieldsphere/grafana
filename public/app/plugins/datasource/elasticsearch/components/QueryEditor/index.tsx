@@ -43,9 +43,9 @@ function useElasticVersion(datasource: ElasticDatasourceLike): SemVer | null {
       (error) => {
         // we do nothing
         console.info({
-          source: "public/app/plugins/datasource/elasticsearch/components/QueryEditor/index.tsx",
-          message: "log",
-          data: [error]
+          source: 'public/app/plugins/datasource/elasticsearch/components/QueryEditor/index.tsx',
+          message: 'log',
+          data: [error],
         });
       }
     );

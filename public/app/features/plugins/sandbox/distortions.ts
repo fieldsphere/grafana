@@ -141,9 +141,9 @@ function distortConsole(distortions: DistortionMap) {
 
       function sandboxLog(...args: unknown[]) {
         console.info({
-          source: "public/app/features/plugins/sandbox/distortions.ts",
+          source: 'public/app/features/plugins/sandbox/distortions.ts',
           message: `[plugin ${pluginId}]`,
-          data: [...args]
+          data: [...args],
         });
       }
       return {
@@ -175,9 +175,9 @@ function distortAlert(distortions: DistortionMap) {
 
     return function (...args: unknown[]) {
       console.info({
-        source: "public/app/features/plugins/sandbox/distortions.ts",
+        source: 'public/app/features/plugins/sandbox/distortions.ts',
         message: `[plugin ${pluginId}]`,
-        data: [...args]
+        data: [...args],
       });
     };
   }

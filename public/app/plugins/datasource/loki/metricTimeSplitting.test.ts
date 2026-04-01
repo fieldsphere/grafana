@@ -82,9 +82,9 @@ describe('logs splitTimeRangeAligned', () => {
     const result = splitTimeRangeAligned(timeRange, 200);
 
     console.info({
-      source: "public/app/plugins/datasource/loki/metricTimeSplitting.test.ts",
-      message: "log",
-      data: [toUtc(result[0][0]).toISOString(), toUtc(result[0][1]).toISOString()]
+      source: 'public/app/plugins/datasource/loki/metricTimeSplitting.test.ts',
+      message: 'log',
+      data: [toUtc(result[0][0]).toISOString(), toUtc(result[0][1]).toISOString()],
     });
 
     expect(result).toStrictEqual([[Date.parse('2022-02-01T08:10:03.234Z'), Date.parse('2022-02-01T20:10:03.234Z')]]);

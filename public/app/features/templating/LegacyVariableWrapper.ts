@@ -32,9 +32,9 @@ export class LegacyVariableWrapper implements FormatVariable {
     }
 
     console.info({
-      source: "public/app/features/templating/LegacyVariableWrapper.ts",
+      source: 'public/app/features/templating/LegacyVariableWrapper.ts',
       message: 'value',
-      data: [text]
+      data: [text],
     });
     return String(text);
   }

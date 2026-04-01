@@ -258,9 +258,9 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
       if (delta < 100) {
         // 10hz
         console.info({
-          source: "public/app/features/dashboard/dashgrid/PanelStateWrapper.tsx",
+          source: 'public/app/features/dashboard/dashgrid/PanelStateWrapper.tsx',
           message: 'Skip tick render',
-          data: [this.props.panel.title, delta]
+          data: [this.props.panel.title, delta],
         });
         return;
       }

@@ -22,15 +22,17 @@ module.exports = defineConfig({
       on('file:preprocessor', typescriptPreprocessor);
       on('task', {
         log({ message, optional }) {
-          optional ? console.info({
-            source: "cypress.config.js",
-            message: "log",
-            data: [message, optional]
-          }) : console.info({
-            source: "cypress.config.js",
-            message: "log",
-            data: [message]
-          });
+          optional
+            ? console.info({
+                source: 'cypress.config.js',
+                message: 'log',
+                data: [message, optional],
+              })
+            : console.info({
+                source: 'cypress.config.js',
+                message: 'log',
+                data: [message],
+              });
           return null;
         },
       });
@@ -64,9 +66,9 @@ module.exports = defineConfig({
 
       on('before:browser:launch', (browser = {}, launchOptions) => {
         console.info({
-          source: "cypress.config.js",
+          source: 'cypress.config.js',
           message: 'launching browser %s is headless? %s',
-          data: [browser.name, browser.isHeadless]
+          data: [browser.name, browser.isHeadless],
         });
 
         // the browser width and height we want to get
@@ -75,9 +77,9 @@ module.exports = defineConfig({
         const height = 1080;
 
         console.info({
-          source: "cypress.config.js",
+          source: 'cypress.config.js',
           message: 'setting the browser window size to %d x %d',
-          data: [width, height]
+          data: [width, height],
         });
 
         if (browser.name === 'chrome' && browser.isHeadless) {

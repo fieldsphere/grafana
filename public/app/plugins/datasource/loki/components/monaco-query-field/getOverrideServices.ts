@@ -82,8 +82,8 @@ function makeStorageService() {
 
     logStorage: (): void => {
       console.info({
-        source: "public/app/plugins/datasource/loki/components/monaco-query-field/getOverrideServices.ts",
-        message: 'logStorage: not implemented'
+        source: 'public/app/plugins/datasource/loki/components/monaco-query-field/getOverrideServices.ts',
+        message: 'logStorage: not implemented',
       });
     },
 

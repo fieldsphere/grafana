@@ -82,9 +82,9 @@ export class CentrifugeLiveChannel<T = any> {
         }
       } catch (err) {
         console.info({
-          source: "public/app/features/live/centrifuge/channel.ts",
+          source: 'public/app/features/live/centrifuge/channel.ts',
           message: 'publish error',
-          data: [this.addr, err]
+          data: [this.addr, err],
         });
         this.currentStatus.error = err;
         this.currentStatus.timestamp = Date.now();
