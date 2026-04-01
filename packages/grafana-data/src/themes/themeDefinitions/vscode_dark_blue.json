@@ -1,0 +1,67 @@
+{
+  "name": "VS Code dark blue",
+  "id": "vscode_dark_blue",
+  "colors": {
+    "mode": "dark",
+    "border": {
+      "weak": "rgba(199, 210, 254, 0.14)",
+      "medium": "rgba(199, 210, 254, 0.24)",
+      "strong": "rgba(199, 210, 254, 0.34)"
+    },
+    "text": {
+      "primary": "#E5E7EB",
+      "secondary": "#94A3B8",
+      "disabled": "#64748B",
+      "link": "#60A5FA",
+      "maxContrast": "#FFFFFF"
+    },
+    "primary": {
+      "main": "#3B82F6",
+      "text": "#93C5FD",
+      "border": "#3B82F6"
+    },
+    "secondary": {
+      "main": "#1E293B",
+      "shade": "#334155",
+      "transparent": "rgba(148, 163, 184, 0.10)",
+      "text": "#CBD5E1",
+      "contrastText": "#FFFFFF",
+      "border": "rgba(148, 163, 184, 0.16)"
+    },
+    "info": {
+      "main": "#38BDF8"
+    },
+    "error": {
+      "main": "#EF4444"
+    },
+    "success": {
+      "main": "#22C55E"
+    },
+    "warning": {
+      "main": "#F59E0B"
+    },
+    "background": {
+      "canvas": "#0F172A",
+      "primary": "#111827",
+      "secondary": "#1E293B",
+      "elevated": "#1E293B"
+    },
+    "action": {
+      "hover": "rgba(148, 163, 184, 0.14)",
+      "selected": "rgba(59, 130, 246, 0.22)",
+      "selectedBorder": "#3B82F6",
+      "focus": "rgba(59, 130, 246, 0.24)",
+      "hoverOpacity": 0.08,
+      "disabledText": "#64748B",
+      "disabledBackground": "rgba(148, 163, 184, 0.08)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #1D4ED8 0%, #3B82F6 100%)",
+      "brandVertical": "linear-gradient(0deg, #1D4ED8 0%, #3B82F6 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.03,
+    "tonalOffset": 0.15
+  }
+}

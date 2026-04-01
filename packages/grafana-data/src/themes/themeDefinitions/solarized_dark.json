@@ -1,0 +1,67 @@
+{
+  "name": "Solarized dark",
+  "id": "solarized_dark",
+  "colors": {
+    "mode": "dark",
+    "border": {
+      "weak": "rgba(147, 161, 161, 0.18)",
+      "medium": "rgba(147, 161, 161, 0.28)",
+      "strong": "rgba(147, 161, 161, 0.4)"
+    },
+    "text": {
+      "primary": "#93A1A1",
+      "secondary": "#839496",
+      "disabled": "#657B83",
+      "link": "#268BD2",
+      "maxContrast": "#FDF6E3"
+    },
+    "primary": {
+      "main": "#268BD2",
+      "text": "#2AA198",
+      "border": "#268BD2"
+    },
+    "secondary": {
+      "main": "#073642",
+      "shade": "#0E4D5A",
+      "transparent": "rgba(131, 148, 150, 0.12)",
+      "text": "#93A1A1",
+      "contrastText": "#FDF6E3",
+      "border": "rgba(131, 148, 150, 0.2)"
+    },
+    "info": {
+      "main": "#2AA198"
+    },
+    "error": {
+      "main": "#DC322F"
+    },
+    "success": {
+      "main": "#859900"
+    },
+    "warning": {
+      "main": "#B58900"
+    },
+    "background": {
+      "canvas": "#002B36",
+      "primary": "#073642",
+      "secondary": "#0B3B47",
+      "elevated": "#0B3B47"
+    },
+    "action": {
+      "hover": "rgba(131, 148, 150, 0.12)",
+      "selected": "rgba(38, 139, 210, 0.2)",
+      "selectedBorder": "#268BD2",
+      "focus": "rgba(38, 139, 210, 0.24)",
+      "hoverOpacity": 0.08,
+      "disabledText": "#657B83",
+      "disabledBackground": "rgba(131, 148, 150, 0.08)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #2AA198 0%, #268BD2 100%)",
+      "brandVertical": "linear-gradient(0deg, #2AA198 0%, #268BD2 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.03,
+    "tonalOffset": 0.15
+  }
+}

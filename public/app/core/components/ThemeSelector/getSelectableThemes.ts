@@ -4,6 +4,10 @@ import { config } from '@grafana/runtime';
 export function getSelectableThemes() {
   const allowedExtraThemes = [];
 
+  allowedExtraThemes.push('vscode_dark_blue');
+  allowedExtraThemes.push('solarized_dark');
+  allowedExtraThemes.push('solarized_light');
+
   if (config.featureToggles.colorblindThemes) {
     allowedExtraThemes.push('deuteranopia_protanopia_dark');
     allowedExtraThemes.push('deuteranopia_protanopia_light');
