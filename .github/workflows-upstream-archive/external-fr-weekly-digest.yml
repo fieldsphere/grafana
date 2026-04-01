@@ -71,7 +71,7 @@ jobs:
             echo "::error::Configuration file not found: .github/team-notifications-config.json"
             exit 1
           fi
-          node -e "JSON.parse(require('fs').readFileSync('.github/team-notifications-config.json', 'utf-8')); console.log('Configuration file validated successfully');"
+          node -e "JSON.parse(require('fs').readFileSync('.github/team-notifications-config.json', 'utf-8')); console.info('Configuration file validated successfully');"
 
       - name: Run FR Weekly Digest
         env:

@@ -172,7 +172,10 @@ export class PrometheusDatasource
         this.ruleMappings = extractRuleMappingFromGroups(ruleGroups);
       }
     } catch (err) {
-      console.log('Rules API is experimental. Ignore next error.');
+      console.info({
+        source: "packages/grafana-prometheus/src/datasource.ts",
+        message: 'Rules API is experimental. Ignore next error.'
+      });
       console.error(err);
     }
   }
@@ -227,14 +230,13 @@ export class PrometheusDatasource
 
     return (
       // https://github.com/prometheus/prometheus/releases/tag/v2.24.0
-      this._isDatasourceVersionGreaterOrEqualTo('2.24.0', PromApplication.Prometheus) ||
+      (this._isDatasourceVersionGreaterOrEqualTo('2.24.0', PromApplication.Prometheus) ||
       // All versions of Mimir support matchers for labels API
       this._isDatasourceVersionGreaterOrEqualTo('2.0.0', PromApplication.Mimir) ||
       // https://github.com/cortexproject/cortex/discussions/4542
-      this._isDatasourceVersionGreaterOrEqualTo('1.11.0', PromApplication.Cortex) ||
-      // https://github.com/thanos-io/thanos/pull/3566
+      this._isDatasourceVersionGreaterOrEqualTo('1.11.0', PromApplication.Cortex) || // https://github.com/thanos-io/thanos/pull/3566
       //https://github.com/thanos-io/thanos/releases/tag/v0.18.0
-      this._isDatasourceVersionGreaterOrEqualTo('0.18.0', PromApplication.Thanos)
+      this._isDatasourceVersionGreaterOrEqualTo('0.18.0', PromApplication.Thanos))
     );
   }
 

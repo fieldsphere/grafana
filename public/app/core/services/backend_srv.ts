@@ -235,7 +235,11 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            console.info({
+              source: "public/app/core/services/backend_srv.ts",
+              message: "log",
+              data: [requestId, 'catch', e]
+            });
             observer.error(e);
           }); // from abort
       },

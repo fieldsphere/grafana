@@ -60,7 +60,11 @@ export class RequestsRecorder {
         return Promise.resolve();
       }
 
-      console.log('waiting for', this.#requestsInFlight, 'requests to finish');
+      console.info({
+        source: "e2e-playwright/utils/RequestsRecorder.ts",
+        message: 'waiting for',
+        data: [this.#requestsInFlight, 'requests to finish']
+      });
 
       return new Promise<void>((resolve) => {
         this.#resolve = resolve;

@@ -35,7 +35,8 @@ function checkCodeownerAffected(codeowner, changedFiles) {
 
   const filesArray = typeof changedFiles === 'string' ? changedFiles.split(/\s+/).filter(Boolean) : changedFiles;
   const isAffected = isCodeownerAffected(codeowner, filesArray);
-  console.log(isAffected ? 'true' : 'false');
+  // Keep plain stdout contract for callers that parse exact true/false output.
+  console.info(isAffected ? 'true' : 'false');
 }
 
 if (require.main === module) {

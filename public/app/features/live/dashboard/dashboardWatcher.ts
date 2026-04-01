@@ -127,7 +127,11 @@ class DashboardWatcher {
 
             const dash = getDashboardSrv().getCurrent();
             if (dash?.uid !== event.message.uid) {
-              console.log('dashboard event for different dashboard?', event, dash);
+              console.info({
+                source: "public/app/features/live/dashboard/dashboardWatcher.ts",
+                message: 'dashboard event for different dashboard?',
+                data: [event, dash]
+              });
               return;
             }
 

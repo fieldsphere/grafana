@@ -6,7 +6,11 @@ type Args = Parameters<typeof console.log>;
  * @internal
  * */
 const throttledLog = throttle((...t: Args) => {
-  console.log(...t);
+  console.info({
+    source: "packages/grafana-ui/src/utils/logger.ts",
+    message: "log",
+    data: [...t]
+  });
 }, 500);
 
 /**

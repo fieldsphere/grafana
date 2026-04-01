@@ -11,7 +11,11 @@ export function createDebugLog(key: string, prefix: string) {
 
   return function debugLog(message: string, ...args: unknown[]) {
     if (store.get(storageKey) === 'true') {
-      console.log(`[${prefix}] ${message}`, ...args);
+      console.info({
+        source: "public/app/core/utils/debugLog.ts",
+        message: `[${prefix}] ${message}`,
+        data: [...args]
+      });
     }
   };
 }

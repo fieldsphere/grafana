@@ -109,7 +109,11 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            console.info({
+              source: "public/app/features/dashboard/state/initDashboard.ts",
+              message: 'not correct url correcting',
+              data: [dashboardUrl, currentPath]
+            });
           }
         }
         return dashDTO;

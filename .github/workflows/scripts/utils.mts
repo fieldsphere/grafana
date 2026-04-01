@@ -108,11 +108,11 @@ export function requireEnv(name: string): string {
 // =============================================================================
 
 export const log = {
-  notice: (msg: string) => console.log(`::notice::${msg}`),
-  warning: (msg: string) => console.log(`::warning::${msg}`),
-  error: (msg: string) => console.log(`::error::${msg}`),
-  groupStart: (name: string) => console.log(`::group::${name}`),
-  groupEnd: () => console.log('::endgroup::'),
+  notice: (msg: string) => console.info(`::notice::${msg}`),
+  warning: (msg: string) => console.info(`::warning::${msg}`),
+  error: (msg: string) => console.info(`::error::${msg}`),
+  groupStart: (name: string) => console.info(`::group::${name}`),
+  groupEnd: () => console.info('::endgroup::'),
 };
 
 // =============================================================================
@@ -124,7 +124,7 @@ export function setOutput(key: string, value: string): void {
   if (outputFile) {
     appendFileSync(outputFile, `${key}=${safeValue}\n`);
   }
-  console.log(`Output: ${key}=${safeValue}`);
+  console.info(`Output: ${key}=${safeValue}`);
 }
 
 export function setOutputMultiline(key: string, value: string): void {
@@ -409,7 +409,7 @@ export async function sendSlackMessage(
     }
 
     log.warning(`Slack API error: ${(body.error as string) ?? 'unknown'} (HTTP ${response.status})`);
-    console.log(JSON.stringify(body, null, 2));
+    console.info(JSON.stringify(body, null, 2));
     return false;
   } catch (err) {
     log.error(`Slack request failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -458,7 +458,7 @@ export async function callOpenAI(
     requestBody.response_format = { type: 'json_object' };
   }
 
-  console.log(`OpenAI request: model=${model}, jsonMode=${jsonMode}, temperature=${temperature}`);
+  console.info(`OpenAI request: model=${model}, jsonMode=${jsonMode}, temperature=${temperature}`);
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {

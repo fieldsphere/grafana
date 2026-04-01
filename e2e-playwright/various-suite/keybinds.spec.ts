@@ -105,7 +105,10 @@ test.describe(
       const modKey = process.platform === 'darwin' ? 'Meta' : 'Control';
 
       // Test that mod+o works in the main dashboard (should not trigger file dialog)
-      console.log('Testing mod+o in main dashboard view...');
+      console.info({
+        source: "e2e-playwright/various-suite/keybinds.spec.ts",
+        message: 'Testing mod+o in main dashboard view...'
+      });
       await page.keyboard.press(`${modKey}+o`);
       expect(page.url()).toBe(currentUrl); // Should not navigate away
 

@@ -54,7 +54,10 @@ const initialize = (on, config) => {
 
   if (!fs.existsSync(resultsFolder)) {
     fs.mkdirSync(resultsFolder, { recursive: true });
-    console.log(`Created folder for benchmark results ${resultsFolder}`);
+    console.info({
+      source: "e2e/cypress/plugins/benchmark/index.js",
+      message: `Created folder for benchmark results ${resultsFolder}`
+    });
   }
 
   on('before:browser:launch', async (browser, options) => {
@@ -69,10 +72,14 @@ const initialize = (on, config) => {
 
     args.push('--start-fullscreen');
 
-    console.log(
-      `initialized benchmarking plugin with ${collectors.length} collectors: ${collectors
-        .map((col) => col.getName())
-        .join(', ')}`
+    console.info(
+      {
+        source: "e2e/cypress/plugins/benchmark/index.js",
+
+        message: `initialized benchmarking plugin with ${collectors.length} collectors: ${collectors
+          .map((col) => col.getName())
+          .join(', ')}`
+      }
     );
 
     return options;

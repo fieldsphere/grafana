@@ -149,7 +149,11 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onError = (err: unknown) => {
-    console.log('LiveQuery [error]', { err }, this.deps.channelId);
+    console.info({
+      source: "public/app/features/live/centrifuge/LiveDataStream.ts",
+      message: 'LiveQuery [error]',
+      data: [{ err }, this.deps.channelId]
+    });
     this.stream.next({
       type: InternalStreamMessageType.Error,
       error: toDataQueryError(err),
@@ -158,7 +162,11 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onComplete = () => {
-    console.log('LiveQuery [complete]', this.deps.channelId);
+    console.info({
+      source: "public/app/features/live/centrifuge/LiveDataStream.ts",
+      message: 'LiveQuery [complete]',
+      data: [this.deps.channelId]
+    });
     this.shutdown();
   };
 

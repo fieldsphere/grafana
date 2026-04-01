@@ -184,11 +184,11 @@ async function sendSlackDigest(params: DigestParams): Promise<void> {
 
   if (env.dryRun) {
     log.notice(`DRY RUN - Would send Slack notification to ${teamName}`);
-    console.log(`FRs: ${frs.length}`);
-    console.log(`Clusters: ${clusters.clusters.length}`);
-    console.log(`Stale: ${staleFrs.length}`);
-    console.log(`Engaged: ${engagedFrs.length}`);
-    console.log(`Unclustered: ${unclusteredFrs.length}`);
+    console.info(`FRs: ${frs.length}`);
+    console.info(`Clusters: ${clusters.clusters.length}`);
+    console.info(`Stale: ${staleFrs.length}`);
+    console.info(`Engaged: ${engagedFrs.length}`);
+    console.info(`Unclustered: ${unclusteredFrs.length}`);
     return;
   }
 
@@ -315,9 +315,9 @@ async function sendSlackDigest(params: DigestParams): Promise<void> {
 
 async function main(): Promise<void> {
   log.groupStart('FR Weekly Digest - Starting');
-  console.log(`Repository: ${env.repo}`);
-  console.log(`Dry run: ${env.dryRun}`);
-  console.log(`Team filter: ${env.teamFilter || 'all'}`);
+  console.info(`Repository: ${env.repo}`);
+  console.info(`Dry run: ${env.dryRun}`);
+  console.info(`Team filter: ${env.teamFilter || 'all'}`);
   log.groupEnd();
 
   const config = loadConfig();
@@ -335,7 +335,7 @@ async function main(): Promise<void> {
     }
 
     log.groupStart(`Processing team: ${teamName}`);
-    console.log(`Area labels: ${areaLabels.join(' ')}`);
+    console.info(`Area labels: ${areaLabels.join(' ')}`);
 
     const channelId = teamChannelEnv(team.name, 'fr');
     if (!channelId && !env.dryRun) {
@@ -344,15 +344,15 @@ async function main(): Promise<void> {
 
     const adoptionDate = team.adoption_date ?? '';
     if (adoptionDate) {
-      console.log(`Adoption date: ${adoptionDate}`);
+      console.info(`Adoption date: ${adoptionDate}`);
     }
 
-    console.log('Querying feature requests...');
+    console.info('Querying feature requests...');
     const allFrs = queryFeatureRequests(areaLabels);
     const frs = adoptionDate
       ? allFrs.filter((fr) => fr.createdAt.slice(0, 10) >= adoptionDate)
       : allFrs;
-    console.log(`Found ${allFrs.length} feature requests (${frs.length} after adoption date filter)`);
+    console.info(`Found ${allFrs.length} feature requests (${frs.length} after adoption date filter)`);
 
     if (frs.length === 0) {
       log.notice(`No feature requests found for team ${teamName}`);
@@ -361,21 +361,21 @@ async function main(): Promise<void> {
     }
 
     const staleFrs = frs.filter((fr) => fr.labels.includes(STALE_LABEL));
-    console.log(`Found ${staleFrs.length} stale feature requests`);
+    console.info(`Found ${staleFrs.length} stale feature requests`);
 
     const engagedFrs = frs
       .filter((fr) => fr.thumbs_up >= 1 || fr.comments >= 1)
       .sort((a, b) => (b.thumbs_up + b.comments) - (a.thumbs_up + a.comments))
       .slice(0, 10);
-    console.log(`Found ${engagedFrs.length} engaged feature requests`);
+    console.info(`Found ${engagedFrs.length} engaged feature requests`);
 
-    console.log('Clustering similar feature requests...');
+    console.info('Clustering similar feature requests...');
     let clusters = await clusterFeatureRequests(frs);
     if (clusters.clusters.length > 5) {
-      console.log(`Found ${clusters.clusters.length} clusters (showing top 5)`);
+      console.info(`Found ${clusters.clusters.length} clusters (showing top 5)`);
       clusters = { clusters: clusters.clusters.slice(0, 5) };
     } else {
-      console.log(`Found ${clusters.clusters.length} clusters`);
+      console.info(`Found ${clusters.clusters.length} clusters`);
     }
 
     const clusteredNumbers = new Set(clusters.clusters.flatMap((c) => c.issue_numbers));
@@ -383,9 +383,9 @@ async function main(): Promise<void> {
     const unclusteredFrs = frs.filter(
       (fr) => !clusteredNumbers.has(fr.number) && !staleNumbers.has(fr.number),
     );
-    console.log(`Found ${unclusteredFrs.length} unclustered feature requests`);
+    console.info(`Found ${unclusteredFrs.length} unclustered feature requests`);
 
-    console.log('Sending Slack notification...');
+    console.info('Sending Slack notification...');
     await sendSlackDigest({ teamName, channelId, frs, clusters, staleFrs, engagedFrs, unclusteredFrs, areaLabels });
 
     log.groupEnd();

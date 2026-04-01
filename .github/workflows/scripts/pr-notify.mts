@@ -42,13 +42,13 @@ function getPrMetadata(): void {
   setOutput('created_date', createdDate);
 
   const files: string[] = (prData.files ?? []).map((f: { path: string }) => f.path);
-  console.log('Files changed in PR:');
-  files.forEach((f) => console.log(f));
+  console.info('Files changed in PR:');
+  files.forEach((f) => console.info(f));
 
   const allLabels = labels.join(',');
   const areaLabels = labels.filter((l) => l.startsWith('area/')).join(' ');
-  console.log(`All labels: ${allLabels}`);
-  console.log(`Area labels: ${areaLabels}`);
+  console.info(`All labels: ${allLabels}`);
+  console.info(`Area labels: ${areaLabels}`);
 
   setOutput('area_labels', areaLabels);
   setOutput('all_labels', allLabels);
@@ -82,12 +82,12 @@ function getPrMetadata(): void {
   setOutput('files_b64', Buffer.from(filesDisplay).toString('base64'));
   setOutput('all_files_b64', Buffer.from(files.join('\n')).toString('base64'));
 
-  console.log('PR Metadata:');
-  console.log(`  Title: ${title}`);
-  console.log(`  Author: ${author}`);
-  console.log(`  Size: ${size} (+${additions}/-${deletions})`);
-  console.log(`  Area labels: ${areaLabels}`);
-  console.log(`  Files count: ${files.length}`);
+  console.info('PR Metadata:');
+  console.info(`  Title: ${title}`);
+  console.info(`  Author: ${author}`);
+  console.info(`  Size: ${size} (+${additions}/-${deletions})`);
+  console.info(`  Area labels: ${areaLabels}`);
+  console.info(`  Files count: ${files.length}`);
 }
 
 // =============================================================================
@@ -109,8 +109,8 @@ function checkEnabledTeams(): void {
   const prLabels: string[] = (prData.labels ?? []).map((l: { name: string }) => l.name);
   const areaLabels = prLabels.filter((l) => l.startsWith('area/'));
 
-  console.log(`Files: ${files.length} changed`);
-  console.log(`Area labels: ${areaLabels.length > 0 ? areaLabels.join(' ') : 'none'}`);
+  console.info(`Files: ${files.length} changed`);
+  console.info(`Area labels: ${areaLabels.length > 0 ? areaLabels.join(' ') : 'none'}`);
 
   const config = loadConfig();
   const codeownersEntries = parseCodeowners();
@@ -120,30 +120,30 @@ function checkEnabledTeams(): void {
     if (!(team.enabled?.pr_notify ?? false)) continue;
 
     if (createdDate && team.adoption_date && createdDate < team.adoption_date) {
-      console.log(`Skipping team ${team.name} (PR created ${createdDate}, before adoption date ${team.adoption_date})`);
+      console.info(`Skipping team ${team.name} (PR created ${createdDate}, before adoption date ${team.adoption_date})`);
       continue;
     }
 
     let teamMatched = false;
 
     if (team.codeowners_teams?.length && files.length > 0 && codeownersEntries.length > 0) {
-      console.log(`Trying CODEOWNERS routing for team '${team.name}'...`);
+      console.info(`Trying CODEOWNERS routing for team '${team.name}'...`);
       const result = matchFilesToCodeownersTeams(files, codeownersEntries, team.codeowners_teams);
       if (result.matched) {
-        console.log(`✅ Team '${team.name}' matched via CODEOWNERS: ${result.owner} owns ${result.file}`);
+        console.info(`✅ Team '${team.name}' matched via CODEOWNERS: ${result.owner} owns ${result.file}`);
         teamMatched = true;
       } else {
-        console.log(`No CODEOWNERS match for team '${team.name}'`);
+        console.info(`No CODEOWNERS match for team '${team.name}'`);
       }
     }
 
     if (!teamMatched && areaLabels.length > 0) {
-      console.log(`Trying area label routing for team '${team.name}'...`);
+      console.info(`Trying area label routing for team '${team.name}'...`);
       const teamLabels = team.area_labels ?? [];
       for (const prLabel of areaLabels) {
         for (const configLabel of teamLabels) {
           if (prLabel.startsWith(configLabel)) {
-            console.log(`✅ Team '${team.name}' matched via area label: ${prLabel}`);
+            console.info(`✅ Team '${team.name}' matched via area label: ${prLabel}`);
             teamMatched = true;
             break;
           }
@@ -151,7 +151,7 @@ function checkEnabledTeams(): void {
         if (teamMatched) break;
       }
       if (!teamMatched) {
-        console.log(`No area label match for team '${team.name}'`);
+        console.info(`No area label match for team '${team.name}'`);
       }
     }
 
@@ -177,7 +177,7 @@ async function classifyPrType(): Promise<void> {
   const openaiApiKey = process.env.OPENAI_API_KEY ?? '';
 
   if (!openaiApiKey) {
-    console.log("OpenAI API key not available, defaulting to 'feature'");
+    console.info("OpenAI API key not available, defaulting to 'feature'");
     setOutput('type', 'feature');
     return;
   }
@@ -200,7 +200,7 @@ async function classifyPrType(): Promise<void> {
   const type = ['docs', 'bugfix', 'feature'].includes(aiType) ? aiType : 'feature';
 
   setOutput('type', type);
-  console.log(`Classified PR type: ${type}`);
+  console.info(`Classified PR type: ${type}`);
 }
 
 // =============================================================================
@@ -216,7 +216,7 @@ function addClassificationLabels(): void {
   const typeLabel = prType === 'docs' ? 'type/docs' : prType === 'bugfix' ? 'type/bug' : 'type/feature';
   const sizeLabel = prSize === 'small' ? 'effort/small' : prSize === 'medium' ? 'effort/medium' : 'effort/large';
 
-  console.log(`Adding labels: ${typeLabel}, ${sizeLabel}`);
+  console.info(`Adding labels: ${typeLabel}, ${sizeLabel}`);
   execFileSync('gh', ['pr', 'edit', prNumber, '--repo', repo, '--add-label', typeLabel, '--add-label', sizeLabel], {
     encoding: 'utf-8', timeout: 30_000,
   });
@@ -247,7 +247,7 @@ async function sendNotifications(): Promise<void> {
     { encoding: 'utf-8', timeout: 30_000 },
   );
   if (comments.includes('Thanks for your contribution')) {
-    console.log('Already notified for this PR, skipping...');
+    console.info('Already notified for this PR, skipping...');
     return;
   }
 
@@ -268,12 +268,12 @@ async function sendNotifications(): Promise<void> {
 
   for (const team of config.teams) {
     if (!(team.enabled?.pr_notify ?? false)) {
-      console.log(`Skipping team ${team.name} (PR notifications disabled)`);
+      console.info(`Skipping team ${team.name} (PR notifications disabled)`);
       continue;
     }
 
     if (createdDate && team.adoption_date && createdDate < team.adoption_date) {
-      console.log(`Skipping team ${team.name} (PR created ${createdDate}, before adoption date ${team.adoption_date})`);
+      console.info(`Skipping team ${team.name} (PR created ${createdDate}, before adoption date ${team.adoption_date})`);
       continue;
     }
 
@@ -281,18 +281,18 @@ async function sendNotifications(): Promise<void> {
     let matchReason = '';
 
     if (team.codeowners_teams?.length && allPrFiles.length > 0 && codeownersEntries.length > 0) {
-      console.log(`Trying CODEOWNERS routing for team '${team.name}'...`);
+      console.info(`Trying CODEOWNERS routing for team '${team.name}'...`);
       const result = matchFilesToCodeownersTeams(allPrFiles, codeownersEntries, team.codeowners_teams);
       if (result.matched) {
         matchFound = true;
         matchReason = `CODEOWNERS: ${result.owner} owns ${result.file}`;
       } else {
-        console.log(`No CODEOWNERS match for team '${team.name}'`);
+        console.info(`No CODEOWNERS match for team '${team.name}'`);
       }
     }
 
     if (!matchFound && areaLabels.length > 0) {
-      console.log(`Trying area label routing for team '${team.name}'...`);
+      console.info(`Trying area label routing for team '${team.name}'...`);
       const teamLabels = team.area_labels ?? [];
       for (const prLabel of areaLabels) {
         for (const configLabel of teamLabels) {
@@ -305,7 +305,7 @@ async function sendNotifications(): Promise<void> {
         if (matchFound) break;
       }
       if (!matchFound) {
-        console.log(`No area label match for team '${team.name}'`);
+        console.info(`No area label match for team '${team.name}'`);
       }
     }
 
@@ -386,7 +386,7 @@ function postWelcomeComment(): void {
   );
 
   if (comments.includes('Thanks for your contribution')) {
-    console.log('Welcome comment already exists, skipping...');
+    console.info('Welcome comment already exists, skipping...');
     return;
   }
 
@@ -431,7 +431,7 @@ function addAutoTriagedLabel(): void {
   const prNumber = requireEnv('PR_NUMBER');
   const repo = requireEnv('REPO');
 
-  console.log('Adding pr/auto-triaged label to track automated triage');
+  console.info('Adding pr/auto-triaged label to track automated triage');
   execFileSync('gh', ['pr', 'edit', prNumber, '--repo', repo, '--add-label', 'pr/auto-triaged'], {
     encoding: 'utf-8', timeout: 30_000,
   });

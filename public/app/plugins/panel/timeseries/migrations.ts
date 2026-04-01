@@ -283,7 +283,11 @@ export function graphToTimeseriesOptions(angular: any): {
             });
             break;
           default:
-            console.log('Ignore override migration:', seriesOverride.alias, p, v);
+            console.info({
+              source: "public/app/plugins/panel/timeseries/migrations.ts",
+              message: 'Ignore override migration:',
+              data: [seriesOverride.alias, p, v]
+            });
         }
       }
       if (dashOverride) {

@@ -42,7 +42,11 @@ export const Clickable: StoryObj<typeof AlertLabel> = {
       {...args}
       labelKey="region"
       value="eu-central-1"
-      onClick={([value, key]) => console.log('clicked', key, value)}
+      onClick={([value, key]) => console.info({
+        source: "packages/grafana-alerting/src/grafana/rules/components/labels/AlertLabel.story.tsx",
+        message: 'clicked',
+        data: [key, value]
+      })}
     />
   ),
 };

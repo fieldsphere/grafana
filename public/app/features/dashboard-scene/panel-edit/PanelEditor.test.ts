@@ -495,7 +495,7 @@ async function setup(options: SetupOptions = {}) {
   deactivate = activateFullSceneTree(dashboard);
 
   if (!options.skipWait) {
-    //console.log('pluginResolve(pluginToLoad)');
+    //console.info('pluginResolve(pluginToLoad)');
     pluginResolve(pluginToLoad);
     await new Promise((r) => setTimeout(r, 1));
   }

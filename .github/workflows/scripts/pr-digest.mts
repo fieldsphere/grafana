@@ -48,7 +48,7 @@ interface PRData {
 function fetchPrs(): void {
   const repo = requireEnv('REPO');
 
-  console.log('Fetching open PRs...');
+  console.info('Fetching open PRs...');
   const allPrs: PRData[] = JSON.parse(
     execFileSync('gh', [
       'pr', 'list', '--repo', repo, '--state', 'open',
@@ -67,8 +67,8 @@ function fetchPrs(): void {
   setOutput('data_file', dataFile);
   setOutput('external_prs', JSON.stringify(externalPrs.length > 0 ? true : false));
 
-  console.log(`Total open PRs: ${allPrs.length} (External: ${externalPrs.length})`);
-  console.log(`Data written to: ${dataFile}`);
+  console.info(`Total open PRs: ${allPrs.length} (External: ${externalPrs.length})`);
+  console.info(`Data written to: ${dataFile}`);
 }
 
 // =============================================================================
@@ -147,7 +147,7 @@ async function processTeams(): Promise<void> {
   const link = (n: number) => prLink(repo, n);
 
   if (codeownersEntries.length === 0) {
-    console.log('No CODEOWNERS entries loaded, using area label routing only');
+    console.info('No CODEOWNERS entries loaded, using area label routing only');
   }
 
   for (const team of config.teams) {
@@ -162,12 +162,12 @@ async function processTeams(): Promise<void> {
     log.groupStart(`Processing team: ${teamName}`);
     const teamAreaLabels = team.area_labels ?? [];
     const teamCodeownersHandles = team.codeowners_teams ?? [];
-    console.log(`Area labels: ${teamAreaLabels.join(',')}`);
-    console.log(`CODEOWNERS handles: ${teamCodeownersHandles.join(',')}`);
+    console.info(`Area labels: ${teamAreaLabels.join(',')}`);
+    console.info(`CODEOWNERS handles: ${teamCodeownersHandles.join(',')}`);
 
     const adoptionDate = team.adoption_date ?? '';
     if (adoptionDate) {
-      console.log(`Adoption date: ${adoptionDate}`);
+      console.info(`Adoption date: ${adoptionDate}`);
     }
 
     const seen = new Set<number>();
@@ -198,10 +198,10 @@ async function processTeams(): Promise<void> {
 
     teamPrs.sort((a, b) => b.number - a.number);
     const totalCount = teamPrs.length;
-    console.log(`Found ${totalCount} external PRs for ${teamName}`);
+    console.info(`Found ${totalCount} external PRs for ${teamName}`);
 
     if (totalCount === 0) {
-      console.log(`No external PRs found for ${teamName}`);
+      console.info(`No external PRs found for ${teamName}`);
       log.groupEnd();
       continue;
     }
@@ -209,15 +209,15 @@ async function processTeams(): Promise<void> {
     let clusters: PRClusterResult = { clusters: [] };
     let clusterCount = 0;
     if (totalCount >= 2) {
-      console.log('Clustering similar PRs...');
+      console.info('Clustering similar PRs...');
       clusters = await clusterPullRequests(teamPrs);
       clusterCount = clusters.clusters.length;
       if (clusterCount > 5) {
         clusters = { clusters: clusters.clusters.slice(0, 5) };
-        console.log(`Found ${clusterCount} PR clusters (showing top 5)`);
+        console.info(`Found ${clusterCount} PR clusters (showing top 5)`);
         clusterCount = 5;
       } else {
-        console.log(`Found ${clusterCount} PR clusters`);
+        console.info(`Found ${clusterCount} PR clusters`);
       }
     }
 
@@ -281,16 +281,16 @@ async function processTeams(): Promise<void> {
     }
 
     if (dryRun) {
-      console.log(`DRY RUN - Would send report to ${teamName}:`);
-      console.log(`  Total External: ${totalCount}`);
-      console.log(`  Types: ${typeCounters.feature} feature, ${typeCounters.bugfix} bugfix, ${typeCounters.docs} docs`);
-      console.log(`  Sizes: ${sizeCounters.large} large, ${sizeCounters.medium} medium, ${sizeCounters.small} small`);
-      console.log(`  Stale: ${stalePrs.length}, Approved: ${approvedPrs.length}, Reviewed: ${reviewedPrs.length}`);
-      console.log(`  Clusters: ${clusterCount}`);
+      console.info(`DRY RUN - Would send report to ${teamName}:`);
+      console.info(`  Total External: ${totalCount}`);
+      console.info(`  Types: ${typeCounters.feature} feature, ${typeCounters.bugfix} bugfix, ${typeCounters.docs} docs`);
+      console.info(`  Sizes: ${sizeCounters.large} large, ${sizeCounters.medium} medium, ${sizeCounters.small} small`);
+      console.info(`  Stale: ${stalePrs.length}, Approved: ${approvedPrs.length}, Reviewed: ${reviewedPrs.length}`);
+      console.info(`  Clusters: ${clusterCount}`);
       if (clusterCount > 0) {
-        console.log('  Cluster details:');
+        console.info('  Cluster details:');
         for (const c of clusters.clusters) {
-          console.log(`    - ${c.name}: ${c.pr_numbers.join(', ')}`);
+          console.info(`    - ${c.name}: ${c.pr_numbers.join(', ')}`);
         }
       }
       log.groupEnd();

@@ -90,8 +90,20 @@ export class FetchQueue {
       []
     );
 
-    console.log('FetchQueue noOfStarted', update.noOfInProgress);
-    console.log('FetchQueue noOfNotStarted', update.noOfPending);
-    console.log('FetchQueue state', entriesWithoutOptions);
+    console.info({
+      source: "public/app/core/services/FetchQueue.ts",
+      message: 'FetchQueue noOfStarted',
+      data: [update.noOfInProgress]
+    });
+    console.info({
+      source: "public/app/core/services/FetchQueue.ts",
+      message: 'FetchQueue noOfNotStarted',
+      data: [update.noOfPending]
+    });
+    console.info({
+      source: "public/app/core/services/FetchQueue.ts",
+      message: 'FetchQueue state',
+      data: [entriesWithoutOptions]
+    });
   };
 }

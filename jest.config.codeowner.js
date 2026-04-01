@@ -64,12 +64,18 @@ const testFiles = teamFiles.filter((file) => {
 });
 
 if (testFiles.length === 0) {
-  console.log(`No test files found for team ${codeownerName}`);
+  console.info({
+    source: "jest.config.codeowner.js",
+    message: `No test files found for team ${codeownerName}`
+  });
   process.exit(0);
 }
 
-console.log(
-  `🧪 Collecting coverage for ${sourceFiles.length} testable files and running ${testFiles.length} test files of ${teamFiles.length} files owned by ${codeownerName}.`
+console.info(
+  {
+    source: "jest.config.codeowner.js",
+    message: `🧪 Collecting coverage for ${sourceFiles.length} testable files and running ${testFiles.length} test files of ${teamFiles.length} files owned by ${codeownerName}.`
+  }
 );
 
 module.exports = {
@@ -100,7 +106,10 @@ module.exports = {
         cleanCache: true,
         onEnd: (coverageResults) => {
           const reportURL = `file://${path.resolve(outputDir)}/index.html`;
-          console.log(`📄 Coverage report saved to ${reportURL}`);
+          console.info({
+            source: "jest.config.codeowner.js",
+            message: `📄 Coverage report saved to ${reportURL}`
+          });
 
           if (process.env.SHOULD_OPEN_COVERAGE_REPORT === 'true') {
             openCoverageReport(reportURL);
@@ -160,7 +169,10 @@ function writeCoverageSummaryArtifact(coverageResults) {
 
   try {
     fs.writeFileSync(COVERAGE_SUMMARY_OUTPUT_PATH, JSON.stringify(summary, null, 2));
-    console.log(`📊 Coverage summary written to ${COVERAGE_SUMMARY_OUTPUT_PATH}`);
+    console.info({
+      source: "jest.config.codeowner.js",
+      message: `📊 Coverage summary written to ${COVERAGE_SUMMARY_OUTPUT_PATH}`
+    });
   } catch (err) {
     console.error(`Failed to write coverage summary: ${err}`);
   }

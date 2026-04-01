@@ -11,7 +11,11 @@ import { Button } from '../Button/Button';
 import { Stack } from '../Layout/Stack/Stack';
 
 export function EmotionPerfTest() {
-  console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+  console.info({
+    source: "packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest.tsx",
+    message: 'process.env.NODE_ENV',
+    data: [process.env.NODE_ENV]
+  });
 
   return (
     <Stack direction="column">
@@ -126,7 +130,11 @@ function NoStyles({ index }: TestComponentProps) {
 
 function MeasureRender({ children, id }: { children: React.ReactNode; id: string }) {
   const onRender: ProfilerOnRenderCallback = (id, phase, actualDuration, baseDuration, startTime, commitTime) => {
-    console.log('Profile ' + id, actualDuration);
+    console.info({
+      source: "packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest.tsx",
+      message: "log",
+      data: ['Profile ' + id, actualDuration]
+    });
   };
 
   return (

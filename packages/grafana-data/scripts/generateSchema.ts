@@ -19,4 +19,7 @@ fs.writeFileSync(
   )
 );
 
-console.log('Successfully generated theme schema');
+console.info({
+  source: "packages/grafana-data/scripts/generateSchema.ts",
+  message: 'Successfully generated theme schema'
+});

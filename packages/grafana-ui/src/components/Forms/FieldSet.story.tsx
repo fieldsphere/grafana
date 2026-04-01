@@ -34,7 +34,10 @@ export const Basic: StoryFn<typeof FieldSet> = (args: Props) => {
   const colorId = useId();
   const fontSizeId = useId();
   return (
-    <Form onSubmit={() => console.log('Submit')}>
+    (<Form onSubmit={() => console.info({
+      source: "packages/grafana-ui/src/components/Forms/FieldSet.story.tsx",
+      message: 'Submit'
+    })}>
       {() => (
         <>
           <FieldSet {...args}>
@@ -54,7 +57,7 @@ export const Basic: StoryFn<typeof FieldSet> = (args: Props) => {
           <Button variant="primary">Save</Button>
         </>
       )}
-    </Form>
+    </Form>)
   );
 };
 

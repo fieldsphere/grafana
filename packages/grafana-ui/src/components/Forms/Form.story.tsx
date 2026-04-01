@@ -67,14 +67,22 @@ const renderForm = (defaultValues?: FormDTO) => {
   const radioId = useId();
   const selectId = useId();
   return (
-    <Form
+    (<Form
       defaultValues={defaultValues}
       onSubmit={(data: FormDTO) => {
-        console.log(data);
+        console.info({
+          source: "packages/grafana-ui/src/components/Forms/Form.story.tsx",
+          message: "log",
+          data: [data]
+        });
       }}
     >
       {({ register, control, errors }) => {
-        console.log(errors);
+        console.info({
+          source: "packages/grafana-ui/src/components/Forms/Form.story.tsx",
+          message: "log",
+          data: [errors]
+        });
         return (
           <>
             <Legend>Edit user</Legend>
@@ -129,7 +137,7 @@ const renderForm = (defaultValues?: FormDTO) => {
           </>
         );
       }}
-    </Form>
+    </Form>)
   );
 };
 
@@ -154,35 +162,37 @@ export const DefaultValues = () => {
 };
 
 export const AsyncValidation: StoryFn = ({ passAsyncValidation }) => {
-  return (
-    <>
-      <Form
-        onSubmit={(data: FormDTO) => {
-          alert('Submitted successfully!');
-        }}
-      >
-        {({ register, control, errors, formState }) => {
-          console.log(errors);
-          return (
-            <>
-              <Legend>Edit user</Legend>
+  return (<>
+    <Form
+      onSubmit={(data: FormDTO) => {
+        alert('Submitted successfully!');
+      }}
+    >
+      {({ register, control, errors, formState }) => {
+        console.info({
+          source: "packages/grafana-ui/src/components/Forms/Form.story.tsx",
+          message: "log",
+          data: [errors]
+        });
+        return (
+          <>
+            <Legend>Edit user</Legend>
 
-              <Field label="Name" invalid={!!errors.name} error="Username is already taken">
-                <Input
-                  placeholder="Roger Waters"
-                  {...register('name', { validate: validateAsync(passAsyncValidation) })}
-                />
-              </Field>
+            <Field label="Name" invalid={!!errors.name} error="Username is already taken">
+              <Input
+                placeholder="Roger Waters"
+                {...register('name', { validate: validateAsync(passAsyncValidation) })}
+              />
+            </Field>
 
-              <Button type="submit" disabled={formState.isSubmitting}>
-                Submit
-              </Button>
-            </>
-          );
-        }}
-      </Form>
-    </>
-  );
+            <Button type="submit" disabled={formState.isSubmitting}>
+              Submit
+            </Button>
+          </>
+        );
+      }}
+    </Form>
+  </>);
 };
 AsyncValidation.args = {
   passAsyncValidation: true,
@@ -201,7 +211,11 @@ const validateAsync = (shouldPass: boolean) => async () => {
     });
     return true;
   } catch (e) {
-    console.log(e);
+    console.info({
+      source: "packages/grafana-ui/src/components/Forms/Form.story.tsx",
+      message: "log",
+      data: [e]
+    });
     return false;
   }
 };

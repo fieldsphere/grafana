@@ -35,8 +35,16 @@ export const RawFrameEditor = ({ onChange, query }: EditorProps) => {
       }
 
       if (data) {
-        console.log('Original', json);
-        console.log('Save', data);
+        console.info({
+          source: "public/app/plugins/datasource/grafana-testdata-datasource/components/RawFrameEditor.tsx",
+          message: 'Original',
+          data: [json]
+        });
+        console.info({
+          source: "public/app/plugins/datasource/grafana-testdata-datasource/components/RawFrameEditor.tsx",
+          message: 'Save',
+          data: [data]
+        });
         setError(undefined);
         setWarning('Converted to direct frame result');
         onChange({ ...query, rawFrameContent: JSON.stringify(data, null, 2) });
@@ -45,7 +53,11 @@ export const RawFrameEditor = ({ onChange, query }: EditorProps) => {
 
       setError('Unable to read dataframes in text');
     } catch (e) {
-      console.log('Error parsing json', e);
+      console.info({
+        source: "public/app/plugins/datasource/grafana-testdata-datasource/components/RawFrameEditor.tsx",
+        message: 'Error parsing json',
+        data: [e]
+      });
       setError('Enter JSON array of data frames (or raw query results body)');
       setWarning(undefined);
     }

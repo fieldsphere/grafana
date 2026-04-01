@@ -82,7 +82,10 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      console.info({
+        source: "packages/grafana-prometheus/src/components/monaco-query-field/getOverrideServices.ts",
+        message: 'logStorage: not implemented'
+      });
     },
 
     migrate: (): Promise<void> => {

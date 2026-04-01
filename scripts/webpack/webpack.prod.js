@@ -113,7 +113,11 @@ module.exports = (env = {}) =>
       function () {
         this.hooks.done.tap('Done', function (stats) {
           if (stats.compilation.errors && stats.compilation.errors.length) {
-            console.log(stats.compilation.errors);
+            console.info({
+              source: "scripts/webpack/webpack.prod.js",
+              message: "log",
+              data: [stats.compilation.errors]
+            });
             process.exit(1);
           }
         });

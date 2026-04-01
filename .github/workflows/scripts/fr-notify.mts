@@ -44,11 +44,11 @@ function getIssueMetadata(): void {
   setOutput('labels', allLabels);
   setOutput('area_labels', areaLabels);
 
-  console.log('Issue Metadata:');
-  console.log(`  Title: ${title}`);
-  console.log(`  Author: ${author}`);
-  console.log(`  Labels: ${allLabels}`);
-  console.log(`  Area Labels: ${areaLabels}`);
+  console.info('Issue Metadata:');
+  console.info(`  Title: ${title}`);
+  console.info(`  Author: ${author}`);
+  console.info(`  Labels: ${allLabels}`);
+  console.info(`  Area Labels: ${areaLabels}`);
 }
 
 // =============================================================================
@@ -81,12 +81,12 @@ async function sendNotifications(): Promise<void> {
 
   for (const team of config.teams) {
     if (!(team.enabled?.fr_notify ?? false)) {
-      console.log(`Skipping team ${team.name} (FR notifications disabled)`);
+      console.info(`Skipping team ${team.name} (FR notifications disabled)`);
       continue;
     }
 
     if (createdDate && team.adoption_date && createdDate < team.adoption_date) {
-      console.log(`Skipping team ${team.name} (FR created ${createdDate}, before adoption date ${team.adoption_date})`);
+      console.info(`Skipping team ${team.name} (FR created ${createdDate}, before adoption date ${team.adoption_date})`);
       continue;
     }
 
@@ -107,7 +107,7 @@ async function sendNotifications(): Promise<void> {
     const matchedLabelEncoded = matchedLabel.replace(/\//g, '%2F');
 
     log.groupStart(`Processing team: ${team.name}`);
-    console.log(`Matched area label for team ${team.name}: ${matchedLabel}`);
+    console.info(`Matched area label for team ${team.name}: ${matchedLabel}`);
     matchedTeams++;
 
     const channelId = teamChannelEnv(team.name, 'fr');
@@ -171,7 +171,7 @@ function postWelcomeComment(): void {
   );
 
   if (comments.includes('Thanks for submitting this feature request')) {
-    console.log('Welcome comment already exists, skipping...');
+    console.info('Welcome comment already exists, skipping...');
     return;
   }
 
@@ -188,7 +188,7 @@ function postWelcomeComment(): void {
   execFileSync('gh', ['issue', 'comment', issueNumber, '--repo', repo, '--body', body], {
     encoding: 'utf-8', timeout: 30_000,
   });
-  console.log('Welcome comment posted');
+  console.info('Welcome comment posted');
 }
 
 // =============================================================================
@@ -199,7 +199,7 @@ function addAutoTriagedLabel(): void {
   const issueNumber = requireEnv('ISSUE_NUMBER');
   const repo = requireEnv('REPO');
 
-  console.log('Adding fr/auto-triaged label to track automated triage');
+  console.info('Adding fr/auto-triaged label to track automated triage');
   execFileSync('gh', ['issue', 'edit', issueNumber, '--repo', repo, '--add-label', 'fr/auto-triaged'], {
     encoding: 'utf-8', timeout: 30_000,
   });

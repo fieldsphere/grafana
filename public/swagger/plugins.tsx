@@ -42,7 +42,7 @@ export const WrappedPlugins = function () {
             if (info.namespaced) {
               info.resource = path[6];
             }
-            // console.log('NAME (in path)', path, info);
+            // console.info('NAME (in path)', path, info);
             return (
               <ResourceContext.Provider value={info}>
                 <Original {...props} />
@@ -63,9 +63,13 @@ export const WrappedPlugins = function () {
           if (mime) {
             v = mime.get('schema').toJS();
           }
-          console.log('RequestBody', v, mime, props);
+          console.info({
+            source: "public/swagger/plugins.tsx",
+            message: 'RequestBody',
+            data: [v, mime, props]
+          });
         }
-        // console.log('RequestBody PROPS', props);
+        // console.info('RequestBody PROPS', props);
         return (
           <SchemaContext.Provider value={v}>
             <Original {...props} />
@@ -75,7 +79,11 @@ export const WrappedPlugins = function () {
 
       modelExample: (Original: React.ElementType) => (props: UntypedProps) => {
         if (props.isExecute && props.schema) {
-          console.log('modelExample PROPS', props);
+          console.info({
+            source: "public/swagger/plugins.tsx",
+            message: 'modelExample PROPS',
+            data: [props]
+          });
           return (
             <SchemaContext.Provider value={props.schema.toJS()}>
               <Original {...props} />
@@ -115,11 +123,11 @@ export const WrappedPlugins = function () {
       // https://github.com/swagger-api/swagger-ui/blob/v5.17.14/src/core/plugins/oas3/components/request-body-editor.jsx
       TextArea: (Original: React.ElementType) => (props: UntypedProps) => {
         return (
-          <SchemaContext.Consumer>
+          (<SchemaContext.Consumer>
             {(schema) => {
               if (schema) {
                 const val = props.value ?? props.defaultValue ?? '';
-                //console.log('JSON TextArea', props, info);
+                //console.info('JSON TextArea', props, info);
                 // Return a synthetic text area event
                 const cb = (txt: string) => {
                   props.onChange({
@@ -128,7 +136,11 @@ export const WrappedPlugins = function () {
                     },
                   });
                 };
-                console.log('CodeEditor', schema);
+                console.info({
+                  source: "public/swagger/plugins.tsx",
+                  message: 'CodeEditor',
+                  data: [schema]
+                });
 
                 return (
                   <CodeEditor
@@ -155,7 +167,7 @@ export const WrappedPlugins = function () {
               }
               return <Original {...props} />;
             }}
-          </SchemaContext.Consumer>
+          </SchemaContext.Consumer>)
         );
       },
     },

@@ -232,7 +232,7 @@ jobs:
         run: |
           SLUG=$(node -e "
             const { createCodeownerSlug } = require('./scripts/codeowners-manifest/utils.js');
-            console.log(createCodeownerSlug('${{ matrix.codeowner }}'));
+            console.info(createCodeownerSlug('${{ matrix.codeowner }}'));
           ")
           echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
 
@@ -320,7 +320,7 @@ jobs:
         run: |
           SLUG=$(node -e "
             const { createCodeownerSlug } = require('./scripts/codeowners-manifest/utils.js');
-            console.log(createCodeownerSlug('${{ matrix.codeowner }}'));
+            console.info(createCodeownerSlug('${{ matrix.codeowner }}'));
           ")
           echo "slug=$SLUG" >> "$GITHUB_OUTPUT"
 

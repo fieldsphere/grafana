@@ -46,7 +46,11 @@ export function LivePublish({ height, mode, body, addr, onSave }: Props) {
     }
 
     const rsp = await getGrafanaLiveSrv().publish(addr, body);
-    console.log('onPublishClicked (response from publish)', rsp);
+    console.info({
+      source: "public/app/plugins/panel/live/LivePublish.tsx",
+      message: 'onPublishClicked (response from publish)',
+      data: [rsp]
+    });
   };
 
   return (

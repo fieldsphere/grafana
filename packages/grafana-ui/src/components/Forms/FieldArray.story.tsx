@@ -36,7 +36,11 @@ export const Simple: StoryFn = (args) => {
     people: [{ firstName: 'Janis', lastName: 'Joplin' }],
   };
   return (
-    <Form onSubmit={(values) => console.log(values)} defaultValues={defaultValues}>
+    (<Form onSubmit={(values) => console.info({
+      source: "packages/grafana-ui/src/components/Forms/FieldArray.story.tsx",
+      message: "log",
+      data: [values]
+    })} defaultValues={defaultValues}>
       {({ control, register }) => (
         <div>
           <FieldArray control={control} name="people">
@@ -76,7 +80,7 @@ export const Simple: StoryFn = (args) => {
           <Button type="submit">Submit</Button>
         </div>
       )}
-    </Form>
+    </Form>)
   );
 };
 Simple.args = {

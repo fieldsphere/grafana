@@ -72,7 +72,11 @@ export class LivePanel extends PureComponent<Props, State> {
       } else if (isLiveChannelMessageEvent(event)) {
         this.setState({ message: event.message, changed: Date.now() });
       } else {
-        console.log('ignore', event);
+        console.info({
+          source: "public/app/plugins/panel/live/LivePanel.tsx",
+          message: 'ignore',
+          data: [event]
+        });
       }
     },
   };
@@ -87,7 +91,11 @@ export class LivePanel extends PureComponent<Props, State> {
   async loadChannel() {
     const addr = this.props.options?.channel;
     if (!isValidLiveChannelAddress(addr)) {
-      console.log('INVALID', addr);
+      console.info({
+        source: "public/app/plugins/panel/live/LivePanel.tsx",
+        message: 'INVALID',
+        data: [addr]
+      });
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -96,13 +104,21 @@ export class LivePanel extends PureComponent<Props, State> {
     }
 
     if (isEqual(addr, this.state.addr)) {
-      console.log('Same channel', this.state.addr);
+      console.info({
+        source: "public/app/plugins/panel/live/LivePanel.tsx",
+        message: 'Same channel',
+        data: [this.state.addr]
+      });
       return;
     }
 
     const live = getGrafanaLiveSrv();
     if (!live) {
-      console.log('INVALID', addr);
+      console.info({
+        source: "public/app/plugins/panel/live/LivePanel.tsx",
+        message: 'INVALID',
+        data: [addr]
+      });
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -111,7 +127,11 @@ export class LivePanel extends PureComponent<Props, State> {
     }
     this.unsubscribe();
 
-    console.log('LOAD', addr);
+    console.info({
+      source: "public/app/plugins/panel/live/LivePanel.tsx",
+      message: 'LOAD',
+      data: [addr]
+    });
 
     // Subscribe to new events
     try {

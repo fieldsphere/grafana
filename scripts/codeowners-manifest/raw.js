@@ -70,10 +70,19 @@ if (require.main === module) {
         fs.mkdirSync(CODEOWNERS_MANIFEST_DIR, { recursive: true });
       }
 
-      console.log(`🍣 Getting raw CODEOWNERS data for manifest ...`);
+      console.info({
+        source: "scripts/codeowners-manifest/raw.js",
+        message: `🍣 Getting raw CODEOWNERS data for manifest ...`
+      });
       await generateCodeownersRawAudit(CODEOWNERS_FILE_PATH, RAW_AUDIT_JSONL_PATH);
-      console.log('✅ Raw audit generated:');
-      console.log(`   • ${RAW_AUDIT_JSONL_PATH}`);
+      console.info({
+        source: "scripts/codeowners-manifest/raw.js",
+        message: '✅ Raw audit generated:'
+      });
+      console.info({
+        source: "scripts/codeowners-manifest/raw.js",
+        message: `   • ${RAW_AUDIT_JSONL_PATH}`
+      });
     } catch (e) {
       console.error('❌ Error generating raw audit:', e.message);
       process.exit(1);
