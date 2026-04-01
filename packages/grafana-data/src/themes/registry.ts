@@ -69,8 +69,10 @@ export function getBuiltInThemes(allowedExtras: string[]) {
   return sortedThemes;
 }
 
+const parsedPurpleTheme = NewThemeOptionsSchema.parse(purple);
+
 const themeRegistry = new Registry<ThemeRegistryItem>(() => {
-  const { id: _purpleId, ...purpleTheme } = purple;
+  const { id: _purpleId, ...purpleTheme } = parsedPurpleTheme;
 
   return [
     { id: 'system', name: 'System preference', build: getSystemPreferenceTheme },
