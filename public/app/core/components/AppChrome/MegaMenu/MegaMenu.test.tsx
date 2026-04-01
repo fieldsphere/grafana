@@ -18,6 +18,7 @@ beforeEach(() => {
   const contextSrv = new ContextSrv();
   contextSrv.user.isSignedIn = true;
   contextSrv.isSignedIn = true;
+  contextSrv.user.authenticatedBy = 'apikey';
   setContextSrv(contextSrv);
 });
 afterEach(() => {
