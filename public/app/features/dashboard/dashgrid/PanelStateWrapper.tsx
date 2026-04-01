@@ -257,11 +257,7 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
       const delta = liveTime.to.valueOf() - data.timeRange.to.valueOf();
       if (delta < 100) {
         // 10hz
-        console.info({
-          source: 'public/app/features/dashboard/dashgrid/PanelStateWrapper.tsx',
-          message: 'Skip tick render',
-          data: [this.props.panel.title, delta],
-        });
+        console.info('Skip tick render', this.props.panel.title, delta);
         return;
       }
     }
@@ -551,6 +547,7 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
               onChangeTimeRange={this.onChangeTimeRange}
               eventBus={dashboard.events}
             />
+
             {this.state.errorMessage === undefined && (
               <PanelLoadTimeMonitor panelType={plugin.meta.id} panelId={panel.id} panelTitle={panel.title} />
             )}

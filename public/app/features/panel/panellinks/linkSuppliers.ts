@@ -124,11 +124,7 @@ export const getFieldLinksSupplier = (value: FieldDisplay): LinkModelSupplier<Fi
           };
         }
       } else {
-        console.info({
-          source: 'public/app/features/panel/panellinks/linkSuppliers.ts',
-          message: 'VALUE',
-          data: [value],
-        });
+        console.info('VALUE', value);
       }
 
       const replace: InterpolateFunction = (value: string, vars: ScopedVars | undefined, fmt?: string | Function) => {

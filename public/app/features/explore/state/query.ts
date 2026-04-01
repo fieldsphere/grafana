@@ -379,7 +379,7 @@ export const importQueries = (
   queries: DataQuery[],
   sourceDataSource: DataSourceApi | undefined | null,
   targetDataSource: DataSourceApi,
-  singleQueryChangeRef?: string // when changing one query DS to another in a mixed environment, we do not want to change all queries, just the one being changed
+  singleQueryChangeRef?: string
 ): ThunkResult<Promise<DataQuery[] | void>> => {
   return async (dispatch) => {
     if (!sourceDataSource) {
@@ -499,9 +499,9 @@ async function handleHistory(
 
   if (filteredQueries.length > 0) {
     /*
-  Always write to local storage. If query history is enabled, we will use local storage for autocomplete only (and want to hide errors)
-  If query history is disabled, we will use local storage for query history as well, and will want to show errors
-  */
+    Always write to local storage. If query history is enabled, we will use local storage for autocomplete only (and want to hide errors)
+    If query history is disabled, we will use local storage for query history as well, and will want to show errors
+    */
     dispatch(addHistoryItem(true, datasource.uid, datasource.name, filteredQueries, config.queryHistoryEnabled));
     if (config.queryHistoryEnabled) {
       // write to remote if flag enabled
@@ -657,11 +657,7 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
 
           // Keep scanning for results if this was the last scanning transaction
           if (exploreState!.scanning) {
-            console.info({
-              source: 'public/app/features/explore/state/query.ts',
-              message: 'log',
-              data: [data.series],
-            });
+            console.info('log', data.series);
             if (data.state === LoadingState.Done && data.series.length === 0) {
               const range = getShiftedTimeRange(-1, exploreState!.range);
               dispatch(updateTime({ exploreId, absoluteRange: range }));

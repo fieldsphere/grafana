@@ -203,11 +203,7 @@ export class UnifiedSearcher implements GrafanaSearcher {
         const resp = await this.fetchResponse(nextPageUrl);
         const frame = toDashboardResults(resp, query.sort ?? '');
         if (!frame) {
-          console.info({
-            source: 'public/app/features/search/service/unified.ts',
-            message: 'no results',
-            data: [frame],
-          });
+          console.info('no results', frame);
           return;
         }
 

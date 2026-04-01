@@ -29,11 +29,7 @@ function addPreload(id: string, preload: (() => Promise<System.Module>) | System
   try {
     resolvedId = SystemJS.resolve(id);
   } catch (e) {
-    console.info({
-      source: 'public/app/features/plugins/loader/utils.ts',
-      message: 'log',
-      data: [e],
-    });
+    console.info('log', e);
   }
 
   if (resolvedId && SystemJS.has(resolvedId)) {

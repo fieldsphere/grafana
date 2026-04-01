@@ -31,11 +31,7 @@ export class LegacyVariableWrapper implements FormatVariable {
       return text.join(' + ');
     }
 
-    console.info({
-      source: 'public/app/features/templating/LegacyVariableWrapper.ts',
-      message: 'value',
-      data: [text],
-    });
+    console.info('value', text);
     return String(text);
   }
 }

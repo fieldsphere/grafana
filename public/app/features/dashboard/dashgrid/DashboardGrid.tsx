@@ -115,10 +115,7 @@ export class DashboardGrid extends PureComponent<Props, State> {
       this.panelMap[panel.key] = panel;
 
       if (!panel.gridPos) {
-        console.info({
-          source: 'public/app/features/dashboard/dashgrid/DashboardGrid.tsx',
-          message: 'panel without gridpos',
-        });
+        console.info('panel without gridpos');
         continue;
       }
 

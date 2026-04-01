@@ -800,11 +800,7 @@ export class DashboardScenePageStateManager extends DashboardScenePageStateManag
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.info({
-            source: 'public/app/features/dashboard-scene/pages/DashboardScenePageStateManager.ts',
-            message: 'not correct url correcting',
-            data: [dashboardUrl, currentPath],
-          });
+          console.info('not correct url correcting', dashboardUrl, currentPath);
         }
       }
 
@@ -1032,11 +1028,7 @@ export class DashboardScenePageStateManagerV2 extends DashboardScenePageStateMan
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.info({
-            source: 'public/app/features/dashboard-scene/pages/DashboardScenePageStateManager.ts',
-            message: 'not correct url correcting',
-            data: [dashboardUrl, currentPath],
-          });
+          console.info('not correct url correcting', dashboardUrl, currentPath);
         }
       }
       // Populate nav model in global store according to the folder

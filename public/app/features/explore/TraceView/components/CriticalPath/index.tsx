@@ -104,11 +104,7 @@ function criticalPathForTrace(trace: Trace) {
       criticalPath = computeCriticalPath(sanitizedSpanMap, rootSpanId, criticalPath);
     } catch (error) {
       /* eslint-disable no-console */
-      console.info({
-        source: 'public/app/features/explore/TraceView/components/CriticalPath/index.tsx',
-        message: 'error while computing critical path for a trace',
-        data: [error],
-      });
+      console.info('error while computing critical path for a trace', error);
     }
   }
   return criticalPath;

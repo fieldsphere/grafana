@@ -1119,19 +1119,13 @@ export class DashboardModel implements TimeModel {
 
   /** @deprecated */
   on<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.info({
-      source: 'public/app/features/dashboard/state/DashboardModel.ts',
-      message: 'DashboardModel.on is deprecated use events.subscribe',
-    });
+    console.info('DashboardModel.on is deprecated use events.subscribe');
     this.events.on(event, callback);
   }
 
   /** @deprecated */
   off<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.info({
-      source: 'public/app/features/dashboard/state/DashboardModel.ts',
-      message: 'DashboardModel.off is deprecated',
-    });
+    console.info('DashboardModel.off is deprecated');
     this.events.off(event, callback);
   }
 

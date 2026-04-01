@@ -88,11 +88,7 @@ export class SupportSnapshotService extends StateManagerBase<SupportSnapshotStat
       const dash = createDashboardSceneFromDashboardModel(oldModel, snapshot);
       scene = dash.state.body; // skip the wrappers
     } catch (ex) {
-      console.info({
-        source: 'public/app/features/dashboard/components/HelpWizard/SupportSnapshotService.ts',
-        message: 'Error creating scene:',
-        data: [ex],
-      });
+      console.info('Error creating scene:', ex);
     }
 
     this.setState({ snapshot, snapshotText, markdownText, snapshotSize, snapshotUpdate: snapshotUpdate + 1, scene });

@@ -78,11 +78,7 @@ export const FieldRenderer = ({
   }, [isDisabled, disabledWhen?.disabledValue, name, setValue]);
 
   if (!field) {
-    console.info({
-      source: 'public/app/features/auth-config/FieldRenderer.tsx',
-      message: 'missing field:',
-      data: [name],
-    });
+    console.info('missing field:', name);
     return null;
   }
 

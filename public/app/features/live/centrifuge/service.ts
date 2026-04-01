@@ -125,11 +125,7 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.info({
-      source: 'public/app/features/live/centrifuge/service.ts',
-      message: 'Publication from server-side channel',
-      data: [context],
-    });
+    console.info('Publication from server-side channel', context);
   };
 
   private onError = (context: ErrorContext) => {

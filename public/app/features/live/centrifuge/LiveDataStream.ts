@@ -149,11 +149,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onError = (err: unknown) => {
-    console.info({
-      source: 'public/app/features/live/centrifuge/LiveDataStream.ts',
-      message: 'LiveQuery [error]',
-      data: [{ err }, this.deps.channelId],
-    });
+    console.info('LiveQuery [error]', { err }, this.deps.channelId);
     this.stream.next({
       type: InternalStreamMessageType.Error,
       error: toDataQueryError(err),
@@ -162,11 +158,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onComplete = () => {
-    console.info({
-      source: 'public/app/features/live/centrifuge/LiveDataStream.ts',
-      message: 'LiveQuery [complete]',
-      data: [this.deps.channelId],
-    });
+    console.info('LiveQuery [complete]', this.deps.channelId);
     this.shutdown();
   };
 
@@ -263,6 +255,7 @@ export class LiveDataStream<T = unknown> {
               frame: this.frameBuffer.serialize(fieldFilterPredicate, buffer),
             },
           ],
+
           error,
         };
       }
@@ -278,6 +271,7 @@ export class LiveDataStream<T = unknown> {
               frame: this.frameBuffer.serialize(fieldFilterPredicate, buffer, { maxLength: 0 }),
             },
           ],
+
           error,
         };
       }
@@ -294,6 +288,7 @@ export class LiveDataStream<T = unknown> {
               frame: this.frameBuffer.serialize(fieldFilterPredicate, buffer, { maxLength: 0 }),
             },
           ],
+
           error,
         };
       }
@@ -309,6 +304,7 @@ export class LiveDataStream<T = unknown> {
             }),
           },
         ],
+
         error,
       };
     };

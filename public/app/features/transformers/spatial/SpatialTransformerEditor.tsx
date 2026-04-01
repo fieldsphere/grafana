@@ -138,11 +138,7 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     if (!props.options.source?.mode) {
       const opts = getDefaultOptions(supplier);
       props.onChange({ ...opts, ...props.options });
-      console.info({
-        source: 'public/app/features/transformers/spatial/SpatialTransformerEditor.tsx',
-        message: 'geometry useEffect',
-        data: [opts],
-      });
+      console.info('geometry useEffect', opts);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
