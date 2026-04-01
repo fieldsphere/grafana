@@ -1,8 +1,6 @@
-import { screen, waitFor } from '@testing-library/react';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { render } from 'test/test-utils';
-import { setupServer } from 'msw/node';
-import { http, HttpResponse } from 'msw';
 
 import { NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
@@ -12,21 +10,38 @@ import { configureStore } from 'app/store/configureStore';
 
 import { MegaMenu } from './MegaMenu';
 
-const server = setupServer();
+const mockPatchUserPreferences = jest.fn();
+const mockGetUserPreferencesQuery = jest.fn();
 
-beforeAll(() => server.listen());
+jest.mock('@grafana/api-clients/rtkq/legacy/preferences', () => {
+  const actual = jest.requireActual('@grafana/api-clients/rtkq/legacy/preferences');
+  return {
+    ...actual,
+    useGetUserPreferencesQuery: (...args: unknown[]) => mockGetUserPreferencesQuery(...args),
+    usePatchUserPreferencesMutation: () => [mockPatchUserPreferences],
+  };
+});
+
 beforeEach(() => {
   const contextSrv = new ContextSrv();
   contextSrv.user.isSignedIn = true;
   contextSrv.isSignedIn = true;
   contextSrv.user.authenticatedBy = 'apikey';
   setContextSrv(contextSrv);
+
+  mockPatchUserPreferences.mockReset();
+  mockPatchUserPreferences.mockResolvedValue({ data: { message: 'ok' } });
+  mockGetUserPreferencesQuery.mockReset();
+  mockGetUserPreferencesQuery.mockReturnValue({
+    data: {
+      navbar: { bookmarkUrls: [] },
+    },
+  });
 });
+
 afterEach(() => {
-  server.resetHandlers();
   window.localStorage.clear();
 });
-afterAll(() => server.close());
 
 const setup = () => {
   const navBarTree: NavModelItem[] = [
@@ -92,61 +107,52 @@ describe('MegaMenu', () => {
   });
 
   it('updates bookmarks immediately after successful pin', async () => {
-    let cachedBookmarkUrls: string[] = [];
+    const updateQueryDataSpy = jest.spyOn(preferencesUserAPI.util, 'updateQueryData');
 
-    server.use(
-      http.get('/api/user/preferences', () => {
-        return HttpResponse.json({
-          navbar: { bookmarkUrls: cachedBookmarkUrls },
-          queryHistory: {},
-          theme: '',
-        });
-      }),
-      http.patch('/api/user/preferences', async ({ request }) => {
-        const body = (await request.json()) as { navbar?: { bookmarkUrls?: string[] } };
-        expect(body?.navbar?.bookmarkUrls).toEqual(['/section']);
-        cachedBookmarkUrls = body.navbar?.bookmarkUrls ?? [];
-        return HttpResponse.json({});
-      })
-    );
+    setup();
 
-    const { store } = setup();
-
-    const sectionRow = (await screen.findByRole('link', { name: 'Section name' })).closest('div');
-    expect(sectionRow).not.toBeNull();
-    await userEvent.hover(sectionRow!);
-    await userEvent.click(await screen.findByLabelText('Add Section name to Bookmarks'));
+    const pinButton = await screen.findByLabelText('Add Section name to Bookmarks');
+    fireEvent.click(pinButton);
 
     await waitFor(() => {
-      const preferences = preferencesUserAPI.endpoints.getUserPreferences.select()(store.getState());
-      expect(preferences.data?.navbar?.bookmarkUrls).toEqual(['/section']);
+      expect(mockPatchUserPreferences).toHaveBeenCalledWith({
+        patchPrefsCmd: {
+          navbar: { bookmarkUrls: ['/section'] },
+        },
+      });
+      expect(updateQueryDataSpy).toHaveBeenCalledWith('getUserPreferences', undefined, expect.any(Function));
     });
+
+    const recipe = updateQueryDataSpy.mock.calls[0][2] as (draft: { navbar?: { bookmarkUrls?: string[] } }) => void;
+    const draftWithNavbar = { navbar: { bookmarkUrls: [] as string[] } };
+    recipe(draftWithNavbar);
+    expect(draftWithNavbar.navbar.bookmarkUrls).toEqual(['/section']);
+
+    const draftWithoutNavbar: { navbar?: { bookmarkUrls?: string[] } } = {};
+    recipe(draftWithoutNavbar);
+    expect(draftWithoutNavbar.navbar?.bookmarkUrls).toEqual(['/section']);
+
+    updateQueryDataSpy.mockRestore();
   });
 
   it('does not update bookmarks when pin request fails', async () => {
-    server.use(
-      http.get('/api/user/preferences', () => {
-        return HttpResponse.json({
-          navbar: { bookmarkUrls: [] },
-          queryHistory: {},
-          theme: '',
-        });
-      }),
-      http.patch('/api/user/preferences', () => {
-        return HttpResponse.json({ message: 'failed' }, { status: 500 });
-      })
-    );
+    const updateQueryDataSpy = jest.spyOn(preferencesUserAPI.util, 'updateQueryData');
+    mockPatchUserPreferences.mockResolvedValue({ error: { status: 500, data: { message: 'failed' } } });
 
-    const { store } = setup();
+    setup();
 
-    const sectionRow = (await screen.findByRole('link', { name: 'Section name' })).closest('div');
-    expect(sectionRow).not.toBeNull();
-    await userEvent.hover(sectionRow!);
-    await userEvent.click(await screen.findByLabelText('Add Section name to Bookmarks'));
+    const pinButton = await screen.findByLabelText('Add Section name to Bookmarks');
+    fireEvent.click(pinButton);
 
     await waitFor(() => {
-      const preferences = preferencesUserAPI.endpoints.getUserPreferences.select()(store.getState());
-      expect(preferences.data?.navbar?.bookmarkUrls).toEqual([]);
+      expect(mockPatchUserPreferences).toHaveBeenCalledWith({
+        patchPrefsCmd: {
+          navbar: { bookmarkUrls: ['/section'] },
+        },
+      });
     });
+
+    expect(updateQueryDataSpy).not.toHaveBeenCalled();
+    updateQueryDataSpy.mockRestore();
   });
 });
