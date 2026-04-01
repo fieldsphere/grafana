@@ -6,6 +6,7 @@ import { http, HttpResponse } from 'msw';
 
 import { NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
+import { ContextSrv, setContextSrv } from 'app/core/services/context_srv';
 import { configureStore } from 'app/store/configureStore';
 
 import { MegaMenu } from './MegaMenu';
@@ -13,6 +14,12 @@ import { MegaMenu } from './MegaMenu';
 const server = setupServer();
 
 beforeAll(() => server.listen());
+beforeEach(() => {
+  const contextSrv = new ContextSrv();
+  contextSrv.user.isSignedIn = true;
+  contextSrv.isSignedIn = true;
+  setContextSrv(contextSrv);
+});
 afterEach(() => {
   server.resetHandlers();
   window.localStorage.clear();
@@ -136,9 +143,7 @@ describe('MegaMenu', () => {
 
     const bookmarksRow = (await screen.findByRole('link', { name: 'Bookmarks' })).closest('li');
     expect(bookmarksRow).not.toBeNull();
-    const expandBookmarksButton = await within(bookmarksRow!).findByRole('button', { name: 'Expand section: Bookmarks' });
-    await userEvent.click(expandBookmarksButton);
-
+    expect(within(bookmarksRow!).queryByRole('button', { name: 'Expand section: Bookmarks' })).not.toBeInTheDocument();
     expect(within(bookmarksRow!).queryByRole('link', { name: 'Section name' })).not.toBeInTheDocument();
   });
 });
