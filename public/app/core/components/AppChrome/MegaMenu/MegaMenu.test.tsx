@@ -1,6 +1,8 @@
-import { screen } from '@testing-library/react';
+import { screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { render } from 'test/test-utils';
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
 
 import { NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
@@ -8,20 +10,29 @@ import { configureStore } from 'app/store/configureStore';
 
 import { MegaMenu } from './MegaMenu';
 
+const server = setupServer();
+
+beforeAll(() => server.listen());
+afterEach(() => {
+  server.resetHandlers();
+  window.localStorage.clear();
+});
+afterAll(() => server.close());
+
 const setup = () => {
   const navBarTree: NavModelItem[] = [
     {
       text: 'Section name',
       id: 'section',
-      url: 'section',
+      url: '/section',
       children: [
         {
           text: 'Child1',
           id: 'child1',
-          url: 'section/child1',
-          children: [{ text: 'Grandchild1', id: 'grandchild1', url: 'section/child1/grandchild1' }],
+          url: '/section/child1',
+          children: [{ text: 'Grandchild1', id: 'grandchild1', url: '/section/child1/grandchild1' }],
         },
-        { text: 'Child2', id: 'child2', url: 'section/child2' },
+        { text: 'Child2', id: 'child2', url: '/section/child2' },
       ],
     },
     {
@@ -29,16 +40,19 @@ const setup = () => {
       id: 'profile',
       url: 'profile',
     },
+    {
+      text: 'Bookmarks',
+      id: 'bookmarks',
+      url: '/bookmarks',
+    },
   ];
 
   const store = configureStore({ navBarTree });
-  return render(<MegaMenu onClose={() => {}} />, { store });
+  const rendered = render(<MegaMenu onClose={() => {}} />, { store });
+  return { ...rendered, store };
 };
 
 describe('MegaMenu', () => {
-  afterEach(() => {
-    window.localStorage.clear();
-  });
   it('should render component', async () => {
     setup();
 
@@ -66,5 +80,65 @@ describe('MegaMenu', () => {
     setup();
 
     expect(screen.queryByLabelText('Profile')).not.toBeInTheDocument();
+  });
+
+  it('updates bookmarks immediately after successful pin', async () => {
+    server.use(
+      http.get('/api/user/preferences', () => {
+        return HttpResponse.json({
+          navbar: { bookmarkUrls: [] },
+          queryHistory: {},
+          theme: '',
+        });
+      }),
+      http.patch('/api/user/preferences', async ({ request }) => {
+        const body = (await request.json()) as { navbar?: { bookmarkUrls?: string[] } };
+        expect(body?.navbar?.bookmarkUrls).toEqual(['/section']);
+        return HttpResponse.json({});
+      })
+    );
+
+    setup();
+
+    const sectionRow = (await screen.findByRole('link', { name: 'Section name' })).closest('div');
+    expect(sectionRow).not.toBeNull();
+    await userEvent.hover(sectionRow!);
+    await userEvent.click(await screen.findByLabelText('Add Section name to Bookmarks'));
+
+    const bookmarksRow = (await screen.findByRole('link', { name: 'Bookmarks' })).closest('li');
+    expect(bookmarksRow).not.toBeNull();
+    const expandBookmarksButton = await within(bookmarksRow!).findByRole('button', { name: 'Expand section: Bookmarks' });
+    await userEvent.click(expandBookmarksButton);
+
+    expect(await within(bookmarksRow!).findByRole('link', { name: 'Section name' })).toBeInTheDocument();
+  });
+
+  it('does not update bookmarks when pin request fails', async () => {
+    server.use(
+      http.get('/api/user/preferences', () => {
+        return HttpResponse.json({
+          navbar: { bookmarkUrls: [] },
+          queryHistory: {},
+          theme: '',
+        });
+      }),
+      http.patch('/api/user/preferences', () => {
+        return HttpResponse.json({ message: 'failed' }, { status: 500 });
+      })
+    );
+
+    setup();
+
+    const sectionRow = (await screen.findByRole('link', { name: 'Section name' })).closest('div');
+    expect(sectionRow).not.toBeNull();
+    await userEvent.hover(sectionRow!);
+    await userEvent.click(await screen.findByLabelText('Add Section name to Bookmarks'));
+
+    const bookmarksRow = (await screen.findByRole('link', { name: 'Bookmarks' })).closest('li');
+    expect(bookmarksRow).not.toBeNull();
+    const expandBookmarksButton = await within(bookmarksRow!).findByRole('button', { name: 'Expand section: Bookmarks' });
+    await userEvent.click(expandBookmarksButton);
+
+    expect(within(bookmarksRow!).queryByRole('link', { name: 'Section name' })).not.toBeInTheDocument();
   });
 });
