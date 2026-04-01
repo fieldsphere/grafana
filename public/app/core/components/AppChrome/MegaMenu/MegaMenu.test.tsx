@@ -58,10 +58,12 @@ describe('MegaMenu', () => {
   const usePatchUserPreferencesMutationMock = usePatchUserPreferencesMutation as jest.Mock;
   const originalIsSignedIn = contextSrv.isSignedIn;
   const originalUserIsSignedIn = contextSrv.user.isSignedIn;
+  const originalAuthenticatedBy = contextSrv.user.authenticatedBy;
 
   beforeEach(() => {
-    contextSrv.isSignedIn = true;
-    contextSrv.user.isSignedIn = true;
+    contextSrv.isSignedIn = originalIsSignedIn;
+    contextSrv.user.isSignedIn = originalUserIsSignedIn;
+    contextSrv.user.authenticatedBy = originalAuthenticatedBy;
     useGetUserPreferencesQueryMock.mockReturnValue({ data: { navbar: { bookmarkUrls: [] } } });
     usePatchUserPreferencesMutationMock.mockReturnValue([jest.fn().mockResolvedValue({ data: { message: 'ok' } })]);
   });
@@ -69,6 +71,7 @@ describe('MegaMenu', () => {
   afterEach(() => {
     contextSrv.isSignedIn = originalIsSignedIn;
     contextSrv.user.isSignedIn = originalUserIsSignedIn;
+    contextSrv.user.authenticatedBy = originalAuthenticatedBy;
     jest.restoreAllMocks();
     jest.clearAllMocks();
     window.localStorage.clear();
@@ -104,6 +107,9 @@ describe('MegaMenu', () => {
   });
 
   it('updates user preferences cache after successful pin', async () => {
+    contextSrv.isSignedIn = true;
+    contextSrv.user.isSignedIn = true;
+    contextSrv.user.authenticatedBy = 'apikey';
     const patchPreferences = jest.fn().mockResolvedValue({ data: { message: 'ok' } });
     usePatchUserPreferencesMutationMock.mockReturnValue([patchPreferences]);
     const updateQueryDataSpy = jest.spyOn(userPreferencesApi.util, 'updateQueryData');
@@ -122,6 +128,9 @@ describe('MegaMenu', () => {
   });
 
   it('does not update user preferences cache when preference patch fails', async () => {
+    contextSrv.isSignedIn = true;
+    contextSrv.user.isSignedIn = true;
+    contextSrv.user.authenticatedBy = 'apikey';
     const patchPreferences = jest.fn().mockResolvedValue({ error: { status: 500 } });
     usePatchUserPreferencesMutationMock.mockReturnValue([patchPreferences]);
     const updateQueryDataSpy = jest.spyOn(userPreferencesApi.util, 'updateQueryData');
