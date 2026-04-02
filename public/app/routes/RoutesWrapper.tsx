@@ -1,6 +1,6 @@
 import { ComponentType, ReactNode, type JSX } from 'react';
-import { Router } from 'react-router-dom';
-import { CompatRouter } from 'react-router-dom-v5-compat';
+import { Router as LegacyRouter } from 'react-router-dom';
+import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom-v5-compat';
 
 import { locationService, LocationServiceProvider } from '@grafana/runtime';
 import { ModalRoot, Stack } from '@grafana/ui';
@@ -25,9 +25,12 @@ type RouterWrapperProps = {
 };
 export function RouterWrapper(props: RouterWrapperProps) {
   return (
-    <Router history={locationService.getHistory()}>
-      <LocationServiceProvider service={locationService}>
-        <CompatRouter>
+    <LegacyRouter history={locationService.getHistory()}>
+      <HistoryRouter
+        history={locationService.getRouterHistory()}
+        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+      >
+        <LocationServiceProvider service={locationService}>
           <QueriesDrawerContextProvider>
             <ExtraProviders providers={props.providers}>
               <ModalsContextProvider>
@@ -48,8 +51,8 @@ export function RouterWrapper(props: RouterWrapperProps) {
               </ModalsContextProvider>
             </ExtraProviders>
           </QueriesDrawerContextProvider>
-        </CompatRouter>
-      </LocationServiceProvider>
-    </Router>
+        </LocationServiceProvider>
+      </HistoryRouter>
+    </LegacyRouter>
   );
 }

@@ -1,9 +1,8 @@
 import { Store } from '@reduxjs/toolkit';
 import * as React from 'react';
 import { Provider } from 'react-redux';
-// eslint-disable-next-line no-restricted-imports
 import { Router } from 'react-router-dom';
-import { CompatRouter } from 'react-router-dom-v5-compat';
+import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom-v5-compat';
 import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';
 
 import { locationService } from '@grafana/runtime';
@@ -36,12 +35,15 @@ export function TestProvider(props: Props) {
   return (
     <Provider store={store}>
       <Router history={locationService.getHistory()}>
-        <ModalsContextProvider>
-          <CompatRouter>
+        <HistoryRouter
+          history={locationService.getRouterHistory()}
+          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+        >
+          <ModalsContextProvider>
             <GrafanaContext.Provider value={context}>{children}</GrafanaContext.Provider>
             <ModalRoot />
-          </CompatRouter>
-        </ModalsContextProvider>
+          </ModalsContextProvider>
+        </HistoryRouter>
       </Router>
     </Provider>
   );
