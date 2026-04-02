@@ -1,4 +1,9 @@
-import type { History as RouterHistory, Location as RouterLocation, Path as RouterPath, To as RouterTo } from '@remix-run/router';
+import type {
+  History as RouterHistory,
+  Location as RouterLocation,
+  Path as RouterPath,
+  To as RouterTo,
+} from '@remix-run/router';
 import * as H from 'history';
 import React, { useContext } from 'react';
 import { BehaviorSubject, Observable } from 'rxjs';
