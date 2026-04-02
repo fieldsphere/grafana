@@ -1,6 +1,8 @@
 import { lastValueFrom } from 'rxjs';
 
+import { Correlation as CorrelationK8s } from '@grafana/api-clients/rtkq/correlations/v0alpha1';
 import { DataFrame, DataLinkConfigOrigin } from '@grafana/data';
+import { t } from '@grafana/i18n';
 import {
   config,
   CorrelationData,
@@ -15,9 +17,64 @@ import { formatValueName } from '../explore/PrometheusListView/ItemLabels';
 import { parseLogsFrame } from '../logs/logsFrame';
 
 import { CreateCorrelationParams, CreateCorrelationResponse } from './types';
-import { CorrelationsResponse, getData, toEnrichedCorrelationsData } from './useCorrelations';
+import { CorrelationsResponse, getData, toEnrichedCorrelationDataFromK8s, toEnrichedCorrelationsData } from './useCorrelations';
 
 type DataFrameRefIdToDataSourceUid = Record<string, string>;
+
+interface CorrelationK8sListResponse {
+  items: CorrelationK8s[];
+  metadata?: {
+    continue?: string;
+    remainingItemCount?: number;
+  };
+}
+
+export const k8sCorrelationsURL = () => `/apis/correlations.grafana.app/v0alpha1/namespaces/${config.namespace}/correlations`;
+
+export const toK8sCorrelationPayload = (correlation: CreateCorrelationParams): CorrelationK8s => {
+  const sourceDs = getDataSourceSrv().getInstanceSettings(correlation.sourceUID);
+  if (!sourceDs) {
+    throw new Error(`Source datasource ${correlation.sourceUID} was not found`);
+  }
+
+  const spec: CorrelationK8s['spec'] = {
+    type: correlation.type,
+    label: correlation.label,
+    description: correlation.description,
+    source: {
+      group: sourceDs.type,
+      name: sourceDs.uid,
+    },
+    config: {
+      field: correlation.config.field,
+      target: correlation.config.target ?? {},
+      transformations: correlation.config.transformations?.map((transformation) => ({
+        ...transformation,
+        type: transformation.type === 'regex' ? 'regex' : 'logfmt',
+      })),
+    },
+  };
+
+  if (correlation.type === 'query') {
+    const targetDs = getDataSourceSrv().getInstanceSettings(correlation.targetUID);
+    if (!targetDs) {
+      throw new Error(`Target datasource ${correlation.targetUID} was not found`);
+    }
+    spec.target = {
+      group: targetDs.type,
+      name: targetDs.uid,
+    };
+  }
+
+  return {
+    apiVersion: 'correlations.grafana.app/v0alpha1',
+    kind: 'Correlation',
+    metadata: {
+      generateName: 'corr-',
+    },
+    spec,
+  };
+};
 
 /**
  * Creates data links from provided CorrelationData object
@@ -107,6 +164,32 @@ const fixLokiDataplaneFields = (correlations: CorrelationData[], dataFrame: Data
 };
 
 export const getCorrelationsBySourceUIDs = async (sourceUIDs: string[]): Promise<CorrelationsData> => {
+  if (config.featureToggles.kubernetesCorrelations) {
+    const items: CorrelationK8s[] = [];
+    let continueToken: string | undefined;
+
+    do {
+      const response = await getBackendSrv().get<CorrelationK8sListResponse>(k8sCorrelationsURL(), {
+        limit: 1000,
+        continue: continueToken,
+      });
+      items.push(...(response.items ?? []));
+      continueToken = response.metadata?.continue;
+    } while (continueToken);
+
+    const correlations = items
+      .map(toEnrichedCorrelationDataFromK8s)
+      .filter((correlation): correlation is CorrelationData => correlation !== undefined)
+      .filter((correlation) => sourceUIDs.includes(correlation.source.uid));
+
+    return {
+      correlations,
+      page: 1,
+      limit: correlations.length || 1000,
+      totalCount: correlations.length,
+    };
+  }
+
   return lastValueFrom(
     getBackendSrv().fetch<CorrelationsResponse>({
       url: `/api/datasources/correlations`,
@@ -125,6 +208,19 @@ export const createCorrelation = async (
   sourceUID: string,
   correlation: CreateCorrelationParams
 ): Promise<CreateCorrelationResponse> => {
+  if (config.featureToggles.kubernetesCorrelations) {
+    const created = await getBackendSrv().post<CorrelationK8s>(k8sCorrelationsURL(), toK8sCorrelationPayload(correlation));
+    return {
+      message: t('correlations.message.created', 'Correlation created'),
+      result: {
+        ...correlation,
+        sourceUID,
+        uid: created.metadata.name ?? '',
+        provisioned: false,
+      },
+    };
+  }
+
   return getBackendSrv().post<CreateCorrelationResponse>(`/api/datasources/uid/${sourceUID}/correlations`, correlation);
 };
 

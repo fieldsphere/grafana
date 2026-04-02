@@ -1,7 +1,9 @@
 import { useAsyncFn } from 'react-use';
 import { lastValueFrom } from 'rxjs';
 
-import { getDataSourceSrv, FetchResponse, CorrelationData, CorrelationsData } from '@grafana/runtime';
+import { Correlation as CorrelationK8s } from '@grafana/api-clients/rtkq/correlations/v0alpha1';
+import { SupportedTransformationType } from '@grafana/data';
+import { config, getDataSourceSrv, FetchResponse, CorrelationData, CorrelationsData } from '@grafana/runtime';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 
 import {
@@ -14,7 +16,7 @@ import {
   UpdateCorrelationParams,
   UpdateCorrelationResponse,
 } from './types';
-import { correlationsLogger } from './utils';
+import { correlationsLogger, k8sCorrelationsURL, toK8sCorrelationPayload } from './utils';
 
 export interface CorrelationsResponse {
   correlations: Correlation[];
@@ -67,6 +69,55 @@ export const toEnrichedCorrelationData = ({ sourceUID, ...correlation }: Correla
   return undefined;
 };
 
+export const toEnrichedCorrelationDataFromK8s = (item: CorrelationK8s): CorrelationData | undefined => {
+  const dsSrv = getDataSourceSrv();
+  const sourceDS = dsSrv.getInstanceSettings({ type: item.spec.source.group, uid: item.spec.source.name });
+  if (sourceDS === undefined || sourceDS.uid === undefined) {
+    return undefined;
+  }
+
+  const transformations = item.spec.config.transformations?.map((transformation) => ({
+    ...transformation,
+    type: transformation.type === 'regex' ? SupportedTransformationType.Regex : SupportedTransformationType.Logfmt,
+  }));
+
+  if (item.spec.type === 'external') {
+    return toEnrichedCorrelationData({
+      uid: item.metadata.name ?? '',
+      sourceUID: sourceDS.uid,
+      label: item.spec.label,
+      description: item.spec.description,
+      type: 'external',
+      config: {
+        field: item.spec.config.field,
+        target: { url: item.spec.config?.target?.url ?? '' },
+        transformations,
+      },
+      provisioned: false,
+    });
+  }
+
+  const targetDS = dsSrv.getInstanceSettings({ type: item.spec.target?.group, uid: item.spec.target?.name });
+  if (targetDS === undefined || targetDS.uid === undefined) {
+    return undefined;
+  }
+
+  return toEnrichedCorrelationData({
+    uid: item.metadata.name ?? '',
+    sourceUID: sourceDS.uid,
+    targetUID: targetDS.uid,
+    label: item.spec.label,
+    description: item.spec.description,
+    type: 'query',
+    config: {
+      field: item.spec.config.field,
+      target: item.spec.config.target ?? {},
+      transformations,
+    },
+    provisioned: false,
+  });
+};
+
 const validSourceFilter = (correlation: CorrelationData | undefined): correlation is CorrelationData => !!correlation;
 
 export const toEnrichedCorrelationsData = (correlationsResponse: CorrelationsResponse): CorrelationsData => {
@@ -79,6 +130,24 @@ export const toEnrichedCorrelationsData = (correlationsResponse: CorrelationsRes
 export function getData<T>(response: FetchResponse<T>) {
   return response.data;
 }
+
+const transformCorrelationPayload = (correlation: Pick<Correlation, 'config'>) => ({
+  field: correlation.config.field,
+  target: correlation.config.target ?? {},
+  transformations: correlation.config.transformations?.map((transformation) => ({
+    ...transformation,
+    type: transformation.type === 'regex' ? 'regex' : 'logfmt',
+  })),
+});
+
+const toK8sCorrelationPatch = (correlation: UpdateCorrelationParams) => ({
+  spec: {
+    type: correlation.type,
+    label: correlation.label,
+    description: correlation.description,
+    config: transformCorrelationPayload(correlation),
+  },
+});
 
 /**
  * hook for managing correlations data.
@@ -108,6 +177,18 @@ export const useCorrelations = () => {
 
   const [createInfo, create] = useAsyncFn<(params: CreateCorrelationParams) => Promise<CorrelationData>>(
     async ({ sourceUID, ...correlation }) => {
+      if (config.featureToggles.kubernetesCorrelations) {
+        const created = await backend.post<CorrelationK8s>(
+          k8sCorrelationsURL(),
+          toK8sCorrelationPayload({ sourceUID, ...correlation })
+        );
+        const enrichedCorrelation = toEnrichedCorrelationDataFromK8s(created);
+        if (enrichedCorrelation !== undefined) {
+          return enrichedCorrelation;
+        }
+        throw new Error('invalid sourceUID');
+      }
+
       return backend
         .post<CreateCorrelationResponse>(`/api/datasources/uid/${sourceUID}/correlations`, correlation)
         .then((response) => {
@@ -123,14 +204,28 @@ export const useCorrelations = () => {
   );
 
   const [removeInfo, remove] = useAsyncFn<(params: RemoveCorrelationParams) => Promise<{ message: string }>>(
-    ({ sourceUID, uid }) =>
-      backend.delete<RemoveCorrelationResponse>(`/api/datasources/uid/${sourceUID}/correlations/${uid}`),
+    ({ sourceUID, uid }) => {
+      if (config.featureToggles.kubernetesCorrelations) {
+        return backend.delete<{ message: string }>(`${k8sCorrelationsURL()}/${uid}`);
+      }
+      return backend.delete<RemoveCorrelationResponse>(`/api/datasources/uid/${sourceUID}/correlations/${uid}`);
+    },
     [backend]
   );
 
   const [updateInfo, update] = useAsyncFn<(params: UpdateCorrelationParams) => Promise<CorrelationData>>(
-    ({ sourceUID, uid, ...correlation }) =>
-      backend
+    async ({ sourceUID, uid, ...correlation }) => {
+      if (config.featureToggles.kubernetesCorrelations) {
+        await backend.patch<CorrelationK8s>(`${k8sCorrelationsURL()}/${uid}`, toK8sCorrelationPatch(correlation));
+        const resource = await backend.get<CorrelationK8s>(`${k8sCorrelationsURL()}/${uid}`);
+        const enrichedCorrelation = toEnrichedCorrelationDataFromK8s(resource);
+        if (enrichedCorrelation !== undefined) {
+          return enrichedCorrelation;
+        }
+        throw new Error('invalid sourceUID');
+      }
+
+      return backend
         .patch<UpdateCorrelationResponse>(`/api/datasources/uid/${sourceUID}/correlations/${uid}`, correlation)
         .then((response) => {
           const enrichedCorrelation = toEnrichedCorrelationData(response.result);
@@ -139,7 +234,8 @@ export const useCorrelations = () => {
           } else {
             throw new Error('invalid sourceUID');
           }
-        }),
+        });
+    },
     [backend]
   );
 
