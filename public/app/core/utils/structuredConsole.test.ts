@@ -2,34 +2,59 @@ import { enableStructuredConsoleLogging } from './structuredConsole';
 
 type ConsoleLevel = 'log' | 'info' | 'debug' | 'warn' | 'error';
 
-type MockConsoleMethod = jest.Mock<void, [unknown]>;
+function createMockConsole() {
+  const sink: Record<ConsoleLevel, unknown[]> = {
+    log: [],
+    info: [],
+    debug: [],
+    warn: [],
+    error: [],
+  };
+  const callCounts: Record<ConsoleLevel, number> = {
+    log: 0,
+    info: 0,
+    debug: 0,
+    warn: 0,
+    error: 0,
+  };
 
-interface MockConsole {
-  log: MockConsoleMethod;
-  info: MockConsoleMethod;
-  debug: MockConsoleMethod;
-  warn: MockConsoleMethod;
-  error: MockConsoleMethod;
-}
+  const mockConsole: Console = {
+    log: (entry: unknown) => {
+      callCounts.log++;
+      sink.log.push(entry);
+    },
+    info: (entry: unknown) => {
+      callCounts.info++;
+      sink.info.push(entry);
+    },
+    debug: (entry: unknown) => {
+      callCounts.debug++;
+      sink.debug.push(entry);
+    },
+    warn: (entry: unknown) => {
+      callCounts.warn++;
+      sink.warn.push(entry);
+    },
+    error: (entry: unknown) => {
+      callCounts.error++;
+      sink.error.push(entry);
+    },
+  };
 
-function createMockConsole(): MockConsole {
   return {
-    log: jest.fn(),
-    info: jest.fn(),
-    debug: jest.fn(),
-    warn: jest.fn(),
-    error: jest.fn(),
+    mockConsole,
+    sink,
+    callCounts,
   };
 }
 
-function readEntry(mockConsole: MockConsole, level: ConsoleLevel): Record<string, unknown> {
-  const call = mockConsole[level].mock.calls[0];
-  return call[0] as Record<string, unknown>;
+function readEntry(sink: Record<ConsoleLevel, unknown[]>, level: ConsoleLevel): Record<string, unknown> {
+  return sink[level][0] as Record<string, unknown>;
 }
 
 describe('enableStructuredConsoleLogging', () => {
   it('emits structured payloads for every console level', () => {
-    const mockConsole = createMockConsole() as unknown as Console;
+    const { mockConsole, sink } = createMockConsole();
 
     enableStructuredConsoleLogging(mockConsole);
 
@@ -40,20 +65,22 @@ describe('enableStructuredConsoleLogging', () => {
     mockConsole.error('error-message');
 
     for (const level of ['log', 'info', 'debug', 'warn', 'error'] as const) {
-      const entry = readEntry(mockConsole as unknown as MockConsole, level);
+      const entry = readEntry(sink, level);
       expect(entry.logger).toBe('grafana.frontend.console');
       expect(entry.level).toBe(level);
       expect(typeof entry.timestamp).toBe('string');
       expect(Array.isArray(entry.args)).toBe(true);
     }
 
-    const logEntry = readEntry(mockConsole as unknown as MockConsole, 'log');
+    const logEntry = readEntry(sink, 'log');
     expect(logEntry.message).toBe('hello');
     expect(logEntry.args).toEqual(['hello', { id: 1 }]);
+    expect(logEntry.payload).toEqual(['hello', { id: 1 }]);
+    expect(logEntry.original_args_count).toBe(2);
   });
 
   it('serializes errors in args and avoids repatching', () => {
-    const mockConsole = createMockConsole() as unknown as Console;
+    const { mockConsole, sink, callCounts } = createMockConsole();
 
     enableStructuredConsoleLogging(mockConsole);
     enableStructuredConsoleLogging(mockConsole);
@@ -61,7 +88,7 @@ describe('enableStructuredConsoleLogging', () => {
     const err = new Error('boom');
     mockConsole.error(err);
 
-    const entry = readEntry(mockConsole as unknown as MockConsole, 'error');
+    const entry = readEntry(sink, 'error');
     expect(entry.message).toBe('boom');
     expect(entry.args).toEqual([
       {
@@ -71,7 +98,14 @@ describe('enableStructuredConsoleLogging', () => {
         stack: expect.any(String),
       },
     ]);
+    expect(entry.payload).toEqual({
+      type: 'error',
+      name: 'Error',
+      message: 'boom',
+      stack: expect.any(String),
+    });
+    expect(entry.original_args_count).toBe(1);
 
-    expect((mockConsole as unknown as MockConsole).error).toHaveBeenCalledTimes(1);
+    expect(callCounts.error).toBe(1);
   });
 });
