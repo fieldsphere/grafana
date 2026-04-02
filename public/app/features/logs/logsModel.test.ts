@@ -55,6 +55,27 @@ describe('dedupLogRows()', () => {
     expect(dedupLogRows(rows, LogsDedupStrategy.none)).toMatchObject(rows);
   });
 
+  test('should not dedup when strategy is undefined', () => {
+    const rows = [
+      {
+        entry: 'WARN test 1.23 on [xxx]',
+      },
+      {
+        entry: 'WARN test 1.23 on [xxx]',
+      },
+    ] as LogRowModel[];
+    expect(dedupLogRows(rows)).toEqual([
+      {
+        duplicates: 0,
+        entry: 'WARN test 1.23 on [xxx]',
+      },
+      {
+        duplicates: 0,
+        entry: 'WARN test 1.23 on [xxx]',
+      },
+    ]);
+  });
+
   test('should dedup on exact matches', () => {
     const rows = [
       {
@@ -218,6 +239,21 @@ describe('dataFrameToLogsModel', () => {
     expect(dataFrameToLogsModel(series, 0)).toMatchObject(emptyLogsModel);
   });
 
+  it('given metric-only series should return empty logs model', () => {
+    const series: DataFrame[] = [
+      createDataFrame({
+        fields: [
+          {
+            name: 'value',
+            type: FieldType.number,
+            values: [1, 2],
+          },
+        ],
+      }),
+    ];
+    expect(dataFrameToLogsModel(series, 0)).toMatchObject(emptyLogsModel);
+  });
+
   it('given one series should return expected logs model', () => {
     const series: DataFrame[] = [
       createDataFrame({
@@ -302,6 +338,30 @@ describe('dataFrameToLogsModel', () => {
       },
       kind: LogsMetaKind.LabelsMap,
     });
+  });
+
+  it('given time nanos should include nanosecond precision in rows', () => {
+    const series: DataFrame[] = [
+      createDataFrame({
+        fields: [
+          {
+            name: 'time',
+            type: FieldType.time,
+            values: ['1970-01-01T00:00:01Z'],
+            nanos: [123],
+          },
+          {
+            name: 'message',
+            type: FieldType.string,
+            values: ['INFO one line'],
+          },
+        ],
+        refId: 'A',
+      }),
+    ];
+    const logsModel = dataFrameToLogsModel(series, 1);
+    expect(logsModel.rows).toHaveLength(1);
+    expect(logsModel.rows[0].timeEpochNs).toBe('1000000123');
   });
 
   it('given one series should return expected logs model with detected_level as a field', () => {
@@ -1510,6 +1570,17 @@ describe('getSeriesProperties()', () => {
     // From time is also aligned to bucketSize (divisible by 4)
     expect(result.visibleRange).toMatchObject({ from: 8, to: 30 });
   });
+
+  it('sets visibleRangeMs to 1 when all timestamps are equal', () => {
+    const rows = [
+      { entry: 'foo', timeEpochMs: 10 },
+      { entry: 'bar', timeEpochMs: 10 },
+    ] as LogRowModel[];
+    const range = { from: 0, to: 30 };
+    const result = getSeriesProperties(rows, 3, range, 2, 1);
+    expect(result.visibleRangeMs).toBe(1);
+    expect(result.visibleRange).toMatchObject(range);
+  });
 });
 
 describe('logs volume', () => {
@@ -1636,6 +1707,27 @@ describe('logs volume', () => {
     datasource = new MockObservableDataSourceApi('loki', [], undefined, 'Error message');
   }
 
+  function setupResponseError() {
+    const resultAFrame = createFrame({ app: 'app01' }, [100, 200, 300], [5, 5, 5], 'A');
+    datasource = new MockObservableDataSourceApi('loki', [
+      {
+        state: LoadingState.Done,
+        data: [resultAFrame],
+        error: 'Error in response',
+      },
+    ]);
+  }
+
+  function setupRefIdPrefixResult() {
+    const resultAFrame = createFrame({ app: 'app01' }, [100, 200, 300], [5, 5, 5], 'log-volume-A');
+    datasource = new MockObservableDataSourceApi('loki', [
+      {
+        state: LoadingState.Done,
+        data: [resultAFrame],
+      },
+    ]);
+  }
+
   it('applies correct meta data', async () => {
     setup(setupMultipleResults);
 
@@ -1713,6 +1805,85 @@ describe('logs volume', () => {
       ]);
     });
   });
+
+  it('returns response error payloads', async () => {
+    setup(setupResponseError);
+
+    await expect(volumeProvider).toEmitValuesWith((received) => {
+      expect(received).toMatchObject([
+        { state: LoadingState.Loading, error: undefined, data: [] },
+        {
+          state: LoadingState.Error,
+          error: 'Error in response',
+          data: expect.anything(),
+        },
+        'Error in response',
+      ]);
+    });
+  });
+
+  it('maps prefixed logs volume refId to source query', async () => {
+    setup(setupRefIdPrefixResult);
+
+    await expect(volumeProvider).toEmitValuesWith((received) => {
+      expect(received).toContainEqual(
+        expect.objectContaining({
+          state: LoadingState.Done,
+          error: undefined,
+          data: [
+            expect.objectContaining({
+              refId: 'log-volume-A',
+              meta: expect.objectContaining({
+                custom: expect.objectContaining({
+                  sourceQuery: expect.objectContaining({ refId: 'A', target: 'volume query 1' }),
+                }),
+              }),
+            }),
+          ],
+        })
+      );
+    });
+  });
+
+  it.each([
+    ['sub-5-second range', 999999, 4000, '1ms', 1],
+    ['interval larger than 1 hour', 3600001, 5000, '1d', 86400000],
+    ['interval larger than 1 minute', 60001, 5000, '1h', 3600000],
+    ['interval larger than 1 second', 1001, 5000, '1m', 60000],
+    ['interval 1 second or less', 1000, 5000, '1s', 1000],
+  ])(
+    'normalizes interval fields for %s',
+    (_label, intervalMs, timespanMs, expectedInterval, expectedIntervalMs) => {
+      datasource = new MockObservableDataSourceApi('loki', [{ state: LoadingState.Done, data: [] }]);
+      const from = dateTimeParse(0);
+      const to = dateTimeParse(timespanMs);
+      const intervalRequest = {
+        targets: [{ refId: 'A', target: 'volume query 1' }],
+        scopedVars: { __interval_ms: { value: intervalMs, text: `${intervalMs}` } },
+        requestId: '',
+        interval: '',
+        intervalMs: 0,
+        range: {
+          from,
+          to,
+          raw: { from, to },
+        },
+        timezone: '',
+        app: '',
+        startTime: 0,
+      } as unknown as DataQueryRequest<TestDataQuery>;
+
+      queryLogsVolume(datasource, intervalRequest, { targets: intervalRequest.targets });
+
+      expect(intervalRequest.interval).toBe(expectedInterval);
+      expect(intervalRequest.intervalMs).toBe(expectedIntervalMs);
+      expect(intervalRequest.scopedVars.__interval).toEqual({ value: expectedInterval, text: expectedInterval });
+      expect(intervalRequest.scopedVars.__interval_ms).toEqual({
+        value: expectedIntervalMs,
+        text: expectedIntervalMs,
+      });
+    }
+  );
 
   it('handles annotations in responses', async () => {
     setup(setupLogsVolumeWithAnnotations);
@@ -1854,6 +2025,32 @@ describe('logs sample', () => {
           data: [],
         },
         'Error message',
+      ]);
+    });
+  });
+
+  it('returns response error payloads', async () => {
+    datasource = new MockObservableDataSourceApi('loki', [
+      {
+        data: [resultAFrame1],
+        error: 'Error in response',
+      },
+    ]);
+    request = {
+      targets: [{ target: 'logs sample query 1' }],
+      scopedVars: {},
+    } as unknown as DataQueryRequest<TestDataQuery>;
+    logsSampleProvider = queryLogsSample(datasource, request);
+
+    await expect(logsSampleProvider).toEmitValuesWith((received) => {
+      expect(received).toMatchObject([
+        { state: LoadingState.Loading, error: undefined, data: [] },
+        {
+          state: LoadingState.Error,
+          error: 'Error in response',
+          data: [],
+        },
+        'Error in response',
       ]);
     });
   });
