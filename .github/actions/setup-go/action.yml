@@ -23,9 +23,7 @@ runs:
   steps:
     # When cache-build is enabled, use the built-in setup-go caching
     # which stores both GOMODCACHE and GOCACHE together.
-    - uses: actions/setup-go@v6.0.0
-      env:
-        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+    - uses: actions/setup-go@v6.4.0
       with:
         go-version-file: ${{ inputs.go-version-file }}
         cache: ${{ inputs.cache == 'true' && inputs.cache-build == 'true' }}
