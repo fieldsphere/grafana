@@ -1,3 +1,4 @@
+import type { History as RouterHistory, Location as RouterLocation, Path as RouterPath, To as RouterTo } from '@remix-run/router';
 import * as H from 'history';
 import React, { useContext } from 'react';
 import { BehaviorSubject, Observable } from 'rxjs';
@@ -20,6 +21,7 @@ export interface LocationService {
   reload: () => void;
   getLocation: () => H.Location;
   getHistory: () => H.History;
+  getRouterHistory: () => RouterHistory;
   getSearch: () => URLSearchParams;
   getSearchObject: () => UrlQueryMap;
   getLocationObservable: () => Observable<H.Location>;
@@ -33,6 +35,7 @@ export interface LocationService {
 /** @internal */
 export class HistoryWrapper implements LocationService {
   private readonly history: H.History;
+  private readonly routerHistory: RouterHistory;
   private locationObservable: BehaviorSubject<H.Location>;
 
   constructor(history?: H.History) {
@@ -42,6 +45,7 @@ export class HistoryWrapper implements LocationService {
       (process.env.NODE_ENV === 'test'
         ? H.createMemoryHistory({ initialEntries: ['/'] })
         : H.createBrowserHistory({ basename: config.appSubUrl ?? '/' }));
+    this.routerHistory = new V4RouterHistoryAdapter(this.history);
 
     this.locationObservable = new BehaviorSubject(this.history.location);
 
@@ -63,6 +67,10 @@ export class HistoryWrapper implements LocationService {
 
   getHistory() {
     return this.history;
+  }
+
+  getRouterHistory() {
+    return this.routerHistory;
   }
 
   getSearch() {
@@ -194,3 +202,85 @@ export const LocationServiceProvider: React.FC<{ service: LocationService; child
 }) => {
   return <LocationServiceContext.Provider value={service}>{children}</LocationServiceContext.Provider>;
 };
+
+class V4RouterHistoryAdapter implements RouterHistory {
+  constructor(private readonly history: H.History) {}
+
+  get action(): RouterHistory['action'] {
+    return this.history.action as RouterHistory['action'];
+  }
+
+  get location(): RouterLocation {
+    return toRouterLocation(this.history.location);
+  }
+
+  createHref(to: RouterTo) {
+    return this.history.createHref(toHistoryLocationDescriptor(to));
+  }
+
+  createURL(to: RouterTo) {
+    const href = this.createHref(to);
+    return new URL(href, typeof window === 'undefined' ? 'http://localhost' : window.location.origin);
+  }
+
+  encodeLocation(to: RouterTo): RouterPath {
+    if (typeof to === 'string') {
+      const encoded = new URL(to, 'http://localhost');
+      return {
+        pathname: encoded.pathname,
+        search: encoded.search,
+        hash: encoded.hash,
+      };
+    }
+
+    return {
+      pathname: to.pathname ?? '',
+      search: to.search ?? '',
+      hash: to.hash ?? '',
+    };
+  }
+
+  push(to: RouterTo, state?: any) {
+    this.history.push(toHistoryLocationDescriptor(to), state);
+  }
+
+  replace(to: RouterTo, state?: any) {
+    this.history.replace(toHistoryLocationDescriptor(to), state);
+  }
+
+  go(delta: number) {
+    this.history.go(delta);
+  }
+
+  listen(listener: Parameters<RouterHistory['listen']>[0]) {
+    return this.history.listen((location, action) => {
+      listener({
+        action: action as RouterHistory['action'],
+        location: toRouterLocation(location),
+        delta: null,
+      });
+    });
+  }
+}
+
+function toRouterLocation(location: H.Location): RouterLocation {
+  return {
+    pathname: location.pathname,
+    search: location.search,
+    hash: location.hash,
+    state: location.state,
+    key: location.key ?? 'default',
+  };
+}
+
+function toHistoryLocationDescriptor(to: RouterTo): H.LocationDescriptorObject {
+  if (typeof to === 'string') {
+    return to;
+  }
+
+  return {
+    pathname: to.pathname ?? '',
+    search: to.search ?? '',
+    hash: to.hash ?? '',
+  };
+}

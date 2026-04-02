@@ -1,6 +1,5 @@
 import { ComponentType, ReactNode, type JSX } from 'react';
-import { Router } from 'react-router-dom';
-import { CompatRouter } from 'react-router-dom-v5-compat';
+import { unstable_HistoryRouter as HistoryRouter } from 'react-router-dom-v5-compat';
 
 import { locationService, LocationServiceProvider } from '@grafana/runtime';
 import { ModalRoot, Stack } from '@grafana/ui';
@@ -25,31 +24,29 @@ type RouterWrapperProps = {
 };
 export function RouterWrapper(props: RouterWrapperProps) {
   return (
-    <Router history={locationService.getHistory()}>
+    <HistoryRouter history={locationService.getRouterHistory()}>
       <LocationServiceProvider service={locationService}>
-        <CompatRouter>
-          <QueriesDrawerContextProvider>
-            <ExtraProviders providers={props.providers}>
-              <ModalsContextProvider>
-                <AppChrome>
-                  <AppNotificationList />
-                  <Stack gap={0} grow={1} direction="column">
-                    <AppChromeExtensionPoint />
-                    {props.pageBanners.map((Banner, index) => (
-                      <Banner key={index.toString()} />
-                    ))}
-                    {props.routes}
-                  </Stack>
-                  {props.bodyRenderHooks.map((Hook, index) => (
-                    <Hook key={index.toString()} />
+        <QueriesDrawerContextProvider>
+          <ExtraProviders providers={props.providers}>
+            <ModalsContextProvider>
+              <AppChrome>
+                <AppNotificationList />
+                <Stack gap={0} grow={1} direction="column">
+                  <AppChromeExtensionPoint />
+                  {props.pageBanners.map((Banner, index) => (
+                    <Banner key={index.toString()} />
                   ))}
-                </AppChrome>
-                <ModalRoot />
-              </ModalsContextProvider>
-            </ExtraProviders>
-          </QueriesDrawerContextProvider>
-        </CompatRouter>
+                  {props.routes}
+                </Stack>
+                {props.bodyRenderHooks.map((Hook, index) => (
+                  <Hook key={index.toString()} />
+                ))}
+              </AppChrome>
+              <ModalRoot />
+            </ModalsContextProvider>
+          </ExtraProviders>
+        </QueriesDrawerContextProvider>
       </LocationServiceProvider>
-    </Router>
+    </HistoryRouter>
   );
 }
