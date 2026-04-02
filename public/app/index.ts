@@ -1,3 +1,5 @@
+import { enableStructuredConsoleLogging } from './core/utils/structuredConsole';
+
 // The new index.html fetches window.grafanaBootData asynchronously.
 // Since much of Grafana depends on it in includes side effects at import time,
 // we delay loading the rest of the app using import() until the boot data is ready.
@@ -17,6 +19,7 @@ if (window.nonce) {
 
 // This is an indication to the window.onLoad failure check that the app bundle has loaded.
 window.__grafana_app_bundle_loaded = true;
+enableStructuredConsoleLogging();
 
 async function bootstrapWindowData() {
   // Wait for window.grafanaBootData is ready. The new index.html loads it from

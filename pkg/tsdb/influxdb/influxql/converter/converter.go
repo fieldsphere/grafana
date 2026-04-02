@@ -60,8 +60,7 @@ l1Fields:
 			break l1Fields
 		default:
 			v, err := iter.Read()
-			// TODO: log this properly
-			fmt.Printf("[ROOT] unsupported key: %s / %v\n\n", l1Field, v)
+			slog.Debug("InfluxQL result contains unsupported root key", "key", l1Field, "value", v)
 			if err != nil {
 				if rsp != nil {
 					rsp.Error = err
@@ -161,7 +160,7 @@ func readSeries(iter *sdkjsoniter.Iterator, query *models.Query) *backend.DataRe
 				if err != nil {
 					return rspErr(err)
 				}
-				fmt.Printf("[Series] unsupported key: %s / %v\n", l1Field, v)
+				slog.Debug("InfluxQL result series contains unsupported key", "key", l1Field, "value", v)
 			}
 		}
 

@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	stdlog "log"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -54,6 +55,7 @@ func init() {
 	}
 	logger := level.NewFilter(format(os.Stderr), level.AllowInfo())
 	root = newManager(logger)
+	configureStdlibBridge()
 	// Use default Info level during package initialization before config is loaded
 	initAppSDKLogger(logger, slog.LevelInfo)
 
@@ -64,6 +66,23 @@ func init() {
 		}
 		return nil, false
 	})
+}
+
+type stdlibLogWriter struct{}
+
+func (w *stdlibLogWriter) Write(p []byte) (int, error) {
+	msg := strings.TrimSpace(string(p))
+	if msg == "" {
+		return len(p), nil
+	}
+	root.Warn("stdlib log emitted", "message", msg)
+	return len(p), nil
+}
+
+func configureStdlibBridge() {
+	stdlog.SetFlags(0)
+	stdlog.SetPrefix("")
+	stdlog.SetOutput(&stdlibLogWriter{})
 }
 
 // logManager manage loggers

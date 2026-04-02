@@ -6,7 +6,11 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
+
+	"github.com/grafana/grafana/pkg/infra/log"
 )
+
+var logger = log.New("sqlstore.sqlutil")
 
 // ITestDB is an interface of arguments for testing db
 type ITestDB interface {
@@ -99,17 +103,17 @@ func sqLite3TestDB() (*TestDB, error) {
 			// remove db file if it exists
 			err := os.Remove(sqliteDb)
 			if err != nil && !errors.Is(err, fs.ErrNotExist) {
-				fmt.Printf("Error removing sqlite db file %s: %v\n", sqliteDb, err)
+				logger.Warn("Error removing sqlite test db file", "file", sqliteDb, "err", err)
 			}
 
 			// remove wal & shm files if they exist
 			err = os.Remove(sqliteDb + "-wal")
 			if err != nil && !errors.Is(err, fs.ErrNotExist) {
-				fmt.Printf("Error removing sqlite wal file %s: %v\n", sqliteDb+"-wal", err)
+				logger.Warn("Error removing sqlite test wal file", "file", sqliteDb+"-wal", "err", err)
 			}
 			err = os.Remove(sqliteDb + "-shm")
 			if err != nil && !errors.Is(err, fs.ErrNotExist) {
-				fmt.Printf("Error removing sqlite shm file %s: %v\n", sqliteDb+"-shm", err)
+				logger.Warn("Error removing sqlite test shm file", "file", sqliteDb+"-shm", "err", err)
 			}
 		}
 	}

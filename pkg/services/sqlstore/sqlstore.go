@@ -416,6 +416,7 @@ var testSQLStoreSetup = false
 var testSQLStore *SQLStore
 var testSQLStoreMutex sync.Mutex
 var testSQLStoreCleanup []func()
+var testSQLLogger = log.New("sqlstore.testdb")
 
 // InitTestDBOpt contains options for InitTestDB.
 type InitTestDBOpt struct {
@@ -453,7 +454,7 @@ func SetupTestDB() {
 	testSQLStoreMutex.Lock()
 	defer testSQLStoreMutex.Unlock()
 	if testSQLStoreSetup {
-		fmt.Printf("ERROR: Test DB already set up, SetupTestDB called twice\n")
+		testSQLLogger.Error("Test DB already set up, SetupTestDB called twice")
 		os.Exit(1)
 	}
 	testSQLStoreSetup = true
@@ -463,12 +464,12 @@ func CleanupTestDB() {
 	testSQLStoreMutex.Lock()
 	defer testSQLStoreMutex.Unlock()
 	if !testSQLStoreSetup {
-		fmt.Printf("ERROR: Test DB not set up, SetupTestDB not called\n")
+		testSQLLogger.Error("Test DB not set up, SetupTestDB not called")
 		os.Exit(1)
 	}
 	if testSQLStore != nil {
 		if err := testSQLStore.GetEngine().Close(); err != nil {
-			fmt.Printf("Failed to close testSQLStore engine: %s\n", err)
+			testSQLLogger.Error("Failed to close test SQL store engine", "err", err)
 		}
 
 		for _, cleanup := range testSQLStoreCleanup {

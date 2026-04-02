@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"math"
 	"strings"
 
@@ -185,7 +186,7 @@ func convertDataType(fieldType data.FieldType) mysql.Type {
 	case data.FieldTypeJSON, data.FieldTypeNullableJSON: //nolint:staticcheck
 		return types.JSON
 	default:
-		fmt.Printf("------- Unsupported field type: %v", fieldType)
+		slog.Warn("Unsupported field type", "field_type", fieldType)
 		return types.JSON
 	}
 }

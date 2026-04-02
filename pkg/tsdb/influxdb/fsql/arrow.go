@@ -175,7 +175,7 @@ func newDataField[T any](f arrow.Field) *data.Field {
 func copyData(field *data.Field, col arrow.Array) error {
 	defer func() {
 		if r := recover(); r != nil {
-			fmt.Println(fmt.Errorf("panic: %s %s", r, string(debug.Stack())))
+			slog.Error("panic while copying arrow data", "panic", r, "stack", string(debug.Stack()))
 		}
 	}()
 

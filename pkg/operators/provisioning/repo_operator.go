@@ -40,7 +40,7 @@ func RunRepoController(deps server.OperatorDependencies) error {
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	go func() {
 		<-sigChan
-		fmt.Println("Received shutdown signal, stopping controllers")
+		logger.Info("Received shutdown signal, stopping controllers")
 		cancel()
 	}()
 
