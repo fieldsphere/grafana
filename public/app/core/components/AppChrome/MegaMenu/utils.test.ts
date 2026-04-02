@@ -187,6 +187,22 @@ describe('findByUrl', () => {
     });
   });
 
+  it('matches trailing slash differences', () => {
+    expect(findByUrl(mockNavTree, '/item/')).toEqual({
+      text: 'Item',
+      url: '/item',
+      id: 'item',
+    });
+  });
+
+  it('matches absolute and relative URLs', () => {
+    expect(findByUrl(mockNavTree, 'http://localhost:3000/item')).toEqual({
+      text: 'Item',
+      url: '/item',
+      id: 'item',
+    });
+  });
+
   it('returns null if no item found', () => {
     expect(findByUrl(mockNavTree, '/no-item')).toBeNull();
   });

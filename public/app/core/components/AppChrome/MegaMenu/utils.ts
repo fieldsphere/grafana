@@ -159,8 +159,10 @@ export function getEditionAndUpdateLinks(): NavModelItem[] {
 }
 
 export function findByUrl(nodes: NavModelItem[], url: string): NavModelItem | null {
+  const normalizedUrl = normalizeNavItemUrl(url);
+
   for (const item of nodes) {
-    if (item.url === url) {
+    if (item.url && normalizeNavItemUrl(item.url) === normalizedUrl) {
       return item;
     } else if (item.children?.length) {
       const found = findByUrl(item.children, url);
@@ -170,6 +172,17 @@ export function findByUrl(nodes: NavModelItem[], url: string): NavModelItem | nu
     }
   }
   return null;
+}
+
+function normalizeNavItemUrl(url: string): string {
+  if (!url) {
+    return url;
+  }
+
+  const [pathWithOrigin, search = ''] = url.split('?');
+  const path = pathWithOrigin.replace(/^https?:\/\/[^/]+/i, '').replace(/\/+$/, '') || '/';
+
+  return search ? `${path}?${search}` : path;
 }
 
 /**
