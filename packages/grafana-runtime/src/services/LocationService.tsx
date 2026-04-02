@@ -32,6 +32,66 @@ export interface LocationService {
   update: (update: LocationUpdate) => void;
 }
 
+class V4RouterHistoryAdapter implements RouterHistory {
+  constructor(private readonly history: H.History) {}
+
+  get action(): RouterHistory['action'] {
+    return this.history.action as RouterHistory['action'];
+  }
+
+  get location(): RouterLocation {
+    return toRouterLocation(this.history.location);
+  }
+
+  createHref = (to: RouterTo) => {
+    return this.history.createHref(toHistoryLocationDescriptor(to));
+  };
+
+  createURL = (to: RouterTo) => {
+    const href = this.createHref(to);
+    return new URL(href, typeof window === 'undefined' ? 'http://localhost' : window.location.origin);
+  };
+
+  encodeLocation = (to: RouterTo): RouterPath => {
+    if (typeof to === 'string') {
+      const encoded = new URL(to, 'http://localhost');
+      return {
+        pathname: encoded.pathname,
+        search: encoded.search,
+        hash: encoded.hash,
+      };
+    }
+
+    return {
+      pathname: to.pathname ?? '',
+      search: to.search ?? '',
+      hash: to.hash ?? '',
+    };
+  };
+
+  push = (to: RouterTo, state?: any) => {
+    this.history.push(toHistoryLocationDescriptor(to), state);
+  };
+
+  replace = (to: RouterTo, state?: any) => {
+    this.history.replace(toHistoryLocationDescriptor(to), state);
+  };
+
+  go = (delta: number) => {
+    this.history.go(delta);
+  };
+
+  listen = (listener: Parameters<RouterHistory['listen']>[0]) => {
+    return this.history.listen((location, action) => {
+      listener({
+        action: action as RouterHistory['action'],
+        location: toRouterLocation(location),
+        delta: null,
+      });
+    });
+  };
+}
+
 /** @internal */
 export class HistoryWrapper implements LocationService {
   private readonly history: H.History;
@@ -202,66 +262,6 @@ export const LocationServiceProvider: React.FC<{ service: LocationService; child
 }) => {
   return <LocationServiceContext.Provider value={service}>{children}</LocationServiceContext.Provider>;
 };
-
-class V4RouterHistoryAdapter implements RouterHistory {
-  constructor(private readonly history: H.History) {}
-
-  get action(): RouterHistory['action'] {
-    return this.history.action as RouterHistory['action'];
-  }
-
-  get location(): RouterLocation {
-    return toRouterLocation(this.history.location);
-  }
-
-  createHref(to: RouterTo) {
-    return this.history.createHref(toHistoryLocationDescriptor(to));
-  }
-
-  createURL(to: RouterTo) {
-    const href = this.createHref(to);
-    return new URL(href, typeof window === 'undefined' ? 'http://localhost' : window.location.origin);
-  }
-
-  encodeLocation(to: RouterTo): RouterPath {
-    if (typeof to === 'string') {
-      const encoded = new URL(to, 'http://localhost');
-      return {
-        pathname: encoded.pathname,
-        search: encoded.search,
-        hash: encoded.hash,
-      };
-    }
-
-    return {
-      pathname: to.pathname ?? '',
-      search: to.search ?? '',
-      hash: to.hash ?? '',
-    };
-  }
-
-  push(to: RouterTo, state?: any) {
-    this.history.push(toHistoryLocationDescriptor(to), state);
-  }
-
-  replace(to: RouterTo, state?: any) {
-    this.history.replace(toHistoryLocationDescriptor(to), state);
-  }
-
-  go(delta: number) {
-    this.history.go(delta);
-  }
-
-  listen(listener: Parameters<RouterHistory['listen']>[0]) {
-    return this.history.listen((location, action) => {
-      listener({
-        action: action as RouterHistory['action'],
-        location: toRouterLocation(location),
-        delta: null,
-      });
-    });
-  }
-}
 
 function toRouterLocation(location: H.Location): RouterLocation {
   return {

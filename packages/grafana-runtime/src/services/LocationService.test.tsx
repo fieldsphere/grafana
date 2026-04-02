@@ -71,4 +71,16 @@ describe('LocationService', () => {
       expect(hookResult.result.current).toBe(locationServiceLocal);
     });
   });
+
+  describe('router history adapter', () => {
+    it('supports detached push calls from the router', () => {
+      const localService = new HistoryWrapper();
+      const routerHistory = localService.getRouterHistory();
+      const { push } = routerHistory;
+
+      push('/detached-call');
+
+      expect(localService.getLocation().pathname).toBe('/detached-call');
+    });
+  });
 });

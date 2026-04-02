@@ -7,6 +7,7 @@ import { fromPairs } from 'lodash';
 import { stringify } from 'querystring';
 import { ComponentType, ReactNode } from 'react';
 import { Provider } from 'react-redux';
+import { Router as LegacyRouter } from 'react-router-dom';
 import { Route, Routes, unstable_HistoryRouter as HistoryRouter } from 'react-router-dom-v5-compat';
 import { of } from 'rxjs';
 import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';
@@ -200,25 +201,36 @@ export function setupExplore(options?: SetupOptions): {
     <OpenFeatureProvider client={getTestFeatureFlagClient()}>
       <Provider store={storeState}>
         <GrafanaContext.Provider value={contextMock}>
-          <HistoryRouter history={location.getRouterHistory()}>
-            <QueriesDrawerContextProvider>
-              <FinalProvider>
-                {options?.withAppChrome ? (
-                  <KBarProvider>
-                    <AppChrome>
-                      <Routes>
-                        <Route path="/explore" element={<GrafanaRouteWrapper route={{ component: ExplorePage, path: '/explore' }} />} />
-                      </Routes>
-                    </AppChrome>
-                  </KBarProvider>
-                ) : (
-                  <Routes>
-                    <Route path="/explore" element={<GrafanaRouteWrapper route={{ component: ExplorePage, path: '/explore' }} />} />
-                  </Routes>
-                )}
-              </FinalProvider>
-            </QueriesDrawerContextProvider>
-          </HistoryRouter>
+          <LegacyRouter history={history}>
+            <HistoryRouter
+              history={location.getRouterHistory()}
+              future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+            >
+              <QueriesDrawerContextProvider>
+                <FinalProvider>
+                  {options?.withAppChrome ? (
+                    <KBarProvider>
+                      <AppChrome>
+                        <Routes>
+                          <Route
+                            path="/explore"
+                            element={<GrafanaRouteWrapper route={{ component: ExplorePage, path: '/explore' }} />}
+                          />
+                        </Routes>
+                      </AppChrome>
+                    </KBarProvider>
+                  ) : (
+                    <Routes>
+                      <Route
+                        path="/explore"
+                        element={<GrafanaRouteWrapper route={{ component: ExplorePage, path: '/explore' }} />}
+                      />
+                    </Routes>
+                  )}
+                </FinalProvider>
+              </QueriesDrawerContextProvider>
+            </HistoryRouter>
+          </LegacyRouter>
         </GrafanaContext.Provider>
       </Provider>
     </OpenFeatureProvider>
