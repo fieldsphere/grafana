@@ -1,11 +1,7 @@
 type ConsoleLevel = 'log' | 'info' | 'debug' | 'warn' | 'error';
 
-const PATCH_MARKER = Symbol.for('grafana.structured_console_patched');
 const LOGGER_NAME = 'grafana.frontend.console';
-
-type ConsoleWithMarker = Console & {
-  [PATCH_MARKER]?: boolean;
-};
+const patchedConsoles = new WeakSet<Console>();
 
 interface StructuredConsoleEntry {
   logger: string;
@@ -32,7 +28,7 @@ function normalizeConsoleArg(arg: unknown): unknown {
     case 'symbol':
       return arg.toString();
     case 'function':
-      return `[Function ${(arg as Function).name || 'anonymous'}]`;
+      return `[Function ${arg.name || 'anonymous'}]`;
     default:
       return arg;
   }
@@ -64,8 +60,7 @@ function buildStructuredEntry(level: ConsoleLevel, args: unknown[]): StructuredC
 }
 
 export function enableStructuredConsoleLogging(targetConsole: Console = console): void {
-  const consoleWithMarker = targetConsole as ConsoleWithMarker;
-  if (consoleWithMarker[PATCH_MARKER]) {
+  if (patchedConsoles.has(targetConsole)) {
     return;
   }
 
@@ -82,5 +77,5 @@ export function enableStructuredConsoleLogging(targetConsole: Console = console)
     };
   }
 
-  consoleWithMarker[PATCH_MARKER] = true;
+  patchedConsoles.add(targetConsole);
 }
