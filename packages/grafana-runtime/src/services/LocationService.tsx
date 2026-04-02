@@ -1,4 +1,5 @@
-import type {
+import {
+  Action as RouterAction,
   History as RouterHistory,
   Location as RouterLocation,
   Path as RouterPath,
@@ -8,21 +9,23 @@ import * as H from 'history';
 import React, { useContext } from 'react';
 import { BehaviorSubject, Observable } from 'rxjs';
 
-import { deprecationWarning, UrlQueryMap, urlUtil } from '@grafana/data';
+import { deprecationWarning, UrlQueryMap, UrlQueryValue, urlUtil } from '@grafana/data';
 import { attachDebugger, createLogger } from '@grafana/ui';
 
 import { config } from '../config';
 
 import { LocationUpdate } from './LocationSrv';
 
+type HistoryLocationDescriptor = H.Path | H.LocationDescriptor<unknown>;
+
 /**
  * @public
  * A wrapper to help work with browser location and history
  */
 export interface LocationService {
-  partial: (query: Record<string, any>, replace?: boolean) => void;
-  push: (location: H.Path | H.LocationDescriptor<any>) => void;
-  replace: (location: H.Path | H.LocationDescriptor<any>) => void;
+  partial: (query: Record<string, unknown>, replace?: boolean) => void;
+  push: (location: HistoryLocationDescriptor) => void;
+  replace: (location: HistoryLocationDescriptor) => void;
   reload: () => void;
   getLocation: () => H.Location;
   getHistory: () => H.History;
@@ -41,7 +44,7 @@ class V4RouterHistoryAdapter implements RouterHistory {
   constructor(private readonly history: H.History) {}
 
   get action(): RouterHistory['action'] {
-    return this.history.action as RouterHistory['action'];
+    return toRouterAction(this.history.action);
   }
 
   get location(): RouterLocation {
@@ -49,7 +52,7 @@ class V4RouterHistoryAdapter implements RouterHistory {
   }
 
   createHref = (to: RouterTo) => {
-    return this.history.createHref(toHistoryLocationDescriptor(to));
+    return this.history.createHref(toHistoryPathDescriptor(to));
   };
 
   createURL = (to: RouterTo) => {
@@ -74,11 +77,11 @@ class V4RouterHistoryAdapter implements RouterHistory {
     };
   };
 
-  push = (to: RouterTo, state?: any) => {
+  push = (to: RouterTo, state?: unknown) => {
     this.history.push(toHistoryLocationDescriptor(to), state);
   };
 
-  replace = (to: RouterTo, state?: any) => {
+  replace = (to: RouterTo, state?: unknown) => {
     this.history.replace(toHistoryLocationDescriptor(to), state);
   };
 
@@ -89,7 +92,7 @@ class V4RouterHistoryAdapter implements RouterHistory {
   listen = (listener: Parameters<RouterHistory['listen']>[0]) => {
     return this.history.listen((location, action) => {
       listener({
-        action: action as RouterHistory['action'],
+        action: toRouterAction(action),
         location: toRouterLocation(location),
         delta: null,
       });
@@ -142,7 +145,7 @@ export class HistoryWrapper implements LocationService {
     return new URLSearchParams(this.history.location.search);
   }
 
-  partial(query: Record<string, any>, replace?: boolean) {
+  partial(query: Record<string, unknown>, replace?: boolean) {
     const currentLocation = this.history.location;
     const newQuery = this.getSearchObject();
 
@@ -151,7 +154,7 @@ export class HistoryWrapper implements LocationService {
       if (query[key] === null || query[key] === undefined) {
         delete newQuery[key];
       } else {
-        newQuery[key] = query[key];
+        newQuery[key] = toUrlQueryValue(query[key]);
       }
     }
 
@@ -164,16 +167,16 @@ export class HistoryWrapper implements LocationService {
     }
   }
 
-  push(location: H.Path | H.LocationDescriptor) {
+  push(location: HistoryLocationDescriptor) {
     this.history.push(location);
   }
 
-  replace(location: H.Path | H.LocationDescriptor) {
+  replace(location: HistoryLocationDescriptor) {
     this.history.replace(location);
   }
 
   reload() {
-    const prevState = (this.history.location.state as any)?.routeReloadCounter;
+    const prevState = getRouteReloadCounter(this.history.location.state);
     this.history.replace({
       ...this.history.location,
       state: { routeReloadCounter: prevState ? prevState + 1 : 1 },
@@ -278,9 +281,58 @@ function toRouterLocation(location: H.Location): RouterLocation {
   };
 }
 
-function toHistoryLocationDescriptor(to: RouterTo): H.LocationDescriptorObject {
+function toRouterAction(action: H.Action): RouterHistory['action'] {
+  return ROUTER_ACTIONS.get(action) ?? DEFAULT_ROUTER_ACTION;
+}
+
+const ROUTER_ACTIONS = new Map<H.Action, RouterHistory['action']>([
+  ['PUSH', RouterAction.Push],
+  ['REPLACE', RouterAction.Replace],
+  ['POP', RouterAction.Pop],
+]);
+const DEFAULT_ROUTER_ACTION: RouterHistory['action'] = RouterAction.Pop;
+
+function getRouteReloadCounter(state: unknown): number | undefined {
+  if (typeof state !== 'object' || state === null || !('routeReloadCounter' in state)) {
+    return undefined;
+  }
+
+  const counter = state.routeReloadCounter;
+  return typeof counter === 'number' ? counter : undefined;
+}
+
+function toUrlQueryValue(value: unknown): UrlQueryValue {
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean' || value === null) {
+    return value;
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(String);
+  }
+
+  return String(value);
+}
+
+function toHistoryLocationDescriptor(to: RouterTo): HistoryLocationDescriptor {
   if (typeof to === 'string') {
     return to;
+  }
+
+  return {
+    pathname: to.pathname ?? '',
+    search: to.search ?? '',
+    hash: to.hash ?? '',
+  };
+}
+
+function toHistoryPathDescriptor(to: RouterTo): H.LocationDescriptorObject<unknown> {
+  if (typeof to === 'string') {
+    const encoded = new URL(to, 'http://localhost');
+    return {
+      pathname: encoded.pathname,
+      search: encoded.search,
+      hash: encoded.hash,
+    };
   }
 
   return {
