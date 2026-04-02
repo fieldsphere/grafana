@@ -42,6 +42,8 @@ jobs:
           cache-dependency-path: |
             go.sum
             **/*.sum
+        env:
+          FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       - name: Run Go unit tests
         run: |
           set -euo pipefail
