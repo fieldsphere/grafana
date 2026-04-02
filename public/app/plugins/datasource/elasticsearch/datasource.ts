@@ -2,8 +2,10 @@ import { cloneDeep, first as _first, isNumber, isString, map as _map, isObject }
 import { from, generate, lastValueFrom, Observable, of } from 'rxjs';
 import { catchError, first, map, mergeMap, skipWhile, throwIfEmpty, tap } from 'rxjs/operators';
 import { SemVer } from 'semver';
+import { createStructuredLogger } from '@grafana/data';
 
 import {
+
   DataFrame,
   DataLink,
   DataQueryRequest,
@@ -86,6 +88,8 @@ import {
   QueryType,
 } from './types';
 import { getScriptValue, isTimeSeriesQuery } from './utils';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/elasticsearch/datasource');
 
 export const REF_ID_STARTER_LOG_VOLUME = 'log-volume-';
 export const REF_ID_STARTER_LOG_SAMPLE = 'log-sample-';
@@ -1188,12 +1192,12 @@ export class ElasticDatasource
         try {
           return new SemVer(versionNumber);
         } catch (error) {
-          console.error(error);
+          structuredLogger.error(error);
           return null;
         }
       },
       (error) => {
-        console.error(error);
+        structuredLogger.error(error);
         return null;
       }
     );

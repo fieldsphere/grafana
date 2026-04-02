@@ -1,4 +1,6 @@
 import {
+
+
   Centrifuge,
   ConnectedContext,
   ConnectingContext,
@@ -8,6 +10,7 @@ import {
   State,
 } from 'centrifuge';
 import { BehaviorSubject, Observable, share, startWith } from 'rxjs';
+import { createStructuredLogger } from '@grafana/data';
 
 import {
   DataQueryError,
@@ -33,6 +36,8 @@ import { StreamingResponseData } from '../data/utils';
 
 import { LiveDataStream } from './LiveDataStream';
 import { CentrifugeLiveChannel } from './channel';
+
+const structuredLogger = createStructuredLogger('public/app/features/live/centrifuge/service');
 
 export type CentrifugeSrvDeps = {
   grafanaAuthToken: string | null;
@@ -125,7 +130,7 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.log('Publication from server-side channel', context);
+    structuredLogger.log('Publication from server-side channel', context);
   };
 
   private onError = (context: ErrorContext) => {

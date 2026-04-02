@@ -1,6 +1,10 @@
 import { DataFrame, Field, FieldType } from '../types/dataFrame';
+import { createStructuredLogger } from '../utils/structuredLogger';
 
 import { guessFieldTypeForField } from './processDataFrame';
+
+
+const structuredLogger = createStructuredLogger('packages/grafana-data/src/dataframe/FieldCache');
 
 export interface FieldWithIndex extends Field {
   index: number;
@@ -36,7 +40,7 @@ export class FieldCache {
       });
 
       if (this.fieldByName[field.name]) {
-        console.warn('Duplicate field names in DataFrame: ', field.name);
+        structuredLogger.warn('Duplicate field names in DataFrame: ', field.name);
       } else {
         this.fieldByName[field.name] = { ...field, index: i };
       }

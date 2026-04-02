@@ -2,8 +2,10 @@ import { css } from '@emotion/css';
 import { PureComponent, useEffect, useState } from 'react';
 import * as React from 'react';
 import { Unsubscribable } from 'rxjs';
+import { createStructuredLogger } from '@grafana/data';
 
 import {
+
   CoreApp,
   DataSourceApi,
   DataSourceInstanceSettings,
@@ -34,6 +36,8 @@ import { updateQueries } from '../state/updateQueries';
 import { GroupActionComponents } from './QueryActionComponent';
 import { QueryEditorRows } from './QueryEditorRows';
 import { QueryGroupOptionsEditor } from './QueryGroupOptions';
+
+const structuredLogger = createStructuredLogger('public/app/features/query/components/QueryGroup');
 
 export interface Props {
   queryRunner: PanelQueryRunner;
@@ -122,7 +126,7 @@ export class QueryGroup extends PureComponent<Props, State> {
         defaultDataSource,
       });
     } catch (error) {
-      console.error('failed to load data source', error);
+      structuredLogger.error('failed to load data source', error);
     }
   }
 

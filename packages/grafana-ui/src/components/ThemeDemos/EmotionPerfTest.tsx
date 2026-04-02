@@ -6,12 +6,15 @@ import React, { Profiler, ProfilerOnRenderCallback, useState, FC } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 
+import { createStructuredLogger } from '../../../../grafana-data/src/utils/structuredLogger';
 import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
 import { Button } from '../Button/Button';
 import { Stack } from '../Layout/Stack/Stack';
 
+const structuredLogger = createStructuredLogger('packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest');
+
 export function EmotionPerfTest() {
-  console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+  structuredLogger.log('process.env.NODE_ENV', process.env.NODE_ENV);
 
   return (
     <Stack direction="column">
@@ -126,7 +129,7 @@ function NoStyles({ index }: TestComponentProps) {
 
 function MeasureRender({ children, id }: { children: React.ReactNode; id: string }) {
   const onRender: ProfilerOnRenderCallback = (id, phase, actualDuration, baseDuration, startTime, commitTime) => {
-    console.log('Profile ' + id, actualDuration);
+    structuredLogger.log('Profile ' + id, actualDuration);
   };
 
   return (

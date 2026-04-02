@@ -1,6 +1,7 @@
 import { map } from 'rxjs';
 
 import {
+
   DataFrame,
   DataTransformerID,
   FieldType,
@@ -592,7 +593,7 @@ function heatmap(xs: number[], ys: number[], opts?: HeatmapOpts) {
     yBinIncr = yIncrs[Math.max(yIncrIdx, 0)];
   }
 
-  // console.log({
+  // structuredLogger.log({
   //   yBinIncr,
   //   xBinIncr,
   // });

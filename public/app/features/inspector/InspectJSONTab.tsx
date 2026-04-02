@@ -4,7 +4,7 @@ import { useAsync } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { firstValueFrom } from 'rxjs';
 
-import { AppEvents, PanelData, SelectableValue, LoadingState } from '@grafana/data';
+import { createStructuredLogger, AppEvents, PanelData, SelectableValue, LoadingState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
@@ -19,6 +19,9 @@ import { reportPanelInspectInteraction } from '../search/page/reporting';
 
 import { InspectTab } from './types';
 import { getPrettyJSON } from './utils/utils';
+
+
+const structuredLogger = createStructuredLogger('public/app/features/inspector/InspectJSONTab');
 
 enum ShowContent {
   PanelJSON = 'panel',
@@ -104,7 +107,7 @@ export function InspectJSONTab({ panel, dashboard, data, onClose }: Props) {
           appEvents.emit(AppEvents.alertSuccess, ['Panel model updated']);
         }
       } catch (err) {
-        console.error('Error applying updates', err);
+        structuredLogger.error('Error applying updates', err);
         appEvents.emit(AppEvents.alertError, ['Invalid JSON text']);
       }
 

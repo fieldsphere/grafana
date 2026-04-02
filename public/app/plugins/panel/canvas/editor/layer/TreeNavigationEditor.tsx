@@ -3,7 +3,7 @@ import { Global } from '@emotion/react';
 import Tree, { TreeNodeProps } from '@rc-component/tree';
 import { Key, useEffect, useMemo, useState } from 'react';
 
-import { GrafanaTheme2, StandardEditorProps } from '@grafana/data';
+import { createStructuredLogger, GrafanaTheme2, StandardEditorProps } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { Button, Icon, Stack, useStyles2, useTheme2 } from '@grafana/ui';
@@ -19,6 +19,9 @@ import { TreeViewEditorProps } from '../element/elementEditor';
 
 import { TreeNodeTitle } from './TreeNodeTitle';
 import { getTreeData, onNodeDrop, TreeElement } from './tree';
+
+
+const structuredLogger = createStructuredLogger('public/app/plugins/panel/canvas/editor/layer/TreeNavigationEditor');
 
 let allowSelection = true;
 
@@ -130,7 +133,7 @@ export const TreeNavigationEditor = ({ item }: StandardEditorProps<unknown, Tree
     if (layer.scene) {
       frameSelection(layer.scene);
     } else {
-      console.warn('no scene!');
+      structuredLogger.warn('no scene!');
     }
   };
 

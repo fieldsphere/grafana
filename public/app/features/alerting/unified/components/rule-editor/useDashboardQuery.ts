@@ -1,5 +1,6 @@
 import memoizeOne from 'memoize-one';
 import { useEffect, useState } from 'react';
+import { createStructuredLogger } from '@grafana/data';
 
 import { Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
@@ -8,6 +9,9 @@ import { isDashboardV2Resource } from 'app/features/dashboard/api/utils';
 import { DashboardDTO } from 'app/types/dashboard';
 
 import { DashboardModel } from '../../../../dashboard/state/DashboardModel';
+
+
+const structuredLogger = createStructuredLogger('public/app/features/alerting/unified/components/rule-editor/useDashboardQuery');
 
 export type DashboardResponse = DashboardDTO | DashboardWithAccessInfo<DashboardV2Spec>;
 
@@ -36,11 +40,11 @@ export function useDashboardQuery(dashboardUid?: string) {
           } else if (isDashboardV2Resource(dashboardDTO)) {
             setDashboard(dashboardDTO);
           } else {
-            console.error('Something went wrong, unexpected dashboard format');
+            structuredLogger.error('Something went wrong, unexpected dashboard format');
           }
         })
         .catch((error) => {
-          console.error('Failed to fetch dashboard', error);
+          structuredLogger.error('Failed to fetch dashboard', error);
         })
         .finally(() => {
           setIsFetching(false);

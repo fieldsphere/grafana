@@ -1,8 +1,10 @@
 import { isEqual } from 'lodash';
 import React from 'react';
 import { Unsubscribable } from 'rxjs';
+import { createStructuredLogger } from '@grafana/data';
 
 import {
+
   VizPanel,
   SceneObjectBase,
   SceneGridLayout,
@@ -27,6 +29,8 @@ import { getDashboardGridItemOptions } from './DashboardGridItemEditor';
 import { DashboardGridItemRenderer } from './DashboardGridItemRenderer';
 import { DashboardGridItemVariableDependencyHandler } from './DashboardGridItemVariableDependencyHandler';
 import { RowRepeaterBehavior } from './RowRepeaterBehavior';
+
+const structuredLogger = createStructuredLogger('public/app/features/dashboard-scene/scene/layout-default/DashboardGridItem');
 
 export interface DashboardGridItemState extends SceneGridItemStateLike {
   body: VizPanel;
@@ -150,7 +154,7 @@ export class DashboardGridItem
       });
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('DashboardGridItem: Variable is not a MultiValueVariable');
+      structuredLogger.error('DashboardGridItem: Variable is not a MultiValueVariable');
       return;
     }
 

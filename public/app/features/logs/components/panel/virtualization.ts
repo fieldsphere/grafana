@@ -1,10 +1,13 @@
 import ansicolor from 'ansicolor';
 
-import { BusEventWithPayload, GrafanaTheme2 } from '@grafana/data';
+import { createStructuredLogger, BusEventWithPayload, GrafanaTheme2 } from '@grafana/data';
 
 import { LogLineTimestampResolution } from './LogLine';
 import { LogListFontSize } from './LogList';
 import { LogListModel } from './processing';
+
+
+const structuredLogger = createStructuredLogger('public/app/features/logs/components/panel/virtualization');
 
 export const LOG_LIST_MIN_WIDTH = 35 * 8;
 // Controls the space between fields in the log line, timestamp, level, displayed fields, and log line body
@@ -73,7 +76,7 @@ export class LogLineVirtualization {
     const domCharWidth = this.measureTextWidthWithDOM('e');
     const diff = domCharWidth - canvasCharWidth;
     if (diff >= 0.1) {
-      console.warn('Virtualized log list: falling back to DOM for measurement');
+      structuredLogger.warn('Virtualized log list: falling back to DOM for measurement');
       this.measurementMode = 'dom';
     }
   };

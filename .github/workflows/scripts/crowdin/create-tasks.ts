@@ -1,4 +1,9 @@
 import crowdinImport from '@crowdin/crowdin-api-client';
+import { createStructuredLogger } from '../../../scripts/helpers/structuredLogger';
+
+
+const structuredLogger = createStructuredLogger('.github/workflows/scripts/crowdin/create-tasks');
+
 const TRANSLATED_CONNECTOR_DESCRIPTION = '{{tos_service_type: premium}}';
 const TRANSLATE_BY_VENDOR_WORKFLOW_TYPE = 'TranslateByVendor'
 
@@ -8,13 +13,13 @@ const crowdin = crowdinImport.default as typeof crowdinImport;
 
 const API_TOKEN = process.env.CROWDIN_PERSONAL_TOKEN;
 if (!API_TOKEN) {
-  console.error('Error: CROWDIN_PERSONAL_TOKEN environment variable is not set');
+  structuredLogger.error('Error: CROWDIN_PERSONAL_TOKEN environment variable is not set');
   process.exit(1);
 }
 
 const PROJECT_ID = process.env.CROWDIN_PROJECT_ID ? parseInt(process.env.CROWDIN_PROJECT_ID, 10) : undefined;
 if (!PROJECT_ID) {
-  console.error('Error: CROWDIN_PROJECT_ID environment variable is not set');
+  structuredLogger.error('Error: CROWDIN_PROJECT_ID environment variable is not set');
   process.exit(1);
 }
 
@@ -38,12 +43,12 @@ async function getLanguages(projectId: number) {
   try {
     const project = await projectsGroupsApi.getProject(projectId);
     const languages = project.data.targetLanguages;
-    console.log('Fetched languages successfully!');
+    structuredLogger.info('Fetched languages successfully!');
     return languages;
   } catch (error) {
-    console.error('Failed to fetch languages: ', error.message);
+    structuredLogger.error('Failed to fetch languages', error);
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      structuredLogger.error('Crowdin error details', error.response.data);
     }
     process.exit(1);
   }
@@ -54,12 +59,12 @@ async function getFileIds(projectId: number) {
     const response = await sourceFilesApi.listProjectFiles(projectId);
     const files = response.data;
     const fileIds = files.map(file => file.data.id);
-    console.log('Fetched file ids successfully!');
+    structuredLogger.info('Fetched file ids successfully!');
     return fileIds;
   } catch (error) {
-    console.error('Failed to fetch file IDs: ', error.message);
+    structuredLogger.error('Failed to fetch file IDs', error);
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      structuredLogger.error('Crowdin error details', error.response.data);
     }
     process.exit(1);
   }
@@ -73,12 +78,12 @@ async function getWorkflowStepId(projectId: number) {
     if (!workflowStepId) {
       throw new Error(`Workflow step with type "${TRANSLATE_BY_VENDOR_WORKFLOW_TYPE}" not found`);
     }
-    console.log('Fetched workflow step ID successfully!');
+    structuredLogger.info('Fetched workflow step ID successfully!');
     return workflowStepId;
   } catch (error) {
-    console.error('Failed to fetch workflow step ID: ', error.message);
+    structuredLogger.error('Failed to fetch workflow step ID', error);
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      structuredLogger.error('Crowdin error details', error.response.data);
     }
     process.exit(1);
   }
@@ -95,15 +100,15 @@ async function createTask(projectId: number, title: string, languageId: string, 
       fileIds,
     };
 
-    console.log(`Creating Crowdin task: "${title}" for language ${languageId}`);
+    structuredLogger.info(`Creating Crowdin task: "${title}" for language ${languageId}`);
 
     const response = await tasksApi.addTask(projectId, taskParams);
-    console.log(`Task created successfully! Task ID: ${response.data.id}`);
+    structuredLogger.info(`Task created successfully! Task ID: ${response.data.id}`);
     return response.data;
   } catch (error) {
-    console.error('Failed to create Crowdin task: ', error.message);
+    structuredLogger.error('Failed to create Crowdin task', error);
     if (error.response && error.response.data) {
-      console.error('Error details: ', JSON.stringify(error.response.data, null, 2));
+      structuredLogger.error('Crowdin error details', error.response.data);
     }
     process.exit(1);
   }

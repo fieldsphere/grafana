@@ -1,10 +1,11 @@
 import { css, cx } from '@emotion/css';
 
-import { AppEvents, GrafanaTheme2 } from '@grafana/data';
+import { createStructuredLogger, AppEvents, GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import { config, getAppEvents } from '@grafana/runtime';
 import {
+
   SceneObjectState,
   SceneGridLayout,
   SceneObjectBase,
@@ -57,6 +58,8 @@ import { DashboardGridItem } from './DashboardGridItem';
 import { RowRepeaterBehavior } from './RowRepeaterBehavior';
 import { findSpaceForNewPanel } from './findSpaceForNewPanel';
 import { RowActions } from './row-actions/RowActions';
+
+const structuredLogger = createStructuredLogger('public/app/features/dashboard-scene/scene/layout-default/DefaultGridLayoutManager');
 
 interface DefaultGridLayoutManagerState extends SceneObjectState {
   grid: SceneGridLayout;
@@ -260,7 +263,7 @@ export class DefaultGridLayoutManager
   public duplicatePanel(vizPanel: VizPanel) {
     const gridItem = vizPanel.parent;
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
+      structuredLogger.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
       return;
     }
 

@@ -1,4 +1,6 @@
 import {
+
+
   DataFrame,
   DataLink,
   DataQueryRequest,
@@ -8,10 +10,13 @@ import {
   TimeRange,
 } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
+import { createStructuredLogger } from '@grafana/data';
 
 import { AwsUrl, encodeUrl } from '../aws_url';
 import { CloudWatchLogsQuery } from '../dataquery.gen';
 import { CloudWatchQuery } from '../types';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/cloudwatch/utils/datalinks');
 
 type ReplaceFn = (
   target?: string,
@@ -66,7 +71,7 @@ async function createInternalXrayLink(datasourceUid: string, region: string): Pr
   try {
     ds = await getDataSourceSrv().get(datasourceUid);
   } catch (e) {
-    console.error('Could not load linked xray data source, it was probably deleted after it was linked', e);
+    structuredLogger.error('Could not load linked xray data source, it was probably deleted after it was linked', e);
     return undefined;
   }
 

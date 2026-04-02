@@ -1,4 +1,4 @@
-import { PluginError, PluginMeta, renderMarkdown } from '@grafana/data';
+import { createStructuredLogger, PluginError, PluginMeta, renderMarkdown } from '@grafana/data';
 import { getBackendSrv, isFetchError } from '@grafana/runtime';
 import { accessControlQueryParam } from 'app/core/utils/accessControl';
 import { isVersionGtOrEq } from 'app/core/utils/version';
@@ -6,6 +6,7 @@ import { isVersionGtOrEq } from 'app/core/utils/version';
 import { API_ROOT, GCOM_API_ROOT, INSTANCE_API_ROOT } from './constants';
 import { isLocalPluginVisibleByConfig, isRemotePluginVisibleByConfig } from './helpers';
 import {
+
   LocalPlugin,
   RemotePlugin,
   CatalogPluginDetails,
@@ -15,6 +16,8 @@ import {
   InstancePlugin,
   ProvisionedPlugin,
 } from './types';
+
+const structuredLogger = createStructuredLogger('public/app/features/plugins/admin/api');
 
 export async function getPluginDetails(id: string): Promise<CatalogPluginDetails> {
   const remote = await getRemotePlugin(id);
@@ -91,7 +94,7 @@ export async function getRemotePlugins(): Promise<RemotePlugin[]> {
     if (isFetchError(error)) {
       // It can happen that GCOM is not available, in that case we show a limited set of information to the user.
       error.isHandled = true;
-      console.error('Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
+      structuredLogger.error('Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
       return [];
     }
 

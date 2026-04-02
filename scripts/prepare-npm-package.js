@@ -1,3 +1,5 @@
+const { createStructuredLogger } = require('./helpers/structuredLogger');
+const structuredLogger = createStructuredLogger('scripts/prepare-npm-package');
 //@ts-check
 import PackageJson from '@npmcli/package-json';
 
@@ -30,6 +32,6 @@ try {
     await pkgJson.save();
   }
 } catch (e) {
-  console.error(e);
+  structuredLogger.error(e);
   process.exit(1);
 }

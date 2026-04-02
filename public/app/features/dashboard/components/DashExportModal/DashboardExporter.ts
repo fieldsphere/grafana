@@ -1,6 +1,6 @@
 import { defaults, each, sortBy } from 'lodash';
 
-import { DataSourceRef, VariableOption, VariableRefresh } from '@grafana/data';
+import { createStructuredLogger, DataSourceRef, VariableOption, VariableRefresh } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { getPanelPluginMeta } from '@grafana/runtime/internal';
 import config from 'app/core/config';
@@ -14,6 +14,9 @@ import { DashboardJson } from '../../../manage-dashboards/types';
 import { isConstant } from '../../../variables/guard';
 import { DashboardModel } from '../../state/DashboardModel';
 import { GridPos } from '../../state/PanelModel';
+
+
+const structuredLogger = createStructuredLogger('public/app/features/dashboard/components/DashExportModal/DashboardExporter');
 
 export interface InputUsage {
   libraryPanels?: LibraryPanel[];
@@ -318,7 +321,7 @@ export class DashboardExporter {
 
       return newObj;
     } catch (err) {
-      console.error('Export failed:', err);
+      structuredLogger.error('Export failed:', err);
       return {
         error: err,
       };

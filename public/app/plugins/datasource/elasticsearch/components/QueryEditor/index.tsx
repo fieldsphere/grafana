@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { SemVer } from 'semver';
 
-import { getDefaultTimeRange, GrafanaTheme2, QueryEditorProps } from '@grafana/data';
+import { createStructuredLogger, getDefaultTimeRange, GrafanaTheme2, QueryEditorProps } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { Alert, ConfirmModal, InlineField, InlineLabel, Input, QueryField, useStyles2 } from '@grafana/ui';
 
@@ -21,6 +21,9 @@ import { MetricAggregationsEditor } from './MetricAggregationsEditor';
 import { metricAggregationConfig } from './MetricAggregationsEditor/utils';
 import { QueryTypeSelector } from './QueryTypeSelector';
 import { changeAliasPattern, changeEditorTypeAndResetQuery, changeQuery } from './state';
+
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/elasticsearch/components/QueryEditor/index');
 
 export type ElasticQueryEditorProps = QueryEditorProps<
   ElasticDatasourceLike,
@@ -42,7 +45,7 @@ function useElasticVersion(datasource: ElasticDatasourceLike): SemVer | null {
       },
       (error) => {
         // we do nothing
-        console.log(error);
+        structuredLogger.log(error);
       }
     );
 

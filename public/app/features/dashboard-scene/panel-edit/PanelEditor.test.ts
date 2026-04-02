@@ -4,6 +4,7 @@ import { DataQueryRequest, DataSourceApi, LoadingState, PanelPlugin, store } fro
 import { getPanelPlugin } from '@grafana/data/test';
 import { config } from '@grafana/runtime';
 import {
+
   CancelActivationHandler,
   CustomVariable,
   SceneDataTransformer,
@@ -495,7 +496,7 @@ async function setup(options: SetupOptions = {}) {
   deactivate = activateFullSceneTree(dashboard);
 
   if (!options.skipWait) {
-    //console.log('pluginResolve(pluginToLoad)');
+    //structuredLogger.log('pluginResolve(pluginToLoad)');
     pluginResolve(pluginToLoad);
     await new Promise((r) => setTimeout(r, 1));
   }

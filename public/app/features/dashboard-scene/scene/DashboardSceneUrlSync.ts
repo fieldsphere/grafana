@@ -1,5 +1,6 @@
 import { SceneObjectUrlSyncHandler, SceneObjectUrlValues, VizPanel } from '@grafana/scenes';
 import { contextSrv } from 'app/core/services/context_srv';
+import { createStructuredLogger } from '@grafana/data';
 
 import { buildPanelEditScene } from '../panel-edit/PanelEditor';
 import { createDashboardEditViewFor } from '../settings/utils';
@@ -10,6 +11,9 @@ import { DashboardScene, DashboardSceneState } from './DashboardScene';
 import { LibraryPanelBehavior } from './LibraryPanelBehavior';
 import { UNCONFIGURED_PANEL_PLUGIN_ID } from './UnconfiguredPanel';
 import { DefaultGridLayoutManager } from './layout-default/DefaultGridLayoutManager';
+
+
+const structuredLogger = createStructuredLogger('public/app/features/dashboard-scene/scene/DashboardSceneUrlSync');
 
 export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
   constructor(private _scene: DashboardScene) {}
@@ -72,7 +76,7 @@ export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
       const panel = findEditPanel(this._scene, values.editPanel);
 
       if (!panel) {
-        console.warn(`Panel ${values.editPanel} not found`);
+        structuredLogger.warn(`Panel ${values.editPanel} not found`);
         return;
       }
 

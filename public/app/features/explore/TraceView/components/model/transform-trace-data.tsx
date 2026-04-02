@@ -1,3 +1,6 @@
+
+const structuredLogger = createStructuredLogger('public/app/features/explore/TraceView/components/model/transform-trace-data');
+
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +18,7 @@
 import { isEqual as _isEqual } from 'lodash';
 
 // @ts-ignore
-import { TraceKeyValuePair } from '@grafana/data';
+import { createStructuredLogger, TraceKeyValuePair } from '@grafana/data';
 
 import { getTraceSpanIdsAsTree } from '../selectors/trace';
 import { TraceResponse, Trace, TraceSpan, TraceProcess } from '../types/trace';
@@ -116,10 +119,10 @@ export default function transformTraceData(data: TraceResponse | undefined): Tra
     const idCount = spanIdCounts.get(spanID);
     if (idCount != null) {
       // eslint-disable-next-line no-console
-      console.warn(`Dupe spanID, ${idCount + 1} x ${spanID}`, span, spanMap.get(spanID));
+      structuredLogger.warn(`Dupe spanID, ${idCount + 1} x ${spanID}`, span, spanMap.get(spanID));
       if (_isEqual(span, spanMap.get(spanID))) {
         // eslint-disable-next-line no-console
-        console.warn('\t two spans with same ID have `isEqual(...) === true`');
+        structuredLogger.warn('\t two spans with same ID have `isEqual(...) === true`');
       }
       spanIdCounts.set(spanID, idCount + 1);
       spanID = `${spanID}_${idCount}`;

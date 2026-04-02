@@ -1,5 +1,7 @@
 const fs = require('fs');
 const { fromPairs } = require('lodash');
+const { createStructuredLogger } = require('../../../../scripts/helpers/structuredLogger');
+const structuredLogger = createStructuredLogger('e2e/cypress/plugins/benchmark/index');
 
 const { CDPDataCollector } = require('./CDPDataCollector');
 const { formatResults } = require('./formatting');
@@ -54,7 +56,7 @@ const initialize = (on, config) => {
 
   if (!fs.existsSync(resultsFolder)) {
     fs.mkdirSync(resultsFolder, { recursive: true });
-    console.log(`Created folder for benchmark results ${resultsFolder}`);
+    structuredLogger.log(`Created folder for benchmark results ${resultsFolder}`);
   }
 
   on('before:browser:launch', async (browser, options) => {
@@ -69,7 +71,7 @@ const initialize = (on, config) => {
 
     args.push('--start-fullscreen');
 
-    console.log(
+    structuredLogger.log(
       `initialized benchmarking plugin with ${collectors.length} collectors: ${collectors
         .map((col) => col.getName())
         .join(', ')}`

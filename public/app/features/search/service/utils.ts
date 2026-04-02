@@ -1,5 +1,5 @@
 import { ManagedBy } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
-import { DataFrame, DataFrameView, IconName, fuzzySearch } from '@grafana/data';
+import { createStructuredLogger, DataFrame, DataFrameView, IconName, fuzzySearch } from '@grafana/data';
 import { DashboardViewItemWithUIItems } from 'app/features/browse-dashboards/types';
 import { isSharedWithMe, isVirtualTeamFolder } from 'app/features/browse-dashboards/utils/dashboards';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
@@ -10,6 +10,9 @@ import { DashboardSearchHit, DashboardSearchItemType, DashboardViewItem, Dashboa
 
 import { DashboardQueryResult, SearchQuery, SearchResultMeta } from './types';
 import { SearchHit } from './unified';
+
+
+const structuredLogger = createStructuredLogger('public/app/features/search/service/utils');
 
 /** prepare the query replacing folder:current */
 export async function replaceCurrentFolderQuery(query: SearchQuery): Promise<SearchQuery> {
@@ -35,7 +38,7 @@ async function getCurrentFolderUID(): Promise<string | undefined> {
     }
     return Promise.resolve(dash?.meta?.folderUid);
   } catch (e) {
-    console.error(e);
+    structuredLogger.error(e);
   }
   return undefined;
 }

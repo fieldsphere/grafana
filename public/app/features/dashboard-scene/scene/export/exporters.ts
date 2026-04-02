@@ -1,10 +1,11 @@
 import { defaults, each, sortBy } from 'lodash';
 
-import { DataSourceRef, VariableOption, VariableRefresh } from '@grafana/data';
+import { createStructuredLogger, DataSourceRef, VariableOption, VariableRefresh } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { getPanelPluginMeta } from '@grafana/runtime/internal';
 import { Panel } from '@grafana/schema';
 import {
+
   Spec as DashboardV2Spec,
   PanelKind,
   LibraryPanelRef,
@@ -27,6 +28,8 @@ import { isPanelModelLibraryPanel } from '../../../library-panels/guard';
 import { LibraryElementKind } from '../../../library-panels/types';
 import { DashboardJson } from '../../../manage-dashboards/types';
 import { isConstant } from '../../../variables/guard';
+
+const structuredLogger = createStructuredLogger('public/app/features/dashboard-scene/scene/export/exporters');
 
 // This label is used to store the export label for a datasource when exporting a V2 dashboard for external sharing.
 // E.g. if a dashboard has two datasources with the same type, the export label will be used to distinguish them.
@@ -352,7 +355,7 @@ export async function makeExportableV1(dashboard: DashboardModel) {
 
     return newObj;
   } catch (err) {
-    console.error('Export failed:', err);
+    structuredLogger.error('Export failed:', err);
     return {
       error: err,
     };
@@ -374,7 +377,7 @@ async function convertLibraryPanelToInlinePanel(libraryPanelElement: LibraryPane
     inlinePanel.spec.id = id;
     return inlinePanel;
   } catch (error) {
-    console.error(`Failed to load library panel ${libraryPanel.uid}:`, error);
+    structuredLogger.error(`Failed to load library panel ${libraryPanel.uid}:`, error);
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     dispatch(
@@ -544,7 +547,7 @@ export async function makeExportableV2(dashboard: DashboardV2Spec, isSharingExte
 
     return dashboard;
   } catch (err) {
-    console.error('Export failed:', err);
+    structuredLogger.error('Export failed:', err);
     return {
       error: err,
     };

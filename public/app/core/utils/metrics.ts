@@ -1,4 +1,8 @@
 import { reportPerformance } from '../services/echo/EchoSrv';
+import { createStructuredLogger } from '@grafana/data';
+
+
+const structuredLogger = createStructuredLogger('public/app/core/utils/metrics');
 
 export function startMeasure(eventName: string) {
   if (!performance || !performance.mark) {
@@ -8,7 +12,7 @@ export function startMeasure(eventName: string) {
   try {
     performance.mark(`${eventName}_started`);
   } catch (error) {
-    console.error(`[Metrics] Failed to startMeasure ${eventName}`, error);
+    structuredLogger.error(`[Metrics] Failed to startMeasure ${eventName}`, error);
   }
 }
 
@@ -31,7 +35,7 @@ export function stopMeasure(eventName: string) {
     performance.clearMeasures(measured);
     return measure;
   } catch (error) {
-    console.error(`[Metrics] Failed to stopMeasure ${eventName}`, error);
+    structuredLogger.error(`[Metrics] Failed to stopMeasure ${eventName}`, error);
     return;
   }
 }

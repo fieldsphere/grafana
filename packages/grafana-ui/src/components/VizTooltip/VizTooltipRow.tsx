@@ -2,6 +2,7 @@ import { css } from '@emotion/css';
 import clsx from 'clsx';
 import { CSSProperties, ReactNode, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
+import { createStructuredLogger } from '../../../../grafana-data/src/utils/structuredLogger';
 
 import { GrafanaTheme2 } from '@grafana/data';
 
@@ -11,6 +12,9 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 import { ColorIndicatorPosition, VizTooltipColorIndicator } from './VizTooltipColorIndicator';
 import { ColorPlacement, VizTooltipItem } from './types';
+
+
+const structuredLogger = createStructuredLogger('packages/grafana-ui/src/components/VizTooltip/VizTooltipRow');
 
 interface VizTooltipRowProps extends Omit<VizTooltipItem, 'value'> {
   value: string | number | null | ReactNode;
@@ -112,7 +116,7 @@ export const VizTooltipRow = ({
         setShowCopySuccess(true);
       }
     } catch (err) {
-      console.error('Unable to copy to clipboard', err);
+      structuredLogger.error('Unable to copy to clipboard', err);
     }
 
     textarea.remove();

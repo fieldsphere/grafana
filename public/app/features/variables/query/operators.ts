@@ -1,7 +1,9 @@
 import { from, of, OperatorFunction } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
+import { createStructuredLogger } from '@grafana/data';
 
 import {
+
   FieldType,
   getFieldDisplayName,
   getProcessedDataFrames,
@@ -17,6 +19,8 @@ import { toKeyedAction } from '../state/keyedVariablesReducer';
 import { getTemplatedRegex, toKeyedVariableIdentifier, toVariablePayload } from '../utils';
 
 import { updateVariableOptions } from './reducer';
+
+const structuredLogger = createStructuredLogger('public/app/features/variables/query/operators');
 
 export function toMetricFindValuesOperator(): OperatorFunction<PanelData, MetricFindValue[]> {
   return (source) => source.pipe(map(toMetricFindValues));
@@ -110,7 +114,7 @@ export function updateOptionsState(args: {
       map((results) => {
         const { variable, dispatch, getTemplatedRegexFunc } = args;
         if (!variable.rootStateKey) {
-          console.error('updateOptionsState: variable.rootStateKey is not defined');
+          structuredLogger.error('updateOptionsState: variable.rootStateKey is not defined');
           return;
         }
         const templatedRegex = getTemplatedRegexFunc(variable);

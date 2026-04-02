@@ -1,8 +1,10 @@
 import { cloneDeep } from 'lodash';
 import { from, Observable, ReplaySubject, Unsubscribable } from 'rxjs';
 import { first } from 'rxjs/operators';
+import { createStructuredLogger } from '@grafana/data';
 
 import {
+
   CoreApp,
   DataQueryRequest,
   DataSourceApi,
@@ -21,6 +23,8 @@ import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 import { getNextRequestId } from './PanelQueryRunner';
 import { setStructureRevision } from './processing/revision';
 import { runRequest } from './runRequest';
+
+const structuredLogger = createStructuredLogger('public/app/features/query/state/QueryRunner');
 
 export class QueryRunner implements QueryRunnerSrv {
   private subject: ReplaySubject<PanelData>;
@@ -113,7 +117,7 @@ export class QueryRunner implements QueryRunnerSrv {
             },
           });
         },
-        error: (error) => console.error('PanelQueryRunner Error', error),
+        error: (error) => structuredLogger.error('PanelQueryRunner Error', error),
       });
   }
 

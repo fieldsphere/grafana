@@ -3,7 +3,7 @@ import { saveAs } from 'file-saver';
 import { useEffect } from 'react';
 import { useAsyncFn } from 'react-use';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { createStructuredLogger, GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { SceneComponentProps, SceneObjectBase } from '@grafana/scenes';
@@ -15,6 +15,9 @@ import { ImagePreview } from '../components/ImagePreview';
 import { SceneShareTabState, ShareView } from '../types';
 
 import { generateDashboardImage } from './utils';
+
+
+const structuredLogger = createStructuredLogger('public/app/features/dashboard-scene/sharing/ExportButton/ExportAsImage');
 
 export class ExportAsImage extends SceneObjectBase<SceneShareTabState> implements ShareView {
   static Component = ExportAsImageRenderer;
@@ -48,7 +51,7 @@ function ExportAsImageRenderer({ model }: SceneComponentProps<ExportAsImage>) {
 
       return result.blob;
     } catch (error) {
-      console.error('Error exporting image:', error);
+      structuredLogger.error('Error exporting image:', error);
       DashboardInteractions.generateDashboardImageClicked({
         scale: config.rendererDefaultImageScale || 1,
         shareResource: 'dashboard',

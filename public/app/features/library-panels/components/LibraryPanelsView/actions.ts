@@ -2,10 +2,14 @@ import { Action } from '@reduxjs/toolkit';
 import { Dispatch } from 'react';
 import { from, merge, of, Subscription, timer } from 'rxjs';
 import { catchError, finalize, mapTo, mergeMap, share, takeUntil } from 'rxjs/operators';
+import { createStructuredLogger } from '@grafana/data';
 
 import { deleteLibraryPanel as apiDeleteLibraryPanel, getLibraryPanels } from '../../state/api';
 
 import { initialLibraryPanelsViewState, initSearch, searchCompleted } from './reducer';
+
+
+const structuredLogger = createStructuredLogger('public/app/features/library-panels/components/LibraryPanelsView/actions');
 
 type SearchDispatchResult = (dispatch: Dispatch<Action>, abortController?: AbortController) => void;
 
@@ -54,7 +58,7 @@ export function searchForLibraryPanels(args: SearchArgs): SearchDispatchResult {
         }
 
         // For real errors, log and show error to user
-        console.error('Error fetching library panels:', err);
+        structuredLogger.error('Error fetching library panels:', err);
 
         // Update state to show empty results
         return of(searchCompleted({ ...initialLibraryPanelsViewState, page: args.page, perPage: args.perPage }));
@@ -78,7 +82,7 @@ export function deleteLibraryPanel(uid: string, args: SearchArgs) {
       await apiDeleteLibraryPanel(uid);
       searchForLibraryPanels(args)(dispatch);
     } catch (e) {
-      console.error(e);
+      structuredLogger.error(e);
     }
   };
 }

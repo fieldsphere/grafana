@@ -3,6 +3,7 @@ import { PureComponent, CSSProperties } from 'react';
 import * as React from 'react';
 import ReactGridLayout, { ItemCallback } from 'react-grid-layout';
 import { Subscription } from 'rxjs';
+import { createStructuredLogger } from '@grafana/data';
 
 import { config } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
@@ -18,6 +19,9 @@ import { GridPos, PanelModel } from '../state/PanelModel';
 
 import DashboardEmpty from './DashboardEmpty/DashboardEmpty';
 import { DashboardPanel } from './DashboardPanel';
+
+
+const structuredLogger = createStructuredLogger('public/app/features/dashboard/dashgrid/DashboardGrid');
 
 export const PANEL_FILTER_VARIABLE = 'systemPanelFilterVar';
 
@@ -115,7 +119,7 @@ export class DashboardGrid extends PureComponent<Props, State> {
       this.panelMap[panel.key] = panel;
 
       if (!panel.gridPos) {
-        console.log('panel without gridpos');
+        structuredLogger.log('panel without gridpos');
         continue;
       }
 

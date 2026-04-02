@@ -1,6 +1,6 @@
 import memoizeOne from 'memoize-one';
 
-import { AbsoluteTimeRange, LogRowModel, UrlQueryMap } from '@grafana/data';
+import { createStructuredLogger, AbsoluteTimeRange, LogRowModel, UrlQueryMap } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getBackendSrv, config, locationService } from '@grafana/runtime';
 import { sceneGraph, SceneTimeRangeLike, VizPanel } from '@grafana/scenes';
@@ -16,6 +16,9 @@ import { ShareLinkConfiguration } from '../../features/dashboard-scene/sharing/S
 import { notifyApp } from '../reducers/appNotification';
 
 import { copyStringToClipboard } from './explore';
+
+
+const structuredLogger = createStructuredLogger('public/app/core/utils/shortLinks');
 
 function buildHostUrl() {
   return `${window.location.protocol}//${window.location.host}${config.appSubUrl}`;
@@ -73,7 +76,7 @@ export const createShortLink = memoizeOne(async (path: string): Promise<string> 
       return await createShortLinkLegacy(path);
     }
   } catch (err) {
-    console.error('Error when creating shortened link: ', err);
+    structuredLogger.error('Error when creating shortened link: ', err);
     dispatch(notifyApp(createErrorNotification('Error generating shortened link')));
     createShortLink.clear();
     throw err; // Re-throw so callers know it failed
@@ -104,7 +107,7 @@ export const createAndCopyShortLink = async (path: string) => {
     }
   } catch (error) {
     // createShortLink already handles error notifications, just log
-    console.error('Error in createAndCopyShortLink:', error);
+    structuredLogger.error('Error in createAndCopyShortLink:', error);
   }
 };
 

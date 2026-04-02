@@ -1,4 +1,5 @@
 import { lastValueFrom } from 'rxjs';
+import { createStructuredLogger } from '@grafana/data';
 
 import { getBackendSrv, isFetchError } from '@grafana/runtime';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -10,6 +11,7 @@ import { getAuthProviderStatus, getRegisteredAuthProviders } from '..';
 import { AuthProviderStatus, SettingsError, SSOProvider } from '../types';
 
 import {
+
   loadingBegin,
   loadingEnd,
   providersLoaded,
@@ -18,6 +20,8 @@ import {
   setError,
   settingsUpdated,
 } from './reducers';
+
+const structuredLogger = createStructuredLogger('public/app/features/auth-config/state/actions');
 
 export function loadSettings(showSpinner = true): ThunkResult<Promise<Settings>> {
   return async (dispatch) => {
@@ -78,7 +82,7 @@ export function saveSettings(data: UpdateSettingsQuery): ThunkResult<Promise<boo
         dispatch(resetError());
         return true;
       } catch (error) {
-        console.log(error);
+        structuredLogger.log(error);
         if (isFetchError(error)) {
           error.isHandled = true;
           const updateErr: SettingsError = {

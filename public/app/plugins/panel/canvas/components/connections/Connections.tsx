@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { BehaviorSubject } from 'rxjs';
+import { createStructuredLogger } from '@grafana/data';
 
 import { config } from '@grafana/runtime';
 import { CanvasConnection, ConnectionCoordinates, ConnectionPath } from 'app/features/canvas/element';
@@ -9,6 +10,7 @@ import { findElementByTarget } from 'app/features/canvas/runtime/sceneElementMan
 
 import { ConnectionState } from '../../types';
 import {
+
   calculateAngle,
   calculateCoordinates,
   getConnections,
@@ -26,6 +28,8 @@ import {
   HALF_SIZE,
 } from './ConnectionAnchors';
 import { ConnectionSVG } from './ConnectionSVG';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/panel/canvas/components/connections/Connections');
 
 export const CONNECTION_VERTEX_ID = 'vertex';
 export const CONNECTION_VERTEX_ADD_ID = 'vertexAdd';
@@ -131,7 +135,7 @@ export class Connections {
     let element: ElementState | undefined = this.findElementTarget(event.target);
 
     if (!element) {
-      console.log('no element');
+      structuredLogger.log('no element');
       return;
     }
 
@@ -140,7 +144,7 @@ export class Connections {
     } else {
       this.connectionSource = element;
       if (!this.connectionSource) {
-        console.log('no connection source');
+        structuredLogger.log('no connection source');
         return;
       }
     }

@@ -1,6 +1,6 @@
 import { Observable } from 'rxjs';
 
-import { DataLinkTransformationConfig } from '@grafana/data';
+import { createStructuredLogger, DataLinkTransformationConfig } from '@grafana/data';
 import { CorrelationData, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import { createErrorNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
@@ -12,6 +12,9 @@ import { ThunkResult } from 'app/types/store';
 import { saveCorrelationsAction } from './explorePane';
 import { splitClose } from './main';
 import { runQueries } from './query';
+
+
+const structuredLogger = createStructuredLogger('public/app/features/explore/state/correlations');
 
 /**
  * Creates an observable that emits correlations once they are loaded
@@ -95,7 +98,7 @@ export function saveCurrentCorrelation(
         })
         .catch((err) => {
           dispatch(notifyApp(createErrorNotification('Error creating correlation', err)));
-          console.error(err);
+          structuredLogger.error(err);
         });
     }
   };
