@@ -83,6 +83,14 @@ export interface MonitoringLogger {
   logError: (error: Error, contexts?: LogContext) => void;
   logMeasurement: (type: string, measurement: MeasurementValues, contexts?: LogContext) => void;
 }
+
+const CONSOLE_METHODS = ['log', 'info', 'warn', 'error', 'debug', 'trace'] as const;
+type ConsoleMethod = (typeof CONSOLE_METHODS)[number];
+type ConsoleMethodImplementation = (...data: unknown[]) => void;
+
+const originalConsoleMethods: Partial<Record<ConsoleMethod, ConsoleMethodImplementation>> = {};
+
+let isConsoleBridgeInstalled = false;
 /**
  * Creates a monitoring logger with five levels of logging methods: `logDebug`, `logInfo`, `logWarning`, `logError`, and `logMeasurement`.
  * These methods use `faro.api.pushX` web SDK methods to report these logs or errors to the Faro collector.
@@ -142,4 +150,119 @@ export function createMonitoringLogger(source: string, defaultContext?: LogConte
     logMeasurement: (type: string, measurement: MeasurementValues, contexts?: LogContext) =>
       logMeasurement(type, measurement, createFullContext(contexts)),
   };
+}
+
+function formatConsoleMessage(method: ConsoleMethod, args: unknown[]): string {
+  if (args.length === 0) {
+    return `console.${method} called`;
+  }
+
+  return args
+    .map((value) => {
+      if (value instanceof Error) {
+        return value.message;
+      }
+
+      if (typeof value === 'string') {
+        return value;
+      }
+
+      if (typeof value === 'number' || typeof value === 'boolean' || value === null || value === undefined) {
+        return String(value);
+      }
+
+      try {
+        return JSON.stringify(value);
+      } catch {
+        return String(value);
+      }
+    })
+    .join(' ');
+}
+
+function normalizeConsoleArg(value: unknown): unknown {
+  if (value instanceof Error) {
+    return {
+      name: value.name,
+      message: value.message,
+      stack: value.stack,
+    };
+  }
+
+  return value;
+}
+
+function getErrorArg(args: unknown[]): Error | undefined {
+  const firstError = args.find((arg): arg is Error => arg instanceof Error);
+  return firstError;
+}
+
+/**
+ * Bridges browser `console.*` calls to structured monitoring logs.
+ *
+ * This allows existing console callsites to emit structured logs without
+ * requiring immediate per-file migrations.
+ *
+ * @public
+ */
+export function installConsoleStructuredLogging(source = 'browser.console') {
+  if (typeof window === 'undefined' || process.env.NODE_ENV === 'test' || isConsoleBridgeInstalled) {
+    return;
+  }
+
+  const browserConsole = window.console;
+  const logger = createMonitoringLogger(source);
+
+  for (const method of CONSOLE_METHODS) {
+    const originalMethod = browserConsole[method];
+    const original: ConsoleMethodImplementation = (...data: unknown[]) => {
+      Reflect.apply(originalMethod, browserConsole, data);
+    };
+    originalConsoleMethods[method] = original;
+
+    Reflect.set(browserConsole, method, (...args: unknown[]) => {
+      const message = formatConsoleMessage(method, args);
+      const context: LogContext = {
+        method,
+        args: args.map(normalizeConsoleArg),
+      };
+
+      if (method === 'error') {
+        logger.logError(getErrorArg(args) ?? new Error(message), context);
+      } else if (method === 'warn') {
+        logger.logWarning(message, context);
+      } else if (method === 'debug' || method === 'trace') {
+        logger.logDebug(message, context);
+      } else {
+        logger.logInfo(message, context);
+      }
+
+      original(...args);
+    });
+  }
+
+  isConsoleBridgeInstalled = true;
+}
+
+/**
+ * Restores original browser `console.*` methods after `installConsoleStructuredLogging`.
+ *
+ * @public
+ */
+export function uninstallConsoleStructuredLogging() {
+  if (typeof window === 'undefined' || !isConsoleBridgeInstalled) {
+    return;
+  }
+
+  const browserConsole = window.console;
+
+  for (const method of CONSOLE_METHODS) {
+    const original = originalConsoleMethods[method];
+    if (original) {
+      Reflect.set(browserConsole, method, original);
+      delete originalConsoleMethods[method];
+    }
+  }
+
+  isConsoleBridgeInstalled = false;
 }

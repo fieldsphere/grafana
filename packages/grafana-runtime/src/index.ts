@@ -16,6 +16,8 @@ export {
   logError,
   createMonitoringLogger,
   logMeasurement,
+  installConsoleStructuredLogging,
+  uninstallConsoleStructuredLogging,
   type MonitoringLogger,
 } from './utils/logging';
 export {
