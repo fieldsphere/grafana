@@ -18,6 +18,9 @@ concurrency:
 permissions:
   contents: read
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
 jobs:
   # Four parallel shards (~1/4 of packages each) so wall time is ~max(shard) instead of full ./...
   backend-shard:
