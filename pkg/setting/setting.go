@@ -1145,14 +1145,18 @@ func (cfg *Cfg) loadConfiguration(args CommandLineArgs) (*ini.File, error) {
 
 	// check if config file exists
 	if _, err := os.Stat(defaultConfigFile); os.IsNotExist(err) {
-		fmt.Println("Grafana-server Init Failed: Could not find config defaults, make sure homepath command line parameter is set or working directory is homepath")
+		cfg.Logger.Error(
+			"Grafana-server init failed: could not find config defaults",
+			"default_config_file", defaultConfigFile,
+			"hint", "make sure homepath command line parameter is set or working directory is homepath",
+		)
 		os.Exit(1)
 	}
 
 	// load defaults
 	parsedFile, err := ini.Load(defaultConfigFile)
 	if err != nil {
-		fmt.Printf("Failed to parse defaults.ini, %v\n", err)
+		cfg.Logger.Error("Failed to parse defaults.ini", "default_config_file", defaultConfigFile, "err", err)
 		os.Exit(1)
 		return nil, err
 	}
@@ -1197,7 +1201,7 @@ func (cfg *Cfg) loadConfiguration(args CommandLineArgs) (*ini.File, error) {
 		return nil, err
 	}
 
-	cfg.Logger.Info(fmt.Sprintf("Starting %s", ApplicationName), "version", BuildVersion, "commit", BuildCommit, "branch", BuildBranch, "compiled", time.Unix(BuildStamp, 0))
+	cfg.Logger.Info("Starting Grafana", "application", ApplicationName, "version", BuildVersion, "commit", BuildCommit, "branch", BuildBranch, "compiled", time.Unix(BuildStamp, 0))
 
 	return parsedFile, err
 }
@@ -1679,27 +1683,27 @@ func (cfg *Cfg) handleAWSConfig() {
 	// Also set environment variables that can be used by core plugins
 	err := os.Setenv(awsds.AssumeRoleEnabledEnvVarKeyName, strconv.FormatBool(cfg.AWSAssumeRoleEnabled))
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.AssumeRoleEnabledEnvVarKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "var", awsds.AssumeRoleEnabledEnvVarKeyName, "err", err)
 	}
 
 	err = os.Setenv(awsds.AllowedAuthProvidersEnvVarKeyName, allowedAuthProviders)
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.AllowedAuthProvidersEnvVarKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "var", awsds.AllowedAuthProvidersEnvVarKeyName, "err", err)
 	}
 
 	err = os.Setenv(awsds.ListMetricsPageLimitKeyName, strconv.Itoa(cfg.AWSListMetricsPageLimit))
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.ListMetricsPageLimitKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "var", awsds.ListMetricsPageLimitKeyName, "err", err)
 	}
 
 	err = os.Setenv(awsds.GrafanaAssumeRoleExternalIdKeyName, cfg.AWSExternalId)
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.GrafanaAssumeRoleExternalIdKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "var", awsds.GrafanaAssumeRoleExternalIdKeyName, "err", err)
 	}
 
 	err = os.Setenv(awsds.SessionDurationEnvVarKeyName, cfg.AWSSessionDuration)
 	if err != nil {
-		cfg.Logger.Error(fmt.Sprintf("could not set environment variable '%s'", awsds.SessionDurationEnvVarKeyName), err)
+		cfg.Logger.Error("Could not set environment variable", "var", awsds.SessionDurationEnvVarKeyName, "err", err)
 	}
 }
 

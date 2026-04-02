@@ -3,7 +3,7 @@ package annotation
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"log/slog"
 
 	"github.com/grafana/grafana-app-sdk/app"
 )
@@ -19,7 +19,7 @@ type tagItem struct {
 
 func newTagsHandler(tagProvider TagProvider) func(ctx context.Context, writer app.CustomRouteResponseWriter, request *app.CustomRouteRequest) error {
 	return func(ctx context.Context, writer app.CustomRouteResponseWriter, request *app.CustomRouteRequest) error {
-		fmt.Println("Handling /tags request")
+		slog.Debug("Handling /tags request")
 		namespace := request.ResourceIdentifier.Namespace
 		if namespace == "" {
 			namespace = "default"
