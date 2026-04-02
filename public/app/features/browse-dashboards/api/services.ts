@@ -10,8 +10,10 @@ import { extractManagerKind, queryResultToViewItem } from 'app/features/search/s
 import { DashboardViewItem } from 'app/features/search/types';
 import { AccessControlAction } from 'app/types/accessControl';
 import { dispatch } from 'app/types/store';
+import { createStructuredLogger } from '@grafana/data';
 
 import {
+
   addTeamFolderPrefix,
   getFolderURL,
   isSharedWithMe,
@@ -19,6 +21,8 @@ import {
   parseOwnerRef,
   teamOwnerRef,
 } from '../utils/dashboards';
+
+const structuredLogger = createStructuredLogger('public/app/features/browse-dashboards/api/services');
 
 export const PAGE_SIZE = 50;
 
@@ -78,7 +82,7 @@ async function searchNewAPI(parentUID?: string, page = 1, pageSize = PAGE_SIZE) 
         });
       }
     } catch (error) {
-      console.error('Failed to load team folders', error);
+      structuredLogger.error('Failed to load team folders', error);
     }
   }
 

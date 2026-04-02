@@ -1,4 +1,6 @@
 const fs = require('fs');
+const { createStructuredLogger } = require('./helpers/structuredLogger');
+const structuredLogger = createStructuredLogger('scripts/levitate-parse-json-report');
 
 const printAffectedPluginsSection = require('./levitate-show-affected-plugins');
 
@@ -37,4 +39,4 @@ if ((data.removals.length > 0 || data.changes.length > 0) && !isFork) {
   markdown += printAffectedPluginsSection(data);
 }
 
-console.log(markdown);
+structuredLogger.log(markdown);

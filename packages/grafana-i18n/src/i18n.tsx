@@ -1,6 +1,10 @@
 import i18n, { InitOptions, ReactOptions, TFunction as I18NextTFunction } from 'i18next';
 import LanguageDetector, { DetectorOptions } from 'i18next-browser-languagedetector';
 import React from 'react';
+import { createStructuredLogger } from '../../grafana-data/src/utils/structuredLogger';
+
+const structuredLogger = createStructuredLogger('packages/grafana-i18n/src/i18n');
+
 // eslint-disable-next-line no-restricted-imports
 import { initReactI18next, setDefaults, setI18n, Trans as I18NextTrans, getI18n } from 'react-i18next';
 
@@ -8,6 +12,7 @@ import { DEFAULT_LANGUAGE, PSEUDO_LOCALE } from './constants';
 import { initRegionalFormat } from './dates';
 import { LANGUAGES } from './languages';
 import { ResourceLoader, Resources, TFunction, TransProps, TransType } from './types';
+
 
 let tFunc: I18NextTFunction<string[], undefined> | undefined;
 let transComponent: TransType;
@@ -44,7 +49,7 @@ export async function loadNamespacedResources(namespace: string, language: strin
         const resources = await loader(resolvedLanguage);
         addResourceBundle(resolvedLanguage, namespace, resources);
       } catch (error) {
-        console.error(`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, error);
+        structuredLogger.error(`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, error);
       }
     })
   );
@@ -202,7 +207,7 @@ export const t: TFunction = (id: string, defaultMessage: string, values?: Record
   initDefaultI18nInstance();
   if (!tFunc) {
     if (process.env.NODE_ENV !== 'test') {
-      console.warn(
+      structuredLogger.warn(
         't() was called before i18n was initialized. This is probably caused by calling t() in the root module scope, instead of lazily on render'
       );
     }

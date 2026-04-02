@@ -272,6 +272,7 @@ export { toOption } from './utils/selectUtils';
 export * as arrayUtils from './utils/arrayUtils';
 export { store, Store } from './utils/store';
 export { LocalStorageValueProvider } from './utils/LocalStorageValueProvider';
+export { createStructuredLogger, type StructuredLogger, type StructuredLogLevel } from './utils/structuredLogger';
 export { throwIfAngular } from './utils/throwIfAngular';
 export { fuzzySearch } from './utils/fuzzySearch';
 

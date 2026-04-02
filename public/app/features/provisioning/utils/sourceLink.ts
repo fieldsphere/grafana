@@ -3,6 +3,8 @@ import { config } from '@grafana/runtime';
 import { DashboardLink } from '@grafana/schema';
 import { provisioningAPIv0alpha1, RepositoryView } from 'app/api/clients/provisioning/v0alpha1';
 import {
+
+
   AnnoKeyManagerIdentity,
   AnnoKeyManagerKind,
   AnnoKeySourcePath,
@@ -10,11 +12,14 @@ import {
   ObjectMeta,
 } from 'app/features/apiserver/types';
 import { dispatch } from 'app/store/store';
+import { createStructuredLogger } from '@grafana/data';
 
 import { RepoTypeDisplay } from '../Wizard/types';
 import { isValidRepoType } from '../guards';
 
 import { getHasTokenInstructions, getRepoFileUrl } from './git';
+
+const structuredLogger = createStructuredLogger('public/app/features/provisioning/utils/sourceLink');
 
 /**
  * Find and remove existing source links from the links array.
@@ -83,7 +88,7 @@ export async function buildSourceLink(annotations: ObjectMeta['annotations']): P
       keepTime: false,
     };
   } catch (e) {
-    console.warn('Failed to fetch repository info for source link:', e);
+    structuredLogger.warn('Failed to fetch repository info for source link:', e);
     return undefined;
   }
 }

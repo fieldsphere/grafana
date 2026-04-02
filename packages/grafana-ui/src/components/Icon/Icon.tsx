@@ -1,6 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { useCallback, useState, useRef, memo, forwardRef } from 'react';
 import SVG from 'react-inlinesvg';
+import { createStructuredLogger } from '../../../../grafana-data/src/utils/structuredLogger';
 
 import { GrafanaTheme2, isIconName } from '@grafana/data';
 
@@ -9,6 +10,9 @@ import { IconName, IconType, IconSize } from '../../types/icon';
 import { spin } from '../../utils/keyframes';
 
 import { getIconPath, getSvgSize } from './utils';
+
+
+const structuredLogger = createStructuredLogger('packages/grafana-ui/src/components/Icon/Icon');
 
 export interface IconProps extends Omit<React.SVGProps<SVGElement>, 'onLoad' | 'onError' | 'ref'> {
   name: IconName;
@@ -96,7 +100,7 @@ export const Icon = memo(
       const { nameToUse: name, handleLoad } = useIconWorkaround(nameProp);
 
       if (!isIconName(name)) {
-        console.warn('Icon component passed an invalid icon name', name);
+        structuredLogger.warn('Icon component passed an invalid icon name', name);
       }
 
       // handle the deprecated 'fa fa-spinner'

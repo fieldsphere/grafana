@@ -1,12 +1,16 @@
 import { StoryFn, Meta } from '@storybook/react';
 import { useId, useState } from 'react';
+import { createStructuredLogger } from '../../../../grafana-data/src/utils/structuredLogger';
 
 import { Field } from '../Forms/Field';
 
 import { Cascader, CascaderOption } from './Cascader';
 import mdx from './Cascader.mdx';
 
-const onSelect = (val: string) => console.log(val);
+
+const structuredLogger = createStructuredLogger('packages/grafana-ui/src/components/Cascader/Cascader.story');
+
+const onSelect = (val: string) => structuredLogger.log(val);
 const options = [
   {
     label: 'First',

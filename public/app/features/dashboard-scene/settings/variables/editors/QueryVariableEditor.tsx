@@ -1,7 +1,7 @@
 import { FormEvent, useState } from 'react';
 import { useAsync } from 'react-use';
 
-import { DataSourceInstanceSettings, getDataSourceRef, SelectableValue, VariableRegexApplyTo } from '@grafana/data';
+import { createStructuredLogger, DataSourceInstanceSettings, getDataSourceRef, SelectableValue, VariableRegexApplyTo } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
@@ -16,6 +16,7 @@ import { getVariableQueryEditor } from 'app/features/variables/editor/getVariabl
 import { QueryVariableRefreshSelect } from 'app/features/variables/query/QueryVariableRefreshSelect';
 import { QueryVariableSortSelect } from 'app/features/variables/query/QueryVariableSortSelect';
 import {
+
   QueryVariableStaticOptions,
   StaticOptionsOrderType,
   StaticOptionsType,
@@ -24,6 +25,8 @@ import {
 import { QueryVariableEditorForm } from '../components/QueryVariableForm';
 import { VariableValuesPreview } from '../components/VariableValuesPreview';
 import { hasVariableOptions } from '../utils';
+
+const structuredLogger = createStructuredLogger('public/app/features/dashboard-scene/settings/variables/editors/QueryVariableEditor');
 
 interface QueryVariableEditorProps {
   variable: QueryVariable;
@@ -133,7 +136,7 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
 
 export function getQueryVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof QueryVariable)) {
-    console.warn('getQueryVariableOptions: variable is not a QueryVariable');
+    structuredLogger.warn('getQueryVariableOptions: variable is not a QueryVariable');
     return [];
   }
 

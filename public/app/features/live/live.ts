@@ -1,10 +1,13 @@
 import { map } from 'rxjs';
 
-import { toLiveChannelId, StreamingDataFrame } from '@grafana/data';
+import { createStructuredLogger, toLiveChannelId, StreamingDataFrame } from '@grafana/data';
 import { BackendSrv, GrafanaLiveSrv } from '@grafana/runtime';
 
 import { CentrifugeSrv, StreamingDataQueryResponse } from './centrifuge/service';
 import { isStreamingResponseData, StreamingResponseDataType } from './data/utils';
+
+
+const structuredLogger = createStructuredLogger('public/app/features/live/live');
 
 type GrafanaLiveServiceDeps = {
   centrifugeSrv: CentrifugeSrv;
@@ -30,7 +33,7 @@ export class GrafanaLiveService implements GrafanaLiveSrv {
     const updateBuffer = (next: StreamingDataQueryResponse): void => {
       const data = next.data[0];
       if (!buffer && !isStreamingResponseData(data, StreamingResponseDataType.FullFrame)) {
-        console.warn(`expected first packet to contain a full frame, received ${data?.type}`);
+        structuredLogger.warn(`expected first packet to contain a full frame, received ${data?.type}`);
         return;
       }
 

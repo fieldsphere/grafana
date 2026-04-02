@@ -2,8 +2,10 @@ import { css } from '@emotion/css';
 import { cloneDeep, isArray, isObject, isString } from 'lodash';
 import * as React from 'react';
 import { useAsync } from 'react-use';
+import { createStructuredLogger } from '@grafana/data';
 
 import {
+
   type AppPluginConfig,
   type PluginExtensionEventHelpers,
   type PluginExtensionOpenModalOptions,
@@ -43,13 +45,15 @@ import { ExtensionsLog, log as baseLog } from './logs/log';
 import { AddedLinkRegistryItem } from './registry/AddedLinksRegistry';
 import { assertIsNotPromise, assertStringProps, isPromise } from './validators';
 
+const structuredLogger = createStructuredLogger('public/app/features/plugins/extensions/utils');
+
 export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
   return (...args: unknown[]) => {
     try {
       return fn(...args);
     } catch (e) {
       if (e instanceof Error) {
-        console.warn(`${errorMessagePrefix}${e.message}`);
+        structuredLogger.warn(`${errorMessagePrefix}${e.message}`);
       }
     }
   };

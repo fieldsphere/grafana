@@ -1,12 +1,15 @@
 import { throttle } from 'lodash';
 
+import { createStructuredLogger } from '../../../grafana-data/src/utils/structuredLogger';
+const structuredLogger = createStructuredLogger('packages/grafana-ui/src/utils/logger');
+
 type Args = Parameters<typeof console.log>;
 
 /**
  * @internal
  * */
 const throttledLog = throttle((...t: Args) => {
-  console.log(...t);
+  structuredLogger.log(...t);
 }, 500);
 
 /**

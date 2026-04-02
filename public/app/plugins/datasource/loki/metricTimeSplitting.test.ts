@@ -1,6 +1,9 @@
-import { makeTimeRange, toUtc } from '@grafana/data';
+import { createStructuredLogger, makeTimeRange, toUtc } from '@grafana/data';
 
 import { splitTimeRange, splitTimeRangeAligned } from './metricTimeSplitting';
+
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/loki/metricTimeSplitting.test');
 
 describe('metric splitTimeRange', () => {
   it('should split time range into chunks with 1day split and duration', () => {
@@ -81,7 +84,7 @@ describe('logs splitTimeRangeAligned', () => {
     const timeRange = makeTimeRange(toUtc('2022-02-01T08:10:03.234Z'), toUtc('2022-02-01T20:10:03.234Z'));
     const result = splitTimeRangeAligned(timeRange, 200);
 
-    console.log(toUtc(result[0][0]).toISOString(), toUtc(result[0][1]).toISOString());
+    structuredLogger.log(toUtc(result[0][0]).toISOString(), toUtc(result[0][1]).toISOString());
 
     expect(result).toStrictEqual([[Date.parse('2022-02-01T08:10:03.234Z'), Date.parse('2022-02-01T20:10:03.234Z')]]);
   });

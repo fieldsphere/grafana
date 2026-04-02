@@ -1,10 +1,14 @@
 import { memo, useState, useCallback, type JSX } from 'react';
+import { createStructuredLogger } from '@grafana/data';
 
 import { t } from '@grafana/i18n';
 import { FetchError, getBackendSrv, isFetchError } from '@grafana/runtime';
 import config from 'app/core/config';
 
 import { LoginDTO } from './types';
+
+
+const structuredLogger = createStructuredLogger('public/app/core/components/Login/LoginCtrl');
 
 const isOauthEnabled = () => {
   return !!config.oauth && Object.keys(config.oauth).length > 0;
@@ -88,7 +92,7 @@ export const LoginCtrl = memo(({ resetCode, children }: Props) => {
           .then(() => {
             toGrafana();
           })
-          .catch((err) => console.error(err));
+          .catch((err) => structuredLogger.error(err));
       }
     },
     [resetCode, toGrafana]

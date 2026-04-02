@@ -170,6 +170,132 @@
       // are explicitly assigned to the `window` object.
       (() => {
         const publicDashboardAccessToken = [[.PublicDashboardAccessToken]]
+        function createStructuredLogger(source) {
+          const serializeValue = (value, seen = new WeakSet()) => {
+            if (value === null || value === undefined) {
+              return null;
+            }
+
+            if (value instanceof Error) {
+              const serializedError = {
+                name: value.name,
+                message: value.message,
+              };
+
+              if (value.stack) {
+                serializedError.stack = value.stack;
+              }
+
+              if ('cause' in value && value.cause !== undefined) {
+                serializedError.cause = serializeValue(value.cause, seen);
+              }
+
+              return serializedError;
+            }
+
+            if (Array.isArray(value)) {
+              return value.map((item) => serializeValue(item, seen));
+            }
+
+            switch (typeof value) {
+              case 'boolean':
+              case 'number':
+              case 'string':
+                return value;
+              case 'bigint':
+                return value.toString();
+              case 'function':
+                return `[Function ${value.name || 'anonymous'}]`;
+              case 'symbol':
+                return value.toString();
+              case 'object':
+                if (seen.has(value)) {
+                  return '[Circular]';
+                }
+
+                seen.add(value);
+
+                if (value instanceof Date) {
+                  return value.toISOString();
+                }
+
+                return Object.fromEntries(Object.entries(value).map(([key, nestedValue]) => [key, serializeValue(nestedValue, seen)]));
+              default:
+                return String(value);
+            }
+          };
+
+          const escapeLogfmtValue = (value) => value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
+          const formatLogfmtField = (key, value) => {
+            if (value === null) {
+              return `${key}=null`;
+            }
+
+            if (typeof value === 'boolean' || typeof value === 'number') {
+              return `${key}=${value}`;
+            }
+
+            const stringValue = typeof value === 'string' ? value : JSON.stringify(value);
+            return `${key}="${escapeLogfmtValue(stringValue)}"`;
+          };
+          const normalizeArguments = (args) => {
+            if (args.length === 0) {
+              return { msg: 'Structured log event' };
+            }
+
+            const [first, ...rest] = args;
+
+            if (typeof first === 'string') {
+              if (rest.length === 1 && rest[0] && typeof rest[0] === 'object') {
+                return { msg: first, context: serializeValue(rest[0]) };
+              }
+
+              return { msg: first, args: rest.length > 0 ? serializeValue(rest) : undefined };
+            }
+
+            if (first instanceof Error) {
+              return {
+                msg: first.message,
+                context: serializeValue(first),
+                args: rest.length > 0 ? serializeValue(rest) : undefined,
+              };
+            }
+
+            return { msg: 'Structured log event', args: serializeValue(args) };
+          };
+          const write = (level, args) => {
+            const entry = {
+              ts: new Date().toISOString(),
+              level,
+              source,
+              ...normalizeArguments(args),
+            };
+
+            const parts = [
+              formatLogfmtField('ts', entry.ts),
+              formatLogfmtField('level', entry.level),
+              formatLogfmtField('source', entry.source),
+              formatLogfmtField('msg', entry.msg),
+            ];
+
+            if (entry.context !== undefined) {
+              parts.push(formatLogfmtField('context', entry.context));
+            }
+
+            if (entry.args !== undefined) {
+              parts.push(formatLogfmtField('args', entry.args));
+            }
+
+            const method = level === 'error' ? console.error : level === 'warn' ? console.warn : console.info;
+            method(parts.join(' '));
+          };
+
+          return {
+            warn: (...args) => write('warn', args),
+            error: (...args) => write('error', args),
+          };
+        }
+        const structuredLogger = createStructuredLogger('pkg/services/frontend/index');
         // Grafana can only fail to load once
         // However, it can fail to load in multiple different places
         // To avoid double reporting the error, we use this boolean to check if we've already failed
@@ -179,7 +305,7 @@
             return;
           }
           hasFailedToBoot = true;
-          console.error('Failed to load Grafana', err);
+          structuredLogger.error('Failed to load Grafana', err);
           document.querySelector('.fs-variant-loader').classList.add('fs-hidden');
           document.querySelector('.fs-variant-error').classList.remove('fs-hidden');
 
@@ -191,7 +317,7 @@
             method: 'GET',
             cache: "no-store",
           }).catch(err => {
-            console.error('Failed to report boot error to backend: ', err);
+            structuredLogger.error('Failed to report boot error to backend', err);
           });
         };
 
@@ -320,7 +446,7 @@
                 }
               } catch (error) {
                 // Just ignore any errors in session rotation. The user can just log in again.
-                console.warn("Failed to rotate session", error);
+                structuredLogger.warn("Failed to rotate session", error);
               }
 
               try {
@@ -418,7 +544,7 @@
             return;
           }
 
-          console.error("__grafana_boot_data_promise rejected", err);
+          structuredLogger.error("__grafana_boot_data_promise rejected", err);
           window.__grafana_load_failed(err);
         });
       })();

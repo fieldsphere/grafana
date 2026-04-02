@@ -2,8 +2,10 @@ import { SpanStatus } from '@opentelemetry/api';
 import { collectorTypes } from '@opentelemetry/exporter-collector';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { isEqual } from 'lodash';
+import { createStructuredLogger } from '@grafana/data';
 
 import {
+
   createDataFrame,
   createTheme,
   DataFrame,
@@ -28,6 +30,8 @@ import { getDataSourceSrv } from '@grafana/runtime';
 
 import { SearchTableType } from './dataquery.gen';
 import { Span, SpanAttributes, Spanset, TempoJsonData, TraceSearchMetadata } from './types';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/tempo/resultTransformer');
 
 function getAttributeValue(value: collectorTypes.opentelemetryProto.common.v1.AnyValue): any {
   if (value.stringValue) {
@@ -196,7 +200,7 @@ export function transformFromOTLP(
       }
     }
   } catch (error) {
-    console.error(error);
+    structuredLogger.error(error);
     return { error: { message: 'JSON is not valid OpenTelemetry format: ' + error }, data: [] };
   }
 

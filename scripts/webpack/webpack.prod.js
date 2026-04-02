@@ -11,6 +11,8 @@ const WebpackAssetsManifest = require('webpack-assets-manifest');
 const { WebpackManifestPlugin } = require('webpack-manifest-plugin');
 const { merge } = require('webpack-merge');
 const { SubresourceIntegrityPlugin } = require('webpack-subresource-integrity');
+const { createStructuredLogger } = require('../helpers/structuredLogger');
+const structuredLogger = createStructuredLogger('scripts/webpack/webpack.prod');
 
 const getEnvConfig = require('./env-util.js');
 const FeatureFlaggedSRIPlugin = require('./plugins/FeatureFlaggedSriPlugin');
@@ -113,7 +115,7 @@ module.exports = (env = {}) =>
       function () {
         this.hooks.done.tap('Done', function (stats) {
           if (stats.compilation.errors && stats.compilation.errors.length) {
-            console.log(stats.compilation.errors);
+            structuredLogger.log(stats.compilation.errors);
             process.exit(1);
           }
         });

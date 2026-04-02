@@ -1,4 +1,6 @@
 import {
+
+
   AppEvents,
   DataFrame,
   getPanelDataSummary,
@@ -14,8 +16,11 @@ import { getListedPanelPluginMetas, getPanelPluginMeta } from '@grafana/runtime/
 import { appEvents } from 'app/core/app_events';
 import { isBuiltinPluginPath } from 'app/features/plugins/built_in_plugins';
 import { importPanelPlugin } from 'app/features/plugins/importPanelPlugin';
+import { createStructuredLogger } from '@grafana/data';
 
 import { panelsToCheckFirst } from './consts';
+
+const structuredLogger = createStructuredLogger('public/app/features/panel/suggestions/getAllSuggestions');
 
 interface PluginLoadResult {
   plugins: PanelPlugin[];
@@ -58,7 +63,7 @@ export async function loadPlugins(pluginIds: string[]): Promise<PluginLoadResult
       plugins.push(settled.value);
     } else {
       const pluginId = pluginIds[i];
-      console.error(`Failed to load ${pluginId} for visualization suggestions:`, settled.reason);
+      structuredLogger.error(`Failed to load ${pluginId} for visualization suggestions:`, settled.reason);
 
       if (await isBuiltInPlugin(pluginId)) {
         hasErrors = true;
@@ -163,7 +168,7 @@ export async function getAllSuggestions(series?: DataFrame[]): Promise<Suggestio
         list.push(...suggestions);
       }
     } catch (e) {
-      console.warn(`error when loading suggestions from plugin "${plugin.meta.id}"`, e);
+      structuredLogger.warn(`error when loading suggestions from plugin "${plugin.meta.id}"`, e);
       pluginSuggestionsError = true;
     }
   }

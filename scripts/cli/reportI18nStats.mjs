@@ -1,8 +1,12 @@
+
+const structuredLogger = createStructuredLogger('scripts/cli/reportI18nStats');
+
 /// @ts-check
 
 import { readdir, stat, readFile } from 'fs/promises';
 import path, { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { createStructuredLogger } from '../../packages/grafana-data/src/utils/structuredLogger';
 
 const LOCALES_DIR = path.resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'public', 'locales');
 
@@ -84,5 +88,5 @@ function eachMessage(value, callback) {
 function logStat(name, value) {
   // Note that this output format must match the parsing in ci-frontend-metrics.sh
   // which expects the two values to be separated by a space
-  console.log(`${name} ${value}`);
+  structuredLogger.log(`${name} ${value}`);
 }

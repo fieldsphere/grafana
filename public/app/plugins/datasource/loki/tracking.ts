@@ -1,9 +1,10 @@
-import { CoreApp, DashboardLoadedEvent, DataQueryRequest, DataQueryResponse } from '@grafana/data';
+import { createStructuredLogger, CoreApp, DashboardLoadedEvent, DataQueryRequest, DataQueryResponse } from '@grafana/data';
 import { QueryEditorMode } from '@grafana/plugin-ui';
 import { reportInteraction, config } from '@grafana/runtime';
 
 import { LokiQueryType } from './dataquery.gen';
 import {
+
   REF_ID_STARTER_ANNOTATION,
   REF_ID_DATA_SAMPLES,
   REF_ID_STARTER_LOG_ROW_CONTEXT,
@@ -14,6 +15,8 @@ import pluginJson from './plugin.json';
 import { getNormalizedLokiQuery, isLogsQuery, obfuscate } from './queryUtils';
 import { variableRegex } from './querybuilder/parsingUtils';
 import { LokiGroupedRequest, LokiQuery } from './types';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/loki/tracking');
 
 type LokiOnDashboardLoadedTrackingEvent = {
   grafana_version?: string;
@@ -97,7 +100,7 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_loki_dashboard_loaded', event);
   } catch (error) {
-    console.error('error in loki tracking handler', error);
+    structuredLogger.error('error in loki tracking handler', error);
   }
 };
 

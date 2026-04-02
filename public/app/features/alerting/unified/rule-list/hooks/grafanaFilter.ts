@@ -1,4 +1,5 @@
 import { attempt, isError } from 'lodash';
+import { createStructuredLogger } from '@grafana/data';
 
 import { PromRuleDTO, PromRuleGroupDTO } from 'app/types/unified-alerting-dto';
 
@@ -9,6 +10,7 @@ import { parseMatcher } from '../../utils/matchers';
 
 import { buildTitleSearch, normalizeFilterState } from './filterNormalization';
 import {
+
   GroupFilterConfig,
   RuleFilterConfig,
   dashboardUidFilter,
@@ -24,6 +26,8 @@ import {
   ruleNameFilter,
   ruleTypeFilter,
 } from './filterPredicates';
+
+const structuredLogger = createStructuredLogger('public/app/features/alerting/unified/rule-list/hooks/grafanaFilter');
 
 /**
  * Determines if client-side filtering is needed for Grafana-managed rules.
@@ -151,7 +155,7 @@ function labelMatchersToBackendFormat(labels: string[]): string[] {
     const result = attempt(() => JSON.stringify(parseMatcher(label)));
 
     if (isError(result)) {
-      console.warn('Failed to parse label matcher:', label, result);
+      structuredLogger.warn('Failed to parse label matcher:', label, result);
     } else {
       acc.push(result);
     }

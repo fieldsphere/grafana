@@ -1,4 +1,6 @@
+const structuredLogger = createStructuredLogger('scripts/codeowners-manifest/raw');
 #!/usr/bin/env node
+const { createStructuredLogger } = require('../helpers/structuredLogger');
 
 const { spawn } = require('node:child_process');
 const fs = require('node:fs');
@@ -70,12 +72,12 @@ if (require.main === module) {
         fs.mkdirSync(CODEOWNERS_MANIFEST_DIR, { recursive: true });
       }
 
-      console.log(`🍣 Getting raw CODEOWNERS data for manifest ...`);
+      structuredLogger.log(`🍣 Getting raw CODEOWNERS data for manifest ...`);
       await generateCodeownersRawAudit(CODEOWNERS_FILE_PATH, RAW_AUDIT_JSONL_PATH);
-      console.log('✅ Raw audit generated:');
-      console.log(`   • ${RAW_AUDIT_JSONL_PATH}`);
+      structuredLogger.log('✅ Raw audit generated:');
+      structuredLogger.log(`   • ${RAW_AUDIT_JSONL_PATH}`);
     } catch (e) {
-      console.error('❌ Error generating raw audit:', e.message);
+      structuredLogger.error('❌ Error generating raw audit:', e.message);
       process.exit(1);
     }
   })();

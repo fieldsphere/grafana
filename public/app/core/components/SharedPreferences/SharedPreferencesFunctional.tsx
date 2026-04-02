@@ -1,11 +1,12 @@
 import { memo, useMemo, useState, useEffect } from 'react';
 
 import { PreferencesSpec as UserPreferencesDTO } from '@grafana/api-clients/rtkq/preferences/v1alpha1';
-import { FeatureState } from '@grafana/data';
+import { createStructuredLogger, FeatureState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
 import {
+
   Box,
   Button,
   Combobox,
@@ -29,6 +30,8 @@ import { DashboardPicker } from '../Select/DashboardPicker';
 import { getSelectableThemes } from '../ThemeSelector/getSelectableThemes';
 
 import { getLanguageOptions, getRegionalFormatOptions, getStyles, getTranslatedThemeName, Props, State } from './utils';
+
+const structuredLogger = createStructuredLogger('public/app/core/components/SharedPreferences/SharedPreferencesFunctional');
 
 export const SharedPreferencesFunctional = memo((props: Props) => {
   const [state, setState] = useState<UserPreferencesDTO & State>({
@@ -79,7 +82,7 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
           navbar: prefs.navbar ?? prev.navbar,
         }));
       } catch (err) {
-        console.error('Failed to load preferences', err);
+        structuredLogger.error('Failed to load preferences', err);
       } finally {
         setState((prev) => ({ ...prev, isLoading: false }));
       }

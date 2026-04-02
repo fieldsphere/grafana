@@ -1,4 +1,10 @@
+
+const structuredLogger = createStructuredLogger('scripts/generate-alerting-rtk-apis');
+
 /**
+
+import { createStructuredLogger } from './helpers/structuredLogger';
+
  * To generate alerting k8s APIs, run:
  * `npx rtk-query-codegen-openapi ./scripts/generate-alerting-rtk-apis.ts`
  */
@@ -13,8 +19,8 @@ try {
   // as this is currently a manual process
   accessSync(schemaFile);
 } catch (e) {
-  console.error('\nCould not find OpenAPI definition.\n');
-  console.error(
+  structuredLogger.error('\nCould not find OpenAPI definition.\n');
+  structuredLogger.error(
     'Please visit /openapi/v3/apis/notifications.alerting.grafana.app/v0alpha1 and save the OpenAPI definition to data/alerting/openapi.json\n'
   );
   throw e;

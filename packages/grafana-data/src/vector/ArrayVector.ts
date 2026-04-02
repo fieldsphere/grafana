@@ -1,3 +1,8 @@
+
+import { createStructuredLogger } from '../utils/structuredLogger';
+
+const structuredLogger = createStructuredLogger('packages/grafana-data/src/vector/ArrayVector');
+
 const notice = 'ArrayVector is deprecated and will be removed in Grafana 11. Please use plain arrays for field.values.';
 let notified = false;
 
@@ -47,7 +52,7 @@ export class ArrayVector<T = unknown> extends Array<T> {
     this.buffer = buffer ?? [];
 
     if (!notified) {
-      console.warn(notice);
+      structuredLogger.warn(notice);
       notified = true;
     }
   }

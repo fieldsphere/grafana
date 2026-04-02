@@ -1,4 +1,6 @@
 import {
+
+
   DataFrame,
   DataLink,
   DataLinkPostProcessor,
@@ -25,12 +27,15 @@ import { getTemplateSrv } from '@grafana/runtime';
 import { DataQuery } from '@grafana/schema';
 import { Icon } from '@grafana/ui';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
+import { createStructuredLogger } from '@grafana/data';
 
 import { LokiQuery } from '../../../plugins/datasource/loki/types';
 import { ExploreFieldLinkModel, getFieldLinksForExplore, getVariableUsageInfo } from '../utils/links';
 
 import { SpanLinkDef, SpanLinkFunc, SpanLinkType } from './components/types/links';
 import { Trace, TraceSpan, TraceSpanReference } from './components/types/trace';
+
+const structuredLogger = createStructuredLogger('public/app/features/explore/TraceView/createSpanLink');
 
 /**
  * This is a factory for the link creator. It returns the function mainly so it can return undefined in which case
@@ -123,7 +128,7 @@ export function createSpanLinkFactory({
         spanLinks.push.apply(spanLinks, newSpanLinks);
       } catch (error) {
         // It's fairly easy to crash here for example if data source defines wrong interpolation in the data link
-        console.error(error);
+        structuredLogger.error(error);
         return spanLinks;
       }
     }

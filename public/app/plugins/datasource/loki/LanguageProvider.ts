@@ -1,7 +1,7 @@
 import { flatten } from 'lodash';
 import { LRUCache } from 'lru-cache';
 
-import { AbstractQuery, getDefaultTimeRange, KeyValue, LanguageProvider, ScopedVars, TimeRange } from '@grafana/data';
+import { createStructuredLogger, AbstractQuery, getDefaultTimeRange, KeyValue, LanguageProvider, ScopedVars, TimeRange } from '@grafana/data';
 import { BackendSrvRequest, config } from '@grafana/runtime';
 
 import { LokiQueryType } from './dataquery.gen';
@@ -10,11 +10,14 @@ import { abstractQueryToExpr, mapAbstractOperatorsToOp, processLabels } from './
 import { getStreamSelectorsFromQuery } from './queryUtils';
 import { buildVisualQueryFromString } from './querybuilder/parsing';
 import {
+
   extractLabelKeysFromDataFrame,
   extractLogParserFromDataFrame,
   extractUnwrapLabelKeysFromDataFrame,
 } from './responseUtils';
 import { DetectedFieldsResult, LabelType, LokiQuery, ParserAndLabelKeysResult } from './types';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/loki/LanguageProvider');
 
 const NS_IN_MS = 1000000;
 const EMPTY_SELECTOR = '{}';
@@ -56,7 +59,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
       if (throwError) {
         throw error;
       } else {
-        console.error(error);
+        structuredLogger.error(error);
       }
     }
 
@@ -286,7 +289,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         const data = await this.request(url, params, true, requestOptions);
         resolve(data);
       } catch (error) {
-        console.error('error', error);
+        structuredLogger.error('error', error);
         reject(error);
       }
     });
@@ -367,7 +370,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         if (queryOptions?.throwError) {
           reject(error);
         } else {
-          console.error(error);
+          structuredLogger.error(error);
           resolve([]);
         }
       }
@@ -437,7 +440,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
           resolve(labelValues);
         }
       } catch (error) {
-        console.error(error);
+        structuredLogger.error(error);
         resolve([]);
       }
     });

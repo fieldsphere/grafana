@@ -2,8 +2,10 @@ import saveAs from 'file-saver';
 import { countBy, chain } from 'lodash';
 import { MouseEvent } from 'react';
 import { lastValueFrom, map, Observable } from 'rxjs';
+import { createStructuredLogger } from '@grafana/data';
 
 import {
+
   LogLevel,
   LogRowModel,
   LogLabelStatsModel,
@@ -41,6 +43,8 @@ import { LOG_LINE_BODY_FIELD_NAME } from './components/fieldSelector/logFields';
 import { getDataframeFields } from './components/logParser';
 import { GetRowContextQueryFn } from './components/panel/LogLineMenu';
 import { DATAPLANE_LABELS_NAME, DATAPLANE_LABEL_TYPES_NAME, parseLogsFrame } from './logsFrame';
+
+const structuredLogger = createStructuredLogger('public/app/features/logs/utils');
 
 /**
  * Returns the log level of a log line.
@@ -368,10 +372,10 @@ export function getLogLevelInfo(dataFrame: DataFrame, allDataFrames: DataFrame[]
   const valueField = fieldCache.getFirstFieldOfType(FieldType.number);
 
   if (!timeField) {
-    console.error('Time field missing in data frame');
+    structuredLogger.error('Time field missing in data frame');
   }
   if (!valueField) {
-    console.error('Value field missing in data frame');
+    structuredLogger.error('Value field missing in data frame');
   }
 
   const level = valueField ? getFieldDisplayName(valueField, dataFrame, allDataFrames) : 'logs';

@@ -1,10 +1,13 @@
 import { SceneObject, SceneObjectBase, SceneObjectState, sceneGraph } from '@grafana/scenes';
 import {
+
+
   ElementSelectionContextItem,
   ElementSelectionContextState,
   ElementSelectionOnSelectOptions,
 } from '@grafana/ui';
 import { getLayoutType } from 'app/features/dashboard/utils/tracking';
+import { createStructuredLogger } from '@grafana/data';
 
 import { TabItem } from '../scene/layout-tabs/TabItem';
 import { getRepeatCloneSourceKey } from '../utils/clone';
@@ -23,6 +26,8 @@ import {
   RepeatsUpdatedEvent,
 } from './shared';
 import { EditPaneSelectionActions } from './types';
+
+const structuredLogger = createStructuredLogger('public/app/features/dashboard-scene/edit-pane/DashboardEditPane');
 
 export interface DashboardEditPaneState extends SceneObjectState {
   selection?: ElementSelection;
@@ -236,7 +241,7 @@ export class DashboardEditPane extends SceneObjectBase<DashboardEditPaneState> i
   private selectElement(element: ElementSelectionContextItem, options: ElementSelectionOnSelectOptions) {
     let obj = sceneGraph.findByKey(this, element.id);
     if (!obj) {
-      console.warn('Cannot find element by key="%s"!', element.id);
+      structuredLogger.warn('Cannot find element by key="%s"!', element.id);
       return;
     }
 
@@ -244,7 +249,7 @@ export class DashboardEditPane extends SceneObjectBase<DashboardEditPaneState> i
     if (sourceKey) {
       obj = sceneGraph.findByKey(this, sourceKey);
       if (!obj) {
-        console.warn('Cannot find element by source key="%s"!', sourceKey);
+        structuredLogger.warn('Cannot find element by source key="%s"!', sourceKey);
         return;
       }
     }

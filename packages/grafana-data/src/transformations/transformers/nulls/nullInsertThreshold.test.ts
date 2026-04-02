@@ -1,7 +1,11 @@
 import { createDataFrame } from '../../../dataframe/processDataFrame';
 import { FieldType } from '../../../types/dataFrame';
+import { createStructuredLogger } from '../../../utils/structuredLogger';
 
 import { applyNullInsertThreshold } from './nullInsertThreshold';
+
+
+const structuredLogger = createStructuredLogger('packages/grafana-data/src/transformations/transformers/nulls/nullInsertThreshold.test');
 
 function randInt(min: number, max: number) {
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -327,9 +331,9 @@ describe('nullInsertThreshold Transformer', () => {
     let bigFrameA = genFrame();
 
     // eslint-disable-next-line no-console
-    console.time('insertValues-10x3k');
+    structuredLogger.time('insertValues-10x3k');
     applyNullInsertThreshold({ frame: bigFrameA });
     // eslint-disable-next-line no-console
-    console.timeEnd('insertValues-10x3k');
+    structuredLogger.timeEnd('insertValues-10x3k');
   });
 });

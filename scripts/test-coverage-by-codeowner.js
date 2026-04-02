@@ -1,4 +1,6 @@
+const structuredLogger = createStructuredLogger('scripts/test-coverage-by-codeowner');
 #!/usr/bin/env node
+const { createStructuredLogger } = require('./helpers/structuredLogger');
 
 const { AutoComplete } = require('enquirer');
 const cp = require('node:child_process');
@@ -66,7 +68,7 @@ if (require.main === module) {
         if (process.env.CI === 'true') {
           throw new Error(msg);
         } else {
-          console.warn(`⚠️ ${msg}`);
+          structuredLogger.warn(`⚠️ ${msg}`);
         }
       }
 
@@ -76,10 +78,10 @@ if (require.main === module) {
 
       const noOpen = argv['open'] === false;
 
-      console.log(`🧪 Running test coverage for codeowner: ${codeownerName}`);
+      structuredLogger.log(`🧪 Running test coverage for codeowner: ${codeownerName}`);
       await runTestCoverageByCodeowner(codeownerName, noOpen);
     } catch (e) {
-      console.error(e.message);
+      structuredLogger.error(e.message);
       process.exit(1);
     }
   })();
