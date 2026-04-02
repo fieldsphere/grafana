@@ -1,0 +1,18 @@
+---
+description: Shared map for unit and integration test locations
+alwaysApply: true
+---
+
+# Test directory map
+
+Use this rule before choosing test commands or test scope in any skill.
+
+- **Frontend unit tests**: Start with root Jest for files under `public/app/**` and shared packages covered by the root config. Use `yarn test:ci --runTestsByPath <TEST_FILE_PATH>` when the scope is small.
+- **Plugin-local frontend unit tests**: If a file is under a decoupled datasource plugin in `public/app/plugins/datasource/*` and that plugin has its own `package.json` or `jest.config.js`, run that plugin's local `yarn test:ci` instead of the repo root Jest.
+- **Backend unit tests**: Look for package-local `*_test.go` files first in the changed package under `pkg/**` or `apps/**`. Prefer targeted `go test -v -short <GO_PACKAGE>` before broader backend unit runs.
+- **Backend integration tests**: Check `pkg/tests/`, `pkg/tests/api/`, and `pkg/tests/apis/` for database-backed, API, and broader integration coverage. Prefer the smallest relevant package before full `make test-go-integration`.
+- **`all.go` files**: Treat `all.go` as production code that can affect both unit and integration coverage. When an `all.go` file changes, inspect the same package for nearby `*_test.go` files and then inspect related suites under `pkg/tests/**`.
+
+Current known `all.go` mapping:
+
+- **Provisioning export aggregator**: `pkg/registry/apis/provisioning/jobs/export/all.go` maps to unit tests in `pkg/registry/apis/provisioning/jobs/export/` and related integration coverage in `pkg/tests/apis/provisioning/exportjob_test.go`.
