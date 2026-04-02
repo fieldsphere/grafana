@@ -18,26 +18,26 @@ function createMockConsole() {
     error: 0,
   };
 
-  const mockConsole: Console = {
-    log: (entry: unknown) => {
+  const mockConsole = {
+    log: (...entries: unknown[]) => {
       callCounts.log++;
-      sink.log.push(entry);
+      sink.log.push(...entries);
     },
-    info: (entry: unknown) => {
+    info: (...entries: unknown[]) => {
       callCounts.info++;
-      sink.info.push(entry);
+      sink.info.push(...entries);
     },
-    debug: (entry: unknown) => {
+    debug: (...entries: unknown[]) => {
       callCounts.debug++;
-      sink.debug.push(entry);
+      sink.debug.push(...entries);
     },
-    warn: (entry: unknown) => {
+    warn: (...entries: unknown[]) => {
       callCounts.warn++;
-      sink.warn.push(entry);
+      sink.warn.push(...entries);
     },
-    error: (entry: unknown) => {
+    error: (...entries: unknown[]) => {
       callCounts.error++;
-      sink.error.push(entry);
+      sink.error.push(...entries);
     },
   };
 

@@ -1,7 +1,8 @@
 type ConsoleLevel = 'log' | 'info' | 'debug' | 'warn' | 'error';
+type ConsoleLike = Record<ConsoleLevel, (...args: unknown[]) => void>;
 
 const LOGGER_NAME = 'grafana.frontend.console';
-const patchedConsoles = new WeakSet<Console>();
+const patchedConsoles = new WeakSet<ConsoleLike>();
 
 interface StructuredConsoleEntry {
   logger: string;
@@ -59,7 +60,7 @@ function buildStructuredEntry(level: ConsoleLevel, args: unknown[]): StructuredC
   };
 }
 
-export function enableStructuredConsoleLogging(targetConsole: Console = console): void {
+export function enableStructuredConsoleLogging(targetConsole: ConsoleLike = console): void {
   if (patchedConsoles.has(targetConsole)) {
     return;
   }
