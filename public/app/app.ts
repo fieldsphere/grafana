@@ -73,6 +73,7 @@ import { initializeCrashDetection } from './core/crash';
 import { NAMESPACES, GRAFANA_NAMESPACE } from './core/internationalization/constants';
 import { loadTranslations } from './core/internationalization/loadTranslations';
 import { postInitTasks, preInitTasks } from './core/lifecycle-hooks';
+import { initStructuredConsoleLogging } from './core/logging/structuredConsole';
 import { setMonacoEnv } from './core/monacoEnv';
 import { interceptLinkClicks } from './core/navigation/patch/interceptLinkClicks';
 import { CorrelationsService } from './core/services/CorrelationsService';
@@ -126,6 +127,8 @@ const extensionsIndex = require.context('.', true, /extensions\/index.ts/);
 const extensionsExports = extensionsIndex.keys().map((key) => {
   return extensionsIndex(key);
 });
+
+initStructuredConsoleLogging();
 
 export class GrafanaApp {
   context!: GrafanaContextType;
