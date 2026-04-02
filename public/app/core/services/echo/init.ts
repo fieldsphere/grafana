@@ -1,9 +1,31 @@
-import { config, registerEchoBackend, setEchoSrv } from '@grafana/runtime';
+import { config, createMonitoringLogger, registerEchoBackend, setEchoSrv } from '@grafana/runtime';
 import { reportMetricPerformanceMark } from 'app/core/utils/metrics';
 
 import { contextSrv } from '../context_srv';
 
 import { Echo } from './Echo';
+
+const echoInitLogger = createMonitoringLogger('EchoSrv.init');
+
+function toError(error: unknown, backendName: string): Error {
+  if (error instanceof Error) {
+    return error;
+  }
+
+  return new Error(`Error initializing EchoSrv ${backendName} backend`);
+}
+
+function toErrorString(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  if (typeof error === 'string') {
+    return error;
+  }
+
+  return String(error);
+}
 
 // Initialise EchoSrv backends, calls during frontend app startup
 export async function initEchoSrv() {
@@ -28,43 +50,52 @@ export async function initEchoSrv() {
   try {
     await initPerformanceBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Performance backend', error);
+    echoInitLogger.logError(toError(error, 'Performance'), { backend: 'Performance', error: toErrorString(error) });
   }
 
   try {
     await initFaroBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Faro backend', error);
+    echoInitLogger.logError(toError(error, 'Faro'), { backend: 'Faro', error: toErrorString(error) });
   }
 
   try {
     await initGoogleAnalyticsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalytics backend', error);
+    echoInitLogger.logError(toError(error, 'GoogleAnalytics'), {
+      backend: 'GoogleAnalytics',
+      error: toErrorString(error),
+    });
   }
 
   try {
     await initGoogleAnalaytics4Backend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalaytics4 backend', error);
+    echoInitLogger.logError(toError(error, 'GoogleAnalytics4'), {
+      backend: 'GoogleAnalytics4',
+      error: toErrorString(error),
+    });
   }
 
   try {
     await initRudderstackBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Rudderstack backend', error);
+    echoInitLogger.logError(toError(error, 'Rudderstack'), { backend: 'Rudderstack', error: toErrorString(error) });
   }
 
   try {
     await initAzureAppInsightsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv AzureAppInsights backend', error);
+    echoInitLogger.logError(toError(error, 'AzureAppInsights'), {
+      backend: 'AzureAppInsights',
+      error: toErrorString(error),
+    });
   }
 
   try {
     await initConsoleBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Console backend', error);
+    echoInitLogger.logError(toError(error, 'Console'), { backend: 'Console', error: toErrorString(error) });
   }
 }
 
