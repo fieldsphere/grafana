@@ -3,6 +3,7 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { SceneObjectBase, SceneObjectRef, SceneObjectState, VizPanel } from '@grafana/scenes';
 import { DataQuery, DataSourceRef } from '@grafana/schema';
 import { addQuery } from 'app/core/utils/query';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { getQueryRunnerFor } from '../../utils/utils';
 
@@ -73,7 +74,7 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
       const datasource = await getDataSourceSrv().get(dsRef);
       this.setState({ datasource, dsSettings, dsError: undefined });
     } catch (err) {
-      console.error('Failed to load datasource:', err);
+      structuredLogger.error('Failed to load datasource:', err);
       this.setState({
         datasource: undefined,
         dsSettings: undefined,

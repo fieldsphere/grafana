@@ -18,6 +18,7 @@ import {
 } from '@grafana/data';
 import { BackendSrvRequest, config as grafanaConfig, getBackendSrv } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { HttpRequestMethod } from '../../plugins/panel/canvas/panelcfg.gen';
 import { createAbsoluteUrl, RelativeUrl } from '../alerting/unified/utils/url';
@@ -120,7 +121,7 @@ export const getActions = (
                   appEvents.emit(AppEvents.alertError, [
                     'An error has occurred. Check console output for more details.',
                   ]);
-                  console.error(error);
+                  structuredLogger.error(error);
                 },
                 complete: () => {
                   appEvents.emit(AppEvents.alertSuccess, ['API call was successful']);
@@ -128,7 +129,7 @@ export const getActions = (
               });
           } catch (error) {
             appEvents.emit(AppEvents.alertError, ['An error has occurred. Check console output for more details.']);
-            console.error(error);
+            structuredLogger.error(error);
             return;
           }
         },

@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { DataQueryRequest, DataQueryResponse, LoadingState, QueryResultMetaStat } from '@grafana/data';
 import { config } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { LokiDatasource } from './datasource';
 import { combineResponses, replaceResponses } from './mergeResponses';
@@ -130,7 +131,7 @@ function splitQueriesByStreamShard(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        structuredLogger.error(e);
         shouldStop = true;
         return false;
       }
@@ -155,7 +156,7 @@ function splitQueriesByStreamShard(
 
       retryTimer = setTimeout(
         () => {
-          console.warn(`Retrying ${group} ${cycle} (${retries + 1})`);
+          structuredLogger.warn(`Retrying ${group} ${cycle} (${retries + 1})`);
           runNextRequest(subscriber, group, groups);
           retryTimer = null;
         },
@@ -224,7 +225,7 @@ function splitQueriesByStreamShard(
         nextRequest();
       },
       error: (error: unknown) => {
-        console.error(error, { msg: 'failed to shard' });
+        structuredLogger.error(error, { msg: 'failed to shard' });
         subscriber.next(mergedResponse);
         if (retry()) {
           return;
@@ -293,7 +294,7 @@ async function groupTargetsByQueryType(
         cycle: 0,
       });
     } catch (error) {
-      console.error(error, { msg: 'failed to fetch label values for __stream_shard__' });
+      structuredLogger.error(error, { msg: 'failed to fetch label values for __stream_shard__' });
       groups.push({
         targets: selectorPartition[selector],
       });
@@ -375,5 +376,5 @@ function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  console.log(message);
+  structuredLogger.log(message);
 }

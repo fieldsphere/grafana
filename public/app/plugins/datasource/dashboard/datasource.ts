@@ -21,6 +21,7 @@ import {
   DrilldownsApplicability,
 } from '@grafana/data';
 import { isSceneObject, SceneDataProvider, SceneDataTransformer, SceneObject } from '@grafana/scenes';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import {
   activateSceneObjectAndParentTree,
   findVizPanelByKey,
@@ -270,7 +271,7 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         options: { value: filter.value },
       });
     } catch (error) {
-      console.warn('Failed to create value matcher for filter:', filter, error);
+      structuredLogger.warn('Failed to create value matcher for filter:', filter, error);
       return null;
     }
   }

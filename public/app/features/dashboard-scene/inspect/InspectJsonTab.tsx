@@ -19,6 +19,7 @@ import {
 } from '@grafana/scenes';
 import { LibraryPanel } from '@grafana/schema';
 import { Alert, Button, CodeEditor, Field, Select, useStyles2 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { isDashboardV2Spec } from 'app/features/dashboard/api/utils';
 import { getPanelDataFrames } from 'app/features/dashboard/components/HelpWizard/utils';
 import { PanelModel } from 'app/features/dashboard/state/PanelModel';
@@ -157,7 +158,7 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
       const newState = sceneUtils.cloneSceneObjectState(gridItem.state);
 
       if (!(panel.parent instanceof DashboardGridItem)) {
-        console.error('Cannot update state of panel', panel, gridItem);
+        structuredLogger.error('Cannot update state of panel', panel, gridItem);
         return;
       }
 

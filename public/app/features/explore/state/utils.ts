@@ -25,6 +25,7 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { DataQuery, DataSourceJsonData, DataSourceRef, TimeZone } from '@grafana/schema';
 import { getLocalRichHistoryStorage } from 'app/core/history/richHistoryStorageProvider';
 import { SortOrder } from 'app/core/utils/richHistoryTypes';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { MIXED_DATASOURCE_NAME } from 'app/plugins/datasource/mixed/MixedDataSource';
 import { ExploreItemState, ExplorePanelData, RichHistoryQuery } from 'app/types/explore';
 import { StoreState } from 'app/types/store';
@@ -118,7 +119,7 @@ export async function loadAndInitDatasource(
       instance.init();
     } catch (err) {
       // TODO: should probably be handled better
-      console.error(err);
+      structuredLogger.error(err);
     }
   }
 

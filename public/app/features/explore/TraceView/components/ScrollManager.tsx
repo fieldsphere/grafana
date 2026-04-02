@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { structuredLogger } from 'app/core/utils/structuredLogging';
+
 import TNil from './types/TNil';
 import { TraceSpan, TraceSpanReference, Trace } from './types/trace';
 
@@ -105,8 +107,7 @@ export default class ScrollManager {
     const isUp = direction < 0;
     const position = xrs.getRowPosition(rowIndex);
     if (!position) {
-      // eslint-disable-next-line no-console
-      console.warn('Invalid row index');
+      structuredLogger.warn('Invalid row index');
       return;
     }
     let { y } = position;

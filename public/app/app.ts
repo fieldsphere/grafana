@@ -52,6 +52,7 @@ import {
 } from '@grafana/runtime/internal';
 import { loadResources as loadScenesResources, sceneUtils } from '@grafana/scenes';
 import config, { updateConfig } from 'app/core/config';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { getStandardTransformers } from 'app/features/transformers/standardTransformers';
 
 import getDefaultMonacoLanguages from '../lib/monaco-languages';
@@ -145,7 +146,7 @@ export class GrafanaApp {
         try {
           await initOpenFeature();
         } catch (err) {
-          console.error('Failed to initialize OpenFeature provider', err);
+          structuredLogger.error('Failed to initialize OpenFeature provider', err);
         }
       }
 
@@ -284,7 +285,7 @@ export class GrafanaApp {
       try {
         cleanupOldExpandedFolders();
       } catch (err) {
-        console.warn('Failed to clean up old expanded folders', err);
+        structuredLogger.warn('Failed to clean up old expanded folders', err);
       }
 
       this.context = {
@@ -318,7 +319,7 @@ export class GrafanaApp {
 
       await postInitTasks();
     } catch (error) {
-      console.error('Failed to start Grafana', error);
+      structuredLogger.error('Failed to start Grafana', error);
       window.__grafana_load_failed();
     } finally {
       stopMeasure('frontend_app_init');

@@ -15,6 +15,7 @@ import {
 } from '@grafana/scenes';
 import { DataSourceRef } from '@grafana/schema';
 import { sortedDeepCloneWithoutNulls } from 'app/core/utils/object';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { getPanelDataFrames } from 'app/features/dashboard/components/HelpWizard/utils';
 import { GrafanaQueryType } from 'app/plugins/datasource/grafana/types';
 
@@ -150,7 +151,7 @@ export function transformSceneToSaveModelSchemaV2(scene: DashboardScene, isSnaps
     // should never reach this point, validation should throw an error
     throw new Error('Error we could transform the dashboard to schema v2: ' + dashboardSchemaV2);
   } catch (reason) {
-    console.error('Error transforming dashboard to schema v2: ' + reason, dashboardSchemaV2);
+    structuredLogger.error('Error transforming dashboard to schema v2: ' + reason, dashboardSchemaV2);
     throw new Error('Error transforming dashboard to schema v2: ' + reason);
   }
 }
@@ -534,7 +535,7 @@ function getAnnotations(state: DashboardSceneState, dsReferencesMapping?: DSRefe
       // for layers created for v2 schema. See transform transformSaveModelSchemaV2ToScene.ts.
       // In this case we will resolve default data source
       layerDs = getDefaultDataSourceRef();
-      console.error(
+      structuredLogger.error(
         'Misconfigured AnnotationsDataLayer: Data source is required for annotations. Resolving default data source',
         layer,
         layerDs

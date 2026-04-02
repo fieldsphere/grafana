@@ -14,6 +14,7 @@ import {
   Stack,
   InlineLabel,
 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { getManagedChannelInfo } from 'app/features/live/info';
 import { SearchQuery } from 'app/features/search/service/types';
 
@@ -142,7 +143,7 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         try {
           buffer = rangeUtil.intervalToSeconds(txt) * 1000;
         } catch (err) {
-          console.warn('ERROR', err);
+          structuredLogger.warn('ERROR', err);
         }
       }
       onChange({

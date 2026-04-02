@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useAsyncFn } from 'react-use';
 
 import { contextSrv } from 'app/core/services/context_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { AccessControlAction, Role } from 'app/types/accessControl';
 
 import { RolePicker } from './RolePicker';
@@ -57,7 +58,7 @@ export const TeamRolePicker = ({
           return await fetchTeamRoles(teamId);
         }
       } catch (e) {
-        console.error('Error fetching roles', e);
+        structuredLogger.error('Error fetching roles', e);
       }
       return [];
     },

@@ -23,6 +23,7 @@ import {
   DataQueryKind,
   defaultPanelQueryKind,
 } from '@grafana/schema/dist/esm/schema/dashboard/v2';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { SHARED_DASHBOARD_QUERY } from 'app/plugins/datasource/dashboard/constants';
 import { MIXED_DATASOURCE_NAME } from 'app/plugins/datasource/mixed/MixedDataSource';
 
@@ -358,7 +359,7 @@ export function getDataSourceForQuery(querySpecDS: DataSourceRef | undefined | n
     // In the datasource list from bootData "id" is the type and the uid could be uid or the name
     // in cases like grafana, dashboard or mixed datasource
 
-    console.warn(
+    structuredLogger.warn(
       `Could not find datasource for query kind ${queryKind}, defaulting to ${dsList[defaultDatasource].meta.id}`
     );
     return {

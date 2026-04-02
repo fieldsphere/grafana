@@ -21,6 +21,7 @@ import { useChromeHeaderHeight } from '@grafana/runtime';
 import { CodeEditor, Combobox, Field, Stack, useStyles2 } from '@grafana/ui';
 import { ThemeDemo } from '@grafana/ui/internal';
 import { Page } from 'app/core/components/Page/Page';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 import { createErrorNotification } from '../../core/copy/appNotification';
 import { notifyApp } from '../../core/reducers/appNotification';
@@ -65,7 +66,7 @@ const experimentalDefinitions: Record<string, unknown> = {
 for (const [name, json] of Object.entries(experimentalDefinitions)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    structuredLogger.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
   } else {
     themeMap[result.data.id] = result.data;
   }

@@ -16,6 +16,7 @@ import { RowsLayoutRowKind } from '@grafana/schema/dist/esm/schema/dashboard/v2'
 import { appEvents } from 'app/core/app_events';
 import { LS_ROW_COPY_KEY } from 'app/core/constants';
 import kbn from 'app/core/utils/kbn';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { ShowConfirmModalEvent } from 'app/types/events';
 
 import { ConditionalRenderingGroup } from '../../conditional-rendering/group/ConditionalRenderingGroup';
@@ -216,7 +217,7 @@ export class RowItem
         layout.setState({ children: newChildren });
       } else {
         const warningMessage = 'Grid item has unexpected parent type';
-        console.warn(warningMessage);
+        structuredLogger.warn(warningMessage);
         logWarning(warningMessage);
       }
     }
@@ -231,7 +232,7 @@ export class RowItem
       layout.addGridItem(gridItem);
     } else {
       const warningMessage = 'Layout manager does not support addGridItem';
-      console.warn(warningMessage);
+      structuredLogger.warn(warningMessage);
       logWarning(warningMessage);
     }
     this.setIsDropTarget(false);

@@ -47,6 +47,7 @@ import {
 } from '@grafana/schema/dist/esm/schema/dashboard/v2';
 import { DashboardLink, DataTransformerConfig } from '@grafana/schema/src/raw/dashboard/x/dashboard_types.gen';
 import { isWeekStart, WeekStart } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import {
   AnnoKeyCreatedBy,
   AnnoKeyDashboardGnetId,
@@ -706,7 +707,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         let query = v.query || {};
 
         if (typeof query === 'string') {
-          console.warn(
+          structuredLogger.warn(
             'Query variable query is a string which is deprecated in the schema v2. It should extend DataQuery'
           );
           query = {
@@ -919,7 +920,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v.type}`);
+        structuredLogger.error(`Variable transformation not implemented: ${v.type}`);
     }
   }
   return variables;
@@ -1132,7 +1133,7 @@ function getVariablesV1(vars: DashboardV2Spec['variables']): VariableModel[] {
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v}`);
+        structuredLogger.error(`Variable transformation not implemented: ${v}`);
     }
   }
   return variables;

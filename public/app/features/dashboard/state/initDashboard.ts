@@ -7,6 +7,7 @@ import { notifyApp } from 'app/core/reducers/appNotification';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { KeybindingSrv } from 'app/core/services/keybindingSrv';
 import { startMeasure, stopMeasure } from 'app/core/utils/metrics';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { dashboardLoaderSrv } from 'app/features/dashboard/services/DashboardLoaderSrv';
 import { DashboardSrv, getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { getTimeSrv, TimeSrv } from 'app/features/dashboard/services/TimeSrv';
@@ -109,7 +110,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            structuredLogger.log('not correct url correcting', dashboardUrl, currentPath);
           }
         }
         return dashDTO;
@@ -138,7 +139,7 @@ async function fetchDashboard(
         error: err,
       })
     );
-    console.error(err);
+    structuredLogger.error(err);
     return null;
   }
 }
@@ -206,7 +207,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
           error: err,
         })
       );
-      console.error(err);
+      structuredLogger.error(err);
       return;
     }
 
@@ -264,7 +265,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
       if (err instanceof Error) {
         dispatch(notifyApp(createErrorNotification('Dashboard init failed', err)));
       }
-      console.error(err);
+      structuredLogger.error(err);
     }
 
     // send open dashboard event

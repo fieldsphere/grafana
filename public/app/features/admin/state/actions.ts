@@ -6,6 +6,7 @@ import { FetchDataArgs } from '@grafana/ui';
 import config from 'app/core/config';
 import { contextSrv } from 'app/core/services/context_srv';
 import { accessControlQueryParam } from 'app/core/utils/accessControl';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { AccessControlAction } from 'app/types/accessControl';
 import { LdapUser } from 'app/types/ldap';
 import { ThunkResult } from 'app/types/store';
@@ -50,7 +51,7 @@ export function loadAdminUserPage(userUid: string): ThunkResult<void> {
       }
       dispatch(userAdminPageLoadedAction(true));
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
 
       if (isFetchError(error)) {
         const userError = {
@@ -300,7 +301,7 @@ export function fetchUsers(): ThunkResult<void> {
       dispatch(usersFetched(result));
     } catch (error) {
       usersFetchEnd();
-      console.error(error);
+      structuredLogger.error(error);
     }
   };
 }
@@ -366,7 +367,7 @@ export function fetchUsersAnonymousDevices(): ThunkResult<void> {
       const result = await getBackendSrv().get(url);
       dispatch(usersAnonymousDevicesFetched(result));
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
     }
   };
 }
@@ -400,16 +401,3 @@ export function changeAnonPage(page: number): ThunkResult<void> {
     dispatch(fetchUsersAnonymousDevices());
   };
 }
-
-// export function fetchUsersAnonymousDevices(): ThunkResult<void> {
-//   return async (dispatch, getState) => {
-//     try {
-//       let url = `/api/anonymous/devices`;
-//       const result = await getBackendSrv().get(url);
-//       dispatch(usersAnonymousDevicesFetched({ devices: result }));
-//     } catch (error) {
-//       usersFetchEnd();
-//       console.error(error);
-//     }
-//   };
-// }

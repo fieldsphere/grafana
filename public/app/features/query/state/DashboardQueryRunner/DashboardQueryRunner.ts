@@ -3,6 +3,7 @@ import { finalize, map, mapTo, mergeAll, reduce, share, takeUntil } from 'rxjs/o
 
 import { AnnotationQuery } from '@grafana/data';
 import { RefreshEvent } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { dedupAnnotations } from 'app/features/annotations/events_processing';
 
 import { getTimeSrv, TimeSrv } from '../../../dashboard/services/TimeSrv';
@@ -73,7 +74,7 @@ class DashboardQueryRunnerImpl implements DashboardQueryRunner {
       takeUntil(this.runs.asObservable()),
       mergeAll(),
       reduce((acc: DashboardQueryRunnerWorkerResult, value: DashboardQueryRunnerWorkerResult) => {
-        // console.log({ acc: acc.annotations.length, value: value.annotations.length });
+        // structuredLogger.log({ acc: acc.annotations.length, value: value.annotations.length });
         // should we use scan or reduce here
         // reduce will only emit when all observables are completed
         // scan will emit when any observable is completed

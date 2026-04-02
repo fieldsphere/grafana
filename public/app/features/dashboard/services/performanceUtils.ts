@@ -1,5 +1,6 @@
 import { store } from '@grafana/data';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 
 /**
  * Utility function to register a performance observer with the global tracker
@@ -74,7 +75,7 @@ function isPerformanceLoggingEnabled(): boolean {
  */
 export function writePerformanceGroupStart(logger: string, message: string): void {
   if (isPerformanceLoggingEnabled()) {
-    // eslint-disable-next-line no-console
+    // eslint-disable-next-line no-console -- console.groupCollapsed not mapped to structured logger
     console.groupCollapsed(`${logger}: ${message}`);
   }
 }
@@ -85,11 +86,9 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
 export function writePerformanceGroupLog(logger: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
     if (data) {
-      // eslint-disable-next-line no-console
-      console.log(message, data);
+      structuredLogger.log(message, data);
     } else {
-      // eslint-disable-next-line no-console
-      console.log(message);
+      structuredLogger.log(message);
     }
   }
 }
@@ -99,7 +98,7 @@ export function writePerformanceGroupLog(logger: string, message: string, data?:
  */
 export function writePerformanceGroupEnd(): void {
   if (isPerformanceLoggingEnabled()) {
-    // eslint-disable-next-line no-console
+    // eslint-disable-next-line no-console -- console.groupEnd not mapped to structured logger
     console.groupEnd();
   }
 }
@@ -117,7 +116,7 @@ export function createPerformanceMark(name: string, timestamp?: number): void {
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
+    structuredLogger.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
   }
 }
 
@@ -134,6 +133,6 @@ export function createPerformanceMeasure(name: string, startMark: string, endMar
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
+    structuredLogger.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
   }
 }

@@ -3,6 +3,7 @@ import { FormEvent } from 'react';
 
 import { t } from '@grafana/i18n';
 import { SceneVariable, TextBoxVariable } from '@grafana/scenes';
+import { structuredLogger } from 'app/core/utils/structuredLogging';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
 import { TextBoxVariableForm } from '../components/TextBoxVariableForm';
@@ -25,7 +26,7 @@ export function TextBoxVariableEditor({ variable, inline }: TextBoxVariableEdito
 
 export function getTextBoxVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof TextBoxVariable)) {
-    console.warn('getTextBoxVariableOptions: variable is not a TextBoxVariable');
+    structuredLogger.warn('getTextBoxVariableOptions: variable is not a TextBoxVariable');
     return [];
   }
 
