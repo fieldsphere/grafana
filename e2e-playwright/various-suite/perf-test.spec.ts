@@ -4,6 +4,7 @@ import * as prom from 'prom-client';
 import { test, expect } from '@grafana/plugin-e2e';
 
 import { RequestsRecorder } from '../utils/RequestsRecorder';
+import { structuredLog } from '../utils/structuredLog';
 
 const DASH_PATH = '/d/bds35fot3cv7kb/mostly-blank-dashboard';
 
@@ -50,7 +51,7 @@ test('payload-size', { tag: '@performance' }, async ({ page }) => {
   const instance = new URL(process.env.GRAFANA_URL || 'http://undefined').host;
   promRegistry.setDefaultLabels({ instance });
   const metricsText = await promRegistry.metrics();
-  console.log(metricsText);
+  structuredLog('info', 'perf_test_metrics_generated', { metricsText });
   fs.writeFileSync(process.env.METRICS_OUTPUT_PATH || '/tmp/asset-metrics.txt', metricsText);
 
   await stopListening();
