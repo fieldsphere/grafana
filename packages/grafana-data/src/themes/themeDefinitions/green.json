@@ -1,0 +1,66 @@
+{
+  "name": "Green",
+  "id": "green",
+  "colors": {
+    "mode": "light",
+    "background": {
+      "canvas": "#F4FBF6",
+      "primary": "#FFFFFF",
+      "secondary": "#E8F5EC",
+      "elevated": "#FFFFFF"
+    },
+    "text": {
+      "primary": "#183128",
+      "secondary": "#3E5F4E",
+      "disabled": "rgba(24, 49, 40, 0.55)",
+      "link": "#1F7A47",
+      "maxContrast": "#102118"
+    },
+    "border": {
+      "weak": "rgba(31, 122, 71, 0.20)",
+      "medium": "rgba(31, 122, 71, 0.36)",
+      "strong": "#1F7A47"
+    },
+    "primary": {
+      "main": "#33A55A",
+      "text": "#1F7A47",
+      "border": "#236F42",
+      "name": "primary",
+      "shade": "#236F42",
+      "transparent": "#33A55A26",
+      "contrastText": "#FFFFFF",
+      "borderTransparent": "#33A55A40"
+    },
+    "secondary": {
+      "main": "#FFFFFF",
+      "text": "#4B6E5D",
+      "border": "#CFE5D6",
+      "name": "secondary",
+      "shade": "#CFE5D6",
+      "transparent": "#FFFFFF26",
+      "contrastText": "#1B3528",
+      "borderTransparent": "#FFFFFF40"
+    },
+    "info": {
+      "main": "#1A82E2"
+    },
+    "success": {
+      "main": "#2E9F5A"
+    },
+    "warning": {
+      "main": "#D98C12"
+    },
+    "action": {
+      "hover": "rgba(51, 165, 90, 0.08)",
+      "selected": "rgba(51, 165, 90, 0.22)",
+      "selectedBorder": "#33A55A",
+      "focus": "rgba(51, 165, 90, 0.38)",
+      "disabledText": "rgba(24, 49, 40, 0.45)",
+      "disabledBackground": "rgba(51, 165, 90, 0.06)"
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(90deg, #33A55A 0%, #9AD97B 100%)",
+      "brandVertical": "linear-gradient(0deg, #33A55A 0%, #9AD97B 100%)"
+    }
+  }
+}

@@ -11,6 +11,7 @@ var themes = []ThemeDTO{
 	{ID: "desertbloom", Type: "light", IsExtra: true},
 	{ID: "gildedgrove", Type: "dark", IsExtra: true},
 	{ID: "gloom", Type: "dark", IsExtra: true},
+	{ID: "green", Type: "light", IsExtra: true},
 	{ID: "mars", Type: "dark", IsExtra: true},
 	{ID: "matrix", Type: "dark", IsExtra: true},
 	{ID: "orange", Type: "light", IsExtra: true},

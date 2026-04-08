@@ -7,6 +7,7 @@ export function getSelectableThemes() {
   if (config.featureToggles.grafanaconThemes) {
     allowedExtraThemes.push('desertbloom');
     allowedExtraThemes.push('gildedgrove');
+    allowedExtraThemes.push('green');
     allowedExtraThemes.push('sapphiredusk');
     allowedExtraThemes.push('tron');
     allowedExtraThemes.push('gloom');

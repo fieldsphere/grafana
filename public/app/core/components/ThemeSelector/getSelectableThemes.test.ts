@@ -24,7 +24,7 @@ describe('getSelectableThemes', () => {
     jest.clearAllMocks();
   });
 
-  it('includes the orange theme when grafanacon themes are enabled', () => {
+  it('includes the green theme when grafanacon themes are enabled', () => {
     config.featureToggles.grafanaconThemes = true;
 
     getSelectableThemes();
@@ -32,6 +32,7 @@ describe('getSelectableThemes', () => {
     expect(getBuiltInThemes).toHaveBeenCalledWith([
       'desertbloom',
       'gildedgrove',
+      'green',
       'sapphiredusk',
       'tron',
       'gloom',

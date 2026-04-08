@@ -5,6 +5,7 @@ import aubergine from './themeDefinitions/aubergine.json';
 import debug from './themeDefinitions/debug.json';
 import desertbloom from './themeDefinitions/desertbloom.json';
 import gildedgrove from './themeDefinitions/gildedgrove.json';
+import green from './themeDefinitions/green.json';
 import gloom from './themeDefinitions/gloom.json';
 import mars from './themeDefinitions/mars.json';
 import matrix from './themeDefinitions/matrix.json';
@@ -26,6 +27,7 @@ const extraThemes: { [key: string]: unknown } = {
   debug,
   desertbloom,
   gildedgrove,
+  green,
   gloom,
   mars,
   matrix,
