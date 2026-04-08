@@ -179,7 +179,8 @@ func TestBuildLabsNavLink(t *testing.T) {
 				UserID: 1,
 				OrgID:  1,
 			},
-			Context: &web.Context{Req: httpReq},
+			IsSignedIn: true,
+			Context:    &web.Context{Req: httpReq},
 		}
 
 		service := ServiceImpl{cfg: setting.NewCfg()}
