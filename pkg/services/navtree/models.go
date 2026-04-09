@@ -31,6 +31,7 @@ const (
 	WeightApplication
 	WeightAsserts
 	WeightDataConnections
+	WeightLabs
 	WeightApps
 	WeightPlugin
 	WeightConfig
@@ -51,6 +52,7 @@ const (
 	NavIDObservability        = "observability"
 	NavIDInfrastructure       = "infrastructure"
 	NavIDReporting            = "reports"
+	NavIDLabs                 = "labs"
 	NavIDApps                 = "apps"
 	NavIDCfgGeneral           = "cfg/general"
 	NavIDCfgPlugins           = "cfg/plugins"
