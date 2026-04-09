@@ -41,6 +41,9 @@ func TestIntegrationListIter(t *testing.T) {
 
 	dialect := sqltemplate.DialectForDriver(resourceDB.DriverName())
 
+	const listGroup = "group-shared"
+	const listResource = "resource-shared"
+
 	testData := []struct {
 		guid            string
 		resourceVersion int64
@@ -55,8 +58,8 @@ func TestIntegrationListIter(t *testing.T) {
 			guid:            "guid-1",
 			resourceVersion: 100,
 			namespace:       "namespace-1",
-			resource:        "resource-1",
-			group:           "group-1",
+			resource:        listResource,
+			group:           listGroup,
 			name:            "name-1",
 			folder:          "folder-1",
 			value:           []byte(`{"test":"value-1"}`),
@@ -65,8 +68,8 @@ func TestIntegrationListIter(t *testing.T) {
 			guid:            "guid-2",
 			resourceVersion: 200,
 			namespace:       "namespace-2",
-			resource:        "resource-2",
-			group:           "group-2",
+			resource:        listResource,
+			group:           listGroup,
 			name:            "name-2",
 			folder:          "folder-2",
 			value:           []byte(`{"test":"value-2"}`),
@@ -128,10 +131,14 @@ func TestIntegrationListIter(t *testing.T) {
 	})
 	require.NoError(t, err)
 
+	listKey := &resourcepb.ResourceKey{Group: listGroup, Resource: listResource}
+
 	t.Run("Next() iterates through results", func(t *testing.T) {
 		listReq := sqlResourceListRequest{
 			SQLTemplate: sqltemplate.New(dialect),
-			Request:     new(resourcepb.ListRequest),
+			Request: &resourcepb.ListRequest{
+				Options: &resourcepb.ListOptions{Key: listKey},
+			},
 		}
 		rows, err := dbutil.QueryRows(ctx, resourceDB, sqlResourceList, listReq)
 		require.NoError(t, err)
@@ -148,8 +155,8 @@ func TestIntegrationListIter(t *testing.T) {
 		require.Equal(t, "guid-1", iter.guid)
 		require.Equal(t, int64(100), iter.ResourceVersion())
 		require.Equal(t, "namespace-1", iter.Namespace())
-		require.Equal(t, "resource-1", iter.resource)
-		require.Equal(t, "group-1", iter.group)
+		require.Equal(t, listResource, iter.resource)
+		require.Equal(t, listGroup, iter.group)
 		require.Equal(t, "name-1", iter.Name())
 		require.Equal(t, "folder-1", iter.Folder())
 		require.Equal(t, []byte(`{"test":"value-1"}`), iter.Value())
@@ -160,8 +167,8 @@ func TestIntegrationListIter(t *testing.T) {
 		require.Equal(t, "guid-2", iter.guid)
 		require.Equal(t, int64(200), iter.ResourceVersion())
 		require.Equal(t, "namespace-2", iter.Namespace())
-		require.Equal(t, "resource-2", iter.resource)
-		require.Equal(t, "group-2", iter.group)
+		require.Equal(t, listResource, iter.resource)
+		require.Equal(t, listGroup, iter.group)
 		require.Equal(t, "name-2", iter.Name())
 		require.Equal(t, "folder-2", iter.Folder())
 		require.Equal(t, []byte(`{"test":"value-2"}`), iter.Value())
@@ -177,8 +184,9 @@ func TestIntegrationListIter(t *testing.T) {
 			Request: &resourcepb.ListRequest{
 				Options: &resourcepb.ListOptions{
 					Key: &resourcepb.ResourceKey{
-						// Add a filter for a namespace that doesn't exist.
 						Namespace: "non-existent-namespace",
+						Group:     listGroup,
+						Resource:  listResource,
 					},
 				},
 			},
@@ -199,7 +207,9 @@ func TestIntegrationListIter(t *testing.T) {
 	t.Run("ContinueToken returns encoded token", func(t *testing.T) {
 		listReq := sqlResourceListRequest{
 			SQLTemplate: sqltemplate.New(dialect),
-			Request:     new(resourcepb.ListRequest),
+			Request: &resourcepb.ListRequest{
+				Options: &resourcepb.ListOptions{Key: listKey},
+			},
 		}
 
 		rows, err := dbutil.QueryRows(ctx, resourceDB, sqlResourceList, listReq)
@@ -234,7 +244,9 @@ func TestIntegrationListIter(t *testing.T) {
 	t.Run("ContinueToken uses the current row's RV", func(t *testing.T) {
 		listReq := sqlResourceListRequest{
 			SQLTemplate: sqltemplate.New(dialect),
-			Request:     new(resourcepb.ListRequest),
+			Request: &resourcepb.ListRequest{
+				Options: &resourcepb.ListOptions{Key: listKey},
+			},
 		}
 
 		rows, err := dbutil.QueryRows(ctx, resourceDB, sqlResourceList, listReq)
