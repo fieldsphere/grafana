@@ -166,6 +166,7 @@ func (hs *HTTPServer) registerRoutes() {
 	r.Get("/connections/datasources/edit/*", authorize(datasources.EditPageAccess), hs.Index)
 	r.Get("/connections", authorize(datasources.ConfigurationPageAccess), hs.Index)
 	r.Get("/connections/add-new-connection", authorize(datasources.ConfigurationPageAccess), hs.Index)
+	r.Get("/labs", reqSignedIn, hs.Index)
 	// Plugin details pages
 	r.Get("/connections/datasources/:id", middleware.CanAdminPlugins(hs.Cfg, hs.AccessControl), hs.Index)
 	r.Get("/connections/datasources/:id/page/:page", middleware.CanAdminPlugins(hs.Cfg, hs.AccessControl), hs.Index)
@@ -330,6 +331,8 @@ func (hs *HTTPServer) registerRoutes() {
 			orgRoute.Get("/", authorize(ac.EvalPermission(ac.ActionOrgsRead)), routing.Wrap(hs.GetCurrentOrg))
 			orgRoute.Get("/quotas", authorize(ac.EvalPermission(ac.ActionOrgsQuotasRead)), routing.Wrap(hs.GetCurrentOrgQuotas))
 		})
+
+		apiRoute.Get("/labs/feature-toggles", authorize(ac.EvalPermission(ac.ActionFeatureManagementRead)), routing.Wrap(hs.GetLabsFeatureToggles))
 
 		//nolint:staticcheck // not yet migrated to OpenFeature
 		if hs.Features.IsEnabledGlobally(featuremgmt.FlagStorage) {

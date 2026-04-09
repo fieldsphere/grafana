@@ -164,6 +164,18 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		treeRoot.AddSection(connectionsSection)
 	}
 
+	if c.IsSignedIn && hasAccess(ac.EvalPermission(ac.ActionFeatureManagementRead)) {
+		treeRoot.AddSection(&navtree.NavLink{
+			Text:       "Labs",
+			Id:         navtree.NavIDLabs,
+			SubTitle:   "Browse active and available feature flags",
+			Icon:       "flask",
+			Url:        s.cfg.AppSubURL + "/labs",
+			SortWeight: navtree.WeightLabs,
+			IsNew:      true,
+		})
+	}
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {
