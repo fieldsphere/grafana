@@ -374,6 +374,21 @@ func TestAddAppLinks(t *testing.T) {
 		require.Len(t, app3Node.Children, 1) // It should only have a single child now
 		require.Equal(t, "Random page", app3Node.Children[0].Text)
 	})
+
+	t.Run("Should add Labs section for feature management readers", func(t *testing.T) {
+		labsService := ServiceImpl{
+			cfg:           setting.NewCfg(),
+			accessControl: accesscontrolmock.New().WithPermissions([]ac.Permission{{Action: ac.ActionFeatureManagementRead, Scope: "*"}}),
+			features:      featuremgmt.WithFeatures(),
+		}
+
+		labsNode := labsService.buildLabsNavLink(reqCtx)
+		require.NotNil(t, labsNode)
+		require.Equal(t, navtree.NavIDLabs, labsNode.Id)
+		require.Equal(t, "Labs", labsNode.Text)
+		require.Equal(t, "/labs", labsNode.Url)
+		require.True(t, labsNode.IsNew)
+	})
 }
 
 func TestReadingNavigationSettings(t *testing.T) {
