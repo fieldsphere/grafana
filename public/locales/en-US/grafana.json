@@ -13064,10 +13064,12 @@
       "pr-workflow-label": "Enable pull request option when saving",
       "token-description": "Bitbucket API Token with repository permissions",
       "token-label": "API Token",
+      "token-placeholder": "ATATTxxxxxxxxxxxxxxxx",
       "token-required": "Bitbucket token is required",
       "token-user-description": "The username that will be used to access the repository with the API token",
       "token-user-required": "Username is required",
       "url-description": "The Bitbucket repository URL",
+      "url-placeholder": "https://bitbucket.org/owner/repository",
       "url-required": "Repository URL is required"
     },
     "bootstrap-step": {
@@ -13350,10 +13352,12 @@
       "pr-workflow-label": "Enable pull request option when saving",
       "token-description": "Git repository access token or password",
       "token-label": "Access Token",
+      "token-placeholder": "token or password",
       "token-required": "Git token is required",
       "token-user-description": "The username that will be used to access the repository with the access token",
       "url-description": "The Git repository URL. Most servers require the URL to end with .git (e.g. https://host/owner/repo.git).",
       "url-pattern": "Must be a valid Git repository URL",
+      "url-placeholder": "https://git.example.com/owner/repository.git",
       "url-required": "Repository URL is required"
     },
     "github": {
@@ -13362,8 +13366,10 @@
       "pr-workflow-label": "Enable pull request option when saving",
       "token-description": "GitHub Personal Access Token with repository permissions",
       "token-label": "Personal Access Token",
+      "token-placeholder": "ghp_xxxxxxxxxxxxxxxxxxxx",
       "token-required": "GitHub token is required",
       "url-description": "The GitHub repository URL",
+      "url-placeholder": "https://github.com/owner/repository",
       "url-required": "Repository URL is required"
     },
     "gitlab": {
@@ -13380,8 +13386,10 @@
       "pr-workflow-label": "Enable merge request option when saving",
       "token-description": "GitLab Project Access Token with repository permissions",
       "token-label": "Project Access Token",
+      "token-placeholder": "glpat-xxxxxxxxxxxxxxxxxxx",
       "token-required": "GitLab token is required",
       "url-description": "The GitLab repository URL",
+      "url-placeholder": "https://gitlab.com/owner/repository",
       "url-required": "Repository URL is required"
     },
     "history-view": {
@@ -13431,6 +13439,7 @@
     "local": {
       "path-description": "Local file system path to the repository",
       "path-label": "Repository Path",
+      "path-placeholder": "/path/to/repository",
       "path-required": "Repository path is required"
     },
     "managed-by-repository-tooltip": "Managed by: Repository",
@@ -13662,12 +13671,14 @@
     "shared": {
       "branch-description": "The branch to use for provisioning",
       "branch-label": "Branch",
+      "branch-placeholder": "main",
       "path-description": "Optional. Path to the subdirectory with the resources you want to sync.",
       "path-label": "Path",
       "progress-bar": {
         "aria-label": "Progress Bar"
       },
       "token-user-label": "Username",
+      "token-user-placeholder": "username",
       "url-label": "Repository URL",
       "url-pattern": "Must be a valid repository URL (https://hostname/owner/repo)"
     },
