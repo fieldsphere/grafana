@@ -1,0 +1,64 @@
+{
+  "name": "Ocean blue",
+  "id": "oceanblue",
+  "colors": {
+    "mode": "dark",
+    "text": {
+      "primary": "#E0F0FF",
+      "secondary": "#8CB8D9",
+      "disabled": "#4A6A82",
+      "link": "#5EC4D4",
+      "maxContrast": "#FFFFFF"
+    },
+    "border": {
+      "weak": "#1A3A5C",
+      "medium": "#245080",
+      "strong": "#3070A0"
+    },
+    "primary": {
+      "main": "#2196F3",
+      "text": "#64B5F6",
+      "border": "#2196F3"
+    },
+    "secondary": {
+      "main": "#1A3050",
+      "text": "#8CB8D9"
+    },
+    "info": {
+      "main": "#29B6F6",
+      "text": "#81D4FA"
+    },
+    "error": {
+      "main": "#EF5350"
+    },
+    "success": {
+      "main": "#26A69A"
+    },
+    "warning": {
+      "main": "#FFA726"
+    },
+    "background": {
+      "canvas": "#0A1929",
+      "primary": "#0D2137",
+      "secondary": "#132F4C",
+      "elevated": "#132F4C"
+    },
+    "action": {
+      "hover": "#1A3A5C",
+      "selected": "#1E4976",
+      "selectedBorder": "#2196F3",
+      "focus": "#1A3A5C",
+      "hoverOpacity": 0.08,
+      "disabledText": "#4A6A82",
+      "disabledBackground": "rgba(26, 58, 92, 0.2)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #0288D1 0%, #26C6DA 100%)",
+      "brandVertical": "linear-gradient(0deg, #0288D1 0%, #26C6DA 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.03,
+    "tonalOffset": 0.15
+  }
+}
