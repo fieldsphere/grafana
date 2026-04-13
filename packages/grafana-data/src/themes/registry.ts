@@ -1,5 +1,6 @@
 import { Registry, type RegistryItem } from '../utils/Registry';
 
+import amethyst from './themeDefinitions/amethyst.json';
 import { createTheme, NewThemeOptionsSchema } from './createTheme';
 import aubergine from './themeDefinitions/aubergine.json';
 import debug from './themeDefinitions/debug.json';
@@ -25,6 +26,7 @@ export interface ThemeRegistryItem extends RegistryItem {
 }
 
 const extraThemes: { [key: string]: unknown } = {
+  amethyst,
   aubergine,
   debug,
   desertbloom,
