@@ -14,6 +14,7 @@ import { getRoutes as getDataConnectionsRoutes } from 'app/features/connections/
 import { DASHBOARD_LIBRARY_ROUTES } from 'app/features/dashboard/dashgrid/types';
 import { DATASOURCES_ROUTES } from 'app/features/datasources/constants';
 import { ConfigureIRM } from 'app/features/gops/configuration-tracker/components/ConfigureIRM';
+import { LabsPage } from 'app/features/labs/LabsPage';
 import { getRoutes as getPluginCatalogRoutes } from 'app/features/plugins/admin/routes';
 import { getAppPluginRoutes } from 'app/features/plugins/routes';
 import { getProfileRoutes } from 'app/features/profile/routes';
@@ -245,6 +246,16 @@ export function getAppRoutes(): RouteDescriptor[] {
     {
       path: '/admin/access',
       component: () => <NavLandingPage navId="cfg/access" />,
+    },
+    {
+      path: '/labs',
+      roles: () => contextSrv.evaluatePermission([AccessControlAction.FeatureManagementRead]),
+      component: () => <NavLandingPage navId="labs" />,
+    },
+    {
+      path: '/labs/feature-toggles',
+      roles: () => contextSrv.evaluatePermission([AccessControlAction.FeatureManagementRead]),
+      component: LabsPage,
     },
     {
       path: '/org',
