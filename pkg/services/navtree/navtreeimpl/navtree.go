@@ -164,6 +164,10 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		treeRoot.AddSection(connectionsSection)
 	}
 
+	if labsSection := s.buildLabsNavLink(c); labsSection != nil {
+		treeRoot.AddSection(labsSection)
+	}
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {
@@ -651,4 +655,31 @@ func (s *ServiceImpl) buildDataConnectionsNavLink(c *contextmodel.ReqContext) *n
 		return navLink
 	}
 	return nil
+}
+
+func (s *ServiceImpl) buildLabsNavLink(c *contextmodel.ReqContext) *navtree.NavLink {
+	hasAccess := ac.HasAccess(s.accessControl, c)
+	if !hasAccess(ac.EvalPermission(ac.ActionFeatureManagementRead)) {
+		return nil
+	}
+
+	baseURL := s.cfg.AppSubURL + "/labs"
+	return &navtree.NavLink{
+		Text:       "Labs",
+		SubTitle:   "Experiment with runtime feature flags in your current browser session",
+		Icon:       "flask",
+		Id:         "labs",
+		Url:        baseURL,
+		IsNew:      true,
+		SortWeight: navtree.WeightConfig - 1,
+		Children: []*navtree.NavLink{
+			{
+				Id:       "labs-feature-toggles",
+				Text:     "Feature toggles",
+				SubTitle: "View enabled flags and override them for this browser session",
+				Icon:     "toggle-on",
+				Url:      baseURL + "/feature-toggles",
+			},
+		},
+	}
 }

@@ -374,6 +374,30 @@ func TestAddAppLinks(t *testing.T) {
 		require.Len(t, app3Node.Children, 1) // It should only have a single child now
 		require.Equal(t, "Random page", app3Node.Children[0].Text)
 	})
+
+	t.Run("Should register a Labs section for users with feature management read access", func(t *testing.T) {
+		service.navigationAppConfig = map[string]NavigationAppConfig{}
+		userWithFeatureRead := &contextmodel.ReqContext{
+			SignedInUser: &user.SignedInUser{
+				OrgID: 1,
+				Permissions: map[int64]map[string][]string{
+					1: {
+						ac.ActionFeatureManagementRead: {ac.Scope("featuremgmt", "*")},
+					},
+				},
+			},
+			Context: &web.Context{Req: httpReq},
+		}
+
+		labsNode := service.buildLabsNavLink(userWithFeatureRead)
+		require.NotNil(t, labsNode)
+		require.Equal(t, "Labs", labsNode.Text)
+		require.Equal(t, "labs", labsNode.Id)
+		require.True(t, labsNode.IsNew)
+		require.Len(t, labsNode.Children, 1)
+		require.Equal(t, "labs-feature-toggles", labsNode.Children[0].Id)
+		require.Equal(t, "/labs/feature-toggles", labsNode.Children[0].Url)
+	})
 }
 
 func TestReadingNavigationSettings(t *testing.T) {
