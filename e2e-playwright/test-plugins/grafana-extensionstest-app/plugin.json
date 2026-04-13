@@ -42,6 +42,14 @@
       "role": "Admin",
       "addToNav": true,
       "defaultNav": false
+    },
+    {
+      "type": "page",
+      "name": "Ticker workspace",
+      "path": "/a/grafana-extensionstest-app/ticker-workspace",
+      "role": "Admin",
+      "addToNav": true,
+      "defaultNav": false
     }
   ],
   "extensions": {

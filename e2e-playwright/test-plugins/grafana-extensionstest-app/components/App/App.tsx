@@ -3,7 +3,7 @@ import { Route, Routes } from 'react-router-dom';
 import { AppRootProps } from '@grafana/data';
 
 import { ROUTES } from '../../constants';
-import { AddedComponents, AddedLinks, Config, ExposedComponents } from '../../pages';
+import { AddedComponents, AddedLinks, Config, ExposedComponents, TickerWorkspace } from '../../pages';
 import { testIds } from '../../testIds';
 
 export function App(props: AppRootProps) {
@@ -14,6 +14,7 @@ export function App(props: AppRootProps) {
         <Route path={ROUTES.AddedComponents} element={<AddedComponents />} />
         <Route path={ROUTES.AddedLinks} element={<AddedLinks />} />
         <Route path={ROUTES.Config} element={<Config />} />
+        <Route path={ROUTES.TickerWorkspace} element={<TickerWorkspace />} />
 
         <Route path={'*'} element={<ExposedComponents />} />
       </Routes>
