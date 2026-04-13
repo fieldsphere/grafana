@@ -139,7 +139,7 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 ### Prerequisites
 
 - **Node.js v24.x** (see `.nvmrc` for exact version). Use `nvm install` / `nvm use` to match.
-- **Go 1.25.7** (see `go.mod`). Pre-installed in the VM.
+- **Go 1.25.9** (see `go.mod`). Pre-installed in the VM.
 - **Yarn 4.11.0** via corepack (bundled in `.yarn/releases/`). Run `corepack enable` if `yarn` is not found.
 - **GCC** required for CGo/SQLite compilation of the backend.
 
@@ -153,4 +153,5 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 
 - **Frontend tests**: The `yarn test` script includes `--watch` by default. Always use `yarn jest --no-watch` or add `--watchAll=false` to run tests once and exit.
 - **Backend tests**: Some packages (e.g. `pkg/api/`) have slow test compilation (~2 min) due to large dependency graphs. Use targeted test runs with `-run TestName` where possible.
+- **Go linter**: `make lint-go` runs the full suite and takes ~13 minutes. Prefer targeted lint checks when possible.
 - All standard build/test/lint commands are documented in the Commands section above.
