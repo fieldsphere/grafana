@@ -16,6 +16,7 @@ import tritanopia_dark from './themeDefinitions/tritanopia_dark.json';
 import tritanopia_light from './themeDefinitions/tritanopia_light.json';
 import tron from './themeDefinitions/tron.json';
 import victorian from './themeDefinitions/victorian.json';
+import warmember from './themeDefinitions/warmember.json';
 import zen from './themeDefinitions/zen.json';
 import { type GrafanaTheme2 } from './types';
 
@@ -40,6 +41,7 @@ const extraThemes: { [key: string]: unknown } = {
   tritanopia_light,
   tron,
   victorian,
+  warmember,
   zen,
 };
 
