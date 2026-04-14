@@ -25,6 +25,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.create-alert.title', 'New alert rule');
     case 'bookmarks':
       return t('nav.bookmarks.title', 'Bookmarks');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'bookmarks-empty':
       return t('nav.bookmarks-empty.title', 'Bookmark pages for them to appear here');
     case 'starred':
@@ -290,6 +292,8 @@ export function getNavSubTitle(navId: string | undefined) {
         'nav.admin.subtitle',
         'Manage server-wide settings and access to resources such as organizations, users, and licenses'
       );
+    case 'labs':
+      return t('nav.labs.subtitle', 'Preview feature toggles available in this Grafana instance');
     case 'cfg/general':
       return t('nav.config-general.subtitle', 'Manage default preferences and settings across Grafana');
     case 'cfg/plugins':

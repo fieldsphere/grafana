@@ -216,6 +216,8 @@ func (hs *HTTPServer) registerRoutes() {
 
 	r.Get("/explore", authorize(ac.EvalPermission(ac.ActionDatasourcesExplore)), hs.Index)
 	r.Get("/drilldown", authorize(ac.EvalPermission(ac.ActionDatasourcesExplore)), hs.Index)
+	r.Get("/bookmarks", reqSignedIn, hs.Index)
+	r.Get("/labs", reqSignedIn, hs.Index)
 
 	r.Get("/playlists/", reqSignedIn, hs.Index)
 	r.Get("/playlists/*", reqSignedIn, hs.Index)
