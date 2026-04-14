@@ -93,6 +93,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.alerts-recently-deleted.title', 'Recently deleted');
     case 'cfg':
       return t('nav.config.title', 'Administration');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'cfg/general':
       return t('nav.config-general.title', 'General');
     case 'cfg/plugins':
@@ -296,6 +298,8 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.config-plugins.subtitle', 'Install plugins and define the relationships between data');
     case 'cfg/access':
       return t('nav.config-access.subtitle', 'Configure access for individual users, teams, and service accounts');
+    case 'labs':
+      return t('nav.labs.subtitle', 'Feature flags registered in this Grafana build');
     case 'apps':
       return t('nav.apps.subtitle', 'App plugins that extend the Grafana experience');
     case 'monitoring':
