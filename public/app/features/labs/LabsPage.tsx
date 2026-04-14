@@ -36,6 +36,7 @@ export default function LabsPage() {
       const data = await getBackendSrv().get<FeatureFlagRegistryRow[]>('/api/user/feature-flags/registry');
       setRows(data);
     } catch (e) {
+      setRows([]);
       setError(e instanceof Error ? e : new Error(String(e)));
     }
   }, []);
