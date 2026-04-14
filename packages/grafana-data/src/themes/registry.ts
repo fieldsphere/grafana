@@ -10,6 +10,7 @@ import gildedgrove from './themeDefinitions/gildedgrove.json';
 import gloom from './themeDefinitions/gloom.json';
 import mars from './themeDefinitions/mars.json';
 import matrix from './themeDefinitions/matrix.json';
+import amethyst from './themeDefinitions/amethyst.json';
 import sapphiredusk from './themeDefinitions/sapphiredusk.json';
 import synthwave from './themeDefinitions/synthwave.json';
 import tritanopia_dark from './themeDefinitions/tritanopia_dark.json';
@@ -25,6 +26,7 @@ export interface ThemeRegistryItem extends RegistryItem {
 }
 
 const extraThemes: { [key: string]: unknown } = {
+  amethyst,
   aubergine,
   debug,
   desertbloom,
