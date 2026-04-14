@@ -36,7 +36,12 @@ func (hs *HTTPServer) GetFeatureFlagsRegistry(c *contextmodel.ReqContext) respon
 	})
 
 	out := make([]featureFlagRegistryEntry, 0, len(flags))
+	isGrafanaAdmin := c.SignedInUser != nil && c.SignedInUser.GetIsGrafanaAdmin()
 	for _, f := range flags {
+		if !isGrafanaAdmin && (f.HideFromDocs || f.RequiresDevMode) {
+			continue
+		}
+
 		out = append(out, featureFlagRegistryEntry{
 			Name:            f.Name,
 			Description:     f.Description,

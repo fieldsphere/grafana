@@ -10,6 +10,7 @@ import (
 
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/user"
 	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
@@ -31,12 +32,37 @@ func TestHTTPServer_GetFeatureFlagsRegistry(t *testing.T) {
 	hs := &HTTPServer{Cfg: cfg, Features: fm}
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	c := &contextmodel.ReqContext{
-		Context: &web.Context{Req: req},
+		Context:      &web.Context{Req: req},
+		SignedInUser: &user.SignedInUser{},
 	}
 
 	resp := hs.GetFeatureFlagsRegistry(c)
+	body := string(resp.Body())
+
 	require.Equal(t, http.StatusOK, resp.Status())
-	require.Contains(t, string(resp.Body()), `"name":"panelTitleSearch"`)
+	require.Contains(t, body, `"name":"panelTitleSearch"`)
+	require.NotContains(t, body, `"name":"publicDashboardsEmailSharing"`)
+	require.NotContains(t, body, `"name":"liveAPIServer"`)
+}
+
+func TestHTTPServer_GetFeatureFlagsRegistry_grafanaAdminIncludesHiddenFlags(t *testing.T) {
+	cfg := setting.NewCfg()
+	fm, err := featuremgmt.ProvideManagerService(cfg)
+	require.NoError(t, err)
+
+	hs := &HTTPServer{Cfg: cfg, Features: fm}
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	c := &contextmodel.ReqContext{
+		Context:      &web.Context{Req: req},
+		SignedInUser: &user.SignedInUser{IsGrafanaAdmin: true},
+	}
+
+	resp := hs.GetFeatureFlagsRegistry(c)
+	body := string(resp.Body())
+
+	require.Equal(t, http.StatusOK, resp.Status())
+	require.Contains(t, body, `"name":"publicDashboardsEmailSharing"`)
+	require.Contains(t, body, `"name":"liveAPIServer"`)
 }
 
 func TestHTTPServer_GetFeatureFlagsRegistry_wrongFeatureTogglesType(t *testing.T) {

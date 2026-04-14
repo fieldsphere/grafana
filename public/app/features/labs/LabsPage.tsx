@@ -50,28 +50,23 @@ export default function LabsPage() {
       {
         id: 'name',
         header: t('labs-page.column-name', 'Name'),
-        accessorKey: 'name',
       },
       {
         id: 'enabled',
         header: t('labs-page.column-enabled', 'Enabled'),
-        accessorKey: 'enabled',
         cell: EnabledCell,
       },
       {
         id: 'stage',
         header: t('labs-page.column-stage', 'Stage'),
-        accessorKey: 'stage',
       },
       {
         id: 'description',
         header: t('labs-page.column-description', 'Description'),
-        accessorKey: 'description',
       },
       {
         id: 'expression',
         header: t('labs-page.column-expression', 'Default expression'),
-        accessorKey: 'expression',
       },
     ],
     []
