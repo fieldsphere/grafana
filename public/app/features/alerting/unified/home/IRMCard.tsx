@@ -16,6 +16,7 @@ export default function IRMCard() {
       )}
       href={LINK}
       logoUrl={irmSvg}
+      buttonVariant="success"
       items={[
         t('alerting.home.irm-card-item-1', 'Manage on-call schedules with your calendar or Terraform.'),
         t('alerting.home.irm-card-item-2', 'Respond to incidents via web, app, Slack, or other channels.'),
