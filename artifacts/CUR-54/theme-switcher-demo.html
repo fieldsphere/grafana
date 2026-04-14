@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CUR-54 Theme Switcher Demo</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        transition: background-color 200ms ease, color 200ms ease;
+      }
+
+      .layout {
+        min-height: 100vh;
+        display: grid;
+        grid-template-columns: 320px 1fr;
+      }
+
+      .sidebar {
+        border-right: 1px solid;
+        padding: 20px;
+      }
+
+      .title {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+
+      .subtitle {
+        margin: 0 0 16px;
+        font-size: 13px;
+        opacity: 0.8;
+      }
+
+      .theme-option {
+        width: 100%;
+        border: 1px solid;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 10px;
+        text-align: left;
+        cursor: pointer;
+        background: transparent;
+      }
+
+      .theme-option.active {
+        outline: 2px solid;
+        outline-offset: 1px;
+      }
+
+      .badge {
+        display: inline-block;
+        border: 1px solid;
+        border-radius: 12px;
+        padding: 2px 8px;
+        font-size: 11px;
+        margin-left: 6px;
+      }
+
+      .content {
+        padding: 24px;
+      }
+
+      .card {
+        border: 1px solid;
+        border-radius: 10px;
+        padding: 16px;
+        max-width: 860px;
+      }
+
+      .actions {
+        margin-top: 14px;
+        display: flex;
+        gap: 8px;
+      }
+
+      .btn {
+        border: 1px solid;
+        border-radius: 6px;
+        padding: 8px 12px;
+        background: transparent;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <aside class="sidebar">
+        <h1 class="title">Change theme</h1>
+        <p class="subtitle">CUR-54: add amethyst theme in switcher</p>
+        <button class="theme-option" data-theme="dark">Dark</button>
+        <button class="theme-option" data-theme="amethyst">
+          Amethyst <span class="badge">Experimental</span>
+        </button>
+      </aside>
+      <main class="content">
+        <div class="card">
+          <h2 id="heading">Grafana dashboard preview</h2>
+          <p>
+            This preview demonstrates that <strong>amethyst</strong> is available as a selectable theme option in the
+            theme switcher.
+          </p>
+          <p id="current-theme-label"></p>
+          <div class="actions">
+            <button class="btn" id="primary-action">Create alert rule</button>
+            <button class="btn" id="secondary-action">Open dashboard settings</button>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script>
+      const themes = {
+        dark: {
+          name: 'Dark',
+          background: '#111217',
+          surface: '#191b22',
+          border: '#2f3442',
+          textPrimary: '#f6f7fb',
+          textSecondary: '#b8c0d9',
+          accent: '#4f8eff',
+          accentText: '#0e1527',
+        },
+        amethyst: {
+          name: 'Amethyst',
+          background: '#1a1426',
+          surface: '#20192f',
+          border: '#4e3f6c',
+          textPrimary: '#f4eeff',
+          textSecondary: '#d2c3f6',
+          accent: '#aa7cff',
+          accentText: '#180f26',
+        },
+      };
+
+      const optionButtons = Array.from(document.querySelectorAll('.theme-option'));
+      const currentThemeLabel = document.getElementById('current-theme-label');
+      const primaryAction = document.getElementById('primary-action');
+      const secondaryAction = document.getElementById('secondary-action');
+      const sidebar = document.querySelector('.sidebar');
+      const card = document.querySelector('.card');
+      const badge = document.querySelector('.badge');
+
+      function applyTheme(themeId) {
+        const theme = themes[themeId];
+
+        document.body.style.backgroundColor = theme.background;
+        document.body.style.color = theme.textPrimary;
+        sidebar.style.borderColor = theme.border;
+        card.style.borderColor = theme.border;
+        card.style.backgroundColor = theme.surface;
+        currentThemeLabel.textContent = `Current selected theme: ${theme.name}`;
+        currentThemeLabel.style.color = theme.textSecondary;
+
+        optionButtons.forEach((button) => {
+          const active = button.dataset.theme === themeId;
+          button.classList.toggle('active', active);
+          button.style.borderColor = theme.border;
+          button.style.color = theme.textPrimary;
+          button.style.outlineColor = theme.accent;
+          button.style.backgroundColor = active ? `${theme.accent}26` : 'transparent';
+        });
+
+        primaryAction.style.borderColor = theme.accent;
+        primaryAction.style.backgroundColor = theme.accent;
+        primaryAction.style.color = theme.accentText;
+
+        secondaryAction.style.borderColor = theme.border;
+        secondaryAction.style.color = theme.textPrimary;
+        badge.style.borderColor = theme.accent;
+        badge.style.color = theme.accent;
+      }
+
+      optionButtons.forEach((button) => {
+        button.addEventListener('click', () => applyTheme(button.dataset.theme));
+      });
+
+      applyTheme('dark');
+    </script>
+  </body>
+</html>
