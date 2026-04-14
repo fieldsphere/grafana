@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/grafana/grafana/pkg/infra/log"
 )
@@ -20,6 +21,9 @@ type FeatureManager struct {
 	startup  map[string]bool   // the explicit values registered at startup
 	warnings map[string]string // potential warnings about the flag
 	log      log.Logger
+
+	mu          sync.RWMutex
+	labOverride map[string]bool // instance-wide overrides from Labs (DB)
 }
 
 // This will merge the flags with the current configuration
@@ -59,7 +63,9 @@ func (fm *FeatureManager) registerFlags(flags ...FeatureFlag) {
 	}
 
 	// This will evaluate all flags
-	fm.update()
+	fm.mu.Lock()
+	fm.updateLocked()
+	fm.mu.Unlock()
 }
 
 // meetsRequirements checks if grafana is able to run the given feature due to dev mode or licensing requirements
@@ -73,6 +79,12 @@ func (fm *FeatureManager) meetsRequirements(ff *FeatureFlag) (bool, string) {
 
 // Update
 func (fm *FeatureManager) update() {
+	fm.mu.Lock()
+	defer fm.mu.Unlock()
+	fm.updateLocked()
+}
+
+func (fm *FeatureManager) updateLocked() {
 	enabled := make(map[string]bool)
 	for _, flag := range fm.flags {
 		// if grafana cannot run the feature, omit metrics around it
@@ -91,24 +103,55 @@ func (fm *FeatureManager) update() {
 			enabled[flag.Name] = true
 		}
 
+		if ov, hasLab := fm.labOverride[flag.Name]; hasLab {
+			if ov {
+				track = 1
+				enabled[flag.Name] = true
+			} else {
+				track = 0
+				delete(enabled, flag.Name)
+			}
+		}
+
 		// Register value with prometheus metric
 		featureToggleInfo.WithLabelValues(flag.Name).Set(track)
 	}
 	fm.enabled = enabled
 }
 
+// SetLabOverrides replaces in-memory Labs overrides and recomputes enabled flags.
+func (fm *FeatureManager) SetLabOverrides(overrides map[string]bool) {
+	fm.mu.Lock()
+	defer fm.mu.Unlock()
+	if overrides == nil {
+		fm.labOverride = nil
+	} else {
+		fm.labOverride = make(map[string]bool, len(overrides))
+		for k, v := range overrides {
+			fm.labOverride[k] = v
+		}
+	}
+	fm.updateLocked()
+}
+
 // IsEnabled checks if a feature is enabled
 func (fm *FeatureManager) IsEnabled(ctx context.Context, flag string) bool {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
 	return fm.enabled[flag]
 }
 
 // IsEnabledGlobally checks if a feature is for all tenants
 func (fm *FeatureManager) IsEnabledGlobally(flag string) bool {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
 	return fm.enabled[flag]
 }
 
 // GetEnabled returns a map containing only the features that are enabled
 func (fm *FeatureManager) GetEnabled(ctx context.Context) map[string]bool {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
 	enabled := make(map[string]bool, len(fm.enabled))
 	for key, val := range fm.enabled {
 		if val {
@@ -120,11 +163,40 @@ func (fm *FeatureManager) GetEnabled(ctx context.Context) map[string]bool {
 
 // GetFlags returns all flag definitions
 func (fm *FeatureManager) GetFlags() []FeatureFlag {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
 	v := make([]FeatureFlag, 0, len(fm.flags))
 	for _, value := range fm.flags {
 		v = append(v, *value)
 	}
 	return v
+}
+
+// LabOverrides returns a copy of current Labs DB override map.
+func (fm *FeatureManager) LabOverrides() map[string]bool {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
+	if len(fm.labOverride) == 0 {
+		return nil
+	}
+	out := make(map[string]bool, len(fm.labOverride))
+	for k, v := range fm.labOverride {
+		out[k] = v
+	}
+	return out
+}
+
+// WarnLabsOverrideLoad logs a non-fatal error when Labs overrides cannot be read from the database.
+func (fm *FeatureManager) WarnLabsOverrideLoad(err error) {
+	fm.log.Warn("Failed to load Labs feature toggle overrides from database", "err", err)
+}
+
+// WarningForFlag returns a warning string for a flag if one exists (e.g. unknown config flag).
+func (fm *FeatureManager) WarningForFlag(name string) (string, bool) {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
+	w, ok := fm.warnings[name]
+	return w, ok
 }
 
 // ############# Test Functions #############

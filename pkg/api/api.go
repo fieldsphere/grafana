@@ -563,6 +563,10 @@ func (hs *HTTPServer) registerRoutes() {
 		adminRoute.Post("/encryption/reencrypt-secrets", reqGrafanaAdmin, routing.Wrap(hs.AdminReEncryptSecrets))
 		adminRoute.Post("/encryption/rollback-secrets", reqGrafanaAdmin, routing.Wrap(hs.AdminRollbackSecrets))
 
+		adminRoute.Get("/feature-toggles/labs", reqGrafanaAdmin, routing.Wrap(hs.AdminGetLabsFeatureToggles))
+		adminRoute.Put("/feature-toggles/labs/:name", reqGrafanaAdmin, routing.Wrap(hs.AdminPutLabsFeatureToggle))
+		adminRoute.Delete("/feature-toggles/labs/:name", reqGrafanaAdmin, routing.Wrap(hs.AdminDeleteLabsFeatureToggle))
+
 		adminRoute.Post("/provisioning/dashboards/reload", authorize(ac.EvalPermission(ActionProvisioningReload, ScopeProvisionersDashboards)), routing.Wrap(hs.AdminProvisioningReloadDashboards))
 		adminRoute.Post("/provisioning/plugins/reload", authorize(ac.EvalPermission(ActionProvisioningReload, ScopeProvisionersPlugins)), routing.Wrap(hs.AdminProvisioningReloadPlugins))
 		adminRoute.Post("/provisioning/datasources/reload", authorize(ac.EvalPermission(ActionProvisioningReload, ScopeProvisionersDatasources)), routing.Wrap(hs.AdminProvisioningReloadDatasources))

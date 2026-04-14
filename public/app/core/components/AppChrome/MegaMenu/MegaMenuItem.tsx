@@ -105,6 +105,7 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
                 {link.text}
               </Text>
               {link.isNew && <FeatureBadge featureState={FeatureState.new} />}
+              {link.highlightText === 'Beta' && <FeatureBadge featureState={FeatureState.beta} />}
             </div>
           </MegaMenuItemText>
         </div>

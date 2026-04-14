@@ -400,6 +400,11 @@ func ProvideHTTPServer(opts ServerOptions, cfg *setting.Cfg, routeRegister routi
 	if err := hs.declareFixedRoles(); err != nil {
 		return nil, err
 	}
+
+	if fm, ok := hs.Features.(*featuremgmt.FeatureManager); ok {
+		loadLabsOverridesIntoFeatureManager(fm, sqlStore)
+	}
+
 	return hs, nil
 }
 

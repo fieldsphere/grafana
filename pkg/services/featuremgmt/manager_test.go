@@ -65,4 +65,21 @@ func TestFeatureManager(t *testing.T) {
 		require.False(t, ft.IsEnabledGlobally("b"))
 		require.False(t, ft.IsEnabledGlobally("c"))
 	})
+
+	t.Run("labs override enables frontend-only flag", func(t *testing.T) {
+		ft := FeatureManager{
+			flags:   map[string]*FeatureFlag{},
+			startup: map[string]bool{},
+		}
+		ft.registerFlags(FeatureFlag{
+			Name:         "ffOnly",
+			Expression:   "false",
+			FrontendOnly: true,
+		})
+		require.False(t, ft.IsEnabledGlobally("ffOnly"))
+		ft.SetLabOverrides(map[string]bool{"ffOnly": true})
+		require.True(t, ft.IsEnabledGlobally("ffOnly"))
+		ft.SetLabOverrides(map[string]bool{"ffOnly": false})
+		require.False(t, ft.IsEnabledGlobally("ffOnly"))
+	})
 }

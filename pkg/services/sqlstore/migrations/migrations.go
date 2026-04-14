@@ -176,4 +176,6 @@ func (oss *OSSMigrations) AddMigration(mg *Migrator) {
 	ualert.AddStateLastResultColumn(mg)
 
 	accesscontrol.AddScopedReceiverTestingPermissions(mg)
+
+	addFeatureToggleLabOverridesMigration(mg)
 }

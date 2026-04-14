@@ -11,6 +11,12 @@ import { MegaMenu } from './MegaMenu';
 const setup = () => {
   const navBarTree: NavModelItem[] = [
     {
+      text: 'Labs',
+      id: 'labs',
+      url: 'labs',
+      highlightText: 'Beta',
+    },
+    {
       text: 'Section name',
       id: 'section',
       url: 'section',
@@ -43,6 +49,8 @@ describe('MegaMenu', () => {
     setup();
 
     expect(await screen.findByTestId(selectors.components.NavMenu.Menu)).toBeInTheDocument();
+    expect(await screen.findByRole('link', { name: /Labs/i })).toBeInTheDocument();
+    expect(await screen.findByText('Beta')).toBeInTheDocument();
     expect(await screen.findByRole('link', { name: 'Section name' })).toBeInTheDocument();
   });
 
