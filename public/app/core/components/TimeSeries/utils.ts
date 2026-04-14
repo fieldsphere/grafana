@@ -238,14 +238,6 @@ export const preparePlotConfigBuilder: UPlotConfigPrepFn = ({
         distribution: scaleDistr.type,
         log: scaleDistr.log,
         linearThreshold: scaleDistr.linearThreshold,
-        min: xField.config.min,
-        max: xField.config.max,
-        softMin: custom?.axisSoftMin,
-        softMax: custom?.axisSoftMax,
-        centeredZero: custom?.axisCenteredZero,
-        decimals: xField.config.decimals,
-        padMinBy: 0,
-        padMaxBy: 0,
         range: timeRangeForXScale,
       });
 
