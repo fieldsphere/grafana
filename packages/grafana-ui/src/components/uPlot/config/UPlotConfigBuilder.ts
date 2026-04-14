@@ -18,7 +18,7 @@ import {
   type TimeRange,
   type TimeZone,
 } from '@grafana/data';
-import { AxisPlacement, type VizOrientation } from '@grafana/schema';
+import { AxisPlacement, type ScaleDistributionConfig, type VizOrientation } from '@grafana/schema';
 
 import { type FacetedData, type PlotConfig } from '../types';
 import { DEFAULT_PLOT_CONFIG, getStackingBands, pluginLog, type StackingGroup } from '../utils';
@@ -313,6 +313,8 @@ type UPlotConfigPrepOpts<T extends Record<string, unknown> = {}> = {
   hoverProximity?: number;
   orientation?: VizOrientation;
   xAxisConfig?: Pick<AxisProps, 'size' | 'gap' | 'ticks'>;
+  /** When set to log or symlog, the primary time field uses that scale while still following the dashboard time range. */
+  timeAxisScaleDistribution?: ScaleDistributionConfig;
 } & T;
 
 export type UPlotConfigPrepFn<T extends {} = {}> = (opts: UPlotConfigPrepOpts<T>) => UPlotConfigBuilder;

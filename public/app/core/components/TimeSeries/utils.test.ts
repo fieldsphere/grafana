@@ -1,4 +1,5 @@
 import { createDataFrame, dateTime, type DateTimeInput, type EventBus, FieldType } from '@grafana/data';
+import { ScaleDistribution } from '@grafana/schema';
 import { getTheme } from '@grafana/ui';
 
 import { getXAxisConfig, preparePlotConfigBuilder, UPLOT_DEFAULT_AXIS_GAP } from './utils';
@@ -373,6 +374,42 @@ describe('time axis units', () => {
     expect(config.axes![0]!.values).toEqual(expect.any(Function));
     // @ts-ignore
     expect(config.axes![0]!.values(config, [1667406900000, 1761316576114], 0, 100, 1000)).toEqual(['11-02', '10-24']);
+  });
+
+  it('should apply logarithmic scale to the time field when timeAxisScaleDistribution is log', () => {
+    const frame = createDataFrame({
+      fields: [
+        {
+          config: {},
+          values: [1_000, 10_000, 100_000],
+          name: 'Time',
+          type: FieldType.time,
+        },
+        {
+          config: {},
+          values: [1, 2, 3],
+          name: 'Value',
+          type: FieldType.number,
+        },
+      ],
+    });
+    const builder = preparePlotConfigBuilder({
+      frame,
+      //@ts-ignore
+      theme: getTheme(),
+      timeZones: ['browser'],
+      getTimeRange: () => ({
+        from: dateTime(500),
+        to: dateTime(200_000),
+      }),
+      allFrames: [frame],
+      renderers: [],
+      timeAxisScaleDistribution: { type: ScaleDistribution.Log, log: 10 },
+    });
+    const config = builder.getConfig();
+    expect(config.scales!.x.time).toBe(false);
+    expect(config.scales!.x.distr).toBe(3);
+    expect(config.scales!.x.log).toBe(10);
   });
 });
 

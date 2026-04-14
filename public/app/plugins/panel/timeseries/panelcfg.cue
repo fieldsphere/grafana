@@ -36,6 +36,8 @@ composableKinds: PanelCfg: lineage: {
 				orientation?:           common.VizOrientation
 				annotations?:           common.VizAnnotations
 				disableKeyboardEvents?: bool
+				// Non-linear scale for the time (X) axis (log/symlog). Linear uses the default time scale.
+				timeAxisScaleDistribution?: common.ScaleDistributionConfig
 			} @cuetsy(kind="interface")
 
 			FieldConfig: common.GraphFieldConfig & {} @cuetsy(kind="interface")
