@@ -8,6 +8,7 @@ import { config } from '@grafana/runtime';
 import { Dropdown, Menu, MenuItem, ToolbarButton, useStyles2 } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 
+import { ThemeModeToggle } from '../../ThemeSelector/ThemeModeToggle';
 import { ThemeSelectorDrawer } from '../../ThemeSelector/ThemeSelectorDrawer';
 import { enrichWithInteractionTracking } from '../MegaMenu/utils';
 import { NewsContainer } from '../News/NewsDrawer';
@@ -32,6 +33,11 @@ export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
   const renderMenu = () => (
     <TopNavBarMenu node={profileNode}>
       <>
+        <div className={styles.themeModeSection}>
+          <span className={styles.themeModeLabel}>{t('profile.theme-mode', 'Theme')}</span>
+          <ThemeModeToggle />
+        </div>
+        <Menu.Divider />
         {config.featureToggles.grafanaconThemes && (
           <MenuItem icon="palette" onClick={onToggleThemeDrawer} label={t('profile.change-theme', 'Change theme')} />
         )}
@@ -86,6 +92,17 @@ const getStyles = (theme: GrafanaTheme2) => {
         marginRight: 0,
         width: '24px',
       },
+    }),
+    themeModeSection: css({
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      padding: theme.spacing(0.5, 1),
+      gap: theme.spacing(2),
+    }),
+    themeModeLabel: css({
+      fontSize: theme.typography.bodySmall.fontSize,
+      color: theme.colors.text.secondary,
     }),
   };
 };

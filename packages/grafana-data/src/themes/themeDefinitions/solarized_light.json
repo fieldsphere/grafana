@@ -1,0 +1,79 @@
+{
+  "name": "Solarized Light",
+  "id": "solarized_light",
+  "colors": {
+    "mode": "light",
+    "border": {
+      "weak": "#eee8d5",
+      "medium": "#93a1a1",
+      "strong": "#839496"
+    },
+    "text": {
+      "primary": "#657b83",
+      "secondary": "#839496",
+      "disabled": "#93a1a1",
+      "link": "#268bd2",
+      "maxContrast": "#002b36"
+    },
+    "primary": {
+      "main": "#268bd2",
+      "text": "#268bd2",
+      "border": "#268bd2",
+      "name": "primary",
+      "shade": "#1a6091",
+      "transparent": "#268bd229",
+      "contrastText": "#fdf6e3",
+      "borderTransparent": "#268bd240"
+    },
+    "secondary": {
+      "main": "#eee8d5",
+      "shade": "#d6d0be",
+      "transparent": "rgba(101, 123, 131, 0.08)",
+      "text": "#586e75",
+      "contrastText": "#002b36",
+      "border": "rgba(101, 123, 131, 0.12)",
+      "name": "secondary",
+      "borderTransparent": "rgba(101, 123, 131, 0.25)"
+    },
+    "info": {
+      "main": "#6c71c4",
+      "text": "#6c71c4",
+      "border": "#6c71c4"
+    },
+    "error": {
+      "main": "#dc322f",
+      "text": "#dc322f"
+    },
+    "success": {
+      "main": "#859900",
+      "text": "#859900"
+    },
+    "warning": {
+      "main": "#b58900",
+      "text": "#b58900"
+    },
+    "background": {
+      "canvas": "#fdf6e3",
+      "primary": "#eee8d5",
+      "secondary": "#d6d0be",
+      "elevated": "#eee8d5"
+    },
+    "action": {
+      "hover": "rgba(101, 123, 131, 0.12)",
+      "selected": "rgba(101, 123, 131, 0.20)",
+      "selectedBorder": "#cb4b16",
+      "focus": "rgba(101, 123, 131, 0.16)",
+      "hoverOpacity": 0.08,
+      "disabledText": "#93a1a1",
+      "disabledBackground": "rgba(101, 123, 131, 0.06)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #cb4b16 0%, #268bd2 100%)",
+      "brandVertical": "linear-gradient(0deg, #cb4b16 0%, #268bd2 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.03,
+    "tonalOffset": 0.15
+  }
+}

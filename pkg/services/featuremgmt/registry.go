@@ -1569,6 +1569,15 @@ var (
 			Expression:      "true",
 		},
 		{
+			Name:            "solarizedThemes",
+			Description:     "Enables Solarized-inspired light and dark themes",
+			Stage:           FeatureStageGeneralAvailability,
+			Owner:           grafanaFrontendPlatformSquad,
+			FrontendOnly:    true,
+			RequiresRestart: true,
+			Expression:      "true",
+		},
+		{
 			Name:         "alertingJiraIntegration",
 			Description:  "Enables the new Jira integration for contact points in cloud alert managers.",
 			Stage:        FeatureStageExperimental,

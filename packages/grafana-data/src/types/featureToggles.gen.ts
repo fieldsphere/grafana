@@ -1000,6 +1000,11 @@ export interface FeatureToggles {
   */
   grafanaconThemes?: boolean;
   /**
+  * Enables Solarized-inspired light and dark themes
+  * @default true
+  */
+  solarizedThemes?: boolean;
+  /**
   * Enables the new Jira integration for contact points in cloud alert managers.
   * @default false
   */
