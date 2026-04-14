@@ -172,7 +172,8 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		return nil, err
 	}
 
-	if c.IsSignedIn {
+	//nolint:staticcheck // not yet migrated to OpenFeature
+	if c.IsSignedIn && s.features.IsEnabled(c.Req.Context(), "labs") {
 		treeRoot.AddSection(&navtree.NavLink{
 			Text:       "Labs",
 			Id:         navtree.NavIDLabs,

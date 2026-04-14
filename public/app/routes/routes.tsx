@@ -538,7 +538,7 @@ export function getAppRoutes(): RouteDescriptor[] {
         () => import(/* webpackChunkName: "BookmarksPage"*/ 'app/features/bookmarks/BookmarksPage')
       ),
     },
-    {
+    Boolean(Reflect.get(config.featureToggles, 'labs')) && {
       path: '/labs',
       roles: () => (contextSrv.isSignedIn ? [] : ['Reject']),
       component: SafeDynamicImport(
