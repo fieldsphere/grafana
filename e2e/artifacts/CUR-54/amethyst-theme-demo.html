@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Amethyst Theme Demo</title>
+    <style>
+      :root {
+        --canvas: #1a1426;
+        --primary-bg: #231933;
+        --secondary-bg: #2e2241;
+        --border-weak: #3a2c4e;
+        --border-medium: #514067;
+        --border-strong: #6a5586;
+        --text-primary: #f1e9ff;
+        --text-secondary: #cdb7ea;
+        --text-disabled: #a996c3;
+        --text-link: #c48bff;
+        --primary-main: #b379f7;
+        --selected: #4b3a66;
+        --selected-border: #b379f7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          "Helvetica Neue",
+          Arial,
+          sans-serif;
+        background: var(--canvas);
+        color: var(--text-primary);
+      }
+
+      .app {
+        width: 1280px;
+        height: 720px;
+        margin: 0 auto;
+        padding: 28px;
+      }
+
+      .title {
+        margin: 0;
+        font-size: 34px;
+        font-weight: 700;
+      }
+
+      .subtitle {
+        margin: 8px 0 0;
+        color: var(--text-secondary);
+        font-size: 16px;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 360px 1fr;
+        gap: 24px;
+        margin-top: 28px;
+      }
+
+      .panel {
+        border: 1px solid var(--border-medium);
+        border-radius: 14px;
+        background: var(--primary-bg);
+        padding: 14px;
+      }
+
+      .panel h2 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        color: var(--text-primary);
+      }
+
+      .theme-option {
+        border: 1px solid transparent;
+        border-radius: 10px;
+        margin: 8px 0;
+        padding: 10px 12px;
+        cursor: pointer;
+        color: var(--text-secondary);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .theme-option.active {
+        background: var(--selected);
+        border-color: var(--selected-border);
+        color: var(--text-primary);
+      }
+
+      .theme-option .badge {
+        display: none;
+      }
+
+      .theme-option.active .badge {
+        display: inline-block;
+      }
+
+      .badge {
+        font-size: 11px;
+        padding: 2px 8px;
+        border-radius: 999px;
+        border: 1px solid var(--selected-border);
+        color: var(--text-link);
+      }
+
+      .preview {
+        border: 1px solid var(--border-strong);
+        border-radius: 14px;
+        background: var(--secondary-bg);
+        padding: 18px;
+      }
+
+      .preview h3 {
+        margin: 0;
+        font-size: 22px;
+      }
+
+      .preview p {
+        margin: 8px 0 0;
+        font-size: 14px;
+        color: var(--text-secondary);
+      }
+
+      .swatches {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+      }
+
+      .swatch {
+        border-radius: 10px;
+        padding: 10px;
+        border: 1px solid var(--border-weak);
+        min-height: 84px;
+      }
+
+      .swatch-name {
+        font-size: 12px;
+        color: #ffffff;
+        font-weight: 600;
+      }
+
+      .swatch-value {
+        margin-top: 4px;
+        font-size: 11px;
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .footer {
+        margin-top: 18px;
+        color: var(--text-disabled);
+        font-size: 12px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app">
+      <h1 class="title">Grafana Theme Switcher</h1>
+      <p class="subtitle">
+        Added theme from ticket summary source of truth: <strong>Purple / Amethyst</strong>
+      </p>
+      <section class="layout">
+        <aside class="panel">
+          <h2>Available Themes</h2>
+          <div class="theme-option" data-theme="dark">Dark</div>
+          <div class="theme-option" data-theme="light">Light</div>
+          <div class="theme-option" data-theme="system">System preference</div>
+          <div class="theme-option active" data-theme="amethyst">
+            <span>Amethyst</span>
+            <span class="badge">Experimental</span>
+          </div>
+        </aside>
+
+        <section class="preview">
+          <h3 id="preview-title">Amethyst</h3>
+          <p id="preview-description">Purple-forward palette for interface surfaces and accents.</p>
+          <div class="swatches">
+            <div class="swatch" style="background:#1a1426">
+              <div class="swatch-name">Canvas</div>
+              <div class="swatch-value">#1A1426</div>
+            </div>
+            <div class="swatch" style="background:#231933">
+              <div class="swatch-name">Primary BG</div>
+              <div class="swatch-value">#231933</div>
+            </div>
+            <div class="swatch" style="background:#2e2241">
+              <div class="swatch-name">Secondary BG</div>
+              <div class="swatch-value">#2E2241</div>
+            </div>
+            <div class="swatch" style="background:#b379f7">
+              <div class="swatch-name">Primary</div>
+              <div class="swatch-value">#B379F7</div>
+            </div>
+            <div class="swatch" style="background:#c48bff">
+              <div class="swatch-name">Link</div>
+              <div class="swatch-value">#C48BFF</div>
+            </div>
+            <div class="swatch" style="background:#6a5586">
+              <div class="swatch-name">Border strong</div>
+              <div class="swatch-value">#6A5586</div>
+            </div>
+          </div>
+          <div class="footer">Source: packages/grafana-data/src/themes/themeDefinitions/amethyst.json</div>
+        </section>
+      </section>
+    </main>
+    <script>
+      const titles = {
+        dark: ['Dark', 'Default dark interface palette.'],
+        light: ['Light', 'Default light interface palette.'],
+        system: ['System preference', 'Automatically follows OS dark/light mode.'],
+        amethyst: ['Amethyst', 'Purple-forward palette for interface surfaces and accents.'],
+      };
+
+      document.querySelectorAll('.theme-option').forEach((node) => {
+        node.addEventListener('click', () => {
+          document.querySelectorAll('.theme-option').forEach((el) => el.classList.remove('active'));
+          node.classList.add('active');
+          const themeId = node.getAttribute('data-theme');
+          document.getElementById('preview-title').textContent = titles[themeId][0];
+          document.getElementById('preview-description').textContent = titles[themeId][1];
+        });
+      });
+    </script>
+  </body>
+</html>
