@@ -131,6 +131,7 @@ type HTTPServer struct {
 	RenderService                rendering.Service
 	Cfg                          *setting.Cfg
 	Features                     featuremgmt.FeatureToggles
+	featureManager               *featuremgmt.FeatureManager
 	SettingsProvider             setting.Provider
 	HooksService                 *hooks.HooksService
 	navTreeService               navtree.Service
@@ -251,7 +252,7 @@ func ProvideHTTPServer(opts ServerOptions, cfg *setting.Cfg, routeRegister routi
 	accessControl accesscontrol.AccessControl, dataSourceProxy *datasourceproxy.DataSourceProxyService, searchService *search.SearchService,
 	live *live.GrafanaLive, livePushGateway *pushhttp.Gateway, plugCtxProvider *plugincontext.Provider,
 	contextHandler *contexthandler.ContextHandler, loggerMiddleware loggermw.Logger, features featuremgmt.FeatureToggles,
-	alertNG *ngalert.AlertNG, libraryPanelService librarypanels.Service, libraryElementService libraryelements.Service,
+	featureManager *featuremgmt.FeatureManager, alertNG *ngalert.AlertNG, libraryPanelService librarypanels.Service, libraryElementService libraryelements.Service,
 	quotaService quota.Service, socialService social.Service, tracer tracing.Tracer,
 	encryptionService encryption.Internal, grafanaUpdateChecker *updatemanager.GrafanaService,
 	pluginsUpdateChecker *updatemanager.PluginsService, searchUsersService searchusers.Service,
@@ -309,6 +310,7 @@ func ProvideHTTPServer(opts ServerOptions, cfg *setting.Cfg, routeRegister routi
 		QueryHistoryService:          queryHistoryService,
 		CorrelationsService:          correlationsService,
 		Features:                     features, // a read only view of the managers state
+		featureManager:               featureManager,
 		StorageService:               storageService,
 		RemoteCacheService:           remoteCache,
 		ProvisioningService:          provisioningService,

@@ -544,6 +544,12 @@ export function getAppRoutes(): RouteDescriptor[] {
         () => import(/* webpackChunkName: "ThemePlayground"*/ 'app/features/theme-playground/ThemePlayground')
       ),
     },
+    {
+      path: '/labs',
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "LabsPage"*/ 'app/features/labs/LabsPage')
+      ),
+    },
     config.featureToggles.restoreDashboards && {
       path: '/dashboard/recently-deleted',
       component: SafeDynamicImport(

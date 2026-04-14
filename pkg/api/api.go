@@ -152,6 +152,9 @@ func (hs *HTTPServer) registerRoutes() {
 
 	r.Get("/styleguide", reqSignedIn, hs.Index)
 
+	// Labs page - accessible to all signed in users
+	r.Get("/labs", reqSignedIn, hs.Index)
+
 	r.Get("/live", reqGrafanaAdmin, hs.Index)
 	r.Get("/live/pipeline", reqGrafanaAdmin, hs.Index)
 	r.Get("/live/cloud", reqGrafanaAdmin, hs.Index)
@@ -311,6 +314,9 @@ func (hs *HTTPServer) registerRoutes() {
 			userRoute.Get("/auth-tokens", requestmeta.SetOwner(requestmeta.TeamAuth), routing.Wrap(hs.GetUserAuthTokens))
 			userRoute.Post("/revoke-auth-token", requestmeta.SetOwner(requestmeta.TeamAuth), routing.Wrap(hs.RevokeUserAuthToken))
 		}, reqSignedInNoAnonymous)
+
+		// Labs feature flags API
+		apiRoute.Get("/featureflags", reqSignedIn, routing.Wrap(hs.GetFeatureFlags))
 
 		apiRoute.Group("/users", func(usersRoute routing.RouteRegister) {
 			userIDScope := ac.Scope("global.users", "id", ac.Parameter(":id"))

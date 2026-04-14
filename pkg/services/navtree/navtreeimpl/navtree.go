@@ -172,6 +172,18 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		return nil, err
 	}
 
+	if c.IsSignedIn {
+		treeRoot.AddSection(&navtree.NavLink{
+			Text:       "Labs",
+			Id:         navtree.NavIDLabs,
+			SubTitle:   "Explore experimental features and feature flags",
+			Icon:       "flask",
+			Url:        s.cfg.AppSubURL + "/labs",
+			SortWeight: navtree.WeightLabs,
+			IsNew:      true,
+		})
+	}
+
 	s.addHelpLinks(treeRoot, c)
 
 	if err := s.addAppLinks(treeRoot, c); err != nil {
