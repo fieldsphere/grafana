@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CUR-54 Amethyst Theme Demo</title>
+    <style>
+      :root {
+        --canvas: #0b0f15;
+        --surface: #151a21;
+        --surface-alt: #1f2630;
+        --text: #ffffff;
+        --muted: #c0c7d0;
+        --primary: #5794f2;
+        --link: #8ab8ff;
+        --border: rgba(204, 204, 220, 0.2);
+        --hover: rgba(204, 204, 220, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: var(--canvas);
+        color: var(--text);
+      }
+
+      .layout {
+        min-height: 100vh;
+        display: grid;
+        grid-template-rows: 64px 1fr;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        border-bottom: 1px solid var(--border);
+        background: var(--surface);
+        padding: 0 20px;
+      }
+
+      .brand {
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
+
+      .controls {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+      }
+
+      select {
+        background: var(--surface-alt);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 8px 12px;
+        min-width: 180px;
+      }
+
+      .content {
+        padding: 24px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+      }
+
+      .card h2 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+
+      .subtext {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .button-row {
+        margin-top: 14px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .btn {
+        border: 1px solid transparent;
+        border-radius: 6px;
+        padding: 8px 12px;
+        font-weight: 600;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: #fff;
+      }
+
+      .btn-secondary {
+        background: var(--surface-alt);
+        border-color: var(--border);
+        color: var(--muted);
+      }
+
+      .swatches {
+        margin-top: 16px;
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .swatch {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        overflow: hidden;
+      }
+
+      .swatch-color {
+        height: 48px;
+      }
+
+      .swatch-label {
+        padding: 8px;
+        font-size: 12px;
+        color: var(--muted);
+        background: var(--surface);
+      }
+
+      .link {
+        color: var(--link);
+      }
+
+      .highlight {
+        color: var(--primary);
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="layout">
+      <header class="topbar">
+        <div class="brand">Grafana Theme Switcher</div>
+        <div class="controls">
+          <label for="themeSelect">Interface theme</label>
+          <select id="themeSelect" aria-label="Interface theme selector">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+            <option value="desertbloom">Desert bloom</option>
+            <option value="gildedgrove">Gilded grove</option>
+            <option value="gloom">Gloom</option>
+            <option value="sapphiredusk">Sapphire dusk</option>
+            <option value="tron">Tron</option>
+            <option value="amethyst">Amethyst</option>
+          </select>
+        </div>
+      </header>
+
+      <section class="content">
+        <article class="card">
+          <h2>CUR-54: Add purple/amethyst theme</h2>
+          <p class="subtext">
+            This mock demonstrates the new <span class="highlight">Amethyst</span> option available in the theme
+            switcher.
+          </p>
+          <div class="button-row">
+            <button class="btn btn-primary" type="button">Primary action</button>
+            <button class="btn btn-secondary" type="button">Secondary action</button>
+          </div>
+          <p>
+            Theme feedback link: <span class="link">https://grafana.com/feedback</span>
+          </p>
+        </article>
+
+        <article class="card">
+          <h2>Theme palette preview</h2>
+          <div class="swatches" id="swatches"></div>
+        </article>
+      </section>
+    </main>
+
+    <script>
+      const themes = {
+        dark: {
+          canvas: '#0b0f15',
+          surface: '#151a21',
+          surfaceAlt: '#1f2630',
+          text: '#f5f7fa',
+          muted: '#c0c7d0',
+          primary: '#5794f2',
+          link: '#8ab8ff',
+          border: 'rgba(204, 204, 220, 0.2)',
+          hover: 'rgba(204, 204, 220, 0.1)',
+        },
+        light: {
+          canvas: '#f8f9fb',
+          surface: '#ffffff',
+          surfaceAlt: '#f0f3f7',
+          text: '#1f232a',
+          muted: '#616d7f',
+          primary: '#1f60c4',
+          link: '#1f60c4',
+          border: 'rgba(36, 41, 46, 0.2)',
+          hover: 'rgba(36, 41, 46, 0.08)',
+        },
+        desertbloom: {
+          canvas: '#f9f4eb',
+          surface: '#fff8ec',
+          surfaceAlt: '#f5e9d3',
+          text: '#3f2e18',
+          muted: '#7a6447',
+          primary: '#cc7a00',
+          link: '#d06d00',
+          border: 'rgba(87, 55, 18, 0.2)',
+          hover: 'rgba(87, 55, 18, 0.08)',
+        },
+        gildedgrove: {
+          canvas: '#171e1a',
+          surface: '#1f2a24',
+          surfaceAlt: '#2a3b31',
+          text: '#e6f2eb',
+          muted: '#b3c8bb',
+          primary: '#7db58c',
+          link: '#98d0a7',
+          border: 'rgba(199, 223, 203, 0.2)',
+          hover: 'rgba(199, 223, 203, 0.08)',
+        },
+        gloom: {
+          canvas: '#000000',
+          surface: '#121118',
+          surfaceAlt: '#211e28',
+          text: '#d2d2dc',
+          muted: 'rgba(210, 210, 220, 0.65)',
+          primary: '#ff934d',
+          link: '#f99a5c',
+          border: 'rgba(210, 210, 220, 0.2)',
+          hover: 'rgba(195, 195, 245, 0.07)',
+        },
+        sapphiredusk: {
+          canvas: '#1e273d',
+          surface: '#12192e',
+          surfaceAlt: '#212c47',
+          text: '#ffffff',
+          muted: '#bcccdd',
+          primary: '#93ebf0',
+          link: '#93ebf0',
+          border: '#2c3853',
+          hover: '#364057',
+        },
+        tron: {
+          canvas: '#08101a',
+          surface: '#101a26',
+          surfaceAlt: '#122236',
+          text: '#d7ecff',
+          muted: '#8fb5d6',
+          primary: '#22d3ee',
+          link: '#22d3ee',
+          border: 'rgba(60, 177, 255, 0.32)',
+          hover: 'rgba(60, 177, 255, 0.14)',
+        },
+        amethyst: {
+          canvas: '#0f0a17',
+          surface: '#161022',
+          surfaceAlt: '#211833',
+          text: '#f1eafe',
+          muted: '#cdbfe8',
+          primary: '#a855f7',
+          link: '#c68cff',
+          border: 'rgba(216, 194, 243, 0.2)',
+          hover: 'rgba(196, 167, 239, 0.08)',
+        },
+      };
+
+      const swatchKeys = ['canvas', 'surface', 'surfaceAlt', 'text', 'primary', 'link'];
+      const themeSelect = document.getElementById('themeSelect');
+      const swatches = document.getElementById('swatches');
+
+      function renderSwatches(theme) {
+        swatches.innerHTML = '';
+        swatchKeys.forEach((key) => {
+          const color = theme[key];
+          const swatch = document.createElement('div');
+          swatch.className = 'swatch';
+          swatch.innerHTML = `
+            <div class="swatch-color" style="background:${color}"></div>
+            <div class="swatch-label">${key}: ${color}</div>
+          `;
+          swatches.appendChild(swatch);
+        });
+      }
+
+      function applyTheme(themeName) {
+        const theme = themes[themeName];
+        document.documentElement.style.setProperty('--canvas', theme.canvas);
+        document.documentElement.style.setProperty('--surface', theme.surface);
+        document.documentElement.style.setProperty('--surface-alt', theme.surfaceAlt);
+        document.documentElement.style.setProperty('--text', theme.text);
+        document.documentElement.style.setProperty('--muted', theme.muted);
+        document.documentElement.style.setProperty('--primary', theme.primary);
+        document.documentElement.style.setProperty('--link', theme.link);
+        document.documentElement.style.setProperty('--border', theme.border);
+        document.documentElement.style.setProperty('--hover', theme.hover);
+        renderSwatches(theme);
+      }
+
+      themeSelect.addEventListener('change', (event) => {
+        applyTheme(event.target.value);
+      });
+
+      themeSelect.value = 'amethyst';
+      applyTheme('amethyst');
+    </script>
+  </body>
+</html>

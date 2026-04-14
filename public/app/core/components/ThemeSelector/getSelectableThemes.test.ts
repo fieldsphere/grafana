@@ -3,9 +3,13 @@ import { config } from '@grafana/runtime';
 
 import { getSelectableThemes } from './getSelectableThemes';
 
-jest.mock('@grafana/data', () => ({
-  getBuiltInThemes: jest.fn(),
-}));
+jest.mock('@grafana/data', () => {
+  const actual = jest.requireActual('@grafana/data');
+  return {
+    ...actual,
+    getBuiltInThemes: jest.fn(),
+  };
+});
 
 const getBuiltInThemesMock = jest.mocked(getBuiltInThemes);
 
