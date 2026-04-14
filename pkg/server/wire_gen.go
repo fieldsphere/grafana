@@ -682,7 +682,7 @@ func Initialize(ctx context.Context, cfg *setting.Cfg, opts Options, apiOpts api
 	}
 	azurePromMigrationService := promtypemigration.ProvideAzurePromMigrationService(service14, inMemory, repoManager, pluginInstaller, cfg)
 	amazonPromMigrationService := promtypemigration.ProvideAmazonPromMigrationService(service14, inMemory, repoManager, pluginInstaller, cfg)
-	promTypeMigrationProviderImpl := promtypemigration.ProvidePromTypeMigrationProvider(serverLockService, featureToggles, azurePromMigrationService, amazonPromMigrationService)
+	promTypeMigrationProviderImpl := promtypemigration.ProvidePromTypeMigrationProvider(serverLockService, azurePromMigrationService, amazonPromMigrationService)
 	routePermissionsService, err := ossaccesscontrol.ProvideRoutePermissionsService(cfg, featureToggles, routeRegisterImpl, sqlStore, accessControl, ossLicensingService, acimplService, teamimplService, userimplService, actionSetService)
 	if err != nil {
 		return nil, err
@@ -1372,7 +1372,7 @@ func InitializeForTest(ctx context.Context, t sqlutil.ITestDB, testingT interfac
 	}
 	azurePromMigrationService := promtypemigration.ProvideAzurePromMigrationService(service14, inMemory, repoManager, pluginInstaller, cfg)
 	amazonPromMigrationService := promtypemigration.ProvideAmazonPromMigrationService(service14, inMemory, repoManager, pluginInstaller, cfg)
-	promTypeMigrationProviderImpl := promtypemigration.ProvidePromTypeMigrationProvider(serverLockService, featureToggles, azurePromMigrationService, amazonPromMigrationService)
+	promTypeMigrationProviderImpl := promtypemigration.ProvidePromTypeMigrationProvider(serverLockService, azurePromMigrationService, amazonPromMigrationService)
 	routePermissionsService, err := ossaccesscontrol.ProvideRoutePermissionsService(cfg, featureToggles, routeRegisterImpl, sqlStore, accessControl, ossLicensingService, acimplService, teamimplService, userimplService, actionSetService)
 	if err != nil {
 		return nil, err

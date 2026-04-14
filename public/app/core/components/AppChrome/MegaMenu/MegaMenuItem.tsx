@@ -6,7 +6,7 @@ import { useLocalStorage } from 'react-use';
 
 import { FeatureState, type GrafanaTheme2, type NavModelItem, toIconName } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { useStyles2, Text, IconButton, Icon, Stack, FeatureBadge } from '@grafana/ui';
+import { useStyles2, Text, IconButton, Icon, Stack, FeatureBadge, Badge } from '@grafana/ui';
 import { useGrafana } from 'app/core/context/GrafanaContext';
 
 import { Indent } from '../../Indent/Indent';
@@ -105,6 +105,7 @@ export function MegaMenuItem({ link, activeItem, level = 0, onClick, onPin, isPi
               <Text truncate element="p">
                 {link.text}
               </Text>
+              {link.highlightText && <Badge text={link.highlightText} color="blue" />}
               {link.isNew && <FeatureBadge featureState={FeatureState.new} />}
             </div>
           </MegaMenuItemText>

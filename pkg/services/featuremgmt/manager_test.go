@@ -65,4 +65,22 @@ func TestFeatureManager(t *testing.T) {
 		require.False(t, ft.IsEnabledGlobally("b"))
 		require.False(t, ft.IsEnabledGlobally("c"))
 	})
+
+	t.Run("labs overrides take precedence", func(t *testing.T) {
+		ft := FeatureManager{
+			flags: map[string]*FeatureFlag{},
+			startup: map[string]bool{
+				"x": false,
+			},
+		}
+		ft.registerFlags(FeatureFlag{
+			Name:       "x",
+			Expression: "false",
+		})
+		require.False(t, ft.IsEnabledGlobally("x"))
+		ft.SetLabsOverrides(LabsOverrides{"x": true})
+		require.True(t, ft.IsEnabledGlobally("x"))
+		ft.SetLabsOverrides(LabsOverrides{"x": false})
+		require.False(t, ft.IsEnabledGlobally("x"))
+	})
 }

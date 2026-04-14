@@ -80,12 +80,7 @@ For air-gapped environments, download and install [Azure Monitor Managed Service
 
 ### Migrate
 
-1. Enable the `prometheusTypeMigration` feature toggle. For more information on feature toggles, refer to [Manage feature toggles](https://grafana.com/docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/feature-toggles/#manage-feature-toggles).
-2. Restart Grafana for the changes to take effect.
-
-{{< admonition type="note" >}}
-This feature toggle will be removed in Grafana 13, and the migration will be automatic.
-{{< /admonition >}}
+1. Restart Grafana. Grafana runs the Prometheus data source type migration automatically on startup when migration is needed.
 
 To determine if your Prometheus data sources have been migrated:
 
@@ -105,8 +100,7 @@ The following sections contain troubleshooting guidance.
 
 **Migration banner not appearing**
 
-- Verify the `prometheusTypeMigration` feature toggle is enabled.
-- Restart Grafana after enabling the feature toggle
+- Restart Grafana to trigger the automatic migration.
 
 **Azure Monitor Managed Service for Prometheus is not installed**
 
@@ -120,14 +114,13 @@ The following sections contain troubleshooting guidance.
 
 ### Rollback self-hosted Grafana without a backup
 
-If you don’t have a backup of your Grafana instance before the migration, remove the `prometheusTypeMigration` feature toggle, and run the following script. It reverts all the Azure Monitor Managed Service data source instances back to core Prometheus.
+If you don’t have a backup of your Grafana instance before the migration, run the following script. It reverts all the Azure Monitor Managed Service data source instances back to core Prometheus.
 
 To revert the migration:
 
-1. Disable the `prometheusTypeMigration` feature toggle. For more information on feature toggles, refer to [Manage feature toggles](https://grafana.com/docs/grafana/<GRAFANA_VERSION>/setup-grafana/configure-grafana/feature-toggles/#manage-feature-toggles).
-2. Obtain a bearer token that has `read` and `write` permissions for your Grafana data source API. For more information on the data source API, refer to [Data source API](https://grafana.com/docs/grafana/<GRAFANA_VERSION>/developers/http_api/data_source/).
-3. Run the script below. Make sure to provide your Grafana URL and bearer token.
-4. (Optional) Report the issue you were experiencing on the [Grafana repository](https://github.com/grafana/grafana/issues). Tag the issue with "datasource/migrate-prometheus-type"
+1. Obtain a bearer token that has `read` and `write` permissions for your Grafana data source API. For more information on the data source API, refer to [Data source API](https://grafana.com/docs/grafana/<GRAFANA_VERSION>/developers/http_api/data_source/).
+2. Run the script below. Make sure to provide your Grafana URL and bearer token.
+3. (Optional) Report the issue you were experiencing on the [Grafana repository](https://github.com/grafana/grafana/issues). Tag the issue with "datasource/migrate-prometheus-type"
 
 ```bash
 #!/bin/bash

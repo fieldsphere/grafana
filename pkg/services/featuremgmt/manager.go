@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/grafana/grafana/pkg/infra/log"
 )
@@ -20,6 +21,9 @@ type FeatureManager struct {
 	startup  map[string]bool   // the explicit values registered at startup
 	warnings map[string]string // potential warnings about the flag
 	log      log.Logger
+
+	labsMu      sync.RWMutex
+	labsEnabled LabsOverrides // instance-wide Labs overrides (from kv_store)
 }
 
 // This will merge the flags with the current configuration
@@ -73,6 +77,13 @@ func (fm *FeatureManager) meetsRequirements(ff *FeatureFlag) (bool, string) {
 
 // Update
 func (fm *FeatureManager) update() {
+	fm.labsMu.RLock()
+	labs := fm.labsEnabled
+	fm.labsMu.RUnlock()
+	if labs == nil {
+		labs = LabsOverrides{}
+	}
+
 	enabled := make(map[string]bool)
 	for _, flag := range fm.flags {
 		// if grafana cannot run the feature, omit metrics around it
@@ -86,7 +97,11 @@ func (fm *FeatureManager) update() {
 		track := 0.0
 
 		startup, ok := fm.startup[flag.Name]
-		if startup || (!ok && flag.Expression == "true") {
+		baseOn := startup || (!ok && flag.Expression == "true")
+		if v, hasLab := labs[flag.Name]; hasLab {
+			baseOn = v
+		}
+		if baseOn {
 			track = 1
 			enabled[flag.Name] = true
 		}
@@ -95,6 +110,95 @@ func (fm *FeatureManager) update() {
 		featureToggleInfo.WithLabelValues(flag.Name).Set(track)
 	}
 	fm.enabled = enabled
+}
+
+// SetLabsOverrides replaces Labs (in-app) overrides and recomputes enabled flags.
+func (fm *FeatureManager) SetLabsOverrides(overrides LabsOverrides) {
+	fm.labsMu.Lock()
+	if overrides == nil {
+		fm.labsEnabled = LabsOverrides{}
+	} else {
+		fm.labsEnabled = make(LabsOverrides, len(overrides))
+		for k, v := range overrides {
+			fm.labsEnabled[k] = v
+		}
+	}
+	fm.labsMu.Unlock()
+	fm.update()
+}
+
+// GetLabsOverridesCopy returns a copy of current Labs overrides for persistence.
+func (fm *FeatureManager) GetLabsOverridesCopy() LabsOverrides {
+	fm.labsMu.RLock()
+	defer fm.labsMu.RUnlock()
+	if len(fm.labsEnabled) == 0 {
+		return LabsOverrides{}
+	}
+	out := make(LabsOverrides, len(fm.labsEnabled))
+	for k, v := range fm.labsEnabled {
+		out[k] = v
+	}
+	return out
+}
+
+// LabsWritable reports whether Labs may change this flag at runtime.
+func (fm *FeatureManager) LabsWritable(flag *FeatureFlag) bool {
+	if flag.RequiresRestart {
+		return false
+	}
+	if flag.RequiresDevMode && !fm.isDevMod {
+		return false
+	}
+	ok, _ := fm.meetsRequirements(flag)
+	return ok
+}
+
+// ListLabsFlags returns metadata for every registered flag for the Labs UI.
+func (fm *FeatureManager) ListLabsFlags(ctx context.Context) []LabsFlagDetail {
+	fm.labsMu.RLock()
+	labs := fm.labsEnabled
+	fm.labsMu.RUnlock()
+	if labs == nil {
+		labs = LabsOverrides{}
+	}
+
+	out := make([]LabsFlagDetail, 0, len(fm.flags))
+	for _, flag := range fm.flags {
+		ok, reason := fm.meetsRequirements(flag)
+		_, inStartup := fm.startup[flag.Name]
+		baseOn := false
+		if inStartup {
+			baseOn = fm.startup[flag.Name]
+		} else {
+			baseOn = flag.Expression == "true"
+		}
+		source := "default"
+		if inStartup {
+			source = "config"
+		}
+		effective := baseOn
+		if v, has := labs[flag.Name]; has {
+			effective = v
+			source = "labs"
+		}
+
+		d := LabsFlagDetail{
+			Name:            flag.Name,
+			Description:     flag.Description,
+			Stage:           flag.Stage.String(),
+			FrontendOnly:    flag.FrontendOnly,
+			RequiresRestart: flag.RequiresRestart,
+			RequiresDevMode: flag.RequiresDevMode,
+			Enabled:         effective,
+			Source:          source,
+			Writable:        fm.LabsWritable(flag),
+			MeetsRuntime:    ok,
+			BlockedReason:   reason,
+		}
+		out = append(out, d)
+	}
+	_ = ctx
+	return out
 }
 
 // IsEnabled checks if a feature is enabled
@@ -125,6 +229,16 @@ func (fm *FeatureManager) GetFlags() []FeatureFlag {
 		v = append(v, *value)
 	}
 	return v
+}
+
+// GetFlagDefinition returns the registered flag definition, or nil if unknown.
+func (fm *FeatureManager) GetFlagDefinition(name string) *FeatureFlag {
+	f, ok := fm.flags[name]
+	if !ok {
+		return nil
+	}
+	cp := *f
+	return &cp
 }
 
 // ############# Test Functions #############
