@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CUR-54 Theme Switcher Demo</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: #14120b;
+        color: #edecec;
+      }
+
+      .layout {
+        max-width: 980px;
+        margin: 24px auto;
+        padding: 0 16px;
+      }
+
+      .title {
+        margin-bottom: 16px;
+      }
+
+      .subtitle {
+        color: #bfbebe;
+        margin-top: 4px;
+      }
+
+      .cards {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(220px, 1fr));
+        gap: 16px;
+      }
+
+      .card {
+        border: 1px solid #3e3a2f;
+        border-radius: 8px;
+        background: #1b1913;
+        padding: 12px;
+        cursor: pointer;
+      }
+
+      .card.active {
+        border-color: #f54e00;
+        box-shadow: 0 0 0 1px #f54e00 inset;
+      }
+
+      .swatch {
+        height: 88px;
+        border-radius: 6px;
+        margin-top: 8px;
+      }
+
+      .preview {
+        margin-top: 20px;
+        border-radius: 8px;
+        border: 1px solid #3e3a2f;
+        padding: 16px;
+      }
+
+      .preview-tag {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 12px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="layout">
+      <div class="title">
+        <h2>CUR-54: Add purple/amethyst theme to switcher</h2>
+        <p class="subtitle">Demo artifact showing Amethyst as a selectable theme option.</p>
+      </div>
+
+      <div class="cards">
+        <button class="card active" id="dark-card" aria-label="Dark theme option">
+          <strong>Dark</strong>
+          <div class="swatch" style="background: #1f1f20"></div>
+        </button>
+        <button class="card" id="amethyst-card" aria-label="Amethyst theme option">
+          <strong>Amethyst</strong>
+          <div
+            class="swatch"
+            style="background: linear-gradient(270deg, #7d4dff 0%, #c6a2ff 100%)"
+          ></div>
+        </button>
+      </div>
+
+      <div class="preview" id="preview">
+        <div class="preview-tag" id="preview-tag">Theme: Dark</div>
+        <h3 id="preview-title">Operational overview</h3>
+        <p id="preview-text">Theme switcher now includes an Amethyst option under experimental themes.</p>
+      </div>
+    </div>
+
+    <script>
+      const darkCard = document.getElementById('dark-card');
+      const amethystCard = document.getElementById('amethyst-card');
+      const preview = document.getElementById('preview');
+      const previewTag = document.getElementById('preview-tag');
+      const previewTitle = document.getElementById('preview-title');
+      const previewText = document.getElementById('preview-text');
+
+      const setDark = () => {
+        document.body.style.background = '#14120b';
+        document.body.style.color = '#edecec';
+        preview.style.background = '#1b1913';
+        preview.style.borderColor = '#3e3a2f';
+        previewTag.style.background = '#2b2923';
+        previewTag.style.color = '#edecec';
+        previewTitle.style.color = '#edecec';
+        previewText.style.color = '#c8c7c7';
+        previewTag.textContent = 'Theme: Dark';
+        darkCard.classList.add('active');
+        amethystCard.classList.remove('active');
+      };
+
+      const setAmethyst = () => {
+        document.body.style.background = '#17111f';
+        document.body.style.color = '#f0e9ff';
+        preview.style.background = '#22182e';
+        preview.style.borderColor = '#4c3a68';
+        previewTag.style.background = '#3a2d4f';
+        previewTag.style.color = '#f0e9ff';
+        previewTitle.style.color = '#f0e9ff';
+        previewText.style.color = '#d0c3f2';
+        previewTag.textContent = 'Theme: Amethyst';
+        darkCard.classList.remove('active');
+        amethystCard.classList.add('active');
+      };
+
+      darkCard.addEventListener('click', setDark);
+      amethystCard.addEventListener('click', setAmethyst);
+    </script>
+  </body>
+</html>
