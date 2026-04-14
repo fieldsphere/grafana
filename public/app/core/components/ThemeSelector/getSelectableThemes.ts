@@ -19,5 +19,10 @@ export function getSelectableThemes() {
     allowedExtraThemes.push('gloom');
   }
 
+  if (config.featureToggles.solarizedThemes) {
+    allowedExtraThemes.push('solarized_dark');
+    allowedExtraThemes.push('solarized_light');
+  }
+
   return getBuiltInThemes(allowedExtraThemes);
 }

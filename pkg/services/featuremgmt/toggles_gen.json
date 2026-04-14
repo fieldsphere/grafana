@@ -4941,6 +4941,21 @@
     },
     {
       "metadata": {
+        "name": "solarizedThemes",
+        "resourceVersion": "1776181702689",
+        "creationTimestamp": "2026-04-14T15:48:22Z"
+      },
+      "spec": {
+        "description": "Enables Solarized-inspired light and dark themes",
+        "stage": "GA",
+        "codeowner": "@grafana/grafana-frontend-platform",
+        "frontend": true,
+        "requiresRestart": true,
+        "expression": "true"
+      }
+    },
+    {
+      "metadata": {
         "name": "splashScreen",
         "resourceVersion": "1775046571105",
         "creationTimestamp": "2026-03-25T17:59:16Z",

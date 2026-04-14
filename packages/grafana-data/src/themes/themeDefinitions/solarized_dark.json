@@ -1,0 +1,79 @@
+{
+  "name": "Solarized Dark",
+  "id": "solarized_dark",
+  "colors": {
+    "mode": "dark",
+    "border": {
+      "weak": "#073642",
+      "medium": "#586e75",
+      "strong": "#657b83"
+    },
+    "text": {
+      "primary": "#839496",
+      "secondary": "#657b83",
+      "disabled": "#586e75",
+      "link": "#268bd2",
+      "maxContrast": "#fdf6e3"
+    },
+    "primary": {
+      "main": "#268bd2",
+      "text": "#268bd2",
+      "border": "#268bd2",
+      "name": "primary",
+      "shade": "#1a6091",
+      "transparent": "#268bd229",
+      "contrastText": "#002b36",
+      "borderTransparent": "#268bd240"
+    },
+    "secondary": {
+      "main": "#073642",
+      "shade": "#0a4a5a",
+      "transparent": "rgba(131, 148, 150, 0.08)",
+      "text": "#93a1a1",
+      "contrastText": "#fdf6e3",
+      "border": "rgba(131, 148, 150, 0.12)",
+      "name": "secondary",
+      "borderTransparent": "rgba(131, 148, 150, 0.25)"
+    },
+    "info": {
+      "main": "#6c71c4",
+      "text": "#6c71c4",
+      "border": "#6c71c4"
+    },
+    "error": {
+      "main": "#dc322f",
+      "text": "#dc322f"
+    },
+    "success": {
+      "main": "#859900",
+      "text": "#859900"
+    },
+    "warning": {
+      "main": "#b58900",
+      "text": "#b58900"
+    },
+    "background": {
+      "canvas": "#002b36",
+      "primary": "#073642",
+      "secondary": "#0a4a5a",
+      "elevated": "#0a4a5a"
+    },
+    "action": {
+      "hover": "#0a4a5a",
+      "selected": "#0d5c70",
+      "selectedBorder": "#cb4b16",
+      "focus": "#0a4a5a",
+      "hoverOpacity": 0.08,
+      "disabledText": "#586e75",
+      "disabledBackground": "rgba(7, 54, 66, 0.4)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #cb4b16 0%, #268bd2 100%)",
+      "brandVertical": "linear-gradient(0deg, #cb4b16 0%, #268bd2 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.03,
+    "tonalOffset": 0.15
+  }
+}
