@@ -26,6 +26,10 @@ export interface Options extends common.OptionsWithTimezones, common.OptionsWith
   disableKeyboardEvents?: boolean;
   legend: TimeSeriesLegendOptions;
   orientation?: common.VizOrientation;
+  /**
+   * Non-linear scale for the time (X) axis (log/symlog). Linear uses the default time scale.
+   */
+  timeAxisScaleDistribution?: common.ScaleDistributionConfig;
   timeCompare?: common.TimeCompareOptions;
   tooltip: common.VizTooltipOptions;
 }

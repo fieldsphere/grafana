@@ -34,6 +34,7 @@ export function TimeSeries(props: TimeSeriesProps) {
         hoverProximity: options?.tooltip?.hoverProximity,
         orientation: options?.orientation,
         xAxisConfig: getXAxisConfig(annotationLanes),
+        timeAxisScaleDistribution: options?.timeAxisScaleDistribution,
       });
     },
     [theme, timeZone, options, renderers, tweakAxis, tweakScale]

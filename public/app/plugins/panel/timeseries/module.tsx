@@ -1,8 +1,9 @@
-import { PanelPlugin } from '@grafana/data';
+import { PanelPlugin, identityOverrideProcessor } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
+import { ScaleDistribution, type ScaleDistributionConfig } from '@grafana/schema';
 import { commonOptionsBuilder } from '@grafana/ui';
-import { optsWithHideZeros } from '@grafana/ui/internal';
+import { optsWithHideZeros, ScaleDistributionEditor } from '@grafana/ui/internal';
 import { addAnnotationOptions } from 'app/features/panel/options/builder/annotations';
 
 import { TimeSeriesPanel } from './TimeSeriesPanel';
@@ -40,6 +41,19 @@ export const plugin = new PanelPlugin<Options, FieldConfig>(TimeSeriesPanel)
       category: [t('timeseries.category-axis', 'Axis')],
       editor: TimezonesEditor,
       defaultValue: undefined,
+    });
+    builder.addCustomEditor<void, ScaleDistributionConfig | undefined>({
+      id: 'timeAxisScaleDistribution',
+      path: 'timeAxisScaleDistribution',
+      name: t('timeseries.name-time-axis-scale', 'Time axis scale'),
+      description: t(
+        'timeseries.description-time-axis-scale',
+        'Use logarithmic or symlog spacing for time on the X axis. Linear keeps the standard time axis.'
+      ),
+      category: [t('timeseries.category-axis', 'Axis')],
+      editor: ScaleDistributionEditor,
+      defaultValue: { type: ScaleDistribution.Linear },
+      process: identityOverrideProcessor,
     });
     addAnnotationOptions(builder);
   })

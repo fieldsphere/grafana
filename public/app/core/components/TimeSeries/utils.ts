@@ -27,6 +27,7 @@ import {
   AxisColorMode,
   GraphGradientMode,
   VizOrientation,
+  ScaleDistribution,
   type ScaleDistributionConfig,
 } from '@grafana/schema';
 
@@ -98,6 +99,7 @@ export const preparePlotConfigBuilder: UPlotConfigPrepFn = ({
   hoverProximity,
   orientation = VizOrientation.Horizontal,
   xAxisConfig,
+  timeAxisScaleDistribution,
 }) => {
   // we want the Auto and Horizontal orientation to default to Horizontal
   const isHorizontal = orientation !== VizOrientation.Vertical;
@@ -129,87 +131,134 @@ export const preparePlotConfigBuilder: UPlotConfigPrepFn = ({
         : AxisPlacement.Left;
   const xFieldAxisShow = xField.config.custom?.axisPlacement !== AxisPlacement.Hidden;
 
-  if (xField.type === FieldType.time) {
-    builder.addScale({
-      scaleKey: xScaleKey,
-      orientation: isHorizontal ? ScaleOrientation.Horizontal : ScaleOrientation.Vertical,
-      direction: isHorizontal ? ScaleDirection.Right : ScaleDirection.Up,
-      isTime: true,
-      range: () => {
-        const state = builder.getState();
-        if (state.isPanning) {
-          if (state.isTimeRangePending) {
-            const timeRange = getTimeRange();
-            const propsFrom = timeRange.from.valueOf();
-            const propsTo = timeRange.to.valueOf();
-
-            const MIN_TIMESPAN_MS = 1;
-            const fromMatches = Math.abs(propsFrom - state.min) <= MIN_TIMESPAN_MS;
-            const toMatches = Math.abs(propsTo - state.max) <= MIN_TIMESPAN_MS;
-            const timeRangeHasUpdated = fromMatches && toMatches;
-
-            if (timeRangeHasUpdated) {
-              builder.setState({ isPanning: false });
-              return [propsFrom, propsTo];
-            }
-          }
-
-          return [state.min, state.max];
-        }
+  const timeRangeForXScale = (): [number, number] => {
+    const state = builder.getState();
+    if (state.isPanning) {
+      if (state.isTimeRangePending) {
         const timeRange = getTimeRange();
-        return [timeRange.from.valueOf(), timeRange.to.valueOf()];
-      },
-    });
+        const propsFrom = timeRange.from.valueOf();
+        const propsTo = timeRange.to.valueOf();
 
-    // filters first 2 ticks to make space for timezone labels
-    const filterTicks: uPlot.Axis.Filter | undefined =
-      timeZones.length > 1
-        ? (u, splits) => {
-            if (isHorizontal) {
-              return splits.map((v, i) => (i < 2 ? null : v));
+        const MIN_TIMESPAN_MS = 1;
+        const fromMatches = Math.abs(propsFrom - state.min) <= MIN_TIMESPAN_MS;
+        const toMatches = Math.abs(propsTo - state.max) <= MIN_TIMESPAN_MS;
+        const timeRangeHasUpdated = fromMatches && toMatches;
+
+        if (timeRangeHasUpdated) {
+          builder.setState({ isPanning: false });
+          return [propsFrom, propsTo];
+        }
+      }
+
+      return [state.min, state.max];
+    }
+    const timeRange = getTimeRange();
+    return [timeRange.from.valueOf(), timeRange.to.valueOf()];
+  };
+
+  if (xField.type === FieldType.time) {
+    const axisScaleType = timeAxisScaleDistribution?.type ?? ScaleDistribution.Linear;
+    const useNonLinearTimeAxis =
+      axisScaleType === ScaleDistribution.Log || axisScaleType === ScaleDistribution.Symlog;
+
+    if (!useNonLinearTimeAxis) {
+      builder.addScale({
+        scaleKey: xScaleKey,
+        orientation: isHorizontal ? ScaleOrientation.Horizontal : ScaleOrientation.Vertical,
+        direction: isHorizontal ? ScaleDirection.Right : ScaleDirection.Up,
+        isTime: true,
+        range: timeRangeForXScale,
+      });
+
+      // filters first 2 ticks to make space for timezone labels
+      const filterTicks: uPlot.Axis.Filter | undefined =
+        timeZones.length > 1
+          ? (u, splits) => {
+              if (isHorizontal) {
+                return splits.map((v, i) => (i < 2 ? null : v));
+              }
+              return splits;
             }
-            return splits;
-          }
-        : undefined;
+          : undefined;
 
-    for (let i = 0; i < timeZones.length; i++) {
-      const timeZone = timeZones[i];
+      for (let i = 0; i < timeZones.length; i++) {
+        const timeZone = timeZones[i];
+        builder.addAxis({
+          scaleKey: xScaleKey,
+          isTime: true,
+          placement: xFieldAxisPlacement,
+          show: xFieldAxisShow,
+          label: xField.config.custom?.axisLabel,
+          timeZone,
+          theme,
+          grid: { show: i === 0 && xField.config.custom?.axisGridShow },
+          filter: filterTicks,
+          formatValue: xField.config.unit?.startsWith('time:')
+            ? (v, decimals) => xField.display!(v, decimals).text
+            : undefined,
+          ...xAxisConfig,
+        });
+      }
+
+      // render timezone labels
+      if (timeZones.length > 1) {
+        builder.addHook('drawAxes', (u: uPlot) => {
+          u.ctx.save();
+
+          let i = 0;
+          u.axes.forEach((a) => {
+            if (isHorizontal && a.side === 2) {
+              u.ctx.fillStyle = theme.colors.text.primary;
+              u.ctx.textAlign = 'left';
+              u.ctx.textBaseline = 'bottom';
+              //@ts-ignore
+              let cssBaseline: number = a._pos + a._size;
+              u.ctx.fillText(timeZones[i], u.bbox.left, cssBaseline * uPlot.pxRatio);
+              i++;
+            }
+          });
+
+          u.ctx.restore();
+        });
+      }
+    } else {
+      let custom = xField.config.custom;
+      let scaleDistr: ScaleDistributionConfig = {
+        type: axisScaleType,
+        log: timeAxisScaleDistribution?.log ?? custom?.scaleDistribution?.log,
+        linearThreshold:
+          timeAxisScaleDistribution?.linearThreshold ?? custom?.scaleDistribution?.linearThreshold,
+      };
+
+      builder.addScale({
+        scaleKey: xScaleKey,
+        orientation: isHorizontal ? ScaleOrientation.Horizontal : ScaleOrientation.Vertical,
+        direction: isHorizontal ? ScaleDirection.Right : ScaleDirection.Up,
+        isTime: false,
+        distribution: scaleDistr.type,
+        log: scaleDistr.log,
+        linearThreshold: scaleDistr.linearThreshold,
+        min: xField.config.min,
+        max: xField.config.max,
+        softMin: custom?.axisSoftMin,
+        softMax: custom?.axisSoftMax,
+        centeredZero: custom?.axisCenteredZero,
+        decimals: xField.config.decimals,
+        padMinBy: 0,
+        padMaxBy: 0,
+        range: timeRangeForXScale,
+      });
+
       builder.addAxis({
         scaleKey: xScaleKey,
-        isTime: true,
         placement: xFieldAxisPlacement,
         show: xFieldAxisShow,
-        label: xField.config.custom?.axisLabel,
-        timeZone,
+        label: custom?.axisLabel,
         theme,
-        grid: { show: i === 0 && xField.config.custom?.axisGridShow },
-        filter: filterTicks,
-        formatValue: xField.config.unit?.startsWith('time:')
-          ? (v, decimals) => xField.display!(v, decimals).text
-          : undefined,
+        grid: { show: custom?.axisGridShow },
+        formatValue: (v, decimals) => formattedValueToString(xField.display!(v, decimals)),
+        distr: scaleDistr.type,
         ...xAxisConfig,
-      });
-    }
-
-    // render timezone labels
-    if (timeZones.length > 1) {
-      builder.addHook('drawAxes', (u: uPlot) => {
-        u.ctx.save();
-
-        let i = 0;
-        u.axes.forEach((a) => {
-          if (isHorizontal && a.side === 2) {
-            u.ctx.fillStyle = theme.colors.text.primary;
-            u.ctx.textAlign = 'left';
-            u.ctx.textBaseline = 'bottom';
-            //@ts-ignore
-            let cssBaseline: number = a._pos + a._size;
-            u.ctx.fillText(timeZones[i], u.bbox.left, cssBaseline * uPlot.pxRatio);
-            i++;
-          }
-        });
-
-        u.ctx.restore();
       });
     }
   } else {
