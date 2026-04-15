@@ -141,6 +141,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.infrastructure.title', 'Infrastructure');
     case 'frontend':
       return t('nav.frontend.title', 'Frontend');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'apps':
       return t('nav.apps.title', 'More apps');
     case 'alerts-and-incidents':
@@ -187,6 +189,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.collector.title', 'Collector');
     case 'connections-datasources':
       return t('nav.data-sources.title', 'Data sources');
+    case 'labs-feature-flags':
+      return t('nav.labs-feature-flags.title', 'Feature flag dashboard');
     case 'standalone-plugin-page-/connections/infrastructure':
       return t('nav.integrations.title', 'Integrations');
     case 'standalone-plugin-page-/connections/connect-data':
@@ -304,6 +308,8 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.infrastructure.subtitle', "Understand your infrastructure's health");
     case 'frontend':
       return t('nav.frontend.subtitle', 'Gain real user monitoring insights');
+    case 'labs':
+      return t('nav.labs.subtitle', 'Experimental tools and feature controls');
     case 'alerts-and-incidents':
       return t('nav.alerts-and-incidents.subtitle', 'Alerting and incident management apps');
     case 'testing-and-synthetics':
@@ -312,6 +318,8 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.connections.subtitle', 'Browse and create new connections');
     case 'connections-datasources':
       return t('nav.data-sources.subtitle', 'View and manage your connected data source connections');
+    case 'labs-feature-flags':
+      return t('nav.labs-feature-flags.subtitle', 'See and control feature flags for your current browser session');
     case 'connections-private-data-source-connections':
       return t(
         'nav.private-data-source-connections.subtitle',
