@@ -10,9 +10,24 @@ import {
 } from '@grafana/data';
 import { createLogRow } from 'app/features/logs/components/mocks/logRow';
 
-import { downloadAsJson, downloadDataFrameAsCsv, downloadLogsModelAsTxt } from './download';
+import { downloadAsJson, downloadDataFrameAsCsv, downloadDataFrameAsXlsx, downloadLogsModelAsTxt } from './download';
 
 jest.mock('file-saver', () => jest.fn());
+jest.mock('xlsx', () => {
+  const aoaToSheet = jest.fn(() => ({ mockedSheet: true }));
+  const bookNew = jest.fn(() => ({ mockedBook: true }));
+  const bookAppendSheet = jest.fn();
+  const write = jest.fn(() => new Uint8Array([1, 2, 3]));
+
+  return {
+    utils: {
+      aoa_to_sheet: aoaToSheet,
+      book_new: bookNew,
+      book_append_sheet: bookAppendSheet,
+    },
+    write,
+  };
+});
 
 describe('inspector download', () => {
   beforeEach(() => {
@@ -68,6 +83,48 @@ describe('inspector download', () => {
       expect(text).toEqual('"time"\t"name"\t"value"\r\n100\tÅäö中文العربية\t1');
       expect(filename).toEqual(`test-data-${dateTimeFormat(1400000000000)}.csv`);
       expect.assertions(4);
+    });
+  });
+
+  describe('downloadDataFrameAsXlsx', () => {
+    it('should export data frame as xlsx with header row and formatted filename', async () => {
+      const json: DataFrameJSON = {
+        schema: {
+          fields: [
+            { name: 'time', type: FieldType.time },
+            { name: 'name', type: FieldType.string },
+            { name: 'value', type: FieldType.number },
+          ],
+        },
+        data: {
+          values: [[100], ['foo'], [1]],
+        },
+      };
+
+      const dataFrame = dataFrameFromJSON(json);
+      await downloadDataFrameAsXlsx(dataFrame, 'test');
+
+      const xlsx = await import('xlsx');
+      expect(xlsx.utils.aoa_to_sheet).toHaveBeenCalledWith([
+        ['time', 'name', 'value'],
+        [100, 'foo', 1],
+      ]);
+      expect(xlsx.utils.book_new).toHaveBeenCalledTimes(1);
+      expect(xlsx.utils.book_append_sheet).toHaveBeenCalledWith(
+        { mockedBook: true },
+        { mockedSheet: true },
+        'test'
+      );
+      expect(xlsx.write).toHaveBeenCalledWith({ mockedBook: true }, { type: 'array', bookType: 'xlsx' });
+
+      const call = jest.mocked(saveAs).mock.calls[0];
+      const blob = call[0];
+      const filename = call[1];
+      expect(blob).toBeInstanceOf(Blob);
+      if (blob instanceof Blob) {
+        expect(blob.type).toBe('application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+      }
+      expect(filename).toEqual(`test-data-${dateTimeFormat(1400000000000)}.xlsx`);
     });
   });
 

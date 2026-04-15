@@ -6,6 +6,9 @@ import {
   DataTransformerID,
   dateTime,
   dateTimeFormat,
+  FieldType,
+  formattedValueToString,
+  getFieldDisplayName,
   type LogsModel,
   MutableDataFrame,
   toCSV,
@@ -88,6 +91,41 @@ export function downloadDataFrameAsCsv(
 }
 
 /**
+ * Exports a DataFrame as an XLSX file.
+ *
+ * @param {DataFrame} dataFrame
+ * @param {string} title
+ * @param {DataTransformerID} [transformId=DataTransformerID.noop]
+ */
+export async function downloadDataFrameAsXlsx(
+  dataFrame: DataFrame,
+  title: string,
+  transformId: DataTransformerID = DataTransformerID.noop
+) {
+  const XLSX = await import('xlsx');
+  const headers = dataFrame.fields.map((field) => getFieldDisplayName(field, dataFrame));
+  const rows: unknown[][] = [headers];
+  const rowCount = dataFrame.length ?? dataFrame.fields[0]?.values.length ?? 0;
+
+  for (let rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+    const row = dataFrame.fields.map((field) => formatXlsxCellValue(field, field.values[rowIndex]));
+    rows.push(row);
+  }
+
+  const worksheet = XLSX.utils.aoa_to_sheet(rows);
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, toExcelSheetName(title));
+
+  const xlsxData = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
+  const blob = new Blob([xlsxData], {
+    type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  });
+  const transformation = transformId !== DataTransformerID.noop ? '-as-' + transformId.toLocaleLowerCase() : '';
+  const fileName = `${title}-data${transformation}-${dateTimeFormat(new Date())}.xlsx`;
+  saveAs(blob, fileName);
+}
+
+/**
  * Downloads any object as JSON file.
  *
  * @param {unknown} json
@@ -131,4 +169,30 @@ export function downloadTraceAsJson(frame: DataFrame, title: string): string {
     }
   }
   return traceFormat;
+}
+
+function formatXlsxCellValue(field: DataFrame['fields'][number], value: unknown): unknown {
+  if (value === null || value === undefined) {
+    return '';
+  }
+
+  if (field.type === FieldType.frame && typeof value === 'object' && value !== null && 'value' in value) {
+    value = value.value;
+  }
+
+  if (field.type === FieldType.other && typeof value === 'object') {
+    return JSON.stringify(value);
+  }
+
+  if (field.display) {
+    return formattedValueToString(field.display(value));
+  }
+
+  return value;
+}
+
+function toExcelSheetName(title: string): string {
+  const fallback = 'Data';
+  const cleaned = (title.trim() || fallback).replace(/[:\\/?*\[\]]/g, ' ').slice(0, 31).trim();
+  return cleaned || fallback;
 }
