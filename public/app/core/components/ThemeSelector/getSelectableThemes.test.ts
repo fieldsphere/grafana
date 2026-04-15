@@ -1,3 +1,6 @@
+import { getBuiltInThemes } from '@grafana/data';
+import { config } from '@grafana/runtime';
+
 import { getSelectableThemes } from './getSelectableThemes';
 
 jest.mock('@grafana/data', () => ({
@@ -12,9 +15,6 @@ jest.mock('@grafana/runtime', () => ({
     },
   },
 }));
-
-import { getBuiltInThemes } from '@grafana/data';
-import { config } from '@grafana/runtime';
 
 const getBuiltInThemesMock = jest.mocked(getBuiltInThemes);
 
