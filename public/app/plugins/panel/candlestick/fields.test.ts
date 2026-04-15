@@ -293,4 +293,49 @@ describe('Candlestick data', () => {
     // includeAllFields: false
     expect(info.frame.fields.find((f) => f.name === 'extra')).toBeUndefined();
   });
+
+  it('keeps indicator fields when includeAllFields is enabled', () => {
+    const options = {
+      mode: VizDisplayMode.Candles,
+      includeAllFields: true,
+      indicators: { showSMA: true, smaPeriod: 3 },
+    } as Options;
+
+    const info = prepareCandlestickFields(
+      [
+        toDataFrame({
+          fields: [
+            {
+              name: 'time',
+              values: [1, 2, 3],
+            },
+            {
+              name: 'open',
+              values: [4, 5, 6],
+            },
+            {
+              name: 'high',
+              values: [7, 8, 9],
+            },
+            {
+              name: 'low',
+              values: [3, 4, 5],
+            },
+            {
+              name: 'close',
+              values: [5, 6, 7],
+            },
+            {
+              name: 'SMA (3)',
+              values: [null, null, 6],
+            },
+          ],
+        }),
+      ],
+      options,
+      theme
+    )!;
+
+    expect(info.frame.fields.find((f) => f.name === 'SMA (3)')).toBeDefined();
+  });
 });

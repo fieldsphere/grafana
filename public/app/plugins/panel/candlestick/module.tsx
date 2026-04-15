@@ -15,7 +15,15 @@ import {
   type FieldPickerInfo,
   prepareCandlestickFields,
 } from './fields';
-import { defaultCandlestickColors, type Options, VizDisplayMode, ColorStrategy, CandleStyle } from './panelcfg.gen';
+import {
+  defaultCandlestickColors,
+  type Options,
+  VizDisplayMode,
+  ColorStrategy,
+  CandleStyle,
+  QuickRangePreset,
+  defaultTechnicalIndicatorOptions,
+} from './panelcfg.gen';
 import { candlestickSuggestionSupplier } from './suggestions';
 
 const numericFieldFilter = (f: Field) => f.type === FieldType.number;
@@ -58,6 +66,7 @@ export const plugin = new PanelPlugin<Options, GraphFieldConfig>(CandlestickPane
   .useFieldConfig(getGraphFieldConfig(defaultGraphConfig))
   .setPanelOptions((builder, context) => {
     const category = [t('candlestick.category-candlestick', 'Candlestick')];
+    const advancedCategory = [t('candlestick.category-advanced-charting', 'Advanced charting')];
     const opts = context.options ?? defaultOptions;
     const info = prepareCandlestickFields(context.data, opts, config.theme2);
     builder
@@ -149,6 +158,113 @@ export const plugin = new PanelPlugin<Options, GraphFieldConfig>(CandlestickPane
         ],
       },
     });
+
+    builder
+      .addBooleanSwitch({
+        path: 'showQuickRangeControls',
+        name: t('candlestick.name-show-time-range-controls', 'Show time range controls'),
+        category: advancedCategory,
+        description: t(
+          'candlestick.description-show-time-range-controls',
+          'Show period controls (1D, 5D, 7D, 3M, 6M, 1Y) directly above the chart'
+        ),
+        defaultValue: true,
+      })
+      .addRadio({
+        path: 'selectedQuickRange',
+        name: t('candlestick.name-default-time-range', 'Default time range'),
+        category: advancedCategory,
+        description: t('candlestick.description-default-time-range', 'Period selected by default for this panel'),
+        defaultValue: QuickRangePreset.D7,
+        settings: {
+          options: [
+            { label: '1D', value: QuickRangePreset.D1 },
+            { label: '5D', value: QuickRangePreset.D5 },
+            { label: '7D', value: QuickRangePreset.D7 },
+            { label: '3M', value: QuickRangePreset.M3 },
+            { label: '6M', value: QuickRangePreset.M6 },
+            { label: '1Y', value: QuickRangePreset.Y1 },
+          ],
+        },
+        showIf: (currentOptions) => currentOptions.showQuickRangeControls !== false,
+      })
+      .addBooleanSwitch({
+        path: 'isLogScale',
+        name: t('candlestick.name-logarithmic-scale', 'Logarithmic scale'),
+        category: advancedCategory,
+        description: t('candlestick.description-logarithmic-scale', 'Use logarithmic scale for price comparison'),
+        defaultValue: false,
+      })
+      .addBooleanSwitch({
+        path: 'persistLogScaleInSession',
+        name: t('candlestick.name-persist-log-scale-session', 'Persist log scale in session'),
+        category: advancedCategory,
+        description: t(
+          'candlestick.description-persist-log-scale-session',
+          'Keep the log scale toggle for this panel in the current browser session'
+        ),
+        defaultValue: true,
+      })
+      .addBooleanSwitch({
+        path: 'indicators.showSMA',
+        name: t('candlestick.name-show-sma', 'Show SMA'),
+        category: advancedCategory,
+        description: t('candlestick.description-show-sma', 'Overlay Simple Moving Average on the price chart'),
+        defaultValue: defaultTechnicalIndicatorOptions.showSMA,
+      })
+      .addNumberInput({
+        path: 'indicators.smaPeriod',
+        name: t('candlestick.name-sma-period', 'SMA period'),
+        category: advancedCategory,
+        description: t('candlestick.description-sma-period', 'Number of points used in SMA calculation'),
+        defaultValue: defaultTechnicalIndicatorOptions.smaPeriod,
+        settings: {
+          min: 2,
+          max: 500,
+          integer: true,
+        },
+        showIf: (currentOptions) => currentOptions.indicators?.showSMA === true,
+      })
+      .addBooleanSwitch({
+        path: 'indicators.showEMA',
+        name: t('candlestick.name-show-ema', 'Show EMA'),
+        category: advancedCategory,
+        description: t('candlestick.description-show-ema', 'Overlay Exponential Moving Average on the price chart'),
+        defaultValue: defaultTechnicalIndicatorOptions.showEMA,
+      })
+      .addNumberInput({
+        path: 'indicators.emaPeriod',
+        name: t('candlestick.name-ema-period', 'EMA period'),
+        category: advancedCategory,
+        description: t('candlestick.description-ema-period', 'Number of points used in EMA smoothing'),
+        defaultValue: defaultTechnicalIndicatorOptions.emaPeriod,
+        settings: {
+          min: 2,
+          max: 500,
+          integer: true,
+        },
+        showIf: (currentOptions) => currentOptions.indicators?.showEMA === true,
+      })
+      .addBooleanSwitch({
+        path: 'indicators.showRSI',
+        name: t('candlestick.name-show-rsi', 'Show RSI panel'),
+        category: advancedCategory,
+        description: t('candlestick.description-show-rsi', 'Display Relative Strength Index in a secondary panel'),
+        defaultValue: defaultTechnicalIndicatorOptions.showRSI,
+      })
+      .addNumberInput({
+        path: 'indicators.rsiPeriod',
+        name: t('candlestick.name-rsi-period', 'RSI period'),
+        category: advancedCategory,
+        description: t('candlestick.description-rsi-period', 'Number of points used in RSI calculation'),
+        defaultValue: defaultTechnicalIndicatorOptions.rsiPeriod,
+        settings: {
+          min: 2,
+          max: 500,
+          integer: true,
+        },
+        showIf: (currentOptions) => currentOptions.indicators?.showRSI === true,
+      });
 
     commonOptionsBuilder.addTooltipOptions(builder, false, true);
     commonOptionsBuilder.addLegendOptions(builder, true, true);

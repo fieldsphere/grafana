@@ -28,6 +28,15 @@ export enum ColorStrategy {
   OpenClose = 'open-close',
 }
 
+export enum QuickRangePreset {
+  D1 = '1D',
+  D5 = '5D',
+  D7 = '7D',
+  M3 = '3M',
+  M6 = '6M',
+  Y1 = '1Y',
+}
+
 export interface CandlestickFieldMap {
   /**
    * Corresponds to the final (end) value of the given period
@@ -63,6 +72,24 @@ export const defaultCandlestickColors: Partial<CandlestickColors> = {
   up: 'green',
 };
 
+export interface TechnicalIndicatorOptions {
+  emaPeriod: number;
+  rsiPeriod: number;
+  showEMA: boolean;
+  showRSI: boolean;
+  showSMA: boolean;
+  smaPeriod: number;
+}
+
+export const defaultTechnicalIndicatorOptions: Partial<TechnicalIndicatorOptions> = {
+  emaPeriod: 20,
+  rsiPeriod: 14,
+  showEMA: false,
+  showRSI: false,
+  showSMA: false,
+  smaPeriod: 20,
+};
+
 export interface Options extends common.OptionsWithLegend, common.OptionsWithTooltip, common.OptionsWithAnnotations {
   /**
    * Sets the style of the candlesticks
@@ -85,9 +112,29 @@ export interface Options extends common.OptionsWithLegend, common.OptionsWithToo
    */
   includeAllFields?: boolean;
   /**
+   * Technical indicator visibility and configuration.
+   */
+  indicators: TechnicalIndicatorOptions;
+  /**
+   * Toggle logarithmic scale for the price axis.
+   */
+  isLogScale?: boolean;
+  /**
    * Sets which dimensions are used for the visualization
    */
   mode: VizDisplayMode;
+  /**
+   * Persist log scale toggle in browser session.
+   */
+  persistLogScaleInSession?: boolean;
+  /**
+   * Selected chart period preset.
+   */
+  selectedQuickRange: QuickRangePreset;
+  /**
+   * Display controls for chart period presets.
+   */
+  showQuickRangeControls?: boolean;
 }
 
 export const defaultOptions: Partial<Options> = {
@@ -100,7 +147,19 @@ export const defaultOptions: Partial<Options> = {
   },
   fields: {},
   includeAllFields: false,
+  indicators: {
+    showSMA: false,
+    smaPeriod: 20,
+    showEMA: false,
+    emaPeriod: 20,
+    showRSI: false,
+    rsiPeriod: 14,
+  },
+  isLogScale: false,
   mode: VizDisplayMode.CandlesVolume,
+  persistLogScaleInSession: true,
+  selectedQuickRange: QuickRangePreset.D7,
+  showQuickRangeControls: true,
 };
 
 export interface FieldConfig extends common.GraphFieldConfig {}
