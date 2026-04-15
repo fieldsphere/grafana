@@ -164,3 +164,41 @@ it('renders with buttons disabled when repository is read-only', () => {
   expect(screen.getByRole('button', { name: 'Import dashboard' })).toBeDisabled();
   expect(screen.getByRole('button', { name: 'Add library panel' })).toBeDisabled();
 });
+
+it('renders quick start with examples card', () => {
+  setup();
+
+  expect(screen.getByText('Quick start with examples')).toBeInTheDocument();
+  expect(screen.getByText('Explore ready-made dashboards to jumpstart your monitoring setup.')).toBeInTheDocument();
+});
+
+it('renders quick start CTA as a link to grafana.com dashboards', () => {
+  setup();
+
+  const ctaLink = screen.getByRole('link', { name: /Browse example dashboards/i });
+  expect(ctaLink).toBeInTheDocument();
+  expect(ctaLink).toHaveAttribute('href', 'https://grafana.com/grafana/dashboards/');
+  expect(ctaLink).toHaveAttribute('target', '_blank');
+});
+
+it('quick start card is always visible regardless of canCreate', () => {
+  setup({ canCreate: false });
+
+  expect(screen.getByText('Quick start with examples')).toBeInTheDocument();
+  const ctaLink = screen.getByRole('link', { name: /Browse example dashboards/i });
+  expect(ctaLink).toBeInTheDocument();
+});
+
+it('quick start card is visible even when repository is read-only', () => {
+  mockUseGetResourceRepositoryView.mockReturnValue({
+    isReadOnlyRepo: true,
+    isInstanceManaged: false,
+    isLoading: false,
+  });
+
+  setup({ canCreate: true });
+
+  expect(screen.getByText('Quick start with examples')).toBeInTheDocument();
+  const ctaLink = screen.getByRole('link', { name: /Browse example dashboards/i });
+  expect(ctaLink).toBeInTheDocument();
+});

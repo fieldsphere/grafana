@@ -5,7 +5,7 @@ import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Button, useStyles2, Text, Box, Stack, TextLink, Icon, FilterPill, Tooltip } from '@grafana/ui';
+import { Button, LinkButton, useStyles2, Text, Box, Stack, TextLink, Icon, FilterPill, Tooltip } from '@grafana/ui';
 import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { AutoGridLayoutManager } from 'app/features/dashboard-scene/scene/layout-auto-grid/AutoGridLayoutManager';
@@ -144,7 +144,53 @@ const NewLayoutEmpty = ({ dashboard, styles }: NewLayoutEmptyProps) => {
           </>
         )}
       </Box>
+      <QuickStartExamplesCard />
     </Stack>
+  );
+};
+
+const GRAFANA_EXAMPLE_DASHBOARDS_URL = 'https://grafana.com/grafana/dashboards/';
+
+interface QuickStartExamplesCardProps {
+  flex?: number;
+}
+
+const QuickStartExamplesCard = ({ flex }: QuickStartExamplesCardProps) => {
+  const styles = useStyles2(getQuickStartStyles);
+
+  return (
+    <Box
+      borderRadius="lg"
+      borderColor="strong"
+      borderStyle="dashed"
+      padding={3}
+      flex={flex}
+      data-testid={selectors.pages.AddDashboard.itemButton('Quick start with examples')}
+    >
+      <Stack direction="column" alignItems="center" gap={1}>
+        <Icon name="rocket" size="xl" className={styles.icon} />
+        <Text element="h3" textAlignment="center" weight="medium">
+          <Trans i18nKey="dashboard.empty.quick-start-header">Quick start with examples</Trans>
+        </Text>
+        <Box marginBottom={2}>
+          <Text element="p" textAlignment="center" color="secondary">
+            <Trans i18nKey="dashboard.empty.quick-start-body">
+              Explore ready-made dashboards to jumpstart your monitoring setup.
+            </Trans>
+          </Text>
+        </Box>
+        <LinkButton
+          icon="external-link-alt"
+          fill="outline"
+          href={GRAFANA_EXAMPLE_DASHBOARDS_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          data-testid={selectors.pages.AddDashboard.itemButton('Quick start examples button')}
+        >
+          <Trans i18nKey="dashboard.empty.quick-start-button">Browse example dashboards</Trans>
+        </LinkButton>
+      </Stack>
+    </Box>
   );
 };
 
@@ -233,6 +279,7 @@ const OldLayoutEmpty = ({ onAddVisualization, onAddLibraryPanel, onImportDashboa
           </Button>
         </Stack>
       </Box>
+      <QuickStartExamplesCard flex={1} />
     </Stack>
   </Stack>
 );
@@ -290,6 +337,14 @@ function getStyles(theme: GrafanaTheme2) {
     }),
     appsIcon: css({
       fill: theme.v1.palette.orange,
+    }),
+  };
+}
+
+function getQuickStartStyles(theme: GrafanaTheme2) {
+  return {
+    icon: css({
+      color: theme.colors.warning.text,
     }),
   };
 }
