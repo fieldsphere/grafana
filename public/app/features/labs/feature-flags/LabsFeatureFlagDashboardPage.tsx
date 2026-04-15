@@ -76,9 +76,9 @@ export default function LabsFeatureFlagDashboardPage() {
               'See which feature flags are enabled and control them in this browser session.'
             )}
           </p>
-          <p className={styles.titleBadgeRow}>
+          <div className={styles.titleBadgeRow}>
             <Badge text={t('labs.feature-flags.badge', 'New')} color="blue" />
-          </p>
+          </div>
           <Stack direction="row" alignItems="center" gap={1}>
             <Badge text={`${enabledCount} enabled`} color="green" />
             <Badge text={`${disabledCount} disabled`} color="orange" />
