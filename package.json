@@ -449,7 +449,8 @@
     "uuid": "11.1.0",
     "vis-data": "^8.0.0",
     "vis-network": "10.0.2",
-    "whatwg-fetch": "3.6.20"
+    "whatwg-fetch": "3.6.20",
+    "xlsx": "^0.18.5"
   },
   "resolutions": {
     "underscore": "1.13.7",

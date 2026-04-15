@@ -60,6 +60,7 @@ describe('InspectDataTab', () => {
     it('should render Data Option row', () => {
       render(<InspectDataTab {...createProps()} />);
       expect(screen.getByText(/Data options/i)).toBeInTheDocument();
+      expect(screen.getByText(/Download XLSX/i)).toBeInTheDocument();
     });
     it('should show available options', async () => {
       render(<InspectDataTab {...createProps()} />);
