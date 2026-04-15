@@ -29,6 +29,7 @@ composableKinds: PanelCfg: {
 				VizDisplayMode: "candles+volume" | "candles" | "volume" @cuetsy(kind="enum", memberNames="CandlesVolume|Candles|Volume")
 				CandleStyle:    "candles" | "ohlcbars"                  @cuetsy(kind="enum", memberNames="Candles|OHLCBars")
 				ColorStrategy:  "open-close" | "close-close"            @cuetsy(kind="enum", memberNames="OpenClose|CloseClose")
+				QuickRangePreset: "1D" | "5D" | "7D" | "3M" | "6M" | "1Y" @cuetsy(kind="enum", memberNames="D1|D5|D7|M3|M6|Y1")
 				CandlestickFieldMap: {
 					// Corresponds to the starting value of the given period
 					open?: string
@@ -45,6 +46,14 @@ composableKinds: PanelCfg: {
 					up:   string | *"green"
 					down: string | *"red"
 					flat: string | *"gray"
+				} @cuetsy(kind="interface")
+				TechnicalIndicatorOptions: {
+					showSMA: bool | *false
+					smaPeriod: int & >=2 & <=500 | *20
+					showEMA: bool | *false
+					emaPeriod: int & >=2 & <=500 | *20
+					showRSI: bool | *false
+					rsiPeriod: int & >=2 & <=500 | *14
 				} @cuetsy(kind="interface")
 				Options: {
 					common.OptionsWithLegend
@@ -63,6 +72,23 @@ composableKinds: PanelCfg: {
 					colors: CandlestickColors | *{down: "red", up: "green", flat: "gray"}
 					// When enabled, all fields will be sent to the graph
 					includeAllFields?: bool | *false
+					// Display controls for chart period presets.
+					showQuickRangeControls?: bool | *true
+					// Selected chart period preset.
+					selectedQuickRange: QuickRangePreset & (*"7D" | _)
+					// Persist log scale toggle in browser session.
+					persistLogScaleInSession?: bool | *true
+					// Toggle logarithmic scale for the price axis.
+					isLogScale?: bool | *false
+					// Technical indicator visibility and configuration.
+					indicators: TechnicalIndicatorOptions | *{
+						showSMA: false
+						smaPeriod: 20
+						showEMA: false
+						emaPeriod: 20
+						showRSI: false
+						rsiPeriod: 14
+					}
 				} @cuetsy(kind="interface")
 				FieldConfig: common.GraphFieldConfig & {} @cuetsy(kind="interface")
 			}
