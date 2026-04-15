@@ -14,7 +14,10 @@ const setup = (overrides: Partial<Props> = {}) => {
     onClick: jest.fn(),
   };
 
-  return { ...render(<DataSourceTypeCard {...defaultProps} {...overrides} />), props: { ...defaultProps, ...overrides } };
+  return {
+    ...render(<DataSourceTypeCard {...defaultProps} {...overrides} />),
+    props: { ...defaultProps, ...overrides },
+  };
 };
 
 describe('DataSourceTypeCard', () => {
