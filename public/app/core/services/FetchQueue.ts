@@ -2,6 +2,8 @@ import { type Observable, Subject } from 'rxjs';
 
 import { type BackendSrvRequest } from '@grafana/runtime';
 
+import { createDebugLog } from '../utils/debugLog';
+
 export interface QueueState extends Record<string, { state: FetchStatus; options: BackendSrvRequest }> {}
 
 export enum FetchStatus {
@@ -76,6 +78,8 @@ export class FetchQueue {
     this.updates.next(update);
   };
 
+  private static debugLog = createDebugLog('fetchQueue', 'FetchQueue');
+
   private printState = (update: FetchQueueUpdate, debug: boolean): void => {
     if (!debug) {
       return;
@@ -90,8 +94,6 @@ export class FetchQueue {
       []
     );
 
-    console.log('FetchQueue noOfStarted', update.noOfInProgress);
-    console.log('FetchQueue noOfNotStarted', update.noOfPending);
-    console.log('FetchQueue state', entriesWithoutOptions);
+    FetchQueue.debugLog(`noOfStarted: ${update.noOfInProgress}, noOfNotStarted: ${update.noOfPending}`, entriesWithoutOptions);
   };
 }

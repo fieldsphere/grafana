@@ -14,7 +14,9 @@ import {
   type SelectableValue,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, getBackendSrv } from '@grafana/runtime';
+import { config, createMonitoringLogger, getBackendSrv } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('features.search.unified');
 import { generatedAPI, type ListStarsApiResponse } from 'app/api/clients/collections/v1alpha1';
 import { getAPIBaseURL } from 'app/api/utils';
 import { type TermCount } from 'app/core/components/TagFilter/TagFilter';
@@ -209,7 +211,7 @@ export class UnifiedSearcher implements GrafanaSearcher {
         const resp = await this.fetchResponse(nextPageUrl);
         const frame = toDashboardResults(resp, query.sort ?? '');
         if (!frame) {
-          console.log('no results', frame);
+          logger.logDebug('No results from search', { offset: String(offset) });
           return;
         }
 

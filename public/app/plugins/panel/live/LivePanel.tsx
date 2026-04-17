@@ -19,8 +19,10 @@ import {
   StreamingDataFrame,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { config, getGrafanaLiveSrv } from '@grafana/runtime';
+import { config, createMonitoringLogger, getGrafanaLiveSrv } from '@grafana/runtime';
 import { Alert, stylesFactory, JSONFormatter, CustomScrollbar } from '@grafana/ui';
+
+const logger = createMonitoringLogger('plugins.panel.live');
 
 import { TablePanel } from '../table/TablePanel';
 
@@ -72,7 +74,7 @@ export class LivePanel extends PureComponent<Props, State> {
       } else if (isLiveChannelMessageEvent(event)) {
         this.setState({ message: event.message, changed: Date.now() });
       } else {
-        console.log('ignore', event);
+        logger.logDebug('Ignoring unhandled live channel event', { eventType: typeof event });
       }
     },
   };
@@ -87,7 +89,7 @@ export class LivePanel extends PureComponent<Props, State> {
   async loadChannel() {
     const addr = this.props.options?.channel;
     if (!isValidLiveChannelAddress(addr)) {
-      console.log('INVALID', addr);
+      logger.logDebug('Invalid channel address', { addr: JSON.stringify(addr) });
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -96,13 +98,13 @@ export class LivePanel extends PureComponent<Props, State> {
     }
 
     if (isEqual(addr, this.state.addr)) {
-      console.log('Same channel', this.state.addr);
+      logger.logDebug('Channel unchanged, skipping reload', { scope: addr.scope, namespace: addr.namespace ?? '', path: addr.path });
       return;
     }
 
     const live = getGrafanaLiveSrv();
     if (!live) {
-      console.log('INVALID', addr);
+      logger.logWarning('Grafana Live service not available');
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -111,7 +113,7 @@ export class LivePanel extends PureComponent<Props, State> {
     }
     this.unsubscribe();
 
-    console.log('LOAD', addr);
+    logger.logDebug('Loading channel', { scope: addr.scope, namespace: addr.namespace ?? '', path: addr.path });
 
     // Subscribe to new events
     try {

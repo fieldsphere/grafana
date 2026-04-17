@@ -1,9 +1,12 @@
 import { cloneDeep } from 'lodash';
 
+import { createMonitoringLogger } from '@grafana/runtime';
 import { notFoundItem } from 'app/features/canvas/elements/notFound';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { HorizontalConstraint, type Placement, VerticalConstraint } from 'app/plugins/panel/canvas/panelcfg.gen';
 import { LayerActionID } from 'app/plugins/panel/canvas/types';
+
+const logger = createMonitoringLogger('features.canvas.runtime.frame');
 
 import { updateConnectionsForSource } from '../../../plugins/panel/canvas/utils';
 import { type CanvasElementItem } from '../element';
@@ -129,7 +132,7 @@ export class FrameState extends ElementState {
         break;
       case LayerActionID.Duplicate:
         if (element.item.id === 'frame') {
-          console.log('Can not duplicate frames (yet)', action, element);
+          logger.logDebug('Frame duplication not yet supported', { action, elementName: element.options.name });
           return;
         }
         const opts = cloneDeep(element.options);
@@ -239,7 +242,7 @@ export class FrameState extends ElementState {
         break;
 
       default:
-        console.log('DO action', action, element);
+        logger.logDebug('Unhandled layer action', { action, elementName: element.options.name });
         return;
     }
   };

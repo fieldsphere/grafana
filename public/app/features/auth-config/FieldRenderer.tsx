@@ -3,11 +3,14 @@ import { useEffect, useState } from 'react';
 import { type UseFormReturn, Controller } from 'react-hook-form';
 
 import { type SelectableValue } from '@grafana/data';
+import { createMonitoringLogger } from '@grafana/runtime';
 import { Checkbox, Field, Input, SecretInput, Select, Switch, useTheme2 } from '@grafana/ui';
 
 import { fieldMap } from './fields';
 import { type SSOProviderDTO, type SSOSettingsField } from './types';
 import { isSelectableValueArray } from './utils/guards';
+
+const logger = createMonitoringLogger('features.auth-config.field-renderer');
 
 interface FieldRendererProps
   extends Pick<
@@ -78,7 +81,7 @@ export const FieldRenderer = ({
   }, [isDisabled, disabledWhen?.disabledValue, name, setValue]);
 
   if (!field) {
-    console.log('missing field:', name);
+    logger.logWarning('Missing field configuration', { fieldName: name, provider });
     return null;
   }
 

@@ -23,8 +23,10 @@ import {
   toDataFrameDTO,
   toUtc,
 } from '@grafana/data';
-import { RefreshEvent } from '@grafana/runtime';
+import { createMonitoringLogger, RefreshEvent } from '@grafana/runtime';
 import { type VizLegendOptions } from '@grafana/schema';
+
+const logger = createMonitoringLogger('features.dashboard.panel-state');
 import {
   ErrorBoundary,
   PanelChrome,
@@ -257,7 +259,7 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
       const delta = liveTime.to.valueOf() - data.timeRange.to.valueOf();
       if (delta < 100) {
         // 10hz
-        console.log('Skip tick render', this.props.panel.title, delta);
+        logger.logDebug('Skipping tick render due to throttling', { panelTitle: this.props.panel.title, deltaMs: String(delta) });
         return;
       }
     }
