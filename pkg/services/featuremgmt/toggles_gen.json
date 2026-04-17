@@ -2753,14 +2753,18 @@
     {
       "metadata": {
         "name": "kubernetesAnnotations",
-        "resourceVersion": "1771434338561",
+        "resourceVersion": "1776444429755",
         "creationTimestamp": "2025-11-06T18:22:20Z",
-        "deletionTimestamp": "2026-02-19T21:17:23Z"
+        "deletionTimestamp": "2026-02-19T21:17:23Z",
+        "annotations": {
+          "grafana.app/updatedTimestamp": "2026-04-17 16:47:09.755854785 +0000 UTC"
+        }
       },
       "spec": {
-        "description": "Enables app platform API for annotations",
+        "description": "Adds support for Kubernetes annotations API",
         "stage": "experimental",
-        "codeowner": "@grafana/grafana-backend-services-squad",
+        "codeowner": "@grafana/search-and-storage",
+        "requiresRestart": true,
         "expression": "false"
       }
     },

@@ -35,7 +35,7 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 			featuremgmt.FlagDatasourcesApiServerEnableResourceEndpoint,
 			featuremgmt.FlagKubernetesShortURLs,
 			featuremgmt.FlagKubernetesCorrelations,
-			"kubernetesAnnotations",
+			featuremgmt.FlagKubernetesAnnotations,
 			featuremgmt.FlagKubernetesAlertingHistorian,
 			featuremgmt.FlagKubernetesLogsDrilldown,
 			featuremgmt.FlagKubernetesUnifiedStorageQuotas,
