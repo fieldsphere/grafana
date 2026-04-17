@@ -12,10 +12,10 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Gettable Historic User Configs"
       },
       "SMTPNotEnabledError": {
-        "description": "(empty)"
+        "description": "SMTPNot Enabled Error"
       },
       "StateHistory": {
         "content": {
@@ -25,7 +25,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "State History"
       },
       "TestGrafanaRuleResponse": {
         "content": {
@@ -38,7 +38,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Test Grafana Rule"
       },
       "acceptedResponse": {
         "content": {
@@ -58,7 +58,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Admin Create User"
       },
       "adminGetSettingsResponse": {
         "content": {
@@ -68,7 +68,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Admin Get Settings"
       },
       "adminGetStatsResponse": {
         "content": {
@@ -78,7 +78,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Admin Get Stats"
       },
       "adminGetUserAuthTokensResponse": {
         "content": {
@@ -91,7 +91,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Admin Get User Auth Tokens"
       },
       "apiResponse": {
         "content": {
@@ -101,7 +101,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Api"
       },
       "badRequestError": {
         "content": {
@@ -135,7 +135,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Calculate Dashboard Diff"
       },
       "cloudMigrationCreateTokenResponse": {
         "content": {
@@ -145,10 +145,10 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Cloud Migration Create Token"
       },
       "cloudMigrationDeleteTokenResponse": {
-        "description": "(empty)"
+        "description": "Cloud Migration Delete Token"
       },
       "cloudMigrationGetTokenResponse": {
         "content": {
@@ -158,7 +158,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Cloud Migration Get Token"
       },
       "cloudMigrationRunListResponse": {
         "content": {
@@ -168,7 +168,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Cloud Migration Run List"
       },
       "cloudMigrationRunResponse": {
         "content": {
@@ -178,7 +178,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Cloud Migration Run"
       },
       "cloudMigrationSessionListResponse": {
         "content": {
@@ -188,7 +188,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Cloud Migration Session List"
       },
       "cloudMigrationSessionResponse": {
         "content": {
@@ -198,7 +198,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Cloud Migration Session"
       },
       "conflictError": {
         "content": {
@@ -222,7 +222,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Content"
       },
       "createCorrelationResponse": {
         "content": {
@@ -232,7 +232,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Correlation"
       },
       "createDashboardSnapshotResponse": {
         "content": {
@@ -263,7 +263,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Dashboard Snapshot"
       },
       "createOrUpdateDatasourceResponse": {
         "content": {
@@ -300,7 +300,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Or Update Datasource"
       },
       "createOrgResponse": {
         "content": {
@@ -327,7 +327,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Org"
       },
       "createPlaylistResponse": {
         "content": {
@@ -337,7 +337,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Playlist"
       },
       "createPublicDashboardResponse": {
         "content": {
@@ -347,7 +347,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Public Dashboard"
       },
       "createReportResponse": {
         "content": {
@@ -366,7 +366,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Report"
       },
       "createRoleResponse": {
         "content": {
@@ -376,7 +376,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Role"
       },
       "createServiceAccountResponse": {
         "content": {
@@ -386,7 +386,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Service Account"
       },
       "createSnapshotResponse": {
         "content": {
@@ -396,7 +396,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Snapshot"
       },
       "createTeamResponse": {
         "content": {
@@ -418,7 +418,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Team"
       },
       "createTokenResponse": {
         "content": {
@@ -428,7 +428,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Create Token"
       },
       "dashboardResponse": {
         "content": {
@@ -438,7 +438,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Dashboard"
       },
       "dashboardVersionResponse": {
         "content": {
@@ -448,7 +448,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Dashboard Version"
       },
       "dashboardVersionsResponse": {
         "content": {
@@ -458,7 +458,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Dashboard Versions"
       },
       "deleteCorrelationResponse": {
         "content": {
@@ -468,7 +468,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Delete Correlation"
       },
       "deleteDashboardResponse": {
         "content": {
@@ -500,7 +500,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Delete Dashboard"
       },
       "deleteDataSourceByNameResponse": {
         "content": {
@@ -527,7 +527,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Delete Data Source By Name"
       },
       "deleteFolderResponse": {
         "content": {
@@ -560,7 +560,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Delete Folder"
       },
       "devicesResponse": {
         "content": {
@@ -573,7 +573,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Devices"
       },
       "devicesSearchResponse": {
         "content": {
@@ -583,7 +583,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Devices Search"
       },
       "folderResponse": {
         "content": {
@@ -593,7 +593,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Folder"
       },
       "forbiddenError": {
         "content": {
@@ -633,7 +633,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Access Control Status"
       },
       "getAllRolesResponse": {
         "content": {
@@ -646,7 +646,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "All Roles"
       },
       "getAnnotationByIDResponse": {
         "content": {
@@ -656,7 +656,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Annotation By ID"
       },
       "getAnnotationTagsResponse": {
         "content": {
@@ -666,7 +666,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Annotation Tags"
       },
       "getAnnotationsResponse": {
         "content": {
@@ -679,7 +679,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Annotations"
       },
       "getCorrelationResponse": {
         "content": {
@@ -689,7 +689,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Correlation"
       },
       "getCorrelationsBySourceUIDResponse": {
         "content": {
@@ -702,7 +702,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Correlations By Source UID"
       },
       "getCorrelationsResponse": {
         "content": {
@@ -715,7 +715,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Correlations"
       },
       "getCurrentOrgResponse": {
         "content": {
@@ -725,7 +725,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Current Org"
       },
       "getDashboardPermissionsListResponse": {
         "content": {
@@ -738,10 +738,10 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Dashboard Permissions List"
       },
       "getDashboardSnapshotResponse": {
-        "description": "(empty)"
+        "description": "Dashboard Snapshot"
       },
       "getDashboardsTagsResponse": {
         "content": {
@@ -754,7 +754,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Dashboards Tags"
       },
       "getDataSourceIDResponse": {
         "content": {
@@ -775,7 +775,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Data Source ID"
       },
       "getDataSourceResponse": {
         "content": {
@@ -785,7 +785,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Data Source"
       },
       "getDataSourcesResponse": {
         "content": {
@@ -795,7 +795,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Data Sources"
       },
       "getFolderDescendantCountsResponse": {
         "content": {
@@ -805,7 +805,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Folder Descendant Counts"
       },
       "getFolderPermissionListResponse": {
         "content": {
@@ -818,7 +818,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Folder Permission List"
       },
       "getFoldersResponse": {
         "content": {
@@ -831,7 +831,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Folders"
       },
       "getGroupRolesResponse": {
         "content": {
@@ -844,7 +844,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Group Roles"
       },
       "getGroupsResponse": {
         "content": {
@@ -854,7 +854,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Groups"
       },
       "getHomeDashboardResponse": {
         "content": {
@@ -864,7 +864,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Home Dashboard"
       },
       "getLibraryElementArrayResponse": {
         "content": {
@@ -874,7 +874,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Library Element Array"
       },
       "getLibraryElementConnectionsResponse": {
         "content": {
@@ -884,7 +884,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Library Element Connections"
       },
       "getLibraryElementResponse": {
         "content": {
@@ -894,7 +894,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Library Element"
       },
       "getLibraryElementsResponse": {
         "content": {
@@ -904,7 +904,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Library Elements"
       },
       "getLicenseTokenResponse": {
         "content": {
@@ -914,7 +914,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "License Token"
       },
       "getOrgByIDResponse": {
         "content": {
@@ -924,7 +924,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Org By ID"
       },
       "getOrgByNameResponse": {
         "content": {
@@ -934,7 +934,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Org By Name"
       },
       "getOrgUsersForCurrentOrgLookupResponse": {
         "content": {
@@ -947,7 +947,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Org Users For Current Org Lookup"
       },
       "getOrgUsersForCurrentOrgResponse": {
         "content": {
@@ -960,7 +960,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Org Users For Current Org"
       },
       "getOrgUsersResponse": {
         "content": {
@@ -973,7 +973,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Org Users"
       },
       "getPendingOrgInvitesResponse": {
         "content": {
@@ -986,7 +986,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Pending Org Invites"
       },
       "getPlaylistDashboardsResponse": {
         "content": {
@@ -996,7 +996,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Playlist Dashboards"
       },
       "getPlaylistItemsResponse": {
         "content": {
@@ -1009,7 +1009,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Playlist Items"
       },
       "getPlaylistResponse": {
         "content": {
@@ -1019,7 +1019,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Playlist"
       },
       "getPreferencesResponse": {
         "content": {
@@ -1029,7 +1029,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Preferences"
       },
       "getPublicAnnotationsResponse": {
         "content": {
@@ -1042,7 +1042,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Public Annotations"
       },
       "getPublicDashboardResponse": {
         "content": {
@@ -1052,7 +1052,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Public Dashboard"
       },
       "getQueryHistoryDeleteQueryResponse": {
         "content": {
@@ -1062,7 +1062,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Query History Delete Query"
       },
       "getQueryHistoryResponse": {
         "content": {
@@ -1072,7 +1072,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Query History"
       },
       "getQueryHistorySearchResponse": {
         "content": {
@@ -1082,7 +1082,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Query History Search"
       },
       "getQuotaResponse": {
         "content": {
@@ -1095,7 +1095,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Quota"
       },
       "getReportResponse": {
         "content": {
@@ -1105,7 +1105,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Report"
       },
       "getReportSettingsResponse": {
         "content": {
@@ -1115,7 +1115,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Report Settings"
       },
       "getReportsResponse": {
         "content": {
@@ -1128,7 +1128,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Reports"
       },
       "getResourcePermissionsResponse": {
         "content": {
@@ -1141,7 +1141,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Resource Permissions"
       },
       "getRoleAssignmentsResponse": {
         "content": {
@@ -1151,7 +1151,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Role Assignments"
       },
       "getRoleResponse": {
         "content": {
@@ -1161,7 +1161,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Role"
       },
       "getSSOSettingsResponse": {
         "content": {
@@ -1186,7 +1186,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "SSOSettings"
       },
       "getSharingOptionsResponse": {
         "content": {
@@ -1207,7 +1207,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Sharing Options"
       },
       "getSignedInUserOrgListResponse": {
         "content": {
@@ -1220,7 +1220,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Signed In User Org List"
       },
       "getSignedInUserTeamListResponse": {
         "content": {
@@ -1233,7 +1233,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Signed In User Team List"
       },
       "getSnapshotResponse": {
         "content": {
@@ -1243,10 +1243,10 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Snapshot"
       },
       "getStatusResponse": {
-        "description": "(empty)"
+        "description": "Status"
       },
       "getSyncStatusResponse": {
         "content": {
@@ -1256,7 +1256,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Sync Status"
       },
       "getTeamByIDResponse": {
         "content": {
@@ -1266,7 +1266,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Team By ID"
       },
       "getTeamGroupsApiResponse": {
         "content": {
@@ -1279,7 +1279,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Team Groups Api"
       },
       "getTeamLBACRulesResponse": {
         "content": {
@@ -1289,7 +1289,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Team LBACRules"
       },
       "getTeamMembersResponse": {
         "content": {
@@ -1302,7 +1302,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Team Members"
       },
       "getUserAuthTokensResponse": {
         "content": {
@@ -1315,7 +1315,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "User Auth Tokens"
       },
       "getUserOrgListResponse": {
         "content": {
@@ -1328,7 +1328,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "User Org List"
       },
       "getUserTeamsResponse": {
         "content": {
@@ -1341,7 +1341,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "User Teams"
       },
       "goneError": {
         "content": {
@@ -1370,7 +1370,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Help Flag"
       },
       "importDashboardResponse": {
         "content": {
@@ -1380,7 +1380,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Import Dashboard"
       },
       "internalServerError": {
         "content": {
@@ -1408,7 +1408,7 @@
             "schema": {}
           }
         },
-        "description": "(empty)"
+        "description": "Interpolate Dashboard"
       },
       "jwksResponse": {
         "content": {
@@ -1426,7 +1426,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Jwks"
       },
       "listBuiltinRolesResponse": {
         "content": {
@@ -1442,7 +1442,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "List Builtin Roles"
       },
       "listPublicDashboardsResponse": {
         "content": {
@@ -1452,7 +1452,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "List Public Dashboards"
       },
       "listRecordingRulesResponse": {
         "content": {
@@ -1465,7 +1465,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "List Recording Rules"
       },
       "listRolesResponse": {
         "content": {
@@ -1478,7 +1478,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "List Roles"
       },
       "listSSOSettingsResponse": {
         "content": {
@@ -1506,7 +1506,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "List SSOSettings"
       },
       "listSortOptionsResponse": {
         "content": {
@@ -1530,7 +1530,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "List Sort Options"
       },
       "listTeamsRolesResponse": {
         "content": {
@@ -1546,7 +1546,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "List Teams Roles"
       },
       "listTokensResponse": {
         "content": {
@@ -1559,7 +1559,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "List Tokens"
       },
       "listUsersRolesResponse": {
         "content": {
@@ -1575,7 +1575,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "List Users Roles"
       },
       "noContentResponse": {
         "content": {
@@ -1585,7 +1585,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "No Content"
       },
       "notAcceptableError": {
         "content": {
@@ -1651,7 +1651,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Post Annotation"
       },
       "postDashboardResponse": {
         "content": {
@@ -1707,10 +1707,10 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Post Dashboard"
       },
       "postRenewLicenseTokenResponse": {
-        "description": "(empty)"
+        "description": "Post Renew License Token"
       },
       "preconditionFailedError": {
         "content": {
@@ -1730,7 +1730,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Public Error"
       },
       "queryMetricsWithExpressionsRespons": {
         "content": {
@@ -1740,7 +1740,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Query Metrics With Expressions Respons"
       },
       "queryPublicDashboardResponse": {
         "content": {
@@ -1750,7 +1750,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Query Public Dashboard"
       },
       "receiversResponse": {
         "content": {
@@ -1763,7 +1763,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Receivers"
       },
       "recordingRuleResponse": {
         "content": {
@@ -1773,7 +1773,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Recording Rule"
       },
       "recordingRuleWriteTargetResponse": {
         "content": {
@@ -1783,7 +1783,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Recording Rule Write Target"
       },
       "refreshLicenseStatsResponse": {
         "content": {
@@ -1793,7 +1793,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Refresh License Stats"
       },
       "resourceDependenciesResponse": {
         "content": {
@@ -1803,7 +1803,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Resource Dependencies"
       },
       "resourcePermissionsDescription": {
         "content": {
@@ -1813,7 +1813,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Resource Permissions Description"
       },
       "retrieveServiceAccountResponse": {
         "content": {
@@ -1823,7 +1823,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Retrieve Service Account"
       },
       "searchDashboardSnapshotsResponse": {
         "content": {
@@ -1836,7 +1836,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Search Dashboard Snapshots"
       },
       "searchOrgServiceAccountsWithPagingResponse": {
         "content": {
@@ -1846,7 +1846,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Search Org Service Accounts With Paging"
       },
       "searchOrgUsersResponse": {
         "content": {
@@ -1856,7 +1856,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Search Org Users"
       },
       "searchOrgsResponse": {
         "content": {
@@ -1869,7 +1869,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Search Orgs"
       },
       "searchPlaylistsResponse": {
         "content": {
@@ -1879,7 +1879,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Search Playlists"
       },
       "searchResponse": {
         "content": {
@@ -1889,7 +1889,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Search"
       },
       "searchTeamGroupsResponse": {
         "content": {
@@ -1902,7 +1902,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Search Team Groups"
       },
       "searchTeamsResponse": {
         "content": {
@@ -1912,7 +1912,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Search Teams"
       },
       "searchUsersResponse": {
         "content": {
@@ -1925,7 +1925,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Search Users"
       },
       "searchUsersWithPagingResponse": {
         "content": {
@@ -1935,7 +1935,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Search Users With Paging"
       },
       "setRoleAssignmentsResponse": {
         "content": {
@@ -1945,7 +1945,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Set Role Assignments"
       },
       "snapshotListResponse": {
         "content": {
@@ -1955,7 +1955,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Snapshot List"
       },
       "statusMovedPermanently": {
         "content": {
@@ -2005,7 +2005,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Update Correlation"
       },
       "updatePlaylistResponse": {
         "content": {
@@ -2015,7 +2015,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Update Playlist"
       },
       "updatePublicDashboardResponse": {
         "content": {
@@ -2025,7 +2025,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Update Public Dashboard"
       },
       "updateServiceAccountResponse": {
         "content": {
@@ -2050,7 +2050,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Update Service Account"
       },
       "updateTeamLBACRulesResponse": {
         "content": {
@@ -2081,7 +2081,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "Update Team LBACRules"
       },
       "userResponse": {
         "content": {
@@ -2091,7 +2091,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "User"
       },
       "viewPublicDashboardResponse": {
         "content": {
@@ -2101,7 +2101,7 @@
             }
           }
         },
-        "description": "(empty)"
+        "description": "View Public Dashboard"
       }
     },
     "schemas": {
@@ -13806,15 +13806,21 @@
     },
     "securitySchemes": {
       "api_key": {
+        "description": "API key authentication using the Authorization header. Use 'Bearer \u003capi-key\u003e' format.",
         "in": "header",
         "name": "Authorization",
         "type": "apiKey"
       },
       "basic": {
+        "description": "HTTP Basic authentication using username and password.",
         "scheme": "basic",
         "type": "http"
       }
     }
+  },
+  "externalDocs": {
+    "description": "Grafana HTTP API Reference",
+    "url": "https://grafana.com/docs/grafana/latest/developers/http_api/"
   },
   "info": {
     "contact": {
@@ -13822,7 +13828,11 @@
       "name": "Grafana Labs",
       "url": "https://grafana.com"
     },
-    "description": "The Grafana backend exposes an HTTP API, the same API is used by the frontend to do\neverything from saving dashboards, creating users and updating data sources.",
+    "description": "The Grafana backend exposes an HTTP API, the same API is used by the frontend to do\neverything from saving dashboards, creating users and updating data sources.\n\nFor more information, see the [Grafana HTTP API documentation](https://grafana.com/docs/grafana/latest/developers/http_api/).",
+    "license": {
+      "name": "GNU Affero General Public License v3.0",
+      "url": "https://github.com/grafana/grafana/blob/main/LICENSE"
+    },
     "title": "Grafana HTTP API.",
     "version": "0.0.1"
   },
@@ -16550,7 +16560,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)"
+            "description": "Success"
           },
           "400": {
             "$ref": "#/components/responses/badRequestError"
@@ -16596,7 +16606,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)"
+            "description": "Success"
           },
           "400": {
             "$ref": "#/components/responses/badRequestError"
@@ -18477,7 +18487,7 @@
         ],
         "responses": {
           "202": {
-            "description": "(empty)"
+            "description": "Accepted"
           },
           "400": {
             "$ref": "#/components/responses/badRequestError"
@@ -18523,7 +18533,7 @@
         ],
         "responses": {
           "200": {
-            "description": "(empty)"
+            "description": "Success"
           },
           "400": {
             "$ref": "#/components/responses/badRequestError"
@@ -18578,10 +18588,10 @@
         },
         "responses": {
           "201": {
-            "description": "(empty)"
+            "description": "Created"
           },
           "202": {
-            "description": "(empty)"
+            "description": "Accepted"
           },
           "400": {
             "$ref": "#/components/responses/badRequestError"
@@ -20546,7 +20556,7 @@
         "operationId": "getSAMLLogout",
         "responses": {
           "302": {
-            "description": "(empty)"
+            "description": "Response"
           },
           "404": {
             "$ref": "#/components/responses/notFoundError"
@@ -23168,7 +23178,7 @@
         ],
         "responses": {
           "302": {
-            "description": "(empty)"
+            "description": "Response"
           },
           "403": {
             "$ref": "#/components/responses/forbiddenError"
@@ -23205,7 +23215,7 @@
         "operationId": "getSLO",
         "responses": {
           "302": {
-            "description": "(empty)"
+            "description": "Response"
           },
           "400": {
             "$ref": "#/components/responses/badRequestError"
@@ -23244,7 +23254,7 @@
         ],
         "responses": {
           "302": {
-            "description": "(empty)"
+            "description": "Response"
           },
           "400": {
             "$ref": "#/components/responses/badRequestError"
@@ -27747,6 +27757,7 @@
   ],
   "servers": [
     {
+      "description": "Grafana HTTP API base path",
       "url": "/api"
     }
   ],

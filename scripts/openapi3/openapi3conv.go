@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi2"
@@ -54,9 +55,8 @@ func main() {
 		panic(err)
 	}
 
-	// this is a workaround. In the swagger2 specs there ir no definition of the host, so the converter can not create
-	// a URL. Adding this will ensure that all the api calls start with "/api".
-	doc3.AddServer(&openapi3.Server{URL: "/api"})
+	// Enhance the converted OpenAPI 3 spec
+	enhanceOpenAPI3Spec(doc3)
 
 	j3, err := json.MarshalIndent(doc3, "", "  ")
 	if err != nil {
@@ -67,6 +67,161 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf("OpenAPI specs generated in file %s\n", outFile)
+}
+
+// enhanceOpenAPI3Spec applies post-conversion enhancements to make the spec
+// more compliant with OpenAPI 3.0 best practices
+func enhanceOpenAPI3Spec(doc3 *openapi3.T) {
+	// Add server configuration with description
+	doc3.Servers = openapi3.Servers{
+		&openapi3.Server{
+			URL:         "/api",
+			Description: "Grafana HTTP API base path",
+		},
+	}
+
+	// Enhance the info section
+	if doc3.Info != nil {
+		if doc3.Info.License == nil {
+			doc3.Info.License = &openapi3.License{
+				Name: "GNU Affero General Public License v3.0",
+				URL:  "https://github.com/grafana/grafana/blob/main/LICENSE",
+			}
+		}
+		if doc3.Info.Description != "" {
+			doc3.Info.Description = strings.TrimSpace(doc3.Info.Description) +
+				"\n\nFor more information, see the [Grafana HTTP API documentation](https://grafana.com/docs/grafana/latest/developers/http_api/)."
+		}
+	}
+
+	// Fix empty response descriptions
+	fixEmptyResponseDescriptions(doc3)
+
+	// Enhance security scheme descriptions
+	enhanceSecuritySchemes(doc3)
+
+	// Ensure external documentation is present
+	if doc3.ExternalDocs == nil {
+		doc3.ExternalDocs = &openapi3.ExternalDocs{
+			Description: "Grafana HTTP API Reference",
+			URL:         "https://grafana.com/docs/grafana/latest/developers/http_api/",
+		}
+	}
+}
+
+// enhanceSecuritySchemes adds descriptions to security schemes
+func enhanceSecuritySchemes(doc3 *openapi3.T) {
+	if doc3.Components == nil || doc3.Components.SecuritySchemes == nil {
+		return
+	}
+
+	securityDescriptions := map[string]string{
+		"api_key": "API key authentication using the Authorization header. Use 'Bearer <api-key>' format.",
+		"basic":   "HTTP Basic authentication using username and password.",
+	}
+
+	for name, schemeRef := range doc3.Components.SecuritySchemes {
+		if schemeRef == nil || schemeRef.Value == nil {
+			continue
+		}
+		if schemeRef.Value.Description == "" {
+			if desc, ok := securityDescriptions[name]; ok {
+				schemeRef.Value.Description = desc
+			}
+		}
+	}
+}
+
+// fixEmptyResponseDescriptions replaces "(empty)" descriptions with meaningful ones
+func fixEmptyResponseDescriptions(doc3 *openapi3.T) {
+	// Map of status codes to default descriptions
+	statusDescriptions := map[string]string{
+		"200": "Success",
+		"201": "Created",
+		"202": "Accepted",
+		"204": "No Content",
+		"301": "Moved Permanently",
+		"400": "Bad Request",
+		"401": "Unauthorized",
+		"403": "Forbidden",
+		"404": "Not Found",
+		"405": "Method Not Allowed",
+		"406": "Not Acceptable",
+		"409": "Conflict",
+		"412": "Precondition Failed",
+		"422": "Unprocessable Entity",
+		"500": "Internal Server Error",
+		"501": "Not Implemented",
+		"502": "Bad Gateway",
+		"503": "Service Unavailable",
+	}
+
+	// Fix component-level responses
+	if doc3.Components != nil && doc3.Components.Responses != nil {
+		for name, responseRef := range doc3.Components.Responses {
+			if responseRef != nil && responseRef.Value != nil {
+				response := responseRef.Value
+				if response.Description == nil || *response.Description == "" || *response.Description == "(empty)" {
+					desc := generateResponseDescription(name)
+					response.Description = &desc
+				}
+			}
+		}
+	}
+
+	// Fix path-level responses
+	for _, pathItem := range doc3.Paths.Map() {
+		if pathItem == nil {
+			continue
+		}
+		for _, op := range []*openapi3.Operation{
+			pathItem.Get, pathItem.Post, pathItem.Put, pathItem.Patch,
+			pathItem.Delete, pathItem.Head, pathItem.Options, pathItem.Trace,
+		} {
+			if op == nil || op.Responses == nil {
+				continue
+			}
+			for status, responseRef := range op.Responses.Map() {
+				if responseRef == nil || responseRef.Value == nil {
+					continue
+				}
+				response := responseRef.Value
+				if response.Description == nil || *response.Description == "" || *response.Description == "(empty)" {
+					desc := statusDescriptions[status]
+					if desc == "" {
+						desc = "Response"
+					}
+					response.Description = &desc
+				}
+			}
+		}
+	}
+}
+
+// generateResponseDescription generates a meaningful description from the response name
+func generateResponseDescription(name string) string {
+	// Handle common patterns
+	name = strings.TrimSuffix(name, "Response")
+	name = strings.TrimSuffix(name, "response")
+
+	// Convert camelCase to readable text
+	re := regexp.MustCompile(`([a-z])([A-Z])`)
+	readable := re.ReplaceAllString(name, "$1 $2")
+
+	// Handle common suffixes/prefixes
+	readable = strings.TrimPrefix(readable, "get ")
+	readable = strings.TrimPrefix(readable, "Get ")
+
+	if readable == "" {
+		return "Response"
+	}
+
+	// Capitalize first letter
+	if len(readable) > 0 {
+		readable = strings.ToUpper(string(readable[0])) + readable[1:]
+	}
+
+	return readable
 }
 
 func postProcessSwaggerFile(inFile string) {
