@@ -54,7 +54,7 @@ export function BrowseView({ folderUID, width, height, permissions, isReadOnlyRe
     }
     if (provisioningEnabled) {
       // if only one repo folder and no local folders, then don't exclude it from selection
-      if (rootItems?.items.length === 1 && settingsData?.items.length === 1) {
+      if (rootItems?.items.length === 1 && settingsData?.items.length === 2) {
         return [];
       }
       // loop through settingsData to find all available repo name, and exclude them from select all action
