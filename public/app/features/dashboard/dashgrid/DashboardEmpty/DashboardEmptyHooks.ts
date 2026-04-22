@@ -89,3 +89,11 @@ export const useOnImportDashboard = ({ canCreate, isReadOnlyRepo, isProvisioned 
     };
   }, [canCreate, isReadOnlyRepo, isProvisioned]);
 };
+
+export const useOnOpenQuickStartExamples = () => {
+  return useMemo(() => {
+    return () => {
+      DashboardInteractions.emptyDashboardButtonClicked({ item: 'quick_start_examples' });
+    };
+  }, []);
+};
