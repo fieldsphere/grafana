@@ -5,7 +5,7 @@ import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Button, useStyles2, Text, Box, Stack, TextLink, Icon, FilterPill, Tooltip } from '@grafana/ui';
+import { Button, useStyles2, Text, Box, Stack, TextLink, Icon, FilterPill, Tooltip, LinkButton } from '@grafana/ui';
 import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { AutoGridLayoutManager } from 'app/features/dashboard-scene/scene/layout-auto-grid/AutoGridLayoutManager';
@@ -256,7 +256,7 @@ const OldLayoutEmpty = ({
               </Trans>
             </Text>
           </Box>
-          <Button
+          <LinkButton
             icon="external-link-alt"
             href="https://grafana.com/grafana/dashboards/"
             target="_blank"
@@ -264,7 +264,7 @@ const OldLayoutEmpty = ({
             onClick={onOpenQuickStartExamples}
           >
             <Trans i18nKey="dashboard.empty.quick-start-examples-button">Explore examples</Trans>
-          </Button>
+          </LinkButton>
         </Stack>
       </Box>
     </Stack>
