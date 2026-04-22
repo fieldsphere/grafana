@@ -46,7 +46,8 @@ describe('LabsPage', () => {
     expect(await screen.findByText('Labs feature toggles')).toBeInTheDocument();
     expect(screen.getByText('panelTitleSearch')).toBeInTheDocument();
     expect(screen.getByText('storage')).toBeInTheDocument();
-    expect(screen.getByText('Enabled')).toBeInTheDocument();
+    expect(screen.getByRole('columnheader', { name: 'Enabled' })).toBeInTheDocument();
+    expect(screen.getAllByText('Enabled').length).toBeGreaterThan(1);
     expect(screen.getByText('Disabled')).toBeInTheDocument();
     expect(getMock).toHaveBeenCalledWith('api/admin/features');
   });
