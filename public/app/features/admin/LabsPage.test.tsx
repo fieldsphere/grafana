@@ -44,8 +44,8 @@ describe('LabsPage', () => {
     render(<LabsPage />);
 
     expect(await screen.findByText('Labs feature toggles')).toBeInTheDocument();
-    expect(screen.getByText('panelTitleSearch')).toBeInTheDocument();
-    expect(screen.getByText('storage')).toBeInTheDocument();
+    expect(await screen.findByText('panelTitleSearch')).toBeInTheDocument();
+    expect(await screen.findByText('storage')).toBeInTheDocument();
     expect(screen.getByRole('columnheader', { name: 'Enabled' })).toBeInTheDocument();
     expect(screen.getAllByText('Enabled').length).toBeGreaterThan(1);
     expect(screen.getByText('Disabled')).toBeInTheDocument();
