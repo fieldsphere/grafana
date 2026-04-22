@@ -40,7 +40,10 @@ export interface GrafanaThemeCommons {
       md: number; // 4/3
       lg: number; // 1.5
     };
-    // TODO: Refactor to use size instead of custom defs
+    /**
+     * @deprecated Use v2 typography variants (for example, `theme.typography.h5.fontSize`) instead.
+     * This property is kept for compatibility and will be removed in the next major version.
+     */
     heading: {
       h1: string;
       h2: string;
