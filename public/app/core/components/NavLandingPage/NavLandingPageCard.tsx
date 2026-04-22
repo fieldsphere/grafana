@@ -28,8 +28,7 @@ export function NavLandingPageCard({
 }: NavLandingPageCardProps): JSX.Element {
   const styles = useStyles2(getStyles);
 
-  const categoryClass =
-    category && isCategoryStyle(category) ? styles.category[category] : undefined;
+  const categoryClass = category && isCategoryStyle(category) ? styles.category[category] : undefined;
 
   return (
     <Card noMargin className={cx(styles.card, categoryClass)} href={url} onClick={onClick}>
