@@ -9,8 +9,11 @@ import (
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
 	accesscontrolmock "github.com/grafana/grafana/pkg/services/accesscontrol/mock"
+	"github.com/grafana/grafana/pkg/services/authn"
+	"github.com/grafana/grafana/pkg/services/authn/authntest"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/licensing"
 	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/user"
 	"github.com/grafana/grafana/pkg/setting"
@@ -32,6 +35,8 @@ func TestGetAdminNodeAddsLabsLinkWithFeatureManagementRead(t *testing.T) {
 		cfg:           setting.NewCfg(),
 		features:      featuremgmt.WithFeatures(),
 		accessControl: accesscontrolmock.New().WithPermissions([]ac.Permission{{Action: ac.ActionFeatureManagementRead}}),
+		license:       &licensing.OSSLicensingService{},
+		authnService:  &authntest.FakeService{ExpectedIdentity: &authn.Identity{}},
 	}
 
 	node, err := service.getAdminNode(reqCtx)

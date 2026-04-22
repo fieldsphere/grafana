@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen } from 'test/test-utils';
 
 import { getBackendSrv } from '@grafana/runtime';
 
@@ -46,8 +46,8 @@ describe('LabsPage', () => {
     expect(await screen.findByRole('heading', { name: /labs feature toggles/i })).toBeInTheDocument();
     expect(screen.getByText('panelTitleSearch')).toBeInTheDocument();
     expect(screen.getByText('storage')).toBeInTheDocument();
-    expect(screen.getByText('Yes')).toBeInTheDocument();
-    expect(screen.getByText('No')).toBeInTheDocument();
+    expect(screen.getByText('Enabled')).toBeInTheDocument();
+    expect(screen.getByText('Disabled')).toBeInTheDocument();
     expect(getMock).toHaveBeenCalledWith('api/admin/features');
   });
 
