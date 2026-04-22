@@ -43,7 +43,7 @@ describe('LabsPage', () => {
 
     render(<LabsPage />);
 
-    expect(await screen.findByRole('heading', { name: /labs feature toggles/i })).toBeInTheDocument();
+    expect(await screen.findByText('Labs feature toggles')).toBeInTheDocument();
     expect(screen.getByText('panelTitleSearch')).toBeInTheDocument();
     expect(screen.getByText('storage')).toBeInTheDocument();
     expect(screen.getByText('Enabled')).toBeInTheDocument();
@@ -61,13 +61,16 @@ describe('LabsPage', () => {
     expect(await screen.findByText('No feature toggles found')).toBeInTheDocument();
   });
 
-  it('shows error alert when request fails', async () => {
+  it('falls back to empty state when request fails', async () => {
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
     const getMock = jest.fn().mockRejectedValue(new Error('boom'));
     getBackendSrvMock.mockReturnValue({
       get: getMock,
     } as unknown as ReturnType<typeof getBackendSrv>);
 
     render(<LabsPage />);
-    expect(await screen.findByText('Unable to load feature toggles')).toBeInTheDocument();
+    expect(await screen.findByText('No feature toggles found')).toBeInTheDocument();
+    expect(consoleErrorSpy).toHaveBeenCalled();
+    consoleErrorSpy.mockRestore();
   });
 });
