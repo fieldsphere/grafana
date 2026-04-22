@@ -1,85 +1,70 @@
-import React from 'react';
-import { Card, HorizontalGroup } from '@grafana/ui';
 import { css, cx } from '@emotion/css';
+import { type JSX, type MouseEvent } from 'react';
 
-interface cardProps {
-  description?: string;
-  text: string;
-  url: string;
-  category?: string;
-  clicked?: (event?: React.MouseEvent) => void;
+import { colorManipulator, type GrafanaTheme2 } from '@grafana/data';
+import { Card, useStyles2 } from '@grafana/ui';
+
+const CATEGORY_STYLES = ['primary', 'secondary', 'success', 'warning', 'error'] as const;
+type CategoryStyle = (typeof CATEGORY_STYLES)[number];
+
+function isCategoryStyle(cat: string): cat is CategoryStyle {
+  return (CATEGORY_STYLES as readonly string[]).includes(cat);
 }
 
-const categoryStyles = ['primary', 'secondary', 'success', 'warning', 'error'] as const;
-type CategoryStyle = (typeof categoryStyles)[number];
+export interface NavLandingPageCardProps {
+  category?: string;
+  description?: string;
+  onClick?: (event: MouseEvent<HTMLElement>) => void;
+  text: string;
+  url: string;
+}
 
-const isCategoryStyle = (cat: string) => {
-  return categoryStyles.some((style) => style === cat);
-};
+export function NavLandingPageCard({
+  category,
+  description,
+  onClick,
+  text,
+  url,
+}: NavLandingPageCardProps): JSX.Element {
+  const styles = useStyles2(getStyles);
 
-const getStyles = () => ({
-  Card: css`
-    grid-template-rows: 1fr 0 2fr;
-  `,
-  Description: css`
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    display: -webkit-box;
-    overflow: hidden;
-  `,
-  Primary: css`
-    border: 1px solid rgba(55, 135, 255, 0.25);
-    background-color: rgba(55, 135, 255, 0.08);
-    &:hover {
-      background-color: rgba(55, 135, 255, 0.08);
-      border-color: rgba(55, 135, 255, 0.4);
-    }
-  `,
-  Secondary: css`
-    border: 1px solid rgba(180, 180, 180, 0.25);
-    background-color: rgba(180, 180, 180, 0.08);
-    &:hover {
-      background-color: rgba(180, 180, 180, 0.08);
-      border-color: rgba(180, 180, 180, 0.4);
-    }
-  `,
-  Success: css`
-    border: 1px solid rgba(115, 191, 105, 0.25);
-    background-color: rgba(115, 191, 105, 0.08);
-    &:hover {
-      background-color: rgba(115, 191, 105, 0.08);
-      border-color: rgba(115, 191, 105, 0.4);
-    }
-  `,
-  Warning: css`
-    border: 1px solid rgba(255, 152, 48, 0.25);
-    background-color: rgba(255, 152, 48, 0.08);
-    &:hover {
-      background-color: rgba(255, 152, 48, 0.08);
-      border-color: rgba(255, 152, 48, 0.4);
-    }
-  `,
-  Error: css`
-    border: 1px solid rgba(242, 73, 92, 0.25);
-    background-color: rgba(242, 73, 92, 0.08);
-    &:hover {
-      background-color: rgba(242, 73, 92, 0.08);
-      border-color: rgba(242, 73, 92, 0.4);
-    }
-  `,
-});
-
-const NavLandingPageCard: React.FC<cardProps> = ({ description, text, url, category, clicked }) => {
-  const styles = getStyles();
-
-  const categoryClass = category && isCategoryStyle(category) ? styles[category as keyof ReturnType<typeof getStyles>] : undefined;
+  const categoryClass =
+    category && isCategoryStyle(category) ? styles.category[category] : undefined;
 
   return (
-    <Card noMargin className={cx(styles.Card, categoryClass)} href={url} onClick={clicked}>
+    <Card noMargin className={cx(styles.card, categoryClass)} href={url} onClick={onClick}>
       <Card.Heading>{text}</Card.Heading>
-      <Card.Description className={styles.Description}>{description}</Card.Description>
+      <Card.Description className={styles.description}>{description}</Card.Description>
     </Card>
   );
-};
+}
 
-export default NavLandingPageCard;
+const getStyles = (theme: GrafanaTheme2) => {
+  const categoryTone = (color: string) => ({
+    backgroundColor: colorManipulator.alpha(color, 0.08),
+    border: `1px solid ${colorManipulator.alpha(color, 0.25)}`,
+    '&:hover': {
+      backgroundColor: colorManipulator.alpha(color, 0.08),
+      borderColor: colorManipulator.alpha(color, 0.4),
+    },
+  });
+
+  return {
+    card: css({
+      gridTemplateRows: '1fr 0 2fr',
+    }),
+    category: {
+      primary: css(categoryTone(theme.colors.primary.main)),
+      secondary: css(categoryTone(theme.colors.secondary.main)),
+      success: css(categoryTone(theme.colors.success.main)),
+      warning: css(categoryTone(theme.colors.warning.main)),
+      error: css(categoryTone(theme.colors.error.main)),
+    },
+    description: css({
+      WebkitBoxOrient: 'vertical',
+      WebkitLineClamp: 3,
+      display: '-webkit-box',
+      overflow: 'hidden',
+    }),
+  };
+};

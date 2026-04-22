@@ -30,9 +30,10 @@ export function getRefreshFromUrl({
     const minRefreshIntervalInIntervals = minRefreshInterval
       ? refreshIntervals.find((interval) => interval === minRefreshInterval)
       : undefined;
-    const lowestRefreshInterval = refreshIntervals?.length ? refreshIntervals[refreshIntervals.length - 1] : undefined;
+    // Intervals are ordered fastest → slowest; fall back to the first allowed (smallest duration).
+    const firstAvailableInterval = refreshIntervals?.length ? refreshIntervals[0] : undefined;
 
-    return minRefreshIntervalInIntervals ?? lowestRefreshInterval ?? currentRefresh;
+    return minRefreshIntervalInIntervals ?? firstAvailableInterval ?? currentRefresh;
   }
 
   return urlRefresh || currentRefresh;

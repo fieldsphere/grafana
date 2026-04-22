@@ -100,6 +100,20 @@ describe('parseMatcher', () => {
   it('should be able to parse a simple matcher', () => {
     expect(parseMatcher('foo=bar')).toStrictEqual({ name: 'foo', value: 'bar', isRegex: false, isEqual: true });
   });
+  it('should parse != and =~ without treating the inner = as a separate operator (HSS-2)', () => {
+    expect(parseMatcher('severity!=info')).toStrictEqual({
+      name: 'severity',
+      value: 'info',
+      isRegex: false,
+      isEqual: false,
+    });
+    expect(parseMatcher('service=~web.*')).toStrictEqual({
+      name: 'service',
+      value: 'web.*',
+      isRegex: true,
+      isEqual: true,
+    });
+  });
   it('should throw when parsing PromQL-style matcher', () => {
     expect(() => parseMatcher('{ foo=bar }')).toThrow();
   });
