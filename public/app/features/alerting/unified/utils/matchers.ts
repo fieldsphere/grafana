@@ -20,12 +20,27 @@ import { type MatcherFieldValue } from '../types/silence-form';
 
 import { isPrivateLabelKey } from './labels';
 
-const matcherOperators = [
+/**
+ * Longest / leftmost token wins so `!=` and `=~` are not split on the trailing `=`.
+ * (Do not use max indexOf across operators: `=` matches inside `!=` at a higher index.)
+ */
+const MATCHER_OPERATOR_SCAN_ORDER: MatcherOperator[] = [
+  MatcherOperator.notEqual,
   MatcherOperator.regex,
   MatcherOperator.notRegex,
-  MatcherOperator.notEqual,
   MatcherOperator.equal,
 ];
+
+function findMatcherOperator(matcher: string): { operator: MatcherOperator; idx: number } {
+  for (let i = 0; i < matcher.length; i++) {
+    for (const operator of MATCHER_OPERATOR_SCAN_ORDER) {
+      if (matcher.startsWith(operator, i)) {
+        return { operator, idx: i };
+      }
+    }
+  }
+  throw new Error(`Invalid matcher: ${matcher}`);
+}
 
 /**
  * Parse a single matcher, examples:
@@ -39,15 +54,7 @@ export function parseMatcher(matcher: string): Matcher {
     );
   }
 
-  const operatorsFound = matcherOperators
-    .map((op): [MatcherOperator, number] => [op, matcher.indexOf(op)])
-    .filter(([_, idx]) => idx > -1)
-    .sort((a, b) => a[1] - b[1]);
-
-  if (!operatorsFound.length) {
-    throw new Error(`Invalid matcher: ${matcher}`);
-  }
-  const [operator, idx] = operatorsFound[0];
+  const { operator, idx } = findMatcherOperator(matcher);
   const name = matcher.slice(0, idx).trim();
   const value = matcher.slice(idx + operator.length);
   if (!name) {

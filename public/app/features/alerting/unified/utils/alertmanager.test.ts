@@ -101,6 +101,11 @@ describe('Alertmanager utils', () => {
       const matchers = parsePromQLStyleMatcherLooseSafe('foo!=bazz,bar=~(?i)Ba.+');
       expect(labelsMatchMatchers(labels, matchers)).toBe(true);
     });
+    it('should match silences using != and =~ on real alert labels (HSS-2)', () => {
+      const labels: Labels = { severity: 'critical', service: 'web-api' };
+      expect(labelsMatchMatchers(labels, parsePromQLStyleMatcherLooseSafe('severity!=info'))).toBe(true);
+      expect(labelsMatchMatchers(labels, parsePromQLStyleMatcherLooseSafe('service=~web.*'))).toBe(true);
+    });
   });
 
   describe('removeMuteTimingFromRoute', () => {
