@@ -24,9 +24,32 @@ export interface ServerStat extends AnonServerStat {
   viewers: number;
 }
 
+export interface FeatureToggleStatus {
+  name: string;
+  description?: string;
+  stage?: string;
+  frontendOnly?: boolean;
+  requiresRestart?: boolean;
+  enabled: boolean;
+}
+
+interface FeatureToggleStatusesResponse {
+  featureToggles: FeatureToggleStatus[];
+}
+
 export const getServerStats = async (): Promise<ServerStat | null> => {
   return getBackendSrv()
     .get('api/admin/stats')
+    .catch((err) => {
+      console.error(err);
+      return null;
+    });
+};
+
+export const getFeatureToggles = async (): Promise<FeatureToggleStatus[] | null> => {
+  return getBackendSrv()
+    .get<FeatureToggleStatusesResponse>('api/admin/features')
+    .then((response) => response.featureToggles)
     .catch((err) => {
       console.error(err);
       return null;

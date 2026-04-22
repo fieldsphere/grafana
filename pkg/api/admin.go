@@ -3,12 +3,14 @@ package api
 import (
 	"context"
 	"net/http"
+	"sort"
 	"time"
 
 	"github.com/grafana/grafana/pkg/api/response"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/stats"
 	"github.com/grafana/grafana/pkg/setting"
 )
@@ -45,6 +47,50 @@ func (hs *HTTPServer) AdminGetVerboseSettings(c *contextmodel.ReqContext) respon
 		return response.Error(http.StatusForbidden, "Failed to authorize settings", err)
 	}
 	return response.JSON(http.StatusOK, verboseSettings)
+}
+
+type FeatureToggleStatus struct {
+	Name            string `json:"name"`
+	Description     string `json:"description,omitempty"`
+	Stage           string `json:"stage,omitempty"`
+	FrontendOnly    bool   `json:"frontendOnly,omitempty"`
+	RequiresRestart bool   `json:"requiresRestart,omitempty"`
+	Enabled         bool   `json:"enabled"`
+}
+
+type FeatureToggleStatusesResponse struct {
+	FeatureToggles []FeatureToggleStatus `json:"featureToggles"`
+}
+
+func (hs *HTTPServer) AdminGetFeatureToggles(c *contextmodel.ReqContext) response.Response {
+	featureList, err := featuremgmt.GetEmbeddedFeatureList()
+	if err != nil {
+		return response.Error(http.StatusInternalServerError, "Failed to load feature toggles", err)
+	}
+
+	toggles := make([]FeatureToggleStatus, 0, len(featureList.Items))
+	for _, feature := range featureList.Items {
+		if feature.Name == "" {
+			continue
+		}
+
+		toggles = append(toggles, FeatureToggleStatus{
+			Name:            feature.Name,
+			Description:     feature.Spec.Description,
+			Stage:           feature.Spec.Stage,
+			FrontendOnly:    feature.Spec.FrontendOnly,
+			RequiresRestart: feature.Spec.RequiresRestart,
+			Enabled:         hs.Features.IsEnabled(c.Req.Context(), feature.Name),
+		})
+	}
+
+	sort.Slice(toggles, func(i, j int) bool {
+		return toggles[i].Name < toggles[j].Name
+	})
+
+	return response.JSON(http.StatusOK, FeatureToggleStatusesResponse{
+		FeatureToggles: toggles,
+	})
 }
 
 // swagger:route GET /admin/stats admin adminGetStats
