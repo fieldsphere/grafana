@@ -30,6 +30,9 @@
       "import": "./dist/esm/unstable.mjs",
       "require": "./dist/cjs/unstable.cjs"
     },
+    "./structLog": {
+      "@grafana-app/source": "./src/utils/structLogBase.ts"
+    },
     "./internal": {
       "@grafana-app/source": "./src/internal/index.ts"
     },

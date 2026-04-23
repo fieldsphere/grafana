@@ -1,12 +1,10 @@
+import { structLog } from '@grafana/data';
 import { attempt, isError } from 'lodash';
-
 import { type PromRuleDTO, type PromRuleGroupDTO } from 'app/types/unified-alerting-dto';
-
 import { type GrafanaPromRulesOptions } from '../../api/prometheusApi';
 import { shouldUseBackendFilters, shouldUseFullyCompatibleBackendFilters } from '../../featureToggles';
 import { type RulesFilter } from '../../search/rulesSearchParser';
 import { parseMatcher } from '../../utils/matchers';
-
 import { buildTitleSearch, normalizeFilterState } from './filterNormalization';
 import {
   type GroupFilterConfig,
@@ -25,13 +23,11 @@ import {
   ruleNameFilter,
   ruleTypeFilter,
 } from './filterPredicates';
-
 /**
  * Determines if client-side filtering is needed for Grafana-managed rules.
  */
 export function hasGrafanaClientSideFilters(filterState: Partial<RulesFilter>): boolean {
   const { ruleFilterConfig, groupFilterConfig } = buildGrafanaFilterConfigs();
-
   // Check each rule filter: if the config has a non-null handler AND the filter state has a value, we need client-side filtering
   const hasActiveRuleFilters =
     (ruleFilterConfig.freeFormWords !== null && Boolean(filterState?.freeFormWords?.length)) ||
@@ -45,15 +41,12 @@ export function hasGrafanaClientSideFilters(filterState: Partial<RulesFilter>): 
     (ruleFilterConfig.plugins !== null && Boolean(filterState?.plugins)) ||
     (ruleFilterConfig.contactPoint !== null && Boolean(filterState?.contactPoint)) ||
     (ruleFilterConfig.policy !== null && Boolean(filterState?.policy));
-
   // Check each group filter: if the config has a non-null handler AND the filter state has a value, we need client-side filtering
   const hasActiveGroupFilters =
     (groupFilterConfig.namespace !== null && Boolean(filterState?.namespace)) ||
     (groupFilterConfig.groupName !== null && Boolean(filterState?.groupName));
-
   return hasActiveRuleFilters || hasActiveGroupFilters;
 }
-
 /**
  * Builds a combined filter configuration for Grafana-managed alert rules.
  *
@@ -63,29 +56,23 @@ export function hasGrafanaClientSideFilters(filterState: Partial<RulesFilter>): 
  */
 export function getGrafanaFilter(filterState: Partial<RulesFilter>) {
   const normalizedFilterState = normalizeFilterState(filterState);
-
   const { ruleFilterConfig, groupFilterConfig } = buildGrafanaFilterConfigs();
-
   // Build title search for backend filtering
   const titleSearch = buildTitleSearch(normalizedFilterState);
-
   // Check if data source names were provided but none are valid.
   let hasInvalidDataSourceNames = false;
   let datasourceUids: string[] | undefined = undefined;
-
   // Only map datasources if data source filter should be applied on backend (when ruleFilterConfig.dataSourceNames is null).
   if (ruleFilterConfig.dataSourceNames === null && normalizedFilterState.dataSourceNames.length > 0) {
     datasourceUids = mapDataSourceNamesToUids(normalizedFilterState.dataSourceNames);
     // If names were provided but no valid UIDs were found, all names are invalid.
     hasInvalidDataSourceNames = datasourceUids.length === 0;
   }
-
   // Convert labels to JSON-encoded matchers for backend filtering
   const ruleMatchersBackendFilter: string[] | undefined =
     ruleFilterConfig.labels || normalizedFilterState.labels.length === 0
       ? undefined
       : labelMatchersToBackendFormat(normalizedFilterState.labels);
-
   const backendFilter: GrafanaPromRulesOptions = {
     state: normalizedFilterState.ruleState ? [normalizedFilterState.ruleState] : [],
     health: normalizedFilterState.ruleHealth ? [normalizedFilterState.ruleHealth] : [],
@@ -100,7 +87,6 @@ export function getGrafanaFilter(filterState: Partial<RulesFilter>) {
     plugins: ruleFilterConfig.plugins ? undefined : normalizedFilterState.plugins,
     searchFolder: groupFilterConfig.namespace ? undefined : normalizedFilterState.namespace,
   };
-
   return {
     backendFilter,
     frontendFilter: {
@@ -110,7 +96,6 @@ export function getGrafanaFilter(filterState: Partial<RulesFilter>) {
     hasInvalidDataSourceNames,
   };
 }
-
 /**
  * Builds filter configurations for Grafana rules and groups.
  *
@@ -121,7 +106,6 @@ export function getGrafanaFilter(filterState: Partial<RulesFilter>) {
 function buildGrafanaFilterConfigs() {
   const useBackendFilters = shouldUseBackendFilters();
   const useFullyCompatibleBackendFilters = shouldUseFullyCompatibleBackendFilters();
-
   const ruleFilterConfig: RuleFilterConfig = {
     // When backend filtering is enabled, these filters are handled by the backend
     freeFormWords: useBackendFilters ? null : freeFormFilter,
@@ -136,15 +120,12 @@ function buildGrafanaFilterConfigs() {
     contactPoint: null,
     policy: policyFilter,
   };
-
   const groupFilterConfig: GroupFilterConfig = {
     namespace: useBackendFilters ? null : namespaceFilter,
     groupName: useBackendFilters ? null : groupNameFilter,
   };
-
   return { ruleFilterConfig, groupFilterConfig };
 }
-
 /**
  * Converts label matchers to JSON-encoded strings for backend filtering.
  * Invalid matchers are logged and filtered out.
@@ -152,13 +133,11 @@ function buildGrafanaFilterConfigs() {
 function labelMatchersToBackendFormat(labels: string[]): string[] {
   return labels.reduce<string[]>((acc, label) => {
     const result = attempt(() => JSON.stringify(parseMatcher(label)));
-
     if (isError(result)) {
-      console.warn('Failed to parse label matcher:', label, result);
+      structLog('warn', 'Failed to parse label matcher:', label, result);
     } else {
       acc.push(result);
     }
-
     return acc;
   }, []);
 }

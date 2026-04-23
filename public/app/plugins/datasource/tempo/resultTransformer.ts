@@ -1,8 +1,8 @@
+import { structLog } from '@grafana/data';
 import { type SpanStatus } from '@opentelemetry/api';
 import { type collectorTypes } from '@opentelemetry/exporter-collector';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { isEqual } from 'lodash';
-
 import {
   createDataFrame,
   createTheme,
@@ -25,27 +25,21 @@ import {
 } from '@grafana/data';
 import { createNodeGraphFrames, type TraceToProfilesData } from '@grafana/o11y-ds-frontend';
 import { getDataSourceSrv } from '@grafana/runtime';
-
 import { SearchTableType } from './dataquery.gen';
 import { type Span, type SpanAttributes, type Spanset, type TempoJsonData, type TraceSearchMetadata } from './types';
-
 function getAttributeValue(value: collectorTypes.opentelemetryProto.common.v1.AnyValue): any {
   if (value.stringValue) {
     return value.stringValue;
   }
-
   if (value.boolValue !== undefined) {
     return Boolean(value.boolValue);
   }
-
   if (value.intValue !== undefined) {
     return Number.parseInt(String(value.intValue), 10);
   }
-
   if (value.doubleValue) {
     return Number.parseFloat(String(value.doubleValue));
   }
-
   if (value.arrayValue) {
     const arrayValue = [];
     for (const arValue of value.arrayValue.values) {
@@ -53,10 +47,8 @@ function getAttributeValue(value: collectorTypes.opentelemetryProto.common.v1.An
     }
     return arrayValue;
   }
-
   return '';
 }
-
 function resourceToProcess(resource: collectorTypes.opentelemetryProto.resource.v1.Resource | undefined) {
   const serviceTags: TraceKeyValuePair[] = [];
   let serviceName = 'OTLPResourceNoServiceName';
@@ -64,7 +56,6 @@ function resourceToProcess(resource: collectorTypes.opentelemetryProto.resource.
   if (!resource) {
     return { serviceName, serviceNamespace, serviceTags };
   }
-
   for (const attribute of resource.attributes) {
     if (attribute.key === SemanticResourceAttributes.SERVICE_NAME) {
       serviceName = attribute.value.stringValue || serviceName;
@@ -75,22 +66,17 @@ function resourceToProcess(resource: collectorTypes.opentelemetryProto.resource.
     }
     serviceTags.push({ key: attribute.key, value: getAttributeValue(attribute.value) });
   }
-
   return { serviceName, serviceNamespace, serviceTags };
 }
-
 function getSpanTags(span: collectorTypes.opentelemetryProto.trace.v1.Span): TraceKeyValuePair[] {
   const spanTags: TraceKeyValuePair[] = [];
-
   if (span.attributes) {
     for (const attribute of span.attributes) {
       spanTags.push({ key: attribute.key, value: getAttributeValue(attribute.value) });
     }
   }
-
   return spanTags;
 }
-
 function getSpanKind(span: collectorTypes.opentelemetryProto.trace.v1.Span) {
   let kind = undefined;
   if (span.kind) {
@@ -99,7 +85,6 @@ function getSpanKind(span: collectorTypes.opentelemetryProto.trace.v1.Span) {
   }
   return kind;
 }
-
 function getReferences(span: collectorTypes.opentelemetryProto.trace.v1.Span) {
   const references: TraceSpanReference[] = [];
   if (span.links) {
@@ -114,10 +99,8 @@ function getReferences(span: collectorTypes.opentelemetryProto.trace.v1.Span) {
       references.push({ traceID: traceId, spanID: spanId, tags });
     }
   }
-
   return references;
 }
-
 function getLogs(span: collectorTypes.opentelemetryProto.trace.v1.Span) {
   const logs: TraceLog[] = [];
   if (span.events) {
@@ -131,10 +114,8 @@ function getLogs(span: collectorTypes.opentelemetryProto.trace.v1.Span) {
       logs.push({ fields, timestamp: event.timeUnixNano / 1000000, name: event.name });
     }
   }
-
   return logs;
 }
-
 export function transformFromOTLP(
   traceData: collectorTypes.opentelemetryProto.trace.v1.ResourceSpans[],
   nodeGraph = false
@@ -196,34 +177,32 @@ export function transformFromOTLP(
       }
     }
   } catch (error) {
-    console.error(error);
+    structLog('error', error);
     return { error: { message: 'JSON is not valid OpenTelemetry format: ' + error }, data: [] };
   }
-
   let data = [frame];
   if (nodeGraph) {
     data.push(...(createNodeGraphFrames(frame) as MutableDataFrame[]));
   }
-
   return { data };
 }
-
 /**
  * Transforms trace dataframes to the OpenTelemetry format
  */
 export function transformToOTLP(data: MutableDataFrame): {
   batches: collectorTypes.opentelemetryProto.trace.v1.ResourceSpans[];
 } {
-  let result: { batches: collectorTypes.opentelemetryProto.trace.v1.ResourceSpans[] } = {
+  let result: {
+    batches: collectorTypes.opentelemetryProto.trace.v1.ResourceSpans[];
+  } = {
     batches: [],
   };
-
   // Lookup object to see which batch contains spans for which services
-  let services: { [key: string]: number } = {};
-
+  let services: {
+    [key: string]: number;
+  } = {};
   for (let i = 0; i < data.length; i++) {
     const span = data.get(i);
-
     // Group spans based on service
     if (!services[span.serviceName]) {
       services[span.serviceName] = result.batches.length;
@@ -239,14 +218,11 @@ export function transformToOTLP(data: MutableDataFrame): {
         ],
       });
     }
-
     let batchIndex = services[span.serviceName];
-
     // Populate resource attributes from service tags
     if (result.batches[batchIndex].resource!.attributes.length === 0) {
       result.batches[batchIndex].resource!.attributes = tagsToAttributes(span.serviceTags);
     }
-
     // Populate instrumentation library if it exists
     if (!result.batches[batchIndex].instrumentationLibrarySpans[0].instrumentationLibrary) {
       if (span.instrumentationLibraryName) {
@@ -256,7 +232,6 @@ export function transformToOTLP(data: MutableDataFrame): {
         };
       }
     }
-
     result.batches[batchIndex].instrumentationLibrarySpans[0].spans.push({
       traceId: span.traceID.padStart(32, '0'),
       spanId: span.spanID,
@@ -275,10 +250,8 @@ export function transformToOTLP(data: MutableDataFrame): {
       links: getOTLPReferences(span.references),
     });
   }
-
   return result;
 }
-
 function getOTLPSpanKind(kind: string): string | undefined {
   let spanKind = undefined;
   if (kind) {
@@ -302,7 +275,6 @@ function getOTLPSpanKind(kind: string): string | undefined {
   }
   return spanKind;
 }
-
 /**
  * Converts key-value tags to OTLP attributes and removes tags added by Grafana
  */
@@ -312,7 +284,6 @@ function tagsToAttributes(tags: TraceKeyValuePair[]): collectorTypes.opentelemet
     []
   );
 }
-
 /**
  * Returns the correct OTLP AnyValue based on the value of the tag value
  */
@@ -333,13 +304,11 @@ function toAttributeValue(tag: TraceKeyValuePair): collectorTypes.opentelemetryP
       for (const val of tag.value) {
         values.push(toAttributeValue(val));
       }
-
       return { arrayValue: { values } };
     }
   }
   return { stringValue: tag.value };
 }
-
 function getOTLPStatus(span: TraceSpanRow): SpanStatus | undefined {
   let status = undefined;
   if (span.statusCode !== undefined) {
@@ -350,12 +319,10 @@ function getOTLPStatus(span: TraceSpanRow): SpanStatus | undefined {
   }
   return status;
 }
-
 function getOTLPEvents(logs: TraceLog[]): collectorTypes.opentelemetryProto.trace.v1.Span.Event[] | undefined {
   if (!logs || !logs.length) {
     return undefined;
   }
-
   let events: collectorTypes.opentelemetryProto.trace.v1.Span.Event[] = [];
   for (const log of logs) {
     let event: collectorTypes.opentelemetryProto.trace.v1.Span.Event = {
@@ -374,14 +341,12 @@ function getOTLPEvents(logs: TraceLog[]): collectorTypes.opentelemetryProto.trac
   }
   return events;
 }
-
 function getOTLPReferences(
   references: TraceSpanReference[]
 ): collectorTypes.opentelemetryProto.trace.v1.Span.Link[] | undefined {
   if (!references || !references.length) {
     return undefined;
   }
-
   let links: collectorTypes.opentelemetryProto.trace.v1.Span.Link[] = [];
   for (const ref of references) {
     let link: collectorTypes.opentelemetryProto.trace.v1.Span.Link = {
@@ -402,20 +367,16 @@ function getOTLPReferences(
   }
   return links;
 }
-
 export const RelatedProfilesTitle = 'Related profiles';
-
 export function transformTrace(
   response: DataQueryResponse,
   instanceSettings: DataSourceInstanceSettings<TempoJsonData>,
   nodeGraph = false
 ): DataQueryResponse {
   const frame = response.data[0];
-
   if (!frame) {
     return emptyDataQueryResponse;
   }
-
   // Get profiles links
   const traceToProfilesData: TraceToProfilesData | undefined = instanceSettings?.jsonData;
   const traceToProfilesOptions = traceToProfilesData?.tracesToProfiles;
@@ -423,7 +384,6 @@ export function transformTrace(
   if (traceToProfilesOptions?.datasourceUid) {
     profilesDataSourceSettings = getDataSourceSrv().getInstanceSettings(traceToProfilesOptions.datasourceUid);
   }
-
   if (traceToProfilesOptions && profilesDataSourceSettings) {
     const customQuery = traceToProfilesOptions.customQuery ? traceToProfilesOptions.query : undefined;
     const dataLink: DataLink = {
@@ -443,25 +403,21 @@ export function transformTrace(
       },
       origin: DataLinkConfigOrigin.Datasource,
     };
-
     frame.fields.forEach((field: Field) => {
       if (field.name === 'tags') {
         field.config.links = [dataLink];
       }
     });
   }
-
   let data = [...response.data];
   if (nodeGraph) {
     data.push(...createNodeGraphFrames(toDataFrame(frame)));
   }
-
   return {
     ...response,
     data,
   };
 }
-
 function transformToTraceData(data: TraceSearchMetadata) {
   return {
     traceID: data.traceID,
@@ -471,7 +427,6 @@ function transformToTraceData(data: TraceSearchMetadata) {
     traceName: data.rootTraceName || '',
   };
 }
-
 export function enhanceTraceQlMetricsResponse(
   data: DataQueryResponse,
   instanceSettings: DataSourceInstanceSettings
@@ -483,7 +438,6 @@ export function enhanceTraceQlMetricsResponse(
       if (traceIDField) {
         const links = getDataLinks(instanceSettings);
         const existingLinks = traceIDField.config.links || [];
-
         // Filter out links that already exist
         const newLinks = links.filter(
           (link) =>
@@ -494,17 +448,14 @@ export function enhanceTraceQlMetricsResponse(
                 isEqual(existing.internal?.query, link.internal?.query)
             )
         );
-
         traceIDField.config.links = existingLinks.length ? [...existingLinks, ...newLinks] : newLinks;
       }
       return frame;
     });
   return data;
 }
-
 function getDataLinks(instanceSettings: DataSourceInstanceSettings): DataLink[] {
   const dataLinks: DataLink[] = [];
-
   if (instanceSettings.uid) {
     dataLinks.push({
       title: 'View trace',
@@ -518,7 +469,6 @@ function getDataLinks(instanceSettings: DataSourceInstanceSettings): DataLink[] 
   }
   return dataLinks;
 }
-
 export function formatTraceQLResponse(
   data: TraceSearchMetadata[],
   instanceSettings: DataSourceInstanceSettings,
@@ -533,7 +483,6 @@ export function formatTraceQLResponse(
       return createTableFrameFromTraceQlQuery(data, instanceSettings);
   }
 }
-
 function createDataFrameFromTraceQlQuery(data: TraceSearchMetadata[]) {
   return [
     createDataFrame({
@@ -543,7 +492,6 @@ function createDataFrameFromTraceQlQuery(data: TraceSearchMetadata[]) {
     }),
   ];
 }
-
 /**
  * Create data frame while adding spans for each trace into a subtable.
  * @param data
@@ -615,12 +563,10 @@ export function createTableFrameFromTraceQlQuery(
       uniqueRowIdFields: [0],
     },
   });
-
   if (!data?.length) {
     return [frame];
   }
   frame.length = data.length;
-
   data
     // Show the most recent traces
     .sort((a, b) => parseInt(b?.startTimeUnixNano!, 10) / 1000000 - parseInt(a?.startTimeUnixNano!, 10) / 1000000)
@@ -630,11 +576,9 @@ export function createTableFrameFromTraceQlQuery(
       frame.fields[1].values.push(traceData.startTime);
       frame.fields[2].values.push(traceData.traceService);
       frame.fields[3].values.push(traceData.traceName);
-
       // Note: this is a workaround to display the duration in the table when it is <1ms
       // and the duration is not available in the trace data response.
       frame.fields[4].values.push(traceData.traceDuration ? traceData.traceDuration : '<1ms');
-
       if (trace.spanSets) {
         frame.fields[5].values.push(
           trace.spanSets.map((spanSet: Spanset) => {
@@ -645,17 +589,14 @@ export function createTableFrameFromTraceQlQuery(
         frame.fields[5].values.push([traceSubFrame(trace, trace.spanSet, instanceSettings)]);
       }
     });
-
   return [frame];
 }
-
 export function createTableFrameFromTraceQlQueryAsSpans(
   data: TraceSearchMetadata[] | undefined,
   instanceSettings: DataSourceInstanceSettings
 ): DataFrame[] {
   const spanDynamicAttrs: Record<string, FieldDTO> = {};
   let hasNameAttribute = false;
-
   data?.forEach((trace) =>
     getSpanSets(trace).forEach((ss) => {
       ss.attributes?.forEach((attr) => {
@@ -679,7 +620,6 @@ export function createTableFrameFromTraceQlQueryAsSpans(
       });
     })
   );
-
   const frame = new MutableDataFrame({
     name: 'Spans',
     refId: 'traces',
@@ -770,11 +710,9 @@ export function createTableFrameFromTraceQlQueryAsSpans(
       preferredVisualisationType: 'table',
     },
   });
-
   if (!data || !data.length) {
     return [frame];
   }
-
   data
     // Show the most recent traces
     .sort((a, b) => parseInt(b?.startTimeUnixNano!, 10) / 1000000 - parseInt(a?.startTimeUnixNano!, 10) / 1000000)
@@ -785,10 +723,8 @@ export function createTableFrameFromTraceQlQueryAsSpans(
         });
       });
     });
-
   return [frame];
 }
-
 /**
  * Get the spansets of a trace.
  *
@@ -801,7 +737,6 @@ export function createTableFrameFromTraceQlQueryAsSpans(
 const getSpanSets = (trace: TraceSearchMetadata): Spanset[] => {
   return trace.spanSets || (trace.spanSet ? [trace.spanSet] : []);
 };
-
 const traceSubFrame = (
   trace: TraceSearchMetadata,
   spanSet: Spanset,
@@ -809,7 +744,6 @@ const traceSubFrame = (
 ): DataFrame => {
   const spanDynamicAttrs: Record<string, FieldDTO> = {};
   let hasNameAttribute = false;
-
   spanSet.attributes?.map((attr) => {
     spanDynamicAttrs[attr.key] = {
       name: attr.key,
@@ -831,7 +765,6 @@ const traceSubFrame = (
       };
     });
   });
-
   const subFrame = new MutableDataFrame({
     fields: [
       {
@@ -907,20 +840,16 @@ const traceSubFrame = (
       preferredVisualisationType: 'table',
     },
   });
-
   // TODO: this should be done in `applyFieldOverrides` instead recursively for the nested `DataFrames`
   const theme = createTheme();
   for (const field of subFrame.fields) {
     field.display = getDisplayProcessor({ field, theme });
   }
-
   spanSet.spans.forEach((span) => {
     subFrame.add(transformSpanToTraceData(span, spanSet, trace));
   });
-
   return toDataFrame(subFrame);
 };
-
 interface TraceTableData {
   [key: string]: string | number | boolean | undefined; // dynamic attribute name
   traceID?: string;
@@ -929,10 +858,8 @@ interface TraceTableData {
   name?: string;
   traceDuration?: number;
 }
-
 function transformSpanToTraceData(span: Span, spanSet: Spanset, trace: TraceSearchMetadata): TraceTableData {
   const spanStartTimeUnixMs = parseInt(span.startTimeUnixNano, 10) / 1000000;
-
   const data: TraceTableData = {
     traceIdHidden: trace.traceID,
     traceService: trace.rootServiceName || '',
@@ -942,7 +869,6 @@ function transformSpanToTraceData(span: Span, spanSet: Spanset, trace: TraceSear
     duration: parseInt(span.durationNanos, 10),
     name: span.name,
   };
-
   let attrs: SpanAttributes[] = [];
   if (spanSet.attributes) {
     attrs = attrs.concat(spanSet.attributes);
@@ -950,7 +876,6 @@ function transformSpanToTraceData(span: Span, spanSet: Spanset, trace: TraceSear
   if (span.attributes) {
     attrs = attrs.concat(span.attributes);
   }
-
   attrs.forEach((attr) => {
     if (attr.value.boolValue || attr.value.Value?.bool_value) {
       data[attr.key] = attr.value.boolValue || attr.value.Value?.bool_value;
@@ -965,10 +890,8 @@ function transformSpanToTraceData(span: Span, spanSet: Spanset, trace: TraceSear
       data[attr.key] = attr.value.stringValue || attr.value.Value?.string_value;
     }
   });
-
   return data;
 }
-
 const emptyDataQueryResponse = {
   data: [
     new MutableDataFrame({

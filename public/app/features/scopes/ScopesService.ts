@@ -1,18 +1,15 @@
+import { structLog } from '@grafana/data';
 import { isEqual } from 'lodash';
 import { BehaviorSubject, type Observable, combineLatest, type Subscription } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
-
 import { type LocationService, type ScopesContextValue, type ScopesContextValueState } from '@grafana/runtime';
-
 import { type ScopesDashboardsService } from './dashboards/ScopesDashboardsService';
 import { deserializeFolderPath, serializeFolderPath } from './dashboards/scopeNavgiationUtils';
 import { type ScopesSelectorService } from './selector/ScopesSelectorService';
-
 export interface State {
   enabled: boolean;
   readOnly: boolean;
 }
-
 /**
  * The ScopesService is mainly an aggregation of the ScopesSelectorService and ScopesDashboardsService which handle
  * the scope selection mechanics and then loading and showing related dashboards. We aggregate the state of these
@@ -21,12 +18,9 @@ export interface State {
 export class ScopesService implements ScopesContextValue {
   // Only internal part of the state.
   private readonly _state: BehaviorSubject<State>;
-
   // This will contain the combined state that will be public.
   private readonly _stateObservable: BehaviorSubject<ScopesContextValueState>;
-
   private subscriptions: Subscription[] = [];
-
   constructor(
     private selectorService: ScopesSelectorService,
     private dashboardsService: ScopesDashboardsService,
@@ -36,7 +30,6 @@ export class ScopesService implements ScopesContextValue {
       enabled: false,
       readOnly: false,
     });
-
     this._stateObservable = new BehaviorSubject({
       ...this._state.getValue(),
       value: this.selectorService.state.appliedScopes
@@ -46,7 +39,6 @@ export class ScopesService implements ScopesContextValue {
       loading: this.selectorService.state.loading,
       drawerOpened: this.dashboardsService.state.drawerOpened,
     });
-
     // We combine the latest emissions from this state + selectorService + dashboardsService.
     this.subscriptions.push(
       combineLatest([
@@ -68,13 +60,11 @@ export class ScopesService implements ScopesContextValue {
         // We pass this into behaviourSubject so we get the 1 event buffer and we can access latest value.
         .subscribe(this._stateObservable)
     );
-
     // Init from the URL when we first load
     const queryParams = new URLSearchParams(locationService.getLocation().search);
     const scopeNodeId = queryParams.get('scope_node');
     const navigationScope = queryParams.get('navigation_scope');
     const navScopePath = queryParams.get('nav_scope_path');
-
     if (navigationScope) {
       this.dashboardsService.setNavigationScope(
         navigationScope,
@@ -82,21 +72,18 @@ export class ScopesService implements ScopesContextValue {
         navScopePath ? deserializeFolderPath(navScopePath) : undefined
       );
     }
-
     this.changeScopes(queryParams.getAll('scopes'), undefined, scopeNodeId ?? undefined).then(() => {
       if (navScopePath && !navigationScope) {
         this.dashboardsService.setNavScopePath(deserializeFolderPath(navScopePath));
       }
     });
-
     // Pre-load scope node (which loads parent too)
     const nodeToPreload = scopeNodeId;
     if (nodeToPreload) {
       this.selectorService.resolvePathToRoot(nodeToPreload, this.selectorService.state.tree!).catch((error) => {
-        console.error('Failed to pre-load node path', error);
+        structLog('error', 'Failed to pre-load node path', error);
       });
     }
-
     // Update scopes state based on URL.
     this.subscriptions.push(
       locationService.getLocationObservable().subscribe((location) => {
@@ -105,13 +92,10 @@ export class ScopesService implements ScopesContextValue {
           return;
         }
         const queryParams = new URLSearchParams(location.search);
-
         const scopes = queryParams.getAll('scopes');
         const scopeNodeId = queryParams.get('scope_node');
-
         const navigationScope = queryParams.get('navigation_scope');
         const navScopePath = queryParams.get('nav_scope_path');
-
         // Check if new scopes are different from the old scopes
         const currentScopes = this.selectorService.state.appliedScopes.map((scope) => scope.scopeId);
         if (scopes.length && !isEqual(scopes, currentScopes)) {
@@ -120,16 +104,13 @@ export class ScopesService implements ScopesContextValue {
           // changes the URL directly, it would trigger a reload so scopes would still be reset.
           this.changeScopes(scopes, undefined, scopeNodeId ?? undefined);
         }
-
         // Handle navigation_scope and nav_scope_path changes from back/forward navigation
         const currentNavigationScope = this.dashboardsService.state.navigationScope;
         const currentNavScopePath = this.dashboardsService.state.navScopePath;
         const newNavScopePath = navScopePath ? deserializeFolderPath(navScopePath) : undefined;
         const decodedNavigationScope = navigationScope ? decodeURIComponent(navigationScope) : undefined;
-
         const navigationScopeChanged = decodedNavigationScope !== currentNavigationScope;
         const navScopePathChanged = !isEqual(newNavScopePath, currentNavScopePath);
-
         if (navigationScopeChanged) {
           // Navigation scope changed - do full update
           if (decodedNavigationScope) {
@@ -147,13 +128,11 @@ export class ScopesService implements ScopesContextValue {
         }
       })
     );
-
     // Update the URL based on change in the scopes state
     this.subscriptions.push(
       selectorService.subscribeToState((state, prevState) => {
         const oldScopeNames = prevState.appliedScopes.map((scope) => scope.scopeId);
         const newScopeNames = state.appliedScopes.map((scope) => scope.scopeId);
-
         // Extract scopeNodeId from defaultPath when available
         const getScopeNodeId = (appliedScopes: typeof state.appliedScopes, scopes: typeof state.scopes) => {
           const firstScope = appliedScopes[0];
@@ -167,13 +146,10 @@ export class ScopesService implements ScopesContextValue {
           }
           return firstScope.scopeNodeId;
         };
-
         const oldScopeNodeId = getScopeNodeId(prevState.appliedScopes, prevState.scopes);
         const newScopeNodeId = getScopeNodeId(state.appliedScopes, state.scopes);
-
         const scopesChanged = !isEqual(oldScopeNames, newScopeNames);
         const scopeNodeChanged = oldScopeNodeId !== newScopeNodeId;
-
         if (scopesChanged || scopeNodeChanged) {
           this.locationService.partial(
             {
@@ -204,7 +180,6 @@ export class ScopesService implements ScopesContextValue {
       })
     );
   }
-
   /**
    * This updates only the internal state of this service.
    * @param newState
@@ -212,7 +187,6 @@ export class ScopesService implements ScopesContextValue {
   private updateState = (newState: Partial<State>) => {
     this._state.next({ ...this._state.getValue(), ...newState });
   };
-
   /**
    * The state of this service is a combination of the downstream services state plus the state of this service.
    */
@@ -221,25 +195,20 @@ export class ScopesService implements ScopesContextValue {
     // rerenders.
     return this._stateObservable.value;
   }
-
   public get stateObservable(): Observable<ScopesContextValueState> {
     return this._stateObservable;
   }
-
   public changeScopes = (scopeNames: string[], parentNodeId?: string, scopeNodeId?: string) =>
     // Don't redirect on apply for initial load from URL. We only want to redirect when selecting from the selector
     this.selectorService.changeScopes(scopeNames, parentNodeId, scopeNodeId, false);
-
   public setReadOnly = (readOnly: boolean) => {
     if (this.state.readOnly !== readOnly) {
       this.updateState({ readOnly });
     }
-
     if (readOnly && this.selectorService.state.opened) {
       this.selectorService.closeAndReset();
     }
   };
-
   public setEnabled = (enabled: boolean) => {
     if (this.state.enabled !== enabled) {
       this.updateState({ enabled });
@@ -256,7 +225,6 @@ export class ScopesService implements ScopesContextValue {
       }
     }
   };
-
   /**
    * Extracts the scopeNodeId for URL syncing, preferring defaultPath when available.
    * When a scope has defaultPath, that is the source of truth for the node ID.
@@ -267,19 +235,15 @@ export class ScopesService implements ScopesContextValue {
     if (!firstScope) {
       return undefined;
     }
-
     const scope = this.selectorService.state.scopes[firstScope.scopeId];
-
     // Prefer scopeNodeId from defaultPath if available (most reliable source)
     if (scope?.spec.defaultPath && scope.spec.defaultPath.length > 0) {
       // Extract scopeNodeId from the last element of defaultPath
       return scope.spec.defaultPath[scope.spec.defaultPath.length - 1];
     }
-
     // Fallback to next in priority order: scopeNodeId from appliedScopes
     return firstScope.scopeNodeId;
   }
-
   /**
    * Returns observable that emits when relevant parts of the selectorService state change.
    * @private
@@ -300,7 +264,6 @@ export class ScopesService implements ScopesContextValue {
       )
     );
   }
-
   /**
    * Returns observable that emits when relevant parts of the dashboardService state change.
    * @private
@@ -310,7 +273,6 @@ export class ScopesService implements ScopesContextValue {
       distinctUntilChanged((prev, curr) => prev.drawerOpened === curr.drawerOpened)
     );
   }
-
   /**
    * Cleanup subscriptions so this can be garbage collected.
    */

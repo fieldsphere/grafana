@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import $ from 'jquery';
 import _, { isFunction } from 'lodash'; // eslint-disable-line lodash/import-scope
 import moment from 'moment'; // eslint-disable-line no-restricted-imports
-
 import { AppEvents, dateMath, type UrlQueryMap, type UrlQueryValue } from '@grafana/data';
 import { getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
 import { type Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
@@ -11,15 +11,12 @@ import kbn from 'app/core/utils/kbn';
 import { getDashboardScenePageStateManager } from 'app/features/dashboard-scene/pages/DashboardScenePageStateManager';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 import { type DashboardDTO } from 'app/types/dashboard';
-
 import { appEvents } from '../../../core/app_events';
 import { ResponseTransformers } from '../api/ResponseTransformers';
 import { getDashboardAPI } from '../api/dashboard_api';
 import { DashboardVersionError, type DashboardWithAccessInfo } from '../api/types';
-
 import { getDashboardSrv } from './DashboardSrv';
 import { getDashboardSnapshotSrv } from './SnapshotSrv';
-
 interface DashboardLoaderSrvLike<T> {
   loadDashboard(
     type: UrlQueryValue,
@@ -28,7 +25,6 @@ interface DashboardLoaderSrvLike<T> {
     params?: UrlQueryMap
   ): Promise<T>;
 }
-
 abstract class DashboardLoaderSrvBase<T> implements DashboardLoaderSrvLike<T> {
   abstract loadDashboard(
     type: UrlQueryValue,
@@ -36,12 +32,9 @@ abstract class DashboardLoaderSrvBase<T> implements DashboardLoaderSrvLike<T> {
     uid: string | undefined,
     params?: UrlQueryMap
   ): Promise<T>;
-
   abstract loadSnapshot(slug: string): Promise<T>;
-
   protected loadScriptedDashboard(file: string) {
     const url = 'public/dashboards/' + file.replace(/\.(?!js)/, '/') + '?' + new Date().getTime();
-
     return getBackendSrv()
       .get(url, undefined, undefined, { validatePath: true })
       .then(this.executeScript.bind(this))
@@ -58,7 +51,7 @@ abstract class DashboardLoaderSrvBase<T> implements DashboardLoaderSrvLike<T> {
           };
         },
         (err) => {
-          console.error('Script dashboard error ' + err);
+          structLog('error', 'Script dashboard error ' + err);
           appEvents.emit(AppEvents.alertError, [
             'Script Error',
             'Please make sure it exists and returns a valid dashboard',
@@ -67,7 +60,6 @@ abstract class DashboardLoaderSrvBase<T> implements DashboardLoaderSrvLike<T> {
         }
       );
   }
-
   private executeScript(result: any) {
     const services = {
       dashboardSrv: getDashboardSrv(),
@@ -98,7 +90,6 @@ abstract class DashboardLoaderSrvBase<T> implements DashboardLoaderSrvLike<T> {
       $,
       services
     );
-
     // Handle async dashboard scripts
     if (isFunction(scriptResult)) {
       return new Promise((resolve) => {
@@ -107,11 +98,9 @@ abstract class DashboardLoaderSrvBase<T> implements DashboardLoaderSrvLike<T> {
         });
       });
     }
-
     return { data: scriptResult };
   }
 }
-
 export class DashboardLoaderSrv extends DashboardLoaderSrvBase<DashboardDTO> {
   loadDashboard(
     type: UrlQueryValue,
@@ -121,7 +110,6 @@ export class DashboardLoaderSrv extends DashboardLoaderSrvBase<DashboardDTO> {
   ): Promise<DashboardDTO> {
     const stateManager = getDashboardScenePageStateManager('v1');
     let promise;
-
     if (type === 'script' && slug) {
       promise = this.loadScriptedDashboard(slug);
     } else if (type === 'snapshot' && slug) {
@@ -137,48 +125,38 @@ export class DashboardLoaderSrv extends DashboardLoaderSrvBase<DashboardDTO> {
           return Promise.resolve(cachedDashboard);
         }
       }
-
       promise = getDashboardAPI('v1').then(async (api) => {
         try {
           return await api.getDashboardDTO(uid, params);
         } catch (e) {
           if (isFetchError(e) && !(e instanceof DashboardVersionError)) {
-            console.error('Failed to load dashboard', e);
+            structLog('error', 'Failed to load dashboard', e);
             e.isHandled = true;
             if (e.status === 404) {
               appEvents.emit(AppEvents.alertError, ['Dashboard not found']);
             }
           }
-
           throw e;
         }
       });
     } else {
       throw new Error('Dashboard uid or slug required');
     }
-
     promise.then((result: DashboardDTO) => {
       impressionSrv.addDashboardImpression(result.dashboard.uid);
-
       return result;
     });
-
     return promise;
   }
-
   loadSnapshot(slug: string): Promise<DashboardDTO> {
     const promise = getDashboardSnapshotSrv().getSnapshot(slug);
-
     promise.then((result: DashboardDTO) => {
       impressionSrv.addDashboardImpression(result.dashboard.uid);
-
       return result;
     });
-
     return promise;
   }
 }
-
 export class DashboardLoaderSrvV2 extends DashboardLoaderSrvBase<DashboardWithAccessInfo<DashboardV2Spec>> {
   loadDashboard(
     type: UrlQueryValue,
@@ -188,7 +166,6 @@ export class DashboardLoaderSrvV2 extends DashboardLoaderSrvBase<DashboardWithAc
   ): Promise<DashboardWithAccessInfo<DashboardV2Spec>> {
     const stateManager = getDashboardScenePageStateManager('v2');
     let promise;
-
     if (type === 'script' && slug) {
       promise = this.loadScriptedDashboard(slug).then((r) => ResponseTransformers.ensureV2Response(r));
     } else if (type === 'public' && uid) {
@@ -202,52 +179,42 @@ export class DashboardLoaderSrvV2 extends DashboardLoaderSrvBase<DashboardWithAc
           return Promise.resolve(cachedDashboard);
         }
       }
-
       promise = getDashboardAPI('v2').then(async (api) => {
         try {
           return await api.getDashboardDTO(uid, params);
         } catch (e) {
           if (isFetchError(e) && !(e instanceof DashboardVersionError)) {
-            console.error('Failed to load dashboard', e);
+            structLog('error', 'Failed to load dashboard', e);
             e.isHandled = true;
             if (e.status === 404) {
               appEvents.emit(AppEvents.alertError, ['Dashboard not found']);
             }
           }
-
           throw e;
         }
       });
     } else {
       throw new Error('Dashboard uid or slug required');
     }
-
     promise.then((result: DashboardWithAccessInfo<DashboardV2Spec>) => {
       impressionSrv.addDashboardImpression(result.metadata.name);
       return result;
     });
-
     return promise;
   }
-
   loadSnapshot(slug: string): Promise<DashboardWithAccessInfo<DashboardV2Spec>> {
     const promise = getDashboardSnapshotSrv()
       .getSnapshot(slug)
       .then((r) => ResponseTransformers.ensureV2Response(r));
-
     promise.then((result: DashboardWithAccessInfo<DashboardV2Spec>) => {
       impressionSrv.addDashboardImpression(result.metadata.name);
-
       return result;
     });
-
     return promise;
   }
 }
-
 let dashboardLoaderSrv = new DashboardLoaderSrv();
 export { dashboardLoaderSrv };
-
 /** @internal
  * Used for tests only
  */
@@ -255,6 +222,5 @@ export const setDashboardLoaderSrv = (srv: DashboardLoaderSrv) => {
   if (process.env.NODE_ENV !== 'test') {
     throw new Error('dashboardLoaderSrv can be only overriden in test environment');
   }
-
   dashboardLoaderSrv = srv;
 };

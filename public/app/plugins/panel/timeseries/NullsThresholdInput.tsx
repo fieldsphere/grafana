@@ -1,21 +1,18 @@
+import { structLog } from '@grafana/data';
 import * as React from 'react';
-
 import { rangeUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Input } from '@grafana/ui';
-
 export enum InputPrefix {
   LessThan = 'lessthan',
   GreaterThan = 'greaterthan',
 }
-
 type Props = {
   value: number;
   onChange: (value?: number | boolean | undefined) => void;
   inputPrefix?: InputPrefix;
   isTime: boolean;
 };
-
 export const NullsThresholdInput = ({ value, onChange, inputPrefix, isTime }: Props) => {
   let defaultValue = rangeUtil.secondsToHms(value / 1000);
   if (!isTime) {
@@ -31,30 +28,26 @@ export const NullsThresholdInput = ({ value, onChange, inputPrefix, isTime }: Pr
           val = Number(txt);
         }
       } catch (err) {
-        console.warn('ERROR', err);
+        structLog('warn', 'ERROR', err);
       }
     }
     onChange(val);
   };
-
   const handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter') {
       return;
     }
     checkAndUpdate(e.currentTarget.value);
   };
-
   const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     checkAndUpdate(e.currentTarget.value);
   };
-
   const prefix =
     inputPrefix === InputPrefix.GreaterThan ? (
       <div>&gt;</div>
     ) : inputPrefix === InputPrefix.LessThan ? (
       <div>&lt;</div>
     ) : null;
-
   return (
     <Input
       autoFocus={false}

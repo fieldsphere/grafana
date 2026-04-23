@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/parsing.ts
 import { type SyntaxNode } from '@lezer/common';
 import {
@@ -25,9 +26,7 @@ import {
   VectorSelector,
   Without,
 } from '@prometheus-io/lezer-promql';
-
 import { t } from '@grafana/i18n';
-
 import { binaryScalarOperatorToOperatorName } from './binaryScalarOperations';
 import {
   ErrorId,
@@ -43,7 +42,6 @@ import {
 } from './parsingUtils';
 import { type QueryBuilderLabelFilter, type QueryBuilderOperation } from './shared/types';
 import { type PromVisualQuery, type PromVisualQueryBinary } from './types';
-
 /**
  * Parses a PromQL query into a visual query model.
  *
@@ -55,7 +53,6 @@ export function buildVisualQueryFromString(expr: string): Omit<Context, 'replace
   const { replacedExpr, replacedVariables } = replaceVariables(expr);
   const tree = parser.parse(replacedExpr);
   const node = tree.topNode;
-
   // This will be modified in the handlers.
   const visQuery: PromVisualQuery = {
     metric: '',
@@ -67,43 +64,36 @@ export function buildVisualQueryFromString(expr: string): Omit<Context, 'replace
     errors: [],
     replacements: replacedVariables,
   };
-
   try {
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    structLog('error', err);
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,
       });
     }
   }
-
   // If we have empty query, we want to reset errors
   if (isEmptyQuery(context.query)) {
     context.errors = [];
   }
-
   // No need to return replaced variables
   delete context.replacements;
-
   return context;
 }
-
 interface ParsingError {
   text: string;
   from?: number;
   to?: number;
   parentType?: string;
 }
-
 interface Context {
   query: PromVisualQuery;
   errors: ParsingError[];
   replacements?: Record<string, string>;
 }
-
 /**
  * Handler for default state. It will traverse the tree and call the appropriate handler for each node. The node
  * handled here does not necessarily need to be of type == Expr.
@@ -113,14 +103,12 @@ interface Context {
  */
 function handleExpression(expr: string, node: SyntaxNode, context: Context) {
   const visQuery = context.query;
-
   switch (node.type.id) {
     case Identifier: {
       // Expectation is that there is only one of those per query.
       visQuery.metric = getString(expr, node);
       break;
     }
-
     case QuotedLabelName: {
       // Usually we got the metric name above in the Identifier case.
       // If we didn't get the name that's potentially we have it in curly braces as quoted string.
@@ -133,7 +121,6 @@ function handleExpression(expr: string, node: SyntaxNode, context: Context) {
       }
       break;
     }
-
     case QuotedLabelMatcher: {
       const quotedLabel = getLabel(expr, node, QuotedLabelName);
       quotedLabel.label = quotedLabel.label.slice(1, -1);
@@ -144,7 +131,6 @@ function handleExpression(expr: string, node: SyntaxNode, context: Context) {
       }
       break;
     }
-
     case UnquotedLabelMatcher: {
       // Same as MetricIdentifier should be just one per query.
       visQuery.labels.push(getLabel(expr, node, LabelName));
@@ -154,22 +140,18 @@ function handleExpression(expr: string, node: SyntaxNode, context: Context) {
       }
       break;
     }
-
     case FunctionCall: {
       handleFunction(expr, node, context);
       break;
     }
-
     case AggregateExpr: {
       handleAggregation(expr, node, context);
       break;
     }
-
     case BinaryExpr: {
       handleBinary(expr, node, context);
       break;
     }
-
     case ErrorId: {
       if (isIntervalVariableError(node)) {
         break;
@@ -177,7 +159,6 @@ function handleExpression(expr: string, node: SyntaxNode, context: Context) {
       context.errors.push(makeError(expr, node));
       break;
     }
-
     default: {
       if (node.type.id === ParenExpr) {
         // We don't support parenthesis in the query to group expressions.
@@ -196,12 +177,10 @@ function handleExpression(expr: string, node: SyntaxNode, context: Context) {
     }
   }
 }
-
 // TODO check if we still need this
 function isIntervalVariableError(node: SyntaxNode) {
   return node.prevSibling?.firstChild?.type.id === VectorSelector;
 }
-
 function getLabel(
   expr: string,
   node: SyntaxNode,
@@ -216,9 +195,7 @@ function getLabel(
     value,
   };
 }
-
 const rangeFunctions = ['changes', 'rate', 'irate', 'increase', 'delta'];
-
 /**
  * Handle function call which is usually and identifier and its body > arguments.
  * @param expr
@@ -229,7 +206,6 @@ function handleFunction(expr: string, node: SyntaxNode, context: Context) {
   const visQuery = context.query;
   const nameNode = node.getChild(FunctionIdentifier);
   const funcName = getString(expr, nameNode);
-
   // Visual query builder doesn't support nested queries and so info function.
   if (funcName === 'info') {
     context.errors.push({
@@ -241,11 +217,9 @@ function handleFunction(expr: string, node: SyntaxNode, context: Context) {
       to: node.to,
     });
   }
-
   const body = node.getChild(FunctionCallBody);
   const params = [];
   let interval = '';
-
   // This is a bit of a shortcut to get the interval argument. Reasons are
   // - interval is not part of the function args per promQL grammar but we model it as argument for the function in
   //   the query model.
@@ -259,11 +233,9 @@ function handleFunction(expr: string, node: SyntaxNode, context: Context) {
       params.push(returnBuiltInVariable(match[1]));
     }
   }
-
   const op = { id: funcName, params };
   // We unshift operations to keep the more natural order that we want to have in the visual query editor.
   visQuery.operations.unshift(op);
-
   if (body) {
     if (getString(expr, body) === '([' + interval + '])') {
       // This is a special case where we have a function with a single argument and it is the interval.
@@ -273,7 +245,6 @@ function handleFunction(expr: string, node: SyntaxNode, context: Context) {
     updateFunctionArgs(expr, body, context, op);
   }
 }
-
 /**
  * Handle aggregation as they are distinct type from other functions.
  * @param expr
@@ -284,33 +255,26 @@ function handleAggregation(expr: string, node: SyntaxNode, context: Context) {
   const visQuery = context.query;
   const nameNode = node.getChild(AggregateOp);
   let funcName = getString(expr, nameNode);
-
   const modifier = node.getChild(AggregateModifier);
   const labels = [];
-
   if (modifier) {
     const byModifier = modifier.getChild(`By`);
     if (byModifier && funcName) {
       funcName = `__${funcName}_by`;
     }
-
     const withoutModifier = modifier.getChild(Without);
     if (withoutModifier) {
       funcName = `__${funcName}_without`;
     }
-
     labels.push(...getAllByType(expr, modifier, LabelName), ...getAllByType(expr, modifier, QuotedLabelName));
   }
-
   const body = node.getChild(FunctionCallBody);
-
   const op: QueryBuilderOperation = { id: funcName, params: [] };
   visQuery.operations.unshift(op);
   updateFunctionArgs(expr, body, context, op);
   // We add labels after params in the visual query editor.
   op.params.push(...labels);
 }
-
 /**
  * Handle (probably) all types of arguments that function or aggregation can have.
  *
@@ -329,24 +293,20 @@ function updateFunctionArgs(expr: string, node: SyntaxNode | null, context: Cont
   switch (node.type.id) {
     case FunctionCallBody: {
       let child = node.firstChild;
-
       while (child) {
         updateFunctionArgs(expr, child, context, op);
         child = child.nextSibling;
       }
       break;
     }
-
     case NumberDurationLiteral: {
       op.params.push(parseFloat(getString(expr, node)));
       break;
     }
-
     case StringLiteral: {
       op.params.push(getString(expr, node).replace(/"/g, ''));
       break;
     }
-
     case VectorSelector: {
       // When we replace a custom variable to prevent errors during parsing we receive VectorSelector and Identifier in it.
       // But this is also a normal case for a normal function body. i.e. topk(5, http_requests_total{})
@@ -359,7 +319,6 @@ function updateFunctionArgs(expr: string, node: SyntaxNode | null, context: Cont
         break;
       }
     }
-
     default: {
       // Means we get to something that does not seem like simple function arg and is probably nested query so jump
       // back to main context
@@ -367,7 +326,6 @@ function updateFunctionArgs(expr: string, node: SyntaxNode | null, context: Cont
     }
   }
 }
-
 /**
  * Right now binary expressions can be represented in 2 way in visual query. As additional operation in case it is
  * just operation with scalar or it creates a binaryQuery when it's 2 queries.
@@ -380,16 +338,11 @@ function handleBinary(expr: string, node: SyntaxNode, context: Context, idx = 0)
   const left = node.firstChild!;
   const op = getString(expr, left.nextSibling);
   const binModifier = getBinaryModifier(expr, node.getChild(BoolModifier) ?? node.getChild(MatchingModifierClause));
-
   const right = node.lastChild!;
-
   const opDef = binaryScalarOperatorToOperatorName[op];
-
   const leftNumber = left.type.id === NumberDurationLiteral;
   const rightNumber = right.type.id === NumberDurationLiteral;
-
   const rightBinary = right.type.id === BinaryExpr;
-
   // binary operations that are part of a function argument do not get processed and added to the query until the end, this index helps keep track
   // of where to add the operation in the list rather than just appending it to the end. If the binary operation is just part of a nested binary exp,
   // we append at the end
@@ -408,10 +361,8 @@ function handleBinary(expr: string, node: SyntaxNode, context: Context, idx = 0)
     // we have to traverse a bit deeper to know
     handleExpression(expr, left, context);
   }
-
   // in the case we have an expression like func(...) / 2 or func(...) + 5, the binary expression will be at the top of the tree
   // in which case, the idx will be 0. In this case it means that the binary operation must be added to the end of the array, and
-
   const newIdx = idx === 0 ? visQuery.operations.length : -idx;
   if (rightNumber) {
     visQuery.operations.splice(newIdx, 0, makeBinOp(opDef, expr, right, !!binModifier?.isBool));
@@ -422,7 +373,6 @@ function handleBinary(expr: string, node: SyntaxNode, context: Context, idx = 0)
     if (leftMostChild?.type.id === NumberDurationLiteral) {
       visQuery.operations.splice(newIdx, 0, makeBinOp(opDef, expr, leftMostChild, !!binModifier?.isBool));
     }
-
     // If we added the first number literal as operation here we still can continue and handle the rest as the first
     // number will be just skipped.
     handleExpression(expr, right, context);
@@ -448,14 +398,21 @@ function handleBinary(expr: string, node: SyntaxNode, context: Context, idx = 0)
     });
   }
 }
-
 // TODO revisit this function.
 function getBinaryModifier(
   expr: string,
   node: SyntaxNode | null
 ):
-  | { isBool: true; isMatcher: false }
-  | { isBool: false; isMatcher: true; matches: string; matchType: 'ignoring' | 'on' }
+  | {
+      isBool: true;
+      isMatcher: false;
+    }
+  | {
+      isBool: false;
+      isMatcher: true;
+      matches: string;
+      matchType: 'ignoring' | 'on';
+    }
   | undefined {
   if (!node) {
     return undefined;
@@ -468,7 +425,6 @@ function getBinaryModifier(
     if (groupingLabels) {
       labels = getAllByType(expr, groupingLabels, LabelName).join(', ');
     }
-
     return {
       isMatcher: true,
       isBool: false,
@@ -477,7 +433,6 @@ function getBinaryModifier(
     };
   }
 }
-
 function isEmptyQuery(query: PromVisualQuery) {
   if (query.labels.length === 0 && query.operations.length === 0 && !query.metric) {
     return true;

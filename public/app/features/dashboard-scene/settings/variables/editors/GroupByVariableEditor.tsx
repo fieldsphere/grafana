@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { noop } from 'lodash';
 import { type FormEvent } from 'react';
 import { useAsync } from 'react-use';
-
 import {
   type DataSourceInstanceSettings,
   type MetricFindValue,
@@ -11,23 +11,18 @@ import {
 import { getDataSourceSrv } from '@grafana/runtime';
 import { GroupByVariable, type SceneVariable } from '@grafana/scenes';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
-
 import { GroupByVariableForm } from '../components/GroupByVariableForm';
-
 interface GroupByVariableEditorProps {
   variable: GroupByVariable;
   onRunQuery: () => void;
   inline?: boolean;
 }
-
 export function GroupByVariableEditor(props: GroupByVariableEditorProps) {
   const { variable, onRunQuery, inline } = props;
   const { datasource: datasourceRef, defaultOptions, allowCustomValue = true, defaultValue } = variable.useState();
-
   const { value: datasource } = useAsync(async () => {
     return await getDataSourceSrv().get(datasourceRef);
   }, [variable.state]);
-
   const { value: groupByKeys = [] } = useAsync(async () => {
     if (!datasource?.getGroupByKeys) {
       return [];
@@ -36,23 +31,18 @@ export function GroupByVariableEditor(props: GroupByVariableEditorProps) {
     const keys = Array.isArray(result) ? result : (result.data ?? []);
     return keys.map((k) => ({ label: k.text || String(k.value), value: String(k.value) }));
   }, [datasource]);
-
   const message = datasource?.getGroupByKeys
     ? 'Group by dimensions are applied automatically to all queries that target this data source'
     : 'This data source does not support group by variable yet.';
-
   const onDataSourceChange = async (ds: DataSourceInstanceSettings) => {
     const dsRef = getDataSourceRef(ds);
-
     variable.setState({ datasource: dsRef });
     onRunQuery();
   };
-
   const onDefaultOptionsChange = async (defaultOptions?: MetricFindValue[]) => {
     variable.setState({ defaultOptions });
     onRunQuery();
   };
-
   const onDefaultValueChange = (options: Array<SelectableValue<string>>) => {
     if (options.length === 0) {
       variable.setState({
@@ -71,7 +61,6 @@ export function GroupByVariableEditor(props: GroupByVariableEditorProps) {
     }
     onRunQuery();
   };
-
   const defaultValueSelection: Array<SelectableValue<string>> = defaultValue
     ? Array.isArray(defaultValue.value)
       ? defaultValue.value.map((v, i) => {
@@ -81,11 +70,9 @@ export function GroupByVariableEditor(props: GroupByVariableEditorProps) {
         })
       : [{ value: String(defaultValue.value), label: String(defaultValue.text ?? defaultValue.value) }]
     : [];
-
   const onAllowCustomValueChange = (event: FormEvent<HTMLInputElement>) => {
     variable.setState({ allowCustomValue: event.currentTarget.checked });
   };
-
   return (
     <GroupByVariableForm
       defaultOptions={defaultOptions}
@@ -103,13 +90,11 @@ export function GroupByVariableEditor(props: GroupByVariableEditorProps) {
     />
   );
 }
-
 export function getGroupByVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof GroupByVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    structLog('warn', 'getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
-
   return [
     new OptionsPaneItemDescriptor({
       id: `variable-${variable.state.name}-value`,

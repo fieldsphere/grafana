@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { type FormEvent, PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
-
 import {
   type DataSourceInstanceSettings,
   getDataSourceRef,
@@ -11,7 +11,6 @@ import {
 } from '@grafana/data';
 import { QueryVariableEditorForm } from 'app/features/dashboard-scene/settings/variables/components/QueryVariableForm';
 import { type StoreState } from 'app/types/store';
-
 import { getTimeSrv } from '../../dashboard/services/TimeSrv';
 import { initialVariableEditorState } from '../editor/reducer';
 import { getQueryVariableEditorState } from '../editor/selectors';
@@ -19,55 +18,43 @@ import { type VariableEditorProps } from '../editor/types';
 import { changeVariableMultiValue } from '../state/actions';
 import { getVariablesState } from '../state/selectors';
 import { toKeyedVariableIdentifier } from '../utils';
-
 import { changeQueryVariableDataSource, changeQueryVariableQuery, initQueryVariableEditor } from './actions';
-
 const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
   if (!rootStateKey) {
-    console.error('QueryVariableEditor: variable has no rootStateKey');
+    structLog('error', 'QueryVariableEditor: variable has no rootStateKey');
     return {
       extended: getQueryVariableEditorState(initialVariableEditorState),
     };
   }
-
   const { editor } = getVariablesState(rootStateKey, state);
-
   return {
     extended: getQueryVariableEditorState(editor),
   };
 };
-
 const mapDispatchToProps = {
   initQueryVariableEditor,
   changeQueryVariableDataSource,
   changeQueryVariableQuery,
   changeVariableMultiValue,
 };
-
 const connector = connect(mapStateToProps, mapDispatchToProps);
-
 export interface OwnProps extends VariableEditorProps<QueryVariableModel> {}
-
 export type Props = OwnProps & ConnectedProps<typeof connector>;
-
 export interface State {
   regex: string | null;
   tagsQuery: string | null;
   tagValuesQuery: string | null;
 }
-
 export class QueryVariableEditorUnConnected extends PureComponent<Props, State> {
   state: State = {
     regex: null,
     tagsQuery: null,
     tagValuesQuery: null,
   };
-
   async componentDidMount() {
     await this.props.initQueryVariableEditor(toKeyedVariableIdentifier(this.props.variable));
   }
-
   componentDidUpdate(prevProps: Readonly<Props>): void {
     if (prevProps.variable.datasource !== this.props.variable.datasource) {
       this.props.changeQueryVariableDataSource(
@@ -76,67 +63,53 @@ export class QueryVariableEditorUnConnected extends PureComponent<Props, State> 
       );
     }
   }
-
   onDataSourceChange = (dsSettings: DataSourceInstanceSettings) => {
     this.props.onPropChange({
       propName: 'datasource',
       propValue: dsSettings.isDefault ? null : getDataSourceRef(dsSettings),
     });
   };
-
   onLegacyQueryChange = async (query: any, definition: string) => {
     if (this.props.variable.query !== query) {
       this.props.changeQueryVariableQuery(toKeyedVariableIdentifier(this.props.variable), query, definition);
     }
   };
-
   onQueryChange = async (query: any) => {
     if (this.props.variable.query !== query) {
       let definition = '';
-
       if (query && query.hasOwnProperty('query') && typeof query.query === 'string') {
         definition = query.query;
       }
-
       this.props.changeQueryVariableQuery(toKeyedVariableIdentifier(this.props.variable), query, definition);
     }
   };
-
   onRegExBlur = async (event: FormEvent<HTMLTextAreaElement>) => {
     const regex = event.currentTarget.value;
     if (this.props.variable.regex !== regex) {
       this.props.onPropChange({ propName: 'regex', propValue: regex, updateOptions: true });
     }
   };
-
   onRefreshChange = (option: VariableRefresh) => {
     this.props.onPropChange({ propName: 'refresh', propValue: option });
   };
-
   onSortChange = async (option: SelectableValue<VariableSort>) => {
     this.props.onPropChange({ propName: 'sort', propValue: option.value, updateOptions: true });
   };
-
   onMultiChange = (event: FormEvent<HTMLInputElement>) => {
     this.props.onPropChange({ propName: 'multi', propValue: event.currentTarget.checked });
   };
-
   onIncludeAllChange = (event: FormEvent<HTMLInputElement>) => {
     this.props.onPropChange({ propName: 'includeAll', propValue: event.currentTarget.checked });
   };
-
   onAllValueChange = (event: FormEvent<HTMLInputElement>) => {
     this.props.onPropChange({ propName: 'allValue', propValue: event.currentTarget.value });
   };
-
   render() {
     const { extended, variable } = this.props;
     if (!extended || !extended.dataSource) {
       return null;
     }
-
     const timeRange = getTimeSrv().timeRange();
-
     return (
       <QueryVariableEditorForm
         datasource={variable.datasource ?? undefined}
@@ -166,5 +139,4 @@ export class QueryVariableEditorUnConnected extends PureComponent<Props, State> 
     );
   }
 }
-
 export const QueryVariableEditor = connector(QueryVariableEditorUnConnected);

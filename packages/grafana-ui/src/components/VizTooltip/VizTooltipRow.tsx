@@ -1,17 +1,14 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import clsx from 'clsx';
 import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
-
 import { type GrafanaTheme2 } from '@grafana/data';
-
 import { useStyles2 } from '../../themes/ThemeContext';
 import { InlineToast } from '../InlineToast/InlineToast';
 import { Tooltip } from '../Tooltip/Tooltip';
-
 import { ColorIndicatorPosition, VizTooltipColorIndicator } from './VizTooltipColorIndicator';
 import { ColorPlacement, type VizTooltipItem } from './types';
-
 interface VizTooltipRowProps extends Omit<VizTooltipItem, 'value'> {
   value: string | number | null | ReactNode;
   justify?: string;
@@ -21,17 +18,14 @@ interface VizTooltipRowProps extends Omit<VizTooltipItem, 'value'> {
   showValueScroll?: boolean;
   isHiddenFromViz?: boolean;
 }
-
 enum LabelValueTypes {
   label = 'label',
   value = 'value',
 }
-
 const SUCCESSFULLY_COPIED_TEXT = 'Copied to clipboard';
 const SHOW_SUCCESS_DURATION = 2 * 1000;
 const HORIZONTAL_PX_PER_CHAR = 7;
 const CAN_COPY = Boolean(navigator.clipboard && window.isSecureContext);
-
 export const VizTooltipRow = ({
   label,
   value,
@@ -47,7 +41,6 @@ export const VizTooltipRow = ({
   isHiddenFromViz,
 }: VizTooltipRowProps) => {
   const styles = useStyles2(getStyles, justify, marginRight);
-
   const innerValueScrollStyle: CSSProperties = showValueScroll
     ? {
         maxHeight: 55,
@@ -60,35 +53,27 @@ export const VizTooltipRow = ({
         wordBreak: 'break-word',
         lineHeight: 1.2,
       };
-
   const [showLabelTooltip, setShowLabelTooltip] = useState(false);
-
   const [copiedText, setCopiedText] = useState<Record<string, string> | null>(null);
   const [showCopySuccess, setShowCopySuccess] = useState(false);
-
   const labelRef = useRef<null | HTMLDivElement>(null);
   const valueRef = useRef<null | HTMLDivElement>(null);
-
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>;
-
     if (showCopySuccess) {
       timeoutId = setTimeout(() => {
         setShowCopySuccess(false);
       }, SHOW_SUCCESS_DURATION);
     }
-
     return () => {
       window.clearTimeout(timeoutId);
     };
   }, [showCopySuccess]);
-
   const copyToClipboard = async (text: string, type: LabelValueTypes) => {
     if (!CAN_COPY) {
       fallbackCopyToClipboard(text, type);
       return;
     }
-
     try {
       await navigator.clipboard.writeText(text);
       setCopiedText({ [`${type}`]: text });
@@ -97,7 +82,6 @@ export const VizTooltipRow = ({
       setCopiedText(null);
     }
   };
-
   const fallbackCopyToClipboard = (text: string, type: LabelValueTypes) => {
     // Use a fallback method for browsers/contexts that don't support the Clipboard API.
     const textarea = document.createElement('textarea');
@@ -112,25 +96,20 @@ export const VizTooltipRow = ({
         setShowCopySuccess(true);
       }
     } catch (err) {
-      console.error('Unable to copy to clipboard', err);
+      structLog('error', 'Unable to copy to clipboard', err);
     }
-
     textarea.remove();
   };
-
   const onMouseEnterLabel = (event: React.MouseEvent<HTMLDivElement>) => {
     if (event.currentTarget.offsetWidth < event.currentTarget.scrollWidth) {
       setShowLabelTooltip(true);
     }
   };
-
   const onMouseLeaveLabel = () => setShowLabelTooltip(false);
-
   // if label is > 50% window width, try to put label/value pairs on new lines
   if (label.length * HORIZONTAL_PX_PER_CHAR > window.innerWidth / 2) {
     label = label.replaceAll('{', '{\n  ').replaceAll('}', '\n}').replaceAll(', ', ',\n  ');
   }
-
   return (
     <div className={styles.contentWrapper}>
       {color && colorPlacement === ColorPlacement.first && (
@@ -218,7 +197,6 @@ export const VizTooltipRow = ({
     </div>
   );
 };
-
 const getStyles = (theme: GrafanaTheme2, justify = 'start', marginRight?: string) => ({
   contentWrapper: css({
     display: 'flex',

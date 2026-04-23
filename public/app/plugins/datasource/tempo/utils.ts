@@ -1,13 +1,11 @@
+import { structLog } from '@grafana/data';
 import { type DataSourceApi, parseDuration } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
-
 import { generateId } from './SearchTraceQLEditor/TagsInput';
 import { type TraceqlFilter, TraceqlSearchScope } from './dataquery.gen';
 import { type TempoQuery } from './types';
-
 const LIMIT_MESSAGE = /.*range specified by start and end.*exceeds.*/;
 const LIMIT_MESSAGE_METRICS = /.*metrics query time range exceeds the maximum allowed duration of.*/;
-
 export function mapErrorMessage(errorMessage: string) {
   if (errorMessage && (LIMIT_MESSAGE.test(errorMessage) || LIMIT_MESSAGE_METRICS.test(errorMessage))) {
     return 'The selected time range exceeds the maximum allowed duration. Please select a shorter time range.';
@@ -15,28 +13,24 @@ export function mapErrorMessage(errorMessage: string) {
     return errorMessage;
   }
 }
-
 export const getErrorMessage = (message: string | undefined, prefix?: string) => {
   const err = message ? ` (${message})` : '';
   let errPrefix = prefix ? prefix : 'Error';
   const msg = `${errPrefix}${err}. Please check the server logs for more details.`;
   return mapErrorMessage(msg);
 };
-
 export async function getDS(uid?: string): Promise<DataSourceApi | undefined> {
   if (!uid) {
     return undefined;
   }
-
   const dsSrv = getDataSourceSrv();
   try {
     return await dsSrv.get(uid);
   } catch (error) {
-    console.error('Failed to load data source', error);
+    structLog('error', 'Failed to load data source', error);
     return undefined;
   }
 }
-
 export const migrateFromSearchToTraceQLSearch = (query: TempoQuery) => {
   let filters: TraceqlFilter[] = [];
   if (query.spanName) {
@@ -99,7 +93,6 @@ export const migrateFromSearchToTraceQLSearch = (query: TempoQuery) => {
       }
     }
   }
-
   const migratedQuery: TempoQuery = {
     datasource: query.datasource,
     filters,
@@ -110,17 +103,13 @@ export const migrateFromSearchToTraceQLSearch = (query: TempoQuery) => {
   };
   return migratedQuery;
 };
-
 export const stepToNanos = (step?: string) => {
   if (!step) {
     return 0;
   }
-
   const match = step.match(/(\d+)(.+)/);
-
   const rawLength = match?.[1];
   const unit = match?.[2];
-
   if (rawLength) {
     if (unit === 'ns') {
       return parseInt(rawLength, 10);
@@ -138,6 +127,5 @@ export const stepToNanos = (step?: string) => {
       (duration.hours || 0) * 3600000000000
     );
   }
-
   return 0;
 };

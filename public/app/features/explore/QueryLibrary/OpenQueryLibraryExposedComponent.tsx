@@ -1,12 +1,10 @@
+import { structLog } from '@grafana/data';
 import { useCallback } from 'react';
-
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 import { ToolbarButton } from '@grafana/ui';
-
 import { useQueryLibraryContext } from './QueryLibraryContext';
-
 interface Props {
   className?: string;
   context?: string;
@@ -18,7 +16,6 @@ interface Props {
   onSelectQuery?(query: DataQuery): void;
   tooltip?: string;
 }
-
 /**
  * EXPOSED COMPONENT (stable): grafana/open-query-library/v1
  *
@@ -73,19 +70,17 @@ export const OpenQueryLibraryExposedComponent = ({
   tooltip = t('query-library.exposed-compoment.tooltip', 'Open Query Library'),
 }: Props) => {
   const { openDrawer, queryLibraryEnabled } = useQueryLibraryContext();
-
   const handleClick = useCallback(() => {
     const options = context ? { context } : undefined;
     openDrawer({ datasourceFilters, onSelectQuery, options, query });
     reportInteraction(`exposed_query_library-${onSelectQuery ? 'load-queries-open' : 'save-queries-open'}`);
   }, [context, datasourceFilters, onSelectQuery, openDrawer, query]);
-
   if (!queryLibraryEnabled) {
-    console.warn(
+    structLog(
+      'warn',
       '[OpenQueryLibraryExposedComponent]: Attempted to use unsupported exposed component. Query library is not enabled.'
     );
     return null;
   }
-
   return <ToolbarButton className={className} variant="canvas" icon={icon} onClick={handleClick} tooltip={tooltip} />;
 };

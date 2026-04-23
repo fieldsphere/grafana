@@ -1,16 +1,13 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useMemo, useRef } from 'react';
-
 import { EventBusSrv, type GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
-
 import { LogsTableWrap } from '../../explore/Logs/LogsTableWrap';
-
 import { type LogRowsComponentProps } from './ControlledLogRows';
 import { useLogListContext } from './panel/LogListContext';
 import { CONTROLS_WIDTH_EXPANDED, LogListControls } from './panel/LogListControls';
 import { LOG_LIST_CONTROLS_WIDTH } from './panel/virtualization';
-
 export const ControlledLogsTable = ({
   loading,
   loadMoreLogs,
@@ -34,17 +31,13 @@ export const ControlledLogsTable = ({
   const { sortOrder, controlsExpanded } = useLogListContext();
   const eventBus = useMemo(() => new EventBusSrv(), []);
   const ref = useRef(null);
-
   const styles = useStyles2(getStyles);
-
   if (!splitOpen || !width || !updatePanelState) {
-    console.error('<ControlledLogsTable>: Missing required props.');
+    structLog('error', '<ControlledLogsTable>: Missing required props.');
     return;
   }
-
   const tableWidthExpandedControls = width - (CONTROLS_WIDTH_EXPANDED + 12);
   const tableWidth = width - (LOG_LIST_CONTROLS_WIDTH + 12);
-
   return (
     <div ref={ref} className={styles.logRowsContainer}>
       <LogListControls eventBus={eventBus} visualisationType={visualisationType} />
@@ -71,7 +64,6 @@ export const ControlledLogsTable = ({
     </div>
   );
 };
-
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     logRows: css({

@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { noop } from 'lodash';
 import { type FormEvent, useCallback, useMemo, useState } from 'react';
 import { useAsync } from 'react-use';
-
 import {
   type DataSourceInstanceSettings,
   type MetricFindValue,
@@ -12,43 +12,31 @@ import { t } from '@grafana/i18n';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { AdHocFiltersVariable, type AdHocFilterWithLabels, type SceneVariable } from '@grafana/scenes';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
-
 import { AdHocOriginFiltersController } from '../components/AdHocOriginFiltersController';
 import { AdHocVariableForm } from '../components/AdHocVariableForm';
-
 interface AdHocFiltersVariableEditorProps {
   variable: AdHocFiltersVariable;
   onRunQuery: (variable: AdHocFiltersVariable) => void;
   inline?: boolean;
 }
-
 const ORIGIN_DASHBOARD = 'dashboard';
-
 function isOriginDashboard(f: AdHocFilterWithLabels) {
   return f.origin === ORIGIN_DASHBOARD;
 }
-
 function isGroupByOriginFilter(f: AdHocFilterWithLabels) {
   return isOriginDashboard(f) && f.operator === 'groupBy';
 }
-
 export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProps) {
   const { variable } = props;
   const { datasource: datasourceRef, defaultKeys, allowCustomValue, enableGroupBy } = variable.useState();
-
   const [wip, setWip] = useState<AdHocFilterWithLabels | undefined>(undefined);
-
   const [originalFilters, setOriginalFilters] = useState<AdHocFilterWithLabels[]>(() => variable.getOriginalFilters());
-
   const adhocOriginFilters = useMemo(
     () => originalFilters.filter((f) => isOriginDashboard(f) && !isGroupByOriginFilter(f)),
     [originalFilters]
   );
-
   const groupByOriginFilters = useMemo(() => originalFilters.filter(isGroupByOriginFilter), [originalFilters]);
-
   const groupByEnabled = config.featureToggles.dashboardUnifiedDrilldownControls && enableGroupBy;
-
   const updateOriginalFilters = useCallback(
     (filters: AdHocFilterWithLabels[]) => {
       setOriginalFilters(filters);
@@ -57,12 +45,10 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
     },
     [variable]
   );
-
   const originFiltersController = useMemo(() => {
     if (!config.featureToggles.adHocFilterDefaultValues && !config.featureToggles.dashboardUnifiedDrilldownControls) {
       return undefined;
     }
-
     return new AdHocOriginFiltersController(
       adhocOriginFilters,
       (filters) => {
@@ -77,12 +63,10 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
       () => variable._getOperators()
     );
   }, [variable, adhocOriginFilters, originalFilters, wip, allowCustomValue, updateOriginalFilters]);
-
   const defaultGroupByValues: Array<SelectableValue<string>> = useMemo(
     () => groupByOriginFilters.map((f) => ({ value: f.key, label: f.keyLabel || f.key })),
     [groupByOriginFilters]
   );
-
   const onDefaultGroupByChange = (items: Array<SelectableValue<string>>) => {
     const groupByFilters: AdHocFilterWithLabels[] = items
       .filter((item) => item.value != null)
@@ -96,11 +80,9 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
     const keep = originalFilters.filter((f) => !isGroupByOriginFilter(f));
     updateOriginalFilters([...keep, ...groupByFilters]);
   };
-
   const { value: datasourceSettings } = useAsync(async () => {
     return await getDataSourceSrv().get(datasourceRef);
   }, [datasourceRef]);
-
   const message = datasourceSettings?.getTagKeys
     ? t(
         'dashboard-scene.ad-hoc-filters-variable-editor.message-supported',
@@ -110,11 +92,9 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
         'dashboard-scene.ad-hoc-filters-variable-editor.message-not-supported',
         'This data source does not support filters.'
       );
-
   const onDataSourceChange = async (ds: DataSourceInstanceSettings) => {
     const dsRef = getDataSourceRef(ds);
     const dsInstance = await getDataSourceSrv().get(dsRef);
-
     variable.setState({
       datasource: dsRef,
       supportsMultiValueOperators: ds.meta.multiValueFilterOperators,
@@ -123,28 +103,23 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
       }),
     });
   };
-
   const onDefaultKeysChange = (defaultKeys?: MetricFindValue[]) => {
     variable.setState({
       defaultKeys,
     });
   };
-
   const onAllowCustomValueChange = (event: FormEvent<HTMLInputElement>) => {
     variable.setState({ allowCustomValue: event.currentTarget.checked });
   };
-
   const onEnableGroupByChange = (event: FormEvent<HTMLInputElement>) => {
     variable.setState({ enableGroupBy: event.currentTarget.checked });
   };
-
   const { value: groupByKeyOptions = [] } = useAsync(async () => {
     if (!groupByEnabled) {
       return [];
     }
     return variable._getGroupByKeys(null);
   }, [variable, groupByEnabled]);
-
   return (
     <AdHocVariableForm
       datasource={datasourceRef ?? undefined}
@@ -166,13 +141,11 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
     />
   );
 }
-
 export function getAdHocFilterOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof AdHocFiltersVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    structLog('warn', 'getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
-
   return [
     new OptionsPaneItemDescriptor({
       id: `variable-${variable.state.name}-value`,

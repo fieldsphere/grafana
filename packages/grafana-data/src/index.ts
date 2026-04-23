@@ -242,6 +242,7 @@ export {
   updateDatasourcePluginResetOption,
 } from './utils/datasource';
 export { deprecationWarning } from './utils/deprecationWarning';
+export { structLog, type StructLogLevel } from './utils/structLogBase';
 export {
   CSVHeaderStyle,
   type CSVConfig,

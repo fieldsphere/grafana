@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import memoizeOne from 'memoize-one';
-
 import { type AbsoluteTimeRange, type LogRowModel, type UrlQueryMap } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getBackendSrv, config, locationService } from '@grafana/runtime';
@@ -9,37 +9,30 @@ import { createErrorNotification, createSuccessNotification } from 'app/core/cop
 import { type DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { getDashboardUrl } from 'app/features/dashboard-scene/utils/getDashboardUrl';
 import { dispatch } from 'app/store/store';
-
 import { type ShortURL } from '../../../../apps/shorturl/plugin/src/generated/shorturl/v1beta1/shorturl_object_gen';
 import { extractErrorMessage } from '../../api/utils';
 import { type ShareLinkConfiguration } from '../../features/dashboard-scene/sharing/ShareButton/utils';
 import { notifyApp } from '../reducers/appNotification';
-
 import { copyStringToClipboard } from './explore';
-
 function buildHostUrl() {
   return `${window.location.protocol}//${window.location.host}${config.appSubUrl}`;
 }
-
 export function buildShortUrl(k8sShortUrl: ShortURL) {
   const key = k8sShortUrl.metadata.name;
   const orgId = k8sShortUrl.metadata.namespace;
   const hostUrl = buildHostUrl();
   return `${hostUrl}/goto/${key}?orgId=${orgId}`;
 }
-
 function getRelativeURLPath(url: string) {
   let path = url.replace(buildHostUrl(), '');
   return path.startsWith('/') ? path.substring(1, path.length) : path;
 }
-
 const createShortLinkLegacy = async (path: string): Promise<string> => {
   const shortLink = await getBackendSrv().post(`/api/short-urls`, {
     path: getRelativeURLPath(path),
   });
   return shortLink.url;
 };
-
 // Memoized API call, to not re-execute the same request multiple times
 // this function creates a shortURL using the legacy or the new k8s api depending on the feature toggle
 export const createShortLink = memoizeOne(async (path: string): Promise<string> => {
@@ -58,28 +51,24 @@ export const createShortLink = memoizeOne(async (path: string): Promise<string> 
           },
         })
       );
-
       if ('data' in result && result.data) {
         return buildShortUrl(result.data);
       }
-
       if ('error' in result) {
         const errorMessage = extractErrorMessage(result.error);
         throw new Error(errorMessage || 'Failed to create short URL');
       }
-
       throw new Error('Failed to create short URL');
     } else {
       return await createShortLinkLegacy(path);
     }
   } catch (err) {
-    console.error('Error when creating shortened link: ', err);
+    structLog('error', 'Error when creating shortened link: ', err);
     dispatch(notifyApp(createErrorNotification('Error generating shortened link')));
     createShortLink.clear();
     throw err; // Re-throw so callers know it failed
   }
 });
-
 /**
  * Creates a ClipboardItem for the shortened link. This is used due to clipboard issues in Safari after making async calls.
  * See https://github.com/grafana/grafana/issues/106889
@@ -91,7 +80,6 @@ export const createShortLinkClipboardItem = (path: string) => {
     'text/plain': createShortLink(path),
   });
 };
-
 export const createAndCopyShortLink = async (path: string) => {
   try {
     if (typeof ClipboardItem !== 'undefined' && navigator.clipboard.write) {
@@ -104,10 +92,9 @@ export const createAndCopyShortLink = async (path: string) => {
     }
   } catch (error) {
     // createShortLink already handles error notifications, just log
-    console.error('Error in createAndCopyShortLink:', error);
+    structLog('error', 'Error in createAndCopyShortLink:', error);
   }
 };
-
 export const createAndCopyShareDashboardLink = async (
   dashboard: DashboardScene,
   opts: ShareLinkConfiguration,
@@ -121,15 +108,11 @@ export const createAndCopyShareDashboardLink = async (
     dispatch(notifyApp(createSuccessNotification(t('link.share.copy-to-clipboard', 'Link copied to clipboard'))));
   }
 };
-
 export const createDashboardShareUrl = (dashboard: DashboardScene, opts: ShareLinkConfiguration, panel?: VizPanel) => {
   const location = locationService.getLocation();
   const timeRange = sceneGraph.getTimeRange(panel ?? dashboard);
-
   const urlParamsUpdate = getShareUrlParams(opts, timeRange, panel);
-
   const isSnapshot = dashboard.state.meta.isSnapshot;
-
   return getDashboardUrl({
     uid: isSnapshot ? (dashboard.state.meta.snapshotKey ?? dashboard.state.uid) : dashboard.state.uid,
     slug: isSnapshot ? undefined : dashboard.state.meta.slug,
@@ -139,46 +122,40 @@ export const createDashboardShareUrl = (dashboard: DashboardScene, opts: ShareLi
     isSnapshot,
   });
 };
-
 export const getShareUrlParams = (
-  opts: { useAbsoluteTimeRange: boolean; theme: string },
+  opts: {
+    useAbsoluteTimeRange: boolean;
+    theme: string;
+  },
   timeRange: SceneTimeRangeLike,
   panel?: VizPanel
 ) => {
   const urlParamsUpdate: UrlQueryMap = {};
-
   if (panel) {
     urlParamsUpdate.viewPanel = panel.getPathId();
   }
-
   if (opts.useAbsoluteTimeRange) {
     urlParamsUpdate.from = timeRange.state.value.from.toISOString();
     urlParamsUpdate.to = timeRange.state.value.to.toISOString();
   }
-
   if (opts.theme !== 'current') {
     urlParamsUpdate.theme = opts.theme;
   }
-
   return urlParamsUpdate;
 };
-
 function getPreviousLog(row: LogRowModel, allLogs: LogRowModel[]): LogRowModel | null {
   for (let i = allLogs.indexOf(row) - 1; i >= 0; i--) {
     if (allLogs[i].timeEpochMs > row.timeEpochMs) {
       return allLogs[i];
     }
   }
-
   return null;
 }
-
 export function getLogsPermalinkRange(row: LogRowModel, rows: LogRowModel[], absoluteRange: AbsoluteTimeRange) {
   // With infinite scrolling, the time range of the log line can be after the absolute range or beyond the request line limit, so we need to adjust
   // Look for the previous sibling log, and use its timestamp
   const allLogs = rows.filter((logRow) => logRow.dataFrame.refId === row.dataFrame.refId);
   const prevLog = getPreviousLog(row, allLogs);
-
   if (row.timeEpochMs > absoluteRange.to && !prevLog) {
     // Because there's no sibling and the current `to` is oldest than the log, we have no reference we can use for the interval
     // This only happens when you scroll into the future and you want to share the first log of the list
@@ -188,7 +165,6 @@ export function getLogsPermalinkRange(row: LogRowModel, rows: LogRowModel[], abs
       to: new Date(row.timeEpochMs + 1).toISOString(),
     };
   }
-
   return {
     from: new Date(absoluteRange.from).toISOString(),
     to: new Date(prevLog ? prevLog.timeEpochMs : absoluteRange.to).toISOString(),

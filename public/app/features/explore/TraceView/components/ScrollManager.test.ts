@@ -14,6 +14,7 @@
 
 jest.mock('./scroll-page');
 
+import * as grafanaData from '@grafana/data';
 import ScrollManager, { type Accessors } from './ScrollManager';
 import traceGenerator from './demo/trace-generators';
 import { scrollBy, scrollTo } from './scroll-page';
@@ -74,16 +75,13 @@ describe('ScrollManager', () => {
     });
 
     it('is a noop if an invalid rowPosition is returned by the accessors', () => {
-      // eslint-disable-next-line no-console
-      const oldWarn = console.warn;
-      // eslint-disable-next-line no-console
-      console.warn = () => {};
+      const structLogSpy = jest.spyOn(grafanaData, 'structLog').mockImplementation();
       manager._scrollPast(-2, 1);
+      expect(structLogSpy).toHaveBeenCalledWith('warn', 'Invalid row index');
+      structLogSpy.mockRestore();
       expect(jest.mocked(accessors.getRowPosition).mock.calls.length).toBe(1);
       expect(jest.mocked(accessors.getViewHeight).mock.calls.length).toBe(0);
       expect(jest.mocked(scrollTo).mock.calls.length).toBe(0);
-      // eslint-disable-next-line no-console
-      console.warn = oldWarn;
     });
 
     it('scrolls up with direction is `-1`', () => {

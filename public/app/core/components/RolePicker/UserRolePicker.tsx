@@ -1,13 +1,11 @@
+import { structLog } from '@grafana/data';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
-
 import { type OrgRole } from '@grafana/data';
 import { useListUserRolesQuery, useSetUserRolesMutation } from 'app/api/clients/roles';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction, type Role } from 'app/types/accessControl';
-
 import { RolePicker } from './RolePicker';
-
 export interface Props {
   basicRole: OrgRole;
   roles?: Role[];
@@ -36,7 +34,6 @@ export interface Props {
   width?: string | number;
   isLoading?: boolean;
 }
-
 export const UserRolePicker = ({
   basicRole,
   roles,
@@ -55,18 +52,14 @@ export const UserRolePicker = ({
   isLoading,
 }: Props) => {
   const hasPermission = contextSrv.hasPermission(AccessControlAction.ActionUserRolesList) && userId > 0 && orgId;
-
   // Determine when to fetch:
   // - In apply mode: only fetch if we don't have roles prop AND no pendingRoles (prevents flicker)
   // - In non-apply mode: always fetch to get fresh data after mutations
   const shouldFetch = apply ? !roles && !Boolean(pendingRoles?.length) && hasPermission : hasPermission;
-
   const { data: fetchedRoles, isLoading: isFetching } = useListUserRolesQuery(
     shouldFetch ? { userId, includeHidden: true, includeMapped: true, targetOrgId: orgId } : skipToken
   );
-
   const [updateUserRoles, { isLoading: isUpdating }] = useSetUserRolesMutation();
-
   const appliedRoles =
     useMemo(() => {
       // In apply mode: prioritize pendingRoles, then roles prop (never use fetched data to prevent flicker)
@@ -76,7 +69,6 @@ export const UserRolePicker = ({
       // In non-apply mode: prefer fetched data (fresh from cache) over roles prop
       return fetchedRoles || roles || [];
     }, [roles, pendingRoles, fetchedRoles, apply]) || [];
-
   const onRolesChange = async (newRoles: Role[]) => {
     if (!apply) {
       try {
@@ -90,17 +82,15 @@ export const UserRolePicker = ({
           },
         }).unwrap();
       } catch (error) {
-        console.error('Error updating user roles', error);
+        structLog('error', 'Error updating user roles', error);
       }
     } else if (onApplyRoles) {
       onApplyRoles(newRoles, userId, orgId);
     }
   };
-
   const canUpdateRoles =
     contextSrv.hasPermission(AccessControlAction.ActionUserRolesAdd) &&
     contextSrv.hasPermission(AccessControlAction.ActionUserRolesRemove);
-
   return (
     <RolePicker
       pickerId={`user-picker-${userId}-${orgId}`}

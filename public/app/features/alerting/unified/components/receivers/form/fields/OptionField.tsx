@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { type FC } from 'react';
 import { Controller, type DeepMap, type FieldError, useFormContext } from 'react-hook-form';
-
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
@@ -23,13 +23,11 @@ import {
   type NotificationChannelSecureFields,
   type OptionMeta,
 } from 'app/features/alerting/unified/types/alerting';
-
 import { KeyValueMapInput } from './KeyValueMapInput';
 import { StringArrayInput } from './StringArrayInput';
 import { SubformArrayField } from './SubformArrayField';
 import { SubformField } from './SubformField';
 import { WrapWithTemplateSelection } from './TemplateSelector';
-
 interface Props {
   defaultValue: any;
   option: NotificationChannelOption;
@@ -43,7 +41,6 @@ interface Props {
   onDeleteSubform?: (settingsPath: string, option: NotificationChannelOption) => void;
   secureFields: NotificationChannelSecureFields;
 }
-
 export const OptionField: FC<Props> = ({
   option,
   invalid,
@@ -85,11 +82,8 @@ export const OptionField: FC<Props> = ({
       />
     );
   }
-
   const shouldShowProtectedIndicator = option.protected && getOptionMeta?.(option).readOnly;
-
   const labelText = option.element !== 'checkbox' && option.element !== 'radio' ? option.label : undefined;
-
   const label = shouldShowProtectedIndicator ? (
     <Stack direction="row" alignItems="center" gap={0.5}>
       <Tooltip
@@ -105,7 +99,6 @@ export const OptionField: FC<Props> = ({
   ) : (
     labelText
   );
-
   return (
     <Field
       label={label}
@@ -129,28 +122,28 @@ export const OptionField: FC<Props> = ({
     </Field>
   );
 };
-
 export interface ConfiguredSecureFieldProps {
   id: string;
   readOnly: boolean;
   onReset: () => void;
 }
-
 export function ConfiguredSecretInput({ id, readOnly, onReset }: ConfiguredSecureFieldProps) {
   if (readOnly) {
     return <Input id={id} disabled={true} value="configured" />;
   }
   return <SecretInput id={id} onReset={onReset} isConfigured />;
 }
-
 function ConfiguredSecretTextArea({ id, readOnly, onReset }: ConfiguredSecureFieldProps) {
   if (readOnly) {
     return <TextArea id={id} disabled={true} value="configured" />;
   }
   return <SecretTextArea id={id} onReset={onReset} isConfigured />;
 }
-
-const OptionInput: FC<Props & { id: string }> = ({
+const OptionInput: FC<
+  Props & {
+    id: string;
+  }
+> = ({
   option,
   invalid,
   id,
@@ -163,20 +156,14 @@ const OptionInput: FC<Props & { id: string }> = ({
 }) => {
   const styles = useStyles2(getStyles);
   const { control, register, setValue } = useFormContext();
-
   const optionMeta = getOptionMeta?.(option);
-
   const name = `${pathPrefix}${option.propertyName}`;
-
   const secureFieldKey = option.secure && option.secureFieldKey ? option.secureFieldKey : '';
   const isSecureFieldConfigured = secureFieldKey && secureFields?.[secureFieldKey];
-
   const useTemplates = option.placeholder.includes('{{ template');
-
   function onSelectTemplate(template: string) {
     setValue(name, template);
   }
-
   switch (option.element) {
     case 'checkbox':
       return (
@@ -221,7 +208,6 @@ const OptionInput: FC<Props & { id: string }> = ({
           )}
         </WrapWithTemplateSelection>
       );
-
     case 'select':
       return (
         <Controller
@@ -316,13 +302,11 @@ const OptionInput: FC<Props & { id: string }> = ({
           name={name}
         />
       );
-
     default:
-      console.error('Element not supported', option.element);
+      structLog('error', 'Element not supported', option.element);
       return null;
   }
 };
-
 const getStyles = (theme: GrafanaTheme2) => ({
   checkbox: css({
     height: 'auto', // native checkbox has fixed height which does not take into account description
@@ -331,11 +315,9 @@ const getStyles = (theme: GrafanaTheme2) => ({
     fontSize: theme.typography.h6.fontSize,
   }),
 });
-
 const validateOption = (value: string, validationRule: string, required: boolean) => {
   if (value === '' && !required) {
     return true;
   }
-
   return RegExp(validationRule).test(value) ? true : 'Invalid format';
 };

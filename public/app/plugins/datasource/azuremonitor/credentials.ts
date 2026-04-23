@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import {
   type AzureCredentials,
   getDatasourceCredentials,
@@ -7,9 +8,7 @@ import {
   updateDatasourceCredentials,
 } from '@grafana/azure-sdk';
 import { config } from '@grafana/runtime';
-
 import { type AzureMonitorDataSourceInstanceSettings, type AzureMonitorDataSourceSettings } from './types/types';
-
 export function getCredentials(
   options: AzureMonitorDataSourceSettings | AzureMonitorDataSourceInstanceSettings
 ): AzureCredentials {
@@ -19,17 +18,14 @@ export function getCredentials(
   if (creds) {
     return creds;
   }
-
   return getLegacyCredentials(options) || getDefaultCredentials();
 }
-
 export function updateCredentials(
   options: AzureMonitorDataSourceSettings,
   credentials: AzureCredentials
 ): AzureMonitorDataSourceSettings {
   return updateDatasourceCredentials(options, credentials);
 }
-
 function getLegacyCredentials(
   options: AzureMonitorDataSourceSettings | AzureMonitorDataSourceInstanceSettings
 ): AzureCredentials | undefined {
@@ -48,21 +44,18 @@ function getLegacyCredentials(
         clientSecret: getClientSecret(options),
       };
     }
-
     // If the authentication type is not set, then no legacy credentials exist so return undefined
     if (!options.jsonData.azureAuthType) {
       return undefined;
     }
-
     return { authType: options.jsonData.azureAuthType };
   } catch (e) {
     if (e instanceof Error) {
-      console.error('Unable to restore legacy credentials: %s', e.message);
+      structLog('error', 'Unable to restore legacy credentials: %s', e.message);
     }
     return undefined;
   }
 }
-
 function getDefaultCredentials(): AzureCredentials {
   if (config.azure.managedIdentityEnabled) {
     return { authType: 'msi' };

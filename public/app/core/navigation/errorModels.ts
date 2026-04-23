@@ -1,14 +1,12 @@
+import { structLog } from '@grafana/data';
 import { type NavModel, type NavModelItem } from '@grafana/data';
-
 export function getExceptionNav(error: unknown): NavModel {
-  console.error(error);
+  structLog('error', error);
   return getWarningNav('Exception thrown', 'See console for details');
 }
-
 export function getNotFoundNav(): NavModel {
   return getWarningNav('Page not found', '404 Error');
 }
-
 export function getWarningNav(text: string, subTitle?: string): NavModel {
   const node: NavModelItem = {
     text,

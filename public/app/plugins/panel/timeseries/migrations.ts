@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { omitBy, pickBy, isNil, isNumber, isString } from 'lodash';
-
 import {
   type ConfigOverrideRule,
   type DynamicConfigValue,
@@ -41,12 +41,9 @@ import { DashboardAnnotationsDataLayer } from 'app/features/dashboard-scene/scen
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { dashboardSceneGraph } from 'app/features/dashboard-scene/utils/dashboardSceneGraph';
 import { type GrafanaQuery, GrafanaQueryType } from 'app/plugins/datasource/grafana/types';
-
 import { defaultGraphConfig } from './config';
 import { type Options } from './panelcfg.gen';
-
 let dashboardRefreshDebouncer: ReturnType<typeof setTimeout> | null = null;
-
 /**
  * This is called when the panel changes from another panel
  */
@@ -63,29 +60,23 @@ export const graphPanelChangedHandler: PanelTypeChangedHandler = (
       fieldConfig: prevFieldConfig,
       panel: panel,
     });
-
     if (annotations?.length > 0) {
       addAnnotationsToDashboard(annotations);
     }
-
     panel.fieldConfig = fieldConfig; // Mutates the incoming panel
     panel.alert = prevOptions.angular.alert;
     return options;
   }
-
   //fixes graph -> viz renaming in custom.hideFrom field config by mutation.
   migrateHideFrom(panel);
-
   return {};
 };
-
 export function graphToTimeseriesOptions(angular: any): {
   fieldConfig: FieldConfigSource;
   options: Options;
   annotations: AnnotationQuery[];
 } {
   let annotations: AnnotationQuery[] = [];
-
   const overrides: ConfigOverrideRule[] = angular.fieldConfig?.overrides ?? [];
   const yaxes = angular.yaxes ?? [];
   let y1 = getFieldConfigFromOldAxis(yaxes[0]);
@@ -95,13 +86,11 @@ export function graphToTimeseriesOptions(angular: any): {
       ...y1, // Keep the y-axis unit and custom
     };
   }
-
   // Dashes
   const dash: LineStyle = {
     fill: angular.dashes ? 'dash' : 'solid',
     dash: [angular.dashLength ?? 10, angular.spaceLength ?? 10],
   };
-
   // "seriesOverrides": [
   //   {
   //     "$$hashKey": "object:183",
@@ -112,7 +101,6 @@ export function graphToTimeseriesOptions(angular: any): {
   //     "linewidth": 2
   //   }
   // ],
-
   if (angular.aliasColors) {
     for (const alias of Object.keys(angular.aliasColors)) {
       const color = angular.aliasColors[alias];
@@ -135,9 +123,7 @@ export function graphToTimeseriesOptions(angular: any): {
       }
     }
   }
-
   let hasFillBelowTo = false;
-
   if (angular.seriesOverrides?.length) {
     for (const seriesOverride of angular.seriesOverrides) {
       if (!seriesOverride.alias) {
@@ -152,7 +138,6 @@ export function graphToTimeseriesOptions(angular: any): {
         properties: [],
       };
       let dashOverride: LineStyle | undefined = undefined;
-
       for (const p of Object.keys(seriesOverride)) {
         const v = seriesOverride[p];
         switch (p) {
@@ -283,7 +268,7 @@ export function graphToTimeseriesOptions(angular: any): {
             });
             break;
           default:
-            console.log('Ignore override migration:', seriesOverride.alias, p, v);
+            structLog('log', 'Ignore override migration:', seriesOverride.alias, p, v);
         }
       }
       if (dashOverride) {
@@ -297,57 +282,45 @@ export function graphToTimeseriesOptions(angular: any): {
       }
     }
   }
-
   const graph: GraphFieldConfig = y1.custom ?? {};
   graph.drawStyle = angular.bars ? GraphDrawStyle.Bars : angular.lines ? GraphDrawStyle.Line : GraphDrawStyle.Points;
-
   if (angular.points) {
     graph.showPoints = VisibilityMode.Always;
-
     if (isNumber(angular.pointradius)) {
       graph.pointSize = 2 + angular.pointradius * 2;
     }
   } else if (graph.drawStyle !== GraphDrawStyle.Points) {
     graph.showPoints = VisibilityMode.Never;
   }
-
   graph.lineWidth = angular.linewidth;
   if (dash.fill !== 'solid') {
     graph.lineStyle = dash;
   }
-
   if (hasFillBelowTo) {
     graph.fillOpacity = 35; // bands are hardcoded in flot
   } else if (isNumber(angular.fill)) {
     graph.fillOpacity = angular.fill * 10; // fill was 0 - 10, new is 0 to 100
   }
-
   if (isNumber(angular.fillGradient) && angular.fillGradient > 0) {
     graph.gradientMode = GraphGradientMode.Opacity;
     graph.fillOpacity = angular.fillGradient * 10; // fill is 0-10
   }
-
   graph.spanNulls = angular.nullPointMode === NullValueMode.Ignore;
-
   if (angular.steppedLine) {
     graph.lineInterpolation = LineInterpolation.StepAfter;
   }
-
   if (graph.drawStyle === GraphDrawStyle.Bars) {
     graph.fillOpacity = 100; // bars were always
   }
-
   if (angular.stack) {
     graph.stacking = {
       mode: angular.percentage ? StackingMode.Percent : StackingMode.Normal,
       group: defaultGraphConfig.stacking!.group,
     };
-
     if (angular.percentage) {
       if (angular.yaxis) {
         delete y1.min;
         delete y1.max;
-
         // TimeSeries currently uses 0-1 for percent, so allowing zero leaves only top and bottom ticks.
         // removing it feels better. probably should fix in TimeSeries, but let's kick it down the road
         if (y1.decimals === 0) {
@@ -356,10 +329,8 @@ export function graphToTimeseriesOptions(angular: any): {
       }
     }
   }
-
   y1.custom = omitBy(graph, isNil);
   y1.nullValueMode = angular.nullPointMode;
-
   const options: Options = {
     legend: {
       displayMode: LegendDisplayMode.List,
@@ -372,7 +343,6 @@ export function graphToTimeseriesOptions(angular: any): {
       sort: SortOrder.None,
     },
   };
-
   // Legend config migration
   const legendConfig = angular.legend;
   if (legendConfig) {
@@ -381,29 +351,23 @@ export function graphToTimeseriesOptions(angular: any): {
     } else {
       options.legend.showLegend = false;
     }
-
     if (legendConfig.rightSide) {
       options.legend.placement = 'right';
     }
-
     if (angular.legend.values) {
       const enabledLegendValues = pickBy(angular.legend);
       options.legend.calcs = getReducersFromLegend(enabledLegendValues);
     }
-
     if (angular.legend.sideWidth) {
       options.legend.width = angular.legend.sideWidth;
     }
-
     if (legendConfig.hideZero) {
       overrides.push(getLegendHideFromOverride(ReducerID.allIsZero));
     }
-
     if (legendConfig.hideEmpty) {
       overrides.push(getLegendHideFromOverride(ReducerID.allIsNull));
     }
   }
-
   // timeRegions migration
   if (angular.timeRegions?.length) {
     let regions = angular.timeRegions.map((old: GraphTimeRegionConfig, idx: number) => ({
@@ -416,7 +380,6 @@ export function graphToTimeseriesOptions(angular: any): {
       from: old.from,
       to: old.to,
     }));
-
     regions.forEach((region: GraphTimeRegionConfig, idx: number) => {
       const anno: AnnotationQuery<GrafanaQuery> = {
         datasource: {
@@ -443,7 +406,6 @@ export function graphToTimeseriesOptions(angular: any): {
           },
         },
       };
-
       if (region.fill) {
         annotations.push(anno);
       } else if (region.line) {
@@ -452,13 +414,11 @@ export function graphToTimeseriesOptions(angular: any): {
       }
     });
   }
-
   const tooltipConfig = angular.tooltip;
   if (tooltipConfig) {
     if (tooltipConfig.shared !== undefined) {
       options.tooltip.mode = tooltipConfig.shared ? TooltipDisplayMode.Multi : TooltipDisplayMode.Single;
     }
-
     if (tooltipConfig.sort !== undefined && tooltipConfig.shared) {
       switch (tooltipConfig.sort) {
         case 1:
@@ -472,33 +432,26 @@ export function graphToTimeseriesOptions(angular: any): {
       }
     }
   }
-
   if (angular.thresholds && angular.thresholds.length > 0) {
     let steps: Threshold[] = [];
     let area = false;
     let line = false;
-
     const sorted = (angular.thresholds as AngularThreshold[]).sort((a, b) => (a.value > b.value ? 1 : -1));
-
     for (let idx = 0; idx < sorted.length; idx++) {
       const threshold = sorted[idx];
       const next = sorted.length > idx + 1 ? sorted[idx + 1] : null;
-
       if (threshold.fill) {
         area = true;
       }
-
       if (threshold.line) {
         line = true;
       }
-
       if (threshold.op === 'gt') {
         steps.push({
           value: threshold.value,
           color: getThresholdColor(threshold),
         });
       }
-
       if (threshold.op === 'lt') {
         if (steps.length === 0) {
           steps.push({
@@ -506,7 +459,6 @@ export function graphToTimeseriesOptions(angular: any): {
             color: getThresholdColor(threshold),
           });
         }
-
         // next op is gt and there is a gap set color to transparent
         if (next && next.op === 'gt' && next.value > threshold.value) {
           steps.push({
@@ -527,7 +479,6 @@ export function graphToTimeseriesOptions(angular: any): {
         }
       }
     }
-
     // if now less then threshold add an -Infinity base that is transparent
     if (steps.length > 0 && steps[0].value !== -Infinity) {
       steps.unshift({
@@ -535,21 +486,17 @@ export function graphToTimeseriesOptions(angular: any): {
         value: -Infinity,
       });
     }
-
     let displayMode = area ? GraphThresholdsStyleMode.Area : GraphThresholdsStyleMode.Line;
     if (line && area) {
       displayMode = GraphThresholdsStyleMode.LineAndArea;
     }
-
     // TODO move into standard ThresholdConfig ?
     y1.custom.thresholdsStyle = { mode: displayMode };
-
     y1.thresholds = {
       mode: ThresholdsMode.Absolute,
       steps,
     };
   }
-
   if (angular.xaxis && angular.xaxis.show === false && angular.xaxis.mode === 'time') {
     overrides.push({
       matcher: {
@@ -573,7 +520,6 @@ export function graphToTimeseriesOptions(angular: any): {
     annotations,
   };
 }
-
 interface GraphTimeRegionConfig extends TimeRegionConfig {
   colorMode: string;
   fill: boolean;
@@ -581,23 +527,18 @@ interface GraphTimeRegionConfig extends TimeRegionConfig {
   line: boolean;
   lineColor: string;
 }
-
 function getThresholdColor(threshold: AngularThreshold): string {
   if (threshold.colorMode === 'critical') {
     return 'red';
   }
-
   if (threshold.colorMode === 'warning') {
     return 'orange';
   }
-
   if (threshold.colorMode === 'custom') {
     return threshold.fillColor || threshold.lineColor;
   }
-
   return 'red';
 }
-
 interface AngularThreshold {
   op: string;
   fill: boolean;
@@ -608,7 +549,6 @@ interface AngularThreshold {
   fillColor: string;
   lineColor: string;
 }
-
 // {
 //   "label": "Y111",
 //   "show": true,
@@ -649,7 +589,6 @@ function getFieldConfigFromOldAxis(obj: any): FieldConfig<GraphFieldConfig> {
     isNil
   );
 }
-
 function fillY2DynamicValues(
   y1: FieldConfig<GraphFieldConfig>,
   y2: FieldConfig<GraphFieldConfig>,
@@ -664,12 +603,10 @@ function fillY2DynamicValues(
       });
     }
   }
-
   props.push({
     id: `custom.axisPlacement`,
     value: AxisPlacement.Right,
   });
-
   // Add any custom property
   const y1G = y1.custom ?? {};
   const y2G = y2.custom ?? {};
@@ -682,7 +619,6 @@ function fillY2DynamicValues(
     }
   }
 }
-
 function validNumber(val: unknown): number | undefined {
   if (isNumber(val)) {
     return val;
@@ -695,7 +631,6 @@ function validNumber(val: unknown): number | undefined {
   }
   return undefined;
 }
-
 function getReducersFromLegend(obj: Record<string, unknown>): string[] {
   const ids: string[] = [];
   for (const key in obj) {
@@ -706,9 +641,15 @@ function getReducersFromLegend(obj: Record<string, unknown>): string[] {
   }
   return ids;
 }
-
 function migrateHideFrom(panel: {
-  fieldConfig?: { defaults?: { custom?: { hideFrom?: any } }; overrides: ConfigOverrideRule[] };
+  fieldConfig?: {
+    defaults?: {
+      custom?: {
+        hideFrom?: any;
+      };
+    };
+    overrides: ConfigOverrideRule[];
+  };
 }) {
   if (panel.fieldConfig?.defaults?.custom?.hideFrom?.graph !== undefined) {
     panel.fieldConfig.defaults.custom.hideFrom.viz = panel.fieldConfig.defaults.custom.hideFrom.graph;
@@ -727,7 +668,6 @@ function migrateHideFrom(panel: {
     });
   }
 }
-
 function getLegendHideFromOverride(reducer: ReducerID.allIsZero | ReducerID.allIsNull) {
   return {
     matcher: {
@@ -750,7 +690,6 @@ function getLegendHideFromOverride(reducer: ReducerID.allIsZero | ReducerID.allI
     ],
   };
 }
-
 function getStackingFromOverrides(value: Boolean | string) {
   const defaultGroupName = defaultGraphConfig.stacking?.group;
   return {
@@ -758,14 +697,11 @@ function getStackingFromOverrides(value: Boolean | string) {
     group: isString(value) ? value : defaultGroupName,
   };
 }
-
 function addAnnotationsToDashboard(annotations: AnnotationQuery[]) {
   const scene = window.__grafanaSceneContext;
-
   if (scene instanceof DashboardScene) {
     const dataLayers = dashboardSceneGraph.getDataLayers(scene);
     const annotationLayers = [...dataLayers.state.annotationLayers];
-
     for (let annotation of annotations) {
       const newAnnotation = new DashboardAnnotationsDataLayer({
         key: `annotations-${annotation.name}`,
@@ -774,18 +710,14 @@ function addAnnotationsToDashboard(annotations: AnnotationQuery[]) {
         isEnabled: annotation.enable,
         isHidden: annotation.hide,
       });
-
       annotationLayers.push(newAnnotation);
     }
-
     dataLayers.setState({ annotationLayers });
     return;
   }
-
   const dashboard = getDashboardSrv().getCurrent();
   if (dashboard) {
     dashboard.annotations.list = [...dashboard.annotations.list, ...annotations];
-
     // Trigger a full dashboard refresh when annotations change
     if (dashboardRefreshDebouncer == null) {
       dashboardRefreshDebouncer = setTimeout(() => {

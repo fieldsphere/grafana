@@ -1,11 +1,10 @@
+import { structLog } from '@grafana/data';
 import { useEffect, useState } from 'react';
 import useMountedState from 'react-use/lib/useMountedState';
 import { lastValueFrom } from 'rxjs';
-
 import { type DataFrame, type FieldConfigSource, transformDataFrame } from '@grafana/data';
 import { type CustomCellRendererProps, TableCellDisplayMode } from '@grafana/ui';
 import { type LogsFrame } from 'app/features/logs/logsFrame';
-
 import { LOG_LINE_BODY_FIELD_NAME } from '../../../../features/logs/components/fieldSelector/logFields';
 import { LogsTableCustomCellRenderer } from '../cells/LogsTableCustomCellRenderer';
 import { getLogLevelColumnEnhancements } from '../fields/defaultLogLevelColumnConfig';
@@ -16,7 +15,6 @@ import { getDisplayedFields } from '../options/getDisplayedFields';
 import type { Options as LogsTableOptions } from '../panelcfg.gen';
 import { organizeLogsFieldsTransform } from '../transforms/organizeLogsFieldsTransform';
 import { type BuildLinkToLogLine, isBuildLinkToLogLine } from '../types';
-
 interface Props {
   extractedFrame: DataFrame | null;
   timeFieldName: string;
@@ -28,7 +26,6 @@ interface Props {
   onPermalinkClick: BuildLinkToLogLine;
   fieldConfig: FieldConfigSource;
 }
-
 export function useOrganizeFields({
   extractedFrame,
   timeFieldName,
@@ -42,7 +39,6 @@ export function useOrganizeFields({
 }: Props) {
   const [organizedFrame, setOrganizedFrame] = useState<DataFrame | null>(null);
   const isMounted = useMountedState();
-
   /**
    * Organize fields transform
    */
@@ -50,7 +46,6 @@ export function useOrganizeFields({
     if (!extractedFrame || !timeFieldName || !bodyFieldName || !logsFrame) {
       return;
     }
-
     organizeFields(
       extractedFrame,
       options,
@@ -68,7 +63,7 @@ export function useOrganizeFields({
         }
       })
       .catch((err) => {
-        console.error('LogsTable: Organize fields transform error', err);
+        structLog('error', 'LogsTable: Organize fields transform error', err);
       });
   }, [
     bodyFieldName,
@@ -82,10 +77,8 @@ export function useOrganizeFields({
     isMounted,
     fieldConfig,
   ]);
-
   return { organizedFrame };
 }
-
 const organizeFields = async (
   extractedFrame: DataFrame,
   options: LogsTableOptions,
@@ -100,9 +93,7 @@ const organizeFields = async (
   if (!extractedFrame) {
     return Promise.resolve(null);
   }
-
   const displayedFields = getDisplayedFields(options, timeFieldName, levelFieldName);
-
   let indexByName: Record<string, number> = {};
   let includeByName: Record<string, boolean> = {};
   for (let [idx, field] of displayedFields.entries()) {
@@ -113,30 +104,24 @@ const organizeFields = async (
     indexByName[field] = idx;
     includeByName[field] = true;
   }
-
   const organizedFrame = await lastValueFrom(
     transformDataFrame(organizeLogsFieldsTransform(indexByName, includeByName), [extractedFrame])
   );
-
   for (let frameIndex = 0; frameIndex < organizedFrame.length; frameIndex++) {
     const frame = organizedFrame[frameIndex];
-
     const levelField = frame.fields.find((f) => f.name === levelFieldName);
     let isLevelFirstField = false;
     if (levelField) {
       normalizeLogLevelFieldInPlace(levelField);
       isLevelFirstField = frame.fields.indexOf(levelField) === 0;
     }
-
     for (const [fieldIndex, field] of frame.fields.entries()) {
       const isFirstField = (!isLevelFirstField && fieldIndex === 0) || (isLevelFirstField && fieldIndex === 1);
       const baseConfig = {
         ...fieldConfig.defaults,
         ...field.config,
       };
-
       const levelEnhancements = getLogLevelColumnEnhancements(field, levelFieldName, baseConfig);
-
       const configAfterLevel = {
         ...baseConfig,
         ...(levelEnhancements?.mappings ? { mappings: levelEnhancements.mappings } : {}),
@@ -146,12 +131,10 @@ const organizeFields = async (
           ...(levelEnhancements?.width !== undefined ? { width: levelEnhancements.width } : {}),
         },
       };
-
       // We are mutating fields. Would it be possible to avoid it?
       if (configAfterLevel.custom?.cellOptions?.cellComponent) {
         configAfterLevel.custom.cellOptions = undefined;
       }
-
       field.config = {
         ...configAfterLevel,
         filterable: field.config?.filterable ?? doesFieldSupportAdHocFiltering(field, timeFieldName, bodyFieldName),
@@ -183,6 +166,5 @@ const organizeFields = async (
       };
     }
   }
-
   return organizedFrame[0];
 };

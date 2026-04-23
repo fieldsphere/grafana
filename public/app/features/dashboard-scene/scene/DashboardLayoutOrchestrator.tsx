@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { type PointerEvent as ReactPointerEvent } from 'react';
 import { createPortal } from 'react-dom';
-
 import { type GrafanaTheme2 } from '@grafana/data';
 import { logWarning } from '@grafana/runtime';
 import {
@@ -15,11 +15,9 @@ import {
 } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
 import { getLayoutType } from 'app/features/dashboard/utils/tracking';
-
 import { dashboardEditActions, DashboardStateChangedEvent, ObjectsReorderedOnCanvasEvent } from '../edit-pane/shared';
 import { DashboardInteractions } from '../utils/interactions';
 import { getDefaultVizPanel, getLayoutForObject } from '../utils/utils';
-
 import { DashboardScene } from './DashboardScene';
 import { AutoGridLayoutManager } from './layout-auto-grid/AutoGridLayoutManager';
 import { type DefaultGridLayoutManager } from './layout-default/DefaultGridLayoutManager';
@@ -33,9 +31,7 @@ import {
   type DashboardDropTarget,
   isDashboardDropTarget,
 } from './types/DashboardDropTarget';
-
 const TAB_ACTIVATION_DELAY_MS = 600;
-
 interface DashboardLayoutOrchestratorState extends SceneObjectState {
   /** Grid item currently being dragged */
   draggingGridItem?: SceneObjectRef<SceneGridItemLike>;
@@ -58,7 +54,6 @@ interface DashboardLayoutOrchestratorState extends SceneObjectState {
     type: 'panel' | 'row';
   };
 }
-
 export type TabDragState = {
   tab: TabItem;
   /** Width of the dragged tab header in pixels (for cross-manager placeholder sizing) */
@@ -67,10 +62,8 @@ export type TabDragState = {
   height: number;
   index: number;
 };
-
 export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayoutOrchestratorState> {
   public static Component = DragPreviewRenderer;
-
   private _sourceDropTarget: DashboardDropTarget | null = null;
   private _lastDropTarget: DashboardDropTarget | null = null;
   private _tabActivationTimer: ReturnType<typeof setTimeout> | null = null;
@@ -103,19 +96,14 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
   private _tabDragState: TabDragState | undefined;
   /** Stored pointerup handler for new-panel drag so we can remove it */
   private _dropNewItemPointerUpHandler: ((evt: PointerEvent) => void) | null = null;
-
   public constructor() {
     super({});
-
     this._onPointerMove = this._onPointerMove.bind(this);
     this._stopDraggingSync = this._stopDraggingSync.bind(this);
-
     this._onTabDragPointerMove = this._onTabDragPointerMove.bind(this);
     this._onTabDragPointerUp = this._onTabDragPointerUp.bind(this);
-
     this.addActivationHandler(() => this._activationHandler());
   }
-
   private _activationHandler() {
     return () => {
       document.body.removeEventListener('pointermove', this._onPointerMove);
@@ -129,7 +117,6 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       this._cleanupDragState();
     };
   }
-
   /**
    * Returns true if the current drag operation will drop the item to a different layout
    * than where it started. Used by AutoGridLayout to know whether to clear draggingKey.
@@ -137,36 +124,28 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
   public isDroppedElsewhere(): boolean {
     return this._lastDropTarget !== null && this._lastDropTarget !== this._sourceDropTarget;
   }
-
   public startDraggingSync(evt: ReactPointerEvent, gridItem: SceneGridItemLike): void {
     const dropTarget = sceneGraph.findObject(gridItem, isDashboardDropTarget);
-
     if (!dropTarget || !isDashboardDropTarget(dropTarget)) {
       return;
     }
-
     this._sourceDropTarget = dropTarget;
     this._lastDropTarget = dropTarget;
     this._sourceOriginalIndex = this._getGridItemIndex(gridItem);
-
     // Capture the offset from cursor to item's top-left corner
     this._captureDragOffset(evt.clientX, evt.clientY, gridItem);
-
     document.body.addEventListener('pointermove', this._onPointerMove);
     // Use capture phase to ensure we receive the event even if something calls stopPropagation
     // (e.g., tab headers call stopPropagation on pointerup)
     document.body.addEventListener('pointerup', this._stopDraggingSync, true);
-
     const sourceTabKey = this._findParentTabKey(gridItem);
     this.setState({ draggingGridItem: gridItem.getRef(), sourceTabKey });
   }
-
   public startDraggingNewPanel(action: 'newPanel' | 'paste'): void {
     this._dropNewItemPointerUpHandler = (evt: PointerEvent) => this._dropNew(evt, action);
     document.body.addEventListener('pointermove', this._onNewPanelPointerMove, true);
     document.body.addEventListener('pointerup', this._dropNewItemPointerUpHandler, true);
   }
-
   private _stopDraggingSync(evt: PointerEvent) {
     const gridItem = this.state.draggingGridItem?.resolve();
     const wasDetached = this._itemDetachedFromSource;
@@ -175,12 +154,10 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     const lastDropTarget = this._lastDropTarget;
     const dropPosition = this._currentDropPosition;
     const sourceOriginalIndex = this._sourceOriginalIndex;
-
     // Fresh target under the pointer at drop time takes priority over
     // lastDropTarget which may be stale if pointermove events were coalesced.
     const validDropTargetUnderMouse = this._getDropTargetUnderMouse(evt);
     const effectiveDropTarget = validDropTargetUnderMouse ?? lastDropTarget;
-
     // When effectiveDropTarget differs from lastDropTarget (e.g. due to coalesced
     // pointermove), clear stale visual drop state on the previous target so it
     // doesn't keep showing a placeholder/highlight after the drop.
@@ -190,14 +167,12 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       this._currentDropPosition = null;
       this._lastHoveredAutoGridItemKey = null;
     }
-
     // TabsLayoutManager is not a valid panel drop target — it represents the
     // tab bar area between tab headers. Cancel the drop so the panel either
     // stays in place or returns to its source layout.
     if (effectiveDropTarget instanceof TabsLayoutManager) {
       this._clearDropPosition();
       this._lastDropTarget?.setIsDropTarget?.(false);
-
       if (wasDetached && gridItem) {
         setTimeout(() => {
           sourceDropTarget?.draggedGridItemInside?.(gridItem, sourceOriginalIndex ?? undefined);
@@ -217,7 +192,6 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       });
     } else {
       const isCrossLayoutDrop = sourceDropTarget !== effectiveDropTarget || wasDetached;
-
       // Handle cross-layout or cross-tab drop
       if (isCrossLayoutDrop) {
         // Wrapped in setTimeout to ensure that any event handlers are called
@@ -231,7 +205,6 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
             // Pass drop position for precise placement (AutoGrid uses this)
             // Note: draggedGridItemInside also clears isDropTarget and dropPosition
             effectiveDropTarget?.draggedGridItemInside?.(gridItem, dropPosition ?? undefined);
-
             // Clean up source grid's drag state (CSS variables and draggingKey) after item is moved.
             // This is done here (after movement) to prevent flickering where the item
             // would momentarily appear at wrong position (CSS vars cleared but draggingKey set
@@ -241,7 +214,7 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
             }
           } else {
             const warningMessage = 'No grid item to drag';
-            console.warn(warningMessage);
+            structLog('warn', warningMessage);
             logWarning(warningMessage);
           }
         });
@@ -251,13 +224,10 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
         this._lastDropTarget?.setIsDropTarget?.(false);
       }
     }
-
     document.body.removeEventListener('pointermove', this._onPointerMove);
     document.body.removeEventListener('pointerup', this._stopDraggingSync, true);
-
     this._clearTabActivationTimer();
     this._clearDragPreview();
-
     // Clear internal tracking state (but not the visual state on the target for cross-layout drops)
     this._currentDropPosition = null;
     this._lastHoveredAutoGridItemKey = null;
@@ -267,45 +237,36 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     this._sourceOriginalIndex = null;
     this.setState({ draggingGridItem: undefined, sourceTabKey: undefined, hoverTabKey: undefined });
   }
-
   /**
    * Called when a row drag starts (from RowsLayoutManagerRenderer)
    */
   public startRowDrag(row: RowItem): void {
     const sourceTabKey = this._findParentTabKey(row);
-
     // Store source layout info for removal before tab switch
     const parent = row.parent;
     if (parent instanceof RowsLayoutManager) {
       this._sourceRowsLayout = parent;
     }
-
     // Capture row dimensions
     this._captureRowDimensions(row);
-
     // Offset will be captured on first pointermove
     this._rowOffsetCaptured = false;
-
     this.setState({
       draggingRow: row.getRef(),
       sourceTabKey,
     });
-
     // Add pointer move listener for tab hover detection during row drag
     document.body.addEventListener('pointermove', this._onRowDragPointerMove);
     // Add pointerup listener to handle drop after cross-tab switch
     // Use capture phase to ensure we receive the event even if something calls stopPropagation
     document.body.addEventListener('pointerup', this._onRowDragPointerUp, true);
   }
-
   public startTabDrag(sourceTabsManagerId: string, draggedTabId: string): void {
     this._sourceDropTarget = this._findDropTargetByKey(sourceTabsManagerId);
-
     const draggedTab = sceneGraph.findByKeyAndType(this._getDashboard(), draggedTabId, TabItem);
     if (this._sourceDropTarget instanceof TabsLayoutManager) {
       this._sourceDropTarget.forceSelectTab(draggedTabId);
     }
-
     // Calculate dimensions of the dragged tab header and cache for cross-manager placeholder sizing
     const draggedHeaderEl = draggedTab?.containerRef?.current ?? undefined;
     if (draggedHeaderEl) {
@@ -317,19 +278,15 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
         index: 0,
       };
     }
-
     document.body.addEventListener('pointerup', this._onTabDragPointerUp, true);
     document.body.addEventListener('pointermove', this._onTabDragPointerMove);
   }
-
   private _onTabDragPointerMove(evt: PointerEvent) {
     // Note this will never be the same as source - _getDropTargetUnderMouse prevents it.
     const dropTarget = this._getDropTargetUnderMouse(evt);
-
     if (!this._tabDragState) {
       return;
     }
-
     // Tabs can be dropped only to TabsLayoutManager
     if (dropTarget instanceof TabsLayoutManager) {
       this._lastDropTarget = dropTarget;
@@ -337,7 +294,6 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       this.cleanUpTabDropTarget();
       return;
     }
-
     dropTarget.setIsDropTarget(true);
     const tabUnderMouse = this._getTabUnderMouse(evt.clientX, evt.clientY, this._tabDragState.tab.state.key);
     const targetTabIndex = dropTarget?.getTabsIncludingRepeats().findIndex((t) => t.state.key === tabUnderMouse);
@@ -347,7 +303,6 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       dropTarget.setPlaceholder(this._tabDragState);
     }
   }
-
   private _onTabDragPointerUp() {
     document.body.removeEventListener('pointermove', this._onTabDragPointerMove);
     document.body.removeEventListener('pointerup', this._onTabDragPointerUp, true);
@@ -355,7 +310,6 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     // Finishing dropping in here would remove elements from dom causing pangea to think the element is still being
     // dragged and won't fire onDragEnd until container is re-rendered or removed (e.g. when row is collapsed).
   }
-
   /**
    * Single entry point for handling tab drag end. If the tab was dropped from a different manager we use values
    * calculated by layout orchestrator.
@@ -364,14 +318,11 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     if (this._sourceDropTarget === null || !(this._sourceDropTarget instanceof TabsLayoutManager)) {
       return;
     }
-
     if (!this._tabDragState?.tab) {
       return;
     }
-
     const sourceManager = this._sourceDropTarget;
     const sourceIndex = sourceManager.getTabsIncludingRepeats().findIndex((t) => t === this._tabDragState?.tab);
-
     // targetIndex !== undefined => dropped in the same manager, target index provided by hello-pangea
     if (targetIndex !== undefined) {
       if (sourceIndex !== targetIndex) {
@@ -380,31 +331,26 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       this.cleanUpTabDrag();
       return;
     }
-
     // dropped in a different manager => handled by the orchestrator
     if (this._lastDropTarget instanceof TabsLayoutManager) {
       const destinationManager = this._lastDropTarget;
       targetIndex = this._tabDragState.index ?? destinationManager.getTabsIncludingRepeats().length;
-
       const realDestinationIndex = destinationManager.mapTabInsertIndex(targetIndex);
       // When moving a tab into a new tab group, make it the active tab.
       this._moveTabBetweenManagers(this._tabDragState.tab, sourceManager, destinationManager, realDestinationIndex);
       this.cleanUpTabDrag();
     }
   }
-
   private cleanUpTabDropTarget() {
     if (this._lastDropTarget && this._lastDropTarget instanceof TabsLayoutManager) {
       this._lastDropTarget.setIsDropTarget?.(false);
     }
     this._lastDropTarget = null;
   }
-
   private cleanUpTabDrag() {
     this.cleanUpTabDropTarget();
     this._tabDragState = undefined;
   }
-
   private _moveTabBetweenManagers(
     tab: TabItem,
     source: TabsLayoutManager,
@@ -415,31 +361,25 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     const prevSourceSlug = source.state.currentTabSlug;
     const prevDestinationTabs = [...destination.state.tabs];
     const prevDestinationSlug = destination.state.currentTabSlug;
-
     dashboardEditActions.moveElement({
       source,
       movedObject: tab,
       perform: () => {
         const sourceTabs = [...prevSourceTabs];
         const destTabs = [...prevDestinationTabs];
-
         const fromIndex = sourceTabs.findIndex((t) => t === tab);
         if (fromIndex < 0) {
           return;
         }
-
         sourceTabs.splice(fromIndex, 1);
-
         const clampedDestinationIndex = Math.max(0, Math.min(destinationIndex, destTabs.length));
         destTabs.splice(clampedDestinationIndex, 0, tab);
-
         // If the moved tab was active in source, pick a sensible new active tab.
         let nextSourceSlug = prevSourceSlug;
         if (prevSourceSlug === tab.getSlug()) {
           const newIndex = fromIndex > 0 ? fromIndex - 1 : 0;
           nextSourceSlug = sourceTabs[newIndex]?.getSlug();
         }
-
         // Important: avoid briefly parenting the same SceneObject in two places.
         // Remove from source first, then clear parent, then add to destination.
         source.setState({ tabs: sourceTabs, currentTabSlug: nextSourceSlug });
@@ -448,11 +388,9 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
           tabs: destTabs,
           currentTabSlug: tab.getSlug(),
         });
-
         // Make sure outline is refreshed in DashboardEditPane
         source.publishEvent(new ObjectsReorderedOnCanvasEvent(source), true);
         destination.publishEvent(new ObjectsReorderedOnCanvasEvent(destination), true);
-
         // Make sure repeated rows are refreshed - triggers performRowRepeats in RowItemRepeater
         source.publishEvent(new DashboardStateChangedEvent({ source }), true);
         destination.publishEvent(new DashboardStateChangedEvent({ source: destination }), true);
@@ -462,18 +400,15 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
         destination.setState({ tabs: prevDestinationTabs, currentTabSlug: prevDestinationSlug });
         tab.clearParent();
         source.setState({ tabs: prevSourceTabs, currentTabSlug: prevSourceSlug });
-
         // Make sure outline is refreshed in DashboardEditPane
         source.publishEvent(new ObjectsReorderedOnCanvasEvent(source), true);
         destination.publishEvent(new ObjectsReorderedOnCanvasEvent(destination), true);
-
         // Make sure repeated rows are refreshed - triggers performRowRepeats in RowItemRepeater
         source.publishEvent(new DashboardStateChangedEvent({ source }), true);
         destination.publishEvent(new DashboardStateChangedEvent({ source: destination }), true);
       },
     });
   }
-
   private _onRowDragPointerMove = (evt: PointerEvent): void => {
     // Capture row offset on first move (we don't have cursor position at drag start)
     if (!this._rowOffsetCaptured) {
@@ -483,20 +418,16 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
         this._rowOffsetCaptured = true;
       }
     }
-
     // Store cursor position early so it's available for immediate preview on tab switch
     this._lastCursorX = evt.clientX;
     this._lastCursorY = evt.clientY;
-
     this._checkTabHover(evt.clientX, evt.clientY);
     this._updateDragPreview(evt.clientX, evt.clientY);
   };
-
   private _onRowDragPointerUp = (_evt: PointerEvent): void => {
     // Always clear the tab activation timer on pointerup to prevent
     // the tab from switching after the user has released the mouse
     this._clearTabActivationTimer();
-
     // Handle drop after cross-tab row drag
     if (this._itemDetachedFromSource) {
       const row = this.state.draggingRow?.resolve();
@@ -511,7 +442,6 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     }
     // If not detached, stopRowDrag from hello-pangea/dnd will handle cleanup
   };
-
   private _cleanupDragState() {
     document.body.removeEventListener('pointermove', this._onNewPanelPointerMove, true);
     if (this._dropNewItemPointerUpHandler) {
@@ -520,14 +450,11 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     }
     this._lastDropTarget = null;
   }
-
   private _dropNew = (evt: PointerEvent, action: 'newPanel' | 'paste'): void => {
     const lastDropTarget = this._lastDropTarget;
     const elementsUnderPoint = document.elementsFromPoint(evt.clientX, evt.clientY);
-
     // if the cursor is in the sidebar, don't add panel
     const isInSidebar = elementsUnderPoint.some((el) => el.getAttribute('id') === 'sidebar-container');
-
     if (isInSidebar) {
       this._cleanupDragState();
       return;
@@ -543,27 +470,23 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     });
     return;
   };
-
   private _getLayoutForDropTarget = (
     dropTarget: DashboardDropTarget | null
   ): DashboardScene | AutoGridLayoutManager | DefaultGridLayoutManager => {
     const dashboard = this._getDashboard();
     return getLayoutForObject(dropTarget ?? dashboard) ?? dashboard;
   };
-
   private _addNewPanelToLayout = (dropTarget: DashboardDropTarget | null) => {
     const panel = getDefaultVizPanel();
     this._getLayoutForDropTarget(dropTarget).addPanel(panel);
     DashboardInteractions.trackAddPanelClick('sidebar', dropTarget ? getLayoutType(dropTarget) : 'dashboard', 'drop');
   };
-
   private _pastePanelToLayout = (dropTarget: DashboardDropTarget | null) => {
     const layout = this._getLayoutForDropTarget(dropTarget);
     // shouldn't be undefined
     layout.pastePanel();
     DashboardInteractions.trackPastePanelClick('sidebar', dropTarget ? getLayoutType(dropTarget) : 'dashboard', 'drop');
   };
-
   /**
    * Called when a row drag ends (from RowsLayoutManagerRenderer)
    * This is called by hello-pangea/dnd when drag ends normally (within same layout)
@@ -575,10 +498,8 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     if (this._itemDetachedFromSource) {
       return;
     }
-
     this._finalizeRowDrag();
   }
-
   private _finalizeRowDrag(): void {
     document.body.removeEventListener('pointermove', this._onRowDragPointerMove);
     document.body.removeEventListener('pointerup', this._onRowDragPointerUp, true);
@@ -596,19 +517,16 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       hoverTabKey: undefined,
     });
   }
-
   private _clearTabActivationTimer(): void {
     if (this._tabActivationTimer) {
       clearTimeout(this._tabActivationTimer);
       this._tabActivationTimer = null;
     }
   }
-
   private _updateDragPreview(x: number, y: number): void {
     // Store cursor position for immediate preview on tab switch
     this._lastCursorX = x;
     this._lastCursorY = y;
-
     if (this._itemDetachedFromSource) {
       this.setState({
         dragPreview: {
@@ -624,12 +542,10 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       });
     }
   }
-
   private _showDragPreview(): void {
     // Prevent text selection and set move cursor during cross-tab drag
     document.body.classList.add('dashboard-draggable-transparent-selection');
     document.body.classList.add('dragging-active');
-
     this.setState({
       dragPreview: {
         x: this._lastCursorX,
@@ -643,7 +559,6 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       },
     });
   }
-
   private _captureDragOffset(cursorX: number, cursorY: number, gridItem: SceneGridItemLike): void {
     // Both DashboardGridItem and AutoGridItem have containerRef
     if ('containerRef' in gridItem) {
@@ -661,12 +576,10 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
         return;
       }
     }
-
     // Fallback: center the preview on cursor
     this._dragOffsetX = 0;
     this._dragOffsetY = 0;
   }
-
   private _captureItemDimensions(gridItem: SceneGridItemLike): void {
     // Both DashboardGridItem and AutoGridItem have containerRef
     if ('containerRef' in gridItem) {
@@ -683,12 +596,10 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
         return;
       }
     }
-
     // Fallback to reasonable default
     this._previewWidth = 400;
     this._previewHeight = 300;
   }
-
   private _captureRowDimensions(row: RowItem): void {
     // Try to find the DOM element for the row using DASHBOARD_DROP_TARGET_KEY_ATTR
     const element = document.querySelector(`[${DASHBOARD_DROP_TARGET_KEY_ATTR}="${row.state.key}"]`);
@@ -698,12 +609,10 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       this._previewHeight = rect.height;
       return;
     }
-
     // Fallback to reasonable default for rows
     this._previewWidth = 800;
     this._previewHeight = 48;
   }
-
   private _captureRowDragOffset(cursorX: number, cursorY: number, row: RowItem): void {
     // Try to find the DOM element for the row
     const element = document.querySelector(`[${DASHBOARD_DROP_TARGET_KEY_ATTR}="${row.state.key}"]`);
@@ -713,54 +622,44 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       this._dragOffsetY = cursorY - rect.top;
       return;
     }
-
     // Fallback: use small offset
     this._dragOffsetX = 20;
     this._dragOffsetY = 20;
   }
-
   private _clearDragPreview(): void {
     // Re-enable text selection and reset cursor
     document.body.classList.remove('dashboard-draggable-transparent-selection');
     document.body.classList.remove('dragging-active');
     window.getSelection()?.removeAllRanges();
-
     if (this.state.dragPreview) {
       this.setState({ dragPreview: undefined });
     }
   }
-
   private _checkTabHover(clientX: number, clientY: number): void {
     const tabKey = this._getTabUnderMouse(clientX, clientY);
-
     if (tabKey !== this._lastHoveredTabKey) {
       // Cursor moved to a different tab or left all tabs
       this._clearTabActivationTimer();
       this._lastHoveredTabKey = tabKey;
-
       if (tabKey) {
         // Check if this tab is already active - no need to switch
         if (this._isTabAlreadyActive(tabKey)) {
           this.setState({ hoverTabKey: undefined });
           return;
         }
-
         // Start new timer for the new tab
         this._tabActivationTimer = setTimeout(() => {
           this._activateTab(tabKey);
         }, TAB_ACTIVATION_DELAY_MS);
-
         this.setState({ hoverTabKey: tabKey });
       } else {
         this.setState({ hoverTabKey: undefined });
       }
     }
   }
-
   private _isTabAlreadyActive(tabKey: string): boolean {
     const dashboard = this._getDashboard();
     const tabItem = sceneGraph.findByKey(dashboard, tabKey);
-
     if (tabItem instanceof TabItem) {
       const tabsManager = tabItem.getParentLayout();
       if (tabsManager instanceof TabsLayoutManager) {
@@ -770,11 +669,9 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     }
     return false;
   }
-
   private _activateTab(tabKey: string): void {
     const dashboard = this._getDashboard();
     const tabItem = sceneGraph.findByKey(dashboard, tabKey);
-
     if (tabItem instanceof TabItem) {
       const tabsManager = tabItem.getParentLayout();
       if (tabsManager instanceof TabsLayoutManager) {
@@ -786,31 +683,24 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
           this._previewLabel = this._getItemLabel(gridItem);
           this._previewType = 'panel';
           this._captureItemDimensions(gridItem);
-
           this._sourceDropTarget.draggedGridItemOutside?.(gridItem);
           this._itemDetachedFromSource = true;
-
           // Show preview immediately using last known cursor position
           this._showDragPreview();
         }
-
         // For rows: remove from source layout and show preview
         const row = this.state.draggingRow?.resolve();
         if (row && !this._itemDetachedFromSource && this._sourceRowsLayout) {
           // Get label for preview (dimensions already captured in startRowDrag)
           this._previewLabel = row.state.title || 'Row';
           this._previewType = 'row';
-
           // Remove row from source layout (skip undo as this is part of drag operation)
           this._sourceRowsLayout.removeRow(row, true);
           this._itemDetachedFromSource = true;
-
           // Show preview immediately
           this._showDragPreview();
         }
-
         tabsManager.switchToTab(tabItem);
-
         // Update last drop target to the new tab
         // This ensures drop works even if user releases immediately after tab switch
         if (isDashboardDropTarget(tabItem)) {
@@ -819,7 +709,6 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       }
     }
   }
-
   private _getGridItemIndex(gridItem: SceneGridItemLike): number | null {
     if (this._sourceDropTarget instanceof AutoGridLayoutManager) {
       const children = this._sourceDropTarget.state.layout.state.children;
@@ -828,17 +717,14 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     }
     return null;
   }
-
   private _getItemLabel(gridItem: SceneGridItemLike): string {
     if ('state' in gridItem && 'body' in gridItem.state && gridItem.state.body instanceof VizPanel) {
       return gridItem.state.body.state.title || 'Panel';
     }
     return 'Panel';
   }
-
   private _getTabUnderMouse(clientX: number, clientY: number, excludeKey?: string): string | null {
     const elementsUnderPoint = document.elementsFromPoint(clientX, clientY);
-
     const tabKey = elementsUnderPoint
       ?.find(
         (element) =>
@@ -846,10 +732,8 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
           (!excludeKey || element.getAttribute('data-tab-activation-key') !== excludeKey)
       )
       ?.getAttribute('data-tab-activation-key');
-
     return tabKey || null;
   }
-
   private _findParentTabKey(item: RowItem | SceneGridItemLike): string | undefined {
     let parent = item.parent;
     while (parent) {
@@ -860,76 +744,59 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     }
     return undefined;
   }
-
   private _onNewPanelPointerMove = (evt: PointerEvent): void => {
     const dropTarget = this._getDropTargetUnderMouse(evt) ?? this._sourceDropTarget;
-
     if (!dropTarget) {
       return;
     }
-
     if (dropTarget !== this._lastDropTarget) {
       this._lastDropTarget?.setIsDropTarget?.(false);
       this._lastDropTarget = dropTarget;
-
       if (dropTarget !== this._sourceDropTarget) {
         dropTarget.setIsDropTarget?.(true);
       }
     }
   };
-
   private _onPointerMove(evt: PointerEvent) {
     // Store cursor position early so it's available for immediate preview on tab switch
     this._lastCursorX = evt.clientX;
     this._lastCursorY = evt.clientY;
-
     // Check for tab hover to enable tab switching during drag
     this._checkTabHover(evt.clientX, evt.clientY);
-
     // Update drag preview position if item is detached
     this._updateDragPreview(evt.clientX, evt.clientY);
-
     const dropTarget = this._getDropTargetUnderMouse(evt) ?? this._sourceDropTarget;
-
     if (!dropTarget) {
       this._clearDropPosition();
       return;
     }
-
     if (dropTarget !== this._lastDropTarget) {
       // Clear drop position from previous target
       this._clearDropPosition();
       this._lastDropTarget?.setIsDropTarget?.(false);
       this._lastDropTarget = dropTarget;
-
       if (dropTarget !== this._sourceDropTarget) {
         dropTarget.setIsDropTarget?.(true);
       }
     }
-
     // Update drop position for AutoGrid targets
     this._updateDropPosition(evt.clientX, evt.clientY, dropTarget);
   }
-
   private _updateDropPosition(clientX: number, clientY: number, dropTarget: DashboardDropTarget): void {
     // Only update position for AutoGridLayoutManager targets
     if (!(dropTarget instanceof AutoGridLayoutManager)) {
       return;
     }
-
     // Don't show external placeholder when dragging within the same grid
     // (AutoGrid has its own internal drag placeholder)
     if (dropTarget === this._sourceDropTarget) {
       return;
     }
-
     // Find which AutoGridItem we're hovering over
     const elementsUnderPoint = document.elementsFromPoint(clientX, clientY);
     const targetElement = elementsUnderPoint?.find((el) => el.getAttribute(AUTO_GRID_ITEM_DROP_TARGET_ATTR));
     const targetKey = targetElement?.getAttribute(AUTO_GRID_ITEM_DROP_TARGET_ATTR);
-
     const children = dropTarget.state.layout.state.children;
-
     // If not hovering over any item
     if (!targetKey || !targetElement) {
       // Only set initial position when first entering the grid
@@ -940,36 +807,28 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       // Otherwise keep the current position (prevents flickering when over placeholder)
       return;
     }
-
     // Determine if we should insert before or after the hovered item
     // by checking if cursor is in left half or right half
     const rect = targetElement.getBoundingClientRect();
     const isRightHalf = clientX > rect.left + rect.width / 2;
-
     // Create a composite key that includes both item key and side
     const compositeKey = `${targetKey}-${isRightHalf ? 'after' : 'before'}`;
-
     // Only update if we're hovering over a different position than before
     // This prevents flickering when the placeholder shifts items around
     if (compositeKey === this._lastHoveredAutoGridItemKey) {
       return;
     }
-
     this._lastHoveredAutoGridItemKey = compositeKey;
-
     // Find the index of the hovered item
     const hoveredIndex = children.findIndex((child) => child.state.key === targetKey);
     if (hoveredIndex < 0) {
       return;
     }
-
     // Insert after if in right half, before if in left half
     const newPosition = isRightHalf ? hoveredIndex + 1 : hoveredIndex;
-
     this._currentDropPosition = newPosition;
     dropTarget.setDropPosition?.(newPosition);
   }
-
   private _clearDropPosition(): void {
     if (this._currentDropPosition !== null && this._lastDropTarget) {
       this._lastDropTarget.setDropPosition?.(null);
@@ -977,62 +836,48 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
     }
     this._lastHoveredAutoGridItemKey = null;
   }
-
   private _getDashboard(): DashboardScene {
     if (!(this.parent instanceof DashboardScene)) {
       throw new Error('Parent is not a DashboardScene');
     }
-
     return this.parent;
   }
-
   private _getDropTargetUnderMouse(evt: MouseEvent): DashboardDropTarget | null {
     const elementsUnderPoint = document.elementsFromPoint(evt.clientX, evt.clientY);
     const cursorIsInSourceTarget = elementsUnderPoint.some(
       (el) => el.getAttribute(DASHBOARD_DROP_TARGET_KEY_ATTR) === this._sourceDropTarget?.state.key
     );
-
     if (cursorIsInSourceTarget) {
       return null;
     }
-
     const key = elementsUnderPoint
       ?.find((element) => element.getAttribute(DASHBOARD_DROP_TARGET_KEY_ATTR))
       ?.getAttribute(DASHBOARD_DROP_TARGET_KEY_ATTR);
-
     if (!key) {
       return null;
     }
-
     return this._findDropTargetByKey(key);
   }
-
   private _findDropTargetByKey(key: string): DashboardDropTarget | null {
     const sceneObject = sceneGraph.findByKey(this._getDashboard(), key);
-
     if (!sceneObject || !isDashboardDropTarget(sceneObject)) {
       return null;
     }
-
     return sceneObject;
   }
 }
-
 /**
  * Renders a floating drag preview when an item is detached during cross-tab drag
  */
 function DragPreviewRenderer({ model }: SceneComponentProps<DashboardLayoutOrchestrator>) {
   const { dragPreview } = model.useState();
   const styles = useStyles2(getPreviewStyles);
-
   if (!dragPreview) {
     return null;
   }
-
   // Position preview so cursor maintains same relative position as when drag started
   const previewLeft = dragPreview.x - dragPreview.offsetX;
   const previewTop = dragPreview.y - dragPreview.offsetY;
-
   const preview = (
     <div
       className={styles.preview}
@@ -1046,10 +891,8 @@ function DragPreviewRenderer({ model }: SceneComponentProps<DashboardLayoutOrche
       <span className={styles.label}>{dragPreview.label}</span>
     </div>
   );
-
   return createPortal(preview, document.body);
 }
-
 const getPreviewStyles = (theme: GrafanaTheme2) => ({
   preview: css({
     position: 'fixed',

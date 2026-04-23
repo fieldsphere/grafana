@@ -1,8 +1,38 @@
 import { faro, type LogContext, LogLevel } from '@grafana/faro-web-sdk';
+import { structLog } from '@grafana/data/structLog';
 
 import { config } from '../config';
 
 export { LogLevel };
+
+function stringifyForContext(v: unknown): string {
+  if (typeof v === 'string') {
+    return v;
+  }
+  if (v instanceof Error) {
+    return v.message;
+  }
+  try {
+    return JSON.stringify(v);
+  } catch {
+    return String(v);
+  }
+}
+
+/**
+ * Coerce a LogContext to Faro's `Record<string, string>` (nested values are JSON-stringified).
+ * @internal
+ */
+function normalizeFaroLogContext(contexts?: LogContext): LogContext | undefined {
+  if (!contexts) {
+    return undefined;
+  }
+  const out: LogContext = {};
+  for (const key of Object.keys(contexts)) {
+    out[key] = stringifyForContext((contexts as Record<string, unknown>)[key]);
+  }
+  return out;
+}
 
 /**
  * Log a message at INFO level
@@ -12,8 +42,10 @@ export function logInfo(message: string, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushLog([message], {
       level: LogLevel.INFO,
-      context: contexts,
+      context: normalizeFaroLogContext(contexts),
     });
+  } else {
+    structLog('log', message, contexts ?? '');
   }
 }
 
@@ -26,8 +58,10 @@ export function logWarning(message: string, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushLog([message], {
       level: LogLevel.WARN,
-      context: contexts,
+      context: normalizeFaroLogContext(contexts),
     });
+  } else {
+    structLog('warn', message, contexts ?? '');
   }
 }
 
@@ -40,8 +74,10 @@ export function logDebug(message: string, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushLog([message], {
       level: LogLevel.DEBUG,
-      context: contexts,
+      context: normalizeFaroLogContext(contexts),
     });
+  } else {
+    structLog('debug', message, contexts ?? '');
   }
 }
 
@@ -53,8 +89,10 @@ export function logDebug(message: string, contexts?: LogContext) {
 export function logError(err: Error, contexts?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushError(err, {
-      context: contexts,
+      context: normalizeFaroLogContext(contexts),
     });
+  } else {
+    structLog('error', err, contexts ?? '');
   }
 }
 
@@ -73,6 +111,8 @@ export function logMeasurement(type: string, values: MeasurementValues, context?
       },
       { context: context }
     );
+  } else {
+    structLog('log', 'measurement', { type, values, ...context });
   }
 }
 

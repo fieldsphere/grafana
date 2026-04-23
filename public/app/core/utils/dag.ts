@@ -1,110 +1,88 @@
+import { structLog } from '@grafana/data';
 export class Edge {
   inputNode?: Node;
   outputNode?: Node;
-
   _linkTo(node: Node, direction: number) {
     if (direction <= 0) {
       node.inputEdges.push(this);
     }
-
     if (direction >= 0) {
       node.outputEdges.push(this);
     }
-
     node.edges.push(this);
   }
-
   link(inputNode: Node, outputNode: Node) {
     if (!inputNode) {
       throw Error('inputNode is required');
     }
-
     if (!outputNode) {
       throw Error('outputNode is required');
     }
-
     this.unlink();
     this.inputNode = inputNode;
     this.outputNode = outputNode;
-
     this._linkTo(inputNode, 1);
     this._linkTo(outputNode, -1);
     return this;
   }
-
   unlink() {
     let pos;
     const inode = this.inputNode;
     const onode = this.outputNode;
-
     if (!(inode && onode)) {
       return;
     }
-
     pos = inode.edges.indexOf(this);
     if (pos > -1) {
       inode.edges.splice(pos, 1);
     }
-
     pos = onode.edges.indexOf(this);
     if (pos > -1) {
       onode.edges.splice(pos, 1);
     }
-
     pos = inode.outputEdges.indexOf(this);
     if (pos > -1) {
       inode.outputEdges.splice(pos, 1);
     }
-
     pos = onode.inputEdges.indexOf(this);
     if (pos > -1) {
       onode.inputEdges.splice(pos, 1);
     }
   }
 }
-
 export class Node {
   name: string;
   edges: Edge[];
   inputEdges: Edge[];
   outputEdges: Edge[];
-
   constructor(name: string) {
     this.name = name;
     this.edges = [];
     this.inputEdges = [];
     this.outputEdges = [];
   }
-
   getEdgeFrom(from: string | Node): Edge | null | undefined {
     if (!from) {
       return null;
     }
-
     if (typeof from === 'object') {
       return this.inputEdges.find((e) => e.inputNode?.name === from.name);
     }
-
     return this.inputEdges.find((e) => e.inputNode?.name === from);
   }
-
   getEdgeTo(to: string | Node): Edge | null | undefined {
     if (!to) {
       return null;
     }
-
     if (typeof to === 'object') {
       return this.outputEdges.find((e) => e.outputNode?.name === to.name);
     }
-
     return this.outputEdges.find((e) => e.outputNode?.name === to);
   }
-
   getOptimizedInputEdges(): Edge[] {
     const toBeRemoved: Edge[] = [];
     this.inputEdges.forEach((e) => {
       const inputEdgesNodes = e.inputNode?.inputEdges.map((e) => e.inputNode);
-
       inputEdgesNodes?.forEach((n) => {
         const edgeToRemove = n?.getEdgeTo(this.name);
         if (edgeToRemove) {
@@ -112,22 +90,17 @@ export class Node {
         }
       });
     });
-
     return this.inputEdges.filter((e) => toBeRemoved.indexOf(e) === -1);
   }
 }
-
 export class Graph {
   nodes: Record<string, Node> = {};
-
   constructor() {}
-
   createNode(name: string): Node {
     const n = new Node(name);
     this.nodes[name] = n;
     return n;
   }
-
   createNodes(names: string[]): Node[] {
     const nodes: Node[] = [];
     names.forEach((name) => {
@@ -135,25 +108,21 @@ export class Graph {
     });
     return nodes;
   }
-
   link(input: string | string[] | Node | Node[], output: string | string[] | Node | Node[]): Edge[] {
     let inputArr = [];
     let outputArr = [];
     const inputNodes: Node[] = [];
     const outputNodes: Node[] = [];
-
     if (input instanceof Array) {
       inputArr = input;
     } else {
       inputArr = [input];
     }
-
     if (output instanceof Array) {
       outputArr = output;
     } else {
       outputArr = [output];
     }
-
     for (let n = 0; n < inputArr.length; n++) {
       const i = inputArr[n];
       if (typeof i === 'string') {
@@ -166,7 +135,6 @@ export class Graph {
         inputNodes.push(i);
       }
     }
-
     for (let n = 0; n < outputArr.length; n++) {
       const i = outputArr[n];
       if (typeof i === 'string') {
@@ -179,7 +147,6 @@ export class Graph {
         outputNodes.push(i);
       }
     }
-
     const edges: Edge[] = [];
     inputNodes.forEach((input) => {
       outputNodes.forEach((output) => {
@@ -191,19 +158,15 @@ export class Graph {
     });
     return edges;
   }
-
   descendants(nodes: Node[] | string[]): Set<Node> {
     if (!nodes.length) {
       return new Set();
     }
-
     const initialNodes = new Set(
       isStringArray(nodes) ? nodes.map((n) => this.nodes[n]).filter((n) => n !== undefined) : nodes
     );
-
     return this.descendantsRecursive(initialNodes);
   }
-
   private descendantsRecursive(nodes: Set<Node>, descendants = new Set<Node>()): Set<Node> {
     for (const node of nodes) {
       const newDescendants = new Set<Node>();
@@ -213,30 +176,23 @@ export class Graph {
           newDescendants.add(inputNode);
         }
       }
-
       this.descendantsRecursive(newDescendants, descendants);
     }
-
     return descendants;
   }
-
   private willCreateCycle(input: Node, output: Node): boolean {
     if (input === output) {
       return true;
     }
-
     // Perform a DFS to check if the input node is reachable from the output node
     const visited = new Set<Node>();
     const stack = [output];
-
     while (stack.length) {
       const current = stack.pop()!;
       if (current === input) {
         return true;
       }
-
       visited.add(current);
-
       for (const edge of current.outputEdges) {
         const next = edge.outputNode;
         if (next && !visited.has(next)) {
@@ -244,19 +200,15 @@ export class Graph {
         }
       }
     }
-
     return false;
   }
-
   createEdge(): Edge {
     return new Edge();
   }
-
   getNode(name: string): Node | undefined {
     return this.nodes[name];
   }
 }
-
 export const printGraph = (g: Graph) => {
   Object.keys(g.nodes).forEach((name) => {
     const n = g.nodes[name];
@@ -268,10 +220,9 @@ export const printGraph = (g: Graph) => {
     if (!inputEdges) {
       inputEdges = '<none>';
     }
-    console.log(`${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
+    structLog('log', `${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
   });
 };
-
 function isStringArray(arr: unknown[]): arr is string[] {
   return arr.length > 0 && typeof arr[0] === 'string';
 }

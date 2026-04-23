@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import {
   closestIdx,
   type DataFrame,
@@ -11,9 +12,7 @@ import {
   type QueryResultMetaStat,
   shallowCompare,
 } from '@grafana/data';
-
 import { LOADING_FRAME_NAME } from './querySplitting';
-
 function getFrameKey(frame: DataFrame): string | undefined {
   // Metric range query data
   if (frame.meta?.type === DataFrameType.TimeSeriesMulti) {
@@ -35,7 +34,6 @@ function getFrameKey(frame: DataFrame): string | undefined {
   }
   return frame.refId ?? frame.name;
 }
-
 /**
  * @todo test new response is error, current response is not
  * @param currentResponse
@@ -45,7 +43,6 @@ export function combineResponses(currentResponse: DataQueryResponse | null, newR
   if (!currentResponse) {
     return cloneQueryResponse(newResponse);
   }
-
   const currentResponseLabelsMap = new Map<string, DataFrame>();
   currentResponse.data.forEach((frame: DataFrame) => {
     const key = getFrameKey(frame);
@@ -55,7 +52,6 @@ export function combineResponses(currentResponse: DataQueryResponse | null, newR
       currentResponseLabelsMap.set(key, frame);
     }
   });
-
   newResponse.data.forEach((newFrame: DataFrame) => {
     let currentFrame: DataFrame | undefined = undefined;
     const key = getFrameKey(newFrame);
@@ -66,13 +62,11 @@ export function combineResponses(currentResponse: DataQueryResponse | null, newR
       currentResponse.data.push(cloneDataFrame(newFrame));
     }
   });
-
   const mergedErrors = [...(currentResponse.errors ?? []), ...(newResponse.errors ?? [])];
   if (mergedErrors.length > 0) {
     currentResponse.errors = mergedErrors;
     currentResponse.state = LoadingState.Error;
   }
-
   // the `.error` attribute is obsolete now,
   // but we have to maintain it, otherwise
   // some grafana parts do not behave well.
@@ -83,15 +77,12 @@ export function combineResponses(currentResponse: DataQueryResponse | null, newR
     currentResponse.error = mergedError;
     currentResponse.state = LoadingState.Error;
   }
-
   const mergedTraceIds = [...(currentResponse.traceIds ?? []), ...(newResponse.traceIds ?? [])];
   if (mergedTraceIds.length > 0) {
     currentResponse.traceIds = mergedTraceIds;
   }
-
   return currentResponse;
 }
-
 /**
  * Given an existing DataQueryResponse, replace any data frame present in newResponse with those in newResponse
  */
@@ -99,7 +90,6 @@ export function replaceResponses(currentResponse: DataQueryResponse | null, newR
   if (!currentResponse) {
     return cloneQueryResponse(newResponse);
   }
-
   newResponse.data.forEach((newFrame) => {
     const currentFrameIndex = currentResponse.data.findIndex((frame) => shouldCombine(frame, newFrame));
     if (currentFrameIndex < 0) {
@@ -108,30 +98,24 @@ export function replaceResponses(currentResponse: DataQueryResponse | null, newR
     }
     currentResponse.data[currentFrameIndex] = newFrame;
   });
-
   // Clean up loading frame when newResponse contains the final response
   if (newResponse.state === LoadingState.Done) {
     currentResponse.data = currentResponse.data.filter((frame) => frame.name !== LOADING_FRAME_NAME);
   }
-
   const mergedErrors = [...(currentResponse.errors ?? []), ...(newResponse.errors ?? [])];
   if (mergedErrors.length > 0) {
     currentResponse.errors = mergedErrors;
   }
-
   const mergedError = currentResponse.error ?? newResponse.error;
   if (mergedError != null) {
     currentResponse.error = mergedError;
   }
-
   const mergedTraceIds = [...(currentResponse.traceIds ?? []), ...(newResponse.traceIds ?? [])];
   if (mergedTraceIds.length > 0) {
     currentResponse.traceIds = mergedTraceIds;
   }
-
   return currentResponse;
 }
-
 /**
  * Given two data frames, merge their values. Overlapping values will be added together.
  */
@@ -140,20 +124,15 @@ export function mergeFrames(dest: DataFrame, source: DataFrame) {
   const destIdField = dest.fields.find((field) => field.type === FieldType.string && field.name === 'id');
   const sourceTimeField = source.fields.find((field) => field.type === FieldType.time);
   const sourceIdField = source.fields.find((field) => field.type === FieldType.string && field.name === 'id');
-
   if (!destTimeField || !sourceTimeField) {
-    console.error(new Error(`Time fields not found in the data frames`));
+    structLog('error', new Error(`Time fields not found in the data frames`));
     return;
   }
-
   const sourceTimeValues = sourceTimeField?.values.slice(0) ?? [];
   const totalFields = Math.max(dest.fields.length, source.fields.length);
-
   for (let i = 0; i < sourceTimeValues.length; i++) {
     const destIdx = resolveIdx(destTimeField, sourceTimeField, i);
-
     const entryExistsInDest = compareEntries(destTimeField, destIdField, destIdx, sourceTimeField, sourceIdField, i);
-
     for (let f = 0; f < totalFields; f++) {
       // For now, skip undefined fields that exist in the new frame
       if (!dest.fields[f]) {
@@ -199,16 +178,13 @@ export function mergeFrames(dest: DataFrame, source: DataFrame) {
       }
     }
   }
-
   dest.length = dest.fields[0].values.length;
-
   dest.meta = {
     ...dest.meta,
     stats: getCombinedMetadataStats(dest.meta?.stats ?? [], source.meta?.stats ?? []),
     notices: getCombinedNotices(dest.meta?.notices ?? [], source.meta?.notices ?? []),
   };
 }
-
 function resolveIdx(destField: Field, sourceField: Field, index: number) {
   const idx = closestIdx(sourceField.values[index], destField.values);
   if (idx < 0) {
@@ -222,7 +198,6 @@ function resolveIdx(destField: Field, sourceField: Field, index: number) {
   }
   return idx;
 }
-
 function compareEntries(
   destTimeField: Field,
   destIdField: Field | undefined,
@@ -243,7 +218,6 @@ function compareEntries(
     destIdField.values[destIndex] !== undefined && destIdField.values[destIndex] === sourceIdField.values[sourceIndex]
   );
 }
-
 function compareNsTimestamps(destField: Field, destIndex: number, sourceField: Field, sourceIndex: number) {
   if (destField.nanos && sourceField.nanos) {
     return (
@@ -255,21 +229,16 @@ function compareNsTimestamps(destField: Field, destIndex: number, sourceField: F
   }
   return destField.values[destIndex] !== undefined && destField.values[destIndex] === sourceField.values[sourceIndex];
 }
-
 function findSourceField(referenceField: Field, sourceFields: Field[], index: number) {
   const candidates = sourceFields.filter((f) => f.name === referenceField.name);
-
   if (candidates.length === 1) {
     return candidates[0];
   }
-
   if (referenceField.labels) {
     return candidates.find((candidate) => shallowCompare(referenceField.labels ?? {}, candidate.labels ?? {}));
   }
-
   return sourceFields[index];
 }
-
 const TOTAL_BYTES_STAT = 'Summary: total bytes processed';
 const EXEC_TIME_STAT = 'Summary: exec time';
 // This is specific for Loki
@@ -282,12 +251,10 @@ function getCombinedMetadataStats(
   for (const stat of [TOTAL_BYTES_STAT, EXEC_TIME_STAT]) {
     const destStat = destStats.find((s) => s.displayName === stat);
     const sourceStat = sourceStats.find((s) => s.displayName === stat);
-
     if (sourceStat != null && destStat != null) {
       stats.push({ value: sourceStat.value + destStat.value, displayName: stat, unit: destStat.unit });
       continue;
     }
-
     // maybe one of them exist
     const eitherStat = sourceStat ?? destStat;
     if (eitherStat != null) {
@@ -296,7 +263,6 @@ function getCombinedMetadataStats(
   }
   return stats;
 }
-
 function getCombinedNotices(
   destNotices: QueryResultMetaNotice[],
   sourceNotices: QueryResultMetaNotice[]
@@ -305,7 +271,6 @@ function getCombinedNotices(
   const allNotices = [...destNotices, ...sourceNotices].filter(
     (notice): notice is QueryResultMetaNotice => notice != null
   );
-
   // Deduplicate notices based on text to avoid showing the same warning twice
   const uniqueNotices = allNotices.reduce((acc: QueryResultMetaNotice[], notice) => {
     const exists = acc.some((n) => n.severity === notice.severity && n.text === notice.text);
@@ -314,10 +279,8 @@ function getCombinedNotices(
     }
     return acc;
   }, []);
-
   return uniqueNotices;
 }
-
 /**
  * Deep clones a DataQueryResponse
  */
@@ -328,7 +291,6 @@ export function cloneQueryResponse(response: DataQueryResponse): DataQueryRespon
   };
   return newResponse;
 }
-
 function cloneDataFrame(frame: DataQueryResponseData): DataQueryResponseData {
   return {
     ...frame,
@@ -338,20 +300,16 @@ function cloneDataFrame(frame: DataQueryResponseData): DataQueryResponseData {
     })),
   };
 }
-
 function shouldCombine(frame1: DataFrame, frame2: DataFrame): boolean {
   if (frame1.refId !== frame2.refId || frame1.name !== frame2.name) {
     return false;
   }
-
   const frameType1 = frame1.meta?.type;
   const frameType2 = frame2.meta?.type;
-
   if (frameType1 !== frameType2) {
     // we do not join things that have a different type
     return false;
   }
-
   // metric range query data
   if (frameType1 === DataFrameType.TimeSeriesMulti) {
     const field1 = frame1.fields.find((f) => f.type === FieldType.number);
@@ -360,10 +318,8 @@ function shouldCombine(frame1: DataFrame, frame2: DataFrame): boolean {
       // should never happen
       return false;
     }
-
     return shallowCompare(field1.labels ?? {}, field2.labels ?? {});
   }
-
   // logs query data
   // logs use a special attribute in the dataframe's "custom" section
   // because we do not have a good "frametype" value for them yet.
@@ -376,7 +332,6 @@ function shouldCombine(frame1: DataFrame, frame2: DataFrame): boolean {
     // Data plane frames don't
     return true;
   }
-
   // should never reach here
   return false;
 }

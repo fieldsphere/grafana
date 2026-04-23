@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import {
   type AnnotationQuery,
   getDataSourceRef,
@@ -8,7 +9,6 @@ import {
 import { getDataSourceSrv } from '@grafana/runtime';
 import { type SceneComponentProps, SceneObjectBase, type VizPanel, dataLayers } from '@grafana/scenes';
 import { Page } from 'app/core/components/Page/Page';
-
 import { DashboardAnnotationsDataLayer } from '../scene/DashboardAnnotationsDataLayer';
 import { NEW_ANNOTATION_NAME } from '../scene/DashboardDataLayerSet';
 import { type DashboardScene } from '../scene/DashboardScene';
@@ -16,61 +16,48 @@ import { NavToolbarActions } from '../scene/NavToolbarActions';
 import { dataLayersToAnnotations } from '../serialization/dataLayersToAnnotations';
 import { dashboardSceneGraph } from '../utils/dashboardSceneGraph';
 import { getDashboardSceneFor } from '../utils/utils';
-
 import { EditListViewSceneUrlSync } from './EditListViewSceneUrlSync';
 import { AnnotationSettingsEdit } from './annotations/AnnotationSettingsEdit';
 import { AnnotationSettingsList } from './annotations/AnnotationSettingsList';
 import { type DashboardEditView, type DashboardEditViewState, useDashboardEditPageNav } from './utils';
-
 export enum MoveDirection {
   UP = -1,
   DOWN = 1,
 }
-
 export interface AnnotationsEditViewState extends DashboardEditViewState {
   editIndex?: number | undefined;
 }
-
 export class AnnotationsEditView extends SceneObjectBase<AnnotationsEditViewState> implements DashboardEditView {
   static Component = AnnotationsSettingsView;
-
   public getUrlKey(): string {
     return 'annotations';
   }
-
   protected _urlSync = new EditListViewSceneUrlSync(this);
-
   private get _dashboard(): DashboardScene {
     return getDashboardSceneFor(this);
   }
-
   public getDataLayer(editIndex: number): dataLayers.AnnotationsDataLayer {
     const data = dashboardSceneGraph.getDataLayers(this._dashboard);
     const layer = data.state.annotationLayers[editIndex];
-
     if (!(layer instanceof dataLayers.AnnotationsDataLayer)) {
       throw new Error('AnnotationsDataLayer not found at index ' + editIndex);
     }
-
     return layer;
   }
-
   public getDashboard(): DashboardScene {
     return this._dashboard;
   }
-
   public getDataSourceRefForAnnotation = () => {
     // get current default datasource ref from instance settings
     // null is passed to get the default datasource
     const defaultInstanceDS = getDataSourceSrv().getInstanceSettings(null);
     // check for an annotation flag in the plugin json to see if it supports annotations
     if (!defaultInstanceDS || !defaultInstanceDS.meta.annotations) {
-      console.error('Default datasource does not support annotations');
+      structLog('error', 'Default datasource does not support annotations');
       return undefined;
     }
     return getDataSourceRef(defaultInstanceDS);
   };
-
   public onNew = async () => {
     const newAnnotationQuery: AnnotationQuery = {
       name: NEW_ANNOTATION_NAME,
@@ -78,50 +65,37 @@ export class AnnotationsEditView extends SceneObjectBase<AnnotationsEditViewStat
       datasource: this.getDataSourceRefForAnnotation(),
       iconColor: 'red',
     };
-
     const newAnnotation = new DashboardAnnotationsDataLayer({
       query: newAnnotationQuery,
       name: newAnnotationQuery.name,
       isEnabled: Boolean(newAnnotationQuery.enable),
       isHidden: Boolean(newAnnotationQuery.hide),
     });
-
     const data = dashboardSceneGraph.getDataLayers(this._dashboard);
-
     data.addAnnotationLayer(newAnnotation);
     this.setState({ editIndex: data.state.annotationLayers.length - 1 });
   };
-
   public onEdit = (idx: number) => {
     this.setState({ editIndex: idx });
   };
-
   public onBackToList = () => {
     this.setState({ editIndex: undefined });
   };
-
   public onMove = (idx: number, direction: MoveDirection) => {
     const data = dashboardSceneGraph.getDataLayers(this._dashboard);
     const layers = [...data.state.annotationLayers];
-
     const [layer] = layers.splice(idx, 1);
     layers.splice(idx + direction, 0, layer);
-
     data.setState({ annotationLayers: layers });
   };
-
   public onDelete = (idx: number) => {
     const data = dashboardSceneGraph.getDataLayers(this._dashboard);
     const layers = [...data.state.annotationLayers];
-
     layers.splice(idx, 1);
-
     data.setState({ annotationLayers: layers });
   };
-
   public onUpdate = (annotation: AnnotationQuery, editIndex: number) => {
     const layer = this.getDataLayer(editIndex);
-
     layer.setState({
       name: annotation.name,
       isEnabled: Boolean(annotation.enable),
@@ -129,22 +103,18 @@ export class AnnotationsEditView extends SceneObjectBase<AnnotationsEditViewStat
       placement: annotation.placement,
       query: annotation,
     });
-
     //need to rerun the layer to update the query and
     //see the annotation on the panel
     layer.runLayer();
   };
 }
-
 function AnnotationsSettingsView({ model }: SceneComponentProps<AnnotationsEditView>) {
   const dashboard = model.getDashboard();
   const { annotationLayers } = dashboardSceneGraph.getDataLayers(dashboard).useState();
   const { navModel, pageNav } = useDashboardEditPageNav(dashboard, model.getUrlKey());
   const { editIndex } = model.useState();
   const panels = dashboardSceneGraph.getVizPanels(dashboard);
-
   const annotations: AnnotationQuery[] = dataLayersToAnnotations(annotationLayers);
-
   if (editIndex != null && editIndex < annotationLayers.length) {
     return (
       <AnnotationsSettingsEditView
@@ -160,7 +130,6 @@ function AnnotationsSettingsView({ model }: SceneComponentProps<AnnotationsEditV
       />
     );
   }
-
   return (
     <Page navModel={navModel} pageNav={pageNav} layout={PageLayoutType.Standard}>
       <NavToolbarActions dashboard={dashboard} />
@@ -174,7 +143,6 @@ function AnnotationsSettingsView({ model }: SceneComponentProps<AnnotationsEditV
     </Page>
   );
 }
-
 interface AnnotationsSettingsEditViewProps {
   annotationLayer: dataLayers.AnnotationsDataLayer;
   pageNav: NavModelItem;
@@ -186,7 +154,6 @@ interface AnnotationsSettingsEditViewProps {
   onBackToList: () => void;
   onDelete: (idx: number) => void;
 }
-
 function AnnotationsSettingsEditView({
   annotationLayer,
   pageNav,
@@ -199,12 +166,10 @@ function AnnotationsSettingsEditView({
   onDelete,
 }: AnnotationsSettingsEditViewProps) {
   const { name, query } = annotationLayer.useState();
-
   const editAnnotationPageNav = {
     text: name,
     parentItem: pageNav,
   };
-
   return (
     <Page navModel={navModel} pageNav={editAnnotationPageNav} layout={PageLayoutType.Standard}>
       <NavToolbarActions dashboard={dashboard} />

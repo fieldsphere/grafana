@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { type FormEvent, useState } from 'react';
 import { useAsync } from 'react-use';
-
 import {
   type DataSourceInstanceSettings,
   getDataSourceRef,
@@ -25,17 +25,14 @@ import {
   type StaticOptionsOrderType,
   type StaticOptionsType,
 } from 'app/features/variables/query/QueryVariableStaticOptions';
-
 import { QueryVariableEditorForm } from '../components/QueryVariableForm';
 import { VariableValuesPreview } from '../components/VariableValuesPreview';
 import { hasVariableOptions } from '../utils';
-
 interface QueryVariableEditorProps {
   variable: QueryVariable;
   onRunQuery: () => void;
 }
 type VariableQueryType = QueryVariable['state']['query'];
-
 export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEditorProps) {
   const {
     datasource,
@@ -53,7 +50,6 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
     staticOptionsOrder,
   } = variable.useState();
   const { value: timeRange } = sceneGraph.getTimeRange(variable).useState();
-
   const onRegExChange = (event: React.FormEvent<HTMLTextAreaElement>) => {
     variable.setState({ regex: event.currentTarget.value });
   };
@@ -80,29 +76,24 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
   };
   const onDataSourceChange = (dsInstanceSettings: DataSourceInstanceSettings, preserveQuery = false) => {
     const datasource = getDataSourceRef(dsInstanceSettings);
-
     if (!preserveQuery && (variable.state.datasource?.type || '') !== datasource.type) {
       variable.setState({ datasource, query: '', definition: '' });
       return;
     }
-
     variable.setState({ datasource });
   };
   const onQueryChange = (query: VariableQueryType) => {
     variable.setState({ query, definition: getQueryDef(query) });
     onRunQuery();
   };
-
   const onStaticOptionsChange = (staticOptions: StaticOptionsType) => {
     onRunQuery();
     variable.setState({ staticOptions });
   };
-
   const onStaticOptionsOrderChange = (staticOptionsOrder: StaticOptionsOrderType) => {
     onRunQuery();
     variable.setState({ staticOptionsOrder });
   };
-
   return (
     <QueryVariableEditorForm
       datasource={datasource ?? undefined}
@@ -135,13 +126,11 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
     />
   );
 }
-
 export function getQueryVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof QueryVariable)) {
-    console.warn('getQueryVariableOptions: variable is not a QueryVariable');
+    structLog('warn', 'getQueryVariableOptions: variable is not a QueryVariable');
     return [];
   }
-
   return [
     new OptionsPaneItemDescriptor({
       id: `variable-${variable.state.name}-value`,
@@ -149,14 +138,11 @@ export function getQueryVariableOptions(variable: SceneVariable): OptionsPaneIte
     }),
   ];
 }
-
 export function ModalEditor({ variable }: { variable: QueryVariable }) {
   const [isOpen, setIsOpen] = useState(false);
-
   const onRunQuery = () => {
     variable.refreshOptions();
   };
-
   return (
     <>
       <Box display={'flex'} direction={'column'} paddingBottom={1}>
@@ -201,7 +187,6 @@ export function ModalEditor({ variable }: { variable: QueryVariable }) {
     </>
   );
 }
-
 export function Editor({ variable }: { variable: QueryVariable }) {
   const {
     datasource: datasourceRef,
@@ -219,29 +204,22 @@ export function Editor({ variable }: { variable: QueryVariable }) {
     const datasource = await getDataSourceSrv().get(datasourceRef ?? '');
     const VariableQueryEditor = await getVariableQueryEditor(datasource);
     const defaultQuery = datasource?.variables?.getDefaultQuery?.();
-
     if (!query && defaultQuery) {
       const newQuery =
         typeof defaultQuery === 'string' ? defaultQuery : { ...defaultQuery, refId: defaultQuery.refId ?? 'A' };
       onQueryChange(newQuery);
     }
-
     return { datasource, VariableQueryEditor };
   }, [datasourceRef]);
-
   const { datasource: selectedDatasource, VariableQueryEditor } = dsConfig ?? {};
-
   const onDataSourceChange = (dsInstanceSettings: DataSourceInstanceSettings) => {
     const datasource = getDataSourceRef(dsInstanceSettings);
-
     if ((variable.state.datasource?.type || '') !== datasource.type) {
       variable.setState({ datasource, query: '', definition: '' });
       return;
     }
-
     variable.setState({ datasource });
   };
-
   const onQueryChange = (query: VariableQueryType) => {
     variable.setState({ query, definition: getQueryDef(query) });
   };
@@ -263,9 +241,7 @@ export function Editor({ variable }: { variable: QueryVariable }) {
   const onStaticOptionsOrderChange = (staticOptionsOrder: StaticOptionsOrderType) => {
     variable.setState({ staticOptionsOrder });
   };
-
   const isHasVariableOptions = hasVariableOptions(variable);
-
   return (
     <div data-testid={selectors.pages.Dashboard.Settings.Variables.Edit.QueryVariable.editor}>
       {/* eslint-disable-next-line @grafana/require-no-margin */}
@@ -318,7 +294,6 @@ export function Editor({ variable }: { variable: QueryVariable }) {
     </div>
   );
 }
-
 function getQueryDef(query: VariableQueryType) {
   if (typeof query === 'string') {
     return query;

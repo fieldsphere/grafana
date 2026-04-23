@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import type { AdHocVariableModel, TextBoxVariableModel, TypedVariableModel } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type Dashboard, type VariableOption } from '@grafana/schema';
@@ -9,10 +10,8 @@ import {
 import { ResponseTransformers } from 'app/features/dashboard/api/ResponseTransformers';
 import { isDashboardV2Spec } from 'app/features/dashboard/api/utils';
 import { type DashboardDataDTO, type DashboardDTO } from 'app/types/dashboard';
-
 import { validateFiltersOrigin } from '../serialization/sceneVariablesSetToVariables';
 import { jsonDiff } from '../settings/version-history/utils';
-
 export function deepEqual(a: string | string[], b: string | string[]) {
   return (
     typeof a === typeof b &&
@@ -20,11 +19,9 @@ export function deepEqual(a: string | string[], b: string | string[]) {
       (Array.isArray(a) && a.length === b.length && a.every((val, i) => val === b[i])))
   );
 }
-
 export function isEqual(a: VariableOption | undefined, b: VariableOption | undefined) {
   return a === b || (a && b && a.selected === b.selected && deepEqual(a.text, b.text) && deepEqual(a.value, b.value));
 }
-
 export function getRawDashboardV2Changes(
   initial: DashboardV2Spec | Dashboard,
   changed: DashboardV2Spec,
@@ -46,20 +43,16 @@ export function getRawDashboardV2Changes(
   );
   const hasVariableValueChanges = hasTopLevelVariableChanges || hasSectionVariableChanges;
   const hasRefreshChanged = changedSaveModel.timeSettings.autoRefresh !== initialSaveModel.timeSettings.autoRefresh;
-
   if (!saveTimeRange) {
     changedSaveModel.timeSettings.from = initialSaveModel.timeSettings.from;
     changedSaveModel.timeSettings.to = initialSaveModel.timeSettings.to;
   }
-
   if (!saveRefresh) {
     changedSaveModel.timeSettings.autoRefresh = initialSaveModel.timeSettings.autoRefresh;
   }
-
   // Calculate differences using the non-transformed to v2 spec values to be able to compare the initial and changed dashboard values
   const diff = jsonDiff(initial, changedSaveModel);
   const diffCount = Object.values(diff).reduce((acc, cur) => acc + cur.length, 0);
-
   return {
     changedSaveModel,
     initialSaveModel,
@@ -72,12 +65,10 @@ export function getRawDashboardV2Changes(
     hasMigratedToV2: !isDashboardV2Spec(initial),
   };
 }
-
 function convertToV2SpecIfNeeded(initial: DashboardV2Spec | Dashboard): DashboardV2Spec {
   if (isDashboardV2Spec(initial)) {
     return initial;
   }
-
   const dto: DashboardDTO = {
     // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
     dashboard: initial as DashboardDataDTO,
@@ -85,7 +76,6 @@ function convertToV2SpecIfNeeded(initial: DashboardV2Spec | Dashboard): Dashboar
   };
   return ResponseTransformers.ensureV2Response(dto).spec;
 }
-
 export function getRawDashboardChanges(
   initial: Dashboard,
   changed: Dashboard,
@@ -98,18 +88,14 @@ export function getRawDashboardChanges(
   const hasTimeChanged = getHasTimeChanged(changedSaveModel.time, initialSaveModel.time);
   const hasVariableValueChanges = applyVariableChanges(changedSaveModel, initialSaveModel, saveVariables);
   const hasRefreshChanged = changedSaveModel.refresh !== initialSaveModel.refresh;
-
   if (!saveTimeRange) {
     changedSaveModel.time = initialSaveModel.time;
   }
-
   if (!saveRefresh) {
     changedSaveModel.refresh = initialSaveModel.refresh;
   }
-
   const diff = jsonDiff(initialSaveModel, changedSaveModel);
   const diffCount = Object.values(diff).reduce((acc, cur) => acc + cur.length, 0);
-
   return {
     changedSaveModel,
     initialSaveModel,
@@ -122,7 +108,6 @@ export function getRawDashboardChanges(
     hasRefreshChange: hasRefreshChanged,
   };
 }
-
 interface DefaultPersistedTimeValue {
   from?: string;
   to?: string;
@@ -133,22 +118,18 @@ export function getHasTimeChanged(
 ) {
   return newRange.from !== previousRange.from || newRange.to !== previousRange.to;
 }
-
 export function adHocVariableFiltersEqual(filtersA?: AdHocFilterWithLabels[], filtersB?: AdHocFilterWithLabels[]) {
   if (filtersA === undefined && filtersB === undefined) {
-    console.warn('Adhoc variable filter property is undefined');
+    structLog('warn', 'Adhoc variable filter property is undefined');
     return true;
   }
-
   if ((filtersA === undefined && filtersB !== undefined) || (filtersB === undefined && filtersA !== undefined)) {
-    console.warn('Adhoc variable filter property is undefined');
+    structLog('warn', 'Adhoc variable filter property is undefined');
     return false;
   }
-
   if (filtersA?.length !== filtersB?.length) {
     return false;
   }
-
   for (let i = 0; i < (filtersA?.length ?? 0); i++) {
     const aFilter = filtersA?.[i];
     const bFilter = filtersB?.[i];
@@ -158,7 +139,6 @@ export function adHocVariableFiltersEqual(filtersA?: AdHocFilterWithLabels[], fi
   }
   return true;
 }
-
 export function applyVariableChangesV2(
   saveModel: DashboardV2Spec,
   originalSaveModel: DashboardV2Spec,
@@ -166,7 +146,6 @@ export function applyVariableChangesV2(
 ) {
   return applyVariableKindListChanges(saveModel.variables, originalSaveModel.variables, saveVariables);
 }
-
 function hasCurrentValueToSave(v: VariableKind) {
   return (
     v.kind === 'QueryVariable' ||
@@ -178,7 +157,6 @@ function hasCurrentValueToSave(v: VariableKind) {
     v.kind === 'GroupByVariable'
   );
 }
-
 function hasOptionsToSave(v: VariableKind) {
   return (
     v.kind === 'QueryVariable' ||
@@ -188,7 +166,6 @@ function hasOptionsToSave(v: VariableKind) {
     v.kind === 'GroupByVariable'
   );
 }
-
 /**
  * Shared merge/detect logic for a VariableKind[] pair.
  * Returns true when at least one variable value differs from the original.
@@ -200,16 +177,13 @@ function applyVariableKindListChanges(
   saveVariables?: boolean
 ): boolean {
   let hasChanges = false;
-
   for (const variable of variablesToSave) {
     const original = originalVariables.find(
       ({ spec, kind }) => spec.name === variable.spec.name && kind === variable.kind
     );
-
     if (!original) {
       continue;
     }
-
     if (
       hasCurrentValueToSave(variable) &&
       hasCurrentValueToSave(original) &&
@@ -230,7 +204,6 @@ function applyVariableKindListChanges(
     ) {
       hasChanges = true;
     }
-
     if (!saveVariables) {
       if (variable.kind === 'AdhocVariable' && original.kind === 'AdhocVariable') {
         if (config.featureToggles.adHocFilterDefaultValues || config.featureToggles.dashboardUnifiedDrilldownControls) {
@@ -243,7 +216,6 @@ function applyVariableKindListChanges(
       } else if (variable.kind === 'TextVariable' && original.kind === 'TextVariable') {
         variable.spec.query = original.spec.query;
       }
-
       if (variable.kind !== 'AdhocVariable') {
         if (hasCurrentValueToSave(variable) && hasCurrentValueToSave(original)) {
           variable.spec.current = original.spec.current;
@@ -254,10 +226,8 @@ function applyVariableKindListChanges(
       }
     }
   }
-
   return hasChanges;
 }
-
 /**
  * Recursively walk RowsLayout / TabsLayout and apply variable merge/detection
  * for section variables embedded under row.spec.variables / tab.spec.variables.
@@ -270,9 +240,7 @@ export function applySectionVariableChangesV2(
   if (!changedLayout || !originalLayout || changedLayout.kind !== originalLayout.kind) {
     return false;
   }
-
   let hasChanges = false;
-
   if (changedLayout.kind === 'RowsLayout' && originalLayout.kind === 'RowsLayout') {
     changedLayout.spec.rows.forEach((row, index) => {
       const originalRow = originalLayout.spec.rows[index];
@@ -284,7 +252,6 @@ export function applySectionVariableChangesV2(
       hasChanges = applySectionVariableChangesV2(row.spec.layout, originalRow.spec.layout, saveVariables) || hasChanges;
     });
   }
-
   if (changedLayout.kind === 'TabsLayout' && originalLayout.kind === 'TabsLayout') {
     changedLayout.spec.tabs.forEach((tab, index) => {
       const originalTab = originalLayout.spec.tabs[index];
@@ -296,27 +263,21 @@ export function applySectionVariableChangesV2(
       hasChanges = applySectionVariableChangesV2(tab.spec.layout, originalTab.spec.layout, saveVariables) || hasChanges;
     });
   }
-
   return hasChanges;
 }
-
 export function applyVariableChanges(saveModel: Dashboard, originalSaveModel: Dashboard, saveVariables?: boolean) {
   const originalVariables = originalSaveModel.templating?.list ?? [];
   const variablesToSave = saveModel.templating?.list ?? [];
   let hasVariableValueChanges = false;
-
   for (const variable of variablesToSave) {
     const original = originalVariables.find(({ name, type }) => name === variable.name && type === variable.type);
-
     if (!original) {
       continue;
     }
-
     // Old schema property that never should be in persisted model
     if (original.current) {
       delete original.current.selected;
     }
-
     if (!isEqual(variable.current, original.current)) {
       hasVariableValueChanges = true;
     } else if (variable.type === 'adhoc') {
@@ -324,7 +285,6 @@ export function applyVariableChanges(saveModel: Dashboard, originalSaveModel: Da
       const variableFilters = validateFiltersOrigin((variable as AdHocVariableModel).filters);
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       const originalFilters = validateFiltersOrigin((original as AdHocVariableModel).filters);
-
       if (
         !adHocVariableFiltersEqual(
           variableFilters?.filter((f) => !f.origin),
@@ -334,11 +294,9 @@ export function applyVariableChanges(saveModel: Dashboard, originalSaveModel: Da
         hasVariableValueChanges = true;
       }
     }
-
     if (!saveVariables) {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       const typed = variable as TypedVariableModel;
-
       if (typed.type === 'adhoc') {
         if (config.featureToggles.adHocFilterDefaultValues || config.featureToggles.dashboardUnifiedDrilldownControls) {
           // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -357,13 +315,11 @@ export function applyVariableChanges(saveModel: Dashboard, originalSaveModel: Da
         // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
         typed.query = (original as TextBoxVariableModel).query;
       }
-
       if (typed.type !== 'adhoc') {
         variable.current = original.current;
         variable.options = original.options;
       }
     }
   }
-
   return hasVariableValueChanges;
 }

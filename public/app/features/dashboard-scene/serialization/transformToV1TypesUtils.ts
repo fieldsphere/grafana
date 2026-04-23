@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import { type FieldConfigSource as FieldConfigSourceV1, SpecialValueMatch as SpecialValueMatchV1 } from '@grafana/data';
 import {
   VariableHide as VariableHideV1,
@@ -16,7 +17,6 @@ import {
   type SpecialValueMatch,
   type ThresholdsMode,
 } from '@grafana/schema/apis/dashboard.grafana.app/v2';
-
 export function transformVariableRefreshToEnumV1(refresh?: VariableRefresh): VariableRefreshV1 {
   switch (refresh) {
     case 'never':
@@ -29,7 +29,6 @@ export function transformVariableRefreshToEnumV1(refresh?: VariableRefresh): Var
       return VariableRefreshV1.never;
   }
 }
-
 export function transformVariableHideToEnumV1(hide?: VariableHide): VariableHideV1 {
   switch (hide) {
     case 'dontHide':
@@ -44,7 +43,6 @@ export function transformVariableHideToEnumV1(hide?: VariableHide): VariableHide
       return VariableHideV1.dontHide;
   }
 }
-
 export function transformSortVariableToEnumV1(sort?: VariableSort): VariableSortV1 {
   switch (sort) {
     case 'disabled':
@@ -69,7 +67,6 @@ export function transformSortVariableToEnumV1(sort?: VariableSort): VariableSort
       return VariableSortV1.disabled;
   }
 }
-
 export function transformCursorSyncV2ToV1(cursorSync: DashboardCursorSync): DashboardCursorSyncV1 {
   switch (cursorSync) {
     case 'Crosshair':
@@ -82,7 +79,6 @@ export function transformCursorSyncV2ToV1(cursorSync: DashboardCursorSync): Dash
       return DashboardCursorSyncV1.Off;
   }
 }
-
 function transformSpecialValueMatchToV1(match: SpecialValueMatch): SpecialValueMatchV1 | undefined {
   switch (match) {
     case 'true':
@@ -98,11 +94,10 @@ function transformSpecialValueMatchToV1(match: SpecialValueMatch): SpecialValueM
     case 'empty':
       return SpecialValueMatchV1.Empty;
     default:
-      console.warn(`Skipping special value mapping with unknown match type: "${match}"`);
+      structLog('warn', `Skipping special value mapping with unknown match type: "${match}"`);
       return undefined;
   }
 }
-
 export function transformMappingsToV1(fieldConfig: FieldConfigSource): FieldConfigSourceV1 {
   const getThresholdsMode = (mode: ThresholdsMode): ThresholdsModeV1 => {
     switch (mode) {
@@ -114,11 +109,9 @@ export function transformMappingsToV1(fieldConfig: FieldConfigSource): FieldConf
         return ThresholdsModeV1.Absolute;
     }
   };
-
   const transformedDefaults: any = {
     ...fieldConfig.defaults,
   };
-
   if (fieldConfig.defaults.mappings) {
     transformedDefaults.mappings = fieldConfig.defaults.mappings.flatMap((mapping) => {
       switch (mapping.type) {
@@ -139,11 +132,9 @@ export function transformMappingsToV1(fieldConfig: FieldConfigSource): FieldConf
           };
         case 'special': {
           const v1Match = transformSpecialValueMatchToV1(mapping.options.match);
-
           if (v1Match === undefined) {
             return [];
           }
-
           return {
             ...mapping,
             options: {
@@ -158,14 +149,12 @@ export function transformMappingsToV1(fieldConfig: FieldConfigSource): FieldConf
       }
     });
   }
-
   if (fieldConfig.defaults.thresholds) {
     transformedDefaults.thresholds = {
       ...fieldConfig.defaults.thresholds,
       mode: getThresholdsMode(fieldConfig.defaults.thresholds.mode),
     };
   }
-
   return {
     ...fieldConfig,
     defaults: transformedDefaults,

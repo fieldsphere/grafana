@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useEffect } from 'react';
-
 import {
   DataTransformerID,
   type GrafanaTheme2,
@@ -15,21 +15,17 @@ import { t } from '@grafana/i18n';
 import { FrameGeometrySourceMode } from '@grafana/schema';
 import { useTheme2 } from '@grafana/ui';
 import { addLocationFields } from 'app/features/geo/editor/locationEditor';
-
 import darkImage from '../images/dark/spatial.svg';
 import lightImage from '../images/light/spatial.svg';
-
 import { SpatialCalculation, SpatialOperation, SpatialAction, type SpatialTransformOptions } from './models.gen';
 import { getDefaultOptions, getTransformerOptionPane } from './optionsHelper';
 import { isLineBuilderOption, getSpatialTransformer } from './spatialTransformer';
-
 // Nothing defined in state
 const supplier = (
   builder: PanelOptionsEditorBuilder<SpatialTransformOptions>,
   context: StandardEditorContext<SpatialTransformOptions>
 ) => {
   const options = context.options ?? {};
-
   builder.addSelect({
     path: `action`,
     name: 'Action',
@@ -61,7 +57,6 @@ const supplier = (
       ],
     },
   });
-
   if (options.action === SpatialAction.Calculate) {
     builder.addSelect({
       path: `calculate.calc`,
@@ -101,7 +96,6 @@ const supplier = (
       },
     });
   }
-
   if (isLineBuilderOption(options)) {
     builder.addNestedOptions({
       category: ['Source'],
@@ -113,7 +107,6 @@ const supplier = (
         addLocationFields('Point', '', b, loc);
       },
     });
-
     builder.addNestedOptions({
       category: ['Target'],
       path: 'modify',
@@ -128,22 +121,18 @@ const supplier = (
     addLocationFields('Location', 'source.', builder, options.source);
   }
 };
-
 type Props = TransformerUIProps<SpatialTransformOptions>;
-
 export const SetGeometryTransformerEditor = (props: Props) => {
   // a new component is created with every change :(
   useEffect(() => {
     if (!props.options.source?.mode) {
       const opts = getDefaultOptions(supplier);
       props.onChange({ ...opts, ...props.options });
-      console.log('geometry useEffect', opts);
+      structLog('log', 'geometry useEffect', opts);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   const styles = getStyles(useTheme2());
-
   const pane = getTransformerOptionPane<SpatialTransformOptions>(props, supplier);
   return (
     <div>
@@ -161,7 +150,6 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     </div>
   );
 };
-
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     wrap: css({
@@ -173,7 +161,6 @@ const getStyles = (theme: GrafanaTheme2) => {
     }),
   };
 };
-
 export const getSpatialTransformRegistryItem: () => TransformerRegistryItem<SpatialTransformOptions> = () => {
   const spatialTransformer = getSpatialTransformer();
   return {

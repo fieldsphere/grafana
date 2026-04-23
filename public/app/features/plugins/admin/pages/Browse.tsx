@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
-
 import { type SelectableValue, type GrafanaTheme2, type PluginType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { locationSearchToObject } from '@grafana/runtime';
@@ -11,7 +11,6 @@ import { getNavModel } from 'app/core/selectors/navModel';
 import { AdvisorRedirectNotice } from 'app/features/connections/components/AdvisorRedirectNotice/AdvisorRedirectNotice';
 import { ROUTES as CONNECTIONS_ROUTES } from 'app/features/connections/constants';
 import { useSelector } from 'app/types/store';
-
 import { HorizontalGroup } from '../components/HorizontalGroup';
 import { PluginList } from '../components/PluginList';
 import { RoadmapLinks } from '../components/RoadmapLinks';
@@ -21,7 +20,6 @@ import { UpdateAllModal } from '../components/UpdateAllModal';
 import { Sorters } from '../helpers';
 import { useHistory } from '../hooks/useHistory';
 import { useGetAll, useGetUpdatable, useIsRemotePluginsAvailable } from '../state/hooks';
-
 export default function Browse() {
   const location = useLocation();
   const locationSearch = locationSearchToObject(location.search);
@@ -29,7 +27,6 @@ export default function Browse() {
   const styles = useStyles2(getStyles);
   const history = useHistory();
   const remotePluginsAvailable = useIsRemotePluginsAvailable();
-
   const keyword = locationSearch.q?.toString() || '';
   const filterBy = locationSearch.filterBy?.toString() || 'all';
   const filterByType = (locationSearch.filterByType as PluginType | 'all') || 'all';
@@ -43,39 +40,31 @@ export default function Browse() {
     },
     sortBy
   );
-
   const filterByOptions = [
     { value: 'all', label: t('plugins.browse.filter-by-options.label.all', 'All') },
     { value: 'installed', label: t('plugins.browse.filter-by-options.label.installed', 'Installed') },
     { value: 'has-update', label: t('plugins.browse.filter-by-options.label.new-updates', 'New Updates') },
   ];
-
   const { isLoading: areUpdatesLoading, updatablePlugins } = useGetUpdatable();
   const [showUpdateModal, setShowUpdateModal] = useState(false);
   const disableUpdateAllButton = updatablePlugins.length <= 0 || areUpdatesLoading;
-
   const onFilterByChange = (value: string) => {
     history.push({ query: { filterBy: value } });
   };
-
   const onFilterByTypeChange = (value: SelectableValue<string>) => {
     history.push({ query: { filterByType: value.value } });
   };
-
   const onSearch = (q: string) => {
     history.push({ query: { filterBy, filterByType, q } });
   };
-
   const onUpdateAll = () => {
     setShowUpdateModal(true);
   };
-
   // How should we handle errors?
   if (error) {
-    console.error(error.message);
+    structLog('error', error.message);
     return null;
   }
-
   const subTitle = (
     <div>
       <Trans i18nKey="plugins.browse.subtitle">
@@ -84,7 +73,6 @@ export default function Browse() {
       </Trans>
     </div>
   );
-
   const updateAllButton = (
     <UpdateAllButton
       disabled={disableUpdateAllButton}
@@ -92,7 +80,6 @@ export default function Browse() {
       updatablePluginsLength={updatablePlugins.length}
     />
   );
-
   return (
     <Page navModel={navModel} actions={updateAllButton} subTitle={subTitle} className={styles.pageContainer}>
       <Page.Contents>
@@ -161,7 +148,6 @@ export default function Browse() {
     </Page>
   );
 }
-
 const getStyles = (theme: GrafanaTheme2) => ({
   pageContainer: css({
     height: '100vh',

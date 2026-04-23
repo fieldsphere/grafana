@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { getAPINamespace } from '@grafana/api-clients';
 import { getBackendSrv } from '@grafana/runtime';
 import { type DashboardJson } from 'app/features/manage-dashboards/types';
-
 /**
  * Represents a datasource mapping for compatibility checking.
  * Maps dashboard datasource references to actual datasource instances.
@@ -14,7 +14,6 @@ export interface DatasourceMapping {
   /** Optional human-readable name for display */
   name?: string;
 }
-
 /**
  * Request body for dashboard compatibility check API call
  */
@@ -24,7 +23,6 @@ export interface CheckCompatibilityRequest {
   /** Array of datasource mappings to check compatibility against */
   datasourceMappings: DatasourceMapping[];
 }
-
 /**
  * Breakdown of compatibility metrics for a single query within a panel
  */
@@ -46,7 +44,6 @@ export interface QueryBreakdown {
   /** Optional error message for queries that failed to parse */
   parseError?: string;
 }
-
 /**
  * Compatibility check result for a single datasource
  */
@@ -72,7 +69,6 @@ export interface DatasourceResult {
   /** Detailed breakdown of compatibility per query */
   queryBreakdown: QueryBreakdown[];
 }
-
 /**
  * Overall compatibility check result
  */
@@ -82,7 +78,6 @@ export interface CompatibilityCheckResult {
   /** Results for each datasource checked */
   datasourceResults: DatasourceResult[];
 }
-
 /**
  * Checks dashboard compatibility with specified datasources.
  *
@@ -116,13 +111,11 @@ export async function checkDashboardCompatibility(
   // Get namespace from global config (typically 'default' in development)
   // This follows Kubernetes API convention for Grafana app plugins
   const namespace = getAPINamespace();
-
   // Build request body matching backend schema
   const requestBody: CheckCompatibilityRequest = {
     dashboardJson,
     datasourceMappings,
   };
-
   try {
     // Make POST request to the dashboard validator app's /check endpoint
     // Following Kubernetes API path convention: /apis/{group}/{version}/namespaces/{namespace}/{resource}
@@ -134,12 +127,10 @@ export async function checkDashboardCompatibility(
         showErrorAlert: false,
       }
     );
-
     return response;
   } catch (error) {
     // Log error for debugging
-    console.error('Dashboard compatibility check failed:', error);
-
+    structLog('error', 'Dashboard compatibility check failed:', error);
     // Re-throw original error for caller to handle
     throw error;
   }

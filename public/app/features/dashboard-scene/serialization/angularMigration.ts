@@ -1,8 +1,7 @@
+import { structLog } from '@grafana/data';
 import { defaults, cloneDeep } from 'lodash';
-
 import { type PanelModel as PanelModelFromData, type PanelPlugin } from '@grafana/data';
 import { autoMigrateAngular, type PanelModel } from 'app/features/dashboard/state/PanelModel';
-
 /**
  * Data structure for Angular migration information stored in v2 schema options.
  */
@@ -12,7 +11,6 @@ export interface AngularMigrationData {
   /** Angular-specific options not part of the Panel schema */
   originalOptions: Record<string, unknown>;
 }
-
 /**
  * Type guard to check if an unknown value is AngularMigrationData.
  */
@@ -23,33 +21,29 @@ export function isAngularMigrationData(value: unknown): value is AngularMigratio
   if (!('autoMigrateFrom' in value) || !('originalOptions' in value)) {
     return false;
   }
-
   const { autoMigrateFrom, originalOptions } = value;
   return typeof autoMigrateFrom === 'string' && typeof originalOptions === 'object';
 }
-
 export function getAngularPanelMigrationHandler(oldModel: PanelModel) {
   return function handleAngularPanelMigrations(panel: PanelModelFromData, plugin: PanelPlugin) {
     if ('angularPanelCtrl' in plugin && plugin.angularPanelCtrl) {
       panel.options = { angularOptions: oldModel.getOptionsToRemember() };
       return;
     }
-
     if (!oldModel.options || Object.keys(oldModel.options).length === 0) {
       defaults(panel, oldModel.getOptionsToRemember());
-
       // Some plugins rely on being able to access targets to set up the fieldConfig when migrating from angular.
       const targetClone = cloneDeep(oldModel.targets);
       Object.defineProperty(panel, 'targets', {
         get: function () {
-          console.warn(
+          structLog(
+            'warn',
             'Accessing the targets property when migrating a panel plugin is deprecated. Changes to this property will be ignored.'
           );
           return targetClone;
         },
       });
     }
-
     if (oldModel.autoMigrateFrom) {
       const wasAngular = autoMigrateAngular[oldModel.autoMigrateFrom] != null;
       const oldOptions = oldModel.getOptionsToRemember();
@@ -61,7 +55,6 @@ export function getAngularPanelMigrationHandler(oldModel: PanelModel) {
     }
   };
 }
-
 /**
  * Returns a migration handler for v2 schema panels that need Angular migrations.
  *
@@ -88,13 +81,11 @@ export function getV2AngularMigrationHandler(migrationData: AngularMigrationData
   return function handleV2AngularMigration(panel: PanelModelFromData, plugin: PanelPlugin) {
     const { autoMigrateFrom, originalOptions } = migrationData;
     const wasAngular = autoMigrateAngular[autoMigrateFrom] != null;
-
     // Handle plugins that still use angularPanelCtrl
     if ('angularPanelCtrl' in plugin && plugin.angularPanelCtrl) {
       panel.options = { angularOptions: originalOptions };
       return;
     }
-
     // Spread originalOptions onto the panel object.
     // This is critical for plugins that use setMigrationHandler (like text panel) which expect
     // Angular properties (content, mode, etc.) to be directly on the panel object.
@@ -102,19 +93,18 @@ export function getV2AngularMigrationHandler(migrationData: AngularMigrationData
     if (originalOptions && Object.keys(originalOptions).length > 0) {
       defaults(panel, originalOptions);
     }
-
     // Some plugins rely on being able to access targets to set up the fieldConfig when migrating from angular.
     // Proxy the targets property with a deprecation warning.
     const targetClone = cloneDeep(panel.targets);
     Object.defineProperty(panel, 'targets', {
       get: function () {
-        console.warn(
+        structLog(
+          'warn',
           'Accessing the targets property when migrating a panel plugin is deprecated. Changes to this property will be ignored.'
         );
         return targetClone;
       },
     });
-
     // For panels with onPanelTypeChanged (e.g., singlestat -> stat), call the handler
     if (plugin.onPanelTypeChanged) {
       // For Angular panels, wrap in { angular: ... } to match expected format

@@ -1,13 +1,11 @@
+import { structLog } from '@grafana/data';
 import 'symbol-observable';
 import 'regenerator-runtime/runtime';
-
 import 'whatwg-fetch'; // fetch polyfill needed for PhantomJs rendering
 import 'file-saver';
 import 'jquery';
-
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
-
 import {
   locationUtil,
   monacoLanguageRegistry,
@@ -54,9 +52,7 @@ import {
 import { loadResources as loadScenesResources, sceneUtils } from '@grafana/scenes';
 import config, { updateConfig } from 'app/core/config';
 import { getStandardTransformers } from 'app/features/transformers/standardTransformers';
-
 import getDefaultMonacoLanguages from '../lib/monaco-languages';
-
 import { AppWrapper } from './AppWrapper';
 import { appEvents } from './core/app_events';
 import { AppChromeService } from './core/components/AppChrome/AppChromeService';
@@ -121,39 +117,31 @@ import { createSwitchVariableAdapter } from './features/variables/switch/adapter
 import { createSystemVariableAdapter } from './features/variables/system/adapter';
 import { createTextBoxVariableAdapter } from './features/variables/textbox/adapter';
 import { configureStore } from './store/configureStore';
-
 // import symlinked extensions
 const extensionsIndex = require.context('.', true, /extensions\/index.ts/);
 const extensionsExports = extensionsIndex.keys().map((key) => {
   return extensionsIndex(key);
 });
-
 export class GrafanaApp {
   context!: GrafanaContextType;
-
   async init() {
     try {
       await preInitTasks();
-
       // Let iframe container know grafana has started loading
       window.parent.postMessage('GrafanaAppInit', '*');
-
       initSystemJSHooks();
-
       // Currently the OpenFeature API requires a signed in user. This means feature flags cannot be used
       // on the login page.
       if (contextSrv.user.isSignedIn) {
         try {
           await initOpenFeature();
         } catch (err) {
-          console.error('Failed to initialize OpenFeature provider', err);
+          structLog('error', 'Failed to initialize OpenFeature provider', err);
         }
       }
-
       const regionalFormat = config.featureToggles.localeFormatPreference
         ? config.regionalFormat
         : contextSrv.user.language;
-
       const initI18nPromise = initializeI18n(
         {
           language: contextSrv.user.language,
@@ -162,22 +150,18 @@ export class GrafanaApp {
         },
         regionalFormat
       );
-
       // This is a placeholder so we can put a 'comment' in the message json files.
       // Starts with an underscore so it's sorted to the top of the file. Even though it is in a comment the following line is still extracted
       // t('_comment', 'The code is the source of truth for English phrases. They should be updated in the components directly, and additional plurals specified in this file.');
       initI18nPromise.then(async ({ language }) => {
         updateConfig({ language });
-
         // Initialise scenes translations into the Grafana namespace. Must finish before any scenes UI is rendered.
         return loadNamespacedResources(GRAFANA_NAMESPACE, language ?? DEFAULT_LANGUAGE, [loadScenesResources]);
       });
-
       setBackendSrv(backendSrv);
       await initEchoSrv();
       // This needs to be done after the `initEchoSrv` since it is being used under the hood.
       startMeasure('frontend_app_init');
-
       setLocale(config.regionalFormat);
       setWeekStart(contextSrv.user.weekStart);
       setPanelRenderer(PanelRenderer);
@@ -190,20 +174,15 @@ export class GrafanaApp {
       setTimeZoneResolver(() => contextSrv.user.timezone);
       initGrafanaLive();
       setCurrentUser(contextSrv.user);
-
       // Expose the app-wide eventbus
       setAppEvents(appEvents);
-
       // We must wait for translations to load because some preloaded store state requires translating
       await initI18nPromise;
-
       // Important that extension reducers are initialized before store
       addExtensionReducers();
       configureStore();
       initExtensions();
-
       initAlerting();
-
       standardEditorsRegistry.setInit(getAllOptionEditors);
       standardFieldConfigEditorRegistry.setInit(getAllStandardFieldConfigs);
       standardTransformersRegistry.setInit(getStandardTransformers);
@@ -218,52 +197,41 @@ export class GrafanaApp {
         createSystemVariableAdapter(),
         createSwitchVariableAdapter(),
       ]);
-
       monacoLanguageRegistry.setInit(getDefaultMonacoLanguages);
       setMonacoEnv();
-
       setQueryRunnerFactory(() => new QueryRunner());
       setVariableQueryRunner(new VariableQueryRunner());
-
       // Provide runRequest implementation to packages, @grafana/scenes in particular
       setRunRequest(runRequest);
-
       // Privide plugin import utils to packages, @grafana/scenes in particular
       setPluginImportUtils({
         importPanelPlugin,
         getPanelPluginFromCache: syncGetPanelPlugin,
       });
-
       // Login redirect requires locationUtil to be initialized
       locationUtil.initialize({
         config: window.grafanaBootData.settings,
         getTimeRangeForUrl: getTimeSrv().timeRangeForUrl,
         getVariablesUrlParams: getVariablesUrlParams,
       });
-
       if (config.featureToggles.useSessionStorageForRedirection) {
         handleRedirectTo();
       }
-
       // intercept anchor clicks and forward it to custom history instead of relying on browser's history
       document.addEventListener('click', interceptLinkClicks);
-
       // Init DataSourceSrv
       const dataSourceSrv = new DatasourceSrv();
       dataSourceSrv.init(config.datasources, config.defaultDatasource);
       setDataSourceSrv(dataSourceSrv);
       initWindowRuntime();
-
       // Do not pre-load apps if rendererDisableAppPluginsPreload is true and the request comes from the image renderer
       const skipAppPluginsPreload =
         config.featureToggles.rendererDisableAppPluginsPreload && contextSrv.user.authenticatedBy === 'render';
       if (contextSrv.user.orgRole !== '' && !skipAppPluginsPreload) {
         preloadPlugins(await getAppPluginsToPreload());
       }
-
       getPluginExtensionRegistries();
       await getPanelPluginMetas();
-
       setHelpNavItemHook(useHelpNode);
       setPluginLinksHook(usePluginLinks);
       setPluginComponentHook(usePluginComponent);
@@ -271,24 +239,20 @@ export class GrafanaApp {
       setPluginFunctionsHook(usePluginFunctions);
       setGetObservablePluginLinks(getObservablePluginLinks);
       setGetObservablePluginComponents(getObservablePluginComponents);
-
       // initialize chrome service
       const queryParams = locationService.getSearchObject();
       const chromeService = new AppChromeService();
       const keybindingsService = new KeybindingSrv(locationService, chromeService);
       const newAssetsChecker = new NewFrontendAssetsChecker();
       newAssetsChecker.start();
-
       // Read initial kiosk mode from url at app startup
       chromeService.setKioskModeFromUrl(queryParams.kiosk);
-
       // Clean up old search local storage values
       try {
         cleanupOldExpandedFolders();
       } catch (err) {
-        console.warn('Failed to clean up old expanded folders', err);
+        structLog('warn', 'Failed to clean up old expanded folders', err);
       }
-
       this.context = {
         backend: backendSrv,
         location: locationService,
@@ -297,55 +261,45 @@ export class GrafanaApp {
         newAssetsChecker,
         config,
       };
-
       setReturnToPreviousHook(useReturnToPreviousInternal);
       setMegaMenuOpenHook(useMegaMenuOpenInternal);
       setChromeHeaderHeightHook(useChromeHeaderHeight);
-
       if (config.featureToggles.crashDetection) {
         initializeCrashDetection();
       }
-
       if (config.featureToggles.dashboardLevelTimeMacros) {
         sceneUtils.registerVariableMacro('__from', DashboardLevelTimeMacro, true);
         sceneUtils.registerVariableMacro('__to', DashboardLevelTimeMacro, true);
       }
-
       const root = createRoot(document.getElementById('reactRoot')!);
       root.render(createElement(AppWrapper, { context: this.context }));
-
       await postInitTasks();
     } catch (error) {
-      console.error('Failed to start Grafana', error);
+      structLog('error', 'Failed to start Grafana', error);
       window.__grafana_load_failed();
     } finally {
       stopMeasure('frontend_app_init');
     }
   }
 }
-
 function addExtensionReducers() {
   if (extensionsExports.length > 0) {
     extensionsExports[0].addExtensionReducers();
   }
 }
-
 function initExtensions() {
   if (extensionsExports.length > 0) {
     extensionsExports[0].init();
   }
 }
-
 function handleRedirectTo(): void {
   const queryParams = locationService.getSearch();
   const redirectToParamKey = 'redirectTo';
-
   if (queryParams.has('auth_token')) {
     // URL Login should not be redirected
     window.sessionStorage.removeItem(RedirectToUrlKey);
     return;
   }
-
   if (queryParams.has(redirectToParamKey) && window.location.pathname !== '/') {
     const rawRedirectTo = queryParams.get(redirectToParamKey)!;
     window.sessionStorage.setItem(RedirectToUrlKey, encodeURIComponent(rawRedirectTo));
@@ -353,16 +307,13 @@ function handleRedirectTo(): void {
     window.history.replaceState({}, '', `${window.location.pathname}${queryParams.size > 0 ? `?${queryParams}` : ''}`);
     return;
   }
-
   if (!contextSrv.user.isSignedIn) {
     return;
   }
-
   const redirectTo = window.sessionStorage.getItem(RedirectToUrlKey);
   if (!redirectTo) {
     return;
   }
-
   window.sessionStorage.removeItem(RedirectToUrlKey);
   let decodedRedirectTo = decodeURIComponent(redirectTo);
   if (decodedRedirectTo.startsWith('/goto/')) {
@@ -375,5 +326,4 @@ function handleRedirectTo(): void {
   const stripped = locationUtil.stripBaseFromUrl(decodedRedirectTo);
   locationService.replace(stripped);
 }
-
 export default new GrafanaApp();

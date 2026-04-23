@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { type monacoTypes } from '@grafana/ui';
-
 // this thing here is a workaround in a way.
 // what we want to achieve, is that when the autocomplete-window
 // opens, the "second, extra popup" with the extra help,
@@ -17,27 +17,21 @@ import { type monacoTypes } from '@grafana/ui';
 // i am not 100% how the `scope` and `target` things work,
 // but so far it seems to work ok.
 // i would use an another approach, if there was one available.
-
 function makeStorageService() {
   // we need to return an object that fulfills this interface:
   // https://github.com/microsoft/vscode/blob/ff1e16eebb93af79fd6d7af1356c4003a120c563/src/vs/platform/storage/common/storage.ts#L37
   // unfortunately it is not export from monaco-editor
-
   const strings = new Map<string, string>();
-
   // we want this to be true by default
   strings.set('expandSuggestionDocs', true.toString());
-
   return {
     // we do not implement the on* handlers
     onDidChangeValue: (data: unknown): void => undefined,
     onDidChangeTarget: (data: unknown): void => undefined,
     onWillSaveState: (data: unknown): void => undefined,
-
     get: (key: string, scope: unknown, fallbackValue?: string): string | undefined => {
       return strings.get(key) ?? fallbackValue;
     },
-
     getBoolean: (key: string, scope: unknown, fallbackValue?: boolean): boolean | undefined => {
       const val = strings.get(key);
       if (val !== undefined) {
@@ -48,7 +42,6 @@ function makeStorageService() {
         return fallbackValue;
       }
     },
-
     getNumber: (key: string, scope: unknown, fallbackValue?: number): number | undefined => {
       const val = strings.get(key);
       if (val !== undefined) {
@@ -57,7 +50,6 @@ function makeStorageService() {
         return fallbackValue;
       }
     },
-
     store: (
       key: string,
       value: string | boolean | number | undefined | null,
@@ -71,41 +63,33 @@ function makeStorageService() {
         strings.set(key, value.toString());
       }
     },
-
     remove: (key: string, scope: unknown): void => {
       strings.delete(key);
     },
-
     keys: (scope: unknown, target: unknown): string[] => {
       return Array.from(strings.keys());
     },
-
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      structLog('log', 'logStorage: not implemented');
     },
-
     migrate: (): Promise<void> => {
       // we do not implement this
       return Promise.resolve(undefined);
     },
-
     isNew: (scope: unknown): boolean => {
       // we create a new storage for every session, we do not persist it,
       // so we return `true`.
       return true;
     },
-
     flush: (reason?: unknown): Promise<void> => {
       // we do not implement this
       return Promise.resolve(undefined);
     },
   };
 }
-
 let overrideServices: monacoTypes.editor.IEditorOverrideServices = {
   storageService: makeStorageService(),
 };
-
 export function getOverrideServices(): monacoTypes.editor.IEditorOverrideServices {
   // One instance of this for every query editor
   return overrideServices;

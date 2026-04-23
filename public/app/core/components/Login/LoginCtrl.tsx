@@ -1,24 +1,19 @@
+import { structLog } from '@grafana/data';
 import { memo, useState, useCallback, type JSX } from 'react';
-
 import { t } from '@grafana/i18n';
 import { type FetchError, getBackendSrv, isFetchError } from '@grafana/runtime';
 import config from 'app/core/config';
-
 import { type LoginDTO } from './types';
-
 const isOauthEnabled = () => {
   return !!config.oauth && Object.keys(config.oauth).length > 0;
 };
-
 export interface FormModel {
   user: string;
   password: string;
   email: string;
 }
-
 interface Props {
   resetCode?: string;
-
   children: (props: {
     isLoggingIn: boolean;
     changePassword: (pw: string) => void;
@@ -34,7 +29,6 @@ interface Props {
     loginErrorMessage: string | undefined;
   }) => JSX.Element;
 }
-
 export const LoginCtrl = memo(({ resetCode, children }: Props) => {
   const [result, setResult] = useState<LoginDTO | undefined>();
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -44,13 +38,11 @@ export const LoginCtrl = memo(({ resetCode, children }: Props) => {
   const [loginErrorMessage, setLoginErrorMessage] = useState<string | undefined>(
     getBootDataErrMessage(config.loginError)
   );
-
   const toGrafana = useCallback(() => {
     if (config.featureToggles.useSessionStorageForRedirection) {
       window.location.assign(config.appSubUrl + '/');
       return;
     }
-
     if (result?.redirectUrl) {
       if (config.appSubUrl !== '' && !result.redirectUrl.startsWith(config.appSubUrl)) {
         window.location.assign(config.appSubUrl + result.redirectUrl);
@@ -61,7 +53,6 @@ export const LoginCtrl = memo(({ resetCode, children }: Props) => {
       window.location.assign(config.appSubUrl + '/');
     }
   }, [result]);
-
   const changePassword = useCallback(
     (password: string) => {
       const pw = {
@@ -69,14 +60,12 @@ export const LoginCtrl = memo(({ resetCode, children }: Props) => {
         confirmNew: password,
         oldPassword: 'admin',
       };
-
       if (resetCode) {
         const resetModel = {
           code: resetCode,
           newPassword: password,
           confirmPassword: password,
         };
-
         getBackendSrv()
           .post('/api/user/password/reset', resetModel)
           .then(() => {
@@ -88,22 +77,19 @@ export const LoginCtrl = memo(({ resetCode, children }: Props) => {
           .then(() => {
             toGrafana();
           })
-          .catch((err) => console.error(err));
+          .catch((err) => structLog('error', err));
       }
     },
     [resetCode, toGrafana]
   );
-
   const changeView = useCallback((showDefaultPasswordWarning: boolean) => {
     setIsChangingPassword(true);
     setShowDefaultPasswordWarning(showDefaultPasswordWarning);
   }, []);
-
   const login = useCallback(
     async (formModel: FormModel) => {
       setLoginErrorMessage(undefined);
       setIsLoggingIn(true);
-
       return getBackendSrv()
         .post<LoginDTO>('/login', formModel, { showErrorAlert: false })
         .then((result) => {
@@ -123,9 +109,7 @@ export const LoginCtrl = memo(({ resetCode, children }: Props) => {
     },
     [toGrafana, changeView]
   );
-
   const { loginHint, passwordHint, disableLoginForm, disableUserSignUp } = config;
-
   return (
     <>
       {children({
@@ -145,12 +129,17 @@ export const LoginCtrl = memo(({ resetCode, children }: Props) => {
     </>
   );
 });
-
 LoginCtrl.displayName = 'LoginCtrl';
-
 export default LoginCtrl;
-
-function getErrorMessage(err: FetchError<undefined | { messageId?: string; message?: string }>): string | undefined {
+function getErrorMessage(
+  err: FetchError<
+    | undefined
+    | {
+        messageId?: string;
+        message?: string;
+      }
+  >
+): string | undefined {
   switch (err.data?.messageId) {
     case 'password-auth.empty':
     case 'password-auth.failed':
@@ -165,7 +154,6 @@ function getErrorMessage(err: FetchError<undefined | { messageId?: string; messa
       return err.data?.message;
   }
 }
-
 function getBootDataErrMessage(str?: string) {
   switch (str) {
     case 'oauth.login.error':

@@ -1,16 +1,14 @@
+import { structLog } from '../utils/structLog';
 import { sanitizeUrl as braintreeSanitizeUrl } from '@braintree/sanitize-url';
 import DOMPurify from 'dompurify';
 import * as xss from 'xss';
-
 const XSSWL = Object.keys(xss.whiteList).reduce<xss.IWhiteList>((acc, element) => {
   acc[element] = xss.whiteList[element]?.concat(['class', 'style']);
   return acc;
 }, {});
-
 // Add iframe tags to XSSWL.
 // We don't allow the sandbox attribute, since it can be overridden, instead we add it below.
 XSSWL.iframe = ['src', 'width', 'height'];
-
 const sanitizeTextPanelWhitelist = new xss.FilterXSS({
   // Add sandbox attribute to iframe tags if an attribute is allowed.
   onTagAttr(tag, name, value, isWhiteAttr) {
@@ -48,7 +46,6 @@ const sanitizeTextPanelWhitelist = new xss.FilterXSS({
     },
   },
 });
-
 /**
  * Return a sanitized string that is going to be rendered in the browser to prevent XSS attacks.
  * Note that sanitized tags will be removed, such as "<script>".
@@ -61,20 +58,18 @@ export function sanitize(unsanitizedString: string): string {
         node.setAttribute('rel', 'noopener noreferrer');
       }
     });
-
     return DOMPurify.sanitize(unsanitizedString, {
       USE_PROFILES: { html: true },
       FORBID_TAGS: ['form', 'input'],
       ADD_ATTR: ['target'],
     });
   } catch (error) {
-    console.error('String could not be sanitized', unsanitizedString);
+    structLog('error', 'String could not be sanitized', unsanitizedString);
     return escapeHtml(unsanitizedString);
   } finally {
     DOMPurify.removeHook('afterSanitizeAttributes');
   }
 }
-
 export function sanitizeTrustedTypesRSS(unsanitizedString: string): TrustedHTML {
   return DOMPurify.sanitize(unsanitizedString, {
     RETURN_TRUSTED_TYPE: true,
@@ -83,11 +78,9 @@ export function sanitizeTrustedTypesRSS(unsanitizedString: string): TrustedHTML 
     PARSER_MEDIA_TYPE: 'application/xhtml+xml',
   });
 }
-
 export function sanitizeTrustedTypes(unsanitizedString: string): TrustedHTML {
   return DOMPurify.sanitize(unsanitizedString, { RETURN_TRUSTED_TYPE: true });
 }
-
 /**
  * Returns string safe from XSS attacks to be used in the Text panel plugin.
  *
@@ -99,26 +92,22 @@ export function sanitizeTextPanelContent(unsanitizedString: string): string {
   try {
     return sanitizeTextPanelWhitelist.process(unsanitizedString);
   } catch (error) {
-    console.error('String could not be sanitized', unsanitizedString);
+    structLog('error', 'String could not be sanitized', unsanitizedString);
     return 'Text string could not be sanitized';
   }
 }
-
 // Returns sanitized SVG, free from XSS attacks to be used when rendering SVG content.
 export function sanitizeSVGContent(unsanitizedString: string): string {
   return DOMPurify.sanitize(unsanitizedString, { USE_PROFILES: { svg: true, svgFilters: true } });
 }
-
 // Return a sanitized URL, free from XSS attacks, such as javascript:alert(1)
 export function sanitizeUrl(url: string): string {
   return braintreeSanitizeUrl(url);
 }
-
 // Returns true if the string contains ANSI color codes.
 export function hasAnsiCodes(input: string): boolean {
   return /\u001b\[\d{1,2}m/.test(input);
 }
-
 // Returns a string with HTML entities escaped.
 export function escapeHtml(str: string): string {
   return String(str)
@@ -128,7 +117,6 @@ export function escapeHtml(str: string): string {
     .replace(/'/g, '&#39;')
     .replace(/"/g, '&quot;');
 }
-
 export class PathValidationError extends Error {
   constructor(message = 'Invalid request path') {
     super(message);
@@ -139,7 +127,6 @@ export class PathValidationError extends Error {
     }
   }
 }
-
 /**
  * Validates a path or URL, protecting against path traversal attacks.
  * Returns the original input if safe, or throw an error
@@ -154,13 +141,11 @@ export function validatePath<OriginalPath extends string>(path: OriginalPath): O
       }
       decoded = nextDecode;
     }
-
     // Validate the entire decoded string for traversal attempts
     // This prevents attacks that use query separators to hide traversal payloads
     if (/\.\.|\/\\|[\t\n\r]/.test(decoded)) {
       throw new PathValidationError();
     }
-
     // Return the original path (not the decoded version) to preserve the full URL
     return path;
   } catch (err) {
@@ -168,13 +153,11 @@ export function validatePath<OriginalPath extends string>(path: OriginalPath): O
     if (err instanceof PathValidationError) {
       throw err;
     }
-
     // A decoding error can happen with malformed URIs (e.g., % not followed by hex).
     // These are suspicious, so we treat them as traversal attempts.
     throw new PathValidationError('Error validating request path');
   }
 }
-
 export const textUtil = {
   escapeHtml,
   hasAnsiCodes,

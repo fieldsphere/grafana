@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import debounce from 'debounce-promise';
 import {
   createContext,
@@ -10,27 +11,21 @@ import {
   useRef,
   useState,
 } from 'react';
-
 import { type SelectableValue, type TimeRange } from '@grafana/data';
-
 import { METRIC_LABEL, PROMETHEUS_QUERY_BUILDER_MAX_RESULTS } from '../../../constants';
 import { type PrometheusLanguageProviderInterface } from '../../../language_provider';
 import { regexifyLabelValuesQueryString } from '../../parsingUtils';
 import { type QueryBuilderLabelFilter } from '../../shared/types';
 import { formatPrometheusLabelFilters } from '../formatter';
-
 import { generateMetricData } from './helpers';
 import { type MetricData, type MetricsData } from './types';
 import { fuzzySearch } from './uFuzzy';
-
 export const DEFAULT_RESULTS_PER_PAGE = 25;
-
 type Pagination = {
   pageNum: number;
   resultsPerPage: number;
   totalPageNum: number;
 };
-
 type MetricsModalContextValue = {
   isLoading: boolean;
   setIsLoading: (val: boolean) => void;
@@ -47,14 +42,11 @@ type MetricsModalContextValue = {
   searchedText: string;
   setSearchedText: (val: string) => void;
 };
-
 const MetricsModalContext = createContext<MetricsModalContextValue | undefined>(undefined);
-
 type MetricsModalContextProviderProps = {
   languageProvider: PrometheusLanguageProviderInterface;
   timeRange: TimeRange;
 };
-
 export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalContextProviderProps>> = ({
   children,
   languageProvider,
@@ -69,12 +61,10 @@ export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalConte
   });
   const [selectedTypes, setSelectedTypes] = useState<Array<SelectableValue<string>>>([]);
   const [searchedText, setSearchedText] = useState('');
-
   const filteredMetricsData = useMemo(() => {
     if (selectedTypes.length === 0) {
       return metricsData;
     }
-
     // Filter metrics based on selected types
     return metricsData.filter((metric: MetricData) => {
       return selectedTypes.some((selectedType) => {
@@ -82,37 +72,30 @@ export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalConte
         if (metric.type && selectedType.value) {
           return metric.type.includes(selectedType.value);
         }
-
         // Handle metrics without type when "no type" is selected
         if (!metric.type && selectedType.value === 'no type') {
           return true;
         }
-
         return false;
       });
     });
   }, [metricsData, selectedTypes]);
-
   useEffect(() => {
     const totalPageNum =
       filteredMetricsData.length === 0 ? 1 : Math.ceil(filteredMetricsData.length / pagination.resultsPerPage);
     const pageNum = pagination.pageNum > totalPageNum ? 1 : pagination.pageNum;
-
     setPagination((prevPagination) => ({
       ...prevPagination,
       totalPageNum,
       pageNum,
     }));
   }, [filteredMetricsData.length, pagination.resultsPerPage, pagination.pageNum]);
-
   // Track the latest search ID to handle race conditions
   const latestSearchIdRef = useRef<number>(0);
-
   const fetchMetadata = useCallback(async () => {
     try {
       setIsLoading(true);
       const metadata = await languageProvider.queryMetricsMetadata(PROMETHEUS_QUERY_BUILDER_MAX_RESULTS);
-
       // We receive ALERTS metadata in any case
       if (Object.keys(metadata).length <= 1) {
         const fetchedMetrics = await languageProvider.queryLabelValues(
@@ -133,41 +116,33 @@ export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalConte
       setIsLoading(false);
     }
   }, [languageProvider, timeRange]);
-
   const debouncedBackendSearch = useMemo(
     () =>
       debounce(async (timeRange: TimeRange, metricText: string, queryLabels?: QueryBuilderLabelFilter[]) => {
         // Generate unique search ID to handle race conditions
         const searchId = ++latestSearchIdRef.current;
-
         try {
           if (metricText === '') {
             await fetchMetadata();
             return;
           }
-
           setIsLoading(true);
-
           const queryString = regexifyLabelValuesQueryString(metricText);
           const filterArray = queryLabels ? formatPrometheusLabelFilters(queryLabels) : [];
           const match = `{__name__=~"(?i).*${queryString}"${filterArray ? filterArray.join('') : ''}}`;
-
           const results = await languageProvider.queryLabelValues(timeRange, METRIC_LABEL, match);
-
           // Check if this is still the most recent search
           if (searchId !== latestSearchIdRef.current) {
             return; // Ignore outdated results
           }
-
           const [fuzzyOrderedMetrics] = fuzzySearch(results, queryString);
           const resultsOptions: MetricsData = fuzzyOrderedMetrics.map((m) => generateMetricData(m, languageProvider));
-
           setMetricsData(resultsOptions);
           setIsLoading(false);
         } catch (error) {
           // Only update state if this is still the latest search
           if (searchId === latestSearchIdRef.current) {
-            console.error('Backend search failed:', error);
+            structLog('error', 'Backend search failed:', error);
             setMetricsData([]); // Clear results on error
             setIsLoading(false);
           }
@@ -175,13 +150,10 @@ export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalConte
       }, 300),
     [fetchMetadata, languageProvider]
   );
-
   useEffect(() => {
     fetchMetadata();
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   return (
     <MetricsModalContext.Provider
       value={{
@@ -201,7 +173,6 @@ export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalConte
     </MetricsModalContext.Provider>
   );
 };
-
 export function useMetricsModal() {
   const context = useContext(MetricsModalContext);
   if (context === undefined) {

@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import { type Property } from 'csstype';
 import memoize from 'micro-memoize';
 import WKT from 'ol/format/WKT';
@@ -6,7 +7,6 @@ import { type CSSProperties } from 'react';
 import { type SortColumn } from 'react-data-grid';
 import tinycolor from 'tinycolor2';
 import { type Count, varPreLine } from 'uwrap';
-
 import {
   FieldType,
   type Field,
@@ -28,11 +28,9 @@ import {
   TableCellDisplayMode,
   TableCellHeight,
 } from '@grafana/schema';
-
 import { getTextColorForAlphaBackground } from '../../../utils/colors';
 import { TableCellInspectorMode } from '../TableCellInspector';
 import { type TableCellOptions } from '../types';
-
 import { inferPills } from './Cells/PillCell';
 import { AutoCellRenderer, getAutoRendererDisplayMode, getCellRenderer } from './Cells/renderers';
 import { COLUMN, TABLE } from './constants';
@@ -46,10 +44,8 @@ import {
   type MeasureCellHeightEntry,
   type FilterType,
 } from './types';
-
 /* ---------------------------- Cell calculations --------------------------- */
 export type CellNumLinesCalculator = (text: string, cellWidth: number) => number;
-
 /**
  * @internal
  * Returns the default row height based on the theme and cell height setting.
@@ -62,7 +58,6 @@ export function getDefaultRowHeight(
   if (fields?.some((field) => field.config?.custom?.cellOptions?.dynamicHeight)) {
     return 'min-content';
   }
-
   switch (cellHeight) {
     case TableCellHeight.Sm:
       return 36;
@@ -71,10 +66,8 @@ export function getDefaultRowHeight(
     case TableCellHeight.Lg:
       return TABLE.MAX_CELL_HEIGHT;
   }
-
   return TABLE.CELL_PADDING * 2 + theme.typography.fontSize * theme.typography.body.lineHeight;
 }
-
 /**
  * @internal
  * Returns true if cell inspection (hover to see full content) is enabled for the field.
@@ -82,7 +75,6 @@ export function getDefaultRowHeight(
 export function isCellInspectEnabled(field: Field): boolean {
   return field.config?.custom?.inspect ?? false;
 }
-
 /**
  * @internal
  * Returns true if text wrapping should be applied to the cell.
@@ -90,7 +82,6 @@ export function isCellInspectEnabled(field: Field): boolean {
 export function shouldTextWrap(field: Field): boolean {
   return Boolean(field.config.custom?.wrapText);
 }
-
 /**
  * @internal wrap a cell height measurer to clamp its output to the maxHeight defined in the field, if any.
  */
@@ -100,7 +91,6 @@ function clampByMaxHeight(measurer: MeasureCellHeight, maxHeight = Infinity): Me
     return Math.min(rawHeight, maxHeight);
   };
 }
-
 /**
  * @internal creates a typography context based on a font size and family. used to measure text
  * and estimate size of text in cells.
@@ -109,7 +99,6 @@ export function createTypographyContext(fontSize: number, fontFamily: string, le
   const font = `${fontSize}px ${fontFamily}`;
   const canvas = document.createElement('canvas');
   const ctx = canvas.getContext('2d')!;
-
   ctx.letterSpacing = `${letterSpacing}px`;
   ctx.font = font;
   // 1/6 of the characters in this string are capitalized. Since the avgCharWidth is used for estimation, it's
@@ -120,7 +109,6 @@ export function createTypographyContext(fontSize: number, fontFamily: string, le
   const txtWidth = ctx.measureText(txt).width;
   const avgCharWidth = txtWidth / txt.length + letterSpacing;
   const { count } = varPreLine(ctx);
-
   return {
     ctx,
     fontFamily,
@@ -130,7 +118,6 @@ export function createTypographyContext(fontSize: number, fontFamily: string, le
     measureHeight: getTextHeightMeasurerFromUwrapCount(count),
   };
 }
-
 /**
  * @internal wraps the uwrap count function to ensure that it is given a string.
  */
@@ -139,12 +126,10 @@ export function getTextHeightMeasurerFromUwrapCount(count: Count): MeasureCellHe
     if (value == null) {
       return lineHeight;
     }
-
     const lines = count(String(value), width);
     return lines * lineHeight;
   };
 }
-
 /**
  * @internal returns a measurer which guesstimates a number of lines in a text cell based on the typography context's avgCharWidth.
  */
@@ -153,26 +138,22 @@ export function getTextHeightEstimator(avgCharWidth: number): MeasureCellHeight 
     if (!value) {
       return -1;
     }
-
     // we don't have string breaking enabled in the table,
     // so an unbroken string is by definition a single line.
     const strValue = String(value);
     if (!spaceRegex.test(strValue)) {
       return -1;
     }
-
     const charsPerLine = width / avgCharWidth;
     const lines = Math.ceil(strValue.length / charsPerLine);
     return lines * lineHeight;
   };
 }
-
 /**
  * @internal
  */
 export function getDataLinksHeightMeasurer(): MeasureCellHeight {
   const linksCountCache: Record<string, number> = {};
-
   // when we render links, we need to filter out the invalid links. since the call to `getLinks` is expensive,
   // we'll cache the result and reuse it for every row in the table. this cache is cleared when line counts are
   // rebuilt anytime from the `useRowHeight` hook, and that includes adding and removing data links.
@@ -187,31 +168,24 @@ export function getDataLinksHeightMeasurer(): MeasureCellHeight {
       }
       linksCountCache[cacheKey] = count;
     }
-
     return linksCountCache[cacheKey] * lineHeight;
   };
 }
-
 const PILLS_FONT_SIZE = 12;
 const PILLS_SPACING = 12; // 6px horizontal padding on each side
 const PILLS_GAP = 4; // gap between pills
-
 export function getPillCellHeightMeasurer(measureWidth: (value: string) => number): MeasureCellHeight {
   const widthCache: Record<string, number> = {};
-
   return (value, width, _field, _rowIdx, lineHeight) => {
     if (value == null) {
       return 0;
     }
-
     const pillValues = inferPills(String(value));
     if (pillValues.length === 0) {
       return 0;
     }
-
     let lines = 0;
     let currentLineUse = width;
-
     for (const pillValue of pillValues) {
       const strPill = String(pillValue);
       let rawWidth = widthCache[strPill];
@@ -220,7 +194,6 @@ export function getPillCellHeightMeasurer(measureWidth: (value: string) => numbe
         widthCache[strPill] = rawWidth;
       }
       const pillWidth = rawWidth + PILLS_SPACING;
-
       if (currentLineUse + pillWidth + PILLS_GAP > width) {
         lines++;
         currentLineUse = pillWidth;
@@ -228,13 +201,11 @@ export function getPillCellHeightMeasurer(measureWidth: (value: string) => numbe
         currentLineUse += pillWidth + PILLS_GAP;
       }
     }
-
     // default line height happens to be the height of a pill, but maybe we need a custom
     // const here to make sure this doesn't get out of sync with the actual pill height.
     return lines * lineHeight + (lines - 1) * PILLS_GAP;
   };
 }
-
 /**
  * @internal return a text measurer for every field which has wrapHeaderText enabled.
  */
@@ -248,18 +219,14 @@ export function buildHeaderHeightMeasurers(
     }
     return acc;
   }, []);
-
   if (wrappedColIdxs.length === 0) {
     return undefined;
   }
-
   // don't bother with estimating the line counts for the headers, because it's punishing
   // when we get it wrong and there won't be that many compared to how many rows a table might contain.
   return [{ measure: typographyCtx.measureHeight, fieldIdxs: wrappedColIdxs }];
 }
-
 const spaceRegex = /[\s-]/;
-
 /**
  * @internal return a text height measurer for every field which has wrapHeaderText enabled. we do this once as we're rendering
  * the table, and then getRowHeight uses the output of this to caluclate the height of each row.
@@ -271,7 +238,6 @@ export function buildCellHeightMeasurers(
 ): MeasureCellHeightEntry[] | undefined {
   const result: Record<string, MeasureCellHeightEntry> = {};
   let wrappedFields = 0;
-
   const measurerFactory: Record<
     TableCellDisplayMode.Auto | TableCellDisplayMode.DataLinks | TableCellDisplayMode.Pill,
     () => [MeasureCellHeight, MeasureCellHeight?]
@@ -292,7 +258,6 @@ export function buildCellHeightMeasurers(
       ];
     },
   } as const;
-
   const setupMeasurerForIdx = (measurerFactoryKey: keyof typeof measurerFactory, fieldIdx: number) => {
     if (!result[measurerFactoryKey]) {
       const [measure, estimate] = measurerFactory[measurerFactoryKey]();
@@ -304,12 +269,10 @@ export function buildCellHeightMeasurers(
     }
     result[measurerFactoryKey].fieldIdxs.push(fieldIdx);
   };
-
   for (let fieldIdx = 0; fieldIdx < fields.length; fieldIdx++) {
     const field = fields[fieldIdx];
     if (shouldTextWrap(field)) {
       wrappedFields++;
-
       const cellType = getCellOptions(field).type;
       if (cellType === TableCellDisplayMode.DataLinks) {
         setupMeasurerForIdx(TableCellDisplayMode.DataLinks, fieldIdx);
@@ -325,19 +288,15 @@ export function buildCellHeightMeasurers(
       }
     }
   }
-
   if (wrappedFields === 0) {
     return undefined;
   }
-
   return Object.values(result);
 }
-
 // in some cases, the estimator might return a value that is less than 1, but when calculated by the measurer, it actually
 // realizes that it's a multi-line cell. to avoid this, we want to give a little buffer away from 1 before we fully trust
 // the estimator to have told us that a cell is single-line.
 export const SINGLE_LINE_ESTIMATE_THRESHOLD = 18.5;
-
 /**
  * @internal
  * loop through the fields and their values, determine which cell is going to determine the height of the row based
@@ -355,20 +314,17 @@ export function getRowHeight(
   if (!measurers?.length) {
     return defaultHeight;
   }
-
   let maxHeight = -1;
   let maxValue: unknown = '';
   let maxWidth = 0;
   let maxField: Field | undefined;
   let preciseMeasurer: MeasureCellHeight | undefined;
-
   for (const { estimate, measure, fieldIdxs } of measurers) {
     // for some of the cell height measurers, getting the precise height is expensive. those entries set
     // both "estimate" and "measure" functions. if the cell we find to be the max was estimated, we will
     // get the "true" value right before calculating the row height by keeping a reference to the measure fn.
     const measurer = (estimate ?? measure) satisfies MeasureCellHeight;
     const isEstimating = estimate !== undefined;
-
     for (const fieldIdx of fieldIdxs) {
       const field = fields[fieldIdx];
       const displayName = getDisplayName(field);
@@ -394,23 +350,19 @@ export function getRowHeight(
       }
     }
   }
-
   // if the value is -1 or the estimate for the max cell was less than the SINGLE_LINE_ESTIMATE_THRESHOLD, we trust
   // that the estimator correctly identified that no text wrapping is needed for this row, skipping the preciseMeasurer.
   if (maxField === undefined || maxHeight < SINGLE_LINE_ESTIMATE_THRESHOLD) {
     return defaultHeight;
   }
-
   // if we finished this row height loop with an estimate, we need to call
   // the `preciseMeasurer` method to get the exact line count.
   if (preciseMeasurer !== undefined) {
     maxHeight = preciseMeasurer(maxValue, maxWidth, maxField, row.__index, lineHeight);
   }
-
   // adjust for vertical padding, and clamp to a minimum default height
   return Math.max(maxHeight + verticalPadding, defaultHeight);
 }
-
 /**
  * @internal
  * Returns true if text overflow handling should be applied to the cell.
@@ -423,36 +375,29 @@ export function shouldTextOverflow(field: Field): boolean {
     (field.type === FieldType.string && cellOptions.type !== TableCellDisplayMode.Image) ||
     // regardless of the underlying cell type, data links cells have text overflow.
     cellOptions.type === TableCellDisplayMode.DataLinks;
-
   return eligibleCellType && !shouldTextWrap(field) && !isCellInspectEnabled(field);
 }
-
 // we only want to infer justifyContent and textAlign for these cellTypes
 const TEXT_CELL_TYPES = new Set<TableCellDisplayMode>([
   TableCellDisplayMode.Auto,
   TableCellDisplayMode.ColorText,
   TableCellDisplayMode.ColorBackground,
 ]);
-
 export type TextAlign = 'left' | 'right' | 'center';
-
 /**
  * @internal
  * Returns the text-align value for inline-displayed cells for a field based on its type and configuration.
  */
 export function getAlignment(field: Field): TextAlign {
   const align: FieldTextAlignment | undefined = field.config.custom?.align;
-
   if (!align || align === 'auto') {
     if (TEXT_CELL_TYPES.has(getCellOptions(field).type) && field.type === FieldType.number) {
       return 'right';
     }
     return 'left';
   }
-
   return align;
 }
-
 /**
  * @internal
  * Returns the justify-content value for flex-displayed cells for a field based on its type and configuration.
@@ -460,9 +405,7 @@ export function getAlignment(field: Field): TextAlign {
 export function getJustifyContent(textAlign: TextAlign): Property.JustifyContent {
   return textAlign === 'center' ? 'center' : textAlign === 'right' ? 'flex-end' : 'flex-start';
 }
-
 const DEFAULT_CELL_OPTIONS = { type: TableCellDisplayMode.Auto } as const;
-
 /**
  * @internal
  * Returns the cell options for a field, migrating from legacy displayMode if necessary.
@@ -472,10 +415,8 @@ export function getCellOptions(field: Field): TableCellOptions {
   if (field.config.custom?.displayMode) {
     return migrateTableDisplayModeToCellOptions(field.config.custom?.displayMode);
   }
-
   return field.config.custom?.cellOptions ?? DEFAULT_CELL_OPTIONS;
 }
-
 /**
  * @internal
  * Getting gauge or sparkline values to align is very tricky without looking at all values and passing them through display processor.
@@ -489,7 +430,6 @@ export function getAlignmentFactor(
   rowIndex: number
 ): DisplayValueAlignmentFactors {
   let alignmentFactor = field.state?.alignmentFactors;
-
   if (alignmentFactor) {
     // check if current alignmentFactor is still the longest
     if (formattedValueToString(alignmentFactor).length < formattedValueToString(displayValue).length) {
@@ -501,28 +441,23 @@ export function getAlignmentFactor(
     // look at the next 1000 rows
     alignmentFactor = { ...displayValue };
     const maxIndex = Math.min(field.values.length, rowIndex + 1000);
-
     for (let i = rowIndex + 1; i < maxIndex; i++) {
       const nextDisplayValue = field.display?.(field.values[i]) ?? field.values[i];
       if (formattedValueToString(alignmentFactor).length > formattedValueToString(nextDisplayValue).length) {
         alignmentFactor.text = displayValue.text;
       }
     }
-
     if (field.state) {
       field.state.alignmentFactors = alignmentFactor;
     } else {
       field.state = { alignmentFactors: alignmentFactor };
     }
-
     return alignmentFactor;
   }
 }
-
 /* ------------------------- Cell color calculation ------------------------- */
 const CELL_COLOR_DARKENING_MULTIPLIER = 10;
 const CELL_GRADIENT_HUE_ROTATION_DEGREES = 5;
-
 /**
  * @internal
  * Returns the text and background colors for a table cell based on its options and display value.
@@ -551,15 +486,12 @@ export function getCellColorInlineStylesFactory(theme: GrafanaTheme2) {
     },
     { maxSize: 1000 }
   );
-
   return (cellOptions: TableCellOptions, displayValue: DisplayValue, hasApplyToRow: boolean): CSSProperties => {
     const result: CSSProperties = {};
     const displayValueColor = displayValue.color;
-
     if (!displayValueColor) {
       return result;
     }
-
     if (cellOptions.type === TableCellDisplayMode.ColorText) {
       result.color = displayValueColor;
     } else if (cellOptions.type === TableCellDisplayMode.ColorBackground) {
@@ -568,7 +500,6 @@ export function getCellColorInlineStylesFactory(theme: GrafanaTheme2) {
       if (hasApplyToRow && isTransparent(displayValueColor)) {
         return result;
       }
-
       const mode = cellOptions.mode ?? TableCellBackgroundDisplayMode.Gradient;
       result.color = bgCellTextColor(displayValueColor);
       result.background =
@@ -576,11 +507,9 @@ export function getCellColorInlineStylesFactory(theme: GrafanaTheme2) {
           ? `linear-gradient(120deg, ${gradientBg(displayValueColor)}, ${displayValueColor})`
           : displayValueColor;
     }
-
     return result;
   };
 }
-
 /**
  * @internal
  * Extracts numeric pixel value from theme spacing
@@ -588,7 +517,6 @@ export function getCellColorInlineStylesFactory(theme: GrafanaTheme2) {
 export const extractPixelValue = (spacing: string | number): number => {
   return typeof spacing === 'number' ? spacing : parseFloat(spacing) || 0;
 };
-
 /* ------------------------------- Data links ------------------------------- */
 /**
  * @internal
@@ -600,15 +528,12 @@ export const getCellLinks = (field: Field, rowIdx: number) => {
       valueRowIndex: rowIdx,
     });
   }
-
   if (!links) {
     return;
   }
-
   for (let i = 0; i < links?.length; i++) {
     if (links[i].onClick) {
       const origOnClick = links[i].onClick;
-
       links[i].onClick = (event: MouseEvent) => {
         // Allow opening in new tab
         if (!(event.ctrlKey || event.metaKey || event.shiftKey)) {
@@ -621,10 +546,8 @@ export const getCellLinks = (field: Field, rowIdx: number) => {
       };
     }
   }
-
   return links.filter((link) => link.href || link.onClick != null);
 };
-
 /**
  * @internal
  * Processes nested table rows
@@ -638,7 +561,6 @@ export const processNestedTableRows = (
   // Map for childRows: provides O(1) lookup by parent index when reconstructing the result
   const parentRows: TableRow[] = [];
   const childRows: Map<number, TableRow> = new Map();
-
   for (const row of rows) {
     if (row.__depth === 0) {
       parentRows.push(row);
@@ -646,10 +568,8 @@ export const processNestedTableRows = (
       childRows.set(row.__index, row);
     }
   }
-
   // Process parent rows (filter or sort)
   const processedParents = processParents(parentRows);
-
   // Reconstruct the result
   const result: TableRow[] = [];
   for (const row of processedParents) {
@@ -659,10 +579,8 @@ export const processNestedTableRows = (
       result.push(childRow);
     }
   }
-
   return result;
 };
-
 /* ----------------------------- Data grid sorting ---------------------------- */
 /**
  * @internal
@@ -677,49 +595,38 @@ export function applySort(
   if (sortColumns.length === 0) {
     return rows;
   }
-
   const sortNanos = sortColumns.map(
     (c) => fields.find((f) => f.type === FieldType.time && getDisplayName(f) === c.columnKey)?.nanos
   );
-
   const compareRows = (a: TableRow, b: TableRow): number => {
     let result = 0;
-
     for (let i = 0; i < sortColumns.length; i++) {
       const { columnKey, direction } = sortColumns[i];
       const compare = getComparator(columnTypes[columnKey]);
       const sortDir = direction === 'ASC' ? 1 : -1;
-
       result = sortDir * compare(a[columnKey], b[columnKey]);
-
       if (result === 0) {
         const nanos = sortNanos[i];
-
         if (nanos !== undefined) {
           result = sortDir * (nanos[a.__index] - nanos[b.__index]);
         }
       }
-
       if (result !== 0) {
         break;
       }
     }
-
     return result;
   };
-
   return hasNestedFrames
     ? processNestedTableRows(rows, (parents) => parents.sort(compareRows))
     : [...rows].sort(compareRows);
 }
-
 export interface ApplyFilterResult {
   crossFilterOrder: string[];
   crossFilterRows: Record<string, TableRow[]>;
   crossFilterTailRows: TableRow[];
   filteredRows: TableRow[];
 }
-
 /**
  * @internal
  * Applies active filters to `rows` and computes cross-filter metadata for filter popup UIs.
@@ -745,16 +652,13 @@ export function applyFilter(
   // Scope rows to the relevant nesting level
   const isNested = parentIndex !== undefined;
   const scopedRows = !isNested ? rows.filter((r) => r.__depth === 0) : rows;
-
   // Collect filter keys that belong to this scope (preserving JS insertion order)
   const crossFilterOrder = Object.keys(filter).filter((key) => {
     const entry = filter[key];
     return !isNested ? entry.parentIndex == null : entry.parentIndex === parentIndex;
   });
-
   const crossFilterRows: Record<string, TableRow[]> = {};
   let crossFilterTailRows = scopedRows;
-
   for (const filterKey of crossFilterOrder) {
     const filterEntry = filter[filterKey];
     // Store rows available *before* this filter is applied
@@ -769,7 +673,6 @@ export function applyFilter(
       return filterEntry.filteredSet.has(displayedValue);
     });
   }
-
   // For nested frames, wrap with processNestedTableRows so parent rows that have matching
   // children are preserved for the expander UI. Use a Set for O(1) membership checks.
   let filteredRows = crossFilterTailRows;
@@ -777,10 +680,8 @@ export function applyFilter(
     const tailSet = new Set(crossFilterTailRows);
     filteredRows = processNestedTableRows(rows, (parents) => parents.filter((row) => tailSet.has(row)));
   }
-
   return { crossFilterOrder, crossFilterRows, crossFilterTailRows, filteredRows };
 }
-
 /* ----------------------------- Data grid mapping ---------------------------- */
 /**
  * @internal
@@ -814,13 +715,11 @@ export function compileFrameToRecords(frame: DataFrame, nestedFramesFieldName?: 
     }
     return rows;
   `;
-
   // Creates a function that converts a DataFrame into an array of TableRows
   // Uses new Function() for performance as it's faster than creating rows using loops
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   return new Function('frame', 'nestedRowIndex', fnBody) as FrameToRowsConverter;
 }
-
 /* ----------------------------- Data grid comparator ---------------------------- */
 // The numeric: true option is used to sort numbers as strings correctly. It recognizes numeric sequences
 // within strings and sorts numerically instead of lexicographically.
@@ -842,7 +741,6 @@ const frameCompare: Comparator = (a, b) => {
   // @ts-ignore The compared vals are DataFrameWithValue. the value is the rendered stat (first, last, etc.)
   return (a?.value ?? 0) - (b?.value ?? 0);
 };
-
 /**
  * @internal
  */
@@ -861,7 +759,6 @@ export function getComparator(sortColumnType: FieldType): Comparator {
       return strCompare;
   }
 }
-
 type TableCellGaugeDisplayModes =
   | TableCellDisplayMode.BasicGauge
   | TableCellDisplayMode.GradientGauge
@@ -871,7 +768,6 @@ const TABLE_CELL_GAUGE_DISPLAY_MODES_TO_DISPLAY_MODES: Record<TableCellGaugeDisp
   [TableCellDisplayMode.GradientGauge]: BarGaugeDisplayMode.Gradient,
   [TableCellDisplayMode.LcdGauge]: BarGaugeDisplayMode.Lcd,
 };
-
 type TableCellColorBackgroundDisplayModes =
   | TableCellDisplayMode.ColorBackground
   | TableCellDisplayMode.ColorBackgroundSolid;
@@ -882,7 +778,6 @@ const TABLE_CELL_COLOR_BACKGROUND_DISPLAY_MODES_TO_DISPLAY_MODES: Record<
   [TableCellDisplayMode.ColorBackground]: TableCellBackgroundDisplayMode.Gradient,
   [TableCellDisplayMode.ColorBackgroundSolid]: TableCellBackgroundDisplayMode.Basic,
 };
-
 /* ---------------------------- Miscellaneous ---------------------------- */
 /**
  * Migrates table cell display mode to new object format.
@@ -920,7 +815,6 @@ export function migrateTableDisplayModeToCellOptions(displayMode: TableCellDispl
       };
   }
 }
-
 /**
  * @internal
  * Returns unique key for each row
@@ -928,14 +822,12 @@ export function migrateTableDisplayModeToCellOptions(displayMode: TableCellDispl
 export function rowKeyGetter(row: TableRow): string {
   return row.__index + '_' + row.__depth;
 }
-
 /**
  * @internal
  * Returns true if the DataFrame contains nested frames
  */
 export const getIsNestedTable = (fields: Field[]): boolean =>
   fields.some(({ type }) => type === FieldType.nestedFrames);
-
 /**
  * @internal
  * Calculate the footer height based on the maximum reducer count
@@ -945,11 +837,9 @@ export const calculateFooterHeight = (fields: Field[]): number => {
   for (const field of fields) {
     maxReducerCount = Math.max(maxReducerCount, field.config.custom?.footer?.reducers?.length ?? 0);
   }
-
   // Base height (+ padding) + height per reducer
   return maxReducerCount > 0 ? maxReducerCount * TABLE.LINE_HEIGHT + TABLE.CELL_PADDING * 2 : 0;
 };
-
 /**
  * @internal
  * returns the display name of a field
@@ -961,12 +851,10 @@ export const calculateFooterHeight = (fields: Field[]): number => {
 export const getDisplayName = (field: Field): string => {
   return field.state?.displayName ?? field.name;
 };
-
 /**
  * @internal given a field name or display name, returns a predicate function that checks if a field matches that name.
  */
 export const predicateByName = (name: string) => (f: Field) => f.name === name || getDisplayName(f) === name;
-
 /**
  * @internal
  * returns only fields that are not nested tables and not explicitly hidden
@@ -974,7 +862,6 @@ export const predicateByName = (name: string) => (f: Field) => f.name === name |
 export function getVisibleFields(fields: Field[]): Field[] {
   return fields.filter((field) => field.type !== FieldType.nestedFrames && field.config.custom?.hideFrom?.viz !== true);
 }
-
 /**
  * @internal
  * returns a map of column types by display name
@@ -989,7 +876,6 @@ export function getColumnTypes(fields: Field[]): ColumnTypes {
     }
   }, {});
 }
-
 /**
  * @internal
  * calculates the width of each field, with the following logic:
@@ -999,19 +885,16 @@ export function getColumnTypes(fields: Field[]): ColumnTypes {
 export function computeColWidths(fields: Field[], availWidth: number) {
   let autoCount = 0;
   let definedWidth = 0;
-
   return (
     fields
       // first pass to add up how many fields have pre-defined widths and what that width totals to.
       .map((field) => {
         const width: number = field.config.custom?.width ?? 0;
-
         if (width === 0) {
           autoCount++;
         } else {
           definedWidth += width;
         }
-
         return width;
       })
       // second pass once `autoCount` and `definedWidth` are known.
@@ -1022,7 +905,6 @@ export function computeColWidths(fields: Field[], availWidth: number) {
       )
   );
 }
-
 /**
  * @internal
  * if applyToRow is true in any field, return a function that gets the row background color
@@ -1043,7 +925,6 @@ export function getApplyToRowBgFn(
     }
   }
 }
-
 /** @internal */
 export function canFieldBeColorized(
   cellType: TableCellDisplayMode,
@@ -1055,12 +936,10 @@ export function canFieldBeColorized(
     Boolean(applyToRowBgFn)
   );
 }
-
 export const displayJsonValue: (field: Field) => DisplayProcessor = (field: Field, decimals?: DecimalCount) => {
   const origDisplay = field.display!;
   return (value: unknown): DisplayValue => {
     const displayValue = origDisplay(value, decimals);
-
     let jsonText: string;
     if (!Array.isArray(value) && !isPlainObject(value)) {
       const formattedValue = formattedValueToString(displayValue);
@@ -1073,11 +952,9 @@ export const displayJsonValue: (field: Field) => DisplayProcessor = (field: Fiel
     } else {
       jsonText = JSON.stringify(value, null, ' ');
     }
-
     return { ...displayValue, text: jsonText };
   };
 };
-
 export function prepareSparklineValue(value: unknown, field: Field): FieldSparkline | undefined {
   if (Array.isArray(value)) {
     return {
@@ -1089,29 +966,22 @@ export function prepareSparklineValue(value: unknown, field: Field): FieldSparkl
       },
     };
   }
-
   if (isDataFrame(value)) {
     const timeField = value.fields.find((x) => x.type === FieldType.time);
     const numberField = value.fields.find((x) => x.type === FieldType.number);
-
     if (timeField && numberField) {
       return { x: timeField, y: numberField };
     }
   }
-
   return;
 }
-
 function isPlainObject(value: unknown): value is object {
   return typeof value === 'object' && value != null && !Array.isArray(value);
 }
-
 export function buildInspectValue(value: unknown, field: Field): [string, TableCellInspectorMode] {
   const cellOptions = getCellOptions(field);
-
   let inspectValue: string;
   let mode = TableCellInspectorMode.text;
-
   if (field.type === FieldType.geo && value instanceof Geometry) {
     inspectValue = new WKT().writeGeometry(value, {
       featureProjection: 'EPSG:3857',
@@ -1151,10 +1021,8 @@ export function buildInspectValue(value: unknown, field: Field): [string, TableC
   } else {
     inspectValue = String(value ?? '');
   }
-
   return [inspectValue, mode];
 }
-
 export function getSummaryCellTextAlign(textAlign: TextAlign, cellType: TableCellDisplayMode): TextAlign {
   // gauge is weird. left-aligned gauge has the viz on the left and its numbers on the right, and vice-versa.
   // if you center-aligned your gauge... ok.
@@ -1167,10 +1035,8 @@ export function getSummaryCellTextAlign(textAlign: TextAlign, cellType: TableCel
       } as const
     )[textAlign];
   }
-
   return textAlign;
 }
-
 // we keep this set to avoid spamming the heck out of the console, since it's quite likely that if we fail to parse
 // a value once, it'll happen again and again for many rows in a table, and spamming the console is slow.
 let warnedAboutStyleJsonSet = new Set<string>();
@@ -1184,13 +1050,12 @@ export function parseStyleJson(rawValue: unknown): CSSProperties | void {
       }
     } catch (e) {
       if (!warnedAboutStyleJsonSet.has(rawValue)) {
-        console.error(`encountered invalid cell style JSON: ${rawValue}`, e);
+        structLog('error', `encountered invalid cell style JSON: ${rawValue}`, e);
         warnedAboutStyleJsonSet.add(rawValue);
       }
     }
   }
 }
-
 // Safari 26.0 introduced rendering bugs which require us to disable several features of the table.
 // The bugs were later fixed in Safari 26.2.
 export const IS_SAFARI_26 = (() => {

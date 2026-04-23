@@ -1,10 +1,10 @@
+import { structLog } from '@grafana/data';
 import { type ManagedBy } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
 import { type DataFrame, type DataFrameView, type IconName, fuzzySearch } from '@grafana/data';
 import { type DashboardViewItemWithUIItems } from 'app/features/browse-dashboards/types';
 import { isSharedWithMe, isVirtualTeamFolder } from 'app/features/browse-dashboards/utils/dashboards';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { type DashboardDataDTO } from 'app/types/dashboard';
-
 import { AnnoKeyFolder, type ManagerKind, type ResourceList } from '../../apiserver/types';
 import {
   type DashboardSearchHit,
@@ -12,10 +12,8 @@ import {
   type DashboardViewItem,
   type DashboardViewItemKind,
 } from '../types';
-
 import { type DashboardQueryResult, type SearchQuery, type SearchResultMeta } from './types';
 import { type SearchHit } from './unified';
-
 /** prepare the query replacing folder:current */
 export async function replaceCurrentFolderQuery(query: SearchQuery): Promise<SearchQuery> {
   if (query.query && query.query.indexOf('folder:current') >= 0) {
@@ -30,7 +28,6 @@ export async function replaceCurrentFolderQuery(query: SearchQuery): Promise<Sea
   }
   return Promise.resolve(query);
 }
-
 async function getCurrentFolderUID(): Promise<string | undefined> {
   try {
     let dash = getDashboardSrv().getCurrent();
@@ -40,43 +37,34 @@ async function getCurrentFolderUID(): Promise<string | undefined> {
     }
     return Promise.resolve(dash?.meta?.folderUid);
   } catch (e) {
-    console.error(e);
+    structLog('error', e);
   }
   return undefined;
 }
-
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
 export function getIconForKind(kind: string, isOpen?: boolean): IconName {
   if (kind === 'dashboard') {
     return 'apps';
   }
-
   if (kind === 'folder') {
     return isOpen ? 'folder-open' : 'folder';
   }
-
   if (kind === 'sharedwithme') {
     return 'users-alt';
   }
-
   return 'question-circle';
 }
-
 export function getIconForItem(item: DashboardViewItemWithUIItems, isOpen?: boolean): IconName {
   if (item && isSharedWithMe(item.uid)) {
     return 'user-arrows';
   }
-
   if (item && isVirtualTeamFolder(item.uid)) {
     return 'users-alt';
   }
-
   return getIconForKind(item.kind, isOpen);
 }
-
 function parseKindString(kind: string): DashboardViewItemKind {
   switch (kind) {
     case 'dashboard':
@@ -87,16 +75,13 @@ function parseKindString(kind: string): DashboardViewItemKind {
       return 'dashboard'; // not a great fallback, but it's the previous behaviour
   }
 }
-
 function isSearchResultMeta(obj: unknown): obj is SearchResultMeta {
   return obj !== null && typeof obj === 'object' && 'locationInfo' in obj;
 }
-
 export function extractManagerKind(managedBy?: ManagedBy | ManagerKind): ManagerKind | undefined {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   return typeof managedBy === 'string' ? managedBy : (managedBy?.kind as ManagerKind);
 }
-
 export function queryResultToViewItem(
   item: DashboardQueryResult,
   view?: DataFrameView<DashboardQueryResult>
@@ -104,7 +89,6 @@ export function queryResultToViewItem(
   const customMeta = view?.dataFrame.meta?.custom;
   const meta: SearchResultMeta | undefined = isSearchResultMeta(customMeta) ? customMeta : undefined;
   const managedByStr = extractManagerKind(item.managedBy);
-
   const viewItem: DashboardViewItem = {
     kind: parseKindString(item.kind),
     uid: item.uid,
@@ -113,7 +97,6 @@ export function queryResultToViewItem(
     tags: item.tags ?? [],
     managedBy: managedByStr,
   };
-
   // Set enterprise sort value property
   const sortFieldName = meta?.sortBy;
   if (sortFieldName) {
@@ -123,7 +106,6 @@ export function queryResultToViewItem(
       viewItem.sortMeta = sortFieldValue;
     }
   }
-
   if (item.location) {
     const ancestors = item.location.split('/');
     const parentUid = ancestors[ancestors.length - 1];
@@ -134,17 +116,14 @@ export function queryResultToViewItem(
       viewItem.parentUID = parentUid;
     }
   }
-
   return viewItem;
 }
-
 export function resourceToSearchResult(resource: ResourceList<DashboardDataDTO>): SearchHit[] {
   return resource.items.map((item) => {
     const field: Record<string, string | number> = {};
     if (item.metadata.deletionTimestamp) {
       field.deletionTimestamp = item.metadata.deletionTimestamp;
     }
-
     const hit = {
       resource: 'dashboards',
       name: item.metadata.name,
@@ -158,11 +137,9 @@ export function resourceToSearchResult(resource: ResourceList<DashboardDataDTO>)
     if (!hit.folder) {
       return { ...hit, location: 'general', folder: 'general' };
     }
-
     return hit;
   });
 }
-
 export function searchHitsToDashboardSearchHits(searchHits: SearchHit[]): DashboardSearchHit[] {
   return searchHits.map((hit) => {
     const dashboardHit: DashboardSearchHit = {
@@ -174,15 +151,12 @@ export function searchHitsToDashboardSearchHits(searchHits: SearchHit[]): Dashbo
       isDeleted: true, // All results from trash are deleted
       sortMeta: 0, // Default value for deleted items
     };
-
     if (hit.folder && hit.folder !== 'general') {
       dashboardHit.folderUid = hit.folder;
     }
-
     return dashboardHit;
   });
 }
-
 /**
  * Filters search results based on query parameters
  * This is used when backend filtering is not available (e.g., for deleted dashboards)
@@ -197,21 +171,18 @@ export function filterSearchResults(
   }
 ): SearchHit[] {
   let filtered = results;
-
   if ((query.query && query.query.trim() !== '' && query.query !== '*') || (query.tag && query.tag.length > 0)) {
     const searchString = query.query || query.tag?.join(',') || '';
     const haystack = results.map((hit) => `${hit.title},${hit.tags.join(',')}`);
     const indices = fuzzySearch(haystack, searchString);
     filtered = indices.map((index) => results[index]);
   }
-
   if (query.sort) {
     if (query.sort === 'deleted-asc' || query.sort === 'deleted-desc') {
       const mult = query.sort === 'deleted-desc' ? -1 : 1;
       filtered.sort((a, b) => {
         const timestampA = a.field.deletionTimestamp;
         const timestampB = b.field.deletionTimestamp;
-
         // Handle missing or invalid timestamps - items without timestamps go to the end
         if (typeof timestampA !== 'string' && typeof timestampB !== 'string') {
           return 0;
@@ -222,7 +193,6 @@ export function filterSearchResults(
         if (typeof timestampB !== 'string') {
           return -1;
         }
-
         const timeA = Date.parse(timestampA);
         const timeB = Date.parse(timestampB);
         return mult * (timeA - timeB);
@@ -234,10 +204,8 @@ export function filterSearchResults(
       filtered.sort((a, b) => mult * collator.compare(a.title, b.title));
     }
   }
-
   return filtered;
 }
-
 /**
  * Appends rows from `frame` into `target`, aligning fields that may differ between frames.
  * New fields are backfilled with null for existing rows; missing fields are padded with null for new rows.
@@ -245,7 +213,6 @@ export function filterSearchResults(
 export function appendFrame(target: DataFrame, frame: DataFrame): void {
   const existingLength = target.length;
   const newLength = existingLength + frame.length;
-
   // Add new fields from the incoming frame that don't exist in the target yet
   for (const f of frame.fields) {
     if (!target.fields.find((vf) => vf.name === f.name)) {
@@ -255,7 +222,6 @@ export function appendFrame(target: DataFrame, frame: DataFrame): void {
       });
     }
   }
-
   // Append values from matching fields
   for (const f of frame.fields) {
     const field = target.fields.find((vf) => vf.name === f.name);
@@ -263,13 +229,11 @@ export function appendFrame(target: DataFrame, frame: DataFrame): void {
       field.values.push(...f.values);
     }
   }
-
   // Pad fields that don't exist in the incoming frame with null
   for (const field of target.fields) {
     while (field.values.length < newLength) {
       field.values.push(null);
     }
   }
-
   target.length = newLength;
 }

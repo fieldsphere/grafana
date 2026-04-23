@@ -1,9 +1,8 @@
+import { structLog } from '@grafana/data';
 import { type ThunkDispatch, type UnknownAction } from '@reduxjs/toolkit';
 import { type Subscription } from 'rxjs';
-
 import { ScopedResourceClient } from 'app/features/apiserver/client';
 import { type ListOptions, type GeneratedResourceList as ResourceList } from 'app/features/apiserver/types';
-
 interface OnCacheEntryAddedOptions<List = unknown> {
   onError?: (
     error: unknown,
@@ -12,7 +11,6 @@ interface OnCacheEntryAddedOptions<List = unknown> {
     arg: ListOptions | undefined
   ) => (() => void) | undefined | void;
 }
-
 /**
  * Creates a cache entry handler for RTK Query that watches for changes to a resource
  * and updates the cache accordingly.
@@ -30,7 +28,9 @@ export function createOnCacheEntryAdded<Spec, Status>(
       dispatch,
     }: {
       updateCachedData: (fn: (draft: List) => void) => void;
-      cacheDataLoaded: Promise<{ data: List }>;
+      cacheDataLoaded: Promise<{
+        data: List;
+      }>;
       cacheEntryRemoved: Promise<void>;
       dispatch: ThunkDispatch<unknown, unknown, UnknownAction>;
     }
@@ -38,20 +38,19 @@ export function createOnCacheEntryAdded<Spec, Status>(
     if (!arg?.watch) {
       return;
     }
-
     const client = new ScopedResourceClient<Spec, Status>({
       group: 'provisioning.grafana.app',
       version: 'v0alpha1',
       resource: resourceName,
     });
-
     let subscription: Subscription | null = null;
-    const errorCleanup: { fn?: () => void } = {};
+    const errorCleanup: {
+      fn?: () => void;
+    } = {};
     try {
       // Wait for the initial query to resolve before proceeding
       const response = await cacheDataLoaded;
       const resourceVersion = response.data.metadata?.resourceVersion;
-
       subscription = client
         .watch({ resourceVersion, fieldSelector: arg?.fieldSelector, labelSelector: arg?.labelSelector })
         .subscribe({
@@ -62,7 +61,6 @@ export function createOnCacheEntryAdded<Spec, Status>(
               }
               // Find the item with the matching name
               const existingIndex = draft.items.findIndex((item) => item.metadata?.name === event.object.metadata.name);
-
               if (event.type === 'ADDED' && existingIndex === -1) {
                 draft.items.push(event.object);
               } else if (event.type === 'DELETED' && existingIndex !== -1) {
@@ -80,10 +78,9 @@ export function createOnCacheEntryAdded<Spec, Status>(
           },
         });
     } catch (error) {
-      console.error('Error in onCacheEntryAdded:', error);
+      structLog('error', 'Error in onCacheEntryAdded:', error);
       return;
     }
-
     await cacheEntryRemoved;
     subscription?.unsubscribe();
     errorCleanup.fn?.();

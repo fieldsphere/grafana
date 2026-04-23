@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { Observable } from 'rxjs';
-
 import { type DataLinkTransformationConfig } from '@grafana/data';
 import { type CorrelationData, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import { createErrorNotification } from 'app/core/copy/appNotification';
@@ -8,11 +8,9 @@ import { type CreateCorrelationParams } from 'app/features/correlations/types';
 import { createCorrelation, generateDefaultLabel, getCorrelationsFromStorage } from 'app/features/correlations/utils';
 import { store } from 'app/store/store';
 import { type ThunkResult } from 'app/types/store';
-
 import { saveCorrelationsAction } from './explorePane';
 import { splitClose } from './main';
 import { runQueries } from './query';
-
 /**
  * Creates an observable that emits correlations once they are loaded
  */
@@ -34,18 +32,15 @@ export const getCorrelations = (exploreId: string) => {
     }
   });
 };
-
 function reloadCorrelations(exploreId: string): ThunkResult<Promise<void>> {
   return async (dispatch, getState) => {
     const pane = getState().explore!.panes[exploreId]!;
-
     if (pane.datasourceInstance?.uid !== undefined) {
       const correlations = await getCorrelationsFromStorage(dispatch, pane.queries, pane.datasourceInstance.uid);
       dispatch(saveCorrelationsAction({ exploreId, correlations: correlations.correlations || [] }));
     }
   };
 }
-
 export function saveCurrentCorrelation(
   label?: string,
   description?: string,
@@ -64,12 +59,10 @@ export function saveCurrentCorrelation(
     const targetDataSourceRef = targetPane.datasourceInstance?.meta.mixed
       ? targetPane.queries[0].datasource
       : targetPane.datasourceInstance?.getRef();
-
     const [sourceDatasource, targetDatasource] = await Promise.all([
       getDataSourceSrv().get(sourceDatasourceRef),
       getDataSourceSrv().get(targetDataSourceRef),
     ]);
-
     if (sourceDatasource?.uid && targetDatasource?.uid && targetPane.correlationEditorHelperData?.resultField) {
       const correlation: CreateCorrelationParams = {
         sourceUID: sourceDatasource.uid,
@@ -95,7 +88,7 @@ export function saveCurrentCorrelation(
         })
         .catch((err) => {
           dispatch(notifyApp(createErrorNotification('Error creating correlation', err)));
-          console.error(err);
+          structLog('error', err);
         });
     }
   };

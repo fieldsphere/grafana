@@ -1,16 +1,14 @@
+import { structLog } from '@grafana/data';
 import getDefaultMonacoLanguages from 'lib/monaco-languages';
 import { useState } from 'react';
 import { useAsync } from 'react-use';
 import SwaggerUI from 'swagger-ui-react';
-
 import { createTheme, monacoLanguageRegistry, type SelectableValue } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { Icon, Stack, Select, UserIcon, type UserView, Button } from '@grafana/ui';
 import { setMonacoEnv } from 'app/core/monacoEnv';
 import { ThemeProvider } from 'app/core/utils/ConfigProvider';
-
 import { NamespaceContext, WrappedPlugins } from './plugins';
-
 export const Page = () => {
   const theme = createTheme({ colors: { mode: 'light' } });
   const [url, setURL] = useState<SelectableValue<string>>();
@@ -18,7 +16,6 @@ export const Page = () => {
     const v2 = { label: 'Grafana API (OpenAPI v2)', key: 'openapi2', value: 'public/api-merged.json' };
     const v3 = { label: 'Grafana API (OpenAPI v3)', key: 'openapi3', value: 'public/openapi3.json' };
     const urls: Array<SelectableValue<string>> = [v2, v3];
-
     const rsp = await fetch('openapi/v3');
     const apis = await rsp.json();
     for (const [key, val] of Object.entries<any>(apis.paths)) {
@@ -31,7 +28,6 @@ export const Page = () => {
         });
       }
     }
-
     let idx = 0;
     const urlParams = new URLSearchParams(window.location.search);
     const api = urlParams.get('api');
@@ -42,30 +38,25 @@ export const Page = () => {
         }
       });
     }
-
     monacoLanguageRegistry.setInit(getDefaultMonacoLanguages);
     setMonacoEnv();
-
     setURL(urls[idx]); // Remove to start at the generic landing page
     return urls;
   });
-
   const [userView, setUserView] = useState<UserView>();
-
   const namespace = useAsync(async () => {
     const response = await fetch('api/frontend/settings');
     if (!response.ok) {
-      console.warn('No settings found');
+      structLog('warn', 'No settings found');
       return 'default';
     }
     const val = await response.json();
     return val.namespace;
   });
-
   useAsync(async () => {
     const response = await fetch('api/user');
     if (!response.ok) {
-      console.warn('No user found, show login button');
+      structLog('warn', 'No user found, show login button');
       return;
     }
     const val = await response.json();
@@ -77,7 +68,6 @@ export const Page = () => {
       lastActiveAt: new Date(),
     });
   });
-
   return (
     <div>
       <ThemeProvider value={theme}>

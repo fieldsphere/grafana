@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import {
   type DataFrame,
   type DataLink,
@@ -8,18 +9,15 @@ import {
   type TimeRange,
 } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
-
 import { type AwsUrl, encodeUrl } from '../aws_url';
 import { type CloudWatchLogsQuery } from '../dataquery.gen';
 import { type CloudWatchQuery } from '../types';
-
 type ReplaceFn = (
   target?: string,
   scopedVars?: ScopedVars,
   displayErrorIfIsMultiTemplateVariable?: boolean,
   fieldName?: string
 ) => string;
-
 export async function addDataLinksToLogsResponse(
   response: DataQueryResponse,
   request: DataQueryRequest<CloudWatchQuery>,
@@ -30,11 +28,9 @@ export async function addDataLinksToLogsResponse(
 ): Promise<void> {
   const replace = (target: string, fieldName?: string) => replaceFn(target, request.scopedVars, false, fieldName);
   const getVariableValue = (target: string) => getVariableValueFn(target, request.scopedVars);
-
   for (const dataFrame of response.data as DataFrame[]) {
     const curTarget = request.targets.find((target) => target.refId === dataFrame.refId) as CloudWatchLogsQuery;
     const interpolatedRegion = getRegion(replace(curTarget.region ?? '', 'region'));
-
     for (const field of dataFrame.fields) {
       if (field.name === '@xrayTraceId' && tracingDatasourceUid) {
         getRegion(replace(curTarget.region ?? '', 'region'));
@@ -44,7 +40,6 @@ export async function addDataLinksToLogsResponse(
         }
       }
     }
-
     // add a link to the cloudwatch console as a separate field that will be displayed as a link
     if (dataFrame.fields.length) {
       dataFrame.fields.push({
@@ -60,16 +55,14 @@ export async function addDataLinksToLogsResponse(
     }
   }
 }
-
 async function createInternalXrayLink(datasourceUid: string, region: string): Promise<DataLink | undefined> {
   let ds;
   try {
     ds = await getDataSourceSrv().get(datasourceUid);
   } catch (e) {
-    console.error('Could not load linked xray data source, it was probably deleted after it was linked', e);
+    structLog('error', 'Could not load linked xray data source, it was probably deleted after it was linked', e);
     return undefined;
   }
-
   return {
     title: ds.name,
     url: '',
@@ -80,7 +73,6 @@ async function createInternalXrayLink(datasourceUid: string, region: string): Pr
     },
   };
 }
-
 function createAwsConsoleLink(
   target: CloudWatchLogsQuery,
   range: TimeRange,
@@ -95,7 +87,6 @@ function createAwsConsoleLink(
   const sources = arns?.length ? arns : logGroupNames;
   const interpolatedExpression = target.expression ? replace(target.expression) : '';
   const interpolatedGroups = sources?.flatMap(getVariableValue);
-
   const urlProps: AwsUrl = {
     end: range.to.toISOString(),
     start: range.from.toISOString(),
@@ -105,7 +96,6 @@ function createAwsConsoleLink(
     isLiveTail: false,
     source: interpolatedGroups,
   };
-
   const encodedUrl = encodeUrl(urlProps, region);
   return {
     url: encodedUrl,

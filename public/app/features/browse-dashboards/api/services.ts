@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getBackendSrv } from '@grafana/runtime';
 import { dashboardAPIv0alpha1 } from 'app/api/clients/dashboard/v0alpha1';
@@ -10,7 +11,6 @@ import { extractManagerKind, queryResultToViewItem } from 'app/features/search/s
 import { type DashboardViewItem } from 'app/features/search/types';
 import { AccessControlAction } from 'app/types/accessControl';
 import { dispatch } from 'app/types/store';
-
 import {
   addTeamFolderPrefix,
   getFolderURL,
@@ -19,9 +19,7 @@ import {
   parseOwnerRef,
   teamOwnerRef,
 } from '../utils/dashboards';
-
 export const PAGE_SIZE = 50;
-
 async function searchOldAPI(parentUID?: string, page = 1, pageSize = PAGE_SIZE) {
   const backendSrv = getBackendSrv();
   return await backendSrv.get<NestedFolderDTO[]>('/api/folders', {
@@ -30,7 +28,6 @@ async function searchOldAPI(parentUID?: string, page = 1, pageSize = PAGE_SIZE) 
     limit: pageSize,
   });
 }
-
 const virtualFolderBase = {
   kind: 'folder',
   url: '',
@@ -41,7 +38,6 @@ const virtualFolderBase = {
   score: 0,
   explain: {},
 };
-
 async function searchNewAPI(parentUID?: string, page = 1, pageSize = PAGE_SIZE) {
   const searcher = getGrafanaSearcher();
   const foldersResults = await searcher.search({
@@ -51,9 +47,7 @@ async function searchNewAPI(parentUID?: string, page = 1, pageSize = PAGE_SIZE) 
     limit: pageSize,
     offset: (page - 1) * pageSize,
   });
-
   let folders: DashboardQueryResult[] = foldersResults.view.toArray();
-
   // Add shared with me item statically to the array as it is not returned from the
   // API anymore. This also means we show it every time, whether it has children or not. This is the same as in folder
   // picker for now. In the future we could to additional request to see if there are any children in it.
@@ -64,7 +58,6 @@ async function searchNewAPI(parentUID?: string, page = 1, pageSize = PAGE_SIZE) 
       name: t('browse-dashboards.shared-with-me', 'Shared with me'),
     });
   }
-
   // Add team folders virtual item only if the user actually has team folders
   if (!parentUID && config.featureToggles.teamFolders) {
     try {
@@ -78,10 +71,9 @@ async function searchNewAPI(parentUID?: string, page = 1, pageSize = PAGE_SIZE) 
         });
       }
     } catch (error) {
-      console.error('Failed to load team folders', error);
+      structLog('error', 'Failed to load team folders', error);
     }
   }
-
   return folders.map<NestedFolderDTO>((item) => {
     return {
       uid: item.uid,
@@ -90,7 +82,6 @@ async function searchNewAPI(parentUID?: string, page = 1, pageSize = PAGE_SIZE) 
     };
   });
 }
-
 export async function listFolders(
   parentUID?: string,
   parentTitle?: string, // TODO: remove this when old UI is gone
@@ -105,7 +96,6 @@ export async function listFolders(
       folders = await searchOldAPI(parentUID, page, pageSize);
     }
   }
-
   return folders.map(({ uid, title, managedBy }) => {
     const noUrl = isSharedWithMe(uid) || isVirtualTeamFolder(uid);
     return {
@@ -122,10 +112,8 @@ export async function listFolders(
     };
   });
 }
-
 export async function listDashboards(parentUID?: string, page = 1, pageSize = PAGE_SIZE): Promise<DashboardViewItem[]> {
   const searcher = getGrafanaSearcher();
-
   const dashboardsResults = await searcher.search({
     kind: ['dashboard'],
     query: '*',
@@ -134,47 +122,45 @@ export async function listDashboards(parentUID?: string, page = 1, pageSize = PA
     limit: pageSize,
     offset: (page - 1) * pageSize,
   });
-
   return dashboardsResults.view.map((item) => {
     const viewItem = queryResultToViewItem(item, dashboardsResults.view);
-
     // TODO: Once we remove nestedFolders feature flag, undo this and prevent the 'general'
     // parentUID from being set in searcher
     if (viewItem.parentUID === GENERAL_FOLDER_UID) {
       viewItem.parentUID = undefined;
     }
-
     return viewItem;
   });
 }
-
 /**
  * Fetches the user's teams and returns actual folder items directly under "Team folders",
  * with team owner info attached to each folder.
  */
 export async function listTeamFolders(): Promise<DashboardViewItem[]> {
   const teams = await dispatch(legacyAPI.endpoints.getSignedInUserTeamList.initiate(undefined)).unwrap();
-
   if (!teams || teams.length === 0) {
     return [];
   }
-
   const ownerReference = teams.map(teamOwnerRef);
-
   const result = await dispatch(
     dashboardAPIv0alpha1.endpoints.searchDashboardsAndFolders.initiate({ ownerReference, type: 'folder' })
   ).unwrap();
-
   const hits = result.hits ?? [];
   if (hits.length === 0) {
     return [];
   }
-
   // Build a map of team UID → team info
   const teamsByUid = new Map(teams.map((team) => [team.uid, { name: team.name, avatarUrl: team.avatarUrl }]));
-
   // Build a map of folder UID → owning team reference
-  const folderOwners = new Map<string, { kind: string; uid: string; title: string; avatarUrl?: string }>();
+  const folderOwners = new Map<
+    string,
+    {
+      kind: string;
+      uid: string;
+      title: string;
+      avatarUrl?: string;
+    }
+  >();
   for (const hit of hits) {
     for (const ref of hit.ownerReferences ?? []) {
       const parsed = parseOwnerRef(ref);
@@ -192,7 +178,6 @@ export async function listTeamFolders(): Promise<DashboardViewItem[]> {
       }
     }
   }
-
   // Return actual folders with owner reference info
   return hits.map((hit) => ({
     kind: 'folder' as const,

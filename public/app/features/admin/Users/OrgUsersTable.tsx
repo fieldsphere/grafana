@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { useEffect, useMemo, useState } from 'react';
-
 import { type OrgRole } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
@@ -28,21 +28,15 @@ import { TagBadge } from 'app/core/components/TagFilter/TagBadge';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction, type Role } from 'app/types/accessControl';
 import { type OrgUser } from 'app/types/user';
-
 import { OrgRolePicker } from '../OrgRolePicker';
-
 type Cell<T extends keyof OrgUser = keyof OrgUser> = CellProps<OrgUser, OrgUser[T]>;
-
 const disabledRoleMessage = `This user's role is not editable because it is synchronized from your auth provider.
 Refer to the Grafana authentication docs for details.`;
-
 const getBasicRoleDisabled = (user: OrgUser) => {
   const isUserSynced = user?.isExternallySynced;
   return !contextSrv.hasPermissionInMetadata(AccessControlAction.OrgUsersWrite, user) || isUserSynced;
 };
-
 const selectors = e2eSelectors.pages.UserListPage.UsersListPage;
-
 export interface Props {
   users: OrgUser[];
   orgId?: number;
@@ -55,7 +49,6 @@ export interface Props {
   rolesLoading?: boolean;
   onUserRolesChange?: () => void;
 }
-
 export const OrgUsersTable = ({
   users,
   orgId,
@@ -70,7 +63,6 @@ export const OrgUsersTable = ({
 }: Props) => {
   const [userToRemove, setUserToRemove] = useState<OrgUser | null>(null);
   const [roleOptions, setRoleOptions] = useState<Role[]>([]);
-
   useEffect(() => {
     async function fetchOptions() {
       try {
@@ -79,14 +71,13 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        structLog('error', 'Error loading options');
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {
       fetchOptions();
     }
   }, [orgId]);
-
   const columns: Array<Column<OrgUser>> = useMemo(
     () => [
       {
@@ -148,11 +139,9 @@ export const OrgUsersTable = ({
               onUserRolesChange();
             }
           };
-
           if (config.featureToggles.rolePickerDrawer) {
             return <RolePickerBadges disabled={basicRoleDisabled} user={original} />;
           }
-
           return contextSrv.licensedAccessControlEnabled() ? (
             <UserRolePicker
               userId={original.userId}
@@ -256,7 +245,6 @@ export const OrgUsersTable = ({
     ],
     [rolesLoading, orgId, roleOptions, onUserRolesChange, onRoleChange]
   );
-
   return (
     <Stack direction={'column'} gap={2} data-testid={selectors.container}>
       <InteractiveTable columns={columns} data={users} getRowId={(user) => String(user.userId)} fetchData={fetchData} />

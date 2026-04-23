@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { memo } from 'react';
-
 import {
   LogsDedupStrategy,
   type LogsMetaItem,
@@ -15,14 +15,11 @@ import {
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
 import { Button, Dropdown, Menu, ToolbarButton, useStyles2 } from '@grafana/ui';
-
 import { LogLabels, LogLabelsList, type Props as LogLabelsProps } from '../../logs/components/LogLabels';
 import { DownloadFormat, downloadLogs } from '../../logs/utils';
 import { MetaInfoText, type MetaItemProps } from '../MetaInfoText';
-
 import { type LogsVisualisationType } from './constants';
 import { SETTINGS_KEYS } from './utils/logs';
-
 const getStyles = () => ({
   metaContainer: css({
     flex: 1,
@@ -34,7 +31,6 @@ const getStyles = () => ({
     },
   }),
 });
-
 export type Props = {
   meta: LogsMetaItem[];
   dedupStrategy: LogsDedupStrategy;
@@ -45,7 +41,6 @@ export type Props = {
   defaultDisplayedFields: string[];
   visualisationType: LogsVisualisationType;
 };
-
 export const LogsMetaRow = memo(
   ({
     meta,
@@ -60,9 +55,7 @@ export const LogsMetaRow = memo(
     const style = useStyles2(getStyles);
     const logsPanelControlsEnabled = useBooleanFlagValue('logsPanelControls', true);
     const newLogsPanelEnabled = useBooleanFlagValue('newLogsPanel', true);
-
     const logsMetaItem: Array<LogsMetaItem | MetaItemProps> = [...meta];
-
     // Add deduplication info
     if (dedupStrategy !== LogsDedupStrategy.none) {
       logsMetaItem.push({
@@ -71,7 +64,6 @@ export const LogsMetaRow = memo(
         kind: LogsMetaKind.Number,
       });
     }
-
     // Add detected fields info
     if (
       visualisationType === 'logs' &&
@@ -93,7 +85,6 @@ export const LogsMetaRow = memo(
         }
       );
     }
-
     function download(format: DownloadFormat) {
       reportInteraction('grafana_logs_download_logs_clicked', {
         app: CoreApp.Explore,
@@ -102,7 +93,6 @@ export const LogsMetaRow = memo(
       });
       downloadLogs(format, logRows, meta);
     }
-
     const downloadMenu = (
       <Menu>
         {/* eslint-disable-next-line @grafana/i18n/no-untranslated-strings */}
@@ -113,17 +103,14 @@ export const LogsMetaRow = memo(
         <Menu.Item label="csv" onClick={() => download(DownloadFormat.CSV)} />
       </Menu>
     );
-
     const onCommonLabelsToggle = (state: boolean) => {
       store.set(SETTINGS_KEYS.commonLabels, state);
     };
-
     const commonLabelsProps = {
       onDisplayMaxToggle: onCommonLabelsToggle,
       displayMax: 3,
       displayAll: store.getBool(SETTINGS_KEYS.commonLabels, false),
     };
-
     return (
       <>
         {logsMetaItem && (
@@ -149,9 +136,7 @@ export const LogsMetaRow = memo(
     );
   }
 );
-
 LogsMetaRow.displayName = 'LogsMetaRow';
-
 function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, logLabelsProps: Partial<LogLabelsProps>) {
   if (typeof value === 'string' || typeof value === 'number') {
     return <>{value}</>;
@@ -162,6 +147,6 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
   if (kind === LogsMetaKind.Error) {
     return <span className="logs-meta-item__error">{value.toString()}</span>;
   }
-  console.error(`Meta type ${typeof value} ${value} not recognized.`);
+  structLog('error', `Meta type ${typeof value} ${value} not recognized.`);
   return <></>;
 }

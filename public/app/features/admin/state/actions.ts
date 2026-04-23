@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { debounce } from 'lodash';
-
 import { dateTimeFormatTimeAgo } from '@grafana/data';
 import { featureEnabled, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
 import { type FetchDataArgs } from '@grafana/ui';
@@ -10,7 +10,6 @@ import { AccessControlAction } from 'app/types/accessControl';
 import { type LdapUser } from 'app/types/ldap';
 import { type ThunkResult } from 'app/types/store';
 import { type UserDTO, type UserSession, type UserFilter, type AnonUserFilter } from 'app/types/user';
-
 import {
   userAdminPageLoadedAction,
   userProfileLoadedAction,
@@ -37,7 +36,6 @@ import {
   anonQueryChanged,
 } from './reducers';
 // UserAdminPage
-
 export function loadAdminUserPage(userUid: string): ThunkResult<void> {
   return async (dispatch) => {
     try {
@@ -50,34 +48,29 @@ export function loadAdminUserPage(userUid: string): ThunkResult<void> {
       }
       dispatch(userAdminPageLoadedAction(true));
     } catch (error) {
-      console.error(error);
-
+      structLog('error', error);
       if (isFetchError(error)) {
         const userError = {
           title: error.data.message,
           body: error.data.error,
         };
-
         dispatch(userAdminPageFailedAction(userError));
       }
     }
   };
 }
-
 export function loadUserProfile(userUid: string): ThunkResult<void> {
   return async (dispatch) => {
     const user = await getBackendSrv().get(`/api/users/${userUid}`, accessControlQueryParam());
     dispatch(userProfileLoadedAction(user));
   };
 }
-
 export function updateUser(user: UserDTO): ThunkResult<void> {
   return async (dispatch) => {
     await getBackendSrv().put(`/api/users/${user.uid}`, user);
     dispatch(loadAdminUserPage(user.uid));
   };
 }
-
 export function setUserPassword(userUid: string, password: string): ThunkResult<void> {
   return async (dispatch) => {
     const payload = { password };
@@ -85,28 +78,24 @@ export function setUserPassword(userUid: string, password: string): ThunkResult<
     dispatch(loadAdminUserPage(userUid));
   };
 }
-
 export function disableUser(userUid: string): ThunkResult<void> {
   return async (dispatch) => {
     await getBackendSrv().post(`/api/admin/users/${userUid}/disable`);
     locationService.push('/admin/users');
   };
 }
-
 export function enableUser(userUid: string): ThunkResult<void> {
   return async (dispatch) => {
     await getBackendSrv().post(`/api/admin/users/${userUid}/enable`);
     dispatch(loadAdminUserPage(userUid));
   };
 }
-
 export function deleteUser(userUid: string): ThunkResult<void> {
   return async (dispatch) => {
     await getBackendSrv().delete(`/api/admin/users/${userUid}`);
     locationService.push('/admin/users');
   };
 }
-
 export function updateUserPermissions(userUid: string, isGrafanaAdmin: boolean): ThunkResult<void> {
   return async (dispatch) => {
     const payload = { isGrafanaAdmin };
@@ -114,14 +103,12 @@ export function updateUserPermissions(userUid: string, isGrafanaAdmin: boolean):
     dispatch(loadAdminUserPage(userUid));
   };
 }
-
 export function loadUserOrgs(userUid: string): ThunkResult<void> {
   return async (dispatch) => {
     const orgs = await getBackendSrv().get(`/api/users/${userUid}/orgs`);
     dispatch(userOrgsLoadedAction(orgs));
   };
 }
-
 export function addOrgUser(user: UserDTO, orgId: number, role: string): ThunkResult<void> {
   return async (dispatch) => {
     const payload = {
@@ -132,7 +119,6 @@ export function addOrgUser(user: UserDTO, orgId: number, role: string): ThunkRes
     dispatch(loadAdminUserPage(user.uid));
   };
 }
-
 export function updateOrgUserRole(userUid: string, orgId: number, role: string): ThunkResult<void> {
   return async (dispatch) => {
     const payload = { role };
@@ -140,23 +126,19 @@ export function updateOrgUserRole(userUid: string, orgId: number, role: string):
     dispatch(loadAdminUserPage(userUid));
   };
 }
-
 export function deleteOrgUser(userUid: string, orgId: number): ThunkResult<void> {
   return async (dispatch) => {
     await getBackendSrv().delete(`/api/orgs/${orgId}/users/${userUid}`);
     dispatch(loadAdminUserPage(userUid));
   };
 }
-
 export function loadUserSessions(userUid: string): ThunkResult<void> {
   return async (dispatch) => {
     if (!contextSrv.hasPermission(AccessControlAction.UsersAuthTokenList)) {
       return;
     }
-
     const tokens = await getBackendSrv().get(`/api/admin/users/${userUid}/auth-tokens`);
     tokens.reverse();
-
     const sessions = tokens.map((session: UserSession) => {
       return {
         id: session.id,
@@ -172,11 +154,9 @@ export function loadUserSessions(userUid: string): ThunkResult<void> {
         device: session.device,
       };
     });
-
     dispatch(userSessionsLoadedAction(sessions));
   };
 }
-
 export function revokeSession(tokenId: number, userUid: string): ThunkResult<void> {
   return async (dispatch) => {
     const payload = { authTokenId: tokenId };
@@ -184,16 +164,13 @@ export function revokeSession(tokenId: number, userUid: string): ThunkResult<voi
     dispatch(loadUserSessions(userUid));
   };
 }
-
 export function revokeAllSessions(userUid: string): ThunkResult<void> {
   return async (dispatch) => {
     await getBackendSrv().post(`/api/admin/users/${userUid}/logout`);
     dispatch(loadUserSessions(userUid));
   };
 }
-
 // LDAP user actions
-
 export function loadLdapSyncStatus(): ThunkResult<void> {
   return async (dispatch) => {
     // Available only in enterprise
@@ -204,22 +181,18 @@ export function loadLdapSyncStatus(): ThunkResult<void> {
     }
   };
 }
-
 export function syncLdapUser(userId: number, userUid: string): ThunkResult<void> {
   return async (dispatch) => {
     await getBackendSrv().post(`/api/admin/ldap/sync/${userId}`);
     dispatch(loadAdminUserPage(userUid));
   };
 }
-
 // LDAP debug page
-
 export function loadLdapState(): ThunkResult<void> {
   return async (dispatch) => {
     if (!contextSrv.hasPermission(AccessControlAction.LDAPStatusRead)) {
       return;
     }
-
     try {
       const connectionInfo = await getBackendSrv().get(`/api/admin/ldap/status`);
       dispatch(ldapConnectionInfoLoadedAction(connectionInfo));
@@ -235,7 +208,6 @@ export function loadLdapState(): ThunkResult<void> {
     }
   };
 }
-
 export function loadUserMapping(username: string): ThunkResult<void> {
   return async (dispatch) => {
     try {
@@ -261,22 +233,18 @@ export function loadUserMapping(username: string): ThunkResult<void> {
     }
   };
 }
-
 export function clearUserError(): ThunkResult<void> {
   return (dispatch) => {
     dispatch(clearUserErrorAction());
   };
 }
-
 export function clearUserMappingInfo(): ThunkResult<void> {
   return (dispatch) => {
     dispatch(clearUserErrorAction());
     dispatch(clearUserMappingInfoAction());
   };
 }
-
 // UserListAdminPage
-
 const getFilters = (filters: UserFilter[]) => {
   return filters
     .map((filter) => {
@@ -287,7 +255,6 @@ const getFilters = (filters: UserFilter[]) => {
     })
     .join('&');
 };
-
 export function fetchUsers(): ThunkResult<void> {
   return async (dispatch, getState) => {
     try {
@@ -300,13 +267,11 @@ export function fetchUsers(): ThunkResult<void> {
       dispatch(usersFetched(result));
     } catch (error) {
       usersFetchEnd();
-      console.error(error);
+      structLog('error', error);
     }
   };
 }
-
 const fetchUsersWithDebounce = debounce((dispatch) => dispatch(fetchUsers()), 500);
-
 export function changeQuery(query: string): ThunkResult<void> {
   return async (dispatch) => {
     dispatch(usersFetchBegin());
@@ -314,7 +279,6 @@ export function changeQuery(query: string): ThunkResult<void> {
     fetchUsersWithDebounce(dispatch);
   };
 }
-
 export function changeFilter(filter: UserFilter): ThunkResult<void> {
   return async (dispatch) => {
     dispatch(usersFetchBegin());
@@ -322,7 +286,6 @@ export function changeFilter(filter: UserFilter): ThunkResult<void> {
     fetchUsersWithDebounce(dispatch);
   };
 }
-
 export function changePage(page: number): ThunkResult<void> {
   return async (dispatch) => {
     dispatch(usersFetchBegin());
@@ -330,7 +293,6 @@ export function changePage(page: number): ThunkResult<void> {
     dispatch(fetchUsers());
   };
 }
-
 export function changeSort({ sortBy }: FetchDataArgs<UserDTO>): ThunkResult<void> {
   const sort = sortBy.length ? `${sortBy[0].id}-${sortBy[0].desc ? 'desc' : 'asc'}` : undefined;
   return async (dispatch, getState) => {
@@ -342,7 +304,6 @@ export function changeSort({ sortBy }: FetchDataArgs<UserDTO>): ThunkResult<void
     }
   };
 }
-
 // UserListAnonymousPage
 const getAnonFilters = (filters: AnonUserFilter[]) => {
   return filters
@@ -354,7 +315,6 @@ const getAnonFilters = (filters: AnonUserFilter[]) => {
     })
     .join('&');
 };
-
 export function fetchUsersAnonymousDevices(): ThunkResult<void> {
   return async (dispatch, getState) => {
     try {
@@ -366,13 +326,11 @@ export function fetchUsersAnonymousDevices(): ThunkResult<void> {
       const result = await getBackendSrv().get(url);
       dispatch(usersAnonymousDevicesFetched(result));
     } catch (error) {
-      console.error(error);
+      structLog('error', error);
     }
   };
 }
-
 const fetchAnonUsersWithDebounce = debounce((dispatch) => dispatch(fetchUsersAnonymousDevices()), 500);
-
 export function changeAnonUserSort({ sortBy }: FetchDataArgs<UserDTO>): ThunkResult<void> {
   const sort = sortBy.length ? `${sortBy[0].id}-${sortBy[0].desc ? 'desc' : 'asc'}` : undefined;
   return async (dispatch, getState) => {
@@ -384,7 +342,6 @@ export function changeAnonUserSort({ sortBy }: FetchDataArgs<UserDTO>): ThunkRes
     }
   };
 }
-
 export function changeAnonQuery(query: string): ThunkResult<void> {
   return async (dispatch) => {
     // dispatch(usersFetchBegin());
@@ -392,7 +349,6 @@ export function changeAnonQuery(query: string): ThunkResult<void> {
     fetchAnonUsersWithDebounce(dispatch);
   };
 }
-
 export function changeAnonPage(page: number): ThunkResult<void> {
   return async (dispatch) => {
     // dispatch(usersFetchBegin());
@@ -400,16 +356,3 @@ export function changeAnonPage(page: number): ThunkResult<void> {
     dispatch(fetchUsersAnonymousDevices());
   };
 }
-
-// export function fetchUsersAnonymousDevices(): ThunkResult<void> {
-//   return async (dispatch, getState) => {
-//     try {
-//       let url = `/api/anonymous/devices`;
-//       const result = await getBackendSrv().get(url);
-//       dispatch(usersAnonymousDevicesFetched({ devices: result }));
-//     } catch (error) {
-//       usersFetchEnd();
-//       console.error(error);
-//     }
-//   };
-// }

@@ -1,22 +1,18 @@
+import { structLog } from '@grafana/data';
 import { type PanelModel } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import { type FolderDTO } from 'app/types/folders';
-
 import { type Options } from './panelcfg.gen';
-
 async function getFolderUID(folderID: number): Promise<string> {
   // folderID 0 is always the fake General/Dashboards folder, which always has a UID of empty string
   if (folderID === 0) {
     return '';
   }
-
   const folderDTO = await getBackendSrv().get<FolderDTO>(`/api/folders/id/${folderID}`, undefined, undefined, {
     showErrorAlert: false,
   });
-
   return folderDTO.uid;
 }
-
 export interface AngularModel {
   /** @deprecated */
   starred?: boolean;
@@ -35,7 +31,6 @@ export interface AngularModel {
   /** @deprecated */
   tags?: string[];
 }
-
 export async function dashlistMigrationHandler(panel: PanelModel<Options> & AngularModel) {
   // Convert old angular model to new react model
   const newOptions: Options = {
@@ -49,27 +44,23 @@ export async function dashlistMigrationHandler(panel: PanelModel<Options> & Angu
     folderId: panel.options.folderId ?? panel.folderId,
     tags: panel.options.tags ?? panel.tags,
   };
-
   // Delete old angular properties
   const previousVersion = parseFloat(panel.pluginVersion || '6.1');
   if (previousVersion < 6.3) {
     const oldProps = ['starred', 'recent', 'search', 'headings', 'limit', 'query', 'folderId'] as const;
     oldProps.forEach((prop) => delete panel[prop]);
   }
-
   // Convert the folderId to folderUID. Uses the API to do the conversion.
   if (newOptions.folderId !== undefined) {
     const folderId = newOptions.folderId;
-
     // If converting ID to UID fails, the panel will not be migrated and will show incorrectly
     try {
       const folderUID = await getFolderUID(folderId);
       newOptions.folderUID = folderUID;
       delete newOptions.folderId;
     } catch (err) {
-      console.warn('Dashlist: Error migrating folder ID to UID', err);
+      structLog('warn', 'Dashlist: Error migrating folder ID to UID', err);
     }
   }
-
   return newOptions;
 }

@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { createApi } from '@reduxjs/toolkit/query/react';
-
 import { handleRequestError } from '@grafana/api-clients';
 import { generatedAPI as legacyUserAPI } from '@grafana/api-clients/internal/rtkq/legacy/user';
 import { createBaseQuery } from '@grafana/api-clients/rtkq';
@@ -30,66 +30,53 @@ import {
   type FolderDTO,
   type FolderListItemDTO,
 } from 'app/types/folders';
-
 import { getDashboardScenePageStateManager } from '../../dashboard-scene/pages/DashboardScenePageStateManager';
 import { deletedDashboardsCache } from '../../search/service/deletedDashboardsCache';
 import { refetchChildren, refreshParents } from '../state/actions';
-
 import { isProvisionedDashboard } from './isProvisioned';
 import { PAGE_SIZE } from './services';
-
 export interface DeleteFoldersArgs {
   folderUIDs: string[];
 }
-
 interface DeleteDashboardsArgs {
   dashboardUIDs: string[];
 }
-
 interface MoveDashboardsArgs {
   destinationUID: string;
   dashboardUIDs: string[];
 }
-
 export interface MoveFoldersArgs {
   destinationUID: string;
   folderUIDs: string[];
 }
-
 export interface MoveFolderArgs {
   folderUID: string;
   destinationUID: string;
 }
-
 export interface ImportInputs {
   name: string;
   type: string;
   value: string;
   pluginId?: string;
 }
-
 interface ImportOptions {
   dashboard: Dashboard;
   overwrite: boolean;
   inputs: ImportInputs[];
   folderUid: string;
 }
-
 interface RestoreDashboardArgs {
   dashboard: Resource<Dashboard | DashboardV2Spec>;
 }
-
 export interface ListFolderQueryArgs {
   page: number;
   parentUid: string | undefined;
   limit: number;
   permission?: PermissionLevel;
 }
-
 // Don't invalidate individual getFolder tags — the resource no longer exists and refetching would 404
 const invalidateListOnSuccess = (result: unknown, error: unknown) =>
   error ? [] : [{ type: 'getFolder' as const, id: 'LIST' }];
-
 export const browseDashboardsAPI = createApi({
   tagTypes: ['getFolder'],
   reducerPath: 'browseDashboardsAPI',
@@ -108,9 +95,15 @@ export const browseDashboardsAPI = createApi({
         params: { parentUid, limit, page, permission },
       }),
     }),
-
     // get folder info (e.g. title, parents) but *not* children
-    getFolder: builder.query<FolderDTO, { folderUID: string; accesscontrol: boolean; isLegacyCall: boolean }>({
+    getFolder: builder.query<
+      FolderDTO,
+      {
+        folderUID: string;
+        accesscontrol: boolean;
+        isLegacyCall: boolean;
+      }
+    >({
       providesTags: (_result, _error, { folderUID }) => [{ type: 'getFolder', id: folderUID }],
       query: ({ folderUID, accesscontrol, isLegacyCall }) => ({
         url: `/folders/${folderUID}`,
@@ -122,9 +115,14 @@ export const browseDashboardsAPI = createApi({
         },
       }),
     }),
-
     // create a new folder
-    newFolder: builder.mutation<FolderDTO, { title: string; parentUid?: string }>({
+    newFolder: builder.mutation<
+      FolderDTO,
+      {
+        title: string;
+        parentUid?: string;
+      }
+    >({
       invalidatesTags: ['getFolder'],
       query: ({ title, parentUid }) => ({
         method: 'POST',
@@ -150,7 +148,6 @@ export const browseDashboardsAPI = createApi({
         invalidateQuotaUsage(dispatch);
       },
     }),
-
     // save an existing folder (e.g. rename)
     saveFolder: builder.mutation<FolderDTO, Pick<FolderDTO, 'uid' | 'title' | 'version' | 'parentUid'>>({
       // because the getFolder calls contain the parents, renaming a parent/grandparent/etc needs to invalidate all child folders
@@ -176,7 +173,6 @@ export const browseDashboardsAPI = createApi({
         });
       },
     }),
-
     // move an *individual* folder. used in the folder actions menu.
     moveFolder: builder.mutation<void, MoveFolderArgs>({
       invalidatesTags: ['getFolder'],
@@ -197,7 +193,6 @@ export const browseDashboardsAPI = createApi({
         });
       },
     }),
-
     // delete an *individual* folder. used in the folder actions menu.
     deleteFolder: builder.mutation<void, FolderDTO>({
       invalidatesTags: invalidateListOnSuccess,
@@ -222,9 +217,14 @@ export const browseDashboardsAPI = createApi({
         });
       },
     }),
-
     // gets the descendant counts for a folder. used in the move/delete modals.
-    getAffectedItems: builder.query<DescendantCount, { folderUIDs: string[]; dashboardUIDs: string[] }>({
+    getAffectedItems: builder.query<
+      DescendantCount,
+      {
+        folderUIDs: string[];
+        dashboardUIDs: string[];
+      }
+    >({
       // don't cache this data for now, since library panel/alert rule creation isn't done through rtk query
       keepUnusedDataFor: 0,
       queryFn: async ({ folderUIDs, dashboardUIDs }) => {
@@ -233,28 +233,24 @@ export const browseDashboardsAPI = createApi({
             return getBackendSrv().get<DescendantCountDTO>(`/api/folders/${folderUID}/counts`);
           });
           const results = await Promise.all(promises);
-
           const totalCounts: DescendantCount = {
             folders: folderUIDs.length,
             dashboards: dashboardUIDs.length,
             library_elements: 0,
             alertrules: 0,
           };
-
           for (const folderCounts of results) {
             totalCounts.folders += folderCounts.folder;
             totalCounts.dashboards += folderCounts.dashboard;
             totalCounts.alertrules += folderCounts.alertrule;
             totalCounts.library_elements += folderCounts.librarypanel;
           }
-
           return { data: totalCounts };
         } catch (error) {
           return { error };
         }
       },
     }),
-
     // move *multiple* dashboards. used in the move modal.
     moveDashboards: builder.mutation<void, MoveDashboardsArgs>({
       invalidatesTags: ['getFolder'],
@@ -266,7 +262,6 @@ export const browseDashboardsAPI = createApi({
           const fullDash = await api.getDashboardDTO(dashboardUID);
           const dashboard = isDashboardV2Resource(fullDash) ? fullDash.spec : fullDash.dashboard;
           const k8s = isDashboardV2Resource(fullDash) ? fullDash.metadata : undefined;
-
           if (config.featureToggles.provisioning) {
             if (isProvisionedDashboard(fullDash)) {
               appEvents.publish({
@@ -298,7 +293,6 @@ export const browseDashboardsAPI = createApi({
         });
       },
     }),
-
     // move *multiple* folders. used in the move modal.
     moveFolders: builder.mutation<void, MoveFoldersArgs>({
       invalidatesTags: ['getFolder'],
@@ -316,14 +310,12 @@ export const browseDashboardsAPI = createApi({
           ) {
             continue;
           }
-
           await baseQuery({
             url: `/folders/${folderUID}/move`,
             method: 'POST',
             body: { parentUID: destinationUID },
           });
         }
-
         return { data: undefined };
       },
       onQueryStarted: ({ destinationUID, folderUIDs }, { queryFulfilled, dispatch }) => {
@@ -338,7 +330,6 @@ export const browseDashboardsAPI = createApi({
         });
       },
     }),
-
     // delete *multiple* folders. used in the delete modal.
     deleteFolders: builder.mutation<void, DeleteFoldersArgs>({
       invalidatesTags: invalidateListOnSuccess,
@@ -371,7 +362,6 @@ export const browseDashboardsAPI = createApi({
         });
       },
     }),
-
     // delete *multiple* dashboards. used in the delete modal.
     deleteDashboards: builder.mutation<void, DeleteDashboardsArgs>({
       invalidatesTags: invalidateListOnSuccess,
@@ -400,7 +390,6 @@ export const browseDashboardsAPI = createApi({
               }
             }
             await api.deleteDashboard(dashboardUID, !restoreDashboardsEnabled);
-
             deletedCount++;
             deletedDashboardUIDs.push(dashboardUID);
           }
@@ -411,7 +400,6 @@ export const browseDashboardsAPI = createApi({
             for (const uid of deletedDashboardUIDs) {
               pageStateManager.removeSceneCache(uid);
             }
-
             // Show success notification after all deletions
             if (restoreDashboardsEnabled) {
               // Show notification with button to Recently Deleted
@@ -435,7 +423,6 @@ export const browseDashboardsAPI = createApi({
             }
           }
         }
-
         return { data: undefined };
       },
       onQueryStarted: ({ dashboardUIDs }, { queryFulfilled, getState }) => {
@@ -457,7 +444,6 @@ export const browseDashboardsAPI = createApi({
         });
       },
     }),
-
     // save an existing dashboard
     saveDashboard: builder.mutation<SaveDashboardResponseDTO, SaveDashboardCommand<Dashboard | DashboardV2Spec>>({
       queryFn: async (cmd) => {
@@ -467,7 +453,6 @@ export const browseDashboardsAPI = createApi({
             const response = await api.saveDashboard(cmd);
             return { data: response };
           }
-
           if (isV1DashboardCommand(cmd)) {
             const api = await getDashboardAPI('v1');
             const rsp = await api.saveDashboard(cmd);
@@ -478,7 +463,6 @@ export const browseDashboardsAPI = createApi({
           return handleRequestError(error);
         }
       },
-
       onQueryStarted: ({ folderUid }, { queryFulfilled, dispatch }) => {
         dashboardWatcher.ignoreNextSave();
         queryFulfilled.then(async ({ data }) => {
@@ -496,7 +480,6 @@ export const browseDashboardsAPI = createApi({
         });
       },
     }),
-
     importDashboard: builder.mutation<ImportDashboardResponseDTO, ImportOptions>({
       query: ({ dashboard, overwrite, inputs, folderUid }) => ({
         method: 'POST',
@@ -521,7 +504,7 @@ export const browseDashboardsAPI = createApi({
           } catch (error) {
             if (isFetchError(error)) {
               if (error.status !== 404) {
-                console.error('Error fetching dashboard', error);
+                structLog('error', 'Error fetching dashboard', error);
               } else {
                 // Do not show the error alert if the dashboard does not exist
                 // this is expected when importing a new dashboard
@@ -530,7 +513,6 @@ export const browseDashboardsAPI = createApi({
             }
           }
         }
-
         queryFulfilled.then(async (response) => {
           // Refresh destination folder
           dispatch(
@@ -539,7 +521,6 @@ export const browseDashboardsAPI = createApi({
               pageSize: PAGE_SIZE,
             })
           );
-
           // If the dashboard was moved from a different folder, refresh the source folder too
           if (currentFolderUid && currentFolderUid !== folderUid) {
             dispatch(
@@ -549,14 +530,12 @@ export const browseDashboardsAPI = createApi({
               })
             );
           }
-
           const dashboardUrl = locationUtil.stripBaseFromUrl(response.data.importedUrl);
           locationService.push(dashboardUrl);
           invalidateQuotaUsage(dispatch);
         });
       },
     }),
-
     // RTK wrapper for the dashboard API
     listDeletedDashboards: builder.query<ResourceList<Dashboard | DashboardV2Spec>, void>({
       providesTags: ['getFolder'],
@@ -564,16 +543,19 @@ export const browseDashboardsAPI = createApi({
         try {
           const api = await getDashboardAPI();
           const response = await api.listDeletedDashboards({});
-
           return { data: response };
         } catch (error) {
           return handleRequestError(error);
         }
       },
     }),
-
     // restore a dashboard that got deleted
-    restoreDashboard: builder.mutation<{ name: string }, RestoreDashboardArgs>({
+    restoreDashboard: builder.mutation<
+      {
+        name: string;
+      },
+      RestoreDashboardArgs
+    >({
       invalidatesTags: ['getFolder'],
       queryFn: async ({ dashboard }) => {
         try {
@@ -581,7 +563,6 @@ export const browseDashboardsAPI = createApi({
           const response = await api.restoreDashboard(dashboard);
           const name = response.spec.title || '';
           const parentFolder = response.metadata?.annotations?.[AnnoKeyFolder];
-
           // Refresh the contents of the folder a dashboard was restored to
           dispatch(
             refetchChildren({
@@ -590,7 +571,6 @@ export const browseDashboardsAPI = createApi({
             })
           );
           invalidateQuotaUsage(dispatch);
-
           return { data: { name } };
         } catch (error) {
           return handleRequestError(error);
@@ -599,7 +579,6 @@ export const browseDashboardsAPI = createApi({
     }),
   }),
 });
-
 export const {
   endpoints,
   useDeleteFolderMutation,

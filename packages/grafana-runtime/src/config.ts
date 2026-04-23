@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { merge } from 'lodash';
-
 import {
   type AppPluginConfig as AppPluginConfigGrafanaData,
   type AuthSettings,
@@ -27,7 +27,6 @@ import {
   type GrafanaConfig,
   type CurrentUserDTO,
 } from '@grafana/data';
-
 /**
  * @deprecated Use the type from `@grafana/data`
  */
@@ -41,7 +40,6 @@ export interface AzureSettings {
   userIdentityFallbackCredentialsEnabled: boolean;
   azureEntraPasswordCredentialsEnabled: boolean;
 }
-
 /**
  * @deprecated Use the type from `@grafana/data`
  */
@@ -50,7 +48,6 @@ export interface AzureCloudInfo {
   name: string;
   displayName: string;
 }
-
 /**
  * @deprecated Use the type from `@grafana/data`
  */
@@ -66,7 +63,6 @@ export type AppPluginConfig = {
   extensions: PluginExtensions;
   moduleHash?: string;
 };
-
 /**
  * @deprecated Use the type from `@grafana/data`
  */
@@ -75,7 +71,6 @@ export type PreinstalledPlugin = {
   id: string;
   version: string;
 };
-
 /**
  * Use to access Grafana config settings in application code.
  * This takes `window.grafanaBootData.settings` as input and returns a config object.
@@ -84,9 +79,13 @@ export class GrafanaBootConfig {
   publicDashboardAccessToken?: string;
   publicDashboardsEnabled = true;
   snapshotEnabled = true;
-  datasources: { [str: string]: DataSourceInstanceSettings } = {};
+  datasources: {
+    [str: string]: DataSourceInstanceSettings;
+  } = {};
   /** @deprecated it will be removed in a future release, use isPanelPluginInstalled, getPanelPluginVersion or getListedPanelPluginIds instead */
-  panels: { [key: string]: PanelPluginMeta } = {};
+  panels: {
+    [key: string]: PanelPluginMeta;
+  } = {};
   /** @deprecated it will be removed in a future release, use isAppPluginInstalled or getAppPluginVersion instead */
   apps: Record<string, AppPluginConfigGrafanaData> = {};
   auth: AuthSettings = {};
@@ -143,7 +142,9 @@ export class GrafanaBootConfig {
   /** @deprecated Use `theme2` instead. */
   theme: GrafanaTheme;
   theme2: GrafanaTheme2;
-  featureToggles: FeatureToggles & { kubernetesDashboards?: boolean } = {};
+  featureToggles: FeatureToggles & {
+    kubernetesDashboards?: boolean;
+  } = {};
   anonymousEnabled = false;
   anonymousDeviceLimit?: number;
   licenseInfo: LicenseInfo = {} as LicenseInfo;
@@ -203,7 +204,6 @@ export class GrafanaBootConfig {
     },
     recordingRulesEnabled: false,
     defaultRecordingRulesTargetDatasourceUID: undefined,
-
     // Backward compatibility fields - populated by backend
     alertStateHistoryBackend: undefined,
     alertStateHistoryPrimary: undefined,
@@ -256,13 +256,11 @@ export class GrafanaBootConfig {
   quickRanges?: TimeOption[];
   pluginRestrictedAPIsAllowList?: Record<string, string[]>;
   pluginRestrictedAPIsBlockList?: Record<string, string[]>;
-
   /**
    * Language used in Grafana's UI. This is after the user's preference (or deteceted locale) is resolved to one of
    * Grafana's supported language.
    */
   language: string | undefined;
-
   /**
    * regionalFormat used in Grafana's UI. Default to 'es-US' in the backend and overwritten when the user select a different one in SharedPreferences.
    * This is the regionalFormat that is used for date formatting and other locale-specific features.
@@ -270,28 +268,21 @@ export class GrafanaBootConfig {
   regionalFormat: string;
   listDashboardScopesEndpoint = '';
   listScopesEndpoint = '';
-
   openFeatureContext: Record<string, unknown> = {};
-
   constructor(
     options: BootData['settings'] & {
       bootData: BootData;
     }
   ) {
     this.bootData = options.bootData;
-
     merge(this, options);
-
     if (this.dateFormats) {
       systemDateFormats.update(this.dateFormats);
     }
-
     overrideFeatureTogglesFromUrl(this);
     overrideFeatureTogglesFromLocalStorage(this);
-
     this.featureToggles.kubernetesDashboards = true; // Force true
     this.bootData.settings.featureToggles = this.featureToggles;
-
     // Creating theme after applying feature toggle overrides in case we need to toggle anything
     this.theme2 = getThemeById(this.bootData.user.theme);
     this.bootData.user.lightTheme = this.theme2.isLight;
@@ -299,7 +290,6 @@ export class GrafanaBootConfig {
     this.regionalFormat = options.bootData.user.regionalFormat;
   }
 }
-
 // localstorage key: grafana.featureToggles
 // example value: panelEditor=1,panelInspector=1
 function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
@@ -313,48 +303,40 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
       const toggleState = featureValue === 'true' || featureValue === '1';
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       featureToggles[featureName as keyof FeatureToggles] = toggleState;
-      console.log(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
+      structLog('log', `Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
     }
   }
 }
-
 function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
   if (window.location.href.indexOf('__feature') === -1) {
     return;
   }
-
   const isDevelopment = config.buildInfo.env === 'development';
-
   // Although most flags can not be changed from the URL in production,
   // some of them are safe (and useful!) to change dynamically from the browser URL
   const safeRuntimeFeatureFlags = new Set(['queryServiceFromUI']);
-
   const params = new URLSearchParams(window.location.search);
   params.forEach((value, key) => {
     if (key.startsWith('__feature.')) {
       const featureToggles = config.featureToggles as Record<string, boolean>;
       const featureName = key.substring(10);
-
       const toggleState = value === 'true' || value === ''; // browser rewrites true as ''
       if (toggleState !== featureToggles[key]) {
         if (isDevelopment || safeRuntimeFeatureFlags.has(featureName)) {
           featureToggles[featureName] = toggleState;
-          console.log(`Setting feature toggle ${featureName} = ${toggleState} via url`);
+          structLog('log', `Setting feature toggle ${featureName} = ${toggleState} via url`);
         } else {
-          console.log(`Unable to change feature toggle ${featureName} via url in production.`);
+          structLog('log', `Unable to change feature toggle ${featureName} via url in production.`);
         }
       }
     }
   });
 }
-
 let bootData = window.grafanaBootData;
-
 if (!bootData) {
   if (process.env.NODE_ENV !== 'test') {
-    console.error('window.grafanaBootData was not set by the time config was initialized');
+    structLog('error', 'window.grafanaBootData was not set by the time config was initialized');
   }
-
   bootData = {
     assets: {
       dark: '',
@@ -365,7 +347,6 @@ if (!bootData) {
     navTree: [],
   };
 }
-
 /**
  * Use this to access the {@link GrafanaBootConfig} for the current running Grafana instance.
  *

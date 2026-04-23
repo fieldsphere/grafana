@@ -1,12 +1,10 @@
+import { structLog } from '@grafana/data';
 import { useMemo } from 'react';
-
 import { ActionType, type DataSourceInstanceSettings } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { Select } from '@grafana/ui';
-
 import { INFINITY_DATASOURCE_TYPE } from './utils';
-
 interface ConnectionOption {
   label: string;
   value: string;
@@ -14,23 +12,18 @@ interface ConnectionOption {
   imgUrl?: string;
   icon?: string;
 }
-
 interface ConnectionPickerProps {
   actionType: ActionType;
   datasourceUid?: string;
   onChange: (connectionType: 'direct' | DataSourceInstanceSettings) => void;
 }
-
 const DIRECT_OPTION_VALUE = 'direct';
-
 const getSupportedDataSources = () => {
   const dataSourceSrv = getDataSourceSrv();
-
   return dataSourceSrv.getList({
     filter: (ds) => ds.type === INFINITY_DATASOURCE_TYPE,
   });
 };
-
 export const ConnectionPicker = ({ actionType, datasourceUid, onChange }: ConnectionPickerProps) => {
   const connectionOptions: ConnectionOption[] = useMemo(() => {
     const options: ConnectionOption[] = [
@@ -44,10 +37,8 @@ export const ConnectionPicker = ({ actionType, datasourceUid, onChange }: Connec
         icon: 'adjust-circle',
       },
     ];
-
     if (config.featureToggles.vizActionsAuth) {
       const supportedDataSources = getSupportedDataSources();
-
       supportedDataSources.forEach((ds) => {
         options.push({
           label: ds.name,
@@ -56,10 +47,8 @@ export const ConnectionPicker = ({ actionType, datasourceUid, onChange }: Connec
         });
       });
     }
-
     return options;
   }, []);
-
   const getCurrentValue = () => {
     if (actionType === ActionType.Fetch) {
       return DIRECT_OPTION_VALUE;
@@ -68,7 +57,6 @@ export const ConnectionPicker = ({ actionType, datasourceUid, onChange }: Connec
     }
     return DIRECT_OPTION_VALUE;
   };
-
   const handleConnectionChange = (selectedValue: string) => {
     if (selectedValue === DIRECT_OPTION_VALUE) {
       onChange(DIRECT_OPTION_VALUE);
@@ -78,13 +66,11 @@ export const ConnectionPicker = ({ actionType, datasourceUid, onChange }: Connec
       if (selectedDatasource) {
         onChange(selectedDatasource);
       } else {
-        console.error('ConnectionPicker: Could not find datasource with UID:', selectedValue);
+        structLog('error', 'ConnectionPicker: Could not find datasource with UID:', selectedValue);
       }
     }
   };
-
   const currentValue = getCurrentValue();
-
   return (
     <Select
       value={currentValue}

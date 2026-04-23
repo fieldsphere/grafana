@@ -1,14 +1,11 @@
+import { structLog } from '@grafana/data';
 import { createContext } from 'react';
-
 import { CodeEditor, type Monaco } from '@grafana/ui';
-
 import { K8sNameLookup } from './K8sNameLookup';
-
 // swagger does not have types
 interface UntypedProps {
   [k: string]: any;
 }
-
 export type SchemaType = Record<string, any> | undefined;
 export type ResourceInfo = {
   group: string;
@@ -16,12 +13,10 @@ export type ResourceInfo = {
   resource: string;
   namespaced: boolean;
 };
-
 // Use react contexts to stash settings
 export const SchemaContext = createContext<SchemaType>(undefined);
 export const NamespaceContext = createContext<string | undefined>(undefined);
 export const ResourceContext = createContext<ResourceInfo | undefined>(undefined);
-
 /* eslint-disable react/display-name */
 export const WrappedPlugins = function () {
   return {
@@ -52,7 +47,6 @@ export const WrappedPlugins = function () {
         }
         return <Original {...props} />;
       },
-
       // https://github.com/swagger-api/swagger-ui/blob/v5.17.14/src/core/components/parameters/parameters.jsx#L235
       // https://github.com/swagger-api/swagger-ui/blob/v5.17.14/src/core/plugins/oas3/components/request-body.jsx#L35
       RequestBody: (Original: React.ElementType) => (props: UntypedProps) => {
@@ -63,7 +57,7 @@ export const WrappedPlugins = function () {
           if (mime) {
             v = mime.get('schema').toJS();
           }
-          console.log('RequestBody', v, mime, props);
+          structLog('log', 'RequestBody', v, mime, props);
         }
         // console.log('RequestBody PROPS', props);
         return (
@@ -72,10 +66,9 @@ export const WrappedPlugins = function () {
           </SchemaContext.Provider>
         );
       },
-
       modelExample: (Original: React.ElementType) => (props: UntypedProps) => {
         if (props.isExecute && props.schema) {
-          console.log('modelExample PROPS', props);
+          structLog('log', 'modelExample PROPS', props);
           return (
             <SchemaContext.Provider value={props.schema.toJS()}>
               <Original {...props} />
@@ -84,7 +77,6 @@ export const WrappedPlugins = function () {
         }
         return <Original {...props} />;
       },
-
       JsonSchemaForm: (Original: React.ElementType) => (props: UntypedProps) => {
         const { description, disabled, required, onChange, value } = props;
         if (!disabled && required) {
@@ -111,7 +103,6 @@ export const WrappedPlugins = function () {
         }
         return <Original {...props} />;
       },
-
       // https://github.com/swagger-api/swagger-ui/blob/v5.17.14/src/core/plugins/oas3/components/request-body-editor.jsx
       TextArea: (Original: React.ElementType) => (props: UntypedProps) => {
         return (
@@ -128,8 +119,7 @@ export const WrappedPlugins = function () {
                     },
                   });
                 };
-                console.log('CodeEditor', schema);
-
+                structLog('log', 'CodeEditor', schema);
                 return (
                   <CodeEditor
                     value={val}

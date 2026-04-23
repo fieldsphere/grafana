@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { store } from '@grafana/data';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
-
 /**
  * Utility function to register a performance observer with the global tracker
  * Reduces duplication between ScenePerformanceLogger and DashboardAnalyticsAggregator
@@ -11,10 +11,8 @@ export function registerPerformanceObserver(
 ): void {
   const tracker = performanceUtils.getScenePerformanceTracker();
   tracker.addObserver(observer);
-
   writePerformanceLog(loggerName, 'Initialized globally and registered as performance observer');
 }
-
 /**
  * Chrome-specific performance.memory interface (non-standard)
  */
@@ -23,21 +21,18 @@ export interface PerformanceMemory {
   usedJSHeapSize: number;
   jsHeapSizeLimit: number;
 }
-
 /**
  * Extended Performance interface with Chrome's memory property
  */
 export interface PerformanceWithMemory extends Performance {
   memory?: PerformanceMemory;
 }
-
 /**
  * Type guard to check if performance has memory property (Chrome-specific)
  */
 function hasPerformanceMemory(perf: Performance): perf is PerformanceWithMemory {
   return 'memory' in perf;
 }
-
 /**
  * Safely get performance memory metrics (Chrome-specific, non-standard)
  * Returns zero values for browsers without performance.memory support
@@ -50,7 +45,6 @@ export function getPerformanceMemory(): PerformanceMemory {
       jsHeapSizeLimit: performance.memory?.jsHeapSizeLimit || 0,
     };
   }
-
   // Fallback for browsers without performance.memory
   return {
     totalJSHeapSize: 0,
@@ -58,7 +52,6 @@ export function getPerformanceMemory(): PerformanceMemory {
     jsHeapSizeLimit: 0,
   };
 }
-
 /**
  * Check if performance logging is enabled via localStorage
  */
@@ -68,7 +61,6 @@ function isPerformanceLoggingEnabled(): boolean {
   }
   return false;
 }
-
 /**
  * Write a collapsible performance log group (follows writePerformanceLog pattern)
  */
@@ -78,7 +70,6 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
     console.groupCollapsed(`${logger}: ${message}`);
   }
 }
-
 /**
  * Write a performance log within a group (follows writePerformanceLog pattern)
  */
@@ -93,7 +84,6 @@ export function writePerformanceGroupLog(logger: string, message: string, data?:
     }
   }
 }
-
 /**
  * End a performance log group (follows writePerformanceLog pattern)
  */
@@ -103,7 +93,6 @@ export function writePerformanceGroupEnd(): void {
     console.groupEnd();
   }
 }
-
 /**
  * Safely creates a performance mark, ignoring errors if the Performance API is not available.
  */
@@ -117,10 +106,9 @@ export function createPerformanceMark(name: string, timestamp?: number): void {
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
+    structLog('error', `❌ Failed to create performance mark: ${name}`, { timestamp, error });
   }
 }
-
 /**
  * Safely creates a performance measure, ignoring errors if the Performance API is not available.
  */
@@ -134,6 +122,6 @@ export function createPerformanceMeasure(name: string, startMark: string, endMar
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
+    structLog('error', `❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
   }
 }

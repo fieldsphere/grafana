@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { useCallback, useEffect, useState, type JSX } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-
 import { OrgRole } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, getBackendSrv, locationService } from '@grafana/runtime';
@@ -13,20 +13,15 @@ import { RolePickerSelect } from 'app/core/components/RolePickerDrawer/RolePicke
 import { contextSrv } from 'app/core/services/context_srv';
 import { type Role, AccessControlAction } from 'app/types/accessControl';
 import { type ServiceAccountDTO, type ServiceAccountCreateApiResponse } from 'app/types/serviceaccount';
-
 import { OrgRolePicker } from '../admin/OrgRolePicker';
-
 export interface Props {}
-
 const createServiceAccount = async (sa: ServiceAccountDTO) => {
   const result = await getBackendSrv().post('/api/serviceaccounts/', sa);
   await contextSrv.fetchUserPermissions();
   return result;
 };
-
 const updateServiceAccount = async (uid: string, sa: ServiceAccountDTO) =>
   getBackendSrv().patch(`/api/serviceaccounts/${uid}`, sa);
-
 const defaultServiceAccount = {
   id: 0,
   uid: '',
@@ -39,11 +34,9 @@ const defaultServiceAccount = {
   createdAt: '',
   teams: [],
 };
-
 export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
   const [roleOptions, setRoleOptions] = useState<Role[]>([]);
   const [pendingRoles, setPendingRoles] = useState<Role[]>([]);
-
   const methods = useForm({
     defaultValues: {
       name: '',
@@ -56,10 +49,8 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
     formState: { errors },
     register,
   } = methods;
-
   const currentOrgId = contextSrv.user.orgId;
   const [serviceAccount, setServiceAccount] = useState<ServiceAccountDTO>(defaultServiceAccount);
-
   useEffect(() => {
     async function fetchOptions() {
       try {
@@ -68,14 +59,13 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options', e); // TODO: handle error
+        structLog('error', 'Error loading options', e); // TODO: handle error
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {
       fetchOptions();
     }
   }, [currentOrgId]);
-
   const onSubmit = useCallback(
     async (data: ServiceAccountDTO) => {
       data.role = serviceAccount.role;
@@ -101,25 +91,22 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           await updateUserRoles(pendingRoles, newAccount.id, newAccount.orgId);
         }
       } catch (e) {
-        console.error(e); // TODO: handle error
+        structLog('error', e); // TODO: handle error
       }
       locationService.push(`/org/serviceaccounts/${response.uid}`);
     },
     [serviceAccount.role, pendingRoles]
   );
-
   const onRoleChange = (role: OrgRole) => {
     setServiceAccount({
       ...serviceAccount,
       role: role,
     });
   };
-
   const onPendingRolesUpdate = (roles: Role[], userId: number, orgId: number | undefined) => {
     // keep the new role assignments for user
     setPendingRoles(roles);
   };
-
   return (
     <Page
       navId="serviceaccounts"
@@ -204,5 +191,4 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
     </Page>
   );
 };
-
 export default ServiceAccountCreatePage;

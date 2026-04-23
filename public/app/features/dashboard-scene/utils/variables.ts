@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import { type AdHocVariableFilter, type TypedVariableModel } from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import {
@@ -16,15 +17,11 @@ import {
 } from '@grafana/scenes';
 import { type VariableKind } from '@grafana/schema/apis/dashboard.grafana.app/v2';
 import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
-
 import { SnapshotVariable } from '../serialization/custom-variables/SnapshotVariable';
 import { migrateGroupByVariablesV1 } from '../serialization/groupByMigration';
 import { createSceneVariableFromVariableModel as createSceneVariableFromVariableModelV2 } from '../serialization/transformSaveModelSchemaV2ToScene';
-
 import { getCurrentValueForOldIntervalModel, getIntervalsFromQueryString } from './utils';
-
 const DEFAULT_DATASOURCE = 'default';
-
 export function createVariablesForDashboard(oldModel: DashboardModel, defaultVariables: VariableKind[] = []) {
   const variables = migrateGroupByVariablesV1(oldModel.templating.list);
   const variableObjects = variables
@@ -32,35 +29,31 @@ export function createVariablesForDashboard(oldModel: DashboardModel, defaultVar
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structLog('error', err);
         return null;
       }
     })
     // TODO: Remove filter
     // Added temporarily to allow skipping non-compatible variables
     .filter((v): v is SceneVariable => Boolean(v));
-
   const defaultVariableObjects = defaultVariables
     .map((v) => {
       try {
         return createSceneVariableFromVariableModelV2(v);
       } catch (err) {
-        console.error(err);
+        structLog('error', err);
         return null;
       }
     })
     .filter((v): v is SceneVariable => Boolean(v));
-
   // Explicitly disable scopes for public dashboards
   if (config.featureToggles.scopeFilters && !config.publicDashboardAccessToken) {
     variableObjects.push(new ScopesVariable({ enable: true }));
   }
-
   return new SceneVariableSet({
     variables: [...defaultVariableObjects, ...variableObjects],
   });
 }
-
 export function createVariablesForSnapshot(oldModel: DashboardModel) {
   const variableObjects = oldModel.templating.list
     .map((v) => {
@@ -91,23 +84,24 @@ export function createVariablesForSnapshot(oldModel: DashboardModel) {
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        structLog('error', err);
         return null;
       }
     })
     // TODO: Remove filter
     // Added temporarily to allow skipping non-compatible variables
     .filter((v): v is SceneVariable => Boolean(v));
-
   return new SceneVariableSet({
     variables: variableObjects,
   });
 }
-
 /** Snapshots variables are read-only and should not be updated */
 export function createSnapshotVariable(variable: TypedVariableModel): SceneVariable {
   let snapshotVariable: SnapshotVariable;
-  let current: { value: string | string[]; text: string | string[] };
+  let current: {
+    value: string | string[];
+    text: string | string[];
+  };
   if (variable.type === 'interval') {
     // If query is missing, extract intervals from options instead of using defaults
     let intervals: string[];
@@ -131,7 +125,6 @@ export function createSnapshotVariable(variable: TypedVariableModel): SceneVaria
     });
     return snapshotVariable;
   }
-
   if (variable.type === 'system' || variable.type === 'constant' || variable.type === 'adhoc') {
     current = {
       value: '',
@@ -143,7 +136,6 @@ export function createSnapshotVariable(variable: TypedVariableModel): SceneVaria
       text: variable.current?.text ?? '',
     };
   }
-
   snapshotVariable = new SnapshotVariable({
     name: variable.name,
     label: variable.label,
@@ -154,7 +146,6 @@ export function createSnapshotVariable(variable: TypedVariableModel): SceneVaria
   });
   return snapshotVariable;
 }
-
 export function createSceneVariableFromVariableModel(variable: TypedVariableModel): SceneVariable {
   const commonProperties = {
     name: variable.name,
@@ -166,7 +157,6 @@ export function createSceneVariableFromVariableModel(variable: TypedVariableMode
     const originFilters: AdHocVariableFilter[] = [];
     const filters: AdHocVariableFilter[] = [];
     variable.filters?.forEach((filter) => (filter.origin ? originFilters.push(filter) : filters.push(filter)));
-
     return new AdHocFiltersVariable({
       ...commonProperties,
       description: variable.description,
@@ -298,7 +288,6 @@ export function createSceneVariableFromVariableModel(variable: TypedVariableMode
         val = variable.current.value[0];
       }
     }
-
     return new TextBoxVariable({
       ...commonProperties,
       value: val,
@@ -332,7 +321,6 @@ export function createSceneVariableFromVariableModel(variable: TypedVariableMode
       }
       return value;
     };
-
     return new SwitchVariable({
       ...commonProperties,
       value: pickFirstValue(variable.current?.value),

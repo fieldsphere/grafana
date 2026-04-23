@@ -1,10 +1,9 @@
+import { structLog } from '@grafana/data';
 import { groupBy, partition } from 'lodash';
 import { Observable, type Subscriber, type Subscription } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
-
 import { type DataQueryRequest, type DataQueryResponse, LoadingState, type QueryResultMetaStat } from '@grafana/data';
 import { config } from '@grafana/runtime';
-
 import { type LokiDatasource } from './datasource';
 import { combineResponses, replaceResponses } from './mergeResponses';
 import { adjustTargetsFromResponseState, runSplitQuery } from './querySplitting';
@@ -49,16 +48,13 @@ import { type LokiQuery } from './types';
  *       . If there are retry attempts, it will retry the current cycle, or else stop querying.
  * - Once all request groups have been executed, it will be done().
  */
-
 export function runShardSplitQuery(datasource: LokiDatasource, request: DataQueryRequest<LokiQuery>) {
   const queries = request.targets
     .filter((query) => query.expr)
     .filter((query) => !query.hide)
     .map((query) => datasource.applyTemplateVariables(query, request.scopedVars, request.filters));
-
   return splitQueriesByStreamShard(datasource, request, queries);
 }
-
 const addLimitsToShardGroups = (
   queryIndex: number,
   groups: ShardedQueryGroup[],
@@ -71,7 +67,6 @@ const addLimitsToShardGroups = (
     }),
   }));
 };
-
 function splitQueriesByStreamShard(
   datasource: LokiDatasource,
   request: DataQueryRequest<LokiQuery>,
@@ -83,7 +78,6 @@ function splitQueriesByStreamShard(
   let retriesMap = new Map<string, number>();
   let retryTimer: ReturnType<typeof setTimeout> | null = null;
   let queryIndex = 0;
-
   const runNextRequest = (subscriber: Subscriber<DataQueryResponse>, group: number, groups: ShardedQueryGroup[]) => {
     if (config.featureToggles.lokiQueryLimitsContext) {
       groups = addLimitsToShardGroups(queryIndex, groups, request);
@@ -92,30 +86,25 @@ function splitQueriesByStreamShard(
     let nextGroupSize = groups[group].groupSize;
     const { shards, groupSize, cycle } = groups[group];
     let retrying = false;
-
     if (subquerySubscription != null) {
       subquerySubscription.unsubscribe();
       subquerySubscription = null;
     }
-
     const done = () => {
       mergedResponse.state = shouldStop ? LoadingState.Error : LoadingState.Done;
       subscriber.next(mergedResponse);
       subscriber.complete();
     };
-
     if (shouldStop) {
       done();
       return;
     }
-
     const nextRequest = () => {
       // Find the next group to execute, which can be queries with pending shards to execute, or the next query with no shards.
       const nextGroup =
         groups[group + 1] && (groups[group + 1].shards === undefined || groupHasPendingRequests(groups[group + 1]))
           ? groups[group + 1]
           : groups.find((shardGroup) => groupHasPendingRequests(shardGroup));
-
       if (nextGroup === undefined) {
         done();
         return;
@@ -123,18 +112,16 @@ function splitQueriesByStreamShard(
       groups[group].groupSize = nextGroupSize;
       runNextRequest(subscriber, groups.indexOf(nextGroup), groups);
     };
-
     const retry = (errorResponse?: DataQueryResponse) => {
       try {
         if (errorResponse && !isRetriableError(errorResponse)) {
           return false;
         }
       } catch (e) {
-        console.error(e);
+        structLog('error', e);
         shouldStop = true;
         return false;
       }
-
       if (groupSize !== undefined && groupSize > 1) {
         groups[group].groupSize = Math.floor(Math.sqrt(groupSize));
         debug(`Possible time out, new group size ${groups[group].groupSize}`);
@@ -142,37 +129,29 @@ function splitQueriesByStreamShard(
         runNextRequest(subscriber, group, groups);
         return true;
       }
-
       const key = `${group}_${cycle}`;
       const retries = retriesMap.get(key) ?? 0;
-
       if (retries > 1) {
         shouldStop = true;
         return false;
       }
-
       retriesMap.set(key, retries + 1);
-
       retryTimer = setTimeout(
         () => {
-          console.warn(`Retrying ${group} ${cycle} (${retries + 1})`);
+          structLog('warn', `Retrying ${group} ${cycle} (${retries + 1})`);
           runNextRequest(subscriber, group, groups);
           retryTimer = null;
         },
         1500 * Math.pow(2, retries)
       ); // Exponential backoff
-
       retrying = true;
-
       return true;
     };
-
     const targets = adjustTargetsFromResponseState(groups[group].targets, mergedResponse);
     if (!targets.length) {
       nextRequest();
       return;
     }
-
     const shardsToQuery =
       shards && cycle !== undefined && groupSize ? groupShardRequests(shards, cycle, groupSize) : [];
     const subRequest = { ...request, targets: interpolateShardingSelector(targets, shardsToQuery) };
@@ -181,9 +160,7 @@ function splitQueriesByStreamShard(
       subRequest.requestId =
         shardsToQuery.length > 0 ? `${request.requestId}_shard_${group}_${cycle}_${groupSize}` : request.requestId;
     }
-
     debug(shardsToQuery.length ? `Querying ${shardsToQuery.join(', ')}` : 'Running regular query');
-
     subquerySubscription = runSplitQuery(datasource, subRequest, {
       skipPartialUpdates: true,
       disableRetry: true,
@@ -209,7 +186,6 @@ function splitQueriesByStreamShard(
           shardsToQuery.length > 0
             ? combineResponses(mergedResponse, partialResponse)
             : replaceResponses(mergedResponse, partialResponse);
-
         // When we delegate query running to runSplitQuery(), we will receive partial updates here, and complete
         // will be called when all the sub-requests were completed, so we need to show partial progress here.
         if (shardsToQuery.length === 0) {
@@ -224,7 +200,7 @@ function splitQueriesByStreamShard(
         nextRequest();
       },
       error: (error: unknown) => {
-        console.error(error, { msg: 'failed to shard' });
+        structLog('error', error, { msg: 'failed to shard' });
         subscriber.next(mergedResponse);
         if (retry()) {
           return;
@@ -233,7 +209,6 @@ function splitQueriesByStreamShard(
       },
     });
   };
-
   const response = new Observable<DataQueryResponse>((subscriber) => {
     groupTargetsByQueryType(splittingTargets, datasource, request).then((groupedRequests) => {
       runNextRequest(subscriber, 0, groupedRequests);
@@ -249,17 +224,14 @@ function splitQueriesByStreamShard(
       }
     };
   });
-
   return response;
 }
-
 interface ShardedQueryGroup {
   targets: LokiQuery[];
   shards?: number[];
   groupSize?: number;
   cycle?: number;
 }
-
 async function groupTargetsByQueryType(
   targets: LokiQuery[],
   datasource: LokiDatasource,
@@ -267,13 +239,11 @@ async function groupTargetsByQueryType(
 ) {
   const [shardedQueries, otherQueries] = partition(targets, (query) => requestSupportsSharding([query]));
   const groups: ShardedQueryGroup[] = [];
-
   if (otherQueries.length) {
     groups.push({
       targets: otherQueries,
     });
   }
-
   const selectorPartition = groupBy(shardedQueries, (query) => getSelectorForShardValues(query.expr));
   for (const selector in selectorPartition) {
     try {
@@ -293,16 +263,14 @@ async function groupTargetsByQueryType(
         cycle: 0,
       });
     } catch (error) {
-      console.error(error, { msg: 'failed to fetch label values for __stream_shard__' });
+      structLog('error', error, { msg: 'failed to fetch label values for __stream_shard__' });
       groups.push({
         targets: selectorPartition[selector],
       });
     }
   }
-
   return groups;
 }
-
 function groupHasPendingRequests(group: ShardedQueryGroup) {
   if (group.cycle === undefined || !group.groupSize || !group.shards) {
     return false;
@@ -312,7 +280,6 @@ function groupHasPendingRequests(group: ShardedQueryGroup) {
   group.cycle = nextCycle;
   return cycle < shards.length && nextCycle <= shards.length;
 }
-
 function updateGroupSizeFromResponse(response: DataQueryResponse, group: ShardedQueryGroup) {
   const { groupSize: currentSize } = group;
   if (!currentSize) {
@@ -322,11 +289,9 @@ function updateGroupSizeFromResponse(response: DataQueryResponse, group: Sharded
     // Empty response, increase group size
     return currentSize + 1;
   }
-
   const metaExecutionTime: QueryResultMetaStat | undefined = response.data[0].meta?.stats?.find(
     (stat: QueryResultMetaStat) => stat.displayName === 'Summary: exec time'
   );
-
   if (metaExecutionTime) {
     const executionTime = Math.round(metaExecutionTime.value);
     debug(`${metaExecutionTime.value}`);
@@ -336,7 +301,6 @@ function updateGroupSizeFromResponse(response: DataQueryResponse, group: Sharded
     } else if (executionTime < 6) {
       return Math.ceil(currentSize * 1.1);
     }
-
     // Negative scenarios
     if (currentSize === 1) {
       return currentSize;
@@ -346,10 +310,8 @@ function updateGroupSizeFromResponse(response: DataQueryResponse, group: Sharded
       return Math.floor(currentSize / 2);
     }
   }
-
   return currentSize;
 }
-
 /**
  * Prevents the group size for ever being more than maxFactor% of the pending shards.
  */
@@ -357,23 +319,20 @@ function constrainGroupSize(cycle: number, groupSize: number, shards: number) {
   const maxFactor = 0.7;
   return Math.min(groupSize, Math.max(Math.floor((shards - cycle) * maxFactor), 1));
 }
-
 function groupShardRequests(shards: number[], start: number, groupSize: number) {
   if (start === shards.length) {
     return [-1];
   }
   return shards.slice(start, start + groupSize);
 }
-
 function getInitialGroupSize(shards: number[]) {
   return Math.floor(Math.sqrt(shards.length));
 }
-
 // Enable to output debugging logs
 const DEBUG_ENABLED = Boolean(localStorage.getItem(`loki.sharding_debug_enabled`));
 function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  console.log(message);
+  structLog('log', message);
 }

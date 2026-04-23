@@ -1,19 +1,16 @@
+import { structLog } from '@grafana/data';
 import { Fill, RegularShape, Stroke, Circle, Style, Icon, Text } from 'ol/style';
 import type { FlatStyle } from 'ol/style/flat';
 import tinycolor from 'tinycolor2';
-
 import { Registry, type RegistryItem, textUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { getPublicOrAbsoluteUrl } from 'app/features/dimensions/resource';
-
 import { defaultStyleConfig, DEFAULT_SIZE, type StyleConfigValues, type StyleMaker } from './types';
 import { getDisplacement } from './utils';
-
 interface SymbolMaker extends RegistryItem {
   aliasIds: string[];
   make: StyleMaker;
 }
-
 enum RegularShapeId {
   circle = 'circle',
   square = 'square',
@@ -22,7 +19,6 @@ enum RegularShapeId {
   cross = 'cross',
   x = 'x',
 }
-
 const MarkerShapePath = {
   circle: 'img/icons/marker/circle.svg',
   square: 'img/icons/marker/square.svg',
@@ -31,7 +27,6 @@ const MarkerShapePath = {
   cross: 'img/icons/marker/cross.svg',
   x: 'img/icons/marker/x-mark.svg',
 };
-
 export function getFillColor(cfg: StyleConfigValues) {
   const opacity = cfg.opacity == null ? 0.8 : cfg.opacity;
   if (opacity === 1) {
@@ -43,7 +38,6 @@ export function getFillColor(cfg: StyleConfigValues) {
   }
   return undefined;
 }
-
 export function getStrokeStyle(cfg: StyleConfigValues) {
   const opacity = cfg.opacity == null ? 0.8 : cfg.opacity;
   if (opacity === 1) {
@@ -55,12 +49,10 @@ export function getStrokeStyle(cfg: StyleConfigValues) {
   }
   return undefined;
 }
-
 const textLabel = (cfg: StyleConfigValues) => {
   if (!cfg.text) {
     return undefined;
   }
-
   const fontFamily = config.theme2.typography.fontFamily;
   const textConfig = {
     ...defaultStyleConfig.textConfig,
@@ -73,13 +65,11 @@ const textLabel = (cfg: StyleConfigValues) => {
     ...textConfig,
   });
 };
-
 export const textMarker = (cfg: StyleConfigValues) => {
   return new Style({
     text: textLabel(cfg),
   });
 };
-
 export const circleMarker = (cfg: StyleConfigValues) => {
   const stroke = new Stroke({ color: cfg.color, width: cfg.lineWidth ?? 1 });
   const radius = cfg.size ?? DEFAULT_SIZE;
@@ -94,7 +84,6 @@ export const circleMarker = (cfg: StyleConfigValues) => {
     stroke, // in case lines are sent to the markers layer
   });
 };
-
 // Does not have image
 export const polyStyle = (cfg: StyleConfigValues) => {
   return new Style({
@@ -103,7 +92,6 @@ export const polyStyle = (cfg: StyleConfigValues) => {
     text: textLabel(cfg),
   });
 };
-
 export const routeStyle = (cfg: StyleConfigValues) => {
   return new Style({
     fill: getFillColor(cfg),
@@ -111,7 +99,6 @@ export const routeStyle = (cfg: StyleConfigValues) => {
     text: textLabel(cfg),
   });
 };
-
 // Square and cross
 const errorMarker = (cfg: StyleConfigValues) => {
   const radius = cfg.size ?? DEFAULT_SIZE;
@@ -136,7 +123,6 @@ const errorMarker = (cfg: StyleConfigValues) => {
     }),
   ];
 };
-
 const makers: SymbolMaker[] = [
   {
     id: RegularShapeId.circle,
@@ -251,7 +237,6 @@ const makers: SymbolMaker[] = [
     },
   },
 ];
-
 async function prepareSVG(url: string, size?: number, backgroundOpacity?: number): Promise<string> {
   return fetch(url, { method: 'GET' })
     .then((res) => {
@@ -259,23 +244,19 @@ async function prepareSVG(url: string, size?: number, backgroundOpacity?: number
     })
     .then((text) => {
       text = textUtil.sanitizeSVGContent(text);
-
       const parser = new DOMParser();
       const doc = parser.parseFromString(text, 'image/svg+xml');
       const svg = doc.getElementsByTagName('svg')[0];
       if (!svg) {
         return '';
       }
-
       const svgSize = size ?? 100;
       const width = svg.getAttribute('width') ?? svgSize;
       const height = svg.getAttribute('height') ?? svgSize;
-
       // open layers requires a white fill becaues it uses tint to set color
       svg.setAttribute('fill', '#fff');
       svg.setAttribute('width', `${width}px`);
       svg.setAttribute('height', `${height}px`);
-
       // add a mostly transparent circle behind the icon for webGL hit detection
       // TODO open layers discards fully transparent elements for hit detection
       if (backgroundOpacity) {
@@ -291,20 +272,17 @@ async function prepareSVG(url: string, size?: number, backgroundOpacity?: number
         circleElement.setAttribute('stroke-width', viewCenterX.toString());
         svg.prepend(circleElement);
       }
-
       const svgString = new XMLSerializer().serializeToString(svg);
       const svgURI = encodeURIComponent(svgString);
       return `data:image/svg+xml,${svgURI}`;
     })
     .catch((error) => {
-      console.error(error); // eslint-disable-line no-console
+      structLog('error', error); // eslint-disable-line no-console
       return '';
     });
 }
-
 // Really just a cache for the various symbol styles
 const markerMakers = new Registry<SymbolMaker>(() => makers);
-
 export function getMarkerAsPath(shape?: string): string | undefined {
   const marker = markerMakers.getIfExists(shape);
   if (marker?.aliasIds?.length) {
@@ -312,14 +290,12 @@ export function getMarkerAsPath(shape?: string): string | undefined {
   }
   return undefined;
 }
-
 // Common expressions used across different style types
 export const colorExpression = ['color', ['get', 'red'], ['get', 'green'], ['get', 'blue'], ['get', 'opacity']];
 export const sizeExpression = ['get', 'size'];
 export const opacityExpression = ['get', 'opacity'];
 export const rotationExpression = ['get', 'rotation'];
 export const offsetExpression = ['array', ['get', 'offsetX'], ['get', 'offsetY']];
-
 // Base style for regular shapes
 export const baseShapeStyle = {
   'shape-radius': ['/', sizeExpression, 2],
@@ -330,7 +306,6 @@ export const baseShapeStyle = {
   'shape-rotation': rotationExpression,
   'shape-displacement': offsetExpression,
 };
-
 // Base style for circles
 export const baseCircleStyle = {
   'circle-radius': ['/', sizeExpression, 2],
@@ -340,14 +315,12 @@ export const baseCircleStyle = {
   'circle-opacity': opacityExpression,
   'circle-displacement': offsetExpression,
 };
-
 // Returns style configuration for WebGL markers
 export async function getWebGLStyle(symbol?: string, opacity?: number): Promise<FlatStyle> {
   // Handle circle explicitly (before generic SVG check)
   if (symbol === MarkerShapePath.circle) {
     return baseCircleStyle;
   }
-
   // Handle square as WebGL regular shape
   if (symbol === MarkerShapePath.square) {
     return {
@@ -356,7 +329,6 @@ export async function getWebGLStyle(symbol?: string, opacity?: number): Promise<
       'shape-angle': Math.PI / 4,
     };
   }
-
   // Handle triangle as WebGL regular shape
   if (symbol === MarkerShapePath.triangle) {
     return {
@@ -365,7 +337,6 @@ export async function getWebGLStyle(symbol?: string, opacity?: number): Promise<
       'shape-angle': 0,
     };
   }
-
   // Handle custom SVG symbols and other shapes as icons
   if (symbol && symbol.endsWith('.svg')) {
     const backgroundOpacity = opacity === 0 ? 0 : 0.1 / (opacity ?? 1);
@@ -379,22 +350,18 @@ export async function getWebGLStyle(symbol?: string, opacity?: number): Promise<
       'icon-color': colorExpression,
     };
   }
-
   // Default to circle (also handles MarkerShapePath.circle)
   return baseCircleStyle;
 }
-
 // Will prepare symbols as necessary
 export async function getMarkerMaker(symbol?: string, hasTextLabel?: boolean): Promise<StyleMaker> {
   if (!symbol) {
     return hasTextLabel ? textMarker : circleMarker;
   }
-
   let maker = markerMakers.getIfExists(symbol);
   if (maker) {
     return maker.make;
   }
-
   // Prepare svg as icon
   if (symbol.endsWith('.svg')) {
     const src = await prepareSVG(getPublicOrAbsoluteUrl(symbol));
@@ -434,7 +401,6 @@ export async function getMarkerMaker(symbol?: string, hasTextLabel?: boolean): P
     markerMakers.register(maker);
     return maker.make;
   }
-
   // default to showing a circle
   return errorMarker;
 }

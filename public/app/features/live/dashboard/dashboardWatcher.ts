@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { type Unsubscribable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
-
 import {
   AppEvents,
   isLiveChannelMessageEvent,
@@ -13,20 +13,15 @@ import {
 import { getGrafanaLiveSrv, locationService } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { contextSrv } from 'app/core/services/context_srv';
-
 import { ShowModalReactEvent } from '../../../types/events';
 import { getDashboardSrv } from '../../dashboard/services/DashboardSrv';
-
 import { DashboardChangedModal } from './DashboardChangedModal';
 import { type DashboardEvent, DashboardEventAction } from './types';
-
 // sessionId is not a security-sensitive value.
 // It is used for filtering out dashboard edit events from the same browsing session
 const sessionId = uuidv4();
-
 class DashboardWatcher {
   private static readonly IGNORE_SAVE_WINDOW_MS = 5000;
-
   channel?: LiveChannelAddress; // path to the channel
   uid?: string;
   ignoreSave = 0; // save any events until this time passes
@@ -34,17 +29,14 @@ class DashboardWatcher {
   lastEditing?: DashboardEvent;
   subscription?: Unsubscribable;
   hasSeenNotice?: boolean;
-
   setEditingState(state: boolean) {
     const changed = (this.editing = state);
     this.editing = state;
     this.hasSeenNotice = false;
-
     if (changed && contextSrv.isEditor) {
       this.sendEditingState();
     }
   }
-
   private sendEditingState() {
     const { channel, uid } = this;
     if (channel && uid) {
@@ -56,13 +48,11 @@ class DashboardWatcher {
       });
     }
   }
-
   watch(uid: string) {
     const live = getGrafanaLiveSrv();
     if (!live) {
       return;
     }
-
     // Check for changes
     if (uid !== this.uid) {
       this.channel = {
@@ -77,7 +67,6 @@ class DashboardWatcher {
       this.uid = uid;
     }
   }
-
   leave() {
     if (this.subscription) {
       this.subscription.unsubscribe();
@@ -85,12 +74,10 @@ class DashboardWatcher {
     this.subscription = undefined;
     this.uid = undefined;
   }
-
   // ignore the next 5 seconds of save events
   ignoreNextSave() {
     this.ignoreSave = Date.now() + DashboardWatcher.IGNORE_SAVE_WINDOW_MS;
   }
-
   getRecentEditingEvent() {
     if (this.lastEditing && this.lastEditing.timestamp) {
       const elapsed = Date.now() - this.lastEditing.timestamp;
@@ -100,19 +87,16 @@ class DashboardWatcher {
     }
     return this.lastEditing;
   }
-
   observer = {
     next: (event: LiveChannelEvent<DashboardEvent>) => {
       // Send the editing state when connection starts
       if (isLiveChannelStatusEvent(event) && this.editing && event.state === LiveChannelConnectionState.Connected) {
         this.sendEditingState();
       }
-
       if (isLiveChannelMessageEvent(event)) {
         if (event.message.sessionId === sessionId) {
           return; // skip internal messages
         }
-
         const { action, message } = event.message;
         switch (action) {
           case DashboardEventAction.EditingStarted:
@@ -124,21 +108,17 @@ class DashboardWatcher {
                 return;
               }
             }
-
             const dash = getDashboardSrv().getCurrent();
             if (dash?.uid !== event.message.uid) {
-              console.log('dashboard event for different dashboard?', event, dash);
+              structLog('log', 'dashboard event for different dashboard?', event, dash);
               return;
             }
-
             let showPopup = this.editing || dash.hasUnsavedChanges();
-
             // Dashboard could have unsaved changes but if user has already restored from a version
             // the reloadPage should be called below
             if (message?.includes('Restored from version')) {
               showPopup = false;
             }
-
             if (action === DashboardEventAction.Saved) {
               if (showPopup) {
                 appEvents.publish(
@@ -171,10 +151,8 @@ class DashboardWatcher {
       }
     },
   };
-
   reloadPage() {
     locationService.reload();
   }
 }
-
 export const dashboardWatcher = new DashboardWatcher();

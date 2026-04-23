@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import FingerprintJS from '@fingerprintjs/fingerprintjs';
 import {
   from,
@@ -25,7 +26,6 @@ import {
   throwIfEmpty,
 } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
-
 import { AppEvents, DataQueryErrorType, deprecationWarning } from '@grafana/data';
 import {
   type BackendSrv as BackendService,
@@ -43,36 +43,28 @@ import { type DashboardSearchItem } from 'app/features/search/types';
 import { TokenRevokedModal } from 'app/features/users/TokenRevokedModal';
 import { type DashboardDTO } from 'app/types/dashboard';
 import { type FolderDTO } from 'app/types/folders';
-
 import { ShowModalReactEvent } from '../../types/events';
 import { isContentTypeJson, parseInitFromOptions, parseResponseBody, parseUrlFromOptions } from '../utils/fetch';
 import { isDataQuery, isLocalUrl } from '../utils/query';
-
 import { FetchQueue } from './FetchQueue';
 import { FetchQueueWorker } from './FetchQueueWorker';
 import { ResponseQueue } from './ResponseQueue';
 import { type ContextSrv, contextSrv } from './context_srv';
-
 const CANCEL_ALL_REQUESTS_REQUEST_ID = 'cancel_all_requests_request_id';
-
 export interface BackendSrvDependencies {
   fromFetch: (input: string | Request, init?: RequestInit) => Observable<Response>;
   appEvents: typeof appEvents;
   contextSrv: ContextSrv;
   logout: () => void;
 }
-
 export interface FolderRequestOptions {
   withAccessControl?: boolean;
 }
-
 const GRAFANA_TRACEID_HEADER = 'grafana-trace-id';
-
 export interface InspectorStream {
   response: FetchResponse | FetchError;
   requestId?: string;
 }
-
 export class BackendSrv implements BackendService {
   private inFlightRequests: Subject<string> = new Subject<string>();
   private HTTP_REQUEST_CANCELED = -1;
@@ -82,7 +74,6 @@ export class BackendSrv implements BackendService {
   private readonly responseQueue: ResponseQueue;
   private _tokenRotationInProgress?: Observable<FetchResponse> | null = null;
   private deviceID?: string | null = null;
-
   private dependencies: BackendSrvDependencies = {
     fromFetch: fromFetch,
     appEvents: appEvents,
@@ -91,7 +82,6 @@ export class BackendSrv implements BackendService {
       contextSrv.setLoggedOut();
     },
   };
-
   constructor(deps?: BackendSrvDependencies) {
     if (deps) {
       this.dependencies = {
@@ -99,41 +89,33 @@ export class BackendSrv implements BackendService {
         ...deps,
       };
     }
-
     this.noBackendCache = false;
     this.internalFetch = this.internalFetch.bind(this);
     this.fetchQueue = new FetchQueue();
     this.responseQueue = new ResponseQueue(this.fetchQueue, this.internalFetch);
-
     this.initGrafanaDeviceID();
-
     new FetchQueueWorker(this.fetchQueue, this.responseQueue, getConfig());
   }
-
   private async initGrafanaDeviceID() {
     try {
       const fp = await FingerprintJS.load();
       const result = await fp.get();
       this.deviceID = result.visitorId;
     } catch (error) {
-      console.error(error);
+      structLog('error', error);
     }
   }
-
   async request<T = unknown>(options: BackendSrvRequest): Promise<T> {
     return await lastValueFrom(this.fetch<T>(options).pipe(map((response: FetchResponse<T>) => response.data)));
   }
-
   fetch<T>(options: BackendSrvRequest): Observable<FetchResponse<T>> {
     // We need to match an entry added to the queue stream with the entry that is eventually added to the response stream
     const id = uuidv4();
     const fetchQueue = this.fetchQueue;
-
     return new Observable((observer) => {
       // Subscription is an object that is returned whenever you subscribe to an Observable.
       // You can also use it as a container of many subscriptions and when it is unsubscribed all subscriptions within are also unsubscribed.
       const subscriptions: Subscription = new Subscription();
-
       // We're using the subscriptions.add function to add the subscription implicitly returned by this.responseQueue.getResponses<T>(id).subscribe below.
       subscriptions.add(
         this.responseQueue.getResponses<T>(id).subscribe((result) => {
@@ -144,46 +126,37 @@ export class BackendSrv implements BackendService {
           subscriptions.add(result.observable.subscribe(observer));
         })
       );
-
       // Let the fetchQueue know that this id needs to start data fetching.
       this.fetchQueue.add(id, options);
-
       // This returned function will be called whenever the returned Observable from the fetch<T> function is unsubscribed/errored/completed/canceled.
       return function unsubscribe() {
         // Change status to Done moved here from ResponseQueue because this unsubscribe was called before the responseQueue produced a result
         fetchQueue.setDone(id);
-
         // When subscriptions is unsubscribed all the implicitly added subscriptions above are also unsubscribed.
         subscriptions.unsubscribe();
       };
     });
   }
-
   chunkRequestId = 1;
-
   chunked(options: BackendSrvRequest): Observable<FetchResponse<Uint8Array | undefined>> {
     const requestId = options.requestId ?? `chunked-${this.chunkRequestId++}`;
     const controller = new AbortController();
-
     const init = parseInitFromOptions({
       ...options,
       requestId,
       abortSignal: controller.signal,
     });
-
     return new Observable((observer) => {
       // Calling fromFetch explicitly avoids the request queue
       const sub = parseUrlFromOptions(options)
         .pipe(mergeMap((url) => this.dependencies.fromFetch(url, init)))
         .subscribe(this.getChunkedResponseObserver({ controller, observer, options, requestId }));
-
       return function unsubscribe() {
         controller.abort('unsubscribe');
         sub.unsubscribe();
       };
     });
   }
-
   private getChunkedResponseObserver({
     controller,
     observer,
@@ -210,20 +183,16 @@ export class BackendSrv implements BackendService {
           traceId: response.headers.get(GRAFANA_TRACEID_HEADER) ?? undefined,
           data: undefined,
         };
-
         if (!response.body) {
           observer.next(rsp);
           observer.complete();
           return;
         }
-
         const reader = response.body.getReader();
-
         // Setup onabort callback so that we can cancel the reader properly
         controller.signal.onabort = () => {
           reader.cancel(controller.signal.reason);
         };
-
         async function process() {
           while (reader && !done) {
             const chunk = await reader.read();
@@ -241,7 +210,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            structLog('log', requestId, 'catch', e);
             observer.error(e);
           }); // from abort
       },
@@ -250,14 +219,11 @@ export class BackendSrv implements BackendService {
       },
     };
   }
-
   private internalFetch<T>(options: BackendSrvRequest): Observable<FetchResponse<T>> {
     if (options.requestId) {
       this.inFlightRequests.next(options.requestId);
     }
-
     options = this.parseRequestOptions(options);
-
     const token = loadUrlToken();
     if (token !== null && token !== '') {
       if (config.jwtUrlLogin && config.jwtHeaderName) {
@@ -265,12 +231,10 @@ export class BackendSrv implements BackendService {
         options.headers[config.jwtHeaderName] = `${token}`;
       }
     }
-
     if (!!this.deviceID) {
       options.headers = options.headers ?? {};
       options.headers['X-Grafana-Device-Id'] = `${this.deviceID}`;
     }
-
     return parseUrlFromOptions(options).pipe(
       this.getFromFetchStream<T>(options),
       this.handleStreamResponse<T>(options),
@@ -278,66 +242,51 @@ export class BackendSrv implements BackendService {
       this.handleStreamCancellation(options)
     );
   }
-
   resolveCancelerIfExists(requestId: string) {
     this.inFlightRequests.next(requestId);
   }
-
   cancelAllInFlightRequests() {
     this.inFlightRequests.next(CANCEL_ALL_REQUESTS_REQUEST_ID);
   }
-
   async datasourceRequest<T = unknown>(options: BackendSrvRequest) {
     return lastValueFrom(this.fetch<T>(options));
   }
-
   private parseRequestOptions(options: BackendSrvRequest): BackendSrvRequest {
     const orgId = this.dependencies.contextSrv.user?.orgId;
-
     // init retry counter
     options.retry = options.retry ?? 0;
-
     if (isLocalUrl(options.url)) {
       if (orgId) {
         options.headers = options.headers ?? {};
         options.headers['X-Grafana-Org-Id'] = orgId;
       }
-
       if (options.url.startsWith('/')) {
         options.url = options.url.substring(1);
       }
-
       if (options.headers?.Authorization) {
         options.headers['X-DS-Authorization'] = options.headers.Authorization;
         delete options.headers.Authorization;
       }
-
       if (this.noBackendCache) {
         options.headers = options.headers ?? {};
         options.headers['X-Grafana-NoCache'] = 'true';
       }
     }
-
     if (options.hideFromInspector === undefined) {
       // Hide all local non data query calls
       options.hideFromInspector = isLocalUrl(options.url) && !isDataQuery(options.url);
     }
-
     return options;
   }
-
   private getFromFetchStream<T>(options: BackendSrvRequest): OperatorFunction<string, FetchResponse<T>> {
     return (inputStream) =>
       inputStream.pipe(
         mergeMap((url) => {
           const init = parseInitFromOptions(options);
-
           return this.dependencies.fromFetch(url, init).pipe(
             mergeMap(async (response) => {
               const { status, statusText, ok, headers, url, type, redirected } = response;
-
               const responseType = options.responseType ?? (isContentTypeJson(headers) ? 'json' : undefined);
-
               const data = await parseResponseBody<T>(response, responseType);
               const fetchResponse: FetchResponse<T> = {
                 status,
@@ -357,16 +306,12 @@ export class BackendSrv implements BackendService {
         })
       );
   }
-
   showApplicationErrorAlert(err: FetchError) {}
-
   showSuccessAlert<T>(response: FetchResponse<T>) {
     const { config } = response;
-
     if (config.showSuccessAlert === false) {
       return;
     }
-
     // if showSuccessAlert is undefined we only show alerts non GET request, non data query and local api requests
     if (
       config.showSuccessAlert === undefined &&
@@ -374,14 +319,13 @@ export class BackendSrv implements BackendService {
     ) {
       return;
     }
-
-    const data: { message: string } = response.data as any;
-
+    const data: {
+      message: string;
+    } = response.data as any;
     if (data?.message) {
       this.dependencies.appEvents.emit(AppEvents.alertSuccess, [data.message]);
     }
   }
-
   showErrorAlert(config: BackendSrvRequest, err: FetchError) {
     // do not show non-user error alerts for api keys or render tokens, they are used for kiosk mode and reporting and can't react to error pop-ups
     if (
@@ -392,50 +336,47 @@ export class BackendSrv implements BackendService {
     ) {
       return;
     }
-
     if (config.showErrorAlert === false) {
       return;
     }
-
     // is showErrorAlert is undefined we only show alerts non data query and local api requests
     if (config.showErrorAlert === undefined && (isDataQuery(config.url) || !isLocalUrl(config.url))) {
       return;
     }
-
     let description = '';
     let message = err.data.message;
-
     // Sometimes we have a better error message on err.message
     if (message === 'Unexpected error' && err.message) {
       message = err.message;
     }
-
     if (message.length > 80) {
       description = message;
       message = 'Error';
     }
-
     // Validation
     if (err.status === 422) {
       description = err.data.message;
       message = 'Validation failed';
     }
-
     this.dependencies.appEvents.emit(err.status < 500 ? AppEvents.alertWarning : AppEvents.alertError, [
       message,
       description,
       err.data.traceID,
     ]);
   }
-
   /**
    * Processes FetchError to ensure "data" property is an object.
    *
    * @see DataQueryError.data
    */
-  processRequestError(options: BackendSrvRequest, err: FetchError): FetchError<{ message: string; error?: string }> {
+  processRequestError(
+    options: BackendSrvRequest,
+    err: FetchError
+  ): FetchError<{
+    message: string;
+    error?: string;
+  }> {
     err.data = err.data ?? { message: 'Unexpected error' };
-
     if (typeof err.data === 'string') {
       const message = isHtmlResponse(err.data) ? `${err.status} ${err.statusText ?? 'Error'}` : err.data;
       err.data = {
@@ -444,12 +385,10 @@ export class BackendSrv implements BackendService {
         response: err.data,
       };
     }
-
     // If no message but got error string, copy to message prop
     if (err.data && !err.data.message && typeof err.data.error === 'string') {
       err.data.message = err.data.error;
     }
-
     // check if we should show an error alert
     if (err.data.message) {
       setTimeout(() => {
@@ -458,11 +397,9 @@ export class BackendSrv implements BackendService {
         }
       }, 50);
     }
-
     this.inspectorStream.next({ response: err, requestId: options.requestId });
     return err;
   }
-
   private handleStreamResponse<T>(options: BackendSrvRequest): MonoTypeOperatorFunction<FetchResponse<T>> {
     return (inputStream) =>
       inputStream.pipe(
@@ -486,17 +423,14 @@ export class BackendSrv implements BackendService {
         })
       );
   }
-
   private handleStreamError<T>(options: BackendSrvRequest): MonoTypeOperatorFunction<FetchResponse<T>> {
     const { isSignedIn } = this.dependencies.contextSrv.user;
-
     return (inputStream) =>
       inputStream.pipe(
         retryWhen((attempts) =>
           attempts.pipe(
             mergeMap((error, i) => {
               const firstAttempt = i === 0 && options.retry === 0;
-
               if (error.status === 401 && isLocalUrl(options.url) && firstAttempt && isSignedIn) {
                 if (error.data?.error?.id === 'ERR_TOKEN_REVOKED') {
                   this.dependencies.appEvents.publish(
@@ -510,7 +444,6 @@ export class BackendSrv implements BackendService {
                   this.dependencies.contextSrv.setRedirectToUrl();
                   return throwError(() => error);
                 }
-
                 let authChecker = this.loginPing();
                 if (hasSessionExpiry()) {
                   const expired = getSessionExpiry() * 1000 < Date.now();
@@ -518,7 +451,6 @@ export class BackendSrv implements BackendService {
                     authChecker = this.rotateToken();
                   }
                 }
-
                 return from(authChecker).pipe(
                   catchError((err) => {
                     if (err.status === 401) {
@@ -529,7 +461,6 @@ export class BackendSrv implements BackendService {
                   })
                 );
               }
-
               return throwError(error);
             })
           )
@@ -537,7 +468,6 @@ export class BackendSrv implements BackendService {
         catchError((err: FetchError) => throwError(() => this.processRequestError(options, err)))
       );
   }
-
   private handleStreamCancellation(options: BackendSrvRequest): MonoTypeOperatorFunction<FetchResponse> {
     return (inputStream) =>
       inputStream.pipe(
@@ -545,18 +475,15 @@ export class BackendSrv implements BackendService {
           this.inFlightRequests.pipe(
             filter((requestId) => {
               let cancelRequest = false;
-
               if (options && options.requestId && options.requestId === requestId) {
                 // when a new requestId is started it will be published to inFlightRequests
                 // if a previous long running request that hasn't finished yet has the same requestId
                 // we need to cancel that request
                 cancelRequest = true;
               }
-
               if (requestId === CANCEL_ALL_REQUESTS_REQUEST_ID) {
                 cancelRequest = true;
               }
-
               return cancelRequest;
             })
           )
@@ -573,11 +500,9 @@ export class BackendSrv implements BackendService {
         }))
       );
   }
-
   getInspectorStream(): Observable<InspectorStream> {
     return this.inspectorStream;
   }
-
   async get<T = any>(
     url: string,
     params?: BackendSrvRequest['params'],
@@ -586,54 +511,43 @@ export class BackendSrv implements BackendService {
   ) {
     return this.request<T>({ ...options, method: 'GET', url, params, requestId });
   }
-
   async delete<T = unknown>(url: string, data?: unknown, options?: Partial<BackendSrvRequest>) {
     return this.request<T>({ ...options, method: 'DELETE', url, data });
   }
-
   async post<T = any>(url: string, data?: unknown, options?: Partial<BackendSrvRequest>) {
     return this.request<T>({ ...options, method: 'POST', url, data });
   }
-
   async patch<T = any>(url: string, data: unknown, options?: Partial<BackendSrvRequest>) {
     return this.request<T>({ ...options, method: 'PATCH', url, data });
   }
-
   async put<T = any>(url: string, data: unknown, options?: Partial<BackendSrvRequest>): Promise<T> {
     return this.request<T>({ ...options, method: 'PUT', url, data });
   }
-
   withNoBackendCache(callback: () => Promise<void>) {
     this.noBackendCache = true;
     return callback().finally(() => {
       this.noBackendCache = false;
     });
   }
-
   rotateToken() {
     if (this._tokenRotationInProgress) {
       return this._tokenRotationInProgress;
     }
-
     this._tokenRotationInProgress = this.fetch({ url: '/api/user/auth-tokens/rotate', method: 'POST', retry: 1 }).pipe(
       finalize(() => {
         this._tokenRotationInProgress = null;
       }),
       share()
     );
-
     return this._tokenRotationInProgress;
   }
-
   loginPing() {
     return this.fetch({ url: '/api/login/ping', method: 'GET', retry: 1 });
   }
-
   /** @deprecated */
   search(query: Parameters<typeof this.get>[1]): Promise<DashboardSearchItem[]> {
     return this.get('/api/search', query);
   }
-
   /** @deprecated */
   getDashboardByUid(uid: string): Promise<DashboardDTO> {
     // NOTE: When this is removed, we can also remove most instances of:
@@ -641,11 +555,9 @@ export class BackendSrv implements BackendService {
     deprecationWarning('backend_srv', 'getDashboardByUid(uid)', 'getDashboardAPI().getDashboardDTO(uid)');
     return getDashboardAPI('v1').then((api) => api.getDashboardDTO(uid));
   }
-
   getPublicDashboardByUid(uid: string) {
     return this.get<DashboardDTO>(`/api/public/dashboards/${uid}`);
   }
-
   /**
    * @deprecated Use getFolderByUidFacade from app/api/clients/folder/v1beta1/hooks instead
    * or manually handle calling legacy vs app platform API based on feature toggles
@@ -656,18 +568,15 @@ export class BackendSrv implements BackendService {
     if (options.withAccessControl) {
       queryParams.set('accesscontrol', 'true');
     }
-
     return this.get<FolderDTO>(`/api/folders/${uid}?${queryParams.toString()}`, undefined, undefined, {
       showErrorAlert: false,
     });
   }
 }
-
 function isHtmlResponse(value: string): boolean {
   const trimmed = value.trimStart().toLowerCase();
   return trimmed.startsWith('<!doctype') || trimmed.startsWith('<html');
 }
-
 // Used for testing and things that really need BackendSrv
 export const backendSrv = new BackendSrv();
 export const getBackendSrv = (): BackendSrv => backendSrv;

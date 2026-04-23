@@ -1,20 +1,17 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useDialog } from '@react-aria/dialog';
 import { FocusScope } from '@react-aria/focus';
 import { useOverlay } from '@react-aria/overlays';
 import { useRef, useState } from 'react';
-
 import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config, getBackendSrv } from '@grafana/runtime';
 import { Button, useStyles2 } from '@grafana/ui';
-
 import { type MediaType, PickerTabType, type ResourceFolderName } from '../types';
-
 import { FileUploader } from './FileUploader';
 import { FolderPickerTab } from './FolderPickerTab';
 import { URLPickerTab } from './URLPickerTab';
-
 interface Props {
   value?: string; //img/icons/unicons/0-plus.svg
   onChange: (value?: string) => void;
@@ -23,34 +20,28 @@ interface Props {
   maxFiles?: number;
   hidePopper?: () => void;
 }
-
 interface ErrorResponse {
   message: string;
 }
 export const ResourcePickerPopover = (props: Props) => {
   const { value, onChange, mediaType, folderName, maxFiles, hidePopper } = props;
   const styles = useStyles2(getStyles);
-
   const onClose = () => {
     onChange(value);
     hidePopper?.();
   };
-
   const ref = useRef<HTMLElement>(null);
   const { dialogProps } = useDialog({}, ref);
   const { overlayProps } = useOverlay({ onClose, isDismissable: true, isOpen: true }, ref);
-
   const isURL = value && value.includes('://');
   const [newValue, setNewValue] = useState<string>(value ?? '');
   const [activePicker, setActivePicker] = useState<PickerTabType>(isURL ? PickerTabType.URL : PickerTabType.Folder);
   const [formData, setFormData] = useState<FormData>(new FormData());
   const [upload, setUpload] = useState<boolean>(false);
   const [error, setError] = useState<ErrorResponse>({ message: '' });
-
   const getTabClassName = (tabName: PickerTabType) => {
     return `${styles.resourcePickerPopoverTab} ${activePicker === tabName && styles.resourcePickerPopoverActiveTab}`;
   };
-
   const renderFolderPicker = () => (
     <FolderPickerTab
       value={value}
@@ -61,7 +52,6 @@ export const ResourcePickerPopover = (props: Props) => {
       maxFiles={maxFiles}
     />
   );
-
   const renderURLPicker = () => <URLPickerTab newValue={newValue} setNewValue={setNewValue} mediaType={mediaType} />;
   const renderUploader = () => (
     <FileUploader
@@ -84,7 +74,6 @@ export const ResourcePickerPopover = (props: Props) => {
         return renderFolderPicker();
     }
   };
-
   return (
     <FocusScope contain autoFocus restoreFocus>
       <section ref={ref} {...overlayProps} {...dialogProps}>
@@ -129,7 +118,7 @@ export const ResourcePickerPopover = (props: Props) => {
                           .then(() => onChange(`${config.appUrl}api/storage/read/${data.path}`))
                           .then(() => hidePopper?.());
                       })
-                      .catch((err) => console.error(err));
+                      .catch((err) => structLog('error', err));
                   } else {
                     onChange(newValue);
                     hidePopper?.();
@@ -145,7 +134,6 @@ export const ResourcePickerPopover = (props: Props) => {
     </FocusScope>
   );
 };
-
 const getStyles = (theme: GrafanaTheme2) => ({
   resourcePickerPopover: css({
     borderRadius: theme.shape.radius.default,
@@ -162,12 +150,10 @@ const getStyles = (theme: GrafanaTheme2) => ({
     fontSize: theme.typography.bodySmall.fontSize,
     cursor: 'pointer',
     border: 'none',
-
     '&:focus:not(:focus-visible)': {
       outline: 'none',
       boxShadow: 'none',
     },
-
     ':focus-visible': {
       position: 'relative',
     },

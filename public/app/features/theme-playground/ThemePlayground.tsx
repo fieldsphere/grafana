@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useId, useState } from 'react';
-
 import { createTheme, type GrafanaTheme2, type NewThemeOptions } from '@grafana/data';
 import { NewThemeOptionsSchema } from '@grafana/data/internal';
 import aubergine from '@grafana/data/themes/definitions/aubergine.json';
@@ -25,14 +25,12 @@ import { useChromeHeaderHeight } from '@grafana/runtime';
 import { CodeEditor, Combobox, Field, Stack, useStyles2 } from '@grafana/ui';
 import { ThemeDemo } from '@grafana/ui/internal';
 import { Page } from 'app/core/components/Page/Page';
-
 import { createErrorNotification } from '../../core/copy/appNotification';
 import { notifyApp } from '../../core/reducers/appNotification';
 import { HOME_NAV_ID } from '../../core/reducers/navModel';
 import { getNavModel } from '../../core/selectors/navModel';
 import { ThemeProvider } from '../../core/utils/ConfigProvider';
 import { useDispatch, useSelector } from '../../types/store';
-
 const themeMap: Record<string, NewThemeOptions> = {
   dark: {
     name: 'Dark',
@@ -49,7 +47,6 @@ const themeMap: Record<string, NewThemeOptions> = {
     },
   },
 };
-
 const experimentalDefinitions: Record<string, unknown> = {
   aubergine,
   debug,
@@ -68,22 +65,19 @@ const experimentalDefinitions: Record<string, unknown> = {
   victorian,
   zen,
 };
-
 // Add additional themes
 for (const [name, json] of Object.entries(experimentalDefinitions)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    structLog('error', `Invalid theme definition for theme ${name}: ${result.error.message}`);
   } else {
     themeMap[result.data.id] = result.data;
   }
 }
-
 const themeOptions = Object.entries(themeMap).map(([key, theme]) => ({
   label: theme.name,
   value: key,
 }));
-
 export default function ThemePlayground() {
   const navIndex = useSelector((state) => state.navIndex);
   const homeNav = getNavModel(navIndex, HOME_NAV_ID).main;
@@ -95,10 +89,8 @@ export default function ThemePlayground() {
   const chromeHeaderHeight = useChromeHeaderHeight();
   const styles = useStyles2(getStyles, chromeHeaderHeight);
   const dispatch = useDispatch();
-
   const [baseThemeId, setBaseThemeId] = useState(Object.keys(themeMap)[0]);
   const [theme, setTheme] = useState(createTheme(themeMap[baseThemeId]));
-
   const updateThemePreview = (themeInput: NewThemeOptions) => {
     try {
       const theme = createTheme(themeInput);
@@ -107,7 +99,6 @@ export default function ThemePlayground() {
       dispatch(notifyApp(createErrorNotification('Failed to create theme', `${error}`)));
     }
   };
-
   const onEditorBlur = (value: string) => {
     try {
       const themeInput = NewThemeOptionsSchema.safeParse(JSON.parse(value));
@@ -120,7 +111,6 @@ export default function ThemePlayground() {
       dispatch(notifyApp(createErrorNotification('Failed to parse JSON', `${error}`)));
     }
   };
-
   return (
     <Page
       navModel={{
@@ -184,7 +174,6 @@ export default function ThemePlayground() {
     </Page>
   );
 }
-
 const getStyles = (theme: GrafanaTheme2, chromeHeaderHeight: number | undefined) => ({
   left: css({
     background: theme.colors.background.primary,

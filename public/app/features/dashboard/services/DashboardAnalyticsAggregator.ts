@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { logMeasurement, reportInteraction } from '@grafana/runtime';
 import { type performanceUtils } from '@grafana/scenes';
-
 import { SLOW_OPERATION_THRESHOLD_MS } from './performanceConstants';
 import {
   registerPerformanceObserver,
@@ -9,7 +9,6 @@ import {
   writePerformanceGroupLog,
   writePerformanceGroupEnd,
 } from './performanceUtils';
-
 /**
  * Panel metrics structure for analytics
  */
@@ -46,7 +45,6 @@ interface PanelAnalyticsMetrics {
     timestamp: number;
   }>;
 }
-
 /**
  * Aggregates Scene performance events into analytics-ready panel metrics
  */
@@ -54,66 +52,55 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
   private panelMetrics = new Map<string, PanelAnalyticsMetrics>();
   private dashboardUID = '';
   private dashboardTitle = '';
-
   public initialize(uid: string, title: string) {
     // Clear previous dashboard data and set new context
     this.panelMetrics.clear();
     this.dashboardUID = uid;
     this.dashboardTitle = title;
   }
-
   public destroy() {
     // Clear dashboard context
     this.panelMetrics.clear();
     this.dashboardUID = '';
     this.dashboardTitle = '';
   }
-
   /**
    * Clear all collected metrics (called on dashboard interaction start)
    */
   public clearMetrics() {
     this.panelMetrics.clear();
   }
-
   /**
    * Get aggregated panel metrics for analytics
    */
   public getPanelMetrics(): PanelAnalyticsMetrics[] {
     return Array.from(this.panelMetrics.values());
   }
-
   // Dashboard-level events (we don't need to track these for panel analytics)
   onDashboardInteractionStart = (data: performanceUtils.DashboardInteractionStartData): void => {
     // Clear metrics when new dashboard interaction starts
     this.clearMetrics();
   };
-
   onDashboardInteractionMilestone = (_data: performanceUtils.DashboardInteractionMilestoneData): void => {
     // No action needed for milestones in analytics
   };
-
   onDashboardInteractionComplete = (data: performanceUtils.DashboardInteractionCompleteData): void => {
     // Send analytics report for dashboard interaction completion
     this.sendAnalyticsReport(data);
   };
-
   // Panel-level events
   onPanelOperationStart = (data: performanceUtils.PanelPerformanceData): void => {
     // Start events don't need aggregation, just ensure panel exists
     this.ensurePanelExists(data.panelKey, data.panelId, data.pluginId, data.pluginVersion);
   };
-
   onPanelOperationComplete = (data: performanceUtils.PanelPerformanceData): void => {
     // Aggregate panel metrics without verbose logging (handled by ScenePerformanceLogger)
     const panel = this.panelMetrics.get(data.panelKey);
     if (!panel) {
-      console.warn('Panel not found for operation completion:', data.panelKey);
+      structLog('warn', 'Panel not found for operation completion:', data.panelKey);
       return;
     }
-
     const duration = data.duration || 0;
-
     switch (data.operation) {
       case 'fieldConfig':
         panel.totalFieldConfigTime += duration;
@@ -122,7 +109,6 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
           timestamp: data.timestamp,
         });
         break;
-
       case 'transform':
         panel.totalTransformationTime += duration;
         panel.transformationOperations.push({
@@ -132,7 +118,6 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
           success: data.metadata.success,
         });
         break;
-
       case 'query':
         panel.totalQueryTime += duration;
         panel.queryOperations.push({
@@ -141,7 +126,6 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
           queryType: data.metadata.queryType,
         });
         break;
-
       case 'render':
         panel.totalRenderTime += duration;
         panel.renderOperations.push({
@@ -149,22 +133,18 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
           timestamp: data.timestamp,
         });
         break;
-
       case 'plugin-load':
         panel.pluginLoadTime += duration;
         break;
     }
   };
-
   // Query-level events
   onQueryStart = (_data: performanceUtils.QueryPerformanceData): void => {
     // no-op
   };
-
   onQueryComplete = (_data: performanceUtils.QueryPerformanceData): void => {
     // no-op
   };
-
   /**
    * Ensure a panel exists in our tracking map
    */
@@ -195,13 +175,11 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
     }
     return panel;
   }
-
   /**
    * Send panel_render interactions for each panel with aggregated metrics
    */
   private sendPanelRenderInteractions(data: performanceUtils.DashboardInteractionCompleteData): void {
     const panelMetrics = this.getPanelMetrics();
-
     panelMetrics.forEach((panel) => {
       const totalPanelTime =
         panel.totalQueryTime +
@@ -209,7 +187,6 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
         panel.totalRenderTime +
         panel.totalFieldConfigTime +
         panel.pluginLoadTime;
-
       // logMeasurement requires numeric values in second parameter, metadata in third
       const measurementValues = {
         totalTime: Math.round(totalPanelTime * 10) / 10,
@@ -219,7 +196,6 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
         fieldConfigCount: panel.fieldConfigOperations.length,
         pluginLoadCount: panel.pluginLoadTime > 0 ? 1 : 0,
       };
-
       logMeasurement('panel_render', measurementValues, {
         panelKey: panel.panelKey,
         pluginId: panel.pluginId,
@@ -228,7 +204,6 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
       });
     });
   }
-
   /**
    * Send analytics report for dashboard interactions
    */
@@ -243,29 +218,23 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
       longFramesTotalTime: data.longFramesTotalTime,
       ...getPerformanceMemory(),
     };
-
     const panelMetrics = this.getPanelMetrics();
-
     this.logDashboardAnalyticsEvent(data, payload, panelMetrics);
-
     reportInteraction('dashboard_render', {
       interactionType: data.interactionType,
       uid: this.dashboardUID,
       operationId: data.operationId, // OperationId for correlating with panel_render interactions
       ...payload,
     });
-
     logMeasurement('dashboard_render', payload, {
       interactionType: data.interactionType,
       dashboard: this.dashboardUID,
       title: this.dashboardTitle,
       operationId: data.operationId, // OperationId for correlating with panel_render interactions
     });
-
     // Send individual panel_render interactions
     this.sendPanelRenderInteractions(data);
   }
-
   /**
    * Log dashboard analytics event with panel metrics and performance insights
    */
@@ -276,7 +245,6 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
   ): void {
     const panelCount = panelMetrics?.length || 0;
     const panelSummary = panelCount ? `${panelCount} panels analyzed` : 'No panel metrics';
-
     // Main analytics summary
     const slowPanelCount =
       panelMetrics?.filter(
@@ -284,12 +252,10 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
           p.totalQueryTime + p.totalTransformationTime + p.totalRenderTime + p.totalFieldConfigTime + p.pluginLoadTime >
           SLOW_OPERATION_THRESHOLD_MS
       ).length || 0;
-
     writePerformanceGroupStart(
       'DAA',
       `[ANALYTICS] ${data.interactionType} | ${panelSummary}${slowPanelCount > 0 ? ` | ${slowPanelCount} slow panels ⚠️` : ''}`
     );
-
     // Dashboard overview
     writePerformanceGroupLog('DAA', '📊 Dashboard (ms):', {
       duration: Math.round((data.duration || 0) * 10) / 10,
@@ -297,10 +263,8 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
       interactionType: data.interactionType,
       slowPanels: slowPanelCount,
     });
-
     // Analytics payload
     writePerformanceGroupLog('DAA', '📈 Analytics payload:', payload);
-
     // Individual collapsible panel logs with detailed breakdown
     if (panelMetrics && panelMetrics.length > 0) {
       panelMetrics.forEach((panel) => {
@@ -310,22 +274,18 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
           panel.totalRenderTime +
           panel.totalFieldConfigTime +
           panel.pluginLoadTime;
-
         const isSlowPanel = totalPanelTime > SLOW_OPERATION_THRESHOLD_MS;
         const slowWarning = isSlowPanel ? ' ⚠️ SLOW' : '';
-
         writePerformanceGroupStart(
           'DAA',
           `🎨 Panel ${panel.pluginId}-${panel.panelId}: ${totalPanelTime.toFixed(1)}ms total${slowWarning}`
         );
-
         writePerformanceGroupLog('DAA', '🔧 Plugin:', {
           id: panel.pluginId,
           version: panel.pluginVersion || 'unknown',
           panelId: panel.panelId,
           panelKey: panel.panelKey,
         });
-
         writePerformanceGroupLog('DAA', '⚡ Performance (ms):', {
           totalTime: Math.round(totalPanelTime * 10) / 10, // Round to 1 decimal
           isSlowPanel: isSlowPanel,
@@ -337,7 +297,6 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
             pluginLoad: Math.round(panel.pluginLoadTime * 10) / 10,
           },
         });
-
         if (panel.queryOperations.length > 0) {
           writePerformanceGroupLog('DAA', '📊 Queries:', {
             count: panel.queryOperations.length,
@@ -349,7 +308,6 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
             })),
           });
         }
-
         if (panel.transformationOperations.length > 0) {
           writePerformanceGroupLog('DAA', '🔄 Transformations:', {
             count: panel.transformationOperations.length,
@@ -362,7 +320,6 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
             })),
           });
         }
-
         if (panel.renderOperations.length > 0) {
           writePerformanceGroupLog('DAA', '🎨 Renders:', {
             count: panel.renderOperations.length,
@@ -373,7 +330,6 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
             })),
           });
         }
-
         if (panel.fieldConfigOperations.length > 0) {
           writePerformanceGroupLog('DAA', '⚙️ FieldConfigs:', {
             count: panel.fieldConfigOperations.length,
@@ -384,15 +340,12 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
             })),
           });
         }
-
         writePerformanceGroupEnd();
       });
     }
-
     // Panel render interactions summary
     if (panelMetrics && panelMetrics.length > 0) {
       writePerformanceGroupStart('DAA', `📤 Panel render interactions: ${panelMetrics.length} panels reported`);
-
       panelMetrics.forEach((panel) => {
         const totalPanelTime =
           panel.totalQueryTime +
@@ -400,9 +353,7 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
           panel.totalRenderTime +
           panel.totalFieldConfigTime +
           panel.pluginLoadTime;
-
         const isSlowPanel = totalPanelTime > SLOW_OPERATION_THRESHOLD_MS;
-
         writePerformanceGroupLog('DAA', `🎨 ${panel.pluginId}-${panel.panelId}:`, {
           totalTime: Math.round(totalPanelTime * 10) / 10,
           operations: {
@@ -416,27 +367,21 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
           ...(isSlowPanel && { warning: 'SLOW' }),
         });
       });
-
       writePerformanceGroupEnd();
     }
-
     writePerformanceGroupEnd();
   }
 }
-
 // Global singleton instance with lazy initialization
 let dashboardAnalyticsAggregator: DashboardAnalyticsAggregator | null = null;
-
 export function initializeDashboardAnalyticsAggregator(): DashboardAnalyticsAggregator {
   if (!dashboardAnalyticsAggregator) {
     dashboardAnalyticsAggregator = new DashboardAnalyticsAggregator();
-
     // Register as global performance observer
     registerPerformanceObserver(dashboardAnalyticsAggregator, 'DAA');
   }
   return dashboardAnalyticsAggregator;
 }
-
 export function getDashboardAnalyticsAggregator(): DashboardAnalyticsAggregator {
   return initializeDashboardAnalyticsAggregator();
 }

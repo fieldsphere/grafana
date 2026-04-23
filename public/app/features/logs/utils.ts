@@ -1,8 +1,8 @@
+import { structLog } from '@grafana/data';
 import saveAs from 'file-saver';
 import { countBy, chain } from 'lodash';
 import { type MouseEvent } from 'react';
 import { lastValueFrom, map, type Observable } from 'rxjs';
-
 import {
   LogLevel,
   type LogRowModel,
@@ -33,15 +33,12 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getConfig } from 'app/core/config';
-
 import { getLogsExtractFields } from '../explore/Logs/LogsTable';
 import { downloadDataFrameAsCsv, downloadLogsModelAsTxt } from '../inspector/utils/download';
-
 import { LOG_LINE_BODY_FIELD_NAME } from './components/fieldSelector/logFields';
 import { getDataframeFields } from './components/logParser';
 import { type GetRowContextQueryFn } from './components/panel/LogLineMenu';
 import { DATAPLANE_LABELS_NAME, DATAPLANE_LABEL_TYPES_NAME, parseLogsFrame } from './logsFrame';
-
 /**
  * Returns the log level of a log line.
  * Parse the line for level words. If no level is found, it returns `LogLevel.unknown`.
@@ -54,11 +51,9 @@ export function getLogLevel(line: string): LogLevel {
   }
   let level = LogLevel.unknown;
   let currentIndex: number | undefined = undefined;
-
   for (const [key, value] of Object.entries(LogLevel)) {
     const regexp = new RegExp(`\\b${key}\\b`, 'i');
     const result = regexp.exec(line);
-
     if (result) {
       if (currentIndex === undefined || result.index < currentIndex) {
         level = value;
@@ -68,7 +63,6 @@ export function getLogLevel(line: string): LogLevel {
   }
   return level;
 }
-
 export function getLogLevelFromKey(key: string | number): LogLevel {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const level = LogLevel[key.toString().toLowerCase() as keyof typeof LogLevel];
@@ -86,91 +80,77 @@ export function getLogLevelFromKey(key: string | number): LogLevel {
   } else if (typeof key === 'number') {
     return NumericLogLevel[key] || LogLevel.unknown;
   }
-
   return LogLevel.unknown;
 }
-
 export function calculateLogsLabelStats(rows: LogRowModel[], label: string): LogLabelStatsModel[] {
   // Consider only rows that have the given label
   const rowsWithLabel = rows.filter((row) => row.labels[label] !== undefined);
   const rowCount = rowsWithLabel.length;
-
   // Get label value counts for eligible rows
   const countsByValue = countBy(rowsWithLabel, (row) => row.labels[label]);
   return getSortedCounts(countsByValue, rowCount);
 }
-
 export function calculateStats(values: unknown[]): LogLabelStatsModel[] {
   const nonEmptyValues = values.filter((value) => value !== undefined && value !== null);
   const countsByValue = countBy(nonEmptyValues);
   return getSortedCounts(countsByValue, nonEmptyValues.length);
 }
-
-const getSortedCounts = (countsByValue: { [value: string]: number }, rowCount: number) => {
+const getSortedCounts = (
+  countsByValue: {
+    [value: string]: number;
+  },
+  rowCount: number
+) => {
   return chain(countsByValue)
     .map((count, value) => ({ count, value, proportion: count / rowCount }))
     .sortBy('count')
     .reverse()
     .value();
 };
-
 export const sortInAscendingOrder = (a: LogRowModel, b: LogRowModel) => {
   // compare milliseconds
   if (a.timeEpochMs < b.timeEpochMs) {
     return -1;
   }
-
   if (a.timeEpochMs > b.timeEpochMs) {
     return 1;
   }
-
   // if milliseconds are equal, compare nanoseconds
   if (a.timeEpochNs < b.timeEpochNs) {
     return -1;
   }
-
   if (a.timeEpochNs > b.timeEpochNs) {
     return 1;
   }
-
   return 0;
 };
-
 export const sortInDescendingOrder = (a: LogRowModel, b: LogRowModel) => {
   // compare milliseconds
   if (a.timeEpochMs > b.timeEpochMs) {
     return -1;
   }
-
   if (a.timeEpochMs < b.timeEpochMs) {
     return 1;
   }
-
   // if milliseconds are equal, compare nanoseconds
   if (a.timeEpochNs > b.timeEpochNs) {
     return -1;
   }
-
   if (a.timeEpochNs < b.timeEpochNs) {
     return 1;
   }
-
   return 0;
 };
-
 export const sortLogsResult = (logsResult: LogsModel | null, sortOrder: LogsSortOrder): LogsModel => {
   const rows = logsResult ? sortLogRows(logsResult.rows, sortOrder) : [];
   return logsResult ? { ...logsResult, rows } : { hasUniqueLabels: false, rows };
 };
-
 export const sortLogRows = (logRows: LogRowModel[], sortOrder: LogsSortOrder) =>
   sortOrder === LogsSortOrder.Ascending ? logRows.sort(sortInAscendingOrder) : logRows.sort(sortInDescendingOrder);
-
 // Currently supports only error condition in Loki logs
 export const checkLogsError = (logRow: LogRowModel): string | undefined => {
   return logRow.labels.__error__;
 };
-
 export const checkLogsSampled = (logRow: LogRowModel): string | undefined => {
   if (!logRow.labels.__adaptive_logs_sampled__) {
     return undefined;
@@ -179,10 +159,8 @@ export const checkLogsSampled = (logRow: LogRowModel): string | undefined => {
     ? 'Logs like this one have been dropped by Adaptive Logs'
     : `${logRow.labels.__adaptive_logs_sampled__}% of logs like this one have been dropped by Adaptive Logs`;
 };
-
 export const escapeUnescapedString = (string: string) =>
   string.replace(/\\r\\n|\\n|\\t|\\r/g, (match: string) => (match.slice(1) === 't' ? '\t' : '\n'));
-
 export function logRowsToReadableJson(logs: LogRowModel[], pickFields: string[] = []) {
   return logs.map((log) => {
     const fields = getDataframeFields(log).reduce<Record<string, string>>((acc, field) => {
@@ -190,16 +168,13 @@ export function logRowsToReadableJson(logs: LogRowModel[], pickFields: string[] 
       acc[key] = field.values[0];
       return acc;
     }, {});
-
     let logFields = {
       ...fields,
       ...log.labels,
     };
-
     if (pickFields.length) {
       logFields = Object.fromEntries(Object.entries(logFields).filter(([key]) => pickFields.includes(key)));
     }
-
     return {
       line: log.entry,
       timestamp: log.timeEpochNs,
@@ -208,10 +183,8 @@ export function logRowsToReadableJson(logs: LogRowModel[], pickFields: string[] 
     };
   });
 }
-
 export const getLogsVolumeMaximumRange = (dataFrames: DataFrame[]) => {
   let widestRange = { from: Infinity, to: -Infinity };
-
   dataFrames.forEach((dataFrame: DataFrame) => {
     const meta = dataFrame.meta?.custom || {};
     if (meta.absoluteRange?.from && meta.absoluteRange?.to) {
@@ -221,58 +194,56 @@ export const getLogsVolumeMaximumRange = (dataFrames: DataFrame[]) => {
       };
     }
   });
-
   return widestRange;
 };
-
 /**
  * Merge data frames by level and calculate maximum total value for all levels together
  */
-export const mergeLogsVolumeDataFrames = (dataFrames: DataFrame[]): { dataFrames: DataFrame[]; maximum: number } => {
+export const mergeLogsVolumeDataFrames = (
+  dataFrames: DataFrame[]
+): {
+  dataFrames: DataFrame[];
+  maximum: number;
+} => {
   if (dataFrames.length === 0) {
     throw new Error('Cannot aggregate data frames: there must be at least one data frame to aggregate');
   }
-
   // aggregate by level (to produce data frames)
   const aggregated: Record<string, Record<number, number>> = {};
-
   // aggregate totals to align Y axis when multiple log volumes are shown
   const totals: Record<number, number> = {};
   let maximumValue = -Infinity;
-
   const configs: Record<
     string,
-    { meta?: QueryResultMeta; valueFieldConfig: FieldConfig; timeFieldConfig: FieldConfig }
+    {
+      meta?: QueryResultMeta;
+      valueFieldConfig: FieldConfig;
+      timeFieldConfig: FieldConfig;
+    }
   > = {};
   let results: DataFrame[] = [];
-
   // collect and aggregate into aggregated object
   dataFrames.forEach((dataFrame) => {
     const { level, valueField, timeField } = getLogLevelInfo(dataFrame, dataFrames);
-
     if (!timeField || !valueField) {
       return;
     }
-
     configs[level] = {
       meta: dataFrame.meta,
       valueFieldConfig: valueField?.config ?? {},
       timeFieldConfig: timeField?.config ?? {},
     };
-
     for (let pointIndex = 0; pointIndex < dataFrame.length; pointIndex++) {
       const time: number = timeField.values[pointIndex];
       const value: number = valueField.values[pointIndex];
       aggregated[level] ??= {};
       aggregated[level][time] = (aggregated[level][time] || 0) + value;
-
       totals[time] = (totals[time] || 0) + value;
       if (totals[time] > maximumValue) {
         maximumValue = totals[time];
       }
     }
   });
-
   // convert aggregated into data frames
   Object.keys(aggregated).forEach((level) => {
     const levelDataFrame = new MutableDataFrame();
@@ -282,7 +253,6 @@ export const mergeLogsVolumeDataFrames = (dataFrames: DataFrame[]): { dataFrames
     levelDataFrame.meta = meta;
     levelDataFrame.addField({ name: 'Time', type: FieldType.time, config: timeFieldConfig });
     levelDataFrame.addField({ name: 'Value', type: FieldType.number, config: valueFieldConfig });
-
     Object.entries(aggregated[level])
       .sort((a, b) => Number(a[0]) - Number(b[0]))
       .forEach(([time, value]) => {
@@ -291,29 +261,26 @@ export const mergeLogsVolumeDataFrames = (dataFrames: DataFrame[]): { dataFrames
           Value: value,
         });
       });
-
     results.push(levelDataFrame);
   });
-
   return { dataFrames: results, maximum: maximumValue };
 };
-
-export const getLogsVolumeDataSourceInfo = (dataFrames: DataFrame[]): { name: string } | null => {
+export const getLogsVolumeDataSourceInfo = (
+  dataFrames: DataFrame[]
+): {
+  name: string;
+} | null => {
   const customMeta = dataFrames[0]?.meta?.custom;
-
   if (customMeta && customMeta.datasourceName) {
     return {
       name: customMeta.datasourceName,
     };
   }
-
   return null;
 };
-
 export const isLogsVolumeLimited = (dataFrames: DataFrame[]) => {
   return dataFrames[0]?.meta?.custom?.logsVolumeType === LogsVolumeType.Limited;
 };
-
 export const copyText = async (text: string, buttonRef: React.MutableRefObject<Element | null>) => {
   if (navigator.clipboard && window.isSecureContext) {
     return navigator.clipboard.writeText(text);
@@ -333,7 +300,6 @@ export const copyText = async (text: string, buttonRef: React.MutableRefObject<E
     textarea.remove();
   }
 };
-
 export async function handleOpenLogsContextClick(
   event: MouseEvent<HTMLElement>,
   row: LogRowModel,
@@ -354,34 +320,28 @@ export async function handleOpenLogsContextClick(
         }),
       });
       win.location = url;
-
       return;
     }
     win?.close();
   }
   onOpenContext(row);
 }
-
 export function getLogLevelInfo(dataFrame: DataFrame, allDataFrames: DataFrame[]) {
   const fieldCache = new FieldCache(dataFrame);
   const timeField = fieldCache.getFirstFieldOfType(FieldType.time);
   const valueField = fieldCache.getFirstFieldOfType(FieldType.number);
-
   if (!timeField) {
-    console.error('Time field missing in data frame');
+    structLog('error', 'Time field missing in data frame');
   }
   if (!valueField) {
-    console.error('Value field missing in data frame');
+    structLog('error', 'Value field missing in data frame');
   }
-
   const level = valueField ? getFieldDisplayName(valueField, dataFrame, allDataFrames) : 'logs';
   return { level, valueField, timeField };
 }
-
 export function targetIsElement(target: EventTarget | null): target is Element {
   return target instanceof Element;
 }
-
 export function createLogRowsMap() {
   const logRowsSet = new Set();
   return function (target: LogRowModel): boolean {
@@ -393,7 +353,6 @@ export function createLogRowsMap() {
     return false;
   };
 }
-
 function getLabelDisplayTypeFromFrame(labelKey: string, frame: DataFrame, index: number): null | string {
   const typeField = frame.fields.find((field) => field.name === 'labelTypes')?.values[index];
   if (!typeField) {
@@ -401,7 +360,6 @@ function getLabelDisplayTypeFromFrame(labelKey: string, frame: DataFrame, index:
   }
   return typeField[labelKey] ?? null;
 }
-
 /**
  * @deprecated Implement DataSourceWithLogsLabelTypesSupport and use ds.getLabelDisplayTypeFromFrame
  * to support label types.
@@ -420,7 +378,6 @@ export function getLabelTypeFromRow(label: string, row: LogRowModel, plural = fa
   }
   return getDataSourceLabelType(labelType, row.datasourceType, plural);
 }
-
 /**
  * @deprecated
  * @param labelType
@@ -444,26 +401,21 @@ function getDataSourceLabelType(labelType: string, datasourceType: string | unde
       return null;
   }
 }
-
 const POPOVER_STORAGE_KEY = 'logs.popover.disabled';
 export function disablePopoverMenu() {
   store.set(POPOVER_STORAGE_KEY, 'true');
 }
-
 export function enablePopoverMenu() {
   store.delete(POPOVER_STORAGE_KEY);
 }
-
 export function isPopoverMenuDisabled() {
   return Boolean(store.get(POPOVER_STORAGE_KEY));
 }
-
 export enum DownloadFormat {
   Text = 'text',
   Json = 'json',
   CSV = 'csv',
 }
-
 export const downloadLogs = async (
   format: DownloadFormat,
   logRows: LogRowModel[],
@@ -536,7 +488,6 @@ export const downloadLogs = async (
     }
   }
 };
-
 const addISODateTransformation: CustomTransformOperator = () => (source: Observable<DataFrame[]>) => {
   return source.pipe(
     map((data: DataFrame[]) => {
@@ -556,7 +507,6 @@ const addISODateTransformation: CustomTransformOperator = () => (source: Observa
     })
   );
 };
-
 /**
  * Get the start and end timestamps from series.
  */

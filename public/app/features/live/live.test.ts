@@ -1,5 +1,6 @@
 import { Subject } from 'rxjs';
 
+import * as grafanaData from '@grafana/data';
 import { type DataQueryResponse, FieldType, LiveChannelScope, StreamingDataFrame } from '@grafana/data';
 import { type BackendSrv } from '@grafana/runtime';
 
@@ -116,7 +117,7 @@ describe('GrafanaLiveService', () => {
   });
 
   it('should return an empty frame if first message was not a full frame', async () => {
-    jest.spyOn(console, 'warn').mockImplementation(jest.fn);
+    const structLogSpy = jest.spyOn(grafanaData, 'structLog').mockImplementation(jest.fn);
     const dummySubject = new Subject<StreamingDataQueryResponse>();
     mockGetDataStream.mockReturnValueOnce(dummySubject);
 
@@ -142,6 +143,6 @@ describe('GrafanaLiveService', () => {
     const frame: StreamingDataFrame = response?.data[0];
     expect(frame).toBeInstanceOf(StreamingDataFrame);
     expect(frame.fields).toEqual([]);
-    expect(console.warn).toHaveBeenCalled();
+    expect(structLogSpy).toHaveBeenCalled();
   });
 });

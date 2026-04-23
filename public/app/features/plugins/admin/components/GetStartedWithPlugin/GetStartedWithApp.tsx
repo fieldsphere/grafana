@@ -1,23 +1,19 @@
+import { structLog } from '@grafana/data';
 import * as React from 'react';
-
 import { type PluginMeta } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { Button } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
-
 import { updatePluginSettings } from '../../api';
 import { usePluginConfig } from '../../hooks/usePluginConfig';
 import { type CatalogPlugin } from '../../types';
-
 type Props = {
   plugin: CatalogPlugin;
 };
-
 export function GetStartedWithApp({ plugin }: Props): React.ReactElement | null {
   const { value: pluginConfig } = usePluginConfig(plugin);
-
   if (!pluginConfig) {
     return null;
   }
@@ -25,9 +21,7 @@ export function GetStartedWithApp({ plugin }: Props): React.ReactElement | null 
   if (!contextSrv.hasPermission(AccessControlAction.PluginsWrite)) {
     return null;
   }
-
   const { enabled, autoEnabled, jsonData } = pluginConfig?.meta;
-
   const enable = () => {
     reportInteraction('plugins_detail_enable_clicked', {
       path: window.location.pathname,
@@ -41,7 +35,6 @@ export function GetStartedWithApp({ plugin }: Props): React.ReactElement | null 
       jsonData,
     });
   };
-
   const disable = () => {
     reportInteraction('plugins_detail_disable_clicked', {
       path: window.location.pathname,
@@ -55,7 +48,6 @@ export function GetStartedWithApp({ plugin }: Props): React.ReactElement | null 
       jsonData,
     });
   };
-
   return (
     <>
       {!enabled && (
@@ -72,14 +64,12 @@ export function GetStartedWithApp({ plugin }: Props): React.ReactElement | null 
     </>
   );
 }
-
 const updatePluginSettingsAndReload = async (id: string, data: Partial<PluginMeta>) => {
   try {
     await updatePluginSettings(id, data);
-
     // Reloading the page as the plugin meta changes made here wouldn't be propagated throughout the app.
     window.location.reload();
   } catch (e) {
-    console.error('Error while updating the plugin', e);
+    structLog('error', 'Error while updating the plugin', e);
   }
 };

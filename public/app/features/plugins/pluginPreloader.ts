@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import type {
   AppPluginConfig,
   PluginExtensionAddedLinkConfig,
@@ -6,9 +7,7 @@ import type {
 } from '@grafana/data';
 import { contextSrv } from 'app/core/services/context_srv';
 import { getPluginSettings } from 'app/features/plugins/pluginSettings';
-
 import { pluginImporter } from './importer/pluginImporter';
-
 export type PluginPreloadResult = {
   pluginId: string;
   error?: unknown;
@@ -16,13 +15,10 @@ export type PluginPreloadResult = {
   addedComponentConfigs?: PluginExtensionAddedComponentConfig[];
   addedLinkConfigs?: PluginExtensionAddedLinkConfig[];
 };
-
 const preloadPromises = new Map<string, Promise<void>>();
-
 export const clearPreloadedPluginsCache = () => {
   preloadPromises.clear();
 };
-
 export async function preloadPlugins(apps: AppPluginConfig[] = []) {
   // Create preload promises for each app, reusing existing promises if already loading
   const promises = apps.map((app) => {
@@ -31,13 +27,10 @@ export async function preloadPlugins(apps: AppPluginConfig[] = []) {
     }
     return preloadPromises.get(app.id)!;
   });
-
   await Promise.all(promises);
 }
-
 async function preload(config: AppPluginConfig): Promise<void> {
   const showErrorAlert = contextSrv.user.orgRole !== '';
-
   try {
     const meta = await getPluginSettings(config.id, { showErrorAlert });
     await pluginImporter.importApp(meta);
@@ -45,7 +38,6 @@ async function preload(config: AppPluginConfig): Promise<void> {
     if (!showErrorAlert) {
       return;
     }
-
-    console.error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
+    structLog('error', `[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
   }
 }

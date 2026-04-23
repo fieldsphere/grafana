@@ -1,16 +1,14 @@
+import { structLog } from '@grafana/data';
 import { type DataFrame, type FieldWithIndex, getFieldDisplayName } from '@grafana/data';
 import { type FieldNameMeta, type FieldNameMetaStore } from 'app/features/explore/Logs/LogsTableWrap';
 import { LOG_LINE_BODY_FIELD_NAME } from 'app/features/logs/components/fieldSelector/logFields';
-
 type FieldName = string;
-
 export interface LogsFrameFields {
   extraFields: FieldWithIndex[];
   severityField: FieldWithIndex | null;
   bodyField: FieldWithIndex;
   timeField: FieldWithIndex;
 }
-
 export const buildColumnsWithMeta = (
   logsFrameFields: LogsFrameFields,
   dataFrame: DataFrame,
@@ -18,7 +16,6 @@ export const buildColumnsWithMeta = (
 ) => {
   const otherFields = [];
   const numberOfLogLines = logsFrameFields?.timeField.values.length;
-
   if (logsFrameFields.extraFields) {
     otherFields.push(...logsFrameFields.extraFields.filter((field) => !field?.config?.custom?.hidden));
   }
@@ -31,13 +28,10 @@ export const buildColumnsWithMeta = (
   if (logsFrameFields?.timeField) {
     otherFields.push(logsFrameFields?.timeField);
   }
-
   // Use a map to dedupe labels and count their occurrences in the logs
   const labelCardinality = new Map<FieldName, FieldNameMeta>();
-
   // What the label state will look like
   let pendingLabelState: FieldNameMetaStore = {};
-
   // If we have labels and log lines
   if (dataFrame.fields.length && numberOfLogLines) {
     // Iterate through all of fields
@@ -50,17 +44,14 @@ export const buildColumnsWithMeta = (
         }
         return acc;
       }, 0);
-
       labelCardinality.set(fieldName, {
         percentOfLinesWithLabel: countOfValues,
         active: false,
         index: undefined,
       });
     });
-
     // Converting the map to an object
     pendingLabelState = Object.fromEntries(labelCardinality);
-
     // Convert count to percent of log lines
     Object.keys(pendingLabelState).forEach((key) => {
       pendingLabelState[key].percentOfLinesWithLabel = normalize(
@@ -69,7 +60,6 @@ export const buildColumnsWithMeta = (
       );
     });
   }
-
   // Normalize the other fields
   otherFields.forEach((field) => {
     const fieldName = getFieldDisplayName(field);
@@ -95,7 +85,6 @@ export const buildColumnsWithMeta = (
       };
     }
   });
-
   displayedFields.forEach((fieldName, idx) => {
     if (pendingLabelState[fieldName]) {
       pendingLabelState[fieldName].active = true;
@@ -104,10 +93,9 @@ export const buildColumnsWithMeta = (
       pendingLabelState[logsFrameFields.bodyField?.name].active = true;
       pendingLabelState[logsFrameFields.bodyField?.name].index = idx;
     } else {
-      console.error(`Unknown field ${fieldName}`, { pendingLabelState, displayedFields });
+      structLog('error', `Unknown field ${fieldName}`, { pendingLabelState, displayedFields });
     }
   });
-
   // If nothing is selected, then select the default columns
   if (displayedFields.length === 0) {
     if (logsFrameFields?.bodyField?.name) {
@@ -119,15 +107,12 @@ export const buildColumnsWithMeta = (
       pendingLabelState[logsFrameFields.timeField.name].active = true;
     }
   }
-
   if (logsFrameFields?.bodyField?.name && logsFrameFields?.timeField?.name) {
     pendingLabelState[logsFrameFields.bodyField.name].type = 'BODY_FIELD';
     pendingLabelState[logsFrameFields.timeField.name].type = 'TIME_FIELD';
   }
-
   return pendingLabelState;
 };
-
 const normalize = (value: number, total: number): number => {
   return Math.ceil((100 * value) / total);
 };

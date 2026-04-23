@@ -1,3 +1,4 @@
+import * as grafanaData from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 
 import { dashboardAPIVersionResolver } from './DashboardAPIVersionResolver';
@@ -30,12 +31,13 @@ function mockDiscoveryFailure() {
   } as any);
 }
 
+let structLogSpy: jest.SpiedFunction<typeof grafanaData.structLog>;
+
 describe('DashboardAPIVersionResolver', () => {
   beforeEach(() => {
     dashboardAPIVersionResolver.reset();
     jest.clearAllMocks();
-    jest.spyOn(console, 'log').mockImplementation();
-    jest.spyOn(console, 'warn').mockImplementation();
+    structLogSpy = jest.spyOn(grafanaData, 'structLog').mockImplementation();
   });
 
   describe('resolve', () => {
@@ -152,27 +154,35 @@ describe('DashboardAPIVersionResolver', () => {
     });
 
     describe('debug logging', () => {
-      beforeEach(() => localStorage.setItem('grafana.debug.dashboardAPI', 'true'));
+      beforeEach(() => {
+        localStorage.setItem('grafana.debug.dashboardAPI', 'true');
+        structLogSpy.mockClear();
+      });
       afterEach(() => localStorage.removeItem('grafana.debug.dashboardAPI'));
 
       it('should log resolved versions', async () => {
         mockDiscoveryResponse(['v2', 'v1']);
         await dashboardAPIVersionResolver.resolve();
-        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Version negotiation'));
+        expect(structLogSpy).toHaveBeenCalledWith('log', expect.stringContaining('Version negotiation'));
       });
 
       it('should log on discovery failure', async () => {
         mockDiscoveryFailure();
         await dashboardAPIVersionResolver.resolve();
-        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('discovery failed'), expect.any(Error));
+        expect(structLogSpy).toHaveBeenCalledWith(
+          'log',
+          expect.stringContaining('discovery failed'),
+          expect.any(Error)
+        );
       });
     });
 
     it('should not log when debug is disabled', async () => {
+      structLogSpy.mockClear();
       localStorage.removeItem('grafana.debug.dashboardAPI');
       mockDiscoveryResponse(['v2', 'v1']);
       await dashboardAPIVersionResolver.resolve();
-      expect(console.log).not.toHaveBeenCalled();
+      expect(structLogSpy).not.toHaveBeenCalled();
     });
   });
 

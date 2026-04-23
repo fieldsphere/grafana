@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { memo, useMemo, useState, useEffect } from 'react';
-
 import { type PreferencesSpec as UserPreferencesDTO } from '@grafana/api-clients/rtkq/preferences/v1alpha1';
 import { FeatureState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
@@ -25,10 +25,8 @@ import {
 } from '@grafana/ui';
 import { PreferencesService } from 'app/core/services/PreferencesService';
 import { changeTheme } from 'app/core/services/theme';
-
 import { DashboardPicker } from '../Select/DashboardPicker';
 import { getSelectableThemes } from '../ThemeSelector/getSelectableThemes';
-
 import { languageChanged, regionalFormatChanged, saveButtonClicked, themeChanged } from './analytics/main';
 import {
   getLanguageOptions,
@@ -38,7 +36,6 @@ import {
   type Props,
   type State,
 } from './utils';
-
 export const SharedPreferencesFunctional = memo((props: Props) => {
   const isAnalyticsFrameworkEnabled = useBooleanFlagValue('analyticsFramework', true);
   const [state, setState] = useState<UserPreferencesDTO & State>({
@@ -53,12 +50,9 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
     navbar: { bookmarkUrls: [] },
     homeDashboardUID: '',
   });
-
   const themes = getSelectableThemes();
   const styles = useStyles2(getStyles);
-
   const service = useMemo(() => new PreferencesService(props.resourceUri), [props.resourceUri]);
-
   // Options are translated, so must be called after init but call them
   // in constructor to avoid memo-break of array changing every render
   const themeOptions: ComboboxOption[] = themes.map((theme) => ({
@@ -68,10 +62,8 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
   }));
   const languageOptions: ComboboxOption[] = getLanguageOptions();
   const regionalFormatOptions: ComboboxOption[] = getRegionalFormatOptions();
-
   // Add default option
   themeOptions.unshift({ value: '', label: t('shared-preferences.theme.default-label', 'Default') });
-
   useEffect(() => {
     const loadPreferences = async () => {
       setState((prev) => ({ ...prev, isLoading: true }));
@@ -89,15 +81,13 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
           navbar: prefs.navbar ?? prev.navbar,
         }));
       } catch (err) {
-        console.error('Failed to load preferences', err);
+        structLog('error', 'Failed to load preferences', err);
       } finally {
         setState((prev) => ({ ...prev, isLoading: false }));
       }
     };
-
     loadPreferences();
   }, [service]);
-
   const handleSubmitForm = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const confirmationResult = props.onConfirm ? await props.onConfirm() : true;
@@ -115,7 +105,6 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
         language: state.language,
       });
     }
-
     if (!confirmationResult) {
       return;
     }
@@ -136,7 +125,6 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
       });
     window.location.reload();
   };
-
   const handleThemeChanged = (value: ComboboxOption<string>) => {
     setState((prev) => ({ ...prev, theme: value.value }));
     if (isAnalyticsFrameworkEnabled) {
@@ -151,27 +139,22 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
         preferenceType: props.preferenceType,
       });
     }
-
     if (value.value) {
       changeTheme(value.value, true);
     }
   };
-
   const handleTimeZoneChanged = (timezone?: string) => {
     if (typeof timezone !== 'string') {
       return;
     }
     setState((prev) => ({ ...prev, timezone }));
   };
-
   const handleWeekStartChanged = (weekStart?: WeekStart) => {
     weekStart ? setState((prev) => ({ ...prev, weekStart })) : setState((prev) => ({ ...prev, weekStart: '' }));
   };
-
   const handleDashboardChanged = (dashboardUID: string) => {
     setState((prev) => ({ ...prev, homeDashboardUID: dashboardUID }));
   };
-
   const handleLanguageChanged = (language: string) => {
     setState((prev) => ({ ...prev, language }));
     if (isAnalyticsFrameworkEnabled) {
@@ -187,7 +170,6 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
       });
     }
   };
-
   const handleRegionalFormatChanged = (regionalFormat: string) => {
     setState((prev) => ({ ...prev, regionalFormat }));
     if (isAnalyticsFrameworkEnabled) {
@@ -203,9 +185,7 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
       });
     }
   };
-
   const currentThemeOption = themeOptions.find((x) => x.value === state.theme) ?? themeOptions[0];
-
   return (
     <form onSubmit={handleSubmitForm} className={styles.form}>
       <FieldSet label={<Trans i18nKey="shared-preferences.title">Preferences</Trans>} disabled={props.disabled}>
@@ -354,5 +334,4 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
     </form>
   );
 });
-
 SharedPreferencesFunctional.displayName = 'SharedPreferencesFunctional';

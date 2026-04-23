@@ -1,6 +1,7 @@
 import { mapValues } from 'lodash';
 import { type Observable, Subject, type Subscription, type Unsubscribable } from 'rxjs';
 
+import * as grafanaData from '@grafana/data';
 import {
   type DataFrameJSON,
   dataFrameToJSON,
@@ -123,7 +124,7 @@ describe('LiveDataStream', () => {
   jest.useFakeTimers();
 
   beforeEach(() => {
-    jest.spyOn(console, 'log').mockImplementation(jest.fn);
+    jest.spyOn(grafanaData, 'structLog').mockImplementation(jest.fn);
   });
 
   afterEach(() => {

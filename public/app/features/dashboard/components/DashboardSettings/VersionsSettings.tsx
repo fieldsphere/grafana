@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { PureComponent } from 'react';
 import * as React from 'react';
-
 import { Spinner, Stack } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { type Resource } from 'app/features/apiserver/types';
@@ -12,28 +12,25 @@ import {
 } from 'app/features/dashboard/types/revisionModels';
 import { VersionsHistoryButtons } from 'app/features/dashboard-scene/settings/version-history/VersionHistoryButtons';
 import { VersionHistoryHeader } from 'app/features/dashboard-scene/settings/version-history/VersionHistoryHeader';
-
 import { VersionHistoryComparison } from '../VersionHistory/VersionHistoryComparison';
 import { VersionHistoryTable } from '../VersionHistory/VersionHistoryTable';
-
 import { type SettingsPageProps } from './types';
-
 interface Props extends SettingsPageProps {}
-
 type State = {
   isLoading: boolean;
   isAppending: boolean;
   versions: DecoratedRevisionModel[];
   viewMode: 'list' | 'compare';
-  diffData: { lhs: object; rhs: object };
+  diffData: {
+    lhs: object;
+    rhs: object;
+  };
   newInfo?: DecoratedRevisionModel;
   baseInfo?: DecoratedRevisionModel;
   isNewLatest: boolean;
 };
-
 export class VersionsSettings extends PureComponent<Props, State> {
   continueToken: string;
-
   constructor(props: Props) {
     super(props);
     this.continueToken = '';
@@ -46,18 +43,14 @@ export class VersionsSettings extends PureComponent<Props, State> {
       diffData: { lhs: {}, rhs: {} },
     };
   }
-
   componentDidMount() {
     this.getVersions();
   }
-
   getVersions = (append = false) => {
     this.setState({ isAppending: append });
-
     const options = append
       ? { limit: VERSIONS_FETCH_LIMIT, continueToken: this.continueToken }
       : { limit: VERSIONS_FETCH_LIMIT };
-
     getDashboardAPI()
       .then(async (api) => {
         const result = await api.listDashboardHistory(this.props.dashboard.uid, options);
@@ -69,10 +62,9 @@ export class VersionsSettings extends PureComponent<Props, State> {
         // Update the continueToken for the next request, if available
         this.continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => structLog('log', err))
       .finally(() => this.setState({ isAppending: false }));
   };
-
   transformToRevisionModels(items: Array<Resource<unknown>>): RevisionModel[] {
     return items.map(
       (item): RevisionModel => ({
@@ -88,12 +80,10 @@ export class VersionsSettings extends PureComponent<Props, State> {
       })
     );
   }
-
   getDiff = () => {
     const selectedVersions = this.state.versions.filter((version) => version.checked);
     const [newInfo, baseInfo] = selectedVersions;
     const isNewLatest = newInfo.version === this.props.dashboard.version;
-
     // Use the already-loaded data from listDashboardHistory - no need for another API call
     this.setState({
       baseInfo,
@@ -104,7 +94,6 @@ export class VersionsSettings extends PureComponent<Props, State> {
       diffData: { lhs: baseInfo.data, rhs: newInfo.data },
     });
   };
-
   decorateVersions = (versions: RevisionModel[]) =>
     versions.map((version) => ({
       ...version,
@@ -112,7 +101,6 @@ export class VersionsSettings extends PureComponent<Props, State> {
       ageString: this.props.dashboard.getRelativeTime(version.created),
       checked: false,
     }));
-
   isLastPage() {
     return (
       this.state.versions.find((rev) => rev.version === 1) ||
@@ -120,7 +108,6 @@ export class VersionsSettings extends PureComponent<Props, State> {
       this.continueToken === ''
     );
   }
-
   onCheck = (ev: React.FormEvent<HTMLInputElement>, versionId: number) => {
     this.setState({
       versions: this.state.versions.map((version) =>
@@ -128,7 +115,6 @@ export class VersionsSettings extends PureComponent<Props, State> {
       ),
     });
   };
-
   reset = () => {
     this.continueToken = '';
     this.setState({
@@ -140,14 +126,12 @@ export class VersionsSettings extends PureComponent<Props, State> {
       viewMode: 'list',
     });
   };
-
   render() {
     const { versions, viewMode, baseInfo, newInfo, isNewLatest, isLoading, diffData } = this.state;
     const canCompare = versions.filter((version) => version.checked).length === 2;
     const showButtons = versions.length > 1;
     const hasMore = versions.length >= VERSIONS_FETCH_LIMIT;
     const pageNav = this.props.sectionNav.node.parentItem;
-
     if (viewMode === 'compare') {
       return (
         <Page navModel={this.props.sectionNav} pageNav={pageNav}>
@@ -170,7 +154,6 @@ export class VersionsSettings extends PureComponent<Props, State> {
         </Page>
       );
     }
-
     return (
       <Page navModel={this.props.sectionNav} pageNav={pageNav}>
         {isLoading ? (
@@ -192,7 +175,6 @@ export class VersionsSettings extends PureComponent<Props, State> {
     );
   }
 }
-
 export const VersionsHistorySpinner = ({ msg }: { msg: string }) => (
   <Stack>
     <Spinner />
