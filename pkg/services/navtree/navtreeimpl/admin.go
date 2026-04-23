@@ -175,6 +175,29 @@ func (s *ServiceImpl) getAdminNode(c *contextmodel.ReqContext) (*navtree.NavLink
 	// Always append admin access as it's injected by grafana-auth-app.
 	configNodes = append(configNodes, usersNode)
 
+	if hasGlobalAccess(ac.EvalAny(
+		ac.EvalPermission(ac.ActionFeatureManagementRead),
+		ac.EvalPermission(ac.ActionFeatureManagementWrite),
+	)) {
+		configNodes = append(configNodes, &navtree.NavLink{
+			Text:     "Labs",
+			Id:       navtree.NavIDCfgLabs,
+			SubTitle: "Experiment with in-app feature flags and preview capabilities",
+			Icon:     "beaker",
+			Url:      s.cfg.AppSubURL + "/admin/labs",
+			Children: []*navtree.NavLink{
+				{
+					Text:     "Feature flagging dashboard",
+					Id:       navtree.NavIDFeatureFlagDashboard,
+					SubTitle: "View enabled feature flags and control browser-local overrides",
+					Icon:     "toggle-on",
+					Url:      s.cfg.AppSubURL + "/admin/labs/feature-flags",
+					IsNew:    true,
+				},
+			},
+		})
+	}
+
 	if authConfigUIAvailable && hasAccess(ssoutils.EvalAuthenticationSettings(s.cfg)) ||
 		hasAccess(ssoutils.OauthSettingsEvaluator(s.cfg)) {
 		configNodes = append(configNodes, &navtree.NavLink{

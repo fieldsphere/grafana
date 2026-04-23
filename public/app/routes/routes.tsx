@@ -247,6 +247,18 @@ export function getAppRoutes(): RouteDescriptor[] {
       component: () => <NavLandingPage navId="cfg/access" />,
     },
     {
+      path: '/admin/labs',
+      component: SafeDynamicImport(() => import(/* webpackChunkName: "LabsPage" */ 'app/features/admin/LabsPage')),
+    },
+    {
+      path: '/admin/labs/feature-flags',
+      roles: () =>
+        contextSrv.evaluatePermission(['featuremgmt.read', 'featuremgmt.write', AccessControlAction.SettingsRead]),
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "FeatureFlagDashboard" */ 'app/features/admin/FeatureFlagDashboard')
+      ),
+    },
+    {
       path: '/org',
       component: SafeDynamicImport(
         () => import(/* webpackChunkName: "OrgDetailsPage" */ '../features/org/OrgDetailsPage')
