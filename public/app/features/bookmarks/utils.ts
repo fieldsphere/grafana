@@ -15,10 +15,7 @@ export interface BookmarkWithSection {
  * Matches outside the "Bookmarks" nav subsection first so pinned items that also
  * appear as bookmark shortcuts use the same metadata as the rest of the app nav.
  */
-export function resolveBookmarkInNavTree(
-  topLevel: NavModelItem[],
-  url: string
-): BookmarkWithSection | null {
+export function resolveBookmarkInNavTree(topLevel: NavModelItem[], url: string): BookmarkWithSection | null {
   for (const section of topLevel) {
     if (section.id === BOOKMARKS_SECTION_ID) {
       continue;
@@ -69,10 +66,7 @@ export const ALL_CATEGORIES = '__all__';
 /**
  * @param sectionId - `ALL_CATEGORIES` for no filter, otherwise `NavModelItem.id` (or url fallback) of the top-level section.
  */
-export function bookmarkMatchesCategory(
-  section: NavModelItem,
-  sectionId: string
-): boolean {
+export function bookmarkMatchesCategory(section: NavModelItem, sectionId: string): boolean {
   if (sectionId === ALL_CATEGORIES) {
     return true;
   }

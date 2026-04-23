@@ -137,11 +137,7 @@ function BookmarkSections({ bookmarks }: { bookmarks: Array<{ item: NavModelItem
           <div className={styles.grid} role="list">
             {items.map((item) => (
               <div className={styles.listItem} key={item.id || item.url} role="listitem">
-                <NavLandingPageCard
-                  description={item.subTitle}
-                  text={item.text}
-                  url={item.url ?? ''}
-                />
+                <NavLandingPageCard description={item.subTitle} text={item.text} url={item.url ?? ''} />
               </div>
             ))}
           </div>

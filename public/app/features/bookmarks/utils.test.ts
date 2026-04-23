@@ -14,9 +14,7 @@ const tree: NavModelItem[] = [
     id: 'bookmarks',
     text: 'Bookmarks',
     url: '/bookmarks',
-    children: [
-      { id: 'b1', text: 'Admin duplicate', url: '/admin' },
-    ],
+    children: [{ id: 'b1', text: 'Admin duplicate', url: '/admin' }],
   },
   {
     id: 'config',
