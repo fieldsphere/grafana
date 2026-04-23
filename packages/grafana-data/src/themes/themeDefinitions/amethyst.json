@@ -1,0 +1,74 @@
+{
+  "name": "Amethyst",
+  "id": "amethyst",
+  "colors": {
+    "mode": "dark",
+    "border": {
+      "weak": "#32263f",
+      "medium": "#463059",
+      "strong": "#5c3d76"
+    },
+    "text": {
+      "primary": "#f2ebff",
+      "secondary": "#c7b8e6",
+      "disabled": "#9c8bbd",
+      "link": "#b992ff",
+      "maxContrast": "#FFFFFF"
+    },
+    "primary": {
+      "main": "#9b6bff",
+      "text": "#b992ff",
+      "border": "#9b6bff",
+      "name": "primary",
+      "shade": "#7d56f6",
+      "transparent": "#9B6BFF2B",
+      "contrastText": "#FFFFFF",
+      "borderTransparent": "#9B6BFF40"
+    },
+    "secondary": {
+      "main": "#2b2238",
+      "shade": "#342945",
+      "transparent": "rgba(184, 146, 255, 0.1)",
+      "text": "#d5c3ff",
+      "contrastText": "#f2ebff",
+      "border": "rgba(184, 146, 255, 0.2)",
+      "name": "secondary",
+      "borderTransparent": "rgba(184, 146, 255, 0.35)"
+    },
+    "info": {
+      "main": "#8f6dfd"
+    },
+    "error": {
+      "main": "#e8608f"
+    },
+    "success": {
+      "main": "#4ab887"
+    },
+    "warning": {
+      "main": "#f3a54a"
+    },
+    "background": {
+      "canvas": "#120d1d",
+      "primary": "#1a1328",
+      "secondary": "#241a35",
+      "elevated": "#241a35"
+    },
+    "action": {
+      "hover": "rgba(184, 146, 255, 0.12)",
+      "selected": "rgba(184, 146, 255, 0.18)",
+      "selectedBorder": "#9b6bff",
+      "focus": "rgba(184, 146, 255, 0.2)",
+      "hoverOpacity": 0.08,
+      "disabledText": "#9c8bbd",
+      "disabledBackground": "rgba(184, 146, 255, 0.08)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #7d56f6 0%, #c38dff 100%)",
+      "brandVertical": "linear-gradient(0deg, #7d56f6 0%, #c38dff 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.03,
+    "tonalOffset": 0.15
+  }
+}
