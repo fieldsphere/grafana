@@ -87,7 +87,7 @@ export default function LabsPage() {
     const localStorageFeatureToggles = parseFeatureToggleOverrides(store.get(FEATURE_TOGGLE_STORAGE_KEY));
     localStorageFeatureToggles[featureName] = enabled;
     store.set(FEATURE_TOGGLE_STORAGE_KEY, serializeFeatureToggleOverrides(localStorageFeatureToggles));
-    config.featureToggles = { ...config.featureToggles, [featureName]: enabled };
+    (config.featureToggles as FeatureToggleMap)[featureName] = enabled;
   };
 
   return (
@@ -108,7 +108,10 @@ export default function LabsPage() {
             )}
           </Text>
           <Stack direction="row" gap={1}>
-            <Badge text={t('labs.feature-flags.enabled-count', '{{count}} enabled', { count: enabledCount })} color="green" />
+            <Badge
+              text={t('labs.feature-flags.enabled-count', '{{count}} enabled', { count: enabledCount })}
+              color="green"
+            />
             <Badge
               text={t('labs.feature-flags.total-count', '{{count}} visible', { count: featureNames.length })}
               color="blue"
