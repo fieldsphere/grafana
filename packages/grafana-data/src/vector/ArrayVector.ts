@@ -1,3 +1,7 @@
+import { createClientLog } from '../utils/clientStructuredLog';
+const clientLog = createClientLog('packages/grafana-data/src/vector/ArrayVector');
+
+
 const notice = 'ArrayVector is deprecated and will be removed in Grafana 11. Please use plain arrays for field.values.';
 let notified = false;
 
@@ -47,7 +51,7 @@ export class ArrayVector<T = unknown> extends Array<T> {
     this.buffer = buffer ?? [];
 
     if (!notified) {
-      console.warn(notice);
+      clientLog.warn(notice);
       notified = true;
     }
   }

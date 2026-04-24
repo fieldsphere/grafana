@@ -1,14 +1,12 @@
 import { flatten } from 'lodash';
 import { LRUCache } from 'lru-cache';
 
-import {
-  type AbstractQuery,
+import {type AbstractQuery,
   getDefaultTimeRange,
   type KeyValue,
   LanguageProvider,
   type ScopedVars,
-  type TimeRange,
-} from '@grafana/data';
+  type TimeRange, createClientLog} from '@grafana/data';
 import { type BackendSrvRequest, config } from '@grafana/runtime';
 
 import { LokiQueryType } from './dataquery.gen';
@@ -22,6 +20,9 @@ import {
   extractUnwrapLabelKeysFromDataFrame,
 } from './responseUtils';
 import { type DetectedFieldsResult, LabelType, type LokiQuery, type ParserAndLabelKeysResult } from './types';
+const clientLog = createClientLog('public/app/plugins/datasource/loki/LanguageProvider');
+
+
 
 const NS_IN_MS = 1000000;
 const EMPTY_SELECTOR = '{}';
@@ -63,7 +64,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
       if (throwError) {
         throw error;
       } else {
-        console.error(error);
+        clientLog.error(error);
       }
     }
 
@@ -293,7 +294,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         const data = await this.request(url, params, true, requestOptions);
         resolve(data);
       } catch (error) {
-        console.error('error', error);
+        clientLog.error('error', error);
         reject(error);
       }
     });
@@ -374,7 +375,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         if (queryOptions?.throwError) {
           reject(error);
         } else {
-          console.error(error);
+          clientLog.error(error);
           resolve([]);
         }
       }
@@ -444,7 +445,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
           resolve(labelValues);
         }
       } catch (error) {
-        console.error(error);
+        clientLog.error(error);
         resolve([]);
       }
     });

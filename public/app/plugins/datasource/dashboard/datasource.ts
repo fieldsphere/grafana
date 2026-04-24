@@ -1,7 +1,6 @@
 import { type Observable, debounce, debounceTime, defer, finalize, first, interval, map, of } from 'rxjs';
 
-import {
-  DataSourceApi,
+import {DataSourceApi,
   type DataQueryRequest,
   type DataQueryResponse,
   type DataSourceInstanceSettings,
@@ -18,8 +17,7 @@ import {
   getValueMatcher,
   ValueMatcherID,
   type DataSourceGetDrilldownsApplicabilityOptions,
-  type DrilldownsApplicability,
-} from '@grafana/data';
+  type DrilldownsApplicability, createClientLog} from '@grafana/data';
 import { isSceneObject, type SceneDataProvider, SceneDataTransformer, type SceneObject } from '@grafana/scenes';
 import {
   activateSceneObjectAndParentTree,
@@ -30,6 +28,9 @@ import {
 import { MIXED_REQUEST_PREFIX } from '../mixed/MixedDataSource';
 
 import { type DashboardQuery } from './types';
+const clientLog = createClientLog('public/app/plugins/datasource/dashboard/datasource');
+
+
 
 /**
  * This should not really be called
@@ -270,7 +271,7 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         options: { value: filter.value },
       });
     } catch (error) {
-      console.warn('Failed to create value matcher for filter:', filter, error);
+      clientLog.warn('Failed to create value matcher for filter:', filter, error);
       return null;
     }
   }

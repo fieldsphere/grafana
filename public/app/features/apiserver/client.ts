@@ -1,6 +1,6 @@
 import { Observable, from, retry, catchError, filter, map, mergeMap } from 'rxjs';
 
-import { isLiveChannelMessageEvent, isLiveChannelStatusEvent, LiveChannelScope } from '@grafana/data';
+import {isLiveChannelMessageEvent, isLiveChannelStatusEvent, LiveChannelScope, createClientLog} from '@grafana/data';
 import { config, getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
 import { contextSrv } from 'app/core/services/context_srv';
 
@@ -23,6 +23,9 @@ import {
   type ResourceClientWriteParams,
   type GroupVersionResource,
 } from './types';
+const clientLog = createClientLog('public/app/features/apiserver/client');
+
+
 
 export class ScopedResourceClient<T = object, S = object, K = string> implements ResourceClient<T, S, K> {
   readonly url: string;
@@ -69,7 +72,7 @@ export class ScopedResourceClient<T = object, S = object, K = string> implements
           filter((event) => isLiveChannelMessageEvent(event)),
           map((event) => event.message),
           catchError((error) => {
-            console.warn('Live channel watch failed, falling back to polling:', error);
+            clientLog.warn('Live channel watch failed, falling back to polling:', error);
             return this.createPollingFallback(params, error);
           })
         );
@@ -100,14 +103,14 @@ export class ScopedResourceClient<T = object, S = object, K = string> implements
           try {
             return JSON.parse(line);
           } catch (e) {
-            console.warn('Invalid JSON in watch stream:', e, line);
+            clientLog.warn('Invalid JSON in watch stream:', e, line);
             return null;
           }
         }),
         filter((event): event is ResourceEvent<T, S, K> => event !== null),
         retry({ count: 3, delay: 1000 }),
         catchError((error) => {
-          console.error('Watch stream error:', error);
+          clientLog.error('Watch stream error:', error);
           throw error;
         })
       );
@@ -250,7 +253,7 @@ export class ScopedResourceClient<T = object, S = object, K = string> implements
             return;
           }
           // Transient failure: log and retry next cycle.
-          console.warn(
+          clientLog.warn(
             `Polling fallback error (${consecutiveFailures}/${ScopedResourceClient.MAX_CONSECUTIVE_POLL_FAILURES}):`,
             pollError
           );

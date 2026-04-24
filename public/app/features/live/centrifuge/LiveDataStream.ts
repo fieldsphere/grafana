@@ -1,7 +1,6 @@
 import { map, Observable, ReplaySubject, type Subject, type Subscriber, type Subscription } from 'rxjs';
 
-import {
-  type DataFrameJSON,
+import {type DataFrameJSON,
   type DataQueryError,
   type Field,
   isLiveChannelMessageEvent,
@@ -10,8 +9,7 @@ import {
   type LiveChannelEvent,
   type LiveChannelId,
   LoadingState,
-  StreamingDataFrame,
-} from '@grafana/data';
+  StreamingDataFrame, createClientLog} from '@grafana/data';
 import { getStreamingFrameOptions } from '@grafana/data/internal';
 import {
   type LiveDataStreamOptions,
@@ -23,6 +21,9 @@ import {
 import { StreamingResponseDataType } from '../data/utils';
 
 import { type DataStreamSubscriptionKey, type StreamingDataQueryResponse } from './service';
+const clientLog = createClientLog('public/app/features/live/centrifuge/LiveDataStream');
+
+
 
 const bufferIfNot =
   (canEmitObservable: Observable<boolean>) =>
@@ -154,7 +155,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onError = (err: unknown) => {
-    console.log('LiveQuery [error]', { err }, this.deps.channelId);
+    clientLog.info('LiveQuery [error]', { err }, this.deps.channelId);
     this.stream.next({
       type: InternalStreamMessageType.Error,
       error: toDataQueryError(err),
@@ -163,7 +164,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onComplete = () => {
-    console.log('LiveQuery [complete]', this.deps.channelId);
+    clientLog.info('LiveQuery [complete]', this.deps.channelId);
     this.shutdown();
   };
 
@@ -280,7 +281,7 @@ export class LiveDataStream<T = unknown> {
       }
 
       if (!messages.length) {
-        console.warn(`expected to find at least one non error message ${messages.map(({ type }) => type)}`);
+        clientLog.warn(`expected to find at least one non error message ${messages.map(({ type }) => type)}`);
         // send empty frame
         return {
           key: subKey,
@@ -358,7 +359,7 @@ export class LiveDataStream<T = unknown> {
 
         const newValueSameSchemaMessages = filterMessages(messages, InternalStreamMessageType.NewValuesSameSchema);
         if (newValueSameSchemaMessages.length !== messages.length) {
-          console.warn(`unsupported message type ${messages.map(({ type }) => type)}`);
+          clientLog.warn(`unsupported message type ${messages.map(({ type }) => type)}`);
         }
 
         return getNewValuesSameSchemaResponseData(newValueSameSchemaMessages);

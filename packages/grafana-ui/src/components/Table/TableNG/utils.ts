@@ -7,8 +7,7 @@ import { type SortColumn } from 'react-data-grid';
 import tinycolor from 'tinycolor2';
 import { type Count, varPreLine } from 'uwrap';
 
-import {
-  FieldType,
+import {FieldType,
   type Field,
   formattedValueToString,
   type GrafanaTheme2,
@@ -19,8 +18,7 @@ import {
   type DisplayProcessor,
   isDataFrame,
   type FieldSparkline,
-  type DecimalCount,
-} from '@grafana/data';
+  type DecimalCount, createClientLog} from '@grafana/data';
 import {
   BarGaugeDisplayMode,
   type FieldTextAlignment,
@@ -46,6 +44,9 @@ import {
   type MeasureCellHeightEntry,
   type FilterType,
 } from './types';
+const clientLog = createClientLog('packages/grafana-ui/src/components/Table/TableNG/utils');
+
+
 
 /* ---------------------------- Cell calculations --------------------------- */
 export type CellNumLinesCalculator = (text: string, cellWidth: number) => number;
@@ -1184,7 +1185,7 @@ export function parseStyleJson(rawValue: unknown): CSSProperties | void {
       }
     } catch (e) {
       if (!warnedAboutStyleJsonSet.has(rawValue)) {
-        console.error(`encountered invalid cell style JSON: ${rawValue}`, e);
+        clientLog.error(`encountered invalid cell style JSON: ${rawValue}`, e);
         warnedAboutStyleJsonSet.add(rawValue);
       }
     }

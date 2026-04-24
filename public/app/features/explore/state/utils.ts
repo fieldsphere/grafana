@@ -1,7 +1,6 @@
 import { uniq } from 'lodash';
 
-import {
-  type AbsoluteTimeRange,
+import {type AbsoluteTimeRange,
   type DataSourceApi,
   dateMath,
   type DateTime,
@@ -19,8 +18,7 @@ import {
   type TimeRange,
   toUtc,
   type URLRange,
-  type URLRangeValue,
-} from '@grafana/data';
+  type URLRangeValue, createClientLog} from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery, type DataSourceJsonData, type DataSourceRef, type TimeZone } from '@grafana/schema';
 import { getLocalRichHistoryStorage } from 'app/core/history/richHistoryStorageProvider';
@@ -34,6 +32,9 @@ import { getDatasourceSrv } from '../../plugins/datasource_srv';
 import { loadSupplementaryQueries } from '../utils/supplementaryQueries';
 
 import { DEFAULT_RANGE } from './constants';
+const clientLog = createClientLog('public/app/features/explore/state/utils');
+
+
 
 export const MAX_HISTORY_AUTOCOMPLETE_ITEMS = 100;
 
@@ -118,7 +119,7 @@ export async function loadAndInitDatasource(
       instance.init();
     } catch (err) {
       // TODO: should probably be handled better
-      console.error(err);
+      clientLog.error(err);
     }
   }
 

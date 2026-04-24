@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import { type FormEvent } from 'react';
 import { lastValueFrom } from 'rxjs';
 
@@ -7,6 +8,9 @@ import { Input } from '@grafana/ui';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
 import { ConstantVariableForm } from '../components/ConstantVariableForm';
+const clientLog = createClientLog('public/app/features/dashboard-scene/settings/variables/editors/ConstantVariableEditor');
+
+
 
 interface ConstantVariableEditorProps {
   variable: ConstantVariable;
@@ -24,7 +28,7 @@ export function ConstantVariableEditor({ variable }: ConstantVariableEditorProps
 
 export function getConstantVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof ConstantVariable)) {
-    console.warn('getConstantVariableOptions: variable is not a ConstantVariable');
+    clientLog.warn('getConstantVariableOptions: variable is not a ConstantVariable');
     return [];
   }
 

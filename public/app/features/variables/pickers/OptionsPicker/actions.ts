@@ -1,6 +1,6 @@
 import { debounce, trim } from 'lodash';
 
-import { isEmptyObject, containsSearchFilter, type VariableWithOptions, type VariableOption } from '@grafana/data';
+import {isEmptyObject, containsSearchFilter, type VariableWithOptions, type VariableOption, createClientLog} from '@grafana/data';
 import { type StoreState, type ThunkDispatch, type ThunkResult } from 'app/types/store';
 
 import { variableAdapters } from '../../adapters';
@@ -22,6 +22,9 @@ import {
   updateOptionsFromSearch,
   updateSearchQuery,
 } from './reducer';
+const clientLog = createClientLog('public/app/features/variables/pickers/OptionsPicker/actions');
+
+
 
 export const navigateOptions = (rootStateKey: string, key: NavigationKey, clearOthers: boolean): ThunkResult<void> => {
   return async (dispatch, getState) => {
@@ -180,7 +183,7 @@ const searchForOptions = async (
 
     dispatch(toKeyedAction(key, updateOptionsFromSearch(updated.options)));
   } catch (error) {
-    console.error(error);
+    clientLog.error(error);
   }
 };
 

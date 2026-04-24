@@ -1,3 +1,4 @@
+import { createClientLog } from '../../utils/clientStructuredLog';
 import { map } from 'rxjs/operators';
 
 import { getFieldDisplayName } from '../../field/fieldState';
@@ -7,6 +8,9 @@ import { getValueMatcher } from '../matchers';
 
 import { DataTransformerID } from './ids';
 import { noopTransformer } from './noop';
+const clientLog = createClientLog('packages/grafana-data/src/transformations/transformers/filterByValue');
+
+
 
 export enum FilterByValueType {
   exclude = 'exclude',
@@ -139,7 +143,7 @@ const createFilterValueMatchers = (
     const fieldIndex = fieldIndexByName[filter.fieldName] ?? -1;
 
     if (fieldIndex < 0) {
-      console.warn(`[FilterByValue] Could not find index for field name: ${filter.fieldName}`);
+      clientLog.warn(`[FilterByValue] Could not find index for field name: ${filter.fieldName}`);
       return noop;
     }
 

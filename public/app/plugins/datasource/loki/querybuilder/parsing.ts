@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import { type SyntaxNode } from '@lezer/common';
 
 import {
@@ -71,6 +72,9 @@ import {
   replaceVariables,
 } from './parsingUtils';
 import { LokiOperationId, type LokiVisualQuery, type LokiVisualQueryBinary } from './types';
+const clientLog = createClientLog('public/app/plugins/datasource/loki/querybuilder/parsing');
+
+
 
 interface Context {
   query: LokiVisualQuery;
@@ -109,7 +113,7 @@ export function buildVisualQueryFromString(expr: string): Context {
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    clientLog.error(err);
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import {type GrafanaTheme2, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   ClipboardButton,
@@ -14,6 +14,9 @@ import {
 import { type LogsFrame } from 'app/features/logs/logsFrame';
 
 import { type BuildLinkToLogLine } from '../types';
+const clientLog = createClientLog('public/app/plugins/panel/logstable/rows/LogsTableRowActionButtons');
+
+
 
 interface Props extends CustomCellRendererProps {
   buildLinkToLog?: BuildLinkToLogLine;
@@ -71,7 +74,7 @@ export function LogsTableRowActionButtons(props: Props) {
                 if (logId) {
                   return buildLinkToLog(logId) ?? '';
                 } else {
-                  console.error('failed to copy log line link!');
+                  clientLog.error('failed to copy log line link!');
                 }
                 return '';
               }}

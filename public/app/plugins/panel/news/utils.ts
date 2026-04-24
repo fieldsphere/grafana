@@ -1,6 +1,9 @@
-import { FieldType, type DataFrame, dateTime } from '@grafana/data';
+import {FieldType, type DataFrame, dateTime, createClientLog} from '@grafana/data';
 
 import { type Feed } from './types';
+const clientLog = createClientLog('public/app/plugins/panel/news/utils');
+
+
 
 export function feedToDataFrame(feed: Feed): DataFrame {
   const date: number[] = [];
@@ -23,7 +26,7 @@ export function feedToDataFrame(feed: Feed): DataFrame {
         content.push(body);
       }
     } catch (err) {
-      console.warn('Error reading news item:', err, item);
+      clientLog.warn('Error reading news item:', err, item);
     }
   }
 

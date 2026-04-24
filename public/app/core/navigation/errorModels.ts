@@ -1,7 +1,10 @@
-import { type NavModel, type NavModelItem } from '@grafana/data';
+import {type NavModel, type NavModelItem, createClientLog} from '@grafana/data';
+const clientLog = createClientLog('public/app/core/navigation/errorModels');
+
+
 
 export function getExceptionNav(error: unknown): NavModel {
-  console.error(error);
+  clientLog.error(error);
   return getWarningNav('Exception thrown', 'See console for details');
 }
 

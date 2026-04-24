@@ -3,7 +3,7 @@ import { type FC, useCallback, useMemo } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import {type GrafanaTheme2, type SelectableValue, createClientLog} from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Button, type ComboboxOption, Field, InlineLabel, Input, Space, Stack, Text, useStyles2 } from '@grafana/ui';
 
@@ -19,6 +19,9 @@ import { NeedHelpInfo } from '../NeedHelpInfo';
 import { useGetLabelsFromDataSourceName } from '../useAlertRuleSuggestions';
 
 import { AddButton, RemoveButton } from './LabelsButtons';
+const clientLog = createClientLog('public/app/features/alerting/unified/components/rule-editor/labels/LabelsField');
+
+
 
 const useGetOpsLabelsKeys = (skip: boolean) => {
   const { currentData, isLoading: isloadingLabels } = labelsApi.endpoints.getLabels.useQuery(undefined, {
@@ -183,7 +186,7 @@ export function useCombinedLabels(
               opsValues = result.values.map((value) => value.name);
             }
           } catch (error) {
-            console.error('Failed to fetch label values for key:', key, error);
+            clientLog.error('Failed to fetch label values for key:', key, error);
           }
         }
 

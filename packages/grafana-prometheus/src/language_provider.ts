@@ -1,8 +1,7 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/language_provider.ts
 import Prism from 'prismjs';
 
-import {
-  type AbstractLabelMatcher,
+import {type AbstractLabelMatcher,
   AbstractLabelOperator,
   type AbstractQuery,
   type AdHocVariableFilter,
@@ -10,8 +9,7 @@ import {
   type Scope,
   scopeFilterOperatorMap,
   type ScopeSpecFilter,
-  type TimeRange,
-} from '@grafana/data';
+  type TimeRange, createClientLog} from '@grafana/data';
 import { type BackendSrvRequest } from '@grafana/runtime';
 
 import { buildCacheHeaders, getDaysToCacheMetadata, getDefaultCacheHeaders } from './caching';
@@ -21,6 +19,9 @@ import { promqlGrammar } from './promql';
 import { buildVisualQueryFromString } from './querybuilder/parsing';
 import { LabelsApiClient, type ResourceApiClient, SeriesApiClient } from './resource_clients';
 import { type PromMetricsMetadata, type PromQuery } from './types';
+const clientLog = createClientLog('packages/grafana-prometheus/src/language_provider');
+
+
 
 interface PrometheusBaseLanguageProvider {
   datasource: PrometheusDatasource;
@@ -132,7 +133,7 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
       return res.data.data;
     } catch (error) {
       if (!isCancelledError(error)) {
-        console.error(error);
+        clientLog.error(error);
       }
     }
 

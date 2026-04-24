@@ -1,13 +1,11 @@
-import {
-  AppEvents,
+import {AppEvents,
   type DataFrame,
   getPanelDataSummary,
   type PanelDataSummary,
   type PanelPlugin,
   type PanelPluginVisualizationSuggestion,
   type PreferredVisualisationType,
-  VisualizationSuggestionScore,
-} from '@grafana/data';
+  VisualizationSuggestionScore, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { getListedPanelPluginMetas, getPanelPluginMeta } from '@grafana/runtime/internal';
@@ -16,6 +14,9 @@ import { isBuiltinPluginPath } from 'app/features/plugins/built_in_plugins';
 import { importPanelPlugin } from 'app/features/plugins/importPanelPlugin';
 
 import { panelsToCheckFirst } from './consts';
+const clientLog = createClientLog('public/app/features/panel/suggestions/getAllSuggestions');
+
+
 
 interface PluginLoadResult {
   plugins: PanelPlugin[];
@@ -58,7 +59,7 @@ export async function loadPlugins(pluginIds: string[]): Promise<PluginLoadResult
       plugins.push(settled.value);
     } else {
       const pluginId = pluginIds[i];
-      console.error(`Failed to load ${pluginId} for visualization suggestions:`, settled.reason);
+      clientLog.error(`Failed to load ${pluginId} for visualization suggestions:`, settled.reason);
 
       if (await isBuiltInPlugin(pluginId)) {
         hasErrors = true;
@@ -163,7 +164,7 @@ export async function getAllSuggestions(series?: DataFrame[]): Promise<Suggestio
         list.push(...suggestions);
       }
     } catch (e) {
-      console.warn(`error when loading suggestions from plugin "${plugin.meta.id}"`, e);
+      clientLog.warn(`error when loading suggestions from plugin "${plugin.meta.id}"`, e);
       pluginSuggestionsError = true;
     }
   }

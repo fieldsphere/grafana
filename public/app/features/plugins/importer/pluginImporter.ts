@@ -1,5 +1,4 @@
-import {
-  AppPlugin,
+import {AppPlugin,
   type AppPluginMeta,
   type DataQuery,
   type DataSourceApi,
@@ -10,8 +9,7 @@ import {
   type PanelPluginMeta,
   PluginLoadingStrategy,
   type PluginMeta,
-  throwIfAngular,
-} from '@grafana/data';
+  throwIfAngular, createClientLog} from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type GenericDataSourcePlugin } from 'app/features/datasources/types';
 import { getPanelPluginLoadError } from 'app/features/panel/components/PanelPluginError';
@@ -21,6 +19,9 @@ import { pluginsLogger } from '../utils';
 
 import { importPluginModule } from './importPluginModule';
 import { type PluginImporter, type PostImportStrategy, type PreImportStrategy } from './types';
+const clientLog = createClientLog('public/app/features/plugins/importer/pluginImporter');
+
+
 
 const defaultPreImport: PreImportStrategy = (plugin) => {
   throwIfAngular(plugin);
@@ -54,7 +55,7 @@ const panelPluginPostImport: PostImportStrategy<PanelPlugin, PanelPluginMeta> = 
     throw new Error('missing export: plugin');
   } catch (error) {
     // TODO, maybe a different error plugin
-    console.warn('Error loading panel plugin: ' + meta.id, error);
+    clientLog.warn('Error loading panel plugin: ' + meta.id, error);
     return getPanelPluginLoadError(meta, error);
   }
 };

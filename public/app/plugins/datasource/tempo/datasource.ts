@@ -2,8 +2,7 @@ import { groupBy } from 'lodash';
 import { EMPTY, from, merge, type Observable, of } from 'rxjs';
 import { catchError, concatMap, finalize, map, mergeMap, toArray } from 'rxjs/operators';
 
-import {
-  CoreApp,
+import {CoreApp,
   type DataFrame,
   type DataFrameDTO,
   type DataFrameJSON,
@@ -22,8 +21,7 @@ import {
   type ScopedVars,
   type SelectableValue,
   type TestDataSourceResponse,
-  type TimeRange,
-} from '@grafana/data';
+  type TimeRange, createClientLog} from '@grafana/data';
 import { type NodeGraphOptions, type SpanBarOptions, type TraceToLogsOptions } from '@grafana/o11y-ds-frontend';
 import {
   config,
@@ -63,6 +61,9 @@ import { doTempoMetricsStreaming, doTempoSearchStreaming } from './streaming';
 import { type TempoJsonData, type TempoQuery } from './types';
 import { getErrorMessage, mapErrorMessage, migrateFromSearchToTraceQLSearch } from './utils';
 import { TempoVariableSupport } from './variables';
+const clientLog = createClientLog('public/app/plugins/datasource/tempo/datasource');
+
+
 
 export const DEFAULT_LIMIT = 20;
 export const DEFAULT_SPSS = 3; // spans per span set
@@ -295,7 +296,7 @@ export class TempoDatasource extends DataSourceWithBackend<TempoQuery, TempoJson
 
       return false;
     } catch (error) {
-      console.warn('Failed to check for native histograms:', error);
+      clientLog.warn('Failed to check for native histograms:', error);
       return false;
     }
   }

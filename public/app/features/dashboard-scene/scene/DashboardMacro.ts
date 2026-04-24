@@ -1,6 +1,10 @@
+import { createClientLog } from '@grafana/data';
 import { type FormatVariable, type SceneObject, sceneUtils } from '@grafana/scenes';
 
 import { getDashboardSceneFor } from '../utils/utils';
+const clientLog = createClientLog('public/app/features/dashboard-scene/scene/DashboardMacro');
+
+
 
 /**
  * Handles expressions like ${__dashboard.uid}
@@ -39,7 +43,7 @@ export function registerDashboardMacro() {
 
     return () => unregister();
   } catch (e) {
-    console.error('Error registering dashboard macro', e);
+    clientLog.error('Error registering dashboard macro', e);
     return () => {};
   }
 }

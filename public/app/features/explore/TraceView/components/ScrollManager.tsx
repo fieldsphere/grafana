@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,6 +15,9 @@
 
 import type TNil from './types/TNil';
 import { type TraceSpan, type TraceSpanReference, type Trace } from './types/trace';
+const clientLog = createClientLog('public/app/features/explore/TraceView/components/ScrollManager');
+
+
 
 /**
  * `Accessors` is necessary because `ScrollManager` needs to be created by
@@ -106,7 +110,7 @@ export default class ScrollManager {
     const position = xrs.getRowPosition(rowIndex);
     if (!position) {
       // eslint-disable-next-line no-console
-      console.warn('Invalid row index');
+      clientLog.warn('Invalid row index');
       return;
     }
     let { y } = position;

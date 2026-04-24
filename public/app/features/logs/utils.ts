@@ -3,8 +3,7 @@ import { countBy, chain } from 'lodash';
 import { type MouseEvent } from 'react';
 import { lastValueFrom, map, type Observable } from 'rxjs';
 
-import {
-  LogLevel,
+import {LogLevel,
   type LogRowModel,
   type LogLabelStatsModel,
   type LogsModel,
@@ -29,8 +28,7 @@ import {
   getTimeField,
   type Field,
   type LogsMetaItem,
-  store,
-} from '@grafana/data';
+  store, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getConfig } from 'app/core/config';
 
@@ -41,6 +39,9 @@ import { LOG_LINE_BODY_FIELD_NAME } from './components/fieldSelector/logFields';
 import { getDataframeFields } from './components/logParser';
 import { type GetRowContextQueryFn } from './components/panel/LogLineMenu';
 import { DATAPLANE_LABELS_NAME, DATAPLANE_LABEL_TYPES_NAME, parseLogsFrame } from './logsFrame';
+const clientLog = createClientLog('public/app/features/logs/utils');
+
+
 
 /**
  * Returns the log level of a log line.
@@ -368,10 +369,10 @@ export function getLogLevelInfo(dataFrame: DataFrame, allDataFrames: DataFrame[]
   const valueField = fieldCache.getFirstFieldOfType(FieldType.number);
 
   if (!timeField) {
-    console.error('Time field missing in data frame');
+    clientLog.error('Time field missing in data frame');
   }
   if (!valueField) {
-    console.error('Value field missing in data frame');
+    clientLog.error('Value field missing in data frame');
   }
 
   const level = valueField ? getFieldDisplayName(valueField, dataFrame, allDataFrames) : 'logs';

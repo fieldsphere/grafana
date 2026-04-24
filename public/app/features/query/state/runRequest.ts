@@ -5,8 +5,7 @@ import { catchError, map, mapTo, mergeMap, share, takeUntil, tap } from 'rxjs/op
 
 // Utils & Services
 // Types
-import {
-  CoreApp,
+import {CoreApp,
   type DataQueryError,
   type DataQueryRequest,
   type DataQueryResponse,
@@ -16,8 +15,7 @@ import {
   dateMath,
   LoadingState,
   type PanelData,
-  type TimeRange,
-} from '@grafana/data';
+  type TimeRange, createClientLog} from '@grafana/data';
 import { config, isMigrationHandler, migrateRequest, toDataQueryError, isExpressionReference } from '@grafana/runtime';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { queryIsEmpty } from 'app/core/utils/query';
@@ -26,6 +24,9 @@ import { type ExpressionQuery } from 'app/features/expressions/types';
 
 import { cancelNetworkRequestsOnUnsubscribe } from './processing/canceler';
 import { emitDataRequestEvent } from './queryAnalytics';
+const clientLog = createClientLog('public/app/features/query/state/runRequest');
+
+
 
 type MapOfResponsePackets = { [str: string]: DataQueryResponse };
 
@@ -161,7 +162,7 @@ export function runRequest(
     }),
     // handle errors
     catchError((err) => {
-      console.error('runRequest.catchError', err);
+      clientLog.error('runRequest.catchError', err);
       return of({
         ...state.panelData,
         state: LoadingState.Error,

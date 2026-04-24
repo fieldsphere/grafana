@@ -1,3 +1,7 @@
+import { createClientLog } from '@grafana/data';
+const clientLog = createClientLog('public/app/features/dashboard-scene/scene/DashboardMutationClientSetter');
+
+
 /**
  * Bridge between DashboardScene and the mutation-api module.
  *
@@ -19,7 +23,7 @@ export function provideMutationClientFactory(create: CreateMutationClient): void
 
 export function createMutationClient(scene: unknown): () => void {
   if (!_create) {
-    console.warn(
+    clientLog.warn(
       'createMutationClient called before provideMutationClientFactory. Mutation API will not be available.'
     );
     return () => {};

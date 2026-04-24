@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 // Copyright (c) 2023 The Jaeger Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +20,9 @@ import { type TraceSpan, type CriticalPathSection, type Trace } from '../types/t
 import findLastFinishingChildSpan from './utils/findLastFinishingChildSpan';
 import getChildOfSpans from './utils/getChildOfSpans';
 import sanitizeOverFlowingChildren from './utils/sanitizeOverFlowingChildren';
+const clientLog = createClientLog('public/app/features/explore/TraceView/components/CriticalPath/index');
+
+
 
 /**
  * Computes the critical path sections of a Jaeger trace.
@@ -104,7 +108,7 @@ function criticalPathForTrace(trace: Trace) {
       criticalPath = computeCriticalPath(sanitizedSpanMap, rootSpanId, criticalPath);
     } catch (error) {
       /* eslint-disable no-console */
-      console.log('error while computing critical path for a trace', error);
+      clientLog.info('error while computing critical path for a trace', error);
     }
   }
   return criticalPath;

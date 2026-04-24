@@ -1,3 +1,4 @@
+import { createClientLog } from './clientStructuredLog';
 /**
  * @preserve jquery-param (c) 2015 KNOWLEDGECODE | MIT
  */
@@ -5,6 +6,9 @@
 import { isDateTime } from '../datetime/moment_wrapper';
 import { type ExploreUrlState, type URLRange } from '../types/explore';
 import { type RawTimeRange } from '../types/time';
+const clientLog = createClientLog('packages/grafana-data/src/utils/url');
+
+
 
 /**
  * Type to represent the value of a single query variable.
@@ -226,7 +230,7 @@ export const urlUtil = {
  */
 export function serializeStateToUrlParam(urlState: Partial<ExploreUrlState>, compact?: boolean): string {
   if (compact !== undefined) {
-    console.warn('`compact` parameter is deprecated and will be removed in a future release');
+    clientLog.warn('`compact` parameter is deprecated and will be removed in a future release');
   }
   return JSON.stringify(urlState);
 }

@@ -1,4 +1,4 @@
-import { type PluginError, type PluginMeta, renderMarkdown } from '@grafana/data';
+import {type PluginError, type PluginMeta, renderMarkdown, createClientLog} from '@grafana/data';
 import { getBackendSrv, isFetchError } from '@grafana/runtime';
 import { installPluginMeta, logPluginMetaError, uninstallPluginMeta } from '@grafana/runtime/internal';
 import { accessControlQueryParam } from 'app/core/utils/accessControl';
@@ -16,6 +16,9 @@ import {
   type InstancePlugin,
   type ProvisionedPlugin,
 } from './types';
+const clientLog = createClientLog('public/app/features/plugins/admin/api');
+
+
 
 export async function getPluginDetails(id: string): Promise<CatalogPluginDetails> {
   const remote = await getRemotePlugin(id);
@@ -92,7 +95,7 @@ export async function getRemotePlugins(): Promise<RemotePlugin[]> {
     if (isFetchError(error)) {
       // It can happen that GCOM is not available, in that case we show a limited set of information to the user.
       error.isHandled = true;
-      console.error('Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
+      clientLog.error('Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
       return [];
     }
 

@@ -1,7 +1,6 @@
 import { omitBy, pickBy, isNil, isNumber, isString } from 'lodash';
 
-import {
-  type ConfigOverrideRule,
+import {type ConfigOverrideRule,
   type DynamicConfigValue,
   FieldColorModeId,
   type FieldConfig,
@@ -14,8 +13,7 @@ import {
   type PanelTypeChangedHandler,
   ReducerID,
   type Threshold,
-  ThresholdsMode,
-} from '@grafana/data';
+  ThresholdsMode, createClientLog} from '@grafana/data';
 import {
   LegendDisplayMode,
   TooltipDisplayMode,
@@ -44,6 +42,9 @@ import { type GrafanaQuery, GrafanaQueryType } from 'app/plugins/datasource/graf
 
 import { defaultGraphConfig } from './config';
 import { type Options } from './panelcfg.gen';
+const clientLog = createClientLog('public/app/plugins/panel/timeseries/migrations');
+
+
 
 let dashboardRefreshDebouncer: ReturnType<typeof setTimeout> | null = null;
 
@@ -283,7 +284,7 @@ export function graphToTimeseriesOptions(angular: any): {
             });
             break;
           default:
-            console.log('Ignore override migration:', seriesOverride.alias, p, v);
+            clientLog.info('Ignore override migration:', seriesOverride.alias, p, v);
         }
       }
       if (dashOverride) {

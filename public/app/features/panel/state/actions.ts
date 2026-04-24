@@ -1,4 +1,4 @@
-import { type DataTransformerConfig, type FieldConfigSource, getPanelOptionsWithDefaults } from '@grafana/data';
+import {type DataTransformerConfig, type FieldConfigSource, getPanelOptionsWithDefaults, createClientLog} from '@grafana/data';
 import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { getLibraryPanel } from 'app/features/library-panels/state/api';
 import { type LibraryElementDTO } from 'app/features/library-panels/types';
@@ -8,6 +8,9 @@ import { DashboardPanelsChangedEvent, PanelOptionsChangedEvent, PanelQueriesChan
 import { type ThunkResult } from 'app/types/store';
 
 import { changePanelKey, panelModelAndPluginReady, removePanel } from './reducers';
+const clientLog = createClientLog('public/app/features/panel/state/actions');
+
+
 
 export function initPanelState(panel: PanelModel): ThunkResult<Promise<void>> {
   return async (dispatch, getStore) => {
@@ -165,7 +168,7 @@ export function loadLibraryPanelAndUpdate(panel: PanelModel): ThunkResult<void> 
 
       await dispatch(initPanelState(panel));
     } catch (ex) {
-      console.log('ERROR: ', ex);
+      clientLog.info('ERROR: ', ex);
       dispatch(
         panelModelAndPluginReady({
           key: panel.key,

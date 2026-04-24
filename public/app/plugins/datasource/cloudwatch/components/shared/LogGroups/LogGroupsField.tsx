@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import { useEffect, useState } from 'react';
 
 import { EditorField, EditorRow } from '@grafana/plugin-ui';
@@ -17,6 +18,9 @@ import { LogGroupPrefixInput } from './LogGroupPrefixInput';
 import { LogGroupQueryScopeSelector } from './LogGroupQueryScopeSelector';
 import { LogGroupsSelector } from './LogGroupsSelector';
 import { SelectedLogGroups } from './SelectedLogGroups';
+const clientLog = createClientLog('public/app/plugins/datasource/cloudwatch/components/shared/LogGroups/LogGroupsField');
+
+
 
 type Props = {
   datasource: CloudWatchDatasource;
@@ -92,7 +96,7 @@ export const LogGroupsField = ({
           onChange([...logGroups, ...variables.map((v) => ({ name: v, arn: v }))]);
         })
         .catch((err) => {
-          console.error(err);
+          clientLog.error(err);
         });
     }
   }, [datasource, legacyLogGroupNames, logGroups, onChange, region, loadingLogGroupsStarted]);

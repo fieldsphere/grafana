@@ -1,9 +1,13 @@
+import { createClientLog } from '@grafana/data';
 import { config, registerEchoBackend, setEchoSrv } from '@grafana/runtime';
 import { reportMetricPerformanceMark } from 'app/core/utils/metrics';
 
 import { contextSrv } from '../context_srv';
 
 import { Echo } from './Echo';
+const clientLog = createClientLog('public/app/core/services/echo/init');
+
+
 
 // Initialise EchoSrv backends, calls during frontend app startup
 export async function initEchoSrv() {
@@ -28,43 +32,43 @@ export async function initEchoSrv() {
   try {
     await initPerformanceBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Performance backend', error);
+    clientLog.error('Error initializing EchoSrv Performance backend', error);
   }
 
   try {
     await initFaroBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Faro backend', error);
+    clientLog.error('Error initializing EchoSrv Faro backend', error);
   }
 
   try {
     await initGoogleAnalyticsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalytics backend', error);
+    clientLog.error('Error initializing EchoSrv GoogleAnalytics backend', error);
   }
 
   try {
     await initGoogleAnalaytics4Backend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalaytics4 backend', error);
+    clientLog.error('Error initializing EchoSrv GoogleAnalaytics4 backend', error);
   }
 
   try {
     await initRudderstackBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Rudderstack backend', error);
+    clientLog.error('Error initializing EchoSrv Rudderstack backend', error);
   }
 
   try {
     await initAzureAppInsightsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv AzureAppInsights backend', error);
+    clientLog.error('Error initializing EchoSrv AzureAppInsights backend', error);
   }
 
   try {
     await initConsoleBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Console backend', error);
+    clientLog.error('Error initializing EchoSrv Console backend', error);
   }
 }
 

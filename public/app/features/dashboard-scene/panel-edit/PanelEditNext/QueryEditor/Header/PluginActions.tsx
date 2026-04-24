@@ -1,10 +1,8 @@
 import { useMemo } from 'react';
 
-import {
-  type CoreApp,
+import {type CoreApp,
   PluginExtensionPoints,
-  type PluginExtensionQueryEditorRowAdaptiveTelemetryV1Context,
-} from '@grafana/data';
+  type PluginExtensionQueryEditorRowAdaptiveTelemetryV1Context, createClientLog} from '@grafana/data';
 import { renderLimitedComponents, usePluginComponents } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 import { Stack } from '@grafana/ui';
@@ -12,6 +10,9 @@ import { type QueryActionComponent, RowActionComponents } from 'app/features/que
 
 import { QueryEditorType } from '../../constants';
 import { useActionsContext, useQueryEditorUIContext, useQueryRunnerContext } from '../QueryEditorContext';
+const clientLog = createClientLog('public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/Header/PluginActions');
+
+
 
 interface PluginActionsProps {
   app?: CoreApp;
@@ -94,7 +95,7 @@ function useAdaptiveTelemetryComponents(query: DataQuery | null) {
       pluginId: /grafana-adaptive.*/,
     });
   } catch (error) {
-    console.error('Failed to render adaptive telemetry components:', error);
+    clientLog.error('Failed to render adaptive telemetry components:', error);
     return null;
   }
 }

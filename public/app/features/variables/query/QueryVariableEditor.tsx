@@ -1,14 +1,12 @@
 import { type FormEvent, PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
-import {
-  type DataSourceInstanceSettings,
+import {type DataSourceInstanceSettings,
   getDataSourceRef,
   type QueryVariableModel,
   type SelectableValue,
   type VariableRefresh,
-  type VariableSort,
-} from '@grafana/data';
+  type VariableSort, createClientLog} from '@grafana/data';
 import { QueryVariableEditorForm } from 'app/features/dashboard-scene/settings/variables/components/QueryVariableForm';
 import { type StoreState } from 'app/types/store';
 
@@ -21,11 +19,14 @@ import { getVariablesState } from '../state/selectors';
 import { toKeyedVariableIdentifier } from '../utils';
 
 import { changeQueryVariableDataSource, changeQueryVariableQuery, initQueryVariableEditor } from './actions';
+const clientLog = createClientLog('public/app/features/variables/query/QueryVariableEditor');
+
+
 
 const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
   if (!rootStateKey) {
-    console.error('QueryVariableEditor: variable has no rootStateKey');
+    clientLog.error('QueryVariableEditor: variable has no rootStateKey');
     return {
       extended: getQueryVariableEditorState(initialVariableEditorState),
     };

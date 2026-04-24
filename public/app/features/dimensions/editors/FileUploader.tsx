@@ -1,12 +1,15 @@
 import { css } from '@emotion/css';
 import { type Dispatch, type SetStateAction, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import {type GrafanaTheme2, createClientLog} from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { FileDropzone, useStyles2, Button, type DropzoneFile, Field } from '@grafana/ui';
 import { SanitizedSVG } from 'app/core/components/SVG/SanitizedSVG';
 
 import { MediaType } from '../types';
+const clientLog = createClientLog('public/app/features/dimensions/editors/FileUploader');
+
+
 
 interface Props {
   setFormData: Dispatch<SetStateAction<FormData>>;
@@ -47,7 +50,7 @@ export const FileUploader = ({ mediaType, setFormData, setUpload, error }: Props
   const onFileRemove = (file: DropzoneFile) => {
     fetch(`/api/storage/delete/upload/${file.file.name}`, {
       method: 'DELETE',
-    }).catch((error) => console.error('cannot delete file', error));
+    }).catch((error) => clientLog.error('cannot delete file', error));
   };
 
   const acceptableFiles =

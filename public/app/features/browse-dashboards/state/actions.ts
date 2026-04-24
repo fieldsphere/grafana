@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import { GENERAL_FOLDER_UID, TEAM_FOLDERS_UID } from 'app/features/search/constants';
 import { type DashboardViewItem, type DashboardViewItemKind } from 'app/features/search/types';
 import { createAsyncThunk } from 'app/types/store';
@@ -7,12 +8,15 @@ import { type DashboardViewItemWithUIItems, type UIDashboardViewItem } from '../
 import { addTeamFolderPrefix, removeTeamFolderPrefix } from '../utils/dashboards';
 
 import { findItem } from './utils';
+const clientLog = createClientLog('public/app/features/browse-dashboards/state/actions');
+
+
 
 async function listTeamFoldersSafe() {
   try {
     return await listTeamFolders();
   } catch (error) {
-    console.error('Failed to load team folders', error);
+    clientLog.error('Failed to load team folders', error);
     return [];
   }
 }
@@ -151,7 +155,7 @@ export const fetchNextChildrenPage = createAsyncThunk(
       fetchKind = 'folder';
     } else if (collection.lastFetchedKind === 'dashboard' && !collection.lastKindHasMoreItems) {
       // There's nothing to load at all
-      console.warn(`fetchNextChildrenPage called for ${uid} but that collection is fully loaded`);
+      clientLog.warn(`fetchNextChildrenPage called for ${uid} but that collection is fully loaded`);
       // return;
     } else if (collection.lastFetchedKind === 'folder' && collection.lastKindHasMoreItems) {
       // Load additional pages of folders

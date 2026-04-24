@@ -4,8 +4,7 @@ import { lastValueFrom, type Observable, throwError } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 import { gte } from 'semver';
 
-import {
-  type AbstractQuery,
+import {type AbstractQuery,
   type AdHocVariableFilter,
   CoreApp,
   type CustomVariableModel,
@@ -26,8 +25,7 @@ import {
   type ScopedVars,
   scopeFilterOperatorMap,
   type ScopeSpecFilter,
-  type TimeRange,
-} from '@grafana/data';
+  type TimeRange, createClientLog} from '@grafana/data';
 import {
   type BackendSrvRequest,
   config,
@@ -70,6 +68,9 @@ import {
 } from './types';
 import { utf8Support, wrapUtf8Filters } from './utf8_support';
 import { PrometheusVariableSupport } from './variables';
+const clientLog = createClientLog('packages/grafana-prometheus/src/datasource');
+
+
 
 export class PrometheusDatasource
   extends DataSourceWithBackend<PromQuery, PromOptions>
@@ -172,8 +173,8 @@ export class PrometheusDatasource
         this.ruleMappings = extractRuleMappingFromGroups(ruleGroups);
       }
     } catch (err) {
-      console.log('Rules API is experimental. Ignore next error.');
-      console.error(err);
+      clientLog.info('Rules API is experimental. Ignore next error.');
+      clientLog.error(err);
     }
   }
 
@@ -352,7 +353,7 @@ export class PrometheusDatasource
       } catch (err) {
         // If status code of error is Method Not Allowed (405) and HTTP method is POST, retry with GET
         if (this.httpMethod === 'POST' && isFetchError(err) && (err.status === 405 || err.status === 400)) {
-          console.warn(`Couldn't use configured POST HTTP method for this request. Trying to use GET method instead.`);
+          clientLog.warn(`Couldn't use configured POST HTTP method for this request. Trying to use GET method instead.`);
         } else {
           throw err;
         }

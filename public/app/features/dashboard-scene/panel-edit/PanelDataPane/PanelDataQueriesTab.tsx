@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
-import { CoreApp, type DataSourceApi, type DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
+import {CoreApp, type DataSourceApi, type DataSourceInstanceSettings, getDataSourceRef, createClientLog} from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { config, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
@@ -45,6 +45,9 @@ import { getUpdatedHoverHeader } from '../getPanelFrameOptions';
 
 import { type PanelDataPaneTab, type PanelDataTabHeaderProps, TabId } from './types';
 import { hasBackendDatasource } from './utils';
+const clientLog = createClientLog('public/app/features/dashboard-scene/panel-edit/PanelDataPane/PanelDataQueriesTab');
+
+
 
 interface PanelDataQueriesTabState extends SceneObjectState {
   datasource?: DataSourceApi;
@@ -163,7 +166,7 @@ export class PanelDataQueriesTab extends SceneObjectBase<PanelDataQueriesTabStat
         });
       }
 
-      console.error(err);
+      clientLog.error(err);
     }
   }
 

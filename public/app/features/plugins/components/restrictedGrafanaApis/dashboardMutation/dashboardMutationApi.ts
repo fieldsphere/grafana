@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 /**
  * Dashboard Mutation API -- Restricted API wrapper with built-in store.
  *
@@ -16,6 +17,9 @@ import { DashboardMutationClient } from 'app/features/dashboard-scene/mutation-a
 import type { MutationClient, MutationRequest } from 'app/features/dashboard-scene/mutation-api/types';
 import { provideMutationClientFactory } from 'app/features/dashboard-scene/scene/DashboardMutationClientSetter';
 import type { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
+const clientLog = createClientLog('public/app/features/plugins/components/restrictedGrafanaApis/dashboardMutation/dashboardMutationApi');
+
+
 
 let _client: MutationClient | null = null;
 
@@ -26,7 +30,7 @@ provideMutationClientFactory((sceneObject) => {
   try {
     _client = new DashboardMutationClient(scene);
   } catch (error) {
-    console.error('Failed to register Dashboard Mutation API:', error);
+    clientLog.error('Failed to register Dashboard Mutation API:', error);
   }
 
   return () => {

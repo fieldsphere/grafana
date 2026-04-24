@@ -1,3 +1,5 @@
+import { setClientStructuredLog } from '@grafana/data';
+
 import { faro, type LogContext, LogLevel } from '@grafana/faro-web-sdk';
 
 import { config } from '../config';
@@ -143,3 +145,5 @@ export function createMonitoringLogger(source: string, defaultContext?: LogConte
       logMeasurement(type, measurement, createFullContext(contexts)),
   };
 }
+
+setClientStructuredLog({ logInfo, logWarning, logDebug, logError });

@@ -1,10 +1,13 @@
-import { type DataQueryRequest } from '@grafana/data';
+import {type DataQueryRequest, createClientLog} from '@grafana/data';
 import { type DataQuery } from '@grafana/schema';
 
 import { config } from '../config';
 import { getBackendSrv } from '../services';
 
 import { DataSourceWithBackend } from './DataSourceWithBackend';
+const clientLog = createClientLog('packages/grafana-runtime/src/utils/migrationHandler');
+
+
 
 /**
  * @alpha Experimental: Plugins implementing MigrationHandler interface will automatically have their queries migrated.
@@ -20,7 +23,7 @@ export function isMigrationHandler(object: unknown): object is MigrationHandler 
 
 async function postMigrateRequest<TQuery extends DataQuery>(queries: TQuery[]): Promise<TQuery[]> {
   if (!(config.featureToggles.grafanaAPIServerWithExperimentalAPIs || config.featureToggles.datasourceAPIServers)) {
-    console.warn('migrateQuery is only available with the experimental API server');
+    clientLog.warn('migrateQuery is only available with the experimental API server');
     return queries;
   }
 

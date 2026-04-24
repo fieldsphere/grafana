@@ -1,6 +1,6 @@
 import * as React from 'react';
 
-import { type PluginMeta } from '@grafana/data';
+import {type PluginMeta, createClientLog} from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { Button } from '@grafana/ui';
@@ -10,6 +10,9 @@ import { AccessControlAction } from 'app/types/accessControl';
 import { updatePluginSettings } from '../../api';
 import { usePluginConfig } from '../../hooks/usePluginConfig';
 import { type CatalogPlugin } from '../../types';
+const clientLog = createClientLog('public/app/features/plugins/admin/components/GetStartedWithPlugin/GetStartedWithApp');
+
+
 
 type Props = {
   plugin: CatalogPlugin;
@@ -80,6 +83,6 @@ const updatePluginSettingsAndReload = async (id: string, data: Partial<PluginMet
     // Reloading the page as the plugin meta changes made here wouldn't be propagated throughout the app.
     window.location.reload();
   } catch (e) {
-    console.error('Error while updating the plugin', e);
+    clientLog.error('Error while updating the plugin', e);
   }
 };

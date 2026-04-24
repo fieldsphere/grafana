@@ -1,6 +1,10 @@
+import { createClientLog } from '../utils/clientStructuredLog';
 import { sanitizeUrl as braintreeSanitizeUrl } from '@braintree/sanitize-url';
 import DOMPurify from 'dompurify';
 import * as xss from 'xss';
+const clientLog = createClientLog('packages/grafana-data/src/text/sanitize');
+
+
 
 const XSSWL = Object.keys(xss.whiteList).reduce<xss.IWhiteList>((acc, element) => {
   acc[element] = xss.whiteList[element]?.concat(['class', 'style']);
@@ -68,7 +72,7 @@ export function sanitize(unsanitizedString: string): string {
       ADD_ATTR: ['target'],
     });
   } catch (error) {
-    console.error('String could not be sanitized', unsanitizedString);
+    clientLog.error('String could not be sanitized', unsanitizedString);
     return escapeHtml(unsanitizedString);
   } finally {
     DOMPurify.removeHook('afterSanitizeAttributes');
@@ -99,7 +103,7 @@ export function sanitizeTextPanelContent(unsanitizedString: string): string {
   try {
     return sanitizeTextPanelWhitelist.process(unsanitizedString);
   } catch (error) {
-    console.error('String could not be sanitized', unsanitizedString);
+    clientLog.error('String could not be sanitized', unsanitizedString);
     return 'Text string could not be sanitized';
   }
 }

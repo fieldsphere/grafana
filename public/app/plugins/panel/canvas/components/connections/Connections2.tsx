@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import * as React from 'react';
 import { BehaviorSubject } from 'rxjs';
 
@@ -28,6 +29,9 @@ import {
 } from './ConnectionAnchors';
 import { ConnectionAnchors } from './ConnectionAnchors2';
 import { ConnectionSVG } from './ConnectionSVG2';
+const clientLog = createClientLog('public/app/plugins/panel/canvas/components/connections/Connections2');
+
+
 
 export const CONNECTION_VERTEX_ID = 'vertex';
 export const CONNECTION_VERTEX_ADD_ID = 'vertexAdd';
@@ -126,7 +130,7 @@ export class Connections2 {
     let element: ElementState | undefined = this.findElementTarget(event.target);
 
     if (!element) {
-      console.log('no element');
+      clientLog.info('no element');
       return;
     }
 
@@ -135,7 +139,7 @@ export class Connections2 {
     } else {
       this.connectionSource = element;
       if (!this.connectionSource) {
-        console.log('no connection source');
+        clientLog.info('no connection source');
         return;
       }
     }

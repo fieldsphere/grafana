@@ -11,7 +11,7 @@ import {
   useState,
 } from 'react';
 
-import { type SelectableValue, type TimeRange } from '@grafana/data';
+import {type SelectableValue, type TimeRange, createClientLog} from '@grafana/data';
 
 import { METRIC_LABEL, PROMETHEUS_QUERY_BUILDER_MAX_RESULTS } from '../../../constants';
 import { type PrometheusLanguageProviderInterface } from '../../../language_provider';
@@ -22,6 +22,9 @@ import { formatPrometheusLabelFilters } from '../formatter';
 import { generateMetricData } from './helpers';
 import { type MetricData, type MetricsData } from './types';
 import { fuzzySearch } from './uFuzzy';
+const clientLog = createClientLog('packages/grafana-prometheus/src/querybuilder/components/metrics-modal/MetricsModalContext');
+
+
 
 export const DEFAULT_RESULTS_PER_PAGE = 25;
 
@@ -167,7 +170,7 @@ export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalConte
         } catch (error) {
           // Only update state if this is still the latest search
           if (searchId === latestSearchIdRef.current) {
-            console.error('Backend search failed:', error);
+            clientLog.error('Backend search failed:', error);
             setMetricsData([]); // Clear results on error
             setIsLoading(false);
           }

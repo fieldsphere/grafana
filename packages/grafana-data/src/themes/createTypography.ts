@@ -1,9 +1,13 @@
+import { createClientLog } from '../utils/clientStructuredLog';
 // Code based on Material UI
 // The MIT License (MIT)
 // Copyright (c) 2014 Call-Em-All
 import { z } from 'zod';
 
 import { type ThemeColors } from './createColors';
+const clientLog = createClientLog('packages/grafana-data/src/themes/createTypography');
+
+
 
 /** @beta */
 export interface ThemeTypography extends ThemeTypographyVariantTypes {
@@ -76,11 +80,11 @@ export function createTypography(colors: ThemeColors, typographyInput: ThemeTypo
 
   if (process.env.NODE_ENV !== 'production') {
     if (typeof fontSize !== 'number') {
-      console.error('Grafana-UI: `fontSize` is required to be a number.');
+      clientLog.error('Grafana-UI: `fontSize` is required to be a number.');
     }
 
     if (typeof htmlFontSize !== 'number') {
-      console.error('Grafana-UI: `htmlFontSize` is required to be a number.');
+      clientLog.error('Grafana-UI: `htmlFontSize` is required to be a number.');
     }
   }
 

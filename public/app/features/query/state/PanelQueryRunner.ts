@@ -2,8 +2,7 @@ import { cloneDeep, isEqual } from 'lodash';
 import { forkJoin, type Observable, of, ReplaySubject, type Unsubscribable } from 'rxjs';
 import { map, mergeMap, catchError } from 'rxjs/operators';
 
-import {
-  applyFieldOverrides,
+import {applyFieldOverrides,
   compareArrayValues,
   compareDataFrameStructures,
   CoreApp,
@@ -28,8 +27,7 @@ import {
   preProcessPanelData,
   type ApplyFieldOverrideOptions,
   type StreamingDataFrame,
-  DataTopic,
-} from '@grafana/data';
+  DataTopic, createClientLog} from '@grafana/data';
 import { toDataQueryError } from '@grafana/runtime';
 import { ExpressionDatasourceRef } from '@grafana/runtime/internal';
 import { isStreamingDataFrame } from 'app/features/live/data/utils';
@@ -42,6 +40,9 @@ import { type PanelModel } from '../../dashboard/state/PanelModel';
 import { getDashboardQueryRunner } from './DashboardQueryRunner/DashboardQueryRunner';
 import { mergePanelAndDashData } from './mergePanelAndDashData';
 import { runRequest } from './runRequest';
+const clientLog = createClientLog('public/app/features/query/state/PanelQueryRunner');
+
+
 
 export interface QueryRunnerOptions<
   TQuery extends DataQuery = DataQuery,
@@ -257,7 +258,7 @@ export class PanelQueryRunner {
         return { ...data, series, annotations };
       }),
       catchError((err) => {
-        console.warn('Error running transformation:', err);
+        clientLog.warn('Error running transformation:', err);
         return of({
           ...data,
           state: LoadingState.Error,

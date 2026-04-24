@@ -1,5 +1,4 @@
-import {
-  type DataLink,
+import {type DataLink,
   type DisplayValue,
   type FieldDisplay,
   formattedValueToString,
@@ -9,14 +8,16 @@ import {
   type Labels,
   type LinkModelSupplier,
   type ScopedVar,
-  type ScopedVars,
-} from '@grafana/data';
+  type ScopedVars, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type VizPanel } from '@grafana/scenes';
 import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { dashboardSceneGraph } from 'app/features/dashboard-scene/utils/dashboardSceneGraph';
 
 import { getLinkSrv } from './link_srv';
+const clientLog = createClientLog('public/app/features/panel/panellinks/linkSuppliers');
+
+
 
 interface SeriesVars {
   name?: string;
@@ -124,7 +125,7 @@ export const getFieldLinksSupplier = (value: FieldDisplay): LinkModelSupplier<Fi
           };
         }
       } else {
-        console.log('VALUE', value);
+        clientLog.info('VALUE', value);
       }
 
       const replace: InterpolateFunction = (value: string, vars: ScopedVars | undefined, fmt?: string | Function) => {

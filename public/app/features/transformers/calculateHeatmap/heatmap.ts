@@ -1,7 +1,6 @@
 import { map } from 'rxjs';
 
-import {
-  type DataFrame,
+import {type DataFrame,
   DataTransformerID,
   FieldType,
   incrRoundUp,
@@ -592,7 +591,7 @@ function heatmap(xs: number[], ys: number[], opts?: HeatmapOpts) {
     yBinIncr = yIncrs[Math.max(yIncrIdx, 0)];
   }
 
-  // console.log({
+  // clientLog.info({
   //   yBinIncr,
   //   xBinIncr,
   // });

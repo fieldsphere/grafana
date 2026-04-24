@@ -2,8 +2,7 @@ import { groupBy, partition } from 'lodash';
 import { Observable, type Subscriber, type Subscription, tap } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  arrayToDataFrame,
+import {arrayToDataFrame,
   type DataQueryRequest,
   type DataQueryResponse,
   DataTopic,
@@ -11,8 +10,7 @@ import {
   LoadingState,
   rangeUtil,
   store,
-  type TimeRange,
-} from '@grafana/data';
+  type TimeRange, createClientLog} from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 import { LokiQueryType, LokiQueryDirection } from './dataquery.gen';
@@ -30,6 +28,9 @@ import { addQueryLimitsContext, isLogsQuery, isQueryWithRangeVariable } from './
 import { isRetriableError } from './responseUtils';
 import { trackGroupedQueries } from './tracking';
 import { type LokiGroupedRequest, type LokiQuery } from './types';
+const clientLog = createClientLog('public/app/plugins/datasource/loki/querySplitting');
+
+
 
 export function partitionTimeRange(
   isLogsQuery: boolean,
@@ -187,7 +188,7 @@ export function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        clientLog.error(e);
         shouldStop = true;
         return false;
       }

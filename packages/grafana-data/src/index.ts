@@ -243,6 +243,16 @@ export {
 } from './utils/datasource';
 export { deprecationWarning } from './utils/deprecationWarning';
 export {
+  setClientStructuredLog,
+  createClientLog,
+  clientStructuredInfo,
+  clientStructuredDebug,
+  clientStructuredWarn,
+  clientStructuredError,
+  formatClientLogArgs,
+  type ClientLogContext,
+} from './utils/clientStructuredLog';
+export {
   CSVHeaderStyle,
   type CSVConfig,
   type CSVParseCallbacks,

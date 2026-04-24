@@ -1,4 +1,4 @@
-import { type DataQuery, locationUtil, setWeekStart, DashboardLoadedEvent, store } from '@grafana/data';
+import {type DataQuery, locationUtil, setWeekStart, DashboardLoadedEvent, store, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, isFetchError, locationService } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
@@ -39,6 +39,9 @@ import { DashboardModel } from './DashboardModel';
 import { type PanelModel } from './PanelModel';
 import { emitDashboardViewEvent } from './analyticsProcessor';
 import { dashboardInitCompleted, dashboardInitFailed, dashboardInitFetching, dashboardInitServices } from './reducers';
+const clientLog = createClientLog('public/app/features/dashboard/state/initDashboard');
+
+
 
 const INIT_DASHBOARD_MEASUREMENT = 'initDashboard';
 
@@ -109,7 +112,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            clientLog.info('not correct url correcting', dashboardUrl, currentPath);
           }
         }
         return dashDTO;
@@ -138,7 +141,7 @@ async function fetchDashboard(
         error: err,
       })
     );
-    console.error(err);
+    clientLog.error(err);
     return null;
   }
 }
@@ -206,7 +209,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
           error: err,
         })
       );
-      console.error(err);
+      clientLog.error(err);
       return;
     }
 
@@ -264,7 +267,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
       if (err instanceof Error) {
         dispatch(notifyApp(createErrorNotification('Dashboard init failed', err)));
       }
-      console.error(err);
+      clientLog.error(err);
     }
 
     // send open dashboard event

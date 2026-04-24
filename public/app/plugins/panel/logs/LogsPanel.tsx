@@ -4,8 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import * as React from 'react';
 import { isObservable, lastValueFrom } from 'rxjs';
 
-import {
-  type AbsoluteTimeRange,
+import {type AbsoluteTimeRange,
   CoreApp,
   type DataFrame,
   DataHoverClearEvent,
@@ -29,8 +28,7 @@ import {
   LoadingState,
   rangeUtil,
   transformDataFrame,
-  store,
-} from '@grafana/data';
+  store, createClientLog} from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config, getAppEvents } from '@grafana/runtime';
 import { ScrollContainer, usePanelContext, useStyles2 } from '@grafana/ui';
@@ -70,6 +68,9 @@ import {
   type onNewLogsReceivedType,
 } from './types';
 import { useDatasourcesFromTargets } from './useDatasourcesFromTargets';
+const clientLog = createClientLog('public/app/plugins/panel/logs/LogsPanel');
+
+
 
 interface LogsPanelProps extends PanelProps<Options> {
   /**
@@ -488,7 +489,7 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
           newSeries = await lastValueFrom(transformDataFrame(panel?.transformations, newSeries));
         }
       } catch (e) {
-        console.error(e);
+        clientLog.error(e);
       } finally {
         setInfiniteScrolling(false);
         loadingRef.current = false;
@@ -851,7 +852,7 @@ export async function requestMoreLogs(
   for (const uid in targetGroups) {
     const dataSource = dataSourcesMap.get(panelData.request.targets[0].refId);
     if (!dataSource) {
-      console.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
+      clientLog.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
       continue;
     }
     dataRequests.push(

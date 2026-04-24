@@ -2,17 +2,18 @@ import { noop } from 'lodash';
 import { type FormEvent } from 'react';
 import { useAsync } from 'react-use';
 
-import {
-  type DataSourceInstanceSettings,
+import {type DataSourceInstanceSettings,
   type MetricFindValue,
   type SelectableValue,
-  getDataSourceRef,
-} from '@grafana/data';
+  getDataSourceRef, createClientLog} from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { GroupByVariable, type SceneVariable } from '@grafana/scenes';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
 import { GroupByVariableForm } from '../components/GroupByVariableForm';
+const clientLog = createClientLog('public/app/features/dashboard-scene/settings/variables/editors/GroupByVariableEditor');
+
+
 
 interface GroupByVariableEditorProps {
   variable: GroupByVariable;
@@ -106,7 +107,7 @@ export function GroupByVariableEditor(props: GroupByVariableEditorProps) {
 
 export function getGroupByVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof GroupByVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    clientLog.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
 

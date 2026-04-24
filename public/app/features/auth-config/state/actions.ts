@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import { lastValueFrom } from 'rxjs';
 
 import { getBackendSrv, isFetchError } from '@grafana/runtime';
@@ -18,6 +19,9 @@ import {
   setError,
   settingsUpdated,
 } from './reducers';
+const clientLog = createClientLog('public/app/features/auth-config/state/actions');
+
+
 
 export function loadSettings(showSpinner = true): ThunkResult<Promise<Settings>> {
   return async (dispatch) => {
@@ -78,7 +82,7 @@ export function saveSettings(data: UpdateSettingsQuery): ThunkResult<Promise<boo
         dispatch(resetError());
         return true;
       } catch (error) {
-        console.log(error);
+        clientLog.info(error);
         if (isFetchError(error)) {
           error.isHandled = true;
           const updateErr: SettingsError = {

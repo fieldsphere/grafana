@@ -1,5 +1,9 @@
+import { createClientLog } from '@grafana/data';
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/components/monaco-query-field/getOverrideServices.ts
 import { type monacoTypes } from '@grafana/ui';
+const clientLog = createClientLog('packages/grafana-prometheus/src/components/monaco-query-field/getOverrideServices');
+
+
 
 // this thing here is a workaround in a way.
 // what we want to achieve, is that when the autocomplete-window
@@ -82,7 +86,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      clientLog.info('logStorage: not implemented');
     },
 
     migrate: (): Promise<void> => {

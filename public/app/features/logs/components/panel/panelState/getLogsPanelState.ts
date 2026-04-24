@@ -1,4 +1,7 @@
-import { urlUtil } from '@grafana/data';
+import {urlUtil, createClientLog} from '@grafana/data';
+const clientLog = createClientLog('public/app/features/logs/components/panel/panelState/getLogsPanelState');
+
+
 
 interface LogsPermalinkUrlState {
   logs?: {
@@ -18,7 +21,7 @@ export function getLogsPanelState(): LogsPermalinkUrlState | undefined {
     try {
       return JSON.parse(panelStateEncoded[0]);
     } catch (e) {
-      console.error('error parsing logsPanelState', e);
+      clientLog.error('error parsing logsPanelState', e);
     }
   }
 

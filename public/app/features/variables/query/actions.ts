@@ -1,6 +1,6 @@
 import { Subscription } from 'rxjs';
 
-import { type DataSourceRef } from '@grafana/data';
+import {type DataSourceRef, createClientLog} from '@grafana/data';
 import { getDataSourceSrv, toDataQueryError } from '@grafana/runtime';
 import { type ThunkResult } from 'app/types/store';
 
@@ -16,6 +16,9 @@ import { hasOngoingTransaction, toKeyedVariableIdentifier, toVariablePayload } f
 
 import { getVariableQueryRunner } from './VariableQueryRunner';
 import { variableQueryObserver } from './variableQueryObserver';
+const clientLog = createClientLog('public/app/features/variables/query/actions');
+
+
 
 export const updateQueryVariableOptions = (
   identifier: KeyedVariableIdentifier,
@@ -109,7 +112,7 @@ export const changeQueryVariableDataSource = (
         )
       );
     } catch (err) {
-      console.error(err);
+      clientLog.error(err);
     }
   };
 };

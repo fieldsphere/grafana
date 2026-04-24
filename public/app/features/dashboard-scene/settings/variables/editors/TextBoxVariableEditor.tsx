@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import { noop } from 'lodash';
 import { type FormEvent } from 'react';
 
@@ -6,6 +7,9 @@ import { type SceneVariable, TextBoxVariable } from '@grafana/scenes';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
 import { TextBoxVariableForm } from '../components/TextBoxVariableForm';
+const clientLog = createClientLog('public/app/features/dashboard-scene/settings/variables/editors/TextBoxVariableEditor');
+
+
 
 interface TextBoxVariableEditorProps {
   variable: TextBoxVariable;
@@ -25,7 +29,7 @@ export function TextBoxVariableEditor({ variable, inline }: TextBoxVariableEdito
 
 export function getTextBoxVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof TextBoxVariable)) {
-    console.warn('getTextBoxVariableOptions: variable is not a TextBoxVariable');
+    clientLog.warn('getTextBoxVariableOptions: variable is not a TextBoxVariable');
     return [];
   }
 

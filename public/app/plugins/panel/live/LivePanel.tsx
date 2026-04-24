@@ -3,8 +3,7 @@ import { isEqual } from 'lodash';
 import { PureComponent } from 'react';
 import { type Unsubscribable, type PartialObserver } from 'rxjs';
 
-import {
-  type GrafanaTheme2,
+import {type GrafanaTheme2,
   type PanelProps,
   type LiveChannelStatusEvent,
   isValidLiveChannelAddress,
@@ -16,8 +15,7 @@ import {
   LoadingState,
   applyFieldOverrides,
   type LiveChannelAddress,
-  StreamingDataFrame,
-} from '@grafana/data';
+  StreamingDataFrame, createClientLog} from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
 import { Alert, stylesFactory, JSONFormatter, CustomScrollbar } from '@grafana/ui';
@@ -26,6 +24,9 @@ import { TablePanel } from '../table/TablePanel';
 
 import { LivePublish } from './LivePublish';
 import { type LivePanelOptions, MessageDisplayMode, MessagePublishMode } from './types';
+const clientLog = createClientLog('public/app/plugins/panel/live/LivePanel');
+
+
 
 interface Props extends PanelProps<LivePanelOptions> {}
 
@@ -72,7 +73,7 @@ export class LivePanel extends PureComponent<Props, State> {
       } else if (isLiveChannelMessageEvent(event)) {
         this.setState({ message: event.message, changed: Date.now() });
       } else {
-        console.log('ignore', event);
+        clientLog.info('ignore', event);
       }
     },
   };
@@ -87,7 +88,7 @@ export class LivePanel extends PureComponent<Props, State> {
   async loadChannel() {
     const addr = this.props.options?.channel;
     if (!isValidLiveChannelAddress(addr)) {
-      console.log('INVALID', addr);
+      clientLog.info('INVALID', addr);
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -96,13 +97,13 @@ export class LivePanel extends PureComponent<Props, State> {
     }
 
     if (isEqual(addr, this.state.addr)) {
-      console.log('Same channel', this.state.addr);
+      clientLog.info('Same channel', this.state.addr);
       return;
     }
 
     const live = getGrafanaLiveSrv();
     if (!live) {
-      console.log('INVALID', addr);
+      clientLog.info('INVALID', addr);
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -111,7 +112,7 @@ export class LivePanel extends PureComponent<Props, State> {
     }
     this.unsubscribe();
 
-    console.log('LOAD', addr);
+    clientLog.info('LOAD', addr);
 
     // Subscribe to new events
     try {

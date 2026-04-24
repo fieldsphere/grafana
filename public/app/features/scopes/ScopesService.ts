@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import { isEqual } from 'lodash';
 import { BehaviorSubject, type Observable, combineLatest, type Subscription } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
@@ -7,6 +8,9 @@ import { type LocationService, type ScopesContextValue, type ScopesContextValueS
 import { type ScopesDashboardsService } from './dashboards/ScopesDashboardsService';
 import { deserializeFolderPath, serializeFolderPath } from './dashboards/scopeNavgiationUtils';
 import { type ScopesSelectorService } from './selector/ScopesSelectorService';
+const clientLog = createClientLog('public/app/features/scopes/ScopesService');
+
+
 
 export interface State {
   enabled: boolean;
@@ -93,7 +97,7 @@ export class ScopesService implements ScopesContextValue {
     const nodeToPreload = scopeNodeId;
     if (nodeToPreload) {
       this.selectorService.resolvePathToRoot(nodeToPreload, this.selectorService.state.tree!).catch((error) => {
-        console.error('Failed to pre-load node path', error);
+        clientLog.error('Failed to pre-load node path', error);
       });
     }
 

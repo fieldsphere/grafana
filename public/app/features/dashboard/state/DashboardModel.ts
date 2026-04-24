@@ -1,8 +1,7 @@
 import { cloneDeep, defaults as _defaults, filter, indexOf, isEqual, map, maxBy, pull } from 'lodash';
 import { Subscription } from 'rxjs';
 
-import {
-  type AnnotationQuery,
+import {type AnnotationQuery,
   type AppEvent,
   type DashboardCursorSync,
   dateTime,
@@ -15,8 +14,7 @@ import {
   type TimeRange,
   type TimeZone,
   type TypedVariableModel,
-  type UrlQueryValue,
-} from '@grafana/data';
+  type UrlQueryValue, createClientLog} from '@grafana/data';
 import { type PromQuery } from '@grafana/prometheus';
 import { RefreshEvent, TimeRangeUpdatedEvent } from '@grafana/runtime';
 import { type Dashboard, type DashboardLink, type VariableModel } from '@grafana/schema';
@@ -51,6 +49,9 @@ import { DashboardMigrator } from './DashboardMigrator';
 import { PanelModel } from './PanelModel';
 import { type TimeModel } from './TimeModel';
 import { deleteScopeVars, isOnTheSameGridRow } from './utils';
+const clientLog = createClientLog('public/app/features/dashboard/state/DashboardModel');
+
+
 
 export interface CloneOptions {
   saveVariables?: boolean;
@@ -1115,13 +1116,13 @@ export class DashboardModel implements TimeModel {
 
   /** @deprecated */
   on<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.on is deprecated use events.subscribe');
+    clientLog.info('DashboardModel.on is deprecated use events.subscribe');
     this.events.on(event, callback);
   }
 
   /** @deprecated */
   off<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.off is deprecated');
+    clientLog.info('DashboardModel.off is deprecated');
     this.events.off(event, callback);
   }
 

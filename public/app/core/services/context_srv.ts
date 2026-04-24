@@ -1,20 +1,21 @@
 import { extend } from 'lodash';
 
-import {
-  type AnalyticsSettings,
+import {type AnalyticsSettings,
   type OrgRole,
   rangeUtil,
   type WithAccessControlMetadata,
   userHasPermission,
   userHasPermissionInMetadata,
-  userHasAnyPermission,
-} from '@grafana/data';
+  userHasAnyPermission, createClientLog} from '@grafana/data';
 import { featureEnabled, getBackendSrv } from '@grafana/runtime';
 import { getSessionExpiry } from 'app/core/utils/auth';
 import { type UserPermission, AccessControlAction } from 'app/types/accessControl';
 import { type CurrentUserInternal } from 'app/types/config';
 
 import config from '../../core/config';
+const clientLog = createClientLog('public/app/core/services/context_srv');
+
+
 
 // When set to auto, the interval will be based on the query range
 // NOTE: this is defined here rather than TimeSrv so we avoid circular dependencies
@@ -112,7 +113,7 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      clientLog.error(e);
     }
   }
 
@@ -262,7 +263,7 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        clientLog.error(e);
       });
   }
 }
