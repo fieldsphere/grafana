@@ -37,9 +37,9 @@ func TestGetNavTreeLabsSection(t *testing.T) {
 				Permissions: map[int64]map[string][]string{},
 			},
 			IsSignedIn: true,
+			Logger:     log.NewNopLogger(),
 			Context: &web.Context{
-				Req:    httpReq,
-				Logger: log.NewNopLogger(),
+				Req: httpReq,
 			},
 		}
 	}
