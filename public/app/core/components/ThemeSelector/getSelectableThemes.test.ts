@@ -1,40 +1,39 @@
 import { getSelectableThemes } from './getSelectableThemes';
 
-const configMock = {
-  featureToggles: {},
-};
-
-const getBuiltInThemesMock = jest.fn((allowedExtraThemes: string[]) => allowedExtraThemes);
-
 jest.mock('@grafana/runtime', () => ({
-  config: configMock,
+  config: {
+    featureToggles: {},
+  },
 }));
 
 jest.mock('@grafana/data', () => ({
-  getBuiltInThemes: (allowedExtraThemes: string[]) => getBuiltInThemesMock(allowedExtraThemes),
+  getBuiltInThemes: jest.fn((allowedExtraThemes: string[]) => allowedExtraThemes),
 }));
+
+const { config } = jest.requireMock('@grafana/runtime');
+const { getBuiltInThemes } = jest.requireMock('@grafana/data');
 
 describe('getSelectableThemes', () => {
   beforeEach(() => {
-    configMock.featureToggles = {};
-    getBuiltInThemesMock.mockClear();
+    config.featureToggles = {};
+    getBuiltInThemes.mockClear();
   });
 
   it('includes amethyst when grafanacon themes are enabled', () => {
-    configMock.featureToggles = { grafanaconThemes: true };
+    config.featureToggles = { grafanaconThemes: true };
 
     getSelectableThemes();
 
-    expect(getBuiltInThemesMock).toHaveBeenCalledWith(
+    expect(getBuiltInThemes).toHaveBeenCalledWith(
       expect.arrayContaining(['desertbloom', 'gildedgrove', 'sapphiredusk', 'tron', 'gloom', 'amethyst'])
     );
   });
 
   it('does not include amethyst when grafanacon themes are disabled', () => {
-    configMock.featureToggles = { grafanaconThemes: false };
+    config.featureToggles = { grafanaconThemes: false };
 
     getSelectableThemes();
 
-    expect(getBuiltInThemesMock).toHaveBeenCalledWith(expect.not.arrayContaining(['amethyst']));
+    expect(getBuiltInThemes).toHaveBeenCalledWith(expect.not.arrayContaining(['amethyst']));
   });
 });
