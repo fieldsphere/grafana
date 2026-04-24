@@ -20,6 +20,8 @@ var (
 	ReqSignedInNoAnonymous = Auth(&AuthOptions{ReqSignedIn: true, ReqNoAnonynmous: true})
 	ReqEditorRole          = RoleAuth(org.RoleEditor, org.RoleAdmin)
 	ReqOrgAdmin            = RoleAuth(org.RoleAdmin)
+	// ReqGrafanaOrOrgAdmin allows Grafana server admin or org admin (for Labs and similar when org 0 is used for server users).
+	ReqGrafanaOrOrgAdmin = grafanaOrOrgAdmin
 )
 
 func HandleNoCacheHeaders(ctx *contextmodel.ReqContext) {

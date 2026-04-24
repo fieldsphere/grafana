@@ -20,6 +20,8 @@ type FeatureManager struct {
 	startup  map[string]bool   // the explicit values registered at startup
 	warnings map[string]string // potential warnings about the flag
 	log      log.Logger
+
+	runtimeToggles map[string]bool // optional Labs (KV) overrides; updated from HTTP handlers
 }
 
 // This will merge the flags with the current configuration
@@ -71,27 +73,26 @@ func (fm *FeatureManager) meetsRequirements(ff *FeatureFlag) (bool, string) {
 	return true, ""
 }
 
-// Update
+// update evaluates and caches enabled state (config + optional Labs runtime overrides).
 func (fm *FeatureManager) update() {
 	enabled := make(map[string]bool)
 	for _, flag := range fm.flags {
-		// if grafana cannot run the feature, omit metrics around it
 		ok, reason := fm.meetsRequirements(flag)
 		if !ok {
 			fm.warnings[flag.Name] = reason
+			featureToggleInfo.WithLabelValues(flag.Name).Set(0)
 			continue
 		}
-
-		// Update the registry
 		track := 0.0
-
-		startup, ok := fm.startup[flag.Name]
-		if startup || (!ok && flag.Expression == "true") {
+		startupOn, inStartup := fm.startup[flag.Name]
+		baseOn := startupOn || (!inStartup && flag.Expression == "true")
+		if rt, has := fm.runtimeToggles[flag.Name]; has {
+			baseOn = rt
+		}
+		if baseOn {
 			track = 1
 			enabled[flag.Name] = true
 		}
-
-		// Register value with prometheus metric
 		featureToggleInfo.WithLabelValues(flag.Name).Set(track)
 	}
 	fm.enabled = enabled

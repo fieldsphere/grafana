@@ -540,6 +540,11 @@ export function getAppRoutes(): RouteDescriptor[] {
       ),
     },
     {
+      path: '/labs',
+      roles: () => ['Admin', 'ServerAdmin'],
+      component: SafeDynamicImport(() => import(/* webpackChunkName: "LabsPage"*/ 'app/features/labs/LabsPage')),
+    },
+    {
       path: '/theme-playground',
       component: SafeDynamicImport(
         () => import(/* webpackChunkName: "ThemePlayground"*/ 'app/features/theme-playground/ThemePlayground')

@@ -129,6 +129,7 @@ type HTTPServer struct {
 	RenderService                rendering.Service
 	Cfg                          *setting.Cfg
 	Features                     featuremgmt.FeatureToggles
+	featureManager               *featuremgmt.FeatureManager // for Labs runtime feature toggle API; same instance as features when OSS
 	SettingsProvider             setting.Provider
 	HooksService                 *hooks.HooksService
 	navTreeService               navtree.Service
@@ -276,6 +277,11 @@ func ProvideHTTPServer(opts ServerOptions, cfg *setting.Cfg, routeRegister routi
 	web.Env = cfg.Env
 	m := web.New()
 
+	var featureMgr *featuremgmt.FeatureManager
+	if t, ok := features.(*featuremgmt.FeatureManager); ok {
+		featureMgr = t
+	}
+
 	hs := &HTTPServer{
 		Cfg:                          cfg,
 		RouteRegister:                routeRegister,
@@ -304,7 +310,8 @@ func ProvideHTTPServer(opts ServerOptions, cfg *setting.Cfg, routeRegister routi
 		ShortURLService:              shortURLService,
 		QueryHistoryService:          queryHistoryService,
 		CorrelationsService:          correlationsService,
-		Features:                     features, // a read only view of the managers state
+		Features:                     features, // a read only view of the manager state
+		featureManager:               featureMgr,
 		StorageService:               storageService,
 		RemoteCacheService:           remoteCache,
 		ProvisioningService:          provisioningService,
@@ -433,6 +440,10 @@ func (w *customErrorLogger) Write(msg []byte) (int, error) {
 
 func (hs *HTTPServer) Run(ctx context.Context) error {
 	hs.context = ctx
+
+	if err := hs.loadLabsRuntimeTogglesFromKV(ctx); err != nil {
+		hs.log.Warn("Failed to load Labs runtime feature toggles from KV; continuing without them", "err", err)
+	}
 
 	hs.applyRoutes()
 

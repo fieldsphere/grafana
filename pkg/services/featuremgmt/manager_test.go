@@ -5,6 +5,8 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana/pkg/infra/log"
 )
 
 func TestFeatureManager(t *testing.T) {
@@ -64,5 +66,27 @@ func TestFeatureManager(t *testing.T) {
 		require.True(t, ft.IsEnabledGlobally("a"))
 		require.False(t, ft.IsEnabledGlobally("b"))
 		require.False(t, ft.IsEnabledGlobally("c"))
+	})
+
+	t.Run("runtime override on and off", func(t *testing.T) {
+		ft := &FeatureManager{
+			flags: map[string]*FeatureFlag{
+				"x": {Name: "x", Expression: "false"},
+			},
+			log:     log.New("test"),
+			warnings: map[string]string{},
+		}
+		ft.isDevMod = true
+		ft.startup = map[string]bool{}
+		ft.update()
+		require.False(t, ft.IsEnabled(context.Background(), "x"))
+
+		require.NoError(t, ft.SetRuntimeOverride("x", true))
+		require.True(t, ft.IsEnabled(context.Background(), "x"))
+		over := ft.GetRuntimeToggleOverrides()
+		require.True(t, over["x"])
+
+		ft.ClearRuntimeOverride("x")
+		require.False(t, ft.IsEnabled(context.Background(), "x"))
 	})
 }

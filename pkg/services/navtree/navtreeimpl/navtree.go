@@ -162,6 +162,20 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		treeRoot.AddSection(connectionsSection)
 	}
 
+	// Labs: org admins and Grafana server admins only (see API handlers for same gating)
+	if c.IsSignedIn && c.OrgID != 0 && (c.HasUserRole(org.RoleAdmin) || c.IsGrafanaAdmin) {
+		treeRoot.AddSection(&navtree.NavLink{
+			Text:       "Labs",
+			Id:         navtree.NavIDLabs,
+			SubTitle:   "View and control experimental feature flags",
+			Icon:       "code-branch",
+			// After Connections/Apps, immediately before Administration (see navtree weight ordering).
+			SortWeight: navtree.WeightConfig - 50,
+			Url:        s.cfg.AppSubURL + "/labs",
+			IsNew:      true,
+		})
+	}
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {

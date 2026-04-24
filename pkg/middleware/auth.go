@@ -198,6 +198,20 @@ func RoleAuth(roles ...org.RoleType) web.Handler {
 	}
 }
 
+// grafanaOrOrgAdmin allows only Grafana server admins, or an org in context with org role Admin.
+func grafanaOrOrgAdmin(c *contextmodel.ReqContext) {
+	if c.IsGrafanaAdmin {
+		return
+	}
+	if c.GetOrgID() == 0 {
+		accessForbidden(c)
+		return
+	}
+	if c.OrgRole != org.RoleAdmin {
+		accessForbidden(c)
+	}
+}
+
 func Auth(options *AuthOptions) web.Handler {
 	return func(c *contextmodel.ReqContext) {
 		forceLogin := false
