@@ -1,6 +1,7 @@
 import { type PluginType } from '@grafana/data';
 
 import { createMonitoringLogger, type MonitoringLogger } from '../../utils/logging';
+import { structuredConsoleLog } from '../../utils/structuredConsole';
 
 let logger: MonitoringLogger;
 
@@ -14,12 +15,12 @@ function getLogger() {
 
 export function logPluginMetaWarning(message: string, type: PluginType): void {
   getLogger().logWarning(message, { type });
-  console.warn(message);
+  structuredConsoleLog('warn', message, { source: 'pluginMeta', type });
 }
 
 export function logPluginMetaError(message: string, error: unknown): void {
   getLogger().logError(new Error(message, { cause: error }));
-  console.error(message, error);
+  structuredConsoleLog('error', message, { source: 'pluginMeta', error });
 }
 
 export function setPluginMetaLogger(override: MonitoringLogger) {

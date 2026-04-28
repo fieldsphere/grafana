@@ -2,6 +2,7 @@ import { type DataQueryRequest } from '@grafana/data';
 import { type DataQuery } from '@grafana/schema';
 
 import { config } from '../config';
+import { structuredConsoleLog } from './structuredConsole';
 import { getBackendSrv } from '../services';
 
 import { DataSourceWithBackend } from './DataSourceWithBackend';
@@ -20,7 +21,9 @@ export function isMigrationHandler(object: unknown): object is MigrationHandler 
 
 async function postMigrateRequest<TQuery extends DataQuery>(queries: TQuery[]): Promise<TQuery[]> {
   if (!(config.featureToggles.grafanaAPIServerWithExperimentalAPIs || config.featureToggles.datasourceAPIServers)) {
-    console.warn('migrateQuery is only available with the experimental API server');
+    structuredConsoleLog('warn', 'migrateQuery is only available with the experimental API server', {
+      source: 'migrationHandler.postMigrateRequest',
+    });
     return queries;
   }
 
