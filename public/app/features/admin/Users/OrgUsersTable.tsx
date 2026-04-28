@@ -25,7 +25,11 @@ import { UserRolePicker } from 'app/core/components/RolePicker/UserRolePicker';
 import { fetchRoleOptions, updateUserRoles } from 'app/core/components/RolePicker/api';
 import { RolePickerBadges } from 'app/core/components/RolePickerDrawer/RolePickerBadges';
 import { TagBadge } from 'app/core/components/TagFilter/TagBadge';
+import { createMonitoringLogger } from '@grafana/runtime';
+
 import { contextSrv } from 'app/core/services/context_srv';
+
+const orgUsersTableLogger = createMonitoringLogger('features.admin.OrgUsersTable');
 import { AccessControlAction, type Role } from 'app/types/accessControl';
 import { type OrgUser } from 'app/types/user';
 
@@ -79,7 +83,7 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        orgUsersTableLogger.logError(e instanceof Error ? e : new Error(String(e)), { fn: 'fetchRoleOptions' });
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

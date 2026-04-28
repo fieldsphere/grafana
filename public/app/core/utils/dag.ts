@@ -1,3 +1,7 @@
+import { createMonitoringLogger } from '@grafana/runtime';
+
+const dagLogger = createMonitoringLogger('core.dag');
+
 export class Edge {
   inputNode?: Node;
   outputNode?: Node;
@@ -268,7 +272,7 @@ export const printGraph = (g: Graph) => {
     if (!inputEdges) {
       inputEdges = '<none>';
     }
-    console.log(`${n.name}:\n - links to:   ${outputEdges}\n - links from: ${inputEdges}`);
+    dagLogger.logDebug(`node ${n.name}: links to ${outputEdges}; links from ${inputEdges}`);
   });
 };
 

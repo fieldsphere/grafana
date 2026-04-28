@@ -24,10 +24,12 @@ import {
   toURLRange,
   urlUtil,
 } from '@grafana/data';
-import { getDataSourceSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getDataSourceSrv } from '@grafana/runtime';
 import { RefreshPicker } from '@grafana/ui';
 import { ExpressionDatasourceUID } from 'app/features/expressions/types';
 import { type QueryOptions, type QueryTransaction } from 'app/types/explore';
+
+const exploreUtilsLogger = createMonitoringLogger('core.explore.utils');
 
 export const DEFAULT_UI_STATE = {
   dedupStrategy: LogsDedupStrategy.none,
@@ -159,7 +161,9 @@ export const safeStringifyValue = (value: unknown, space?: number) => {
   try {
     return JSON.stringify(value, null, space);
   } catch (error) {
-    console.error(error);
+    exploreUtilsLogger.logError(error instanceof Error ? error : new Error(String(error)), {
+      fn: 'safeStringifyValue',
+    });
   }
 
   return '';
@@ -232,7 +236,9 @@ export async function ensureQueries(
         try {
           await getDataSourceSrv().get(query.datasource.uid);
         } catch {
-          console.error(`One of the queries has a datasource that is no longer available and was removed.`);
+          exploreUtilsLogger.logWarning('Query datasource no longer available; query removed', {
+            datasourceUid: query.datasource?.uid,
+          });
           validDS = false;
         }
       }
