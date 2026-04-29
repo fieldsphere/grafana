@@ -59,6 +59,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.explore.title', 'Explore');
     case 'drilldown':
       return t('nav.drilldown.title', 'Drilldown');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'alerting':
       return t('nav.alerting.title', 'Alerting');
     case 'plugin-page-grafana-oncall-app':
@@ -257,6 +259,8 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.alerting-activity.subtitle', 'View alerts and active notifications');
     case 'alerts/recently-deleted':
       return t('nav.alerts-recently-deleted.subtitle', 'See recently deleted alert rules');
+    case 'labs':
+      return t('nav.labs.subtitle', 'Review and control enabled feature flags');
     case 'datasources':
       return t('nav.datasources.subtitle', 'Add and configure data sources');
     case 'correlations':

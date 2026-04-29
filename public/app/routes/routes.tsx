@@ -184,6 +184,12 @@ export function getAppRoutes(): RouteDescriptor[] {
       component: () => <NavLandingPage navId="drilldown" />,
     },
     {
+      path: '/labs',
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "LabsFeatureFlagsPage" */ 'app/features/labs/FeatureFlagsPage')
+      ),
+    },
+    {
       path: '/apps',
       component: () => <NavLandingPage navId="apps" />,
     },

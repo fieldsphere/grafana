@@ -11,10 +11,12 @@ import (
 
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -156,5 +158,23 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "A Dashboard", navLinks[0].Text)
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
+	})
+}
+
+func TestBuildLabsNavLink(t *testing.T) {
+	service := ServiceImpl{cfg: &setting.Cfg{}}
+
+	t.Run("returns nil for anonymous users", func(t *testing.T) {
+		require.Nil(t, service.buildLabsNavLink(&contextmodel.ReqContext{}))
+	})
+
+	t.Run("returns the labs nav link for signed in users", func(t *testing.T) {
+		link := service.buildLabsNavLink(&contextmodel.ReqContext{SignedInUser: &user.SignedInUser{UserID: 1}})
+
+		require.Equal(t, navtree.NavIDLabs, link.Id)
+		require.Equal(t, "Labs", link.Text)
+		require.Equal(t, "flask", link.Icon)
+		require.Equal(t, "/labs", link.Url)
+		require.True(t, link.IsNew)
 	})
 }
