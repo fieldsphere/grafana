@@ -117,6 +117,7 @@ func (s *ServiceImpl) processAppPlugin(plugin pluginstore.Plugin, c *contextmode
 		PluginID:   plugin.ID,
 		Url:        s.cfg.AppSubURL + "/a/" + plugin.ID,
 	}
+	navChildCount := 0
 
 	for _, include := range plugin.Includes {
 		if !hasAccessToInclude(include) {
@@ -176,6 +177,7 @@ func (s *ServiceImpl) processAppPlugin(plugin pluginstore.Plugin, c *contextmode
 				// Register the page under the app
 			} else if include.AddToNav {
 				appLink.Children = append(appLink.Children, link)
+				navChildCount++
 			}
 		}
 
@@ -188,12 +190,13 @@ func (s *ServiceImpl) processAppPlugin(plugin pluginstore.Plugin, c *contextmode
 					PluginID: plugin.ID,
 				}
 				appLink.Children = append(appLink.Children, link)
+				navChildCount++
 			}
 		}
 	}
 
-	// Apps without any nav children are not part of navtree
-	if len(appLink.Children) == 0 {
+	// No pages or dashboards registered for this app in the nav tree
+	if navChildCount == 0 {
 		return nil
 	}
 	// If we only have one child and it's the app default nav then remove it from children
@@ -347,6 +350,22 @@ func (s *ServiceImpl) addPluginToSection(c *contextmodel.ReqContext, treeRoot *n
 				Img:   s.cfg.AppSubURL + plugin.Info.Logos.Large,
 				IsNew: true,
 			})
+		// Apps can use navigation.app_sections: my-plugin-id = labs [weight] to nest under Labs (nav id from navtree.NavIDLabs).
+		case navtree.NavIDLabs:
+			if labsNode := treeRoot.FindById(navtree.NavIDLabs); labsNode != nil {
+				labsNode.Children = append(labsNode.Children, sectionChildren...)
+			} else {
+				treeRoot.AddSection(&navtree.NavLink{
+					Text:       "Labs",
+					Id:         navtree.NavIDLabs,
+					SubTitle:   "Experimental tools and internal feature visibility",
+					Icon:       "flask",
+					SortWeight: navtree.WeightLabs,
+					Children:   sectionChildren,
+					Url:        s.cfg.AppSubURL + "/labs",
+					IsNew:      true,
+				})
+			}
 		default:
 			s.log.Error("Plugin app nav id not found", "pluginId", plugin.ID, "navId", sectionID)
 		}

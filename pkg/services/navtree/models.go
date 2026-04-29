@@ -38,6 +38,9 @@ const (
 	WeightHelp
 )
 
+// WeightLabs is placed between Connections (-2100) and Apps (-2000); do not use iota here to avoid renumbering.
+const WeightLabs = -2050
+
 const (
 	NavIDRoot                 = "root"
 	NavIDDashboards           = "dashboards/browse"
@@ -56,6 +59,7 @@ const (
 	NavIDCfgPlugins           = "cfg/plugins"
 	NavIDCfgAccess            = "cfg/access"
 	NavIDBookmarks            = "bookmarks"
+	NavIDLabs                 = "labs"
 )
 
 type NavLink struct {
