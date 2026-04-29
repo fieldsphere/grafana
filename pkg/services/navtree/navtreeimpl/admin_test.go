@@ -4,9 +4,12 @@ import (
 	"net/http"
 	"testing"
 
+	claims "github.com/grafana/authlib/types"
 	"github.com/stretchr/testify/require"
 
 	"github.com/grafana/grafana/pkg/services/accesscontrol/actest"
+	"github.com/grafana/grafana/pkg/services/authn"
+	"github.com/grafana/grafana/pkg/services/authn/authntest"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/licensing"
@@ -22,8 +25,11 @@ func TestGetAdminNodeIncludesFeatureToggles(t *testing.T) {
 	service := ServiceImpl{
 		cfg:           &setting.Cfg{},
 		accessControl: actest.FakeAccessControl{ExpectedEvaluate: true},
-		features:      featuremgmt.WithFeatures(),
-		license:       &licensing.OSSLicensingService{},
+		authnService: &authntest.FakeService{
+			ExpectedIdentity: &authn.Identity{ID: "1", Type: claims.TypeUser, OrgID: 0},
+		},
+		features: featuremgmt.WithFeatures(),
+		license:  &licensing.OSSLicensingService{},
 	}
 	reqCtx := &contextmodel.ReqContext{
 		Context:      &web.Context{Req: httpReq},
