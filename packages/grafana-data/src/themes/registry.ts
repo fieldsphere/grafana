@@ -1,6 +1,7 @@
 import { Registry, type RegistryItem } from '../utils/Registry';
 
 import { createTheme, NewThemeOptionsSchema } from './createTheme';
+import amethyst from './themeDefinitions/amethyst.json';
 import aubergine from './themeDefinitions/aubergine.json';
 import debug from './themeDefinitions/debug.json';
 import desertbloom from './themeDefinitions/desertbloom.json';
@@ -81,6 +82,7 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
     { id: 'system', name: 'System preference', build: getSystemPreferenceTheme },
     { id: 'dark', name: 'Dark', build: () => createTheme({ colors: { mode: 'dark' } }) },
     { id: 'light', name: 'Light', build: () => createTheme({ colors: { mode: 'light' } }) },
+    { id: 'amethyst', name: 'Amethyst', build: () => createTheme(NewThemeOptionsSchema.parse(amethyst)) },
   ];
 });
 
