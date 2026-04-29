@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"net/url"
 	"path"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/grafana/grafana-app-sdk/logging"
@@ -18,7 +20,8 @@ import (
 )
 
 const (
-	defaultCatalogTTL = 6 * time.Hour
+	defaultCatalogTTL      = 6 * time.Hour
+	maxAPIErrorBodyDetails = 1024
 )
 
 // CatalogProvider retrieves plugin metadata from the grafana.com API.
@@ -110,7 +113,7 @@ func (p *CatalogProvider) GetMeta(ctx context.Context, ref PluginRef) (*Result, 
 			logger.Debug("Plugin metadata not found", "pluginId", lookupID, "version", ref.Version, "url", u.String())
 			return nil, ErrMetaNotFound
 		}
-		return nil, fmt.Errorf("unexpected status code %d from grafana.com API", resp.StatusCode)
+		return nil, unexpectedAPIStatusError(resp)
 	}
 
 	var gcomMeta grafanaComPluginVersionMeta
@@ -132,6 +135,38 @@ func (p *CatalogProvider) GetMeta(ctx context.Context, ref PluginRef) (*Result, 
 		Meta: metaSpec,
 		TTL:  p.ttl,
 	}, nil
+}
+
+func unexpectedAPIStatusError(resp *http.Response) error {
+	message := fmt.Sprintf("unexpected status code %d from grafana.com API", resp.StatusCode)
+
+	body, err := io.ReadAll(io.LimitReader(resp.Body, maxAPIErrorBodyDetails+1))
+	if err != nil {
+		return fmt.Errorf("%s: failed to read error response body: %w", message, err)
+	}
+
+	detail := strings.TrimSpace(string(body))
+	if detail == "" {
+		return errors.New(message)
+	}
+	if len(body) > maxAPIErrorBodyDetails {
+		detail = strings.TrimSpace(string(body[:maxAPIErrorBodyDetails])) + "..."
+	}
+
+	var apiError struct {
+		Message string `json:"message"`
+		Error   string `json:"error"`
+	}
+	if err := json.Unmarshal(body, &apiError); err == nil {
+		switch {
+		case strings.TrimSpace(apiError.Message) != "":
+			detail = strings.TrimSpace(apiError.Message)
+		case strings.TrimSpace(apiError.Error) != "":
+			detail = strings.TrimSpace(apiError.Error)
+		}
+	}
+
+	return fmt.Errorf("%s: %s", message, detail)
 }
 
 // findChildMeta searches for a child plugin in the parent's children field.

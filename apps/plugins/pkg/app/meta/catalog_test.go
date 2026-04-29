@@ -181,6 +181,39 @@ func TestCatalogProvider_GetMeta(t *testing.T) {
 		assert.Nil(t, result)
 	})
 
+	t.Run("returns error detail from non-200 JSON response", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadGateway)
+			_, _ = w.Write([]byte(`{"message":"upstream is unavailable"}`))
+		}))
+		defer server.Close()
+
+		provider := NewCatalogProvider(&logging.NoOpLogger{}, server.URL+"/api/plugins", "")
+		result, err := provider.GetMeta(ctx, PluginRef{ID: "test-plugin", Version: "1.0.0"})
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "unexpected status code 502")
+		assert.Contains(t, err.Error(), "upstream is unavailable")
+		assert.Nil(t, result)
+	})
+
+	t.Run("returns error detail from non-200 plain text response", func(t *testing.T) {
+		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusBadRequest)
+			_, _ = w.Write([]byte("bad plugin version"))
+		}))
+		defer server.Close()
+
+		provider := NewCatalogProvider(&logging.NoOpLogger{}, server.URL+"/api/plugins", "")
+		result, err := provider.GetMeta(ctx, PluginRef{ID: "test-plugin", Version: "1.0.0"})
+
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), "unexpected status code 400")
+		assert.Contains(t, err.Error(), "bad plugin version")
+		assert.Nil(t, result)
+	})
+
 	t.Run("returns error for invalid JSON response", func(t *testing.T) {
 		server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "application/json")

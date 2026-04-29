@@ -15,6 +15,8 @@ import (
 const rsIdentifier = `([_a-zA-Z0-9]+)`
 const sExpr = `\$` + rsIdentifier + `\(([^\)]*)\)`
 
+var macroRegExp = regexp.MustCompile(sExpr)
+
 // isDollarTagChar reports whether b is valid inside a PostgreSQL dollar-quote tag
 // (letters and digits only; underscore is also allowed per identifier rules).
 func isDollarTagChar(b byte) bool {
@@ -144,11 +146,9 @@ func (m *postgresMacroEngine) Interpolate(query *backend.DataQuery, timeRange ba
 	// in executable SQL are evaluated.
 	sql = stripSQLComments(sql)
 
-	// TODO: Handle error
-	rExp, _ := regexp.Compile(sExpr)
 	var macroError error
 
-	sql = m.ReplaceAllStringSubmatchFunc(rExp, sql, func(groups []string) string {
+	sql = m.ReplaceAllStringSubmatchFunc(macroRegExp, sql, func(groups []string) string {
 		// detect if $__timeGroup is supposed to add AS time for pre 5.3 compatibility
 		// if there is a ',' directly after the macro call $__timeGroup is probably used
 		// in the old way. Inside window function ORDER BY $__timeGroup will be followed
