@@ -269,6 +269,18 @@ func generateTypeScript() string {
 //  pkg/services/featuremgmt/toggles_gen_test.go
 
 /**
+ * Names of all known feature toggles in Grafana.
+ *
+ * @public
+ */
+export const featureToggleKeys = [
+`
+	for _, flag := range standardFeatureFlags {
+		buf += fmt.Sprintf("  %q,\n", flag.Name)
+	}
+	buf += `] as const;
+
+/**
  * Describes available feature toggles in Grafana. These can be configured via
  * conf/custom.ini to enable features under development or not yet available in
  * stable version.

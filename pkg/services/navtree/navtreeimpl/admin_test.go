@@ -1,0 +1,41 @@
+package navtreeimpl
+
+import (
+	"net/http"
+	"testing"
+
+	"github.com/stretchr/testify/require"
+
+	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/licensing"
+	"github.com/grafana/grafana/pkg/setting"
+	"github.com/grafana/grafana/pkg/web"
+)
+
+func TestGetAdminNodeIncludesFeatureToggles(t *testing.T) {
+	httpReq, err := http.NewRequest(http.MethodGet, "", nil)
+	require.NoError(t, err)
+
+	service := ServiceImpl{
+		cfg:      &setting.Cfg{},
+		features: featuremgmt.WithFeatures(),
+		license:  &licensing.OSSLicensingService{},
+	}
+	reqCtx := &contextmodel.ReqContext{Context: &web.Context{Req: httpReq}}
+
+	adminNode, err := service.getAdminNode(reqCtx)
+	require.NoError(t, err)
+
+	var featureToggleNodeFound bool
+	for _, section := range adminNode.Children {
+		for _, child := range section.Children {
+			if child.Id == "feature-toggles" {
+				featureToggleNodeFound = true
+				require.Equal(t, "Feature flags", child.Text)
+				require.Equal(t, "/admin/feature-toggles", child.Url)
+			}
+		}
+	}
+	require.True(t, featureToggleNodeFound)
+}
