@@ -6,6 +6,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	"github.com/grafana/grafana/pkg/services/accesscontrol/actest"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/licensing"
@@ -18,9 +19,10 @@ func TestGetAdminNodeIncludesFeatureToggles(t *testing.T) {
 	require.NoError(t, err)
 
 	service := ServiceImpl{
-		cfg:      &setting.Cfg{},
-		features: featuremgmt.WithFeatures(),
-		license:  &licensing.OSSLicensingService{},
+		cfg:           &setting.Cfg{},
+		accessControl: actest.FakeAccessControl{ExpectedEvaluate: true},
+		features:      featuremgmt.WithFeatures(),
+		license:       &licensing.OSSLicensingService{},
 	}
 	reqCtx := &contextmodel.ReqContext{Context: &web.Context{Req: httpReq}}
 
