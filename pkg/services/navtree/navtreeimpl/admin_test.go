@@ -24,7 +24,10 @@ func TestGetAdminNodeIncludesFeatureToggles(t *testing.T) {
 		features:      featuremgmt.WithFeatures(),
 		license:       &licensing.OSSLicensingService{},
 	}
-	reqCtx := &contextmodel.ReqContext{Context: &web.Context{Req: httpReq}}
+	reqCtx := &contextmodel.ReqContext{
+		Context:      &web.Context{Req: httpReq},
+		SignedInUser: &user.SignedInUser{UserID: 1, OrgID: 1, OrgName: "Main Org."},
+	}
 
 	adminNode, err := service.getAdminNode(reqCtx)
 	require.NoError(t, err)
