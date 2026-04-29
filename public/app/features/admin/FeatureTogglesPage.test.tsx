@@ -60,7 +60,7 @@ describe('FeatureTogglesPage', () => {
     expect(screen.getByText('newDashboards')).toBeInTheDocument();
     expect(screen.queryByText('backendExperiment')).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('switch', { name: 'Enable newDashboards' }));
+    await user.click(screen.getByRole('switch', { name: 'Toggle newDashboards' }));
     expect(window.localStorage.getItem('grafana.featureToggles')).toBe('newDashboards=true');
     expect(screen.getByRole('button', { name: 'Apply and reload' })).toBeInTheDocument();
   });
@@ -70,7 +70,7 @@ describe('FeatureTogglesPage', () => {
 
     const { user } = render(<FeatureTogglesPage />);
 
-    expect(await screen.findByRole('switch', { name: 'Enable newDashboards' })).toBeChecked();
+    expect(await screen.findByRole('switch', { name: 'Toggle newDashboards' })).toBeChecked();
 
     await user.click(screen.getByRole('button', { name: 'Reset overrides' }));
     await waitFor(() => expect(window.localStorage.getItem('grafana.featureToggles')).toBeNull());
