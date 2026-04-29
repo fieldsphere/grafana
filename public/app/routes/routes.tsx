@@ -345,6 +345,13 @@ export function getAppRoutes(): RouteDescriptor[] {
       ),
     },
     {
+      path: '/admin/feature-toggles',
+      roles: () => contextSrv.evaluatePermission([AccessControlAction.SettingsRead]),
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "FeatureTogglesPage" */ 'app/features/admin/FeatureTogglesPage')
+      ),
+    },
+    {
       path: '/admin/upgrading',
       component: SafeDynamicImport(() => import('app/features/admin/UpgradePage')),
     },

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"testing"
@@ -11,6 +12,7 @@ import (
 	"github.com/grafana/grafana/pkg/infra/db/dbtest"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/anonymous/anontest"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/stats"
 	"github.com/grafana/grafana/pkg/services/stats/statstest"
 	"github.com/grafana/grafana/pkg/setting"
@@ -99,6 +101,35 @@ func TestAPI_AdminGetSettings(t *testing.T) {
 	}
 }
 
+func TestAPI_AdminGetFeatureToggles(t *testing.T) {
+	server := SetupAPITestServer(t, func(hs *HTTPServer) {
+		hs.Features = featuremgmt.WithFeatures(featuremgmt.FlagPanelTitleSearch)
+	})
+
+	res, err := server.Send(webtest.RequestWithSignedInUser(
+		server.NewGetRequest("/api/admin/feature-toggles"),
+		userWithPermissions(1, []accesscontrol.Permission{{Action: accesscontrol.ActionSettingsRead}}),
+	))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, res.StatusCode)
+	defer func() { require.NoError(t, res.Body.Close()) }()
+
+	var body AdminFeatureTogglesResponse
+	require.NoError(t, json.NewDecoder(res.Body).Decode(&body))
+	require.NotEmpty(t, body.Toggles)
+
+	var found bool
+	for _, toggle := range body.Toggles {
+		if toggle.Name == featuremgmt.FlagPanelTitleSearch {
+			found = true
+			assert.NotEmpty(t, toggle.Stage)
+			assert.NotEmpty(t, toggle.Description)
+			assert.True(t, toggle.Enabled)
+		}
+	}
+	assert.True(t, found)
+}
+
 func TestAdmin_AccessControl(t *testing.T) {
 	type testCase struct {
 		desc         string
@@ -142,6 +173,26 @@ func TestAdmin_AccessControl(t *testing.T) {
 			expectedCode: http.StatusForbidden,
 			desc:         "AdminGetSettings should return 403 for user without required permissions",
 			url:          "/api/admin/settings",
+			permissions: []accesscontrol.Permission{
+				{
+					Action: "wrong",
+				},
+			},
+		},
+		{
+			expectedCode: http.StatusOK,
+			desc:         "AdminGetFeatureToggles should return 200 for user with correct permissions",
+			url:          "/api/admin/feature-toggles",
+			permissions: []accesscontrol.Permission{
+				{
+					Action: accesscontrol.ActionSettingsRead,
+				},
+			},
+		},
+		{
+			expectedCode: http.StatusForbidden,
+			desc:         "AdminGetFeatureToggles should return 403 for user without required permissions",
+			url:          "/api/admin/feature-toggles",
 			permissions: []accesscontrol.Permission{
 				{
 					Action: "wrong",
