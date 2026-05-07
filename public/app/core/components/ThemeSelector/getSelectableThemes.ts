@@ -3,22 +3,18 @@ import { config } from '@grafana/runtime';
 
 export function getSelectableThemes() {
   // Purple/amethyst (CUR-54): available without Grafanacon bundle; GrafanaCon extras still flag-gated
-  const allowedExtraThemes = ['aubergine'];
+  const colorblindExtras: string[] = config.featureToggles.colorblindThemes
+    ? [
+        'deuteranopia_protanopia_dark',
+        'deuteranopia_protanopia_light',
+        'tritanopia_dark',
+        'tritanopia_light',
+      ]
+    : [];
 
-  if (config.featureToggles.colorblindThemes) {
-    allowedExtraThemes.push('deuteranopia_protanopia_dark');
-    allowedExtraThemes.push('deuteranopia_protanopia_light');
-    allowedExtraThemes.push('tritanopia_dark');
-    allowedExtraThemes.push('tritanopia_light');
-  }
+  const grafanaconExtras: string[] = config.featureToggles.grafanaconThemes
+    ? ['desertbloom', 'gildedgrove', 'sapphiredusk', 'tron', 'gloom']
+    : [];
 
-  if (config.featureToggles.grafanaconThemes) {
-    allowedExtraThemes.push('desertbloom');
-    allowedExtraThemes.push('gildedgrove');
-    allowedExtraThemes.push('sapphiredusk');
-    allowedExtraThemes.push('tron');
-    allowedExtraThemes.push('gloom');
-  }
-
-  return getBuiltInThemes(allowedExtraThemes);
+  return getBuiltInThemes(['aubergine', ...colorblindExtras, ...grafanaconExtras]);
 }

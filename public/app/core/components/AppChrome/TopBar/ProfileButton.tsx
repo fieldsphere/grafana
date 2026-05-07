@@ -30,10 +30,12 @@ export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
     return null;
   }
 
+  const hasSelectableExtraThemes = getSelectableThemes().some((theme) => theme.isExtra);
+
   const renderMenu = () => (
     <TopNavBarMenu node={profileNode}>
       <>
-        {getSelectableThemes().some((theme) => theme.isExtra) && (
+        {hasSelectableExtraThemes && (
           <MenuItem icon="palette" onClick={onToggleThemeDrawer} label={t('profile.change-theme', 'Change theme')} />
         )}
         <Menu.Item
