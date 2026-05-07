@@ -1,0 +1,22 @@
+{
+  "sourceJiraIssue": "CUR-54",
+  "sourceSummary": "add a purple/amethyst theme to grafana theme switcher",
+  "implementedFeature": "Added an Amethyst experimental theme and exposed it in the Grafana theme switcher.",
+  "artifacts": [
+    {
+      "type": "screenshot",
+      "path": "artifacts/CUR-54/amethyst-theme-switcher.png",
+      "description": "Theme switcher with Amethyst selected and the Amethyst palette applied."
+    },
+    {
+      "type": "video",
+      "path": "artifacts/CUR-54/amethyst-theme-switcher-walkthrough.webm",
+      "description": "Walkthrough selecting Amethyst from the theme switcher artifact."
+    },
+    {
+      "type": "demo",
+      "path": "artifacts/CUR-54/amethyst-theme-switcher-demo.html",
+      "description": "Static artifact page used to capture the screenshot and video."
+    }
+  ]
+}
