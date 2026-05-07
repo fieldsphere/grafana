@@ -2,7 +2,8 @@ import { getBuiltInThemes } from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 export function getSelectableThemes() {
-  const allowedExtraThemes = [];
+  // Purple/amethyst (CUR-54): available without Grafanacon bundle; GrafanaCon extras still flag-gated
+  const allowedExtraThemes = ['aubergine'];
 
   if (config.featureToggles.colorblindThemes) {
     allowedExtraThemes.push('deuteranopia_protanopia_dark');
