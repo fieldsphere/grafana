@@ -3,6 +3,7 @@ import { useId, useState } from 'react';
 
 import { createTheme, type GrafanaTheme2, type NewThemeOptions } from '@grafana/data';
 import { NewThemeOptionsSchema } from '@grafana/data/internal';
+import amethyst from '@grafana/data/themes/definitions/amethyst.json';
 import aubergine from '@grafana/data/themes/definitions/aubergine.json';
 import debug from '@grafana/data/themes/definitions/debug.json';
 import desertbloom from '@grafana/data/themes/definitions/desertbloom.json';
@@ -51,6 +52,7 @@ const themeMap: Record<string, NewThemeOptions> = {
 };
 
 const experimentalDefinitions: Record<string, unknown> = {
+  amethyst,
   aubergine,
   debug,
   desertbloom,
