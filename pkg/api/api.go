@@ -151,6 +151,7 @@ func (hs *HTTPServer) registerRoutes() {
 	}
 
 	r.Get("/styleguide", reqSignedIn, hs.Index)
+	r.Get("/labs", reqSignedIn, hs.Index)
 
 	r.Get("/live", reqGrafanaAdmin, hs.Index)
 	r.Get("/live/pipeline", reqGrafanaAdmin, hs.Index)
@@ -330,6 +331,8 @@ func (hs *HTTPServer) registerRoutes() {
 			orgRoute.Get("/", authorize(ac.EvalPermission(ac.ActionOrgsRead)), routing.Wrap(hs.GetCurrentOrg))
 			orgRoute.Get("/quotas", authorize(ac.EvalPermission(ac.ActionOrgsQuotasRead)), routing.Wrap(hs.GetCurrentOrgQuotas))
 		})
+
+		apiRoute.Get("/feature-toggles/catalog", reqSignedIn, routing.Wrap(hs.GetFeatureFlagsCatalog))
 
 		//nolint:staticcheck // not yet migrated to OpenFeature
 		if hs.Features.IsEnabledGlobally(featuremgmt.FlagStorage) {
