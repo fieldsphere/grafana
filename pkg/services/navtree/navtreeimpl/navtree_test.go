@@ -11,12 +11,50 @@ import (
 
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
+
+func TestBuildLabsNavLink(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	service := ServiceImpl{
+		cfg: setting.NewCfg(),
+	}
+
+	t.Run("returns labs nav for signed in users", func(t *testing.T) {
+		reqCtx := &contextmodel.ReqContext{
+			SignedInUser: &user.SignedInUser{},
+			IsSignedIn:   true,
+			Context:      &web.Context{Req: httpReq},
+		}
+
+		navLink := service.buildLabsNavLink(reqCtx)
+
+		require.NotNil(t, navLink)
+		require.Equal(t, navtree.NavIDLabs, navLink.Id)
+		require.Equal(t, "Labs", navLink.Text)
+		require.Equal(t, "flask", navLink.Icon)
+		require.Equal(t, int64(navtree.WeightLabs), navLink.SortWeight)
+		require.True(t, navLink.IsNew)
+		require.Len(t, navLink.Children, 1)
+		require.Equal(t, "labs/feature-flags", navLink.Children[0].Id)
+		require.Equal(t, "/labs/feature-flags", navLink.Children[0].Url)
+	})
+
+	t.Run("does not return labs nav for anonymous users", func(t *testing.T) {
+		reqCtx := &contextmodel.ReqContext{
+			SignedInUser: &user.SignedInUser{},
+			Context:      &web.Context{Req: httpReq},
+		}
+
+		require.Nil(t, service.buildLabsNavLink(reqCtx))
+	})
+}
 
 func TestBuildStarredItemsNavLinks(t *testing.T) {
 	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
