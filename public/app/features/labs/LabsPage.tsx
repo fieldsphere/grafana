@@ -2,16 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import { t, Trans } from '@grafana/i18n';
 import { getBackendSrv } from '@grafana/runtime';
-import {
-  Alert,
-  Badge,
-  type CellProps,
-  type Column,
-  InteractiveTable,
-  Spinner,
-  Stack,
-  Text,
-} from '@grafana/ui';
+import { Alert, Badge, type CellProps, type Column, InteractiveTable, Spinner, Stack, Text } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 
 export interface RegisteredFeatureFlagDTO {
