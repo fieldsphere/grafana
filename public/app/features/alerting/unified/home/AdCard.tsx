@@ -3,7 +3,7 @@ import { useState } from 'react';
 
 import { GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { Button, Divider, Icon, IconButton, useStyles2 } from '@grafana/ui';
+import { Button, ButtonVariant, Divider, Icon, IconButton, useStyles2 } from '@grafana/ui';
 import { CloudBadge } from 'app/core/components/Branding/CloudBadge';
 import { backendSrv } from 'app/core/services/backend_srv';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -16,9 +16,18 @@ type AdCardProps = {
   logoUrl: string;
   items: string[];
   helpFlag: number;
+  buttonVariant?: ButtonVariant;
 };
 
-export default function AdCard({ title, description, href, logoUrl, items, helpFlag }: AdCardProps) {
+export default function AdCard({
+  title,
+  description,
+  href,
+  logoUrl,
+  items,
+  helpFlag,
+  buttonVariant = 'secondary',
+}: AdCardProps) {
   const styles = useStyles2(getAddCardStyles);
 
   const helpFlags = contextSrv.user.helpFlags1;
@@ -58,7 +67,7 @@ export default function AdCard({ title, description, href, logoUrl, items, helpF
         ))}
       </div>
       <Divider />
-      <Button fill="solid" variant="secondary" onClick={() => window.open(href, '_blank')} className={styles.button}>
+      <Button fill="solid" variant={buttonVariant} onClick={() => window.open(href, '_blank')} className={styles.button}>
         <Trans i18nKey="alerting.ad.learn-more">Learn more</Trans>
         <Icon name="external-link-alt" className={styles.buttonIcon} />
       </Button>

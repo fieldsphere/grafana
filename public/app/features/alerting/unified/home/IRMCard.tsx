@@ -23,6 +23,7 @@ export default function IRMCard() {
         t('alerting.home.irm-card-item-4', 'Analyze past incidents to improve response and resilience.'),
       ]}
       helpFlag={HELP_FLAG_IRM}
+      buttonVariant="success"
     />
   );
 }
