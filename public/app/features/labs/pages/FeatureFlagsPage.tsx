@@ -4,8 +4,8 @@ import { useMemo, useState } from 'react';
 import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Alert, Badge, Button, Input, Stack, Switch, Text, useStyles2 } from '@grafana/ui';
-import config from 'app/core/config';
 import { Page } from 'app/core/components/Page/Page';
+import config from 'app/core/config';
 
 import {
   getFeatureToggleRows,
@@ -39,7 +39,7 @@ export function FeatureFlagsPageContent() {
       ...overrides,
       [row.name]: enabled,
     };
-    (config.featureToggles as Record<string, boolean>)[row.name] = enabled;
+    Object.assign(config.featureToggles, { [row.name]: enabled });
     writeFeatureToggleOverrides(nextOverrides);
     setOverrides(nextOverrides);
   };
