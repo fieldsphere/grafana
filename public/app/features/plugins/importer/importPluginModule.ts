@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { DEFAULT_LANGUAGE } from '@grafana/i18n';
 import { getResolvedLanguage } from '@grafana/i18n/internal';
 import { config } from '@grafana/runtime';
@@ -68,7 +69,7 @@ export async function importPluginModule({
 
   return SystemJS.import(modulePath).catch((e) => {
     let error = new Error('Could not load plugin', { cause: e });
-    console.error(error);
+    structuredLog('error', 'Error', { error: toLogContextPart(error) });
     pluginsLogger.logError(error, {
       path,
       pluginId,

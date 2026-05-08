@@ -1,4 +1,5 @@
-import { css, cx } from '@emotion/css';
+import {
+  css, cx } from '@emotion/css';
 import { isEqual } from 'lodash';
 import { PureComponent } from 'react';
 import { type Unsubscribable, type PartialObserver } from 'rxjs';
@@ -17,6 +18,7 @@ import {
   applyFieldOverrides,
   type LiveChannelAddress,
   StreamingDataFrame,
+  structuredLog
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
@@ -72,7 +74,7 @@ export class LivePanel extends PureComponent<Props, State> {
       } else if (isLiveChannelMessageEvent(event)) {
         this.setState({ message: event.message, changed: Date.now() });
       } else {
-        console.log('ignore', event);
+        structuredLog('info', 'ignore', { details: event });
       }
     },
   };
@@ -87,7 +89,7 @@ export class LivePanel extends PureComponent<Props, State> {
   async loadChannel() {
     const addr = this.props.options?.channel;
     if (!isValidLiveChannelAddress(addr)) {
-      console.log('INVALID', addr);
+      structuredLog('info', 'INVALID', { details: addr });
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -96,13 +98,13 @@ export class LivePanel extends PureComponent<Props, State> {
     }
 
     if (isEqual(addr, this.state.addr)) {
-      console.log('Same channel', this.state.addr);
+      structuredLog('info', 'Same channel', { details: this.state.addr });
       return;
     }
 
     const live = getGrafanaLiveSrv();
     if (!live) {
-      console.log('INVALID', addr);
+      structuredLog('info', 'INVALID', { details: addr });
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -111,7 +113,7 @@ export class LivePanel extends PureComponent<Props, State> {
     }
     this.unsubscribe();
 
-    console.log('LOAD', addr);
+    structuredLog('info', 'LOAD', { details: addr });
 
     // Subscribe to new events
     try {

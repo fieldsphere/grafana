@@ -1,4 +1,5 @@
-import { uniqBy } from 'lodash';
+import {
+  uniqBy } from 'lodash';
 
 import {
   AppEvents,
@@ -7,6 +8,7 @@ import {
   type TimeRange,
   isDateTime,
   rangeUtil,
+  structuredLog
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type TimeRangePickerProps, TimeRangePicker } from '@grafana/ui';
@@ -136,7 +138,7 @@ function convertToISOString(value: DateTime | string): string {
   }
 
   if (!value?.toISOString) {
-    throw console.error('Invalid DateTime object passed to convertToISOString');
+    throw structuredLog('error', 'Invalid DateTime object passed to convertToISOString');
   }
 
   return value.toISOString();

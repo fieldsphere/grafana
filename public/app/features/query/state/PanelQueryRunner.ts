@@ -1,4 +1,5 @@
-import { cloneDeep, isEqual } from 'lodash';
+import {
+  cloneDeep, isEqual } from 'lodash';
 import { forkJoin, type Observable, of, ReplaySubject, type Unsubscribable } from 'rxjs';
 import { map, mergeMap, catchError } from 'rxjs/operators';
 
@@ -29,6 +30,7 @@ import {
   type ApplyFieldOverrideOptions,
   type StreamingDataFrame,
   DataTopic,
+  structuredLog
 } from '@grafana/data';
 import { toDataQueryError } from '@grafana/runtime';
 import { ExpressionDatasourceRef } from '@grafana/runtime/internal';
@@ -257,7 +259,7 @@ export class PanelQueryRunner {
         return { ...data, series, annotations };
       }),
       catchError((err) => {
-        console.warn('Error running transformation:', err);
+        structuredLog('warn', 'Error running transformation:', { details: err });
         return of({
           ...data,
           state: LoadingState.Error,

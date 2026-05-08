@@ -1,4 +1,5 @@
-import { defaults } from 'lodash';
+import {
+  defaults } from 'lodash';
 import { tz } from 'moment-timezone';
 import { lastValueFrom, type Observable, throwError } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
@@ -27,6 +28,8 @@ import {
   scopeFilterOperatorMap,
   type ScopeSpecFilter,
   type TimeRange,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import {
   type BackendSrvRequest,
@@ -172,8 +175,8 @@ export class PrometheusDatasource
         this.ruleMappings = extractRuleMappingFromGroups(ruleGroups);
       }
     } catch (err) {
-      console.log('Rules API is experimental. Ignore next error.');
-      console.error(err);
+      structuredLog('info', 'Rules API is experimental. Ignore next error.');
+      structuredLog('error', 'Error', { error: toLogContextPart(err) });
     }
   }
 
@@ -352,7 +355,7 @@ export class PrometheusDatasource
       } catch (err) {
         // If status code of error is Method Not Allowed (405) and HTTP method is POST, retry with GET
         if (this.httpMethod === 'POST' && isFetchError(err) && (err.status === 405 || err.status === 400)) {
-          console.warn(`Couldn't use configured POST HTTP method for this request. Trying to use GET method instead.`);
+          structuredLog('warn', `Couldn't use configured POST HTTP method for this request. Trying to use GET method instead.`);
         } else {
           throw err;
         }

@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { get as lodashGet } from 'lodash';
 
 import { type NestedPanelOptions, type NestedValueAccess } from '@grafana/data/internal';
@@ -53,7 +54,7 @@ export function getLayerEditor(opts: InstanceState): NestedPanelOptions<LayerEdi
       },
       onChange: (path, value) => {
         if (path === 'type' && value) {
-          console.warn('unable to change layer type');
+          structuredLog('warn', 'unable to change layer type');
           return;
         }
         const c = setOptionImmutably(options, path, value);

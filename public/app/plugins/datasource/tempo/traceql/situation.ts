@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { type SyntaxNode, type Tree } from '@lezer/common';
 
 import {
@@ -444,7 +445,7 @@ function resolveNewSpansetExpression(node: SyntaxNode, text: string, offset: num
       previousNode = previousNode!.nextSibling;
     }
   } catch (error) {
-    console.error('Unexpected error while searching for previous node', error);
+    structuredLog('error', 'Unexpected error while searching for previous node', { error: toLogContextPart(error) });
   }
 
   if (previousNode?.type.id === And || previousNode?.type.id === Or) {

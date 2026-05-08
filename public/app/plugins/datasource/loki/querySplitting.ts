@@ -1,4 +1,5 @@
-import { groupBy, partition } from 'lodash';
+import {
+  groupBy, partition } from 'lodash';
 import { Observable, type Subscriber, type Subscription, tap } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -12,6 +13,8 @@ import {
   rangeUtil,
   store,
   type TimeRange,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 
@@ -187,7 +190,7 @@ export function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        structuredLog('error', 'Error', { error: toLogContextPart(e) });
         shouldStop = true;
         return false;
       }

@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { isEqual } from 'lodash';
 import { BehaviorSubject, type Observable, combineLatest, type Subscription } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
@@ -93,7 +94,7 @@ export class ScopesService implements ScopesContextValue {
     const nodeToPreload = scopeNodeId;
     if (nodeToPreload) {
       this.selectorService.resolvePathToRoot(nodeToPreload, this.selectorService.state.tree!).catch((error) => {
-        console.error('Failed to pre-load node path', error);
+        structuredLog('error', 'Failed to pre-load node path', { error: toLogContextPart(error) });
       });
     }
 

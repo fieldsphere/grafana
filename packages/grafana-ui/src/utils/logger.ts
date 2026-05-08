@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { throttle } from 'lodash';
 
 type Args = Parameters<typeof console.log>;
@@ -5,8 +6,8 @@ type Args = Parameters<typeof console.log>;
 /**
  * @internal
  * */
-const throttledLog = throttle((...t: Args) => {
-  console.log(...t);
+const throttledLog = throttle((prefix: string, ...t: Args) => {
+  structuredLog('info', prefix, { extras: t.map((x) => toLogContextPart(x)) });
 }, 500);
 
 /**
@@ -32,8 +33,12 @@ export const createLogger = (name: string): Logger => {
       if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test' || !loggingEnabled) {
         return;
       }
-      const fn = throttle ? throttledLog : console.log;
-      fn(`[${name}: ${id}]:`, ...t);
+      const label = `[${name}: ${id}]:`;
+      if (throttle) {
+        throttledLog(label, ...t);
+        return;
+      }
+      structuredLog('info', label, { extras: t.map((x) => toLogContextPart(x)) });
     },
     enable: () => (loggingEnabled = true),
     disable: () => (loggingEnabled = false),

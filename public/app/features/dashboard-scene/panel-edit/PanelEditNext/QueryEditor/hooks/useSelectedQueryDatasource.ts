@@ -1,6 +1,10 @@
-import { useAsync } from 'react-use';
+import {
+  useAsync } from 'react-use';
 
-import { type DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
+import { type DataSourceInstanceSettings, getDataSourceRef,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 
@@ -41,14 +45,14 @@ export function useSelectedQueryDatasource(
 
       const queryDsSettings = getDataSourceSrv().getInstanceSettings(dsRef);
       if (!queryDsSettings) {
-        console.error('Datasource settings not found for', dsRef);
+        structuredLog('error', 'Datasource settings not found for', { error: toLogContextPart(dsRef) });
         return undefined;
       }
 
       const queryDatasource = await getDataSourceSrv().get(dsRef);
       return { datasource: queryDatasource, dsSettings: queryDsSettings };
     } catch (err) {
-      console.error('Failed to load datasource for selected query:', err);
+      structuredLog('error', 'Failed to load datasource for selected query:', { error: toLogContextPart(err) });
       return undefined;
     }
   }, [

@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { uniq as _uniq } from 'lodash';
 import memoize from 'lru-memoize';
 
@@ -112,7 +113,7 @@ export function processLinkPattern(pattern: any): ProcessedLinkPattern | null {
     };
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error(`Ignoring invalid link pattern: ${error}`, pattern);
+    structuredLog('error', `Ignoring invalid link pattern: ${error}`, { error: toLogContextPart(pattern) });
     return null;
   }
 }

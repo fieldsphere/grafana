@@ -1,6 +1,9 @@
 import React from 'react';
 
-import { store } from '@grafana/data';
+import {
+  store,
+  structuredLog
+} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { logWarning } from '@grafana/runtime';
 import { getFeatureFlagClient } from '@grafana/runtime/internal';
@@ -227,7 +230,7 @@ export class RowItem
         layout.setState({ children: newChildren });
       } else {
         const warningMessage = 'Grid item has unexpected parent type';
-        console.warn(warningMessage);
+        structuredLog('warn', String(warningMessage));
         logWarning(warningMessage);
       }
     }
@@ -242,7 +245,7 @@ export class RowItem
       layout.addGridItem(gridItem);
     } else {
       const warningMessage = 'Layout manager does not support addGridItem';
-      console.warn(warningMessage);
+      structuredLog('warn', String(warningMessage));
       logWarning(warningMessage);
     }
     this.setIsDropTarget(false);

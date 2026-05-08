@@ -1,8 +1,11 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import { useEffect, useState } from 'react';
 import { type UseFormReturn, Controller } from 'react-hook-form';
 
-import { type SelectableValue } from '@grafana/data';
+import { type SelectableValue,
+  structuredLog
+} from '@grafana/data';
 import { Checkbox, Field, Input, SecretInput, Select, Switch, useTheme2 } from '@grafana/ui';
 
 import { fieldMap } from './fields';
@@ -78,7 +81,7 @@ export const FieldRenderer = ({
   }, [isDisabled, disabledWhen?.disabledValue, name, setValue]);
 
   if (!field) {
-    console.log('missing field:', name);
+    structuredLog('info', 'missing field:', { details: name });
     return null;
   }
 
@@ -190,7 +193,7 @@ export const FieldRenderer = ({
         </Field>
       );
     default:
-      console.error(`Unknown field type: ${fieldData.type}`);
+      structuredLog('error', `Unknown field type: ${fieldData.type}`);
       return null;
   }
 };

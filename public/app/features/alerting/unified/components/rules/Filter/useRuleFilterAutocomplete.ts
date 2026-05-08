@@ -1,7 +1,11 @@
-import { chain } from 'lodash';
+import {
+  chain } from 'lodash';
 import { useCallback } from 'react';
 
-import { type DataSourceInstanceSettings } from '@grafana/data';
+import { type DataSourceInstanceSettings,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { type ComboboxOption } from '@grafana/ui';
@@ -161,7 +165,7 @@ export function useNamespaceAndGroupOptions(): {
 
         return options;
       } catch (error) {
-        console.error('Error fetching groups:', error);
+        structuredLog('error', 'Error fetching groups:', { error: toLogContextPart(error) });
         return [createInfoOption(t('alerting.rules-filter.group-search-error', 'Error searching groups'))];
       }
     },

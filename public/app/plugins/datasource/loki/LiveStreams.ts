@@ -1,8 +1,11 @@
-import { type Observable, throwError, timer } from 'rxjs';
+import {
+  type Observable, throwError, timer } from 'rxjs';
 import { finalize, map, retryWhen, mergeMap } from 'rxjs/operators';
 import { webSocket } from 'rxjs/webSocket';
 
-import { type DataFrame, FieldType, type KeyValue, CircularDataFrame } from '@grafana/data';
+import { type DataFrame, FieldType, type KeyValue, CircularDataFrame,
+  structuredLog
+} from '@grafana/data';
 
 import { appendResponseToBufferedData } from './liveStreamsResultTransformer';
 import { type LokiTailResponse } from './types';
@@ -53,9 +56,7 @@ export class LiveStreams {
             if (error.code === 1006 && retryAttempt < 30) {
               if (retryAttempt > 10) {
                 // If more than 10 times retried, consol.warn, but keep reconnecting
-                console.warn(
-                  `Websocket connection is being disrupted. We keep reconnecting but consider starting new live tailing again. Error: ${error.reason}`
-                );
+                structuredLog('warn', `Websocket connection is being disrupted. We keep reconnecting but consider starting new live tailing again. Error: ${error.reason}`);
               }
               // Retry every 5s
               return timer(retryInterval);

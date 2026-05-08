@@ -2,7 +2,7 @@ import { skipToken } from '@reduxjs/toolkit/query/react';
 import * as React from 'react';
 import { useMemo } from 'react';
 
-import { PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
+import { PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo, structuredLog, toLogContextPart } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { type SceneComponentProps, SceneObjectBase, sceneGraph } from '@grafana/scenes';
 import { Alert, Spinner, Stack } from '@grafana/ui';
@@ -118,7 +118,11 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) =>
+        structuredLog('error', 'Failed to fetch dashboard revision history', {
+          error: toLogContextPart(err),
+        })
+      )
       .finally(() => this.setState({ isAppending: false }));
   };
 

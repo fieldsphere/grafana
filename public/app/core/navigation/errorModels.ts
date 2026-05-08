@@ -1,7 +1,11 @@
-import { type NavModel, type NavModelItem } from '@grafana/data';
+import {
+  type NavModel, type NavModelItem,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 
 export function getExceptionNav(error: unknown): NavModel {
-  console.error(error);
+  structuredLog('error', 'Error', { error: toLogContextPart(error) });
   return getWarningNav('Exception thrown', 'See console for details');
 }
 

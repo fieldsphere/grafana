@@ -1,5 +1,6 @@
 import { getFieldDisplayName } from '../../field/fieldState';
 import { stringToJsRegex } from '../../text/string';
+import { structuredLog, toLogContextPart } from '../../utils/structuredConsole';
 import { type DataFrame, type Field, FieldType, TIME_SERIES_VALUE_FIELD_NAME } from '../../types/dataFrame';
 import { type FieldMatcher, type FieldMatcherInfo, type FrameMatcherInfo } from '../../types/transformations';
 
@@ -201,7 +202,7 @@ const patternToRegex = (pattern?: string): RegExp | undefined => {
   try {
     return stringToJsRegex(pattern);
   } catch (error) {
-    console.error(error);
+    structuredLog('error', 'Invalid field name pattern for matcher', { error: toLogContextPart(error), pattern });
     return undefined;
   }
 };

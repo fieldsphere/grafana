@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
@@ -14,6 +15,7 @@ import {
   type SplitOpen,
   store,
   type TimeRange,
+  structuredLog
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
@@ -385,7 +387,7 @@ export function LogsTableWrap(props: Props) {
   // Toggle a column on or off when the user interacts with an element in the multi-select sidebar
   const toggleColumn = (columnName: FieldName) => {
     if (!columnsWithMeta || !(columnName in columnsWithMeta)) {
-      console.warn('failed to get column', columnsWithMeta);
+      structuredLog('warn', 'failed to get column', { details: columnsWithMeta });
       return;
     }
 

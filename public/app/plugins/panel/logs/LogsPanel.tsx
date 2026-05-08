@@ -1,4 +1,5 @@
-import { css, cx } from '@emotion/css';
+import {
+  css, cx } from '@emotion/css';
 import { groupBy } from 'lodash';
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import * as React from 'react';
@@ -30,6 +31,8 @@ import {
   rangeUtil,
   transformDataFrame,
   store,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config, getAppEvents } from '@grafana/runtime';
@@ -488,7 +491,7 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
           newSeries = await lastValueFrom(transformDataFrame(panel?.transformations, newSeries));
         }
       } catch (e) {
-        console.error(e);
+        structuredLog('error', 'Error', { error: toLogContextPart(e) });
       } finally {
         setInfiniteScrolling(false);
         loadingRef.current = false;
@@ -851,7 +854,7 @@ export async function requestMoreLogs(
   for (const uid in targetGroups) {
     const dataSource = dataSourcesMap.get(panelData.request.targets[0].refId);
     if (!dataSource) {
-      console.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
+      structuredLog('warn', `Could not resolve data source for target ${panelData.request.targets[0].refId}`);
       continue;
     }
     dataRequests.push(

@@ -1,4 +1,5 @@
-import { debounce } from 'lodash';
+import {
+  debounce } from 'lodash';
 import { PureComponent } from 'react';
 import { Subscription } from 'rxjs';
 
@@ -22,6 +23,7 @@ import {
   type TimeRange,
   toDataFrameDTO,
   toUtc,
+  structuredLog
 } from '@grafana/data';
 import { RefreshEvent } from '@grafana/runtime';
 import { type VizLegendOptions } from '@grafana/schema';
@@ -257,7 +259,7 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
       const delta = liveTime.to.valueOf() - data.timeRange.to.valueOf();
       if (delta < 100) {
         // 10hz
-        console.log('Skip tick render', this.props.panel.title, delta);
+        structuredLog('info', 'Skip tick render', { details: this.props.panel.title, delta });
         return;
       }
     }

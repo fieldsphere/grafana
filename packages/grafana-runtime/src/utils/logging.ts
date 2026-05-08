@@ -1,8 +1,15 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { faro, type LogContext, LogLevel } from '@grafana/faro-web-sdk';
 
 import { config } from '../config';
 
 export { LogLevel };
+
+function contextsAsRecord(contexts?: LogContext): Record<string, unknown> | undefined {
+  return contexts !== undefined ? (contexts as Record<string, unknown>) : undefined;
+}
+
+export type MeasurementValues = Record<string, number>;
 
 /**
  * Log a message at INFO level
@@ -14,7 +21,9 @@ export function logInfo(message: string, contexts?: LogContext) {
       level: LogLevel.INFO,
       context: contexts,
     });
+    return;
   }
+  structuredLog('info', message, contextsAsRecord(contexts));
 }
 
 /**
@@ -28,7 +37,9 @@ export function logWarning(message: string, contexts?: LogContext) {
       level: LogLevel.WARN,
       context: contexts,
     });
+    return;
   }
+  structuredLog('warn', message, contextsAsRecord(contexts));
 }
 
 /**
@@ -42,7 +53,9 @@ export function logDebug(message: string, contexts?: LogContext) {
       level: LogLevel.DEBUG,
       context: contexts,
     });
+    return;
   }
+  structuredLog('debug', message, contextsAsRecord(contexts));
 }
 
 /**
@@ -55,7 +68,12 @@ export function logError(err: Error, contexts?: LogContext) {
     faro.api.pushError(err, {
       context: contexts,
     });
+    return;
   }
+  structuredLog('error', err.message, {
+    ...contextsAsRecord(contexts),
+    error: toLogContextPart(err),
+  });
 }
 
 /**
@@ -63,7 +81,6 @@ export function logError(err: Error, contexts?: LogContext) {
  *
  * @public
  */
-export type MeasurementValues = Record<string, number>;
 export function logMeasurement(type: string, values: MeasurementValues, context?: LogContext) {
   if (config.grafanaJavascriptAgent.enabled) {
     faro.api.pushMeasurement(
@@ -73,7 +90,9 @@ export function logMeasurement(type: string, values: MeasurementValues, context?
       },
       { context: context }
     );
+    return;
   }
+  structuredLog('info', `measurement.${type}`, { ...contextsAsRecord(context), metrics: values });
 }
 
 export interface MonitoringLogger {

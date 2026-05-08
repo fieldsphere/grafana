@@ -2,6 +2,7 @@ import { type ComponentType } from 'react';
 
 import { type KeyValue } from './data';
 import { type IconName } from './icon';
+import { structuredLog, toLogContextPart } from '../utils/structuredConsole';
 
 /** Describes plugins life cycle status */
 export enum PluginState {
@@ -260,7 +261,9 @@ export class GrafanaPlugin<T extends PluginMeta = PluginMeta> {
    * @deprecated -- this is no longer necessary and will be removed
    */
   setChannelSupport() {
-    console.warn('[deprecation] plugin is using ignored option: setChannelSupport', this.meta);
+    structuredLog('warn', '[deprecation] plugin is using ignored option: setChannelSupport', {
+      meta: toLogContextPart(this.meta) as Record<string, unknown>,
+    });
     return this;
   }
 

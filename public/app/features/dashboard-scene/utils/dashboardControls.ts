@@ -1,7 +1,10 @@
-import { nanoid } from 'nanoid';
+import {
+  nanoid } from 'nanoid';
 import { filter, Observable, scan, share, type Subscriber } from 'rxjs';
 
-import { type DataSourceApi } from '@grafana/data';
+import { type DataSourceApi,
+  structuredLog
+} from '@grafana/data';
 import { getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import { type SceneVariable } from '@grafana/scenes';
 import { type DashboardLink, type DataSourceRef } from '@grafana/schema';
@@ -85,7 +88,7 @@ async function loadControlsFromRef(ref: DataSourceRef, traceId: string, subscrib
   try {
     ds = await getDataSourceSrv().get(ref);
   } catch (e) {
-    console.warn('Failed to load datasource', ref, e);
+    structuredLog('warn', 'Failed to load datasource', { details: ref, e });
     return;
   }
 
@@ -119,7 +122,7 @@ async function emitDefaultVariables(ds: DataSourceApi, traceId: string, subscrib
       subscriber.next({ type: 'variables', data });
     }
   } catch (e) {
-    console.warn('Failed to load default variables from datasource', ds.type, e);
+    structuredLog('warn', 'Failed to load default variables from datasource', { details: ds.type, e });
   }
 }
 
@@ -145,7 +148,7 @@ async function emitDefaultLinks(ds: DataSourceApi, traceId: string, subscriber: 
       });
     }
   } catch (e) {
-    console.warn('Failed to load default links from datasource', ds.type, e);
+    structuredLog('warn', 'Failed to load default links from datasource', { details: ds.type, e });
   }
 }
 

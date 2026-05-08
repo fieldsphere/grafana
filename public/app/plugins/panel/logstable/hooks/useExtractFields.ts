@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import {
+  useState, useEffect } from 'react';
 import useMountedState from 'react-use/lib/useMountedState';
 import { lastValueFrom } from 'rxjs';
 
@@ -9,6 +10,8 @@ import {
   type TimeZone,
   transformDataFrame,
   useDataLinksContext,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { useTheme2 } from '@grafana/ui';
@@ -56,7 +59,7 @@ export function useExtractFields({ rawTableFrame, fieldConfig, timeZone }: Props
         }
       })
       .catch((err) => {
-        console.error('LogsTable: Extract fields transform error', err);
+        structuredLog('error', 'LogsTable: Extract fields transform error', { error: toLogContextPart(err) });
       });
     // @todo hook re-renders unexpectedly when data frame isn't changing if we add `rawTableFrame` as dependency, so we check for changes in the timestamps instead
     // eslint-disable-next-line react-hooks/exhaustive-deps

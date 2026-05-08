@@ -1,4 +1,5 @@
-import { throttle } from 'lodash';
+import {
+  throttle } from 'lodash';
 
 import {
   CoreApp,
@@ -7,6 +8,8 @@ import {
   type DataTransformerConfig,
   getDataSourceRef,
   getNextRefId,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { config, getDataSourceSrv, isExpressionReference, reportInteraction } from '@grafana/runtime';
 import {
@@ -204,7 +207,7 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
       this.setState({ datasource, dsSettings, dsError: undefined });
       storeLastUsedDataSourceInLocalStorage(getDataSourceRef(dsSettings) || { default: true });
     } catch (err) {
-      console.error('Failed to load datasource:', err);
+      structuredLog('error', 'Failed to load datasource:', { error: toLogContextPart(err) });
 
       // Fallback to default datasource (parity with PanelDataQueriesTab)
       try {
@@ -218,7 +221,7 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
           // resolveDatasourceRef() handles the stale-ref case on the next activation.
         }
       } catch (fallbackErr) {
-        console.error('Failed to load default datasource:', fallbackErr);
+        structuredLog('error', 'Failed to load default datasource:', { error: toLogContextPart(fallbackErr) });
         this.setState({
           datasource: undefined,
           dsSettings: undefined,

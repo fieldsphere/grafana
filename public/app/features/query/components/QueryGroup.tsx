@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import { PureComponent, useEffect, useState } from 'react';
 import * as React from 'react';
 import { type Unsubscribable } from 'rxjs';
@@ -12,6 +13,8 @@ import {
   getDefaultTimeRange,
   LoadingState,
   type PanelData,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
@@ -123,7 +126,7 @@ export class QueryGroup extends PureComponent<Props, State> {
         defaultDataSource,
       });
     } catch (error) {
-      console.error('failed to load data source', error);
+      structuredLog('error', 'failed to load data source', { error: toLogContextPart(error) });
     }
   }
 

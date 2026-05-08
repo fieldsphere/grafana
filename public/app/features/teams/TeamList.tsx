@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
@@ -235,7 +236,7 @@ const TeamList = () => {
                     'Failed to check if the team owns folders. Please try again.'
                   )
                 );
-                console.error(error);
+                structuredLog('error', 'Error', { error: toLogContextPart(error) });
                 return;
               }
 

@@ -26,7 +26,13 @@ import {
 } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 
-import { AppEvents, DataQueryErrorType, deprecationWarning } from '@grafana/data';
+import {
+  AppEvents,
+  DataQueryErrorType,
+  deprecationWarning,
+  structuredLog,
+  toLogContextPart,
+} from '@grafana/data';
 import {
   type BackendSrv as BackendService,
   type BackendSrvRequest,
@@ -116,7 +122,7 @@ export class BackendSrv implements BackendService {
       const result = await fp.get();
       this.deviceID = result.visitorId;
     } catch (error) {
-      console.error(error);
+      structuredLog('error', 'Error', { error: toLogContextPart(error) });
     }
   }
 
@@ -241,7 +247,10 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            structuredLog('info', 'BackendSrv stream reader catch', {
+              requestId,
+              error: toLogContextPart(e),
+            });
             observer.error(e);
           }); // from abort
       },

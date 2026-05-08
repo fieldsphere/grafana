@@ -1,6 +1,10 @@
-import { type Grammar } from 'prismjs';
+import {
+  type Grammar } from 'prismjs';
 
-import { escapeRegex, parseFlags } from '@grafana/data';
+import { escapeRegex, parseFlags,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 
 import { type LogListModel } from './processing';
 
@@ -64,7 +68,7 @@ export const generateTextMatchGrammar = (highlightWords: string[] | undefined = 
       try {
         return new RegExp(`(?:${cleaned})`, flags);
       } catch (e) {
-        console.error(`generateTextMatchGrammar: cannot generate regular expression from /${cleaned}/${flags}`, e);
+        structuredLog('error', `generateTextMatchGrammar: cannot generate regular expression from /${cleaned}/${flags}`, { error: toLogContextPart(e) });
       }
       return undefined;
     })
@@ -74,7 +78,7 @@ export const generateTextMatchGrammar = (highlightWords: string[] | undefined = 
     try {
       expressions.push(new RegExp(escapeRegex(search), 'gi'));
     } catch (e) {
-      console.error(`generateTextMatchGrammar: cannot generate regular expression from /${search}/gi`, e);
+      structuredLog('error', `generateTextMatchGrammar: cannot generate regular expression from /${search}/gi`, { error: toLogContextPart(e) });
     }
   }
   if (!expressions.length) {

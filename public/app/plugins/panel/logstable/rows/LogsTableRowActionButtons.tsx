@@ -1,7 +1,10 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import { useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2,
+  structuredLog
+} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   ClipboardButton,
@@ -71,7 +74,7 @@ export function LogsTableRowActionButtons(props: Props) {
                 if (logId) {
                   return buildLinkToLog(logId) ?? '';
                 } else {
-                  console.error('failed to copy log line link!');
+                  structuredLog('error', 'failed to copy log line link!');
                 }
                 return '';
               }}

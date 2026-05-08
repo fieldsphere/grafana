@@ -1,5 +1,6 @@
 import { createContext } from 'react';
 
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { CodeEditor, type Monaco } from '@grafana/ui';
 
 import { K8sNameLookup } from './K8sNameLookup';
@@ -63,7 +64,11 @@ export const WrappedPlugins = function () {
           if (mime) {
             v = mime.get('schema').toJS();
           }
-          console.log('RequestBody', v, mime, props);
+          structuredLog('info', 'Swagger RequestBody render', {
+            mime,
+            value: toLogContextPart(v),
+            props: toLogContextPart(props),
+          });
         }
         // console.log('RequestBody PROPS', props);
         return (
@@ -75,7 +80,7 @@ export const WrappedPlugins = function () {
 
       modelExample: (Original: React.ElementType) => (props: UntypedProps) => {
         if (props.isExecute && props.schema) {
-          console.log('modelExample PROPS', props);
+          structuredLog('info', 'Swagger modelExample render', { props: toLogContextPart(props) });
           return (
             <SchemaContext.Provider value={props.schema.toJS()}>
               <Original {...props} />
@@ -128,7 +133,7 @@ export const WrappedPlugins = function () {
                     },
                   });
                 };
-                console.log('CodeEditor', schema);
+                structuredLog('info', 'Swagger CodeEditor schema', { schema: toLogContextPart(schema) });
 
                 return (
                   <CodeEditor

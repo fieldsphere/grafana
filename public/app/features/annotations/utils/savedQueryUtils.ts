@@ -4,6 +4,7 @@ import {
   type DataSourceApi,
   hasQueryExportSupport,
   hasQueryImportSupport,
+  structuredLog
 } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
@@ -128,7 +129,7 @@ export async function updateAnnotationFromSavedQuery(
 
     return preparedAnnotation;
   } catch (error) {
-    console.warn('Could not prepare annotation with new datasource:', error);
+    structuredLog('warn', 'Could not prepare annotation with new datasource:', { details: error });
     // Return structurally correct annotation even if preparation fails
     const { datasource, ...queryFields } = replacedQuery;
     return { ...cleanAnnotation, target: queryFields };

@@ -1,8 +1,12 @@
-import { useBooleanFlagValue } from '@openfeature/react-sdk';
+import {
+  useBooleanFlagValue } from '@openfeature/react-sdk';
 import { memo, useMemo, useState, useEffect } from 'react';
 
 import { type PreferencesSpec as UserPreferencesDTO } from '@grafana/api-clients/rtkq/preferences/v1alpha1';
-import { FeatureState } from '@grafana/data';
+import { FeatureState,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
@@ -89,7 +93,7 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
           navbar: prefs.navbar ?? prev.navbar,
         }));
       } catch (err) {
-        console.error('Failed to load preferences', err);
+        structuredLog('error', 'Failed to load preferences', { error: toLogContextPart(err) });
       } finally {
         setState((prev) => ({ ...prev, isLoading: false }));
       }

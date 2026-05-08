@@ -1,7 +1,10 @@
-import { find } from 'lodash';
+import {
+  find } from 'lodash';
 
 import { type AzureCredentials } from '@grafana/azure-sdk';
-import { type ScopedVars } from '@grafana/data';
+import { type ScopedVars,
+  structuredLog
+} from '@grafana/data';
 import { DataSourceWithBackend, getTemplateSrv, type TemplateSrv } from '@grafana/runtime';
 
 import { getCredentials } from '../credentials';
@@ -218,7 +221,7 @@ export default class AzureMonitorDatasource extends DataSourceWithBackend<
         return result;
       })
       .catch((reason) => {
-        console.error(`Failed to get metric namespaces: ${reason}`);
+        structuredLog('error', `Failed to get metric namespaces: ${reason}`);
         return [];
       });
   }

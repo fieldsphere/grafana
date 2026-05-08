@@ -4,6 +4,7 @@ test('It should not output deprecation warnings too often', () => {
   let dateNowValue = 10000000;
 
   const spyConsoleWarn = jest.spyOn(console, 'warn').mockImplementation();
+  // structuredLog routes warn level to console.warn
   const spyDateNow = jest.spyOn(global.Date, 'now').mockImplementation(() => dateNowValue);
   // Make sure the mock works
   expect(Date.now()).toEqual(dateNowValue);

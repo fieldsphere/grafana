@@ -1,3 +1,6 @@
+import {
+  structuredLog, toLogContextPart
+} from '@grafana/data';
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
 import { type AppNotification, AppNotificationSeverity, type AppNotificationsState } from 'app/types/appNotifications';
@@ -122,7 +125,7 @@ function serializeNotifications(notifs: Record<string, StoredNotification>) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(reducedNotifs));
   } catch (err) {
-    console.error('Unable to persist notifications to local storage');
-    console.error(err);
+    structuredLog('error', 'Unable to persist notifications to local storage');
+    structuredLog('error', 'Error', { error: toLogContextPart(err) });
   }
 }

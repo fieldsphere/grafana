@@ -6,6 +6,8 @@ import {
   FieldType,
   type ScopedVars,
   type TimeRange,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 
@@ -66,7 +68,7 @@ async function createInternalXrayLink(datasourceUid: string, region: string): Pr
   try {
     ds = await getDataSourceSrv().get(datasourceUid);
   } catch (e) {
-    console.error('Could not load linked xray data source, it was probably deleted after it was linked', e);
+    structuredLog('error', 'Could not load linked xray data source, it was probably deleted after it was linked', { error: toLogContextPart(e) });
     return undefined;
   }
 

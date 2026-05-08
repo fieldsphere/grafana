@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { OpenFeatureProvider } from '@openfeature/react-sdk';
 import { UNSAFE_PortalProvider } from '@react-aria/overlays';
 import { type Action, KBarProvider } from 'kbar';
@@ -77,7 +78,7 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
     if (preloader) {
       preloader.remove();
     } else {
-      console.warn('Preloader element not found');
+      structuredLog('warn', 'Preloader element not found');
     }
   }
 

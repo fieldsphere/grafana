@@ -1,5 +1,6 @@
 // Libraries
-import { isString, map as isArray } from 'lodash';
+import {
+  isString, map as isArray } from 'lodash';
 import { from, merge, type Observable, of, timer } from 'rxjs';
 import { catchError, map, mapTo, mergeMap, share, takeUntil, tap } from 'rxjs/operators';
 
@@ -17,6 +18,8 @@ import {
   LoadingState,
   type PanelData,
   type TimeRange,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { config, isMigrationHandler, migrateRequest, toDataQueryError, isExpressionReference } from '@grafana/runtime';
 import { backendSrv } from 'app/core/services/backend_srv';
@@ -161,7 +164,7 @@ export function runRequest(
     }),
     // handle errors
     catchError((err) => {
-      console.error('runRequest.catchError', err);
+      structuredLog('error', 'runRequest.catchError', { error: toLogContextPart(err) });
       return of({
         ...state.panelData,
         state: LoadingState.Error,

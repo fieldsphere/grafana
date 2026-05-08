@@ -1,3 +1,5 @@
+import { structuredLog } from '@grafana/data';
+
 type MegaMenuOpenHook = () => Readonly<[boolean, (open: boolean, persist?: boolean) => void]>;
 
 let megaMenuOpenHook: MegaMenuOpenHook | undefined = undefined;
@@ -15,7 +17,7 @@ export const useMegaMenuOpen: MegaMenuOpenHook = () => {
     if (process.env.NODE_ENV !== 'production') {
       throw new Error('useMegaMenuOpen hook not found in @grafana/runtime');
     }
-    return [false, () => console.error('MegaMenuOpen hook not found')];
+    return [false, () => structuredLog('error', 'MegaMenuOpen hook not found')];
   }
 
   return megaMenuOpenHook();

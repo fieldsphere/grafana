@@ -1,8 +1,12 @@
-import { groupBy, partition } from 'lodash';
+import {
+  groupBy, partition } from 'lodash';
 import { Observable, type Subscriber, type Subscription } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
-import { type DataQueryRequest, type DataQueryResponse, LoadingState, type QueryResultMetaStat } from '@grafana/data';
+import { type DataQueryRequest, type DataQueryResponse, LoadingState, type QueryResultMetaStat,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 import { type LokiDatasource } from './datasource';
@@ -130,7 +134,7 @@ function splitQueriesByStreamShard(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        structuredLog('error', 'Error', { error: toLogContextPart(e) });
         shouldStop = true;
         return false;
       }
@@ -155,7 +159,7 @@ function splitQueriesByStreamShard(
 
       retryTimer = setTimeout(
         () => {
-          console.warn(`Retrying ${group} ${cycle} (${retries + 1})`);
+          structuredLog('warn', `Retrying ${group} ${cycle} (${retries + 1})`);
           runNextRequest(subscriber, group, groups);
           retryTimer = null;
         },
@@ -224,7 +228,7 @@ function splitQueriesByStreamShard(
         nextRequest();
       },
       error: (error: unknown) => {
-        console.error(error, { msg: 'failed to shard' });
+        structuredLog('error', 'Error', { error: toLogContextPart(error), context: { msg: 'failed to shard' } });
         subscriber.next(mergedResponse);
         if (retry()) {
           return;
@@ -293,7 +297,7 @@ async function groupTargetsByQueryType(
         cycle: 0,
       });
     } catch (error) {
-      console.error(error, { msg: 'failed to fetch label values for __stream_shard__' });
+      structuredLog('error', 'Error', { error: toLogContextPart(error), context: { msg: 'failed to fetch label values for __stream_shard__' } });
       groups.push({
         targets: selectorPartition[selector],
       });
@@ -375,5 +379,5 @@ function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  console.log(message);
+  structuredLog('info', 'console.log', { value: toLogContextPart(message) });
 }

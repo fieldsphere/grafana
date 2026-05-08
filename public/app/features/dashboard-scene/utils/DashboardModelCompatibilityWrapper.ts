@@ -1,4 +1,5 @@
-import { Subscription } from 'rxjs';
+import {
+  Subscription } from 'rxjs';
 
 import {
   type AnnotationQuery,
@@ -6,6 +7,8 @@ import {
   dateTimeFormat,
   type DateTimeInput,
   EventBusSrv,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { TimeRangeUpdatedEvent } from '@grafana/runtime';
 import { behaviors, sceneGraph, type SceneObject, VizPanel } from '@grafana/scenes';
@@ -165,7 +168,7 @@ export class DashboardModelCompatibilityWrapper {
   public removePanel(panel: PanelModelCompatibilityWrapper) {
     const vizPanel = findVizPanelByKey(this._scene, getVizPanelKeyForPanelId(panel.id));
     if (!vizPanel) {
-      console.error('Trying to remove a panel that was not found in scene', panel);
+      structuredLog('error', 'Trying to remove a panel that was not found in scene', { error: toLogContextPart(panel) });
       return;
     }
 

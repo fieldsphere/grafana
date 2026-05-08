@@ -1,4 +1,5 @@
-import { reject } from 'lodash';
+import {
+  reject } from 'lodash';
 import { type Observable, type OperatorFunction, ReplaySubject, type Unsubscribable, of } from 'rxjs';
 import { catchError, map, share } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,6 +14,7 @@ import {
   preProcessPanelData,
   rangeUtil,
   withLoadingIndicator,
+  structuredLog
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { DataSourceWithBackend, type FetchResponse, getDataSourceSrv, toDataQueryError } from '@grafana/runtime';
@@ -210,7 +212,7 @@ const getTimeRange = (query: AlertQuery, queries: AlertQuery[]): TimeRange => {
   }
 
   if (!query.relativeTimeRange) {
-    console.warn(`Query with refId: ${query.refId} did not have any relative time range, using default.`);
+    structuredLog('warn', `Query with refId: ${query.refId} did not have any relative time range, using default.`);
     return getDefaultTimeRange();
   }
 

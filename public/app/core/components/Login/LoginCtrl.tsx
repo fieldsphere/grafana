@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { memo, useState, useCallback, type JSX } from 'react';
 
 import { t } from '@grafana/i18n';
@@ -88,7 +89,7 @@ export const LoginCtrl = memo(({ resetCode, children }: Props) => {
           .then(() => {
             toGrafana();
           })
-          .catch((err) => console.error(err));
+          .catch((err) => structuredLog('error', 'Error', { error: toLogContextPart(err) }));
       }
     },
     [resetCode, toGrafana]

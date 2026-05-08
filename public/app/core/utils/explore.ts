@@ -1,4 +1,5 @@
-import { customAlphabet } from 'nanoid';
+import {
+  customAlphabet } from 'nanoid';
 import { type Unsubscribable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -23,6 +24,8 @@ import {
   type TimeZone,
   toURLRange,
   urlUtil,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { RefreshPicker } from '@grafana/ui';
@@ -159,7 +162,7 @@ export const safeStringifyValue = (value: unknown, space?: number) => {
   try {
     return JSON.stringify(value, null, space);
   } catch (error) {
-    console.error(error);
+    structuredLog('error', 'Error', { error: toLogContextPart(error) });
   }
 
   return '';
@@ -232,7 +235,7 @@ export async function ensureQueries(
         try {
           await getDataSourceSrv().get(query.datasource.uid);
         } catch {
-          console.error(`One of the queries has a datasource that is no longer available and was removed.`);
+          structuredLog('error', `One of the queries has a datasource that is no longer available and was removed.`);
           validDS = false;
         }
       }

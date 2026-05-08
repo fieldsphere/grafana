@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import { cloneDeep, isArray, isObject, isString } from 'lodash';
 import * as React from 'react';
 import { useAsync } from 'react-use';
@@ -14,6 +15,7 @@ import {
   type PluginExtensionLink,
   PluginExtensionTypes,
   urlUtil,
+  structuredLog
 } from '@grafana/data';
 import { reportInteraction, config } from '@grafana/runtime';
 import { getAppPluginMetas } from '@grafana/runtime/internal';
@@ -49,7 +51,7 @@ export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
       return fn(...args);
     } catch (e) {
       if (e instanceof Error) {
-        console.warn(`${errorMessagePrefix}${e.message}`);
+        structuredLog('warn', `${errorMessagePrefix}${e.message}`);
       }
     }
   };

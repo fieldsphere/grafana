@@ -1,7 +1,13 @@
 import { css } from '@emotion/css';
 import { useMemo, useRef, useState } from 'react';
 
-import { DashboardCursorSync, type PanelProps, type TimeRange } from '@grafana/data';
+import {
+  DashboardCursorSync,
+  type PanelProps,
+  type TimeRange,
+  structuredLog,
+  toLogContextPart,
+} from '@grafana/data';
 import { PanelDataErrorView } from '@grafana/runtime';
 import { type ScaleDistributionConfig } from '@grafana/schema';
 import {
@@ -54,7 +60,7 @@ export const HeatmapPanel = (props: HeatmapPanelProps) => {
         timeRange,
       });
     } catch (ex) {
-      console.error(ex);
+      structuredLog('error', 'Heatmap data preparation failed', { error: toLogContextPart(ex) });
       return { warning: `${ex}` };
     }
   }, [data.series, data.annotations, options, palette, theme, replaceVariables, timeRange]);

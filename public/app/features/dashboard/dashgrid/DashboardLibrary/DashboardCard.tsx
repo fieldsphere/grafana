@@ -1,9 +1,12 @@
-import { css, cx } from '@emotion/css';
+import {
+  css, cx } from '@emotion/css';
 import { useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
 import { createAssistantContextItem, useAssistant } from '@grafana/assistant';
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2,
+  structuredLog
+} from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { Badge, Box, Button, Card, IconButton, Text, TextLink, Tooltip, useStyles2 } from '@grafana/ui';
@@ -120,7 +123,7 @@ function DashboardCardComponent({
               kind === 'suggested_dashboard' ? styles.thumbnailCoverImage : styles.thumbnailContainImage
             )}
             onError={(e) => {
-              console.error('Failed to load image for:', title, 'URL:', imageUrl);
+              structuredLog('error', 'Failed to load image for:', { details: title, 'URL:', imageUrl });
               e.currentTarget.style.display = 'none';
             }}
           />

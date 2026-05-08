@@ -1,10 +1,14 @@
-import { isEqual } from 'lodash';
+import {
+  isEqual } from 'lodash';
 import { useState, useCallback, useMemo } from 'react';
 import { useAsync } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 import { firstValueFrom } from 'rxjs';
 
-import { AppEvents, type PanelData, type SelectableValue, LoadingState } from '@grafana/data';
+import { AppEvents, type PanelData, type SelectableValue, LoadingState,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { locationService } from '@grafana/runtime';
@@ -104,7 +108,7 @@ export function InspectJSONTab({ panel, dashboard, data, onClose }: Props) {
           appEvents.emit(AppEvents.alertSuccess, ['Panel model updated']);
         }
       } catch (err) {
-        console.error('Error applying updates', err);
+        structuredLog('error', 'Error applying updates', { error: toLogContextPart(err) });
         appEvents.emit(AppEvents.alertError, ['Invalid JSON text']);
       }
 

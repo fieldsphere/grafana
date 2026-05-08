@@ -1,6 +1,10 @@
-import { type ChangeEvent } from 'react';
+import {
+  type ChangeEvent } from 'react';
 
-import { PageLayoutType } from '@grafana/data';
+import { PageLayoutType,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type SceneComponentProps, SceneObjectBase, behaviors, sceneGraph } from '@grafana/scenes';
@@ -159,7 +163,7 @@ export class GeneralSettingsEditView
       const liveNow = this.getLiveNowTimer();
       enable ? liveNow.enable() : liveNow.disable();
     } catch (err) {
-      console.error(err);
+      structuredLog('error', 'Error', { error: toLogContextPart(err) });
     }
   };
 

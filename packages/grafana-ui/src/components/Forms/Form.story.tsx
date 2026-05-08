@@ -2,6 +2,7 @@ import { type StoryFn } from '@storybook/react';
 import { useId } from 'react';
 import { type ValidateResult } from 'react-hook-form';
 
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { withStoryContainer } from '../../utils/storybook/withStoryContainer';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
@@ -70,11 +71,13 @@ const renderForm = (defaultValues?: FormDTO) => {
     <Form
       defaultValues={defaultValues}
       onSubmit={(data: FormDTO) => {
-        console.log(data);
+        structuredLog('info', 'Deprecated Form story submit', { data: toLogContextPart(data) });
       }}
     >
       {({ register, control, errors }) => {
-        console.log(errors);
+        structuredLog('debug', 'Deprecated Form story errors snapshot', {
+          errors: toLogContextPart(errors),
+        });
         return (
           <>
             <Legend>Edit user</Legend>
@@ -162,7 +165,9 @@ export const AsyncValidation: StoryFn = ({ passAsyncValidation }) => {
         }}
       >
         {({ register, control, errors, formState }) => {
-          console.log(errors);
+          structuredLog('debug', 'Deprecated Form async validation errors snapshot', {
+            errors: toLogContextPart(errors),
+          });
           return (
             <>
               <Legend>Edit user</Legend>
@@ -201,7 +206,7 @@ const validateAsync = (shouldPass: boolean) => async () => {
     });
     return true;
   } catch (e) {
-    console.log(e);
+    structuredLog('warn', 'Deprecated Form story async validator failed', { error: toLogContextPart(e) });
     return false;
   }
 };

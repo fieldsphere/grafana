@@ -16,6 +16,7 @@ import {
   LiveChannelConnectionState,
   type LiveChannelId,
   toLiveChannelId,
+  structuredLog
 } from '@grafana/data';
 import {
   type FetchResponse,
@@ -126,7 +127,7 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.log('Publication from server-side channel', context);
+    structuredLog('info', 'Publication from server-side channel', { details: context });
   };
 
   private onError = (context: ErrorContext) => {

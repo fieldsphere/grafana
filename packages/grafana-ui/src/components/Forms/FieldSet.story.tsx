@@ -1,6 +1,7 @@
 import { type Meta, type StoryFn } from '@storybook/react';
 import { useId } from 'react';
 
+import { structuredLog } from '@grafana/data';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
 
@@ -34,7 +35,7 @@ export const Basic: StoryFn<typeof FieldSet> = (args: Props) => {
   const colorId = useId();
   const fontSizeId = useId();
   return (
-    <Form onSubmit={() => console.log('Submit')}>
+    <Form onSubmit={() => structuredLog('info', 'FieldSet story form submit')}>
       {() => (
         <>
           <FieldSet {...args}>

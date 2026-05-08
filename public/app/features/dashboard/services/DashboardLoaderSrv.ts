@@ -2,7 +2,11 @@ import $ from 'jquery';
 import _, { isFunction } from 'lodash'; // eslint-disable-line lodash/import-scope
 import moment from 'moment'; // eslint-disable-line no-restricted-imports
 
-import { AppEvents, dateMath, type UrlQueryMap, type UrlQueryValue } from '@grafana/data';
+import {
+  AppEvents, dateMath, type UrlQueryMap, type UrlQueryValue,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
 import { type Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
 import { backendSrv } from 'app/core/services/backend_srv';
@@ -58,7 +62,7 @@ abstract class DashboardLoaderSrvBase<T> implements DashboardLoaderSrvLike<T> {
           };
         },
         (err) => {
-          console.error('Script dashboard error ' + err);
+          structuredLog('error', 'Script dashboard error', { error: toLogContextPart(err) });
           appEvents.emit(AppEvents.alertError, [
             'Script Error',
             'Please make sure it exists and returns a valid dashboard',
@@ -143,7 +147,7 @@ export class DashboardLoaderSrv extends DashboardLoaderSrvBase<DashboardDTO> {
           return await api.getDashboardDTO(uid, params);
         } catch (e) {
           if (isFetchError(e) && !(e instanceof DashboardVersionError)) {
-            console.error('Failed to load dashboard', e);
+            structuredLog('error', 'Failed to load dashboard', { error: toLogContextPart(e) });
             e.isHandled = true;
             if (e.status === 404) {
               appEvents.emit(AppEvents.alertError, ['Dashboard not found']);
@@ -208,7 +212,7 @@ export class DashboardLoaderSrvV2 extends DashboardLoaderSrvBase<DashboardWithAc
           return await api.getDashboardDTO(uid, params);
         } catch (e) {
           if (isFetchError(e) && !(e instanceof DashboardVersionError)) {
-            console.error('Failed to load dashboard', e);
+            structuredLog('error', 'Failed to load dashboard', { error: toLogContextPart(e) });
             e.isHandled = true;
             if (e.status === 404) {
               appEvents.emit(AppEvents.alertError, ['Dashboard not found']);

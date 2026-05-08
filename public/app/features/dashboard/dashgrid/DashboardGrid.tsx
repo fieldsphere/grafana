@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import classNames from 'classnames';
 import { PureComponent, type CSSProperties } from 'react';
 import * as React from 'react';
@@ -115,7 +116,7 @@ export class DashboardGrid extends PureComponent<Props, State> {
       this.panelMap[panel.key] = panel;
 
       if (!panel.gridPos) {
-        console.log('panel without gridpos');
+        structuredLog('info', 'panel without gridpos');
         continue;
       }
 

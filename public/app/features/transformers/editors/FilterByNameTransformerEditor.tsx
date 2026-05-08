@@ -10,6 +10,8 @@ import {
   stringToJsRegex,
   TransformerCategory,
   type SelectableValue,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { type FilterFieldsByNameTransformerOptions } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
@@ -101,7 +103,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        structuredLog('error', 'Error', { error: toLogContextPart(error) });
       }
     }
 

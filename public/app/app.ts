@@ -5,7 +5,8 @@ import 'whatwg-fetch'; // fetch polyfill needed for PhantomJs rendering
 import 'file-saver';
 import 'jquery';
 
-import { createElement } from 'react';
+import {
+  createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import {
@@ -17,6 +18,8 @@ import {
   standardEditorsRegistry,
   standardFieldConfigEditorRegistry,
   standardTransformersRegistry,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { DEFAULT_LANGUAGE } from '@grafana/i18n';
 import { initializeI18n, loadNamespacedResources } from '@grafana/i18n/internal';
@@ -146,7 +149,7 @@ export class GrafanaApp {
         try {
           await initOpenFeature();
         } catch (err) {
-          console.error('Failed to initialize OpenFeature provider', err);
+          structuredLog('error', 'Failed to initialize OpenFeature provider', { error: toLogContextPart(err) });
         }
       }
 
@@ -286,7 +289,7 @@ export class GrafanaApp {
       try {
         cleanupOldExpandedFolders();
       } catch (err) {
-        console.warn('Failed to clean up old expanded folders', err);
+        structuredLog('warn', 'Failed to clean up old expanded folders', { details: err });
       }
 
       this.context = {
@@ -316,7 +319,7 @@ export class GrafanaApp {
 
       await postInitTasks();
     } catch (error) {
-      console.error('Failed to start Grafana', error);
+      structuredLog('error', 'Failed to start Grafana', { error: toLogContextPart(error) });
       window.__grafana_load_failed();
     } finally {
       stopMeasure('frontend_app_init');

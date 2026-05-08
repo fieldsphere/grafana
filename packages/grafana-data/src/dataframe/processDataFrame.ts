@@ -19,6 +19,7 @@ import {
 import { type DataQueryResponseData } from '../types/datasource';
 import { type GraphSeriesXY, type GraphSeriesValue } from '../types/graph';
 import { type PanelData } from '../types/panel';
+import { structuredLog, toLogContextPart } from '../utils/structuredConsole';
 
 import { arrayToDataFrame } from './ArrayDataFrame';
 import { dataFrameFromJSON } from './DataFrameJSON';
@@ -340,7 +341,9 @@ export function toDataFrame(data: any): DataFrame {
     return arrayToDataFrame(data);
   }
 
-  console.warn('Can not convert', data);
+  structuredLog('warn', 'Unsupported data format: cannot convert payload', {
+    preview: typeof data === 'object' && data !== null ? toLogContextPart(data) : { type: typeof data },
+  });
   throw new Error('Unsupported data format');
 }
 

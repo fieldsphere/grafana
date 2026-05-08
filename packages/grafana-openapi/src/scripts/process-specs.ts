@@ -1,3 +1,6 @@
+import {
+  structuredLog, toLogContextPart
+} from '@grafana/data';
 import fs from 'fs';
 import { type OpenAPIV3 } from 'openapi-types';
 import path from 'path';
@@ -154,7 +157,7 @@ function processDirectory(sourceDir: string, outputDir: string) {
     const inputPath = path.join(sourceDir, file);
     const outputPath = path.join(outputDir, file);
 
-    console.log(`Processing file "${file}"...`);
+    structuredLog('info', `Processing file "${file}"...`);
 
     const fileContent = fs.readFileSync(inputPath, 'utf-8');
 
@@ -162,13 +165,13 @@ function processDirectory(sourceDir: string, outputDir: string) {
     try {
       inputSpec = JSON.parse(fileContent);
     } catch (err) {
-      console.error(`Invalid JSON file "${file}". Skipping this file.`);
+      structuredLog('error', `Invalid JSON file "${file}". Skipping this file.`);
       continue;
     }
 
     const outputSpec = processOpenAPISpec(inputSpec);
     fs.writeFileSync(outputPath, JSON.stringify(outputSpec, null, 2), 'utf-8');
-    console.log(`Processing completed for file "${file}".`);
+    structuredLog('info', `Processing completed for file "${file}".`);
   }
 }
 

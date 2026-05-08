@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import * as React from 'react';
 import { BehaviorSubject } from 'rxjs';
 
@@ -131,7 +132,7 @@ export class Connections {
     let element: ElementState | undefined = this.findElementTarget(event.target);
 
     if (!element) {
-      console.log('no element');
+      structuredLog('info', 'no element');
       return;
     }
 
@@ -140,7 +141,7 @@ export class Connections {
     } else {
       this.connectionSource = element;
       if (!this.connectionSource) {
-        console.log('no connection source');
+        structuredLog('info', 'no connection source');
         return;
       }
     }

@@ -1,4 +1,5 @@
-import { map as _map, each, indexOf, isArray, isString } from 'lodash';
+import {
+  map as _map, each, indexOf, isArray, isString } from 'lodash';
 import moment from 'moment';
 import { lastValueFrom, merge, Observable, of, type OperatorFunction, pipe, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
@@ -21,6 +22,8 @@ import {
   type ScopedVars,
   type TimeRange,
   toDataFrame,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import {
   type BackendSrvRequest,
@@ -555,7 +558,7 @@ export class GraphiteDatasource
       return this.events({ range: range, tags: tags }).then((results) => {
         const list = [];
         if (!isArray(results.data)) {
-          console.error(`Unable to get annotations.`);
+          structuredLog('error', `Unable to get annotations.`);
           return [];
         }
         for (let i = 0; i < results.data.length; i++) {
@@ -1047,7 +1050,7 @@ export class GraphiteDatasource
         this.funcDefs = gfunc.parseFuncDefs(functions);
         return this.funcDefs;
       } catch (error) {
-        console.error('Fetching graphite functions error', error);
+        structuredLog('error', 'Fetching graphite functions error', { error: toLogContextPart(error) });
         this.funcDefs = gfunc.getFuncDefs(this.graphiteVersion);
         return this.funcDefs;
       }
@@ -1066,7 +1069,7 @@ export class GraphiteDatasource
           return this.funcDefs;
         }),
         catchError((error) => {
-          console.error('Fetching graphite functions error', error);
+          structuredLog('error', 'Fetching graphite functions error', { error: toLogContextPart(error) });
           this.funcDefs = gfunc.getFuncDefs(this.graphiteVersion);
           return of(this.funcDefs);
         })

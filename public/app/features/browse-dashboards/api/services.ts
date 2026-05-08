@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getBackendSrv } from '@grafana/runtime';
 import { dashboardAPIv0alpha1 } from 'app/api/clients/dashboard/v0alpha1';
@@ -78,7 +79,7 @@ async function searchNewAPI(parentUID?: string, page = 1, pageSize = PAGE_SIZE) 
         });
       }
     } catch (error) {
-      console.error('Failed to load team folders', error);
+      structuredLog('error', 'Failed to load team folders', { error: toLogContextPart(error) });
     }
   }
 

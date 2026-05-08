@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { config, registerEchoBackend, setEchoSrv } from '@grafana/runtime';
 import { reportMetricPerformanceMark } from 'app/core/utils/metrics';
 
@@ -28,43 +29,43 @@ export async function initEchoSrv() {
   try {
     await initPerformanceBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Performance backend', error);
+    structuredLog('error', 'Error initializing EchoSrv Performance backend', { error: toLogContextPart(error) });
   }
 
   try {
     await initFaroBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Faro backend', error);
+    structuredLog('error', 'Error initializing EchoSrv Faro backend', { error: toLogContextPart(error) });
   }
 
   try {
     await initGoogleAnalyticsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalytics backend', error);
+    structuredLog('error', 'Error initializing EchoSrv GoogleAnalytics backend', { error: toLogContextPart(error) });
   }
 
   try {
     await initGoogleAnalaytics4Backend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalaytics4 backend', error);
+    structuredLog('error', 'Error initializing EchoSrv GoogleAnalaytics4 backend', { error: toLogContextPart(error) });
   }
 
   try {
     await initRudderstackBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Rudderstack backend', error);
+    structuredLog('error', 'Error initializing EchoSrv Rudderstack backend', { error: toLogContextPart(error) });
   }
 
   try {
     await initAzureAppInsightsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv AzureAppInsights backend', error);
+    structuredLog('error', 'Error initializing EchoSrv AzureAppInsights backend', { error: toLogContextPart(error) });
   }
 
   try {
     await initConsoleBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Console backend', error);
+    structuredLog('error', 'Error initializing EchoSrv Console backend', { error: toLogContextPart(error) });
   }
 }
 

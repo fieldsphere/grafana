@@ -1,4 +1,5 @@
-import { omitBy, pickBy, isNil, isNumber, isString } from 'lodash';
+import {
+  omitBy, pickBy, isNil, isNumber, isString } from 'lodash';
 
 import {
   type ConfigOverrideRule,
@@ -15,6 +16,7 @@ import {
   ReducerID,
   type Threshold,
   ThresholdsMode,
+  structuredLog
 } from '@grafana/data';
 import {
   LegendDisplayMode,
@@ -283,7 +285,7 @@ export function graphToTimeseriesOptions(angular: any): {
             });
             break;
           default:
-            console.log('Ignore override migration:', seriesOverride.alias, p, v);
+            structuredLog('info', 'Ignore override migration:', { details: seriesOverride.alias, p, v });
         }
       }
       if (dashOverride) {

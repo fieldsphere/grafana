@@ -1,4 +1,5 @@
-import { flatten } from 'lodash';
+import {
+  flatten } from 'lodash';
 import { LRUCache } from 'lru-cache';
 
 import {
@@ -8,6 +9,8 @@ import {
   LanguageProvider,
   type ScopedVars,
   type TimeRange,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { type BackendSrvRequest, config } from '@grafana/runtime';
 
@@ -63,7 +66,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
       if (throwError) {
         throw error;
       } else {
-        console.error(error);
+        structuredLog('error', 'Error', { error: toLogContextPart(error) });
       }
     }
 
@@ -293,7 +296,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         const data = await this.request(url, params, true, requestOptions);
         resolve(data);
       } catch (error) {
-        console.error('error', error);
+        structuredLog('error', 'error', { error: toLogContextPart(error) });
         reject(error);
       }
     });
@@ -374,7 +377,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         if (queryOptions?.throwError) {
           reject(error);
         } else {
-          console.error(error);
+          structuredLog('error', 'Error', { error: toLogContextPart(error) });
           resolve([]);
         }
       }
@@ -444,7 +447,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
           resolve(labelValues);
         }
       } catch (error) {
-        console.error(error);
+        structuredLog('error', 'Error', { error: toLogContextPart(error) });
         resolve([]);
       }
     });

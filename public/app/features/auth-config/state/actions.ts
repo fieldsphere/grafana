@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { lastValueFrom } from 'rxjs';
 
 import { getBackendSrv, isFetchError } from '@grafana/runtime';
@@ -78,7 +79,7 @@ export function saveSettings(data: UpdateSettingsQuery): ThunkResult<Promise<boo
         dispatch(resetError());
         return true;
       } catch (error) {
-        console.log(error);
+        structuredLog('info', 'console.log', { value: toLogContextPart(error) });
         if (isFetchError(error)) {
           error.isHandled = true;
           const updateErr: SettingsError = {

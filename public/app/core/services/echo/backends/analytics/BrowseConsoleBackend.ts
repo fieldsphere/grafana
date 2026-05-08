@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import {
   type EchoBackend,
   EchoEventType,
@@ -16,14 +16,16 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
 
   addEvent = (e: PageviewEchoEvent) => {
     if (isPageviewEvent(e)) {
-      console.log('[EchoSrv:pageview]', e.payload.page);
+      structuredLog('info', 'EchoSrv pageview', { page: e.payload.page });
     }
 
     if (isInteractionEvent(e)) {
       const eventName = e.payload.interactionName;
-      console.log('[EchoSrv:event]', eventName, e.payload.properties);
+      structuredLog('info', 'EchoSrv interaction event', {
+        interactionName: eventName,
+        properties: toLogContextPart(e.payload.properties ?? {}),
+      });
 
-      // Warn for non-scalar property values. We're not yet making this a hard a
       const invalidTypeProperties = Object.entries(e.payload.properties ?? {}).filter(([_, value]) => {
         const valueType = typeof value;
         const isValidType =
@@ -32,17 +34,15 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
       });
 
       if (invalidTypeProperties.length > 0) {
-        console.warn(
-          'Event',
-          eventName,
-          'has invalid property types. Event properties should only be string, number or boolean. Invalid properties:',
-          Object.fromEntries(invalidTypeProperties)
-        );
+        structuredLog('warn', 'EchoSrv interaction event has invalid property types', {
+          interactionName: eventName,
+          invalidProperties: Object.fromEntries(invalidTypeProperties),
+        });
       }
     }
 
     if (isExperimentViewEvent(e)) {
-      console.log('[EchoSrv:experiment]', e.payload);
+      structuredLog('info', 'EchoSrv experiment view', { payload: toLogContextPart(e.payload) });
     }
   };
 

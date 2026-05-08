@@ -1,4 +1,8 @@
-import { type DataFrame, FieldType, getFieldDisplayName, LogsSortOrder } from '@grafana/data';
+import {
+  type DataFrame, FieldType, getFieldDisplayName, LogsSortOrder,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { type TableSortByFieldState } from '@grafana/schema/dist/esm/common/common.gen';
 import { LOGS_DATAPLANE_TIMESTAMP_NAME } from 'app/features/logs/logsFrame';
 
@@ -34,7 +38,7 @@ export const getDefaultTableSortBy = (
         return parsed;
       }
     } catch (e) {
-      console.error('failed to parse table sort from local storage!', e);
+      structuredLog('error', 'failed to parse table sort from local storage!', { error: toLogContextPart(e) });
     }
   }
 

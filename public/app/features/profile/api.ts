@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import { type Team } from 'app/types/teams';
 import { type UserDTO, type UserOrg, type UserSession } from 'app/types/user';
@@ -8,7 +9,7 @@ async function changePassword(payload: ChangePasswordFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user/password', payload);
   } catch (err) {
-    console.error(err);
+    structuredLog('error', 'Error', { error: toLogContextPart(err) });
   }
 }
 
@@ -42,7 +43,7 @@ async function updateUserProfile(payload: ProfileUpdateFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user', payload);
   } catch (err) {
-    console.error(err);
+    structuredLog('error', 'Error', { error: toLogContextPart(err) });
   }
 }
 

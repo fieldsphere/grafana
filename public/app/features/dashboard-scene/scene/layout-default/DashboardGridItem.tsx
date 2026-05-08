@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { isEqual } from 'lodash';
 import React from 'react';
 import { type Unsubscribable } from 'rxjs';
@@ -150,7 +151,7 @@ export class DashboardGridItem
       });
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('DashboardGridItem: Variable is not a MultiValueVariable');
+      structuredLog('error', 'DashboardGridItem: Variable is not a MultiValueVariable');
       return;
     }
 

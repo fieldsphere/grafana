@@ -1,3 +1,6 @@
+import {
+  structuredLog, toLogContextPart
+} from '@grafana/data';
 import memoizeOne from 'memoize-one';
 import { useEffect, useState } from 'react';
 
@@ -36,11 +39,11 @@ export function useDashboardQuery(dashboardUid?: string) {
           } else if (isDashboardV2Resource(dashboardDTO)) {
             setDashboard(dashboardDTO);
           } else {
-            console.error('Something went wrong, unexpected dashboard format');
+            structuredLog('error', 'Something went wrong, unexpected dashboard format');
           }
         })
         .catch((error) => {
-          console.error('Failed to fetch dashboard', error);
+          structuredLog('error', 'Failed to fetch dashboard', { error: toLogContextPart(error) });
         })
         .finally(() => {
           setIsFetching(false);

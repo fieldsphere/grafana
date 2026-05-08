@@ -1,10 +1,14 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import { sortBy } from 'lodash';
 import { useEffect, useMemo, useState } from 'react';
 import * as React from 'react';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Text, Box, Button, useStyles2, LoadingPlaceholder } from '@grafana/ui';
 import { SlideDown } from 'app/core/components/Animations/SlideDown';
@@ -248,7 +252,7 @@ const getDescription = async (resource: string, queryParams?: Record<string, str
   try {
     return await getBackendSrv().get(`/api/access-control/${resource}/description`, queryParams);
   } catch (e) {
-    console.error('failed to load resource description: ', e);
+    structuredLog('error', 'failed to load resource description: ', { error: toLogContextPart(e) });
     return INITIAL_DESCRIPTION;
   }
 };

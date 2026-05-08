@@ -14,12 +14,10 @@ function getLogger() {
 
 export function logPluginMetaWarning(message: string, type: PluginType): void {
   getLogger().logWarning(message, { type });
-  console.warn(message);
 }
 
 export function logPluginMetaError(message: string, error: unknown): void {
   getLogger().logError(new Error(message, { cause: error }));
-  console.error(message, error);
 }
 
 export function setPluginMetaLogger(override: MonitoringLogger) {

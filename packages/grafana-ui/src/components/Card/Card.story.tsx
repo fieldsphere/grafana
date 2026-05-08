@@ -1,5 +1,6 @@
 import { type Meta, type StoryFn } from '@storybook/react';
 
+import { structuredLog } from '@grafana/data';
 import { Button } from '../Button/Button';
 import { IconButton } from '../IconButton/IconButton';
 import { TextLink } from '../Link/TextLink';
@@ -93,7 +94,7 @@ export const Tags: StoryFn<typeof Card> = (args) => {
       <Card.Heading>Test dashboard</Card.Heading>
       <Card.Description>Card with a list of tags</Card.Description>
       <Card.Tags>
-        <TagList tags={['tag1', 'tag2', 'tag3']} onClick={(tag) => console.log(tag)} />
+        <TagList tags={['tag1', 'tag2', 'tag3']} onClick={(tag) => structuredLog('info', 'Card story tag click', { tag })} />
       </Card.Tags>
     </Card>
   );

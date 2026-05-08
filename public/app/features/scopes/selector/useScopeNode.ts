@@ -1,6 +1,10 @@
-import { useEffect, useState } from 'react';
+import {
+  useEffect, useState } from 'react';
 
-import { type ScopeNode } from '@grafana/data';
+import { type ScopeNode,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 
 import { useScopesServices } from '../ScopesContextProvider';
 
@@ -21,7 +25,7 @@ export function useScopeNode(scopeNodeId?: string) {
         const node = await scopesSelectorService.getScopeNode(scopeNodeId);
         setNode(node);
       } catch (error) {
-        console.error('Failed to load node', error);
+        structuredLog('error', 'Failed to load node', { error: toLogContextPart(error) });
       } finally {
         setIsLoading(false);
       }

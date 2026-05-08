@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { type SyntaxNode } from '@lezer/common';
 
 import {
@@ -109,7 +110,7 @@ export function buildVisualQueryFromString(expr: string): Context {
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    structuredLog('error', 'Error', { error: toLogContextPart(err) });
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

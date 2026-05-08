@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import {
   type AzureCredentials,
   getDatasourceCredentials,
@@ -57,7 +58,7 @@ function getLegacyCredentials(
     return { authType: options.jsonData.azureAuthType };
   } catch (e) {
     if (e instanceof Error) {
-      console.error('Unable to restore legacy credentials: %s', e.message);
+      structuredLog('error', 'Unable to restore legacy credentials: %s', { details: e.message });
     }
     return undefined;
   }

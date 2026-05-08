@@ -1,4 +1,5 @@
-import { type Unsubscribable } from 'rxjs';
+import {
+  type Unsubscribable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
@@ -9,6 +10,7 @@ import {
   LiveChannelConnectionState,
   type LiveChannelEvent,
   LiveChannelScope,
+  structuredLog
 } from '@grafana/data';
 import { getGrafanaLiveSrv, locationService } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
@@ -127,7 +129,7 @@ class DashboardWatcher {
 
             const dash = getDashboardSrv().getCurrent();
             if (dash?.uid !== event.message.uid) {
-              console.log('dashboard event for different dashboard?', event, dash);
+              structuredLog('info', 'dashboard event for different dashboard?', { details: event, dash });
               return;
             }
 
