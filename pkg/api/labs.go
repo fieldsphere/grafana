@@ -28,6 +28,9 @@ func (hs *HTTPServer) GetLabsFeatureToggles(c *contextmodel.ReqContext) response
 	flags := fm.GetFlags()
 	rows := make([]labsFeatureFlagDTO, 0, len(flags))
 	for _, f := range flags {
+		if f.HideFromDocs {
+			continue
+		}
 		rows = append(rows, labsFeatureFlagDTO{
 			Name:         f.Name,
 			Description:  f.Description,
