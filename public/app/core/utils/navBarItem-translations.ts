@@ -181,6 +181,10 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.search-dashboards.title', 'Search dashboards');
     case 'connections':
       return t('nav.connections.title', 'Connections');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
+    case 'labs/feature-flags':
+      return t('nav.labs-feature-flags.title', 'Feature flags');
     case 'connections-add-new-connection':
       return t('nav.add-new-connections.title', 'Add new connection');
     case 'standalone-plugin-page-/connections/collector':
@@ -312,6 +316,10 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.connections.subtitle', 'Browse and create new connections');
     case 'connections-datasources':
       return t('nav.data-sources.subtitle', 'View and manage your connected data source connections');
+    case 'labs':
+      return t('nav.labs.subtitle', 'Try and tune experimental Grafana features');
+    case 'labs/feature-flags':
+      return t('nav.labs-feature-flags.subtitle', 'View enabled feature flags and manage local overrides');
     case 'connections-private-data-source-connections':
       return t(
         'nav.private-data-source-connections.subtitle',
