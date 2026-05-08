@@ -24,6 +24,16 @@ func TestFeatureManager(t *testing.T) {
 		require.Equal(t, map[string]bool{"a": true}, ft.GetEnabled(context.Background()))
 	})
 
+	t.Run("registered flags sorted by name", func(t *testing.T) {
+		ft := WithManager("zebra", true, "alpha", false)
+		flags := ft.GetRegisteredFeatureFlags(context.Background())
+		require.Len(t, flags, 2)
+		require.Equal(t, "alpha", flags[0].Name)
+		require.False(t, flags[0].Enabled)
+		require.Equal(t, "zebra", flags[1].Name)
+		require.True(t, flags[1].Enabled)
+	})
+
 	t.Run("check description and stage configs", func(t *testing.T) {
 		ft := FeatureManager{
 			flags: map[string]*FeatureFlag{},
