@@ -25,6 +25,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.create-alert.title', 'New alert rule');
     case 'bookmarks':
       return t('nav.bookmarks.title', 'Bookmarks');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'bookmarks-empty':
       return t('nav.bookmarks-empty.title', 'Bookmark pages for them to appear here');
     case 'starred':
@@ -319,6 +321,8 @@ export function getNavSubTitle(navId: string | undefined) {
       );
     case 'plugin-page-grafana-ml-app':
       return t('nav.machine-learning.subtitle', 'Explore AI and machine learning features');
+    case 'labs':
+      return t('nav.labs.subtitle', 'Explore feature flags available in this Grafana build');
     default:
       return undefined;
   }
