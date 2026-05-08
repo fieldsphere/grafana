@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CUR-71 Feature flags dashboard</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #111217;
+        --panel: #181b1f;
+        --panel-2: #22252b;
+        --border: #343741;
+        --text: #f4f5f5;
+        --muted: #a9aeb8;
+        --blue: #5794f2;
+        --green: #73bf69;
+        --orange: #ff9830;
+        --red: #f2495c;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+      }
+
+      .app {
+        display: grid;
+        min-height: 100vh;
+        grid-template-columns: 240px 1fr;
+      }
+
+      aside {
+        border-right: 1px solid var(--border);
+        background: #0b0c0e;
+        padding: 20px 14px;
+      }
+
+      .brand {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        margin: 0 0 22px 10px;
+        text-transform: uppercase;
+      }
+
+      .nav-item {
+        align-items: center;
+        border-radius: 8px;
+        color: var(--muted);
+        display: flex;
+        gap: 10px;
+        margin-bottom: 6px;
+        padding: 10px;
+      }
+
+      .nav-item.active {
+        background: var(--panel-2);
+        color: var(--text);
+      }
+
+      .icon {
+        display: inline-grid;
+        font-size: 18px;
+        height: 22px;
+        place-items: center;
+        width: 22px;
+      }
+
+      .new-label {
+        background: var(--blue);
+        border-radius: 999px;
+        color: #fff;
+        font-size: 11px;
+        font-weight: 700;
+        margin-left: auto;
+        padding: 2px 7px;
+      }
+
+      main {
+        padding: 34px 42px;
+      }
+
+      h1 {
+        font-size: 30px;
+        margin: 0 0 6px;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        margin-bottom: 26px;
+      }
+
+      .info {
+        background: rgba(87, 148, 242, 0.14);
+        border: 1px solid rgba(87, 148, 242, 0.5);
+        border-radius: 8px;
+        margin-bottom: 18px;
+        padding: 14px 16px;
+      }
+
+      .info strong {
+        display: block;
+        margin-bottom: 4px;
+      }
+
+      .toolbar {
+        align-items: center;
+        display: flex;
+        gap: 12px;
+        justify-content: space-between;
+        margin: 20px 0 16px;
+      }
+
+      .badges {
+        display: flex;
+        gap: 8px;
+      }
+
+      .badge {
+        border-radius: 999px;
+        color: #fff;
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 4px 9px;
+      }
+
+      .badge.green {
+        background: var(--green);
+      }
+
+      .badge.orange {
+        background: var(--orange);
+      }
+
+      .badge.blue {
+        background: var(--blue);
+      }
+
+      .badge.red {
+        background: var(--red);
+      }
+
+      input {
+        background: #0f1115;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-size: 14px;
+        padding: 10px 12px;
+        width: 320px;
+      }
+
+      button {
+        background: var(--panel-2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        font-weight: 600;
+        padding: 9px 12px;
+      }
+
+      table {
+        border-collapse: collapse;
+        overflow: hidden;
+        width: 100%;
+      }
+
+      th,
+      td {
+        border-bottom: 1px solid var(--border);
+        padding: 14px 12px;
+        text-align: left;
+      }
+
+      th {
+        color: var(--muted);
+        font-size: 12px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+
+      tr {
+        background: var(--panel);
+      }
+
+      tr:nth-child(even) {
+        background: #15181d;
+      }
+
+      .switch {
+        background: var(--green);
+        border-radius: 999px;
+        display: inline-block;
+        height: 22px;
+        position: relative;
+        width: 42px;
+      }
+
+      .switch::after {
+        background: white;
+        border-radius: 50%;
+        content: "";
+        height: 18px;
+        position: absolute;
+        right: 2px;
+        top: 2px;
+        width: 18px;
+      }
+
+      .switch.off {
+        background: #5b606b;
+      }
+
+      .switch.off::after {
+        left: 2px;
+        right: auto;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside>
+        <p class="brand">Grafana</p>
+        <div class="nav-item"><span class="icon">H</span> Home</div>
+        <div class="nav-item"><span class="icon">D</span> Dashboards</div>
+        <div class="nav-item"><span class="icon">C</span> Connections</div>
+        <div class="nav-item active"><span class="icon">F</span> Labs <span class="new-label">New</span></div>
+        <div class="nav-item"><span class="icon">A</span> Administration</div>
+      </aside>
+      <main>
+        <h1>Feature flags</h1>
+        <div class="subtitle">View enabled feature flags and manage local overrides from the new Labs section.</div>
+        <div class="info">
+          <strong>Local feature flag controls</strong>
+          Feature flag changes are saved as local browser overrides. Reload Grafana after changing a flag so boot-time
+          feature checks pick up the new values.
+        </div>
+        <div class="badges">
+          <span class="badge green">4 active</span>
+          <span class="badge orange">1 local override</span>
+        </div>
+        <div class="toolbar">
+          <input value="feature" aria-label="Search feature flags" />
+          <div>
+            <button>Reload Grafana</button>
+            <button>Reset overrides</button>
+          </div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Flag</th>
+              <th>Status</th>
+              <th>Source</th>
+              <th>Control</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>featureHighlights</td>
+              <td><span class="badge green">Enabled</span></td>
+              <td><span class="badge orange">Local override</span></td>
+              <td><span class="switch"></span></td>
+            </tr>
+            <tr>
+              <td>panelTitleSearch</td>
+              <td><span class="badge green">Enabled</span></td>
+              <td>Server</td>
+              <td><span class="switch"></span></td>
+            </tr>
+            <tr>
+              <td>publicDashboardsEmailSharing</td>
+              <td><span class="badge green">Enabled</span></td>
+              <td>Server</td>
+              <td><span class="switch"></span></td>
+            </tr>
+            <tr>
+              <td>experimentalFlagDisabledLocally</td>
+              <td><span class="badge red">Disabled</span></td>
+              <td><span class="badge orange">Local override</span></td>
+              <td><span class="switch off"></span></td>
+            </tr>
+          </tbody>
+        </table>
+      </main>
+    </div>
+  </body>
+</html>
