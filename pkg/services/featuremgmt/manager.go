@@ -127,6 +127,15 @@ func (fm *FeatureManager) GetFlags() []FeatureFlag {
 	return v
 }
 
+// GetFlagWarnings returns a copy of per-flag warnings (for example unknown config keys or unmet requirements).
+func (fm *FeatureManager) GetFlagWarnings() map[string]string {
+	out := make(map[string]string, len(fm.warnings))
+	for k, v := range fm.warnings {
+		out[k] = v
+	}
+	return out
+}
+
 // ############# Test Functions #############
 
 func WithFeatures(spec ...any) FeatureToggles {

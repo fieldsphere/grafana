@@ -12,6 +12,7 @@ import { isAdmin, isLocalDevEnv, isOpenSourceEdition } from 'app/features/alerti
 import { ConnectionsRedirectNotice } from 'app/features/connections/components/ConnectionsRedirectNotice/ConnectionsRedirectNotice';
 import { ROUTES as CONNECTIONS_ROUTES } from 'app/features/connections/constants';
 import { getRoutes as getDataConnectionsRoutes } from 'app/features/connections/routes';
+import { getRoutes as getLabsRoutes } from 'app/features/labs/routes';
 import { DASHBOARD_LIBRARY_ROUTES } from 'app/features/dashboard/dashgrid/types';
 import { DATASOURCES_ROUTES } from 'app/features/datasources/constants';
 import { ConfigureIRM } from 'app/features/gops/configuration-tracker/components/ConfigureIRM';
@@ -564,6 +565,7 @@ export function getAppRoutes(): RouteDescriptor[] {
     ...extraRoutes,
     ...getPublicDashboardRoutes(),
     ...getDataConnectionsRoutes(),
+    ...getLabsRoutes(),
     ...getProvisioningRoutes(),
     {
       path: '/goto/*',
