@@ -7,7 +7,6 @@ export const addTagTypes = [
   'admin',
   'admin_users',
   'quota',
-  'annotations',
   'devices',
   'migrations',
   'convert_prometheus',
@@ -15,7 +14,6 @@ export const addTagTypes = [
   'snapshots',
   'dashboard_public',
   'datasources',
-  'correlations',
   'health',
   'folders',
   'permissions',
@@ -359,80 +357,6 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['admin_users'],
       }),
-      getAnnotations: build.query<GetAnnotationsApiResponse, GetAnnotationsApiArg>({
-        query: (queryArg) => ({
-          url: `/annotations`,
-          params: {
-            from: queryArg['from'],
-            to: queryArg.to,
-            userId: queryArg.userId,
-            alertId: queryArg.alertId,
-            alertUID: queryArg.alertUid,
-            dashboardId: queryArg.dashboardId,
-            dashboardUID: queryArg.dashboardUid,
-            panelId: queryArg.panelId,
-            limit: queryArg.limit,
-            tags: queryArg.tags,
-            type: queryArg['type'],
-            matchAny: queryArg.matchAny,
-          },
-        }),
-        providesTags: ['annotations'],
-      }),
-      postAnnotation: build.mutation<PostAnnotationApiResponse, PostAnnotationApiArg>({
-        query: (queryArg) => ({ url: `/annotations`, method: 'POST', body: queryArg.postAnnotationsCmd }),
-        invalidatesTags: ['annotations'],
-      }),
-      postGraphiteAnnotation: build.mutation<PostGraphiteAnnotationApiResponse, PostGraphiteAnnotationApiArg>({
-        query: (queryArg) => ({
-          url: `/annotations/graphite`,
-          method: 'POST',
-          body: queryArg.postGraphiteAnnotationsCmd,
-        }),
-        invalidatesTags: ['annotations'],
-      }),
-      massDeleteAnnotations: build.mutation<MassDeleteAnnotationsApiResponse, MassDeleteAnnotationsApiArg>({
-        query: (queryArg) => ({
-          url: `/annotations/mass-delete`,
-          method: 'POST',
-          body: queryArg.massDeleteAnnotationsCmd,
-        }),
-        invalidatesTags: ['annotations'],
-      }),
-      getAnnotationTags: build.query<GetAnnotationTagsApiResponse, GetAnnotationTagsApiArg>({
-        query: (queryArg) => ({
-          url: `/annotations/tags`,
-          params: {
-            tag: queryArg.tag,
-            limit: queryArg.limit,
-          },
-        }),
-        providesTags: ['annotations'],
-      }),
-      deleteAnnotationById: build.mutation<DeleteAnnotationByIdApiResponse, DeleteAnnotationByIdApiArg>({
-        query: (queryArg) => ({ url: `/annotations/${queryArg.annotationId}`, method: 'DELETE' }),
-        invalidatesTags: ['annotations'],
-      }),
-      getAnnotationById: build.query<GetAnnotationByIdApiResponse, GetAnnotationByIdApiArg>({
-        query: (queryArg) => ({ url: `/annotations/${queryArg.annotationId}` }),
-        providesTags: ['annotations'],
-      }),
-      patchAnnotation: build.mutation<PatchAnnotationApiResponse, PatchAnnotationApiArg>({
-        query: (queryArg) => ({
-          url: `/annotations/${queryArg.annotationId}`,
-          method: 'PATCH',
-          body: queryArg.patchAnnotationsCmd,
-        }),
-        invalidatesTags: ['annotations'],
-      }),
-      updateAnnotation: build.mutation<UpdateAnnotationApiResponse, UpdateAnnotationApiArg>({
-        query: (queryArg) => ({
-          url: `/annotations/${queryArg.annotationId}`,
-          method: 'PUT',
-          body: queryArg.updateAnnotationsCmd,
-        }),
-        invalidatesTags: ['annotations'],
-      }),
       listDevices: build.query<ListDevicesApiResponse, ListDevicesApiArg>({
         query: () => ({ url: `/anonymous/devices` }),
         providesTags: ['devices'],
@@ -713,17 +637,6 @@ const injectedRtkApi = api
         query: (queryArg) => ({ url: `/datasources`, method: 'POST', body: queryArg.addDataSourceCommand }),
         invalidatesTags: ['datasources'],
       }),
-      getCorrelations: build.query<GetCorrelationsApiResponse, GetCorrelationsApiArg>({
-        query: (queryArg) => ({
-          url: `/datasources/correlations`,
-          params: {
-            limit: queryArg.limit,
-            page: queryArg.page,
-            sourceUID: queryArg.sourceUid,
-          },
-        }),
-        providesTags: ['datasources', 'correlations'],
-      }),
       datasourceProxyDeleteByUiDcalls: build.mutation<
         DatasourceProxyDeleteByUiDcallsApiResponse,
         DatasourceProxyDeleteByUiDcallsApiArg
@@ -752,32 +665,6 @@ const injectedRtkApi = api
         }),
         invalidatesTags: ['datasources'],
       }),
-      getCorrelationsBySourceUid: build.query<GetCorrelationsBySourceUidApiResponse, GetCorrelationsBySourceUidApiArg>({
-        query: (queryArg) => ({ url: `/datasources/uid/${queryArg.sourceUid}/correlations` }),
-        providesTags: ['datasources', 'correlations'],
-      }),
-      createCorrelation: build.mutation<CreateCorrelationApiResponse, CreateCorrelationApiArg>({
-        query: (queryArg) => ({
-          url: `/datasources/uid/${queryArg.sourceUid}/correlations`,
-          method: 'POST',
-          body: queryArg.createCorrelationCommand,
-        }),
-        invalidatesTags: ['datasources', 'correlations'],
-      }),
-      getCorrelation: build.query<GetCorrelationApiResponse, GetCorrelationApiArg>({
-        query: (queryArg) => ({
-          url: `/datasources/uid/${queryArg.sourceUid}/correlations/${queryArg.correlationUid}`,
-        }),
-        providesTags: ['datasources', 'correlations'],
-      }),
-      updateCorrelation: build.mutation<UpdateCorrelationApiResponse, UpdateCorrelationApiArg>({
-        query: (queryArg) => ({
-          url: `/datasources/uid/${queryArg.sourceUid}/correlations/${queryArg.correlationUid}`,
-          method: 'PATCH',
-          body: queryArg.updateCorrelationCommand,
-        }),
-        invalidatesTags: ['datasources', 'correlations'],
-      }),
       deleteDataSourceByUid: build.mutation<DeleteDataSourceByUidApiResponse, DeleteDataSourceByUidApiArg>({
         query: (queryArg) => ({ url: `/datasources/uid/${queryArg.uid}`, method: 'DELETE' }),
         invalidatesTags: ['datasources'],
@@ -793,13 +680,6 @@ const injectedRtkApi = api
           body: queryArg.updateDataSourceCommand,
         }),
         invalidatesTags: ['datasources'],
-      }),
-      deleteCorrelation: build.mutation<DeleteCorrelationApiResponse, DeleteCorrelationApiArg>({
-        query: (queryArg) => ({
-          url: `/datasources/uid/${queryArg.uid}/correlations/${queryArg.correlationUid}`,
-          method: 'DELETE',
-        }),
-        invalidatesTags: ['datasources', 'correlations'],
       }),
       checkDatasourceHealthWithUid: build.query<
         CheckDatasourceHealthWithUidApiResponse,
@@ -1162,10 +1042,6 @@ const injectedRtkApi = api
       viewPublicDashboard: build.query<ViewPublicDashboardApiResponse, ViewPublicDashboardApiArg>({
         query: (queryArg) => ({ url: `/public/dashboards/${queryArg.accessToken}` }),
         providesTags: ['dashboards', 'dashboard_public'],
-      }),
-      getPublicAnnotations: build.query<GetPublicAnnotationsApiResponse, GetPublicAnnotationsApiArg>({
-        query: (queryArg) => ({ url: `/public/dashboards/${queryArg.accessToken}/annotations` }),
-        providesTags: ['dashboards', 'annotations', 'dashboard_public'],
       }),
       queryPublicDashboard: build.mutation<QueryPublicDashboardApiResponse, QueryPublicDashboardApiArg>({
         query: (queryArg) => ({
@@ -2004,86 +1880,6 @@ export type AdminRevokeUserAuthTokenApiArg = {
   userId: number;
   revokeAuthTokenCmd: RevokeAuthTokenCmd;
 };
-export type GetAnnotationsApiResponse = /** status 200 (empty) */ Annotation[];
-export type GetAnnotationsApiArg = {
-  /** Find annotations created after specific epoch datetime in milliseconds. */
-  from?: number;
-  /** Find annotations created before specific epoch datetime in milliseconds. */
-  to?: number;
-  /** Limit response to annotations created by specific user. */
-  userId?: number;
-  /** Find annotations for a specified alert rule by its ID.
-    deprecated: AlertID is deprecated and will be removed in future versions. Please use AlertUID instead. */
-  alertId?: number;
-  /** Find annotations for a specified alert rule by its UID. */
-  alertUid?: string;
-  /** Find annotations that are scoped to a specific dashboard */
-  dashboardId?: number;
-  /** Find annotations that are scoped to a specific dashboard */
-  dashboardUid?: string;
-  /** Find annotations that are scoped to a specific panel */
-  panelId?: number;
-  /** Max limit for results returned. */
-  limit?: number;
-  /** Use this to filter organization annotations. Organization annotations are annotations from an annotation data source that are not connected specifically to a dashboard or panel. You can filter by multiple tags. */
-  tags?: string[];
-  /** Return alerts or user created annotations */
-  type?: 'alert' | 'annotation';
-  /** Match any or all tags */
-  matchAny?: boolean;
-};
-export type PostAnnotationApiResponse = /** status 200 (empty) */ {
-  /** ID Identifier of the created annotation. */
-  id: number;
-  /** Message Message of the created annotation. */
-  message: string;
-};
-export type PostAnnotationApiArg = {
-  postAnnotationsCmd: PostAnnotationsCmd;
-};
-export type PostGraphiteAnnotationApiResponse = /** status 200 (empty) */ {
-  /** ID Identifier of the created annotation. */
-  id: number;
-  /** Message Message of the created annotation. */
-  message: string;
-};
-export type PostGraphiteAnnotationApiArg = {
-  postGraphiteAnnotationsCmd: PostGraphiteAnnotationsCmd;
-};
-export type MassDeleteAnnotationsApiResponse =
-  /** status 200 An OKResponse is returned if the request was successful. */ SuccessResponseBody;
-export type MassDeleteAnnotationsApiArg = {
-  massDeleteAnnotationsCmd: MassDeleteAnnotationsCmd;
-};
-export type GetAnnotationTagsApiResponse =
-  /** status 200 (empty) */ GetAnnotationTagsResponseIsAResponseStructForFindTagsResult;
-export type GetAnnotationTagsApiArg = {
-  /** Tag is a string that you can use to filter tags. */
-  tag?: string;
-  /** Max limit for results returned. */
-  limit?: string;
-};
-export type DeleteAnnotationByIdApiResponse =
-  /** status 200 An OKResponse is returned if the request was successful. */ SuccessResponseBody;
-export type DeleteAnnotationByIdApiArg = {
-  annotationId: string;
-};
-export type GetAnnotationByIdApiResponse = /** status 200 (empty) */ Annotation;
-export type GetAnnotationByIdApiArg = {
-  annotationId: string;
-};
-export type PatchAnnotationApiResponse =
-  /** status 200 An OKResponse is returned if the request was successful. */ SuccessResponseBody;
-export type PatchAnnotationApiArg = {
-  annotationId: string;
-  patchAnnotationsCmd: PatchAnnotationsCmd;
-};
-export type UpdateAnnotationApiResponse =
-  /** status 200 An OKResponse is returned if the request was successful. */ SuccessResponseBody;
-export type UpdateAnnotationApiArg = {
-  annotationId: string;
-  updateAnnotationsCmd: UpdateAnnotationsCmd;
-};
 export type ListDevicesApiResponse = /** status 200 (empty) */ DeviceDto[];
 export type ListDevicesApiArg = void;
 export type SearchDevicesApiResponse = /** status 200 (empty) */ SearchDeviceQueryResult;
@@ -2288,15 +2084,6 @@ export type AddDataSourceApiResponse = /** status 200 (empty) */ {
 export type AddDataSourceApiArg = {
   addDataSourceCommand: AddDataSourceCommand;
 };
-export type GetCorrelationsApiResponse = /** status 200 (empty) */ Correlation[];
-export type GetCorrelationsApiArg = {
-  /** Limit the maximum number of correlations to return per page */
-  limit?: number;
-  /** Page index for starting fetching correlations */
-  page?: number;
-  /** Source datasource UID filter to be applied to correlations */
-  sourceUid?: string[];
-};
 export type DatasourceProxyDeleteByUiDcallsApiResponse = unknown;
 export type DatasourceProxyDeleteByUiDcallsApiArg = {
   uid: string;
@@ -2312,26 +2099,6 @@ export type DatasourceProxyPostByUiDcallsApiArg = {
   datasourceProxyRoute: string;
   uid: string;
   body: any;
-};
-export type GetCorrelationsBySourceUidApiResponse = /** status 200 (empty) */ Correlation[];
-export type GetCorrelationsBySourceUidApiArg = {
-  sourceUid: string;
-};
-export type CreateCorrelationApiResponse = /** status 200 (empty) */ CreateCorrelationResponseBody;
-export type CreateCorrelationApiArg = {
-  sourceUid: string;
-  createCorrelationCommand: CreateCorrelationCommand;
-};
-export type GetCorrelationApiResponse = /** status 200 (empty) */ Correlation;
-export type GetCorrelationApiArg = {
-  sourceUid: string;
-  correlationUid: string;
-};
-export type UpdateCorrelationApiResponse = /** status 200 (empty) */ UpdateCorrelationResponseBody;
-export type UpdateCorrelationApiArg = {
-  sourceUid: string;
-  correlationUid: string;
-  updateCorrelationCommand: UpdateCorrelationCommand;
 };
 export type DeleteDataSourceByUidApiResponse =
   /** status 200 An OKResponse is returned if the request was successful. */ SuccessResponseBody;
@@ -2354,11 +2121,6 @@ export type UpdateDataSourceByUidApiResponse = /** status 200 (empty) */ {
 export type UpdateDataSourceByUidApiArg = {
   uid: string;
   updateDataSourceCommand: UpdateDataSourceCommand;
-};
-export type DeleteCorrelationApiResponse = /** status 200 (empty) */ DeleteCorrelationResponseBody;
-export type DeleteCorrelationApiArg = {
-  uid: string;
-  correlationUid: string;
 };
 export type CheckDatasourceHealthWithUidApiResponse =
   /** status 200 An OKResponse is returned if the request was successful. */ SuccessResponseBody;
@@ -2668,10 +2430,6 @@ export type UpdateOrgUserApiArg = {
 };
 export type ViewPublicDashboardApiResponse = /** status 200 (empty) */ DashboardFullWithMeta;
 export type ViewPublicDashboardApiArg = {
-  accessToken: string;
-};
-export type GetPublicAnnotationsApiResponse = /** status 200 (empty) */ AnnotationEvent[];
-export type GetPublicAnnotationsApiArg = {
   accessToken: string;
 };
 export type QueryPublicDashboardApiResponse =
@@ -3477,78 +3235,6 @@ export type UpdateQuotaCmd = {
 export type RevokeAuthTokenCmd = {
   authTokenId?: number;
 };
-export type Json = object;
-export type Annotation = {
-  alertId?: number;
-  alertName?: string;
-  avatarUrl?: string;
-  created?: number;
-  /** Deprecated: Use DashboardUID and OrgID instead */
-  dashboardId?: number;
-  dashboardUID?: string;
-  data?: Json;
-  email?: string;
-  id?: number;
-  login?: string;
-  newState?: string;
-  panelId?: number;
-  prevState?: string;
-  tags?: string[];
-  text?: string;
-  time?: number;
-  timeEnd?: number;
-  updated?: number;
-  userId?: number;
-  userUID?: string;
-};
-export type PostAnnotationsCmd = {
-  dashboardId?: number;
-  dashboardUID?: string;
-  data?: Json;
-  panelId?: number;
-  tags?: string[];
-  text: string;
-  time?: number;
-  timeEnd?: number;
-};
-export type PostGraphiteAnnotationsCmd = {
-  data?: string;
-  tags?: any;
-  what?: string;
-  when?: number;
-};
-export type MassDeleteAnnotationsCmd = {
-  annotationId?: number;
-  dashboardId?: number;
-  dashboardUID?: string;
-  panelId?: number;
-};
-export type TagsDtoIsTheFrontendDtoForTag = {
-  count?: number;
-  tag?: string;
-};
-export type FindTagsResultIsTheResultOfATagsSearch = {
-  tags?: TagsDtoIsTheFrontendDtoForTag[];
-};
-export type GetAnnotationTagsResponseIsAResponseStructForFindTagsResult = {
-  result?: FindTagsResultIsTheResultOfATagsSearch;
-};
-export type PatchAnnotationsCmd = {
-  data?: Json;
-  id?: number;
-  tags?: string[];
-  text?: string;
-  time?: number;
-  timeEnd?: number;
-};
-export type UpdateAnnotationsCmd = {
-  data?: Json;
-  id?: number;
-  tags?: string[];
-  text?: string;
-  time?: number;
-  timeEnd?: number;
-};
 export type DeviceDto = {
   avatarUrl?: string;
   clientIp?: string;
@@ -3790,6 +3476,7 @@ export type ImportDashboardResponseResponseObjectReturnedWhenImportingADashboard
   title?: string;
   uid?: string;
 };
+export type Json = object;
 export type ImportDashboardInputDefinitionOfInputParametersWhenImportingADashboard = {
   name?: string;
   pluginId?: string;
@@ -3921,80 +3608,6 @@ export type AddDataSourceCommand = {
   user?: string;
   withCredentials?: boolean;
 };
-export type Transformation = {
-  expression?: string;
-  field?: string;
-  mapValue?: string;
-  type?: 'regex' | 'logfmt';
-};
-export type Transformations = Transformation[];
-export type CorrelationType = string;
-export type CorrelationConfig = {
-  /** Field used to attach the correlation link */
-  field: string;
-  /** Target data query */
-  target: {
-    [key: string]: any;
-  };
-  transformations?: Transformations;
-  type?: CorrelationType;
-};
-export type Correlation = {
-  config?: CorrelationConfig;
-  /** Description of the correlation */
-  description?: string;
-  /** Label identifying the correlation */
-  label?: string;
-  /** OrgID of the data source the correlation originates from */
-  orgId?: number;
-  /** Provisioned True if the correlation was created during provisioning */
-  provisioned?: boolean;
-  /** UID of the data source the correlation originates from */
-  sourceUID?: string;
-  /** UID of the data source the correlation points to */
-  targetUID?: string;
-  type?: CorrelationType;
-  /** Unique identifier of the correlation */
-  uid?: string;
-};
-export type CreateCorrelationResponseBody = {
-  message?: string;
-  result?: Correlation;
-};
-export type CreateCorrelationCommand = {
-  config?: CorrelationConfig;
-  /** Optional description of the correlation */
-  description?: string;
-  /** Optional label identifying the correlation */
-  label?: string;
-  /** True if correlation was created with provisioning. This makes it read-only. */
-  provisioned?: boolean;
-  /** Target data source UID to which the correlation is created. required if type = query */
-  targetUID?: string;
-  type?: CorrelationType;
-};
-export type UpdateCorrelationResponseBody = {
-  message?: string;
-  result?: Correlation;
-};
-export type CorrelationConfigUpdateDto = {
-  /** Field used to attach the correlation link */
-  field?: string;
-  /** Target data query */
-  target?: {
-    [key: string]: any;
-  };
-  /** Source data transformations */
-  transformations?: Transformation[];
-};
-export type UpdateCorrelationCommand = {
-  config?: CorrelationConfigUpdateDto;
-  /** Optional description of the correlation */
-  description?: string;
-  /** Optional label identifying the correlation */
-  label?: string;
-  type?: CorrelationType;
-};
 export type UpdateDataSourceCommand = {
   access?: DsAccess;
   basicAuth?: boolean;
@@ -4013,9 +3626,6 @@ export type UpdateDataSourceCommand = {
   /** The previous version -- used for optimistic locking */
   version?: number;
   withCredentials?: boolean;
-};
-export type DeleteCorrelationResponseBody = {
-  message?: string;
 };
 export type TeamLbacRule = {
   rules?: string[];
@@ -4641,65 +4251,6 @@ export type DashboardMeta = {
 export type DashboardFullWithMeta = {
   dashboard?: Json;
   meta?: DashboardMeta;
-};
-export type DataSourceRef = {
-  /** The plugin type-id */
-  type?: string;
-  /** Specific datasource instance */
-  uid?: string;
-};
-export type AnnotationPanelFilter = {
-  /** Should the specified panels be included or excluded */
-  exclude?: boolean;
-  /** Panel IDs that should be included or excluded */
-  ids?: number[];
-};
-export type AnnotationTarget = {
-  /** Only required/valid for the grafana datasource...
-    but code+tests is already depending on it so hard to change */
-  limit?: number;
-  /** Only required/valid for the grafana datasource...
-    but code+tests is already depending on it so hard to change */
-  matchAny?: boolean;
-  /** Only required/valid for the grafana datasource...
-    but code+tests is already depending on it so hard to change */
-  tags?: string[];
-  /** Only required/valid for the grafana datasource...
-    but code+tests is already depending on it so hard to change */
-  type?: string;
-};
-export type AnnotationQuery = {
-  /** Set to 1 for the standard annotation query all dashboards have by default. */
-  builtIn?: number;
-  datasource?: DataSourceRef;
-  /** When enabled the annotation query is issued with every dashboard refresh */
-  enable?: boolean;
-  filter?: AnnotationPanelFilter;
-  /** Annotation queries can be toggled on or off at the top of the dashboard.
-    When hide is true, the toggle is not shown in the dashboard. */
-  hide?: boolean;
-  /** Color to use for the annotation event markers */
-  iconColor?: string;
-  /** Name of annotation. */
-  name?: string;
-  /** Placement can be used to display the annotation query somewhere else on the dashboard other than the default location. */
-  placement?: string;
-  target?: AnnotationTarget;
-  /** TODO -- this should not exist here, it is based on the --grafana-- datasource */
-  type?: string;
-};
-export type AnnotationEvent = {
-  color?: string;
-  dashboardId?: number;
-  dashboardUID?: string;
-  id?: number;
-  isRegion?: boolean;
-  panelId?: number;
-  source?: AnnotationQuery;
-  tags?: string[];
-  text?: string;
-  time?: number;
-  timeEnd?: number;
 };
 export type QueryHistoryDto = {
   comment?: string;
@@ -5547,18 +5098,6 @@ export const {
   useLazyGetUserQuotaQuery,
   useUpdateUserQuotaMutation,
   useAdminRevokeUserAuthTokenMutation,
-  useGetAnnotationsQuery,
-  useLazyGetAnnotationsQuery,
-  usePostAnnotationMutation,
-  usePostGraphiteAnnotationMutation,
-  useMassDeleteAnnotationsMutation,
-  useGetAnnotationTagsQuery,
-  useLazyGetAnnotationTagsQuery,
-  useDeleteAnnotationByIdMutation,
-  useGetAnnotationByIdQuery,
-  useLazyGetAnnotationByIdQuery,
-  usePatchAnnotationMutation,
-  useUpdateAnnotationMutation,
   useListDevicesQuery,
   useLazyListDevicesQuery,
   useSearchDevicesQuery,
@@ -5616,23 +5155,14 @@ export const {
   useGetDataSourcesQuery,
   useLazyGetDataSourcesQuery,
   useAddDataSourceMutation,
-  useGetCorrelationsQuery,
-  useLazyGetCorrelationsQuery,
   useDatasourceProxyDeleteByUiDcallsMutation,
   useDatasourceProxyGetByUiDcallsQuery,
   useLazyDatasourceProxyGetByUiDcallsQuery,
   useDatasourceProxyPostByUiDcallsMutation,
-  useGetCorrelationsBySourceUidQuery,
-  useLazyGetCorrelationsBySourceUidQuery,
-  useCreateCorrelationMutation,
-  useGetCorrelationQuery,
-  useLazyGetCorrelationQuery,
-  useUpdateCorrelationMutation,
   useDeleteDataSourceByUidMutation,
   useGetDataSourceByUidQuery,
   useLazyGetDataSourceByUidQuery,
   useUpdateDataSourceByUidMutation,
-  useDeleteCorrelationMutation,
   useCheckDatasourceHealthWithUidQuery,
   useLazyCheckDatasourceHealthWithUidQuery,
   useGetTeamLbacRulesApiQuery,
@@ -5722,8 +5252,6 @@ export const {
   useUpdateOrgUserMutation,
   useViewPublicDashboardQuery,
   useLazyViewPublicDashboardQuery,
-  useGetPublicAnnotationsQuery,
-  useLazyGetPublicAnnotationsQuery,
   useQueryPublicDashboardMutation,
   useSearchQueriesQuery,
   useLazySearchQueriesQuery,

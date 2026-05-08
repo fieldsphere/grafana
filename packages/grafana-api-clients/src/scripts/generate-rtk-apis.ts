@@ -23,6 +23,31 @@ const defaultHooksOptions = {
   mutations: true,
 };
 
+const annotationEndpoints = [
+  'getAnnotations',
+  'postAnnotation',
+  'postGraphiteAnnotation',
+  'updateAnnotation',
+  'patchAnnotation',
+  'massDeleteAnnotations',
+  'getAnnotationById',
+  'deleteAnnotationById',
+  'getAnnotationTags',
+  'getPublicAnnotations',
+];
+
+const legacyCorrelationEndpoints = [
+  'getCorrelations',
+  'getCorrelationsBySourceUID',
+  'getCorrelationsBySourceUid',
+  'createCorrelation',
+  'getCorrelation',
+  'updateCorrelation',
+  'deleteCorrelation',
+];
+
+const movedLegacyEndpoints = new Set([...annotationEndpoints, ...legacyCorrelationEndpoints]);
+
 /**
  * Helper to return consistent base API generation config
  */
@@ -52,7 +77,7 @@ const config: ConfigFile = {
       hooks: defaultHooksOptions,
       tag: true,
       apiFile: '../clients/rtkq/legacy/baseAPI.ts',
-      filterEndpoints: (_name, operation) => !operation.operation.deprecated,
+      filterEndpoints: (name, operation) => !operation.operation.deprecated && !movedLegacyEndpoints.has(name),
       endpointOverrides: [
         {
           pattern: 'listTeamsRoles',
@@ -99,6 +124,7 @@ const config: ConfigFile = {
       filterEndpoints: ['starDashboardByUid', 'unstarDashboardByUid'],
     },
     ...createAPIConfig('advisor', 'v0alpha1'),
+    ...createAPIConfig('annotation', 'v0alpha1'),
     ...createAPIConfig('correlations', 'v0alpha1'),
     ...createAPIConfig('dashboard', 'v0alpha1'),
     ...createAPIConfig('dashboard', 'v1beta1'),
