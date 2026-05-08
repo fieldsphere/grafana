@@ -1,7 +1,7 @@
+import { css } from '@emotion/css';
 import { Fragment } from 'react';
 import { useAsync } from 'react-use';
 
-import { css } from '@emotion/css';
 import { t, Trans } from '@grafana/i18n';
 import { getBackendSrv } from '@grafana/runtime';
 import { Alert, Badge, EmptyState, ScrollContainer, Text, useStyles2 } from '@grafana/ui';
