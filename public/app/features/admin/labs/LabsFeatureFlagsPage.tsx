@@ -115,7 +115,10 @@ function LabsFeatureFlagsTable({ flags }: LabsFeatureFlagsTableProps) {
                         text={t('labs.feature-flags.limitation-runtime-editable', 'Runtime editable')}
                       />
                     ) : (
-                      <Badge color="orange" text={t('labs.feature-flags.limitation-server-managed', 'Server managed')} />
+                      <Badge
+                        color="orange"
+                        text={t('labs.feature-flags.limitation-server-managed', 'Server managed')}
+                      />
                     )}
                     {flag.requiresRestart && (
                       <Badge
