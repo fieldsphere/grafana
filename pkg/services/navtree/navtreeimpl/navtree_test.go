@@ -39,7 +39,7 @@ func TestBuildLabsNavLink(t *testing.T) {
 		require.Equal(t, navtree.NavIDLabs, navLink.Id)
 		require.Equal(t, "Labs", navLink.Text)
 		require.Equal(t, "flask", navLink.Icon)
-		require.Equal(t, navtree.WeightLabs, navLink.SortWeight)
+		require.Equal(t, int64(navtree.WeightLabs), navLink.SortWeight)
 		require.True(t, navLink.IsNew)
 		require.Len(t, navLink.Children, 1)
 		require.Equal(t, "labs/feature-flags", navLink.Children[0].Id)
