@@ -38,6 +38,9 @@ const (
 	WeightHelp
 )
 
+// WeightLabs places Labs in the sidebar immediately after Administration (WeightConfig) and before Profile.
+const WeightLabs = WeightConfig + 50
+
 const (
 	NavIDRoot                 = "root"
 	NavIDDashboards           = "dashboards/browse"
@@ -56,6 +59,7 @@ const (
 	NavIDCfgPlugins           = "cfg/plugins"
 	NavIDCfgAccess            = "cfg/access"
 	NavIDBookmarks            = "bookmarks"
+	NavIDLabs                 = "labs"
 )
 
 type NavLink struct {
