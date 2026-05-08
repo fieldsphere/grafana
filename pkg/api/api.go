@@ -152,6 +152,8 @@ func (hs *HTTPServer) registerRoutes() {
 
 	r.Get("/styleguide", reqSignedIn, hs.Index)
 
+	r.Get("/labs", reqSignedIn, hs.Index)
+
 	r.Get("/live", reqGrafanaAdmin, hs.Index)
 	r.Get("/live/pipeline", reqGrafanaAdmin, hs.Index)
 	r.Get("/live/cloud", reqGrafanaAdmin, hs.Index)
@@ -286,6 +288,8 @@ func (hs *HTTPServer) registerRoutes() {
 
 	// authed api
 	r.Group("/api", func(apiRoute routing.RouteRegister) {
+		apiRoute.Get("/labs/feature-toggles", reqSignedIn, routing.Wrap(hs.GetLabsFeatureToggles))
+
 		// user (signed in)
 		apiRoute.Group("/user", func(userRoute routing.RouteRegister) {
 			userRoute.Get("/", routing.Wrap(hs.GetSignedInUser))
