@@ -21,6 +21,7 @@ export const plugin = new PanelPlugin<Options, FieldConfig>(TimeSeriesPanel)
     commonOptionsBuilder.addLegendOptions(builder, true, true);
 
     const legendCategory = [t('timeseries.legend.category', 'Legend')];
+    const overlayCategory = [t('timeseries.overlay.category', 'Overlay')];
 
     if (config.featureToggles.vizLegendFacetedFilter) {
       builder.addBooleanSwitch({
@@ -32,6 +33,40 @@ export const plugin = new PanelPlugin<Options, FieldConfig>(TimeSeriesPanel)
         showIf: (c) => c.legend.showLegend,
       });
     }
+
+    builder
+      .addBooleanSwitch({
+        path: 'overlay.enabled',
+        name: t('timeseries.overlay.name-enable', 'Show overlay'),
+        category: overlayCategory,
+        description: t('timeseries.overlay.description-enable', 'Render a derived series for each numeric time series'),
+        defaultValue: false,
+      })
+      .addRadio({
+        path: 'overlay.type',
+        name: t('timeseries.overlay.name-type', 'Overlay type'),
+        category: overlayCategory,
+        defaultValue: 'movingAverage',
+        settings: {
+          options: [
+            { value: 'movingAverage', label: t('timeseries.overlay.type-moving-average', 'Moving average') },
+            { value: 'linearRegression', label: t('timeseries.overlay.type-linear-regression', 'Linear regression') },
+          ],
+        },
+        showIf: (c) => Boolean(c.overlay?.enabled),
+      })
+      .addNumberInput({
+        path: 'overlay.window',
+        name: t('timeseries.overlay.name-window', 'Window size'),
+        category: overlayCategory,
+        description: t('timeseries.overlay.description-window', 'Number of trailing points used for moving average'),
+        defaultValue: 10,
+        settings: {
+          min: 2,
+          integer: true,
+        },
+        showIf: (c) => Boolean(c.overlay?.enabled) && c.overlay?.type !== 'linearRegression',
+      });
 
     builder.addCustomEditor({
       id: 'timezone',
