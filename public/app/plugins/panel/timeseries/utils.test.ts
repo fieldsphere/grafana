@@ -1,4 +1,4 @@
-import { createTheme, FieldType, createDataFrame, toDataFrame } from '@grafana/data';
+import { createTheme, FieldType, createDataFrame, getFieldDisplayName, toDataFrame } from '@grafana/data';
 import { TooltipDisplayMode } from '@grafana/schema';
 import { LineInterpolation } from '@grafana/ui';
 
@@ -209,6 +209,7 @@ describe('prepare timeseries graph', () => {
       expect(result![0].fields.map((field) => field.name)).toEqual(['time', 'a', 'a (moving average, 2)']);
       expect(result![0].fields[2].values).toEqual([2, 2, 6, 8]);
       expect(result![0].fields[2].config.custom.drawStyle).toEqual('line');
+      expect(getFieldDisplayName(result![0].fields[2], result![0], result!)).toBe('a (moving average, 2)');
     });
 
     it('clamps moving average window size to a minimum of two', () => {

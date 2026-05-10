@@ -392,9 +392,11 @@ function getOverlayField(
   return {
     ...sourceField,
     name: label,
+    state: sourceField.state ? { ...sourceField.state, displayName: undefined, multipleFrames: undefined } : undefined,
     config: {
       ...sourceField.config,
       displayName: label,
+      displayNameFromDS: undefined,
       links: [],
       custom: {
         ...sourceCustom,
