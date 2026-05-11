@@ -3,6 +3,8 @@ import { render, screen, within } from 'test/test-utils';
 
 import { FeatureFlagsDashboardContent } from './FeatureFlagsPage';
 
+const getFeatureToggles = () => config.featureToggles as Record<string, boolean | undefined>;
+
 describe('FeatureFlagsDashboardContent', () => {
   beforeEach(() => {
     window.localStorage.clear();
@@ -10,7 +12,7 @@ describe('FeatureFlagsDashboardContent', () => {
       disabledFeature: false,
       enabledFeature: true,
       anotherEnabledFeature: true,
-    };
+    } as typeof config.featureToggles;
   });
 
   afterEach(() => {
@@ -32,12 +34,12 @@ describe('FeatureFlagsDashboardContent', () => {
 
     await user.click(screen.getByRole('switch', { name: 'Toggle enabledFeature' }));
 
-    expect(config.featureToggles.enabledFeature).toBe(false);
+    expect(getFeatureToggles().enabledFeature).toBe(false);
     expect(within(screen.getByText('enabledFeature').closest('tr')!).getByText('Disabled locally')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Reset browser overrides' }));
 
-    expect(config.featureToggles.enabledFeature).toBe(true);
+    expect(getFeatureToggles().enabledFeature).toBe(true);
     expect(within(screen.getByText('enabledFeature').closest('tr')!).getByText('Enabled')).toBeInTheDocument();
   });
 });
