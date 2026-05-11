@@ -4,11 +4,12 @@ import { type UserDTO, type UserOrg, type UserSession } from 'app/types/user';
 
 import { type ChangePasswordFields, type ProfileUpdateFields } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 async function changePassword(payload: ChangePasswordFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user/password', payload);
   } catch (err) {
-    console.error(err);
+    grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
   }
 }
 
@@ -42,7 +43,7 @@ async function updateUserProfile(payload: ProfileUpdateFields): Promise<void> {
   try {
     await getBackendSrv().put('/api/user', payload);
   } catch (err) {
-    console.error(err);
+    grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
   }
 }
 

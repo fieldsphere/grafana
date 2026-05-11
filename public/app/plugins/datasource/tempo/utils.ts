@@ -5,6 +5,7 @@ import { generateId } from './SearchTraceQLEditor/TagsInput';
 import { type TraceqlFilter, TraceqlSearchScope } from './dataquery.gen';
 import { type TempoQuery } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const LIMIT_MESSAGE = /.*range specified by start and end.*exceeds.*/;
 const LIMIT_MESSAGE_METRICS = /.*metrics query time range exceeds the maximum allowed duration of.*/;
 
@@ -32,7 +33,7 @@ export async function getDS(uid?: string): Promise<DataSourceApi | undefined> {
   try {
     return await dsSrv.get(uid);
   } catch (error) {
-    console.error('Failed to load data source', error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Failed to load data source') });
     return undefined;
   }
 }

@@ -12,6 +12,7 @@ import { type ServiceAccountDTO } from 'app/types/serviceaccount';
 import { ServiceAccountProfileRow } from './ServiceAccountProfileRow';
 import { ServiceAccountRoleRow } from './ServiceAccountRoleRow';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface Props {
   serviceAccount: ServiceAccountDTO;
   timeZone: TimeZone;
@@ -39,7 +40,7 @@ export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Pr
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options for service account');
+        grafanaStructuredLogger.logError(new Error('Error loading options for service account'));
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

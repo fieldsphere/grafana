@@ -32,6 +32,7 @@ import { QueryEditorContent } from './QueryEditor/QueryEditorContent';
 import { filterDataTransformerConfigs } from './QueryEditor/utils';
 import { TRANSFORMATION_EDIT_INTERACTION_THROTTLE_TIME } from './constants';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const reportTransformationEditInteraction = throttle((context: string, type: string) => {
   reportInteraction('grafana_panel_transformations_clicked', {
     context,
@@ -204,7 +205,7 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
       this.setState({ datasource, dsSettings, dsError: undefined });
       storeLastUsedDataSourceInLocalStorage(getDataSourceRef(dsSettings) || { default: true });
     } catch (err) {
-      console.error('Failed to load datasource:', err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Failed to load datasource:') });
 
       // Fallback to default datasource (parity with PanelDataQueriesTab)
       try {
@@ -218,7 +219,7 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
           // resolveDatasourceRef() handles the stale-ref case on the next activation.
         }
       } catch (fallbackErr) {
-        console.error('Failed to load default datasource:', fallbackErr);
+        grafanaStructuredLogger.logError(fallbackErr instanceof Error ? fallbackErr : new Error(String(fallbackErr)), { message: String('Failed to load default datasource:') });
         this.setState({
           datasource: undefined,
           dsSettings: undefined,

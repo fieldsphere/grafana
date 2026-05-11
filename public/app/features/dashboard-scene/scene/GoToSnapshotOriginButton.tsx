@@ -8,6 +8,7 @@ import { ConfirmModal, ToolbarButton } from '@grafana/ui';
 import { appEvents } from '../../../core/app_events';
 import { ShowModalReactEvent } from '../../../types/events';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export function GoToSnapshotOriginButton(props: { originalURL: string }) {
   return (
     <ToolbarButton
@@ -59,6 +60,6 @@ export const onOpenSnapshotOriginalDashboard = (originalUrl: string) => {
       locationService.push(sanitizedRelativeURL);
     }
   } catch (err) {
-    console.error('Failed to open original dashboard', err);
+    grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Failed to open original dashboard') });
   }
 };

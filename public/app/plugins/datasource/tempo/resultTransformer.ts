@@ -29,6 +29,7 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { SearchTableType } from './dataquery.gen';
 import { type Span, type SpanAttributes, type Spanset, type TempoJsonData, type TraceSearchMetadata } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 function getAttributeValue(value: collectorTypes.opentelemetryProto.common.v1.AnyValue): any {
   if (value.stringValue) {
     return value.stringValue;
@@ -196,7 +197,7 @@ export function transformFromOTLP(
       }
     }
   } catch (error) {
-    console.error(error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
     return { error: { message: 'JSON is not valid OpenTelemetry format: ' + error }, data: [] };
   }
 

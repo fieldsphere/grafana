@@ -16,6 +16,7 @@ import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/Pan
 import { AdHocOriginFiltersController } from '../components/AdHocOriginFiltersController';
 import { AdHocVariableForm } from '../components/AdHocVariableForm';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface AdHocFiltersVariableEditorProps {
   variable: AdHocFiltersVariable;
   onRunQuery: (variable: AdHocFiltersVariable) => void;
@@ -169,7 +170,7 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
 
 export function getAdHocFilterOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof AdHocFiltersVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    grafanaStructuredLogger.logWarning(String('getAdHocFilterOptions: variable is not an AdHocFiltersVariable'));
     return [];
   }
 

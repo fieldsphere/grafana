@@ -9,6 +9,7 @@ import { type DashboardDTO } from 'app/types/dashboard';
 
 import { DashboardModel } from '../../../../dashboard/state/DashboardModel';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export type DashboardResponse = DashboardDTO | DashboardWithAccessInfo<DashboardV2Spec>;
 
 const ensureV1PanelsHaveIds = memoizeOne((dashboardDTO: DashboardDTO): DashboardResponse => {
@@ -36,11 +37,13 @@ export function useDashboardQuery(dashboardUid?: string) {
           } else if (isDashboardV2Resource(dashboardDTO)) {
             setDashboard(dashboardDTO);
           } else {
-            console.error('Something went wrong, unexpected dashboard format');
+            grafanaStructuredLogger.logError(
+              new Error('Something went wrong, unexpected dashboard format')
+            );
           }
         })
         .catch((error) => {
-          console.error('Failed to fetch dashboard', error);
+          grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Failed to fetch dashboard') });
         })
         .finally(() => {
           setIsFetching(false);

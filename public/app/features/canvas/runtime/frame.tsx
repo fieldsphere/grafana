@@ -15,6 +15,7 @@ import { type RootElement } from './root';
 import { type Scene } from './scene';
 import { initMoveable } from './sceneAbleManagement';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const DEFAULT_OFFSET = 10;
 const HORIZONTAL_OFFSET = 50;
 
@@ -129,7 +130,7 @@ export class FrameState extends ElementState {
         break;
       case LayerActionID.Duplicate:
         if (element.item.id === 'frame') {
-          console.log('Can not duplicate frames (yet)', action, element);
+          grafanaStructuredLogger.logInfo(String('Can not duplicate frames (yet)'), { args: action, element });
           return;
         }
         const opts = cloneDeep(element.options);
@@ -239,7 +240,7 @@ export class FrameState extends ElementState {
         break;
 
       default:
-        console.log('DO action', action, element);
+        grafanaStructuredLogger.logInfo(String('DO action'), { args: action, element });
         return;
     }
   };

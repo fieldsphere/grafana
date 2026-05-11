@@ -12,6 +12,7 @@ import {
   serviceAccountTokensLoaded,
 } from './reducers';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const BASE_URL = `/api/serviceaccounts`;
 
 export function loadServiceAccount(saUid: string): ThunkResult<void> {
@@ -21,7 +22,7 @@ export function loadServiceAccount(saUid: string): ThunkResult<void> {
       const response = await getBackendSrv().get(`${BASE_URL}/${saUid}`, accessControlQueryParam());
       dispatch(serviceAccountLoaded(response));
     } catch (error) {
-      console.error(error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
     } finally {
       dispatch(serviceAccountFetchEnd());
     }
@@ -69,7 +70,7 @@ export function loadServiceAccountTokens(saUid: string): ThunkResult<void> {
       const response = await getBackendSrv().get(`${BASE_URL}/${saUid}/tokens`);
       dispatch(serviceAccountTokensLoaded(response));
     } catch (error) {
-      console.error(error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
     }
   };
 }

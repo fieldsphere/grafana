@@ -1,6 +1,6 @@
 import { CoreApp, type DashboardLoadedEvent, type DataQueryRequest, type DataQueryResponse } from '@grafana/data';
 import { QueryEditorMode } from '@grafana/plugin-ui';
-import { reportInteraction, config } from '@grafana/runtime';
+import { reportInteraction, config, grafanaStructuredLogger } from '@grafana/runtime';
 
 import { LokiQueryType } from './dataquery.gen';
 import {
@@ -97,7 +97,7 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_loki_dashboard_loaded', event);
   } catch (error) {
-    console.error('error in loki tracking handler', error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('error in loki tracking handler') });
   }
 };
 

@@ -243,6 +243,11 @@ export {
 } from './utils/datasource';
 export { deprecationWarning } from './utils/deprecationWarning';
 export {
+  emitStructuredBrowserLog,
+  emitStructuredBrowserError,
+  type StructuredLogRecord,
+} from './utils/structuredBrowserLog';
+export {
   CSVHeaderStyle,
   type CSVConfig,
   type CSVParseCallbacks,

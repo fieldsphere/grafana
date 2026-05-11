@@ -18,6 +18,7 @@ import memoize from 'lru-memoize';
 import { type Trace } from '../types/trace';
 import { getConfigValue } from '../utils/config/get-config';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const parameterRegExp = /#\{([^{}]*)\}/g;
 
 type ProcessedTemplate = {
@@ -112,7 +113,7 @@ export function processLinkPattern(pattern: any): ProcessedLinkPattern | null {
     };
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error(`Ignoring invalid link pattern: ${error}`, pattern);
+    grafanaStructuredLogger.logError(pattern instanceof Error ? pattern : new Error(String(pattern)), { message: String(`Ignoring invalid link pattern: ${error}`) });
     return null;
   }
 }

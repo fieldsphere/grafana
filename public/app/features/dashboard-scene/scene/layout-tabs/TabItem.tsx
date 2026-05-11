@@ -48,6 +48,7 @@ import { TabItemRenderer } from './TabItemRenderer';
 import { TabItems } from './TabItems';
 import { TabsLayoutManager } from './TabsLayoutManager';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export interface TabItemState extends SceneObjectState {
   layout: DashboardLayoutManager;
   title?: string;
@@ -234,7 +235,7 @@ export class TabItem
         layout.setState({ children: newChildren });
       } else {
         const warningMessage = 'Grid item has unexpected parent type';
-        console.warn(warningMessage);
+        grafanaStructuredLogger.logWarning(String(warningMessage));
         logWarning(warningMessage);
       }
     }
@@ -256,13 +257,13 @@ export class TabItem
           rowLayout.addGridItem(gridItem);
         } else {
           const warningMessage = 'First row layout does not support addGridItem';
-          console.warn(warningMessage);
+          grafanaStructuredLogger.logWarning(String(warningMessage));
           logWarning(warningMessage);
         }
       }
     } else {
       const warningMessage = 'Layout manager does not support addGridItem';
-      console.warn(warningMessage);
+      grafanaStructuredLogger.logWarning(String(warningMessage));
       logWarning(warningMessage);
     }
     this.setIsDropTarget(false);

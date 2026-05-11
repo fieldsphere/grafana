@@ -20,6 +20,7 @@ import { getDashboardSrv } from '../../dashboard/services/DashboardSrv';
 import { DashboardChangedModal } from './DashboardChangedModal';
 import { type DashboardEvent, DashboardEventAction } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 // sessionId is not a security-sensitive value.
 // It is used for filtering out dashboard edit events from the same browsing session
 const sessionId = uuidv4();
@@ -127,7 +128,7 @@ class DashboardWatcher {
 
             const dash = getDashboardSrv().getCurrent();
             if (dash?.uid !== event.message.uid) {
-              console.log('dashboard event for different dashboard?', event, dash);
+              grafanaStructuredLogger.logInfo(String('dashboard event for different dashboard?'), { args: event, dash });
               return;
             }
 

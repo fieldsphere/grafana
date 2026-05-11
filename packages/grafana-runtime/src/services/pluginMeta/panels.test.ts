@@ -159,10 +159,6 @@ describe('when useMTPlugins flag is enabled', () => {
       ])(`when func:$func is called then a warning should be logged`, async ({ func }) => {
         await func();
 
-        expect(console.warn).toHaveBeenCalledTimes(1);
-        expect(console.warn).toHaveBeenCalledWith(
-          'PluginMeta: plugin meta yielded an empty result so Grafana is falling back to bootdata'
-        );
         expect(logger.logWarning).toHaveBeenCalledTimes(1);
         expect(logger.logWarning).toHaveBeenCalledWith(
           'PluginMeta: plugin meta yielded an empty result so Grafana is falling back to bootdata',
@@ -175,10 +171,6 @@ describe('when useMTPlugins flag is enabled', () => {
         async ({ func }) => {
           await func('');
 
-          expect(console.warn).toHaveBeenCalledTimes(1);
-          expect(console.warn).toHaveBeenCalledWith(
-            'PluginMeta: plugin meta yielded an empty result so Grafana is falling back to bootdata'
-          );
           expect(logger.logWarning).toHaveBeenCalledTimes(1);
           expect(logger.logWarning).toHaveBeenCalledWith(
             'PluginMeta: plugin meta yielded an empty result so Grafana is falling back to bootdata',

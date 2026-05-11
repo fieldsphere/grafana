@@ -1,5 +1,7 @@
 import { type ComponentType } from 'react';
 
+import { emitStructuredBrowserLog } from '../utils/structuredBrowserLog';
+
 import { type KeyValue } from './data';
 import { type IconName } from './icon';
 
@@ -260,7 +262,9 @@ export class GrafanaPlugin<T extends PluginMeta = PluginMeta> {
    * @deprecated -- this is no longer necessary and will be removed
    */
   setChannelSupport() {
-    console.warn('[deprecation] plugin is using ignored option: setChannelSupport', this.meta);
+    emitStructuredBrowserLog('warn', '[deprecation] plugin is using ignored option: setChannelSupport', {
+      meta: this.meta,
+    });
     return this;
   }
 

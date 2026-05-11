@@ -82,6 +82,7 @@ import {
 import { type KeyedVariableIdentifier } from './types';
 import { cleanVariables } from './variablesReducer';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const initDashboardTemplating = (key: string, dashboard: DashboardModel): ThunkResult<void> => {
   return (dispatch, getState) => {
     let orderIndex = 0;
@@ -779,7 +780,7 @@ export const onTimeRangeUpdated =
       await Promise.all(promises);
       dependencies.events.publish(new VariablesTimeRangeProcessDone({ variableIds }));
     } catch (error) {
-      console.error(error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
       dispatch(notifyApp(createVariableErrorNotification('Template variable service failed', error)));
     }
   };
@@ -933,7 +934,7 @@ export const initVariablesTransaction =
       dispatch(toKeyedAction(uid, variablesCompleteTransaction({ uid })));
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Templating init failed', err)));
-      console.error(err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
     }
   };
 
@@ -1004,7 +1005,7 @@ export const updateOptions =
       dispatch(toKeyedAction(rootStateKey, variableStateFailed(toVariablePayload(identifier, { error }))));
 
       if (!rethrow) {
-        console.error(error);
+        grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
         dispatch(notifyApp(createVariableErrorNotification('Error updating options:', error, identifier)));
       }
 
@@ -1084,7 +1085,7 @@ export function upgradeLegacyQueries(
       );
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Failed to upgrade legacy queries', err)));
-      console.error(err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
     }
   };
 }

@@ -25,6 +25,7 @@ import { updateAnnotationFromSavedQuery } from '../utils/savedQueryUtils';
 import { AnnotationQueryEditorActionsWrapper } from './AnnotationQueryEditorActionsWrapper';
 import { AnnotationFieldMapper } from './AnnotationResultMapper';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export interface Props {
   datasource: DataSourceApi;
   datasourceInstanceSettings: DataSourceInstanceSettings;
@@ -261,7 +262,7 @@ export default class StandardAnnotationQueryEditor extends PureComponent<Props, 
       this.setState({ skipNextVerification: true });
       onChange(preparedAnnotation);
     } catch (error) {
-      console.error('Failed to replace annotation query:', error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Failed to replace annotation query:') });
       // On error, reset the replacing state but don't change the annotation
     }
   };

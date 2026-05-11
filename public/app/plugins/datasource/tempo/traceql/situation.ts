@@ -23,6 +23,7 @@ import {
   TraceQL,
 } from '@grafana/lezer-traceql';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 type Direction = 'parent' | 'firstChild' | 'lastChild' | 'nextSibling' | 'prevSibling';
 type NodeType = number;
 
@@ -444,7 +445,7 @@ function resolveNewSpansetExpression(node: SyntaxNode, text: string, offset: num
       previousNode = previousNode!.nextSibling;
     }
   } catch (error) {
-    console.error('Unexpected error while searching for previous node', error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Unexpected error while searching for previous node') });
   }
 
   if (previousNode?.type.id === And || previousNode?.type.id === Or) {

@@ -28,6 +28,7 @@ import {
   type TreeNode,
 } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const RECENT_SCOPES_KEY = 'grafana.scopes.recent';
 
 export interface ScopesSelectorServiceState {
@@ -111,7 +112,9 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
       }
       return node;
     } catch (error) {
-      console.error('Failed to load node', error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), {
+        detail: 'Failed to load node',
+      });
       return undefined;
     }
   };
@@ -119,7 +122,9 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
   private getNodePath = async (scopeNodeId: string, visited: Set<string> = new Set()): Promise<ScopeNode[]> => {
     // Protect against circular references
     if (visited.has(scopeNodeId)) {
-      console.error('Circular reference detected in node path', scopeNodeId);
+      grafanaStructuredLogger.logError(new Error('Circular reference detected in scope node path'), {
+        scopeNodeId,
+      });
       return [];
     }
 
@@ -449,7 +454,9 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
 
       // Validate API response is an array
       if (!Array.isArray(fetchedScopes)) {
-        console.error('Expected fetchedScopes to be an array, got:', typeof fetchedScopes);
+        grafanaStructuredLogger.logError(new Error('Expected fetchedScopes to be an array'), {
+          receivedType: typeof fetchedScopes,
+        });
         this.updateState({ scopes: newScopesState, loading: false });
         return;
       }
@@ -664,7 +671,9 @@ export class ScopesSelectorService extends ScopesServiceBase<ScopesSelectorServi
           newTree = expandNodes(newTree, parentPath);
         }
       } catch (error) {
-        console.error('Failed to expand to selected scope', error);
+        grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), {
+          detail: 'Failed to expand to selected scope',
+        });
       }
     }
 
@@ -747,7 +756,10 @@ function parseScopesFromLocalStorage(content: string | undefined): RecentScope[]
   try {
     recentScopes = JSON.parse(content || '[]');
   } catch (e) {
-    console.error('Failed to parse recent scopes', e, content);
+    grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e)), {
+      detail: 'Failed to parse recent scopes',
+      contentSnippet: content?.slice(0, 240),
+    });
     return [];
   }
   if (!(Array.isArray(recentScopes) && Array.isArray(recentScopes[0]))) {

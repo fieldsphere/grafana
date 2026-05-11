@@ -22,10 +22,11 @@ import { toKeyedVariableIdentifier } from '../utils';
 
 import { changeQueryVariableDataSource, changeQueryVariableQuery, initQueryVariableEditor } from './actions';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
   if (!rootStateKey) {
-    console.error('QueryVariableEditor: variable has no rootStateKey');
+    grafanaStructuredLogger.logError(new Error('QueryVariableEditor: variable has no rootStateKey'));
     return {
       extended: getQueryVariableEditorState(initialVariableEditorState),
     };

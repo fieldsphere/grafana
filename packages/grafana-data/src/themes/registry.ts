@@ -1,4 +1,5 @@
 import { Registry, type RegistryItem } from '../utils/Registry';
+import { emitStructuredBrowserLog } from '../utils/structuredBrowserLog';
 
 import { createTheme, NewThemeOptionsSchema } from './createTheme';
 import aubergine from './themeDefinitions/aubergine.json';
@@ -87,7 +88,7 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
 for (const [name, json] of Object.entries(extraThemes)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    emitStructuredBrowserLog('error', `Invalid theme definition for theme ${name}: ${result.error.message}`);
   } else {
     const theme = result.data;
     themeRegistry.register({

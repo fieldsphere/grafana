@@ -22,6 +22,7 @@ import {
   type QueryBuilderLabelFilter,
   type QueryBuilderOperation,
 } from '@grafana/plugin-ui';
+import { grafanaStructuredLogger } from '@grafana/runtime';
 import { Stack } from '@grafana/ui';
 
 import { testIds } from '../../components/LokiQueryEditor';
@@ -134,7 +135,9 @@ export const LokiQueryBuilder = memo<Props>(({ datasource, query, onChange, onRu
         Math.abs(timeRange.from.valueOf() - prevTimeRange.from.valueOf()) > TIME_SPAN_TO_TRIGGER_SAMPLES);
     const updateBasedOnChangedQuery = !isEqual(prevQuery, query);
     if (updateBasedOnChangedTimeRange || updateBasedOnChangedQuery) {
-      onGetSampleData().catch(console.error);
+      onGetSampleData().catch((err: unknown) =>
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)))
+      );
     }
   }, [datasource, query, timeRange, prevQuery, prevTimeRange]);
 

@@ -12,6 +12,7 @@ import { toKeyedVariableIdentifier } from '../utils';
 
 import { changeVariableDatasource } from './actions';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface Props extends VariableEditorProps<AdHocVariableModel> {}
 
 export const AdHocVariableEditor = memo(function AdHocVariableEditor({ variable }: Props) {
@@ -30,7 +31,7 @@ export const AdHocVariableEditor = memo(function AdHocVariableEditor({ variable 
 
   useEffect(() => {
     if (!variable.rootStateKey) {
-      console.error('AdHocVariableEditor: variable has no rootStateKey');
+      grafanaStructuredLogger.logError(new Error('AdHocVariableEditor: variable has no rootStateKey'));
     }
   }, [variable.rootStateKey]);
 

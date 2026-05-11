@@ -7,6 +7,7 @@ import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/Pan
 
 import { TextBoxVariableForm } from '../components/TextBoxVariableForm';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface TextBoxVariableEditorProps {
   variable: TextBoxVariable;
   onChange: (variable: TextBoxVariable) => void;
@@ -25,7 +26,7 @@ export function TextBoxVariableEditor({ variable, inline }: TextBoxVariableEdito
 
 export function getTextBoxVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof TextBoxVariable)) {
-    console.warn('getTextBoxVariableOptions: variable is not a TextBoxVariable');
+    grafanaStructuredLogger.logWarning(String('getTextBoxVariableOptions: variable is not a TextBoxVariable'));
     return [];
   }
 

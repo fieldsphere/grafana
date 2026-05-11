@@ -46,6 +46,7 @@ import { getUpdatedHoverHeader } from '../getPanelFrameOptions';
 import { type PanelDataPaneTab, type PanelDataTabHeaderProps, TabId } from './types';
 import { hasBackendDatasource } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface PanelDataQueriesTabState extends SceneObjectState {
   datasource?: DataSourceApi;
   dsSettings?: DataSourceInstanceSettings;
@@ -163,7 +164,7 @@ export class PanelDataQueriesTab extends SceneObjectBase<PanelDataQueriesTabStat
         });
       }
 
-      console.error(err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
     }
   }
 

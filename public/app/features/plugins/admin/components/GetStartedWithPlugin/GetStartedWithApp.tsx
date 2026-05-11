@@ -11,6 +11,7 @@ import { updatePluginSettings } from '../../api';
 import { usePluginConfig } from '../../hooks/usePluginConfig';
 import { type CatalogPlugin } from '../../types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 type Props = {
   plugin: CatalogPlugin;
 };
@@ -80,6 +81,6 @@ const updatePluginSettingsAndReload = async (id: string, data: Partial<PluginMet
     // Reloading the page as the plugin meta changes made here wouldn't be propagated throughout the app.
     window.location.reload();
   } catch (e) {
-    console.error('Error while updating the plugin', e);
+    grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e)), { message: String('Error while updating the plugin') });
   }
 };

@@ -18,6 +18,7 @@ import { dashboardSceneGraph } from 'app/features/dashboard-scene/utils/dashboar
 
 import { getLinkSrv } from './link_srv';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface SeriesVars {
   name?: string;
   refId?: string;
@@ -124,7 +125,7 @@ export const getFieldLinksSupplier = (value: FieldDisplay): LinkModelSupplier<Fi
           };
         }
       } else {
-        console.log('VALUE', value);
+        grafanaStructuredLogger.logInfo(String('VALUE'), { args: value });
       }
 
       const replace: InterpolateFunction = (value: string, vars: ScopedVars | undefined, fmt?: string | Function) => {

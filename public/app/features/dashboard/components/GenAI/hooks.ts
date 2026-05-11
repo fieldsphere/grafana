@@ -8,6 +8,7 @@ import { useAppNotification } from 'app/core/copy/appNotification';
 
 import { DEFAULT_LLM_MODEL, isLLMPluginEnabled } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 // Declared instead of imported from utils to make this hook modular
 // Ideally we will want to move the hook itself to a different scope later.
 type Message = llm.Message;
@@ -71,7 +72,7 @@ export function useLLMStream(options: Options = defaultOptions): UseLLMStreamRes
         'Failed to generate content using LLM',
         'Please try again or if the problem persists, contact your organization admin.'
       );
-      console.error(e);
+      grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e)));
       genAILogger.logError(e, { messages: JSON.stringify(messages), model, temperature: String(temperature) });
     },
     [messages, model, temperature, notifyError]

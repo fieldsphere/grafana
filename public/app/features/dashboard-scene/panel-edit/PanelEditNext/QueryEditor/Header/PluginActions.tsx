@@ -13,6 +13,7 @@ import { type QueryActionComponent, RowActionComponents } from 'app/features/que
 import { QueryEditorType } from '../../constants';
 import { useActionsContext, useQueryEditorUIContext, useQueryRunnerContext } from '../QueryEditorContext';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface PluginActionsProps {
   app?: CoreApp;
 }
@@ -94,7 +95,7 @@ function useAdaptiveTelemetryComponents(query: DataQuery | null) {
       pluginId: /grafana-adaptive.*/,
     });
   } catch (error) {
-    console.error('Failed to render adaptive telemetry components:', error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Failed to render adaptive telemetry components:') });
     return null;
   }
 }

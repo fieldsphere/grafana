@@ -23,6 +23,7 @@ import { createSceneVariableFromVariableModel as createSceneVariableFromVariable
 
 import { getCurrentValueForOldIntervalModel, getIntervalsFromQueryString } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const DEFAULT_DATASOURCE = 'default';
 
 export function createVariablesForDashboard(oldModel: DashboardModel, defaultVariables: VariableKind[] = []) {
@@ -32,7 +33,7 @@ export function createVariablesForDashboard(oldModel: DashboardModel, defaultVar
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
         return null;
       }
     })
@@ -45,7 +46,7 @@ export function createVariablesForDashboard(oldModel: DashboardModel, defaultVar
       try {
         return createSceneVariableFromVariableModelV2(v);
       } catch (err) {
-        console.error(err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
         return null;
       }
     })
@@ -91,7 +92,7 @@ export function createVariablesForSnapshot(oldModel: DashboardModel) {
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
         return null;
       }
     })

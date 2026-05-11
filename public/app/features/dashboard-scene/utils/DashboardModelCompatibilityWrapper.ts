@@ -17,6 +17,7 @@ import { dataLayersToAnnotations } from '../serialization/dataLayersToAnnotation
 import { PanelModelCompatibilityWrapper } from './PanelModelCompatibilityWrapper';
 import { findVizPanelByKey, getVizPanelKeyForPanelId } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * Will move this to make it the main way we remain somewhat compatible with getDashboardSrv().getCurrent
  */
@@ -165,7 +166,7 @@ export class DashboardModelCompatibilityWrapper {
   public removePanel(panel: PanelModelCompatibilityWrapper) {
     const vizPanel = findVizPanelByKey(this._scene, getVizPanelKeyForPanelId(panel.id));
     if (!vizPanel) {
-      console.error('Trying to remove a panel that was not found in scene', panel);
+      grafanaStructuredLogger.logError(panel instanceof Error ? panel : new Error(String(panel)), { message: String('Trying to remove a panel that was not found in scene') });
       return;
     }
 

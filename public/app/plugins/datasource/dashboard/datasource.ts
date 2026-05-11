@@ -31,6 +31,7 @@ import { MIXED_REQUEST_PREFIX } from '../mixed/MixedDataSource';
 
 import { type DashboardQuery } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * This should not really be called
  */
@@ -270,7 +271,7 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         options: { value: filter.value },
       });
     } catch (error) {
-      console.warn('Failed to create value matcher for filter:', filter, error);
+      grafanaStructuredLogger.logWarning(String('Failed to create value matcher for filter:'), { args: filter, error });
       return null;
     }
   }

@@ -10,6 +10,7 @@ import { transformSaveModelToScene } from '../../serialization/transformSaveMode
 import { type Randomize } from './randomizer';
 import { getDebugDashboard, getGithubMarkdown } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface SupportSnapshotState {
   currentTab: SnapshotTab;
   showMessage: ShowMessage;
@@ -84,7 +85,7 @@ export class SupportSnapshotService extends StateManagerBase<SupportSnapshotStat
         const dash = transformSaveModelToScene({ dashboard: snapshot, meta: { isEmbedded: true } });
         scene = dash.state.body; // skip the wrappers
       } catch (ex) {
-        console.log('Error creating scene:', ex);
+        grafanaStructuredLogger.logInfo(String('Error creating scene:'), { args: ex });
       }
     }
 

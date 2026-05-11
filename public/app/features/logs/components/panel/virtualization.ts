@@ -6,6 +6,7 @@ import { type LogLineTimestampResolution } from './LogLine';
 import { type LogListFontSize } from './LogList';
 import { type LogListModel } from './processing';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const LOG_LIST_MIN_WIDTH = 35 * 8;
 // Controls the space between fields in the log line, timestamp, level, displayed fields, and log line body
 export const FIELD_GAP_MULTIPLIER = 1.5;
@@ -73,7 +74,7 @@ export class LogLineVirtualization {
     const domCharWidth = this.measureTextWidthWithDOM('e');
     const diff = domCharWidth - canvasCharWidth;
     if (diff >= 0.1) {
-      console.warn('Virtualized log list: falling back to DOM for measurement');
+      grafanaStructuredLogger.logWarning(String('Virtualized log list: falling back to DOM for measurement'));
       this.measurementMode = 'dom';
     }
   };

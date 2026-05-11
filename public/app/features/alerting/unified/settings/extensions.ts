@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom-v5-compat';
 import { type NavModelItem } from '@grafana/data';
 import { useSelector } from 'app/types/store';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 type SettingsSectionUrl = `/alerting/admin/${string}`;
 type SettingsSectionNav = Pick<NavModelItem, 'id' | 'text' | 'icon'> & {
   url: SettingsSectionUrl;
@@ -16,7 +17,9 @@ const settingsExtensions: Map<SettingsSectionUrl, { nav: SettingsSectionNav }> =
  */
 export function addSettingsSection(pageNav: SettingsSectionNav) {
   if (settingsExtensions.has(pageNav.url)) {
-    console.warn('Unable to add settings page, PageNav must have an unique url');
+    grafanaStructuredLogger.logWarning(
+      'Unable to add settings page, PageNav must have an unique url'
+    );
     return;
   }
   settingsExtensions.set(pageNav.url, { nav: pageNav });

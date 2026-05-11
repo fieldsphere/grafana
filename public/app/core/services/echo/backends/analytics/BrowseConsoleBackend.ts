@@ -6,6 +6,7 @@ import {
   isInteractionEvent,
   isPageviewEvent,
   type PageviewEchoEvent,
+  grafanaStructuredLogger,
 } from '@grafana/runtime';
 
 export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unknown> {
@@ -16,12 +17,15 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
 
   addEvent = (e: PageviewEchoEvent) => {
     if (isPageviewEvent(e)) {
-      console.log('[EchoSrv:pageview]', e.payload.page);
+      grafanaStructuredLogger.logInfo('[EchoSrv:pageview]', { page: e.payload.page });
     }
 
     if (isInteractionEvent(e)) {
       const eventName = e.payload.interactionName;
-      console.log('[EchoSrv:event]', eventName, e.payload.properties);
+      grafanaStructuredLogger.logInfo('[EchoSrv:event]', {
+        interactionName: eventName,
+        properties: e.payload.properties,
+      });
 
       // Warn for non-scalar property values. We're not yet making this a hard a
       const invalidTypeProperties = Object.entries(e.payload.properties ?? {}).filter(([_, value]) => {
@@ -32,17 +36,17 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
       });
 
       if (invalidTypeProperties.length > 0) {
-        console.warn(
-          'Event',
-          eventName,
-          'has invalid property types. Event properties should only be string, number or boolean. Invalid properties:',
-          Object.fromEntries(invalidTypeProperties)
-        );
+        grafanaStructuredLogger.logWarning('Event interaction has invalid property types', {
+          interactionName: eventName,
+          detail:
+            'Event properties should only be string, number or boolean. Invalid properties are listed in invalidProperties.',
+          invalidProperties: Object.fromEntries(invalidTypeProperties),
+        });
       }
     }
 
     if (isExperimentViewEvent(e)) {
-      console.log('[EchoSrv:experiment]', e.payload);
+      grafanaStructuredLogger.logInfo('[EchoSrv:experiment]', { payload: e.payload });
     }
   };
 

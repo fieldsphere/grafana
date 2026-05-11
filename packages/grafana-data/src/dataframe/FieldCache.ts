@@ -1,4 +1,5 @@
 import { type DataFrame, type Field, FieldType } from '../types/dataFrame';
+import { emitStructuredBrowserLog } from '../utils/structuredBrowserLog';
 
 import { guessFieldTypeForField } from './processDataFrame';
 
@@ -36,7 +37,7 @@ export class FieldCache {
       });
 
       if (this.fieldByName[field.name]) {
-        console.warn('Duplicate field names in DataFrame: ', field.name);
+        emitStructuredBrowserLog('warn', 'Duplicate field names in DataFrame', { fieldName: field.name });
       } else {
         this.fieldByName[field.name] = { ...field, index: i };
       }

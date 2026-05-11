@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import * as React from 'react';
 
+import { emitStructuredBrowserError } from './structuredBrowserLog';
 import { store } from './store';
 
 export interface Props<T> {
@@ -32,7 +33,7 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.setObject(storageKey, value);
     } catch (error) {
-      console.error(error);
+      emitStructuredBrowserError(error instanceof Error ? error : new Error(String(error)), { storageKey });
     }
     setState({ value });
   };
@@ -41,7 +42,10 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.delete(storageKey);
     } catch (error) {
-      console.log(error);
+      emitStructuredBrowserError(error instanceof Error ? error : new Error(String(error)), {
+        operation: 'delete',
+        storageKey,
+      });
     }
     setState({ value: defaultValue });
   };

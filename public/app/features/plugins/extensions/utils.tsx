@@ -43,13 +43,14 @@ import { type ExtensionsLog, log as baseLog } from './logs/log';
 import { type AddedLinkRegistryItem } from './registry/AddedLinksRegistry';
 import { assertIsNotPromise, assertStringProps, isPromise } from './validators';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
   return (...args: unknown[]) => {
     try {
       return fn(...args);
     } catch (e) {
       if (e instanceof Error) {
-        console.warn(`${errorMessagePrefix}${e.message}`);
+        grafanaStructuredLogger.logWarning(String(`${errorMessagePrefix}${e.message}`));
       }
     }
   };

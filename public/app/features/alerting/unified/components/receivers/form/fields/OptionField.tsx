@@ -30,6 +30,7 @@ import { SubformArrayField } from './SubformArrayField';
 import { SubformField } from './SubformField';
 import { WrapWithTemplateSelection } from './TemplateSelector';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface Props {
   defaultValue: any;
   option: NotificationChannelOption;
@@ -318,7 +319,9 @@ const OptionInput: FC<Props & { id: string }> = ({
       );
 
     default:
-      console.error('Element not supported', option.element);
+      grafanaStructuredLogger.logError(new Error('Receiver form element not supported'), {
+        elementKind: String(option.element),
+      });
       return null;
   }
 };

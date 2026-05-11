@@ -10,6 +10,7 @@ import { type GrafanaPromRuleGroupDTO } from 'app/types/unified-alerting-dto';
 import { prometheusApi } from '../../../api/prometheusApi';
 import { getRulesDataSources } from '../../../utils/datasource';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 // Module-scope utilities
 const collator = new Intl.Collator();
 function getExternalRuleDataSources() {
@@ -161,7 +162,7 @@ export function useNamespaceAndGroupOptions(): {
 
         return options;
       } catch (error) {
-        console.error('Error fetching groups:', error);
+        grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Error fetching groups:') });
         return [createInfoOption(t('alerting.rules-filter.group-search-error', 'Error searching groups'))];
       }
     },

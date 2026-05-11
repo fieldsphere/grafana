@@ -13,6 +13,7 @@ import { type AwsUrl, encodeUrl } from '../aws_url';
 import { type CloudWatchLogsQuery } from '../dataquery.gen';
 import { type CloudWatchQuery } from '../types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 type ReplaceFn = (
   target?: string,
   scopedVars?: ScopedVars,
@@ -66,7 +67,7 @@ async function createInternalXrayLink(datasourceUid: string, region: string): Pr
   try {
     ds = await getDataSourceSrv().get(datasourceUid);
   } catch (e) {
-    console.error('Could not load linked xray data source, it was probably deleted after it was linked', e);
+    grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e)), { message: String('Could not load linked xray data source, it was probably deleted after it was linked') });
     return undefined;
   }
 

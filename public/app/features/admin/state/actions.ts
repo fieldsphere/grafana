@@ -36,6 +36,7 @@ import {
   anonPageChanged,
   anonQueryChanged,
 } from './reducers';
+import { grafanaStructuredLogger } from '@grafana/runtime';
 // UserAdminPage
 
 export function loadAdminUserPage(userUid: string): ThunkResult<void> {
@@ -50,7 +51,7 @@ export function loadAdminUserPage(userUid: string): ThunkResult<void> {
       }
       dispatch(userAdminPageLoadedAction(true));
     } catch (error) {
-      console.error(error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
 
       if (isFetchError(error)) {
         const userError = {
@@ -300,7 +301,7 @@ export function fetchUsers(): ThunkResult<void> {
       dispatch(usersFetched(result));
     } catch (error) {
       usersFetchEnd();
-      console.error(error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
     }
   };
 }
@@ -366,7 +367,7 @@ export function fetchUsersAnonymousDevices(): ThunkResult<void> {
       const result = await getBackendSrv().get(url);
       dispatch(usersAnonymousDevicesFetched(result));
     } catch (error) {
-      console.error(error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
     }
   };
 }

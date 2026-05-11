@@ -1,6 +1,7 @@
 // Libraries
 import { isArray, isBoolean, isNumber, isString } from 'lodash';
 
+import { emitStructuredBrowserLog } from '../utils/structuredBrowserLog';
 import { isDateTime } from '../datetime/moment_wrapper';
 import { fieldIndexComparer } from '../field/fieldComparers';
 import { getFieldDisplayName } from '../field/fieldState';
@@ -340,7 +341,7 @@ export function toDataFrame(data: any): DataFrame {
     return arrayToDataFrame(data);
   }
 
-  console.warn('Can not convert', data);
+  emitStructuredBrowserLog('warn', 'Can not convert', { data });
   throw new Error('Unsupported data format');
 }
 

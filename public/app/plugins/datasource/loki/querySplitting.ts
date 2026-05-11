@@ -31,6 +31,7 @@ import { isRetriableError } from './responseUtils';
 import { trackGroupedQueries } from './tracking';
 import { type LokiGroupedRequest, type LokiQuery } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export function partitionTimeRange(
   isLogsQuery: boolean,
   originalTimeRange: TimeRange,
@@ -187,7 +188,7 @@ export function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e)));
         shouldStop = true;
         return false;
       }

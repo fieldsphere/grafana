@@ -44,6 +44,7 @@ import {
 import { type QueryBuilderLabelFilter, type QueryBuilderOperation } from './shared/types';
 import { type PromVisualQuery, type PromVisualQueryBinary } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * Parses a PromQL query into a visual query model.
  *
@@ -72,7 +73,7 @@ export function buildVisualQueryFromString(expr: string): Omit<Context, 'replace
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

@@ -12,6 +12,7 @@ import { sharedDependenciesMap } from './sharedDependencies';
 import { type SystemJSWithLoaderHooks } from './types';
 import { buildImportMap, isHostedOnCDN } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export function initSystemJSHooks() {
   const imports = buildImportMap(sharedDependenciesMap);
 
@@ -102,7 +103,7 @@ export function decorateSystemJSResolve(
       const url = originalResolve.apply(this, [resolvedUrl, parentUrl]);
       return resolvePluginUrlWithCache(url);
     }
-    console.warn(`SystemJS: failed to resolve '${id}'`);
+    grafanaStructuredLogger.logWarning(String(`SystemJS: failed to resolve '${id}'`));
     return id;
   }
 }

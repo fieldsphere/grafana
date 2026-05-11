@@ -58,6 +58,7 @@ import { RowRepeaterBehavior } from './RowRepeaterBehavior';
 import { findSpaceForNewPanel } from './findSpaceForNewPanel';
 import { RowActions } from './row-actions/RowActions';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface DefaultGridLayoutManagerState extends SceneObjectState {
   grid: SceneGridLayout;
 }
@@ -260,7 +261,7 @@ export class DefaultGridLayoutManager
   public duplicatePanel(vizPanel: VizPanel) {
     const gridItem = vizPanel.parent;
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
+      grafanaStructuredLogger.logError(new Error('Trying to duplicate a panel that is not inside a DashboardGridItem'));
       return;
     }
 

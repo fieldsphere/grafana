@@ -7,6 +7,7 @@ import { getRecentDashboardActions } from './dashboardActions';
 import { useStaticActions } from './staticActions';
 import useExtensionActions from './useExtensionActions';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * Register navigation actions to different parts of grafana or some preferences stuff like themes.
  */
@@ -27,7 +28,7 @@ export function useRegisterRecentDashboardsActions() {
     getRecentDashboardActions()
       .then((recentDashboardActions) => setRecentDashboardActions(recentDashboardActions))
       .catch((err) => {
-        console.error('Error loading recent dashboard actions', err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Error loading recent dashboard actions') });
       });
   }, []);
 

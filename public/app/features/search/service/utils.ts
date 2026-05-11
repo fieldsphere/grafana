@@ -16,6 +16,7 @@ import {
 import { type DashboardQueryResult, type SearchQuery, type SearchResultMeta } from './types';
 import { type SearchHit } from './unified';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /** prepare the query replacing folder:current */
 export async function replaceCurrentFolderQuery(query: SearchQuery): Promise<SearchQuery> {
   if (query.query && query.query.indexOf('folder:current') >= 0) {
@@ -40,7 +41,7 @@ async function getCurrentFolderUID(): Promise<string | undefined> {
     }
     return Promise.resolve(dash?.meta?.folderUid);
   } catch (e) {
-    console.error(e);
+    grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e)));
   }
   return undefined;
 }

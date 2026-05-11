@@ -17,6 +17,7 @@ import { type AlertQuery } from 'app/types/unified-alerting-dto';
 
 import { createDagFromQueries, getOriginOfRefId } from './dag';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export function queriesWithUpdatedReferences(
   queries: AlertQuery[],
   previousRefId: string,
@@ -210,7 +211,7 @@ export function getThresholdsForQueries(queries: AlertQuery[], condition: string
           }
         });
       } catch (err) {
-        console.error('Failed to parse thresholds', err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Failed to parse thresholds') });
         return;
       }
     });

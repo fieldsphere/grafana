@@ -23,6 +23,7 @@ import { MetaInfoText, type MetaItemProps } from '../MetaInfoText';
 import { type LogsVisualisationType } from './constants';
 import { SETTINGS_KEYS } from './utils/logs';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const getStyles = () => ({
   metaContainer: css({
     flex: 1,
@@ -162,6 +163,6 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
   if (kind === LogsMetaKind.Error) {
     return <span className="logs-meta-item__error">{value.toString()}</span>;
   }
-  console.error(`Meta type ${typeof value} ${value} not recognized.`);
+  grafanaStructuredLogger.logError(new Error(`Meta type ${typeof value} ${value} not recognized.`));
   return <></>;
 }

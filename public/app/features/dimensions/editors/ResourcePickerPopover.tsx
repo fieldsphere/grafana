@@ -15,6 +15,7 @@ import { FileUploader } from './FileUploader';
 import { FolderPickerTab } from './FolderPickerTab';
 import { URLPickerTab } from './URLPickerTab';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface Props {
   value?: string; //img/icons/unicons/0-plus.svg
   onChange: (value?: string) => void;
@@ -129,7 +130,7 @@ export const ResourcePickerPopover = (props: Props) => {
                           .then(() => onChange(`${config.appUrl}api/storage/read/${data.path}`))
                           .then(() => hidePopper?.());
                       })
-                      .catch((err) => console.error(err));
+                      .catch((err) => grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err))));
                   } else {
                     onChange(newValue);
                     hidePopper?.();

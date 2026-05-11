@@ -3,6 +3,7 @@ import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/Pan
 
 import { SwitchVariableForm } from '../components/SwitchVariableForm';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface SwitchVariableEditorProps {
   variable: SwitchVariable;
   inline?: boolean;
@@ -44,7 +45,7 @@ export function SwitchVariableEditor({ variable, inline = false }: SwitchVariabl
 
 export function getSwitchVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof SwitchVariable)) {
-    console.warn('getSwitchVariableOptions: variable is not a SwitchVariable');
+    grafanaStructuredLogger.logWarning(String('getSwitchVariableOptions: variable is not a SwitchVariable'));
     return [];
   }
 

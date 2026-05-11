@@ -11,6 +11,7 @@ import { selectableValueToComboboxOption } from '../Combobox/utils';
 
 import { pickComboboxLayout } from './pickComboboxLayout';
 
+import { emitStructuredBrowserLog } from '@grafana/data';
 /** Props managed by StatsPicker — forwarded combobox props must not replace these. */
 type ComboboxManagedProps = 'value' | 'options' | 'onChange' | 'isClearable' | 'width' | 'minWidth' | 'maxWidth';
 
@@ -53,13 +54,13 @@ export const StatsPicker = memo<StatsPickerProps>(
       if (current.length !== stats.length) {
         const found = current.map((v) => v.id);
         const notFound = difference(stats, found);
-        console.warn('Unknown stats', notFound, stats);
+        emitStructuredBrowserLog('warn', String('Unknown stats'), { args: notFound, stats });
         onChange(current.map((stat) => stat.id));
       }
 
       // Make sure there is only one
       if (!allowMultiple && stats.length > 1) {
-        console.warn('Removing extra stat', stats);
+        emitStructuredBrowserLog('warn', String('Removing extra stat'), { args: stats });
         onChange([stats[0]]);
       }
 

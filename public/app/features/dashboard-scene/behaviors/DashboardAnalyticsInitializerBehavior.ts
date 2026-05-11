@@ -3,6 +3,7 @@ import { writePerformanceLog } from '@grafana/scenes';
 import { getDashboardAnalyticsAggregator } from '../../dashboard/services/DashboardAnalyticsAggregator';
 import { type DashboardScene } from '../scene/DashboardScene';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * Scene behavior function that manages the dashboard-specific initialization
  * of the global analytics aggregator for each dashboard session.
@@ -15,7 +16,7 @@ export function dashboardAnalyticsInitializer(dashboard: DashboardScene) {
   const { uid, title } = dashboard.state;
 
   if (!uid) {
-    console.warn('dashboardAnalyticsInitializer: Dashboard UID is missing');
+    grafanaStructuredLogger.logWarning(String('dashboardAnalyticsInitializer: Dashboard UID is missing'));
     return;
   }
 

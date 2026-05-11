@@ -8,6 +8,7 @@ import { type CustomComboBoxProps } from '../../../common/ComboBox.types';
 import { USER_DEFINED_TREE_NAME } from '../../consts';
 import { useListRoutingTrees } from '../../hooks/useRoutingTrees';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const collator = new Intl.Collator('en', { sensitivity: 'accent' });
 
 type SingleSelectProps = CustomComboBoxProps<RoutingTree> & { multi?: false };
@@ -130,7 +131,7 @@ function RoutingTreeSelector(props: RoutingTreeSelectorProps) {
     if (selectedOption) {
       const tree = treeLookup.get(selectedOption.value);
       if (!tree) {
-        console.warn(`RoutingTreeSelector: could not find routing tree for value "${selectedOption.value}"`);
+        grafanaStructuredLogger.logWarning(String(`RoutingTreeSelector: could not find routing tree for value "${selectedOption.value}"`));
         return;
       }
 

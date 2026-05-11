@@ -40,6 +40,7 @@ import { type PanelModel } from './PanelModel';
 import { emitDashboardViewEvent } from './analyticsProcessor';
 import { dashboardInitCompleted, dashboardInitFailed, dashboardInitFetching, dashboardInitServices } from './reducers';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const INIT_DASHBOARD_MEASUREMENT = 'initDashboard';
 
 export interface InitDashboardArgs {
@@ -109,7 +110,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            grafanaStructuredLogger.logInfo(String('not correct url correcting'), { args: dashboardUrl, currentPath });
           }
         }
         return dashDTO;
@@ -138,7 +139,7 @@ async function fetchDashboard(
         error: err,
       })
     );
-    console.error(err);
+    grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
     return null;
   }
 }
@@ -206,7 +207,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
           error: err,
         })
       );
-      console.error(err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
       return;
     }
 
@@ -264,7 +265,7 @@ export function initDashboard(args: InitDashboardArgs): ThunkResult<void> {
       if (err instanceof Error) {
         dispatch(notifyApp(createErrorNotification('Dashboard init failed', err)));
       }
-      console.error(err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
     }
 
     // send open dashboard event

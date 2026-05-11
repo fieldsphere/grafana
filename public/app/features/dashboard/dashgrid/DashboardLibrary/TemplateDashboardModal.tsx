@@ -22,6 +22,7 @@ import { TemplateDashboardInteractions } from './interactions';
 import { type GnetDashboard, type GnetDashboardsResponse, type Link } from './types';
 import { getTemplateDashboardUrl } from './utils/templateDashboardHelpers';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const SourceEntryPointMap: Record<string, SourceEntryPoint> = {
   quickAdd: TemplateDashboardSourceEntryPoint.QUICK_ADD_BUTTON,
   commandPalette: TemplateDashboardSourceEntryPoint.COMMAND_PALETTE,
@@ -97,7 +98,7 @@ export const TemplateDashboardModal = () => {
 
       return response.items;
     } catch (error) {
-      console.error('Error loading template dashboards ', error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Error loading template dashboards ') });
       return [];
     }
   }, [isOpen]);

@@ -18,6 +18,7 @@ import { VersionHistoryTable } from '../VersionHistory/VersionHistoryTable';
 
 import { type SettingsPageProps } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface Props extends SettingsPageProps {}
 
 type State = {
@@ -69,7 +70,7 @@ export class VersionsSettings extends PureComponent<Props, State> {
         // Update the continueToken for the next request, if available
         this.continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => grafanaStructuredLogger.logInfo(String(err)))
       .finally(() => this.setState({ isAppending: false }));
   };
 

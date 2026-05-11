@@ -17,6 +17,7 @@ import { hasOngoingTransaction, toKeyedVariableIdentifier, toVariablePayload } f
 import { getVariableQueryRunner } from './VariableQueryRunner';
 import { variableQueryObserver } from './variableQueryObserver';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const updateQueryVariableOptions = (
   identifier: KeyedVariableIdentifier,
   searchFilter?: string
@@ -109,7 +110,7 @@ export const changeQueryVariableDataSource = (
         )
       );
     } catch (err) {
-      console.error(err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
     }
   };
 };

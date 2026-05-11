@@ -11,6 +11,7 @@ import {
 
 import { IntervalVariableForm } from '../components/IntervalVariableForm';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface IntervalVariableEditorProps {
   variable: IntervalVariable;
   onRunQuery: () => void;
@@ -65,7 +66,7 @@ export function IntervalVariableEditor({ variable, onRunQuery, inline }: Interva
 
 export function getIntervalVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof IntervalVariable)) {
-    console.warn('getIntervalVariableOptions: variable is not an IntervalVariable');
+    grafanaStructuredLogger.logWarning(String('getIntervalVariableOptions: variable is not an IntervalVariable'));
     return [];
   }
 

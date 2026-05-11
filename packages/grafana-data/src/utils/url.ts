@@ -5,6 +5,7 @@
 import { isDateTime } from '../datetime/moment_wrapper';
 import { type ExploreUrlState, type URLRange } from '../types/explore';
 import { type RawTimeRange } from '../types/time';
+import { emitStructuredBrowserLog } from './structuredBrowserLog';
 
 /**
  * Type to represent the value of a single query variable.
@@ -226,7 +227,7 @@ export const urlUtil = {
  */
 export function serializeStateToUrlParam(urlState: Partial<ExploreUrlState>, compact?: boolean): string {
   if (compact !== undefined) {
-    console.warn('`compact` parameter is deprecated and will be removed in a future release');
+    emitStructuredBrowserLog('warn', '`compact` parameter is deprecated and will be removed in a future release');
   }
   return JSON.stringify(urlState);
 }

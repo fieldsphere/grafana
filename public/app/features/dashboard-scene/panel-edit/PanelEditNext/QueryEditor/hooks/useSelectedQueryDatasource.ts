@@ -4,6 +4,7 @@ import { type DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * Hook to load the datasource for the currently selected query.
  * Falls back to the panel's datasource if the query doesn't specify one.
@@ -41,14 +42,14 @@ export function useSelectedQueryDatasource(
 
       const queryDsSettings = getDataSourceSrv().getInstanceSettings(dsRef);
       if (!queryDsSettings) {
-        console.error('Datasource settings not found for', dsRef);
+        grafanaStructuredLogger.logError(dsRef instanceof Error ? dsRef : new Error(String(dsRef)), { message: String('Datasource settings not found for') });
         return undefined;
       }
 
       const queryDatasource = await getDataSourceSrv().get(dsRef);
       return { datasource: queryDatasource, dsSettings: queryDsSettings };
     } catch (err) {
-      console.error('Failed to load datasource for selected query:', err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Failed to load datasource for selected query:') });
       return undefined;
     }
   }, [

@@ -20,6 +20,7 @@ import {
   teamOwnerRef,
 } from '../utils/dashboards';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const PAGE_SIZE = 50;
 
 async function searchOldAPI(parentUID?: string, page = 1, pageSize = PAGE_SIZE) {
@@ -78,7 +79,7 @@ async function searchNewAPI(parentUID?: string, page = 1, pageSize = PAGE_SIZE) 
         });
       }
     } catch (error) {
-      console.error('Failed to load team folders', error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Failed to load team folders') });
     }
   }
 

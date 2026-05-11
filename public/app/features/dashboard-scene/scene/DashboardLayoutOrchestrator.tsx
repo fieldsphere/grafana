@@ -34,6 +34,7 @@ import {
   isDashboardDropTarget,
 } from './types/DashboardDropTarget';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const TAB_ACTIVATION_DELAY_MS = 600;
 
 interface DashboardLayoutOrchestratorState extends SceneObjectState {
@@ -241,7 +242,7 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
             }
           } else {
             const warningMessage = 'No grid item to drag';
-            console.warn(warningMessage);
+            grafanaStructuredLogger.logWarning(String(warningMessage));
             logWarning(warningMessage);
           }
         });

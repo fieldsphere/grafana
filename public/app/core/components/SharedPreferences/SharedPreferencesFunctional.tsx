@@ -39,6 +39,7 @@ import {
   type State,
 } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const SharedPreferencesFunctional = memo((props: Props) => {
   const isAnalyticsFrameworkEnabled = useBooleanFlagValue('analyticsFramework', true);
   const [state, setState] = useState<UserPreferencesDTO & State>({
@@ -89,7 +90,7 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
           navbar: prefs.navbar ?? prev.navbar,
         }));
       } catch (err) {
-        console.error('Failed to load preferences', err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Failed to load preferences') });
       } finally {
         setState((prev) => ({ ...prev, isLoading: false }));
       }

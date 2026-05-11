@@ -17,6 +17,7 @@ import type { MutationClient, MutationRequest } from 'app/features/dashboard-sce
 import { provideMutationClientFactory } from 'app/features/dashboard-scene/scene/DashboardMutationClientSetter';
 import type { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 let _client: MutationClient | null = null;
 
 provideMutationClientFactory((sceneObject) => {
@@ -26,7 +27,7 @@ provideMutationClientFactory((sceneObject) => {
   try {
     _client = new DashboardMutationClient(scene);
   } catch (error) {
-    console.error('Failed to register Dashboard Mutation API:', error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Failed to register Dashboard Mutation API:') });
   }
 
   return () => {

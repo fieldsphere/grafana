@@ -18,6 +18,7 @@ import { LogGroupQueryScopeSelector } from './LogGroupQueryScopeSelector';
 import { LogGroupsSelector } from './LogGroupsSelector';
 import { SelectedLogGroups } from './SelectedLogGroups';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 type Props = {
   datasource: CloudWatchDatasource;
   onChange: (logGroups: LogGroup[]) => void;
@@ -92,7 +93,7 @@ export const LogGroupsField = ({
           onChange([...logGroups, ...variables.map((v) => ({ name: v, arn: v }))]);
         })
         .catch((err) => {
-          console.error(err);
+          grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
         });
     }
   }, [datasource, legacyLogGroupNames, logGroups, onChange, region, loadingLogGroupsStarted]);

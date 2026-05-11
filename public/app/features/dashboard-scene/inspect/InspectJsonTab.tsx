@@ -44,6 +44,7 @@ import {
 } from '../utils/utils';
 import { isGridLayoutItemKind, isPanelKindV2 } from '../v2schema/validation';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export type ShowContent = 'panel-json' | 'panel-data' | 'data-frames' | 'panel-layout';
 
 export interface InspectJsonTabState extends SceneObjectState {
@@ -165,7 +166,7 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
     const gridItem = panel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Cannot update layout: panel parent is not a DashboardGridItem');
+      grafanaStructuredLogger.logError(new Error('Cannot update layout: panel parent is not a DashboardGridItem'));
       return;
     }
 
@@ -259,7 +260,9 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
     const newState = sceneUtils.cloneSceneObjectState(gridItem.state);
 
     if (!(panel.parent instanceof DashboardGridItem)) {
-      console.error('Cannot update state of panel', panel, gridItem);
+      grafanaStructuredLogger.logWarning('Cannot update panel layout: parent is not DashboardGridItem', {
+        panelKey: panel.state.key,
+      });
       return;
     }
 

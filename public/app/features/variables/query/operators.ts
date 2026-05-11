@@ -18,6 +18,7 @@ import { type getTemplatedRegex, toKeyedVariableIdentifier, toVariablePayload } 
 
 import { updateVariableOptions } from './reducer';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export function toMetricFindValuesOperator(): OperatorFunction<PanelData, MetricFindValue[]> {
   return (source) => source.pipe(map(toMetricFindValues));
 }
@@ -110,7 +111,7 @@ export function updateOptionsState(args: {
       map((results) => {
         const { variable, dispatch, getTemplatedRegexFunc } = args;
         if (!variable.rootStateKey) {
-          console.error('updateOptionsState: variable.rootStateKey is not defined');
+          grafanaStructuredLogger.logError(new Error('updateOptionsState: variable.rootStateKey is not defined'));
           return;
         }
         const templatedRegex = getTemplatedRegexFunc(variable);

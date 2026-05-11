@@ -23,6 +23,7 @@ import {
 } from './shared';
 import { type EditPaneSelectionActions } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export interface DashboardEditPaneState extends SceneObjectState {
   selectionContext: ElementSelectionContextState;
 
@@ -237,7 +238,7 @@ export class DashboardEditPane extends SceneObjectBase<DashboardEditPaneState> i
   private selectElement(element: ElementSelectionContextItem, options: ElementSelectionOnSelectOptions) {
     let obj = sceneGraph.findByKey(this, element.id);
     if (!obj) {
-      console.warn('Cannot find element by key="%s"!', element.id);
+      grafanaStructuredLogger.logWarning(String('Cannot find element by key="%s"!'), { args: element.id });
       return;
     }
 
@@ -245,7 +246,7 @@ export class DashboardEditPane extends SceneObjectBase<DashboardEditPaneState> i
     if (sourceKey) {
       obj = sceneGraph.findByKey(this, sourceKey);
       if (!obj) {
-        console.warn('Cannot find element by source key="%s"!', sourceKey);
+        grafanaStructuredLogger.logWarning(String('Cannot find element by source key="%s"!'), { args: sourceKey });
         return;
       }
     }

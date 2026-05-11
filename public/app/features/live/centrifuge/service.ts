@@ -34,6 +34,7 @@ import { type StreamingResponseData } from '../data/utils';
 import { LiveDataStream } from './LiveDataStream';
 import { CentrifugeLiveChannel } from './channel';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export type CentrifugeSrvDeps = {
   grafanaAuthToken: string | null;
   appUrl: string;
@@ -126,7 +127,7 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.log('Publication from server-side channel', context);
+    grafanaStructuredLogger.logInfo(String('Publication from server-side channel'), { args: context });
   };
 
   private onError = (context: ErrorContext) => {

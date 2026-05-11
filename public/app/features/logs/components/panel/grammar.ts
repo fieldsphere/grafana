@@ -4,6 +4,7 @@ import { escapeRegex, parseFlags } from '@grafana/data';
 
 import { type LogListModel } from './processing';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 // The Logs grammar is used for highlight in the logs panel
 const logsGrammar: Grammar = {
   'log-token-key': /(\b|\B)[\w_]+(?=\s*=)/gi,
@@ -64,7 +65,7 @@ export const generateTextMatchGrammar = (highlightWords: string[] | undefined = 
       try {
         return new RegExp(`(?:${cleaned})`, flags);
       } catch (e) {
-        console.error(`generateTextMatchGrammar: cannot generate regular expression from /${cleaned}/${flags}`, e);
+        grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e)), { message: String(`generateTextMatchGrammar: cannot generate regular expression from /${cleaned}/${flags}`) });
       }
       return undefined;
     })
@@ -74,7 +75,7 @@ export const generateTextMatchGrammar = (highlightWords: string[] | undefined = 
     try {
       expressions.push(new RegExp(escapeRegex(search), 'gi'));
     } catch (e) {
-      console.error(`generateTextMatchGrammar: cannot generate regular expression from /${search}/gi`, e);
+      grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e)), { message: String(`generateTextMatchGrammar: cannot generate regular expression from /${search}/gi`) });
     }
   }
   if (!expressions.length) {

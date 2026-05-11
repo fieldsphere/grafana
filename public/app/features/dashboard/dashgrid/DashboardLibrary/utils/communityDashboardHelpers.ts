@@ -21,6 +21,7 @@ import { type GnetDashboard, type Link } from '../types';
 import { type InputMapping, tryAutoMapDatasources, parseConstantInputs, isDataSourceInput } from './autoMapDatasources';
 import type { AssistantSource } from './templateDashboardHelpers';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const SEARCH_DEBOUNCE_MS = 500;
 export const DEFAULT_SORT_ORDER = 'downloads';
 export const DEFAULT_SORT_DIRECTION = 'desc';
@@ -165,7 +166,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
   try {
     panelJson = JSON.stringify(panelWithoutSanitizedFields);
   } catch (e) {
-    console.warn('Failed to stringify panel', e);
+    grafanaStructuredLogger.logWarning(String('Failed to stringify panel'), { args: e });
     return true;
   }
 
@@ -196,7 +197,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousValue = valuePatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in value');
+      grafanaStructuredLogger.logWarning(String('Panel contains JavaScript code in value'));
       return true;
     }
     return false;
@@ -204,7 +205,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousKey = keyPatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in key');
+      grafanaStructuredLogger.logWarning(String('Panel contains JavaScript code in key'));
       return true;
     }
     return false;
@@ -320,7 +321,7 @@ export async function onUseCommunityDashboard({
       }
     }
   } catch (err) {
-    console.error('Error loading community dashboard:', err);
+    grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Error loading community dashboard:') });
     dispatch(
       notifyApp(
         createErrorNotification(t('dashboard-library.community-error-title', 'Error loading community dashboard'))

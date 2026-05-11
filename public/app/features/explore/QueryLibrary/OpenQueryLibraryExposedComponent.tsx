@@ -7,6 +7,7 @@ import { ToolbarButton } from '@grafana/ui';
 
 import { useQueryLibraryContext } from './QueryLibraryContext';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface Props {
   className?: string;
   context?: string;
@@ -81,9 +82,7 @@ export const OpenQueryLibraryExposedComponent = ({
   }, [context, datasourceFilters, onSelectQuery, openDrawer, query]);
 
   if (!queryLibraryEnabled) {
-    console.warn(
-      '[OpenQueryLibraryExposedComponent]: Attempted to use unsupported exposed component. Query library is not enabled.'
-    );
+    grafanaStructuredLogger.logWarning(String('[OpenQueryLibraryExposedComponent]: Attempted to use unsupported exposed component. Query library is not enabled.'));
     return null;
   }
 

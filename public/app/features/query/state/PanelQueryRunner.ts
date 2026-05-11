@@ -43,6 +43,7 @@ import { getDashboardQueryRunner } from './DashboardQueryRunner/DashboardQueryRu
 import { mergePanelAndDashData } from './mergePanelAndDashData';
 import { runRequest } from './runRequest';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export interface QueryRunnerOptions<
   TQuery extends DataQuery = DataQuery,
   TOptions extends DataSourceJsonData = DataSourceJsonData,
@@ -257,7 +258,7 @@ export class PanelQueryRunner {
         return { ...data, series, annotations };
       }),
       catchError((err) => {
-        console.warn('Error running transformation:', err);
+        grafanaStructuredLogger.logWarning(String('Error running transformation:'), { args: err });
         return of({
           ...data,
           state: LoadingState.Error,

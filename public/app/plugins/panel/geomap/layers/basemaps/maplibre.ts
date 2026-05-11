@@ -4,6 +4,7 @@ import { apply } from 'ol-mapbox-style';
 
 import { type MapLayerRegistryItem, type MapLayerOptions, type GrafanaTheme2, type EventBus } from '@grafana/data';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 // MapLibre Style Specification constants
 const LAYER_TYPE_BACKGROUND = 'background';
 const PAINT_BACKGROUND_OPACITY = 'background-opacity';
@@ -63,13 +64,13 @@ export const maplibreLayer: MapLayerRegistryItem<MaplibreConfig> = {
       const loadStyle = async () => {
         try {
           if (!cfg.url) {
-            console.warn('No URL provided for MapLibre style, layer will be empty');
+            grafanaStructuredLogger.logWarning('No URL provided for MapLibre style — layer will be empty');
             return;
           }
 
           const res = await fetch(cfg.url);
           if (!res.ok) {
-            console.warn(`Failed to load MapLibre style from ${cfg.url}: ${res.status} ${res.statusText}`);
+            grafanaStructuredLogger.logWarning(String(`Failed to load MapLibre style from ${cfg.url}: ${res.status} ${res.statusText}`));
             // Try fallback approach
             await tryFallbackApply();
             return;
@@ -90,7 +91,7 @@ export const maplibreLayer: MapLayerRegistryItem<MaplibreConfig> = {
           await apply(layer, style, { styleUrl: cfg.url, accessToken: cfg.accessToken });
           applyNoRepeat();
         } catch (error) {
-          console.warn('Failed to parse or apply MapLibre style JSON:', error);
+          grafanaStructuredLogger.logWarning(String('Failed to parse or apply MapLibre style JSON:'), { args: error });
           // Try fallback approach
           await tryFallbackApply();
         }
@@ -99,13 +100,13 @@ export const maplibreLayer: MapLayerRegistryItem<MaplibreConfig> = {
       const tryFallbackApply = async () => {
         try {
           if (!cfg.url) {
-            console.warn('No URL available for MapLibre fallback, layer will be empty');
+            grafanaStructuredLogger.logWarning('No URL available for MapLibre fallback — layer will be empty');
             return;
           }
           await apply(layer, cfg.url, { accessToken: cfg.accessToken });
           applyNoRepeat();
         } catch (fallbackError) {
-          console.warn('Failed to load MapLibre style from both JSON and direct URL approaches:', fallbackError);
+          grafanaStructuredLogger.logWarning(String('Failed to load MapLibre style from both JSON and direct URL approaches:'), { args: fallbackError });
         }
       };
 

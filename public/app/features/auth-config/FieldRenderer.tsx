@@ -9,6 +9,7 @@ import { fieldMap } from './fields';
 import { type SSOProviderDTO, type SSOSettingsField } from './types';
 import { isSelectableValueArray } from './utils/guards';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface FieldRendererProps
   extends Pick<
     UseFormReturn<SSOProviderDTO>,
@@ -78,7 +79,7 @@ export const FieldRenderer = ({
   }, [isDisabled, disabledWhen?.disabledValue, name, setValue]);
 
   if (!field) {
-    console.log('missing field:', name);
+    grafanaStructuredLogger.logInfo(String('missing field:'), { args: name });
     return null;
   }
 
@@ -190,7 +191,7 @@ export const FieldRenderer = ({
         </Field>
       );
     default:
-      console.error(`Unknown field type: ${fieldData.type}`);
+      grafanaStructuredLogger.logError(new Error(`Unknown field type: ${fieldData.type}`));
       return null;
   }
 };

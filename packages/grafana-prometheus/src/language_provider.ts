@@ -22,6 +22,7 @@ import { buildVisualQueryFromString } from './querybuilder/parsing';
 import { LabelsApiClient, type ResourceApiClient, SeriesApiClient } from './resource_clients';
 import { type PromMetricsMetadata, type PromQuery } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface PrometheusBaseLanguageProvider {
   datasource: PrometheusDatasource;
 
@@ -132,7 +133,7 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
       return res.data.data;
     } catch (error) {
       if (!isCancelledError(error)) {
-        console.error(error);
+        grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
       }
     }
 

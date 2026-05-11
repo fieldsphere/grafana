@@ -32,6 +32,7 @@ import { VersionHistoryComparison } from './version-history/VersionHistoryCompar
 import { VersionHistoryHeader } from './version-history/VersionHistoryHeader';
 import { VersionHistoryTable } from './version-history/VersionHistoryTable';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export interface VersionsEditViewState extends DashboardEditViewState {
   versions?: DecoratedRevisionModel[];
   isLoading?: boolean;
@@ -118,7 +119,7 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => grafanaStructuredLogger.logInfo(String(err)))
       .finally(() => this.setState({ isAppending: false }));
   };
 

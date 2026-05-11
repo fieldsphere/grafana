@@ -23,6 +23,7 @@ import {
 } from './responseUtils';
 import { type DetectedFieldsResult, LabelType, type LokiQuery, type ParserAndLabelKeysResult } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const NS_IN_MS = 1000000;
 const EMPTY_SELECTOR = '{}';
 const HIDDEN_LABELS = ['__aggregated_metric__', '__tenant_id__', '__stream_shard__'];
@@ -63,7 +64,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
       if (throwError) {
         throw error;
       } else {
-        console.error(error);
+        grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
       }
     }
 
@@ -293,7 +294,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         const data = await this.request(url, params, true, requestOptions);
         resolve(data);
       } catch (error) {
-        console.error('error', error);
+        grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('error') });
         reject(error);
       }
     });
@@ -374,7 +375,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         if (queryOptions?.throwError) {
           reject(error);
         } else {
-          console.error(error);
+          grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
           resolve([]);
         }
       }
@@ -444,7 +445,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
           resolve(labelValues);
         }
       } catch (error) {
-        console.error(error);
+        grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
         resolve([]);
       }
     });

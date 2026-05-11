@@ -8,6 +8,7 @@ import { type ScopesDashboardsService } from './dashboards/ScopesDashboardsServi
 import { deserializeFolderPath, serializeFolderPath } from './dashboards/scopeNavgiationUtils';
 import { type ScopesSelectorService } from './selector/ScopesSelectorService';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export interface State {
   enabled: boolean;
   readOnly: boolean;
@@ -93,7 +94,7 @@ export class ScopesService implements ScopesContextValue {
     const nodeToPreload = scopeNodeId;
     if (nodeToPreload) {
       this.selectorService.resolvePathToRoot(nodeToPreload, this.selectorService.state.tree!).catch((error) => {
-        console.error('Failed to pre-load node path', error);
+        grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Failed to pre-load node path') });
       });
     }
 

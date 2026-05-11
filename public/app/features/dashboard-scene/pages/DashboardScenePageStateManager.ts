@@ -59,6 +59,7 @@ import { restoreDashboardStateFromLocalStorage } from '../utils/dashboardSession
 
 import { processQueryParamsForDashboardLoad, updateNavModel } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * Initialize both performance services to ensure they're ready before profiling starts
  */
@@ -436,7 +437,7 @@ abstract class DashboardScenePageStateManagerBase<T>
       });
 
       if (!isFetchError(err)) {
-        console.error('Error loading dashboard:', err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Error loading dashboard:') });
       }
 
       // If the error is a DashboardVersionError, we want to throw it so that the error boundary is triggered
@@ -797,7 +798,7 @@ export class DashboardScenePageStateManager extends DashboardScenePageStateManag
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          grafanaStructuredLogger.logInfo(String('not correct url correcting'), { args: dashboardUrl, currentPath });
         }
       }
 
@@ -1017,7 +1018,7 @@ export class DashboardScenePageStateManagerV2 extends DashboardScenePageStateMan
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          grafanaStructuredLogger.logInfo(String('not correct url correcting'), { args: dashboardUrl, currentPath });
         }
       }
       // Populate nav model in global store according to the folder
