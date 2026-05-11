@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>CUR-54 Amethyst theme switcher artifact</title>
+    <style>
+      :root {
+        --canvas: #160F24;
+        --primary: #211632;
+        --secondary: #2B1D40;
+        --elevated: #352650;
+        --text: #F4ECFF;
+        --muted: #CDBBEA;
+        --accent: #9B5DE5;
+        --accent-2: #C084FC;
+        --border: #6D4C91;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        background:
+          radial-gradient(circle at 18% 12%, rgba(192, 132, 252, 0.32), transparent 28%),
+          radial-gradient(circle at 82% 24%, rgba(124, 58, 237, 0.28), transparent 30%),
+          var(--canvas);
+        font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .app {
+        display: grid;
+        grid-template-columns: 260px 1fr;
+        min-height: 100vh;
+      }
+      .sidebar {
+        padding: 28px 22px;
+        background: rgba(33, 22, 50, 0.88);
+        border-right: 1px solid #493366;
+      }
+      .brand {
+        font-size: 22px;
+        font-weight: 700;
+        margin-bottom: 32px;
+      }
+      .nav-item {
+        padding: 11px 12px;
+        margin: 8px 0;
+        color: var(--muted);
+        border-radius: 8px;
+      }
+      .nav-item.active {
+        color: var(--text);
+        background: #4B3370;
+        box-shadow: inset 3px 0 0 var(--accent-2);
+      }
+      main {
+        padding: 42px 48px;
+      }
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 36px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 38px;
+        letter-spacing: -0.03em;
+      }
+      .subtitle {
+        color: var(--muted);
+        margin-top: 8px;
+        font-size: 16px;
+      }
+      button {
+        border: 1px solid var(--border);
+        color: var(--text);
+        background: linear-gradient(135deg, var(--accent), var(--accent-2));
+        border-radius: 10px;
+        font-weight: 650;
+        padding: 11px 16px;
+      }
+      .drawer {
+        margin-left: auto;
+        width: 620px;
+        padding: 24px;
+        background: rgba(43, 29, 64, 0.94);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+      }
+      .drawer h2 {
+        margin: 0 0 6px;
+        font-size: 24px;
+      }
+      .drawer p {
+        margin: 0 0 20px;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+      .theme-card {
+        min-height: 142px;
+        padding: 16px;
+        border: 1px solid #493366;
+        border-radius: 14px;
+        background: var(--primary);
+      }
+      .theme-card.selected {
+        border-color: var(--accent-2);
+        background: linear-gradient(135deg, #211632, #352650);
+        box-shadow: 0 0 0 2px rgba(192, 132, 252, 0.26);
+      }
+      .swatches {
+        display: flex;
+        gap: 8px;
+        margin: 18px 0;
+      }
+      .swatch {
+        height: 38px;
+        flex: 1;
+        border-radius: 8px;
+        border: 1px solid rgba(255,255,255,0.16);
+      }
+      .theme-name {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 18px;
+        font-weight: 700;
+      }
+      .badge {
+        color: #160F24;
+        background: var(--accent-2);
+        border-radius: 999px;
+        padding: 4px 8px;
+        font-size: 12px;
+      }
+      .id {
+        color: var(--muted);
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 13px;
+      }
+      .note {
+        margin-top: 22px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+      .step-label {
+        position: fixed;
+        right: 48px;
+        bottom: 32px;
+        padding: 10px 14px;
+        color: var(--text);
+        background: rgba(22, 15, 36, 0.86);
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        font-size: 14px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">Grafana</div>
+        <div class="nav-item active">Profile</div>
+        <div class="nav-item">Dashboards</div>
+        <div class="nav-item">Explore</div>
+        <div class="nav-item">Administration</div>
+      </aside>
+      <main>
+        <section class="topbar">
+          <div>
+            <h1>Theme switcher</h1>
+            <div class="subtitle">New purple/amethyst option from the CUR-54 summary.</div>
+          </div>
+          <button id="open">Change theme</button>
+        </section>
+        <section class="drawer" aria-label="Theme switcher drawer">
+          <h2>Select an interface theme</h2>
+          <p>Amethyst is available alongside the existing GrafanaCon themes.</p>
+          <div class="grid">
+            
+                  <article class="theme-card " data-theme-id="system">
+                    <div class="theme-name">
+                      <span>System preference</span>
+                      
+                    </div>
+                    <div class="swatches">
+                      <span class="swatch" style="background:#0B0C0E"></span><span class="swatch" style="background:#F4F5F5"></span><span class="swatch" style="background:#F47A20"></span>
+                    </div>
+                    <div class="id">theme id: system</div>
+                  </article>
+                  <article class="theme-card " data-theme-id="dark">
+                    <div class="theme-name">
+                      <span>Dark</span>
+                      
+                    </div>
+                    <div class="swatches">
+                      <span class="swatch" style="background:#111217"></span><span class="swatch" style="background:#181B1F"></span><span class="swatch" style="background:#FF8833"></span>
+                    </div>
+                    <div class="id">theme id: dark</div>
+                  </article>
+                  <article class="theme-card " data-theme-id="light">
+                    <div class="theme-name">
+                      <span>Light</span>
+                      
+                    </div>
+                    <div class="swatches">
+                      <span class="swatch" style="background:#FFFFFF"></span><span class="swatch" style="background:#F4F5F5"></span><span class="swatch" style="background:#3865AB"></span>
+                    </div>
+                    <div class="id">theme id: light</div>
+                  </article>
+                  <article class="theme-card selected" data-theme-id="amethyst">
+                    <div class="theme-name">
+                      <span>Amethyst</span>
+                      <span class="badge">Selected</span>
+                    </div>
+                    <div class="swatches">
+                      <span class="swatch" style="background:#160F24"></span><span class="swatch" style="background:#211632"></span><span class="swatch" style="background:#9B5DE5"></span>
+                    </div>
+                    <div class="id">theme id: amethyst</div>
+                  </article>
+          </div>
+          <div class="note">Uses packages/grafana-data/src/themes/themeDefinitions/amethyst.json to mirror the implementation.</div>
+        </section>
+      </main>
+    </div>
+    <div class="step-label" id="step-label">Theme switcher includes Amethyst</div>
+  </body>
+</html>
