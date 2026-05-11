@@ -183,6 +183,10 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.collector.title', 'Collector');
     case 'connections-datasources':
       return t('nav.data-sources.title', 'Data sources');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
+    case 'labs/feature-flags':
+      return t('nav.labs-feature-flags.title', 'Feature flags');
     case 'standalone-plugin-page-/connections/infrastructure':
       return t('nav.integrations.title', 'Integrations');
     case 'standalone-plugin-page-/connections/connect-data':
@@ -304,6 +308,10 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.connections.subtitle', 'Browse and create new connections');
     case 'connections-datasources':
       return t('nav.data-sources.subtitle', 'View and manage your connected data source connections');
+    case 'labs':
+      return t('nav.labs.subtitle', 'Review enabled feature flags');
+    case 'labs/feature-flags':
+      return t('nav.labs-feature-flags.subtitle', 'View all currently enabled feature flags');
     case 'connections-private-data-source-connections':
       return t(
         'nav.private-data-source-connections.subtitle',

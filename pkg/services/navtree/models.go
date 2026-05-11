@@ -30,6 +30,7 @@ const (
 	WeightApplication
 	WeightAsserts
 	WeightDataConnections
+	WeightLabs
 	WeightApps
 	WeightPlugin
 	WeightConfig
