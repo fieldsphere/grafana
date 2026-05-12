@@ -27,6 +27,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.bookmarks.title', 'Bookmarks');
     case 'bookmarks-empty':
       return t('nav.bookmarks-empty.title', 'Bookmark pages for them to appear here');
+    case 'code-health':
+      return t('nav.code-health.title', 'Code health');
     case 'starred':
       return t('nav.starred.title', 'Starred');
     case 'starred-empty':
@@ -257,6 +259,8 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.alerting-activity.subtitle', 'View alerts and active notifications');
     case 'alerts/recently-deleted':
       return t('nav.alerts-recently-deleted.subtitle', 'See recently deleted alert rules');
+    case 'code-health':
+      return t('nav.code-health.subtitle', 'Repository quality signals and recommended actions');
     case 'datasources':
       return t('nav.datasources.subtitle', 'Add and configure data sources');
     case 'correlations':
