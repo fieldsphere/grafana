@@ -441,7 +441,7 @@ func paginatedList[T any](
 		allItems = append(allItems, items...)
 
 		// Check if we've exceeded the maximum allowed items
-		if len(allItems) > opts.MaxItems {
+		if len(allItems) > opts.MaxItems || (len(allItems) == opts.MaxItems && resp.NextPage != 0) {
 			return nil, repo.ErrTooManyItems
 		}
 

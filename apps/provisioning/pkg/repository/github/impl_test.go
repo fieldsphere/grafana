@@ -1701,6 +1701,27 @@ func TestPaginatedList(t *testing.T) {
 	}
 }
 
+func TestPaginatedListStopsWhenMaxReachedWithMorePages(t *testing.T) {
+	callCount := 0
+	listFn := func(_ context.Context, opts *github.ListOptions) ([]string, *github.Response, error) {
+		callCount++
+		require.Equal(t, 1, opts.Page)
+		return []string{"item1", "item2"}, &github.Response{NextPage: 2}, nil
+	}
+
+	got, err := paginatedList(context.Background(), listFn, listOptions{
+		ListOptions: github.ListOptions{
+			Page:    1,
+			PerPage: 2,
+		},
+		MaxItems: 2,
+	})
+
+	require.ErrorIs(t, err, repo.ErrTooManyItems)
+	require.Nil(t, got)
+	require.Equal(t, 1, callCount)
+}
+
 func TestDefaultListOptions(t *testing.T) {
 	tests := []struct {
 		name     string
