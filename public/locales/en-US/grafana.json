@@ -4900,6 +4900,41 @@
   },
   "cloud-enterprise-feature-badge": "Cloud & Enterprise",
   "cloud-feature-badge": "Cloud",
+  "code-health": {
+    "actions": {
+      "area-label": "Area: {{area}}",
+      "list-aria-label": "Recommended actions",
+      "severity-high": "High priority",
+      "severity-low": "Low priority",
+      "severity-medium": "Medium priority"
+    },
+    "metric-card": {
+      "aria-label": "{{label}}: {{value}}",
+      "trend-delta": "{{delta}} vs previous period",
+      "trend-flat": "No change vs previous period"
+    },
+    "page": {
+      "actions-description": "Suggested follow-up tickets that an engineer or agent could pick up next.",
+      "actions-empty": "No outstanding recommendations for this time range.",
+      "actions-heading": "Recommended actions",
+      "description": "Demo overview of lint, type, test, dependency, and CI signals. Numbers are mocked for demo purposes and refresh as you change the time range.",
+      "detail-aria-label": "Selected metric details and recommended actions",
+      "heading": "Repository code health",
+      "metrics-aria-label": "Code health metrics",
+      "no-selected-metric": "Select a metric to see its trend.",
+      "time-range-aria-label": "Select time range",
+      "time-range-description": "Adjusts every metric, the trend chart, and the recommended actions.",
+      "time-range-label": "Time range"
+    },
+    "trend-chart": {
+      "aria-label": "{{label}} trend over the selected period",
+      "heading": "{{label}} trend",
+      "range": "Range: {{min}}–{{max}}",
+      "x-earliest": "Earliest",
+      "x-mid": "Mid",
+      "x-now": "Now"
+    }
+  },
   "combobox": {
     "async": {
       "error": "An error occurred while loading options."
@@ -11919,6 +11954,10 @@
     },
     "bookmarks-empty": {
       "title": "Bookmark pages for them to appear here"
+    },
+    "code-health": {
+      "subtitle": "Repository quality signals and recommended actions",
+      "title": "Code health"
     },
     "collector": {
       "title": "Collector"

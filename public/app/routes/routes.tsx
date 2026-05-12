@@ -539,6 +539,12 @@ export function getAppRoutes(): RouteDescriptor[] {
       ),
     },
     {
+      path: '/code-health',
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "CodeHealthPage"*/ 'app/features/code-health/CodeHealthPage')
+      ),
+    },
+    {
       path: '/theme-playground',
       component: SafeDynamicImport(
         () => import(/* webpackChunkName: "ThemePlayground"*/ 'app/features/theme-playground/ThemePlayground')
