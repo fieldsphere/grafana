@@ -3,6 +3,7 @@ package github
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/google/go-github/v82/github"
 	"golang.org/x/oauth2"
@@ -18,6 +19,8 @@ type Factory struct {
 	Client *http.Client
 }
 
+const defaultGitHubClientTimeout = 30 * time.Second
+
 func ProvideFactory() *Factory {
 	return &Factory{}
 }
@@ -28,6 +31,7 @@ func (r *Factory) New(ctx context.Context, ghToken common.RawSecureValue) Client
 	}
 
 	if !ghToken.IsZero() {
+		ctx = context.WithValue(ctx, oauth2.HTTPClient, defaultGitHubHTTPClient())
 		tokenSrc := oauth2.StaticTokenSource(
 			&oauth2.Token{AccessToken: string(ghToken)},
 		)
@@ -35,5 +39,9 @@ func (r *Factory) New(ctx context.Context, ghToken common.RawSecureValue) Client
 		return NewClient(github.NewClient(tokenClient))
 	}
 
-	return NewClient(github.NewClient(&http.Client{}))
+	return NewClient(github.NewClient(defaultGitHubHTTPClient()))
+}
+
+func defaultGitHubHTTPClient() *http.Client {
+	return &http.Client{Timeout: defaultGitHubClientTimeout}
 }
