@@ -533,6 +533,12 @@ export function getAppRoutes(): RouteDescriptor[] {
       ),
     },
     {
+      path: '/code-health',
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "CodeHealthDashboard" */ 'app/features/code-health/CodeHealthDashboardPage')
+      ),
+    },
+    {
       path: '/bookmarks',
       component: SafeDynamicImport(
         () => import(/* webpackChunkName: "BookmarksPage"*/ 'app/features/bookmarks/BookmarksPage')

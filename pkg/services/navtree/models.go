@@ -56,7 +56,11 @@ const (
 	NavIDCfgPlugins           = "cfg/plugins"
 	NavIDCfgAccess            = "cfg/access"
 	NavIDBookmarks            = "bookmarks"
+	NavIDCodeHealth           = "code-health"
 )
+
+// WeightCodeHealthDemo places the Code health demo link between Drilldown and Assistant in the root nav.
+const WeightCodeHealthDemo int64 = -3450
 
 type NavLink struct {
 	Id             string     `json:"id,omitempty"`

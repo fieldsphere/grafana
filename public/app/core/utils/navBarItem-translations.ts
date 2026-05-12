@@ -59,6 +59,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.explore.title', 'Explore');
     case 'drilldown':
       return t('nav.drilldown.title', 'Drilldown');
+    case 'code-health':
+      return t('nav.code-health.title', 'Code health');
     case 'alerting':
       return t('nav.alerting.title', 'Alerting');
     case 'plugin-page-grafana-oncall-app':
@@ -319,6 +321,11 @@ export function getNavSubTitle(navId: string | undefined) {
       );
     case 'plugin-page-grafana-ml-app':
       return t('nav.machine-learning.subtitle', 'Explore AI and machine learning features');
+    case 'code-health':
+      return t(
+        'nav.code-health.subtitle',
+        'Demo repository quality overview for Cursor agent workflows'
+      );
     default:
       return undefined;
   }

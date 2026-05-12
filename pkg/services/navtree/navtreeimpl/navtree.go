@@ -147,6 +147,17 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		})
 	}
 
+	if c.IsSignedIn {
+		treeRoot.AddSection(&navtree.NavLink{
+			Text:       "Code health",
+			Id:         navtree.NavIDCodeHealth,
+			SubTitle:   "Demo repository quality overview for Cursor agent workflows",
+			Icon:       "heart-rate",
+			SortWeight: navtree.WeightCodeHealthDemo,
+			Url:        s.cfg.AppSubURL + "/code-health",
+		})
+	}
+
 	if s.cfg.ProfileEnabled && c.IsSignedIn {
 		treeRoot.AddSection(s.getProfileNode(c))
 	}
