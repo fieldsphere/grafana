@@ -192,6 +192,15 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 			EmptyMessageId: "bookmarks-empty",
 			Url:            s.cfg.AppSubURL + "/bookmarks",
 		})
+
+		treeRoot.AddSection(&navtree.NavLink{
+			Text:       "Code health",
+			Id:         navtree.NavIDCodeHealth,
+			SubTitle:   "Repository quality signals and recommended actions",
+			Icon:       "heart-rate",
+			SortWeight: navtree.WeightDashboard,
+			Url:        s.cfg.AppSubURL + "/code-health",
+		})
 	}
 
 	return treeRoot, nil
