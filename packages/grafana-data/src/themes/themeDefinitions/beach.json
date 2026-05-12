@@ -1,0 +1,71 @@
+{
+  "name": "Beach",
+  "id": "beach",
+  "colors": {
+    "mode": "light",
+    "border": {
+      "weak": "rgba(30, 77, 95, 0.12)",
+      "medium": "rgba(30, 77, 95, 0.22)",
+      "strong": "rgba(30, 77, 95, 0.35)"
+    },
+    "text": {
+      "primary": "#1c3d4b",
+      "secondary": "#3d6272",
+      "disabled": "rgba(28, 61, 75, 0.45)",
+      "link": "#0a6f8c",
+      "maxContrast": "#081f28"
+    },
+    "primary": {
+      "main": "#d45a3e",
+      "text": "#b84a31",
+      "border": "#a83d29",
+      "name": "primary",
+      "shade": "#a83d29",
+      "transparent": "#d45a3e26",
+      "contrastText": "#fffdf8",
+      "borderTransparent": "#d45a3e40"
+    },
+    "secondary": {
+      "main": "#e8f4f8",
+      "text": "#2f5f6f",
+      "border": "#b5d9e5",
+      "name": "secondary",
+      "shade": "#c8dfe8",
+      "transparent": "#e8f4f826",
+      "contrastText": "#194a58",
+      "borderTransparent": "#b5d9e566"
+    },
+    "info": {
+      "main": "#0a6f8c"
+    },
+    "success": {
+      "main": "#1f8f7a"
+    },
+    "warning": {
+      "main": "#c77d12"
+    },
+    "background": {
+      "canvas": "#efe6d9",
+      "primary": "#fffcf5",
+      "secondary": "#e4dbd0",
+      "elevated": "#ffffff"
+    },
+    "action": {
+      "hover": "rgba(10, 111, 140, 0.10)",
+      "selected": "rgba(10, 111, 140, 0.18)",
+      "selectedBorder": "#d45a3e",
+      "focus": "rgba(10, 111, 140, 0.26)",
+      "hoverOpacity": 0.08,
+      "disabledText": "rgba(61, 98, 114, 0.45)",
+      "disabledBackground": "rgba(10, 111, 140, 0.06)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #f29f5f 0%, #f06b5a 50%, #d45a3e 100%)",
+      "brandVertical": "linear-gradient(0deg, #4aabd4 0%, #f06b5a 65%, #f29f5f 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.03,
+    "tonalOffset": 0.15
+  }
+}

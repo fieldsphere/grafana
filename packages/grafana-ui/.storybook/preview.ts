@@ -42,6 +42,7 @@ const allowedExtraThemes: string[] = [
 
 if (process.env.NODE_ENV === 'development') {
   allowedExtraThemes.push('debug');
+  allowedExtraThemes.push('beach');
   allowedExtraThemes.push('desertbloom');
   allowedExtraThemes.push('gildedgrove');
   allowedExtraThemes.push('gloom');
