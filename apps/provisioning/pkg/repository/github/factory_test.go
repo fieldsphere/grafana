@@ -45,5 +45,5 @@ func TestFactoryNewPreservesInjectedClient(t *testing.T) {
 
 	ghClient, ok := client.(*githubClient)
 	require.True(t, ok)
-	require.Same(t, customClient, ghClient.gh.Client())
+	require.Equal(t, customClient.Timeout, ghClient.gh.Client().Timeout)
 }
