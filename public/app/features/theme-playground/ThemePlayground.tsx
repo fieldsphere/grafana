@@ -15,7 +15,6 @@ import synthwave from '@grafana/data/themes/definitions/synthwave.json';
 import tron from '@grafana/data/themes/definitions/tron.json';
 import victorian from '@grafana/data/themes/definitions/victorian.json';
 import zen from '@grafana/data/themes/definitions/zen.json';
-import themeJsonSchema from '@grafana/data/themes/schema.generated.json';
 import { t } from '@grafana/i18n';
 import { useChromeHeaderHeight } from '@grafana/runtime';
 import { CodeEditor, Combobox, Field, Stack, useStyles2 } from '@grafana/ui';
@@ -60,6 +59,8 @@ const experimentalDefinitions: Record<string, unknown> = {
   victorian,
   zen,
 };
+
+const themeJsonSchema = NewThemeOptionsSchema.toJSONSchema({ target: 'draft-07' });
 
 // Add additional themes
 for (const [name, json] of Object.entries(experimentalDefinitions)) {
