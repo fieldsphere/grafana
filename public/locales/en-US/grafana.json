@@ -12230,7 +12230,11 @@
       "aria-label": "New",
       "new-template-dashboard-button": "Dashboard from template"
     },
-    "rss-button": "Latest from the blog"
+    "rss-button": "Latest from the blog",
+    "theme-toggle": {
+      "switch-to-dark": "Switch to dark theme",
+      "switch-to-light": "Switch to light theme"
+    }
   },
   "news": {
     "category-news": "News",
