@@ -1,5 +1,6 @@
+import { store } from '@grafana/data';
 import { getThemeById } from '@grafana/data/internal';
-import { config, ThemeChangedEvent } from '@grafana/runtime';
+import { config, GRAFANA_ANONYMOUS_THEME_STORAGE_KEY, ThemeChangedEvent } from '@grafana/runtime';
 
 import { appEvents } from '../app_events';
 import { contextSrv } from '../services/context_srv';
@@ -40,6 +41,11 @@ export async function changeTheme(themeId: string, runtimeOnly?: boolean) {
   }
 
   if (!contextSrv.isSignedIn) {
+    try {
+      store.set(GRAFANA_ANONYMOUS_THEME_STORAGE_KEY, themeId);
+    } catch {
+      // Ignore unavailable storage
+    }
     return;
   }
 

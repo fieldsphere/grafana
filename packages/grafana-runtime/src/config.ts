@@ -26,6 +26,7 @@ import {
   UnifiedAlertingConfig,
   GrafanaConfig,
   CurrentUserDTO,
+  store,
 } from '@grafana/data';
 
 /**
@@ -75,6 +76,30 @@ export type PreinstalledPlugin = {
   id: string;
   version: string;
 };
+
+/**
+ * Browser localStorage key for persisted dark/light theme when no signed-in user exists.
+ * Written by the application theme service when anonymous users change theme.
+ */
+export const GRAFANA_ANONYMOUS_THEME_STORAGE_KEY = 'grafana.theme.color-scheme';
+
+function readAnonymousThemePreference(serverTheme: string, isSignedIn: boolean | undefined): string {
+  if (isSignedIn) {
+    return serverTheme;
+  }
+  if (typeof window === 'undefined') {
+    return serverTheme;
+  }
+  try {
+    const stored = store.get(GRAFANA_ANONYMOUS_THEME_STORAGE_KEY);
+    if (stored === 'dark' || stored === 'light') {
+      return stored;
+    }
+  } catch {
+    // Storage can be unavailable (private mode, disabled cookies, etc.)
+  }
+  return serverTheme;
+}
 
 /**
  * Use to access Grafana config settings in application code.
@@ -292,7 +317,14 @@ export class GrafanaBootConfig {
     this.bootData.settings.featureToggles = this.featureToggles;
 
     // Creating theme after applying feature toggle overrides in case we need to toggle anything
-    this.theme2 = getThemeById(this.bootData.user.theme);
+    const resolvedTheme = readAnonymousThemePreference(
+      this.bootData.user.theme || 'dark',
+      this.bootData.user.isSignedIn
+    );
+    this.theme2 = getThemeById(resolvedTheme);
+    if (!this.bootData.user.isSignedIn) {
+      this.bootData.user.theme = resolvedTheme;
+    }
     this.bootData.user.lightTheme = this.theme2.isLight;
     this.theme = this.theme2.v1;
     this.regionalFormat = options.bootData.user.regionalFormat;
@@ -304,7 +336,7 @@ export class GrafanaBootConfig {
 function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
   const featureToggles = config.featureToggles;
   const localStorageKey = 'grafana.featureToggles';
-  const localStorageValue = window.localStorage.getItem(localStorageKey);
+  const localStorageValue = store.get(localStorageKey);
   if (localStorageValue) {
     const features = localStorageValue.split(',');
     for (const feature of features) {
