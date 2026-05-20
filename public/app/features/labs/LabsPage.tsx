@@ -57,6 +57,10 @@ function buildInitialFeatureToggleState(): FeatureToggleMap {
   return { ...runtimeFeatureToggles, ...filteredOverrides };
 }
 
+function isRuntimeFeatureToggleName(featureName: string): featureName is keyof typeof config.featureToggles {
+  return featureName in config.featureToggles;
+}
+
 export default function LabsPage() {
   const styles = useStyles2(getStyles);
   const [search, setSearch] = useState('');
@@ -81,13 +85,13 @@ export default function LabsPage() {
     }
 
     const enabled = event.currentTarget.checked;
-    const nextFeatureToggles = { ...featureToggles, [featureName]: enabled };
-
-    setFeatureToggles(nextFeatureToggles);
+    setFeatureToggles((previousFeatureToggles) => ({ ...previousFeatureToggles, [featureName]: enabled }));
     const localStorageFeatureToggles = parseFeatureToggleOverrides(store.get(FEATURE_TOGGLE_STORAGE_KEY));
     localStorageFeatureToggles[featureName] = enabled;
     store.set(FEATURE_TOGGLE_STORAGE_KEY, serializeFeatureToggleOverrides(localStorageFeatureToggles));
-    (config.featureToggles as FeatureToggleMap)[featureName] = enabled;
+    if (isRuntimeFeatureToggleName(featureName)) {
+      config.featureToggles[featureName] = enabled;
+    }
   };
 
   return (
