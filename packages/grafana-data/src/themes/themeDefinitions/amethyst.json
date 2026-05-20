@@ -1,0 +1,62 @@
+{
+  "name": "Amethyst",
+  "id": "amethyst",
+  "colors": {
+    "mode": "dark",
+    "border": {
+      "weak": "rgba(194, 161, 255, 0.14)",
+      "medium": "rgba(194, 161, 255, 0.24)",
+      "strong": "rgba(194, 161, 255, 0.36)"
+    },
+    "text": {
+      "primary": "#F4EEFF",
+      "secondary": "rgba(244, 238, 255, 0.78)",
+      "disabled": "rgba(244, 238, 255, 0.50)",
+      "link": "#C2A1FF",
+      "maxContrast": "#FFFFFF"
+    },
+    "primary": {
+      "main": "#9D6CFF",
+      "text": "#D8C4FF",
+      "border": "#C2A1FF",
+      "name": "primary",
+      "shade": "#8352E6",
+      "transparent": "#9D6CFF26",
+      "contrastText": "#160B29",
+      "borderTransparent": "#C2A1FF40"
+    },
+    "secondary": {
+      "main": "#2C1B46",
+      "text": "#D8C4FF",
+      "border": "rgba(194, 161, 255, 0.24)",
+      "name": "secondary",
+      "shade": "#3B285E",
+      "transparent": "#2C1B4626",
+      "contrastText": "#F4EEFF",
+      "borderTransparent": "rgba(194, 161, 255, 0.25)"
+    },
+    "background": {
+      "canvas": "#120A1F",
+      "primary": "#1A102B",
+      "secondary": "#24163A",
+      "elevated": "#2C1B46"
+    },
+    "action": {
+      "hover": "rgba(194, 161, 255, 0.14)",
+      "selected": "rgba(157, 108, 255, 0.18)",
+      "selectedBorder": "#9D6CFF",
+      "focus": "rgba(194, 161, 255, 0.22)",
+      "hoverOpacity": 0.08,
+      "disabledText": "rgba(244, 238, 255, 0.50)",
+      "disabledBackground": "rgba(194, 161, 255, 0.06)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #9D6CFF 0%, #C2A1FF 100%)",
+      "brandVertical": "linear-gradient(0deg, #9D6CFF 0%, #C2A1FF 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.03,
+    "tonalOffset": 0.15
+  }
+}
