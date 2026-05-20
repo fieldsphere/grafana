@@ -306,7 +306,24 @@
 
           // Handle SSO auto-login redirection from /bootdata.
           // Only redirect if there's no login error to avoid redirect loops.
-          const hasLoginError = rawBootData.settings?.loginError || window.grafanaBootData.settings.loginError;
+          const hasLoginError = rawBootData.settings?.loginError || window.grafanaBootData.settings?.loginError;
+          const appPathname = (() => {
+            const pathname = window.location.pathname;
+            const base = document.querySelector('base');
+            if (!base) {
+              return pathname;
+            }
+            try {
+              const basePath = new URL(base.href, window.location.origin).pathname.replace(/\/$/, '') || '';
+              if (basePath && pathname.startsWith(basePath)) {
+                const remaining = pathname.slice(basePath.length);
+                return remaining || '/';
+              }
+            } catch (e) {
+              // ignore invalid base URL
+            }
+            return pathname;
+          })();
           const annonAccessPages = [
             /\/dashboard\/snapshot\/.*$/,
             /\/invite$/,
@@ -315,11 +332,11 @@
             /\/user\/password\/reset$/,
             /\/public-dashboards\/.*$/,
           ]
-          const isAllowedAnonPage = annonAccessPages.some((regex) => regex.test(window.location.pathname));
+          const isAllowedAnonPage = annonAccessPages.some((regex) => regex.test(appPathname));
+          const isLoginPage = appPathname === '/login';
           if (rawBootData.autoLoginRedirectURL && !hasLoginError && !queryParams.has('disableAutoLogin') && !isAllowedAnonPage) {
             // Copied from context_srv.setRedirectToUrl
-            const redirectPath = window.location.href.substring(window.location.origin.length)
-            if (redirectPath !== "/login") {
+            if (!isLoginPage) {
               window.sessionStorage.setItem(
                 'redirectTo',
                 encodeURIComponent(window.location.href.substring(window.location.origin.length))
