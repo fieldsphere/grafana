@@ -101,6 +101,14 @@ describe('Alertmanager utils', () => {
       const matchers = parsePromQLStyleMatcherLooseSafe('foo!=bazz,bar=~(?i)Ba.+');
       expect(labelsMatchMatchers(labels, matchers)).toBe(true);
     });
+
+    it('matches not-equal and regex matchers from ticket repro (HSS-2)', () => {
+      const criticalAlert: Labels = { severity: 'critical', service: 'web-api' };
+
+      expect(labelsMatchMatchers(criticalAlert, parsePromQLStyleMatcherLooseSafe('severity!=info'))).toBe(true);
+      expect(labelsMatchMatchers(criticalAlert, parsePromQLStyleMatcherLooseSafe('service=~web.*'))).toBe(true);
+      expect(labelsMatchMatchers(criticalAlert, parsePromQLStyleMatcherLooseSafe('severity=info'))).toBe(false);
+    });
   });
 
   describe('removeMuteTimingFromRoute', () => {

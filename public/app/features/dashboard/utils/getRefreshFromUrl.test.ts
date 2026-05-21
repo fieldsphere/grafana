@@ -69,5 +69,17 @@ describe('getRefreshFromUrl', () => {
         expect(actual).toBe(expected);
       }
     );
+
+    it('falls back to the fastest allowed interval when URL refresh is no longer in dashboard list (HSS-1)', () => {
+      const actual = getRefreshFromUrl({
+        urlRefresh: '10s',
+        currentRefresh: false,
+        minRefreshInterval: '10s',
+        isAllowedIntervalFn: () => true,
+        refreshIntervals: ['5s', '30s', '1m', '5m'],
+      });
+
+      expect(actual).toBe('5s');
+    });
   });
 });

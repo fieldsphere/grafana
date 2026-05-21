@@ -103,6 +103,24 @@ describe('parseMatcher', () => {
   it('should throw when parsing PromQL-style matcher', () => {
     expect(() => parseMatcher('{ foo=bar }')).toThrow();
   });
+
+  it('parses not-equal matchers (HSS-2)', () => {
+    expect(parseMatcher('severity!=info')).toStrictEqual({
+      name: 'severity',
+      value: 'info',
+      isRegex: false,
+      isEqual: false,
+    });
+  });
+
+  it('parses regex matchers (HSS-2)', () => {
+    expect(parseMatcher('service=~web.*')).toStrictEqual({
+      name: 'service',
+      value: 'web.*',
+      isRegex: true,
+      isEqual: true,
+    });
+  });
 });
 
 describe('quoteWithEscape', () => {
