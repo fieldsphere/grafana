@@ -42,7 +42,7 @@ export function parseMatcher(matcher: string): Matcher {
   const operatorsFound = matcherOperators
     .map((op): [MatcherOperator, number] => [op, matcher.indexOf(op)])
     .filter(([_, idx]) => idx > -1)
-    .sort((a, b) => b[1] - a[1]);
+    .sort((a, b) => a[1] - b[1]);
 
   if (!operatorsFound.length) {
     throw new Error(`Invalid matcher: ${matcher}`);
@@ -58,7 +58,7 @@ export function parseMatcher(matcher: string): Matcher {
     name,
     value,
     isRegex: operator === MatcherOperator.regex || operator === MatcherOperator.notRegex,
-    isEqual: operator === MatcherOperator.equal || operator === MatcherOperator.notRegex,
+    isEqual: operator === MatcherOperator.equal || operator === MatcherOperator.regex,
   };
 }
 
