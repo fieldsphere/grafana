@@ -1,86 +1,88 @@
-import React from 'react';
-import { Card, HorizontalGroup } from '@grafana/ui';
 import { css, cx } from '@emotion/css';
+import * as React from 'react';
 
-interface cardProps {
+import { type GrafanaTheme2 } from '@grafana/data';
+import { Card, useStyles2 } from '@grafana/ui';
+
+interface Props {
   description?: string;
   text: string;
   url: string;
   category?: string;
-  clicked?: (event?: React.MouseEvent) => void;
+  onClick?: (event?: React.MouseEvent) => void;
 }
 
-const categoryStyles = ['primary', 'secondary', 'success', 'warning', 'error'] as const;
-type CategoryStyle = (typeof categoryStyles)[number];
+const CATEGORY_STYLES = ['primary', 'secondary', 'success', 'warning', 'error'] as const;
+type CategoryStyle = (typeof CATEGORY_STYLES)[number];
 
-const isCategoryStyle = (cat: string) => {
-  return categoryStyles.some((style) => style === cat);
-};
+function isCategoryStyle(cat: string): cat is CategoryStyle {
+  return CATEGORY_STYLES.some((style) => style === cat);
+}
 
-const getStyles = () => ({
-  Card: css`
-    grid-template-rows: 1fr 0 2fr;
-  `,
-  Description: css`
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    display: -webkit-box;
-    overflow: hidden;
-  `,
-  Primary: css`
-    border: 1px solid rgba(55, 135, 255, 0.25);
-    background-color: rgba(55, 135, 255, 0.08);
-    &:hover {
-      background-color: rgba(55, 135, 255, 0.08);
-      border-color: rgba(55, 135, 255, 0.4);
-    }
-  `,
-  Secondary: css`
-    border: 1px solid rgba(180, 180, 180, 0.25);
-    background-color: rgba(180, 180, 180, 0.08);
-    &:hover {
-      background-color: rgba(180, 180, 180, 0.08);
-      border-color: rgba(180, 180, 180, 0.4);
-    }
-  `,
-  Success: css`
-    border: 1px solid rgba(115, 191, 105, 0.25);
-    background-color: rgba(115, 191, 105, 0.08);
-    &:hover {
-      background-color: rgba(115, 191, 105, 0.08);
-      border-color: rgba(115, 191, 105, 0.4);
-    }
-  `,
-  Warning: css`
-    border: 1px solid rgba(255, 152, 48, 0.25);
-    background-color: rgba(255, 152, 48, 0.08);
-    &:hover {
-      background-color: rgba(255, 152, 48, 0.08);
-      border-color: rgba(255, 152, 48, 0.4);
-    }
-  `,
-  Error: css`
-    border: 1px solid rgba(242, 73, 92, 0.25);
-    background-color: rgba(242, 73, 92, 0.08);
-    &:hover {
-      background-color: rgba(242, 73, 92, 0.08);
-      border-color: rgba(242, 73, 92, 0.4);
-    }
-  `,
-});
+export function NavLandingPageCard({ description, text, url, category, onClick }: Props) {
+  const styles = useStyles2(getStyles);
 
-const NavLandingPageCard: React.FC<cardProps> = ({ description, text, url, category, clicked }) => {
-  const styles = getStyles();
-
-  const categoryClass =
-    category && isCategoryStyle(category) ? styles[category as keyof ReturnType<typeof getStyles>] : undefined;
+  const categoryClass = category && isCategoryStyle(category) ? styles[category] : undefined;
 
   return (
-    <Card noMargin className={cx(styles.Card, categoryClass)} href={url} onClick={clicked}>
+    <Card noMargin className={cx(styles.card, categoryClass)} href={url} onClick={onClick}>
       <Card.Heading>{text}</Card.Heading>
-      <Card.Description className={styles.Description}>{description}</Card.Description>
+      <Card.Description className={styles.description}>{description}</Card.Description>
     </Card>
   );
-};
+}
 
-export default NavLandingPageCard;
+const getStyles = (theme: GrafanaTheme2) => ({
+  card: css({
+    gridTemplateRows: '1fr 0 2fr',
+  }),
+  // Limit descriptions to 3 lines max before ellipsing
+  // Some plugin descriptions can be very long
+  description: css({
+    WebkitLineClamp: 3,
+    WebkitBoxOrient: 'vertical',
+    display: '-webkit-box',
+    overflow: 'hidden',
+  }),
+  // Category-based styling
+  primary: css({
+    border: `1px solid ${theme.colors.primary.borderTransparent}`,
+    backgroundColor: theme.colors.primary.transparent,
+    '&:hover': {
+      backgroundColor: theme.colors.primary.transparent,
+      borderColor: theme.colors.primary.border,
+    },
+  }),
+  secondary: css({
+    border: `1px solid ${theme.colors.secondary.borderTransparent}`,
+    backgroundColor: theme.colors.secondary.transparent,
+    '&:hover': {
+      backgroundColor: theme.colors.secondary.transparent,
+      borderColor: theme.colors.secondary.border,
+    },
+  }),
+  success: css({
+    border: `1px solid ${theme.colors.success.borderTransparent}`,
+    backgroundColor: theme.colors.success.transparent,
+    '&:hover': {
+      backgroundColor: theme.colors.success.transparent,
+      borderColor: theme.colors.success.border,
+    },
+  }),
+  warning: css({
+    border: `1px solid ${theme.colors.warning.borderTransparent}`,
+    backgroundColor: theme.colors.warning.transparent,
+    '&:hover': {
+      backgroundColor: theme.colors.warning.transparent,
+      borderColor: theme.colors.warning.border,
+    },
+  }),
+  error: css({
+    border: `1px solid ${theme.colors.error.borderTransparent}`,
+    backgroundColor: theme.colors.error.transparent,
+    '&:hover': {
+      backgroundColor: theme.colors.error.transparent,
+      borderColor: theme.colors.error.border,
+    },
+  }),
+});
