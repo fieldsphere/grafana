@@ -72,7 +72,8 @@ const getStyles = () => ({
 const NavLandingPageCard: React.FC<cardProps> = ({ description, text, url, category, clicked }) => {
   const styles = getStyles();
 
-  const categoryClass = category && isCategoryStyle(category) ? styles[category as keyof ReturnType<typeof getStyles>] : undefined;
+  const categoryClass =
+    category && isCategoryStyle(category) ? styles[category as keyof ReturnType<typeof getStyles>] : undefined;
 
   return (
     <Card noMargin className={cx(styles.Card, categoryClass)} href={url} onClick={clicked}>
