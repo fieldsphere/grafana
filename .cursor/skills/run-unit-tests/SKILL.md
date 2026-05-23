@@ -23,12 +23,12 @@ Consult `.cursor/rules/test-directory-map.mdc` before choosing scope.
 
 Map files to one bucket:
 
-| Path | Test runner |
-|------|-------------|
-| `public/app/**` (non-decoupled plugins) | Root Jest |
-| `packages/**` (covered by root `jest.config.js` roots) | Root Jest |
-| `public/app/plugins/datasource/*` with local `jest.config.js` or `test:ci` script | Plugin-local Jest |
-| `pkg/**`, `apps/**` | `go test -v -short` |
+| Path                                                                              | Test runner         |
+| --------------------------------------------------------------------------------- | ------------------- |
+| `public/app/**` (non-decoupled plugins)                                           | Root Jest           |
+| `packages/**` (covered by root `jest.config.js` roots)                            | Root Jest           |
+| `public/app/plugins/datasource/*` with local `jest.config.js` or `test:ci` script | Plugin-local Jest   |
+| `pkg/**`, `apps/**`                                                               | `go test -v -short` |
 
 **Decoupled datasource plugins** (excluded from root Jest — run locally): `azuremonitor`, `cloud-monitoring`, `elasticsearch`, `grafana-postgresql-datasource`, `grafana-pyroscope-datasource`, `grafana-testdata-datasource`, `jaeger`, `loki`, `mysql`, `parca`, `tempo`, `zipkin`. Also check any plugin with its own `jest.config.js`.
 
@@ -73,6 +73,7 @@ go test -v -short <GO_PACKAGE>
 ```
 
 Derive package from file path:
+
 - `pkg/services/ngalert/foo.go` → `./pkg/services/ngalert/...`
 - `apps/live/pkg/app/app.go` → `./apps/live/...`
 

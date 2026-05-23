@@ -28,14 +28,14 @@ Integration tests are Go tests named `TestIntegration*`. Find them by:
 2. Searching for `*_test.go` files with `func TestIntegration` in that area.
 3. Checking dedicated suites under `pkg/tests/`.
 
-| Changed area | Integration test location |
-|---|---|
-| K8s-style APIs (`apps/*`, `pkg/registry/apis/*`) | `pkg/tests/apis/<area>/...` |
-| Legacy HTTP APIs | `pkg/tests/api/<area>/...` |
-| Web/UI server rendering | `pkg/tests/web/...` |
-| Alertmanager | `pkg/tests/alertmanager/...` |
-| Service/store logic with DB | Same package `*_test.go` with `TestIntegration*` |
-| Datasource backends | `pkg/tsdb/<datasource>/...` or `pkg/tests/api/<datasource>/...` |
+| Changed area                                     | Integration test location                                       |
+| ------------------------------------------------ | --------------------------------------------------------------- |
+| K8s-style APIs (`apps/*`, `pkg/registry/apis/*`) | `pkg/tests/apis/<area>/...`                                     |
+| Legacy HTTP APIs                                 | `pkg/tests/api/<area>/...`                                      |
+| Web/UI server rendering                          | `pkg/tests/web/...`                                             |
+| Alertmanager                                     | `pkg/tests/alertmanager/...`                                    |
+| Service/store logic with DB                      | Same package `*_test.go` with `TestIntegration*`                |
+| Datasource backends                              | `pkg/tsdb/<datasource>/...` or `pkg/tests/api/<datasource>/...` |
 
 ## Preferred commands
 
@@ -75,14 +75,14 @@ go test -v -count=1 ./pkg/tests/web/...
 
 Some suites need external services. Use Makefile targets that start devenv containers:
 
-| Target | When to use |
-|---|---|
-| `make test-go-integration-postgres` | Postgres-specific integration tests |
-| `make test-go-integration-mysql` | MySQL-specific integration tests |
-| `make test-go-integration-redis` | Redis cache integration tests |
-| `make test-go-integration-memcached` | Memcached cache integration tests |
-| `make test-go-integration-alertmanager` | Remote alertmanager integration |
-| `make test-go-integration-grafana-alertmanager` | Grafana alertmanager integration |
+| Target                                          | When to use                         |
+| ----------------------------------------------- | ----------------------------------- |
+| `make test-go-integration-postgres`             | Postgres-specific integration tests |
+| `make test-go-integration-mysql`                | MySQL-specific integration tests    |
+| `make test-go-integration-redis`                | Redis cache integration tests       |
+| `make test-go-integration-memcached`            | Memcached cache integration tests   |
+| `make test-go-integration-alertmanager`         | Remote alertmanager integration     |
+| `make test-go-integration-grafana-alertmanager` | Grafana alertmanager integration    |
 
 For targeted runs against postgres/mysql, start devenv first (`make devenv-postgres` or `make devenv-mysql`), then run the scoped `go test` command.
 
