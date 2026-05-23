@@ -407,30 +407,30 @@ jobs:
           merge-multiple: true
 
       - name: Check blob reports
-        id: check-blobs
+        id: check_blobs
         run: |
           if [ ! -d ./blobs ] || [ ! "$(ls -A ./blobs)" ]; then
             echo "No blob reports found in ./blobs directory."
             echo "This is expected when all Playwright jobs are skipped."
-            echo "has-blobs=false" >> "$GITHUB_OUTPUT"
+            echo "has_blobs=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
-          echo "has-blobs=true" >> "$GITHUB_OUTPUT"
+          echo "has_blobs=true" >> "$GITHUB_OUTPUT"
           echo "Found blob reports in ./blobs:"
           ls -lah ./blobs
 
       - name: Merge into HTML Report
-        if: steps.check-blobs.outputs.has-blobs == 'true'
+        if: steps.check_blobs.outputs.has_blobs == 'true'
         run: npx playwright merge-reports --reporter html ./blobs
 
       - name: Merge into JSON Report
-        if: steps.check-blobs.outputs.has-blobs == 'true'
+        if: steps.check_blobs.outputs.has_blobs == 'true'
         env:
           PLAYWRIGHT_JSON_OUTPUT_NAME: /tmp/playwright-results.json
         run: npx playwright merge-reports --reporter=json ./blobs
 
       - name: Bench report
-        if: steps.check-blobs.outputs.has-blobs == 'true'
+        if: steps.check_blobs.outputs.has_blobs == 'true'
         run: |
           docker run --rm \
             --volume="/tmp/playwright-results.json:/home/bench/tests/playwright-results.json" \
@@ -445,7 +445,7 @@ jobs:
 
       - name: Upload HTML report
         id: upload-html
-        if: steps.check-blobs.outputs.has-blobs == 'true'
+        if: steps.check_blobs.outputs.has_blobs == 'true'
         uses: actions/upload-artifact@v5
         with:
           name: playwright-html-${{ github.run_number }}
@@ -464,7 +464,7 @@ jobs:
       - name: Show test results
         env:
           FAILED: ${{ steps.check-jobs.outputs.any-failed }}
-          HAS_BLOBS: ${{ steps.check-blobs.outputs.has-blobs }}
+          HAS_BLOBS: ${{ steps.check_blobs.outputs.has_blobs }}
           REPORT_URL: ${{ steps.upload-html.outputs.artifact-url }}
         # sed removes the leading `../../src/` from the paths
         run: |
