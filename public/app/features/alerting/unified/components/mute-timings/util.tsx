@@ -26,8 +26,13 @@ export const mergeTimeIntervals = (alertManagerConfig: AlertmanagerConfig) => {
   return [...(alertManagerConfig.mute_time_intervals ?? []), ...(alertManagerConfig.time_intervals ?? [])];
 };
 
+const timeToMinutes = (time: string): number => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
 export const isValidStartAndEndTime = (startTime?: string, endTime?: string): boolean => {
-  // empty time range is perfactly valid for a mute timing
+  // empty time range is perfectly valid for a mute timing
   if (!startTime && !endTime) {
     return true;
   }
@@ -36,21 +41,33 @@ export const isValidStartAndEndTime = (startTime?: string, endTime?: string): bo
     return false;
   }
 
-  const timeUnit = 'HH:mm';
-  // @ts-ignore typescript types here incorrect, sigh
-  const startDate = moment().startOf('day').add(startTime, timeUnit);
-  // @ts-ignore typescript types here incorrect, sigh
-  const endDate = moment().startOf('day').add(endTime, timeUnit);
+  return timeToMinutes(startTime!) !== timeToMinutes(endTime!);
+};
 
-  if (startTime && endTime && startDate.isBefore(endDate)) {
-    return true;
-  }
+/**
+ * Alertmanager requires start_time < end_time within a single range.
+ * Overnight ranges (e.g. 22:00–06:00) are split into two same-day ranges.
+ */
+export const expandTimeRangesForAlertmanager = (
+  times: { start_time: string; end_time: string }[]
+): { start_time: string; end_time: string }[] => {
+  return times.flatMap(({ start_time, end_time }) => {
+    if (!start_time || !end_time) {
+      return [];
+    }
 
-  if (startTime && endTime && endDate.isAfter(startDate)) {
-    return true;
-  }
+    const startMinutes = timeToMinutes(start_time);
+    const endMinutes = timeToMinutes(end_time);
 
-  return false;
+    if (startMinutes < endMinutes) {
+      return [{ start_time, end_time }];
+    }
+
+    return [
+      { start_time, end_time: '24:00' },
+      { start_time: '00:00', end_time },
+    ];
+  });
 };
 
 export function renderTimeIntervals(muteTiming: MuteTimeInterval) {
