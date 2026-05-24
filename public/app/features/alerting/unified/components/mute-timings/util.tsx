@@ -2,7 +2,11 @@ import moment from 'moment';
 import { Fragment } from 'react';
 
 import { Stack } from '@grafana/ui';
-import { type AlertmanagerConfig, type MuteTimeInterval } from 'app/plugins/datasource/alertmanager/types';
+import {
+  type AlertmanagerConfig,
+  type MuteTimeInterval,
+  type TimeRange,
+} from 'app/plugins/datasource/alertmanager/types';
 
 import {
   getDaysOfMonthString,
@@ -27,7 +31,7 @@ export const mergeTimeIntervals = (alertManagerConfig: AlertmanagerConfig) => {
 };
 
 export const isValidStartAndEndTime = (startTime?: string, endTime?: string): boolean => {
-  // empty time range is perfactly valid for a mute timing
+  // empty time range is perfectly valid for a mute timing
   if (!startTime && !endTime) {
     return true;
   }
@@ -42,15 +46,45 @@ export const isValidStartAndEndTime = (startTime?: string, endTime?: string): bo
   // @ts-ignore typescript types here incorrect, sigh
   const endDate = moment().startOf('day').add(endTime, timeUnit);
 
-  if (startTime && endTime && startDate.isBefore(endDate)) {
-    return true;
+  // Reject zero-length intervals; same-day (start < end) and overnight (start > end) are valid.
+  return !startDate.isSame(endDate);
+};
+
+export const timeStringToMinutes = (time: string): number => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
+/**
+ * Alertmanager time ranges must have start < end within a single day.
+ * Overnight ranges (e.g. 22:00–06:00) are expanded into two same-day ranges.
+ */
+export const expandTimeRangesForAlertmanager = (times: TimeRange[]): TimeRange[] => {
+  const expanded: TimeRange[] = [];
+
+  for (const { start_time, end_time } of times) {
+    if (!start_time || !end_time) {
+      continue;
+    }
+
+    const startMinutes = timeStringToMinutes(start_time);
+    const endMinutes = timeStringToMinutes(end_time);
+
+    if (startMinutes === endMinutes) {
+      continue;
+    }
+
+    if (startMinutes < endMinutes) {
+      expanded.push({ start_time, end_time });
+      continue;
+    }
+
+    // Overnight range: split at midnight for Alertmanager compatibility.
+    expanded.push({ start_time, end_time: '24:00' });
+    expanded.push({ start_time: '00:00', end_time });
   }
 
-  if (startTime && endTime && endDate.isAfter(startDate)) {
-    return true;
-  }
-
-  return false;
+  return expanded;
 };
 
 export function renderTimeIntervals(muteTiming: MuteTimeInterval) {
