@@ -39,6 +39,11 @@ func (s *ServiceImpl) getAdminNode(c *contextmodel.ReqContext) (*navtree.NavLink
 			Text: "Settings", SubTitle: "View the settings defined in your Grafana config", Id: "server-settings", Url: s.cfg.AppSubURL + "/admin/settings", Icon: "sliders-v-alt",
 		})
 	}
+	if hasAccess(ac.EvalPermission(ac.ActionFeatureManagementRead)) {
+		generalNodeLinks = append(generalNodeLinks, &navtree.NavLink{
+			Text: "Feature toggles", SubTitle: "View and change runtime feature flags", Id: "feature-toggles", Url: s.cfg.AppSubURL + "/admin/feature-toggles", Icon: "toggle-off",
+		})
+	}
 	if hasGlobalAccess(orgsAccessEvaluator) {
 		generalNodeLinks = append(generalNodeLinks, &navtree.NavLink{
 			Text: "Organizations", SubTitle: "Isolated instances of Grafana running on the same server", Id: "global-orgs", Url: s.cfg.AppSubURL + "/admin/orgs", Icon: "building",

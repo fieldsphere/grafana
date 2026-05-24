@@ -9,12 +9,21 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	claims "github.com/grafana/authlib/types"
+	"github.com/grafana/grafana/pkg/apimachinery/identity"
+	ac "github.com/grafana/grafana/pkg/services/accesscontrol"
+	accesscontrolmock "github.com/grafana/grafana/pkg/services/accesscontrol/mock"
+	authn "github.com/grafana/grafana/pkg/services/authn"
+	"github.com/grafana/grafana/pkg/services/authn/authntest"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/licensing"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -157,4 +166,55 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
 	})
+}
+
+func TestGetNavTreeIncludesFeatureTogglesLink(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		SignedInUser: &user.SignedInUser{
+			UserID:         1,
+			OrgID:          1,
+			OrgRole:        identity.RoleAdmin,
+			IsGrafanaAdmin: true,
+			Permissions: map[int64]map[string][]string{
+				1: {},
+				0: {ac.ActionFeatureManagementRead: []string{"*"}},
+			},
+		},
+		Context: &web.Context{Req: httpReq},
+	}
+	reqCtx.IsSignedIn = true
+
+	service := ServiceImpl{
+		cfg:      setting.NewCfg(),
+		features: featuremgmt.WithFeatures(),
+		license:  &licensing.OSSLicensingService{},
+		accessControl: accesscontrolmock.New().WithPermissions([]ac.Permission{
+			{Action: ac.ActionFeatureManagementRead, Scope: "*"},
+		}),
+		authnService: &authntest.FakeService{
+			ExpectedIdentity: &authn.Identity{
+				ID:          "user:1",
+				Type:        claims.TypeUser,
+				Permissions: map[int64]map[string][]string{0: {ac.ActionFeatureManagementRead: []string{"*"}}},
+			},
+		},
+	}
+
+	node, err := service.getAdminNode(reqCtx)
+	require.NoError(t, err)
+	require.NotNil(t, node)
+
+	var found bool
+	for _, child := range node.Children {
+		if child.Id != "cfg/general" {
+			continue
+		}
+		for _, subChild := range child.Children {
+			if subChild.Id == "feature-toggles" && subChild.Url == "/admin/feature-toggles" {
+				found = true
+			}
+		}
+	}
+	require.True(t, found)
 }

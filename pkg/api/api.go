@@ -120,6 +120,7 @@ func (hs *HTTPServer) registerRoutes() {
 	r.Get("/admin/orgs", authorizeInOrg(ac.UseGlobalOrg, ac.OrgsAccessEvaluator), hs.Index)
 	r.Get("/admin/orgs/edit/:id", authorizeInOrg(ac.UseGlobalOrg, ac.OrgsAccessEvaluator), hs.Index)
 	r.Get("/admin/stats", authorize(ac.EvalPermission(ac.ActionServerStatsRead)), hs.Index)
+	r.Get("/admin/feature-toggles", authorize(ac.EvalPermission(ac.ActionFeatureManagementRead)), hs.Index)
 	r.Get("/admin/provisioning", reqOrgAdmin, hs.Index)
 	r.Get("/admin/provisioning/*", middleware.ProvisioningAuth(reqOrgAdmin), hs.Index)
 
@@ -470,6 +471,8 @@ func (hs *HTTPServer) registerRoutes() {
 
 		apiRoute.Get("/frontend/settings/", hs.GetFrontendSettings)
 		apiRoute.Get("/frontend/assets", hs.GetFrontendAssets)
+		apiRoute.Get("/feature-toggles", authorize(ac.EvalPermission(ac.ActionFeatureManagementRead)), routing.Wrap(hs.GetFeatureToggles))
+		apiRoute.Put("/feature-toggles/:name", authorize(ac.EvalPermission(ac.ActionFeatureManagementWrite)), routing.Wrap(hs.UpdateFeatureToggle))
 
 		// Folders
 		hs.registerFolderAPI(apiRoute, authorize)

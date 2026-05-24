@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/grafana/grafana/pkg/infra/log"
 )
@@ -13,6 +14,8 @@ var (
 )
 
 type FeatureManager struct {
+	mu sync.RWMutex
+
 	isDevMod bool
 
 	flags    map[string]*FeatureFlag
@@ -24,6 +27,9 @@ type FeatureManager struct {
 
 // This will merge the flags with the current configuration
 func (fm *FeatureManager) registerFlags(flags ...FeatureFlag) {
+	fm.mu.Lock()
+	defer fm.mu.Unlock()
+
 	for _, add := range flags {
 		if add.Name == "" {
 			continue // skip it with warning?
@@ -99,16 +105,25 @@ func (fm *FeatureManager) update() {
 
 // IsEnabled checks if a feature is enabled
 func (fm *FeatureManager) IsEnabled(ctx context.Context, flag string) bool {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
+
 	return fm.enabled[flag]
 }
 
 // IsEnabledGlobally checks if a feature is for all tenants
 func (fm *FeatureManager) IsEnabledGlobally(flag string) bool {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
+
 	return fm.enabled[flag]
 }
 
 // GetEnabled returns a map containing only the features that are enabled
 func (fm *FeatureManager) GetEnabled(ctx context.Context) map[string]bool {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
+
 	enabled := make(map[string]bool, len(fm.enabled))
 	for key, val := range fm.enabled {
 		if val {
@@ -118,13 +133,51 @@ func (fm *FeatureManager) GetEnabled(ctx context.Context) map[string]bool {
 	return enabled
 }
 
+// GetSnapshot returns a consistent snapshot of flag definitions and enabled states.
+func (fm *FeatureManager) GetSnapshot() ([]FeatureFlag, map[string]bool) {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
+
+	enabled := make(map[string]bool, len(fm.enabled))
+	for key, val := range fm.enabled {
+		if val {
+			enabled[key] = true
+		}
+	}
+
+	flags := make([]FeatureFlag, 0, len(fm.flags))
+	for _, value := range fm.flags {
+		flags = append(flags, *value)
+	}
+
+	return flags, enabled
+}
+
 // GetFlags returns all flag definitions
 func (fm *FeatureManager) GetFlags() []FeatureFlag {
+	fm.mu.RLock()
+	defer fm.mu.RUnlock()
+
 	v := make([]FeatureFlag, 0, len(fm.flags))
 	for _, value := range fm.flags {
 		v = append(v, *value)
 	}
 	return v
+}
+
+// SetStartupState updates the in-memory startup state for a flag and reevaluates all flags.
+// Changes are runtime-only and are not persisted to disk.
+func (fm *FeatureManager) SetStartupState(name string, enabled bool) error {
+	fm.mu.Lock()
+	defer fm.mu.Unlock()
+
+	if _, ok := fm.flags[name]; !ok {
+		return fmt.Errorf("%w: %s", ErrFeatureFlagNotFound, name)
+	}
+
+	fm.startup[name] = enabled
+	fm.update()
+	return nil
 }
 
 // ############# Test Functions #############
@@ -157,5 +210,10 @@ func WithManager(spec ...any) *FeatureManager {
 		}
 	}
 
-	return &FeatureManager{enabled: enabled, flags: features, startup: enabled, warnings: map[string]string{}}
+	startup := make(map[string]bool, len(enabled))
+	for key, val := range enabled {
+		startup[key] = val
+	}
+
+	return &FeatureManager{enabled: enabled, flags: features, startup: startup, warnings: map[string]string{}}
 }
