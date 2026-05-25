@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from 'test/test-utils';
 
-import { getOpenFeatureToggles } from './api';
 import LabsPage from './LabsPage';
+import { getOpenFeatureToggles } from './api';
 
 jest.mock('./api', () => ({
   getOpenFeatureToggles: jest.fn(),
