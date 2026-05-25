@@ -166,6 +166,7 @@ func (hs *HTTPServer) registerRoutes() {
 	r.Get("/connections/datasources/edit/*", authorize(datasources.EditPageAccess), hs.Index)
 	r.Get("/connections", authorize(datasources.ConfigurationPageAccess), hs.Index)
 	r.Get("/connections/add-new-connection", authorize(datasources.ConfigurationPageAccess), hs.Index)
+	r.Get("/labs", reqOrgAdmin, hs.Index)
 	// Plugin details pages
 	r.Get("/connections/datasources/:id", middleware.CanAdminPlugins(hs.Cfg, hs.AccessControl), hs.Index)
 	r.Get("/connections/datasources/:id/page/:page", middleware.CanAdminPlugins(hs.Cfg, hs.AccessControl), hs.Index)
@@ -507,6 +508,8 @@ func (hs *HTTPServer) registerRoutes() {
 
 		// Playlist
 		hs.registerPlaylistAPI(apiRoute)
+
+		apiRoute.Get("/feature-toggles/open", reqOrgAdmin, routing.Wrap(hs.GetOpenFeatureToggles))
 
 		// Search
 		apiRoute.Get("/search/sorting", routing.Wrap(hs.ListSortOptions))
