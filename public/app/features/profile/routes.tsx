@@ -29,6 +29,12 @@ const profileRoutes: RouteDescriptor[] = [
       () => import(/* webpackChunkName: "NotificationsPage"*/ 'app/features/notifications/NotificationsPage')
     ),
   },
+  {
+    path: '/profile/feature-toggles',
+    component: SafeDynamicImport(
+      () => import(/* webpackChunkName: "FeatureFlagsPage"*/ 'app/features/profile/FeatureFlagsPage')
+    ),
+  },
 ];
 
 export function getProfileRoutes(cfg = config): RouteDescriptor[] {

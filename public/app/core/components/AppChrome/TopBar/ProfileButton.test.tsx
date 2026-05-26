@@ -21,7 +21,14 @@ describe('ProfileButton', () => {
       id: 'profile',
       text: 'Test User',
       url: '/profile',
-      children: [],
+      children: [
+        {
+          id: 'profile/feature-toggles',
+          text: 'Feature flags',
+          url: '/profile/feature-toggles',
+          icon: 'toggle-on',
+        },
+      ],
     },
     onToggleKioskMode: jest.fn(),
   };
@@ -59,5 +66,16 @@ describe('ProfileButton', () => {
       expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     });
     expect(profileButton).toHaveFocus();
+  });
+
+  it('should render feature flags link in the profile dropdown', async () => {
+    render(<ProfileButton {...defaultProps} />);
+
+    await user.click(screen.getByRole('button', { name: /profile/i }));
+
+    expect(await screen.findByRole('menuitem', { name: /feature flags/i })).toHaveAttribute(
+      'href',
+      '/profile/feature-toggles'
+    );
   });
 });
