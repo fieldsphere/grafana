@@ -1,0 +1,79 @@
+{
+  "name": "Midnight aurora",
+  "id": "midnightaurora",
+  "colors": {
+    "mode": "dark",
+    "border": {
+      "weak": "rgba(100, 220, 180, 0.10)",
+      "medium": "rgba(100, 220, 180, 0.18)",
+      "strong": "rgba(100, 220, 180, 0.28)"
+    },
+    "text": {
+      "primary": "#E2E8F0",
+      "secondary": "rgba(226, 232, 240, 0.72)",
+      "disabled": "rgba(226, 232, 240, 0.45)",
+      "link": "#6EE7B7",
+      "maxContrast": "#FFFFFF"
+    },
+    "primary": {
+      "main": "#6EE7B7",
+      "text": "#86EFAC",
+      "border": "#6EE7B7",
+      "name": "primary",
+      "shade": "#A7F3D0",
+      "transparent": "#6EE7B726",
+      "contrastText": "#0F172A",
+      "borderTransparent": "#6EE7B740"
+    },
+    "secondary": {
+      "main": "#1E293B",
+      "shade": "#283548",
+      "transparent": "rgba(148, 163, 184, 0.08)",
+      "text": "#CBD5E1",
+      "contrastText": "#E2E8F0",
+      "border": "rgba(148, 163, 184, 0.10)",
+      "name": "secondary",
+      "borderTransparent": "rgba(148, 163, 184, 0.22)"
+    },
+    "info": {
+      "main": "#7C3AED",
+      "text": "#A78BFA",
+      "border": "#8B5CF6"
+    },
+    "error": {
+      "main": "#F43F5E",
+      "text": "#FB7185"
+    },
+    "success": {
+      "main": "#10B981",
+      "text": "#34D399"
+    },
+    "warning": {
+      "main": "#C084FC",
+      "text": "#D8B4FE"
+    },
+    "background": {
+      "canvas": "#0B1120",
+      "primary": "#0F172A",
+      "secondary": "#162033",
+      "elevated": "#1A2540"
+    },
+    "action": {
+      "hover": "rgba(110, 231, 183, 0.12)",
+      "selected": "rgba(110, 231, 183, 0.10)",
+      "selectedBorder": "#C084FC",
+      "focus": "rgba(110, 231, 183, 0.14)",
+      "hoverOpacity": 0.08,
+      "disabledText": "rgba(226, 232, 240, 0.45)",
+      "disabledBackground": "rgba(110, 231, 183, 0.06)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #C084FC 0%, #6EE7B7 100%)",
+      "brandVertical": "linear-gradient(0.01deg, #C084FC 0.01%, #6EE7B7 99.99%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.04,
+    "tonalOffset": 0.18
+  }
+}
