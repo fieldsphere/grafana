@@ -1,8 +1,11 @@
-import moment from 'moment';
 import { Fragment } from 'react';
 
 import { Stack } from '@grafana/ui';
-import { type AlertmanagerConfig, type MuteTimeInterval } from 'app/plugins/datasource/alertmanager/types';
+import {
+  type AlertmanagerConfig,
+  type MuteTimeInterval,
+  type TimeRange,
+} from 'app/plugins/datasource/alertmanager/types';
 
 import {
   getDaysOfMonthString,
@@ -26,8 +29,24 @@ export const mergeTimeIntervals = (alertManagerConfig: AlertmanagerConfig) => {
   return [...(alertManagerConfig.mute_time_intervals ?? []), ...(alertManagerConfig.time_intervals ?? [])];
 };
 
+export function parseTimeToMinutes(time: string): number | null {
+  const match = time.match(/^(\d{1,2}):(\d{2})$/);
+  if (!match) {
+    return null;
+  }
+
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+
+  if (hours > 24 || minutes > 59 || (hours === 24 && minutes > 0)) {
+    return null;
+  }
+
+  return hours * 60 + minutes;
+}
+
 export const isValidStartAndEndTime = (startTime?: string, endTime?: string): boolean => {
-  // empty time range is perfactly valid for a mute timing
+  // empty time range is perfectly valid for a mute timing
   if (!startTime && !endTime) {
     return true;
   }
@@ -36,22 +55,57 @@ export const isValidStartAndEndTime = (startTime?: string, endTime?: string): bo
     return false;
   }
 
-  const timeUnit = 'HH:mm';
-  // @ts-ignore typescript types here incorrect, sigh
-  const startDate = moment().startOf('day').add(startTime, timeUnit);
-  // @ts-ignore typescript types here incorrect, sigh
-  const endDate = moment().startOf('day').add(endTime, timeUnit);
+  const startMinutes = parseTimeToMinutes(startTime!);
+  const endMinutes = parseTimeToMinutes(endTime!);
 
-  if (startTime && endTime && startDate.isBefore(endDate)) {
-    return true;
+  if (startMinutes === null || endMinutes === null) {
+    return false;
   }
 
-  if (startTime && endTime && endDate.isAfter(startDate)) {
-    return true;
-  }
-
-  return false;
+  // Same-day (start < end) and overnight (start > end) ranges are valid; zero-length is not.
+  return startMinutes !== endMinutes;
 };
+
+export function expandOvernightTimeRange({ start_time, end_time }: TimeRange): TimeRange[] {
+  const startMinutes = parseTimeToMinutes(start_time);
+  const endMinutes = parseTimeToMinutes(end_time);
+
+  if (startMinutes === null || endMinutes === null || startMinutes <= endMinutes) {
+    return [{ start_time, end_time }];
+  }
+
+  if (end_time === '00:00') {
+    return [{ start_time, end_time: '24:00' }];
+  }
+
+  return [
+    { start_time, end_time: '24:00' },
+    { start_time: '00:00', end_time },
+  ];
+}
+
+export function collapseOvernightTimeRanges(times: TimeRange[] | undefined): TimeRange[] {
+  if (!times?.length) {
+    return times ?? [];
+  }
+
+  const result: TimeRange[] = [];
+
+  for (let i = 0; i < times.length; i++) {
+    const current = times[i];
+    const next = times[i + 1];
+
+    if (next?.end_time && current.end_time === '24:00' && next.start_time === '00:00') {
+      result.push({ start_time: current.start_time, end_time: next.end_time });
+      i++;
+      continue;
+    }
+
+    result.push(current);
+  }
+
+  return result;
+}
 
 export function renderTimeIntervals(muteTiming: MuteTimeInterval) {
   const timeIntervals = muteTiming.time_intervals;
