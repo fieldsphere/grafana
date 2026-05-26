@@ -173,6 +173,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.profile/settings.title', 'Profile');
     case 'profile/notifications':
       return t('nav.profile/notifications.title', 'Notification history');
+    case 'profile/feature-toggles':
+      return t('nav.profile/feature-toggles.title', 'Feature flags');
     case 'profile/password':
       return t('nav.profile/password.title', 'Change password');
     case 'sign-out':

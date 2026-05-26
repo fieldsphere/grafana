@@ -144,6 +144,7 @@ export class GrafanaBootConfig {
   theme: GrafanaTheme;
   theme2: GrafanaTheme2;
   featureToggles: FeatureToggles & { kubernetesDashboards?: boolean } = {};
+  featureTogglesFromServer: Partial<FeatureToggles> = {};
   anonymousEnabled = false;
   anonymousDeviceLimit?: number;
   licenseInfo: LicenseInfo = {} as LicenseInfo;
@@ -285,6 +286,8 @@ export class GrafanaBootConfig {
     if (this.dateFormats) {
       systemDateFormats.update(this.dateFormats);
     }
+
+    this.featureTogglesFromServer = { ...this.featureToggles };
 
     overrideFeatureTogglesFromUrl(this);
     overrideFeatureTogglesFromLocalStorage(this);

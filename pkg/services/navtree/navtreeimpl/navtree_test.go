@@ -11,10 +11,12 @@ import (
 
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -156,5 +158,31 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "A Dashboard", navLinks[0].Text)
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
+	})
+}
+
+func TestGetProfileNodeIncludesFeatureFlags(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		SignedInUser: &user.SignedInUser{
+			UserID: 1,
+			Login:  "test-user",
+			Name:   "Test User",
+			Email:  "test-user@example.com",
+		},
+		Context: &web.Context{Req: httpReq},
+	}
+
+	cfg := setting.NewCfg()
+	cfg.AppSubURL = "/grafana"
+	service := ServiceImpl{cfg: cfg}
+
+	profileNode := service.getProfileNode(reqCtx)
+
+	require.Contains(t, profileNode.Children, &navtree.NavLink{
+		Text: "Feature flags",
+		Id:   "profile/feature-toggles",
+		Url:  "/grafana/profile/feature-toggles",
+		Icon: "toggle-on",
 	})
 }
