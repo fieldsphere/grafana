@@ -94,12 +94,15 @@ describe('featureFlagOverrides', () => {
       grafanaconThemes: true,
       queryServiceFromUI: false,
     });
-    expect(post).toHaveBeenCalledWith('/apis/features.grafana.app/v0alpha1/namespaces/tenant-a/ofrep/v1/evaluate/flags', {
-      context: {
-        targetingKey: 'tenant-a',
-        namespace: 'tenant-a',
-        stack: 'dev',
-      },
-    });
+    expect(post).toHaveBeenCalledWith(
+      '/apis/features.grafana.app/v0alpha1/namespaces/tenant-a/ofrep/v1/evaluate/flags',
+      {
+        context: {
+          targetingKey: 'tenant-a',
+          namespace: 'tenant-a',
+          stack: 'dev',
+        },
+      }
+    );
   });
 });

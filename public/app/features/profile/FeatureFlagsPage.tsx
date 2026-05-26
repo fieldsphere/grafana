@@ -1,10 +1,16 @@
 import { css } from '@emotion/css';
 import { useEffect, useMemo, useState } from 'react';
 
-import { featureToggleMeta, type FeatureToggleMeta, type FeatureToggleDefaultValue, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import {
+  featureToggleMeta,
+  type FeatureToggleMeta,
+  type FeatureToggleDefaultValue,
+  type GrafanaTheme2,
+  type SelectableValue,
+} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Alert, Badge, Button, Field, Input, Select, Stack, Switch, Tooltip, useStyles2 } from '@grafana/ui';
+import { Alert, Badge, Button, Field, Input, Select, Stack, Switch, useStyles2 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 
 import {
@@ -162,11 +168,18 @@ export default function FeatureFlagsPage() {
           )}
 
           <div className={styles.toolbar}>
-            <Field label={t('profile.feature-flags.search-label', 'Search feature flags')} className={styles.searchField}>
+            <Field
+              label={t('profile.feature-flags.search-label', 'Search feature flags')}
+              className={styles.searchField}
+            >
               <Input
+                aria-label={t('profile.feature-flags.search-label', 'Search feature flags')}
                 value={query}
                 onChange={(event) => setQuery(event.currentTarget.value)}
-                placeholder={t('profile.feature-flags.search-placeholder', 'Search by name, description, owner, or stage')}
+                placeholder={t(
+                  'profile.feature-flags.search-placeholder',
+                  'Search by name, description, owner, or stage'
+                )}
               />
             </Field>
 
@@ -185,11 +198,19 @@ export default function FeatureFlagsPage() {
 
           <div className={styles.filterRow}>
             <label className={styles.filterLabel}>
-              <input type="checkbox" checked={overriddenOnly} onChange={(event) => setOverriddenOnly(event.currentTarget.checked)} />
+              <input
+                type="checkbox"
+                checked={overriddenOnly}
+                onChange={(event) => setOverriddenOnly(event.currentTarget.checked)}
+              />
               {t('profile.feature-flags.overridden-only', 'Overridden only')}
             </label>
             <label className={styles.filterLabel}>
-              <input type="checkbox" checked={frontendOnly} onChange={(event) => setFrontendOnly(event.currentTarget.checked)} />
+              <input
+                type="checkbox"
+                checked={frontendOnly}
+                onChange={(event) => setFrontendOnly(event.currentTarget.checked)}
+              />
               {t('profile.feature-flags.frontend-only', 'Frontend only')}
             </label>
             <label className={styles.filterLabel}>
@@ -271,6 +292,7 @@ function FeatureFlagRow({ flag, overrides, serverValue, onReset, onToggle }: Fea
       <td>
         {isBoolean ? (
           <Switch
+            data-testid={`feature-toggle-${flag.name}`}
             value={enabled}
             onChange={(event) => onToggle(flag, event.currentTarget.checked)}
             aria-label={t('profile.feature-flags.toggle-label', 'Toggle {{flagName}}', { flagName: flag.name })}
@@ -302,16 +324,18 @@ function FeatureFlagRow({ flag, overrides, serverValue, onReset, onToggle }: Fea
               }
             />
             {flag.requiresRestart && (
-              <Tooltip
-                content={t(
+              <Badge
+                color="orange"
+                text={t('profile.feature-flags.requires-restart-badge', 'Requires restart')}
+                tooltip={t(
                   'profile.feature-flags.restart-tooltip',
                   'This flag is read during server startup. Browser overrides can affect frontend reads, but server-side behavior still requires config and restart.'
                 )}
-              >
-                <Badge color="orange" text={t('profile.feature-flags.requires-restart-badge', 'Requires restart')} />
-              </Tooltip>
+              />
             )}
-            {flag.requiresDevMode && <Badge color="orange" text={t('profile.feature-flags.requires-dev-mode', 'Dev mode')} />}
+            {flag.requiresDevMode && (
+              <Badge color="orange" text={t('profile.feature-flags.requires-dev-mode', 'Dev mode')} />
+            )}
           </Stack>
           <span className={styles.owner}>{flag.owner}</span>
         </Stack>

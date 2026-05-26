@@ -1,10 +1,40 @@
-import { screen, waitFor, within } from '@testing-library/react';
+import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { render } from 'test/test-utils';
 
 import { config, type BackendSrv, getBackendSrv, setBackendSrv } from '@grafana/runtime';
 
 import FeatureFlagsPage from './FeatureFlagsPage';
 import { FEATURE_TOGGLE_OVERRIDES_STORAGE_KEY } from './featureFlagOverrides';
+
+jest.mock('@grafana/data', () => ({
+  ...jest.requireActual('@grafana/data'),
+  featureToggleMeta: [
+    {
+      name: 'grafanaconThemes',
+      description: 'Enables the temporary themes for GrafanaCon',
+      stage: 'GA',
+      owner: '@grafana/grafana-frontend-platform',
+      defaultExpression: 'true',
+      defaultValue: true,
+      frontendOnly: false,
+      requiresRestart: true,
+      requiresDevMode: false,
+      hideFromDocs: true,
+    },
+    {
+      name: 'queryServiceFromUI',
+      description: 'Routes requests to the new query service',
+      stage: 'experimental',
+      owner: '@grafana/grafana-datasources-core-services',
+      defaultExpression: 'false',
+      defaultValue: false,
+      frontendOnly: true,
+      requiresRestart: false,
+      requiresDevMode: false,
+      hideFromDocs: false,
+    },
+  ],
+}));
 
 describe('FeatureFlagsPage', () => {
   const originalBackendSrv = getBackendSrv();
@@ -38,27 +68,33 @@ describe('FeatureFlagsPage', () => {
     setBackendSrv(originalBackendSrv);
   });
 
-  it('lists registered feature flag metadata including grafanaconThemes', async () => {
-    render(<FeatureFlagsPage />);
+  async function renderPage() {
+    const result = render(<FeatureFlagsPage />);
+    await waitFor(() => expect(screen.queryByText(/Loading current values/i)).not.toBeInTheDocument());
+    return result;
+  }
 
-    expect(await screen.findByText('grafanaconThemes')).toBeInTheDocument();
+  it('lists registered feature flag metadata including grafanaconThemes', async () => {
+    await renderPage();
+
+    expect(screen.getByText('grafanaconThemes')).toBeInTheDocument();
     expect(screen.getByText('Enables the temporary themes for GrafanaCon')).toBeInTheDocument();
     expect(screen.getAllByText('Server/config')[0]).toBeInTheDocument();
   });
 
   it('filters flags by search query', async () => {
-    const { user } = render(<FeatureFlagsPage />);
+    await renderPage();
 
-    await user.type(screen.getByRole('textbox', { name: /search feature flags/i }), 'grafanaconThemes');
+    fireEvent.change(screen.getByLabelText(/search feature flags/i), { target: { value: 'grafanaconThemes' } });
 
     expect(screen.getByText('grafanaconThemes')).toBeInTheDocument();
     expect(screen.queryByText('queryServiceFromUI')).not.toBeInTheDocument();
   });
 
   it('toggles a browser override and shows reload messaging', async () => {
-    const { user } = render(<FeatureFlagsPage />);
+    await renderPage();
 
-    await user.click(await screen.findByLabelText('Toggle grafanaconThemes'));
+    fireEvent.click(screen.getByTestId('feature-toggle-grafanaconThemes'));
 
     expect(window.localStorage.getItem(FEATURE_TOGGLE_OVERRIDES_STORAGE_KEY)).toBe('grafanaconThemes=true');
     expect(config.featureToggles.grafanaconThemes).toBe(true);
@@ -69,11 +105,11 @@ describe('FeatureFlagsPage', () => {
   it('resets an individual browser override', async () => {
     window.localStorage.setItem(FEATURE_TOGGLE_OVERRIDES_STORAGE_KEY, 'grafanaconThemes=true');
 
-    const { user } = render(<FeatureFlagsPage />);
+    await renderPage();
 
-    const flagName = await screen.findByText('grafanaconThemes');
+    const flagName = screen.getByText('grafanaconThemes');
     const row = within(flagName.closest('tr') as HTMLElement);
-    await user.click(row.getByRole('button', { name: /reset/i }));
+    fireEvent.click(row.getByRole('button', { name: /reset/i }));
 
     expect(window.localStorage.getItem(FEATURE_TOGGLE_OVERRIDES_STORAGE_KEY)).toBeNull();
     expect(config.featureToggles.grafanaconThemes).toBe(false);
@@ -82,9 +118,9 @@ describe('FeatureFlagsPage', () => {
   it('resets all browser overrides', async () => {
     window.localStorage.setItem(FEATURE_TOGGLE_OVERRIDES_STORAGE_KEY, 'grafanaconThemes=true,queryServiceFromUI=true');
 
-    const { user } = render(<FeatureFlagsPage />);
+    await renderPage();
 
-    await user.click(screen.getByRole('button', { name: /reset all browser overrides/i }));
+    fireEvent.click(screen.getByRole('button', { name: /reset all browser overrides/i }));
 
     expect(window.localStorage.getItem(FEATURE_TOGGLE_OVERRIDES_STORAGE_KEY)).toBeNull();
     expect(config.featureToggles.grafanaconThemes).toBe(false);
@@ -96,9 +132,9 @@ describe('FeatureFlagsPage', () => {
       post: jest.fn().mockRejectedValue(new Error('network failed')),
     } as unknown as BackendSrv);
 
-    render(<FeatureFlagsPage />);
+    await renderPage();
 
-    expect(await screen.findByText('grafanaconThemes')).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByText(/Could not load server feature flag values/i)).toBeInTheDocument());
+    expect(screen.getByText('grafanaconThemes')).toBeInTheDocument();
+    expect(screen.getByText(/Could not load server feature flag values/i)).toBeInTheDocument();
   });
 });

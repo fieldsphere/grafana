@@ -78,7 +78,9 @@ export function clearFeatureToggleOverride(name: string, fallbackValue?: Feature
   return overrides;
 }
 
-export function clearAllFeatureToggleOverrides(fallbackValues: Record<string, FeatureToggleValue> = {}): FeatureToggleOverrideMap {
+export function clearAllFeatureToggleOverrides(
+  fallbackValues: Record<string, FeatureToggleValue> = {}
+): FeatureToggleOverrideMap {
   window.localStorage.removeItem(FEATURE_TOGGLE_OVERRIDES_STORAGE_KEY);
   restoreRuntimeFeatureToggles(fallbackValues);
   dispatchOverridesChanged({});
