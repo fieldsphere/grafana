@@ -11,10 +11,12 @@ import (
 
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	"github.com/grafana/grafana/pkg/services/star"
 	"github.com/grafana/grafana/pkg/services/star/startest"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -156,5 +158,41 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "A Dashboard", navLinks[0].Text)
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
+	})
+}
+
+func TestBuildLabsNavLink(t *testing.T) {
+	t.Run("returns nil for anonymous users", func(t *testing.T) {
+		httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+		reqCtx := &contextmodel.ReqContext{
+			Context: &web.Context{Req: httpReq},
+		}
+
+		service := ServiceImpl{cfg: setting.NewCfg()}
+		require.Nil(t, service.buildLabsNavLink(reqCtx))
+	})
+
+	t.Run("returns Labs section for signed-in users", func(t *testing.T) {
+		httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+		reqCtx := &contextmodel.ReqContext{
+			SignedInUser: &user.SignedInUser{
+				UserID: 1,
+				OrgID:  1,
+			},
+			IsSignedIn: true,
+			Context:    &web.Context{Req: httpReq},
+		}
+
+		service := ServiceImpl{cfg: setting.NewCfg()}
+		labsNode := service.buildLabsNavLink(reqCtx)
+
+		require.NotNil(t, labsNode)
+		require.Equal(t, navtree.NavIDLabs, labsNode.Id)
+		require.Equal(t, "Labs", labsNode.Text)
+		require.Equal(t, "vial", labsNode.Icon)
+		require.True(t, labsNode.IsNew)
+		require.Len(t, labsNode.Children, 1)
+		require.Equal(t, "labs/feature-toggles", labsNode.Children[0].Id)
+		require.Equal(t, "/labs/feature-toggles", labsNode.Children[0].Url)
 	})
 }

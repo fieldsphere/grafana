@@ -219,6 +219,16 @@ export function getAppRoutes(): RouteDescriptor[] {
       component: () => <NavLandingPage navId="infrastructure" />,
     },
     {
+      path: '/labs/feature-toggles',
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "LabsFeatureTogglesPage" */ 'app/features/labs/LabsFeatureTogglesPage')
+      ),
+    },
+    {
+      path: '/labs',
+      component: () => <NavLandingPage navId="labs" />,
+    },
+    {
       path: '/frontend',
       component: () => <NavLandingPage navId="frontend" />,
     },
