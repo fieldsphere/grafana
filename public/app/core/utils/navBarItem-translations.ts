@@ -25,6 +25,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.create-alert.title', 'New alert rule');
     case 'bookmarks':
       return t('nav.bookmarks.title', 'Bookmarks');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'bookmarks-empty':
       return t('nav.bookmarks-empty.title', 'Bookmark pages for them to appear here');
     case 'starred':
@@ -204,6 +206,8 @@ export function getNavTitle(navId: string | undefined) {
 
 export function getNavSubTitle(navId: string | undefined) {
   switch (navId) {
+    case 'labs':
+      return t('nav.labs.subtitle', 'Feature flags and experiments available in this Grafana build');
     case 'dashboards':
       return t('nav.dashboards.subtitle', 'Create and manage dashboards to visualize your data');
     case 'dashboards/browse':
