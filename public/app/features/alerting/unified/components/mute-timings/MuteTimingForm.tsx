@@ -16,6 +16,7 @@ import { useAlertmanager } from '../../state/AlertmanagerContext';
 import { type MuteTimingFields } from '../../types/mute-timing-form';
 import { isImportedResource, isProvisionedResource } from '../../utils/k8s/utils';
 import { makeAMLink } from '../../utils/misc';
+import { collapseTimeRangesForForm } from './util';
 import { createMuteTiming, defaultTimeInterval, isTimeIntervalDisabled } from '../../utils/mute-timings';
 import { ALERTING_PATHS } from '../../utils/navigation';
 import { ImportedTimeIntervalAlert, ProvisionedResource, ProvisioningAlert } from '../Provisioning';
@@ -43,7 +44,7 @@ const useDefaultValues = (muteTiming?: MuteTiming): MuteTimingFields => {
   }
 
   const intervals = muteTiming.time_intervals.map((interval) => ({
-    times: interval.times,
+    times: collapseTimeRangesForForm(interval.times) ?? interval.times,
     weekdays: interval.weekdays?.join(', '),
     days_of_month: interval.days_of_month?.join(', '),
     months: interval.months?.join(', '),
