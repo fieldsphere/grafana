@@ -26,6 +26,11 @@ composableKinds: PanelCfg: lineage: {
 				common.VizLegendOptions
 				enableFacetedFilter?: bool | *true
 			} @cuetsy(kind="interface")
+			TimeSeriesOverlayOptions: {
+				enabled?: bool | *false
+				type?:    "movingAverage" | "linearRegression" | *"movingAverage"
+				window?:  int | *10
+			} @cuetsy(kind="interface")
 			Options: {
 				common.OptionsWithTimezones
 				common.OptionsWithAnnotations
@@ -36,6 +41,7 @@ composableKinds: PanelCfg: lineage: {
 				orientation?:           common.VizOrientation
 				annotations?:           common.VizAnnotations
 				disableKeyboardEvents?: bool
+				overlay?:               TimeSeriesOverlayOptions
 			} @cuetsy(kind="interface")
 
 			FieldConfig: common.GraphFieldConfig & {} @cuetsy(kind="interface")

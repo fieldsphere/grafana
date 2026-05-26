@@ -12,11 +12,21 @@ import {
   nullToValue,
 } from '@grafana/data';
 import { convertFieldType } from '@grafana/data/internal';
-import { type GraphFieldConfig, LineInterpolation, TooltipDisplayMode, type VizTooltipOptions } from '@grafana/schema';
+import {
+  GraphDrawStyle,
+  type GraphFieldConfig,
+  GraphGradientMode,
+  LineInterpolation,
+  StackingMode,
+  TooltipDisplayMode,
+  type VizTooltipOptions,
+} from '@grafana/schema';
 import { type AdHocFilterItem } from '@grafana/ui';
 import { buildScaleKey, FILTER_FOR_OPERATOR } from '@grafana/ui/internal';
 
 import { type HeatmapTooltip } from '../heatmap/panelcfg.gen';
+
+import { type TimeSeriesOverlayOptions } from './panelcfg.gen';
 
 type ScaleKey = string;
 
@@ -237,6 +247,174 @@ export function prepareGraphableFields(
   }
 
   return null;
+}
+
+export function prepareTimeSeriesOverlayFields(
+  frames: DataFrame[] | null,
+  overlay: TimeSeriesOverlayOptions | undefined,
+  theme: GrafanaTheme2
+): DataFrame[] | null {
+  if (!frames || !overlay?.enabled) {
+    return frames;
+  }
+
+  const overlayType = overlay.type ?? 'movingAverage';
+  const windowSize = Math.max(2, Math.floor(overlay.window ?? 10));
+  let hasOverlay = false;
+
+  const framesWithOverlays = frames.map((frame) => {
+    const timeField = frame.fields.find((field) => field.type === FieldType.time);
+    if (!timeField) {
+      return frame;
+    }
+
+    const overlayFields: Field[] = [];
+
+    for (const field of frame.fields) {
+      if (field === timeField || field.type !== FieldType.number) {
+        continue;
+      }
+
+      const values =
+        overlayType === 'linearRegression'
+          ? getLinearRegressionValues(timeField.values, field.values)
+          : getMovingAverageValues(field.values, windowSize);
+
+      if (values.every((value) => value == null)) {
+        continue;
+      }
+
+      overlayFields.push(getOverlayField(field, values, overlayType, windowSize));
+    }
+
+    if (overlayFields.length === 0) {
+      return frame;
+    }
+
+    hasOverlay = true;
+    return {
+      ...frame,
+      fields: [...frame.fields, ...overlayFields],
+    };
+  });
+
+  if (!hasOverlay) {
+    return frames;
+  }
+
+  setClassicPaletteIdxs(framesWithOverlays, theme, 0);
+  return framesWithOverlays;
+}
+
+function getMovingAverageValues(values: unknown[], windowSize: number): Array<number | null> {
+  return values.map((_, index) => {
+    const start = Math.max(0, index - windowSize + 1);
+    let sum = 0;
+    let count = 0;
+
+    for (let i = start; i <= index; i++) {
+      const value = values[i];
+      if (isFiniteNumber(value)) {
+        sum += value;
+        count++;
+      }
+    }
+
+    return count > 0 ? sum / count : null;
+  });
+}
+
+function getLinearRegressionValues(xValues: unknown[], yValues: unknown[]): Array<number | null> {
+  const points: Array<[number, number]> = [];
+  const xOffset = xValues.find(isFiniteNumber);
+
+  if (xOffset == null) {
+    return yValues.map(() => null);
+  }
+
+  for (let i = 0; i < yValues.length; i++) {
+    const x = xValues[i];
+    const y = yValues[i];
+
+    if (isFiniteNumber(x) && isFiniteNumber(y)) {
+      points.push([x - xOffset, y]);
+    }
+  }
+
+  if (points.length < 2) {
+    return yValues.map(() => null);
+  }
+
+  let sumX = 0;
+  let sumY = 0;
+  let sumXX = 0;
+  let sumXY = 0;
+
+  for (const [x, y] of points) {
+    sumX += x;
+    sumY += y;
+    sumXX += x * x;
+    sumXY += x * y;
+  }
+
+  const n = points.length;
+  const denominator = n * sumXX - sumX * sumX;
+
+  if (denominator === 0) {
+    return yValues.map(() => null);
+  }
+
+  const slope = (n * sumXY - sumX * sumY) / denominator;
+  const intercept = (sumY - slope * sumX) / n;
+
+  return yValues.map((_, index) => {
+    const x = xValues[index];
+    return isFiniteNumber(x) ? intercept + slope * (x - xOffset) : null;
+  });
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+function getOverlayField(
+  sourceField: Field,
+  values: Array<number | null>,
+  overlayType: TimeSeriesOverlayOptions['type'],
+  windowSize: number
+): Field {
+  const sourceCustom: GraphFieldConfig = sourceField.config.custom ?? {};
+  const label =
+    overlayType === 'linearRegression'
+      ? `${sourceField.name} (trendline)`
+      : `${sourceField.name} (moving average, ${windowSize})`;
+
+  return {
+    ...sourceField,
+    name: label,
+    state: sourceField.state ? { ...sourceField.state, displayName: undefined, multipleFrames: undefined } : undefined,
+    config: {
+      ...sourceField.config,
+      displayName: label,
+      displayNameFromDS: undefined,
+      links: [],
+      custom: {
+        ...sourceCustom,
+        drawStyle: GraphDrawStyle.Line,
+        fillOpacity: 0,
+        gradientMode: GraphGradientMode.None,
+        lineInterpolation: LineInterpolation.Linear,
+        lineStyle: { fill: 'dash' },
+        lineWidth: Math.max(sourceCustom.lineWidth ?? 1, 2),
+        stacking: {
+          mode: StackingMode.None,
+          group: sourceCustom.stacking?.group ?? 'A',
+        },
+      },
+    },
+    values,
+    getLinks: undefined,
+  };
 }
 
 const matchEnumColorToSeriesColor = (frames: DataFrame[], theme: GrafanaTheme2) => {

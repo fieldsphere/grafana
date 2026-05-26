@@ -1,4 +1,4 @@
-import { createTheme, FieldType, createDataFrame, toDataFrame } from '@grafana/data';
+import { createTheme, FieldType, createDataFrame, getFieldDisplayName, toDataFrame } from '@grafana/data';
 import { TooltipDisplayMode } from '@grafana/schema';
 import { LineInterpolation } from '@grafana/ui';
 
@@ -9,6 +9,7 @@ import {
   getTimezones,
   isTooltipScrollable,
   prepareGraphableFields,
+  prepareTimeSeriesOverlayFields,
   setClassicPaletteIdxs,
 } from './utils';
 
@@ -167,6 +168,114 @@ describe('prepare timeseries graph', () => {
       ]
     `);
     expect(frames![0].length).toEqual(6);
+  });
+
+  describe('prepareTimeSeriesOverlayFields', () => {
+    it('returns the original frames when overlay is disabled', () => {
+      const frames = prepareGraphableFields(
+        [
+          createDataFrame({
+            fields: [
+              { name: 'time', type: FieldType.time, values: [1, 2, 3] },
+              { name: 'a', type: FieldType.number, values: [1, 2, 3] },
+            ],
+          }),
+        ],
+        createTheme()
+      );
+
+      expect(prepareTimeSeriesOverlayFields(frames, { enabled: false }, createTheme())).toBe(frames);
+    });
+
+    it('adds a trailing moving average overlay for numeric time series', () => {
+      const frames = prepareGraphableFields(
+        [
+          createDataFrame({
+            fields: [
+              { name: 'time', type: FieldType.time, values: [1, 2, 3, 4] },
+              { name: 'a', type: FieldType.number, values: [2, null, 6, 10] },
+            ],
+          }),
+        ],
+        createTheme()
+      );
+
+      const result = prepareTimeSeriesOverlayFields(
+        frames,
+        { enabled: true, type: 'movingAverage', window: 2 },
+        createTheme()
+      );
+
+      expect(result![0].fields.map((field) => field.name)).toEqual(['time', 'a', 'a (moving average, 2)']);
+      expect(result![0].fields[2].values).toEqual([2, 2, 6, 8]);
+      expect(result![0].fields[2].config.custom.drawStyle).toEqual('line');
+      expect(getFieldDisplayName(result![0].fields[2], result![0], result!)).toBe('a (moving average, 2)');
+    });
+
+    it('clamps moving average window size to a minimum of two', () => {
+      const frames = prepareGraphableFields(
+        [
+          createDataFrame({
+            fields: [
+              { name: 'time', type: FieldType.time, values: [1, 2, 3] },
+              { name: 'a', type: FieldType.number, values: [2, 4, 10] },
+            ],
+          }),
+        ],
+        createTheme()
+      );
+
+      const result = prepareTimeSeriesOverlayFields(
+        frames,
+        { enabled: true, type: 'movingAverage', window: 1 },
+        createTheme()
+      );
+
+      expect(result![0].fields[2].name).toBe('a (moving average, 2)');
+      expect(result![0].fields[2].values).toEqual([2, 3, 7]);
+    });
+
+    it('adds a linear regression overlay across the source time domain', () => {
+      const frames = prepareGraphableFields(
+        [
+          createDataFrame({
+            fields: [
+              { name: 'time', type: FieldType.time, values: [0, 1, 2, 3] },
+              { name: 'a', type: FieldType.number, values: [1, 3, null, 7] },
+            ],
+          }),
+        ],
+        createTheme()
+      );
+
+      const result = prepareTimeSeriesOverlayFields(frames, { enabled: true, type: 'linearRegression' }, createTheme());
+
+      expect(result![0].fields.map((field) => field.name)).toEqual(['time', 'a', 'a (trendline)']);
+      expect(result![0].fields[2].values).toEqual([1, 3, 5, 7]);
+    });
+
+    it('ignores non-numeric fields when building overlays', () => {
+      const frames = prepareGraphableFields(
+        [
+          createDataFrame({
+            fields: [
+              { name: 'time', type: FieldType.time, values: [1, 2, 3] },
+              { name: 'label', type: FieldType.string, values: ['a', 'b', 'c'] },
+              { name: 'a', type: FieldType.number, values: [1, 2, 3] },
+            ],
+          }),
+        ],
+        createTheme()
+      );
+
+      const result = prepareTimeSeriesOverlayFields(
+        frames,
+        { enabled: true, type: 'movingAverage', window: 3 },
+        createTheme()
+      );
+
+      expect(result![0].fields.map((field) => field.name)).toEqual(['time', 'label', 'a', 'a (moving average, 3)']);
+    });
   });
 
   describe('boolean fields', () => {

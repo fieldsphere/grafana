@@ -22,10 +22,23 @@ export const defaultTimeSeriesLegendOptions: Partial<TimeSeriesLegendOptions> = 
   enableFacetedFilter: true,
 };
 
+export interface TimeSeriesOverlayOptions {
+  enabled?: boolean;
+  type?: ('movingAverage' | 'linearRegression');
+  window?: number;
+}
+
+export const defaultTimeSeriesOverlayOptions: Partial<TimeSeriesOverlayOptions> = {
+  enabled: false,
+  type: 'movingAverage',
+  window: 10,
+};
+
 export interface Options extends common.OptionsWithTimezones, common.OptionsWithAnnotations {
   disableKeyboardEvents?: boolean;
   legend: TimeSeriesLegendOptions;
   orientation?: common.VizOrientation;
+  overlay?: TimeSeriesOverlayOptions;
   timeCompare?: common.TimeCompareOptions;
   tooltip: common.VizTooltipOptions;
 }
