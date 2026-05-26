@@ -3,7 +3,9 @@ package tempo
 import (
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/url"
 	"strconv"
@@ -259,7 +261,6 @@ func UserAgentStreamInterceptor() grpc.StreamClientInterceptor {
 // This creates proper OpenTelemetry spans with attributes and error handling.
 func TracingStreamInterceptor() grpc.StreamClientInterceptor {
 	return func(ctx context.Context, desc *grpc.StreamDesc, cc *grpc.ClientConn, method string, streamer grpc.Streamer, opts ...grpc.CallOption) (grpc.ClientStream, error) {
-		// Start an OpenTelemetry span for the gRPC call
 		ctx, span := tracing.DefaultTracer().Start(ctx, "tempo.grpc.stream",
 			trace.WithAttributes(
 				attribute.String("rpc.method", method),
@@ -269,24 +270,40 @@ func TracingStreamInterceptor() grpc.StreamClientInterceptor {
 				attribute.Bool("stream.client", true),
 			),
 		)
-		defer span.End()
 
 		logger.Debug("gRPC streaming call", "method", method, "stream_name", desc.StreamName)
 
 		stream, err := streamer(ctx, desc, cc, method, opts...)
 		if err != nil {
-			span.RecordError(err)
-			span.SetStatus(codes.Error, err.Error())
+			finishGRPCStreamSpan(span, err)
 			return nil, backend.DownstreamErrorf("gRPC streaming call failed: %w", err)
 		}
-		span.SetStatus(codes.Ok, "")
-		return stream, nil
+		return newObservedClientStream(stream, finishGRPCStreamSpanFunc(span)), nil
 	}
+}
+
+func finishGRPCStreamSpanFunc(span trace.Span) func(error) {
+	return func(err error) {
+		finishGRPCStreamSpan(span, err)
+	}
+}
+
+func finishGRPCStreamSpan(span trace.Span, err error) {
+	if err != nil && !errors.Is(err, io.EOF) {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, err.Error())
+	} else {
+		span.SetStatus(codes.Ok, "")
+	}
+	span.End()
 }
 
 // grpcStatusLabel returns the gRPC status code name for use as a metric label.
 func grpcStatusLabel(err error) string {
 	if err == nil {
+		return grpccodes.OK.String()
+	}
+	if errors.Is(err, io.EOF) {
 		return grpccodes.OK.String()
 	}
 	st, ok := grpcstatus.FromError(err)
@@ -307,25 +324,89 @@ func MetricsStreamInterceptor() grpc.StreamClientInterceptor {
 
 		// Track in-flight requests
 		grpcInFlightRequests.WithLabelValues(method).Inc()
-		defer grpcInFlightRequests.WithLabelValues(method).Dec()
 
 		stream, err := streamer(ctx, desc, cc, method, opts...)
+		if err != nil {
+			recordGRPCStreamMetrics(method, startTime, err)
+			return stream, err
+		}
 
-		// Calculate metrics
-		duration := time.Since(startTime)
-		status := grpcStatusLabel(err)
-
-		// Record metrics
-		grpcRequestsTotal.WithLabelValues(method, status).Inc()
-		grpcRequestDuration.WithLabelValues(method, status).Observe(duration.Seconds())
-
-		logger.Debug("gRPC streaming call completed",
-			"method", method,
-			"duration_ms", duration.Milliseconds(),
-			"status", status)
-
-		return stream, err
+		return newObservedClientStream(stream, func(err error) {
+			recordGRPCStreamMetrics(method, startTime, err)
+		}), nil
 	}
+}
+
+func recordGRPCStreamMetrics(method string, startTime time.Time, err error) {
+	duration := time.Since(startTime)
+	status := grpcStatusLabel(err)
+
+	grpcInFlightRequests.WithLabelValues(method).Dec()
+	grpcRequestsTotal.WithLabelValues(method, status).Inc()
+	grpcRequestDuration.WithLabelValues(method, status).Observe(duration.Seconds())
+
+	logger.Debug("gRPC streaming call completed",
+		"method", method,
+		"duration_ms", duration.Milliseconds(),
+		"status", status)
+}
+
+type observedClientStream struct {
+	grpc.ClientStream
+	finish func(error)
+	once   sync.Once
+	done   chan struct{}
+}
+
+func newObservedClientStream(stream grpc.ClientStream, finish func(error)) grpc.ClientStream {
+	observed := &observedClientStream{
+		ClientStream: stream,
+		finish:       finish,
+		done:         make(chan struct{}),
+	}
+
+	if streamCtx := stream.Context(); streamCtx != nil {
+		go func() {
+			select {
+			case <-streamCtx.Done():
+				observed.finishOnce(streamCtx.Err())
+			case <-observed.done:
+			}
+		}()
+	}
+
+	return observed
+}
+
+func (s *observedClientStream) SendMsg(m any) error {
+	err := s.ClientStream.SendMsg(m)
+	if err != nil {
+		s.finishOnce(err)
+	}
+	return err
+}
+
+func (s *observedClientStream) RecvMsg(m any) error {
+	err := s.ClientStream.RecvMsg(m)
+	if err != nil {
+		s.finishOnce(err)
+	}
+	return err
+}
+
+func (s *observedClientStream) CloseSend() error {
+	err := s.ClientStream.CloseSend()
+	if err != nil {
+		s.finishOnce(err)
+	}
+	return err
+}
+
+func (s *observedClientStream) finishOnce(err error) {
+	s.once.Do(func() {
+		s.finish(err)
+		close(s.done)
+	})
 }
 
 type basicAuth struct {
