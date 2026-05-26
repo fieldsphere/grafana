@@ -1,6 +1,19 @@
-import { createTheme } from './createTheme';
+import beach from './themeDefinitions/beach.json';
+import { createTheme, NewThemeOptionsSchema } from './createTheme';
 
 describe('createTheme', () => {
+  it('loads beach theme definition from JSON', () => {
+    const parsed = NewThemeOptionsSchema.safeParse(beach);
+    expect(parsed.success).toBe(true);
+    if (!parsed.success) {
+      return;
+    }
+    const theme = createTheme(parsed.data);
+    expect(theme.isLight).toBe(true);
+    expect(theme.name).toBe('Beach');
+    expect(theme.colors.background.canvas).toBe('#efe6d9');
+  });
+
   it('create custom theme', () => {
     const custom = createTheme({
       colors: {
