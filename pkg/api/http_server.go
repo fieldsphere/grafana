@@ -661,6 +661,7 @@ func (hs *HTTPServer) tlsCertificates() ([]tls.Certificate, error) {
 }
 
 func (hs *HTTPServer) applyRoutes() {
+	hs.loadLabsFeatureOverridesIntoManager()
 	// start with middlewares & static routes
 	hs.addMiddlewaresAndStaticRoutes()
 	// then add view routes & api routes

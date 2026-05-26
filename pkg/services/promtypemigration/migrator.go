@@ -8,7 +8,6 @@ import (
 	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/grafana/grafana/pkg/infra/serverlock"
 	"github.com/grafana/grafana/pkg/registry"
-	"github.com/grafana/grafana/pkg/services/featuremgmt"
 )
 
 var logger = log.New("promds.migration")
@@ -25,28 +24,21 @@ type PromTypeMigrationProvider interface {
 
 type PromTypeMigrationProviderImpl struct {
 	services          []PromTypeMigrationService
-	features          featuremgmt.FeatureToggles
 	ServerLockService *serverlock.ServerLockService
 }
 
 func ProvidePromTypeMigrationProvider(
 	serverLockService *serverlock.ServerLockService,
-	features featuremgmt.FeatureToggles,
 	promAzureAuthMigrationService *AzurePromMigrationService,
 	promAmazonAuthMigrationService *AmazonPromMigrationService,
 ) *PromTypeMigrationProviderImpl {
 	return &PromTypeMigrationProviderImpl{
 		ServerLockService: serverLockService,
-		features:          features,
 		services:          []PromTypeMigrationService{promAzureAuthMigrationService, promAmazonAuthMigrationService},
 	}
 }
 
 func (s *PromTypeMigrationProviderImpl) Run(ctx context.Context) error {
-	//nolint:staticcheck // not yet migrated to OpenFeature
-	if !s.features.IsEnabled(ctx, featuremgmt.FlagPrometheusTypeMigration) {
-		return nil
-	}
 	return s.migrate(ctx)
 }
 

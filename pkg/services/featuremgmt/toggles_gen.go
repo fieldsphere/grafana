@@ -718,10 +718,6 @@ const (
 	// Enables the Graphite data source full backend mode
 	FlagGraphiteBackendMode = "graphiteBackendMode"
 
-	// FlagPrometheusTypeMigration
-	// Checks for deprecated Prometheus authentication methods (SigV4 and Azure), installs the relevant data source, and migrates the Prometheus data sources
-	FlagPrometheusTypeMigration = "prometheusTypeMigration"
-
 	// FlagPluginContainers
 	// Enables running plugins in containers
 	FlagPluginContainers = "pluginContainers"

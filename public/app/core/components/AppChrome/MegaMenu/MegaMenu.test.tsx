@@ -67,4 +67,21 @@ describe('MegaMenu', () => {
 
     expect(screen.queryByLabelText('Profile')).not.toBeInTheDocument();
   });
+
+  it('should render highlightText badge on root items', async () => {
+    const navBarTree: NavModelItem[] = [
+      {
+        text: 'Labs',
+        id: 'labs',
+        url: '/labs',
+        highlightText: 'Beta',
+        icon: 'flask',
+      },
+      { text: 'Profile', id: 'profile', url: 'profile' },
+    ];
+    const store = configureStore({ navBarTree });
+    render(<MegaMenu onClose={() => {}} />, { store });
+
+    expect(await screen.findByText('Beta')).toBeInTheDocument();
+  });
 });

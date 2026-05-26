@@ -539,6 +539,15 @@ export function getAppRoutes(): RouteDescriptor[] {
       ),
     },
     {
+      path: '/labs',
+      roles: () =>
+        contextSrv.user.isGrafanaAdmin &&
+        contextSrv.evaluatePermission([AccessControlAction.FeatureManagementRead]),
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "LabsFeatureTogglesPage" */ 'app/features/labs/LabsFeatureTogglesPage')
+      ),
+    },
+    {
       path: '/theme-playground',
       component: SafeDynamicImport(
         () => import(/* webpackChunkName: "ThemePlayground"*/ 'app/features/theme-playground/ThemePlayground')
