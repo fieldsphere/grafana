@@ -296,7 +296,40 @@ export interface FeatureToggles {
 		buf += "  " + getTypeScriptKey(flag.Name) + "?: boolean;\n"
 	}
 
-	buf += "}\n"
+	buf += `}
+
+export type FeatureToggleDefaultValue = boolean | number | string | Record<string, unknown> | unknown[] | null;
+
+export interface FeatureToggleMeta {
+  name: keyof FeatureToggles & string;
+  description: string;
+  stage: string;
+  owner: string;
+  defaultExpression: string;
+  defaultValue: FeatureToggleDefaultValue;
+  frontendOnly: boolean;
+  requiresRestart: boolean;
+  requiresDevMode: boolean;
+  hideFromDocs: boolean;
+}
+
+export const featureToggleMeta: FeatureToggleMeta[] = [
+`
+	for _, flag := range standardFeatureFlags {
+		buf += "  {\n"
+		buf += "    name: " + jsonString(flag.Name) + ",\n"
+		buf += "    description: " + jsonString(flag.Description) + ",\n"
+		buf += "    stage: " + jsonString(flag.Stage.String()) + ",\n"
+		buf += "    owner: " + jsonString(string(flag.Owner)) + ",\n"
+		buf += "    defaultExpression: " + jsonString(flag.Expression) + ",\n"
+		buf += "    defaultValue: " + defaultValueLiteral(flag.Expression) + ",\n"
+		buf += "    frontendOnly: " + strconv.FormatBool(flag.FrontendOnly) + ",\n"
+		buf += "    requiresRestart: " + strconv.FormatBool(flag.RequiresRestart) + ",\n"
+		buf += "    requiresDevMode: " + strconv.FormatBool(flag.RequiresDevMode) + ",\n"
+		buf += "    hideFromDocs: " + strconv.FormatBool(flag.HideFromDocs) + ",\n"
+		buf += "  },\n"
+	}
+	buf += "];\n"
 	return buf
 }
 
@@ -305,6 +338,30 @@ func getTypeScriptKey(key string) string {
 		return "['" + key + "']"
 	}
 	return key
+}
+
+func jsonString(value string) string {
+	out, err := json.Marshal(value)
+	if err != nil {
+		return `""`
+	}
+	return string(out)
+}
+
+func defaultValueLiteral(expression string) string {
+	if expression == "" {
+		return "null"
+	}
+
+	var value any
+	if err := json.Unmarshal([]byte(expression), &value); err == nil {
+		out, err := json.Marshal(value)
+		if err == nil {
+			return string(out)
+		}
+	}
+
+	return jsonString(expression)
 }
 
 func generateRegistry(t *testing.T) string {
