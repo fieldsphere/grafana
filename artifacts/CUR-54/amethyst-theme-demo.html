@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CUR-54 Amethyst theme switcher demo</title>
+    <style>
+      :root {
+        --canvas: #111217;
+        --primary-bg: #181b1f;
+        --secondary-bg: #22252b;
+        --elevated-bg: #22252b;
+        --border: #343942;
+        --text: #f4f5f5;
+        --muted: #c7c8ca;
+        --accent: #ff8833;
+        --accent-strong: #ff9830;
+      }
+
+      :root[data-theme='amethyst'] {
+        --canvas: #1a1229;
+        --primary-bg: #231936;
+        --secondary-bg: #2b2041;
+        --elevated-bg: #33264c;
+        --border: #4b3670;
+        --text: #f3ecff;
+        --muted: #cdbbea;
+        --accent: #9b6dff;
+        --accent-strong: #c58cff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background:
+          radial-gradient(circle at 20% 0%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 32rem),
+          var(--canvas);
+        color: var(--text);
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        margin: 0;
+        min-height: 100vh;
+        transition:
+          background 180ms ease,
+          color 180ms ease;
+      }
+
+      main {
+        display: grid;
+        gap: 24px;
+        grid-template-columns: 280px minmax(0, 1fr);
+        min-height: 100vh;
+      }
+
+      aside {
+        background: var(--primary-bg);
+        border-right: 1px solid var(--border);
+        padding: 24px;
+      }
+
+      .brand {
+        color: var(--accent-strong);
+        font-size: 14px;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .nav {
+        display: grid;
+        gap: 10px;
+        margin-top: 36px;
+      }
+
+      .nav div {
+        background: var(--secondary-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        color: var(--muted);
+        padding: 12px;
+      }
+
+      section {
+        padding: 36px 36px 56px 12px;
+      }
+
+      .topbar {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 26px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: 28px;
+      }
+
+      p {
+        color: var(--muted);
+        margin-top: 8px;
+      }
+
+      .button {
+        background: var(--accent);
+        border: 1px solid var(--accent-strong);
+        border-radius: 10px;
+        color: #160d28;
+        cursor: pointer;
+        font-weight: 700;
+        padding: 10px 14px;
+      }
+
+      .drawer {
+        background: var(--primary-bg);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        box-shadow: 0 24px 80px rgb(0 0 0 / 0.35);
+        max-width: 960px;
+        padding: 22px;
+      }
+
+      .drawer-header {
+        align-items: start;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 18px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card {
+        background: var(--secondary-bg);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        cursor: pointer;
+        overflow: hidden;
+      }
+
+      .card[aria-checked='true'] {
+        border-color: var(--accent-strong);
+        box-shadow: 0 0 0 1px var(--accent-strong);
+      }
+
+      .card-header {
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 10px;
+        justify-content: space-between;
+        padding: 12px;
+      }
+
+      .radio {
+        align-items: center;
+        display: flex;
+        gap: 9px;
+      }
+
+      .dot {
+        border: 2px solid var(--muted);
+        border-radius: 50%;
+        height: 16px;
+        width: 16px;
+      }
+
+      .card[aria-checked='true'] .dot {
+        border: 5px solid var(--accent-strong);
+      }
+
+      .badge {
+        background: color-mix(in srgb, var(--accent) 16%, transparent);
+        border: 1px solid var(--accent-strong);
+        border-radius: 999px;
+        color: var(--accent-strong);
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 8px;
+      }
+
+      .preview {
+        background: var(--canvas);
+        display: grid;
+        gap: 8px;
+        grid-template-columns: 1fr 1fr;
+        min-height: 140px;
+        padding: 14px;
+      }
+
+      .panel {
+        background: var(--elevated-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        min-height: 92px;
+        padding: 12px;
+      }
+
+      .metric {
+        color: var(--accent-strong);
+        font-size: 28px;
+        font-weight: 800;
+      }
+
+      .bar {
+        background: linear-gradient(270deg, var(--accent-strong) 0%, var(--accent) 100%);
+        border-radius: 999px;
+        height: 10px;
+        margin-top: 12px;
+        width: 100%;
+      }
+
+      .status {
+        background: var(--elevated-bg);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        margin-top: 18px;
+        padding: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <aside>
+        <div class="brand">Grafana</div>
+        <div class="nav">
+          <div>Dashboards</div>
+          <div>Explore</div>
+          <div>Administration</div>
+        </div>
+      </aside>
+      <section>
+        <div class="topbar">
+          <div>
+            <h1>Theme switcher</h1>
+            <p>CUR-54 source summary: add a purple/amethyst theme to grafana theme switcher.</p>
+          </div>
+          <button class="button" type="button" id="apply-amethyst">Select Amethyst</button>
+        </div>
+
+        <div class="drawer" role="dialog" aria-labelledby="drawer-title">
+          <div class="drawer-header">
+            <div>
+              <h2 id="drawer-title">Change theme</h2>
+              <p>Amethyst is registered as an extra theme and available in the switcher by default.</p>
+            </div>
+            <span class="badge">Implemented</span>
+          </div>
+
+          <div class="grid" role="radiogroup" aria-label="Themes">
+            <article class="card" role="radio" aria-checked="false" data-theme-card="dark" tabindex="0">
+              <div class="card-header">
+                <span class="radio"><span class="dot"></span>Dark</span>
+              </div>
+              <div class="preview">
+                <div class="panel"><div class="metric">42</div><div class="bar"></div></div>
+                <div class="panel"></div>
+              </div>
+            </article>
+
+            <article class="card" role="radio" aria-checked="false" data-theme-card="light" tabindex="0">
+              <div class="card-header">
+                <span class="radio"><span class="dot"></span>Light</span>
+              </div>
+              <div class="preview" style="--canvas: #ffffff; --elevated-bg: #f4f5f5; --border: #d1d5db; --accent: #ff8833; --accent-strong: #ff9830">
+                <div class="panel"><div class="metric">42</div><div class="bar"></div></div>
+                <div class="panel"></div>
+              </div>
+            </article>
+
+            <article class="card" role="radio" aria-checked="true" data-theme-card="amethyst" tabindex="0">
+              <div class="card-header">
+                <span class="radio"><span class="dot"></span>Amethyst</span>
+                <span class="badge">Experimental</span>
+              </div>
+              <div class="preview">
+                <div class="panel"><div class="metric">99</div><div class="bar"></div></div>
+                <div class="panel"></div>
+              </div>
+            </article>
+
+            <article class="card" role="radio" aria-checked="false" data-theme-card="system" tabindex="0">
+              <div class="card-header">
+                <span class="radio"><span class="dot"></span>System preference</span>
+              </div>
+              <div class="preview">
+                <div class="panel"><div class="metric">auto</div><div class="bar"></div></div>
+                <div class="panel"></div>
+              </div>
+            </article>
+          </div>
+
+          <div class="status" id="status">Selected theme ID: amethyst</div>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const root = document.documentElement;
+      const status = document.querySelector('#status');
+      const cards = Array.from(document.querySelectorAll('[data-theme-card]'));
+
+      function selectTheme(id) {
+        root.dataset.theme = id === 'amethyst' ? 'amethyst' : '';
+        cards.forEach((card) => {
+          card.setAttribute('aria-checked', String(card.dataset.themeCard === id));
+        });
+        status.textContent = `Selected theme ID: ${id}`;
+      }
+
+      cards.forEach((card) => {
+        card.addEventListener('click', () => selectTheme(card.dataset.themeCard));
+      });
+      document.querySelector('#apply-amethyst').addEventListener('click', () => selectTheme('amethyst'));
+      selectTheme('amethyst');
+    </script>
+  </body>
+</html>
