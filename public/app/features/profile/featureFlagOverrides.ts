@@ -1,7 +1,6 @@
 import { config, getBackendSrv } from '@grafana/runtime';
 
 export const FEATURE_TOGGLE_OVERRIDES_STORAGE_KEY = 'grafana.featureToggles';
-export const FEATURE_TOGGLE_OVERRIDES_CHANGED_EVENT = 'grafana-feature-toggles-overrides-changed';
 
 export type FeatureToggleOverrideMap = Record<string, boolean>;
 export type FeatureToggleValue = boolean | number | string | Record<string, unknown> | unknown[] | null | undefined;
@@ -48,7 +47,6 @@ export function readFeatureToggleOverrides(): FeatureToggleOverrideMap {
 export function writeFeatureToggleOverrides(overrides: FeatureToggleOverrideMap): void {
   persistFeatureToggleOverrides(overrides);
   applyOverridesToRuntime(overrides);
-  dispatchOverridesChanged(overrides);
 }
 
 function persistFeatureToggleOverrides(overrides: FeatureToggleOverrideMap): void {
@@ -74,16 +72,21 @@ export function clearFeatureToggleOverride(name: string, fallbackValue?: Feature
   persistFeatureToggleOverrides(overrides);
   restoreRuntimeFeatureToggle(name, fallbackValue);
   applyOverridesToRuntime(overrides);
-  dispatchOverridesChanged(overrides);
   return overrides;
 }
 
 export function clearAllFeatureToggleOverrides(
   fallbackValues: Record<string, FeatureToggleValue> = {}
 ): FeatureToggleOverrideMap {
+  const overrides = readFeatureToggleOverrides();
+  const fallbacksForClearedOverrides: Record<string, FeatureToggleValue> = {};
+
+  for (const name of Object.keys(overrides)) {
+    fallbacksForClearedOverrides[name] = fallbackValues[name];
+  }
+
   window.localStorage.removeItem(FEATURE_TOGGLE_OVERRIDES_STORAGE_KEY);
-  restoreRuntimeFeatureToggles(fallbackValues);
-  dispatchOverridesChanged({});
+  restoreRuntimeFeatureToggles(fallbacksForClearedOverrides);
   return {};
 }
 
@@ -156,12 +159,4 @@ function restoreRuntimeFeatureToggles(fallbackValues: Record<string, FeatureTogg
   for (const [name, value] of Object.entries(fallbackValues)) {
     restoreRuntimeFeatureToggle(name, value);
   }
-}
-
-function dispatchOverridesChanged(overrides: FeatureToggleOverrideMap): void {
-  window.dispatchEvent(
-    new CustomEvent(FEATURE_TOGGLE_OVERRIDES_CHANGED_EVENT, {
-      detail: { overrides },
-    })
-  );
 }
