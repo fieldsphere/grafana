@@ -176,7 +176,7 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		treeRoot.AddSection(&navtree.NavLink{
 			Text:       "Labs",
 			Id:         navtree.NavIDLabs,
-			SubTitle:   "Feature flags available in this Grafana build",
+			SubTitle:   "Feature flags and experiments available in this Grafana build",
 			Icon:       "rocket",
 			SortWeight: navtree.WeightLabs,
 			Url:        s.cfg.AppSubURL + "/labs",
