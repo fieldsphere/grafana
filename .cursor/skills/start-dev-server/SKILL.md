@@ -5,6 +5,12 @@ description: Run commands to start Grafana local dev after initial setup. Use wh
 
 # Start dev server
 
+## When to use
+
+- User asks how to start the dev server
+- User wants to run Grafana locally (after initial setup)
+- User asks about frontend/backend watchers
+
 ## Instructions
 When asked how to start the dev server after initial setup, run the commands below using the Shell tool. Do not ask the user to run them.
 
