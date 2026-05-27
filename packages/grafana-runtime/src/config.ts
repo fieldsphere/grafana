@@ -313,7 +313,8 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
       const toggleState = featureValue === 'true' || featureValue === '1';
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       featureToggles[featureName as keyof FeatureToggles] = toggleState;
-      console.log(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
+      // eslint-disable-next-line no-console
+      console.info(`[FeatureToggles] Setting ${featureName} = ${toggleState} via localStorage`);
     }
   }
 }
@@ -339,9 +340,11 @@ function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
       if (toggleState !== featureToggles[key]) {
         if (isDevelopment || safeRuntimeFeatureFlags.has(featureName)) {
           featureToggles[featureName] = toggleState;
-          console.log(`Setting feature toggle ${featureName} = ${toggleState} via url`);
+          // eslint-disable-next-line no-console
+          console.info(`[FeatureToggles] Setting ${featureName} = ${toggleState} via URL`);
         } else {
-          console.log(`Unable to change feature toggle ${featureName} via url in production.`);
+          // eslint-disable-next-line no-console
+          console.warn(`[FeatureToggles] Cannot change ${featureName} via URL in production`);
         }
       }
     }

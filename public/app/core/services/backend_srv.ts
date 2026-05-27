@@ -31,6 +31,7 @@ import {
   type BackendSrv as BackendService,
   type BackendSrvRequest,
   config,
+  createMonitoringLogger,
   type FetchError,
   type FetchResponse,
 } from '@grafana/runtime';
@@ -47,6 +48,8 @@ import { type FolderDTO } from 'app/types/folders';
 import { ShowModalReactEvent } from '../../types/events';
 import { isContentTypeJson, parseInitFromOptions, parseResponseBody, parseUrlFromOptions } from '../utils/fetch';
 import { isDataQuery, isLocalUrl } from '../utils/query';
+
+const logger = createMonitoringLogger('core.backend-srv');
 
 import { FetchQueue } from './FetchQueue';
 import { FetchQueueWorker } from './FetchQueueWorker';
@@ -241,7 +244,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            logger.logError(e instanceof Error ? e : new Error(String(e)), { requestId, context: 'chunked response' });
             observer.error(e);
           }); // from abort
       },

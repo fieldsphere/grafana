@@ -31,6 +31,7 @@ import {
 import {
   type BackendSrvRequest,
   config,
+  createMonitoringLogger,
   DataSourceWithBackend,
   type FetchResponse,
   getBackendSrv,
@@ -38,6 +39,8 @@ import {
   isFetchError,
   type TemplateSrv,
 } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('datasource.prometheus');
 
 import { addLabelToQuery } from './add_label_to_query';
 import { PrometheusAnnotationSupport } from './annotations';
@@ -172,8 +175,7 @@ export class PrometheusDatasource
         this.ruleMappings = extractRuleMappingFromGroups(ruleGroups);
       }
     } catch (err) {
-      console.log('Rules API is experimental. Ignore next error.');
-      console.error(err);
+      logger.logDebug('Rules API request failed (experimental API)', { error: err instanceof Error ? err.message : String(err) });
     }
   }
 

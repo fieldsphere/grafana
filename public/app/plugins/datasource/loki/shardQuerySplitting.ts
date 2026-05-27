@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { type DataQueryRequest, type DataQueryResponse, LoadingState, type QueryResultMetaStat } from '@grafana/data';
 import { config } from '@grafana/runtime';
+import { createDebugLog } from 'app/core/utils/debugLog';
 
 import { type LokiDatasource } from './datasource';
 import { combineResponses, replaceResponses } from './mergeResponses';
@@ -369,11 +370,4 @@ function getInitialGroupSize(shards: number[]) {
   return Math.floor(Math.sqrt(shards.length));
 }
 
-// Enable to output debugging logs
-const DEBUG_ENABLED = Boolean(localStorage.getItem(`loki.sharding_debug_enabled`));
-function debug(message: string) {
-  if (!DEBUG_ENABLED) {
-    return;
-  }
-  console.log(message);
-}
+const debug = createDebugLog('loki.sharding', 'LokiSharding');

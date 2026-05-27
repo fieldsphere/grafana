@@ -2,8 +2,10 @@ import { createAction, createAsyncThunk, type Update } from '@reduxjs/toolkit';
 import { from, forkJoin, timeout, lastValueFrom, catchError, of } from 'rxjs';
 
 import { type PanelPlugin, type PluginError } from '@grafana/data';
-import { config, getBackendSrv, isFetchError } from '@grafana/runtime';
+import { config, createMonitoringLogger, getBackendSrv, isFetchError } from '@grafana/runtime';
 import { refetchPanelPluginMetas } from '@grafana/runtime/internal';
+
+const logger = createMonitoringLogger('features.plugins.admin');
 import { importPanelPlugin } from 'app/features/plugins/importPanelPlugin';
 import { type StoreState, type ThunkResult } from 'app/types/store';
 
@@ -121,7 +123,7 @@ export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, t
           }
         },
         (error) => {
-          console.log(error);
+          logger.logError(error instanceof Error ? error : new Error(String(error)), { context: 'fetch all plugins' });
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchLocal/rejected` });
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchRemote/rejected` });
           return thunkApi.rejectWithValue('Unknown error.');

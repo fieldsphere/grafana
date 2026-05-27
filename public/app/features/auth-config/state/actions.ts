@@ -1,7 +1,9 @@
 import { lastValueFrom } from 'rxjs';
 
-import { getBackendSrv, isFetchError } from '@grafana/runtime';
+import { createMonitoringLogger, getBackendSrv, isFetchError } from '@grafana/runtime';
 import { contextSrv } from 'app/core/services/context_srv';
+
+const logger = createMonitoringLogger('features.auth-config');
 import { AccessControlAction } from 'app/types/accessControl';
 import { type Settings, type UpdateSettingsQuery } from 'app/types/settings';
 import { type ThunkResult } from 'app/types/store';
@@ -78,7 +80,7 @@ export function saveSettings(data: UpdateSettingsQuery): ThunkResult<Promise<boo
         dispatch(resetError());
         return true;
       } catch (error) {
-        console.log(error);
+        logger.logError(error instanceof Error ? error : new Error(String(error)), { context: 'settings update' });
         if (isFetchError(error)) {
           error.isHandled = true;
           const updateErr: SettingsError = {

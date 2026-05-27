@@ -1,6 +1,6 @@
 import { type DataQuery, locationUtil, setWeekStart, DashboardLoadedEvent, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, isFetchError, locationService } from '@grafana/runtime';
+import { config, createMonitoringLogger, isFetchError, locationService } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { createErrorNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
@@ -40,6 +40,7 @@ import { type PanelModel } from './PanelModel';
 import { emitDashboardViewEvent } from './analyticsProcessor';
 import { dashboardInitCompleted, dashboardInitFailed, dashboardInitFetching, dashboardInitServices } from './reducers';
 
+const logger = createMonitoringLogger('features.dashboard.init');
 const INIT_DASHBOARD_MEASUREMENT = 'initDashboard';
 
 export interface InitDashboardArgs {
@@ -109,7 +110,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            logger.logDebug('URL corrected', { dashboardUrl, currentPath });
           }
         }
         return dashDTO;

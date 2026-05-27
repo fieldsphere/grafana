@@ -12,8 +12,11 @@ import {
   ByNamesMatcherMode,
 } from '@grafana/data';
 import { type ReduceTransformerOptions } from '@grafana/data/internal';
+import { createMonitoringLogger } from '@grafana/runtime';
 
 import { type Options } from './panelcfg.gen';
+
+const logger = createMonitoringLogger('plugins.panel.table');
 
 /**
  * At 7.0, the `table` panel was swapped from an angular implementation to a react one.
@@ -23,7 +26,7 @@ import { type Options } from './panelcfg.gen';
 export const tableMigrationHandler = (panel: PanelModel<Options>): Partial<Options> => {
   // Table was saved as an angular table, lets just swap to the 'table-old' panel
   if (!panel.pluginVersion && 'columns' in panel) {
-    console.log('Was angular table', panel);
+    logger.logInfo('Migrating angular table panel');
   }
 
   // ensure overrides array exists before applying rest of overrides

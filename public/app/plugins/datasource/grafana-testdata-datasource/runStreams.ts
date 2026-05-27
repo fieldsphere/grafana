@@ -18,7 +18,9 @@ import {
   getDisplayProcessor,
   createTheme,
 } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
+import { createMonitoringLogger, getBackendSrv } from '@grafana/runtime';
+
+const logger = createMonitoringLogger('datasource.testdata.streams');
 
 import { getRandomLine } from './LogIpsum';
 import { type TestDataDataQuery, type StreamingQuery } from './dataquery';
@@ -125,7 +127,7 @@ export function runSignalStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logger.logDebug('Unsubscribing from stream', { streamId });
       clearTimeout(timeoutId);
     };
   });
@@ -171,7 +173,7 @@ export function runLogsStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logger.logDebug('Unsubscribing from logs stream', { streamId });
       clearTimeout(timeoutId);
     };
   });
@@ -246,15 +248,15 @@ export function runWatchStream(
             });
         },
         error: (err) => {
-          console.warn('error in stream', streamId, err);
+          logger.logWarning('Error in watch stream', { streamId, error: String(err) });
         },
         complete: () => {
-          console.info('complete stream', streamId);
+          logger.logInfo('Watch stream completed', { streamId });
         },
       });
 
     return () => {
-      console.log('unsubscribing to stream', streamId);
+      logger.logDebug('Unsubscribing from watch stream', { streamId });
       sub.unsubscribe();
     };
   });
@@ -314,7 +316,7 @@ export function runFetchStream(
       });
 
       if (value.done) {
-        console.log('Finished stream');
+        logger.logDebug('Fetch stream completed', { streamId });
         subscriber.complete(); // necessary?
         return;
       }
@@ -334,8 +336,7 @@ export function runFetchStream(
     });
 
     return () => {
-      // Cancel fetch?
-      console.log('unsubscribing to stream ' + streamId);
+      logger.logDebug('Unsubscribing from fetch stream', { streamId });
     };
   });
 }
@@ -368,7 +369,7 @@ export function runTracesStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logger.logDebug('Unsubscribing from trace stream', { streamId });
       clearTimeout(timeoutId);
     };
   });
