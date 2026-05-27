@@ -539,6 +539,18 @@ export function getAppRoutes(): RouteDescriptor[] {
       ),
     },
     {
+      path: '/labs',
+      roles: () => contextSrv.evaluatePermission([AccessControlAction.SettingsRead]),
+      component: () => <NavLandingPage navId="labs" />,
+    },
+    {
+      path: '/labs/feature-flags',
+      roles: () => contextSrv.evaluatePermission([AccessControlAction.SettingsRead]),
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "FeatureFlagsPage" */ 'app/features/labs/FeatureFlagsPage')
+      ),
+    },
+    {
       path: '/theme-playground',
       component: SafeDynamicImport(
         () => import(/* webpackChunkName: "ThemePlayground"*/ 'app/features/theme-playground/ThemePlayground')

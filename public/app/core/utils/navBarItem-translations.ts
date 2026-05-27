@@ -99,6 +99,10 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.config-plugins.title', 'Plugins and data');
     case 'cfg/access':
       return t('nav.config-access.title', 'Users and access');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
+    case 'labs-feature-flags':
+      return t('nav.labs-feature-flags.title', 'Feature flags');
     case 'datasources':
       return t('nav.datasources.title', 'Data sources');
     case 'authentication':
@@ -204,6 +208,10 @@ export function getNavTitle(navId: string | undefined) {
 
 export function getNavSubTitle(navId: string | undefined) {
   switch (navId) {
+    case 'labs':
+      return t('nav.labs.subtitle', 'Experimental features and feature flags');
+    case 'labs-feature-flags':
+      return t('nav.labs-feature-flags.subtitle', 'View and manage feature toggles for this instance');
     case 'dashboards':
       return t('nav.dashboards.subtitle', 'Create and manage dashboards to visualize your data');
     case 'dashboards/browse':

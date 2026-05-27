@@ -172,6 +172,10 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		return nil, err
 	}
 
+	if labsSection := s.buildLabsNavLink(c); labsSection != nil {
+		treeRoot.AddSection(labsSection)
+	}
+
 	s.addHelpLinks(treeRoot, c)
 
 	if err := s.addAppLinks(treeRoot, c); err != nil {
@@ -651,4 +655,32 @@ func (s *ServiceImpl) buildDataConnectionsNavLink(c *contextmodel.ReqContext) *n
 		return navLink
 	}
 	return nil
+}
+
+func (s *ServiceImpl) buildLabsNavLink(c *contextmodel.ReqContext) *navtree.NavLink {
+	hasAccess := ac.HasAccess(s.accessControl, c)
+	if !hasAccess(ac.EvalPermission(ac.ActionSettingsRead, ac.ScopeSettingsAll)) {
+		return nil
+	}
+
+	baseURL := s.cfg.AppSubURL + "/labs"
+
+	return &navtree.NavLink{
+		Text:       "Labs",
+		Id:         navtree.NavIDLabs,
+		SubTitle:   "Experimental features and feature flags",
+		Icon:       "rocket",
+		SortWeight: navtree.WeightLabs,
+		Url:        baseURL,
+		IsNew:      true,
+		Children: []*navtree.NavLink{
+			{
+				Text:     "Feature flags",
+				Id:       navtree.NavIDLabsFeatureFlags,
+				SubTitle: "View and manage feature toggles for this instance",
+				Icon:     "toggle-on",
+				Url:      baseURL + "/feature-flags",
+			},
+		},
+	}
 }
