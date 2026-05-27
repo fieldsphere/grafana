@@ -2103,6 +2103,36 @@
     },
     {
       "metadata": {
+        "name": "experimentStatSigFlags",
+        "resourceVersion": "1777333572897",
+        "creationTimestamp": "2026-04-27T23:46:12Z"
+      },
+      "spec": {
+        "description": "Umbrella flag for statistical significance experiment feature flags",
+        "stage": "experimental",
+        "codeowner": "@grafana/grafana-frontend-navigation",
+        "frontend": true,
+        "hideFromDocs": true,
+        "expression": "false"
+      }
+    },
+    {
+      "metadata": {
+        "name": "experimentStatSigNewFlags",
+        "resourceVersion": "1777333572897",
+        "creationTimestamp": "2026-04-27T23:46:12Z"
+      },
+      "spec": {
+        "description": "Enables new statistical significance experiment feature flags we are trialing",
+        "stage": "experimental",
+        "codeowner": "@grafana/grafana-frontend-navigation",
+        "frontend": true,
+        "hideFromDocs": true,
+        "expression": "false"
+      }
+    },
+    {
+      "metadata": {
         "name": "exploreLogsAggregatedMetrics",
         "resourceVersion": "1771434338561",
         "creationTimestamp": "2024-08-29T13:55:59Z"

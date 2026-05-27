@@ -1201,6 +1201,16 @@ export interface FeatureToggles {
   */
   experimentRecentlyViewedDashboards?: boolean;
   /**
+  * Umbrella flag for statistical significance experiment feature flags
+  * @default false
+  */
+  experimentStatSigFlags?: boolean;
+  /**
+  * Enables new statistical significance experiment feature flags we are trialing
+  * @default false
+  */
+  experimentStatSigNewFlags?: boolean;
+  /**
   * Enables the created by me search filter on the browse dashboards page
   * @default false
   */
