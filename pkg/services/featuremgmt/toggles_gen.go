@@ -147,6 +147,10 @@ const (
 	// Adds support for Kubernetes correlations
 	FlagKubernetesCorrelations = "kubernetesCorrelations"
 
+	// FlagKubernetesAnnotations
+	// Adds support for Kubernetes annotations API
+	FlagKubernetesAnnotations = "kubernetesAnnotations"
+
 	// FlagKubernetesUnifiedStorageQuotas
 	// Adds support for Kubernetes unified storage quotas
 	FlagKubernetesUnifiedStorageQuotas = "kubernetesUnifiedStorageQuotas"

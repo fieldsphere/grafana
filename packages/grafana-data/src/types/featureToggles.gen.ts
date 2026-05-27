@@ -254,6 +254,11 @@ export interface FeatureToggles {
   */
   kubernetesCorrelations?: boolean;
   /**
+  * Adds support for Kubernetes annotations API
+  * @default false
+  */
+  kubernetesAnnotations?: boolean;
+  /**
   * Adds support for Kubernetes unified storage quotas
   * @default false
   */

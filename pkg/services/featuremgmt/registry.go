@@ -383,6 +383,14 @@ var (
 			Expression:      "false",
 		},
 		{
+			Name:            "kubernetesAnnotations",
+			Description:     "Adds support for Kubernetes annotations API",
+			Stage:           FeatureStageExperimental,
+			Owner:           grafanaSearchAndStorageSquad,
+			RequiresRestart: true,
+			Expression:      "false",
+		},
+		{
 			Name:            "kubernetesUnifiedStorageQuotas",
 			Description:     "Adds support for Kubernetes unified storage quotas",
 			Stage:           FeatureStageExperimental,

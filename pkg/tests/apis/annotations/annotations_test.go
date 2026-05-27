@@ -15,6 +15,7 @@ import (
 
 	annotationV0 "github.com/grafana/grafana/apps/annotation/pkg/apis/annotation/v0alpha1"
 	grafanarest "github.com/grafana/grafana/pkg/apiserver/rest"
+	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/tests/apis"
 	"github.com/grafana/grafana/pkg/tests/testinfra"
@@ -35,7 +36,7 @@ func TestIntegrationAnnotations(t *testing.T) {
 		t.Run(fmt.Sprintf("annotations (mode:%d)", mode), func(t *testing.T) {
 			helper := apis.NewK8sTestHelper(t, testinfra.GrafanaOpts{
 				DisableAnonymous:     true,
-				EnableFeatureToggles: []string{"kubernetesAnnotations"},
+				EnableFeatureToggles: []string{featuremgmt.FlagKubernetesAnnotations},
 				UnifiedStorageConfig: map[string]setting.UnifiedStorageConfig{
 					"annotation.annotation.grafana.app": {
 						DualWriterMode: mode,
