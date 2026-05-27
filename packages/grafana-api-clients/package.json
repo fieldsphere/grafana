@@ -55,6 +55,12 @@
       "import": "./dist/esm/clients/rtkq/collections/v1alpha1/index.mjs",
       "require": "./dist/cjs/clients/rtkq/collections/v1alpha1/index.cjs"
     },
+    "./rtkq/annotation/v0alpha1": {
+      "@grafana-app/source": "./src/clients/rtkq/annotation/v0alpha1/index.ts",
+      "types": "./dist/types/clients/rtkq/annotation/v0alpha1/index.d.ts",
+      "import": "./dist/esm/clients/rtkq/annotation/v0alpha1/index.mjs",
+      "require": "./dist/cjs/clients/rtkq/annotation/v0alpha1/index.cjs"
+    },
     "./rtkq/correlations/v0alpha1": {
       "@grafana-app/source": "./src/clients/rtkq/correlations/v0alpha1/index.ts",
       "types": "./dist/types/clients/rtkq/correlations/v0alpha1/index.d.ts",
