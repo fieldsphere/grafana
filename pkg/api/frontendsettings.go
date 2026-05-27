@@ -46,7 +46,8 @@ func (hs *HTTPServer) GetBootdata(c *contextmodel.ReqContext) {
 
 	ofClient := openfeature.NewDefaultClient()
 	autoLoginFlagEnabled := ofClient.Boolean(c.Req.Context(), featuremgmt.FlagFrontendServiceSSOAutoLogin, false, openfeature.TransactionContext(c.Req.Context()))
-	if autoLoginFlagEnabled && !c.IsSignedIn {
+	_, disableAutoLogin := c.Req.URL.Query()["disableAutoLogin"]
+	if autoLoginFlagEnabled && !c.IsSignedIn && !disableAutoLogin {
 		data.AutoLoginRedirectURL = hs.getAutoLoginRedirectURL(c)
 	}
 
