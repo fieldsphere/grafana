@@ -129,6 +129,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.global-orgs.title', 'Organizations');
     case 'server-settings':
       return t('nav.server-settings.title', 'Settings');
+    case 'feature-toggles':
+      return t('nav.feature-toggles.title', 'Experiments');
     case 'storage':
       return t('nav.storage.title', 'Storage');
     case 'migrate-to-cloud':
