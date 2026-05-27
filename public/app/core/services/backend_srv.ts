@@ -31,9 +31,12 @@ import {
   type BackendSrv as BackendService,
   type BackendSrvRequest,
   config,
+  createMonitoringLogger,
   type FetchError,
   type FetchResponse,
 } from '@grafana/runtime';
+
+const backendSrvLogger = createMonitoringLogger('core.backend_srv');
 import { appEvents } from 'app/core/app_events';
 import { getConfig } from 'app/core/config';
 import { getSessionExpiry, hasSessionExpiry } from 'app/core/utils/auth';
@@ -116,7 +119,9 @@ export class BackendSrv implements BackendService {
       const result = await fp.get();
       this.deviceID = result.visitorId;
     } catch (error) {
-      console.error(error);
+      backendSrvLogger.logError(error instanceof Error ? error : new Error(String(error)), {
+        fn: 'initGrafanaDeviceID',
+      });
     }
   }
 
@@ -241,7 +246,10 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            backendSrvLogger.logError(e instanceof Error ? e : new Error(String(e)), {
+              fn: 'chunkedStreamProcess',
+              requestId,
+            });
             observer.error(e);
           }); // from abort
       },

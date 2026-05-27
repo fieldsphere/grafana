@@ -7,7 +7,11 @@ import { Button, ConfirmButton, Field, Icon, Modal, Tooltip, useStyles2, Stack, 
 import { UserRolePicker } from 'app/core/components/RolePicker/UserRolePicker';
 import { fetchRoleOptions, updateUserRoles } from 'app/core/components/RolePicker/api';
 import { OrgPicker, type OrgSelectItem } from 'app/core/components/Select/OrgPicker';
+import { createMonitoringLogger } from '@grafana/runtime';
+
 import { contextSrv } from 'app/core/services/context_srv';
+
+const userOrgsLogger = createMonitoringLogger('features.admin.UserOrgs');
 import { AccessControlAction, type Role } from 'app/types/accessControl';
 import { type Organization } from 'app/types/organization';
 import { type UserOrg, type UserDTO } from 'app/types/user';
@@ -128,7 +132,12 @@ const OrgRow = memo(({ user, org, isExternalUser, onOrgRemove, onOrgRoleChange }
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.orgId)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) =>
+            userOrgsLogger.logError(e instanceof Error ? e : new Error(String(e)), {
+              fn: 'fetchRoleOptions',
+              context: 'OrgRow',
+            })
+          );
       }
     }
   }, [org.orgId]);
@@ -266,7 +275,12 @@ export const AddToOrgModal = memo(({ isOpen, user, userOrgs, onOrgAdd, onDismiss
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.value?.id)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) =>
+            userOrgsLogger.logError(e instanceof Error ? e : new Error(String(e)), {
+              fn: 'fetchRoleOptions',
+              context: 'OrgRow',
+            })
+          );
       }
     }
   };
