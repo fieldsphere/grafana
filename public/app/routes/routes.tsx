@@ -313,6 +313,18 @@ export function getAppRoutes(): RouteDescriptor[] {
         contextSrv.evaluatePermission([AccessControlAction.ActionTeamsRead, AccessControlAction.ActionTeamsCreate]),
       component: SafeDynamicImport(() => import(/* webpackChunkName: "TeamPages" */ 'app/features/teams/TeamPages')),
     },
+    // LAB
+    {
+      path: '/lab',
+      component: () => <NavLandingPage navId="lab" />,
+    },
+    {
+      path: '/lab/feature-toggles',
+      roles: () => contextSrv.evaluatePermission([AccessControlAction.SettingsRead]),
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "FeatureTogglesPage" */ 'app/features/lab/FeatureTogglesPage')
+      ),
+    },
     // ADMIN
     {
       path: '/admin',

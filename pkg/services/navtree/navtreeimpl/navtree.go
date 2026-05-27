@@ -164,6 +164,10 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		treeRoot.AddSection(connectionsSection)
 	}
 
+	if labSection := s.buildLabNavLink(c); labSection != nil {
+		treeRoot.AddSection(labSection)
+	}
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {
@@ -651,4 +655,34 @@ func (s *ServiceImpl) buildDataConnectionsNavLink(c *contextmodel.ReqContext) *n
 		return navLink
 	}
 	return nil
+}
+
+func (s *ServiceImpl) buildLabNavLink(c *contextmodel.ReqContext) *navtree.NavLink {
+	hasAccess := ac.HasAccess(s.accessControl, c)
+
+	// Only show Lab section to admins
+	if !hasAccess(ac.EvalPermission(ac.ActionSettingsRead, ac.ScopeSettingsAll)) {
+		return nil
+	}
+
+	baseUrl := s.cfg.AppSubURL + "/lab"
+
+	children := []*navtree.NavLink{
+		{
+			Id:       "lab-feature-toggles",
+			Text:     "Feature toggles",
+			SubTitle: "View and manage feature flags",
+			Icon:     "toggle-on",
+			Url:      baseUrl + "/feature-toggles",
+		},
+	}
+
+	return &navtree.NavLink{
+		Text:       "Lab",
+		Icon:       "flask",
+		Id:         navtree.NavIDLab,
+		Url:        baseUrl,
+		Children:   children,
+		SortWeight: navtree.WeightLab,
+	}
 }

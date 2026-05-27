@@ -33,6 +33,7 @@ const (
 	WeightDataConnections
 	WeightApps
 	WeightPlugin
+	WeightLab
 	WeightConfig
 	WeightProfile
 	WeightHelp
@@ -52,6 +53,7 @@ const (
 	NavIDInfrastructure       = "infrastructure"
 	NavIDReporting            = "reports"
 	NavIDApps                 = "apps"
+	NavIDLab                  = "lab"
 	NavIDCfgGeneral           = "cfg/general"
 	NavIDCfgPlugins           = "cfg/plugins"
 	NavIDCfgAccess            = "cfg/access"
