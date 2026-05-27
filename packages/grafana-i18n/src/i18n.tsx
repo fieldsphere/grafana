@@ -9,6 +9,7 @@ import { initRegionalFormat } from './dates';
 import { LANGUAGES } from './languages';
 import { type ResourceLoader, type Resources, type TFunction, type TransProps, type TransType } from './types';
 
+import { emitStructuredBrowserError, emitStructuredBrowserLog } from '@grafana/data';
 let tFunc: I18NextTFunction<string[], undefined> | undefined;
 let transComponent: TransType;
 
@@ -44,7 +45,7 @@ export async function loadNamespacedResources(namespace: string, language: strin
         const resources = await loader(resolvedLanguage);
         addResourceBundle(resolvedLanguage, namespace, resources);
       } catch (error) {
-        console.error(`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, error);
+        emitStructuredBrowserError(error instanceof Error ? error : new Error(String(error)), { message: String(`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`) });
       }
     })
   );
@@ -202,8 +203,9 @@ export const t: TFunction = (id: string, defaultMessage: string, values?: Record
   initDefaultI18nInstance();
   if (!tFunc) {
     if (process.env.NODE_ENV !== 'test') {
-      console.warn(
-        't() was called before i18n was initialized. This is probably caused by calling t() in the root module scope, instead of lazily on render'
+      emitStructuredBrowserLog(
+        'warn',
+        't() was called before i18n was initialized. This is probably caused by calling t() in the root module scope instead of lazily on render.'
       );
     }
 

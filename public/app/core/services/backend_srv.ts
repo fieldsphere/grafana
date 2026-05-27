@@ -53,6 +53,7 @@ import { FetchQueueWorker } from './FetchQueueWorker';
 import { ResponseQueue } from './ResponseQueue';
 import { type ContextSrv, contextSrv } from './context_srv';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const CANCEL_ALL_REQUESTS_REQUEST_ID = 'cancel_all_requests_request_id';
 
 export interface BackendSrvDependencies {
@@ -116,7 +117,7 @@ export class BackendSrv implements BackendService {
       const result = await fp.get();
       this.deviceID = result.visitorId;
     } catch (error) {
-      console.error(error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
     }
   }
 
@@ -241,7 +242,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            grafanaStructuredLogger.logInfo(String(requestId), { args: 'catch', e });
             observer.error(e);
           }); // from abort
       },

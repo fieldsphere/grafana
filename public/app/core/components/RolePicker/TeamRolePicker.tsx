@@ -7,6 +7,7 @@ import { AccessControlAction, type Role } from 'app/types/accessControl';
 
 import { RolePicker } from './RolePicker';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export interface Props {
   teamId: number;
   orgId?: number;
@@ -79,7 +80,7 @@ export const TeamRolePicker = ({
           },
         }).unwrap();
       } catch (error) {
-        console.error('Error updating team roles', error);
+        grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Error updating team roles') });
       }
     } else if (onApplyRoles) {
       onApplyRoles(newRoles);

@@ -6,6 +6,7 @@ import { type DashboardDataDTO } from 'app/types/dashboard';
 import { type SearchHit } from './unified';
 import { resourceToSearchResult } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * Store deleted dashboards in the cache to avoid multiple calls to the API.
  */
@@ -79,7 +80,7 @@ class DeletedDashboardsCache {
         items: [],
       };
     } catch (error) {
-      console.error('Failed to fetch deleted dashboards:', error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Failed to fetch deleted dashboards:') });
       return {
         apiVersion: 'v1',
         kind: 'List',

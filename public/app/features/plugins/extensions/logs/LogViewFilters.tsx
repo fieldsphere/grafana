@@ -6,6 +6,7 @@ import { t } from '@grafana/i18n';
 import { type SceneDataProvider } from '@grafana/scenes';
 import { InlineField, InlineFieldRow, MultiSelect } from '@grafana/ui';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export type LogFilter = {
   pluginIds?: Set<string>;
   extensionPointIds?: Set<string>;
@@ -98,7 +99,7 @@ function useLogFilters(
 
   return useMemo(() => {
     if (data && data?.series.length > 1) {
-      console.warn('LogViewFilter does not support multiple series in query result.');
+      grafanaStructuredLogger.logWarning(String('LogViewFilter does not support multiple series in query result.'));
     }
 
     const frame = data?.series[0];

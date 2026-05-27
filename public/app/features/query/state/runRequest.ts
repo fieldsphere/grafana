@@ -27,6 +27,7 @@ import { type ExpressionQuery } from 'app/features/expressions/types';
 import { cancelNetworkRequestsOnUnsubscribe } from './processing/canceler';
 import { emitDataRequestEvent } from './queryAnalytics';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 type MapOfResponsePackets = { [str: string]: DataQueryResponse };
 
 interface RunningQueryState {
@@ -161,7 +162,7 @@ export function runRequest(
     }),
     // handle errors
     catchError((err) => {
-      console.error('runRequest.catchError', err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('runRequest.catchError') });
       return of({
         ...state.panelData,
         state: LoadingState.Error,

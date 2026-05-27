@@ -14,6 +14,7 @@ import { CompatibilityBadge, type CompatibilityState } from './CompatibilityBadg
 import { type GnetDashboard } from './types';
 import { buildAssistantPrompt, buildTemplateContextData, buildTemplateContextTitle } from './utils/assistantHelpers';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface Details {
   id: string;
   datasource: string;
@@ -120,7 +121,10 @@ function DashboardCardComponent({
               kind === 'suggested_dashboard' ? styles.thumbnailCoverImage : styles.thumbnailContainImage
             )}
             onError={(e) => {
-              console.error('Failed to load image for:', title, 'URL:', imageUrl);
+              grafanaStructuredLogger.logWarning('Failed to load dashboard library card image', {
+                title,
+                imageUrl,
+              });
               e.currentTarget.style.display = 'none';
             }}
           />

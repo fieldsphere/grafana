@@ -13,6 +13,7 @@ import { saveCorrelationsAction } from './explorePane';
 import { splitClose } from './main';
 import { runQueries } from './query';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * Creates an observable that emits correlations once they are loaded
  */
@@ -95,7 +96,7 @@ export function saveCurrentCorrelation(
         })
         .catch((err) => {
           dispatch(notifyApp(createErrorNotification('Error creating correlation', err)));
-          console.error(err);
+          grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
         });
     }
   };

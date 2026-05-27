@@ -16,6 +16,7 @@ import pluginJson from './plugin.json';
 import { type CloudWatchQuery } from './types';
 import { filterMetricsQuery } from './utils/utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 type CloudWatchOnDashboardLoadedTrackingEvent = {
   grafana_version?: string;
   dashboard_id?: string;
@@ -146,7 +147,7 @@ export const onDashboardLoadedHandler = ({
 
     reportInteraction('grafana_ds_cloudwatch_dashboard_loaded', e);
   } catch (error) {
-    console.error('error in cloudwatch tracking handler', error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('error in cloudwatch tracking handler') });
   }
 };
 

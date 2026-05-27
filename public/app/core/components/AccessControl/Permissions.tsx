@@ -15,6 +15,7 @@ import { AddPermission } from './AddPermission';
 import { PermissionList } from './PermissionList';
 import { PermissionTarget, type ResourcePermission, type SetPermission, type Description } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const EMPTY_PERMISSION = '';
 
 const INITIAL_DESCRIPTION: Description = {
@@ -248,7 +249,7 @@ const getDescription = async (resource: string, queryParams?: Record<string, str
   try {
     return await getBackendSrv().get(`/api/access-control/${resource}/description`, queryParams);
   } catch (e) {
-    console.error('failed to load resource description: ', e);
+    grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e)), { message: String('failed to load resource description: ') });
     return INITIAL_DESCRIPTION;
   }
 };

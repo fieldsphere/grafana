@@ -64,6 +64,7 @@ import { type TempoJsonData, type TempoQuery } from './types';
 import { getErrorMessage, mapErrorMessage, migrateFromSearchToTraceQLSearch } from './utils';
 import { TempoVariableSupport } from './variables';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const DEFAULT_LIMIT = 20;
 export const DEFAULT_SPSS = 3; // spans per span set
 
@@ -295,7 +296,7 @@ export class TempoDatasource extends DataSourceWithBackend<TempoQuery, TempoJson
 
       return false;
     } catch (error) {
-      console.warn('Failed to check for native histograms:', error);
+      grafanaStructuredLogger.logWarning(String('Failed to check for native histograms:'), { args: error });
       return false;
     }
   }

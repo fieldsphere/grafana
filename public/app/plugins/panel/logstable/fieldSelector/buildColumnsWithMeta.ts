@@ -1,4 +1,5 @@
 import { type DataFrame, type FieldWithIndex, getFieldDisplayName } from '@grafana/data';
+import { grafanaStructuredLogger } from '@grafana/runtime';
 import { type FieldNameMeta, type FieldNameMetaStore } from 'app/features/explore/Logs/LogsTableWrap';
 import { LOG_LINE_BODY_FIELD_NAME } from 'app/features/logs/components/fieldSelector/logFields';
 
@@ -104,7 +105,10 @@ export const buildColumnsWithMeta = (
       pendingLabelState[logsFrameFields.bodyField?.name].active = true;
       pendingLabelState[logsFrameFields.bodyField?.name].index = idx;
     } else {
-      console.error(`Unknown field ${fieldName}`, { pendingLabelState, displayedFields });
+      grafanaStructuredLogger.logError(new Error(`Unknown field ${fieldName}`), {
+        pendingLabelState,
+        displayedFields,
+      });
     }
   });
 

@@ -19,6 +19,7 @@ import { type GridPos, type PanelModel } from '../state/PanelModel';
 import DashboardEmpty from './DashboardEmpty/DashboardEmpty';
 import { DashboardPanel } from './DashboardPanel';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const PANEL_FILTER_VARIABLE = 'systemPanelFilterVar';
 
 export interface Props {
@@ -115,7 +116,7 @@ export class DashboardGrid extends PureComponent<Props, State> {
       this.panelMap[panel.key] = panel;
 
       if (!panel.gridPos) {
-        console.log('panel without gridpos');
+        grafanaStructuredLogger.logInfo(String('panel without gridpos'));
         continue;
       }
 

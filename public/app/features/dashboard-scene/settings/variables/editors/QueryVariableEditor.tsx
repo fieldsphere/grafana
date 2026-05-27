@@ -30,6 +30,7 @@ import { QueryVariableEditorForm } from '../components/QueryVariableForm';
 import { VariableValuesPreview } from '../components/VariableValuesPreview';
 import { hasVariableOptions } from '../utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface QueryVariableEditorProps {
   variable: QueryVariable;
   onRunQuery: () => void;
@@ -138,7 +139,7 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
 
 export function getQueryVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof QueryVariable)) {
-    console.warn('getQueryVariableOptions: variable is not a QueryVariable');
+    grafanaStructuredLogger.logWarning(String('getQueryVariableOptions: variable is not a QueryVariable'));
     return [];
   }
 

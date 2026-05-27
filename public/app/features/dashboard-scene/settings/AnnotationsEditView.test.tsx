@@ -110,7 +110,10 @@ describe('AnnotationsEditView', () => {
     it('should return undefined when datasource does not support annotations', () => {
       const ds = annotationsView.getDataSourceRefForAnnotation();
       expect(ds).toBe(undefined);
-      expect(console.error).toHaveBeenCalledWith('Default datasource does not support annotations');
+      expect(console.error).toHaveBeenCalledWith(
+        '[Grafana]',
+        expect.objectContaining({ message: 'Default datasource does not support annotations' })
+      );
     });
 
     it('should add a new annotation and group it with the other annotations', () => {

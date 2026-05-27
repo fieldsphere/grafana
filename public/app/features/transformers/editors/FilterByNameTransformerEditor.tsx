@@ -19,6 +19,7 @@ import { Input, FilterPill, InlineFieldRow, InlineField, InlineSwitch, Select } 
 import darkImage from '../images/dark/filterFieldsByName.svg';
 import lightImage from '../images/light/filterFieldsByName.svg';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface FilterByNameTransformerEditorProps extends TransformerUIProps<FilterFieldsByNameTransformerOptions> {}
 
 interface FilterByNameTransformerEditorState {
@@ -101,7 +102,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
       }
     }
 

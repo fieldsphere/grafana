@@ -9,6 +9,7 @@ import { getPluginSettings } from 'app/features/plugins/pluginSettings';
 
 import { pluginImporter } from './importer/pluginImporter';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export type PluginPreloadResult = {
   pluginId: string;
   error?: unknown;
@@ -46,6 +47,6 @@ async function preload(config: AppPluginConfig): Promise<void> {
       return;
     }
 
-    console.error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`) });
   }
 }

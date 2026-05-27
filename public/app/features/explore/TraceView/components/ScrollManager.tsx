@@ -15,6 +15,7 @@
 import type TNil from './types/TNil';
 import { type TraceSpan, type TraceSpanReference, type Trace } from './types/trace';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * `Accessors` is necessary because `ScrollManager` needs to be created by
  * `TracePage` so it can be passed into the keyboard shortcut manager. But,
@@ -106,7 +107,7 @@ export default class ScrollManager {
     const position = xrs.getRowPosition(rowIndex);
     if (!position) {
       // eslint-disable-next-line no-console
-      console.warn('Invalid row index');
+      grafanaStructuredLogger.logWarning(String('Invalid row index'));
       return;
     }
     let { y } = position;

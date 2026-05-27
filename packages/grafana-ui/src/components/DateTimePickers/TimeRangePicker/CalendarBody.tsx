@@ -12,6 +12,7 @@ import { adjustDateForReactCalendar } from '../utils/adjustDateForReactCalendar'
 
 import { type TimePickerCalendarProps } from './TimePickerCalendar';
 
+import { emitStructuredBrowserError } from '@grafana/data';
 const weekStartMap: Record<WeekStart, CalendarType> = {
   saturday: 'islamic',
   sunday: 'gregory',
@@ -70,7 +71,8 @@ function useOnCalendarChange(onChange: (from: DateTime, to: DateTime) => void, t
   return useCallback<NonNullable<React.ComponentProps<typeof Calendar>['onChange']>>(
     (value) => {
       if (!Array.isArray(value)) {
-        return console.error('onCalendarChange: should be run in selectRange={true}');
+        emitStructuredBrowserError(new Error('onCalendarChange: should be run in selectRange={true}'));
+        return;
       }
 
       if (value[0] && value[1]) {

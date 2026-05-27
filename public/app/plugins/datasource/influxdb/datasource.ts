@@ -50,6 +50,7 @@ import ResponseParser from './response_parser';
 import { DEFAULT_POLICY, type InfluxOptions, type InfluxQuery, type InfluxVariableQuery, InfluxVersion } from './types';
 import { InfluxVariableSupport } from './variables';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery, InfluxOptions> {
   type: string;
   urls: string[];
@@ -388,7 +389,7 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
         // then put inside parenthesis.
         return typeof value === 'string' ? escapeRegex(value) : `(${value.map((v) => escapeRegex(v)).join('|')})`;
       } catch (e) {
-        console.warn(`Supplied match is not valid regex: ${match}`);
+        grafanaStructuredLogger.logWarning(String(`Supplied match is not valid regex: ${match}`));
       }
     }
 

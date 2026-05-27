@@ -14,6 +14,7 @@ import { type UserOrg, type UserDTO } from 'app/types/user';
 
 import { OrgRolePicker } from './OrgRolePicker';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface Props {
   orgs: UserOrg[];
   user?: UserDTO;
@@ -128,7 +129,7 @@ const OrgRow = memo(({ user, org, isExternalUser, onOrgRemove, onOrgRoleChange }
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.orgId)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) => grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e))));
       }
     }
   }, [org.orgId]);
@@ -266,7 +267,7 @@ export const AddToOrgModal = memo(({ isOpen, user, userOrgs, onOrgAdd, onDismiss
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.value?.id)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) => grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e))));
       }
     }
   };

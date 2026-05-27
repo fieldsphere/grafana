@@ -6,6 +6,7 @@ import { getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 import { type ExploreItemState } from 'app/types/explore';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export function useExplorePageContext(panes: Array<[string, ExploreItemState]>): void {
   const setContext = useProvidePageContext(/^\/explore/);
 
@@ -99,7 +100,7 @@ function getDisplayText(query: DataQuery, ds?: DataSourceApi): string | undefine
   try {
     return ds?.getQueryDisplayText?.(query);
   } catch (error) {
-    console.error(error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
     return undefined;
   }
 }

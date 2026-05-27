@@ -15,6 +15,7 @@ import { type LogsFrame } from 'app/features/logs/logsFrame';
 
 import { type BuildLinkToLogLine } from '../types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface Props extends CustomCellRendererProps {
   buildLinkToLog?: BuildLinkToLogLine;
   showInspectLogLine: boolean;
@@ -71,7 +72,7 @@ export function LogsTableRowActionButtons(props: Props) {
                 if (logId) {
                   return buildLinkToLog(logId) ?? '';
                 } else {
-                  console.error('failed to copy log line link!');
+                  grafanaStructuredLogger.logError(new Error('failed to copy log line link!'));
                 }
                 return '';
               }}

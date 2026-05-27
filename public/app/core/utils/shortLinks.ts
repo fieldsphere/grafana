@@ -17,6 +17,7 @@ import { notifyApp } from '../reducers/appNotification';
 
 import { copyStringToClipboard } from './explore';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 function buildHostUrl() {
   return `${window.location.protocol}//${window.location.host}${config.appSubUrl}`;
 }
@@ -73,7 +74,7 @@ export const createShortLink = memoizeOne(async (path: string): Promise<string> 
       return await createShortLinkLegacy(path);
     }
   } catch (err) {
-    console.error('Error when creating shortened link: ', err);
+    grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Error when creating shortened link: ') });
     dispatch(notifyApp(createErrorNotification('Error generating shortened link')));
     createShortLink.clear();
     throw err; // Re-throw so callers know it failed
@@ -104,7 +105,7 @@ export const createAndCopyShortLink = async (path: string) => {
     }
   } catch (error) {
     // createShortLink already handles error notifications, just log
-    console.error('Error in createAndCopyShortLink:', error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Error in createAndCopyShortLink:') });
   }
 };
 

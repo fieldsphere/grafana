@@ -2,6 +2,7 @@ import * as React from 'react';
 
 import { PluginContext } from '@grafana/data';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface PluginErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ComponentType<{ error: Error | null; errorInfo: React.ErrorInfo | null }>;
@@ -32,7 +33,10 @@ export class PluginErrorBoundary extends React.Component<PluginErrorBoundaryProp
     if (this.props.onError) {
       this.props.onError(error, info);
     } else {
-      console.error(`Plugin "${this.context?.meta.id}" failed to load:`, error, info);
+      grafanaStructuredLogger.logError(error, {
+        detail: `Plugin "${this.context?.meta.id}" failed to load`,
+        componentStack: info.componentStack,
+      });
     }
 
     this.setState({ error, errorInfo: info });

@@ -7,6 +7,7 @@ import { type SceneVariable } from '@grafana/scenes';
 import { type DashboardLink, type DataSourceRef } from '@grafana/schema';
 import { type VariableKind } from '@grafana/schema/apis/dashboard.grafana.app/v2';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 type LoadDefaultControlsPhase = 'default_variables' | 'default_links';
 type InvokeAndTrackOptions = { traceId: string; phase: LoadDefaultControlsPhase; datasourceType?: string };
 
@@ -85,7 +86,7 @@ async function loadControlsFromRef(ref: DataSourceRef, traceId: string, subscrib
   try {
     ds = await getDataSourceSrv().get(ref);
   } catch (e) {
-    console.warn('Failed to load datasource', ref, e);
+    grafanaStructuredLogger.logWarning(String('Failed to load datasource'), { args: ref, e });
     return;
   }
 
@@ -119,7 +120,7 @@ async function emitDefaultVariables(ds: DataSourceApi, traceId: string, subscrib
       subscriber.next({ type: 'variables', data });
     }
   } catch (e) {
-    console.warn('Failed to load default variables from datasource', ds.type, e);
+    grafanaStructuredLogger.logWarning(String('Failed to load default variables from datasource'), { args: ds.type, e });
   }
 }
 
@@ -145,7 +146,7 @@ async function emitDefaultLinks(ds: DataSourceApi, traceId: string, subscriber: 
       });
     }
   } catch (e) {
-    console.warn('Failed to load default links from datasource', ds.type, e);
+    grafanaStructuredLogger.logWarning(String('Failed to load default links from datasource'), { args: ds.type, e });
   }
 }
 

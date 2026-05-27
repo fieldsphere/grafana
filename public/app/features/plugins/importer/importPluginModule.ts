@@ -13,6 +13,7 @@ import { pluginsLogger } from '../utils';
 import { addTranslationsToI18n } from './addTranslationsToI18n';
 import { type PluginImportInfo } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export async function importPluginModule({
   path,
   pluginId,
@@ -68,7 +69,7 @@ export async function importPluginModule({
 
   return SystemJS.import(modulePath).catch((e) => {
     let error = new Error('Could not load plugin', { cause: e });
-    console.error(error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
     pluginsLogger.logError(error, {
       path,
       pluginId,

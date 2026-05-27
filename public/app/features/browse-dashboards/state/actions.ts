@@ -8,11 +8,12 @@ import { addTeamFolderPrefix, removeTeamFolderPrefix } from '../utils/dashboards
 
 import { findItem } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 async function listTeamFoldersSafe() {
   try {
     return await listTeamFolders();
   } catch (error) {
-    console.error('Failed to load team folders', error);
+    grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Failed to load team folders') });
     return [];
   }
 }
@@ -151,7 +152,7 @@ export const fetchNextChildrenPage = createAsyncThunk(
       fetchKind = 'folder';
     } else if (collection.lastFetchedKind === 'dashboard' && !collection.lastKindHasMoreItems) {
       // There's nothing to load at all
-      console.warn(`fetchNextChildrenPage called for ${uid} but that collection is fully loaded`);
+      grafanaStructuredLogger.logWarning(String(`fetchNextChildrenPage called for ${uid} but that collection is fully loaded`));
       // return;
     } else if (collection.lastFetchedKind === 'folder' && collection.lastKindHasMoreItems) {
       // Load additional pages of folders

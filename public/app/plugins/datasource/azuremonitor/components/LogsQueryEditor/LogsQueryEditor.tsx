@@ -26,6 +26,7 @@ import { onLoad, setBasicLogsQuery, setFormatAs, setKustoQuery } from './setQuer
 import useMigrations from './useMigrations';
 import { shouldShowBasicLogsToggle } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface LogsQueryEditorProps {
   query: AzureMonitorQuery;
   datasource: Datasource;
@@ -193,11 +194,11 @@ const LogsQueryEditor = ({
           setDataIngestedWarning(null);
         }
       } catch (err) {
-        console.error(err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
       }
     };
 
-    getBasicLogsUsage(query).catch((err) => console.error(err));
+    getBasicLogsUsage(query).catch((err) => grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err))));
   }, [datasource.azureLogAnalyticsDatasource, query, showBasicLogsToggle, from, to]);
   let portalLinkButton = null;
 

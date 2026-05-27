@@ -26,6 +26,7 @@ import { DashboardResultsGrid } from './DashboardResultsGrid';
 import { EmptyResults } from './EmptyResults';
 import { ListHeader } from './ListHeader';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const SEARCH_DEBOUNCE_MS = 500;
 const DEFAULT_SORT_ORDER = 'downloads';
 const DEFAULT_SORT_DIRECTION = 'desc' as const;
@@ -252,7 +253,7 @@ export const SuggestedDashboardsList = ({
           });
         }
       } catch (err) {
-        console.error('Error loading community dashboards', err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Error loading community dashboards') });
       } finally {
         setIsCommunityLoading(false);
       }
@@ -422,7 +423,7 @@ export const SuggestedDashboardsList = ({
         sourceEntryPoint,
       });
     } catch (err) {
-      console.error('Error checking dashboard compatibility:', err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Error checking dashboard compatibility:') });
 
       const errorMessage = isFetchError(err) ? err.data?.message : 'Failed to check compatibility';
       const errorCode = isFetchError(err) ? err.data?.code : undefined;

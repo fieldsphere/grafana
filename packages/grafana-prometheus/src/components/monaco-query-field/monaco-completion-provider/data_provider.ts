@@ -6,6 +6,7 @@ import { removeQuotesIfExist } from '../../../language_utils';
 import { type PromQuery } from '../../../types';
 import { escapeForUtf8Support, isValidLegacyName } from '../../../utf8_support';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const CODE_MODE_SUGGESTIONS_INCOMPLETE_EVENT = 'codeModeSuggestionsIncomplete';
 
 type SuggestionsIncompleteEvent = CustomEvent<{
@@ -80,7 +81,7 @@ export class DataProvider {
 
       return Array.isArray(result) ? result : [];
     } catch (error) {
-      console.warn('Failed to query metric names:', error);
+      grafanaStructuredLogger.logWarning(String('Failed to query metric names:'), { args: error });
       return [];
     }
   };

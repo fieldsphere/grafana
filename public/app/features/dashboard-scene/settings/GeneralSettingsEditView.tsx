@@ -36,6 +36,7 @@ import { getDashboardSceneFor } from '../utils/utils';
 import { DeleteDashboardButton } from './DeleteDashboardButton';
 import { type DashboardEditView, type DashboardEditViewState, useDashboardEditPageNav } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export interface GeneralSettingsEditViewState extends DashboardEditViewState {
   showMoveModal?: boolean;
   moveModalProps?: {
@@ -159,7 +160,7 @@ export class GeneralSettingsEditView
       const liveNow = this.getLiveNowTimer();
       enable ? liveNow.enable() : liveNow.disable();
     } catch (err) {
-      console.error(err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
     }
   };
 

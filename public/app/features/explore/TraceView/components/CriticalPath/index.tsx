@@ -20,6 +20,7 @@ import findLastFinishingChildSpan from './utils/findLastFinishingChildSpan';
 import getChildOfSpans from './utils/getChildOfSpans';
 import sanitizeOverFlowingChildren from './utils/sanitizeOverFlowingChildren';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * Computes the critical path sections of a Jaeger trace.
  * The algorithm begins with the top-level span and iterates through the last finishing children (LFCs).
@@ -104,7 +105,7 @@ function criticalPathForTrace(trace: Trace) {
       criticalPath = computeCriticalPath(sanitizedSpanMap, rootSpanId, criticalPath);
     } catch (error) {
       /* eslint-disable no-console */
-      console.log('error while computing critical path for a trace', error);
+      grafanaStructuredLogger.logInfo(String('error while computing critical path for a trace'), { args: error });
     }
   }
   return criticalPath;

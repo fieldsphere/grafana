@@ -35,6 +35,7 @@ import { MACRO_NAMES } from '../constants';
 import { type DB, type SQLQuery, type SQLOptions, type SqlQueryModel, QueryFormat, type SQLDialect } from '../types';
 import migrateAnnotation from '../utils/migration';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLOptions> {
   uid: string;
   responseParser: ResponseParser;
@@ -215,7 +216,7 @@ export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLO
     try {
       response = await this.runMetaQuery(interpolatedQuery, range);
     } catch (error) {
-      console.error(error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)));
       throw new Error('error when executing the sql query');
     }
     return this.getResponseParser().transformMetricFindResponse(response);

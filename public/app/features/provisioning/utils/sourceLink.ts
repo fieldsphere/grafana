@@ -16,6 +16,7 @@ import { isValidRepoType } from '../guards';
 
 import { getHasTokenInstructions, getRepoFileUrl } from './git';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * Find and remove existing source links from the links array.
  * A source link is identified by its tooltip matching the source link tooltip translation.
@@ -83,7 +84,7 @@ export async function buildSourceLink(annotations: ObjectMeta['annotations']): P
       keepTime: false,
     };
   } catch (e) {
-    console.warn('Failed to fetch repository info for source link:', e);
+    grafanaStructuredLogger.logWarning(String('Failed to fetch repository info for source link:'), { args: e });
     return undefined;
   }
 }

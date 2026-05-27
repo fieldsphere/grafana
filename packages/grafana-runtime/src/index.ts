@@ -15,7 +15,9 @@ export {
   logWarning,
   logError,
   createMonitoringLogger,
+  grafanaStructuredLogger,
   logMeasurement,
+  type GrafanaStructuredLogContext,
   type MonitoringLogger,
 } from './utils/logging';
 export {

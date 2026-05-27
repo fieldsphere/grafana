@@ -23,6 +23,7 @@ import { generateMetricData } from './helpers';
 import { type MetricData, type MetricsData } from './types';
 import { fuzzySearch } from './uFuzzy';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const DEFAULT_RESULTS_PER_PAGE = 25;
 
 type Pagination = {
@@ -167,7 +168,7 @@ export const MetricsModalContextProvider: FC<PropsWithChildren<MetricsModalConte
         } catch (error) {
           // Only update state if this is still the latest search
           if (searchId === latestSearchIdRef.current) {
-            console.error('Backend search failed:', error);
+            grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Backend search failed:') });
             setMetricsData([]); // Clear results on error
             setIsLoading(false);
           }

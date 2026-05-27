@@ -122,6 +122,7 @@ import { createSystemVariableAdapter } from './features/variables/system/adapter
 import { createTextBoxVariableAdapter } from './features/variables/textbox/adapter';
 import { configureStore } from './store/configureStore';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 // import symlinked extensions
 const extensionsIndex = require.context('.', true, /extensions\/index.ts/);
 const extensionsExports = extensionsIndex.keys().map((key) => {
@@ -146,7 +147,7 @@ export class GrafanaApp {
         try {
           await initOpenFeature();
         } catch (err) {
-          console.error('Failed to initialize OpenFeature provider', err);
+          grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Failed to initialize OpenFeature provider') });
         }
       }
 
@@ -286,7 +287,7 @@ export class GrafanaApp {
       try {
         cleanupOldExpandedFolders();
       } catch (err) {
-        console.warn('Failed to clean up old expanded folders', err);
+        grafanaStructuredLogger.logWarning(String('Failed to clean up old expanded folders'), { args: err });
       }
 
       this.context = {
@@ -316,7 +317,7 @@ export class GrafanaApp {
 
       await postInitTasks();
     } catch (error) {
-      console.error('Failed to start Grafana', error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Failed to start Grafana') });
       window.__grafana_load_failed();
     } finally {
       stopMeasure('frontend_app_init');

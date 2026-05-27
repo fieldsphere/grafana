@@ -12,6 +12,7 @@ import {
 } from './functions';
 import { type CloudMonitoringVariableQuery, type MetricDescriptor } from './types/types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export default class CloudMonitoringMetricFindQuery {
   constructor(private datasource: CloudMonitoringDatasource) {}
 
@@ -50,7 +51,7 @@ export default class CloudMonitoringMetricFindQuery {
           return [];
       }
     } catch (error) {
-      console.error(`Could not run CloudMonitoringMetricFindQuery ${query}`, error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String(`Could not run CloudMonitoringMetricFindQuery ${query}`) });
       return [];
     }
   }

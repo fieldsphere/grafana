@@ -93,6 +93,7 @@ import {
 } from './transformToV1TypesUtils';
 import { LEGACY_STRING_VALUE_KEY } from './transformToV2TypesUtils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const DEFAULT_DATASOURCE = 'default';
 
 export type TypedVariableModelV2 =
@@ -309,7 +310,7 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec, defaultVariable
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
         return null;
       }
     })
@@ -322,7 +323,7 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec, defaultVariable
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
         return null;
       }
     })
@@ -616,7 +617,7 @@ export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVar
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)));
         return null;
       }
     })

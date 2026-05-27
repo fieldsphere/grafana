@@ -20,6 +20,7 @@ import { type TreeViewEditorProps } from '../element/elementEditor';
 import { TreeNodeTitle } from './TreeNodeTitle';
 import { getTreeData, onNodeDrop, type TreeElement } from './tree';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 let allowSelection = true;
 
 export const TreeNavigationEditor = ({ item }: StandardEditorProps<unknown, TreeViewEditorProps, Options>) => {
@@ -130,7 +131,7 @@ export const TreeNavigationEditor = ({ item }: StandardEditorProps<unknown, Tree
     if (layer.scene) {
       frameSelection(layer.scene);
     } else {
-      console.warn('no scene!');
+      grafanaStructuredLogger.logWarning(String('no scene!'));
     }
   };
 

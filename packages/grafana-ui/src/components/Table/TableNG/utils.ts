@@ -47,6 +47,7 @@ import {
   type FilterType,
 } from './types';
 
+import { emitStructuredBrowserError } from '@grafana/data';
 /* ---------------------------- Cell calculations --------------------------- */
 export type CellNumLinesCalculator = (text: string, cellWidth: number) => number;
 
@@ -1184,7 +1185,7 @@ export function parseStyleJson(rawValue: unknown): CSSProperties | void {
       }
     } catch (e) {
       if (!warnedAboutStyleJsonSet.has(rawValue)) {
-        console.error(`encountered invalid cell style JSON: ${rawValue}`, e);
+        emitStructuredBrowserError(e instanceof Error ? e : new Error(String(e)), { message: String(`encountered invalid cell style JSON: ${rawValue}`) });
         warnedAboutStyleJsonSet.add(rawValue);
       }
     }

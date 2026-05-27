@@ -31,6 +31,7 @@ import {
 import { type Props } from './types';
 import { INFLUXDB_VERSION_MAP, type InfluxDBProduct } from './versions';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const getQueryLanguageOptions = (productName: string): Array<{ value: string }> => {
   const product = INFLUXDB_VERSION_MAP.find(({ name }) => name === productName);
   return product?.queryLanguages?.map(({ name }) => ({ value: name })) ?? [];
@@ -104,7 +105,7 @@ export const UrlAndAuthenticationSection = (props: Props) => {
         }
       }
     } catch (err) {
-      console.error('Failed to get InfluxDB version:', err);
+      grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Failed to get InfluxDB version:') });
     }
 
     return { product: undefined, version: undefined };

@@ -20,6 +20,7 @@ import { reportPanelInspectInteraction } from '../search/page/reporting';
 import { InspectTab } from './types';
 import { getPrettyJSON } from './utils/utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 enum ShowContent {
   PanelJSON = 'panel',
   PanelData = 'data',
@@ -104,7 +105,7 @@ export function InspectJSONTab({ panel, dashboard, data, onClose }: Props) {
           appEvents.emit(AppEvents.alertSuccess, ['Panel model updated']);
         }
       } catch (err) {
-        console.error('Error applying updates', err);
+        grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(String(err)), { message: String('Error applying updates') });
         appEvents.emit(AppEvents.alertError, ['Invalid JSON text']);
       }
 

@@ -19,6 +19,7 @@ import {
   settingsUpdated,
 } from './reducers';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export function loadSettings(showSpinner = true): ThunkResult<Promise<Settings>> {
   return async (dispatch) => {
     if (contextSrv.hasPermission(AccessControlAction.SettingsRead)) {
@@ -78,7 +79,7 @@ export function saveSettings(data: UpdateSettingsQuery): ThunkResult<Promise<boo
         dispatch(resetError());
         return true;
       } catch (error) {
-        console.log(error);
+        grafanaStructuredLogger.logInfo(String(error));
         if (isFetchError(error)) {
           error.isHandled = true;
           const updateErr: SettingsError = {

@@ -17,6 +17,7 @@ import { importPanelPlugin } from 'app/features/plugins/importPanelPlugin';
 
 import { panelsToCheckFirst } from './consts';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface PluginLoadResult {
   plugins: PanelPlugin[];
   hasErrors: boolean;
@@ -58,7 +59,7 @@ export async function loadPlugins(pluginIds: string[]): Promise<PluginLoadResult
       plugins.push(settled.value);
     } else {
       const pluginId = pluginIds[i];
-      console.error(`Failed to load ${pluginId} for visualization suggestions:`, settled.reason);
+      grafanaStructuredLogger.logError(settled.reason instanceof Error ? settled.reason : new Error(String(settled.reason)), { message: String(`Failed to load ${pluginId} for visualization suggestions:`) });
 
       if (await isBuiltInPlugin(pluginId)) {
         hasErrors = true;
@@ -163,7 +164,7 @@ export async function getAllSuggestions(series?: DataFrame[]): Promise<Suggestio
         list.push(...suggestions);
       }
     } catch (e) {
-      console.warn(`error when loading suggestions from plugin "${plugin.meta.id}"`, e);
+      grafanaStructuredLogger.logWarning(String(`error when loading suggestions from plugin "${plugin.meta.id}"`), { args: e });
       pluginSuggestionsError = true;
     }
   }

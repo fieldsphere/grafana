@@ -72,6 +72,7 @@ import {
 } from './parsingUtils';
 import { LokiOperationId, type LokiVisualQuery, type LokiVisualQueryBinary } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface Context {
   query: LokiVisualQuery;
   errors: ParsingError[];
@@ -109,7 +110,7 @@ export function buildVisualQueryFromString(expr: string): Context {
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    grafanaStructuredLogger.logError(err instanceof Error ? err : new Error(globalThis.String(err)));
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

@@ -7,6 +7,7 @@ import { shouldUseLegacyRunner } from 'app/features/annotations/standardAnnotati
 import { type AnnotationQueryRunner, type AnnotationQueryRunnerOptions } from './types';
 import { handleAnnotationQueryRunnerError } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export class LegacyAnnotationQueryRunner implements AnnotationQueryRunner {
   canRun(datasource?: DataSourceApi): boolean {
     if (!datasource) {
@@ -26,13 +27,13 @@ export class LegacyAnnotationQueryRunner implements AnnotationQueryRunner {
     }
 
     if (datasource?.annotationQuery === undefined) {
-      console.warn('datasource does not have an annotation query');
+      grafanaStructuredLogger.logWarning(String('datasource does not have an annotation query'));
       return of([]);
     }
 
     const annotationQuery = datasource.annotationQuery({ range, rangeRaw: range.raw, annotation, dashboard });
     if (annotationQuery === undefined) {
-      console.warn('datasource does not have an annotation query');
+      grafanaStructuredLogger.logWarning(String('datasource does not have an annotation query'));
       return of([]);
     }
 

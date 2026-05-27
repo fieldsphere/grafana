@@ -1,4 +1,4 @@
-import { isIconName, type SelectableValue } from '@grafana/data';
+import { emitStructuredBrowserLog, isIconName, type SelectableValue } from '@grafana/data';
 
 import { type ComboboxOption } from './types';
 
@@ -25,11 +25,11 @@ export const selectableValueToComboboxOption = <T extends string | number>(
   v: SelectableValue<T>
 ): ComboboxOption<T> | undefined => {
   if (v == null || v.value == null) {
-    console.warn('selectableValueToComboboxOption: value is null or undefined', v);
+    emitStructuredBrowserLog('warn', String('selectableValueToComboboxOption: value is null or undefined'), { args: v });
     return undefined;
   }
   if (v.icon != null && !isIconName(v.icon)) {
-    console.warn('selectableValueToComboboxOption: icon is not a valid icon name', v.icon);
+    emitStructuredBrowserLog('warn', String('selectableValueToComboboxOption: icon is not a valid icon name'), { args: v.icon });
     return undefined;
   }
   return {

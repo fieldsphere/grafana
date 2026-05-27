@@ -10,8 +10,9 @@ import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
 import { Button } from '../Button/Button';
 import { Stack } from '../Layout/Stack/Stack';
 
+import { emitStructuredBrowserLog } from '@grafana/data';
 export function EmotionPerfTest() {
-  console.log('process.env.NODE_ENV', process.env.NODE_ENV);
+  emitStructuredBrowserLog('info', String('process.env.NODE_ENV'), { args: process.env.NODE_ENV });
 
   return (
     <Stack direction="column">
@@ -126,7 +127,7 @@ function NoStyles({ index }: TestComponentProps) {
 
 function MeasureRender({ children, id }: { children: React.ReactNode; id: string }) {
   const onRender: ProfilerOnRenderCallback = (id, phase, actualDuration, baseDuration, startTime, commitTime) => {
-    console.log('Profile ' + id, actualDuration);
+    emitStructuredBrowserLog('info', String('Profile ' + id), { args: actualDuration });
   };
 
   return (

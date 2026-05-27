@@ -47,6 +47,7 @@ import {
 } from './utils/utils';
 import { centerPointRegistry, MapCenterID } from './view';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 // Allows multiple panels to share the same view instance
 let sharedView: View | undefined = undefined;
 
@@ -323,7 +324,7 @@ export class GeomapPanel extends Component<Props, State> {
         layers.push(await initLayer(this, map, lyr, false));
       }
     } catch (ex) {
-      console.error('error loading layers', ex);
+      grafanaStructuredLogger.logError(ex instanceof Error ? ex : new Error(String(ex)), { message: String('error loading layers') });
     }
 
     for (const lyr of layers) {

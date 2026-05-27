@@ -7,6 +7,7 @@ import { CodeEditor, Button } from '@grafana/ui';
 
 import { MessagePublishMode } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface Props {
   height: number;
   addr?: LiveChannelAddress;
@@ -46,7 +47,7 @@ export function LivePublish({ height, mode, body, addr, onSave }: Props) {
     }
 
     const rsp = await getGrafanaLiveSrv().publish(addr, body);
-    console.log('onPublishClicked (response from publish)', rsp);
+    grafanaStructuredLogger.logInfo(String('onPublishClicked (response from publish)'), { args: rsp });
   };
 
   return (

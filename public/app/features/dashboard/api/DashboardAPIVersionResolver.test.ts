@@ -34,7 +34,7 @@ describe('DashboardAPIVersionResolver', () => {
   beforeEach(() => {
     dashboardAPIVersionResolver.reset();
     jest.clearAllMocks();
-    jest.spyOn(console, 'log').mockImplementation();
+    jest.spyOn(console, 'info').mockImplementation();
     jest.spyOn(console, 'warn').mockImplementation();
   });
 
@@ -158,13 +158,25 @@ describe('DashboardAPIVersionResolver', () => {
       it('should log resolved versions', async () => {
         mockDiscoveryResponse(['v2', 'v1']);
         await dashboardAPIVersionResolver.resolve();
-        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Version negotiation'));
+        expect(console.info).toHaveBeenCalledWith(
+          '[Grafana]',
+          expect.objectContaining({ message: expect.stringContaining('Version negotiation') })
+        );
       });
 
       it('should log on discovery failure', async () => {
         mockDiscoveryFailure();
         await dashboardAPIVersionResolver.resolve();
-        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('discovery failed'), expect.any(Error));
+        expect(console.info).toHaveBeenCalledWith(
+          '[Grafana]',
+          expect.objectContaining({
+            message: expect.stringContaining('Version discovery failed'),
+            context: expect.objectContaining({
+              source: 'grafana.frontend',
+              parts: expect.any(Array),
+            }),
+          })
+        );
       });
     });
 
@@ -172,7 +184,7 @@ describe('DashboardAPIVersionResolver', () => {
       localStorage.removeItem('grafana.debug.dashboardAPI');
       mockDiscoveryResponse(['v2', 'v1']);
       await dashboardAPIVersionResolver.resolve();
-      expect(console.log).not.toHaveBeenCalled();
+      expect(console.info).not.toHaveBeenCalled();
     });
   });
 

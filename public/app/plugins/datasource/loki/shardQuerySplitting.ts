@@ -16,6 +16,7 @@ import {
 } from './queryUtils';
 import { isRetriableError } from './responseUtils';
 import { type LokiQuery } from './types';
+import { grafanaStructuredLogger } from '@grafana/runtime';
 /**
  * Query splitting by stream shards.
  * Query splitting was introduced in Loki to optimize querying for long intervals and high volume of data,
@@ -130,7 +131,7 @@ function splitQueriesByStreamShard(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        grafanaStructuredLogger.logError(e instanceof Error ? e : new Error(String(e)));
         shouldStop = true;
         return false;
       }
@@ -155,7 +156,7 @@ function splitQueriesByStreamShard(
 
       retryTimer = setTimeout(
         () => {
-          console.warn(`Retrying ${group} ${cycle} (${retries + 1})`);
+          grafanaStructuredLogger.logWarning(String(`Retrying ${group} ${cycle} (${retries + 1})`));
           runNextRequest(subscriber, group, groups);
           retryTimer = null;
         },
@@ -224,7 +225,9 @@ function splitQueriesByStreamShard(
         nextRequest();
       },
       error: (error: unknown) => {
-        console.error(error, { msg: 'failed to shard' });
+        grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), {
+          detail: 'failed to shard',
+        });
         subscriber.next(mergedResponse);
         if (retry()) {
           return;
@@ -293,7 +296,9 @@ async function groupTargetsByQueryType(
         cycle: 0,
       });
     } catch (error) {
-      console.error(error, { msg: 'failed to fetch label values for __stream_shard__' });
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), {
+        detail: 'failed to fetch label values for __stream_shard__',
+      });
       groups.push({
         targets: selectorPartition[selector],
       });
@@ -375,5 +380,5 @@ function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  console.log(message);
+  grafanaStructuredLogger.logInfo(String(message));
 }

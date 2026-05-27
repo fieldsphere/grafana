@@ -1,23 +1,31 @@
 import { textUtil } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, grafanaStructuredLogger } from '@grafana/runtime';
 
 const CSP_REPORT_ONLY_ENABLED = config.cspReportOnlyEnabled;
 
 export const defaultTrustedTypesPolicy = {
-  createHTML: (string: string, source: string, sink: string) => {
+  createHTML: (html: string, source: string, sink: string) => {
     if (!CSP_REPORT_ONLY_ENABLED) {
-      return string.replace(/<script/gi, '&lt;script');
+      return html.replace(/<script/gi, '&lt;script');
     }
-    console.error('[HTML not sanitized with Trusted Types]', string, source, sink);
-    return string;
+    grafanaStructuredLogger.logWarning('[HTML not sanitized with Trusted Types]', {
+      sink,
+      source,
+      snippet: html.slice(0, 160),
+    });
+    return html;
   },
-  createScript: (string: string) => string,
-  createScriptURL: (string: string, source: string, sink: string) => {
+  createScript: (script: string) => script,
+  createScriptURL: (url: string, source: string, sink: string) => {
     if (!CSP_REPORT_ONLY_ENABLED) {
-      return textUtil.sanitizeUrl(string);
+      return textUtil.sanitizeUrl(url);
     }
-    console.error('[ScriptURL not sanitized with Trusted Types]', string, source, sink);
-    return string;
+    grafanaStructuredLogger.logWarning('[ScriptURL not sanitized with Trusted Types]', {
+      sink,
+      source,
+      url,
+    });
+    return url;
   },
 };
 

@@ -22,6 +22,7 @@ import { Sorters } from '../helpers';
 import { useHistory } from '../hooks/useHistory';
 import { useGetAll, useGetUpdatable, useIsRemotePluginsAvailable } from '../state/hooks';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export default function Browse() {
   const location = useLocation();
   const locationSearch = locationSearchToObject(location.search);
@@ -72,7 +73,7 @@ export default function Browse() {
 
   // How should we handle errors?
   if (error) {
-    console.error(error.message);
+    grafanaStructuredLogger.logError(error.message instanceof Error ? error.message : new Error(String(error.message)));
     return null;
   }
 

@@ -14,6 +14,7 @@ import {
   shouldRenderUpgradeUserButton,
 } from './InviteUserButtonUtils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export function InviteUserButton() {
   const isLargeScreen = useMediaQueryMinWidth('lg');
   const shouldRender = shouldRenderInviteUserButton();
@@ -42,7 +43,7 @@ export function InviteUserButton() {
         performInviteUserClick('top_bar_right', 'invite-user-top-bar');
       }
     } catch (error) {
-      console.error('Failed to handle invite/upgrade user click:', error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String('Failed to handle invite/upgrade user click:') });
     }
   };
 

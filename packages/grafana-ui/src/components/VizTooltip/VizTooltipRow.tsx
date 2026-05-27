@@ -12,6 +12,7 @@ import { Tooltip } from '../Tooltip/Tooltip';
 import { ColorIndicatorPosition, VizTooltipColorIndicator } from './VizTooltipColorIndicator';
 import { ColorPlacement, type VizTooltipItem } from './types';
 
+import { emitStructuredBrowserError } from '@grafana/data';
 interface VizTooltipRowProps extends Omit<VizTooltipItem, 'value'> {
   value: string | number | null | ReactNode;
   justify?: string;
@@ -112,7 +113,7 @@ export const VizTooltipRow = ({
         setShowCopySuccess(true);
       }
     } catch (err) {
-      console.error('Unable to copy to clipboard', err);
+      emitStructuredBrowserError(err instanceof Error ? err : new Error(String(err)), { message: String('Unable to copy to clipboard') });
     }
 
     textarea.remove();

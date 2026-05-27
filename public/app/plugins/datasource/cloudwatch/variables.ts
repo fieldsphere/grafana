@@ -18,6 +18,7 @@ import { type ResourcesAPI } from './resources/ResourcesAPI';
 import { standardStatistics } from './standardStatistics';
 import { type VariableQuery, VariableQueryType } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchDatasource, VariableQuery> {
   constructor(private readonly resources: ResourcesAPI) {
     super();
@@ -57,7 +58,7 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
           return this.handleAccountsQuery(query);
       }
     } catch (error) {
-      console.error(`Could not run CloudWatchMetricFindQuery ${query}`, error);
+      grafanaStructuredLogger.logError(error instanceof Error ? error : new Error(String(error)), { message: String(`Could not run CloudWatchMetricFindQuery ${query}`) });
       return [];
     }
   }

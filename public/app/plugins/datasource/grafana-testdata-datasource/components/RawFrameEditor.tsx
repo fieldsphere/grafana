@@ -7,6 +7,7 @@ import { Alert, CodeEditor } from '@grafana/ui';
 
 import { type EditorProps } from '../QueryEditor';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const RawFrameEditor = ({ onChange, query }: EditorProps) => {
   const [error, setError] = useState<string>();
   const [warning, setWarning] = useState<string>();
@@ -35,8 +36,8 @@ export const RawFrameEditor = ({ onChange, query }: EditorProps) => {
       }
 
       if (data) {
-        console.log('Original', json);
-        console.log('Save', data);
+        grafanaStructuredLogger.logInfo(String('Original'), { args: json });
+        grafanaStructuredLogger.logInfo(String('Save'), { args: data });
         setError(undefined);
         setWarning('Converted to direct frame result');
         onChange({ ...query, rawFrameContent: JSON.stringify(data, null, 2) });
@@ -45,7 +46,7 @@ export const RawFrameEditor = ({ onChange, query }: EditorProps) => {
 
       setError('Unable to read dataframes in text');
     } catch (e) {
-      console.log('Error parsing json', e);
+      grafanaStructuredLogger.logInfo(String('Error parsing json'), { args: e });
       setError('Enter JSON array of data frames (or raw query results body)');
       setWarning(undefined);
     }

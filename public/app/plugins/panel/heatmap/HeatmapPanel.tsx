@@ -30,6 +30,7 @@ import { quantizeScheme } from './palettes';
 import { type Options } from './panelcfg.gen';
 import { calculateYSizeDivisor, prepConfig } from './utils';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 interface HeatmapPanelProps extends PanelProps<Options> {}
 
 type HeatmapDataForViz = Required<Pick<HeatmapData, 'heatmap'>> & Omit<HeatmapData, 'warning' | 'heatmap'>;
@@ -54,7 +55,7 @@ export const HeatmapPanel = (props: HeatmapPanelProps) => {
         timeRange,
       });
     } catch (ex) {
-      console.error(ex);
+      grafanaStructuredLogger.logError(ex instanceof Error ? ex : new Error(String(ex)));
       return { warning: `${ex}` };
     }
   }, [data.series, data.annotations, options, palette, theme, replaceVariables, timeRange]);

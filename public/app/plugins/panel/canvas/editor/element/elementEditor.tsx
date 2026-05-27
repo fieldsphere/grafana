@@ -18,6 +18,7 @@ import { optionBuilder } from '../options';
 
 import { PlacementEditor } from './PlacementEditor';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export interface CanvasEditorOptions {
   element: ElementState;
   scene: Scene;
@@ -45,7 +46,7 @@ export function getElementEditor(opts: CanvasEditorOptions): NestedPanelOptions<
         if (path === 'type' && value) {
           const layer = canvasElementRegistry.getIfExists(value);
           if (!layer) {
-            console.warn('layer does not exist', value);
+            grafanaStructuredLogger.logWarning(String('layer does not exist'), { args: value });
             return;
           }
           options = {

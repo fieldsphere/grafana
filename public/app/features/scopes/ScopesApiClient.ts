@@ -1,5 +1,5 @@
 import { type Scope, type ScopeDashboardBinding, type ScopeNode } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, grafanaStructuredLogger } from '@grafana/runtime';
 import { scopeAPIv0alpha1 } from 'app/api/clients/scope/v0alpha1';
 import { getMessageFromError } from 'app/core/utils/errors';
 import { dispatch } from 'app/store/store';
@@ -34,7 +34,7 @@ export class ScopesApiClient {
       // Check if the data is actually an error response (Kubernetes Status object)
       if (this.isStatusError(result.data)) {
         const errorMessage = getMessageFromError(result.data);
-        console.error(`Failed to fetch %s:`, context, errorMessage);
+        grafanaStructuredLogger.logError(new Error(errorMessage), { detail: `Failed to fetch ${context}` });
         return undefined;
       }
       return result.data;
@@ -42,7 +42,7 @@ export class ScopesApiClient {
 
     if ('error' in result) {
       const errorMessage = getMessageFromError(result.error);
-      console.error(`Failed to fetch %s:`, context, errorMessage);
+      grafanaStructuredLogger.logError(new Error(errorMessage), { detail: `Failed to fetch ${context}` });
     }
 
     return undefined;
@@ -54,7 +54,7 @@ export class ScopesApiClient {
       return this.extractDataOrHandleError(result, `scope: ${name}`);
     } catch (err) {
       const errorMessage = getMessageFromError(err);
-      console.error('Failed to fetch scope:', name, errorMessage);
+      grafanaStructuredLogger.logError(new Error(errorMessage), { detail: 'Failed to fetch scope', name });
       return undefined;
     } finally {
       // Unsubscribe for extra safety, even though with subscribe: false and awaiting,
@@ -74,20 +74,18 @@ export class ScopesApiClient {
 
       if (successfulScopes.length < scopesIds.length) {
         const failedCount = scopesIds.length - successfulScopes.length;
-        console.warn(
-          'Failed to fetch',
-          failedCount,
-          'of',
-          scopesIds.length,
-          'scope(s). Requested IDs:',
-          scopesIds.join(', ')
+        grafanaStructuredLogger.logWarning(
+          `Failed to fetch ${failedCount} of ${scopesIds.length} scope(s). Requested IDs: ${scopesIds.join(', ')}`
         );
       }
 
       return successfulScopes;
     } catch (err) {
       const errorMessage = getMessageFromError(err);
-      console.error('Failed to fetch multiple scopes:', scopesIds, errorMessage);
+      grafanaStructuredLogger.logError(new Error(errorMessage), {
+        detail: 'Failed to fetch multiple scopes',
+        scopeIds: scopesIds.join(', '),
+      });
       return [];
     }
   }
@@ -110,13 +108,13 @@ export class ScopesApiClient {
 
       if ('error' in result) {
         const errorMessage = getMessageFromError(result.error);
-        console.error('Failed to fetch multiple scope nodes:', names, errorMessage);
+        grafanaStructuredLogger.logError(new Error(errorMessage), { detail: 'Failed to fetch multiple scope nodes', names });
       }
 
       return [];
     } catch (err) {
       const errorMessage = getMessageFromError(err);
-      console.error('Failed to fetch multiple scope nodes:', names, errorMessage);
+      grafanaStructuredLogger.logError(new Error(errorMessage), { detail: 'Failed to fetch multiple scope nodes', names });
       return [];
     } finally {
       // Unsubscribe for extra safety, even though with subscribe: false and awaiting,
@@ -170,7 +168,7 @@ export class ScopesApiClient {
         }
         contextParts.push('limit=' + limit);
         const context = contextParts.join(', ');
-        console.error('Failed to fetch scope nodes:', context, errorMessage);
+        grafanaStructuredLogger.logError(new Error(errorMessage), { detail: 'Failed to fetch scope nodes', context });
       }
 
       return [];
@@ -185,7 +183,7 @@ export class ScopesApiClient {
       }
       contextParts.push('limit=' + limit);
       const context = contextParts.join(', ');
-      console.error('Failed to fetch scope nodes:', context, errorMessage);
+      grafanaStructuredLogger.logError(new Error(errorMessage), { detail: 'Failed to fetch scope nodes', context });
       return [];
     } finally {
       // Unsubscribe for extra safety, even though with subscribe: false and awaiting,
@@ -213,13 +211,13 @@ export class ScopesApiClient {
 
       if ('error' in result) {
         const errorMessage = getMessageFromError(result.error);
-        console.error('Failed to fetch dashboards for scopes:', scopeNames, errorMessage);
+        grafanaStructuredLogger.logError(new Error(errorMessage), { detail: 'Failed to fetch dashboards for scopes', scopeNames });
       }
 
       return [];
     } catch (err) {
       const errorMessage = getMessageFromError(err);
-      console.error('Failed to fetch dashboards for scopes:', scopeNames, errorMessage);
+      grafanaStructuredLogger.logError(new Error(errorMessage), { detail: 'Failed to fetch dashboards for scopes', scopeNames });
       return [];
     } finally {
       // Unsubscribe for extra safety, even though with subscribe: false and awaiting,
@@ -252,13 +250,13 @@ export class ScopesApiClient {
 
       if ('error' in result) {
         const errorMessage = getMessageFromError(result.error);
-        console.error('Failed to fetch scope navigations for scopes:', scopeNames, errorMessage);
+        grafanaStructuredLogger.logError(new Error(errorMessage), { detail: 'Failed to fetch scope navigations for scopes', scopeNames });
       }
 
       return [];
     } catch (err) {
       const errorMessage = getMessageFromError(err);
-      console.error('Failed to fetch scope navigations for scopes:', scopeNames, errorMessage);
+      grafanaStructuredLogger.logError(new Error(errorMessage), { detail: 'Failed to fetch scope navigations for scopes', scopeNames });
       return [];
     } finally {
       // Unsubscribe for extra safety, even though with subscribe: false and awaiting,
@@ -280,7 +278,7 @@ export class ScopesApiClient {
       return this.extractDataOrHandleError(result, `scope node: ${scopeNodeId}`);
     } catch (err) {
       const errorMessage = getMessageFromError(err);
-      console.error('Failed to fetch scope node:', scopeNodeId, errorMessage);
+      grafanaStructuredLogger.logError(new Error(errorMessage), { detail: 'Failed to fetch scope node', scopeNodeId });
       return undefined;
     } finally {
       // Unsubscribe for extra safety, even though with subscribe: false and awaiting,

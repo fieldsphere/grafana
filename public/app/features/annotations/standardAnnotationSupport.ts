@@ -20,6 +20,7 @@ import {
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export const standardAnnotationSupport: AnnotationSupport = {
   /**
    * Assume the stored value is standard model.
@@ -227,7 +228,7 @@ export function getAnnotationsFromData(
       }
 
       if (!hasTime || !hasText) {
-        console.error('Cannot process annotation fields. No time or text present.');
+        grafanaStructuredLogger.logError(new Error('Cannot process annotation fields. No time or text present.'));
         return [];
       }
 

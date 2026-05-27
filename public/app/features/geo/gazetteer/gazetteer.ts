@@ -8,6 +8,7 @@ import { pointFieldFromLonLat, pointFieldFromGeohash } from '../format/utils';
 
 import { loadWorldmapPoints } from './worldmap';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 export interface PlacenameInfo {
   point: () => Point | undefined; // lon, lat (WGS84)
   geometry: () => Geometry | undefined;
@@ -199,7 +200,7 @@ export async function getGazetteer(path?: string): Promise<Gazetteer> {
       const data = await response.json();
       lookup = loadGazetteer(path, data);
     } catch (err) {
-      console.warn('Error loading placename lookup', path, err);
+      grafanaStructuredLogger.logWarning(String('Error loading placename lookup'), { args: path, err });
       lookup = {
         path,
         error: 'Error loading URL',

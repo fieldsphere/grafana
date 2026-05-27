@@ -22,6 +22,7 @@ import { pluginsLogger } from '../utils';
 import { importPluginModule } from './importPluginModule';
 import { type PluginImporter, type PostImportStrategy, type PreImportStrategy } from './types';
 
+import { grafanaStructuredLogger } from '@grafana/runtime';
 const defaultPreImport: PreImportStrategy = (plugin) => {
   throwIfAngular(plugin);
   const fallbackLoadingStrategy = plugin.loadingStrategy ?? PluginLoadingStrategy.fetch;
@@ -54,7 +55,7 @@ const panelPluginPostImport: PostImportStrategy<PanelPlugin, PanelPluginMeta> = 
     throw new Error('missing export: plugin');
   } catch (error) {
     // TODO, maybe a different error plugin
-    console.warn('Error loading panel plugin: ' + meta.id, error);
+    grafanaStructuredLogger.logWarning(String('Error loading panel plugin: ' + meta.id), { args: error });
     return getPanelPluginLoadError(meta, error);
   }
 };
