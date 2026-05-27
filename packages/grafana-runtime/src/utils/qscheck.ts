@@ -1,5 +1,7 @@
 import { type DataSourceInstanceSettings, type DataSourceJsonData } from '@grafana/data';
 
+import { structuredConsoleLog } from './structuredConsole';
+
 interface JsonData extends DataSourceJsonData {
   oauthPassThru?: unknown; // we do not assume boolean, to be more robust
   azureCredentials?: {
@@ -48,11 +50,15 @@ function parseAllowedTypes(data: unknown): AllowedTypes {
     if (types.every((x) => typeof x === 'string')) {
       return { types };
     } else {
-      console.error('qscheck.parseFlags: non-string item in allowed');
+      structuredConsoleLog('error', 'qscheck.parseFlags: non-string item in allowed', {
+        source: 'qscheck.parseAllowedTypes',
+      });
       return { types: [] };
     }
   } else {
-    console.error('qscheck.parseFlags: invalid data');
+    structuredConsoleLog('error', 'qscheck.parseFlags: invalid data', {
+      source: 'qscheck.parseAllowedTypes',
+    });
     return { types: [] };
   }
 }

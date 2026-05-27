@@ -32,7 +32,16 @@ bootstrapWindowData().catch((error) => {
   const isRedirect = error && error.redirect && typeof error.redirect === 'string';
   // If a redirect was thrown, just ignore this. The index.html will handle the redirect
   if (!isRedirect) {
-    console.error('Error bootstrapping Grafana', error);
+    const payload = {
+      level: 'error' as const,
+      message: 'Error bootstrapping Grafana',
+      source: 'bootstrapWindowData',
+      error:
+        error instanceof Error
+          ? { name: error.name, message: error.message, stack: error.stack }
+          : error,
+    };
+    console.error(JSON.stringify(payload));
     window.__grafana_load_failed();
   }
 });

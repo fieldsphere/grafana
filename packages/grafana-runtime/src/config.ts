@@ -1,5 +1,6 @@
 import { merge } from 'lodash';
 
+import { structuredConsoleLog } from './utils/structuredConsole';
 import {
   type AppPluginConfig as AppPluginConfigGrafanaData,
   type AuthSettings,
@@ -313,7 +314,11 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
       const toggleState = featureValue === 'true' || featureValue === '1';
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       featureToggles[featureName as keyof FeatureToggles] = toggleState;
-      console.log(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
+      structuredConsoleLog('info', 'Feature toggle overridden from localStorage', {
+        source: 'config.overrideFeatureTogglesFromLocalStorage',
+        featureName,
+        toggleState,
+      });
     }
   }
 }
@@ -339,9 +344,16 @@ function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
       if (toggleState !== featureToggles[key]) {
         if (isDevelopment || safeRuntimeFeatureFlags.has(featureName)) {
           featureToggles[featureName] = toggleState;
-          console.log(`Setting feature toggle ${featureName} = ${toggleState} via url`);
+          structuredConsoleLog('info', 'Feature toggle overridden from URL', {
+            source: 'config.overrideFeatureTogglesFromUrl',
+            featureName,
+            toggleState,
+          });
         } else {
-          console.log(`Unable to change feature toggle ${featureName} via url in production.`);
+          structuredConsoleLog('warn', 'Feature toggle URL override ignored in production', {
+            source: 'config.overrideFeatureTogglesFromUrl',
+            featureName,
+          });
         }
       }
     }
@@ -352,7 +364,9 @@ let bootData = window.grafanaBootData;
 
 if (!bootData) {
   if (process.env.NODE_ENV !== 'test') {
-    console.error('window.grafanaBootData was not set by the time config was initialized');
+    structuredConsoleLog('error', 'window.grafanaBootData was not set by the time config was initialized', {
+      source: 'config',
+    });
   }
 
   bootData = {
