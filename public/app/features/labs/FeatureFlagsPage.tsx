@@ -150,7 +150,7 @@ export default function FeatureFlagsPage() {
 
           {error && <Alert title={error} severity="error" />}
 
-          {flags === undefined ? (
+          {error ? null : flags === undefined ? (
             <Spinner />
           ) : flags.length === 0 ? (
             <Text element="p">
