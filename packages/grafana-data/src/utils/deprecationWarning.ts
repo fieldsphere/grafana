@@ -1,4 +1,8 @@
+import { createClientLog } from './clientStructuredLog';
 import { type KeyValue } from '../types/data';
+const clientLog = createClientLog('packages/grafana-data/src/utils/deprecationWarning');
+
+
 
 // Avoid writing the warning message more than once every 10s
 const history: KeyValue<number> = {};
@@ -11,7 +15,7 @@ export const deprecationWarning = (file: string, oldName: string, newName?: stri
   const now = Date.now();
   const last = history[message];
   if (!last || now - last > 10000) {
-    console.warn(message);
+    clientLog.warn(message);
     history[message] = now;
   }
 };

@@ -15,7 +15,7 @@
 import { isEqual as _isEqual } from 'lodash';
 
 // @ts-ignore
-import { type TraceKeyValuePair } from '@grafana/data';
+import {type TraceKeyValuePair, createClientLog} from '@grafana/data';
 
 import { getTraceSpanIdsAsTree } from '../selectors/trace';
 import { type TraceResponse, type Trace, type TraceSpan, type TraceProcess } from '../types/trace';
@@ -25,6 +25,9 @@ import { getConfigValue } from '../utils/config/get-config';
 import { getServiceDisplayName } from '../utils/service-name';
 
 import { getTraceName } from './trace-viewer';
+const clientLog = createClientLog('public/app/features/explore/TraceView/components/model/transform-trace-data');
+
+
 
 function asTagArray(tags: unknown): TraceKeyValuePair[] {
   return Array.isArray(tags) ? tags : [];
@@ -121,10 +124,10 @@ export default function transformTraceData(data: TraceResponse | undefined): Tra
     const idCount = spanIdCounts.get(spanID);
     if (idCount != null) {
       // eslint-disable-next-line no-console
-      console.warn(`Dupe spanID, ${idCount + 1} x ${spanID}`, span, spanMap.get(spanID));
+      clientLog.warn(`Dupe spanID, ${idCount + 1} x ${spanID}`, span, spanMap.get(spanID));
       if (_isEqual(span, spanMap.get(spanID))) {
         // eslint-disable-next-line no-console
-        console.warn('\t two spans with same ID have `isEqual(...) === true`');
+        clientLog.warn('\t two spans with same ID have `isEqual(...) === true`');
       }
       spanIdCounts.set(spanID, idCount + 1);
       spanID = `${spanID}_${idCount}`;

@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import { OpenFeatureProvider } from '@openfeature/react-sdk';
 import { UNSAFE_PortalProvider } from '@react-aria/overlays';
 import { type Action, KBarProvider } from 'kbar';
@@ -23,6 +24,9 @@ import { getPluginExtensionRegistries } from './features/plugins/extensions/regi
 import { type PluginExtensionRegistries } from './features/plugins/extensions/registry/types';
 import { ScopesContextProvider } from './features/scopes/ScopesContextProvider';
 import { RouterWrapper } from './routes/RoutesWrapper';
+const clientLog = createClientLog('public/app/AppWrapper');
+
+
 
 interface AppWrapperProps {
   context: GrafanaContextType;
@@ -77,7 +81,7 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
     if (preloader) {
       preloader.remove();
     } else {
-      console.warn('Preloader element not found');
+      clientLog.warn('Preloader element not found');
     }
   }
 

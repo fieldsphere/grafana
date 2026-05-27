@@ -1,13 +1,11 @@
 import pluralize from 'pluralize';
 import * as React from 'react';
 
-import {
-  type QueryEditorProps,
+import {type QueryEditorProps,
   type SelectableValue,
   rangeUtil,
   type DataQueryRequest,
-  type Field,
-} from '@grafana/data';
+  type Field, createClientLog} from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import {
   InlineField,
@@ -27,6 +25,9 @@ import { type GrafanaDatasource } from '../datasource';
 import { defaultQuery, type GrafanaQuery, GrafanaQueryType } from '../types';
 
 import { RandomWalkEditor } from './RandomWalkEditor';
+const clientLog = createClientLog('public/app/plugins/datasource/grafana/components/QueryEditor');
+
+
 
 interface Props extends QueryEditorProps<GrafanaDatasource, GrafanaQuery>, Themeable2 {}
 
@@ -148,7 +149,7 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         try {
           buffer = rangeUtil.intervalToSeconds(txt) * 1000;
         } catch (err) {
-          console.warn('ERROR', err);
+          clientLog.warn('ERROR', err);
         }
       }
       onChange({

@@ -4,7 +4,7 @@ import { FocusScope } from '@react-aria/focus';
 import { useOverlay } from '@react-aria/overlays';
 import { useRef, useState } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import {type GrafanaTheme2, createClientLog} from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { config, getBackendSrv } from '@grafana/runtime';
 import { Button, useStyles2 } from '@grafana/ui';
@@ -14,6 +14,9 @@ import { type MediaType, PickerTabType, type ResourceFolderName } from '../types
 import { FileUploader } from './FileUploader';
 import { FolderPickerTab } from './FolderPickerTab';
 import { URLPickerTab } from './URLPickerTab';
+const clientLog = createClientLog('public/app/features/dimensions/editors/ResourcePickerPopover');
+
+
 
 interface Props {
   value?: string; //img/icons/unicons/0-plus.svg
@@ -129,7 +132,7 @@ export const ResourcePickerPopover = (props: Props) => {
                           .then(() => onChange(`${config.appUrl}api/storage/read/${data.path}`))
                           .then(() => hidePopper?.());
                       })
-                      .catch((err) => console.error(err));
+                      .catch((err) => clientLog.error(err));
                   } else {
                     onChange(newValue);
                     hidePopper?.();

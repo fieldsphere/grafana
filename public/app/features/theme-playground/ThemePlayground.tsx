@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { useId, useState } from 'react';
 
-import { createTheme, type GrafanaTheme2, type NewThemeOptions } from '@grafana/data';
+import {createTheme, type GrafanaTheme2, type NewThemeOptions, createClientLog} from '@grafana/data';
 import { NewThemeOptionsSchema } from '@grafana/data/internal';
 import aubergine from '@grafana/data/themes/definitions/aubergine.json';
 import debug from '@grafana/data/themes/definitions/debug.json';
@@ -32,6 +32,9 @@ import { HOME_NAV_ID } from '../../core/reducers/navModel';
 import { getNavModel } from '../../core/selectors/navModel';
 import { ThemeProvider } from '../../core/utils/ConfigProvider';
 import { useDispatch, useSelector } from '../../types/store';
+const clientLog = createClientLog('public/app/features/theme-playground/ThemePlayground');
+
+
 
 const themeMap: Record<string, NewThemeOptions> = {
   dark: {
@@ -73,7 +76,7 @@ const experimentalDefinitions: Record<string, unknown> = {
 for (const [name, json] of Object.entries(experimentalDefinitions)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    clientLog.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
   } else {
     themeMap[result.data.id] = result.data;
   }

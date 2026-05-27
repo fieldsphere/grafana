@@ -4,16 +4,14 @@ import { useCallback, useEffect, useMemo, useReducer } from 'react';
 import * as React from 'react';
 import { useLocation, useParams } from 'react-router-dom-v5-compat';
 
-import {
-  AppEvents,
+import {AppEvents,
   type AppPlugin,
   type AppPluginMeta,
   type NavModel,
   type NavModelItem,
   OrgRole,
   PluginType,
-  PluginContextProvider,
-} from '@grafana/data';
+  PluginContextProvider, createClientLog} from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, locationSearchToObject } from '@grafana/runtime';
 import { Alert, ErrorWithStack } from '@grafana/ui';
@@ -40,6 +38,9 @@ import { buildPluginSectionNav, pluginsLogger } from '../utils';
 import { PluginErrorBoundary } from './PluginErrorBoundary';
 import { buildPluginPageContext, PluginPageContext } from './PluginPageContext';
 import { RestrictedGrafanaApisProvider } from './restrictedGrafanaApis/RestrictedGrafanaApisProvider';
+const clientLog = createClientLog('public/app/features/plugins/components/AppRootPage');
+
+
 
 interface Props {
   // The ID of the plugin we would like to load and display
@@ -249,7 +250,7 @@ async function loadAppPlugin(pluginId: string, dispatch: React.Dispatch<AnyActio
     );
     const error = err instanceof Error ? err : new Error(getMessageFromError(err));
     pluginsLogger.logError(error);
-    console.error(error);
+    clientLog.error(error);
   }
 }
 

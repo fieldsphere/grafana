@@ -1,8 +1,12 @@
+import { createClientLog } from '../utils/clientStructuredLog';
 // Code based on Material-UI
 // https://github.com/mui-org/material-ui/blob/1b096070faf102281f8e3c4f9b2bf50acf91f412/packages/material-ui/src/styles/colorManipulator.js#L97
 // MIT License Copyright (c) 2014 Call-Em-All
 
 import tinycolor from 'tinycolor2';
+const clientLog = createClientLog('packages/grafana-data/src/themes/colorManipulator');
+
+
 
 /**
  * Returns a number whose value is limited to the given range.
@@ -15,7 +19,7 @@ import tinycolor from 'tinycolor2';
 function clamp(value: number, min = 0, max = 1) {
   if (process.env.NODE_ENV !== 'production') {
     if (value < min || value > max) {
-      console.error(`The value provided ${value} is out of range [${min}, ${max}].`);
+      clientLog.error(`The value provided ${value} is out of range [${min}, ${max}].`);
     }
   }
 

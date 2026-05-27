@@ -3,16 +3,14 @@ import { PureComponent, useEffect, useState } from 'react';
 import * as React from 'react';
 import { type Unsubscribable } from 'rxjs';
 
-import {
-  CoreApp,
+import {CoreApp,
   type DataSourceApi,
   type DataSourceInstanceSettings,
   type ScopedVars,
   getDataSourceRef,
   getDefaultTimeRange,
   LoadingState,
-  type PanelData,
-} from '@grafana/data';
+  type PanelData, createClientLog} from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { getDataSourceSrv, locationService } from '@grafana/runtime';
@@ -35,6 +33,9 @@ import { updateQueries } from '../state/updateQueries';
 import { GroupActionComponents } from './QueryActionComponent';
 import { QueryEditorRows } from './QueryEditorRows';
 import { QueryGroupOptionsEditor } from './QueryGroupOptions';
+const clientLog = createClientLog('public/app/features/query/components/QueryGroup');
+
+
 
 export interface Props {
   queryRunner: PanelQueryRunner;
@@ -123,7 +124,7 @@ export class QueryGroup extends PureComponent<Props, State> {
         defaultDataSource,
       });
     } catch (error) {
-      console.error('failed to load data source', error);
+      clientLog.error('failed to load data source', error);
     }
   }
 

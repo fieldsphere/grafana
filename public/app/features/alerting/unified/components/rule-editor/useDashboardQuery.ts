@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import memoizeOne from 'memoize-one';
 import { useEffect, useState } from 'react';
 
@@ -8,6 +9,9 @@ import { isDashboardV2Resource } from 'app/features/dashboard/api/utils';
 import { type DashboardDTO } from 'app/types/dashboard';
 
 import { DashboardModel } from '../../../../dashboard/state/DashboardModel';
+const clientLog = createClientLog('public/app/features/alerting/unified/components/rule-editor/useDashboardQuery');
+
+
 
 export type DashboardResponse = DashboardDTO | DashboardWithAccessInfo<DashboardV2Spec>;
 
@@ -36,11 +40,11 @@ export function useDashboardQuery(dashboardUid?: string) {
           } else if (isDashboardV2Resource(dashboardDTO)) {
             setDashboard(dashboardDTO);
           } else {
-            console.error('Something went wrong, unexpected dashboard format');
+            clientLog.error('Something went wrong, unexpected dashboard format');
           }
         })
         .catch((error) => {
-          console.error('Failed to fetch dashboard', error);
+          clientLog.error('Failed to fetch dashboard', error);
         })
         .finally(() => {
           setIsFetching(false);

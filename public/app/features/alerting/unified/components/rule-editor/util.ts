@@ -1,13 +1,11 @@
 import { xor } from 'lodash';
 
-import {
-  type DataFrame,
+import {type DataFrame,
   LoadingState,
   type PanelData,
   type ThresholdsConfig,
   ThresholdsMode,
-  isTimeSeriesFrames,
-} from '@grafana/data';
+  isTimeSeriesFrames, createClientLog} from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { GraphThresholdsStyleMode } from '@grafana/schema';
 import { EvalFunction } from 'app/features/alerting/state/alertDef';
@@ -16,6 +14,9 @@ import { type ClassicCondition, ExpressionQueryType } from 'app/features/express
 import { type AlertQuery } from 'app/types/unified-alerting-dto';
 
 import { createDagFromQueries, getOriginOfRefId } from './dag';
+const clientLog = createClientLog('public/app/features/alerting/unified/components/rule-editor/util');
+
+
 
 export function queriesWithUpdatedReferences(
   queries: AlertQuery[],
@@ -210,7 +211,7 @@ export function getThresholdsForQueries(queries: AlertQuery[], condition: string
           }
         });
       } catch (err) {
-        console.error('Failed to parse thresholds', err);
+        clientLog.error('Failed to parse thresholds', err);
         return;
       }
     });

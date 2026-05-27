@@ -1,6 +1,6 @@
 import { type ChangeEvent } from 'react';
 
-import { PageLayoutType } from '@grafana/data';
+import {PageLayoutType, createClientLog} from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type SceneComponentProps, SceneObjectBase, behaviors, sceneGraph } from '@grafana/scenes';
@@ -35,6 +35,9 @@ import { getDashboardSceneFor } from '../utils/utils';
 
 import { DeleteDashboardButton } from './DeleteDashboardButton';
 import { type DashboardEditView, type DashboardEditViewState, useDashboardEditPageNav } from './utils';
+const clientLog = createClientLog('public/app/features/dashboard-scene/settings/GeneralSettingsEditView');
+
+
 
 export interface GeneralSettingsEditViewState extends DashboardEditViewState {
   showMoveModal?: boolean;
@@ -159,7 +162,7 @@ export class GeneralSettingsEditView
       const liveNow = this.getLiveNowTimer();
       enable ? liveNow.enable() : liveNow.disable();
     } catch (err) {
-      console.error(err);
+      clientLog.error(err);
     }
   };
 

@@ -1,7 +1,6 @@
 import { castArray, isEqual } from 'lodash';
 
-import {
-  type DataQuery,
+import {type DataQuery,
   getDataSourceRef,
   isDataSourceRef,
   isEmptyObject,
@@ -18,8 +17,7 @@ import {
   VariableHide,
   type VariableOption,
   VariableRefresh,
-  type VariableWithOptions,
-} from '@grafana/data';
+  type VariableWithOptions, createClientLog} from '@grafana/data';
 import { config, locationService, logWarning, reportInteraction } from '@grafana/runtime';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -81,6 +79,9 @@ import {
 } from './transactionReducer';
 import { type KeyedVariableIdentifier } from './types';
 import { cleanVariables } from './variablesReducer';
+const clientLog = createClientLog('public/app/features/variables/state/actions');
+
+
 
 export const initDashboardTemplating = (key: string, dashboard: DashboardModel): ThunkResult<void> => {
   return (dispatch, getState) => {
@@ -779,7 +780,7 @@ export const onTimeRangeUpdated =
       await Promise.all(promises);
       dependencies.events.publish(new VariablesTimeRangeProcessDone({ variableIds }));
     } catch (error) {
-      console.error(error);
+      clientLog.error(error);
       dispatch(notifyApp(createVariableErrorNotification('Template variable service failed', error)));
     }
   };
@@ -933,7 +934,7 @@ export const initVariablesTransaction =
       dispatch(toKeyedAction(uid, variablesCompleteTransaction({ uid })));
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Templating init failed', err)));
-      console.error(err);
+      clientLog.error(err);
     }
   };
 
@@ -1004,7 +1005,7 @@ export const updateOptions =
       dispatch(toKeyedAction(rootStateKey, variableStateFailed(toVariablePayload(identifier, { error }))));
 
       if (!rethrow) {
-        console.error(error);
+        clientLog.error(error);
         dispatch(notifyApp(createVariableErrorNotification('Error updating options:', error, identifier)));
       }
 
@@ -1084,7 +1085,7 @@ export function upgradeLegacyQueries(
       );
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Failed to upgrade legacy queries', err)));
-      console.error(err);
+      clientLog.error(err);
     }
   };
 }

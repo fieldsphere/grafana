@@ -4,7 +4,7 @@ import { handleRequestError } from '@grafana/api-clients';
 import { generatedAPI as legacyUserAPI } from '@grafana/api-clients/internal/rtkq/legacy/user';
 import { createBaseQuery } from '@grafana/api-clients/rtkq';
 import { invalidateQuotaUsage } from '@grafana/api-clients/rtkq/quotas/v0alpha1';
-import { AppEvents, locationUtil } from '@grafana/data';
+import {AppEvents, locationUtil, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
 import { type Dashboard } from '@grafana/schema';
@@ -37,6 +37,9 @@ import { refetchChildren, refreshParents } from '../state/actions';
 
 import { isProvisionedDashboard } from './isProvisioned';
 import { PAGE_SIZE } from './services';
+const clientLog = createClientLog('public/app/features/browse-dashboards/api/browseDashboardsAPI');
+
+
 
 export interface DeleteFoldersArgs {
   folderUIDs: string[];
@@ -521,7 +524,7 @@ export const browseDashboardsAPI = createApi({
           } catch (error) {
             if (isFetchError(error)) {
               if (error.status !== 404) {
-                console.error('Error fetching dashboard', error);
+                clientLog.error('Error fetching dashboard', error);
               } else {
                 // Do not show the error alert if the dashboard does not exist
                 // this is expected when importing a new dashboard

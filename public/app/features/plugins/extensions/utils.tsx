@@ -3,8 +3,7 @@ import { cloneDeep, isArray, isObject, isString } from 'lodash';
 import * as React from 'react';
 import { useAsync } from 'react-use';
 
-import {
-  type AppPluginConfig,
+import {type AppPluginConfig,
   type PluginExtensionEventHelpers,
   type PluginExtensionOpenModalOptions,
   isDateTime,
@@ -13,8 +12,7 @@ import {
   type PluginExtensionAddedLinkConfig,
   type PluginExtensionLink,
   PluginExtensionTypes,
-  urlUtil,
-} from '@grafana/data';
+  urlUtil, createClientLog} from '@grafana/data';
 import { reportInteraction, config } from '@grafana/runtime';
 import { getAppPluginMetas } from '@grafana/runtime/internal';
 import { Modal } from '@grafana/ui';
@@ -42,6 +40,9 @@ import {
 import { type ExtensionsLog, log as baseLog } from './logs/log';
 import { type AddedLinkRegistryItem } from './registry/AddedLinksRegistry';
 import { assertIsNotPromise, assertStringProps, isPromise } from './validators';
+const clientLog = createClientLog('public/app/features/plugins/extensions/utils');
+
+
 
 export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
   return (...args: unknown[]) => {
@@ -49,7 +50,7 @@ export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
       return fn(...args);
     } catch (e) {
       if (e instanceof Error) {
-        console.warn(`${errorMessagePrefix}${e.message}`);
+        clientLog.warn(`${errorMessagePrefix}${e.message}`);
       }
     }
   };

@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import {
   type AzureCredentials,
   getDatasourceCredentials,
@@ -9,6 +10,9 @@ import {
 import { config } from '@grafana/runtime';
 
 import { type AzureMonitorDataSourceInstanceSettings, type AzureMonitorDataSourceSettings } from './types/types';
+const clientLog = createClientLog('public/app/plugins/datasource/azuremonitor/credentials');
+
+
 
 export function getCredentials(
   options: AzureMonitorDataSourceSettings | AzureMonitorDataSourceInstanceSettings
@@ -57,7 +61,7 @@ function getLegacyCredentials(
     return { authType: options.jsonData.azureAuthType };
   } catch (e) {
     if (e instanceof Error) {
-      console.error('Unable to restore legacy credentials: %s', e.message);
+      clientLog.error('Unable to restore legacy credentials: %s', e.message);
     }
     return undefined;
   }

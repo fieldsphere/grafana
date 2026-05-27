@@ -1,7 +1,11 @@
+import { createClientLog } from '../utils/clientStructuredLog';
 import { type ComponentType } from 'react';
 
 import { type KeyValue } from './data';
 import { type IconName } from './icon';
+const clientLog = createClientLog('packages/grafana-data/src/types/plugin');
+
+
 
 /** Describes plugins life cycle status */
 export enum PluginState {
@@ -260,7 +264,7 @@ export class GrafanaPlugin<T extends PluginMeta = PluginMeta> {
    * @deprecated -- this is no longer necessary and will be removed
    */
   setChannelSupport() {
-    console.warn('[deprecation] plugin is using ignored option: setChannelSupport', this.meta);
+    clientLog.warn('[deprecation] plugin is using ignored option: setChannelSupport', this.meta);
     return this;
   }
 

@@ -1,4 +1,4 @@
-import { PluginLoadingStrategy } from '@grafana/data';
+import {PluginLoadingStrategy, createClientLog} from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 import { transformPluginSourceForCDN } from '../cdn/utils';
@@ -11,6 +11,9 @@ import { SystemJS } from './systemjs';
 import { sharedDependenciesMap } from './sharedDependencies';
 import { type SystemJSWithLoaderHooks } from './types';
 import { buildImportMap, isHostedOnCDN } from './utils';
+const clientLog = createClientLog('public/app/features/plugins/loader/systemjsHooks');
+
+
 
 export function initSystemJSHooks() {
   const imports = buildImportMap(sharedDependenciesMap);
@@ -102,7 +105,7 @@ export function decorateSystemJSResolve(
       const url = originalResolve.apply(this, [resolvedUrl, parentUrl]);
       return resolvePluginUrlWithCache(url);
     }
-    console.warn(`SystemJS: failed to resolve '${id}'`);
+    clientLog.warn(`SystemJS: failed to resolve '${id}'`);
     return id;
   }
 }

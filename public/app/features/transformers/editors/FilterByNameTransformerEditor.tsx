@@ -1,7 +1,6 @@
 import * as React from 'react';
 
-import {
-  DataTransformerID,
+import {DataTransformerID,
   type KeyValue,
   standardTransformers,
   type TransformerRegistryItem,
@@ -9,8 +8,7 @@ import {
   getFieldDisplayName,
   stringToJsRegex,
   TransformerCategory,
-  type SelectableValue,
-} from '@grafana/data';
+  type SelectableValue, createClientLog} from '@grafana/data';
 import { type FilterFieldsByNameTransformerOptions } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
 import { getTemplateSrv } from '@grafana/runtime';
@@ -18,6 +16,9 @@ import { Input, FilterPill, InlineFieldRow, InlineField, InlineSwitch, Select } 
 
 import darkImage from '../images/dark/filterFieldsByName.svg';
 import lightImage from '../images/light/filterFieldsByName.svg';
+const clientLog = createClientLog('public/app/features/transformers/editors/FilterByNameTransformerEditor');
+
+
 
 interface FilterByNameTransformerEditorProps extends TransformerUIProps<FilterFieldsByNameTransformerOptions> {}
 
@@ -101,7 +102,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        clientLog.error(error);
       }
     }
 

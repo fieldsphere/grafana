@@ -2,13 +2,16 @@ import { css, cx } from '@emotion/css';
 import { useCallback, useState, useRef, memo, forwardRef } from 'react';
 import SVG from 'react-inlinesvg';
 
-import { type GrafanaTheme2, isIconName } from '@grafana/data';
+import {type GrafanaTheme2, isIconName, createClientLog} from '@grafana/data';
 
 import { useStyles2 } from '../../themes/ThemeContext';
 import { type IconName, type IconType, type IconSize } from '../../types/icon';
 import { spin } from '../../utils/keyframes';
 
 import { getIconPath, getSvgSize } from './utils';
+const clientLog = createClientLog('packages/grafana-ui/src/components/Icon/Icon');
+
+
 
 export interface IconProps extends Omit<React.SVGProps<SVGElement>, 'onLoad' | 'onError' | 'ref'> {
   name: IconName;
@@ -96,7 +99,7 @@ export const Icon = memo(
       const { nameToUse: name, handleLoad } = useIconWorkaround(nameProp);
 
       if (!isIconName(name)) {
-        console.warn('Icon component passed an invalid icon name', name);
+        clientLog.warn('Icon component passed an invalid icon name', name);
       }
 
       // handle the deprecated 'fa fa-spinner'

@@ -1,7 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { memo, type ReactElement, useEffect, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, OrgRole } from '@grafana/data';
+import {type GrafanaTheme2, OrgRole, createClientLog} from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Button, ConfirmButton, Field, Icon, Modal, Tooltip, useStyles2, Stack, TextLink } from '@grafana/ui';
 import { UserRolePicker } from 'app/core/components/RolePicker/UserRolePicker';
@@ -13,6 +13,9 @@ import { type Organization } from 'app/types/organization';
 import { type UserOrg, type UserDTO } from 'app/types/user';
 
 import { OrgRolePicker } from './OrgRolePicker';
+const clientLog = createClientLog('public/app/features/admin/UserOrgs');
+
+
 
 interface Props {
   orgs: UserOrg[];
@@ -128,7 +131,7 @@ const OrgRow = memo(({ user, org, isExternalUser, onOrgRemove, onOrgRoleChange }
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.orgId)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) => clientLog.error(e));
       }
     }
   }, [org.orgId]);
@@ -266,7 +269,7 @@ export const AddToOrgModal = memo(({ isOpen, user, userOrgs, onOrgAdd, onDismiss
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.value?.id)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) => clientLog.error(e));
       }
     }
   };

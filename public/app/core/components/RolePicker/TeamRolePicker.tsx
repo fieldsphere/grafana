@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
 
@@ -6,6 +7,9 @@ import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction, type Role } from 'app/types/accessControl';
 
 import { RolePicker } from './RolePicker';
+const clientLog = createClientLog('public/app/core/components/RolePicker/TeamRolePicker');
+
+
 
 export interface Props {
   teamId: number;
@@ -79,7 +83,7 @@ export const TeamRolePicker = ({
           },
         }).unwrap();
       } catch (error) {
-        console.error('Error updating team roles', error);
+        clientLog.error('Error updating team roles', error);
       }
     } else if (onApplyRoles) {
       onApplyRoles(newRoles);

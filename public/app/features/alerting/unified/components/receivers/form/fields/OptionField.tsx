@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { type FC } from 'react';
 import { Controller, type DeepMap, type FieldError, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import {type GrafanaTheme2, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   Checkbox,
@@ -29,6 +29,9 @@ import { StringArrayInput } from './StringArrayInput';
 import { SubformArrayField } from './SubformArrayField';
 import { SubformField } from './SubformField';
 import { WrapWithTemplateSelection } from './TemplateSelector';
+const clientLog = createClientLog('public/app/features/alerting/unified/components/receivers/form/fields/OptionField');
+
+
 
 interface Props {
   defaultValue: any;
@@ -318,7 +321,7 @@ const OptionInput: FC<Props & { id: string }> = ({
       );
 
     default:
-      console.error('Element not supported', option.element);
+      clientLog.error('Element not supported', option.element);
       return null;
   }
 };

@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/parsing.ts
 import { type SyntaxNode } from '@lezer/common';
 import {
@@ -43,6 +44,9 @@ import {
 } from './parsingUtils';
 import { type QueryBuilderLabelFilter, type QueryBuilderOperation } from './shared/types';
 import { type PromVisualQuery, type PromVisualQueryBinary } from './types';
+const clientLog = createClientLog('packages/grafana-prometheus/src/querybuilder/parsing');
+
+
 
 /**
  * Parses a PromQL query into a visual query model.
@@ -72,7 +76,7 @@ export function buildVisualQueryFromString(expr: string): Omit<Context, 'replace
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    clientLog.error(err);
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

@@ -3,7 +3,7 @@ import clsx from 'clsx';
 import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import {type GrafanaTheme2, createClientLog} from '@grafana/data';
 
 import { useStyles2 } from '../../themes/ThemeContext';
 import { InlineToast } from '../InlineToast/InlineToast';
@@ -11,6 +11,9 @@ import { Tooltip } from '../Tooltip/Tooltip';
 
 import { ColorIndicatorPosition, VizTooltipColorIndicator } from './VizTooltipColorIndicator';
 import { ColorPlacement, type VizTooltipItem } from './types';
+const clientLog = createClientLog('packages/grafana-ui/src/components/VizTooltip/VizTooltipRow');
+
+
 
 interface VizTooltipRowProps extends Omit<VizTooltipItem, 'value'> {
   value: string | number | null | ReactNode;
@@ -112,7 +115,7 @@ export const VizTooltipRow = ({
         setShowCopySuccess(true);
       }
     } catch (err) {
-      console.error('Unable to copy to clipboard', err);
+      clientLog.error('Unable to copy to clipboard', err);
     }
 
     textarea.remove();

@@ -1,5 +1,4 @@
-import {
-  type DataFrame,
+import {type DataFrame,
   type DataLink,
   type DataLinkPostProcessor,
   type DataSourceInstanceSettings,
@@ -11,8 +10,7 @@ import {
   rangeUtil,
   type ScopedVars,
   type SplitOpen,
-  type TimeRange,
-} from '@grafana/data';
+  type TimeRange, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   type TraceToProfilesOptions,
@@ -31,6 +29,9 @@ import { type ExploreFieldLinkModel, getFieldLinksForExplore, getVariableUsageIn
 
 import { type SpanLinkDef, type SpanLinkFunc, SpanLinkType } from './components/types/links';
 import { type Trace, type TraceSpan, type TraceSpanReference } from './components/types/trace';
+const clientLog = createClientLog('public/app/features/explore/TraceView/createSpanLink');
+
+
 
 /**
  * This is a factory for the link creator. It returns the function mainly so it can return undefined in which case
@@ -123,7 +124,7 @@ export function createSpanLinkFactory({
         spanLinks.push.apply(spanLinks, newSpanLinks);
       } catch (error) {
         // It's fairly easy to crash here for example if data source defines wrong interpolation in the data link
-        console.error(error);
+        clientLog.error(error);
         return spanLinks;
       }
     }

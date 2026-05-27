@@ -1,6 +1,6 @@
 import { defaults, each, sortBy } from 'lodash';
 
-import { type DataSourceRef, type VariableOption, VariableRefresh } from '@grafana/data';
+import {type DataSourceRef, type VariableOption, VariableRefresh, createClientLog} from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { getPanelPluginMeta } from '@grafana/runtime/internal';
 import config from 'app/core/config';
@@ -14,6 +14,9 @@ import { type DashboardJson } from '../../../manage-dashboards/types';
 import { isConstant } from '../../../variables/guard';
 import { type DashboardModel } from '../../state/DashboardModel';
 import { type GridPos } from '../../state/PanelModel';
+const clientLog = createClientLog('public/app/features/dashboard/components/DashExportModal/DashboardExporter');
+
+
 
 export interface InputUsage {
   libraryPanels?: LibraryPanel[];
@@ -318,7 +321,7 @@ export class DashboardExporter {
 
       return newObj;
     } catch (err) {
-      console.error('Export failed:', err);
+      clientLog.error('Export failed:', err);
       return {
         error: err,
       };

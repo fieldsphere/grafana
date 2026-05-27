@@ -2,8 +2,7 @@ import { debounce } from 'lodash';
 import { PureComponent } from 'react';
 import { Subscription } from 'rxjs';
 
-import {
-  type AbsoluteTimeRange,
+import {type AbsoluteTimeRange,
   AnnotationChangeEvent,
   type AnnotationEventUIModel,
   CoreApp,
@@ -21,8 +20,7 @@ import {
   SetPanelAttentionEvent,
   type TimeRange,
   toDataFrameDTO,
-  toUtc,
-} from '@grafana/data';
+  toUtc, createClientLog} from '@grafana/data';
 import { RefreshEvent } from '@grafana/runtime';
 import { type VizLegendOptions } from '@grafana/schema';
 import {
@@ -56,6 +54,9 @@ import { PanelLoadTimeMonitor } from './PanelLoadTimeMonitor';
 import { seriesVisibilityConfigFactory } from './SeriesVisibilityConfigFactory';
 import { liveTimer } from './liveTimer';
 import { PanelOptionsLogger } from './panelOptionsLogger';
+const clientLog = createClientLog('public/app/features/dashboard/dashgrid/PanelStateWrapper');
+
+
 
 const DEFAULT_PLUGIN_ERROR = 'Error in plugin';
 
@@ -257,7 +258,7 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
       const delta = liveTime.to.valueOf() - data.timeRange.to.valueOf();
       if (delta < 100) {
         // 10hz
-        console.log('Skip tick render', this.props.panel.title, delta);
+        clientLog.info('Skip tick render', this.props.panel.title, delta);
         return;
       }
     }

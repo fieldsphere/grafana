@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 /* Spreading unbound arrays can be very slow or even crash the browser if used for arguments */
 /* eslint no-restricted-syntax: ["error", "SpreadElement"] */
 
@@ -9,6 +10,9 @@ import { t } from '@grafana/i18n';
 import { fuzzyFind, itemToString } from './filter';
 import { type ComboboxOption } from './types';
 import { StaleResultError, useLatestAsyncCall } from './useLatestAsyncCall';
+const clientLog = createClientLog('packages/grafana-ui/src/components/Combobox/useOptions');
+
+
 
 type AsyncOptions<T extends string | number> =
   | Array<ComboboxOption<T>>
@@ -51,7 +55,7 @@ export function useOptions<T extends string | number>(
               setAsyncLoading(false);
 
               if (error) {
-                console.error('Error loading async options for Combobox', error);
+                clientLog.error('Error loading async options for Combobox', error);
               }
             }
           });

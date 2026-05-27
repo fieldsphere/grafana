@@ -1,15 +1,13 @@
 import { type Unsubscribable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  AppEvents,
+import {AppEvents,
   isLiveChannelMessageEvent,
   isLiveChannelStatusEvent,
   type LiveChannelAddress,
   LiveChannelConnectionState,
   type LiveChannelEvent,
-  LiveChannelScope,
-} from '@grafana/data';
+  LiveChannelScope, createClientLog} from '@grafana/data';
 import { getGrafanaLiveSrv, locationService } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -19,6 +17,9 @@ import { getDashboardSrv } from '../../dashboard/services/DashboardSrv';
 
 import { DashboardChangedModal } from './DashboardChangedModal';
 import { type DashboardEvent, DashboardEventAction } from './types';
+const clientLog = createClientLog('public/app/features/live/dashboard/dashboardWatcher');
+
+
 
 // sessionId is not a security-sensitive value.
 // It is used for filtering out dashboard edit events from the same browsing session
@@ -127,7 +128,7 @@ class DashboardWatcher {
 
             const dash = getDashboardSrv().getCurrent();
             if (dash?.uid !== event.message.uid) {
-              console.log('dashboard event for different dashboard?', event, dash);
+              clientLog.info('dashboard event for different dashboard?', event, dash);
               return;
             }
 

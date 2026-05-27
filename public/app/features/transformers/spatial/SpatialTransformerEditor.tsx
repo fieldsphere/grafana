@@ -1,16 +1,14 @@
 import { css } from '@emotion/css';
 import { useEffect } from 'react';
 
-import {
-  DataTransformerID,
+import {DataTransformerID,
   type GrafanaTheme2,
   type PanelOptionsEditorBuilder,
   PluginState,
   type StandardEditorContext,
   type TransformerRegistryItem,
   type TransformerUIProps,
-  TransformerCategory,
-} from '@grafana/data';
+  TransformerCategory, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { FrameGeometrySourceMode } from '@grafana/schema';
 import { useTheme2 } from '@grafana/ui';
@@ -22,6 +20,9 @@ import lightImage from '../images/light/spatial.svg';
 import { SpatialCalculation, SpatialOperation, SpatialAction, type SpatialTransformOptions } from './models.gen';
 import { getDefaultOptions, getTransformerOptionPane } from './optionsHelper';
 import { isLineBuilderOption, getSpatialTransformer } from './spatialTransformer';
+const clientLog = createClientLog('public/app/features/transformers/spatial/SpatialTransformerEditor');
+
+
 
 // Nothing defined in state
 const supplier = (
@@ -137,7 +138,7 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     if (!props.options.source?.mode) {
       const opts = getDefaultOptions(supplier);
       props.onChange({ ...opts, ...props.options });
-      console.log('geometry useEffect', opts);
+      clientLog.info('geometry useEffect', opts);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

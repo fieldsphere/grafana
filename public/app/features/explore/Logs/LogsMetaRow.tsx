@@ -2,16 +2,14 @@ import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { memo } from 'react';
 
-import {
-  LogsDedupStrategy,
+import {LogsDedupStrategy,
   type LogsMetaItem,
   LogsMetaKind,
   type LogRowModel,
   CoreApp,
   type Labels,
   store,
-  shallowCompare,
-} from '@grafana/data';
+  shallowCompare, createClientLog} from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
 import { Button, Dropdown, Menu, ToolbarButton, useStyles2 } from '@grafana/ui';
@@ -22,6 +20,9 @@ import { MetaInfoText, type MetaItemProps } from '../MetaInfoText';
 
 import { type LogsVisualisationType } from './constants';
 import { SETTINGS_KEYS } from './utils/logs';
+const clientLog = createClientLog('public/app/features/explore/Logs/LogsMetaRow');
+
+
 
 const getStyles = () => ({
   metaContainer: css({
@@ -162,6 +163,6 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
   if (kind === LogsMetaKind.Error) {
     return <span className="logs-meta-item__error">{value.toString()}</span>;
   }
-  console.error(`Meta type ${typeof value} ${value} not recognized.`);
+  clientLog.error(`Meta type ${typeof value} ${value} not recognized.`);
   return <></>;
 }

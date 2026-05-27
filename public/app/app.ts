@@ -8,16 +8,14 @@ import 'jquery';
 import { createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import {
-  locationUtil,
+import {locationUtil,
   monacoLanguageRegistry,
   setLocale,
   setTimeZoneResolver,
   setWeekStart,
   standardEditorsRegistry,
   standardFieldConfigEditorRegistry,
-  standardTransformersRegistry,
-} from '@grafana/data';
+  standardTransformersRegistry, createClientLog} from '@grafana/data';
 import { DEFAULT_LANGUAGE } from '@grafana/i18n';
 import { initializeI18n, loadNamespacedResources } from '@grafana/i18n/internal';
 import {
@@ -121,6 +119,9 @@ import { createSwitchVariableAdapter } from './features/variables/switch/adapter
 import { createSystemVariableAdapter } from './features/variables/system/adapter';
 import { createTextBoxVariableAdapter } from './features/variables/textbox/adapter';
 import { configureStore } from './store/configureStore';
+const clientLog = createClientLog('public/app/app');
+
+
 
 // import symlinked extensions
 const extensionsIndex = require.context('.', true, /extensions\/index.ts/);
@@ -146,7 +147,7 @@ export class GrafanaApp {
         try {
           await initOpenFeature();
         } catch (err) {
-          console.error('Failed to initialize OpenFeature provider', err);
+          clientLog.error('Failed to initialize OpenFeature provider', err);
         }
       }
 
@@ -286,7 +287,7 @@ export class GrafanaApp {
       try {
         cleanupOldExpandedFolders();
       } catch (err) {
-        console.warn('Failed to clean up old expanded folders', err);
+        clientLog.warn('Failed to clean up old expanded folders', err);
       }
 
       this.context = {
@@ -316,7 +317,7 @@ export class GrafanaApp {
 
       await postInitTasks();
     } catch (error) {
-      console.error('Failed to start Grafana', error);
+      clientLog.error('Failed to start Grafana', error);
       window.__grafana_load_failed();
     } finally {
       stopMeasure('frontend_app_init');

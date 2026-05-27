@@ -1,3 +1,7 @@
+import { createClientLog } from '@grafana/data';
+const clientLog = createClientLog('public/app/index');
+
+
 // The new index.html fetches window.grafanaBootData asynchronously.
 // Since much of Grafana depends on it in includes side effects at import time,
 // we delay loading the rest of the app using import() until the boot data is ready.
@@ -32,7 +36,7 @@ bootstrapWindowData().catch((error) => {
   const isRedirect = error && error.redirect && typeof error.redirect === 'string';
   // If a redirect was thrown, just ignore this. The index.html will handle the redirect
   if (!isRedirect) {
-    console.error('Error bootstrapping Grafana', error);
+    clientLog.error('Error bootstrapping Grafana', error);
     window.__grafana_load_failed();
   }
 });

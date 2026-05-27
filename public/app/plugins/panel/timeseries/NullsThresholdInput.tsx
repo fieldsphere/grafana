@@ -1,8 +1,11 @@
 import * as React from 'react';
 
-import { rangeUtil } from '@grafana/data';
+import {rangeUtil, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Input } from '@grafana/ui';
+const clientLog = createClientLog('public/app/plugins/panel/timeseries/NullsThresholdInput');
+
+
 
 export enum InputPrefix {
   LessThan = 'lessthan',
@@ -31,7 +34,7 @@ export const NullsThresholdInput = ({ value, onChange, inputPrefix, isTime }: Pr
           val = Number(txt);
         }
       } catch (err) {
-        console.warn('ERROR', err);
+        clientLog.warn('ERROR', err);
       }
     }
     onChange(val);

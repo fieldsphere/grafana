@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { type OrgRole } from '@grafana/data';
+import {type OrgRole, createClientLog} from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
@@ -30,6 +30,9 @@ import { AccessControlAction, type Role } from 'app/types/accessControl';
 import { type OrgUser } from 'app/types/user';
 
 import { OrgRolePicker } from '../OrgRolePicker';
+const clientLog = createClientLog('public/app/features/admin/Users/OrgUsersTable');
+
+
 
 type Cell<T extends keyof OrgUser = keyof OrgUser> = CellProps<OrgUser, OrgUser[T]>;
 
@@ -79,7 +82,7 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        clientLog.error('Error loading options');
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

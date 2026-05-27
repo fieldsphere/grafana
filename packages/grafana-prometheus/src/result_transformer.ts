@@ -1,8 +1,7 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/result_transformer.ts
 import { flatten, forOwn, groupBy, partition } from 'lodash';
 
-import {
-  CoreApp,
+import {CoreApp,
   type DataFrame,
   DataFrameType,
   type DataLink,
@@ -17,11 +16,13 @@ import {
   type Labels,
   sortDataFrame,
   TIME_SERIES_TIME_FIELD_NAME,
-  TIME_SERIES_VALUE_FIELD_NAME,
-} from '@grafana/data';
+  TIME_SERIES_VALUE_FIELD_NAME, createClientLog} from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import { type ExemplarTraceIdDestination, type PromMetric, type PromQuery, type PromValue } from './types';
+const clientLog = createClientLog('packages/grafana-prometheus/src/result_transformer');
+
+
 
 // handles case-insensitive Inf, +Inf, -Inf (with optional "inity" suffix)
 const INFINITY_SAMPLE_REGEX = /^[+-]?inf(?:inity)?$/i;
@@ -437,7 +438,7 @@ export function sortSeriesByLabel(s1: DataFrame, s2: DataFrame): number {
     le2 = parseSampleValue(s2.fields[1].state?.displayName ?? s2.name ?? s2.fields[1].name);
   } catch (err) {
     // fail if not integer. might happen with bad queries
-    console.error(err);
+    clientLog.error(err);
     return 0;
   }
 

@@ -1,6 +1,9 @@
 import { Cron } from 'croner';
 
-import { type AbsoluteTimeRange, type TimeRange, durationToMilliseconds, parseDuration } from '@grafana/data';
+import {type AbsoluteTimeRange, type TimeRange, durationToMilliseconds, parseDuration, createClientLog} from '@grafana/data';
+const clientLog = createClientLog('public/app/core/utils/timeRegions');
+
+
 
 export type TimeRegionMode = null | 'cron';
 export interface TimeRegionConfig {
@@ -160,7 +163,7 @@ export function calculateTimesWithin(cfg: TimeRegionConfig, tRange: TimeRange): 
     }
   } catch (e) {
     // invalid expression
-    console.error(e);
+    clientLog.error(e);
   }
 
   return ranges;

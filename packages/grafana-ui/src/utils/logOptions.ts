@@ -1,3 +1,7 @@
+import { createClientLog } from '@grafana/data';
+const clientLog = createClientLog('packages/grafana-ui/src/utils/logOptions');
+
+
 /**
  * This function logs a warning if the amount of items exceeds the recommended amount.
  *
@@ -13,7 +17,7 @@ export function logOptions(
 ): void {
   if (amount > recommendedAmount) {
     const msg = `[Combobox] Items exceed the recommended amount ${recommendedAmount}.`;
-    console.warn(msg, {
+    clientLog.warn(msg, {
       itemsCount: '' + amount,
       recommendedAmount: '' + recommendedAmount,
       'aria-labelledby': ariaLabelledBy ?? '',

@@ -1,10 +1,13 @@
-import { type HistoryItem, type TimeRange } from '@grafana/data';
+import {type HistoryItem, type TimeRange, createClientLog} from '@grafana/data';
 
 import { DEFAULT_COMPLETION_LIMIT, METRIC_LABEL } from '../../../constants';
 import { type PrometheusLanguageProviderInterface } from '../../../language_provider';
 import { removeQuotesIfExist } from '../../../language_utils';
 import { type PromQuery } from '../../../types';
 import { escapeForUtf8Support, isValidLegacyName } from '../../../utf8_support';
+const clientLog = createClientLog('packages/grafana-prometheus/src/components/monaco-query-field/monaco-completion-provider/data_provider');
+
+
 
 export const CODE_MODE_SUGGESTIONS_INCOMPLETE_EVENT = 'codeModeSuggestionsIncomplete';
 
@@ -80,7 +83,7 @@ export class DataProvider {
 
       return Array.isArray(result) ? result : [];
     } catch (error) {
-      console.warn('Failed to query metric names:', error);
+      clientLog.warn('Failed to query metric names:', error);
       return [];
     }
   };

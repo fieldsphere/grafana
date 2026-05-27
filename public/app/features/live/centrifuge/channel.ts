@@ -9,16 +9,17 @@ import {
 } from 'centrifuge';
 import { Subject, of, Observable } from 'rxjs';
 
-import {
-  type LiveChannelStatusEvent,
+import {type LiveChannelStatusEvent,
   type LiveChannelEvent,
   LiveChannelEventType,
   LiveChannelConnectionState,
   type LiveChannelPresenceStatus,
   type LiveChannelAddress,
   type DataFrameJSON,
-  isValidLiveChannelAddress,
-} from '@grafana/data';
+  isValidLiveChannelAddress, createClientLog} from '@grafana/data';
+const clientLog = createClientLog('public/app/features/live/centrifuge/channel');
+
+
 
 /**
  * Internal class that maps Centrifuge support to GrafanaLive
@@ -81,7 +82,7 @@ export class CentrifugeLiveChannel<T = any> {
           this.sendStatus();
         }
       } catch (err) {
-        console.log('publish error', this.addr, err);
+        clientLog.info('publish error', this.addr, err);
         this.currentStatus.error = err;
         this.currentStatus.timestamp = Date.now();
         this.sendStatus();

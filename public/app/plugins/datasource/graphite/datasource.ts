@@ -4,8 +4,7 @@ import { lastValueFrom, merge, Observable, of, type OperatorFunction, pipe, thro
 import { catchError, map } from 'rxjs/operators';
 import { coerce, gte, SemVer, valid } from 'semver';
 
-import {
-  type AbstractLabelMatcher,
+import {type AbstractLabelMatcher,
   AbstractLabelOperator,
   type AbstractQuery,
   type DataFrame,
@@ -20,8 +19,7 @@ import {
   type QueryResultMetaStat,
   type ScopedVars,
   type TimeRange,
-  toDataFrame,
-} from '@grafana/data';
+  toDataFrame, createClientLog} from '@grafana/data';
 import {
   type BackendSrvRequest,
   config,
@@ -54,6 +52,9 @@ import {
 } from './types';
 import { reduceError } from './utils';
 import { DEFAULT_GRAPHITE_VERSION } from './versions';
+const clientLog = createClientLog('public/app/plugins/datasource/graphite/datasource');
+
+
 
 const GRAPHITE_TAG_COMPARATORS = {
   '=': AbstractLabelOperator.Equal,
@@ -555,7 +556,7 @@ export class GraphiteDatasource
       return this.events({ range: range, tags: tags }).then((results) => {
         const list = [];
         if (!isArray(results.data)) {
-          console.error(`Unable to get annotations.`);
+          clientLog.error(`Unable to get annotations.`);
           return [];
         }
         for (let i = 0; i < results.data.length; i++) {
@@ -1047,7 +1048,7 @@ export class GraphiteDatasource
         this.funcDefs = gfunc.parseFuncDefs(functions);
         return this.funcDefs;
       } catch (error) {
-        console.error('Fetching graphite functions error', error);
+        clientLog.error('Fetching graphite functions error', error);
         this.funcDefs = gfunc.getFuncDefs(this.graphiteVersion);
         return this.funcDefs;
       }
@@ -1066,7 +1067,7 @@ export class GraphiteDatasource
           return this.funcDefs;
         }),
         catchError((error) => {
-          console.error('Fetching graphite functions error', error);
+          clientLog.error('Fetching graphite functions error', error);
           this.funcDefs = gfunc.getFuncDefs(this.graphiteVersion);
           return of(this.funcDefs);
         })

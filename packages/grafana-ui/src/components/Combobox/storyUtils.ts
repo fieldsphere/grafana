@@ -1,4 +1,8 @@
+import { createClientLog } from '@grafana/data';
 import { type ComboboxOption } from './types';
+const clientLog = createClientLog('packages/grafana-ui/src/components/Combobox/storyUtils');
+
+
 
 let fakeApiOptions: Array<ComboboxOption<string>>;
 export async function fakeSearchAPI(urlString: string): Promise<Array<ComboboxOption<string>>> {
@@ -13,7 +17,7 @@ export async function fakeSearchAPI(urlString: string): Promise<Array<ComboboxOp
 
   if (!fakeApiOptions) {
     fakeApiOptions = await generateOptions(1000);
-    console.log('fakeApiOptions', fakeApiOptions);
+    clientLog.info('fakeApiOptions', fakeApiOptions);
   }
 
   if (!searchQuery || searchQuery.length === 0) {

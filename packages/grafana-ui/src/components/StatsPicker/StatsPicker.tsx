@@ -1,7 +1,7 @@
 import { difference } from 'lodash';
 import { memo, useEffect } from 'react';
 
-import { fieldReducers, type FieldReducerInfo } from '@grafana/data';
+import {fieldReducers, type FieldReducerInfo, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 
 import { Combobox, type ComboboxProps } from '../Combobox/Combobox';
@@ -10,6 +10,9 @@ import { type ComboboxOption } from '../Combobox/types';
 import { selectableValueToComboboxOption } from '../Combobox/utils';
 
 import { pickComboboxLayout } from './pickComboboxLayout';
+const clientLog = createClientLog('packages/grafana-ui/src/components/StatsPicker/StatsPicker');
+
+
 
 /** Props managed by StatsPicker — forwarded combobox props must not replace these. */
 type ComboboxManagedProps = 'value' | 'options' | 'onChange' | 'isClearable' | 'width' | 'minWidth' | 'maxWidth';
@@ -53,13 +56,13 @@ export const StatsPicker = memo<StatsPickerProps>(
       if (current.length !== stats.length) {
         const found = current.map((v) => v.id);
         const notFound = difference(stats, found);
-        console.warn('Unknown stats', notFound, stats);
+        clientLog.warn('Unknown stats', notFound, stats);
         onChange(current.map((stat) => stat.id));
       }
 
       // Make sure there is only one
       if (!allowMultiple && stats.length > 1) {
-        console.warn('Removing extra stat', stats);
+        clientLog.warn('Removing extra stat', stats);
         onChange([stats[0]]);
       }
 

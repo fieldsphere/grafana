@@ -9,14 +9,12 @@ import {
 } from 'centrifuge';
 import { BehaviorSubject, type Observable, share, startWith } from 'rxjs';
 
-import {
-  type DataQueryError,
+import {type DataQueryError,
   type DataQueryResponse,
   type LiveChannelAddress,
   LiveChannelConnectionState,
   type LiveChannelId,
-  toLiveChannelId,
-} from '@grafana/data';
+  toLiveChannelId, createClientLog} from '@grafana/data';
 import {
   type FetchResponse,
   type GrafanaLiveSrv,
@@ -33,6 +31,9 @@ import { type StreamingResponseData } from '../data/utils';
 
 import { LiveDataStream } from './LiveDataStream';
 import { CentrifugeLiveChannel } from './channel';
+const clientLog = createClientLog('public/app/features/live/centrifuge/service');
+
+
 
 export type CentrifugeSrvDeps = {
   grafanaAuthToken: string | null;
@@ -126,7 +127,7 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.log('Publication from server-side channel', context);
+    clientLog.info('Publication from server-side channel', context);
   };
 
   private onError = (context: ErrorContext) => {

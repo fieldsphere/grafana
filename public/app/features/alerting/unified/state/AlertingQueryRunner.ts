@@ -3,8 +3,7 @@ import { type Observable, type OperatorFunction, ReplaySubject, type Unsubscriba
 import { catchError, map, share } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 
-import {
-  type DataFrameJSON,
+import {type DataFrameJSON,
   LoadingState,
   type PanelData,
   type TimeRange,
@@ -12,8 +11,7 @@ import {
   getDefaultTimeRange,
   preProcessPanelData,
   rangeUtil,
-  withLoadingIndicator,
-} from '@grafana/data';
+  withLoadingIndicator, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { DataSourceWithBackend, type FetchResponse, getDataSourceSrv, toDataQueryError } from '@grafana/runtime';
 import { type BackendSrv, getBackendSrv } from 'app/core/services/backend_srv';
@@ -24,6 +22,9 @@ import { type AlertQuery } from 'app/types/unified-alerting-dto';
 
 import { type LinkError, createDAGFromQueriesSafe, getDescendants } from '../components/rule-editor/dag';
 import { getTimeRangeForExpression } from '../utils/timeRange';
+const clientLog = createClientLog('public/app/features/alerting/unified/state/AlertingQueryRunner');
+
+
 
 export interface AlertingQueryResult {
   error?: string;
@@ -210,7 +211,7 @@ const getTimeRange = (query: AlertQuery, queries: AlertQuery[]): TimeRange => {
   }
 
   if (!query.relativeTimeRange) {
-    console.warn(`Query with refId: ${query.refId} did not have any relative time range, using default.`);
+    clientLog.warn(`Query with refId: ${query.refId} did not have any relative time range, using default.`);
     return getDefaultTimeRange();
   }
 

@@ -1,4 +1,4 @@
-import { type MetricFindValue, type TypedVariableModel, type AnnotationQuery } from '@grafana/data';
+import {type MetricFindValue, type TypedVariableModel, type AnnotationQuery, createClientLog} from '@grafana/data';
 import { config } from '@grafana/runtime';
 import {
   type DataQuery,
@@ -85,6 +85,9 @@ import { type DashboardDataDTO, type DashboardDTO } from 'app/types/dashboard';
 
 import { type DashboardWithAccessInfo } from './types';
 import { isDashboardResource, isDashboardV0Spec, isDashboardV2Resource, isDashboardV2Spec } from './utils';
+const clientLog = createClientLog('public/app/features/dashboard/api/ResponseTransformers');
+
+
 
 export function ensureV2Response(
   dto: DashboardDTO | DashboardWithAccessInfo<DashboardDataDTO> | DashboardWithAccessInfo<DashboardV2Spec>
@@ -712,7 +715,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         let query = v.query || {};
 
         if (typeof query === 'string') {
-          console.warn(
+          clientLog.warn(
             'Query variable query is a string which is deprecated in the schema v2. It should extend DataQuery'
           );
           query = {
@@ -925,7 +928,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v.type}`);
+        clientLog.error(`Variable transformation not implemented: ${v.type}`);
     }
   }
   return variables;
@@ -1138,7 +1141,7 @@ function getVariablesV1(vars: DashboardV2Spec['variables']): VariableModel[] {
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v}`);
+        clientLog.error(`Variable transformation not implemented: ${v}`);
     }
   }
   return variables;
@@ -1391,7 +1394,7 @@ function transformSpecialValueMatchToV1(match: SpecialValueMatch): SpecialValueM
     case 'empty':
       return SpecialValueMatchV1.Empty;
     default:
-      console.warn(`Skipping special value mapping with unknown match type: "${match}"`);
+      clientLog.warn(`Skipping special value mapping with unknown match type: "${match}"`);
       return undefined;
   }
 }

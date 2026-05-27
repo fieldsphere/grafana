@@ -2,8 +2,7 @@ import { css } from '@emotion/css';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import {
-  type AbsoluteTimeRange,
+import {type AbsoluteTimeRange,
   type DataFrame,
   type ExploreLogsPanelState,
   type GrafanaTheme2,
@@ -13,8 +12,7 @@ import {
   type SelectableValue,
   type SplitOpen,
   store,
-  type TimeRange,
-} from '@grafana/data';
+  type TimeRange, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { getDragStyles, InlineField, Select, useStyles2 } from '@grafana/ui';
@@ -27,6 +25,9 @@ import { parseLogsFrame } from 'app/features/logs/logsFrame';
 
 import { LogsTable } from './LogsTable';
 import { SETTING_KEY_ROOT } from './utils/logs';
+const clientLog = createClientLog('public/app/features/explore/Logs/LogsTableWrap');
+
+
 
 interface Props {
   logsFrames: DataFrame[];
@@ -385,7 +386,7 @@ export function LogsTableWrap(props: Props) {
   // Toggle a column on or off when the user interacts with an element in the multi-select sidebar
   const toggleColumn = (columnName: FieldName) => {
     if (!columnsWithMeta || !(columnName in columnsWithMeta)) {
-      console.warn('failed to get column', columnsWithMeta);
+      clientLog.warn('failed to get column', columnsWithMeta);
       return;
     }
 

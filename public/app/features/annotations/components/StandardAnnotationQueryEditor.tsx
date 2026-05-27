@@ -1,14 +1,12 @@
 import { PureComponent, type ReactElement } from 'react';
 import { lastValueFrom } from 'rxjs';
 
-import {
-  type AnnotationEventMappings,
+import {type AnnotationEventMappings,
   type AnnotationQuery,
   type DataSourceApi,
   type DataSourceInstanceSettings,
   DataSourcePluginContextProvider,
-  LoadingState,
-} from '@grafana/data';
+  LoadingState, createClientLog} from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { type DataQuery } from '@grafana/schema';
@@ -24,6 +22,9 @@ import { updateAnnotationFromSavedQuery } from '../utils/savedQueryUtils';
 
 import { AnnotationQueryEditorActionsWrapper } from './AnnotationQueryEditorActionsWrapper';
 import { AnnotationFieldMapper } from './AnnotationResultMapper';
+const clientLog = createClientLog('public/app/features/annotations/components/StandardAnnotationQueryEditor');
+
+
 
 export interface Props {
   datasource: DataSourceApi;
@@ -261,7 +262,7 @@ export default class StandardAnnotationQueryEditor extends PureComponent<Props, 
       this.setState({ skipNextVerification: true });
       onChange(preparedAnnotation);
     } catch (error) {
-      console.error('Failed to replace annotation query:', error);
+      clientLog.error('Failed to replace annotation query:', error);
       // On error, reset the replacing state but don't change the annotation
     }
   };

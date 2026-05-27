@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { TextDimensionMode } from '@grafana/schema';
 
@@ -12,6 +13,9 @@ import {
   type SymbolAlign,
   type ColorValue,
 } from './types';
+const clientLog = createClientLog('public/app/plugins/panel/geomap/style/utils');
+
+
 
 /** Indicate if the style wants to show text values */
 export function styleUsesText(config: StyleConfig): boolean {
@@ -106,7 +110,7 @@ export function getRGBValues(colorString: string): ColorValue | null {
 
   // Handle other color formats if needed
   else {
-    console.warn(`Unsupported color format: ${colorString}`);
+    clientLog.warn(`Unsupported color format: ${colorString}`);
   }
   return null;
 }
@@ -142,10 +146,10 @@ function getRGBFromRGBString(rgbString: string): ColorValue | null {
         a: parseFloat(matches[3]), // Using parseFloat for alpha as it can be decimal (0-1)
       };
     } else {
-      console.warn(`Unsupported color format: ${rgbString}`);
+      clientLog.warn(`Unsupported color format: ${rgbString}`);
     }
   } else {
-    console.warn(`Unsupported color format: ${rgbString}`);
+    clientLog.warn(`Unsupported color format: ${rgbString}`);
   }
   return null;
 }

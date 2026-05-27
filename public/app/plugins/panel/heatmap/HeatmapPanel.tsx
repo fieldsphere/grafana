@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { useMemo, useRef, useState } from 'react';
 
-import { DashboardCursorSync, type PanelProps, type TimeRange } from '@grafana/data';
+import {DashboardCursorSync, type PanelProps, type TimeRange, createClientLog} from '@grafana/data';
 import { PanelDataErrorView } from '@grafana/runtime';
 import { type ScaleDistributionConfig } from '@grafana/schema';
 import {
@@ -29,6 +29,9 @@ import { type HeatmapData, prepareHeatmapData } from './fields';
 import { quantizeScheme } from './palettes';
 import { type Options } from './panelcfg.gen';
 import { calculateYSizeDivisor, prepConfig } from './utils';
+const clientLog = createClientLog('public/app/plugins/panel/heatmap/HeatmapPanel');
+
+
 
 interface HeatmapPanelProps extends PanelProps<Options> {}
 
@@ -54,7 +57,7 @@ export const HeatmapPanel = (props: HeatmapPanelProps) => {
         timeRange,
       });
     } catch (ex) {
-      console.error(ex);
+      clientLog.error(ex);
       return { warning: `${ex}` };
     }
   }, [data.series, data.annotations, options, palette, theme, replaceVariables, timeRange]);

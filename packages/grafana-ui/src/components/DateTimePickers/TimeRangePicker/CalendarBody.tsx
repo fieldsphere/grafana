@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { useCallback } from 'react';
 import Calendar, { type CalendarType } from 'react-calendar';
 
-import { type GrafanaTheme2, dateTimeParse, type DateTime, type TimeZone } from '@grafana/data';
+import {type GrafanaTheme2, dateTimeParse, type DateTime, type TimeZone, createClientLog} from '@grafana/data';
 import { t } from '@grafana/i18n';
 
 import { useStyles2 } from '../../../themes/ThemeContext';
@@ -11,6 +11,9 @@ import { getWeekStart, type WeekStart } from '../WeekStartPicker';
 import { adjustDateForReactCalendar } from '../utils/adjustDateForReactCalendar';
 
 import { type TimePickerCalendarProps } from './TimePickerCalendar';
+const clientLog = createClientLog('packages/grafana-ui/src/components/DateTimePickers/TimeRangePicker/CalendarBody');
+
+
 
 const weekStartMap: Record<WeekStart, CalendarType> = {
   saturday: 'islamic',
@@ -70,7 +73,7 @@ function useOnCalendarChange(onChange: (from: DateTime, to: DateTime) => void, t
   return useCallback<NonNullable<React.ComponentProps<typeof Calendar>['onChange']>>(
     (value) => {
       if (!Array.isArray(value)) {
-        return console.error('onCalendarChange: should be run in selectRange={true}');
+        return clientLog.error('onCalendarChange: should be run in selectRange={true}');
       }
 
       if (value[0] && value[1]) {

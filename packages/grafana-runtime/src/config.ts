@@ -1,7 +1,6 @@
 import { merge } from 'lodash';
 
-import {
-  type AppPluginConfig as AppPluginConfigGrafanaData,
+import {type AppPluginConfig as AppPluginConfigGrafanaData,
   type AuthSettings,
   type AzureSettings as AzureSettingsGrafanaData,
   type BootData,
@@ -25,8 +24,10 @@ import {
   type TimeOption,
   type UnifiedAlertingConfig,
   type GrafanaConfig,
-  type CurrentUserDTO,
-} from '@grafana/data';
+  type CurrentUserDTO, createClientLog} from '@grafana/data';
+const clientLog = createClientLog('packages/grafana-runtime/src/config');
+
+
 
 /**
  * @deprecated Use the type from `@grafana/data`
@@ -313,7 +314,7 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
       const toggleState = featureValue === 'true' || featureValue === '1';
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       featureToggles[featureName as keyof FeatureToggles] = toggleState;
-      console.log(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
+      clientLog.info(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
     }
   }
 }
@@ -339,9 +340,9 @@ function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
       if (toggleState !== featureToggles[key]) {
         if (isDevelopment || safeRuntimeFeatureFlags.has(featureName)) {
           featureToggles[featureName] = toggleState;
-          console.log(`Setting feature toggle ${featureName} = ${toggleState} via url`);
+          clientLog.info(`Setting feature toggle ${featureName} = ${toggleState} via url`);
         } else {
-          console.log(`Unable to change feature toggle ${featureName} via url in production.`);
+          clientLog.info(`Unable to change feature toggle ${featureName} via url in production.`);
         }
       }
     }
@@ -352,7 +353,7 @@ let bootData = window.grafanaBootData;
 
 if (!bootData) {
   if (process.env.NODE_ENV !== 'test') {
-    console.error('window.grafanaBootData was not set by the time config was initialized');
+    clientLog.error('window.grafanaBootData was not set by the time config was initialized');
   }
 
   bootData = {

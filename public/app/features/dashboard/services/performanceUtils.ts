@@ -1,5 +1,8 @@
-import { store } from '@grafana/data';
+import {store, createClientLog} from '@grafana/data';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
+const clientLog = createClientLog('public/app/features/dashboard/services/performanceUtils');
+
+
 
 /**
  * Utility function to register a performance observer with the global tracker
@@ -86,10 +89,10 @@ export function writePerformanceGroupLog(logger: string, message: string, data?:
   if (isPerformanceLoggingEnabled()) {
     if (data) {
       // eslint-disable-next-line no-console
-      console.log(message, data);
+      clientLog.info(message, data);
     } else {
       // eslint-disable-next-line no-console
-      console.log(message);
+      clientLog.info(message);
     }
   }
 }
@@ -117,7 +120,7 @@ export function createPerformanceMark(name: string, timestamp?: number): void {
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
+    clientLog.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
   }
 }
 
@@ -134,6 +137,6 @@ export function createPerformanceMeasure(name: string, startMark: string, endMar
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
+    clientLog.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
   }
 }

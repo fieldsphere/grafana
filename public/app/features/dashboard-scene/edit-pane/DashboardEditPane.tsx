@@ -1,3 +1,4 @@
+import { createClientLog } from '@grafana/data';
 import { type SceneObject, SceneObjectBase, type SceneObjectState, sceneGraph } from '@grafana/scenes';
 import {
   type ElementSelectionContextItem,
@@ -22,6 +23,9 @@ import {
   RepeatsUpdatedEvent,
 } from './shared';
 import { type EditPaneSelectionActions } from './types';
+const clientLog = createClientLog('public/app/features/dashboard-scene/edit-pane/DashboardEditPane');
+
+
 
 export interface DashboardEditPaneState extends SceneObjectState {
   selectionContext: ElementSelectionContextState;
@@ -237,7 +241,7 @@ export class DashboardEditPane extends SceneObjectBase<DashboardEditPaneState> i
   private selectElement(element: ElementSelectionContextItem, options: ElementSelectionOnSelectOptions) {
     let obj = sceneGraph.findByKey(this, element.id);
     if (!obj) {
-      console.warn('Cannot find element by key="%s"!', element.id);
+      clientLog.warn('Cannot find element by key="%s"!', element.id);
       return;
     }
 
@@ -245,7 +249,7 @@ export class DashboardEditPane extends SceneObjectBase<DashboardEditPaneState> i
     if (sourceKey) {
       obj = sceneGraph.findByKey(this, sourceKey);
       if (!obj) {
-        console.warn('Cannot find element by source key="%s"!', sourceKey);
+        clientLog.warn('Cannot find element by source key="%s"!', sourceKey);
         return;
       }
     }
