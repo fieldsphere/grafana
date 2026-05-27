@@ -16581,7 +16581,25 @@
   "welcome": {
     "welcome-banner": {
       "need-help": "Need help?",
-      "welcome-to-grafana": "Welcome to Grafana"
+      "welcome-to-grafana": "Welcome to Grafana",
+      "kicker": "Observability at any scale",
+      "headline": "Full-stack observability built for teams who move fast",
+      "subhead": "See your metrics, logs, traces, and dashboards in one place—so you can ship with confidence.",
+      "bullet-1": "Connect data sources in minutes",
+      "bullet-2": "Minimal maintenance, maximum clarity",
+      "bullet-3": "Broad coverage across your stack",
+      "cta-connect": "Connect your data",
+      "cta-explore": "Open Explore",
+      "cta-docs": "Read the docs",
+      "section-value-title": "Why teams choose Grafana",
+      "card-ship-title": "Ship faster",
+      "card-ship-body": "Catch regressions in CI and understand production impact after every deploy.",
+      "card-ux-title": "Improve user experience",
+      "card-ux-body": "Trace requests end-to-end and spot bottlenecks before users do.",
+      "card-cost-title": "Reduce tool sprawl",
+      "card-cost-body": "Metrics, logs, and traces in one place—less context switching for your team.",
+      "card-alerts-title": "Alert on what matters",
+      "card-alerts-body": "Route signals into actionable notifications instead of noisy pages."
     }
   },
   "xychart": {
