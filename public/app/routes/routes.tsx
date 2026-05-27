@@ -35,11 +35,9 @@ export function getAppRoutes(): RouteDescriptor[] {
     ...getAppPluginRoutes(),
     {
       path: '/',
-      pageClass: 'page-dashboard',
+      pageClass: 'page-home',
       routeName: DashboardRoutes.Home,
-      component: SafeDynamicImport(
-        () => import(/* webpackChunkName: "DashboardPageProxy" */ '../features/dashboard/containers/DashboardPageProxy')
-      ),
+      component: SafeDynamicImport(() => import(/* webpackChunkName: "HomePage" */ '../features/home/HomePage')),
     },
     {
       path: '/d/:uid/:slug?',
