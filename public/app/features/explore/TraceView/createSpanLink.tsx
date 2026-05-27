@@ -12,6 +12,8 @@ import {
   type ScopedVars,
   type SplitOpen,
   type TimeRange,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
@@ -123,7 +125,7 @@ export function createSpanLinkFactory({
         spanLinks.push.apply(spanLinks, newSpanLinks);
       } catch (error) {
         // It's fairly easy to crash here for example if data source defines wrong interpolation in the data link
-        console.error(error);
+        structuredLog('error', 'Error', { error: toLogContextPart(error) });
         return spanLinks;
       }
     }

@@ -1,5 +1,6 @@
 import { Registry, type RegistryItem } from '../utils/Registry';
 
+import { structuredLog, toLogContextPart } from '../utils/structuredConsole';
 import { createTheme, NewThemeOptionsSchema } from './createTheme';
 import aubergine from './themeDefinitions/aubergine.json';
 import debug from './themeDefinitions/debug.json';
@@ -87,7 +88,10 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
 for (const [name, json] of Object.entries(extraThemes)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    structuredLog('error', `Invalid theme definition for theme ${name}`, {
+      errorMessage: result.error.message,
+      details: toLogContextPart(result.error),
+    });
   } else {
     const theme = result.data;
     themeRegistry.register({

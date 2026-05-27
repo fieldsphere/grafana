@@ -1,7 +1,10 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import { useEffect, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, type TimeRange } from '@grafana/data';
+import { type GrafanaTheme2, type TimeRange,
+  structuredLog
+} from '@grafana/data';
 import { TemporaryAlert } from '@grafana/o11y-ds-frontend';
 import { reportInteraction } from '@grafana/runtime';
 import { CodeEditor, type Monaco, type monacoTypes, useTheme2 } from '@grafana/ui';
@@ -94,7 +97,7 @@ export function TraceQLEditor(props: Props) {
               const errorNodes = getErrorNodes(model.getValue());
               setMarkers(monaco, model, errorNodes);
             } catch (err) {
-              console.warn('TraceQL editor: failed to update syntax error markers', err);
+              structuredLog('warn', 'TraceQL editor: failed to update syntax error markers', { details: err });
             }
           }
 
@@ -127,11 +130,11 @@ export function TraceQLEditor(props: Props) {
                 try {
                   setMarkers(monaco, model, errorNodes);
                 } catch (err) {
-                  console.warn('TraceQL editor: failed to update syntax error markers', err);
+                  structuredLog('warn', 'TraceQL editor: failed to update syntax error markers', { details: err });
                 }
               }, 500);
             } catch (err) {
-              console.warn('TraceQL editor: failed to parse query for error highlighting', err);
+              structuredLog('warn', 'TraceQL editor: failed to parse query for error highlighting', { details: err });
             }
           });
         }}

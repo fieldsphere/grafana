@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
 
@@ -79,7 +80,7 @@ export const TeamRolePicker = ({
           },
         }).unwrap();
       } catch (error) {
-        console.error('Error updating team roles', error);
+        structuredLog('error', 'Error updating team roles', { error: toLogContextPart(error) });
       }
     } else if (onApplyRoles) {
       onApplyRoles(newRoles);

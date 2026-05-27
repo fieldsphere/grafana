@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { type Observable, Subject } from 'rxjs';
 
 import { type BackendSrvRequest } from '@grafana/runtime';
@@ -90,8 +91,8 @@ export class FetchQueue {
       []
     );
 
-    console.log('FetchQueue noOfStarted', update.noOfInProgress);
-    console.log('FetchQueue noOfNotStarted', update.noOfPending);
-    console.log('FetchQueue state', entriesWithoutOptions);
+    structuredLog('info', 'FetchQueue noOfStarted', { details: update.noOfInProgress });
+    structuredLog('info', 'FetchQueue noOfNotStarted', { details: update.noOfPending });
+    structuredLog('info', 'FetchQueue state', { details: entriesWithoutOptions });
   };
 }

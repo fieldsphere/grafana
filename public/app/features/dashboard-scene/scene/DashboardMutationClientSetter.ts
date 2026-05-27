@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 /**
  * Bridge between DashboardScene and the mutation-api module.
  *
@@ -19,9 +20,7 @@ export function provideMutationClientFactory(create: CreateMutationClient): void
 
 export function createMutationClient(scene: unknown): () => void {
   if (!_create) {
-    console.warn(
-      'createMutationClient called before provideMutationClientFactory. Mutation API will not be available.'
-    );
+    structuredLog('warn', 'createMutationClient called before provideMutationClientFactory. Mutation API will not be available.');
     return () => {};
   }
   const teardown = _create(scene);

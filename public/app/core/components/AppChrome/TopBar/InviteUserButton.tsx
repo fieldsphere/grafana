@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { skipToken } from '@reduxjs/toolkit/query';
 
 import { t } from '@grafana/i18n';
@@ -42,7 +43,7 @@ export function InviteUserButton() {
         performInviteUserClick('top_bar_right', 'invite-user-top-bar');
       }
     } catch (error) {
-      console.error('Failed to handle invite/upgrade user click:', error);
+      structuredLog('error', 'Failed to handle invite/upgrade user click:', { error: toLogContextPart(error) });
     }
   };
 

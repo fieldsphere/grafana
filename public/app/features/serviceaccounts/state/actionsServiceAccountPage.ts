@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { getBackendSrv, locationService } from '@grafana/runtime';
 import { accessControlQueryParam } from 'app/core/utils/accessControl';
 import { type ServiceAccountDTO } from 'app/types/serviceaccount';
@@ -21,7 +22,7 @@ export function loadServiceAccount(saUid: string): ThunkResult<void> {
       const response = await getBackendSrv().get(`${BASE_URL}/${saUid}`, accessControlQueryParam());
       dispatch(serviceAccountLoaded(response));
     } catch (error) {
-      console.error(error);
+      structuredLog('error', 'Error', { error: toLogContextPart(error) });
     } finally {
       dispatch(serviceAccountFetchEnd());
     }
@@ -69,7 +70,7 @@ export function loadServiceAccountTokens(saUid: string): ThunkResult<void> {
       const response = await getBackendSrv().get(`${BASE_URL}/${saUid}/tokens`);
       dispatch(serviceAccountTokensLoaded(response));
     } catch (error) {
-      console.error(error);
+      structuredLog('error', 'Error', { error: toLogContextPart(error) });
     }
   };
 }

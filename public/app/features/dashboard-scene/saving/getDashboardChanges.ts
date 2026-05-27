@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import type { AdHocVariableModel, TextBoxVariableModel, TypedVariableModel } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type Dashboard, type VariableOption } from '@grafana/schema';
@@ -136,12 +137,12 @@ export function getHasTimeChanged(
 
 export function adHocVariableFiltersEqual(filtersA?: AdHocFilterWithLabels[], filtersB?: AdHocFilterWithLabels[]) {
   if (filtersA === undefined && filtersB === undefined) {
-    console.warn('Adhoc variable filter property is undefined');
+    structuredLog('warn', 'Adhoc variable filter property is undefined');
     return true;
   }
 
   if ((filtersA === undefined && filtersB !== undefined) || (filtersB === undefined && filtersA !== undefined)) {
-    console.warn('Adhoc variable filter property is undefined');
+    structuredLog('warn', 'Adhoc variable filter property is undefined');
     return false;
   }
 

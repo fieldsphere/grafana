@@ -7,6 +7,7 @@ import {
   type PanelPluginVisualizationSuggestion,
   type PreferredVisualisationType,
   VisualizationSuggestionScore,
+  structuredLog
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
@@ -58,7 +59,7 @@ export async function loadPlugins(pluginIds: string[]): Promise<PluginLoadResult
       plugins.push(settled.value);
     } else {
       const pluginId = pluginIds[i];
-      console.error(`Failed to load ${pluginId} for visualization suggestions:`, settled.reason);
+      structuredLog('error', `Failed to load ${pluginId} for visualization suggestions:`, { details: settled.reason });
 
       if (await isBuiltInPlugin(pluginId)) {
         hasErrors = true;
@@ -163,7 +164,7 @@ export async function getAllSuggestions(series?: DataFrame[]): Promise<Suggestio
         list.push(...suggestions);
       }
     } catch (e) {
-      console.warn(`error when loading suggestions from plugin "${plugin.meta.id}"`, e);
+      structuredLog('warn', `error when loading suggestions from plugin "${plugin.meta.id}"`, { details: e });
       pluginSuggestionsError = true;
     }
   }

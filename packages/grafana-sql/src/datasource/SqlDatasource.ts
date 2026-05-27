@@ -1,4 +1,5 @@
-import { lastValueFrom, type Observable, throwError } from 'rxjs';
+import {
+  lastValueFrom, type Observable, throwError } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import {
@@ -16,6 +17,8 @@ import {
   type LegacyMetricFindQueryOptions,
   type VariableWithMultiSupport,
   type TimeRange,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { EditorMode } from '@grafana/plugin-ui';
 import {
@@ -215,7 +218,7 @@ export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLO
     try {
       response = await this.runMetaQuery(interpolatedQuery, range);
     } catch (error) {
-      console.error(error);
+      structuredLog('error', 'Error', { error: toLogContextPart(error) });
       throw new Error('error when executing the sql query');
     }
     return this.getResponseParser().transformMetricFindResponse(response);

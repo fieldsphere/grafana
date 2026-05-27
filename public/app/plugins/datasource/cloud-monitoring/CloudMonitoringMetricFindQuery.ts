@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { isString } from 'lodash';
 
 import { ALIGNMENT_PERIODS, SELECTORS } from './constants';
@@ -50,7 +51,7 @@ export default class CloudMonitoringMetricFindQuery {
           return [];
       }
     } catch (error) {
-      console.error(`Could not run CloudMonitoringMetricFindQuery ${query}`, error);
+      structuredLog('error', `Could not run CloudMonitoringMetricFindQuery ${query}`, { error: toLogContextPart(error) });
       return [];
     }
   }

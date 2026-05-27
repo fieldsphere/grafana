@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from './utils/structuredLog';
 import i18n, { type InitOptions, type ReactOptions, type TFunction as I18NextTFunction } from 'i18next';
 import LanguageDetector, { type DetectorOptions } from 'i18next-browser-languagedetector';
 import React from 'react';
@@ -44,7 +45,7 @@ export async function loadNamespacedResources(namespace: string, language: strin
         const resources = await loader(resolvedLanguage);
         addResourceBundle(resolvedLanguage, namespace, resources);
       } catch (error) {
-        console.error(`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, error);
+        structuredLog('error', `Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, { error: toLogContextPart(error) });
       }
     })
   );
@@ -202,9 +203,7 @@ export const t: TFunction = (id: string, defaultMessage: string, values?: Record
   initDefaultI18nInstance();
   if (!tFunc) {
     if (process.env.NODE_ENV !== 'test') {
-      console.warn(
-        't() was called before i18n was initialized. This is probably caused by calling t() in the root module scope, instead of lazily on render'
-      );
+      structuredLog('warn', 't() was called before i18n was initialized. This is probably caused by calling t() in the root module scope, instead of lazily on render');
     }
 
     if (process.env.NODE_ENV === 'development') {

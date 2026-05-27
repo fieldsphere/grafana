@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import { useEffect } from 'react';
 
 import {
@@ -10,6 +11,7 @@ import {
   type TransformerRegistryItem,
   type TransformerUIProps,
   TransformerCategory,
+  structuredLog
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { FrameGeometrySourceMode } from '@grafana/schema';
@@ -137,7 +139,7 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     if (!props.options.source?.mode) {
       const opts = getDefaultOptions(supplier);
       props.onChange({ ...opts, ...props.options });
-      console.log('geometry useEffect', opts);
+      structuredLog('info', 'geometry useEffect', { details: opts });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

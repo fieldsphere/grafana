@@ -1,5 +1,6 @@
 import { type Meta, type StoryFn } from '@storybook/react';
 
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { getAvailableIcons } from '../../types/icon';
 import { generateOptions } from '../Select/mockOptions';
 
@@ -43,7 +44,7 @@ const options = generateOptions();
 export const Simple: StoryFn<typeof ValuePicker> = (args) => {
   return (
     <div style={{ width: '200px' }}>
-      <ValuePicker {...args} options={options} onChange={(v) => console.log(v)} />
+      <ValuePicker {...args} options={options} onChange={(v) => structuredLog('info', 'ValuePicker story change', { value: toLogContextPart(v) })} />
     </div>
   );
 };

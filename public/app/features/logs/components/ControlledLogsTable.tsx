@@ -1,7 +1,10 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import { useMemo, useRef } from 'react';
 
-import { EventBusSrv, type GrafanaTheme2 } from '@grafana/data';
+import { EventBusSrv, type GrafanaTheme2,
+  structuredLog
+} from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
 import { LogsTableWrap } from '../../explore/Logs/LogsTableWrap';
@@ -38,7 +41,7 @@ export const ControlledLogsTable = ({
   const styles = useStyles2(getStyles);
 
   if (!splitOpen || !width || !updatePanelState) {
-    console.error('<ControlledLogsTable>: Missing required props.');
+    structuredLog('error', '<ControlledLogsTable>: Missing required props.');
     return;
   }
 

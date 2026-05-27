@@ -1,4 +1,5 @@
-import { PureComponent, type ReactElement } from 'react';
+import {
+  PureComponent, type ReactElement } from 'react';
 import { lastValueFrom } from 'rxjs';
 
 import {
@@ -8,6 +9,8 @@ import {
   type DataSourceInstanceSettings,
   DataSourcePluginContextProvider,
   LoadingState,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
@@ -261,7 +264,7 @@ export default class StandardAnnotationQueryEditor extends PureComponent<Props, 
       this.setState({ skipNextVerification: true });
       onChange(preparedAnnotation);
     } catch (error) {
-      console.error('Failed to replace annotation query:', error);
+      structuredLog('error', 'Failed to replace annotation query:', { error: toLogContextPart(error) });
       // On error, reset the replacing state but don't change the annotation
     }
   };

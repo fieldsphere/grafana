@@ -7,6 +7,7 @@ import {
   rangeUtil,
   type DataQueryRequest,
   type Field,
+  structuredLog
 } from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import {
@@ -148,7 +149,7 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         try {
           buffer = rangeUtil.intervalToSeconds(txt) * 1000;
         } catch (err) {
-          console.warn('ERROR', err);
+          structuredLog('warn', 'ERROR', { details: err });
         }
       }
       onChange({

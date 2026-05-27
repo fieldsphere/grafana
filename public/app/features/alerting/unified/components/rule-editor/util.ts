@@ -1,4 +1,5 @@
-import { xor } from 'lodash';
+import {
+  xor } from 'lodash';
 
 import {
   type DataFrame,
@@ -7,6 +8,8 @@ import {
   type ThresholdsConfig,
   ThresholdsMode,
   isTimeSeriesFrames,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { GraphThresholdsStyleMode } from '@grafana/schema';
@@ -210,7 +213,7 @@ export function getThresholdsForQueries(queries: AlertQuery[], condition: string
           }
         });
       } catch (err) {
-        console.error('Failed to parse thresholds', err);
+        structuredLog('error', 'Failed to parse thresholds', { error: toLogContextPart(err) });
         return;
       }
     });

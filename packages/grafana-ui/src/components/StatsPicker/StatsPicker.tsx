@@ -1,7 +1,10 @@
-import { difference } from 'lodash';
+import {
+  difference } from 'lodash';
 import { memo, useEffect } from 'react';
 
-import { fieldReducers, type FieldReducerInfo } from '@grafana/data';
+import { fieldReducers, type FieldReducerInfo,
+  structuredLog
+} from '@grafana/data';
 import { t } from '@grafana/i18n';
 
 import { Combobox, type ComboboxProps } from '../Combobox/Combobox';
@@ -53,13 +56,13 @@ export const StatsPicker = memo<StatsPickerProps>(
       if (current.length !== stats.length) {
         const found = current.map((v) => v.id);
         const notFound = difference(stats, found);
-        console.warn('Unknown stats', notFound, stats);
+        structuredLog('warn', 'Unknown stats', { details: notFound, stats });
         onChange(current.map((stat) => stat.id));
       }
 
       // Make sure there is only one
       if (!allowMultiple && stats.length > 1) {
-        console.warn('Removing extra stat', stats);
+        structuredLog('warn', 'Removing extra stat', { details: stats });
         onChange([stats[0]]);
       }
 

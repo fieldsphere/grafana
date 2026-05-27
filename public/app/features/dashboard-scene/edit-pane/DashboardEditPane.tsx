@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { type SceneObject, SceneObjectBase, type SceneObjectState, sceneGraph } from '@grafana/scenes';
 import {
   type ElementSelectionContextItem,
@@ -237,7 +238,7 @@ export class DashboardEditPane extends SceneObjectBase<DashboardEditPaneState> i
   private selectElement(element: ElementSelectionContextItem, options: ElementSelectionOnSelectOptions) {
     let obj = sceneGraph.findByKey(this, element.id);
     if (!obj) {
-      console.warn('Cannot find element by key="%s"!', element.id);
+      structuredLog('warn', 'Cannot find element by key="%s"!', { details: element.id });
       return;
     }
 
@@ -245,7 +246,7 @@ export class DashboardEditPane extends SceneObjectBase<DashboardEditPaneState> i
     if (sourceKey) {
       obj = sceneGraph.findByKey(this, sourceKey);
       if (!obj) {
-        console.warn('Cannot find element by source key="%s"!', sourceKey);
+        structuredLog('warn', 'Cannot find element by source key="%s"!', { details: sourceKey });
         return;
       }
     }

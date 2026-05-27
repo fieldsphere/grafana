@@ -18,6 +18,7 @@ import {
   systemDateFormats,
   type SystemDateFormatSettings,
   getThemeById,
+  structuredLog,
   type AngularMeta,
   type PluginLoadingStrategy,
   type PluginDependencies,
@@ -313,7 +314,11 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
       const toggleState = featureValue === 'true' || featureValue === '1';
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       featureToggles[featureName as keyof FeatureToggles] = toggleState;
-      console.log(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
+      structuredLog('info', `Setting feature toggle ${featureName} = ${toggleState} via localstorage`, {
+        featureName,
+        toggleState,
+        source: 'localStorage',
+      });
     }
   }
 }
@@ -339,9 +344,15 @@ function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
       if (toggleState !== featureToggles[key]) {
         if (isDevelopment || safeRuntimeFeatureFlags.has(featureName)) {
           featureToggles[featureName] = toggleState;
-          console.log(`Setting feature toggle ${featureName} = ${toggleState} via url`);
+          structuredLog('info', `Setting feature toggle ${featureName} = ${toggleState} via url`, {
+            featureName,
+            toggleState,
+            source: 'url',
+          });
         } else {
-          console.log(`Unable to change feature toggle ${featureName} via url in production.`);
+          structuredLog('warn', `Unable to change feature toggle ${featureName} via url in production`, {
+            featureName,
+          });
         }
       }
     }
@@ -352,7 +363,7 @@ let bootData = window.grafanaBootData;
 
 if (!bootData) {
   if (process.env.NODE_ENV !== 'test') {
-    console.error('window.grafanaBootData was not set by the time config was initialized');
+    structuredLog('error', 'window.grafanaBootData was not set by the time config was initialized');
   }
 
   bootData = {

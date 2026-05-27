@@ -1,4 +1,5 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/querybuilder/parsing.ts
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { type SyntaxNode } from '@lezer/common';
 import {
   AggregateExpr,
@@ -72,7 +73,7 @@ export function buildVisualQueryFromString(expr: string): Omit<Context, 'replace
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    structuredLog('error', 'Error', { error: toLogContextPart(err) });
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

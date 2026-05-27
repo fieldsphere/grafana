@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { config, locationService } from '@grafana/runtime';
 import { type Dashboard } from '@grafana/schema';
 import { type Status, type Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
@@ -23,7 +24,7 @@ export function getDashboardsApiVersion(responseFormat?: 'v1' | 'v2') {
 
   const forcingOldDashboardArch = locationService.getSearch().get('scenes') === 'false';
 
-  // console.log(forcingOldDashboardArch);
+  // structuredLog('info', 'console.log', { value: toLogContextPart(forcingOldDashboardArch) });
   // Force legacy API when dashboard scene is force disabled
   if (forcingOldDashboardArch) {
     if (responseFormat === 'v2') {

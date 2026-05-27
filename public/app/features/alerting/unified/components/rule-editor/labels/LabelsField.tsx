@@ -1,9 +1,12 @@
-import { css, cx } from '@emotion/css';
+import {
+  css, cx } from '@emotion/css';
 import { type FC, useCallback, useMemo } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
-import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
+import { type GrafanaTheme2, type SelectableValue,
+  structuredLog
+} from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Button, type ComboboxOption, Field, InlineLabel, Input, Space, Stack, Text, useStyles2 } from '@grafana/ui';
 
@@ -183,7 +186,7 @@ export function useCombinedLabels(
               opsValues = result.values.map((value) => value.name);
             }
           } catch (error) {
-            console.error('Failed to fetch label values for key:', key, error);
+            structuredLog('error', 'Failed to fetch label values for key:', { details: key, error });
           }
         }
 

@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { type ThunkDispatch, type UnknownAction } from '@reduxjs/toolkit';
 import { type Subscription } from 'rxjs';
 
@@ -80,7 +81,7 @@ export function createOnCacheEntryAdded<Spec, Status>(
           },
         });
     } catch (error) {
-      console.error('Error in onCacheEntryAdded:', error);
+      structuredLog('error', 'Error in onCacheEntryAdded:', { error: toLogContextPart(error) });
       return;
     }
 

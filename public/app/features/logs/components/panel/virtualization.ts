@@ -1,6 +1,9 @@
 import ansicolor from 'ansicolor';
 
-import { BusEventWithPayload, type GrafanaTheme2 } from '@grafana/data';
+import {
+  BusEventWithPayload, type GrafanaTheme2,
+  structuredLog
+} from '@grafana/data';
 
 import { type LogLineTimestampResolution } from './LogLine';
 import { type LogListFontSize } from './LogList';
@@ -73,7 +76,7 @@ export class LogLineVirtualization {
     const domCharWidth = this.measureTextWidthWithDOM('e');
     const diff = domCharWidth - canvasCharWidth;
     if (diff >= 0.1) {
-      console.warn('Virtualized log list: falling back to DOM for measurement');
+      structuredLog('warn', 'Virtualized log list: falling back to DOM for measurement');
       this.measurementMode = 'dom';
     }
   };

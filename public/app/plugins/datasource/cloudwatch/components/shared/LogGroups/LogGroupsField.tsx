@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { useEffect, useState } from 'react';
 
 import { EditorField, EditorRow } from '@grafana/plugin-ui';
@@ -92,7 +93,7 @@ export const LogGroupsField = ({
           onChange([...logGroups, ...variables.map((v) => ({ name: v, arn: v }))]);
         })
         .catch((err) => {
-          console.error(err);
+          structuredLog('error', 'Error', { error: toLogContextPart(err) });
         });
     }
   }, [datasource, legacyLogGroupNames, logGroups, onChange, region, loadingLogGroupsStarted]);

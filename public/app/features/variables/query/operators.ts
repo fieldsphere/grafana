@@ -1,4 +1,5 @@
-import { from, of, type OperatorFunction } from 'rxjs';
+import {
+  from, of, type OperatorFunction } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
 
 import {
@@ -9,6 +10,7 @@ import {
   type MetricFindValue,
   type PanelData,
   type QueryVariableModel,
+  structuredLog
 } from '@grafana/data';
 import { type ThunkDispatch } from 'app/types/store';
 
@@ -110,7 +112,7 @@ export function updateOptionsState(args: {
       map((results) => {
         const { variable, dispatch, getTemplatedRegexFunc } = args;
         if (!variable.rootStateKey) {
-          console.error('updateOptionsState: variable.rootStateKey is not defined');
+          structuredLog('error', 'updateOptionsState: variable.rootStateKey is not defined');
           return;
         }
         const templatedRegex = getTemplatedRegexFunc(variable);

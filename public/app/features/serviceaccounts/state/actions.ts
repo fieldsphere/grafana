@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { debounce } from 'lodash';
 
 import { getBackendSrv } from '@grafana/runtime';
@@ -31,7 +32,7 @@ export function fetchACOptions(): ThunkResult<void> {
         dispatch(acOptionsLoaded(options));
       }
     } catch (error) {
-      console.error(error);
+      structuredLog('error', 'Error', { error: toLogContextPart(error) });
     }
   };
 }
@@ -76,7 +77,7 @@ export function fetchServiceAccounts(
         dispatch(serviceAccountsFetched(result));
       }
     } catch (error) {
-      console.error(error);
+      structuredLog('error', 'Error', { error: toLogContextPart(error) });
     } finally {
       dispatch(serviceAccountsFetchEnd());
     }

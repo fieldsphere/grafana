@@ -1,6 +1,9 @@
-import { map } from 'rxjs';
+import {
+  map } from 'rxjs';
 
-import { toLiveChannelId, StreamingDataFrame } from '@grafana/data';
+import { toLiveChannelId, StreamingDataFrame,
+  structuredLog
+} from '@grafana/data';
 import { type BackendSrv, type GrafanaLiveSrv } from '@grafana/runtime';
 
 import { type CentrifugeSrv, type StreamingDataQueryResponse } from './centrifuge/service';
@@ -30,7 +33,7 @@ export class GrafanaLiveService implements GrafanaLiveSrv {
     const updateBuffer = (next: StreamingDataQueryResponse): void => {
       const data = next.data[0];
       if (!buffer && !isStreamingResponseData(data, StreamingResponseDataType.FullFrame)) {
-        console.warn(`expected first packet to contain a full frame, received ${data?.type}`);
+        structuredLog('warn', `expected first packet to contain a full frame, received ${data?.type}`);
         return;
       }
 

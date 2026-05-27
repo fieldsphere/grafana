@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type DashboardLink } from '@grafana/schema';
@@ -83,7 +84,7 @@ export async function buildSourceLink(annotations: ObjectMeta['annotations']): P
       keepTime: false,
     };
   } catch (e) {
-    console.warn('Failed to fetch repository info for source link:', e);
+    structuredLog('warn', 'Failed to fetch repository info for source link:', { details: e });
     return undefined;
   }
 }

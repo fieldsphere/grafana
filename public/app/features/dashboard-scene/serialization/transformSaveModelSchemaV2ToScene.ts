@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { uniqueId } from 'lodash';
 
 import { config, getDataSourceSrv } from '@grafana/runtime';
@@ -309,7 +310,7 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec, defaultVariable
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structuredLog('error', 'Error', { error: toLogContextPart(err) });
         return null;
       }
     })
@@ -322,7 +323,7 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec, defaultVariable
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structuredLog('error', 'Error', { error: toLogContextPart(err) });
         return null;
       }
     })
@@ -616,7 +617,7 @@ export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVar
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        structuredLog('error', 'Error', { error: toLogContextPart(err) });
         return null;
       }
     })

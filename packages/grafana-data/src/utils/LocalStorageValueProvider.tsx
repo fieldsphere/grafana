@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import * as React from 'react';
 
+import { structuredLog, toLogContextPart } from './structuredConsole';
 import { store } from './store';
 
 export interface Props<T> {
@@ -32,7 +33,7 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.setObject(storageKey, value);
     } catch (error) {
-      console.error(error);
+      structuredLog('error', 'Failed to save object to localStorage', { error: toLogContextPart(error), storageKey });
     }
     setState({ value });
   };
@@ -41,7 +42,7 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.delete(storageKey);
     } catch (error) {
-      console.log(error);
+      structuredLog('warn', 'Failed to delete localStorage key', { error: toLogContextPart(error), storageKey });
     }
     setState({ value: defaultValue });
   };

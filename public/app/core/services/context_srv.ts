@@ -1,4 +1,5 @@
-import { extend } from 'lodash';
+import {
+  extend } from 'lodash';
 
 import {
   type AnalyticsSettings,
@@ -8,6 +9,8 @@ import {
   userHasPermission,
   userHasPermissionInMetadata,
   userHasAnyPermission,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { featureEnabled, getBackendSrv } from '@grafana/runtime';
 import { getSessionExpiry } from 'app/core/utils/auth';
@@ -112,7 +115,7 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      structuredLog('error', 'Error', { error: toLogContextPart(e) });
     }
   }
 
@@ -262,7 +265,7 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        structuredLog('error', 'Error', { error: toLogContextPart(e) });
       });
   }
 }

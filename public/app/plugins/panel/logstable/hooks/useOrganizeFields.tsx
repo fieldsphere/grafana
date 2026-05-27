@@ -1,8 +1,12 @@
-import { useEffect, useState } from 'react';
+import {
+  useEffect, useState } from 'react';
 import useMountedState from 'react-use/lib/useMountedState';
 import { lastValueFrom } from 'rxjs';
 
-import { type DataFrame, type FieldConfigSource, transformDataFrame } from '@grafana/data';
+import { type DataFrame, type FieldConfigSource, transformDataFrame,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { type CustomCellRendererProps, TableCellDisplayMode } from '@grafana/ui';
 import { type LogsFrame } from 'app/features/logs/logsFrame';
 
@@ -68,7 +72,7 @@ export function useOrganizeFields({
         }
       })
       .catch((err) => {
-        console.error('LogsTable: Organize fields transform error', err);
+        structuredLog('error', 'LogsTable: Organize fields transform error', { error: toLogContextPart(err) });
       });
   }, [
     bodyFieldName,

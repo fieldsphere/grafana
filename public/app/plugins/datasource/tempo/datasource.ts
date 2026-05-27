@@ -1,4 +1,5 @@
-import { groupBy } from 'lodash';
+import {
+  groupBy } from 'lodash';
 import { EMPTY, from, merge, type Observable, of } from 'rxjs';
 import { catchError, concatMap, finalize, map, mergeMap, toArray } from 'rxjs/operators';
 
@@ -23,6 +24,7 @@ import {
   type SelectableValue,
   type TestDataSourceResponse,
   type TimeRange,
+  structuredLog
 } from '@grafana/data';
 import { type NodeGraphOptions, type SpanBarOptions, type TraceToLogsOptions } from '@grafana/o11y-ds-frontend';
 import {
@@ -295,7 +297,7 @@ export class TempoDatasource extends DataSourceWithBackend<TempoQuery, TempoJson
 
       return false;
     } catch (error) {
-      console.warn('Failed to check for native histograms:', error);
+      structuredLog('warn', 'Failed to check for native histograms:', { details: error });
       return false;
     }
   }

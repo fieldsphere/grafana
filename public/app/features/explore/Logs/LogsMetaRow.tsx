@@ -1,4 +1,5 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { memo } from 'react';
 
@@ -11,6 +12,7 @@ import {
   type Labels,
   store,
   shallowCompare,
+  structuredLog
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
@@ -162,6 +164,6 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
   if (kind === LogsMetaKind.Error) {
     return <span className="logs-meta-item__error">{value.toString()}</span>;
   }
-  console.error(`Meta type ${typeof value} ${value} not recognized.`);
+  structuredLog('error', `Meta type ${typeof value} ${value} not recognized.`);
   return <></>;
 }

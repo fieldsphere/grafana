@@ -1,4 +1,5 @@
-import { isEmpty } from 'lodash';
+import {
+  isEmpty } from 'lodash';
 
 import { generatedAPI as legacyUserAPI } from '@grafana/api-clients/internal/rtkq/legacy/user';
 import {
@@ -12,6 +13,7 @@ import {
   DataFrameView,
   getDisplayProcessor,
   type SelectableValue,
+  structuredLog
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getBackendSrv } from '@grafana/runtime';
@@ -209,7 +211,7 @@ export class UnifiedSearcher implements GrafanaSearcher {
         const resp = await this.fetchResponse(nextPageUrl);
         const frame = toDashboardResults(resp, query.sort ?? '');
         if (!frame) {
-          console.log('no results', frame);
+          structuredLog('info', 'no results', { details: frame });
           return;
         }
 

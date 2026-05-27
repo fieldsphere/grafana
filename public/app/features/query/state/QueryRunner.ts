@@ -1,4 +1,5 @@
-import { cloneDeep } from 'lodash';
+import {
+  cloneDeep } from 'lodash';
 import { from, type Observable, ReplaySubject, type Unsubscribable } from 'rxjs';
 import { first } from 'rxjs/operators';
 
@@ -14,6 +15,8 @@ import {
   LoadingState,
   type DataSourceRef,
   preProcessPanelData,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
@@ -113,7 +116,7 @@ export class QueryRunner implements QueryRunnerSrv {
             },
           });
         },
-        error: (error) => console.error('PanelQueryRunner Error', error),
+        error: (error) => structuredLog('error', 'PanelQueryRunner Error', { error: toLogContextPart(error) }),
       });
   }
 

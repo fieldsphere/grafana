@@ -11,6 +11,8 @@ import {
   scopeFilterOperatorMap,
   type ScopeSpecFilter,
   type TimeRange,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { type BackendSrvRequest } from '@grafana/runtime';
 
@@ -132,7 +134,7 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
       return res.data.data;
     } catch (error) {
       if (!isCancelledError(error)) {
-        console.error(error);
+        structuredLog('error', 'Error', { error: toLogContextPart(error) });
       }
     }
 

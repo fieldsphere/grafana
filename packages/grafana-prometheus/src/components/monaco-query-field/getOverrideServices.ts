@@ -1,4 +1,5 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/components/monaco-query-field/getOverrideServices.ts
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { type monacoTypes } from '@grafana/ui';
 
 // this thing here is a workaround in a way.
@@ -82,7 +83,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      structuredLog('info', 'logStorage: not implemented');
     },
 
     migrate: (): Promise<void> => {

@@ -1,4 +1,8 @@
-import { store } from '@grafana/data';
+import {
+  store,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
 
 /**
@@ -84,12 +88,10 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
  */
 export function writePerformanceGroupLog(logger: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
-    if (data) {
-      // eslint-disable-next-line no-console
-      console.log(message, data);
+    if (data !== undefined && data !== null) {
+      structuredLog('info', `${logger}: ${message}`, { payload: toLogContextPart(data) });
     } else {
-      // eslint-disable-next-line no-console
-      console.log(message);
+      structuredLog('info', `${logger}: ${message}`);
     }
   }
 }
@@ -117,7 +119,7 @@ export function createPerformanceMark(name: string, timestamp?: number): void {
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
+    structuredLog('error', `❌ Failed to create performance mark: ${name}`, { details: { timestamp, error } });
   }
 }
 
@@ -134,6 +136,6 @@ export function createPerformanceMeasure(name: string, startMark: string, endMar
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
+    structuredLog('error', `❌ Failed to create performance measure: ${name}`, { details: { startMark, endMark, error } });
   }
 }

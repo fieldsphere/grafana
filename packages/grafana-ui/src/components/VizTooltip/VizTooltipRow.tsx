@@ -1,9 +1,13 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import clsx from 'clsx';
 import { type CSSProperties, type ReactNode, useEffect, useRef, useState } from 'react';
 import * as React from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 
 import { useStyles2 } from '../../themes/ThemeContext';
 import { InlineToast } from '../InlineToast/InlineToast';
@@ -112,7 +116,7 @@ export const VizTooltipRow = ({
         setShowCopySuccess(true);
       }
     } catch (err) {
-      console.error('Unable to copy to clipboard', err);
+      structuredLog('error', 'Unable to copy to clipboard', { error: toLogContextPart(err) });
     }
 
     textarea.remove();

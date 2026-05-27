@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useAsync } from 'react-use';
 import SwaggerUI from 'swagger-ui-react';
 
-import { createTheme, monacoLanguageRegistry, type SelectableValue } from '@grafana/data';
+import { createTheme, monacoLanguageRegistry, type SelectableValue, structuredLog } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { Icon, Stack, Select, UserIcon, type UserView, Button } from '@grafana/ui';
 import { setMonacoEnv } from 'app/core/monacoEnv';
@@ -55,7 +55,7 @@ export const Page = () => {
   const namespace = useAsync(async () => {
     const response = await fetch('api/frontend/settings');
     if (!response.ok) {
-      console.warn('No settings found');
+      structuredLog('warn', 'Swagger page: settings request failed — using default namespace');
       return 'default';
     }
     const val = await response.json();
@@ -65,7 +65,7 @@ export const Page = () => {
   useAsync(async () => {
     const response = await fetch('api/user');
     if (!response.ok) {
-      console.warn('No user found, show login button');
+      structuredLog('warn', 'Swagger page: user request failed — show login UI');
       return;
     }
     const val = await response.json();

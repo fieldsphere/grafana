@@ -1,4 +1,5 @@
-import { uniq } from 'lodash';
+import {
+  uniq } from 'lodash';
 
 import {
   type AbsoluteTimeRange,
@@ -20,6 +21,8 @@ import {
   toUtc,
   type URLRange,
   type URLRangeValue,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery, type DataSourceJsonData, type DataSourceRef, type TimeZone } from '@grafana/schema';
@@ -118,7 +121,7 @@ export async function loadAndInitDatasource(
       instance.init();
     } catch (err) {
       // TODO: should probably be handled better
-      console.error(err);
+      structuredLog('error', 'Error', { error: toLogContextPart(err) });
     }
   }
 

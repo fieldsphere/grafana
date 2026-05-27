@@ -1,6 +1,10 @@
-import { defaults, each, sortBy } from 'lodash';
+import {
+  defaults, each, sortBy } from 'lodash';
 
-import { type DataSourceRef, type VariableOption, VariableRefresh } from '@grafana/data';
+import { type DataSourceRef, type VariableOption, VariableRefresh,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { getPanelPluginMeta } from '@grafana/runtime/internal';
 import config from 'app/core/config';
@@ -318,7 +322,7 @@ export class DashboardExporter {
 
       return newObj;
     } catch (err) {
-      console.error('Export failed:', err);
+      structuredLog('error', 'Export failed:', { error: toLogContextPart(err) });
       return {
         error: err,
       };

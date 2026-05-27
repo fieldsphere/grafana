@@ -1,7 +1,10 @@
-import { omitBy } from 'lodash';
+import {
+  omitBy } from 'lodash';
 import { type Observable, of, throwError } from 'rxjs';
 
-import { deprecationWarning, validatePath } from '@grafana/data';
+import { deprecationWarning, validatePath,
+  structuredLog
+} from '@grafana/data';
 import { type BackendSrvRequest } from '@grafana/runtime';
 
 export const parseInitFromOptions = (options: BackendSrvRequest): RequestInit => {
@@ -139,7 +142,7 @@ export async function parseResponseBody<T>(
         // An empty string is not a valid JSON.
         // Sometimes (unfortunately) our APIs declare their Content-Type as JSON, however they return an empty body.
         if (response.headers.get('Content-Length') === '0') {
-          console.warn(`${response.url} returned an invalid JSON`);
+          structuredLog('warn', `${response.url} returned an invalid JSON`);
           return {} as T;
         }
         return await response.json();

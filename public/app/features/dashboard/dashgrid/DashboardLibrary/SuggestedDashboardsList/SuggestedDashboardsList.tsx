@@ -1,9 +1,13 @@
-import { css } from '@emotion/css';
+import {
+  css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAsyncFn, useDebounce } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getDataSourceSrv, isFetchError, locationService } from '@grafana/runtime';
 import { FilterInput, Grid, Pagination, Stack, useStyles2 } from '@grafana/ui';
@@ -252,7 +256,7 @@ export const SuggestedDashboardsList = ({
           });
         }
       } catch (err) {
-        console.error('Error loading community dashboards', err);
+        structuredLog('error', 'Error loading community dashboards', { error: toLogContextPart(err) });
       } finally {
         setIsCommunityLoading(false);
       }
@@ -422,7 +426,7 @@ export const SuggestedDashboardsList = ({
         sourceEntryPoint,
       });
     } catch (err) {
-      console.error('Error checking dashboard compatibility:', err);
+      structuredLog('error', 'Error checking dashboard compatibility:', { error: toLogContextPart(err) });
 
       const errorMessage = isFetchError(err) ? err.data?.message : 'Failed to check compatibility';
       const errorCode = isFetchError(err) ? err.data?.code : undefined;

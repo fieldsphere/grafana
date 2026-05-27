@@ -1,6 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import {
+  useEffect, useMemo, useState } from 'react';
 
-import { type OrgRole } from '@grafana/data';
+import { type OrgRole,
+  structuredLog
+} from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
@@ -79,7 +82,7 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        structuredLog('error', 'Error loading options');
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

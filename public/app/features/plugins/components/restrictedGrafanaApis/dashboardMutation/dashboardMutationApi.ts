@@ -10,6 +10,7 @@
  * import this module directly because it lives inside the core bundle.
  */
 
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import type { DashboardMutationAPI } from '@grafana/data';
 import { ALL_COMMANDS } from 'app/features/dashboard-scene/mutation-api';
 import { DashboardMutationClient } from 'app/features/dashboard-scene/mutation-api/DashboardMutationClient';
@@ -26,7 +27,7 @@ provideMutationClientFactory((sceneObject) => {
   try {
     _client = new DashboardMutationClient(scene);
   } catch (error) {
-    console.error('Failed to register Dashboard Mutation API:', error);
+    structuredLog('error', 'Failed to register Dashboard Mutation API:', { error: toLogContextPart(error) });
   }
 
   return () => {

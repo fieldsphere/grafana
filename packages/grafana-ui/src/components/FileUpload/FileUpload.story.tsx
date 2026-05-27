@@ -1,5 +1,7 @@
 import { type Meta, type StoryFn } from '@storybook/react';
 
+import { structuredLog } from '@grafana/data';
+
 import { FileUpload } from './FileUpload';
 import mdx from './FileUpload.mdx';
 
@@ -28,7 +30,11 @@ export const Basic: StoryFn<typeof FileUpload> = (args) => {
   return (
     <FileUpload
       size={args.size}
-      onFileUpload={({ currentTarget }) => console.log('file', currentTarget?.files && currentTarget.files[0])}
+      onFileUpload={({ currentTarget }) =>
+        structuredLog('info', 'FileUpload story upload', {
+          fileName: currentTarget?.files?.[0]?.name,
+        })
+      }
     />
   );
 };

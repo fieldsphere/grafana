@@ -1,4 +1,5 @@
-import { type Property } from 'csstype';
+import {
+  type Property } from 'csstype';
 import memoize from 'micro-memoize';
 import WKT from 'ol/format/WKT';
 import Geometry from 'ol/geom/Geometry';
@@ -20,6 +21,8 @@ import {
   isDataFrame,
   type FieldSparkline,
   type DecimalCount,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import {
   BarGaugeDisplayMode,
@@ -1184,7 +1187,7 @@ export function parseStyleJson(rawValue: unknown): CSSProperties | void {
       }
     } catch (e) {
       if (!warnedAboutStyleJsonSet.has(rawValue)) {
-        console.error(`encountered invalid cell style JSON: ${rawValue}`, e);
+        structuredLog('error', `encountered invalid cell style JSON: ${rawValue}`, { error: toLogContextPart(e) });
         warnedAboutStyleJsonSet.add(rawValue);
       }
     }

@@ -1,4 +1,5 @@
-import { from, type Observable } from 'rxjs';
+import {
+  from, type Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 
 import {
@@ -7,6 +8,8 @@ import {
   type DataQueryResponse,
   type MetricFindValue,
   type SelectableValue,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 
 import { VariableQueryEditor } from './components/VariableQueryEditor/VariableQueryEditor';
@@ -57,7 +60,7 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
           return this.handleAccountsQuery(query);
       }
     } catch (error) {
-      console.error(`Could not run CloudWatchMetricFindQuery ${query}`, error);
+      structuredLog('error', `Could not run CloudWatchMetricFindQuery ${query}`, { error: toLogContextPart(error) });
       return [];
     }
   }

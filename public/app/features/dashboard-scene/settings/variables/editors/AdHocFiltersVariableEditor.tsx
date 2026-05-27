@@ -1,4 +1,5 @@
-import { noop } from 'lodash';
+import {
+  noop } from 'lodash';
 import { type FormEvent, useCallback, useMemo, useState } from 'react';
 import { useAsync } from 'react-use';
 
@@ -7,6 +8,7 @@ import {
   type MetricFindValue,
   type SelectableValue,
   getDataSourceRef,
+  structuredLog
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getDataSourceSrv } from '@grafana/runtime';
@@ -169,7 +171,7 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
 
 export function getAdHocFilterOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof AdHocFiltersVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    structuredLog('warn', 'getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
 

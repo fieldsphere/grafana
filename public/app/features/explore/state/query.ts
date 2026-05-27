@@ -1,4 +1,5 @@
-import { type AnyAction, createAction, type PayloadAction } from '@reduxjs/toolkit';
+import {
+  type AnyAction, createAction, type PayloadAction } from '@reduxjs/toolkit';
 import deepEqual from 'fast-deep-equal';
 import { findLast, flatten, groupBy, head, map, mapValues, snakeCase, zipObject } from 'lodash';
 import { combineLatest, identity, type Observable, of, type SubscriptionLike, type Unsubscribable } from 'rxjs';
@@ -18,6 +19,8 @@ import {
   type QueryFixAction,
   type ScopedVars,
   type SupplementaryQueryType,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { combinePanelData } from '@grafana/o11y-ds-frontend';
 import { config, getDataSourceSrv } from '@grafana/runtime';
@@ -657,7 +660,9 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
 
           // Keep scanning for results if this was the last scanning transaction
           if (exploreState!.scanning) {
-            console.log(data.series);
+            structuredLog('info', 'Explore scanning query response', {
+              series: toLogContextPart(data.series),
+            });
             if (data.state === LoadingState.Done && data.series.length === 0) {
               const range = getShiftedTimeRange(-1, exploreState!.range);
               dispatch(updateTime({ exploreId, absoluteRange: range }));
@@ -671,7 +676,7 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
         error(error) {
           dispatch(notifyApp(createErrorNotification('Query processing error', error)));
           dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Error }));
-          console.error(error);
+          structuredLog('error', 'Error', { error: toLogContextPart(error) });
         },
         complete() {
           // In case we don't get any response at all but the observable completed, make sure we stop loading state.
@@ -793,7 +798,7 @@ export const runLoadMoreLogsQueries = createAsyncThunk<void, RunLoadMoreLogsQuer
       error(error) {
         dispatch(notifyApp(createErrorNotification('Query processing error', error)));
         dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Error }));
-        console.error(error);
+        structuredLog('error', 'Error', { error: toLogContextPart(error) });
       },
       complete() {
         dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Done }));

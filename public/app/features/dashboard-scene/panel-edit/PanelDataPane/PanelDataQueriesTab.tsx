@@ -1,6 +1,10 @@
-import { useCallback, useMemo } from 'react';
+import {
+  useCallback, useMemo } from 'react';
 
-import { CoreApp, type DataSourceApi, type DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
+import { CoreApp, type DataSourceApi, type DataSourceInstanceSettings, getDataSourceRef,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { config, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
@@ -163,7 +167,7 @@ export class PanelDataQueriesTab extends SceneObjectBase<PanelDataQueriesTabStat
         });
       }
 
-      console.error(err);
+      structuredLog('error', 'Error', { error: toLogContextPart(err) });
     }
   }
 

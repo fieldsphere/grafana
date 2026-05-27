@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
-import { type SelectableValue, type GrafanaTheme2, type PluginType } from '@grafana/data';
+import { type SelectableValue, type GrafanaTheme2, type PluginType, structuredLog, toLogContextPart } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { locationSearchToObject } from '@grafana/runtime';
 import { Select, RadioButtonGroup, useStyles2, Tooltip, Field, TextLink } from '@grafana/ui';
@@ -72,7 +72,10 @@ export default function Browse() {
 
   // How should we handle errors?
   if (error) {
-    console.error(error.message);
+    structuredLog('error', 'Failed to load plugins list', {
+      message: error instanceof Error ? error.message : String(error),
+      error: toLogContextPart(error),
+    });
     return null;
   }
 

@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { noop } from 'lodash';
 import { type FormEvent } from 'react';
 
@@ -25,7 +26,7 @@ export function TextBoxVariableEditor({ variable, inline }: TextBoxVariableEdito
 
 export function getTextBoxVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof TextBoxVariable)) {
-    console.warn('getTextBoxVariableOptions: variable is not a TextBoxVariable');
+    structuredLog('warn', 'getTextBoxVariableOptions: variable is not a TextBoxVariable');
     return [];
   }
 

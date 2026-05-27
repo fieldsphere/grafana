@@ -1,4 +1,5 @@
-import { map as _map, cloneDeep, extend, has, isString, omit, pick, reduce } from 'lodash';
+import {
+  map as _map, cloneDeep, extend, has, isString, omit, pick, reduce } from 'lodash';
 import { lastValueFrom, merge, Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
@@ -25,6 +26,7 @@ import {
   TIME_SERIES_VALUE_FIELD_NAME,
   type TimeSeries,
   toDataFrame,
+  structuredLog
 } from '@grafana/data';
 import {
   type BackendDataSourceResponse,
@@ -388,7 +390,7 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
         // then put inside parenthesis.
         return typeof value === 'string' ? escapeRegex(value) : `(${value.map((v) => escapeRegex(v)).join('|')})`;
       } catch (e) {
-        console.warn(`Supplied match is not valid regex: ${match}`);
+        structuredLog('warn', `Supplied match is not valid regex: ${match}`);
       }
     }
 

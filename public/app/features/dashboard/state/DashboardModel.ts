@@ -1,4 +1,5 @@
-import { cloneDeep, defaults as _defaults, filter, indexOf, isEqual, map, maxBy, pull } from 'lodash';
+import {
+  cloneDeep, defaults as _defaults, filter, indexOf, isEqual, map, maxBy, pull } from 'lodash';
 import { Subscription } from 'rxjs';
 
 import {
@@ -16,6 +17,7 @@ import {
   type TimeZone,
   type TypedVariableModel,
   type UrlQueryValue,
+  structuredLog
 } from '@grafana/data';
 import { type PromQuery } from '@grafana/prometheus';
 import { RefreshEvent, TimeRangeUpdatedEvent } from '@grafana/runtime';
@@ -1115,13 +1117,13 @@ export class DashboardModel implements TimeModel {
 
   /** @deprecated */
   on<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.on is deprecated use events.subscribe');
+    structuredLog('info', 'DashboardModel.on is deprecated use events.subscribe');
     this.events.on(event, callback);
   }
 
   /** @deprecated */
   off<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.off is deprecated');
+    structuredLog('info', 'DashboardModel.off is deprecated');
     this.events.off(event, callback);
   }
 

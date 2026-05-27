@@ -1,6 +1,7 @@
 import { PureComponent } from 'react';
 import * as React from 'react';
 
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { Spinner, Stack } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { type Resource } from 'app/features/apiserver/types';
@@ -69,7 +70,11 @@ export class VersionsSettings extends PureComponent<Props, State> {
         // Update the continueToken for the next request, if available
         this.continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) =>
+        structuredLog('error', 'Failed to fetch dashboard revision history', {
+          error: toLogContextPart(err),
+        })
+      )
       .finally(() => this.setState({ isAppending: false }));
   };
 

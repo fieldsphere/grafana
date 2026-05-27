@@ -1,6 +1,7 @@
 /* Spreading unbound arrays can be very slow or even crash the browser if used for arguments */
 /* eslint no-restricted-syntax: ["error", "SpreadElement"] */
 
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { debounce } from 'lodash';
 import { useState, useCallback, useMemo } from 'react';
 
@@ -51,7 +52,7 @@ export function useOptions<T extends string | number>(
               setAsyncLoading(false);
 
               if (error) {
-                console.error('Error loading async options for Combobox', error);
+                structuredLog('error', 'Error loading async options for Combobox', { error: toLogContextPart(error) });
               }
             }
           });

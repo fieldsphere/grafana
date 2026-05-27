@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { useEffect, useState } from 'react';
 import { FixedSizeList } from 'react-window';
 
@@ -59,7 +60,7 @@ export function ValueSelector() {
         <div className={styles.valueListArea}>
           {Object.entries(filteredLabelValues).map(([lk, lv]) => {
             if (!lk || !lv) {
-              console.error('label values are empty:', { lk, lv });
+              structuredLog('error', 'label values are empty:', { details: { lk, lv } });
               return null;
             }
             return (

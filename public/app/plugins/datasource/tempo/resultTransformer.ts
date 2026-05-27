@@ -1,4 +1,5 @@
-import { type SpanStatus } from '@opentelemetry/api';
+import {
+  type SpanStatus } from '@opentelemetry/api';
 import { type collectorTypes } from '@opentelemetry/exporter-collector';
 import { SemanticResourceAttributes } from '@opentelemetry/semantic-conventions';
 import { isEqual } from 'lodash';
@@ -22,6 +23,8 @@ import {
   type TraceLog,
   type TraceSpanReference,
   type TraceSpanRow,
+  structuredLog,
+  toLogContextPart
 } from '@grafana/data';
 import { createNodeGraphFrames, type TraceToProfilesData } from '@grafana/o11y-ds-frontend';
 import { getDataSourceSrv } from '@grafana/runtime';
@@ -196,7 +199,7 @@ export function transformFromOTLP(
       }
     }
   } catch (error) {
-    console.error(error);
+    structuredLog('error', 'Error', { error: toLogContextPart(error) });
     return { error: { message: 'JSON is not valid OpenTelemetry format: ' + error }, data: [] };
   }
 

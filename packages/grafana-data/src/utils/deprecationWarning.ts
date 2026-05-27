@@ -1,5 +1,7 @@
 import { type KeyValue } from '../types/data';
 
+import { structuredLog } from './structuredConsole';
+
 // Avoid writing the warning message more than once every 10s
 const history: KeyValue<number> = {};
 
@@ -11,7 +13,7 @@ export const deprecationWarning = (file: string, oldName: string, newName?: stri
   const now = Date.now();
   const last = history[message];
   if (!last || now - last > 10000) {
-    console.warn(message);
+    structuredLog('warn', message, { file, oldName, newName });
     history[message] = now;
   }
 };

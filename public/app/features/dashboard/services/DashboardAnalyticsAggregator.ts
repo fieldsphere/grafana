@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { logMeasurement, reportInteraction } from '@grafana/runtime';
 import { type performanceUtils } from '@grafana/scenes';
 
@@ -108,7 +109,7 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
     // Aggregate panel metrics without verbose logging (handled by ScenePerformanceLogger)
     const panel = this.panelMetrics.get(data.panelKey);
     if (!panel) {
-      console.warn('Panel not found for operation completion:', data.panelKey);
+      structuredLog('warn', 'Panel not found for operation completion:', { details: data.panelKey });
       return;
     }
 

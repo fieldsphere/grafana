@@ -1,6 +1,7 @@
 import { type Meta, type StoryFn } from '@storybook/react';
 import { type FieldValues } from 'react-hook-form';
 
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import { withStoryContainer } from '../../utils/storybook/withStoryContainer';
 import { Button } from '../Button/Button';
 import { Input } from '../Input/Input';
@@ -36,7 +37,7 @@ export const Simple: StoryFn = (args) => {
     people: [{ firstName: 'Janis', lastName: 'Joplin' }],
   };
   return (
-    <Form onSubmit={(values) => console.log(values)} defaultValues={defaultValues}>
+    <Form onSubmit={(values) => structuredLog('info', 'FieldArray story submit', { values: toLogContextPart(values) })} defaultValues={defaultValues}>
       {({ control, register }) => (
         <div>
           <FieldArray control={control} name="people">

@@ -1,4 +1,8 @@
-import { type DataSourceApi, parseDuration } from '@grafana/data';
+import {
+  type DataSourceApi, parseDuration,
+  structuredLog,
+  toLogContextPart
+} from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import { generateId } from './SearchTraceQLEditor/TagsInput';
@@ -32,7 +36,7 @@ export async function getDS(uid?: string): Promise<DataSourceApi | undefined> {
   try {
     return await dsSrv.get(uid);
   } catch (error) {
-    console.error('Failed to load data source', error);
+    structuredLog('error', 'Failed to load data source', { error: toLogContextPart(error) });
     return undefined;
   }
 }

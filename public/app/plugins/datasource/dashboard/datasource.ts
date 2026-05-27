@@ -1,4 +1,5 @@
-import { type Observable, debounce, debounceTime, defer, finalize, first, interval, map, of } from 'rxjs';
+import {
+  type Observable, debounce, debounceTime, defer, finalize, first, interval, map, of } from 'rxjs';
 
 import {
   DataSourceApi,
@@ -19,6 +20,7 @@ import {
   ValueMatcherID,
   type DataSourceGetDrilldownsApplicabilityOptions,
   type DrilldownsApplicability,
+  structuredLog
 } from '@grafana/data';
 import { isSceneObject, type SceneDataProvider, SceneDataTransformer, type SceneObject } from '@grafana/scenes';
 import {
@@ -270,7 +272,7 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         options: { value: filter.value },
       });
     } catch (error) {
-      console.warn('Failed to create value matcher for filter:', filter, error);
+      structuredLog('warn', 'Failed to create value matcher for filter:', { details: filter, error });
       return null;
     }
   }

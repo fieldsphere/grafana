@@ -1,3 +1,4 @@
+import { structuredLog, toLogContextPart } from '@grafana/data';
 import {
   generatedAPI,
   type ConnectionSpec,
@@ -271,7 +272,7 @@ export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
             dispatch(clearFolders(childrenKeys));
           }
         } catch (e) {
-          console.error('Error in getRepositoryJobsWithPath:', e);
+          structuredLog('error', 'Error in getRepositoryJobsWithPath:', { error: toLogContextPart(e) });
         }
       },
     },

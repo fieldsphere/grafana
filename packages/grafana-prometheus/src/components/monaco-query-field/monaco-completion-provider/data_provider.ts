@@ -1,4 +1,7 @@
-import { type HistoryItem, type TimeRange } from '@grafana/data';
+import {
+  type HistoryItem, type TimeRange,
+  structuredLog
+} from '@grafana/data';
 
 import { DEFAULT_COMPLETION_LIMIT, METRIC_LABEL } from '../../../constants';
 import { type PrometheusLanguageProviderInterface } from '../../../language_provider';
@@ -80,7 +83,7 @@ export class DataProvider {
 
       return Array.isArray(result) ? result : [];
     } catch (error) {
-      console.warn('Failed to query metric names:', error);
+      structuredLog('warn', 'Failed to query metric names:', { details: error });
       return [];
     }
   };

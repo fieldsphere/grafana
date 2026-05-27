@@ -11,6 +11,8 @@ import {
   PluginLoadingStrategy,
   type PluginMeta,
   throwIfAngular,
+  structuredLog,
+  toLogContextPart,
 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type GenericDataSourcePlugin } from 'app/features/datasources/types';
@@ -54,7 +56,10 @@ const panelPluginPostImport: PostImportStrategy<PanelPlugin, PanelPluginMeta> = 
     throw new Error('missing export: plugin');
   } catch (error) {
     // TODO, maybe a different error plugin
-    console.warn('Error loading panel plugin: ' + meta.id, error);
+    structuredLog('warn', 'Error loading panel plugin: ' + meta.id, {
+      pluginId: meta.id,
+      error: toLogContextPart(error),
+    });
     return getPanelPluginLoadError(meta, error);
   }
 };
