@@ -8,6 +8,7 @@ import {
   LoadingState,
   type PanelData,
   type SelectableValue,
+  structLog,
   type TimeRange,
 } from '@grafana/data';
 import {
@@ -134,7 +135,9 @@ export const LokiQueryBuilder = memo<Props>(({ datasource, query, onChange, onRu
         Math.abs(timeRange.from.valueOf() - prevTimeRange.from.valueOf()) > TIME_SPAN_TO_TRIGGER_SAMPLES);
     const updateBasedOnChangedQuery = !isEqual(prevQuery, query);
     if (updateBasedOnChangedTimeRange || updateBasedOnChangedQuery) {
-      onGetSampleData().catch(console.error);
+      onGetSampleData().catch((err) => {
+        structLog('error', err);
+      });
     }
   }, [datasource, query, timeRange, prevQuery, prevTimeRange]);
 

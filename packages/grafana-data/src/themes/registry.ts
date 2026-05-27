@@ -1,5 +1,5 @@
+import { structLog } from '../utils/structLog';
 import { Registry, type RegistryItem } from '../utils/Registry';
-
 import { createTheme, NewThemeOptionsSchema } from './createTheme';
 import aubergine from './themeDefinitions/aubergine.json';
 import debug from './themeDefinitions/debug.json';
@@ -18,13 +18,13 @@ import tron from './themeDefinitions/tron.json';
 import victorian from './themeDefinitions/victorian.json';
 import zen from './themeDefinitions/zen.json';
 import { type GrafanaTheme2 } from './types';
-
 export interface ThemeRegistryItem extends RegistryItem {
   isExtra?: boolean;
   build: () => GrafanaTheme2;
 }
-
-const extraThemes: { [key: string]: unknown } = {
+const extraThemes: {
+  [key: string]: unknown;
+} = {
   aubergine,
   debug,
   desertbloom,
@@ -42,7 +42,6 @@ const extraThemes: { [key: string]: unknown } = {
   victorian,
   zen,
 };
-
 /**
  * @internal
  * Only for internal use, never use this from a plugin
@@ -51,7 +50,6 @@ export function getThemeById(id: string): GrafanaTheme2 {
   const theme = themeRegistry.getIfExists(id) ?? themeRegistry.get('dark');
   return theme.build();
 }
-
 /**
  * @internal
  * For internal use only
@@ -75,7 +73,6 @@ export function getBuiltInThemes(allowedExtras: string[]) {
   });
   return sortedThemes;
 }
-
 const themeRegistry = new Registry<ThemeRegistryItem>(() => {
   return [
     { id: 'system', name: 'System preference', build: getSystemPreferenceTheme },
@@ -83,11 +80,10 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
     { id: 'light', name: 'Light', build: () => createTheme({ colors: { mode: 'light' } }) },
   ];
 });
-
 for (const [name, json] of Object.entries(extraThemes)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    structLog('error', `Invalid theme definition for theme ${name}: ${result.error.message}`);
   } else {
     const theme = result.data;
     themeRegistry.register({
@@ -98,7 +94,6 @@ for (const [name, json] of Object.entries(extraThemes)) {
     });
   }
 }
-
 function getSystemPreferenceTheme() {
   const mediaResult = window.matchMedia('(prefers-color-scheme: dark)');
   const id = mediaResult.matches ? 'dark' : 'light';

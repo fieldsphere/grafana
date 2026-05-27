@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { flatten } from 'lodash';
 import { LRUCache } from 'lru-cache';
-
 import {
   type AbstractQuery,
   getDefaultTimeRange,
@@ -10,7 +10,6 @@ import {
   type TimeRange,
 } from '@grafana/data';
 import { type BackendSrvRequest, config } from '@grafana/runtime';
-
 import { LokiQueryType } from './dataquery.gen';
 import { DEFAULT_MAX_LINES_SAMPLE, type LokiDatasource } from './datasource';
 import { abstractQueryToExpr, mapAbstractOperatorsToOp, processLabels } from './languageUtils';
@@ -22,17 +21,14 @@ import {
   extractUnwrapLabelKeysFromDataFrame,
 } from './responseUtils';
 import { type DetectedFieldsResult, LabelType, type LokiQuery, type ParserAndLabelKeysResult } from './types';
-
 const NS_IN_MS = 1000000;
 const EMPTY_SELECTOR = '{}';
 const HIDDEN_LABELS = ['__aggregated_metric__', '__tenant_id__', '__stream_shard__'];
-
 export default class LokiLanguageProvider extends LanguageProvider {
   labelKeys: string[];
   started = false;
   startedTimeRange?: TimeRange;
   datasource: LokiDatasource;
-
   /**
    *  Cache for labels of series. This is bit simplistic in the sense that it just counts responses each as a 1 and does
    *  not account for different size of a response. If that is needed a `length` function can be added in the options.
@@ -43,14 +39,11 @@ export default class LokiLanguageProvider extends LanguageProvider {
   private detectedFieldValuesCache = new LRUCache<string, string[]>({ max: 10 });
   private labelsPromisesCache = new LRUCache<string, Promise<string[]>>({ max: 10 });
   private detectedLabelValuesPromisesCache = new LRUCache<string, Promise<string[]>>({ max: 10 });
-
   constructor(datasource: LokiDatasource) {
     super();
-
     this.datasource = datasource;
     this.labelKeys = [];
   }
-
   request = async (
     url: string,
     params?: Record<string, string | number>,
@@ -63,13 +56,11 @@ export default class LokiLanguageProvider extends LanguageProvider {
       if (throwError) {
         throw error;
       } else {
-        console.error(error);
+        structLog('error', error);
       }
     }
-
     return undefined;
   };
-
   /**
    * Initialize the language provider by fetching set of labels.
    */
@@ -90,10 +81,8 @@ export default class LokiLanguageProvider extends LanguageProvider {
         return [];
       });
     }
-
     return this.startTask;
   };
-
   /**
    * Returns the label keys that have been fetched.
    * If labels have not been fetched yet, it will return an empty array.
@@ -108,7 +97,6 @@ export default class LokiLanguageProvider extends LanguageProvider {
   getLabelKeys(): string[] {
     return this.labelKeys;
   }
-
   importFromAbstractQuery(labelBasedQuery: AbstractQuery): LokiQuery {
     return {
       refId: labelBasedQuery.refId,
@@ -116,13 +104,11 @@ export default class LokiLanguageProvider extends LanguageProvider {
       queryType: LokiQueryType.Range,
     };
   }
-
   exportToAbstractQuery(query: LokiQuery): AbstractQuery {
     if (!query.expr || query.expr.length === 0) {
       return { refId: query.refId, labelMatchers: [] };
     }
     const streamSelectors = getStreamSelectorsFromQuery(query.expr);
-
     const labelMatchers = streamSelectors.map((streamSelector) => {
       const visualQuery = buildVisualQueryFromString(streamSelector).query;
       const matchers = visualQuery.labels.map((label) => {
@@ -134,13 +120,11 @@ export default class LokiLanguageProvider extends LanguageProvider {
       });
       return matchers;
     });
-
     return {
       refId: query.refId,
       labelMatchers: flatten(labelMatchers),
     };
   }
-
   /**
    * Fetch label keys using the best applicable endpoint.
    *
@@ -162,7 +146,6 @@ export default class LokiLanguageProvider extends LanguageProvider {
       return Object.keys(data ?? {});
     }
   }
-
   /**
    * Fetch all label keys
    * This asynchronous function returns all available label keys from the data source.
@@ -194,10 +177,8 @@ export default class LokiLanguageProvider extends LanguageProvider {
       this.labelKeys = labels;
       return this.labelKeys;
     }
-
     return [];
   }
-
   /**
    * Fetch series labels for a selector
    *
@@ -212,13 +193,14 @@ export default class LokiLanguageProvider extends LanguageProvider {
    */
   fetchSeriesLabels = async (
     streamSelector: string,
-    options?: { timeRange?: TimeRange }
+    options?: {
+      timeRange?: TimeRange;
+    }
   ): Promise<Record<string, string[]>> => {
     const interpolatedMatch = this.datasource.interpolateString(streamSelector);
     const url = 'series';
     const range = options?.timeRange ?? this.getDefaultTimeRange();
     const { start, end } = this.datasource.getTimeRangeParams(range);
-
     const cacheKey = this.generateCacheKey(url, start, end, interpolatedMatch);
     let value = this.seriesCache.get(cacheKey);
     if (!value) {
@@ -233,7 +215,6 @@ export default class LokiLanguageProvider extends LanguageProvider {
     }
     return value;
   };
-
   /**
    * Fetch series for a selector. Use this for raw results. Use fetchSeriesLabels() to get labels.
    * @param match
@@ -242,14 +223,18 @@ export default class LokiLanguageProvider extends LanguageProvider {
    * @param options.timeRange - (Optional) The time range for which you want to retrieve label keys. If not provided, the default time range is used.
    * @returns A promise containing array with records of label names and their value.
    */
-  fetchSeries = async (match: string, options?: { timeRange?: TimeRange }): Promise<Array<Record<string, string>>> => {
+  fetchSeries = async (
+    match: string,
+    options?: {
+      timeRange?: TimeRange;
+    }
+  ): Promise<Array<Record<string, string>>> => {
     const url = 'series';
     const range = options?.timeRange ?? this.getDefaultTimeRange();
     const { start, end } = this.datasource.getTimeRangeParams(range);
     const params = { 'match[]': match, start, end };
     return await this.request(url, params);
   };
-
   // Cache key is a bit different here. We round up to a minute the intervals.
   // The rounding may seem strange but makes relative intervals like now-1h less prone to need separate request every
   // millisecond while still actually getting all the keys for the correct interval. This still can create problems
@@ -257,12 +242,10 @@ export default class LokiLanguageProvider extends LanguageProvider {
   private generateCacheKey(url: string, start: number, end: number, param: string): string {
     return [url, this.roundTime(start), this.roundTime(end), param].join();
   }
-
   // Round nanoseconds epoch to nearest 5 minute interval
   private roundTime(nanoseconds: number): number {
     return nanoseconds ? Math.floor(nanoseconds / NS_IN_MS / 1000 / 60 / 5) : 0;
   }
-
   async fetchDetectedFields(
     queryOptions: {
       expr: string;
@@ -276,29 +259,25 @@ export default class LokiLanguageProvider extends LanguageProvider {
       queryOptions.expr && queryOptions.expr !== EMPTY_SELECTOR
         ? this.datasource.interpolateString(queryOptions.expr, queryOptions.scopedVars)
         : undefined;
-
     if (!interpolatedExpr) {
       throw new Error('fetchDetectedFields requires query expression');
     }
-
     const url = `detected_fields`;
     const range = queryOptions?.timeRange ?? this.getDefaultTimeRange();
     const rangeParams = this.datasource.getTimeRangeParams(range);
     const { start, end } = rangeParams;
     const params: KeyValue<string | number> = { start, end, limit: queryOptions?.limit ?? 1000 };
     params.query = interpolatedExpr;
-
     return new Promise(async (resolve, reject) => {
       try {
         const data = await this.request(url, params, true, requestOptions);
         resolve(data);
       } catch (error) {
-        console.error('error', error);
+        structLog('error', 'error', error);
         reject(error);
       }
     });
   }
-
   async fetchDetectedFieldValues(
     labelName: string,
     queryOptions?: {
@@ -313,7 +292,6 @@ export default class LokiLanguageProvider extends LanguageProvider {
     // This function was named poorly, it's not detected label values, it's detected field values! :facepalm
     return this.fetchDetectedLabelValues(labelName, queryOptions, requestOptions);
   }
-
   /**
    * @deprecated: use fetchDetectedFieldValues instead
    */
@@ -329,38 +307,31 @@ export default class LokiLanguageProvider extends LanguageProvider {
     requestOptions?: Partial<BackendSrvRequest>
   ): Promise<string[] | Error> {
     const label = encodeURIComponent(this.datasource.interpolateString(labelName));
-
     const interpolatedExpr =
       queryOptions?.expr && queryOptions.expr !== EMPTY_SELECTOR
         ? this.datasource.interpolateString(queryOptions.expr, queryOptions.scopedVars)
         : undefined;
-
     const url = `detected_field/${label}/values`;
     const range = queryOptions?.timeRange ?? this.getDefaultTimeRange();
     const rangeParams = this.datasource.getTimeRangeParams(range);
     const { start, end } = rangeParams;
     const params: KeyValue<string | number> = { start, end, limit: queryOptions?.limit ?? 1000 };
     let paramCacheKey = label;
-
     if (interpolatedExpr) {
       params.query = interpolatedExpr;
       paramCacheKey += interpolatedExpr;
     }
-
     const cacheKey = this.generateCacheKey(url, start, end, paramCacheKey);
-
     // Values in cache, return
     const labelValues = this.detectedFieldValuesCache.get(cacheKey);
     if (labelValues) {
       return labelValues;
     }
-
     // Promise in cache, return
     let labelValuesPromise = this.detectedLabelValuesPromisesCache.get(cacheKey);
     if (labelValuesPromise) {
       return labelValuesPromise;
     }
-
     labelValuesPromise = new Promise(async (resolve, reject) => {
       try {
         const data = await this.request(url, params, queryOptions?.throwError, requestOptions);
@@ -374,16 +345,14 @@ export default class LokiLanguageProvider extends LanguageProvider {
         if (queryOptions?.throwError) {
           reject(error);
         } else {
-          console.error(error);
+          structLog('error', error);
           resolve([]);
         }
       }
     });
     this.detectedLabelValuesPromisesCache.set(cacheKey, labelValuesPromise);
-
     return labelValuesPromise;
   }
-
   /**
    * Fetch label values
    *
@@ -399,7 +368,10 @@ export default class LokiLanguageProvider extends LanguageProvider {
    */
   async fetchLabelValues(
     labelName: string,
-    options?: { streamSelector?: string; timeRange?: TimeRange }
+    options?: {
+      streamSelector?: string;
+      timeRange?: TimeRange;
+    }
   ): Promise<string[]> {
     const label = encodeURIComponent(this.datasource.interpolateString(labelName));
     // Loki doesn't allow empty streamSelector {}, so we should not send it.
@@ -407,33 +379,27 @@ export default class LokiLanguageProvider extends LanguageProvider {
       options?.streamSelector && options.streamSelector !== EMPTY_SELECTOR
         ? this.datasource.interpolateString(options.streamSelector)
         : undefined;
-
     const url = `label/${label}/values`;
     const range = options?.timeRange ?? this.getDefaultTimeRange();
     const rangeParams = this.datasource.getTimeRangeParams(range);
     const { start, end } = rangeParams;
     const params: KeyValue<string | number> = { start, end };
     let paramCacheKey = label;
-
     if (streamParam) {
       params.query = streamParam;
       paramCacheKey += streamParam;
     }
-
     const cacheKey = this.generateCacheKey(url, start, end, paramCacheKey);
-
     // Values in cache, return
     const labelValues = this.labelsCache.get(cacheKey);
     if (labelValues) {
       return labelValues;
     }
-
     // Promise in cache, return
     let labelValuesPromise = this.labelsPromisesCache.get(cacheKey);
     if (labelValuesPromise) {
       return labelValuesPromise;
     }
-
     labelValuesPromise = new Promise(async (resolve) => {
       try {
         const data = await this.request(url, params);
@@ -444,14 +410,13 @@ export default class LokiLanguageProvider extends LanguageProvider {
           resolve(labelValues);
         }
       } catch (error) {
-        console.error(error);
+        structLog('error', error);
         resolve([]);
       }
     });
     this.labelsPromisesCache.set(cacheKey, labelValuesPromise);
     return labelValuesPromise;
   }
-
   /**
    * Get parser and label keys for a selector
    *
@@ -474,7 +439,10 @@ export default class LokiLanguageProvider extends LanguageProvider {
    */
   async getParserAndLabelKeys(
     streamSelector: string,
-    options?: { maxLines?: number; timeRange?: TimeRange }
+    options?: {
+      maxLines?: number;
+      timeRange?: TimeRange;
+    }
   ): Promise<ParserAndLabelKeysResult> {
     const empty = {
       extractedLabelKeys: [],
@@ -484,7 +452,6 @@ export default class LokiLanguageProvider extends LanguageProvider {
       hasLogfmt: false,
       hasPack: false,
     };
-
     const series = await this.datasource.getDataSamples(
       {
         expr: streamSelector,
@@ -493,13 +460,10 @@ export default class LokiLanguageProvider extends LanguageProvider {
       },
       options?.timeRange ?? this.getDefaultTimeRange()
     );
-
     if (!series.length) {
       return empty;
     }
-
     const { hasLogfmt, hasJSON, hasPack } = extractLogParserFromDataFrame(series[0]);
-
     return {
       extractedLabelKeys: [
         ...extractLabelKeysFromDataFrame(series[0], LabelType.Indexed),
@@ -512,7 +476,6 @@ export default class LokiLanguageProvider extends LanguageProvider {
       hasLogfmt,
     };
   }
-
   /**
    * Get the default time range
    *

@@ -1,18 +1,15 @@
+import { structLog } from '@grafana/data';
 /* eslint-disable @grafana/i18n/no-untranslated-strings */
 /** @jsxImportSource @emotion/react */
 import { css, cx } from '@emotion/css';
 import classnames from 'classnames';
 import React, { Profiler, type ProfilerOnRenderCallback, useState, type FC } from 'react';
-
 import { type GrafanaTheme2 } from '@grafana/data';
-
 import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
 import { Button } from '../Button/Button';
 import { Stack } from '../Layout/Stack/Stack';
-
 export function EmotionPerfTest() {
-  console.log('process.env.NODE_ENV', process.env.NODE_ENV);
-
+  structLog('log', 'process.env.NODE_ENV', process.env.NODE_ENV);
   return (
     <Stack direction="column">
       <div>Emotion performance tests</div>
@@ -26,10 +23,11 @@ export function EmotionPerfTest() {
     </Stack>
   );
 }
-
-export const TestScenario: FC<{ name: string; Component: FC<TestComponentProps> }> = ({ name, Component }) => {
+export const TestScenario: FC<{
+  name: string;
+  Component: FC<TestComponentProps>;
+}> = ({ name, Component }) => {
   const [render, setRender] = useState(0);
-
   return (
     <div>
       <Button onClick={() => setRender(render > 2 ? 0 : render + 1)}>{name}</Button>
@@ -37,23 +35,17 @@ export const TestScenario: FC<{ name: string; Component: FC<TestComponentProps> 
     </div>
   );
 };
-
 TestScenario.displayName = 'TestScenario';
-
 function renderManyComponents(Component: FC<TestComponentProps>) {
   const elements: React.ReactNode[] = [];
-
   for (let i = 0; i < 5000; i++) {
     elements.push(<Component index={i} key={i.toString()} />);
   }
-
   return <div style={{ display: 'flex', flexWrap: 'wrap' }}>{elements}</div>;
 }
-
 interface TestComponentProps {
   index: number;
 }
-
 function UseStylesNoCX({ index }: TestComponentProps) {
   const styles = useStyles2(getStyles);
   return (
@@ -62,39 +54,32 @@ function UseStylesNoCX({ index }: TestComponentProps) {
     </div>
   );
 }
-
 function UseStylesWithConditionalCX({ index }: TestComponentProps) {
   const styles = useStyles2(getStyles);
   const mainStyles = cx(styles.main, { [styles.large]: index > 10, [styles.disabed]: index % 10 === 0 });
-
   return (
     <div className={mainStyles}>
       <div className={styles.child}>{index}</div>
     </div>
   );
 }
-
 function UseStylesWithConditionalClassNames({ index }: TestComponentProps) {
   const styles = useStyles2(getStyles);
   const mainStyles = classnames(styles.main, { [styles.large]: index > 10, [styles.disabed]: index % 10 === 0 });
-
   return (
     <div className={mainStyles}>
       <div className={styles.child}>{index}</div>
     </div>
   );
 }
-
 function UseStylesWithCSSProp({ index }: TestComponentProps) {
   const styles = useStyles2(getStylesObjects);
-
   return (
     <div css={styles.main}>
       <div css={styles.child}>{index}</div>
     </div>
   );
 }
-
 function UseStylesWithConditionalCSS({ index }: TestComponentProps) {
   const styles = useStyles2(getStylesObjects);
   const mainStyles = [styles.main, index > 10 && styles.large, index % 10 === 0 && styles.disabed];
@@ -104,18 +89,15 @@ function UseStylesWithConditionalCSS({ index }: TestComponentProps) {
     </div>
   );
 }
-
 function InlineEmotionCSS({ index }: TestComponentProps) {
   const theme = useTheme2();
   const styles = getStyles(theme);
-
   return (
     <div className={styles.main}>
       <div className={styles.child}>{index}</div>
     </div>
   );
 }
-
 function NoStyles({ index }: TestComponentProps) {
   return (
     <div className="no-styles-main">
@@ -123,19 +105,16 @@ function NoStyles({ index }: TestComponentProps) {
     </div>
   );
 }
-
 function MeasureRender({ children, id }: { children: React.ReactNode; id: string }) {
   const onRender: ProfilerOnRenderCallback = (id, phase, actualDuration, baseDuration, startTime, commitTime) => {
-    console.log('Profile ' + id, actualDuration);
+    structLog('log', 'Profile ' + id, actualDuration);
   };
-
   return (
     <Profiler id={id} onRender={onRender}>
       {children}
     </Profiler>
   );
 }
-
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     main: css(getStylesObjectMain(theme)),
@@ -150,7 +129,6 @@ const getStyles = (theme: GrafanaTheme2) => {
     child: css(getStylesObjectChild(theme)),
   };
 };
-
 const getStylesObjects = (theme: GrafanaTheme2) => {
   return {
     main: getStylesObjectMain(theme),
@@ -165,7 +143,6 @@ const getStylesObjects = (theme: GrafanaTheme2) => {
     child: getStylesObjectChild(theme),
   };
 };
-
 function getStylesObjectMain(theme: GrafanaTheme2) {
   return {
     background: 'blue',
@@ -178,7 +155,6 @@ function getStylesObjectMain(theme: GrafanaTheme2) {
     },
   };
 }
-
 function getStylesObjectChild(theme: GrafanaTheme2) {
   return {
     padding: '2px',

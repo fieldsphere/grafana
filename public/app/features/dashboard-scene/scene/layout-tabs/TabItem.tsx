@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import React from 'react';
-
 import { store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { logWarning } from '@grafana/runtime';
@@ -19,7 +19,6 @@ import { appEvents } from 'app/core/app_events';
 import { LS_TAB_COPY_KEY } from 'app/core/constants';
 import kbn from 'app/core/utils/kbn';
 import { ShowConfirmModalEvent } from 'app/types/events';
-
 import { ConditionalRenderingGroup } from '../../conditional-rendering/group/ConditionalRenderingGroup';
 import { dashboardEditActions } from '../../edit-pane/shared';
 import { serializeTab } from '../../serialization/layoutSerializers/TabsLayoutSerializer';
@@ -42,12 +41,10 @@ import { isDashboardLayoutGrid } from '../types/DashboardLayoutGrid';
 import { type DashboardLayoutManager } from '../types/DashboardLayoutManager';
 import { type EditableDashboardElement, type EditableDashboardElementInfo } from '../types/EditableDashboardElement';
 import { type LayoutParent } from '../types/LayoutParent';
-
 import { useEditOptions } from './TabItemEditor';
 import { TabItemRenderer } from './TabItemRenderer';
 import { TabItems } from './TabItems';
 import { TabsLayoutManager } from './TabsLayoutManager';
-
 export interface TabItemState extends SceneObjectState {
   layout: DashboardLayoutManager;
   title?: string;
@@ -58,22 +55,17 @@ export interface TabItemState extends SceneObjectState {
   /** Marks object as a repeated object and a key pointer to source object */
   repeatSourceKey?: string;
 }
-
 export class TabItem
   extends SceneObjectBase<TabItemState>
   implements LayoutParent, BulkActionElement, EditableDashboardElement, DashboardDropTarget
 {
   public static Component = TabItemRenderer;
-
   protected _variableDependency = new VariableDependencyConfig(this, {
     statePaths: ['title'],
   });
-
   public readonly isEditableDashboardElement = true;
   public readonly isDashboardDropTarget = true;
-
   public containerRef = React.createRef<HTMLDivElement>();
-
   constructor(state?: Partial<TabItemState>) {
     super({
       ...state,
@@ -81,20 +73,16 @@ export class TabItem
       layout: state?.layout ?? AutoGridLayoutManager.createEmpty(),
       conditionalRendering: state?.conditionalRendering ?? ConditionalRenderingGroup.createEmpty(),
     });
-
     this.addActivationHandler(() => this._activationHandler());
   }
-
   private _activationHandler() {
     const deactivate = this.state.conditionalRendering?.activate();
-
     return () => {
       if (deactivate) {
         deactivate();
       }
     };
   }
-
   public getEditableElementInfo(): EditableDashboardElementInfo {
     const isHidden = !this.state.conditionalRendering?.state.result;
     return {
@@ -104,7 +92,6 @@ export class TabItem
       isHidden,
     };
   }
-
   public getOutlineChildren(isEditing?: boolean): SceneObject[] {
     const layoutChildren = this.state.layout.getOutlineChildren();
     if (
@@ -116,18 +103,14 @@ export class TabItem
     }
     return layoutChildren;
   }
-
   public getLayout(): DashboardLayoutManager {
     return this.state.layout;
   }
-
   public getSlug(): string {
     return kbn.slugifyForUrl(interpolateSectionTitle(this, this.state.title ?? 'Tab'));
   }
-
   public switchLayout(layout: DashboardLayoutManager) {
     const currentLayout = this.state.layout;
-
     dashboardEditActions.edit({
       description: t('dashboard.edit-actions.switch-layout-tab', 'Switch layout'),
       source: this,
@@ -141,20 +124,16 @@ export class TabItem
       },
     });
   }
-
   public useEditPaneOptions = useEditOptions.bind(this);
-
   public onDelete() {
     const layout = this.getParentLayout();
     layout.removeTab(this);
   }
-
   public onConfirmDelete() {
     if (this.getLayout().getVizPanels().length === 0) {
       this.onDelete();
       return;
     }
-
     appEvents.publish(
       new ShowConfirmModalEvent({
         title: t('dashboard.tabs-layout.delete-tab-title', 'Delete tab?'),
@@ -169,41 +148,33 @@ export class TabItem
       })
     );
   }
-
   public serialize(): TabsLayoutTabKind {
     return serializeTab(this);
   }
-
   public onCopy() {
     const elements = getElements(this.getLayout(), getDashboardSceneFor(this));
     clearClipboard();
     store.set(LS_TAB_COPY_KEY, JSON.stringify({ elements, tab: this.serialize() }));
   }
-
   public createMultiSelectedElement(items: SceneObject[]): TabItems {
     return new TabItems(items.filter((item) => item instanceof TabItem));
   }
-
   public onDuplicate(): void {
     this.getParentLayout().duplicateTab(this);
   }
-
   // panelIdGenerator is a shared sequential counter created by the parent layout
   // we forward id to ensure sibling tabs never produce duplicate panel IDs
   public duplicate(panelIdGenerator?: PanelIdGenerator): TabItem {
     return this.clone({ key: undefined, layout: this.getLayout().duplicate(panelIdGenerator) });
   }
-
   public onChangeTitle(title: string) {
     this.setState({ title });
     const currentTabSlug = this.getSlug();
     this.getParentLayout().setState({ currentTabSlug });
   }
-
   public onChangeName(name: string): void {
     this.onChangeTitle(name);
   }
-
   public onChangeRepeat(repeat: string | undefined) {
     if (repeat) {
       this.setState({ repeatByVariable: repeat });
@@ -215,13 +186,11 @@ export class TabItem
       });
     }
   }
-
   public setIsDropTarget(isDropTarget: boolean) {
     if (!!this.state.isDropTarget !== isDropTarget) {
       this.setState({ isDropTarget });
     }
   }
-
   public draggedGridItemOutside?(gridItem: SceneGridItemLike): void {
     // Remove from source layout
     if (gridItem instanceof DashboardGridItem || gridItem instanceof AutoGridItem) {
@@ -234,17 +203,15 @@ export class TabItem
         layout.setState({ children: newChildren });
       } else {
         const warningMessage = 'Grid item has unexpected parent type';
-        console.warn(warningMessage);
+        structLog('warn', warningMessage);
         logWarning(warningMessage);
       }
     }
     this.setIsDropTarget(false);
   }
-
   public draggedGridItemInside(gridItem: SceneGridItemLike): void {
     trackDropItemCrossLayout(gridItem);
     const layout = this.getLayout();
-
     if (isDashboardLayoutGrid(layout)) {
       layout.addGridItem(gridItem);
     } else if (layout instanceof RowsLayoutManager) {
@@ -256,40 +223,35 @@ export class TabItem
           rowLayout.addGridItem(gridItem);
         } else {
           const warningMessage = 'First row layout does not support addGridItem';
-          console.warn(warningMessage);
+          structLog('warn', warningMessage);
           logWarning(warningMessage);
         }
       }
     } else {
       const warningMessage = 'Layout manager does not support addGridItem';
-      console.warn(warningMessage);
+      structLog('warn', warningMessage);
       logWarning(warningMessage);
     }
     this.setIsDropTarget(false);
-
     const parentLayout = this.getParentLayout();
     if (parentLayout.state.currentTabSlug !== this.getSlug()) {
       parentLayout.setState({ currentTabSlug: this.getSlug() });
     }
   }
-
   /**
    * Accept a dropped row into this tab.
    * If the tab doesn't have a RowsLayoutManager, convert the layout first.
    */
   public acceptDroppedRow(row: RowItem): void {
     const currentLayout = this.getLayout();
-
     // Clear the parent reference from the row before adding to new layout
     row.clearParent();
-
     if (currentLayout instanceof RowsLayoutManager) {
       // Already has a RowsLayoutManager, just add the row
       currentLayout.addNewRow(row);
     } else {
       // Need to convert the layout to RowsLayoutManager
       let rowsLayout: RowsLayoutManager;
-
       // If the current layout is empty, just create a new RowsLayoutManager with only the dropped row
       if (currentLayout.getVizPanels().length === 0) {
         rowsLayout = new RowsLayoutManager({ rows: [row] });
@@ -300,34 +262,27 @@ export class TabItem
         rowsLayout = RowsLayoutManager.createFromLayout(currentLayout);
         rowsLayout.setState({ rows: [...rowsLayout.state.rows, row] });
       }
-
       // Clear the parent reference from the old layout
       currentLayout.clearParent();
-
       // Switch to the new rows layout
       this.setState({ layout: rowsLayout });
     }
-
     // Ensure this tab is active after the drop
     const parentLayout = this.getParentLayout();
     if (parentLayout.state.currentTabSlug !== this.getSlug()) {
       parentLayout.setState({ currentTabSlug: this.getSlug() });
     }
   }
-
   public getParentLayout(): TabsLayoutManager {
     return sceneGraph.getAncestor(this, TabsLayoutManager);
   }
-
   public scrollIntoView(): void {
     const tabsLayout = this.getParentLayout();
     if (tabsLayout.getCurrentTab() !== this) {
       tabsLayout.switchToTab(this);
     }
-
     scrollCanvasElementIntoView(this, this.containerRef);
   }
-
   public hasUniqueTitle(): boolean {
     const parentLayout = this.getParentLayout();
     const duplicateTitles = parentLayout.duplicateTitles();

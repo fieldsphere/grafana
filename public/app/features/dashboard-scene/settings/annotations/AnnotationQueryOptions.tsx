@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { useCallback, useState } from 'react';
 import { useAsync } from 'react-use';
-
 import { AppEvents, CoreApp, type DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { getAppEvents, getDataSourceSrv } from '@grafana/runtime';
@@ -10,15 +10,11 @@ import StandardAnnotationQueryEditor from 'app/features/annotations/components/S
 import { updateAnnotationFromSavedQuery } from 'app/features/annotations/utils/savedQueryUtils';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
 import { useQueryLibraryContext } from 'app/features/explore/QueryLibrary/QueryLibraryContext';
-
 import { dashboardEditActions } from '../../edit-pane/shared';
-
 import { type AnnotationLayer } from './AnnotationEditableElement';
-
 export function AnnotationQueryEditorButton({ layer }: { layer: AnnotationLayer }) {
   const { queryLibraryEnabled } = useQueryLibraryContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
   return (
     <>
       <Box display={'flex'} direction={'column'} paddingBottom={1}>
@@ -59,15 +55,12 @@ export function AnnotationQueryEditorButton({ layer }: { layer: AnnotationLayer 
     </>
   );
 }
-
 function QueryLibraryButton({ layer, onQuerySelected }: { layer: AnnotationLayer; onQuerySelected?: () => void }) {
   const { openDrawer, closeDrawer } = useQueryLibraryContext();
-
   const { query } = layer.useState();
   const { value: datasource } = useAsync(() => {
     return getDataSourceSrv().get(query?.datasource);
   }, [query?.datasource]);
-
   const onSelectFromQueryLibrary = useCallback(() => {
     openDrawer({
       options: {
@@ -79,7 +72,7 @@ function QueryLibraryButton({ layer, onQuerySelected }: { layer: AnnotationLayer
           layer.setState({ query: updatedQuery });
           layer.runLayer();
         } catch (error) {
-          console.error('Failed to replace annotation query!', error);
+          structLog('error', 'Failed to replace annotation query!', error);
           getAppEvents().publish({
             type: AppEvents.alertError.name,
             payload: ['Failed to create annotation query!', error instanceof Error ? error.message : error],
@@ -91,26 +84,21 @@ function QueryLibraryButton({ layer, onQuerySelected }: { layer: AnnotationLayer
       },
     });
   }, [closeDrawer, layer, onQuerySelected, openDrawer, query]);
-
   if (!datasource) {
     return null;
   }
-
   return (
     <Button variant="secondary" tooltip="" onClick={onSelectFromQueryLibrary} size="sm" fullWidth>
       <Trans i18nKey="dashboard-scene.annotation-query-library-dropdown.use-saved-query">Use saved query</Trans>
     </Button>
   );
 }
-
 function AnnotationDataSourcePicker({ layer }: { layer: AnnotationLayer }) {
   const { query } = layer.useState();
-
   const onDataSourceChange = useCallback(
     (ds: DataSourceInstanceSettings) => {
       const dsRef = getDataSourceRef(ds);
       const oldQuery = query;
-
       // If the data source type changed, reset the query to defaults
       const newQuery =
         query.datasource?.type !== dsRef.type
@@ -126,7 +114,6 @@ function AnnotationDataSourcePicker({ layer }: { layer: AnnotationLayer }) {
               type: query.type,
             }
           : { ...query, datasource: dsRef };
-
       dashboardEditActions.edit({
         description: t('dashboard.edit-pane.annotation.change-data-source', 'Change annotation data source'),
         source: layer,
@@ -142,23 +129,18 @@ function AnnotationDataSourcePicker({ layer }: { layer: AnnotationLayer }) {
     },
     [layer, query]
   );
-
   return (
     <Field label={t('dashboard.edit-pane.annotation.data-source', 'Data source')} noMargin>
       <DataSourcePicker annotations variables current={query?.datasource} onChange={onDataSourceChange} />
     </Field>
   );
 }
-
 function AnnotationQueryEditor({ layer }: { layer: AnnotationLayer }) {
   const { query } = layer.useState();
-
   const { value: ds } = useAsync(() => {
     return getDataSourceSrv().get(query?.datasource);
   }, [query?.datasource]);
-
   const dsi = getDataSourceSrv().getInstanceSettings(query?.datasource);
-
   const onChange = useCallback(
     (newQuery: typeof query) => {
       layer.setState({ query: newQuery });
@@ -166,11 +148,9 @@ function AnnotationQueryEditor({ layer }: { layer: AnnotationLayer }) {
     },
     [layer]
   );
-
   if (!ds?.annotations || !dsi || !query) {
     return null;
   }
-
   return (
     <StandardAnnotationQueryEditor
       disableSavedQueries

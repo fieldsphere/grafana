@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import * as React from 'react';
-
 import {
   DataTransformerID,
   type KeyValue,
@@ -15,12 +15,9 @@ import { type FilterFieldsByNameTransformerOptions } from '@grafana/data/interna
 import { t } from '@grafana/i18n';
 import { getTemplateSrv } from '@grafana/runtime';
 import { Input, FilterPill, InlineFieldRow, InlineField, InlineSwitch, Select } from '@grafana/ui';
-
 import darkImage from '../images/dark/filterFieldsByName.svg';
 import lightImage from '../images/light/filterFieldsByName.svg';
-
 interface FilterByNameTransformerEditorProps extends TransformerUIProps<FilterFieldsByNameTransformerOptions> {}
-
 interface FilterByNameTransformerEditorState {
   include: string[];
   options: FieldNameInfo[];
@@ -31,7 +28,6 @@ interface FilterByNameTransformerEditorState {
   byVariable: boolean;
   isRegexValid?: boolean;
 }
-
 interface FieldNameInfo {
   name: string;
   count: number;
@@ -53,32 +49,26 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
       isRegexValid: true,
     };
   }
-
   componentDidMount() {
     this.initOptions();
   }
-
   componentDidUpdate(oldProps: FilterByNameTransformerEditorProps) {
     if (this.props.input !== oldProps.input) {
       this.initOptions();
     }
   }
-
   private initOptions() {
     const { input, options } = this.props;
     const configuredOptions = Array.from(options.include?.names ?? []);
-
     const variables = getTemplateSrv()
       .getVariables()
       .map((v) => ({ label: '$' + v.name, value: '$' + v.name }));
     const allNames: FieldNameInfo[] = [];
     const byName: KeyValue<FieldNameInfo> = {};
-
     for (const frame of input) {
       for (const field of frame.fields) {
         const displayName = getFieldDisplayName(field, frame, input);
         let v = byName[displayName];
-
         if (!v) {
           v = byName[displayName] = {
             name: displayName,
@@ -86,28 +76,23 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           };
           allNames.push(v);
         }
-
         v.count++;
       }
     }
-
     if (options.include?.pattern) {
       try {
         const regex = stringToJsRegex(options.include.pattern);
-
         for (const info of allNames) {
           if (regex.test(info.name)) {
             configuredOptions.push(info.name);
           }
         }
       } catch (error) {
-        console.error(error);
+        structLog('error', error);
       }
     }
-
     if (configuredOptions.length) {
       const selected: FieldNameInfo[] = allNames.filter((n) => configuredOptions.includes(n.name));
-
       this.setState({
         options: allNames,
         selected: selected.map((s) => s.name),
@@ -127,7 +112,6 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
       });
     }
   }
-
   onFieldToggle = (fieldName: string) => {
     const { selected } = this.state;
     if (selected.indexOf(fieldName) > -1) {
@@ -136,28 +120,23 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
       this.onChange([...selected, fieldName]);
     }
   };
-
   onChange = (selected: string[]) => {
     const { regex, isRegexValid } = this.state;
     const options: FilterFieldsByNameTransformerOptions = {
       ...this.props.options,
       include: { names: selected },
     };
-
     if (regex && isRegexValid) {
       options.include = options.include ?? {};
       options.include.pattern = regex;
     }
-
     this.setState({ selected }, () => {
       this.props.onChange(options);
     });
   };
-
   onInputBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     const { selected, regex } = this.state;
     let isRegexValid = true;
-
     try {
       if (regex) {
         stringToJsRegex(regex);
@@ -165,7 +144,6 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
     } catch (e) {
       isRegexValid = false;
     }
-
     if (isRegexValid) {
       this.props.onChange({
         ...this.props.options,
@@ -177,25 +155,20 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
         include: { names: selected },
       });
     }
-
     this.setState({ isRegexValid });
   };
-
   onVariableChange = (selected: SelectableValue) => {
     this.props.onChange({
       ...this.props.options,
       include: { variable: selected.value },
     });
-
     this.setState({ variable: selected.value });
   };
-
   onFromVariableChange = (e: React.FormEvent<HTMLInputElement>) => {
     const val = e.currentTarget.checked;
     this.props.onChange({ ...this.props.options, byVariable: val });
     this.setState({ byVariable: val });
   };
-
   render() {
     const { options, selected, isRegexValid } = this.state;
     return (
@@ -253,7 +226,6 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
     );
   }
 }
-
 export const getFilterFieldsByNameTransformRegistryItem: () => TransformerRegistryItem<FilterFieldsByNameTransformerOptions> =
   () => ({
     id: DataTransformerID.filterFieldsByName,

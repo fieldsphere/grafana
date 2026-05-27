@@ -1,9 +1,9 @@
+import { structLog } from '@grafana/data';
 import { type PluginError, type PluginMeta, renderMarkdown } from '@grafana/data';
 import { getBackendSrv, isFetchError } from '@grafana/runtime';
 import { installPluginMeta, logPluginMetaError, uninstallPluginMeta } from '@grafana/runtime/internal';
 import { accessControlQueryParam } from 'app/core/utils/accessControl';
 import { isVersionGtOrEq } from 'app/core/utils/version';
-
 import { API_ROOT, GCOM_API_ROOT, INSTANCE_API_ROOT } from './constants';
 import { isLocalPluginVisibleByConfig, isRemotePluginVisibleByConfig } from './helpers';
 import {
@@ -16,7 +16,6 @@ import {
   type InstancePlugin,
   type ProvisionedPlugin,
 } from './types';
-
 export async function getPluginDetails(id: string): Promise<CatalogPluginDetails> {
   const remote = await getRemotePlugin(id);
   const isPublished = Boolean(remote);
@@ -26,10 +25,8 @@ export async function getPluginDetails(id: string): Promise<CatalogPluginDetails
     getLocalPluginReadme(id),
     getLocalPluginChangelog(id),
   ]);
-
   const local = localPlugins.find((p) => p.id === id);
   const dependencies = local?.dependencies || remote?.json?.dependencies;
-
   // Add installed version to the list if it's missing (could be deprecated/deleted)
   const installedVersion = local?.info.version;
   const installedVersionMissing = !versions.some((v) => v.version === installedVersion);
@@ -43,7 +40,6 @@ export async function getPluginDetails(id: string): Promise<CatalogPluginDetails
       });
     }
   }
-
   return {
     grafanaDependency: dependencies?.grafanaDependency ?? dependencies?.grafanaVersion ?? '',
     pluginDependencies: dependencies?.plugins || [],
@@ -63,7 +59,6 @@ export async function getPluginDetails(id: string): Promise<CatalogPluginDetails
     screenshots: remote?.json?.info.screenshots || local?.info.screenshots,
   };
 }
-
 export async function getPluginInsights(id: string, version: string | undefined): Promise<CatalogPluginInsights> {
   if (!version) {
     throw new Error('Version is required');
@@ -78,28 +73,28 @@ export async function getPluginInsights(id: string, version: string | undefined)
     throw error;
   }
 }
-
 export async function getRemotePlugins(): Promise<RemotePlugin[]> {
   try {
-    const { items: remotePlugins }: { items: RemotePlugin[] } = await getBackendSrv().get(`${GCOM_API_ROOT}/plugins`, {
+    const {
+      items: remotePlugins,
+    }: {
+      items: RemotePlugin[];
+    } = await getBackendSrv().get(`${GCOM_API_ROOT}/plugins`, {
       // We are also fetching deprecated plugins, because we would like to be able to label plugins in the list that are both installed and deprecated.
       // (We won't show not installed deprecated plugins in the list)
       includeDeprecated: true,
     });
-
     return remotePlugins.filter(isRemotePluginVisibleByConfig);
   } catch (error) {
     if (isFetchError(error)) {
       // It can happen that GCOM is not available, in that case we show a limited set of information to the user.
       error.isHandled = true;
-      console.error('Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
+      structLog('error', 'Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
       return [];
     }
-
     throw error;
   }
 }
-
 export async function getPluginErrors(): Promise<PluginError[]> {
   try {
     return await getBackendSrv().get(`${API_ROOT}/errors`);
@@ -107,7 +102,6 @@ export async function getPluginErrors(): Promise<PluginError[]> {
     return [];
   }
 }
-
 async function getRemotePlugin(id: string): Promise<RemotePlugin | undefined> {
   try {
     return await getBackendSrv().get(`${GCOM_API_ROOT}/plugins/${id}`, {});
@@ -119,11 +113,9 @@ async function getRemotePlugin(id: string): Promise<RemotePlugin | undefined> {
     return;
   }
 }
-
 async function getPluginVersion(id: string, version: string): Promise<Version | null> {
   try {
     const v: PluginVersion = await getBackendSrv().get(`${GCOM_API_ROOT}/plugins/${id}/versions/${version}`);
-
     return {
       version: v.version,
       createdAt: v.createdAt,
@@ -141,15 +133,14 @@ async function getPluginVersion(id: string, version: string): Promise<Version | 
     return null;
   }
 }
-
 async function getPluginVersions(id: string, isPublished: boolean): Promise<Version[]> {
   try {
     if (!isPublished) {
       return [];
     }
-
-    const versions: { items: PluginVersion[] } = await getBackendSrv().get(`${GCOM_API_ROOT}/plugins/${id}/versions`);
-
+    const versions: {
+      items: PluginVersion[];
+    } = await getBackendSrv().get(`${GCOM_API_ROOT}/plugins/${id}/versions`);
     return (versions.items || []).map((v) => ({
       version: v.version,
       createdAt: v.createdAt,
@@ -167,12 +158,10 @@ async function getPluginVersions(id: string, isPublished: boolean): Promise<Vers
     return [];
   }
 }
-
 async function getLocalPluginReadme(id: string): Promise<string> {
   try {
     const markdown: string = await getBackendSrv().get(`${API_ROOT}/${id}/markdown/README`);
     const markdownAsHtml = markdown ? renderMarkdown(markdown) : '';
-
     return markdownAsHtml;
   } catch (error) {
     if (isFetchError(error)) {
@@ -181,7 +170,6 @@ async function getLocalPluginReadme(id: string): Promise<string> {
     return '';
   }
 }
-
 async function getLocalPluginChangelog(id: string): Promise<string> {
   try {
     const markdown: string = await getBackendSrv().get(`${API_ROOT}/${id}/markdown/CHANGELOG`);
@@ -194,32 +182,31 @@ async function getLocalPluginChangelog(id: string): Promise<string> {
     return '';
   }
 }
-
 export async function getLocalPlugins(): Promise<LocalPlugin[]> {
   const localPlugins: LocalPlugin[] = await getBackendSrv().get(
     `${API_ROOT}`,
     accessControlQueryParam({ embedded: 0 })
   );
-
   return localPlugins.filter(isLocalPluginVisibleByConfig);
 }
-
 export async function getInstancePlugins(): Promise<InstancePlugin[]> {
-  const { items: instancePlugins }: { items: InstancePlugin[] } = await getBackendSrv().get(
-    `${INSTANCE_API_ROOT}/plugins`
-  );
-
+  const {
+    items: instancePlugins,
+  }: {
+    items: InstancePlugin[];
+  } = await getBackendSrv().get(`${INSTANCE_API_ROOT}/plugins`);
   return instancePlugins;
 }
-
 export async function getProvisionedPlugins(): Promise<ProvisionedPlugin[]> {
-  const { items: provisionedPlugins }: { items: Array<{ type: string }> } = await getBackendSrv().get(
-    `${INSTANCE_API_ROOT}/provisioned-plugins`
-  );
-
+  const {
+    items: provisionedPlugins,
+  }: {
+    items: Array<{
+      type: string;
+    }>;
+  } = await getBackendSrv().get(`${INSTANCE_API_ROOT}/provisioned-plugins`);
   return provisionedPlugins.map((plugin) => ({ slug: plugin.type }));
 }
-
 export async function installPlugin(id: string, version?: string) {
   // Install via K8s PluginMeta API (no-op when useMTPlugins is off).
   // We call both this and the legacy path because the K8s settings API doesn't cover all
@@ -230,7 +217,6 @@ export async function installPlugin(id: string, version?: string) {
   } catch (error: unknown) {
     logPluginMetaError(`PluginMeta: Failed to install plugin with id ${id} and version ${version}`, error);
   }
-
   // Legacy install path — kept until K8s settings API covers all plugin types.
   return await getBackendSrv().post(
     `${API_ROOT}/${id}/install`,
@@ -241,7 +227,6 @@ export async function installPlugin(id: string, version?: string) {
     }
   );
 }
-
 export async function uninstallPlugin(id: string) {
   // Uninstall via K8s PluginMeta API (no-op when useMTPlugins is off).
   // We call both this and the legacy path because the K8s settings API doesn't cover all
@@ -252,19 +237,15 @@ export async function uninstallPlugin(id: string) {
   } catch (error: unknown) {
     logPluginMetaError(`PluginMeta: Failed to uninstall plugin with id ${id}`, error);
   }
-
   // Legacy uninstall path — kept until K8s settings API covers all plugin types.
   return await getBackendSrv().post(`${API_ROOT}/${id}/uninstall`);
 }
-
 export async function updatePluginSettings(id: string, data: Partial<PluginMeta>) {
   const response = await getBackendSrv().datasourceRequest({
     url: `/api/plugins/${id}/settings`,
     method: 'POST',
     data,
   });
-
   return response?.data;
 }
-
 export const api = { getRemotePlugins, getInstalledPlugins: getLocalPlugins, installPlugin, uninstallPlugin };

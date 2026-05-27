@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { firstValueFrom } from 'rxjs';
-
 import { onUpdateDatasourceJsonDataOptionSelect, onUpdateDatasourceOption } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import {
@@ -17,9 +17,7 @@ import {
   Alert,
   useStyles2,
 } from '@grafana/ui';
-
 import { InfluxVersion } from '../../../types';
-
 import { AdvancedHttpSettings } from './AdvancedHttpSettings';
 import { AuthSettings } from './AuthSettings';
 import { CONFIG_SECTION_HEADERS, CONTAINER_MIN_WIDTH } from './constants';
@@ -30,19 +28,19 @@ import {
 } from './tracking';
 import { type Props } from './types';
 import { INFLUXDB_VERSION_MAP, type InfluxDBProduct } from './versions';
-
-const getQueryLanguageOptions = (productName: string): Array<{ value: string }> => {
+const getQueryLanguageOptions = (
+  productName: string
+): Array<{
+  value: string;
+}> => {
   const product = INFLUXDB_VERSION_MAP.find(({ name }) => name === productName);
   return product?.queryLanguages?.map(({ name }) => ({ value: name })) ?? [];
 };
-
 export const UrlAndAuthenticationSection = (props: Props) => {
   const { options, onOptionsChange } = props;
   const styles = useStyles2(getStyles);
-
   const isInfluxVersion = (v: string): v is InfluxVersion =>
     typeof v === 'string' && (v === InfluxVersion.Flux || v === InfluxVersion.InfluxQL || v === InfluxVersion.SQL);
-
   // Database + Retention Policy (DBRP) mapping is required for InfluxDB OSS 1.x and 2.x when using InfluxQL
   const requiresDbrpMapping =
     options.jsonData.product &&
@@ -54,31 +52,25 @@ export const UrlAndAuthenticationSection = (props: Props) => {
       'InfluxDB Cloud (TSM)',
       'InfluxDB Cloud Serverless',
     ].includes(options.jsonData.product);
-
   const onProductChange = ({ value }: ComboboxOption) => {
     trackInfluxDBConfigV2ProductSelected({ product: value });
     onOptionsChange({ ...options, jsonData: { ...options.jsonData, product: value, version: undefined } });
   };
-
   const onQueryLanguageChange = (option: ComboboxOption) => {
     const { value } = option;
     trackInfluxDBConfigV2QueryLanguageSelected({ version: value });
-
     if (isInfluxVersion(value)) {
       onUpdateDatasourceJsonDataOptionSelect(props, 'version')(option);
     }
   };
-
   const onUrlChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     onUpdateDatasourceOption(props, 'url')(event);
   };
-
   const pingInfluxForProductDetection = async (urlValue: string) => {
     const dsUID = options.uid;
     if (!dsUID) {
       return;
     }
-
     try {
       const res = await firstValueFrom(
         getBackendSrv().fetch({
@@ -93,23 +85,19 @@ export const UrlAndAuthenticationSection = (props: Props) => {
       if (res.ok) {
         let product: string | undefined;
         let version: string | undefined;
-
         if (res.headers && typeof res.headers.get === 'function') {
           product = res.headers.get('x-influxdb-build') ?? undefined;
           version = res.headers.get('x-influxdb-version') ?? undefined;
         }
-
         if (product || version) {
           return { product, version };
         }
       }
     } catch (err) {
-      console.error('Failed to get InfluxDB version:', err);
+      structLog('error', 'Failed to get InfluxDB version:', err);
     }
-
     return { product: undefined, version: undefined };
   };
-
   const matchUrlContains = async (urlValue: string) => {
     let product: InfluxDBProduct | undefined;
     product = INFLUXDB_VERSION_MAP.find((product: InfluxDBProduct) => {
@@ -120,10 +108,8 @@ export const UrlAndAuthenticationSection = (props: Props) => {
       }
       return false;
     });
-
     if (!product) {
       const pingUrl = await pingInfluxForProductDetection(urlValue);
-
       if (pingUrl) {
         product = INFLUXDB_VERSION_MAP.find((product: InfluxDBProduct) => {
           if (product.detectionMethod?.pingHeaderResponse) {
@@ -139,7 +125,6 @@ export const UrlAndAuthenticationSection = (props: Props) => {
         });
       }
     }
-
     onOptionsChange({
       ...options,
       jsonData: {
@@ -149,11 +134,9 @@ export const UrlAndAuthenticationSection = (props: Props) => {
       },
     });
   };
-
   const detectProductFromUrl = (event: React.ChangeEvent<HTMLInputElement>) => {
     matchUrlContains(event.target.value);
   };
-
   return (
     <Box
       borderStyle="solid"
@@ -259,7 +242,6 @@ export const UrlAndAuthenticationSection = (props: Props) => {
     </Box>
   );
 };
-
 const getStyles = () => {
   return {
     dropdown: css({

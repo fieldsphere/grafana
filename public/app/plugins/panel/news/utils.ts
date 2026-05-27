@@ -1,32 +1,27 @@
+import { structLog } from '@grafana/data';
 import { FieldType, type DataFrame, dateTime } from '@grafana/data';
-
 import { type Feed } from './types';
-
 export function feedToDataFrame(feed: Feed): DataFrame {
   const date: number[] = [];
   const title: string[] = [];
   const link: string[] = [];
   const content: string[] = [];
   const ogImage: Array<string | undefined | null> = [];
-
   for (const item of feed.items) {
     const val = dateTime(item.pubDate);
-
     try {
       date.push(val.valueOf());
       title.push(item.title);
       link.push(item.link);
       ogImage.push(item.ogImage);
-
       if (item.content) {
         const body = item.content.replace(/<\/?[^>]+(>|$)/g, '');
         content.push(body);
       }
     } catch (err) {
-      console.warn('Error reading news item:', err, item);
+      structLog('warn', 'Error reading news item:', err, item);
     }
   }
-
   return {
     fields: [
       { name: 'date', type: FieldType.time, config: { displayName: 'Date' }, values: date },

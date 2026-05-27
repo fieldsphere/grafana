@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { isString } from 'lodash';
 import { type Observable, of, type OperatorFunction } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-
 import {
   type AnnotationEvent,
   AnnotationEventFieldSource,
@@ -19,7 +19,6 @@ import {
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-
 export const standardAnnotationSupport: AnnotationSupport = {
   /**
    * Assume the stored value is standard model.
@@ -38,12 +37,10 @@ export const standardAnnotationSupport: AnnotationSupport = {
     }
     return json;
   },
-
   /**
    * Default will just return target from the annotation.
    */
   prepareQuery: (anno: AnnotationQuery) => anno.target,
-
   /**
    * Provides default processing from dataFrame to annotation events.
    */
@@ -51,11 +48,9 @@ export const standardAnnotationSupport: AnnotationSupport = {
     return getAnnotationsFromData(data, anno.mappings);
   },
 };
-
 /**
  * Flatten all frames into a single frame with mergeTransformer.
  */
-
 export function singleFrameFromPanelData(): OperatorFunction<DataFrame[], DataFrame | undefined> {
   return (source) =>
     source.pipe(
@@ -63,15 +58,12 @@ export function singleFrameFromPanelData(): OperatorFunction<DataFrame[], DataFr
         if (!data?.length) {
           return of(undefined);
         }
-
         if (data.length === 1) {
           return of(data[0]);
         }
-
         const ctx: DataTransformContext = {
           interpolate: (v: string) => v,
         };
-
         return of(data).pipe(
           standardTransformers.mergeTransformer.operator({}, ctx),
           map((d) => d[0])
@@ -79,7 +71,6 @@ export function singleFrameFromPanelData(): OperatorFunction<DataFrame[], DataFr
       })
     );
 }
-
 interface AnnotationEventFieldSetter {
   key: keyof AnnotationEvent;
   field?: Field;
@@ -87,7 +78,6 @@ interface AnnotationEventFieldSetter {
   regex?: RegExp;
   split?: string; // for tags
 }
-
 export interface AnnotationFieldInfo {
   key: keyof AnnotationEvent;
   label?: string;
@@ -96,7 +86,6 @@ export interface AnnotationFieldInfo {
   placeholder?: string;
   help?: string;
 }
-
 // These fields get added to the standard UI
 export const getAnnotationEventNames: () => AnnotationFieldInfo[] = () => [
   {
@@ -140,7 +129,6 @@ export const getAnnotationEventNames: () => AnnotationFieldInfo[] = () => [
     key: 'id',
   },
 ];
-
 export const publicDashboardEventNames: AnnotationFieldInfo[] = [
   {
     key: 'color',
@@ -152,7 +140,6 @@ export const publicDashboardEventNames: AnnotationFieldInfo[] = [
     key: 'source',
   },
 ];
-
 // Given legacy infrastructure, alert events are passed though the same annotation
 // pipeline, but include fields that should not be exposed generally
 const alertEventAndAnnotationFields: AnnotationFieldInfo[] = [
@@ -169,7 +156,6 @@ const alertEventAndAnnotationFields: AnnotationFieldInfo[] = [
   { key: 'dashboardId' },
   { key: 'dashboardUID' },
 ];
-
 export function getAnnotationsFromData(
   data: DataFrame[],
   options?: AnnotationEventMappings
@@ -180,42 +166,32 @@ export function getAnnotationsFromData(
       if (!frame?.length) {
         return [];
       }
-
       let hasTime = false;
       let hasText = false;
       const byName: KeyValue<Field> = {};
-
       for (const f of frame.fields) {
         const name = getFieldDisplayName(f, frame);
         byName[name.toLowerCase()] = f;
       }
-
       if (!options) {
         options = {};
       }
-
       const fields: AnnotationEventFieldSetter[] = [];
-
       for (const evts of alertEventAndAnnotationFields) {
         const opt = options[evts.key] || {}; //AnnotationEventFieldMapping
-
         if (opt.source === AnnotationEventFieldSource.Skip) {
           continue;
         }
-
         const setter: AnnotationEventFieldSetter = { key: evts.key, split: evts.split };
-
         if (opt.source === AnnotationEventFieldSource.Text) {
           setter.text = opt.value;
         } else {
           const lower = (opt.value || evts.key).toLowerCase();
           setter.field = byName[lower];
-
           if (!setter.field && evts.field) {
             setter.field = evts.field(frame);
           }
         }
-
         if (setter.field || setter.text) {
           fields.push(setter);
           if (setter.key === 'time') {
@@ -225,24 +201,19 @@ export function getAnnotationsFromData(
           }
         }
       }
-
       if (!hasTime || !hasText) {
-        console.error('Cannot process annotation fields. No time or text present.');
+        structLog('error', 'Cannot process annotation fields. No time or text present.');
         return [];
       }
-
       // Add each value to the string
       const events: AnnotationEvent[] = [];
-
       for (let i = 0; i < frame.length; i++) {
         const anno: AnnotationEvent = {
           type: 'default',
           color: 'red',
         };
-
         for (const f of fields) {
           let v = undefined;
-
           if (f.text) {
             v = f.text; // TODO support templates!
           } else if (f.field) {
@@ -254,7 +225,6 @@ export function getAnnotationsFromData(
               }
             }
           }
-
           if (v !== null && v !== undefined) {
             if (f.split && typeof v === 'string') {
               v = v.split(',');
@@ -262,25 +232,20 @@ export function getAnnotationsFromData(
             anno[f.key] = v;
           }
         }
-
         events.push(anno);
       }
-
       return events;
     })
   );
 }
-
 // These opt outs are here only for quicker and easier migration to react based annotations editors and because
 // annotation support API needs some work to support less "standard" editors like prometheus and here it is not
 // polluting public API.
-
 const legacyRunner = [
   'loki',
   'elasticsearch',
   'grafana-opensearch-datasource', // external
 ];
-
 /**
  * Opt out of using the default mapping functionality on frontend.
  */
@@ -291,7 +256,6 @@ export function shouldUseMappingUI(datasource: DataSourceApi): boolean {
     legacyRunner.includes(type)
   );
 }
-
 /**
  * Use legacy runner. Used only as an escape hatch for easier transition to React based annotation editor.
  */

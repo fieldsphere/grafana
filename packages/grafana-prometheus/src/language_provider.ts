@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/language_provider.ts
 import Prism from 'prismjs';
-
 import {
   type AbstractLabelMatcher,
   AbstractLabelOperator,
@@ -13,7 +13,6 @@ import {
   type TimeRange,
 } from '@grafana/data';
 import { type BackendSrvRequest } from '@grafana/runtime';
-
 import { buildCacheHeaders, getDaysToCacheMetadata, getDefaultCacheHeaders } from './caching';
 import { type PrometheusDatasource } from './datasource';
 import { extractLabelMatchers, fixSummariesMetadata, toPromLikeQuery } from './language_utils';
@@ -21,18 +20,14 @@ import { promqlGrammar } from './promql';
 import { buildVisualQueryFromString } from './querybuilder/parsing';
 import { LabelsApiClient, type ResourceApiClient, SeriesApiClient } from './resource_clients';
 import { type PromMetricsMetadata, type PromQuery } from './types';
-
 interface PrometheusBaseLanguageProvider {
   datasource: PrometheusDatasource;
-
   /**
    * When no timeRange provided, we will use the default time range (now/now-6h)
    * @param timeRange
    */
   start: (timeRange?: TimeRange) => Promise<unknown[]>;
-
   request: (url: string, params?: any, options?: Partial<BackendSrvRequest>) => Promise<any>;
-
   fetchSuggestions: (
     timeRange?: TimeRange,
     queries?: PromQuery[],
@@ -43,7 +38,6 @@ interface PrometheusBaseLanguageProvider {
     requestId?: string
   ) => Promise<string[]>;
 }
-
 /**
  * Modern implementation of the Prometheus language provider that abstracts API endpoint selection.
  *
@@ -67,38 +61,32 @@ export interface PrometheusLanguageProviderInterface extends PrometheusBaseLangu
    * Some places still rely on deprecated fields. Until we replace them, we need _backwardCompatibleStart method.
    */
   start: (timeRange?: TimeRange) => Promise<unknown[]>;
-
   /**
    * Returns already cached metrics metadata including type and help information.
    * If there is no cached metadata, it returns an empty object.
    * To get fresh metadata, use queryMetricsMetadata instead.
    */
   retrieveMetricsMetadata: () => PromMetricsMetadata;
-
   /**
    * Returns already cached list of histogram metrics (identified by '_bucket' suffix).
    * If there are no cached histogram metrics, it returns an empty array.
    */
   retrieveHistogramMetrics: () => string[];
-
   /**
    * Returns already cached list of all available metric names.
    * If there are no cached metrics, it returns an empty array.
    */
   retrieveMetrics: () => string[];
-
   /**
    * Returns already cached list of available label keys.
    * If there are no cached label keys, it returns an empty array.
    */
   retrieveLabelKeys: () => string[];
-
   /**
    * Fetches fresh metrics metadata from Prometheus with optional limit.
    * Uses datasource's default limit if not specified.
    */
   queryMetricsMetadata: (limit?: number) => Promise<PromMetricsMetadata>;
-
   /**
    * Queries Prometheus for label keys within time range, optionally filtered by match selector.
    * Automatically selects labels or series endpoint based on datasource configuration.
@@ -106,7 +94,6 @@ export interface PrometheusLanguageProviderInterface extends PrometheusBaseLangu
    * Use zero (0) to fetch all label keys, but this might return huge amounts of data.
    */
   queryLabelKeys: (timeRange: TimeRange, match?: string, limit?: number) => Promise<string[]>;
-
   /**
    * Queries Prometheus for values of a specific label key, optionally filtered by match selector.
    * Automatically selects labels or series endpoint based on datasource configuration.
@@ -115,30 +102,24 @@ export interface PrometheusLanguageProviderInterface extends PrometheusBaseLangu
    */
   queryLabelValues: (timeRange: TimeRange, labelKey: string, match?: string, limit?: number) => Promise<string[]>;
 }
-
 export class PrometheusLanguageProvider implements PrometheusLanguageProviderInterface {
   public datasource: PrometheusDatasource;
-
   private _metricsMetadata?: PromMetricsMetadata;
   private _resourceClient?: ResourceApiClient;
-
   constructor(datasource: PrometheusDatasource) {
     this.datasource = datasource;
   }
-
   request = async (url: string, params = {}, options?: Partial<BackendSrvRequest>) => {
     try {
       const res = await this.datasource.metadataRequest(url, params, options);
       return res.data.data;
     } catch (error) {
       if (!isCancelledError(error)) {
-        console.error(error);
+        structLog('error', error);
       }
     }
-
     return undefined;
   };
-
   /**
    * Lazily initializes and returns the appropriate resource client based on Prometheus version.
    *
@@ -156,10 +137,8 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
         ? new LabelsApiClient(this.request, this.datasource)
         : new SeriesApiClient(this.request, this.datasource);
     }
-
     return this._resourceClient;
   }
-
   /**
    * Same start logic but it uses resource clients. Backward compatibility it calls _backwardCompatibleStart.
    * Some places still relies on deprecated fields. Until we replace them we need _backwardCompatibleStart method
@@ -173,7 +152,6 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
       this.queryMetricsMetadata(this.datasource.seriesLimit),
     ]);
   };
-
   /**
    * Fetches metadata for metrics from Prometheus.
    * Sets cache headers based on the configured metadata cache duration.
@@ -193,7 +171,6 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
     );
     return fixSummariesMetadata(metadata);
   };
-
   /**
    * Retrieves the cached Prometheus metrics metadata.
    * This metadata includes type information (counter, gauge, etc.) and help text for metrics.
@@ -203,7 +180,6 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
   public retrieveMetricsMetadata = (): PromMetricsMetadata => {
     return this._metricsMetadata ?? {};
   };
-
   /**
    * Retrieves the list of histogram metrics from the current resource client.
    * Histogram metrics are identified by the '_bucket' suffix and are used for percentile calculations.
@@ -213,7 +189,6 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
   public retrieveHistogramMetrics = (): string[] => {
     return this.resourceClient?.histogramMetrics;
   };
-
   /**
    * Retrieves the complete list of available metrics from the current resource client.
    * This includes all metric names regardless of their type (counter, gauge, histogram).
@@ -223,7 +198,6 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
   public retrieveMetrics = (): string[] => {
     return this.resourceClient?.metrics;
   };
-
   /**
    * Retrieves the list of available label keys from the current resource client.
    * Label keys are the names of labels that can be used to filter and group metrics.
@@ -233,7 +207,6 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
   public retrieveLabelKeys = (): string[] => {
     return this.resourceClient?.labelKeys;
   };
-
   /**
    * Fetches fresh metrics metadata from Prometheus and updates the cache.
    * This includes querying for metric types, help text, and unit information.
@@ -249,7 +222,6 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
     }
     return this._metricsMetadata;
   };
-
   /**
    * Fetches all available label keys that match the specified criteria.
    *
@@ -266,7 +238,6 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
     const interpolatedMatch = match ? this.datasource.interpolateString(match) : match;
     return await this.resourceClient.queryLabelKeys(timeRange, interpolatedMatch, limit);
   };
-
   /**
    * Fetches all values for a specific label key that match the specified criteria.
    *
@@ -306,7 +277,6 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
       limit
     );
   };
-
   /**
    * Fetch labels or values for a label based on the queries, scopes, filters and time range
    */
@@ -322,7 +292,6 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
     if (!timeRange) {
       timeRange = getDefaultTimeRange();
     }
-
     const url = '/suggestions';
     const timeParams = this.datasource.getAdjustedInterval(timeRange);
     const value = await this.request(
@@ -339,7 +308,6 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
           if (scope.spec.filters) {
             acc.push(...scope.spec.filters);
           }
-
           return acc;
         }, []),
         adhocFilters: adhocFilters?.map((filter) => ({
@@ -360,15 +328,12 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
         method: 'POST',
       }
     );
-
     return value ?? [];
   };
 }
-
 export const importFromAbstractQuery = (labelBasedQuery: AbstractQuery): PromQuery => {
   return toPromLikeQuery(labelBasedQuery);
 };
-
 export const exportToAbstractQuery = (query: PromQuery): AbstractQuery => {
   const promQuery = query.expr;
   if (!promQuery || promQuery.length === 0) {
@@ -384,13 +349,11 @@ export const exportToAbstractQuery = (query: PromQuery): AbstractQuery => {
       value: nameLabelValue,
     });
   }
-
   return {
     refId: query.refId,
     labelMatchers,
   };
 };
-
 /**
  * Checks if an error is a cancelled request error.
  * Used to avoid logging cancelled request errors.
@@ -403,10 +366,8 @@ function isCancelledError(error: unknown): error is {
 } {
   return typeof error === 'object' && error !== null && 'cancelled' in error && error.cancelled === true;
 }
-
 function getNameLabelValue(promQuery: string, tokens: Array<string | Prism.Token>): string {
   let nameLabelValue = '';
-
   for (const token of tokens) {
     if (typeof token === 'string') {
       nameLabelValue = token;
@@ -415,7 +376,6 @@ function getNameLabelValue(promQuery: string, tokens: Array<string | Prism.Token
   }
   return nameLabelValue;
 }
-
 /**
  * Extracts metrics from queries and populates match parameters.
  * This is used to filter time series data based on existing queries.
@@ -428,7 +388,6 @@ export const populateMatchParamsFromQueries = (queries?: PromQuery[]): string[] 
   if (!queries) {
     return [];
   }
-
   const metrics = (queries ?? []).reduce<string[]>((params, query) => {
     const visualQuery = buildVisualQueryFromString(query.expr);
     if (visualQuery.query.metric !== '') {
@@ -443,6 +402,5 @@ export const populateMatchParamsFromQueries = (queries?: PromQuery[]): string[] 
     }
     return params;
   }, []);
-
   return metrics.length === 0 ? [] : [`__name__=~"${metrics.join('|')}"`];
 };

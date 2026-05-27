@@ -1,19 +1,15 @@
+import { structLog } from '@grafana/data';
 import { useEffect, useState } from 'react';
-
 import { type SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
-
 import { NamespaceContext, ResourceContext } from './plugins';
-
 type Props = {
   value?: string;
   onChange: (v?: string) => void;
-
   // The wrapped element
   Original: React.ElementType;
   props: Record<string, unknown>;
 };
-
 export function K8sNameLookup(props: Props) {
   const [focused, setFocus] = useState(false);
   const [group, setGroup] = useState<string>();
@@ -24,7 +20,6 @@ export function K8sNameLookup(props: Props) {
   const [loading, setLoading] = useState(false);
   const [options, setOptions] = useState<Array<SelectableValue<string>>>();
   const [placeholder, setPlaceholder] = useState<string>('Enter kubernetes name');
-
   useEffect(() => {
     if (focused && group && version && resource) {
       setLoading(true);
@@ -33,7 +28,6 @@ export function K8sNameLookup(props: Props) {
         const url = namespaced
           ? `apis/${group}/${version}/namespaces/${namespace}/${resource}`
           : `apis/${group}/${version}/${resource}`;
-
         const response = await fetch(url + '?limit=100', {
           headers: {
             Accept:
@@ -41,12 +35,12 @@ export function K8sNameLookup(props: Props) {
           },
         });
         if (!response.ok) {
-          console.warn('error loading names');
+          structLog('warn', 'error loading names');
           setLoading(false);
           return;
         }
         const table = await response.json();
-        console.log('LIST', url, table);
+        structLog('log', 'LIST', url, table);
         const options: Array<SelectableValue<string>> = [];
         if (table.rows?.length) {
           for (const row of table.rows) {
@@ -64,7 +58,6 @@ export function K8sNameLookup(props: Props) {
       fn();
     }
   }, [focused, namespace, group, version, resource, namespaced]);
-
   return (
     <NamespaceContext.Consumer>
       {(namespace) => {

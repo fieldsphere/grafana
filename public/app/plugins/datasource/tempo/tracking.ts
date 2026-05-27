@@ -1,9 +1,8 @@
+import { structLog } from '@grafana/data';
 import { type DashboardLoadedEvent } from '@grafana/data';
 import { getTemplateSrv, reportInteraction } from '@grafana/runtime';
-
 import pluginJson from './plugin.json';
 import { type TempoQuery } from './types';
-
 type TempoOnDashboardLoadedTrackingEvent = {
   grafana_version?: string;
   dashboard_id?: string;
@@ -14,17 +13,14 @@ type TempoOnDashboardLoadedTrackingEvent = {
   service_map_queries_with_template_variables_count: number;
   traceql_queries_with_template_variables_count: number;
 };
-
 export const onDashboardLoadedHandler = ({
   payload: { dashboardId, orgId, grafanaVersion, queries },
 }: DashboardLoadedEvent<TempoQuery>) => {
   try {
     const tempoQueries = queries[pluginJson.id];
-
     if (!tempoQueries?.length) {
       return;
     }
-
     let stats: TempoOnDashboardLoadedTrackingEvent = {
       grafana_version: grafanaVersion,
       dashboard_id: dashboardId,
@@ -35,12 +31,10 @@ export const onDashboardLoadedHandler = ({
       service_map_queries_with_template_variables_count: 0,
       traceql_queries_with_template_variables_count: 0,
     };
-
     for (const query of tempoQueries) {
       if (query.hide) {
         continue;
       }
-
       if (query.queryType === 'serviceMap') {
         stats.service_map_query_count++;
         if (query.serviceMapQuery && hasTemplateVariables(query.serviceMapQuery)) {
@@ -55,13 +49,11 @@ export const onDashboardLoadedHandler = ({
         stats.upload_query_count++;
       }
     }
-
     reportInteraction('grafana_tempo_dashboard_loaded', stats);
   } catch (error) {
-    console.error('error in tempo tracking handler', error);
+    structLog('error', 'error in tempo tracking handler', error);
   }
 };
-
 const hasTemplateVariables = (val?: string | string[]): boolean => {
   return (Array.isArray(val) ? val : [val]).some((v) => getTemplateSrv().containsTemplate(v));
 };

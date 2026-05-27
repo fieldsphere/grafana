@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { from, type Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
-
 import {
   CustomVariableSupport,
   type DataQueryRequest,
@@ -8,7 +8,6 @@ import {
   type MetricFindValue,
   type SelectableValue,
 } from '@grafana/data';
-
 import { VariableQueryEditor } from './components/VariableQueryEditor/VariableQueryEditor';
 import { ALL_ACCOUNTS_OPTION } from './components/shared/Account';
 import { type CloudWatchDatasource } from './datasource';
@@ -17,19 +16,15 @@ import { migrateVariableQuery } from './migrations/variableQueryMigrations';
 import { type ResourcesAPI } from './resources/ResourcesAPI';
 import { standardStatistics } from './standardStatistics';
 import { type VariableQuery, VariableQueryType } from './types';
-
 export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchDatasource, VariableQuery> {
   constructor(private readonly resources: ResourcesAPI) {
     super();
   }
-
   editor = VariableQueryEditor;
-
   query(request: DataQueryRequest<VariableQuery>): Observable<DataQueryResponse> {
     const queryObj = migrateVariableQuery(request.targets[0]);
     return from(this.execute(queryObj)).pipe(map((data) => ({ data })));
   }
-
   async execute(query: VariableQuery) {
     try {
       switch (query.queryType) {
@@ -57,11 +52,10 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
           return this.handleAccountsQuery(query);
       }
     } catch (error) {
-      console.error(`Could not run CloudWatchMetricFindQuery ${query}`, error);
+      structLog('error', `Could not run CloudWatchMetricFindQuery ${query}`, error);
       return [];
     }
   }
-
   async handleLogGroupsQuery({ region, logGroupPrefix, accountId }: VariableQuery) {
     const interpolatedPrefix = this.resources.templateSrv.replace(logGroupPrefix);
     return this.resources
@@ -81,27 +75,22 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
         })
       );
   }
-
   async handleRegionsQuery() {
     return this.resources.getRegions().then((regions) => regions.map(selectableValueToMetricFindOption));
   }
-
   async handleNamespacesQuery() {
     return this.resources.getNamespaces().then((namespaces) => namespaces.map(selectableValueToMetricFindOption));
   }
-
   async handleMetricsQuery({ namespace, region, accountId }: VariableQuery) {
     return this.resources
       .getMetrics({ namespace, region, accountId })
       .then((metrics) => metrics.map(selectableValueToMetricFindOption));
   }
-
   async handleDimensionKeysQuery({ namespace, region, accountId }: VariableQuery) {
     return this.resources
       .getDimensionKeys({ namespace, region, accountId })
       .then((keys) => keys.map(selectableValueToMetricFindOption));
   }
-
   async handleDimensionValuesQuery({
     namespace,
     accountId,
@@ -124,14 +113,12 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
       })
       .then((values) => values.map(selectableValueToMetricFindOption));
   }
-
   async handleEbsVolumeIdsQuery({ region, instanceID }: VariableQuery) {
     if (!instanceID) {
       return [];
     }
     return this.resources.getEbsVolumeIds(region, instanceID).then((ids) => ids.map(selectableValueToMetricFindOption));
   }
-
   async handleEc2InstanceAttributeQuery({ region, attributeName, ec2Filters }: VariableQuery) {
     if (!attributeName) {
       return [];
@@ -140,7 +127,6 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
       .getEc2InstanceAttribute(region, attributeName, ec2Filters ?? {})
       .then((values) => values.map(selectableValueToMetricFindOption));
   }
-
   async handleResourceARNsQuery({ region, resourceType, tags }: VariableQuery) {
     if (!resourceType) {
       return [];
@@ -148,7 +134,6 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
     const keys = await this.resources.getResourceARNs(region, resourceType, tags ?? {});
     return keys.map(selectableValueToMetricFindOption);
   }
-
   async handleStatisticsQuery() {
     return standardStatistics.map((s: string) => ({
       text: s,
@@ -156,7 +141,6 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
       expandable: true,
     }));
   }
-
   allMetricFindValue: MetricFindValue = { text: 'All', value: ALL_ACCOUNTS_OPTION.value, expandable: true };
   async handleAccountsQuery({ region }: VariableQuery) {
     return this.resources.getAccounts({ region }).then((accounts) => {
@@ -165,16 +149,13 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
         value: account.id,
         expandable: true,
       }));
-
       return metricFindOptions.length ? [this.allMetricFindValue, ...metricFindOptions] : [];
     });
   }
-
   getDefaultQuery(): Partial<VariableQuery> {
     return DEFAULT_VARIABLE_QUERY;
   }
 }
-
 function selectableValueToMetricFindOption({ label, value }: SelectableValue<string>): MetricFindValue {
   return { text: label ?? value ?? '', value: value, expandable: true };
 }

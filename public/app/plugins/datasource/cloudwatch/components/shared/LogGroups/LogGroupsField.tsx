@@ -1,15 +1,13 @@
+import { structLog } from '@grafana/data';
 import { useEffect, useState } from 'react';
-
 import { EditorField, EditorRow } from '@grafana/plugin-ui';
 import { config } from '@grafana/runtime';
 import { Box, Stack } from '@grafana/ui';
-
 import { type LogGroup, type LogGroupClass, LogsQueryLanguage, type LogsQueryScope } from '../../../dataquery.gen';
 import { type CloudWatchDatasource } from '../../../datasource';
 import { useAccountOptions, useIsMonitoringAccount } from '../../../hooks';
 import { type DescribeLogGroupsRequest } from '../../../resources/types';
 import { isTemplateVariable } from '../../../utils/templateVariableUtils';
-
 import { AccountsSelector } from './AccountsSelector';
 import { LegacyLogGroupSelection } from './LegacyLogGroupNamesSelection';
 import { LogGroupClassSelector } from './LogGroupClassSelector';
@@ -17,7 +15,6 @@ import { LogGroupPrefixInput } from './LogGroupPrefixInput';
 import { LogGroupQueryScopeSelector } from './LogGroupQueryScopeSelector';
 import { LogGroupsSelector } from './LogGroupsSelector';
 import { SelectedLogGroups } from './SelectedLogGroups';
-
 type Props = {
   datasource: CloudWatchDatasource;
   onChange: (logGroups: LogGroup[]) => void;
@@ -37,7 +34,6 @@ type Props = {
   selectedAccountIds?: string[];
   onSelectedAccountIdsChange?: (accountIds: string[]) => void;
 };
-
 export const LogGroupsField = ({
   datasource,
   onChange,
@@ -60,21 +56,17 @@ export const LogGroupsField = ({
   const accountState = useAccountOptions(datasource?.resources, region);
   const isMonitoringAccount = useIsMonitoringAccount(datasource?.resources, region);
   const [loadingLogGroupsStarted, setLoadingLogGroupsStarted] = useState(false);
-
   const effectiveScope = logsQueryScope ?? 'logGroupName';
   const shouldShowQueryScopeSelector =
     showQueryScopeSelector ?? (queryLanguage === LogsQueryLanguage.CWLI || queryLanguage === undefined);
-
   useEffect(() => {
     // If log group names are stored in the query model, make a new DescribeLogGroups request for each log group to load the arn. Then update the query model.
     if (datasource && !loadingLogGroupsStarted && !logGroups?.length && legacyLogGroupNames?.length) {
       setLoadingLogGroupsStarted(true);
-
       const variables = legacyLogGroupNames.filter((lgn) => isTemplateVariable(datasource.resources.templateSrv, lgn));
       const legacyLogGroupNameValues = legacyLogGroupNames.filter(
         (lgn) => !isTemplateVariable(datasource.resources.templateSrv, lgn)
       );
-
       Promise.all(
         legacyLogGroupNameValues.map((lg) =>
           datasource.resources.getLogGroups({ region: region, logGroupNamePrefix: lg })
@@ -88,15 +80,13 @@ export const LogGroupsField = ({
               accountId: lg.accountId,
             }))
           );
-
           onChange([...logGroups, ...variables.map((v) => ({ name: v, arn: v }))]);
         })
         .catch((err) => {
-          console.error(err);
+          structLog('error', err);
         });
     }
   }, [datasource, legacyLogGroupNames, logGroups, onChange, region, loadingLogGroupsStarted]);
-
   const renderLogGroupNameMode = () => (
     <Stack direction="column" gap={1}>
       <LogGroupsSelector
@@ -116,7 +106,6 @@ export const LogGroupsField = ({
       />
     </Stack>
   );
-
   const renderPrefixFields = () => (
     <Stack direction="row" gap={2} wrap="wrap" alignItems="flex-start">
       <LogGroupPrefixInput
@@ -134,7 +123,6 @@ export const LogGroupsField = ({
       )}
     </Stack>
   );
-
   const renderAllLogGroupsFields = () => (
     <Stack direction="row" gap={2} wrap="wrap" alignItems="flex-start">
       <LogGroupClassSelector value={logGroupClass} onChange={onLogGroupClassChange ?? (() => {})} />
@@ -147,7 +135,6 @@ export const LogGroupsField = ({
       )}
     </Stack>
   );
-
   if (!shouldShowQueryScopeSelector) {
     return (
       <Box marginTop={1} marginBottom={1}>
@@ -155,7 +142,6 @@ export const LogGroupsField = ({
       </Box>
     );
   }
-
   return (
     <Box marginTop={1} marginBottom={1}>
       <Stack direction="column" gap={1}>
@@ -172,7 +158,6 @@ export const LogGroupsField = ({
     </Box>
   );
 };
-
 type WrapperProps = {
   datasource: CloudWatchDatasource;
   onChange: (logGroups: LogGroup[]) => void;
@@ -182,9 +167,7 @@ type WrapperProps = {
   maxNoOfVisibleLogGroups?: number;
   onBeforeOpen?: () => void;
   showQueryScopeSelector?: boolean;
-
   legacyOnChange: (logGroups: string[]) => void;
-
   queryLanguage?: LogsQueryLanguage;
   logsQueryScope?: LogsQueryScope;
   onLogsQueryScopeChange?: (scope: LogsQueryScope) => void;
@@ -195,7 +178,6 @@ type WrapperProps = {
   selectedAccountIds?: string[];
   onSelectedAccountIdsChange?: (accountIds: string[]) => void;
 };
-
 export const LogGroupsFieldWrapper = (props: WrapperProps) => {
   if (!config.featureToggles.cloudWatchCrossAccountQuerying) {
     return (
@@ -206,6 +188,5 @@ export const LogGroupsFieldWrapper = (props: WrapperProps) => {
       />
     );
   }
-
   return <LogGroupsField {...props} />;
 };

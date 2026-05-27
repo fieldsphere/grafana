@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { isString } from 'lodash';
-
 import { ALIGNMENT_PERIODS, SELECTORS } from './constants';
 import { MetricFindQueryTypes, type ValueTypes } from './dataquery.gen';
 import type CloudMonitoringDatasource from './datasource';
@@ -11,16 +11,13 @@ import {
   getMetricTypesByService,
 } from './functions';
 import { type CloudMonitoringVariableQuery, type MetricDescriptor } from './types/types';
-
 export default class CloudMonitoringMetricFindQuery {
   constructor(private datasource: CloudMonitoringDatasource) {}
-
   async execute(query: CloudMonitoringVariableQuery) {
     try {
       if (!query.projectName) {
         query.projectName = this.datasource.getDefaultProject();
       }
-
       switch (query.selectedQueryType) {
         case MetricFindQueryTypes.Projects:
           return this.handleProjectsQuery();
@@ -50,11 +47,10 @@ export default class CloudMonitoringMetricFindQuery {
           return [];
       }
     } catch (error) {
-      console.error(`Could not run CloudMonitoringMetricFindQuery ${query}`, error);
+      structLog('error', `Could not run CloudMonitoringMetricFindQuery ${query}`, error);
       return [];
     }
   }
-
   async handleProjectsQuery() {
     const projects = await this.datasource.getProjects();
     return projects.map((s) => ({
@@ -63,7 +59,6 @@ export default class CloudMonitoringMetricFindQuery {
       expandable: true,
     }));
   }
-
   async handleServiceQuery({ projectName }: CloudMonitoringVariableQuery) {
     const metricDescriptors = await this.datasource.getMetricTypes(projectName);
     const services: MetricDescriptor[] = extractServicesFromMetricDescriptors(metricDescriptors);
@@ -73,7 +68,6 @@ export default class CloudMonitoringMetricFindQuery {
       expandable: true,
     }));
   }
-
   async handleMetricTypesQuery({ selectedService, projectName }: CloudMonitoringVariableQuery) {
     if (!selectedService) {
       return [];
@@ -87,7 +81,6 @@ export default class CloudMonitoringMetricFindQuery {
       })
     );
   }
-
   async handleLabelKeysQuery({ selectedMetricType, projectName }: CloudMonitoringVariableQuery) {
     if (!selectedMetricType) {
       return [];
@@ -95,7 +88,6 @@ export default class CloudMonitoringMetricFindQuery {
     const labelKeys = await getLabelKeys(this.datasource, selectedMetricType, projectName);
     return labelKeys.map(this.toFindQueryResult);
   }
-
   async handleLabelValuesQuery({ selectedMetricType, labelKey, projectName }: CloudMonitoringVariableQuery) {
     if (!selectedMetricType) {
       return [];
@@ -110,7 +102,6 @@ export default class CloudMonitoringMetricFindQuery {
     const values = labels.hasOwnProperty(interpolatedKey) ? labels[interpolatedKey] : [];
     return values.map(this.toFindQueryResult);
   }
-
   async handleResourceTypeQuery({ selectedMetricType, projectName }: CloudMonitoringVariableQuery) {
     if (!selectedMetricType) {
       return [];
@@ -119,7 +110,6 @@ export default class CloudMonitoringMetricFindQuery {
     const labels = await this.datasource.getLabels(selectedMetricType, refId, projectName);
     return labels['resource.type']?.map(this.toFindQueryResult) ?? [];
   }
-
   async handleAlignersQuery({ selectedMetricType, projectName }: CloudMonitoringVariableQuery) {
     if (!selectedMetricType) {
       return [];
@@ -128,51 +118,40 @@ export default class CloudMonitoringMetricFindQuery {
     const descriptor = metricDescriptors.find(
       (m) => m.type === this.datasource.templateSrv.replace(selectedMetricType)
     );
-
     if (!descriptor) {
       return [];
     }
-
     return getAlignmentOptionsByMetric(descriptor.valueType, descriptor.metricKind).map(this.toFindQueryResult);
   }
-
   async handleAggregationQuery({ selectedMetricType, projectName }: CloudMonitoringVariableQuery) {
     if (!selectedMetricType) {
       return [];
     }
-
     const metricDescriptors = await this.datasource.getMetricTypes(projectName);
     const descriptor = metricDescriptors.find(
       (m) => m.type === this.datasource.templateSrv.replace(selectedMetricType)
     );
-
     if (!descriptor) {
       return [];
     }
-
     return getAggregationOptionsByMetric(descriptor.valueType as ValueTypes, descriptor.metricKind).map(
       this.toFindQueryResult
     );
   }
-
   async handleSLOServicesQuery({ projectName }: CloudMonitoringVariableQuery) {
     const services = await this.datasource.getSLOServices(projectName);
     return services.map(this.toFindQueryResult);
   }
-
   async handleSLOQuery({ selectedSLOService, projectName }: CloudMonitoringVariableQuery) {
     const slos = await this.datasource.getServiceLevelObjectives(projectName, selectedSLOService);
     return slos.map(this.toFindQueryResult);
   }
-
   async handleSelectorQuery() {
     return SELECTORS.map(this.toFindQueryResult);
   }
-
   handleAlignmentPeriodQuery() {
     return ALIGNMENT_PERIODS.map(this.toFindQueryResult);
   }
-
   toFindQueryResult(x: any) {
     return isString(x) ? { text: x, expandable: true } : { ...x, text: x.label || x.value, expandable: true };
   }

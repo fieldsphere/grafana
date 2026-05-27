@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { useMemo } from 'react';
-
 import {
   type CoreApp,
   PluginExtensionPoints,
@@ -9,14 +9,11 @@ import { renderLimitedComponents, usePluginComponents } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 import { Stack } from '@grafana/ui';
 import { type QueryActionComponent, RowActionComponents } from 'app/features/query/components/QueryActionComponent';
-
 import { QueryEditorType } from '../../constants';
 import { useActionsContext, useQueryEditorUIContext, useQueryRunnerContext } from '../QueryEditorContext';
-
 interface PluginActionsProps {
   app?: CoreApp;
 }
-
 /**
  * Renders plugin-provided icon buttons (extra actions + adaptive telemetry)
  * directly in the header, outside of the actions dropdown menu.
@@ -28,19 +25,15 @@ export function PluginActions({ app }: PluginActionsProps) {
   const { queries, data } = useQueryRunnerContext();
   const { addQuery } = useActionsContext();
   const { selectedQuery, selectedQueryDsData, cardType } = useQueryEditorUIContext();
-
   const extraActions = useMemo(() => {
     if (!selectedQuery) {
       return [];
     }
-
     const unscopedActions = RowActionComponents.getAllExtraRenderAction();
-
     let scopedActions: QueryActionComponent[] = [];
     if (app !== undefined) {
       scopedActions = RowActionComponents.getScopedExtraRenderAction(app);
     }
-
     return [...unscopedActions, ...scopedActions]
       .map((action, index) =>
         action({
@@ -54,17 +47,13 @@ export function PluginActions({ app }: PluginActionsProps) {
       )
       .filter(Boolean);
   }, [selectedQuery, app, queries, data?.timeRange, addQuery, selectedQueryDsData?.dsSettings]);
-
   const telemetryComponents = useAdaptiveTelemetryComponents(selectedQuery);
-
   if (!selectedQuery || cardType === QueryEditorType.Expression) {
     return null;
   }
-
   if (extraActions.length === 0 && !telemetryComponents) {
     return null;
   }
-
   return (
     <Stack gap={0.5} alignItems="center">
       {extraActions}
@@ -72,7 +61,6 @@ export function PluginActions({ app }: PluginActionsProps) {
     </Stack>
   );
 }
-
 /**
  * Hook to render adaptive telemetry plugin extensions.
  * Matches legacy AdaptiveTelemetryQueryActions component behavior.
@@ -81,11 +69,9 @@ function useAdaptiveTelemetryComponents(query: DataQuery | null) {
   const { isLoading, components } = usePluginComponents<PluginExtensionQueryEditorRowAdaptiveTelemetryV1Context>({
     extensionPointId: PluginExtensionPoints.QueryEditorRowAdaptiveTelemetryV1,
   });
-
   if (isLoading || !components.length || !query) {
     return null;
   }
-
   try {
     return renderLimitedComponents({
       props: { query, contextHints: ['queryeditorrow', 'header'] },
@@ -94,7 +80,7 @@ function useAdaptiveTelemetryComponents(query: DataQuery | null) {
       pluginId: /grafana-adaptive.*/,
     });
   } catch (error) {
-    console.error('Failed to render adaptive telemetry components:', error);
+    structLog('error', 'Failed to render adaptive telemetry components:', error);
     return null;
   }
 }

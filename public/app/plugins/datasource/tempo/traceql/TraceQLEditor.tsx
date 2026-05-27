@@ -1,19 +1,16 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useEffect, useRef, useState } from 'react';
-
 import { type GrafanaTheme2, type TimeRange } from '@grafana/data';
 import { TemporaryAlert } from '@grafana/o11y-ds-frontend';
 import { reportInteraction } from '@grafana/runtime';
 import { CodeEditor, type Monaco, type monacoTypes, useTheme2 } from '@grafana/ui';
-
 import { DEFAULT_TIME_RANGE_FOR_TAGS } from '../configuration/TagsTimeRangeSettings';
 import { type TempoDatasource } from '../datasource';
 import { type TempoQuery } from '../types';
-
 import { CompletionProvider, type CompletionItemType } from './autocomplete';
 import { getErrorNodes, setMarkers } from './highlighting';
 import { languageDefinition } from './traceql';
-
 interface Props {
   placeholder: string;
   query: TempoQuery;
@@ -23,10 +20,8 @@ interface Props {
   readOnly?: boolean;
   range?: TimeRange;
 }
-
 export function TraceQLEditor(props: Props) {
   const [alertText, setAlertText] = useState<string>();
-
   const { query, onChange, onRunQuery, placeholder } = props;
   const setupAutocompleteFn = useAutocomplete(
     props.datasource,
@@ -36,7 +31,6 @@ export function TraceQLEditor(props: Props) {
   );
   const theme = useTheme2();
   const styles = getStyles(theme, placeholder);
-
   // The Monaco Editor uses the first version of props.onChange in handleOnMount i.e. always has the initial
   // value of query because underlying Monaco editor is passed `query` below in the onEditorChange callback.
   // handleOnMount is called only once when the editor is mounted and does not get updates to query.
@@ -46,14 +40,11 @@ export function TraceQLEditor(props: Props) {
   const onEditorChange = (value: string) => {
     onChange({ ...queryRef.current, query: value });
   };
-
   // work around the problem that `onEditorDidMount` is called once
   // and wouldn't get new version of onRunQuery
   const onRunQueryRef = useRef(onRunQuery);
   onRunQueryRef.current = onRunQuery;
-
   const errorTimeoutId = useRef<number | undefined>(undefined);
-
   return (
     <>
       <CodeEditor
@@ -86,7 +77,6 @@ export function TraceQLEditor(props: Props) {
             setupPlaceholder(editor, monaco, styles);
           }
           setupAutoSize(editor);
-
           // Parse query that might already exist (e.g., after a page refresh)
           const model = editor.getModel();
           if (model) {
@@ -94,27 +84,22 @@ export function TraceQLEditor(props: Props) {
               const errorNodes = getErrorNodes(model.getValue());
               setMarkers(monaco, model, errorNodes);
             } catch (err) {
-              console.warn('TraceQL editor: failed to update syntax error markers', err);
+              structLog('warn', 'TraceQL editor: failed to update syntax error markers', err);
             }
           }
-
           // Register callback for query changes
           editor.onDidChangeModelContent((changeEvent) => {
             const model = editor.getModel();
-
             if (!model) {
               return;
             }
-
             // Remove previous callback if existing, to prevent squiggles from been shown while the user is still typing
             if (errorTimeoutId.current) {
               window.clearTimeout(errorTimeoutId.current);
             }
-
             try {
               const errorNodes = getErrorNodes(model.getValue());
               const cursorPosition = changeEvent.changes[0].rangeOffset;
-
               // Immediately updates the squiggles, in case the user fixed an error,
               // excluding the error around the cursor position
               setMarkers(
@@ -122,16 +107,15 @@ export function TraceQLEditor(props: Props) {
                 model,
                 errorNodes.filter((errorNode) => !(errorNode.from <= cursorPosition && cursorPosition <= errorNode.to))
               );
-
               errorTimeoutId.current = window.setTimeout(() => {
                 try {
                   setMarkers(monaco, model, errorNodes);
                 } catch (err) {
-                  console.warn('TraceQL editor: failed to update syntax error markers', err);
+                  structLog('warn', 'TraceQL editor: failed to update syntax error markers', err);
                 }
               }, 500);
             } catch (err) {
-              console.warn('TraceQL editor: failed to parse query for error highlighting', err);
+              structLog('warn', 'TraceQL editor: failed to parse query for error highlighting', err);
             }
           });
         }}
@@ -140,7 +124,6 @@ export function TraceQLEditor(props: Props) {
     </>
   );
 }
-
 function setupPlaceholder(editor: monacoTypes.editor.IStandaloneCodeEditor, monaco: Monaco, styles: EditorStyles) {
   const placeholderDecorators = [
     {
@@ -151,24 +134,18 @@ function setupPlaceholder(editor: monacoTypes.editor.IStandaloneCodeEditor, mona
       },
     },
   ];
-
   let decorators: string[] = [];
-
   const checkDecorators = (): void => {
     const model = editor.getModel();
-
     if (!model) {
       return;
     }
-
     const newDecorators = model.getValueLength() === 0 ? placeholderDecorators : [];
     decorators = model.deltaDecorations(decorators, newDecorators);
   };
-
   checkDecorators();
   editor.onDidChangeModelContent(checkDecorators);
 }
-
 function setupActions(editor: monacoTypes.editor.IStandaloneCodeEditor, monaco: Monaco, onRunQuery: () => void) {
   editor.addAction({
     id: 'run-query',
@@ -181,7 +158,6 @@ function setupActions(editor: monacoTypes.editor.IStandaloneCodeEditor, monaco: 
     },
   });
 }
-
 function setupRegisterInteractionCommand(editor: monacoTypes.editor.IStandaloneCodeEditor): string | null {
   return editor.addCommand(0, function (_, label, type: CompletionItemType) {
     const properties: Record<string, unknown> = { datasourceType: 'tempo', type };
@@ -192,7 +168,6 @@ function setupRegisterInteractionCommand(editor: monacoTypes.editor.IStandaloneC
     reportInteraction('grafana_traces_traceql_completion', properties);
   });
 }
-
 function setupAutoSize(editor: monacoTypes.editor.IStandaloneCodeEditor) {
   const container = editor.getDomNode();
   const updateHeight = () => {
@@ -207,7 +182,6 @@ function setupAutoSize(editor: monacoTypes.editor.IStandaloneCodeEditor) {
   editor.onDidContentSizeChange(updateHeight);
   updateHeight();
 }
-
 /**
  * Hook that returns function that will set up monaco autocomplete for the label selector
  * @param datasource the Tempo datasource instance
@@ -233,9 +207,7 @@ function useAutocomplete(
       range,
     })
   );
-
   const previousRangeRef = useRef<TimeRange | undefined>(range);
-
   useEffect(() => {
     const fetchTags = async () => {
       try {
@@ -249,20 +221,16 @@ function useAutocomplete(
     };
     fetchTags();
   }, [datasource, setAlertText, range, timeRangeForTags]);
-
   useEffect(() => {
     const rangeChanged = datasource.languageProvider.shouldRefreshLabels(range, previousRangeRef.current);
-
     if (rangeChanged) {
       providerRef.current.range = range;
       previousRangeRef.current = range;
     }
   }, [range, datasource.languageProvider]);
-
   useEffect(() => {
     providerRef.current.timeRangeForTags = timeRangeForTags;
   }, [timeRangeForTags]);
-
   const autocompleteDisposeFun = useRef<(() => void) | null>(null);
   useEffect(() => {
     // when we unmount, we unregister the autocomplete-function, if it was registered
@@ -270,7 +238,6 @@ function useAutocomplete(
       autocompleteDisposeFun.current?.();
     };
   }, []);
-
   // This should be run in monaco onEditorDidMount
   return (
     editor: monacoTypes.editor.IStandaloneCodeEditor,
@@ -280,16 +247,13 @@ function useAutocomplete(
     providerRef.current.editor = editor;
     providerRef.current.monaco = monaco;
     providerRef.current.setRegisterInteractionCommandId(registerInteractionCommandId);
-
     const { dispose } = monaco.languages.registerCompletionItemProvider(langId, providerRef.current);
     autocompleteDisposeFun.current = dispose;
   };
 }
-
 // we must only run the setup code once
 let traceqlSetupDone = false;
 const langId = 'traceql';
-
 function ensureTraceQL(monaco: Monaco) {
   if (!traceqlSetupDone) {
     traceqlSetupDone = true;
@@ -299,12 +263,10 @@ function ensureTraceQL(monaco: Monaco) {
     monaco.languages.setLanguageConfiguration(langId, def.languageConfiguration);
   }
 }
-
 interface EditorStyles {
   placeholder: string;
   queryField: string;
 }
-
 const getStyles = (theme: GrafanaTheme2, placeholder: string): EditorStyles => {
   return {
     queryField: css({

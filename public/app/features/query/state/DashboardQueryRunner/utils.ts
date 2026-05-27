@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { cloneDeep } from 'lodash';
 import { type Observable, of } from 'rxjs';
-
 import {
   type AnnotationEvent,
   type AnnotationQuery,
@@ -10,57 +10,45 @@ import {
 } from '@grafana/data';
 import { config, toDataQueryError } from '@grafana/runtime';
 import { dispatch } from 'app/store/store';
-
 import { createErrorNotification } from '../../../../core/copy/appNotification';
 import { notifyApp } from '../../../../core/reducers/appNotification';
-
 import { type DashboardQueryRunnerWorkerResult } from './types';
-
 export function handleAnnotationQueryRunnerError(err: any): Observable<AnnotationEvent[]> {
   if (err.cancelled) {
     return of([]);
   }
-
   notifyWithError('AnnotationQueryRunner failed', err);
   return of([]);
 }
-
 export function handleDatasourceSrvError(err: any): Observable<DataSourceApi | undefined> {
   notifyWithError('Failed to retrieve datasource', err);
   return of(undefined);
 }
-
 export const emptyResult: () => Observable<DashboardQueryRunnerWorkerResult> = () =>
   of({ annotations: [], alertStates: [] });
-
 export function handleDashboardQueryRunnerWorkerError(err: any): Observable<DashboardQueryRunnerWorkerResult> {
   if (err.cancelled) {
     return emptyResult();
   }
-
   notifyWithError('DashboardQueryRunner failed', err);
   return emptyResult();
 }
-
 function notifyWithError(title: string, err: any) {
   const error = toDataQueryError(err);
-  console.error('handleAnnotationQueryRunnerError', error);
+  structLog('error', 'handleAnnotationQueryRunnerError', error);
   const notification = createErrorNotification(title, error.message);
   dispatch(notifyApp(notification));
 }
-
 export function getAnnotationsByPanelId(annotations: AnnotationEvent[], panelId?: number) {
   if (panelId == null) {
     return annotations;
   }
-
   return annotations.filter((item) => {
     let source: AnnotationQuery;
     source = item.source;
     if (!source) {
       return true; // should not happen
     }
-
     // generic panel filtering
     if (source.filter) {
       const includes = (source.filter.ids ?? []).includes(panelId);
@@ -72,7 +60,6 @@ export function getAnnotationsByPanelId(annotations: AnnotationEvent[], panelId?
         return false;
       }
     }
-
     // this is valid for the main 'grafana' datasource
     if (item.panelId && item.source.type === 'dashboard') {
       return item.panelId === panelId;
@@ -80,7 +67,6 @@ export function getAnnotationsByPanelId(annotations: AnnotationEvent[], panelId?
     return true;
   });
 }
-
 export function translateQueryResult(annotation: AnnotationQuery, results: AnnotationEvent[]): AnnotationEvent[] {
   // if annotation has snapshotData
   // make clone and remove it
@@ -88,13 +74,11 @@ export function translateQueryResult(annotation: AnnotationQuery, results: Annot
     annotation = cloneDeep(annotation);
     delete annotation.snapshotData;
   }
-
   for (const item of results) {
     item.source = annotation;
     item.color = config.theme2.visualization.getColorByName(annotation.iconColor);
     item.type = annotation.name;
     item.isRegion = Boolean(item.timeEnd && item.time !== item.timeEnd);
-
     switch (item.newState?.toLowerCase()) {
       case 'pending':
         item.color = 'yellow';
@@ -116,15 +100,12 @@ export function translateQueryResult(annotation: AnnotationQuery, results: Annot
         break;
     }
   }
-
   return results;
 }
-
 export function annotationsFromDataFrames(data?: DataFrame[]): AnnotationEvent[] {
   if (!data || !data.length) {
     return [];
   }
-
   const annotations: AnnotationEvent[] = [];
   for (const frame of data) {
     const view = new DataFrameView<AnnotationEvent>(frame);
@@ -133,6 +114,5 @@ export function annotationsFromDataFrames(data?: DataFrame[]): AnnotationEvent[]
       annotations.push(annotation);
     }
   }
-
   return annotations;
 }

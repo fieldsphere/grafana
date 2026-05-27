@@ -1,14 +1,13 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAsyncFn, useDebounce } from 'react-use';
-
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getDataSourceSrv, isFetchError, locationService } from '@grafana/runtime';
 import { FilterInput, Grid, Pagination, Stack, useStyles2 } from '@grafana/ui';
 import { type PluginDashboard } from 'app/types/plugins';
-
 import { DASHBOARD_LIBRARY_ROUTES } from '../../types';
 import { type CompatibilityState } from '../CompatibilityBadge';
 import { DashboardCard } from '../DashboardCard';
@@ -21,17 +20,14 @@ import { DashboardLibraryInteractions, SuggestedDashboardInteractions } from '..
 import { type GnetDashboard } from '../types';
 import { onUseCommunityDashboard, interpolateDashboardForCompatibilityCheck } from '../utils/communityDashboardHelpers';
 import { getPageSlice } from '../utils/suggestedDashboardHelpers';
-
 import { DashboardResultsGrid } from './DashboardResultsGrid';
 import { EmptyResults } from './EmptyResults';
 import { ListHeader } from './ListHeader';
-
 const SEARCH_DEBOUNCE_MS = 500;
 const DEFAULT_SORT_ORDER = 'downloads';
 const DEFAULT_SORT_DIRECTION = 'desc' as const;
 const INCLUDE_LOGO = true;
 const INCLUDE_SCREENSHOTS = true;
-
 interface SuggestedDashboardsListProps {
   provisionedDashboards: PluginDashboard[];
   communityDashboards: GnetDashboard[];
@@ -44,7 +40,6 @@ interface SuggestedDashboardsListProps {
   onShowMapping: (context: MappingContext) => void;
   onDismiss: () => void;
 }
-
 interface CommunityCache {
   searchQuery: string;
   items: Array<GnetDashboard | undefined>;
@@ -53,7 +48,6 @@ interface CommunityCache {
   /** Exact count of community items on the last API page (once fetched). */
   lastPageItemCount?: number;
 }
-
 export const SuggestedDashboardsList = ({
   provisionedDashboards,
   communityDashboards,
@@ -76,9 +70,7 @@ export const SuggestedDashboardsList = ({
   const hasTrackedLoaded = useRef(false);
   const hasAutoCheckedRef = useRef(false);
   const isCompatibilityAppEnabled = config.featureToggles.dashboardValidatorApp;
-
   const [compatibilityMap, setCompatibilityMap] = useState<Map<number, CompatibilityState>>(new Map());
-
   // Community cache state — initialized with pre-fetched page 1 data from the loader
   const [communityCache, setCommunityCache] = useState<CommunityCache>(() => ({
     searchQuery: '',
@@ -88,7 +80,6 @@ export const SuggestedDashboardsList = ({
     // Use persisted value from the module cache, or infer when there's only one page
     lastPageItemCount: initialLastPageItemCount ?? (communityTotalPages <= 1 ? communityDashboards.length : undefined),
   }));
-
   // Filter provisioned dashboards client-side
   const filteredProvisioned = useMemo(() => {
     if (!debouncedSearchQuery.trim()) {
@@ -99,13 +90,11 @@ export const SuggestedDashboardsList = ({
       (d) => d.title.toLowerCase().includes(query) || (d.description ?? '').toLowerCase().includes(query)
     );
   }, [provisionedDashboards, debouncedSearchQuery]);
-
   // Debounce search — updates debouncedSearchQuery and resets cache after delay
   useDebounce(
     () => {
       setDebouncedSearchQuery(searchQuery);
       setCurrentPage(1);
-
       // Clear community cache when search changes
       if (searchQuery.trim()) {
         setCommunityCache({
@@ -130,13 +119,11 @@ export const SuggestedDashboardsList = ({
     SEARCH_DEBOUNCE_MS,
     [searchQuery, communityDashboards, communityTotalPages]
   );
-
   // Calculate pagination slices for the merged provisioned + community list
   const { totalPages, provisionedSlice, communityNeededCount, communityStartIndex, communitySlice } = useMemo(
     () => getPageSlice({ currentPage, pageSize: PAGE_SIZE, filteredProvisioned, communityCache }),
     [currentPage, filteredProvisioned, communityCache]
   );
-
   // Auto-correct currentPage if it exceeds totalPages (e.g. after fetching the
   // last API page reveals fewer items than estimated)
   useEffect(() => {
@@ -144,13 +131,11 @@ export const SuggestedDashboardsList = ({
       setCurrentPage(totalPages);
     }
   }, [currentPage, totalPages]);
-
   // Fetch community pages as needed
   useEffect(() => {
     if (communityNeededCount <= 0 || !datasourceType || isDashboardsLoading) {
       return;
     }
-
     // The loader pre-fetches page 1, but the cache may not have it yet (useState
     // initializer ran when the prop was still empty). Sync it from the prop to
     // avoid a duplicate fetch — this triggers a re-render and the effect re-runs
@@ -166,7 +151,6 @@ export const SuggestedDashboardsList = ({
       });
       return;
     }
-
     const fetchNeeded = async () => {
       // Community items are fetched in pages of PAGE_SIZE from the API.
       // communityStartIndex is the offset into the flat community list (e.g. 8 means "start at the 9th community item").
@@ -176,20 +160,16 @@ export const SuggestedDashboardsList = ({
       // The last item we need is at (communityStartIndex + communityNeededCount - 1).
       // We find which API page contains that last item to know the full range of pages to fetch.
       const lastApiPage = Math.floor((communityStartIndex + communityNeededCount - 1) / PAGE_SIZE) + 1;
-
       const pagesToFetch: number[] = [];
       for (let p = firstApiPage; p <= lastApiPage; p++) {
         if (!communityCache.cachedPages.has(p)) {
           pagesToFetch.push(p);
         }
       }
-
       if (pagesToFetch.length === 0) {
         return;
       }
-
       setIsCommunityLoading(true);
-
       try {
         const responses = await Promise.all(
           pagesToFetch.map((page) =>
@@ -205,15 +185,12 @@ export const SuggestedDashboardsList = ({
             })
           )
         );
-
         let totalFetched = 0;
-
         setCommunityCache((prev) => {
           const newItems = [...prev.items];
           const newCachedPages = new Set(prev.cachedPages);
           let totalApiPages = prev.totalApiPages;
           let lastPageItemCount = prev.lastPageItemCount;
-
           // Place each page's items at their correct offset in the sparse items array
           responses.forEach((response, idx) => {
             const page = pagesToFetch[idx];
@@ -224,7 +201,6 @@ export const SuggestedDashboardsList = ({
             newCachedPages.add(page);
             totalFetched += response.items.length;
             totalApiPages = response.pages;
-
             // When we fetch the last API page, record its exact item count
             // so we can compute an accurate total instead of overestimating
             if (page === response.pages) {
@@ -232,7 +208,6 @@ export const SuggestedDashboardsList = ({
               onLastPageItemCount?.(response.items.length);
             }
           });
-
           return {
             ...prev,
             items: newItems,
@@ -241,7 +216,6 @@ export const SuggestedDashboardsList = ({
             lastPageItemCount,
           };
         });
-
         if (debouncedSearchQuery.trim()) {
           DashboardLibraryInteractions.searchPerformed({
             datasourceTypes: [datasourceType],
@@ -252,12 +226,11 @@ export const SuggestedDashboardsList = ({
           });
         }
       } catch (err) {
-        console.error('Error loading community dashboards', err);
+        structLog('error', 'Error loading community dashboards', err);
       } finally {
         setIsCommunityLoading(false);
       }
     };
-
     fetchNeeded();
   }, [
     currentPage,
@@ -274,7 +247,6 @@ export const SuggestedDashboardsList = ({
     sourceEntryPoint,
     eventLocation,
   ]);
-
   // Track analytics on first load
   useEffect(() => {
     if (
@@ -289,7 +261,6 @@ export const SuggestedDashboardsList = ({
       if (communityDashboards.length > 0) {
         contentKinds.push(CONTENT_KINDS.COMMUNITY_DASHBOARD);
       }
-
       SuggestedDashboardInteractions.loaded({
         numberOfItems: provisionedDashboards.length + communityDashboards.length,
         contentKinds,
@@ -307,7 +278,6 @@ export const SuggestedDashboardsList = ({
     sourceEntryPoint,
     eventLocation,
   ]);
-
   // Provisioned dashboard click handler
   const onClickProvisionedDashboard = (dashboard: PluginDashboard, customizeWithAssistant?: boolean) => {
     SuggestedDashboardInteractions.itemClicked({
@@ -320,7 +290,6 @@ export const SuggestedDashboardsList = ({
       discoveryMethod: debouncedSearchQuery.trim() ? DISCOVERY_METHODS.SEARCH : DISCOVERY_METHODS.BROWSE,
       action: customizeWithAssistant ? 'assistant' : 'use_dashboard',
     });
-
     const params = new URLSearchParams({
       datasource: datasourceUid || '',
       title: dashboard.title || 'Template',
@@ -333,15 +302,12 @@ export const SuggestedDashboardsList = ({
       eventLocation,
       contentKind: CONTENT_KINDS.DATASOURCE_DASHBOARD,
     });
-
     if (customizeWithAssistant) {
       params.set('assistantSource', 'assistant_button');
     }
-
     const templateUrl = `${DASHBOARD_LIBRARY_ROUTES.Template}?${params.toString()}`;
     locationService.push(templateUrl);
   };
-
   // Community dashboard click handler
   const [{ error: isPreviewDashboardError }, onClickCommunityDashboard] = useAsyncFn(
     async (dashboard: GnetDashboard, customizeWithAssistant?: boolean) => {
@@ -355,7 +321,6 @@ export const SuggestedDashboardsList = ({
         discoveryMethod: debouncedSearchQuery.trim() ? DISCOVERY_METHODS.SEARCH : DISCOVERY_METHODS.BROWSE,
         action: customizeWithAssistant ? 'assistant' : 'use_dashboard',
       });
-
       await onUseCommunityDashboard({
         dashboard,
         datasourceUid: datasourceUid || '',
@@ -367,15 +332,12 @@ export const SuggestedDashboardsList = ({
     },
     [datasourceType, datasourceUid, debouncedSearchQuery, onShowMapping, sourceEntryPoint, eventLocation]
   );
-
   // Compatibility check handler
   const onCheckCompatibility = async (dashboard: GnetDashboard, triggerMethod: 'manual' | 'auto_initial_load') => {
     if (!datasourceUid || !datasourceType) {
       return;
     }
-
     setCompatibilityMap((prev) => new Map(prev).set(dashboard.id, { status: 'loading' }));
-
     DashboardLibraryInteractions.compatibilityCheckTriggered({
       dashboardId: String(dashboard.id),
       dashboardTitle: dashboard.name,
@@ -384,10 +346,8 @@ export const SuggestedDashboardsList = ({
       eventLocation,
       sourceEntryPoint,
     });
-
     try {
       const interpolatedDashboard = await interpolateDashboardForCompatibilityCheck(dashboard.id, datasourceUid);
-
       const result = await checkDashboardCompatibility(interpolatedDashboard, [
         {
           uid: datasourceUid,
@@ -395,12 +355,10 @@ export const SuggestedDashboardsList = ({
           name: getDataSourceSrv().getInstanceSettings(datasourceUid)?.name ?? '',
         },
       ]);
-
       const dsResult = result.datasourceResults[0];
       const score = Math.round(dsResult.compatibilityScore * 100);
       const metricsFound = dsResult.foundMetrics;
       const metricsTotal = dsResult.totalMetrics;
-
       setCompatibilityMap((prev) =>
         new Map(prev).set(dashboard.id, {
           status: 'success',
@@ -409,7 +367,6 @@ export const SuggestedDashboardsList = ({
           metricsTotal,
         })
       );
-
       DashboardLibraryInteractions.compatibilityCheckCompleted({
         dashboardId: String(dashboard.id),
         dashboardTitle: dashboard.name,
@@ -422,11 +379,9 @@ export const SuggestedDashboardsList = ({
         sourceEntryPoint,
       });
     } catch (err) {
-      console.error('Error checking dashboard compatibility:', err);
-
+      structLog('error', 'Error checking dashboard compatibility:', err);
       const errorMessage = isFetchError(err) ? err.data?.message : 'Failed to check compatibility';
       const errorCode = isFetchError(err) ? err.data?.code : undefined;
-
       setCompatibilityMap((prev) =>
         new Map(prev).set(dashboard.id, {
           status: 'error',
@@ -436,7 +391,6 @@ export const SuggestedDashboardsList = ({
       );
     }
   };
-
   // Auto-trigger compatibility checks on initial load for Prometheus
   useEffect(() => {
     if (
@@ -462,10 +416,8 @@ export const SuggestedDashboardsList = ({
     isCompatibilityAppEnabled,
     debouncedSearchQuery,
   ]);
-
   const showLoading = isDashboardsLoading || isCommunityLoading;
   const hasNoResults = !showLoading && provisionedSlice.length === 0 && communitySlice.length === 0;
-
   const onCreateFromScratch = () => {
     DashboardLibraryInteractions.createFromScratchClicked({
       eventLocation,
@@ -473,7 +425,6 @@ export const SuggestedDashboardsList = ({
     onDismiss();
     locationService.push('/dashboard/new');
   };
-
   return (
     <Stack direction="column" gap={2} height="100%">
       <ListHeader error={isPreviewDashboardError} onCreateFromScratch={onCreateFromScratch} />
@@ -526,7 +477,6 @@ export const SuggestedDashboardsList = ({
     </Stack>
   );
 };
-
 function getStyles(theme: GrafanaTheme2) {
   return {
     resultsContainer: css({

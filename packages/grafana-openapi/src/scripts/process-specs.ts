@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import fs from 'fs';
 import { type OpenAPIV3 } from 'openapi-types';
 import path from 'path';
-
 /**
  * Process an OpenAPI spec to remove k8s metadata from names and paths:
  * - Remove paths containing "/watch/" as they're deprecated.
@@ -14,7 +14,6 @@ import path from 'path';
 function processOpenAPISpec(spec: OpenAPIV3.Document) {
   // Create a deep copy of the spec to avoid mutating the original
   const newSpec = JSON.parse(JSON.stringify(spec));
-
   // Process 'paths' property
   const newPaths: Record<string, unknown> = {};
   for (const [path, pathItem] of Object.entries<OpenAPIV3.PathItemObject>(newSpec.paths)) {
@@ -24,19 +23,15 @@ function processOpenAPISpec(spec: OpenAPIV3.Document) {
     }
     // Remove the specified part from the path key
     const newPathKey = path.replace(/^\/apis\/[^\/]+\/[^\/]+/, '').replace(/^\/namespaces\/\{namespace}/, '');
-
     // Process each method in the path (e.g., get, post)
     const newPathItem: Record<string, unknown> = {};
-
     // Filter out namespace parameter at path level
     if (Array.isArray(pathItem.parameters)) {
       pathItem.parameters = filterNamespaceParameters(pathItem.parameters);
     }
-
     for (const method of Object.keys(pathItem)) {
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       const operation = pathItem[method as keyof OpenAPIV3.PathItemObject];
-
       if (
         typeof operation === 'object' &&
         operation !== null &&
@@ -45,7 +40,6 @@ function processOpenAPISpec(spec: OpenAPIV3.Document) {
       ) {
         continue;
       }
-
       // Filter out namespace parameter at operation level
       if (
         operation &&
@@ -55,16 +49,12 @@ function processOpenAPISpec(spec: OpenAPIV3.Document) {
       ) {
         operation.parameters = filterNamespaceParameters(operation.parameters);
       }
-
       updateRefs(operation);
-
       newPathItem[method] = operation;
     }
-
     newPaths[newPathKey] = newPathItem;
   }
   newSpec.paths = newPaths;
-
   // Process 'components.schemas', i.e., type definitions
   const newSchemas: Record<string, unknown> = {};
   for (const schemaKey of Object.keys(newSpec.components.schemas)) {
@@ -74,24 +64,19 @@ function processOpenAPISpec(spec: OpenAPIV3.Document) {
       // it is better to fix the spec to avoid confusion.
       throw new Error(`Duplicate schema key found: ${newKey}. from: ${schemaKey}`);
     }
-
     const schemaObject = newSpec.components.schemas[schemaKey];
     updateRefs(schemaObject);
-
     newSchemas[newKey] = schemaObject;
   }
   newSpec.components.schemas = newSchemas;
-
   return newSpec;
 }
-
 /**
  * Filter out namespace parameters from an array of parameters
  */
 function filterNamespaceParameters(parameters: Array<OpenAPIV3.ReferenceObject | OpenAPIV3.ParameterObject>) {
   return parameters.filter((param) => 'name' in param && param.name !== 'namespace');
 }
-
 /**
  * Recursively update all $ref fields to remove k8s metadata from names
  */
@@ -115,25 +100,21 @@ function updateRefs(obj: unknown) {
     }
   }
 }
-
 /**
  * Simplify a schema name by removing the version prefix if present.
  * For example, 'io.k8s.apimachinery.pkg.apis.meta.v1.Time' becomes 'Time'.
  */
 function simplifySchemaName(schemaName: string) {
   const parts = schemaName.split('.');
-
   // Regex to match version segments like 'v1', 'v1beta1', 'v0alpha1', etc.
   const versionRegex = /^v\d+[a-zA-Z0-9]*$/;
   const versionIndex = parts.findIndex((part) => versionRegex.test(part));
-
   if (versionIndex !== -1 && versionIndex + 1 < parts.length) {
     return parts.slice(versionIndex + 1).join('.');
   } else {
     return schemaName;
   }
 }
-
 /**
  * Process all files in a source directory and write results to output directory
  */
@@ -142,50 +123,39 @@ function processDirectory(sourceDir: string, outputDir: string) {
   if (!fs.existsSync(sourceDir)) {
     return;
   }
-
   // Create the output directory if it doesn't exist
   if (!fs.existsSync(outputDir)) {
     fs.mkdirSync(outputDir, { recursive: true });
   }
-
   const files = fs.readdirSync(sourceDir).filter((file: string) => file.endsWith('.json'));
-
   for (const file of files) {
     const inputPath = path.join(sourceDir, file);
     const outputPath = path.join(outputDir, file);
-
-    console.log(`Processing file "${file}"...`);
-
+    structLog('log', `Processing file "${file}"...`);
     const fileContent = fs.readFileSync(inputPath, 'utf-8');
-
     let inputSpec;
     try {
       inputSpec = JSON.parse(fileContent);
     } catch (err) {
-      console.error(`Invalid JSON file "${file}". Skipping this file.`);
+      structLog('error', `Invalid JSON file "${file}". Skipping this file.`);
       continue;
     }
-
     const outputSpec = processOpenAPISpec(inputSpec);
     fs.writeFileSync(outputPath, JSON.stringify(outputSpec, null, 2), 'utf-8');
-    console.log(`Processing completed for file "${file}".`);
+    structLog('log', `Processing completed for file "${file}".`);
   }
 }
-
 // Grafana root path - navigate up from this script's directory
 const basePath = path.resolve(import.meta.dirname, '../../../..');
-
 const oss = {
   source: path.join(basePath, 'pkg/tests/apis/openapi_snapshots'),
   output: path.join(import.meta.dirname, '../apis'),
 };
-
 // This script is also used to process specs from the Enterprise repo but we're not publishing these as part of this package for now
 const enterprise = {
   source: path.join(basePath, 'pkg/extensions/apiserver/tests/openapi_snapshots'),
   output: path.join(basePath, 'data/openapi'),
 };
-
 for (const config of [oss, enterprise]) {
   processDirectory(config.source, config.output);
 }

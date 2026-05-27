@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import {
   type DataFrame,
   type DataLink,
@@ -25,13 +26,10 @@ import { getTemplateSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 import { Icon } from '@grafana/ui';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
-
 import { type LokiQuery } from '../../../plugins/datasource/loki/types';
 import { type ExploreFieldLinkModel, getFieldLinksForExplore, getVariableUsageInfo } from '../utils/links';
-
 import { type SpanLinkDef, type SpanLinkFunc, SpanLinkType } from './components/types/links';
 import { type Trace, type TraceSpan, type TraceSpanReference } from './components/types/trace';
-
 /**
  * This is a factory for the link creator. It returns the function mainly so it can return undefined in which case
  * the trace view won't create any links and to capture the datasource and split function making it easier to memoize
@@ -59,10 +57,8 @@ export function createSpanLinkFactory({
   if (!dataFrame) {
     return undefined;
   }
-
   let scopedVars = scopedVarsFromTrace(trace.duration, trace.traceName, trace.traceID);
   const hasLinks = dataFrame.fields.some((f) => Boolean(f.config.links?.length));
-
   const createSpanLinks = legacyCreateSpanLinkFactory(
     splitOpenFn,
     // We need this to make the types happy but for this branch of code it does not matter which field we supply.
@@ -74,10 +70,8 @@ export function createSpanLinkFactory({
     dataFrame,
     dataLinkPostProcessor
   );
-
   return function SpanLink(span: TraceSpan): SpanLinkDef[] | undefined {
     let spanLinks = createSpanLinks(span);
-
     if (hasLinks) {
       scopedVars = {
         ...scopedVars,
@@ -94,7 +88,6 @@ export function createSpanLinkFactory({
         const hasConfiguredPyroscopeDS = profilesDataSourceSettings?.type === 'grafana-pyroscope-datasource';
         const hasPyroscopeProfile = span.tags.some((tag) => tag.key === pyroscopeProfileIdTagKey);
         const shouldCreatePyroscopeLink = hasConfiguredPyroscopeDS && hasPyroscopeProfile;
-
         let links: ExploreFieldLinkModel[] = [];
         fields.forEach((field) => {
           const fieldLinksForExplore = getFieldLinksForExplore({
@@ -107,7 +100,6 @@ export function createSpanLinkFactory({
           });
           links = links.concat(fieldLinksForExplore);
         });
-
         const newSpanLinks: SpanLinkDef[] = links.map((link) => {
           return {
             title: link.title,
@@ -119,19 +111,16 @@ export function createSpanLinkFactory({
             target: link.target,
           };
         });
-
         spanLinks.push.apply(spanLinks, newSpanLinks);
       } catch (error) {
         // It's fairly easy to crash here for example if data source defines wrong interpolation in the data link
-        console.error(error);
+        structLog('error', error);
         return spanLinks;
       }
     }
-
     return spanLinks;
   };
 }
-
 /**
  * Default keys to use when there are no configured tags.
  */
@@ -145,7 +134,6 @@ const defaultKeys = formatDefaultKeys(['cluster', 'hostname', 'namespace', 'pod'
 export const defaultProfilingKeys = formatDefaultKeys(['service.name', 'service.namespace']);
 export const pyroscopeProfileIdTagKey = 'pyroscope.profile.id';
 export const feO11yTagKey = 'gf.feo11y.app.id';
-
 function legacyCreateSpanLinkFactory(
   splitOpenFn: SplitOpen,
   field: Field,
@@ -161,12 +149,10 @@ function legacyCreateSpanLinkFactory(
     logsDataSourceSettings = getDatasourceSrv().getInstanceSettings(traceToLogsOptions.datasourceUid);
   }
   const isSplunkDS = logsDataSourceSettings?.type === 'grafana-splunk-datasource';
-
   let metricsDataSourceSettings: DataSourceInstanceSettings<DataSourceJsonData> | undefined;
   if (traceToMetricsOptions?.datasourceUid) {
     metricsDataSourceSettings = getDatasourceSrv().getInstanceSettings(traceToMetricsOptions.datasourceUid);
   }
-
   return function SpanLink(span: TraceSpan): SpanLinkDef[] {
     scopedVars = {
       ...scopedVars,
@@ -175,7 +161,6 @@ function legacyCreateSpanLinkFactory(
     const links: SpanLinkDef[] = [];
     let query: DataQuery | undefined;
     let tags = '';
-
     // TODO: This should eventually move into specific data sources and added to the data frame as we no longer use the
     //  deprecated blob format and we can map the link easily in data frame.
     if (logsDataSourceSettings && traceToLogsOptions) {
@@ -211,7 +196,6 @@ function legacyCreateSpanLinkFactory(
           query = getQueryForVictoriaLogs(span, traceToLogsOptions, tags, customQuery);
           break;
       }
-
       // query can be false in case the simple UI tag mapping is used but none of them are present in the span.
       // For custom query, this is always defined and we check if the interpolation matched all variables later on.
       if (query) {
@@ -236,7 +220,6 @@ function legacyCreateSpanLinkFactory(
             ),
           },
         };
-
         scopedVars = {
           ...scopedVars,
           __tags: {
@@ -244,7 +227,6 @@ function legacyCreateSpanLinkFactory(
             value: tags,
           },
         };
-
         // Check if all variables are defined and don't show if they aren't. This is usually handled by the
         // getQueryFor* functions but this is for case of custom query supplied by the user.
         if (getVariableUsageInfo(dataLink.internal!.query, scopedVars).allVariablesDefined) {
@@ -257,7 +239,6 @@ function legacyCreateSpanLinkFactory(
             onClickFn: splitOpenFn,
             replaceVariables: getTemplateSrv().replace.bind(getTemplateSrv()),
           });
-
           link =
             (dataFrame &&
               dataLinkPostProcessor?.({
@@ -270,7 +251,6 @@ function legacyCreateSpanLinkFactory(
                 linkModel: link,
               })) ||
             link;
-
           links.push({
             href: link.href,
             linkModel: link,
@@ -291,7 +271,6 @@ function legacyCreateSpanLinkFactory(
         }
       }
     }
-
     // Get metrics links
     if (metricsDataSourceSettings && traceToMetricsOptions?.queries) {
       for (const query of traceToMetricsOptions.queries) {
@@ -310,12 +289,10 @@ function legacyCreateSpanLinkFactory(
             },
           },
         };
-
         const tagsToUse =
           traceToMetricsOptions.tags && traceToMetricsOptions.tags.length > 0
             ? traceToMetricsOptions.tags
             : defaultKeys;
-
         scopedVars = {
           ...scopedVars,
           __tags: {
@@ -323,7 +300,6 @@ function legacyCreateSpanLinkFactory(
             value: getFormattedTags(span, tagsToUse),
           },
         };
-
         const link = mapInternalLinkToExplore({
           link: dataLink,
           internalLink: dataLink.internal!,
@@ -340,7 +316,6 @@ function legacyCreateSpanLinkFactory(
           onClickFn: splitOpenFn,
           replaceVariables: getTemplateSrv().replace.bind(getTemplateSrv()),
         });
-
         links.push({
           title: query?.name,
           href: link.href,
@@ -359,7 +334,6 @@ function legacyCreateSpanLinkFactory(
         });
       }
     }
-
     // Get trace links
     if (span.references && createFocusSpanLink) {
       for (const reference of span.references) {
@@ -367,10 +341,8 @@ function legacyCreateSpanLinkFactory(
         if (reference.refType === 'CHILD_OF') {
           continue;
         }
-
         const link = createFocusSpanLink(reference.traceID, reference.spanID);
         const title = getReferenceTitle(reference);
-
         links!.push({
           href: link.href,
           linkModel: link,
@@ -382,12 +354,10 @@ function legacyCreateSpanLinkFactory(
         });
       }
     }
-
     if (span.subsidiarilyReferencedBy && createFocusSpanLink) {
       for (const reference of span.subsidiarilyReferencedBy) {
         const link = createFocusSpanLink(reference.traceID, reference.spanID);
         const title = getReferenceTitle(reference);
-
         links!.push({
           href: link.href,
           title,
@@ -398,7 +368,6 @@ function legacyCreateSpanLinkFactory(
         });
       }
     }
-
     // Get session links
     const feO11yLink = getLinkForFeO11y(span);
     if (feO11yLink) {
@@ -415,11 +384,9 @@ function legacyCreateSpanLinkFactory(
         type: SpanLinkType.Session,
       });
     }
-
     return links;
   };
 }
-
 const getReferenceTitle = (reference: TraceSpanReference) => {
   let title = reference.span ? reference.span.operationName : 'View linked span';
   if (reference.refType === 'EXTERNAL') {
@@ -427,7 +394,6 @@ const getReferenceTitle = (reference: TraceSpanReference) => {
   }
   return title;
 };
-
 function getQueryForLoki(
   span: TraceSpan,
   options: TraceToLogsOptionsV2,
@@ -435,15 +401,12 @@ function getQueryForLoki(
   customQuery?: string
 ): LokiQuery | undefined {
   const { filterByTraceID, filterBySpanID } = options;
-
   if (customQuery) {
     return { expr: customQuery, refId: '' };
   }
-
   if (!tags) {
     return undefined;
   }
-
   let expr = '{${__tags}}';
   if (filterByTraceID && span.traceID) {
     expr +=
@@ -453,22 +416,18 @@ function getQueryForLoki(
     expr +=
       ' | label_format log_line_contains_span_id=`{{ contains "${__span.spanId}" __line__  }}` | log_line_contains_span_id="true" or span_id="${__span.spanId}"';
   }
-
   return {
     expr: expr,
     refId: '',
   };
 }
-
 function getLinkForFeO11y(span: TraceSpan): string | undefined {
   const feO11yAppId = span.process.tags.find((tag) => tag.key === feO11yTagKey)?.value;
   const feO11ySessionId = span.tags.find((tag) => tag.key === 'session_id' || tag.key === 'session.id')?.value;
-
   return feO11yAppId && feO11ySessionId
     ? `/a/grafana-kowalski-app/apps/${feO11yAppId}/sessions/${feO11ySessionId}`
     : undefined;
 }
-
 // we do not have access to the dataquery type for opensearch,
 // so here is a minimal interface that handles both elasticsearch and opensearch.
 interface ElasticsearchOrOpensearchQuery extends DataQuery {
@@ -478,7 +437,6 @@ interface ElasticsearchOrOpensearchQuery extends DataQuery {
     type: 'logs';
   }>;
 }
-
 function getQueryForElasticsearchOrOpensearch(
   span: TraceSpan,
   options: TraceToLogsOptionsV2,
@@ -493,34 +451,27 @@ function getQueryForElasticsearchOrOpensearch(
       metrics: [{ id: '1', type: 'logs' }],
     };
   }
-
   let queryArr = [];
   if (filterBySpanID && span.spanID) {
     queryArr.push('"${__span.spanId}"');
   }
-
   if (filterByTraceID && span.traceID) {
     queryArr.push('"${__span.traceId}"');
   }
-
   if (tags) {
     queryArr.push('${__tags}');
   }
-
   return {
     query: queryArr.join(' AND '),
     refId: '',
     metrics: [{ id: '1', type: 'logs' }],
   };
 }
-
 function getQueryForSplunk(span: TraceSpan, options: TraceToLogsOptionsV2, tags: string, customQuery?: string) {
   const { filterByTraceID, filterBySpanID } = options;
-
   if (customQuery) {
     return { query: customQuery, refId: '' };
   }
-
   let query = '';
   if (tags) {
     query += '${__tags}';
@@ -531,13 +482,11 @@ function getQueryForSplunk(span: TraceSpan, options: TraceToLogsOptionsV2, tags:
   if (filterBySpanID && span.spanID) {
     query += ' "${__span.spanId}"';
   }
-
   return {
     query: query,
     refId: '',
   };
 }
-
 function getQueryForGoogleCloudLogging(
   span: TraceSpan,
   options: TraceToLogsOptionsV2,
@@ -545,59 +494,47 @@ function getQueryForGoogleCloudLogging(
   customQuery?: string
 ) {
   const { filterByTraceID, filterBySpanID } = options;
-
   if (customQuery) {
     return { query: customQuery, refId: '' };
   }
-
   let queryArr = [];
   if (filterBySpanID && span.spanID) {
     queryArr.push('"${__span.spanId}"');
   }
-
   if (filterByTraceID && span.traceID) {
     queryArr.push('"${__span.traceId}"');
   }
-
   if (tags) {
     queryArr.push('${__tags}');
   }
-
   return {
     query: queryArr.join(' AND '),
     refId: '',
   };
 }
-
 function getQueryForFalconLogScale(span: TraceSpan, options: TraceToLogsOptionsV2, tags: string, customQuery?: string) {
   const { filterByTraceID, filterBySpanID } = options;
-
   if (customQuery) {
     return {
       lsql: customQuery,
       refId: '',
     };
   }
-
   if (!tags) {
     return undefined;
   }
-
   let lsql = '${__tags}';
   if (filterByTraceID && span.traceID) {
     lsql += ' or "${__span.traceId}"';
   }
-
   if (filterBySpanID && span.spanID) {
     lsql += ' or "${__span.spanId}"';
   }
-
   return {
     lsql,
     refId: '',
   };
 }
-
 /**
  * Builds a LogsQL expression for victoria‑metrics‑logs‑datasource.
  * Uses := for exact‑match filters and joins parts with AND.
@@ -605,7 +542,6 @@ function getQueryForFalconLogScale(span: TraceSpan, options: TraceToLogsOptionsV
  */
 function getQueryForVictoriaLogs(span: TraceSpan, options: TraceToLogsOptionsV2, tags: string, customQuery?: string) {
   const { filterByTraceID, filterBySpanID } = options;
-
   // Custom user query has priority
   if (customQuery) {
     return {
@@ -613,9 +549,7 @@ function getQueryForVictoriaLogs(span: TraceSpan, options: TraceToLogsOptionsV2,
       refId: '',
     };
   }
-
   const parts: string[] = [];
-
   if (filterBySpanID && span.spanID) {
     parts.push('span_id:="${__span.spanId}"');
   }
@@ -625,18 +559,15 @@ function getQueryForVictoriaLogs(span: TraceSpan, options: TraceToLogsOptionsV2,
   if (tags) {
     parts.push('${__tags}');
   }
-
   // Nothing to match against – do not create the link
   if (!parts.length) {
     return undefined;
   }
-
   return {
     expr: parts.join(' AND '),
     refId: '',
   };
 }
-
 /**
  * Creates a string representing all the tags already formatted for use in the query. The tags are filtered so that
  * only intersection of tags that exist in a span and tags that you want are serialized into the string.
@@ -644,7 +575,13 @@ function getQueryForVictoriaLogs(span: TraceSpan, options: TraceToLogsOptionsV2,
 export function getFormattedTags(
   span: TraceSpan,
   tags: TraceToLogsTag[],
-  { labelValueSign = '=', joinBy = ', ' }: { labelValueSign?: string; joinBy?: string } = {}
+  {
+    labelValueSign = '=',
+    joinBy = ', ',
+  }: {
+    labelValueSign?: string;
+    joinBy?: string;
+  } = {}
 ) {
   // In order, try to use mapped tags -> tags -> default tags
   // Build tag portion of query
@@ -666,20 +603,21 @@ export function getFormattedTags(
     .filter((v) => Boolean(v))
     .join(joinBy);
 }
-
 /**
  * Gets a time range from the span.
  */
 function getTimeRangeFromSpan(
   span: TraceSpan,
-  timeShift: { startMs: number; endMs: number } = { startMs: 0, endMs: 0 },
+  timeShift: {
+    startMs: number;
+    endMs: number;
+  } = { startMs: 0, endMs: 0 },
   isSplunkDS = false,
   shouldCreatePyroscopeLink = false
 ): TimeRange {
   let adjustedStartTime = Math.floor(span.startTime / 1000 + timeShift.startMs);
   const spanEndMs = (span.startTime + span.duration) / 1000;
   let adjustedEndTime = Math.floor(spanEndMs + timeShift.endMs);
-
   // Splunk requires a time interval of >= 1s, rather than >=1ms like Loki timerange in below elseif block
   if (isSplunkDS && adjustedEndTime - adjustedStartTime < 1000) {
     adjustedEndTime = adjustedStartTime + 1000;
@@ -691,10 +629,8 @@ function getTimeRangeFromSpan(
     // We need end time to be later than start time
     adjustedEndTime++;
   }
-
   const to = dateTime(adjustedEndTime);
   const from = dateTime(adjustedStartTime);
-
   // Beware that public/app/features/explore/state/main.ts SplitOpen fn uses the range from here. No matter what is in the url.
   return {
     from,
@@ -705,7 +641,6 @@ function getTimeRangeFromSpan(
     },
   };
 }
-
 /**
  * Variables from trace that can be used in the query
  * @param trace
@@ -722,14 +657,12 @@ export function scopedVarsFromTrace(duration: number, name: string, traceId: str
     },
   };
 }
-
 /**
  * Variables from span that can be used in the query
  * @param span
  */
 export function scopedVarsFromSpan(span: TraceSpan): ScopedVars {
   const tags: ScopedVars = {};
-
   // We put all these tags together similar way we do for the __tags variable. This means there can be some overriding
   // of values if there is the same tag in both process tags and span tags.
   for (const tag of span.process.tags) {
@@ -738,7 +671,6 @@ export function scopedVarsFromSpan(span: TraceSpan): ScopedVars {
   for (const tag of span.tags) {
     tags[tag.key] = tag.value;
   }
-
   return {
     __span: {
       text: t('explore.scoped-vars-from-span.text.span', 'Span'),
@@ -752,7 +684,6 @@ export function scopedVarsFromSpan(span: TraceSpan): ScopedVars {
     },
   };
 }
-
 /**
  * Variables from tags that can be used in the query
  * @param span
@@ -762,13 +693,11 @@ export function scopedVarsFromTags(
   traceToProfilesOptions: TraceToProfilesOptions | undefined
 ): ScopedVars {
   let tags: ScopedVars = {};
-
   if (traceToProfilesOptions) {
     const profileTags =
       traceToProfilesOptions.tags && traceToProfilesOptions.tags.length > 0
         ? traceToProfilesOptions.tags
         : defaultProfilingKeys;
-
     tags = {
       __tags: {
         text: t('explore.scoped-vars-from-tags.text.tags', 'Tags'),
@@ -776,6 +705,5 @@ export function scopedVarsFromTags(
       },
     };
   }
-
   return tags;
 }

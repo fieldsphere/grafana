@@ -1,13 +1,11 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { type Dispatch, type SetStateAction, useState } from 'react';
-
 import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { FileDropzone, useStyles2, Button, type DropzoneFile, Field } from '@grafana/ui';
 import { SanitizedSVG } from 'app/core/components/SVG/SanitizedSVG';
-
 import { MediaType } from '../types';
-
 interface Props {
   setFormData: Dispatch<SetStateAction<FormData>>;
   mediaType: MediaType;
@@ -20,7 +18,6 @@ interface ErrorResponse {
 }
 export function FileDropzoneCustomChildren({ secondaryText = 'Drag and drop here or browse' }) {
   const styles = useStyles2(getStyles);
-
   return (
     <div className={styles.iconWrapper}>
       <small className={styles.small}>{secondaryText}</small>
@@ -34,7 +31,6 @@ export const FileUploader = ({ mediaType, setFormData, setUpload, error }: Props
   const styles = useStyles2(getStyles);
   const [dropped, setDropped] = useState<boolean>(false);
   const [file, setFile] = useState<string>('');
-
   const Preview = () => (
     <Field label={t('dimensions.file-uploader.preview.label-preview', 'Preview')}>
       <div className={styles.iconPreview}>
@@ -43,13 +39,11 @@ export const FileUploader = ({ mediaType, setFormData, setUpload, error }: Props
       </div>
     </Field>
   );
-
   const onFileRemove = (file: DropzoneFile) => {
     fetch(`/api/storage/delete/upload/${file.file.name}`, {
       method: 'DELETE',
-    }).catch((error) => console.error('cannot delete file', error));
+    }).catch((error) => structLog('error', 'cannot delete file', error));
   };
-
   const acceptableFiles =
     mediaType === 'icon' ? { 'image/*': ['.svg', '.xml'] } : { 'image/*': ['.jpeg', '.png', '.gif', '.webp'] };
   return (
@@ -79,7 +73,6 @@ export const FileUploader = ({ mediaType, setFormData, setUpload, error }: Props
     </FileDropzone>
   );
 };
-
 function getStyles(theme: GrafanaTheme2, isDragActive?: boolean) {
   return {
     container: css({

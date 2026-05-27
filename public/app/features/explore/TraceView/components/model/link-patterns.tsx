@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { structLog } from '@grafana/data';
 import { uniq as _uniq } from 'lodash';
 import memoize from 'lru-memoize';
 
@@ -111,8 +112,7 @@ export function processLinkPattern(pattern: any): ProcessedLinkPattern | null {
       parameters: _uniq(url.parameters.concat(text.parameters)),
     };
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(`Ignoring invalid link pattern: ${error}`, pattern);
+    structLog('error', `Ignoring invalid link pattern: ${error}`, pattern);
     return null;
   }
 }

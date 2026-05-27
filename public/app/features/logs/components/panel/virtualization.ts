@@ -1,19 +1,14 @@
+import { structLog } from '@grafana/data';
 import ansicolor from 'ansicolor';
-
 import { BusEventWithPayload, type GrafanaTheme2 } from '@grafana/data';
-
 import { type LogLineTimestampResolution } from './LogLine';
 import { type LogListFontSize } from './LogList';
 import { type LogListModel } from './processing';
-
 export const LOG_LIST_MIN_WIDTH = 35 * 8;
 // Controls the space between fields in the log line, timestamp, level, displayed fields, and log line body
 export const FIELD_GAP_MULTIPLIER = 1.5;
-
 export const DEFAULT_LINE_HEIGHT = 22;
-
 export const LOG_LIST_CONTROLS_WIDTH = 35;
-
 export class LogLineVirtualization {
   private ctx: CanvasRenderingContext2D | null = null;
   private gridSize;
@@ -24,10 +19,8 @@ export class LogLineVirtualization {
   private logLineSizesMap: Map<string, number>;
   private spanElement = document.createElement('span');
   readonly fontSize: LogListFontSize;
-
   constructor(theme: GrafanaTheme2, fontSize: LogListFontSize) {
     this.fontSize = fontSize;
-
     let fontSizePx;
     if (fontSize === 'default') {
       fontSizePx = theme.typography.fontSize;
@@ -39,31 +32,24 @@ export class LogLineVirtualization {
           : parseInt(theme.typography.bodySmall.fontSize, 10);
       this.lineHeight = fontSizePx * theme.typography.bodySmall.lineHeight;
     }
-
     this.gridSize = theme.spacing.gridSize;
     this.paddingBottom = this.gridSize * 0.75;
     this.logLineSizesMap = new Map<string, number>();
     this.textWidthMap = new Map<number, number>();
-
     const font = `${fontSizePx}px ${theme.typography.fontFamilyMonospace}`;
     const letterSpacing = theme.typography.body.letterSpacing;
-
     this.initDOMmeasurement(font, letterSpacing);
     this.initCanvasMeasurement(font, letterSpacing);
     this.determineMeasurementMode();
   }
-
   getLineHeight = () => this.lineHeight;
   getGridSize = () => this.gridSize;
   getPaddingBottom = () => this.paddingBottom;
-
   getTruncationLineCount = () => Math.round(window.innerHeight / this.getLineHeight() / 1.5);
-
   getTruncationLength = (container: HTMLDivElement | null) => {
     const availableWidth = container ? getLogContainerWidth(container) : window.innerWidth;
     return (availableWidth / this.measureTextWidth('e')) * this.getTruncationLineCount();
   };
-
   determineMeasurementMode = () => {
     if (!this.ctx) {
       this.measurementMode = 'dom';
@@ -73,11 +59,10 @@ export class LogLineVirtualization {
     const domCharWidth = this.measureTextWidthWithDOM('e');
     const diff = domCharWidth - canvasCharWidth;
     if (diff >= 0.1) {
-      console.warn('Virtualized log list: falling back to DOM for measurement');
+      structLog('warn', 'Virtualized log list: falling back to DOM for measurement');
       this.measurementMode = 'dom';
     }
   };
-
   initCanvasMeasurement = (font: string, letterSpacing: string | undefined) => {
     const canvas = document.createElement('canvas');
     this.ctx = canvas.getContext('2d');
@@ -93,7 +78,6 @@ export class LogLineVirtualization {
       this.ctx.letterSpacing = letterSpacing;
     }
   };
-
   initDOMmeasurement = (font: string, letterSpacing: string | undefined) => {
     this.spanElement.style.font = font;
     this.spanElement.style.visibility = 'hidden';
@@ -103,42 +87,33 @@ export class LogLineVirtualization {
       this.spanElement.style.letterSpacing = letterSpacing;
     }
   };
-
   measureTextWidth = (text: string): number => {
     if (!this.ctx) {
       throw new Error(`Measuring context canvas is not initialized. Call init() before.`);
     }
     const key = text.length;
-
     const storedWidth = this.textWidthMap.get(key);
     if (storedWidth) {
       return storedWidth;
     }
-
     const width =
       this.measurementMode === 'canvas' ? this.ctx.measureText(text).width : this.measureTextWidthWithDOM(text);
     this.textWidthMap.set(key, width);
-
     return width;
   };
-
   measureTextWidthWithDOM = (text: string) => {
     this.spanElement.textContent = text;
-
     document.body.appendChild(this.spanElement);
     const width = this.spanElement.getBoundingClientRect().width;
     document.body.removeChild(this.spanElement);
-
     return width;
   };
-
   measureTextHeight = (text: string, maxWidth: number, beforeWidth = 0) => {
     let logLines = 0;
     const charWidth = this.measureTextWidth('e');
     let logLineCharsLength = Math.round(maxWidth / charWidth);
     const firstLineCharsLength = Math.floor((maxWidth - beforeWidth) / charWidth) - 2 * charWidth;
     const textLines = text.split('\n');
-
     // Skip unnecessary measurements
     if (textLines.length === 1 && text.length < firstLineCharsLength) {
       return {
@@ -146,7 +121,6 @@ export class LogLineVirtualization {
         height: this.getLineHeight() + this.paddingBottom,
       };
     }
-
     const availableWidth = maxWidth - beforeWidth;
     for (const textLine of textLines) {
       for (let start = 0; start < textLine.length; ) {
@@ -169,15 +143,12 @@ export class LogLineVirtualization {
         start += testLogLine.length;
       }
     }
-
     const height = logLines * this.getLineHeight() + this.paddingBottom;
-
     return {
       lines: logLines,
       height,
     };
   };
-
   calculateFieldDimensions = (
     logs: LogListModel[],
     displayedFields: string[] = [],
@@ -240,22 +211,18 @@ export class LogLineVirtualization {
     }
     return dimensions;
   };
-
   resetLogLineSizes = () => {
     this.logLineSizesMap = new Map<string, number>();
   };
-
   storeLogLineSize = (id: string, container: HTMLDivElement, height: number) => {
     const key = `${id}_${getLogContainerWidth(container)}_${this.fontSize}`;
     this.logLineSizesMap.set(key, height);
   };
-
   retrieveLogLineSize = (id: string, container: HTMLDivElement) => {
     const key = `${id}_${getLogContainerWidth(container)}_${this.fontSize}`;
     return this.logLineSizesMap.get(key);
   };
 }
-
 export interface DisplayOptions {
   hasLogsWithErrors?: boolean;
   hasSampledLogs?: boolean;
@@ -263,7 +230,6 @@ export interface DisplayOptions {
   showTime: boolean;
   wrap: boolean;
 }
-
 export function getLogLineSize(
   virtualization: LogLineVirtualization,
   logs: LogListModel[],
@@ -279,25 +245,20 @@ export function getLogLineSize(
   if (!logs[index]) {
     return virtualization.getLineHeight() + virtualization.getPaddingBottom();
   }
-
   const storedSize = virtualization.retrieveLogLineSize(logs[index].uid, container);
   if (storedSize) {
     return storedSize;
   }
-
   // Unwrapped logs always measure 1 line
   if (!wrap) {
     return virtualization.getLineHeight() + virtualization.getPaddingBottom();
   }
-
   const gap = virtualization.getGridSize() * FIELD_GAP_MULTIPLIER;
-
   // If a long line is collapsed, we show the line count + an extra line for the expand/collapse control
   logs[index].updateCollapsedState(displayedFields, container);
   if (logs[index].collapsed) {
     return (virtualization.getTruncationLineCount() + 1) * virtualization.getLineHeight();
   }
-
   let textToMeasure = '';
   const iconsGap = virtualization.getGridSize() * 0.5;
   let optionsWidth = 0;
@@ -325,18 +286,15 @@ export function getLogLineSize(
   if (!displayedFields.length) {
     textToMeasure += ansicolor.strip(logs[index].body);
   }
-
   const { height } = virtualization.measureTextHeight(textToMeasure, getLogContainerWidth(container), optionsWidth);
   // When the log is collapsed, add an extra line for the expand/collapse control
   return logs[index].collapsed === false ? height + virtualization.getLineHeight() : height;
 }
-
 export interface LogFieldDimension {
   internal?: boolean;
   field: string;
   width: number;
 }
-
 export function getLogLineDOMHeight(element: HTMLDivElement, calculatedHeight?: number): number | null {
   // Line overflows or is smaller than container
   let measuredHeight = element.scrollHeight;
@@ -344,38 +302,29 @@ export function getLogLineDOMHeight(element: HTMLDivElement, calculatedHeight?: 
   if (measuredHeight > 0 && measuredHeight !== height) {
     return measuredHeight;
   }
-
   // No overflow or undermeasurement
   return null;
 }
-
 const logLineMenuIconWidth = 24;
 const scrollBarWidth = getScrollbarWidth();
-
 export function getLogContainerWidth(container: HTMLDivElement) {
   return container.clientWidth - scrollBarWidth - logLineMenuIconWidth;
 }
-
 export function getScrollbarWidth() {
   const hiddenDiv = document.createElement('div');
-
   hiddenDiv.style.width = '100px';
   hiddenDiv.style.height = '100px';
   hiddenDiv.style.overflow = 'scroll';
   hiddenDiv.style.position = 'absolute';
   hiddenDiv.style.top = '-9999px';
-
   document.body.appendChild(hiddenDiv);
   const width = hiddenDiv.offsetWidth - hiddenDiv.clientWidth;
   document.body.removeChild(hiddenDiv);
-
   return width;
 }
-
 export interface ScrollToLogsEventPayload {
   scrollTo: 'top' | 'bottom' | string;
 }
-
 export class ScrollToLogsEvent extends BusEventWithPayload<ScrollToLogsEventPayload> {
   static type = 'logs-panel-scroll-to';
 }

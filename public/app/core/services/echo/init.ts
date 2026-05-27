@@ -1,20 +1,16 @@
+import { structLog } from '@grafana/data';
 import { config, registerEchoBackend, setEchoSrv } from '@grafana/runtime';
 import { reportMetricPerformanceMark } from 'app/core/utils/metrics';
-
 import { contextSrv } from '../context_srv';
-
 import { Echo } from './Echo';
-
 // Initialise EchoSrv backends, calls during frontend app startup
 export async function initEchoSrv() {
   setEchoSrv(new Echo({ debug: process.env.NODE_ENV === 'development' }));
-
   window.addEventListener('load', (e) => {
     const loadMetricName = 'frontend_boot_load_time_seconds';
     // Metrics below are marked in public/views/index.html
     const jsLoadMetricName = 'frontend_boot_js_done_time_seconds';
     const cssLoadMetricName = 'frontend_boot_css_time_seconds';
-
     if (performance) {
       performance.mark(loadMetricName);
       reportMetricPerformanceMark('first-paint', 'frontend_boot_', '_time_seconds');
@@ -24,64 +20,53 @@ export async function initEchoSrv() {
       reportMetricPerformanceMark(cssLoadMetricName);
     }
   });
-
   try {
     await initPerformanceBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Performance backend', error);
+    structLog('error', 'Error initializing EchoSrv Performance backend', error);
   }
-
   try {
     await initFaroBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Faro backend', error);
+    structLog('error', 'Error initializing EchoSrv Faro backend', error);
   }
-
   try {
     await initGoogleAnalyticsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalytics backend', error);
+    structLog('error', 'Error initializing EchoSrv GoogleAnalytics backend', error);
   }
-
   try {
     await initGoogleAnalaytics4Backend();
   } catch (error) {
-    console.error('Error initializing EchoSrv GoogleAnalaytics4 backend', error);
+    structLog('error', 'Error initializing EchoSrv GoogleAnalaytics4 backend', error);
   }
-
   try {
     await initRudderstackBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Rudderstack backend', error);
+    structLog('error', 'Error initializing EchoSrv Rudderstack backend', error);
   }
-
   try {
     await initAzureAppInsightsBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv AzureAppInsights backend', error);
+    structLog('error', 'Error initializing EchoSrv AzureAppInsights backend', error);
   }
-
   try {
     await initConsoleBackend();
   } catch (error) {
-    console.error('Error initializing EchoSrv Console backend', error);
+    structLog('error', 'Error initializing EchoSrv Console backend', error);
   }
 }
-
 async function initPerformanceBackend() {
   if (contextSrv.user.orgRole === '') {
     return;
   }
-
   const { PerformanceBackend } = await import('./backends/PerformanceBackend');
   registerEchoBackend(new PerformanceBackend({}));
 }
-
 async function initFaroBackend() {
   if (!config.grafanaJavascriptAgent.enabled) {
     return;
   }
-
   // Ignore Rudderstack URLs
   const rudderstackUrls = [
     config.rudderstackConfigUrl,
@@ -90,17 +75,14 @@ async function initFaroBackend() {
   ]
     .filter(Boolean)
     .map((url) => new RegExp(`${url}.*.`));
-
   const { GrafanaJavascriptAgentBackend } = await import(
     './backends/grafana-javascript-agent/GrafanaJavascriptAgentBackend'
   );
-
   registerEchoBackend(
     new GrafanaJavascriptAgentBackend({
       buildInfo: config.buildInfo,
       userIdentifier: contextSrv.user.analytics.identifier,
       ignoreUrls: rudderstackUrls,
-
       apiKey: config.grafanaJavascriptAgent.apiKey,
       customEndpoint: config.grafanaJavascriptAgent.customEndpoint,
       consoleInstrumentalizationEnabled: config.grafanaJavascriptAgent.consoleInstrumentalizationEnabled,
@@ -112,12 +94,10 @@ async function initFaroBackend() {
     })
   );
 }
-
 async function initGoogleAnalyticsBackend() {
   if (!config.googleAnalyticsId) {
     return;
   }
-
   const { GAEchoBackend } = await import('./backends/analytics/GABackend');
   registerEchoBackend(
     new GAEchoBackend({
@@ -125,12 +105,10 @@ async function initGoogleAnalyticsBackend() {
     })
   );
 }
-
 async function initGoogleAnalaytics4Backend() {
   if (!config.googleAnalytics4Id) {
     return;
   }
-
   const { GA4EchoBackend } = await import('./backends/analytics/GA4Backend');
   registerEchoBackend(
     new GA4EchoBackend({
@@ -139,26 +117,20 @@ async function initGoogleAnalaytics4Backend() {
     })
   );
 }
-
 async function initRudderstackBackend() {
   if (!(config.rudderstackWriteKey && config.rudderstackDataPlaneUrl)) {
     return;
   }
-
   // Logic: if only one of the sdk urls is provided, use respective code
   // otherwise defer to the feature toggle.
-
   const hasOldSdkUrl = Boolean(config.rudderstackSdkUrl);
   const hasNewSdkUrl = Boolean(config.rudderstackV3SdkUrl);
   const onlyOneSdkUrlSet = hasOldSdkUrl !== hasNewSdkUrl;
   const useNewRudderstack = onlyOneSdkUrlSet ? hasNewSdkUrl : config.featureToggles.rudderstackUpgrade;
-
   const sdkUrl = useNewRudderstack ? config.rudderstackV3SdkUrl : config.rudderstackSdkUrl;
-
   const modulePromise = useNewRudderstack
     ? import('./backends/analytics/RudderstackV3Backend')
     : import('./backends/analytics/RudderstackBackend');
-
   const { RudderstackBackend } = await modulePromise;
   registerEchoBackend(
     new RudderstackBackend({
@@ -172,12 +144,10 @@ async function initRudderstackBackend() {
     })
   );
 }
-
 async function initAzureAppInsightsBackend() {
   if (!config.applicationInsightsConnectionString) {
     return;
   }
-
   const { ApplicationInsightsBackend } = await import('./backends/analytics/ApplicationInsightsBackend');
   registerEchoBackend(
     new ApplicationInsightsBackend({
@@ -187,12 +157,10 @@ async function initAzureAppInsightsBackend() {
     })
   );
 }
-
 async function initConsoleBackend() {
   if (!config.analyticsConsoleReporting) {
     return;
   }
-
   const { BrowserConsoleBackend } = await import('./backends/analytics/BrowseConsoleBackend');
   registerEchoBackend(new BrowserConsoleBackend());
 }

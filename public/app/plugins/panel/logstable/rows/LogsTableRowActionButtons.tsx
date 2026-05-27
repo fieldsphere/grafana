@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useState } from 'react';
-
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
@@ -12,15 +12,12 @@ import {
   useTheme2,
 } from '@grafana/ui';
 import { type LogsFrame } from 'app/features/logs/logsFrame';
-
 import { type BuildLinkToLogLine } from '../types';
-
 interface Props extends CustomCellRendererProps {
   buildLinkToLog?: BuildLinkToLogLine;
   showInspectLogLine: boolean;
   logsFrame: LogsFrame;
 }
-
 /**
  * Logs row actions buttons
  * @param props
@@ -31,11 +28,9 @@ export function LogsTableRowActionButtons(props: Props) {
   const theme = useTheme2();
   const [isInspecting, setIsInspecting] = useState(false);
   const styles = getStyles(theme);
-
   const handleViewClick = () => {
     setIsInspecting(true);
   };
-
   return (
     <>
       <div className={styles.container}>
@@ -71,7 +66,7 @@ export function LogsTableRowActionButtons(props: Props) {
                 if (logId) {
                   return buildLinkToLog(logId) ?? '';
                 } else {
-                  console.error('failed to copy log line link!');
+                  structLog('error', 'failed to copy log line link!');
                 }
                 return '';
               }}
@@ -91,12 +86,10 @@ export function LogsTableRowActionButtons(props: Props) {
     </>
   );
 }
-
 const getLineValue = (logsFrame: LogsFrame, rowIndex: number) => {
   const bodyField = logsFrame.bodyField;
   return bodyField?.values[rowIndex];
 };
-
 export const getStyles = (theme: GrafanaTheme2) => ({
   container: css({
     background: theme.colors.background.secondary,

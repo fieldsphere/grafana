@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 /* eslint-disable no-console */
 import {
   type EchoBackend,
@@ -7,22 +8,17 @@ import {
   isPageviewEvent,
   type PageviewEchoEvent,
 } from '@grafana/runtime';
-
 export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unknown> {
   options = {};
   supportedEvents = [EchoEventType.Pageview, EchoEventType.Interaction, EchoEventType.ExperimentView];
-
   constructor() {}
-
   addEvent = (e: PageviewEchoEvent) => {
     if (isPageviewEvent(e)) {
-      console.log('[EchoSrv:pageview]', e.payload.page);
+      structLog('log', '[EchoSrv:pageview]', e.payload.page);
     }
-
     if (isInteractionEvent(e)) {
       const eventName = e.payload.interactionName;
-      console.log('[EchoSrv:event]', eventName, e.payload.properties);
-
+      structLog('log', '[EchoSrv:event]', eventName, e.payload.properties);
       // Warn for non-scalar property values. We're not yet making this a hard a
       const invalidTypeProperties = Object.entries(e.payload.properties ?? {}).filter(([_, value]) => {
         const valueType = typeof value;
@@ -30,9 +26,9 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
           valueType === 'string' || valueType === 'number' || valueType === 'boolean' || valueType === 'undefined';
         return !isValidType;
       });
-
       if (invalidTypeProperties.length > 0) {
-        console.warn(
+        structLog(
+          'warn',
           'Event',
           eventName,
           'has invalid property types. Event properties should only be string, number or boolean. Invalid properties:',
@@ -40,11 +36,9 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
         );
       }
     }
-
     if (isExperimentViewEvent(e)) {
-      console.log('[EchoSrv:experiment]', e.payload);
+      structLog('log', '[EchoSrv:experiment]', e.payload);
     }
   };
-
   flush = () => {};
 }

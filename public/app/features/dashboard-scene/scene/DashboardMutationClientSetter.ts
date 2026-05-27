@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 /**
  * Bridge between DashboardScene and the mutation-api module.
  *
@@ -8,18 +9,15 @@
  * dashboardMutationApi.ts provides the implementation at app init,
  * and DashboardScene calls it on activation without knowing the details.
  */
-
 type CreateMutationClient = (scene: unknown) => () => void;
-
 let _create: CreateMutationClient | null = null;
-
 export function provideMutationClientFactory(create: CreateMutationClient): void {
   _create = create;
 }
-
 export function createMutationClient(scene: unknown): () => void {
   if (!_create) {
-    console.warn(
+    structLog(
+      'warn',
       'createMutationClient called before provideMutationClientFactory. Mutation API will not be available.'
     );
     return () => {};

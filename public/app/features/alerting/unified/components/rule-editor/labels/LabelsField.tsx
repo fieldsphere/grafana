@@ -1,12 +1,11 @@
+import { structLog } from '@grafana/data';
 import { css, cx } from '@emotion/css';
 import { type FC, useCallback, useMemo } from 'react';
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
-
 import { AlertLabels } from '@grafana/alerting/unstable';
 import { type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Button, type ComboboxOption, Field, InlineLabel, Input, Space, Stack, Text, useStyles2 } from '@grafana/ui';
-
 import { labelsApi } from '../../../api/labelsApi';
 import { usePluginBridge } from '../../../hooks/usePluginBridge';
 import { SupportedPlugin } from '../../../types/pluginBridges';
@@ -17,19 +16,19 @@ import { isRecordingRuleByType } from '../../../utils/rules';
 import AlertLabelDropdown, { type AsyncOptionsLoader } from '../../AlertLabelDropdown';
 import { NeedHelpInfo } from '../NeedHelpInfo';
 import { useGetLabelsFromDataSourceName } from '../useAlertRuleSuggestions';
-
 import { AddButton, RemoveButton } from './LabelsButtons';
-
 const useGetOpsLabelsKeys = (skip: boolean) => {
   const { currentData, isLoading: isloadingLabels } = labelsApi.endpoints.getLabels.useQuery(undefined, {
     skip,
   });
   return { loading: isloadingLabels, labelsOpsKeys: currentData };
 };
-
 function mapLabelsToOptions(
   items: Iterable<string> = [],
-  labelsInSubForm?: Array<{ key: string; value: string }>
+  labelsInSubForm?: Array<{
+    key: string;
+    value: string;
+  }>
 ): Array<ComboboxOption<string>> {
   const existingKeys = new Set(labelsInSubForm ? labelsInSubForm.map((label) => label.key) : []);
   return Array.from(items, (item) => ({
@@ -38,11 +37,15 @@ function mapLabelsToOptions(
     disabled: existingKeys.has(item),
   }));
 }
-
 export interface LabelsInRuleProps {
-  labels: Array<{ key: string; value: string }> | undefined | null;
+  labels:
+    | Array<{
+        key: string;
+        value: string;
+      }>
+    | undefined
+    | null;
 }
-
 export const LabelsInRule = ({ labels }: LabelsInRuleProps) => {
   const safeLabels = Array.isArray(labels) ? labels : [];
   const labelsObj: Record<string, string> = safeLabels.reduce((acc: Record<string, string>, label) => {
@@ -51,26 +54,26 @@ export const LabelsInRule = ({ labels }: LabelsInRuleProps) => {
     }
     return acc;
   }, {});
-
   return <AlertLabels labels={labelsObj} />;
 };
-
 export type LabelsSubformValues = {
-  labelsInSubform: Array<{ key: string; value: string }>;
+  labelsInSubform: Array<{
+    key: string;
+    value: string;
+  }>;
 };
-
 export interface LabelsSubFormProps {
   dataSourceName: string;
-  initialLabels: Array<{ key: string; value: string }>;
+  initialLabels: Array<{
+    key: string;
+    value: string;
+  }>;
   onClose: (labelsToUodate?: KBObjectArray) => void;
 }
-
 export function LabelsSubForm({ dataSourceName, onClose, initialLabels }: LabelsSubFormProps) {
   const styles = useStyles2(getStyles);
   const { watch } = useFormContext<RuleFormValues>();
-
   const type = watch('type') ?? RuleFormType.grafana;
-
   const onSave = (labels: LabelsSubformValues) => {
     onClose(labels.labelsInSubform);
   };
@@ -81,7 +84,6 @@ export function LabelsSubForm({ dataSourceName, onClose, initialLabels }: Labels
   const defaultValues: LabelsSubformValues = useMemo(() => {
     return { labelsInSubform: initialLabels };
   }, [initialLabels]);
-
   const formAPI = useForm<LabelsSubformValues>({ defaultValues });
   return (
     <FormProvider {...formAPI}>
@@ -112,14 +114,15 @@ export function LabelsSubForm({ dataSourceName, onClose, initialLabels }: Labels
     </FormProvider>
   );
 }
-
 const isKeyAllowed = (labelKey: string) => !isPrivateLabelKey(labelKey);
-
 export function useCombinedLabels(
   dataSourceName: string,
   labelsPluginInstalled: boolean,
   loadingLabelsPlugin: boolean,
-  labelsInSubform: Array<{ key: string; value: string }>
+  labelsInSubform: Array<{
+    key: string;
+    value: string;
+  }>
 ) {
   // ------- Get labels keys and their values from existing alerts
   const { labels: labelsByKeyFromExisingAlerts, isLoading } = useGetLabelsFromDataSourceName(dataSourceName);
@@ -127,25 +130,20 @@ export function useCombinedLabels(
   const { loading: isLoadingLabels, labelsOpsKeys = [] } = useGetOpsLabelsKeys(
     !labelsPluginInstalled || loadingLabelsPlugin
   );
-
   // Lazy query for fetching label values on demand
   const [fetchLabelValues] = labelsApi.endpoints.getLabelValues.useLazyQuery();
-
   //------ Convert the labelsOpsKeys to a Set for quick lookup
   const opsLabelKeysSet = useMemo(() => {
     return new Set(labelsOpsKeys.map((label) => label.name));
   }, [labelsOpsKeys]);
-
   //------- Convert the keys from the ops labels to options for the dropdown
   const keysFromGopsLabels = useMemo(() => {
     return mapLabelsToOptions(Array.from(opsLabelKeysSet).filter(isKeyAllowed), labelsInSubform);
   }, [opsLabelKeysSet, labelsInSubform]);
-
   //------- Convert the keys from the existing alerts to options for the dropdown
   const keysFromExistingAlerts = useMemo(() => {
     return mapLabelsToOptions(Array.from(labelsByKeyFromExisingAlerts.keys()).filter(isKeyAllowed), labelsInSubform);
   }, [labelsByKeyFromExisingAlerts, labelsInSubform]);
-
   // create two groups of labels, one for ops and one for custom
   const groupedOptions = [
     {
@@ -159,7 +157,6 @@ export function useCombinedLabels(
       expanded: true,
     },
   ];
-
   // Create an async options loader for a specific key
   // This is called by Combobox when the dropdown menu opens
   const createAsyncValuesLoader = useCallback(
@@ -168,11 +165,9 @@ export function useCombinedLabels(
         if (!isKeyAllowed(key) || !key) {
           return [];
         }
-
         // Collect values from existing alerts first
         const valuesFromAlerts = labelsByKeyFromExisingAlerts.get(key);
         const existingValues = valuesFromAlerts ? Array.from(valuesFromAlerts) : [];
-
         // Collect values from ops labels (if plugin is installed)
         let opsValues: string[] = [];
         if (labelsPluginInstalled && opsLabelKeysSet.has(key)) {
@@ -183,22 +178,18 @@ export function useCombinedLabels(
               opsValues = result.values.map((value) => value.name);
             }
           } catch (error) {
-            console.error('Failed to fetch label values for key:', key, error);
+            structLog('error', 'Failed to fetch label values for key:', key, error);
           }
         }
-
         // Combine: existing values first, then unique ops values (Set preserves first occurrence)
         const combinedValues = [...new Set([...existingValues, ...opsValues])];
-
         const valueQueryLowerCase = valueQuery.toLowerCase();
         const filteredValues = combinedValues.filter((value) => value.toLowerCase().includes(valueQueryLowerCase));
-
         return mapLabelsToOptions(filteredValues);
       };
     },
     [labelsByKeyFromExisingAlerts, labelsPluginInstalled, opsLabelKeysSet, fetchLabelValues]
   );
-
   return {
     loading: isLoading || isLoadingLabels,
     keysFromExistingAlerts,
@@ -206,7 +197,6 @@ export function useCombinedLabels(
     createAsyncValuesLoader,
   };
 }
-
 /*
   We will suggest labels from two sources: existing alerts and ops labels.
   We only will suggest labels from ops if the grafana-labels-app plugin is installed
@@ -215,7 +205,6 @@ export function useCombinedLabels(
 export interface LabelsWithSuggestionsProps {
   dataSourceName: string;
 }
-
 export function LabelsWithSuggestions({ dataSourceName }: LabelsWithSuggestionsProps) {
   const styles = useStyles2(getStyles);
   const {
@@ -223,25 +212,21 @@ export function LabelsWithSuggestions({ dataSourceName }: LabelsWithSuggestionsP
     watch,
     formState: { errors },
   } = useFormContext<LabelsSubformValues>();
-
   const labelsInSubform = watch('labelsInSubform');
   const { fields, remove, append } = useFieldArray({ control, name: 'labelsInSubform' });
   const appendLabel = useCallback(() => {
     append({ key: '', value: '' });
   }, [append]);
-
   // check if the labels plugin is installed
   const { installed: labelsPluginInstalled = false, loading: loadingLabelsPlugin } = usePluginBridge(
     SupportedPlugin.Labels
   );
-
   const { loading, keysFromExistingAlerts, groupedOptions, createAsyncValuesLoader } = useCombinedLabels(
     dataSourceName,
     labelsPluginInstalled,
     loadingLabelsPlugin,
     labelsInSubform
   );
-
   return (
     <Stack direction="column" gap={2} alignItems="flex-start">
       {fields.map((field, index) => {
@@ -249,7 +234,6 @@ export function LabelsWithSuggestions({ dataSourceName }: LabelsWithSuggestionsP
         // This will be called by Combobox when the dropdown opens
         const currentKey = labelsInSubform[index]?.key || '';
         const asyncValuesLoader = createAsyncValuesLoader(currentKey);
-
         return (
           <div key={field.id} className={cx(styles.flexRow, styles.centerAlignRow)}>
             <Field
@@ -324,7 +308,6 @@ export function LabelsWithSuggestions({ dataSourceName }: LabelsWithSuggestionsP
     </Stack>
   );
 }
-
 export const LabelsWithoutSuggestions: FC = () => {
   const styles = useStyles2(getStyles);
   const {
@@ -333,13 +316,11 @@ export const LabelsWithoutSuggestions: FC = () => {
     watch,
     formState: { errors },
   } = useFormContext<RuleFormValues>();
-
   const labels = watch('labels');
   const { fields, remove, append } = useFieldArray({ control, name: 'labels' });
   const appendLabel = useCallback(() => {
     append({ key: '', value: '' });
   }, [append]);
-
   return (
     <>
       {fields.map((field, index) => {
@@ -392,12 +373,9 @@ export const LabelsWithoutSuggestions: FC = () => {
     </>
   );
 };
-
 function LabelsField() {
   const { watch } = useFormContext<RuleFormValues>();
-
   const type = watch('type') ?? RuleFormType.grafana;
-
   return (
     <div>
       <Stack direction="column" gap={1}>
@@ -421,7 +399,6 @@ function LabelsField() {
     </div>
   );
 }
-
 function getLabelText(type: RuleFormType) {
   const isRecordingRule = type ? isRecordingRuleByType(type) : false;
   const text = isRecordingRule
@@ -432,14 +409,12 @@ function getLabelText(type: RuleFormType) {
       );
   return text;
 }
-
 function getDescriptionText() {
   return t(
     'alerting.labels-sub-form.description',
     'Select a label key/value from the options below, or type a new one and press Enter.'
   );
 }
-
 const getStyles = (theme: GrafanaTheme2) => {
   return {
     flexColumn: css({
@@ -473,5 +448,4 @@ const getStyles = (theme: GrafanaTheme2) => {
     }),
   };
 };
-
 export default LabelsField;

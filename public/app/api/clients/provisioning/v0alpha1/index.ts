@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import {
   generatedAPI,
   type ConnectionSpec,
@@ -14,7 +15,6 @@ import { isFetchError } from '@grafana/runtime';
 import { clearFolders } from 'app/features/browse-dashboards/state/slice';
 import { getState } from 'app/store/store';
 import { type ThunkDispatch } from 'app/types/store';
-
 import {
   createErrorNotification,
   createSuccessNotification,
@@ -25,7 +25,6 @@ import { PAGE_SIZE } from '../../../../features/browse-dashboards/api/services';
 import { refetchChildren } from '../../../../features/browse-dashboards/state/actions';
 import { handleError } from '../../../utils';
 import { createOnCacheEntryAdded } from '../utils/createOnCacheEntryAdded';
-
 const handleProvisioningFormError = (e: unknown, dispatch: ThunkDispatch, title: string) => {
   if (typeof e === 'object' && e && 'error' in e && isFetchError(e.error)) {
     if (e.error.data.kind === 'Status' && e.error.data.status === 'Failure') {
@@ -33,7 +32,6 @@ const handleProvisioningFormError = (e: unknown, dispatch: ThunkDispatch, title:
       dispatch(notifyApp(createErrorNotification(title, new Error(statusError.message || 'Unknown error'))));
       return;
     }
-
     if (Array.isArray(e.error.data.errors) && e.error.data.errors.length) {
       const nonFieldErrors = e.error.data.errors.filter((err: ErrorDetails) => !err.field);
       if (nonFieldErrors.length > 0) {
@@ -42,10 +40,8 @@ const handleProvisioningFormError = (e: unknown, dispatch: ThunkDispatch, title:
       return;
     }
   }
-
   handleError(e, dispatch, title);
 };
-
 export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
   endpoints: {
     listJob: {
@@ -253,7 +249,6 @@ export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
         try {
           const result = await queryFulfilled;
           const job = result.data;
-
           // Clear folder cache after successful move/delete jobs
           // We use clearFolders here to clear cached data and closes folders (immediate visual feedback)
           // Force a refetch of subfolders if user has opened them, so user see latest data
@@ -261,7 +256,6 @@ export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
             const state = getState().browseDashboards;
             const action = job.spec?.action;
             let childrenKeys = Object.keys(state.childrenByParentUID);
-
             if (action === 'delete') {
               // Do not clear deleted resources to avoid 404s when refetching them
               const deletedResourceNames =
@@ -271,7 +265,7 @@ export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
             dispatch(clearFolders(childrenKeys));
           }
         } catch (e) {
-          console.error('Error in getRepositoryJobsWithPath:', e);
+          structLog('error', 'Error in getRepositoryJobsWithPath:', e);
         }
       },
     },
@@ -342,6 +336,5 @@ export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
     },
   },
 });
-
 // eslint-disable-next-line no-barrel-files/no-barrel-files
 export * from '@grafana/api-clients/rtkq/provisioning/v0alpha1';

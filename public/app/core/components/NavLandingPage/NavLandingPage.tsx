@@ -1,53 +1,45 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import * as React from 'react';
-
 import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
 import { usePluginComponents, usePluginLinks } from '@grafana/runtime';
 import { useStyles2 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { useNavModel } from 'app/core/hooks/useNavModel';
-
 import { NavLandingPageCard } from './NavLandingPageCard';
-
 interface Props {
   navId: string;
   header?: React.ReactNode;
 }
-
 const EXTENSION_ID = (nodeId: string) => `grafana/dynamic/nav-landing-page/nav-id-${nodeId}/v1`;
 const CARDS_EXTENSION_ID = (nodeId: string) => `grafana/dynamic/nav-landing-page/nav-id-${nodeId}/cards/v1`;
-
 export function NavLandingPage({ navId, header }: Props) {
   const { node } = useNavModel(navId);
   const styles = useStyles2(getStyles);
   const children = node.children?.filter((child) => !child.hideFromTabs);
-
   const { components, isLoading } = usePluginComponents<{
     node: NavModelItem;
   }>({
     extensionPointId: EXTENSION_ID(node.id ?? ''),
   });
-
   const { links: additionalCards, isLoading: isLoadingCards } = usePluginLinks({
     extensionPointId: CARDS_EXTENSION_ID(node.id ?? ''),
     context: { node },
   });
-
   // Warn if both extension points are being used (they are mutually exclusive)
   React.useEffect(() => {
     if (components && components.length > 0 && additionalCards && additionalCards.length > 0) {
-      console.warn(
+      structLog(
+        'warn',
         `[NavLandingPage] Both NavLandingPage and NavLandingPageCards extensions are registered for "${node.id}". ` +
           `The NavLandingPage extension will take precedence and NavLandingPageCards will be ignored. ` +
           `Please use only one extension point.`
       );
     }
   }, [components, additionalCards, node.id]);
-
   if (isLoading || isLoadingCards) {
     return null;
   }
-
   return (
     <Page navId={node.id}>
       <Page.Contents>
@@ -84,7 +76,6 @@ export function NavLandingPage({ navId, header }: Props) {
     </Page>
   );
 }
-
 const getStyles = (theme: GrafanaTheme2) => ({
   content: css({
     display: 'flex',

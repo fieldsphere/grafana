@@ -1,23 +1,18 @@
+import { structLog } from '@grafana/data';
 import { difference } from 'lodash';
 import { memo, useEffect } from 'react';
-
 import { fieldReducers, type FieldReducerInfo } from '@grafana/data';
 import { t } from '@grafana/i18n';
-
 import { Combobox, type ComboboxProps } from '../Combobox/Combobox';
 import { MultiCombobox, type MultiComboboxProps } from '../Combobox/MultiCombobox';
 import { type ComboboxOption } from '../Combobox/types';
 import { selectableValueToComboboxOption } from '../Combobox/utils';
-
 import { pickComboboxLayout } from './pickComboboxLayout';
-
 /** Props managed by StatsPicker — forwarded combobox props must not replace these. */
 type ComboboxManagedProps = 'value' | 'options' | 'onChange' | 'isClearable' | 'width' | 'minWidth' | 'maxWidth';
-
 /** Forwarded props (managed keys + layout are applied after the spread). */
 type MultiSpread = Omit<MultiComboboxProps<string>, ComboboxManagedProps>;
 type SingleSpread = Omit<ComboboxProps<string>, ComboboxManagedProps>;
-
 interface BaseProps {
   stats: string[];
   onChange: (stats: string[]) => void;
@@ -27,12 +22,13 @@ interface BaseProps {
   maxWidth?: number;
   filterOptions?: (ext: FieldReducerInfo) => boolean;
 }
-
-type MultiProps = MultiSpread & { allowMultiple: true };
-type SingleProps = SingleSpread & { allowMultiple?: false };
-
+type MultiProps = MultiSpread & {
+  allowMultiple: true;
+};
+type SingleProps = SingleSpread & {
+  allowMultiple?: false;
+};
 export type StatsPickerProps = BaseProps & (MultiProps | SingleProps);
-
 export const StatsPicker = memo<StatsPickerProps>(
   ({
     placeholder = t('grafana-ui.stats-picker.placeholder', 'Choose'),
@@ -47,32 +43,27 @@ export const StatsPicker = memo<StatsPickerProps>(
     ...rest
   }) => {
     const layout = pickComboboxLayout(width, minWidth, maxWidth);
-
     useEffect(() => {
       const current = fieldReducers.list(stats);
       if (current.length !== stats.length) {
         const found = current.map((v) => v.id);
         const notFound = difference(stats, found);
-        console.warn('Unknown stats', notFound, stats);
+        structLog('warn', 'Unknown stats', notFound, stats);
         onChange(current.map((stat) => stat.id));
       }
-
       // Make sure there is only one
       if (!allowMultiple && stats.length > 1) {
-        console.warn('Removing extra stat', stats);
+        structLog('warn', 'Removing extra stat', stats);
         onChange([stats[0]]);
       }
-
       // Set the reducer from callback
       if (defaultStat && stats.length < 1) {
         onChange([defaultStat]);
       }
     }, [stats, allowMultiple, defaultStat, onChange]);
-
     const select = fieldReducers.selectOptions(stats, filterOptions);
     const options = select.options.map((v) => selectableValueToComboboxOption(v)).filter((v) => !!v);
     const value = select.current.map((v) => selectableValueToComboboxOption(v)).filter((v) => !!v);
-
     if (allowMultiple) {
       return (
         <MultiCombobox
@@ -86,7 +77,6 @@ export const StatsPicker = memo<StatsPickerProps>(
         />
       );
     }
-
     const commonOptions = {
       ...rest,
       ...layout,
@@ -94,7 +84,6 @@ export const StatsPicker = memo<StatsPickerProps>(
       options,
       placeholder,
     };
-
     return defaultStat ? (
       <Combobox
         {...commonOptions}
@@ -110,5 +99,4 @@ export const StatsPicker = memo<StatsPickerProps>(
     );
   }
 );
-
 StatsPicker.displayName = 'StatsPicker';

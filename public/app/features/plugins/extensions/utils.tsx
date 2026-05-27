@@ -1,8 +1,8 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { cloneDeep, isArray, isObject, isString } from 'lodash';
 import * as React from 'react';
 import { useAsync } from 'react-use';
-
 import {
   type AppPluginConfig,
   type PluginExtensionEventHelpers,
@@ -27,9 +27,7 @@ import {
   ShowModalReactEvent,
   ToggleExtensionSidebarEvent,
 } from 'app/types/events';
-
 import { RestrictedGrafanaApisProvider } from '../components/restrictedGrafanaApis/RestrictedGrafanaApisProvider';
-
 import { ExtensionErrorBoundary } from './ExtensionErrorBoundary';
 import {
   getAppPluginConfigsSync,
@@ -42,23 +40,20 @@ import {
 import { type ExtensionsLog, log as baseLog } from './logs/log';
 import { type AddedLinkRegistryItem } from './registry/AddedLinksRegistry';
 import { assertIsNotPromise, assertStringProps, isPromise } from './validators';
-
 export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
   return (...args: unknown[]) => {
     try {
       return fn(...args);
     } catch (e) {
       if (e instanceof Error) {
-        console.warn(`${errorMessagePrefix}${e.message}`);
+        structLog('warn', `${errorMessagePrefix}${e.message}`);
       }
     }
   };
 }
-
 export function createOpenModalFunction(config: AddedLinkRegistryItem): PluginExtensionEventHelpers['openModal'] {
   return async (options) => {
     const { title, body, width, height } = options;
-
     appEvents.publish(
       new ShowModalReactEvent({
         component: wrapWithPluginContext<ModalWrapperProps>({
@@ -71,11 +66,9 @@ export function createOpenModalFunction(config: AddedLinkRegistryItem): PluginEx
     );
   };
 }
-
 type ModalWrapperProps = {
   onDismiss: () => void;
 };
-
 export const wrapWithPluginContext = <T,>({
   pluginId,
   extensionTitle,
@@ -93,11 +86,9 @@ export const wrapWithPluginContext = <T,>({
       loading,
       value: pluginMeta,
     } = useAsync(() => getPluginSettings(pluginId, { showErrorAlert: false }));
-
     if (loading) {
       return null;
     }
-
     if (error) {
       log.error(`Could not fetch plugin meta information for "${pluginId}", aborting. (${error.message})`, {
         stack: error.stack ?? '',
@@ -105,12 +96,10 @@ export const wrapWithPluginContext = <T,>({
       });
       return null;
     }
-
     if (!pluginMeta) {
       log.error(`Fetched plugin meta information is empty for "${pluginId}", aborting.`);
       return null;
     }
-
     return (
       <PluginContextProvider meta={pluginMeta}>
         <ExtensionErrorBoundary pluginId={pluginId} extensionTitle={extensionTitle} log={log}>
@@ -123,10 +112,8 @@ export const wrapWithPluginContext = <T,>({
       </PluginContextProvider>
     );
   };
-
   return WrappedExtensionComponent;
 };
-
 // Wraps a component with a modal.
 // This way we can make sure that the modal is closable, and we also make the usage simpler.
 const getModalWrapper = ({
@@ -137,16 +124,17 @@ const getModalWrapper = ({
   width,
   height,
   config,
-}: PluginExtensionOpenModalOptions & { config: AddedLinkRegistryItem }) => {
+}: PluginExtensionOpenModalOptions & {
+  config: AddedLinkRegistryItem;
+}) => {
   const className = css({ width, height });
-
   const ModalWrapper = ({ onDismiss }: ModalWrapperProps) => {
     return (
       <Modal title={title} className={className} isOpen onDismiss={onDismiss} onClickBackdrop={onDismiss}>
         {/*
-          We also add an error boundary here (apart from the one in the `wrapWithPluginContext`)
-          so the error appears inside the modal (and not at the bottom of the page.)
-        */}
+              We also add an error boundary here (apart from the one in the `wrapWithPluginContext`)
+              so the error appears inside the modal (and not at the bottom of the page.)
+            */}
         <ExtensionErrorBoundary
           pluginId={config.pluginId}
           extensionTitle={config.title}
@@ -160,10 +148,8 @@ const getModalWrapper = ({
       </Modal>
     );
   };
-
   return ModalWrapper;
 };
-
 // Deep-clones and deep-freezes an object.
 // (Returns with a new object, does not modify the original object)
 //
@@ -173,21 +159,16 @@ export function deepFreeze(value?: object | Record<string | symbol, unknown> | u
   if (!value || typeof value !== 'object' || Object.isFrozen(value)) {
     return value;
   }
-
   // Deep cloning the object to prevent freezing the original object
   const clonedValue = Array.isArray(value) ? [...value] : { ...value };
-
   // Prevent infinite recursion by looking for cycles inside an object
   if (frozenProps.has(value)) {
     return frozenProps.get(value);
   }
   frozenProps.set(value, clonedValue);
-
   const propNames = Reflect.ownKeys(clonedValue);
-
   for (const name of propNames) {
     const prop = Array.isArray(clonedValue) ? clonedValue[Number(name)] : clonedValue[name];
-
     // If the property is an object:
     //   1. clone it
     //   2. freeze it
@@ -199,28 +180,22 @@ export function deepFreeze(value?: object | Record<string | symbol, unknown> | u
       }
     }
   }
-
   return Object.freeze(clonedValue);
 }
-
 export function generateExtensionId(pluginId: string, extensionPointId: string, title: string): string {
   const str = `${pluginId}${extensionPointId}${title}`;
-
   return Array.from(str)
     .reduce((s, c) => (Math.imul(31, s) + c.charCodeAt(0)) | 0, 0)
     .toString();
 }
-
 const _isReadOnlyProxy = Symbol('isReadOnlyProxy');
 const _isMutationObserverProxy = Symbol('isMutationObserverProxy');
-
 export class ReadOnlyProxyError extends Error {
   constructor(message?: string) {
     super(message ?? 'Mutating a read-only proxy object');
     this.name = 'ReadOnlyProxyError';
   }
 }
-
 /**
  * Returns a proxy that wraps the given object in a way that makes it read only.
  * If you try to modify the object a TypeError exception will be thrown.
@@ -232,9 +207,7 @@ export function getReadOnlyProxy<T extends object>(obj: T): T {
   if (!obj || typeof obj !== 'object' || isReadOnlyProxy(obj)) {
     return obj;
   }
-
   const cache = new WeakMap();
-
   return new Proxy(obj, {
     defineProperty: () => false,
     deleteProperty: () => false,
@@ -244,28 +217,23 @@ export function getReadOnlyProxy<T extends object>(obj: T): T {
       if (prop === _isReadOnlyProxy) {
         return true;
       }
-
       const value = Reflect.get(target, prop, receiver);
-
       // This will create a clone of the date time object
       // instead of creating a proxy because the underlying
       // momentjs object needs to be able to mutate itself.
       if (isDateTime(value)) {
         return dateTime(value);
       }
-
       if (isObject(value) || isArray(value)) {
         if (!cache.has(value)) {
           cache.set(value, getReadOnlyProxy(value));
         }
         return cache.get(value);
       }
-
       return value;
     },
   });
 }
-
 type MutationSource = 'extension' | 'datasource';
 interface ProxyOptions {
   log?: ExtensionsLog;
@@ -273,7 +241,6 @@ interface ProxyOptions {
   pluginId?: string;
   pluginVersion?: string;
 }
-
 /**
  * Returns a proxy that logs any attempted mutation to the original object.
  *
@@ -289,11 +256,9 @@ export function getMutationObserverProxy<T extends object>(obj: T, options?: Pro
   if (!obj || typeof obj !== 'object' || isMutationObserverProxy(obj)) {
     return obj;
   }
-
   const { log = baseLog, source = 'extension', pluginId = 'unknown', pluginVersion = 'unknown' } = options ?? {};
   const cache = new WeakMap();
   const logFunction = isGrafanaDevMode() ? log.error.bind(log) : log.warning.bind(log); // should show error during local development
-
   return new Proxy(obj, {
     deleteProperty(target, prop) {
       logFunction(
@@ -331,34 +296,28 @@ export function getMutationObserverProxy<T extends object>(obj: T, options?: Pro
       if (prop === _isMutationObserverProxy) {
         return true;
       }
-
       const value = Reflect.get(target, prop, receiver);
-
       // Return read-only properties as-is to avoid proxy invariant violations
       const descriptor = Reflect.getOwnPropertyDescriptor(target, prop);
       if (descriptor && !descriptor.configurable && !descriptor.writable) {
         return value;
       }
-
       // This will create a clone of the date time object
       // instead of creating a proxy because the underlying
       // momentjs object needs to be able to mutate itself.
       if (isDateTime(value)) {
         return dateTime(value);
       }
-
       if (isObject(value) || isArray(value)) {
         if (!cache.has(value)) {
           cache.set(value, getMutationObserverProxy(value, { log, source, pluginId, pluginVersion }));
         }
         return cache.get(value);
       }
-
       return value;
     },
   });
 }
-
 /**
  * Returns a proxy that logs any attempted mutation to the original object.
  *
@@ -375,21 +334,16 @@ export function writableProxy<T>(value: T, options?: ProxyOptions): T {
   if (!value || typeof value !== 'object') {
     return value;
   }
-
   const { log = baseLog, source = 'extension', pluginId = 'unknown', pluginVersion = 'unknown' } = options ?? {};
-
   // Default: we return a proxy of a deep-cloned version of the original object, which logs warnings when mutation is attempted
   return getMutationObserverProxy(cloneDeep(value), { log, pluginId, pluginVersion, source });
 }
-
 export function isReadOnlyProxy(value: unknown): boolean {
   return isRecord(value) && value[_isReadOnlyProxy] === true;
 }
-
 export function isMutationObserverProxy(value: unknown): boolean {
   return isRecord(value) && value[_isMutationObserverProxy] === true;
 }
-
 export function createAddedLinkConfig<T extends object>(
   config: PluginExtensionAddedLinkConfig<T>
 ): PluginExtensionAddedLinkConfig {
@@ -399,11 +353,9 @@ export function createAddedLinkConfig<T extends object>(
   assertLinkConfig(linkConfig);
   return linkConfig;
 }
-
 function assertLinkConfig<T extends object>(
   config: PluginExtensionAddedLinkConfig<T>
 ): asserts config is PluginExtensionAddedLinkConfig {}
-
 export function truncateTitle(title: string, length: number): string {
   if (title.length < length) {
     return title;
@@ -411,7 +363,6 @@ export function truncateTitle(title: string, length: number): string {
   const part = title.slice(0, length - 3);
   return `${part.trimEnd()}...`;
 }
-
 export function getLinkExtensionOverrides(
   pluginId: string,
   config: AddedLinkRegistryItem,
@@ -420,12 +371,10 @@ export function getLinkExtensionOverrides(
 ) {
   try {
     const overrides = config.configure?.(context);
-
     // Hiding the extension
     if (overrides === undefined) {
       return undefined;
     }
-
     // Only allowing to override the following properties
     let {
       title = config.title,
@@ -437,22 +386,16 @@ export function getLinkExtensionOverrides(
       openInNewTab = config.openInNewTab,
       ...rest
     } = overrides;
-
     assertIsNotPromise(
       overrides,
       `The configure() function for "${config.title}" returned a promise, skipping updates.`
     );
-
     assertStringProps({ title, description }, ['title', 'description']);
-
     if (Object.keys(rest).length > 0) {
       log.warning(
-        `Extension "${config.title}", is trying to override restricted properties: ${Object.keys(rest).join(
-          ', '
-        )} which will be ignored.`
+        `Extension "${config.title}", is trying to override restricted properties: ${Object.keys(rest).join(', ')} which will be ignored.`
       );
     }
-
     return {
       title,
       description,
@@ -469,13 +412,11 @@ export function getLinkExtensionOverrides(
         message: error.message,
       });
     }
-
     // If there is an error, we hide the extension
     // (This seems to be safest option in case the extension is doing something wrong.)
     return undefined;
   }
 }
-
 export function getLinkExtensionOnClick(
   pluginId: string,
   extensionPointId: string,
@@ -484,11 +425,9 @@ export function getLinkExtensionOnClick(
   context?: object
 ): ((event?: React.MouseEvent) => void) | undefined {
   const { onClick } = config;
-
   if (!onClick) {
     return;
   }
-
   return function onClickExtensionLink(event?: React.MouseEvent) {
     try {
       reportInteraction('ui_extension_link_clicked', {
@@ -497,7 +436,6 @@ export function getLinkExtensionOnClick(
         title: config.title,
         category: config.category,
       });
-
       const helpers: PluginExtensionEventHelpers = {
         context,
         extensionPointId,
@@ -524,10 +462,8 @@ export function getLinkExtensionOnClick(
           );
         },
       };
-
       log.debug(`onClick '${config.title}' at '${extensionPointId}'`);
       const result = onClick(event, helpers);
-
       if (isPromise(result)) {
         result.catch((error) => {
           if (error instanceof Error) {
@@ -548,7 +484,6 @@ export function getLinkExtensionOnClick(
     }
   };
 }
-
 export function getLinkExtensionPathWithTracking(pluginId: string, path: string, extensionPointId: string): string {
   return urlUtil.appendQueryToUrl(
     path,
@@ -558,9 +493,7 @@ export function getLinkExtensionPathWithTracking(pluginId: string, path: string,
     })
   );
 }
-
 export type LinkExtensionOverrides = ReturnType<typeof getLinkExtensionOverrides>;
-
 /**
  * Builds a PluginExtensionLink from an added link config and optional configure() overrides.
  * Shared by getPluginExtensions and usePluginLinks.
@@ -590,11 +523,9 @@ export function addedLinkToExtensionLink(
     openInNewTab: overrides?.openInNewTab ?? addedLink.openInNewTab,
   };
 }
-
 // Comes from the `app_mode` setting in the Grafana config (defaults to "development")
 // Can be set with the `GF_DEFAULT_APP_MODE` environment variable
 export const isGrafanaDevMode = () => config.buildInfo.env === 'development';
-
 /**
  * Returns a list of app plugin configs that match the given plugin ids.
  * @param pluginIds - The list of plugin ids to filter by.
@@ -604,7 +535,6 @@ export async function getAppPluginConfigs(pluginIds: string[] = []): Promise<App
   const apps = await getAppPluginMetas();
   return getAppPluginConfigsSync(pluginIds, apps);
 }
-
 /**
  * Returns a list of app plugin ids that are registering extensions to this extension point.
  * (These plugins are necessary to be loaded to use the extension point.)
@@ -616,7 +546,6 @@ export async function getExtensionPointPluginDependencies(extensionPointId: stri
   const apps = await getAppPluginMetas();
   return getExtensionPointPluginDependenciesSync(extensionPointId, apps);
 }
-
 /**
  * Returns a map of plugin ids and their addedComponents and addedLinks to the extension point.
  * @param extensionPointId - The id of the extension point.
@@ -626,7 +555,6 @@ export async function getExtensionPointPluginMeta(extensionPointId: string): Pro
   const apps = await getAppPluginMetas();
   return getExtensionPointPluginMetaSync(extensionPointId, apps);
 }
-
 /**
  * Returns a list of app plugin ids that are necessary to be loaded to use the exposed component.
  * (It is first the plugin that exposes the component, and then the ones that it depends on.)
@@ -637,7 +565,6 @@ export async function getExposedComponentPluginDependencies(exposedComponentId: 
   const apps = await getAppPluginMetas();
   return getExposedComponentPluginDependenciesSync(exposedComponentId, apps);
 }
-
 /**
  * Returns a list of app plugins that has to be preloaded in parallel with the core Grafana initialization.
  * @returns An array of app plugin configs that has to be preloaded in parallel with the core Grafana initialization.

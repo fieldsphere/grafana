@@ -5,6 +5,7 @@ import { mockTransformationsRegistry } from '../../utils/tests/mockTransformatio
 import { ValueMatcherID } from '../matchers/ids';
 import { type BasicValueMatcherOptions } from '../matchers/valueMatchers/types';
 import { transformDataFrame } from '../transformDataFrame';
+import * as structLogMod from '../../utils/structLog';
 
 import {
   FilterByValueMatch,
@@ -42,14 +43,14 @@ const multiSeriesWithSingleField = [
   }),
 ];
 
-let spyConsoleWarn: jest.SpyInstance;
+let structLogSpy: jest.SpyInstance;
 describe('FilterByValue transformer', () => {
   beforeAll(() => {
     mockTransformationsRegistry([filterByValueTransformer]);
   });
 
   beforeEach(() => {
-    spyConsoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+    structLogSpy = jest.spyOn(structLogMod, 'structLog').mockImplementation(() => {});
   });
 
   it('should exclude values', async () => {
@@ -153,10 +154,10 @@ describe('FilterByValue transformer', () => {
         },
       ]);
 
-      expect(console.warn).toHaveBeenCalledTimes(2);
+      expect(structLogSpy).toHaveBeenCalledTimes(2);
     });
 
-    spyConsoleWarn.mockRestore();
+    structLogSpy.mockRestore();
   });
 
   it('should not cross frame boundaries', async () => {
@@ -211,7 +212,7 @@ describe('FilterByValue transformer', () => {
         },
       ]);
 
-      expect(console.warn).toHaveBeenCalledTimes(1);
+      expect(structLogSpy).toHaveBeenCalledTimes(1);
     });
   });
 

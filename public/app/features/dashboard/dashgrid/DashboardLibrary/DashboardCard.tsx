@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { css, cx } from '@emotion/css';
 import { useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
-
 import { createAssistantContextItem, useAssistant } from '@grafana/assistant';
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
@@ -9,11 +9,9 @@ import { config } from '@grafana/runtime';
 import { Badge, Box, Button, Card, IconButton, Text, TextLink, Tooltip, useStyles2 } from '@grafana/ui';
 import { attachSkeleton, type SkeletonComponent } from '@grafana/ui/unstable';
 import { type PluginDashboard } from 'app/types/plugins';
-
 import { CompatibilityBadge, type CompatibilityState } from './CompatibilityBadge';
 import { type GnetDashboard } from './types';
 import { buildAssistantPrompt, buildTemplateContextData, buildTemplateContextTitle } from './utils/assistantHelpers';
-
 interface Details {
   id: string;
   datasource: string;
@@ -22,7 +20,6 @@ interface Details {
   lastUpdate: string;
   grafanaComUrl?: string;
 }
-
 interface Props {
   title: string;
   imageUrl?: string;
@@ -44,7 +41,6 @@ interface Props {
   /** Whether to show the "Customize with assistant" button (caller must check relevant feature flags) */
   showAssistantButton?: boolean;
 }
-
 function DashboardCardComponent({
   title,
   imageUrl,
@@ -64,15 +60,12 @@ function DashboardCardComponent({
 }: Props) {
   const styles = useStyles2(getStyles);
   const isCompatibilityAppEnabled = config.featureToggles.dashboardValidatorApp;
-
   const detailsButton = details && (
     <Tooltip interactive={true} content={<DetailsTooltipContent details={details} />} placement="right">
       <IconButton name="info-circle" size="md" aria-label={t('dashboard-library.card.details-tooltip', 'Details')} />
     </Tooltip>
   );
-
   const { isAvailable: assistantAvailable, openAssistant } = useAssistant();
-
   // Create structured context item with template metadata for the Assistant
   const templateContext = useMemo(
     () =>
@@ -83,7 +76,6 @@ function DashboardCardComponent({
       }),
     [dashboard, kind]
   );
-
   const onUseAssistantClick = () => {
     if (assistantAvailable) {
       openAssistant?.({
@@ -98,9 +90,7 @@ function DashboardCardComponent({
       onClick?.(true);
     }
   };
-
   const hasCompatActions = isCompatibilityAppEnabled && showCompatibilityBadge && onCompatibilityCheck;
-
   return (
     <Card className={styles.card} noMargin>
       <Card.Heading className={styles.title}>
@@ -120,7 +110,7 @@ function DashboardCardComponent({
               kind === 'suggested_dashboard' ? styles.thumbnailCoverImage : styles.thumbnailContainImage
             )}
             onError={(e) => {
-              console.error('Failed to load image for:', title, 'URL:', imageUrl);
+              structLog('error', 'Failed to load image for:', title, 'URL:', imageUrl);
               e.currentTarget.style.display = 'none';
             }}
           />
@@ -200,7 +190,6 @@ function DashboardCardComponent({
     </Card>
   );
 }
-
 function DetailsTooltipContent({ details }: { details: Details }) {
   const Section = ({ label, value }: { label: string; value: string }) => {
     return (
@@ -212,7 +201,6 @@ function DetailsTooltipContent({ details }: { details: Details }) {
       </Box>
     );
   };
-
   return (
     <Box display="flex">
       <Box display="flex" direction="column" gap={1} width={{ xs: 'auto', md: 340 }}>
@@ -244,7 +232,6 @@ function DetailsTooltipContent({ details }: { details: Details }) {
     </Box>
   );
 }
-
 function getStyles(theme: GrafanaTheme2) {
   const thumbnailOverlay = css({
     position: 'absolute',
@@ -261,7 +248,6 @@ function getStyles(theme: GrafanaTheme2) {
       transition: 'opacity 0.15s ease',
     },
   });
-
   return {
     card: css({
       gridTemplateAreas: `
@@ -428,11 +414,9 @@ function getStyles(theme: GrafanaTheme2) {
     }),
   };
 }
-
 interface DashboardCardSkeletonProps {
   showCompatibilityBadge?: boolean;
 }
-
 const DashboardCardSkeleton: SkeletonComponent<DashboardCardSkeletonProps> = ({
   rootProps,
   showCompatibilityBadge,
@@ -447,7 +431,6 @@ const DashboardCardSkeleton: SkeletonComponent<DashboardCardSkeletonProps> = ({
     </div>
   );
 };
-
 const getSkeletonStyles = (theme: GrafanaTheme2) => ({
   card: css({
     width: '350px',
@@ -469,5 +452,4 @@ const getSkeletonStyles = (theme: GrafanaTheme2) => ({
     lineHeight: 1,
   }),
 });
-
 export const DashboardCard = attachSkeleton(DashboardCardComponent, DashboardCardSkeleton);

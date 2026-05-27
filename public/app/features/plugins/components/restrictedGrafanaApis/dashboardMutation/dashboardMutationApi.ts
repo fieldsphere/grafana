@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 /**
  * Dashboard Mutation API -- Restricted API wrapper with built-in store.
  *
@@ -9,36 +10,29 @@
  * Plugins access it through RestrictedGrafanaApis context -- they cannot
  * import this module directly because it lives inside the core bundle.
  */
-
 import type { DashboardMutationAPI } from '@grafana/data';
 import { ALL_COMMANDS } from 'app/features/dashboard-scene/mutation-api';
 import { DashboardMutationClient } from 'app/features/dashboard-scene/mutation-api/DashboardMutationClient';
 import type { MutationClient, MutationRequest } from 'app/features/dashboard-scene/mutation-api/types';
 import { provideMutationClientFactory } from 'app/features/dashboard-scene/scene/DashboardMutationClientSetter';
 import type { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
-
 let _client: MutationClient | null = null;
-
 provideMutationClientFactory((sceneObject) => {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
   const scene = sceneObject as unknown as DashboardScene;
-
   try {
     _client = new DashboardMutationClient(scene);
   } catch (error) {
-    console.error('Failed to register Dashboard Mutation API:', error);
+    structLog('error', 'Failed to register Dashboard Mutation API:', error);
   }
-
   return () => {
     _client = null;
   };
 });
-
 /** @internal — exposed only for unit tests that need to inject a mock client. */
 export function setDashboardMutationClientForTests(client: MutationClient | null): void {
   _client = client;
 }
-
 export const dashboardMutationApi: DashboardMutationAPI = {
   execute: (mutation: MutationRequest) => {
     if (!_client) {

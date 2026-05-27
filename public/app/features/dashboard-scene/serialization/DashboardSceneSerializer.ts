@@ -1,3 +1,4 @@
+import { structLog } from '@grafana/data';
 import { logWarning } from '@grafana/runtime';
 import { type Dashboard } from '@grafana/schema';
 import { type Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
@@ -14,23 +15,29 @@ import {
 } from 'app/features/dashboard/utils/tracking';
 import { type DashboardJson } from 'app/features/manage-dashboards/types';
 import { type DashboardMeta, type SaveDashboardResponseDTO } from 'app/types/dashboard';
-
 import { getRawDashboardChanges, getRawDashboardV2Changes } from '../saving/getDashboardChanges';
 import { type DashboardChangeInfo } from '../saving/shared';
 import { type DashboardScene } from '../scene/DashboardScene';
 import { makeExportableV1, makeExportableV2 } from '../scene/export/exporters';
 import { getVariablesCompatibility } from '../utils/getVariablesCompatibility';
 import { getVizPanelKeyForPanelId } from '../utils/utils';
-
 import { transformSceneToSaveModel } from './transformSceneToSaveModel';
 import { transformSceneToSaveModelSchemaV2 } from './transformSceneToSaveModelSchemaV2';
-
 /**
  * T is the type of the save model
  * M is the type of the metadata
  * I is the type of the initial save model. By default it's the same as T.
  */
-export interface DashboardSceneSerializerLike<T, M, I = T, E = T | { error: unknown }> {
+export interface DashboardSceneSerializerLike<
+  T,
+  M,
+  I = T,
+  E =
+    | T
+    | {
+        error: unknown;
+      },
+> {
   /**
    * The save model which the dashboard scene was originally created from
    */
@@ -58,10 +65,14 @@ export interface DashboardSceneSerializerLike<T, M, I = T, E = T | { error: unkn
   getElementIdForPanel: (panelId: number) => string | undefined;
   getElementPanelMapping: () => Map<string, number>;
   getDSReferencesMapping: () => DSReferencesMapping;
-  makeExportableExternally: (s: DashboardScene) => Promise<E | { error: unknown }>;
+  makeExportableExternally: (s: DashboardScene) => Promise<
+    | E
+    | {
+        error: unknown;
+      }
+  >;
   getK8SMetadata: () => Partial<ObjectMeta> | undefined;
 }
-
 export interface DashboardTrackingInfo {
   uid?: string;
   title?: string;
@@ -71,7 +82,6 @@ export interface DashboardTrackingInfo {
   settings_nowdelay?: number;
   settings_livenow?: boolean;
 }
-
 export interface DynamicDashboardsTrackingInformation {
   panelCount: number;
   rowCount: number;
@@ -86,12 +96,10 @@ export interface DynamicDashboardsTrackingInformation {
   dashStructure: string;
   panelsByDatasourceType: Record<string, number>;
 }
-
 interface DynamicDashboardTrackingInformationStructureNode {
   kind: string;
   children?: DynamicDashboardTrackingInformationStructureNode[];
 }
-
 interface DynamicDashboardsTrackingInformationLayoutParsing
   extends Omit<
     DynamicDashboardsTrackingInformation,
@@ -99,7 +107,6 @@ interface DynamicDashboardsTrackingInformationLayoutParsing
   > {
   dashStructure: DynamicDashboardTrackingInformationStructureNode[];
 }
-
 export interface DSReferencesMapping {
   // panel id as keys, map as value. Map<refId, group> as value, if undefined, it means the datasource type was not defined
   panels: Map<string, Map<string, string | undefined>>;
@@ -108,7 +115,6 @@ export interface DSReferencesMapping {
   // annotation name as keys, group as value, if undefined, it means the datasource type was not defined
   annotations: Map<string, string | undefined>;
 }
-
 export class V1DashboardSerializer
   implements DashboardSceneSerializerLike<Dashboard, DashboardMeta, Dashboard, DashboardJson>
 {
@@ -120,10 +126,8 @@ export class V1DashboardSerializer
     variables: new Map(),
     annotations: new Map(),
   };
-
   initializeElementMapping(saveModel: Dashboard | undefined) {
     this.elementPanelMap.clear();
-
     if (!saveModel || !saveModel.panels) {
       return;
     }
@@ -134,24 +138,19 @@ export class V1DashboardSerializer
       }
     });
   }
-
   getElementPanelMapping() {
     return this.elementPanelMap;
   }
-
   initializeDSReferencesMapping(saveModel: Dashboard | undefined) {
     // To be implemented in a different PR
     return {};
   }
-
   getDSReferencesMapping() {
     return this.defaultDsReferencesMap;
   }
-
   getPanelIdForElement(elementId: string) {
     return this.elementPanelMap.get(elementId);
   }
-
   getElementIdForPanel(panelId: number) {
     // First try to find an existing mapping
     for (const [elementId, id] of this.elementPanelMap.entries()) {
@@ -159,21 +158,17 @@ export class V1DashboardSerializer
         return elementId;
       }
     }
-
     // For runtime-created panels, generate a new element identifier
     const newElementId = getVizPanelKeyForPanelId(panelId);
     // Store the new mapping for future lookups
     this.elementPanelMap.set(newElementId, panelId);
     return newElementId;
   }
-
   getSaveModel(s: DashboardScene) {
     return transformSceneToSaveModel(s);
   }
-
   getSaveAsModel(s: DashboardScene, options: SaveDashboardAsOptions) {
     const saveModel = this.getSaveModel(s);
-
     return {
       ...saveModel,
       id: null,
@@ -183,7 +178,6 @@ export class V1DashboardSerializer
       tags: options.copyTags === false ? [] : saveModel.tags,
     };
   }
-
   getDashboardChangesFromScene(
     scene: DashboardScene,
     options: {
@@ -202,9 +196,7 @@ export class V1DashboardSerializer
       options.saveVariables,
       options.saveRefresh
     );
-
     const hasFolderChanges = scene.getInitialState()?.meta.folderUid !== scene.state.meta.folderUid;
-
     return {
       ...changeInfo,
       hasFolderChanges,
@@ -212,7 +204,6 @@ export class V1DashboardSerializer
       hasMigratedToV2: false,
     };
   }
-
   onSaveComplete(saveModel: Dashboard, result: SaveDashboardResponseDTO): void {
     this.initialSaveModel = {
       ...saveModel,
@@ -227,16 +218,13 @@ export class V1DashboardSerializer
       },
     };
   }
-
   getK8SMetadata() {
     return this.metadata?.k8s;
   }
-
   getTrackingInformation(): DashboardTrackingInfo | undefined {
     const panelTypes = this.initialSaveModel?.panels?.map((p) => p.type) || [];
     const panels = getPanelPluginCounts(panelTypes);
     const variables = getV1SchemaVariables(this.initialSaveModel?.templating?.list || []);
-
     if (this.initialSaveModel) {
       return {
         uid: this.initialSaveModel.uid,
@@ -251,16 +239,13 @@ export class V1DashboardSerializer
     }
     return undefined;
   }
-
   getDynamicDashboardsTrackingInformation(): undefined {
     // We don't have dynamic dashboards in V1 schema
     return undefined;
   }
-
   getSnapshotUrl() {
     return this.initialSaveModel?.snapshot?.originalUrl;
   }
-
   async makeExportableExternally(s: DashboardScene) {
     const saveModel = this.getSaveModel(s);
     const oldModel = new DashboardModel(saveModel, undefined, {
@@ -271,7 +256,6 @@ export class V1DashboardSerializer
     return await makeExportableV1(oldModel);
   }
 }
-
 export class V2DashboardSerializer
   implements
     DashboardSceneSerializerLike<
@@ -289,18 +273,14 @@ export class V2DashboardSerializer
     variables: new Map(),
     annotations: new Map(),
   };
-
   getElementPanelMapping() {
     return this.elementPanelMap;
   }
-
   initializeElementMapping(saveModel: DashboardV2Spec | undefined) {
     this.elementPanelMap.clear();
-
     if (!saveModel || !saveModel.elements) {
       return;
     }
-
     const elementKeys = Object.keys(saveModel.elements);
     elementKeys.forEach((key) => {
       const elementPanel = saveModel.elements[key];
@@ -309,7 +289,6 @@ export class V2DashboardSerializer
       }
     });
   }
-
   initializeDSReferencesMapping(saveModel: DashboardV2Spec | undefined) {
     // The saveModel could be undefined or not a DashboardV2Spec
     // when dashboardsNewLayout is enabled, saveModel could be v1
@@ -319,7 +298,6 @@ export class V2DashboardSerializer
     }
     // initialize the object
     this.defaultDsReferencesMap = { panels: new Map(), variables: new Map(), annotations: new Map() };
-
     // initialize autossigned panel queries ds references map
     const elementKeys = Object.keys(saveModel?.elements || {});
     elementKeys.forEach((key) => {
@@ -327,21 +305,18 @@ export class V2DashboardSerializer
       if (elementPanel?.kind === 'Panel') {
         // check if the elementPanel.spec.datasource is defined
         const panelQueries = elementPanel.spec.data.spec.queries;
-
         for (const query of panelQueries) {
           if (!query.spec.query.datasource?.name) {
             // Datasources without UID. Here we're saving elements with only type!
             const elementId = this.getElementIdForPanel(elementPanel.spec.id);
             const panelDsqueries = this.defaultDsReferencesMap.panels.get(elementId) || new Map();
             const datasourceType = query.spec.query.group || undefined;
-
             panelDsqueries.set(query.spec.refId, datasourceType);
             this.defaultDsReferencesMap.panels.set(elementId, panelDsqueries);
           }
         }
       }
     });
-
     // initialize autossigned variable ds references map
     if (saveModel?.variables) {
       for (const variable of saveModel.variables) {
@@ -353,12 +328,11 @@ export class V2DashboardSerializer
           }
         } else {
           const warningMsg = 'Dashboard serializer: Undefined variable found in dashboard save model, ignoring it';
-          console.warn(warningMsg);
+          structLog('warn', warningMsg);
           logWarning(warningMsg);
         }
       }
     }
-
     // initialize annotations ds references map
     if (saveModel?.annotations) {
       for (const annotation of saveModel.annotations) {
@@ -369,15 +343,12 @@ export class V2DashboardSerializer
       }
     }
   }
-
   getDSReferencesMapping() {
     return this.defaultDsReferencesMap;
   }
-
   getPanelIdForElement(elementId: string) {
     return this.elementPanelMap.get(elementId);
   }
-
   getElementIdForPanel(panelId: number) {
     // First try to find an existing mapping
     for (const [elementId, id] of this.elementPanelMap.entries()) {
@@ -385,18 +356,15 @@ export class V2DashboardSerializer
         return elementId;
       }
     }
-
     // For runtime-created panels, generate a new element identifier
     const newElementId = getVizPanelKeyForPanelId(panelId);
     // Store the new mapping for future lookups
     this.elementPanelMap.set(newElementId, panelId);
     return newElementId;
   }
-
   getSaveModel(s: DashboardScene) {
     return transformSceneToSaveModelSchemaV2(s);
   }
-
   getSaveAsModel(s: DashboardScene, options: SaveDashboardAsOptions) {
     const saveModel = this.getSaveModel(s);
     return {
@@ -406,7 +374,6 @@ export class V2DashboardSerializer
       tags: options.copyTags === false ? [] : saveModel.tags,
     };
   }
-
   getDashboardChangesFromScene(
     scene: DashboardScene,
     options: {
@@ -425,10 +392,8 @@ export class V2DashboardSerializer
       options.saveVariables,
       options.saveRefresh
     );
-
     const hasFolderChanges = scene.getInitialState()?.meta.folderUid !== scene.state.meta.folderUid;
     const isNew = !Boolean(scene.getInitialState()?.uid);
-
     return {
       ...changeInfo,
       hasFolderChanges,
@@ -437,7 +402,6 @@ export class V2DashboardSerializer
       hasMigratedToV2: !!changeInfo.hasMigratedToV2,
     };
   }
-
   onSaveComplete(saveModel: DashboardV2Spec, result: SaveDashboardResponseDTO): void {
     this.initialSaveModel = {
       ...saveModel,
@@ -449,32 +413,26 @@ export class V2DashboardSerializer
       };
     }
   }
-
   getK8SMetadata() {
     return this.metadata;
   }
-
   getTrackingInformation(s: DashboardScene): DashboardTrackingInfo | undefined {
     if (!this.initialSaveModel) {
       return undefined;
     }
-
     const panelPluginIds =
       'elements' in this.initialSaveModel
         ? Object.values(this.initialSaveModel.elements).reduce<string[]>((acc, e) => {
             if (e.kind !== 'Panel') {
               return acc;
             }
-
             acc.push(e.spec.vizConfig.group);
-
             return acc;
           }, [])
         : [];
     const panels = getPanelPluginCounts(panelPluginIds);
     const variables =
       'variables' in this.initialSaveModel! ? getV2SchemaVariables(this.initialSaveModel.variables) : [];
-
     const rowCount =
       'layout' in this.initialSaveModel
         ? this.initialSaveModel.layout.kind === 'RowsLayout'
@@ -493,12 +451,10 @@ export class V2DashboardSerializer
       ...variables,
     };
   }
-
   getDynamicDashboardsTrackingInformation(): DynamicDashboardsTrackingInformation | undefined {
     if (!this.initialSaveModel || !isDashboardV2Spec(this.initialSaveModel)) {
       return undefined;
     }
-
     const dashStructure: DynamicDashboardTrackingInformationStructureNode[] = [];
     const result = this._parseDynamicDashboardsLayouts(
       {
@@ -517,7 +473,6 @@ export class V2DashboardSerializer
       0,
       dashStructure
     );
-
     return {
       ...result,
       dashStructure: JSON.stringify(result.dashStructure),
@@ -527,15 +482,12 @@ export class V2DashboardSerializer
           if (kind !== 'Panel') {
             return panelsAcc;
           }
-
           return panelSpec.data.spec.queries.reduce((queriesAcc, { spec: querySpec }) => {
             if (!querySpec.query.datasource) {
               return queriesAcc;
             }
-
             queriesAcc[querySpec.query.group] = queriesAcc[querySpec.query.group] ?? 0;
             queriesAcc[querySpec.query.group]++;
-
             return queriesAcc;
           }, panelsAcc);
         },
@@ -543,15 +495,12 @@ export class V2DashboardSerializer
       ),
     };
   }
-
   getSnapshotUrl() {
     return this.metadata?.annotations?.[AnnoKeyDashboardSnapshotOriginalUrl];
   }
-
   async makeExportableExternally(s: DashboardScene) {
     return await makeExportableV2(this.getSaveModel(s));
   }
-
   private _parseDynamicDashboardsLayouts(
     result: DynamicDashboardsTrackingInformationLayoutParsing,
     layout: DashboardV2Spec['layout'],
@@ -559,14 +508,12 @@ export class V2DashboardSerializer
     structureTarget: DynamicDashboardTrackingInformationStructureNode[]
   ): DynamicDashboardsTrackingInformationLayoutParsing {
     result.maxNestingLevel = Math.max(result.maxNestingLevel, nestingLevel);
-
     switch (layout.kind) {
       case 'GridLayout':
         result.customGridLayoutCount++;
         result.panelCount += layout.spec.items.length;
         structureTarget.push(...layout.spec.items.map(() => ({ kind: 'panel' })));
         return result;
-
       case 'AutoGridLayout':
         result.autoLayoutCount++;
         result.panelCount += layout.spec.items.length;
@@ -576,7 +523,6 @@ export class V2DashboardSerializer
           result.conditionalRenderRulesCount
         );
         return result;
-
       case 'RowsLayout':
         result.rowsLayoutCount++;
         result.rowCount += layout.spec.rows.length;
@@ -589,7 +535,6 @@ export class V2DashboardSerializer
             ? acc
             : this._parseDynamicDashboardsLayouts(acc, row.spec.layout, rowsNextingLevel, children);
         }, result);
-
       case 'TabsLayout':
         result.tabsLayoutCount++;
         result.tabCount += layout.spec.tabs.length;
@@ -602,13 +547,11 @@ export class V2DashboardSerializer
             ? acc
             : this._parseDynamicDashboardsLayouts(acc, tab.spec.layout, tabsNextingLevel, children);
         }, result);
-
       default:
         return result;
     }
   }
 }
-
 export function getDashboardSceneSerializer(): DashboardSceneSerializerLike<
   Dashboard,
   DashboardMeta,
@@ -637,6 +580,5 @@ export function getDashboardSceneSerializer(
   if (version === 'v2') {
     return new V2DashboardSerializer();
   }
-
   return new V1DashboardSerializer();
 }

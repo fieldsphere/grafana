@@ -1,13 +1,10 @@
+import { structLog } from '@grafana/data';
 import { escapeStringForRegex, Registry, type RegistryItem, stringStartsAsRegEx, stringToJsRegex } from '@grafana/data';
-
 import { type ExtractFieldsOptions, FieldExtractorID } from './types';
-
 type Parser = (v: string) => Record<string, any> | undefined;
-
 export interface FieldExtractor extends RegistryItem {
   getParser: (opts: ExtractFieldsOptions) => Parser;
 }
-
 const extJSON: FieldExtractor = {
   id: FieldExtractorID.JSON,
   name: 'JSON',
@@ -16,28 +13,24 @@ const extJSON: FieldExtractor = {
     return JSON.parse(v);
   },
 };
-
 const extRegExp: FieldExtractor = {
   id: FieldExtractorID.RegExp,
   name: 'RegExp',
   description: 'Parse with RegExp',
   getParser: (options) => {
     let regex: RegExp | null = /(?<NewField>.*)/;
-
     if (stringStartsAsRegEx(options.regExp!)) {
       try {
         regex = stringToJsRegex(options.regExp!);
       } catch (error) {
         if (error instanceof Error) {
-          console.warn(error.message);
+          structLog('warn', error.message);
         }
       }
     }
-
     return (v: string) => v.match(regex)?.groups;
   },
 };
-
 function parseKeyValuePairs(raw: string): Record<string, string> {
   const buff: string[] = []; // array of characters
   let esc = '';
@@ -49,22 +42,18 @@ function parseKeyValuePairs(raw: string): Record<string, string> {
       esc = '';
       c = raw[++i];
     }
-
     const isEscaped = c === '\\';
     if (isEscaped) {
       c = raw[++i];
     }
-
     // When escaped just append
     if (isEscaped || esc.length) {
       buff.push(c);
       continue;
     }
-
     if (c === `"` || c === `'`) {
       esc = c;
     }
-
     switch (c) {
       case ':':
       case '=':
@@ -76,7 +65,6 @@ function parseKeyValuePairs(raw: string): Record<string, string> {
           buff.length = 0; // clear values
         }
         break;
-
       // escape chars
       case `"`:
       case `'`:
@@ -106,7 +94,6 @@ function parseKeyValuePairs(raw: string): Record<string, string> {
           buff.length = 0; // clear values
         }
         break;
-
       // append our buffer
       default:
         buff.push(c);
@@ -118,20 +105,17 @@ function parseKeyValuePairs(raw: string): Record<string, string> {
         }
     }
   }
-
   if (key.length) {
     obj[key] = buff.join('');
   }
   return obj;
 }
-
 const extLabels: FieldExtractor = {
   id: FieldExtractorID.KeyValues,
   name: 'Key+value pairs',
   description: 'Look for a=b, c: d values in the line',
   getParser: (options) => parseKeyValuePairs,
 };
-
 const extDelimiter: FieldExtractor = {
   id: FieldExtractorID.Delimiter,
   name: 'Split by delimiter',
@@ -139,7 +123,6 @@ const extDelimiter: FieldExtractor = {
   getParser: ({ delimiter = ',' }) => {
     // Match for delimiter with surrounding whitesapce (\s)
     const splitRegExp = new RegExp(`\\s*${escapeStringForRegex(delimiter)}\\s*`, 'g');
-
     return (raw: string) => {
       // Try to split delimited values
       const parts = raw.trim().split(splitRegExp);
@@ -151,16 +134,13 @@ const extDelimiter: FieldExtractor = {
     };
   },
 };
-
 const fmts = [extJSON, extLabels, extDelimiter, extRegExp];
-
 const extAuto: FieldExtractor = {
   id: FieldExtractorID.Auto,
   name: 'Auto',
   description: 'parse new fields automatically',
   getParser: (options) => {
     const parsers = fmts.map((fmt) => fmt.getParser(options));
-
     return (v: string) => {
       for (const parse of parsers) {
         try {
@@ -174,5 +154,4 @@ const extAuto: FieldExtractor = {
     };
   },
 };
-
 export const fieldExtractors = new Registry<FieldExtractor>(() => [...fmts, extAuto]);

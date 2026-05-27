@@ -1,26 +1,21 @@
+import { structLog } from '@grafana/data';
 import { type SceneObjectUrlSyncHandler, type SceneObjectUrlValues, type VizPanel } from '@grafana/scenes';
 import { contextSrv } from 'app/core/services/context_srv';
-
 import { buildPanelEditScene } from '../panel-edit/PanelEditor';
 import { createDashboardEditViewFor } from '../settings/utils';
 import { ShareDrawer } from '../sharing/ShareDrawer/ShareDrawer';
 import { findEditPanel, getLibraryPanelBehavior } from '../utils/utils';
-
 import { type DashboardScene, type DashboardSceneState } from './DashboardScene';
 import { type LibraryPanelBehavior } from './LibraryPanelBehavior';
 import { UNCONFIGURED_PANEL_PLUGIN_ID } from './UnconfiguredPanel';
 import { DefaultGridLayoutManager } from './layout-default/DefaultGridLayoutManager';
-
 export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
   constructor(private _scene: DashboardScene) {}
-
   getKeys(): string[] {
     return ['inspect', 'viewPanel', 'editPanel', 'editview', 'autofitpanels', 'shareView'];
   }
-
   getUrlState(): SceneObjectUrlValues {
     const state = this._scene.state;
-
     return {
       autofitpanels: this.getAutoFitPanels(),
       viewPanel: state.viewPanel,
@@ -30,22 +25,17 @@ export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
       orgId: contextSrv.user.orgId.toString(),
     };
   }
-
   private getAutoFitPanels(): string | undefined {
     if (this._scene.state.body instanceof DefaultGridLayoutManager) {
       return this._scene.state.body.state.grid.state.UNSAFE_fitPanels ? 'true' : undefined;
     }
-
     return undefined;
   }
-
   updateFromUrl(values: SceneObjectUrlValues): void {
     const { viewPanel, isEditing, editPanel, shareView } = this._scene.state;
     const update: Partial<DashboardSceneState> = {};
-
     if (typeof values.editview === 'string' && this._scene.canEditDashboard()) {
       update.editview = createDashboardEditViewFor(values.editview);
-
       // If we are not in editing (for example after full page reload)
       if (!isEditing) {
         if (this._scene.state.editable) {
@@ -59,44 +49,36 @@ export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
     } else if (values.hasOwnProperty('editview')) {
       update.editview = undefined;
     }
-
     // Handle view panel state
     if (typeof values.viewPanel === 'string') {
       update.viewPanel = values.viewPanel;
     } else if (viewPanel && values.viewPanel === null) {
       update.viewPanel = undefined;
     }
-
     // Handle edit panel state
     if (typeof values.editPanel === 'string') {
       const panel = findEditPanel(this._scene, values.editPanel);
-
       if (!panel) {
-        console.warn(`Panel ${values.editPanel} not found`);
+        structLog('warn', `Panel ${values.editPanel} not found`);
         return;
       }
-
       // We cannot simultaneously be in edit and view panel state.
       if (this._scene.state.viewPanel) {
         update.viewPanel = undefined;
       }
-
       // If we are not in editing (for example after full page reload)
       if (!isEditing) {
         this._scene.onEnterEditMode();
       }
-
       const libPanelBehavior = getLibraryPanelBehavior(panel);
       if (libPanelBehavior && !libPanelBehavior?.state.isLoaded) {
         this._waitForLibPanelToLoadBeforeEnteringPanelEdit(panel, libPanelBehavior);
         return;
       }
-
       update.editPanel = buildPanelEditScene(panel, panel.state.pluginId === UNCONFIGURED_PANEL_PLUGIN_ID);
     } else if (editPanel && values.editPanel === null) {
       update.editPanel = undefined;
     }
-
     if (typeof values.shareView === 'string') {
       update.shareView = values.shareView;
       update.overlay = new ShareDrawer({
@@ -106,21 +88,17 @@ export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
       update.overlay = undefined;
       update.shareView = undefined;
     }
-
     const layout = this._scene.state.body;
     if (layout instanceof DefaultGridLayoutManager) {
       const UNSAFE_fitPanels = typeof values.autofitpanels === 'string';
-
       if (!!layout.state.grid.state.UNSAFE_fitPanels !== UNSAFE_fitPanels) {
         layout.state.grid.setState({ UNSAFE_fitPanels });
       }
     }
-
     if (Object.keys(update).length > 0) {
       this._scene.setState(update);
     }
   }
-
   /**
    * Temporary solution, with some refactoring of PanelEditor we can remove this
    */

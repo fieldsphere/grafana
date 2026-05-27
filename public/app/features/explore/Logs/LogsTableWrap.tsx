@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-
 import {
   type AbsoluteTimeRange,
   type DataFrame,
@@ -24,10 +24,8 @@ import { getFieldSelectorWidth } from 'app/features/logs/components/fieldSelecto
 import { getSuggestedFieldsFromTable } from 'app/features/logs/components/fieldSelector/getSuggestedFieldsFromTable';
 import { reportInteractionOnce } from 'app/features/logs/components/panel/analytics';
 import { parseLogsFrame } from 'app/features/logs/logsFrame';
-
 import { LogsTable } from './LogsTable';
 import { SETTING_KEY_ROOT } from './utils/logs';
-
 interface Props {
   logsFrames: DataFrame[];
   width: number;
@@ -45,45 +43,35 @@ interface Props {
   absoluteRange?: AbsoluteTimeRange;
   logRows?: LogRowModel[];
 }
-
 type ActiveFieldMeta = {
   active: false;
   index: undefined; // if undefined the column is not selected
 };
-
 type InactiveFieldMeta = {
   active: true;
   index: number; // if undefined the column is not selected
 };
-
 type GenericMeta = {
   percentOfLinesWithLabel: number;
   type?: 'BODY_FIELD' | 'TIME_FIELD';
 };
-
 export type FieldNameMeta = (InactiveFieldMeta | ActiveFieldMeta) & GenericMeta;
-
 type FieldName = string;
 export type FieldNameMetaStore = Record<FieldName, FieldNameMeta>;
-
 export function LogsTableWrap(props: Props) {
   const { logsFrames, updatePanelState, panelState } = props;
   const propsColumns = panelState?.columns;
   // Save the normalized cardinality of each label
   const [columnsWithMeta, setColumnsWithMeta] = useState<FieldNameMetaStore | undefined>(undefined);
   const dragStyles = useStyles2(getDragStyles);
-
   // Filtered copy of columnsWithMeta that only includes matching results
   const [filteredColumnsWithMeta, setFilteredColumnsWithMeta] = useState<FieldNameMetaStore | undefined>(undefined);
-
   const height = getLogsTableHeight();
   const panelStateRefId = props?.panelState?.refId;
-
   // The current dataFrame containing the refId of the current query
   const [currentDataFrame, setCurrentDataFrame] = useState<DataFrame>(
     logsFrames.find((f) => f.refId === panelStateRefId) ?? logsFrames[0]
   );
-
   const getColumnsFromProps = useCallback(
     (fieldNames: FieldNameMetaStore) => {
       const previouslySelected = props.panelState?.columns;
@@ -99,9 +87,7 @@ export function LogsTableWrap(props: Props) {
     },
     [props.panelState?.columns]
   );
-
   const logsFrame = useMemo(() => parseLogsFrame(currentDataFrame), [currentDataFrame]);
-
   useEffect(() => {
     if (logsFrame?.timeField.name && logsFrame?.bodyField.name && !propsColumns) {
       const defaultColumns = { 0: logsFrame?.timeField.name ?? '', 1: logsFrame?.bodyField.name ?? '' };
@@ -112,7 +98,6 @@ export function LogsTableWrap(props: Props) {
       });
     }
   }, [logsFrame, propsColumns, updatePanelState]);
-
   /**
    * When logs frame updates (e.g. query|range changes), we need to set the selected frame to state
    */
@@ -122,7 +107,6 @@ export function LogsTableWrap(props: Props) {
       setCurrentDataFrame(newFrame);
     }
   }, [logsFrames, panelStateRefId]);
-
   /**
    * Keeps the filteredColumnsWithMeta state in sync with the columnsWithMeta state,
    * which can be updated by explore browser history state changes
@@ -144,7 +128,6 @@ export function LogsTableWrap(props: Props) {
       setFilteredColumnsWithMeta(newFiltered);
     }
   }, [columnsWithMeta, filteredColumnsWithMeta]);
-
   /**
    * when the query results change, we need to update the columnsWithMeta state
    * and reset any local search state
@@ -161,9 +144,7 @@ export function LogsTableWrap(props: Props) {
     const numberOfLogLines = currentDataFrame ? currentDataFrame.length : 0;
     const logsFrame = parseLogsFrame(currentDataFrame);
     const labels = logsFrame?.getLogFrameLabelsAsLabels();
-
     const otherFields = [];
-
     if (logsFrame) {
       otherFields.push(...logsFrame.extraFields.filter((field) => !field?.config?.custom?.hidden));
     }
@@ -176,13 +157,10 @@ export function LogsTableWrap(props: Props) {
     if (logsFrame?.timeField) {
       otherFields.push(logsFrame?.timeField);
     }
-
     // Use a map to dedupe labels and count their occurrences in the logs
     const labelCardinality = new Map<FieldName, FieldNameMeta>();
-
     // What the label state will look like
     let pendingLabelState: FieldNameMetaStore = {};
-
     // If we have labels and log lines
     if (labels?.length && numberOfLogLines) {
       // Iterate through all of Labels
@@ -214,10 +192,8 @@ export function LogsTableWrap(props: Props) {
           }
         });
       });
-
       // Converting the map to an object
       pendingLabelState = Object.fromEntries(labelCardinality);
-
       // Convert count to percent of log lines
       Object.keys(pendingLabelState).forEach((key) => {
         pendingLabelState[key].percentOfLinesWithLabel = normalize(
@@ -226,7 +202,6 @@ export function LogsTableWrap(props: Props) {
         );
       });
     }
-
     // Normalize the other fields
     otherFields.forEach((field) => {
       const isActive = pendingLabelState[field.name]?.active;
@@ -251,12 +226,9 @@ export function LogsTableWrap(props: Props) {
         };
       }
     });
-
     pendingLabelState = getColumnsFromProps(pendingLabelState);
-
     // Get all active columns
     const active = Object.keys(pendingLabelState).filter((key) => pendingLabelState[key].active);
-
     // If nothing is selected, then select the default columns
     if (active.length === 0) {
       if (logsFrame?.bodyField?.name) {
@@ -266,24 +238,23 @@ export function LogsTableWrap(props: Props) {
         pendingLabelState[logsFrame.timeField.name].active = true;
       }
     }
-
     if (logsFrame?.bodyField?.name && logsFrame?.timeField?.name) {
       pendingLabelState[logsFrame.bodyField.name].type = 'BODY_FIELD';
       pendingLabelState[logsFrame.timeField.name].type = 'TIME_FIELD';
     }
-
     setColumnsWithMeta(pendingLabelState);
-
     // The panel state is updated when the user interacts with the multi-select sidebar
   }, [currentDataFrame, getColumnsFromProps]);
-
   const [sidebarWidth, setSidebarWidth] = useState(getFieldSelectorWidth(SETTING_KEY_ROOT));
   const tableWidth = props.width - sidebarWidth;
-
   const styles = useStyles2(getStyles, height, sidebarWidth);
-
   const onSortByChange = useCallback(
-    (sortBy: Array<{ displayName: string; desc?: boolean }>) => {
+    (
+      sortBy: Array<{
+        displayName: string;
+        desc?: boolean;
+      }>
+    ) => {
       // Transform from Table format to URL format - only store the first sort column
       if (sortBy.length > 0) {
         // Defer the Redux dispatch to avoid updating ExploreActions during Table's render cycle
@@ -300,11 +271,9 @@ export function LogsTableWrap(props: Props) {
     },
     [updatePanelState]
   );
-
   if (!columnsWithMeta) {
     return null;
   }
-
   function columnFilterEvent(columnName: string) {
     if (columnsWithMeta) {
       const newState = !columnsWithMeta[columnName]?.active;
@@ -317,7 +286,6 @@ export function LogsTableWrap(props: Props) {
       reportInteraction('grafana_explore_logs_table_column_filter_clicked', event);
     }
   }
-
   const clearSelection = () => {
     const pendingLabelState = { ...columnsWithMeta };
     Object.keys(pendingLabelState).forEach((key) => {
@@ -333,21 +301,16 @@ export function LogsTableWrap(props: Props) {
     });
     setColumnsWithMeta(pendingLabelState);
   };
-
   const reorderColumn = (newColumns: string[]) => {
     const pendingLabelState = { ...columnsWithMeta };
-
     newColumns.forEach((key, index) => {
       pendingLabelState[key].index = index;
     });
-
     // Set local state
     setColumnsWithMeta(pendingLabelState);
-
     // Sync the explore state
     updateExploreState(pendingLabelState);
   };
-
   function updateExploreState(pendingLabelState: FieldNameMetaStore) {
     // Get all active columns and sort by index
     const newColumnsArray = Object.keys(pendingLabelState)
@@ -361,13 +324,11 @@ export function LogsTableWrap(props: Props) {
         }
         return 0;
       });
-
     const newColumns: Record<number, string> = Object.assign(
       {},
       // Get the keys of the object as an array
       newColumnsArray
     );
-
     const defaultColumns = { 0: logsFrame?.timeField.name ?? '', 1: logsFrame?.bodyField.name ?? '' };
     const newPanelState: ExploreLogsPanelState = {
       ...props.panelState,
@@ -377,21 +338,17 @@ export function LogsTableWrap(props: Props) {
       visualisationType: 'table',
       labelFieldName: logsFrame?.getLabelFieldName() ?? undefined,
     };
-
     // Update url state
     updatePanelState(newPanelState);
   }
-
   // Toggle a column on or off when the user interacts with an element in the multi-select sidebar
   const toggleColumn = (columnName: FieldName) => {
     if (!columnsWithMeta || !(columnName in columnsWithMeta)) {
-      console.warn('failed to get column', columnsWithMeta);
+      structLog('warn', 'failed to get column', columnsWithMeta);
       return;
     }
-
     const length = Object.keys(columnsWithMeta).filter((c) => columnsWithMeta[c].active).length;
     const isActive = !columnsWithMeta[columnName].active ? true : undefined;
-
     let pendingLabelState: FieldNameMetaStore;
     if (isActive) {
       pendingLabelState = {
@@ -412,13 +369,10 @@ export function LogsTableWrap(props: Props) {
         },
       };
     }
-
     // Analytics
     columnFilterEvent(columnName);
-
     // Set local state
     setColumnsWithMeta(pendingLabelState);
-
     // If user is currently filtering, update filtered state
     if (filteredColumnsWithMeta) {
       const active = !filteredColumnsWithMeta[columnName]?.active;
@@ -442,13 +396,10 @@ export function LogsTableWrap(props: Props) {
           },
         };
       }
-
       setFilteredColumnsWithMeta(pendingFilteredLabelState);
     }
-
     updateExploreState(pendingLabelState);
   };
-
   const onFrameSelectorChange = (value: SelectableValue<string>) => {
     const matchingDataFrame = logsFrames.find((frame) => frame.refId === value.value);
     if (matchingDataFrame) {
@@ -456,7 +407,6 @@ export function LogsTableWrap(props: Props) {
     }
     props.updatePanelState({ refId: value.value, labelFieldName: logsFrame?.getLabelFieldName() ?? undefined });
   };
-
   const getOnResize: ResizeCallback = (event, direction, ref) => {
     const newSidebarWidth = Number(ref.style.width.slice(0, -2));
     if (!isNaN(newSidebarWidth)) {
@@ -467,7 +417,6 @@ export function LogsTableWrap(props: Props) {
       });
     }
   };
-
   return (
     <>
       <div>
@@ -549,11 +498,9 @@ export function LogsTableWrap(props: Props) {
     </>
   );
 }
-
 const normalize = (value: number, total: number): number => {
   return Math.ceil((100 * value) / total);
 };
-
 function getStyles(theme: GrafanaTheme2, height: number, width: number) {
   return {
     wrapper: css({
@@ -578,7 +525,6 @@ function getStyles(theme: GrafanaTheme2, height: number, width: number) {
     }),
   };
 }
-
 export const getLogsTableHeight = () => {
   // Instead of making the height of the table based on the content (like in the table panel itself), let's try to use the vertical space that is available.
   // Since this table is in explore, we can expect the user to be running multiple queries that return disparate numbers of rows and labels in the same session

@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { CoreApp, type DashboardLoadedEvent, type DataQueryRequest, type DataQueryResponse } from '@grafana/data';
 import { QueryEditorMode } from '@grafana/plugin-ui';
 import { reportInteraction, config } from '@grafana/runtime';
-
 import { LokiQueryType } from './dataquery.gen';
 import {
   REF_ID_STARTER_ANNOTATION,
@@ -14,46 +14,33 @@ import pluginJson from './plugin.json';
 import { getNormalizedLokiQuery, isLogsQuery, obfuscate } from './queryUtils';
 import { variableRegex } from './querybuilder/parsingUtils';
 import { type LokiGroupedRequest, type LokiQuery } from './types';
-
 type LokiOnDashboardLoadedTrackingEvent = {
   grafana_version?: string;
   dashboard_id?: string;
   org_id?: number;
-
   /* The number of Loki queries present in the dashboard*/
   queries_count: number;
-
   /* The number of Loki logs queries present in the dashboard*/
   logs_queries_count: number;
-
   /* The number of Loki metric queries present in the dashboard*/
   metric_queries_count: number;
-
   /* The number of Loki instant queries present in the dashboard*/
   instant_queries_count: number;
-
   /* The number of Loki range queries present in the dashboard*/
   range_queries_count: number;
-
   /* The number of Loki queries created in builder mode present in the dashboard*/
   builder_mode_queries_count: number;
-
   /* The number of Loki queries created in code mode present in the dashboard*/
   code_mode_queries_count: number;
-
   /* The number of Loki queries with used template variables present in the dashboard*/
   queries_with_template_variables_count: number;
-
   /* The number of Loki queries with changed resolution present in the dashboard*/
   queries_with_changed_resolution_count: number;
-
   /* The number of Loki queries with changed line limit present in the dashboard*/
   queries_with_changed_line_limit_count: number;
-
   /* The number of Loki queries with changed legend present in the dashboard*/
   queries_with_changed_legend_count: number;
 };
-
 export const onDashboardLoadedHandler = ({
   payload: { dashboardId, orgId, grafanaVersion, queries },
 }: DashboardLoadedEvent<LokiQuery>) => {
@@ -62,11 +49,9 @@ export const onDashboardLoadedHandler = ({
     const lokiQueries = queries[pluginJson.id]
       ?.filter((query) => !query.hide)
       ?.map((query) => getNormalizedLokiQuery(query));
-
     if (!lokiQueries?.length) {
       return;
     }
-
     const logsQueries = lokiQueries.filter((query) => isLogsQuery(query.expr));
     const metricQueries = lokiQueries.filter((query) => !isLogsQuery(query.expr));
     const instantQueries = lokiQueries.filter((query) => query.queryType === LokiQueryType.Instant);
@@ -77,7 +62,6 @@ export const onDashboardLoadedHandler = ({
     const queriesWithChangedResolution = lokiQueries.filter(isQueryWithChangedResolution);
     const queriesWithChangedLineLimit = lokiQueries.filter(isQueryWithChangedLineLimit);
     const queriesWithChangedLegend = lokiQueries.filter(isQueryWithChangedLegend);
-
     const event: LokiOnDashboardLoadedTrackingEvent = {
       grafana_version: grafanaVersion,
       dashboard_id: dashboardId,
@@ -94,17 +78,14 @@ export const onDashboardLoadedHandler = ({
       queries_with_changed_line_limit_count: queriesWithChangedLineLimit.length,
       queries_with_changed_legend_count: queriesWithChangedLegend.length,
     };
-
     reportInteraction('grafana_loki_dashboard_loaded', event);
   } catch (error) {
-    console.error('error in loki tracking handler', error);
+    structLog('error', 'error in loki tracking handler', error);
   }
 };
-
 const isQueryWithTemplateVariables = (query: LokiQuery): boolean => {
   return variableRegex.test(query.expr);
 };
-
 const isQueryWithChangedResolution = (query: LokiQuery): boolean => {
   if (!query.resolution) {
     return false;
@@ -112,18 +93,15 @@ const isQueryWithChangedResolution = (query: LokiQuery): boolean => {
   // 1 is the default resolution
   return query.resolution !== 1;
 };
-
 const isQueryWithChangedLineLimit = (query: LokiQuery): boolean => {
   return query.maxLines !== null && query.maxLines !== undefined;
 };
-
 const isQueryWithChangedLegend = (query: LokiQuery): boolean => {
   if (!query.legendFormat) {
     return false;
   }
   return query.legendFormat !== '';
 };
-
 const shouldNotReportBasedOnRefId = (refId: string): boolean => {
   const starters = [
     REF_ID_STARTER_ANNOTATION,
@@ -132,13 +110,11 @@ const shouldNotReportBasedOnRefId = (refId: string): boolean => {
     REF_ID_STARTER_LOG_SAMPLE,
     REF_ID_DATA_SAMPLES,
   ];
-
   if (starters.some((starter) => refId.startsWith(starter))) {
     return true;
   }
   return false;
 };
-
 const calculateTotalBytes = (response: DataQueryResponse): number => {
   let totalBytes = 0;
   for (const frame of response.data) {
@@ -150,7 +126,6 @@ const calculateTotalBytes = (response: DataQueryResponse): number => {
   }
   return totalBytes;
 };
-
 export function trackQuery(
   response: DataQueryResponse,
   request: DataQueryRequest<LokiQuery>,
@@ -159,18 +134,14 @@ export function trackQuery(
 ): void {
   // We only want to track usage for these specific apps
   const { app, targets: queries } = request;
-
   if (app !== CoreApp.Explore) {
     return;
   }
-
   let totalBytes = calculateTotalBytes(response);
-
   for (const query of queries) {
     if (shouldNotReportBasedOnRefId(query.refId)) {
       return;
     }
-
     reportInteraction('grafana_explore_loki_query_executed', {
       grafana_version: config.buildInfo.version,
       editor_mode: query.editorMode,
@@ -193,7 +164,6 @@ export function trackQuery(
     });
   }
 }
-
 export function trackGroupedQueries(
   response: DataQueryResponse,
   groupedRequests: LokiGroupedRequest[],
@@ -208,7 +178,6 @@ export function trackGroupedQueries(
     simultaneously_executed_query_count: originalRequest.targets.filter((query) => !query.hide).length,
     simultaneously_hidden_query_count: originalRequest.targets.filter((query) => query.hide).length,
   };
-
   for (const group of groupedRequests) {
     const split_query_partition_size = group.partition.length;
     trackQuery(response, group.request, startTime, {

@@ -1,14 +1,12 @@
+import { structLog } from '@grafana/data';
 import { debounce } from 'lodash';
-
 import { getBackendSrv } from '@grafana/runtime';
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction } from 'app/types/accessControl';
 import { type ServiceAccountDTO, ServiceAccountStateFilter } from 'app/types/serviceaccount';
 import { type ThunkResult } from 'app/types/store';
-
 import { type ServiceAccountToken } from '../components/CreateTokenModal';
-
 import {
   acOptionsLoaded,
   pageChanged,
@@ -20,9 +18,7 @@ import {
   serviceAccountsFetchEnd,
   stateFilterChanged,
 } from './reducers';
-
 const BASE_URL = `/api/serviceaccounts`;
-
 export function fetchACOptions(): ThunkResult<void> {
   return async (dispatch) => {
     try {
@@ -31,15 +27,13 @@ export function fetchACOptions(): ThunkResult<void> {
         dispatch(acOptionsLoaded(options));
       }
     } catch (error) {
-      console.error(error);
+      structLog('error', error);
     }
   };
 }
-
 interface FetchServiceAccountsParams {
   withLoadingIndicator: boolean;
 }
-
 export function fetchServiceAccounts(
   { withLoadingIndicator }: FetchServiceAccountsParams = { withLoadingIndicator: false }
 ): ThunkResult<void> {
@@ -51,11 +45,8 @@ export function fetchServiceAccounts(
         }
         const { perPage, page, query, serviceAccountStateFilter } = getState().serviceAccounts;
         const result = await getBackendSrv().get(
-          `/api/serviceaccounts/search?perpage=${perPage}&page=${page}&query=${query}${getStateFilter(
-            serviceAccountStateFilter
-          )}&accesscontrol=true`
+          `/api/serviceaccounts/search?perpage=${perPage}&page=${page}&query=${query}${getStateFilter(serviceAccountStateFilter)}&accesscontrol=true`
         );
-
         if (
           contextSrv.licensedAccessControlEnabled() &&
           contextSrv.hasPermission(AccessControlAction.ActionUserRolesList)
@@ -72,21 +63,18 @@ export function fetchServiceAccounts(
           });
           dispatch(rolesFetchEnd());
         }
-
         dispatch(serviceAccountsFetched(result));
       }
     } catch (error) {
-      console.error(error);
+      structLog('error', error);
     } finally {
       dispatch(serviceAccountsFetchEnd());
     }
   };
 }
-
 const fetchServiceAccountsWithDebounce = debounce((dispatch) => dispatch(fetchServiceAccounts()), 500, {
   leading: true,
 });
-
 export function updateServiceAccount(serviceAccount: ServiceAccountDTO): ThunkResult<void> {
   return async (dispatch) => {
     await getBackendSrv().patch(`${BASE_URL}/${serviceAccount.uid}?accesscontrol=true`, {
@@ -95,14 +83,12 @@ export function updateServiceAccount(serviceAccount: ServiceAccountDTO): ThunkRe
     dispatch(fetchServiceAccounts());
   };
 }
-
 export function deleteServiceAccount(serviceAccountUid: string): ThunkResult<void> {
   return async (dispatch) => {
     await getBackendSrv().delete(`${BASE_URL}/${serviceAccountUid}`);
     dispatch(fetchServiceAccounts());
   };
 }
-
 export function createServiceAccountToken(
   saUid: string,
   token: ServiceAccountToken,
@@ -114,7 +100,6 @@ export function createServiceAccountToken(
     dispatch(fetchServiceAccounts());
   };
 }
-
 // search / filtering of serviceAccounts
 const getStateFilter = (value: ServiceAccountStateFilter) => {
   switch (value) {
@@ -128,21 +113,18 @@ const getStateFilter = (value: ServiceAccountStateFilter) => {
       return '';
   }
 };
-
 export function changeQuery(query: string): ThunkResult<void> {
   return async (dispatch) => {
     dispatch(queryChanged(query));
     fetchServiceAccountsWithDebounce(dispatch);
   };
 }
-
 export function changeStateFilter(filter: ServiceAccountStateFilter): ThunkResult<void> {
   return async (dispatch) => {
     dispatch(stateFilterChanged(filter));
     dispatch(fetchServiceAccounts());
   };
 }
-
 export function changePage(page: number): ThunkResult<void> {
   return async (dispatch) => {
     dispatch(pageChanged(page));

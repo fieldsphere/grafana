@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useEffect, useState, type JSX } from 'react';
-
 import { type GrafanaTheme2, type OrgRole, type TimeZone, dateTimeFormat } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Label, TextLink, useStyles2 } from '@grafana/ui';
@@ -8,29 +8,23 @@ import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction, type Role } from 'app/types/accessControl';
 import { type ServiceAccountDTO } from 'app/types/serviceaccount';
-
 import { ServiceAccountProfileRow } from './ServiceAccountProfileRow';
 import { ServiceAccountRoleRow } from './ServiceAccountRoleRow';
-
 interface Props {
   serviceAccount: ServiceAccountDTO;
   timeZone: TimeZone;
   onChange: (serviceAccount: ServiceAccountDTO) => void;
 }
-
 export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Props): JSX.Element {
   const styles = useStyles2(getStyles);
   const ableToWrite = contextSrv.hasPermission(AccessControlAction.ServiceAccountsWrite);
   const [roles, setRoleOptions] = useState<Role[]>([]);
-
   const onRoleChange = (role: OrgRole) => {
     onChange({ ...serviceAccount, role: role });
   };
-
   const onNameChange = (newValue: string) => {
     onChange({ ...serviceAccount, name: newValue });
   };
-
   useEffect(() => {
     async function fetchOptions() {
       try {
@@ -39,14 +33,13 @@ export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Pr
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options for service account');
+        structLog('error', 'Error loading options for service account');
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {
       fetchOptions();
     }
   }, [serviceAccount.orgId]);
-
   return (
     <div className={styles.section}>
       <h3>
@@ -100,7 +93,6 @@ export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Pr
     </div>
   );
 }
-
 export const getStyles = (theme: GrafanaTheme2) => ({
   section: css({
     marginBottom: theme.spacing(4),

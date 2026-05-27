@@ -1,10 +1,9 @@
+import { structLog } from '@grafana/data';
 import createVirtualEnvironment from '@locker/near-membrane-dom';
 import { type ProxyTarget } from '@locker/near-membrane-shared';
-
 import { type BootData } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { defaultTrustedTypesPolicy } from 'app/core/trustedTypePolicies';
-
 import { getPluginCode, getPluginLoadData, patchSandboxEnvironmentPrototype } from './codeLoader';
 import { getGeneralSandboxDistortionMap, distortLiveApis } from './distortions';
 import {
@@ -24,15 +23,12 @@ import {
   type SandboxPluginMeta,
 } from './types';
 import { logError, logInfo } from './utils';
-
 // Loads near membrane custom formatter for near membrane proxy objects.
 if (process.env.NODE_ENV !== 'production') {
   require('@locker/near-membrane-dom/custom-devtools-formatter');
 }
-
 const pluginImportCache = new Map<string, Promise<System.Module>>();
 const pluginLogCache: Record<string, boolean> = {};
-
 export async function importPluginModuleInSandbox({ pluginId }: { pluginId: string }): Promise<System.Module> {
   patchWebAPIs();
   try {
@@ -50,7 +46,6 @@ export async function importPluginModuleInSandbox({ pluginId }: { pluginId: stri
     throw error;
   }
 }
-
 async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<System.Module> {
   logInfo('Loading with sandbox', {
     pluginId: meta.id,
@@ -71,13 +66,11 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
       } else {
         patchObjectAsLiveTarget(originalValue);
       }
-
       // static distortions are faster distortions with direct object descriptors checks
       const staticDistortion = generalDistortionMap.get(originalValue);
       if (staticDistortion) {
         return staticDistortion(originalValue, meta, sandboxEnvironment) as ProxyTarget;
       }
-
       // live distortions are slower and have to do runtime checks
       const liveDistortion = distortLiveApis(originalValue);
       if (liveDistortion) {
@@ -85,7 +78,6 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
       }
       return originalValue;
     }
-
     // each plugin has its own sandbox
     sandboxEnvironment = createVirtualEnvironment(window, {
       // distortions are interceptors to modify the behavior of objects when
@@ -130,7 +122,6 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
               key: 'grafanaBootData',
             });
           }
-
           // We don't want to encourage plugins to use `window.grafanaBootData`. They should
           // use `@grafana/runtime.config` instead.
           // if we are in dev mode we fail this access
@@ -139,13 +130,13 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
               `Error in ${meta.id}: Plugins should not use window.grafanaBootData. Use "config" from "@grafana/runtime" instead.`
             );
           } else {
-            console.error(
+            structLog(
+              'error',
               `${meta.id.toUpperCase()}: Plugins should not use window.grafanaBootData. Use "config" from "@grafana/runtime" instead.`
             );
           }
           return config.bootData;
         },
-
         // Plugins builds use the AMD module system. Their code consists
         // of a single function call to `define()` that internally contains all the plugin code.
         // This is that `define` function the plugin will call.
@@ -165,7 +156,6 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
             dependencies = maybeDependencies as string[];
             factory = maybeFactory!;
           }
-
           try {
             const resolvedDeps = await resolvePluginDependencies(dependencies, meta);
             // execute the plugin's code
@@ -186,9 +176,7 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
         },
       }),
     });
-
     patchSandboxEnvironmentPrototype(sandboxEnvironment);
-
     // fetch plugin's code
     let pluginCode = '';
     try {
@@ -201,7 +189,6 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
       });
       reject(error);
     }
-
     try {
       // runs the code inside the sandbox environment
       // this evaluate will eventually run the `define` function inside
@@ -217,7 +204,6 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
     }
   });
 }
-
 /**
  *
  * This function resolves the dependencies using the array of AMD deps.
@@ -232,27 +218,22 @@ async function resolvePluginDependencies(deps: string[], pluginMeta: SandboxPlug
     uri: pluginMeta.module,
     exports: pluginExports,
   };
-
   // resolve dependencies
   const resolvedDeps: CompartmentDependencyModule[] = [];
   for (const dep of deps) {
     let resolvedDep = sandboxPluginDependencies.get(dep);
-
     if (typeof resolvedDep === 'function') {
       resolvedDep = await resolvedDep();
     }
     if (resolvedDep?.__useDefault) {
       resolvedDep = resolvedDep.default;
     }
-
     if (dep === 'module') {
       resolvedDep = pluginModuleDep;
     }
-
     if (dep === 'exports') {
       resolvedDep = pluginExports;
     }
-
     if (!resolvedDep) {
       const error = new Error(`[sandbox] Could not resolve dependency ${dep}`);
       logError(error, {
@@ -266,7 +247,6 @@ async function resolvePluginDependencies(deps: string[], pluginMeta: SandboxPlug
   }
   return resolvedDeps;
 }
-
 interface ModuleMeta {
   id: string;
   uri: string;

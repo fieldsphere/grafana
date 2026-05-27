@@ -1,40 +1,32 @@
+import { structLog } from '@grafana/data';
 import { type Dispatch, type SetStateAction, useCallback, useEffect, useState } from 'react';
 import { useAsync } from 'react-use';
 import { type Subscription } from 'rxjs';
-
 import { llm } from '@grafana/llm';
 import { createMonitoringLogger } from '@grafana/runtime';
 import { useAppNotification } from 'app/core/copy/appNotification';
-
 import { DEFAULT_LLM_MODEL, isLLMPluginEnabled } from './utils';
-
 // Declared instead of imported from utils to make this hook modular
 // Ideally we will want to move the hook itself to a different scope later.
 type Message = llm.Message;
-
 const genAILogger = createMonitoringLogger('features.dashboards.genai');
-
 export enum StreamStatus {
   IDLE = 'idle',
   GENERATING = 'generating',
   COMPLETED = 'completed',
 }
-
 export const TIMEOUT = 10000; // 10 seconds
-
 interface Options {
   model: string;
   temperature: number;
   onResponse?: (response: string) => void;
   timeout?: number;
 }
-
 const defaultOptions = {
   model: DEFAULT_LLM_MODEL,
   temperature: 1,
   timeout: TIMEOUT,
 };
-
 interface UseLLMStreamResponse {
   setMessages: Dispatch<SetStateAction<Message[]>>;
   stopGeneration: () => void;
@@ -47,13 +39,11 @@ interface UseLLMStreamResponse {
     stream?: Subscription;
   };
 }
-
 // TODO: Add tests
 export function useLLMStream(options: Options = defaultOptions): UseLLMStreamResponse {
   const { model, temperature, onResponse, timeout } = { ...defaultOptions, ...options };
   // The messages array to send to the LLM, updated when the button is clicked.
   const [messages, setMessages] = useState<Message[]>([]);
-
   // The latest reply from the LLM.
   const [reply, setReply] = useState('');
   const [streamStatus, setStreamStatus] = useState<StreamStatus>(StreamStatus.IDLE);
@@ -61,7 +51,6 @@ export function useLLMStream(options: Options = defaultOptions): UseLLMStreamRes
   const { error: notifyError } = useAppNotification();
   // Accumulate response and it will only update the state of the attatched component when the stream is completed.
   let partialReply = '';
-
   const onError = useCallback(
     (e: Error) => {
       setStreamStatus(StreamStatus.IDLE);
@@ -71,28 +60,24 @@ export function useLLMStream(options: Options = defaultOptions): UseLLMStreamRes
         'Failed to generate content using LLM',
         'Please try again or if the problem persists, contact your organization admin.'
       );
-      console.error(e);
+      structLog('error', e);
       genAILogger.logError(e, { messages: JSON.stringify(messages), model, temperature: String(temperature) });
     },
     [messages, model, temperature, notifyError]
   );
-
   useEffect(() => {
     if (messages.length > 0) {
       setReply('');
     }
   }, [messages]);
-
   const { error: enabledError, value: enabled } = useAsync(
     async () => await isLLMPluginEnabled(),
     [isLLMPluginEnabled]
   );
-
   const { error: asyncError, value } = useAsync(async () => {
     if (!enabled || !messages.length) {
       return { enabled };
     }
-
     setStreamStatus(StreamStatus.GENERATING);
     setError(undefined);
     // Stream the completions. Each element is the next stream chunk.
@@ -130,14 +115,12 @@ export function useLLMStream(options: Options = defaultOptions): UseLLMStreamRes
       }),
     };
   }, [messages, enabled]);
-
   // Unsubscribe from the stream when the component unmounts.
   useEffect(() => {
     return () => {
       value?.stream?.unsubscribe();
     };
   }, [value]);
-
   // Unsubscribe from the stream when user stops the generation.
   const stopGeneration = useCallback(() => {
     value?.stream?.unsubscribe();
@@ -145,7 +128,6 @@ export function useLLMStream(options: Options = defaultOptions): UseLLMStreamRes
     setError(undefined);
     setMessages([]);
   }, [value]);
-
   // If the stream is generating and we haven't received a reply, it times out.
   useEffect(() => {
     let timeoutId: NodeJS.Timeout | undefined;
@@ -154,16 +136,13 @@ export function useLLMStream(options: Options = defaultOptions): UseLLMStreamRes
         onError(new Error(`LLM stream timed out after ${timeout}ms`));
       }, timeout);
     }
-
     return () => {
       clearTimeout(timeoutId);
     };
   }, [streamStatus, reply, onError, timeout]);
-
   if (asyncError || enabledError) {
     setError(asyncError || enabledError);
   }
-
   return {
     setMessages,
     stopGeneration,

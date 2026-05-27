@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { useEffect, useRef } from 'react';
 import { type Params, useParams } from 'react-router-dom-v5-compat';
 import { usePrevious } from 'react-use';
-
 import { PageLayoutType } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import { UrlSyncContextProvider } from '@grafana/scenes';
@@ -22,18 +22,14 @@ import { getDashboardSceneProfiler } from 'app/features/dashboard/services/Dashb
 import { DashboardPreviewBanner } from 'app/features/provisioning/components/Dashboards/DashboardPreviewBanner';
 import { OrphanedDashboardBanner } from 'app/features/provisioning/components/Dashboards/OrphanedDashboardBanner';
 import { DashboardRoutes } from 'app/types/dashboard';
-
 import { DashboardConversionWarningBanner } from '../components/DashboardConversionWarningBanner';
 import { SuggestedDashboardsBanner } from '../components/SuggestedDashboardsBanner';
 import { DashboardPrompt } from '../saving/DashboardPrompt';
 import { preserveDashboardSceneStateInLocalStorage } from '../utils/dashboardSessionState';
-
 import { getDashboardScenePageStateManager } from './DashboardScenePageStateManager';
 import { shouldHideDashboardKioskFooter } from './utils';
-
 export interface Props
   extends Omit<GrafanaRouteComponentProps<DashboardPageRouteParams, DashboardPageRouteSearchParams>, 'match'> {}
-
 export function DashboardScenePage({ route, queryParams, location }: Props) {
   const params = useParams();
   const { type, slug, uid } = params;
@@ -46,7 +42,6 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
   // After scene migration is complete and we get rid of old dashboard we should refactor dashboardWatcher so this route reload is not need
   const routeReloadCounter = (location.state as any)?.routeReloadCounter;
   const prevParams = useRef<Params<string>>(params);
-
   useEffect(() => {
     if (route.routeName === DashboardRoutes.Normal && type === 'snapshot') {
       stateManager.loadSnapshot(slug!);
@@ -62,14 +57,12 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
         urlFolderUid: queryParams.folderUid,
       });
     }
-
     return () => {
       getDashboardSceneProfiler().cancelProfile();
       preserveDashboardSceneStateInLocalStorage(locationService.getSearch(), uid);
       stateManager.clearState();
       stateManager.resetActiveManager();
     };
-
     // removing slug and path (which has slug in it) from dependencies to prevent unmount when data links reference
     //  the same dashboard with no slug in url
     // queryParams.path is used by template dashboards to identify the dashboard file; changing it means a new template was selected
@@ -84,7 +77,6 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
     queryParams.path,
     queryParams.gnetId,
   ]);
-
   useEffect(() => {
     // This use effect corrects URL without refresh when navigating to the same dashboard
     //  using data link that has no slug in url
@@ -99,18 +91,15 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
         });
       }
     }
-
     return () => {
       prevParams.current = { uid, slug: !slug ? prevParams.current.slug : slug };
     };
   }, [route, slug, type, uid]);
-
   if (!dashboard) {
     let errorElement;
     if (loadError) {
       errorElement = <DashboardPageError error={loadError} type={type} />;
     }
-
     return (
       errorElement || (
         <Page navId="dashboards/browse" layout={PageLayoutType.Canvas} data-testid={'dashboard-scene-page'}>
@@ -121,19 +110,16 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
       )
     );
   }
-
   // Do not render anything when transitioning from one dashboard to another
   // A bit tricky for transition to or from Home dashboard that does not have a uid in the url (but could have it in the dashboard model)
   // if prevMatch is undefined we are going from normal route to home route or vice versa
   if (type !== 'snapshot' && (!prevMatch || uid !== prevMatch?.params.uid)) {
-    console.log('skipping rendering');
+    structLog('log', 'skipping rendering');
     return null;
   }
-
   // `locationSearchToObject()` parses `?kiosk` as `true` (boolean param). Some clients can emit `?kiosk=`, which parses as ''.
   const isKioskMode = queryParams.kiosk === '1' || queryParams.kiosk === true || queryParams.kiosk === '';
   const hideFooter = shouldHideDashboardKioskFooter(queryParams.hideLogo);
-
   return (
     <UrlSyncContextProvider scene={dashboard} updateUrlOnInit={true} createBrowserHistorySteps={true}>
       <DashboardPreviewBanner queryParams={queryParams} route={route.routeName} slug={slug} path={path} />
@@ -151,5 +137,4 @@ export function DashboardScenePage({ route, queryParams, location }: Props) {
     </UrlSyncContextProvider>
   );
 }
-
 export default DashboardScenePage;

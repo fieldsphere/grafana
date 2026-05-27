@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { type Observable, debounce, debounceTime, defer, finalize, first, interval, map, of } from 'rxjs';
-
 import {
   DataSourceApi,
   type DataQueryRequest,
@@ -26,11 +26,8 @@ import {
   findVizPanelByKey,
   getVizPanelKeyForPanelId,
 } from 'app/features/dashboard-scene/utils/utils';
-
 import { MIXED_REQUEST_PREFIX } from '../mixed/MixedDataSource';
-
 import { type DashboardQuery } from './types';
-
 /**
  * This should not really be called
  */
@@ -38,64 +35,48 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
   constructor(instanceSettings: DataSourceInstanceSettings) {
     super(instanceSettings);
   }
-
   getCollapsedText(query: DashboardQuery) {
     return `Dashboard Reference: ${query.panelId}`;
   }
-
   query(options: DataQueryRequest<DashboardQuery>): Observable<DataQueryResponse> {
     const sceneScopedVar: ScopedVar | undefined = options.scopedVars?.__sceneObject;
     const sceneScopedVarValue: unknown | undefined = sceneScopedVar?.value.valueOf();
     const scene: SceneObject | undefined =
       sceneScopedVarValue && isSceneObject(sceneScopedVarValue) ? sceneScopedVarValue : undefined;
-
     if (!scene) {
       throw new Error('Can only be called from a scene');
     }
-
     const query = options.targets[0];
     if (!query) {
       return of({ data: [] });
     }
-
     const panelId = query.panelId;
-
     if (!panelId) {
       return of({ data: [] });
     }
-
     let sourcePanel = findVizPanelByKey(scene, getVizPanelKeyForPanelId(panelId));
-
     if (!sourcePanel) {
       return of({ data: [], error: { message: 'Could not find source panel' } });
     }
-
     let sourceDataProvider: SceneDataProvider | undefined = sourcePanel.state.$data;
-
     if (!query.withTransforms && sourceDataProvider instanceof SceneDataTransformer) {
       sourceDataProvider = sourceDataProvider.state.$data;
     }
-
     if (!sourceDataProvider || !sourceDataProvider.getResultsStream) {
       return of({ data: [] });
     }
-
     // Extract AdHoc filters from the request
     const adHocFilters = options.filters || [];
-
     return defer(() => {
       if (!sourceDataProvider!.isActive && sourceDataProvider?.setContainerWidth) {
         sourceDataProvider?.setContainerWidth(500);
       }
-
       /**
        * Ignore the isInView flag on the original data provider
        * This allows queries to be run even if the original datasource is outside the viewport
        */
       sourceDataProvider?.bypassIsInViewChanged?.(true);
-
       const activateCleanUp = activateSceneObjectAndParentTree(sourceDataProvider!);
-
       return sourceDataProvider!.getResultsStream!().pipe(
         debounceTime(50),
         map((result) => {
@@ -110,13 +91,11 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         this.emitFirstLoadedDataIfMixedDS(options.requestId),
         finalize(() => {
           sourceDataProvider?.bypassIsInViewChanged?.(false);
-
           activateCleanUp?.();
         })
       );
     });
   }
-
   private getDataFramesForQueryTopic(
     data: PanelData,
     query: DashboardQuery,
@@ -133,7 +112,6 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         },
       }));
     }
-
     // For regular queries, only return series data
     const series = data.series.map((s) => {
       return {
@@ -153,15 +131,12 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         })),
       };
     });
-
     if (!query.adHocFiltersEnabled || filters.length === 0) {
       return series;
     }
-
     // Apply AdHoc filters to series data
     return series.map((frame) => this.applyAdHocFilters(frame, filters));
   }
-
   /**
    * Apply AdHoc filters to a DataFrame
    * Optimized version with pre-computed field indices and value matchers for better performance
@@ -170,15 +145,12 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
     if (filters.length === 0 || frame.length === 0) {
       return frame;
     }
-
     // Filter out non-applicable filters for this specific DataFrame
     const applicableFilters = this.getApplicableFiltersForFrame(frame, filters);
-
     // If no filters remain after filtering, return original frame
     if (applicableFilters.length === 0) {
       return frame;
     }
-
     // Check for impossible filters (missing field with '=' operator)
     const hasImpossibleFilter = applicableFilters.some(
       ({ fieldIndex, filter }) => fieldIndex === -1 && filter.operator === '='
@@ -186,38 +158,35 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
     if (hasImpossibleFilter) {
       return this.reconstructDataFrame(frame);
     }
-
     const matchingRows = new Set<number>();
-
     // Check each row to see if it matches all filters (AND logic)
     for (let rowIndex = 0; rowIndex < frame.length; rowIndex++) {
       const rowMatches = applicableFilters.every(({ matcher, fieldIndex }) => {
         const field = frame.fields[fieldIndex];
-
         // Use Grafana's value matcher system
         return matcher?.(rowIndex, field, frame, [frame]) ?? false;
       });
-
       if (rowMatches) {
         matchingRows.add(rowIndex);
       }
     }
-
     // Early return if no filtering occurred
     if (matchingRows.size === frame.length) {
       return frame;
     }
-
     return this.reconstructDataFrame(frame, matchingRows);
   }
-
   /**
    * Get applicable filters for a specific DataFrame, considering field existence and type compatibility.
    */
   private getApplicableFiltersForFrame(
     frame: DataFrame,
     filters: AdHocVariableFilter[]
-  ): Array<{ filter: AdHocVariableFilter; fieldIndex: number; matcher: ReturnType<typeof getValueMatcher> | null }> {
+  ): Array<{
+    filter: AdHocVariableFilter;
+    fieldIndex: number;
+    matcher: ReturnType<typeof getValueMatcher> | null;
+  }> {
     return filters
       .map((filter) => {
         const fieldIndex = frame.fields.findIndex((f) => f.name === filter.key);
@@ -234,7 +203,6 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         return matcher !== null;
       });
   }
-
   /**
    * Create a value matcher from an AdHoc filter.
    */
@@ -243,14 +211,11 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
     if (fieldIndex === -1) {
       return null;
     }
-
     const field = frame.fields[fieldIndex];
-
     // Only support string and numeric fields
     if (field.type !== FieldType.string && field.type !== FieldType.number) {
       return null;
     }
-
     // Map operator to matcher ID
     let matcherId: ValueMatcherID;
     switch (filter.operator) {
@@ -263,18 +228,16 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
       default:
         return null; // Unknown operator
     }
-
     try {
       return getValueMatcher({
         id: matcherId,
         options: { value: filter.value },
       });
     } catch (error) {
-      console.warn('Failed to create value matcher for filter:', filter, error);
+      structLog('warn', 'Failed to create value matcher for filter:', filter, error);
       return null;
     }
   }
-
   /**
    * Reconstruct DataFrame with only matching rows
    * Optimized to avoid repeated array operations
@@ -282,7 +245,6 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
   private reconstructDataFrame(frame: DataFrame, matchingRows?: Set<number>): DataFrame {
     // Default to empty set if no matching rows provided (reject all rows)
     const rows = matchingRows ?? new Set<number>();
-
     const fields: Field[] = frame.fields.map((field) => {
       // Pre-allocate array and use direct assignment for better performance with large datasets
       const newValues = new Array(rows.size);
@@ -290,28 +252,24 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
       for (const rowIndex of rows) {
         newValues[i++] = field.values[rowIndex];
       }
-
       return {
         ...field,
         values: newValues,
         state: {}, // Clean the state as it's being recalculated
       };
     });
-
     return {
       ...frame,
       fields: fields,
       length: rows.size,
     };
   }
-
   private emitFirstLoadedDataIfMixedDS(
     requestId: string
   ): (source: Observable<DataQueryResponse>) => Observable<DataQueryResponse> {
     return (source: Observable<DataQueryResponse>) => {
       if (requestId.includes(MIXED_REQUEST_PREFIX)) {
         let count = 0;
-
         return source.pipe(
           /*
            * We can have the following piped values scenarios:
@@ -339,15 +297,12 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
           first((val) => val.state === LoadingState.Done || val.state === LoadingState.Error)
         );
       }
-
       return source;
     };
   }
-
   testDatasource(): Promise<TestDataSourceResponse> {
     return Promise.resolve({ message: '', status: '' });
   }
-
   /**
    * Check which AdHoc filters are applicable based on operator and field type support
    */
@@ -356,13 +311,10 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
   ): Promise<DrilldownsApplicability[]> {
     // Check if any query has adhoc filters enabled
     const hasAdHocFiltersEnabled = options?.queries?.some((query) => query.adHocFiltersEnabled);
-
     if (!hasAdHocFiltersEnabled) {
       return [];
     }
-
     const filters = options?.filters || [];
-
     return filters.map((filter): DrilldownsApplicability => {
       // Check operator support
       if (filter.operator !== '=' && filter.operator !== '!=') {
@@ -372,7 +324,6 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
           reason: `Operator '${filter.operator}' is not supported. Only '=' and '!=' operators are supported.`,
         };
       }
-
       // For dashboard datasource, we can't determine field existence/type
       // without the actual DataFrame context, so we assume applicable here
       // and let the actual filtering logic handle field-specific checks
@@ -382,7 +333,6 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
       };
     });
   }
-
   getTagKeys(): Promise<MetricFindValue[]> {
     // Stub implementation to indicate AdHoc filter support
     // Full implementation will be added in future PRs

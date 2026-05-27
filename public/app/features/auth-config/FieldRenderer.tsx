@@ -1,14 +1,12 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useEffect, useState } from 'react';
 import { type UseFormReturn, Controller } from 'react-hook-form';
-
 import { type SelectableValue } from '@grafana/data';
 import { Checkbox, Field, Input, SecretInput, Select, Switch, useTheme2 } from '@grafana/ui';
-
 import { fieldMap } from './fields';
 import { type SSOProviderDTO, type SSOSettingsField } from './types';
 import { isSelectableValueArray } from './utils/guards';
-
 interface FieldRendererProps
   extends Pick<
     UseFormReturn<SSOProviderDTO>,
@@ -19,7 +17,6 @@ interface FieldRendererProps
   secretConfigured: boolean;
   provider: string;
 }
-
 export const FieldRenderer = ({
   field,
   register,
@@ -38,12 +35,10 @@ export const FieldRenderer = ({
   const parentValue = isDependantField && field.dependsOn ? watch(field.dependsOn) : null;
   const fieldData = fieldMap(provider)[name];
   const theme = useTheme2();
-
   // Handle disabledWhen configuration
   const disabledWhen = isDependantField ? field.disabledWhen : undefined;
   const disabledWhenValue = disabledWhen ? watch(disabledWhen.field) : undefined;
   const isDisabled = disabledWhen ? disabledWhenValue === disabledWhen.is : false;
-
   // Unregister a field that depends on a toggle to clear its data
   useEffect(() => {
     if (isDependantField && field.dependsOn) {
@@ -52,13 +47,11 @@ export const FieldRenderer = ({
       }
     }
   }, [unregister, name, parentValue, isDependantField, field]);
-
   const isNotEmptySelectableValueArray = (
     current: string | boolean | Record<string, string> | Array<SelectableValue<string>> | undefined
   ): current is Array<SelectableValue<string>> => {
     return Array.isArray(current) && current.length > 0 && 'value' in current[0];
   };
-
   useEffect(() => {
     if (fieldData.defaultValue) {
       const current = getValues(name);
@@ -69,30 +62,25 @@ export const FieldRenderer = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   // Set the value when the field is disabled
   useEffect(() => {
     if (isDisabled && disabledWhen?.disabledValue) {
       setValue(name, disabledWhen.disabledValue.value);
     }
   }, [isDisabled, disabledWhen?.disabledValue, name, setValue]);
-
   if (!field) {
-    console.log('missing field:', name);
+    structLog('log', 'missing field:', name);
     return null;
   }
-
   if (!!fieldData.hidden) {
     return null;
   }
-
   // Dependant field means the field depends on another field's value and shouldn't be rendered if the parent field is false
   if (isDependantField && field.dependsOn) {
     if (!parentValue) {
       return null;
     }
   }
-
   const fieldProps = {
     label: fieldData.label,
     required: !!fieldData.validation?.required,
@@ -101,7 +89,6 @@ export const FieldRenderer = ({
     description: fieldData.description,
     defaultValue: fieldData.defaultValue?.value,
   };
-
   switch (fieldData.type) {
     case 'text':
       return (
@@ -190,7 +177,7 @@ export const FieldRenderer = ({
         </Field>
       );
     default:
-      console.error(`Unknown field type: ${fieldData.type}`);
+      structLog('error', `Unknown field type: ${fieldData.type}`);
       return null;
   }
 };

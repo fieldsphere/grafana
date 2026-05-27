@@ -1,22 +1,19 @@
+import { structLog } from '@grafana/data';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
-
 import { type DataFrame, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { getDragStyles, IconButton, useStyles2 } from '@grafana/ui';
-
 import { useLogListContext } from '../panel/LogListContext';
 import { reportInteractionOnce } from '../panel/analytics';
 import { type LogListModel } from '../panel/processing';
-
 import { FieldSelector, FIELD_SELECTOR_MIN_WIDTH, getDefaultFieldSelectorWidth } from './FieldSelector';
 import { getFieldSelectorWidth } from './fieldSelectorUtils';
 import { getFieldsWithStats } from './getFieldsWithStats';
 import { logsFieldSelectorWrapperStyles } from './styles';
 import { getSuggestedFieldsFromLogList } from './suggestedFields';
-
 /**
  * FieldSelector wrapper for the LogList visualization.
  */
@@ -25,7 +22,6 @@ interface LogListFieldSelectorProps {
   logs: LogListModel[];
   dataFrames: DataFrame[];
 }
-
 export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: LogListFieldSelectorProps) => {
   const {
     displayedFields,
@@ -40,7 +36,6 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
   const [sidebarWidth, setSidebarWidth] = useState(getFieldSelectorWidth(logOptionsStorageKey));
   const otelLogsFormattingEnabled = useBooleanFlagValue('otelLogsFormatting', false);
   const dragStyles = useStyles2(getDragStyles);
-
   useLayoutEffect(() => {
     const observer = new ResizeObserver((entries: ResizeObserverEntry[]) => {
       if (entries.length) {
@@ -50,7 +45,6 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
     observer.observe(containerElement);
     return () => observer.disconnect();
   }, [containerElement]);
-
   const setSidebarWidthWrapper = useCallback(
     (width: number) => {
       setSidebarWidth(width);
@@ -60,7 +54,6 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
     },
     [logOptionsStorageKey]
   );
-
   const clearFields = useCallback(() => {
     setDisplayedFields?.([]);
     reportInteraction('logs_field_selector_clear_fields_clicked', {
@@ -68,14 +61,12 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
       mode: 'logs',
     });
   }, [displayedFields.length, setDisplayedFields]);
-
   const collapse = useCallback(() => {
     setSidebarWidthWrapper(FIELD_SELECTOR_MIN_WIDTH);
     reportInteraction('logs_field_selector_collapse_clicked', {
       mode: 'logs',
     });
   }, [setSidebarWidthWrapper]);
-
   const expand = useCallback(() => {
     const width = getFieldSelectorWidth(logOptionsStorageKey);
     setSidebarWidthWrapper(width < 2 * FIELD_SELECTOR_MIN_WIDTH ? getDefaultFieldSelectorWidth() : width);
@@ -83,7 +74,6 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
       mode: 'logs',
     });
   }, [logOptionsStorageKey, setSidebarWidthWrapper]);
-
   const handleResize: ResizeCallback = useCallback(
     (event, direction, ref) => {
       setSidebarWidthWrapper(ref.clientWidth);
@@ -93,7 +83,6 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
     },
     [setSidebarWidthWrapper]
   );
-
   const toggleField = useCallback(
     (name: string) => {
       if (displayedFields.includes(name)) {
@@ -104,19 +93,17 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
     },
     [displayedFields, onClickHideField, onClickShowField]
   );
-
   const toggleLevel = useCallback(() => {
     setShowLevel(!showLevel);
   }, [setShowLevel, showLevel]);
-
   const suggestedFields = useMemo(
     () => getSuggestedFieldsFromLogList(logs, displayedFields, [], otelLogsFormattingEnabled),
     [displayedFields, logs, otelLogsFormattingEnabled]
   );
   const fields = useMemo(() => getFieldsWithStats(dataFrames), [dataFrames]);
-
   if (!onClickShowField || !onClickHideField || !setDisplayedFields) {
-    console.warn(
+    structLog(
+      'warn',
       'LogListFieldSelector: Missing required props: onClickShowField, onClickHideField, setDisplayedFields'
     );
     return null;
@@ -124,7 +111,6 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
   if (sidebarHeight === 0) {
     return null;
   }
-
   return (
     <Resizable
       enable={{

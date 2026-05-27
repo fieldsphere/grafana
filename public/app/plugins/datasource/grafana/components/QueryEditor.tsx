@@ -1,6 +1,6 @@
+import { structLog } from '@grafana/data';
 import pluralize from 'pluralize';
 import * as React from 'react';
-
 import {
   type QueryEditorProps,
   type SelectableValue,
@@ -22,25 +22,18 @@ import {
 } from '@grafana/ui';
 import { getManagedChannelInfo } from 'app/features/live/info';
 import { type SearchQuery } from 'app/features/search/service/types';
-
 import { type GrafanaDatasource } from '../datasource';
 import { defaultQuery, type GrafanaQuery, GrafanaQueryType } from '../types';
-
 import { RandomWalkEditor } from './RandomWalkEditor';
-
 interface Props extends QueryEditorProps<GrafanaDatasource, GrafanaQuery>, Themeable2 {}
-
 const labelWidth = 12;
-
 interface State {
   channels: Array<SelectableValue<string>>;
   channelFields: Record<string, Array<SelectableValue<string>>>;
   folders?: Array<SelectableValue<string>>;
 }
-
 export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
   state: State = { channels: [], channelFields: {} };
-
   queryTypes: Array<SelectableValue<GrafanaQueryType>> = [
     {
       label: 'Random Walk',
@@ -58,22 +51,18 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
       description: 'Show directory listings for public resources',
     },
   ];
-
   constructor(props: Props) {
     super(props);
   }
-
   loadChannelInfo() {
     getManagedChannelInfo().then((v) => {
       this.setState(v);
     });
   }
-
   loadFolderInfo() {
     const query: DataQueryRequest<GrafanaQuery> = {
       targets: [{ queryType: GrafanaQueryType.List, refId: 'A' }],
     } as DataQueryRequest<GrafanaQuery>;
-
     getDataSourceSrv()
       .get('-- Grafana --')
       .then((ds) => {
@@ -92,26 +81,21 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         });
       });
   }
-
   componentDidMount() {
     this.loadChannelInfo();
   }
-
   onQueryTypeChange = (sel: SelectableValue<GrafanaQueryType>) => {
     const { onChange, query, onRunQuery } = this.props;
     onChange({ ...query, queryType: sel.value! });
     onRunQuery();
-
     // Reload the channel list
     this.loadChannelInfo();
   };
-
   onChannelChange = (sel: SelectableValue<string>) => {
     const { onChange, query, onRunQuery } = this.props;
     onChange({ ...query, channel: sel?.value });
     onRunQuery();
   };
-
   onFieldNamesChange = (item: SelectableValue<string>) => {
     const { onChange, query, onRunQuery } = this.props;
     let fields: string[] = [];
@@ -120,7 +104,6 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
     } else if (item.value) {
       fields = [item.value];
     }
-
     // When adding the first field, also add time (if it exists)
     if (fields.length === 1 && !query.filter?.fields?.length && query.channel) {
       const names = this.state.channelFields[query.channel] ?? [];
@@ -129,7 +112,6 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         fields = [tf.value, ...fields];
       }
     }
-
     onChange({
       ...query,
       filter: {
@@ -139,7 +121,6 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
     });
     onRunQuery();
   };
-
   checkAndUpdateValue = (key: keyof GrafanaQuery, txt: string) => {
     const { onChange, query, onRunQuery } = this.props;
     if (key === 'buffer') {
@@ -148,7 +129,7 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         try {
           buffer = rangeUtil.intervalToSeconds(txt) * 1000;
         } catch (err) {
-          console.warn('ERROR', err);
+          structLog('warn', 'ERROR', err);
         }
       }
       onChange({
@@ -163,18 +144,15 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
     }
     onRunQuery();
   };
-
   handleEnterKey = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key !== 'Enter') {
       return;
     }
     this.checkAndUpdateValue('buffer', e.currentTarget.value);
   };
-
   handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
     this.checkAndUpdateValue('buffer', e.currentTarget.value);
   };
-
   renderMeasurementsQuery() {
     let { channel, filter, buffer } = this.props.query;
     let { channels, channelFields } = this.state;
@@ -187,7 +165,6 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
       };
       channels = [currentChannel, ...channels];
     }
-
     const distinctFields = new Set<string>();
     const fields: Array<SelectableValue<string>> = channel ? (channelFields[channel] ?? []) : [];
     // if (data && data.series?.length) {
@@ -217,12 +194,10 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         }
       }
     }
-
     let formattedTime = '';
     if (buffer) {
       formattedTime = rangeUtil.secondsToHms(buffer / 1000);
     }
-
     return (
       <>
         <InlineField label="Channel" grow={true} labelWidth={labelWidth}>
@@ -276,13 +251,11 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
       </>
     );
   }
-
   onFolderChanged = (sel: SelectableValue<string>) => {
     const { onChange, query, onRunQuery } = this.props;
     onChange({ ...query, path: sel?.value });
     onRunQuery();
   };
-
   renderListPublicFiles() {
     let { path } = this.props.query;
     let { folders } = this.state;
@@ -300,7 +273,6 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         },
       ];
     }
-
     return (
       <InlineFieldRow>
         <InlineField label="Path" grow={true} labelWidth={labelWidth}>
@@ -318,10 +290,8 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
       </InlineFieldRow>
     );
   }
-
   renderSnapshotQuery() {
     const { query } = this.props;
-
     return (
       <>
         <InlineFieldRow>
@@ -332,40 +302,32 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
       </>
     );
   }
-
   onSearchChange = (search: SearchQuery) => {
     const { query, onChange, onRunQuery } = this.props;
-
     onChange({
       ...query,
       search,
     });
     onRunQuery();
   };
-
   onSearchNextChange = (search: SearchQuery) => {
     const { query, onChange, onRunQuery } = this.props;
-
     onChange({
       ...query,
       searchNext: search,
     });
     onRunQuery();
   };
-
   renderRandomWalkQuery() {
     const { query, onChange, onRunQuery } = this.props;
     return <RandomWalkEditor query={query} onChange={onChange} onRunQuery={onRunQuery} />;
   }
-
   render() {
     const query = {
       ...defaultQuery,
       ...this.props.query,
     };
-
     const { queryType } = query;
-
     // Only show "snapshot" when it already exists
     let queryTypes = this.queryTypes;
     if (queryType === GrafanaQueryType.Snapshot) {
@@ -377,7 +339,6 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         },
       ];
     }
-
     return (
       <>
         <InlineFieldRow>
@@ -399,5 +360,4 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
     );
   }
 }
-
 export const QueryEditor = withTheme2(UnthemedQueryEditor);

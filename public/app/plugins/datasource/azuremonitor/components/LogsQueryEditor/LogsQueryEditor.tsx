@@ -1,11 +1,10 @@
+import { structLog } from '@grafana/data';
 import { useEffect, useState } from 'react';
-
 import { type PanelData, type TimeRange } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { EditorFieldGroup, EditorRow, EditorRows } from '@grafana/plugin-ui';
 import { config, getTemplateSrv } from '@grafana/runtime';
 import { Alert, LinkButton, Space, Text, TextLink } from '@grafana/ui';
-
 import { LogsEditorMode, ResultFormat } from '../../dataquery.gen';
 import type Datasource from '../../datasource';
 import { selectors } from '../../e2e/selectors';
@@ -17,7 +16,6 @@ import ResourceField from '../ResourceField/ResourceField';
 import { type ResourceRow, type ResourceRowGroup, ResourceRowType } from '../ResourcePicker/types';
 import { parseResourceDetails } from '../ResourcePicker/utils';
 import FormatAsField from '../shared/FormatAsField';
-
 import AdvancedResourcePicker from './AdvancedResourcePicker';
 import { LogsManagement } from './LogsManagement';
 import QueryField from './QueryField';
@@ -25,7 +23,6 @@ import { TimeManagement } from './TimeManagement';
 import { onLoad, setBasicLogsQuery, setFormatAs, setKustoQuery } from './setQueryValue';
 import useMigrations from './useMigrations';
 import { shouldShowBasicLogsToggle } from './utils';
-
 interface LogsQueryEditorProps {
   query: AzureMonitorQuery;
   datasource: Datasource;
@@ -33,13 +30,15 @@ interface LogsQueryEditorProps {
   subscriptionId?: string;
   onChange: (newQuery: AzureMonitorQuery) => void;
   onQueryChange: (newQuery: AzureMonitorQuery) => void;
-  variableOptionGroup: { label: string; options: AzureMonitorOption[] };
+  variableOptionGroup: {
+    label: string;
+    options: AzureMonitorOption[];
+  };
   setError: (source: string, error: AzureMonitorErrorish | undefined) => void;
   hideFormatAs?: boolean;
   timeRange?: TimeRange;
   data?: PanelData;
 }
-
 const LogsQueryEditor = ({
   query,
   datasource,
@@ -64,18 +63,15 @@ const LogsQueryEditor = ({
   const templateVariableOptions = templateSrv.getVariables();
   const isBasicLogsQuery = (basicLogsEnabled && query.azureLogAnalytics?.basicLogsQuery) ?? false;
   const [isLoadingSchema, setIsLoadingSchema] = useState<boolean>(false);
-
   const disableRow = (row: ResourceRow, selectedRows: ResourceRowGroup) => {
     if (selectedRows.length === 0) {
       // Only if there is some resource(s) selected we should disable rows
       return false;
     }
-
     if (isBasicLogsQuery && selectedRows.length === 1) {
       // Basic logs queries can only have one resource selected
       return true;
     }
-
     const rowResourceNS = parseResourceDetails(row.uri, row.location).metricNamespace?.toLowerCase();
     const selectedRowSampleNs = parseResourceDetails(
       selectedRows[0].uri,
@@ -85,7 +81,6 @@ const LogsQueryEditor = ({
     return rowResourceNS !== selectedRowSampleNs;
   };
   const [schema, setSchema] = useState<EngineSchema | undefined>();
-
   useEffect(() => {
     const resources = query.azureLogAnalytics?.resources;
     if (resources) {
@@ -98,7 +93,6 @@ const LogsQueryEditor = ({
             plan: await datasource.azureMonitorDatasource.getWorkspaceTablePlan(resources, table.name),
           });
         }
-
         const tablesWithPlan = await Promise.all(promises);
         return tablesWithPlan;
       };
@@ -120,7 +114,6 @@ const LogsQueryEditor = ({
     datasource.azureMonitorDatasource,
     query.azureLogAnalytics?.mode,
   ]);
-
   useEffect(() => {
     if (shouldShowBasicLogsToggle(query.azureLogAnalytics?.resources || [], basicLogsEnabled)) {
       setShowBasicLogsToggle(true);
@@ -128,19 +121,16 @@ const LogsQueryEditor = ({
       setShowBasicLogsToggle(false);
     }
   }, [basicLogsEnabled, query.azureLogAnalytics?.resources, templateSrv]);
-
   useEffect(() => {
     if ((!basicLogsEnabled || !showBasicLogsToggle) && query.azureLogAnalytics?.basicLogsQuery) {
       const updatedBasicLogsQuery = setBasicLogsQuery(query, false);
       onChange(setKustoQuery(updatedBasicLogsQuery, ''));
     }
   }, [basicLogsEnabled, onChange, query, showBasicLogsToggle]);
-
   useEffect(() => {
     const hasRawKql = !!query.azureLogAnalytics?.query;
     const hasNoBuilder = !query.azureLogAnalytics?.builderQuery;
     const modeUnset = query.azureLogAnalytics?.mode === undefined;
-
     if (hasRawKql && hasNoBuilder && modeUnset) {
       onChange({
         ...query,
@@ -151,7 +141,6 @@ const LogsQueryEditor = ({
       });
     }
   }, [query, onChange]);
-
   useEffect(() => {
     if (query.azureLogAnalytics?.mode === LogsEditorMode.Raw && query.azureLogAnalytics?.builderQuery !== undefined) {
       onQueryChange({
@@ -164,7 +153,6 @@ const LogsQueryEditor = ({
       });
     }
   }, [query.azureLogAnalytics?.mode, onQueryChange, query]);
-
   useEffect(() => {
     const getBasicLogsUsage = async (query: AzureMonitorQuery) => {
       try {
@@ -193,14 +181,12 @@ const LogsQueryEditor = ({
           setDataIngestedWarning(null);
         }
       } catch (err) {
-        console.error(err);
+        structLog('error', err);
       }
     };
-
-    getBasicLogsUsage(query).catch((err) => console.error(err));
+    getBasicLogsUsage(query).catch((err) => structLog('error', err));
   }, [datasource.azureLogAnalyticsDatasource, query, showBasicLogsToggle, from, to]);
   let portalLinkButton = null;
-
   if (data?.series) {
     const querySeries = data.series.find((result) => result.refId === query.refId);
     if (querySeries && querySeries.meta?.custom?.azurePortalLink) {
@@ -218,7 +204,6 @@ const LogsQueryEditor = ({
       );
     }
   }
-
   return (
     <span data-testid={selectors.components.queryEditor.logsQueryEditor.container.input}>
       <EditorRows>
@@ -329,5 +314,4 @@ const LogsQueryEditor = ({
     </span>
   );
 };
-
 export default LogsQueryEditor;

@@ -1,8 +1,8 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { type SortingRule } from 'react-table';
-
 import { type DashboardHit } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
@@ -30,21 +30,16 @@ import { useAppNotification } from 'app/core/copy/appNotification';
 import { contextSrv } from 'app/core/services/context_srv';
 import { type Role, AccessControlAction } from 'app/types/accessControl';
 import { type TeamWithRoles } from 'app/types/teams';
-
 import { appEvents } from '../../core/app_events';
 import { TeamRolePicker } from '../../core/components/RolePicker/TeamRolePicker';
 import { ShowModalReactEvent } from '../../types/events';
 import { EnterpriseAuthFeaturesCard } from '../admin/EnterpriseAuthFeaturesCard';
-
 import { TeamDeleteModal } from './TeamDeleteModal';
 import { useDeleteTeam, useGetTeams } from './hooks';
-
 type Cell<T extends keyof TeamWithRoles = keyof TeamWithRoles> = CellProps<TeamWithRoles, TeamWithRoles[T]>;
-
 export interface State {
   roleOptions: Role[];
 }
-
 // this is dummy data to pass to the table while the real data is loading
 const skeletonData: TeamWithRoles[] = new Array(3).fill(null).map((_, index) => ({
   id: index,
@@ -54,12 +49,10 @@ const skeletonData: TeamWithRoles[] = new Array(3).fill(null).map((_, index) => 
   orgId: 0,
   isProvisioned: false,
 }));
-
 const TeamList = () => {
   const canCreate = contextSrv.hasPermission(AccessControlAction.ActionTeamsCreate);
   const displayRolePicker = shouldDisplayRolePicker();
   const pageSize = 20;
-
   const [roleOptions, setRoleOptions] = useState<Role[]>([]);
   const styles = useStyles2(getStyles);
   const [query, setQuery] = useState('');
@@ -70,7 +63,6 @@ const TeamList = () => {
   const [triggerFoldersQuery] = useLazySearchDashboardsAndFoldersQuery();
   const notifyApp = useAppNotification();
   const foldersQueryRef = useRef<ReturnType<typeof triggerFoldersQuery> | null>(null);
-
   const teams = teamData?.teams || [];
   const totalPages = Math.ceil((teamData?.totalCount || 0) / pageSize) || 0;
   const noTeams = teams?.length === 0;
@@ -83,13 +75,11 @@ const TeamList = () => {
   const changePage = (page: number) => {
     setPage(page);
   };
-
   useEffect(() => {
     if (contextSrv.licensedAccessControlEnabled() && contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
       fetchRoleOptions().then((roles) => setRoleOptions(roles));
     }
   }, []);
-
   useEffect(() => {
     return () => {
       if (foldersQueryRef.current) {
@@ -97,7 +87,6 @@ const TeamList = () => {
       }
     };
   }, []);
-
   const columns: Array<Column<TeamWithRoles>> = useMemo(
     () => [
       {
@@ -108,7 +97,6 @@ const TeamList = () => {
           if (isLoading) {
             return <Skeleton containerClassName={styles.blockSkeleton} width={24} height={24} circle />;
           }
-
           return value && <Avatar src={value} alt="User avatar" />;
         },
       },
@@ -119,12 +107,10 @@ const TeamList = () => {
           if (isLoading) {
             return <Skeleton width={100} />;
           }
-
           const canReadTeam = contextSrv.hasPermissionInMetadata(AccessControlAction.ActionTeamsRead, original);
           if (!canReadTeam) {
             return value;
           }
-
           return (
             <TextLink
               color="primary"
@@ -211,10 +197,8 @@ const TeamList = () => {
               </Stack>
             );
           }
-
           const canReadTeam = contextSrv.hasPermissionInMetadata(AccessControlAction.ActionTeamsRead, original);
           const canDelete = contextSrv.hasPermissionInMetadata(AccessControlAction.ActionTeamsDelete, original);
-
           const showDeleteModal = async () => {
             let ownedFolders: DashboardHit[] = [];
             if (config.featureToggles.teamFolders) {
@@ -223,11 +207,8 @@ const TeamList = () => {
                 ownerReference: [`iam.grafana.app/Team/${original.uid}`],
                 limit: 1,
               });
-
               const { data: foldersData, isError, error } = await foldersQueryRef.current;
-
               const isAbortError = error && typeof error === 'object' && 'name' in error && error.name === 'AbortError';
-
               if (isError && !isAbortError) {
                 notifyApp.error(
                   t(
@@ -235,19 +216,16 @@ const TeamList = () => {
                     'Failed to check if the team owns folders. Please try again.'
                   )
                 );
-                console.error(error);
+                structLog('error', error);
                 return;
               }
-
               if (isAbortError) {
                 return;
               }
-
               if (foldersData?.hits) {
                 ownedFolders = foldersData.hits;
               }
             }
-
             reportInteraction('grafana_teams_list_delete_button_clicked', {
               ownedFolder: ownedFolders && ownedFolders.length > 0,
             });
@@ -300,7 +278,6 @@ const TeamList = () => {
     ],
     [displayRolePicker, isLoading, styles.blockSkeleton, roleOptions, deleteTeam, triggerFoldersQuery, notifyApp]
   );
-
   return (
     <Page
       navId="teams"
@@ -375,7 +352,6 @@ const TeamList = () => {
     </Page>
   );
 };
-
 function shouldDisplayRolePicker(): boolean {
   return (
     contextSrv.licensedAccessControlEnabled() &&
@@ -383,9 +359,7 @@ function shouldDisplayRolePicker(): boolean {
     contextSrv.hasPermission(AccessControlAction.ActionRolesList)
   );
 }
-
 export default TeamList;
-
 const getStyles = () => ({
   blockSkeleton: css({
     lineHeight: 1,

@@ -1,8 +1,8 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { saveAs } from 'file-saver';
 import { useEffect } from 'react';
 import { useAsyncFn } from 'react-use';
-
 import { type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
@@ -10,45 +10,36 @@ import { type SceneComponentProps, SceneObjectBase } from '@grafana/scenes';
 import { Alert, Button, TextLink, useStyles2 } from '@grafana/ui';
 import { DashboardInteractions } from 'app/features/dashboard-scene/utils/interactions';
 import { getDashboardSceneFor } from 'app/features/dashboard-scene/utils/utils';
-
 import { ImagePreview } from '../components/ImagePreview';
 import { type SceneShareTabState, type ShareView } from '../types';
-
 import { generateDashboardImage } from './utils';
-
 export class ExportAsImage extends SceneObjectBase<SceneShareTabState> implements ShareView {
   static Component = ExportAsImageRenderer;
-
   public getTabLabel() {
     return t('share-modal.image.title', 'Export as image');
   }
 }
-
 function ExportAsImageRenderer({ model }: SceneComponentProps<ExportAsImage>) {
   const { onDismiss } = model.useState();
   const dashboard = getDashboardSceneFor(model);
   const styles = useStyles2(getStyles);
-
   const [{ loading: isLoading, value: imageBlob, error }, onExport] = useAsyncFn(async () => {
     try {
       const result = await generateDashboardImage({
         dashboard,
         scale: config.rendererDefaultImageScale || 1,
       });
-
       if (result.error) {
         throw new Error(result.error);
       }
-
       DashboardInteractions.generateDashboardImageClicked({
         scale: config.rendererDefaultImageScale || 1,
         shareResource: 'dashboard',
         success: true,
       });
-
       return result.blob;
     } catch (error) {
-      console.error('Error exporting image:', error);
+      structLog('error', 'Error exporting image:', error);
       DashboardInteractions.generateDashboardImageClicked({
         scale: config.rendererDefaultImageScale || 1,
         shareResource: 'dashboard',
@@ -58,7 +49,6 @@ function ExportAsImageRenderer({ model }: SceneComponentProps<ExportAsImage>) {
       throw error; // Re-throw to let useAsyncFn handle the error state
     }
   }, [dashboard]);
-
   // Clean up object URLs when component unmounts
   useEffect(() => {
     return () => {
@@ -67,26 +57,21 @@ function ExportAsImageRenderer({ model }: SceneComponentProps<ExportAsImage>) {
       }
     };
   }, [imageBlob]);
-
   const onDownload = () => {
     if (!imageBlob) {
       return;
     }
-
     const time = new Date().getTime();
     const name = dashboard.state.title;
     saveAs(imageBlob, `${name}-${time}.png`);
-
     DashboardInteractions.downloadDashboardImageClicked({
       fileName: `${name}-${time}.png`,
       shareResource: 'dashboard',
     });
   };
-
   if (!config.rendererAvailable) {
     return <RendererAlert />;
   }
-
   return (
     <main>
       <p className={styles.info}>
@@ -140,12 +125,10 @@ function ExportAsImageRenderer({ model }: SceneComponentProps<ExportAsImage>) {
     </main>
   );
 }
-
 function RendererAlert() {
   if (config.rendererAvailable) {
     return null;
   }
-
   return (
     <Alert severity="info" title={t('share-modal.link.render-alert', 'Image renderer plugin not installed')}>
       <div>{t('share-modal.link.render-alert', 'Image renderer plugin not installed')}</div>
@@ -161,7 +144,6 @@ function RendererAlert() {
     </Alert>
   );
 }
-
 const getStyles = (theme: GrafanaTheme2) => ({
   info: css({
     marginBottom: theme.spacing(2),

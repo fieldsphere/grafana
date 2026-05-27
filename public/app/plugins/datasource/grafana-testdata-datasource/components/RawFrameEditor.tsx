@@ -1,16 +1,13 @@
+import { structLog } from '@grafana/data';
 import { isArray } from 'lodash';
 import { useState } from 'react';
-
 import { dataFrameToJSON, toDataFrame, toDataFrameDTO } from '@grafana/data';
 import { toDataQueryResponse } from '@grafana/runtime';
 import { Alert, CodeEditor } from '@grafana/ui';
-
 import { type EditorProps } from '../QueryEditor';
-
 export const RawFrameEditor = ({ onChange, query }: EditorProps) => {
   const [error, setError] = useState<string>();
   const [warning, setWarning] = useState<string>();
-
   const onSaveFrames = (rawFrameContent: string) => {
     try {
       const json = JSON.parse(rawFrameContent);
@@ -20,9 +17,7 @@ export const RawFrameEditor = ({ onChange, query }: EditorProps) => {
         onChange({ ...query, rawFrameContent });
         return;
       }
-
       let data = undefined;
-
       // Copy paste from panel json
       if (isArray(json.series) && json.state) {
         data = json.series.map((v: unknown) => toDataFrameDTO(toDataFrame(v)));
@@ -33,24 +28,21 @@ export const RawFrameEditor = ({ onChange, query }: EditorProps) => {
           data = v.data.map((f) => dataFrameToJSON(f));
         }
       }
-
       if (data) {
-        console.log('Original', json);
-        console.log('Save', data);
+        structLog('log', 'Original', json);
+        structLog('log', 'Save', data);
         setError(undefined);
         setWarning('Converted to direct frame result');
         onChange({ ...query, rawFrameContent: JSON.stringify(data, null, 2) });
         return;
       }
-
       setError('Unable to read dataframes in text');
     } catch (e) {
-      console.log('Error parsing json', e);
+      structLog('log', 'Error parsing json', e);
       setError('Enter JSON array of data frames (or raw query results body)');
       setWarning(undefined);
     }
   };
-
   return (
     <>
       {error && <Alert title={error} severity="error" />}

@@ -1,24 +1,19 @@
+import { structLog } from '@grafana/data';
 import { useEffect, useState } from 'react';
 import { FixedSizeList } from 'react-window';
-
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { BrowserLabel as PromLabel, Input, Label, useStyles2, Spinner } from '@grafana/ui';
-
 import { LIST_ITEM_SIZE } from '../../constants';
-
 import { useMetricsBrowser } from './MetricsBrowserContext';
 import { getStylesMetricsBrowser, getStylesValueSelector } from './styles';
-
 export function ValueSelector() {
   const styles = useStyles2(getStylesValueSelector);
   const sharedStyles = useStyles2(getStylesMetricsBrowser);
-
   const [valueSearchTerm, setValueSearchTerm] = useState('');
   const { labelValues, selectedLabelValues, isLoadingLabelValues, onLabelValueClick, onLabelKeyClick } =
     useMetricsBrowser();
   const [filteredLabelValues, setFilteredLabelValues] = useState<Record<string, string[]>>({ ...labelValues });
-
   useEffect(() => {
     const filtered: Record<string, string[]> = {};
     for (const labelKey in labelValues) {
@@ -27,7 +22,6 @@ export function ValueSelector() {
     }
     setFilteredLabelValues(filtered);
   }, [labelValues, valueSearchTerm]);
-
   return (
     <div className={styles.section}>
       <Label
@@ -59,7 +53,7 @@ export function ValueSelector() {
         <div className={styles.valueListArea}>
           {Object.entries(filteredLabelValues).map(([lk, lv]) => {
             if (!lk || !lv) {
-              console.error('label values are empty:', { lk, lv });
+              structLog('error', 'label values are empty:', { lk, lv });
               return null;
             }
             return (

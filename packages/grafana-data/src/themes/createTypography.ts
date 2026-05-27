@@ -1,10 +1,9 @@
+import { structLog } from '../utils/structLog';
 // Code based on Material UI
 // The MIT License (MIT)
 // Copyright (c) 2014 Call-Em-All
 import { z } from 'zod';
-
 import { type ThemeColors } from './createColors';
-
 /** @beta */
 export interface ThemeTypography extends ThemeTypographyVariantTypes {
   fontFamily: string;
@@ -14,10 +13,8 @@ export interface ThemeTypography extends ThemeTypographyVariantTypes {
   fontWeightRegular: number;
   fontWeightMedium: number;
   fontWeightBold: number;
-
   // The font-size on the html element.
   htmlFontSize?: number;
-
   /**
    * @deprecated
    * from legacy old theme
@@ -29,10 +26,8 @@ export interface ThemeTypography extends ThemeTypographyVariantTypes {
     md: string;
     lg: string;
   };
-
   pxToRem: (px: number) => string;
 }
-
 export interface ThemeTypographyVariant {
   fontSize: string;
   fontWeight: number;
@@ -40,7 +35,6 @@ export interface ThemeTypographyVariant {
   fontFamily: string;
   letterSpacing?: string;
 }
-
 export const ThemeTypographyInputSchema = z.object({
   fontFamily: z.string().optional(),
   fontFamilyMonospace: z.string().optional(),
@@ -53,12 +47,9 @@ export const ThemeTypographyInputSchema = z.object({
   // 16px is the default font-size used by browsers.
   htmlFontSize: z.number().positive().optional(),
 });
-
 export type ThemeTypographyInput = z.infer<typeof ThemeTypographyInputSchema>;
-
 const defaultFontFamily = "'Inter', 'Helvetica', 'Arial', sans-serif";
 const defaultFontFamilyMonospace = "'Roboto Mono', monospace";
-
 export function createTypography(colors: ThemeColors, typographyInput: ThemeTypographyInput = {}): ThemeTypography {
   const {
     fontFamily = defaultFontFamily,
@@ -73,17 +64,14 @@ export function createTypography(colors: ThemeColors, typographyInput: ThemeTypo
     // 16px is the default font-size used by browsers.
     htmlFontSize = 14,
   } = typographyInput;
-
   if (process.env.NODE_ENV !== 'production') {
     if (typeof fontSize !== 'number') {
-      console.error('Grafana-UI: `fontSize` is required to be a number.');
+      structLog('error', 'Grafana-UI: `fontSize` is required to be a number.');
     }
-
     if (typeof htmlFontSize !== 'number') {
-      console.error('Grafana-UI: `htmlFontSize` is required to be a number.');
+      structLog('error', 'Grafana-UI: `htmlFontSize` is required to be a number.');
     }
   }
-
   const coef = fontSize / 14;
   const pxToRem = (size: number) => `${(size / htmlFontSize) * coef}rem`;
   const buildVariant = (
@@ -96,7 +84,6 @@ export function createTypography(colors: ThemeColors, typographyInput: ThemeTypo
     if (lineHeight % 2 !== 0 || size % 2 !== 0) {
       throw new Error('Font size and line height should be integer multiples of 2 to prevent issues with alignment');
     }
-
     return {
       fontFamily,
       fontWeight,
@@ -106,7 +93,6 @@ export function createTypography(colors: ThemeColors, typographyInput: ThemeTypo
       ...casing,
     };
   };
-
   // All our fonts/line heights should be integer multiples of 2 to prevent issues with alignment
   const variants = {
     h1: buildVariant(fontWeightRegular, 28, 32, -0.25),
@@ -119,7 +105,6 @@ export function createTypography(colors: ThemeColors, typographyInput: ThemeTypo
     bodySmall: buildVariant(fontWeightRegular, 12, 18, 0.15),
     code: { ...buildVariant(fontWeightRegular, 14, 16, 0.15), fontFamily: fontFamilyMonospace },
   };
-
   const size = {
     base: '14px',
     xs: '10px',
@@ -127,7 +112,6 @@ export function createTypography(colors: ThemeColors, typographyInput: ThemeTypo
     md: '14px',
     lg: '18px',
   };
-
   return {
     htmlFontSize,
     pxToRem,
@@ -142,11 +126,9 @@ export function createTypography(colors: ThemeColors, typographyInput: ThemeTypo
     ...variants,
   };
 }
-
 function round(value: number) {
   return Math.round(value * 1e5) / 1e5;
 }
-
 export interface ThemeTypographyVariantTypes {
   h1: ThemeTypographyVariant;
   h2: ThemeTypographyVariant;

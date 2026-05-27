@@ -1,12 +1,10 @@
+import { structLog } from '@grafana/data';
 import { useMemo } from 'react';
-
 import { type LiveChannelAddress, isValidLiveChannelAddress } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
 import { CodeEditor, Button } from '@grafana/ui';
-
 import { MessagePublishMode } from './types';
-
 interface Props {
   height: number;
   addr?: LiveChannelAddress;
@@ -14,7 +12,6 @@ interface Props {
   body?: string | object;
   onSave: (v: string | object) => void;
 }
-
 export function LivePublish({ height, mode, body, addr, onSave }: Props) {
   const txt = useMemo(() => {
     if (mode === MessagePublishMode.JSON) {
@@ -22,7 +19,6 @@ export function LivePublish({ height, mode, body, addr, onSave }: Props) {
     }
     return body == null ? '' : `${body}`;
   }, [mode, body]);
-
   const doSave = (v: string) => {
     if (mode === MessagePublishMode.JSON) {
       onSave(JSON.parse(v));
@@ -30,7 +26,6 @@ export function LivePublish({ height, mode, body, addr, onSave }: Props) {
       onSave(v);
     }
   };
-
   const onPublishClicked = async () => {
     if (mode === MessagePublishMode.Influx) {
       if (addr?.scope !== 'stream') {
@@ -39,16 +34,13 @@ export function LivePublish({ height, mode, body, addr, onSave }: Props) {
       }
       return getBackendSrv().post(`api/live/push/${addr.stream}`, body);
     }
-
     if (!isValidLiveChannelAddress(addr)) {
       alert('invalid address');
       return;
     }
-
     const rsp = await getGrafanaLiveSrv().publish(addr, body);
-    console.log('onPublishClicked (response from publish)', rsp);
+    structLog('log', 'onPublishClicked (response from publish)', rsp);
   };
-
   return (
     <>
       <CodeEditor

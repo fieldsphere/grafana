@@ -1,15 +1,12 @@
+import { structLog } from '@grafana/data';
 import { css, cx } from '@emotion/css';
 import { useCallback, useState, useRef, memo, forwardRef } from 'react';
 import SVG from 'react-inlinesvg';
-
 import { type GrafanaTheme2, isIconName } from '@grafana/data';
-
 import { useStyles2 } from '../../themes/ThemeContext';
 import { type IconName, type IconType, type IconSize } from '../../types/icon';
 import { spin } from '../../utils/keyframes';
-
 import { getIconPath, getSvgSize } from './utils';
-
 export interface IconProps extends Omit<React.SVGProps<SVGElement>, 'onLoad' | 'onError' | 'ref'> {
   name: IconName;
   size?: IconSize;
@@ -19,7 +16,6 @@ export interface IconProps extends Omit<React.SVGProps<SVGElement>, 'onLoad' | '
    */
   title?: string;
 }
-
 const getIconStyles = (theme: GrafanaTheme2) => {
   return {
     icon: css({
@@ -41,7 +37,6 @@ const getIconStyles = (theme: GrafanaTheme2) => {
     }),
   };
 };
-
 // The SVG can become 'stuck' if it's changed quickly before the previous icon finished loading.
 // See https://github.com/gilbarbara/react-inlinesvg/issues/247
 // By using the svgPath as the key, we ensure that the component is re-mounted and the new icon is loaded correctly.
@@ -50,15 +45,12 @@ function useIconWorkaround(name: IconName) {
   // We use refs for state and a forceUpdate state to avoid needing to use the buffered name in the happy path
   // of when the icon changes when its not currently loading.
   // We want to avoid needless state updates to keep track of the lifecycle.
-
   const [, setForceUpdate] = useState(0);
   const isLoadingRef = useRef(false);
   const currentNameRef = useRef(name);
   const bufferedNameRef = useRef<IconName | null>(null);
-
   // Decide which name to render THIS render
   let nameToUse = name;
-
   if (isLoadingRef.current && name !== currentNameRef.current) {
     // Currently loading and name changed - buffer it, keep using current
     nameToUse = currentNameRef.current;
@@ -69,10 +61,8 @@ function useIconWorkaround(name: IconName) {
     bufferedNameRef.current = null;
     isLoadingRef.current = true; // Mark as loading when we accept a new name
   }
-
   const handleLoad = useCallback(() => {
     isLoadingRef.current = false;
-
     // Apply buffered name if one exists
     if (bufferedNameRef.current) {
       currentNameRef.current = bufferedNameRef.current;
@@ -80,10 +70,8 @@ function useIconWorkaround(name: IconName) {
       setForceUpdate((n) => n + 1); // Trigger re-render with buffered name
     }
   }, []);
-
   return { nameToUse, handleLoad };
 }
-
 /**
  * Grafana's icon wrapper component.
  *
@@ -94,19 +82,15 @@ export const Icon = memo(
     ({ size = 'md', type = 'default', name: nameProp, className, style, title = '', ...rest }, ref) => {
       const styles = useStyles2(getIconStyles);
       const { nameToUse: name, handleLoad } = useIconWorkaround(nameProp);
-
       if (!isIconName(name)) {
-        console.warn('Icon component passed an invalid icon name', name);
+        structLog('warn', 'Icon component passed an invalid icon name', name);
       }
-
       // handle the deprecated 'fa fa-spinner'
       const iconName: IconName = name === 'fa fa-spinner' ? 'spinner' : name;
-
       const svgSize = getSvgSize(size);
       const svgHgt = svgSize;
       const svgWid = name.startsWith('gf-bar-align') ? 16 : name.startsWith('gf-interp') ? 30 : svgSize;
       const svgPath = getIconPath(iconName, type);
-
       const composedClassName = cx(
         styles.icon,
         className,
@@ -115,7 +99,6 @@ export const Icon = memo(
           [styles.spin]: iconName === 'spinner',
         }
       );
-
       return (
         <SVG
           data-testid={`icon-${iconName}`}
@@ -155,5 +138,4 @@ export const Icon = memo(
     }
   )
 );
-
 Icon.displayName = 'Icon';

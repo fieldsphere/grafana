@@ -1,14 +1,13 @@
+import { structLog } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom-v5-compat';
 import { useAsync } from 'react-use';
-
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { getBackendSrv, getDataSourceSrv, locationService } from '@grafana/runtime';
 import { Box, Grid, Modal, Text, useStyles2 } from '@grafana/ui';
-
 import { DashboardCard } from './DashboardCard';
 import { NewTemplateDashboardInteractions } from './analytics/main';
 import {
@@ -21,13 +20,11 @@ import {
 import { TemplateDashboardInteractions } from './interactions';
 import { type GnetDashboard, type GnetDashboardsResponse, type Link } from './types';
 import { getTemplateDashboardUrl } from './utils/templateDashboardHelpers';
-
 const SourceEntryPointMap: Record<string, SourceEntryPoint> = {
   quickAdd: TemplateDashboardSourceEntryPoint.QUICK_ADD_BUTTON,
   commandPalette: TemplateDashboardSourceEntryPoint.COMMAND_PALETTE,
   createNewButton: TemplateDashboardSourceEntryPoint.BROWSE_DASHBOARDS_PAGE,
 };
-
 export const TemplateDashboardModal = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const isOpen = searchParams.get('templateDashboards') === 'true';
@@ -38,16 +35,12 @@ export const TemplateDashboardModal = () => {
     false
   );
   const isAnalyticsFrameworkEnabled = useBooleanFlagValue('analyticsFramework', true);
-
   const testDataSource = getDataSourceSrv().getList({ type: 'grafana-testdata-datasource' })[0];
-
   const styles = useStyles2(getStyles);
-
   const onClose = () => {
     searchParams.delete('templateDashboards');
     setSearchParams(searchParams);
   };
-
   const onPreviewDashboardClick = async (dashboard: GnetDashboard, customizeWithAssistant = false) => {
     const sourceEntryPoint = SourceEntryPointMap[entryPoint] || 'unknown';
     isAnalyticsFrameworkEnabled
@@ -71,7 +64,6 @@ export const TemplateDashboardModal = () => {
           discoveryMethod: DISCOVERY_METHODS.BROWSE,
           action: customizeWithAssistant ? 'assistant' : 'view_template',
         });
-
     const templateUrl = getTemplateDashboardUrl(
       dashboard,
       sourceEntryPoint,
@@ -79,12 +71,10 @@ export const TemplateDashboardModal = () => {
     );
     locationService.push(templateUrl);
   };
-
   const { value: dashboards = [], loading } = useAsync(async () => {
     if (!isOpen) {
       return [];
     }
-
     try {
       const response = await getBackendSrv().get<GnetDashboardsResponse>(
         `/api/gnet/dashboards?orgSlug=raintank&categorySlug=templates&includeScreenshots=true`,
@@ -94,14 +84,12 @@ export const TemplateDashboardModal = () => {
           showErrorAlert: false,
         }
       );
-
       return response.items;
     } catch (error) {
-      console.error('Error loading template dashboards ', error);
+      structLog('error', 'Error loading template dashboards ', error);
       return [];
     }
   }, [isOpen]);
-
   useEffect(() => {
     if (isOpen && !loading && dashboards.length > 0) {
       isAnalyticsFrameworkEnabled
@@ -121,11 +109,9 @@ export const TemplateDashboardModal = () => {
           });
     }
   }, [isOpen, dashboards, entryPoint, testDataSource?.type, loading, isAnalyticsFrameworkEnabled]);
-
   if (!testDataSource || (dashboards.length === 0 && !loading)) {
     return null;
   }
-
   return (
     <Modal
       isOpen={isOpen}
@@ -155,7 +141,6 @@ export const TemplateDashboardModal = () => {
             : dashboards?.map((dashboard) => {
                 const thumbnail = dashboard.screenshots?.[0]?.links.find((l: Link) => l.rel === 'image')?.href ?? '';
                 const thumbnailUrl = thumbnail ? `/api/gnet${thumbnail}` : '';
-
                 return (
                   <DashboardCard
                     key={dashboard.id}
@@ -178,7 +163,6 @@ export const TemplateDashboardModal = () => {
     </Modal>
   );
 };
-
 function getStyles(theme: GrafanaTheme2) {
   return {
     modal: css({

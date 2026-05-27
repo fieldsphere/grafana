@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { castArray, isEqual } from 'lodash';
-
 import {
   type DataQuery,
   getDataSourceRef,
@@ -28,7 +28,6 @@ import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel
 import { store } from 'app/store/store';
 import { type AppNotification } from 'app/types/appNotifications';
 import { type ThunkResult, type StoreState } from 'app/types/store';
-
 import { appEvents } from '../../../core/app_events';
 import { createErrorNotification } from '../../../core/copy/appNotification';
 import { getBackendSrv } from '../../../core/services/backend_srv';
@@ -61,7 +60,6 @@ import {
   toKeyedVariableIdentifier,
   toVariablePayload,
 } from '../utils';
-
 import { findVariableNodeInList, isVariableOnTimeRangeConfigured } from './helpers';
 import { toKeyedAction } from './keyedVariablesReducer';
 import { getIfExistsLastKey, getVariable, getVariablesByKey, getVariablesState } from './selectors';
@@ -81,7 +79,6 @@ import {
 } from './transactionReducer';
 import { type KeyedVariableIdentifier } from './types';
 import { cleanVariables } from './variablesReducer';
-
 export const initDashboardTemplating = (key: string, dashboard: DashboardModel): ThunkResult<void> => {
   return (dispatch, getState) => {
     let orderIndex = 0;
@@ -92,26 +89,21 @@ export const initDashboardTemplating = (key: string, dashboard: DashboardModel):
       if (!variableAdapters.getIfExists(model.type)) {
         continue;
       }
-
       dispatch(
         toKeyedAction(key, addVariable(toVariablePayload(model, { global: false, index: orderIndex++, model })))
       );
     }
-
     getTemplateSrv().updateTimeRange(getTimeSrv().timeRange());
-
     const variables = getVariablesByKey(key, getState());
     for (const variable of variables) {
       dispatch(toKeyedAction(key, variableStateNotStarted(toVariablePayload(variable))));
     }
   };
 };
-
 export function fixSelectedInconsistency(model: TypedVariableModel): TypedVariableModel | VariableWithOptions {
   if (!hasOptions(model)) {
     return model;
   }
-
   let found = false;
   for (const option of model.options) {
     option.selected = false;
@@ -125,14 +117,11 @@ export function fixSelectedInconsistency(model: TypedVariableModel): TypedVariab
       option.selected = found = true;
     }
   }
-
   if (!found && model.options.length) {
     model.options[0].selected = true;
   }
-
   return model;
 }
-
 export const addSystemTemplateVariables = (key: string, dashboard: DashboardModel): ThunkResult<void> => {
   return (dispatch) => {
     const dashboardModel: DashboardVariableModel = {
@@ -151,7 +140,6 @@ export const addSystemTemplateVariables = (key: string, dashboard: DashboardMode
         },
       },
     };
-
     dispatch(
       toKeyedAction(
         key,
@@ -164,7 +152,6 @@ export const addSystemTemplateVariables = (key: string, dashboard: DashboardMode
         )
       )
     );
-
     const orgModel: OrgVariableModel = {
       ...initialVariableModelState,
       id: '__org',
@@ -181,14 +168,12 @@ export const addSystemTemplateVariables = (key: string, dashboard: DashboardMode
         },
       },
     };
-
     dispatch(
       toKeyedAction(
         key,
         addVariable(toVariablePayload(orgModel, { global: orgModel.global, index: orgModel.index, model: orgModel }))
       )
     );
-
     const userModel: UserVariableModel = {
       ...initialVariableModelState,
       id: '__user',
@@ -206,7 +191,6 @@ export const addSystemTemplateVariables = (key: string, dashboard: DashboardMode
         },
       },
     };
-
     dispatch(
       toKeyedAction(
         key,
@@ -217,7 +201,6 @@ export const addSystemTemplateVariables = (key: string, dashboard: DashboardMode
     );
   };
 };
-
 export const changeVariableMultiValue = (identifier: KeyedVariableIdentifier, multi: boolean): ThunkResult<void> => {
   return (dispatch, getState) => {
     const { rootStateKey: key } = identifier;
@@ -225,9 +208,7 @@ export const changeVariableMultiValue = (identifier: KeyedVariableIdentifier, mu
     if (!isMulti(variable) || isEmptyObject(variable.current)) {
       return;
     }
-
     const current = alignCurrentWithMulti(variable.current, multi);
-
     dispatch(
       toKeyedAction(key, changeVariableProp(toVariablePayload(identifier, { propName: 'multi', propValue: multi })))
     );
@@ -236,28 +217,22 @@ export const changeVariableMultiValue = (identifier: KeyedVariableIdentifier, mu
     );
   };
 };
-
 export const processVariableDependencies = async (variable: TypedVariableModel, state: StoreState) => {
   if (!variable.rootStateKey) {
     throw new Error(`rootStateKey not found for variable with id:${variable.id}`);
   }
-
   if (isDependencyGraphCircular(variable, state)) {
     throw new Error('Circular dependency in dashboard variables detected. Dashboard may not work as expected.');
   }
-
   const dependencies = getDirectDependencies(variable, state);
-
   if (!isWaitingForDependencies(variable.rootStateKey, dependencies, state)) {
     return;
   }
-
   await new Promise<void>((resolve) => {
     const unsubscribe = store.subscribe(() => {
       if (!variable.rootStateKey) {
         throw new Error(`rootStateKey not found for variable with id:${variable.id}`);
       }
-
       if (!isWaitingForDependencies(variable.rootStateKey, dependencies, store.getState())) {
         unsubscribe();
         resolve();
@@ -265,7 +240,6 @@ export const processVariableDependencies = async (variable: TypedVariableModel, 
     });
   });
 };
-
 const isDependencyGraphCircular = (
   variable: TypedVariableModel,
   state: StoreState,
@@ -274,49 +248,38 @@ const isDependencyGraphCircular = (
   if (encounteredDependencyIds.has(variable.id)) {
     return true;
   }
-
   encounteredDependencyIds = new Set([...encounteredDependencyIds, variable.id]);
-
   return getDirectDependencies(variable, state).some((dependency) => {
     return isDependencyGraphCircular(dependency, state, encounteredDependencyIds);
   });
 };
-
 const getDirectDependencies = (variable: TypedVariableModel, state: StoreState) => {
   if (!variable.rootStateKey) {
     return [];
   }
-
   const directDependencies: TypedVariableModel[] = [];
-
   for (const otherVariable of getVariablesByKey(variable.rootStateKey, state)) {
     if (variable === otherVariable) {
       continue;
     }
-
     if (variableAdapters.getIfExists(variable.type)) {
       if (variableAdapters.get(variable.type).dependsOn(variable, otherVariable)) {
         directDependencies.push(otherVariable);
       }
     }
   }
-
   return directDependencies;
 };
-
 const isWaitingForDependencies = (key: string, dependencies: TypedVariableModel[], state: StoreState): boolean => {
   if (dependencies.length === 0) {
     return false;
   }
-
   const variables = getVariablesByKey(key, state);
   const notCompletedDependencies = dependencies.filter((d) =>
     variables.some((v) => v.id === d.id && (v.state === LoadingState.NotStarted || v.state === LoadingState.Loading))
   );
-
   return notCompletedDependencies.length > 0;
 };
-
 export const processVariable = (
   identifier: KeyedVariableIdentifier,
   queryParams: UrlQueryMap
@@ -324,14 +287,12 @@ export const processVariable = (
   return async (dispatch, getState) => {
     const variable = getVariable(identifier, getState());
     await processVariableDependencies(variable, getState());
-
     const urlValue = queryParams[VARIABLE_PREFIX + variable.name];
     if (urlValue !== void 0) {
       const stringUrlValue = ensureStringValues(urlValue);
       await variableAdapters.get(variable.type).setValueFromUrl(variable, stringUrlValue);
       return;
     }
-
     if (variable.hasOwnProperty('refresh')) {
       const refreshableVariable = variable as QueryVariableModel;
       if (
@@ -342,28 +303,23 @@ export const processVariable = (
         return;
       }
     }
-
     if (variable.type === 'custom') {
       await dispatch(updateOptions(toKeyedVariableIdentifier(variable)));
       return;
     }
-
     // for variables that aren't updated via URL or refresh, let's simulate the same state changes
     dispatch(completeVariableLoading(identifier));
   };
 };
-
 export const processVariables = (key: string): ThunkResult<Promise<void>> => {
   return async (dispatch, getState) => {
     const queryParams = locationService.getSearchObject();
     const promises = getVariablesByKey(key, getState()).map(
       async (variable) => await dispatch(processVariable(toKeyedVariableIdentifier(variable), queryParams))
     );
-
     await Promise.all(promises);
   };
 };
-
 export const setOptionFromUrl = (
   identifier: KeyedVariableIdentifier,
   urlValue: UrlQueryValue
@@ -375,13 +331,11 @@ export const setOptionFromUrl = (
       // updates options
       await dispatch(updateOptions(toKeyedVariableIdentifier(variable)));
     }
-
     // get variable from state
     const variableFromState = getVariable(toKeyedVariableIdentifier(variable), getState());
     if (!hasOptions(variableFromState)) {
       return;
     }
-
     if (!variableFromState) {
       throw new Error(`Couldn't find variable with name: ${variable.name}`);
     }
@@ -389,17 +343,14 @@ export const setOptionFromUrl = (
     let option = variableFromState.options.find((op) => {
       return op.text === stringUrlValue || op.value === stringUrlValue;
     });
-
     if (!option && isMulti(variableFromState)) {
       if (variableFromState.allValue && stringUrlValue === variableFromState.allValue) {
         option = { text: ALL_VARIABLE_TEXT, value: ALL_VARIABLE_VALUE, selected: false };
       }
     }
-
     if (!option) {
       let defaultText = stringUrlValue;
       const defaultValue = stringUrlValue;
-
       if (Array.isArray(stringUrlValue)) {
         // Multiple values in the url. We construct text as a list of texts from all matched options.
         defaultText = stringUrlValue.reduce((acc: string[], item: string) => {
@@ -409,18 +360,15 @@ export const setOptionFromUrl = (
             // TODO: investigate this further or refactor code
             return [].concat(acc, [item]);
           }
-
           // @ts-ignore according to strict null errors this can never happen
           // TODO: investigate this further or refactor code
           return [].concat(acc, [foundOption.text]);
         }, []);
       }
-
       // It is possible that we did not match the value to any existing option. In that case the URL value will be
       // used anyway for both text and value.
       option = { text: defaultText, value: defaultValue, selected: false };
     }
-
     if (isMulti(variableFromState)) {
       // In case variable is multiple choice, we cast to array to preserve the same behavior as when selecting
       // the option directly, which will return even single value in an array.
@@ -429,15 +377,12 @@ export const setOptionFromUrl = (
         variableFromState.multi
       );
     }
-
     await variableAdapters.get(variable.type).setValue(variableFromState, option);
   };
 };
-
 export const selectOptionsForCurrentValue = (variable: VariableWithOptions): VariableOption[] => {
   let i, y, value, option;
   const selected: VariableOption[] = [];
-
   for (i = 0; i < variable.options.length; i++) {
     option = { ...variable.options[i] };
     option.selected = false;
@@ -454,10 +399,8 @@ export const selectOptionsForCurrentValue = (variable: VariableWithOptions): Var
       selected.push(option);
     }
   }
-
   return selected;
 };
-
 export const validateVariableSelectionState = (
   identifier: KeyedVariableIdentifier,
   defaultValue?: string
@@ -467,13 +410,10 @@ export const validateVariableSelectionState = (
     if (!hasOptions(variableInState)) {
       return Promise.resolve();
     }
-
     const current = variableInState.current || ({} as unknown as VariableOption);
     const setValue = variableAdapters.get(variableInState.type).setValue;
-
     if (Array.isArray(current.value)) {
       const selected = selectOptionsForCurrentValue(variableInState);
-
       // if none pick first
       if (selected.length === 0) {
         const option = variableInState.options[0];
@@ -483,7 +423,6 @@ export const validateVariableSelectionState = (
           selected: true,
         });
       }
-
       const option: VariableOption = {
         value: selected.map((v) => v.value) as string[],
         text: selected.map((v) => v.text) as string[],
@@ -491,18 +430,14 @@ export const validateVariableSelectionState = (
       };
       return setValue(variableInState, option);
     }
-
     let option: VariableOption | undefined | null = null;
-
     // 1. find the current value
     const text = getCurrentText(variableInState);
     const value = getCurrentValue(variableInState);
-
     option = variableInState.options?.find((v: VariableOption) => v.text === text || v.value === value);
     if (option) {
       return setValue(variableInState, option);
     }
-
     // 2. find the default value
     if (defaultValue) {
       option = variableInState.options?.find((v) => v.text === defaultValue || v.value === defaultValue);
@@ -510,7 +445,6 @@ export const validateVariableSelectionState = (
         return setValue(variableInState, option);
       }
     }
-
     // 3. use the first value
     if (variableInState.options) {
       const option = variableInState.options[0];
@@ -518,12 +452,10 @@ export const validateVariableSelectionState = (
         return setValue(variableInState, option);
       }
     }
-
     // 4... give up
     return Promise.resolve();
   };
 };
-
 export const setOptionAsCurrent = (
   identifier: KeyedVariableIdentifier,
   current: VariableOption,
@@ -535,20 +467,16 @@ export const setOptionAsCurrent = (
     return await dispatch(variableUpdated(identifier, emitChanges));
   };
 };
-
 export const createGraph = (variables: TypedVariableModel[]) => {
   const g = new Graph();
-
   variables.forEach((v) => {
     g.createNode(v.name);
   });
-
   variables.forEach((v1) => {
     variables.forEach((v2) => {
       if (v1 === v2) {
         return;
       }
-
       if (variableAdapters.get(v1.type).dependsOn(v1, v2)) {
         try {
           // link might fail if it would create a circular dependency
@@ -561,10 +489,8 @@ export const createGraph = (variables: TypedVariableModel[]) => {
       }
     });
   });
-
   return g;
 };
-
 export const variableUpdated = (
   identifier: KeyedVariableIdentifier,
   emitChangeEvents: boolean,
@@ -574,7 +500,6 @@ export const variableUpdated = (
     const state = getState();
     const { rootStateKey } = identifier;
     const variableInState = getVariable(identifier, state);
-
     // if we're initializing variables ignore cascading update because we are in a boot up scenario
     if (getVariablesState(rootStateKey, state).transaction.status === TransactionStatus.Fetching) {
       if (getVariableRefresh(variableInState) === VariableRefresh.never) {
@@ -584,12 +509,10 @@ export const variableUpdated = (
       }
       return Promise.resolve();
     }
-
     const variables = getVariablesByKey(rootStateKey, state);
     const g = createGraph(variables);
     const panels = state.dashboard?.getModel()?.panels ?? [];
     const panelVars = getPanelVars(panels);
-
     const event: VariablesChangedEvent =
       variableInState.type === 'adhoc'
         ? { refreshAll: true, panelIds: [] } // for adhoc variables we don't know which panels that will be impacted
@@ -598,7 +521,6 @@ export const variableUpdated = (
             panelIds: Array.from(getAllAffectedPanelIdsForVariableChange([variableInState.id], g, panelVars)),
             variable: getVariable(identifier, state),
           };
-
     const node = g.getNode(variableInState.name);
     let promises: Array<Promise<void>> = [];
     if (node) {
@@ -607,11 +529,9 @@ export const variableUpdated = (
         if (!variable) {
           return Promise.resolve();
         }
-
         return dispatch(updateOptions(toKeyedVariableIdentifier(variable)));
       });
     }
-
     return Promise.all(promises).then(() => {
       if (emitChangeEvents) {
         reportInteraction('grafana_dashboards_variable_changed');
@@ -621,12 +541,10 @@ export const variableUpdated = (
     });
   };
 };
-
 export interface OnTimeRangeUpdatedDependencies {
   templateSrv: TemplateSrv;
   events: typeof appEvents;
 }
-
 const dfs = (
   node: Node,
   visited: string[],
@@ -655,7 +573,6 @@ const dfs = (
   });
   return variablesRefreshTimeRange;
 };
-
 // verify if the output edges of a node are not time range dependent
 const areOuputEdgesNotTimeRange = (node: Node, variables: TypedVariableModel[]) => {
   return node.outputEdges.every((e) => {
@@ -669,7 +586,6 @@ const areOuputEdgesNotTimeRange = (node: Node, variables: TypedVariableModel[]) 
     return true;
   });
 };
-
 /**
  * This function returns a list of variables that need to be refreshed when the time range changes
  * It follows this logic
@@ -684,10 +600,8 @@ const areOuputEdgesNotTimeRange = (node: Node, variables: TypedVariableModel[]) 
  * ----- 2. skip all the dependent nodes (B, C).
  *       Here, we should traverse the tree using DFS (Depth First Search), as the dependent nodes will be updated in cascade when the parent variable is updated.
  */
-
 export const getVariablesThatNeedRefreshNew = (key: string, state: StoreState): TypedVariableModel[] => {
   const allVariables = getVariablesByKey(key, state);
-
   //create dependency graph
   const g = createGraph(allVariables);
   // create a list of nodes that were visited
@@ -708,7 +622,6 @@ export const getVariablesThatNeedRefreshNew = (key: string, state: StoreState): 
       if (isVariableTimeRange && node.outputEdges.length === 0) {
         variablesRefreshTimeRange.push(parentVariableNode);
       }
-
       // if variable is time range and other variables depend on it (output edges) add it to the list of variables that need refresh and dont visit its dependents
       if (
         isVariableTimeRange &&
@@ -718,7 +631,6 @@ export const getVariablesThatNeedRefreshNew = (key: string, state: StoreState): 
         variablesRefreshTimeRange.push(parentVariableNode);
         dfs(node, visitedDfs, allVariables, variablesRefreshTimeRange);
       }
-
       // If is variable time range, has outputEdges, but the output edges are not time range configured, it means this
       // is the top variable that need to be refreshed
       if (isVariableTimeRange && node.outputEdges.length > 0 && areOuputEdgesNotTimeRange(node, allVariables)) {
@@ -726,21 +638,17 @@ export const getVariablesThatNeedRefreshNew = (key: string, state: StoreState): 
           variablesRefreshTimeRange.push(parentVariableNode);
         }
       }
-
       // if variable is not time range but has dependents (output edges) visit its dependants and repeat the process
       if (!isVariableTimeRange && node.outputEdges.length > 0) {
         dfs(node, visitedDfs, allVariables, variablesRefreshTimeRange);
       }
     }
   });
-
   return variablesRefreshTimeRange;
 };
-
 // old approach of refreshing variables that need refresh
 const getVariablesThatNeedRefreshOld = (key: string, state: StoreState): VariableWithOptions[] => {
   const allVariables = getVariablesByKey(key, state);
-
   const variablesThatNeedRefresh = allVariables.filter((variable) => {
     if ('refresh' in variable && 'options' in variable) {
       const variableWithRefresh = variable;
@@ -748,10 +656,8 @@ const getVariablesThatNeedRefreshOld = (key: string, state: StoreState): Variabl
     }
     return false;
   }) as VariableWithOptions[];
-
   return variablesThatNeedRefresh;
 };
-
 export const onTimeRangeUpdated =
   (
     key: string,
@@ -760,7 +666,6 @@ export const onTimeRangeUpdated =
   ): ThunkResult<Promise<void>> =>
   async (dispatch, getState) => {
     dependencies.templateSrv.updateTimeRange(timeRange);
-
     // approach # 2, get variables that need refresh but use the dependency graph to only update the ones that are affected
     // TODO: remove the VariableWithOptions type once the feature flag is on GA
     let variablesThatNeedRefresh: VariableWithOptions[] | TypedVariableModel[] = [];
@@ -769,21 +674,18 @@ export const onTimeRangeUpdated =
     } else {
       variablesThatNeedRefresh = getVariablesThatNeedRefreshOld(key, getState());
     }
-
     const variableIds = variablesThatNeedRefresh.map((variable) => variable.id);
     const promises = variablesThatNeedRefresh.map((variable) =>
       dispatch(timeRangeUpdated(toKeyedVariableIdentifier(variable)))
     );
-
     try {
       await Promise.all(promises);
       dependencies.events.publish(new VariablesTimeRangeProcessDone({ variableIds }));
     } catch (error) {
-      console.error(error);
+      structLog('error', error);
       dispatch(notifyApp(createVariableErrorNotification('Template variable service failed', error)));
     }
   };
-
 export const timeRangeUpdated =
   (identifier: KeyedVariableIdentifier): ThunkResult<Promise<void>> =>
   async (dispatch, getState) => {
@@ -791,43 +693,34 @@ export const timeRangeUpdated =
     if (!hasOptions(variableInState)) {
       return;
     }
-
     const previousOptions = variableInState.options.slice();
-
     await dispatch(updateOptions(toKeyedVariableIdentifier(variableInState), true));
-
     const updatedVariable = getVariable(identifier, getState());
     if (!hasOptions(updatedVariable)) {
       return;
     }
-
     const updatedOptions = updatedVariable.options;
-
     if (JSON.stringify(previousOptions) !== JSON.stringify(updatedOptions)) {
       const dashboard = getState().dashboard.getModel();
       dashboard?.templateVariableValueUpdated();
     }
   };
-
 export const templateVarsChangedInUrl =
   (key: string, vars: ExtendedUrlQueryMap, events: typeof appEvents = appEvents): ThunkResult<void> =>
   async (dispatch, getState) => {
     const update: Array<Promise<void>> = [];
     const dashboard = getState().dashboard.getModel();
     const variables = getVariablesByKey(key, getState());
-
     for (const variable of variables) {
       const key = VARIABLE_PREFIX + variable.name;
       if (!vars.hasOwnProperty(key)) {
         // key not found quick exit
         continue;
       }
-
       if (!isVariableUrlValueDifferentFromCurrent(variable, vars[key].value)) {
         // variable values doesn't differ quick exit
         continue;
       }
-
       let value = vars[key].value; // as the default the value is set to the value passed into templateVarsChangedInUrl
       if (vars[key].removed) {
         // for some reason (panel|data link without variable) the variable url value (var-xyz) has been removed from the url
@@ -836,16 +729,13 @@ export const templateVarsChangedInUrl =
         if (variableInModel && hasCurrent(variableInModel)) {
           value = variableInModel.current.value; // revert value to the value stored in dashboard json
         }
-
         if (variableInModel && variableInModel.type === 'constant') {
           value = variableInModel.query; // revert value to the value stored in dashboard json, constants don't store current values in dashboard json
         }
       }
-
       const promise = variableAdapters.get(variable.type).setValueFromUrl(variable, value);
       update.push(promise);
     }
-
     const filteredVars = variables.filter((v) => {
       const key = VARIABLE_PREFIX + v.name;
       return (
@@ -859,10 +749,8 @@ export const templateVarsChangedInUrl =
       varGraph,
       panelVars
     );
-
     if (update.length) {
       await Promise.all(update);
-
       events.publish(
         new VariablesChangedInUrl({
           refreshAll: affectedPanels.size === 0,
@@ -871,7 +759,6 @@ export const templateVarsChangedInUrl =
       );
     }
   };
-
 export function isVariableUrlValueDifferentFromCurrent(variable: TypedVariableModel, urlValue: unknown): boolean {
   const variableValue = variableAdapters.get(variable.type).getValueForUrl(variable);
   let stringUrlValue = ensureStringValues(urlValue);
@@ -881,29 +768,23 @@ export function isVariableUrlValueDifferentFromCurrent(variable: TypedVariableMo
   // lodash isEqual handles array of value equality checks as well
   return !isEqual(variableValue, stringUrlValue);
 }
-
 const getQueryWithVariables = (key: string, getState: () => StoreState): UrlQueryMap => {
   const queryParams = locationService.getSearchObject();
-
   const queryParamsNew = Object.keys(queryParams)
     .filter((key) => key.indexOf(VARIABLE_PREFIX) === -1)
     .reduce<UrlQueryMap>((obj, key) => {
       obj[key] = queryParams[key];
       return obj;
     }, {});
-
   for (const variable of getVariablesByKey(key, getState())) {
     if (variable.skipUrlSync) {
       continue;
     }
-
     const adapter = variableAdapters.get(variable.type);
     queryParamsNew[VARIABLE_PREFIX + variable.name] = adapter.getValueForUrl(variable);
   }
-
   return queryParamsNew;
 };
-
 export const initVariablesTransaction =
   (urlUid: string, dashboard: DashboardModel): ThunkResult<Promise<void>> =>
   async (dispatch, getState) => {
@@ -918,7 +799,6 @@ export const initVariablesTransaction =
           dispatch(cancelVariables(lastKey));
         }
       }
-
       // Start init transaction
       dispatch(toKeyedAction(uid, variablesInitTransaction({ uid })));
       // Add system variables like __dashboard and __user
@@ -933,10 +813,9 @@ export const initVariablesTransaction =
       dispatch(toKeyedAction(uid, variablesCompleteTransaction({ uid })));
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Templating init failed', err)));
-      console.error(err);
+      structLog('error', err);
     }
   };
-
 export function migrateVariablesDatasourceNameToRef(
   key: string,
   getDatasourceSrvFunc = getDatasourceSrv
@@ -947,13 +826,10 @@ export function migrateVariablesDatasourceNameToRef(
       if (variable.type !== 'adhoc' && variable.type !== 'query') {
         continue;
       }
-
       const { datasource: nameOrRef } = variable;
-
       if (isDataSourceRef(nameOrRef)) {
         continue;
       }
-
       // the call to getInstanceSettings needs to be done after initDashboardTemplating because we might have
       // datasource variables that need to be resolved
       const ds = getDatasourceSrvFunc().getInstanceSettings(nameOrRef);
@@ -967,7 +843,6 @@ export function migrateVariablesDatasourceNameToRef(
     }
   };
 }
-
 export const cleanUpVariables =
   (key: string): ThunkResult<void> =>
   (dispatch) => {
@@ -976,15 +851,15 @@ export const cleanUpVariables =
     dispatch(toKeyedAction(key, cleanPickerState()));
     dispatch(toKeyedAction(key, variablesClearTransaction()));
   };
-
-type CancelVariablesDependencies = { getBackendSrv: typeof getBackendSrv };
+type CancelVariablesDependencies = {
+  getBackendSrv: typeof getBackendSrv;
+};
 export const cancelVariables =
   (key: string, dependencies: CancelVariablesDependencies = { getBackendSrv: getBackendSrv }): ThunkResult<void> =>
   (dispatch) => {
     dependencies.getBackendSrv().cancelAllInFlightRequests();
     dispatch(cleanUpVariables(key));
   };
-
 export const updateOptions =
   (identifier: KeyedVariableIdentifier, rethrow = false): ThunkResult<Promise<void>> =>
   async (dispatch, getState) => {
@@ -994,7 +869,6 @@ export const updateOptions =
         // we might have cancelled a batch so then variable state is removed
         return;
       }
-
       const variableInState = getVariable(identifier, getState());
       dispatch(toKeyedAction(rootStateKey, variableStateFetching(toVariablePayload(variableInState))));
       await dispatch(upgradeLegacyQueries(toKeyedVariableIdentifier(variableInState)));
@@ -1002,18 +876,15 @@ export const updateOptions =
       dispatch(completeVariableLoading(identifier));
     } catch (error) {
       dispatch(toKeyedAction(rootStateKey, variableStateFailed(toVariablePayload(identifier, { error }))));
-
       if (!rethrow) {
-        console.error(error);
+        structLog('error', error);
         dispatch(notifyApp(createVariableErrorNotification('Error updating options:', error, identifier)));
       }
-
       if (rethrow) {
         throw error;
       }
     }
   };
-
 export const createVariableErrorNotification = (
   message: string,
   error: unknown,
@@ -1023,7 +894,6 @@ export const createVariableErrorNotification = (
     `${identifier ? `Templating [${identifier.id}]` : 'Templating'}`,
     error instanceof Error ? `${message} ${error.message}` : `${message}`
   );
-
 export const completeVariableLoading =
   (identifier: KeyedVariableIdentifier): ThunkResult<void> =>
   (dispatch, getState) => {
@@ -1032,14 +902,11 @@ export const completeVariableLoading =
       // we might have cancelled a batch so then variable state is removed
       return;
     }
-
     const variableInState = getVariable(identifier, getState());
-
     if (variableInState.state !== LoadingState.Done) {
       dispatch(toKeyedAction(identifier.rootStateKey, variableStateCompleted(toVariablePayload(variableInState))));
     }
   };
-
 export function upgradeLegacyQueries(
   identifier: KeyedVariableIdentifier,
   getDatasourceSrvFunc: typeof getDatasourceSrv = getDatasourceSrv
@@ -1050,32 +917,25 @@ export function upgradeLegacyQueries(
       // we might have cancelled a batch so then variable state is removed
       return;
     }
-
     const variable = getVariable(identifier, getState());
     if (variable.type !== 'query') {
       return;
     }
-
     try {
       const datasource = await getDatasourceSrvFunc().get(variable.datasource ?? '');
-
       if (hasLegacyVariableSupport(datasource)) {
         return;
       }
-
       if (!hasStandardVariableSupport(datasource)) {
         return;
       }
-
       if (isDataQueryType(variable.query)) {
         return;
       }
-
       const query = {
         refId: `${datasource.name}-${id}-Variable-Query`,
         query: variable.query,
       };
-
       dispatch(
         toKeyedAction(
           rootStateKey,
@@ -1084,11 +944,10 @@ export function upgradeLegacyQueries(
       );
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Failed to upgrade legacy queries', err)));
-      console.error(err);
+      structLog('error', err);
     }
   };
 }
-
 function isDataQueryType(query: unknown): query is DataQuery {
   return isObject(query) && 'refId' in query && typeof query.refId === 'string';
 }

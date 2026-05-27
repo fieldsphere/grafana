@@ -1,9 +1,8 @@
+import { structLog } from '../utils/structLog';
 // Code based on Material-UI
 // https://github.com/mui-org/material-ui/blob/1b096070faf102281f8e3c4f9b2bf50acf91f412/packages/material-ui/src/styles/colorManipulator.js#L97
 // MIT License Copyright (c) 2014 Call-Em-All
-
 import tinycolor from 'tinycolor2';
-
 /**
  * Returns a number whose value is limited to the given range.
  * @param value The value to be clamped
@@ -15,13 +14,11 @@ import tinycolor from 'tinycolor2';
 function clamp(value: number, min = 0, max = 1) {
   if (process.env.NODE_ENV !== 'production') {
     if (value < min || value > max) {
-      console.error(`The value provided ${value} is out of range [${min}, ${max}].`);
+      structLog('error', `The value provided ${value} is out of range [${min}, ${max}].`);
     }
   }
-
   return Math.min(Math.max(min, value), max);
 }
-
 /**
  * Converts a color from CSS hex format to CSS rgb format.
  * @param color - Hex color, i.e. #nnn or #nnnnnn
@@ -30,20 +27,15 @@ function clamp(value: number, min = 0, max = 1) {
  */
 export function hexToRgb(color: string) {
   color = color.slice(1);
-
   const re = new RegExp(`.{1,${color.length >= 6 ? 2 : 1}}`, 'g');
   let result = color.match(re);
-
   if (!result) {
     return '';
   }
-
   let colors = Array.from(result);
-
   if (colors[0].length === 1) {
     colors = colors.map((n) => n + n);
   }
-
   return colors
     ? `rgb${colors.length === 4 ? 'a' : ''}(${colors
         .map((n, index) => {
@@ -52,12 +44,10 @@ export function hexToRgb(color: string) {
         .join(', ')})`
     : '';
 }
-
 function intToHex(int: number) {
   const hex = int.toString(16);
   return hex.length === 1 ? `0${hex}` : hex;
 }
-
 /**
  * Converts a color from CSS rgb format to CSS hex format.
  * @param color - RGB color, i.e. rgb(n, n, n)
@@ -69,11 +59,9 @@ export function rgbToHex(color: string) {
   if (color.indexOf('#') === 0) {
     return color;
   }
-
   const { values } = decomposeColor(color);
   return `#${values.map((n: number) => intToHex(n)).join('')}`;
 }
-
 /**
  * Converts a color to hex6 format if there is no alpha, hex8 if there is.
  * @param color - Hex, RGB, HSL color
@@ -86,7 +74,6 @@ export function asHexString(color: string): string {
   const tColor = tinycolor(color);
   return tColor.getAlpha() === 1 ? tColor.toHexString() : tColor.toHex8String();
 }
-
 /**
  * Converts a color to rgb string
  */
@@ -94,10 +81,8 @@ export function asRgbString(color: string) {
   if (color.startsWith('rgb')) {
     return color;
   }
-
   return tinycolor(color).toRgbString();
 }
-
 /**
  * Converts a color from hsl format to rgb format.
  * @param color - HSL color values
@@ -112,18 +97,14 @@ export function hslToRgb(color: string | DecomposeColor) {
   const l = values[2] / 100;
   const a = s * Math.min(l, 1 - l);
   const f = (n: number, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-
   let type = 'rgb';
   const rgb = [Math.round(f(0) * 255), Math.round(f(8) * 255), Math.round(f(4) * 255)];
-
   if (parts.type === 'hsla') {
     type += 'a';
     rgb.push(values[3]);
   }
-
   return recomposeColor({ type, values: rgb });
 }
-
 /**
  * Returns an object with the type and values of a color.
  *
@@ -137,23 +118,18 @@ export function decomposeColor(color: string | DecomposeColor): DecomposeColor {
   if (typeof color !== 'string') {
     return color;
   }
-
   if (color.charAt(0) === '#') {
     return decomposeColor(hexToRgb(color));
   }
-
   const marker = color.indexOf('(');
   const type = color.substring(0, marker);
-
   if (['rgb', 'rgba', 'hsl', 'hsla', 'color'].indexOf(type) === -1) {
     throw new Error(
       `Unsupported '${color}' color. The following formats are supported: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()`
     );
   }
-
   let values: any = color.substring(marker + 1, color.length - 1);
   let colorSpace;
-
   if (type === 'color') {
     values = values.split(' ');
     colorSpace = values.shift();
@@ -168,11 +144,9 @@ export function decomposeColor(color: string | DecomposeColor): DecomposeColor {
   } else {
     values = values.split(',');
   }
-
   values = values.map((value: string) => parseFloat(value));
   return { type, values, colorSpace };
 }
-
 /**
  * Converts a color object with type and values to a string.
  * @param {object} color - Decomposed color
@@ -184,7 +158,6 @@ export function decomposeColor(color: string | DecomposeColor): DecomposeColor {
 export function recomposeColor(color: DecomposeColor) {
   const { type, colorSpace } = color;
   let values = color.values;
-
   if (type.indexOf('rgb') !== -1) {
     // Only convert the first 3 values to int (i.e. not alpha)
     values = values.map((n: string, i: number) => (i < 3 ? parseInt(n, 10) : n));
@@ -197,10 +170,8 @@ export function recomposeColor(color: DecomposeColor) {
   } else {
     values = `${values.join(', ')}`;
   }
-
   return `${type}(${values})`;
 }
-
 /**
  * Calculates the contrast ratio between two colors.
  *
@@ -216,7 +187,6 @@ export function getContrastRatio(foreground: string, background: string, canvas?
   const lumB = getLuminance(background, canvas);
   return (Math.max(lumA, lumB) + 0.05) / (Math.min(lumA, lumB) + 0.05);
 }
-
 /**
  * The relative brightness of any point in a color space,
  * normalized to 0 for darkest black and 1 for lightest white.
@@ -229,9 +199,7 @@ export function getContrastRatio(foreground: string, background: string, canvas?
  */
 export function getLuminance(color: string, background?: string) {
   const parts = decomposeColor(color);
-
   let rgb = parts.type === 'hsl' ? decomposeColor(hslToRgb(color)).values : parts.values;
-
   if (background && parts.type === 'rgba') {
     const backgroundParts = decomposeColor(background);
     const alpha = rgb[3];
@@ -239,18 +207,15 @@ export function getLuminance(color: string, background?: string) {
     rgb[1] = rgb[1] * alpha + backgroundParts.values[1] * (1 - alpha);
     rgb[2] = rgb[2] * alpha + backgroundParts.values[2] * (1 - alpha);
   }
-
   const rgbNumbers = rgb.map((val: any) => {
     if (parts.type !== 'color') {
       val /= 255; // normalized
     }
     return val <= 0.03928 ? val / 12.92 : ((val + 0.055) / 1.055) ** 2.4;
   });
-
   // Truncate at 3 digits
   return Number((0.2126 * rgbNumbers[0] + 0.7152 * rgbNumbers[1] + 0.0722 * rgbNumbers[2]).toFixed(3));
 }
-
 /**
  * Darken or lighten a color, depending on its luminance.
  * Light colors are darkened, dark colors are lightened.
@@ -262,7 +227,6 @@ export function getLuminance(color: string, background?: string) {
 export function emphasize(color: string, coefficient = 0.15) {
   return getLuminance(color) > 0.5 ? darken(color, coefficient) : lighten(color, coefficient);
 }
-
 /**
  * Set the absolute transparency of a color.
  * Any existing alpha values are overwritten.
@@ -275,9 +239,7 @@ export function alpha(color: string, value: number) {
   if (color === '') {
     return '#000000';
   }
-
   value = clamp(value);
-
   // hex 3, hex 4 (w/alpha), hex 6, hex 8 (w/alpha)
   if (color[0] === '#') {
     if (color.length === 9) {
@@ -289,7 +251,6 @@ export function alpha(color: string, value: number) {
       }
       color = c;
     }
-
     return (
       color +
       Math.round(value * 255)
@@ -307,18 +268,14 @@ export function alpha(color: string, value: number) {
   else if (color[4] === '(') {
     return color.substring(0, color.lastIndexOf(',')) + `, ${value})`;
   }
-
   const parts = decomposeColor(color);
-
   if (parts.type === 'color') {
     parts.values[3] = `/${value}`;
   } else {
     parts.values[3] = value;
   }
-
   return recomposeColor(parts);
 }
-
 /**
  * Darkens a color.
  * @param color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()
@@ -329,7 +286,6 @@ export function alpha(color: string, value: number) {
 export function darken(color: string, coefficient: number) {
   const parts = decomposeColor(color);
   coefficient = clamp(coefficient);
-
   if (parts.type.indexOf('hsl') !== -1) {
     parts.values[2] *= 1 - coefficient;
   } else if (parts.type.indexOf('rgb') !== -1 || parts.type.indexOf('color') !== -1) {
@@ -339,7 +295,6 @@ export function darken(color: string, coefficient: number) {
   }
   return recomposeColor(parts);
 }
-
 /**
  * Lightens a color.
  * @param color - CSS color, i.e. one of: #nnn, #nnnnnn, rgb(), rgba(), hsl(), hsla(), color()
@@ -350,7 +305,6 @@ export function darken(color: string, coefficient: number) {
 export function lighten(color: string, coefficient: number) {
   const parts = decomposeColor(color);
   coefficient = clamp(coefficient);
-
   if (parts.type.indexOf('hsl') !== -1) {
     parts.values[2] += (100 - parts.values[2]) * coefficient;
   } else if (parts.type.indexOf('rgb') !== -1) {
@@ -362,10 +316,8 @@ export function lighten(color: string, coefficient: number) {
       parts.values[i] += (1 - parts.values[i]) * coefficient;
     }
   }
-
   return recomposeColor(parts);
 }
-
 /**
  * given foreground and background colors, returns the color of the foreground color on the background color.
  * this is valuable for foreground colors with alpha.
@@ -383,7 +335,6 @@ export const onBackground = (
   const fg = tinycolor(foreground).toRgb();
   const bg = tinycolor(background).toRgb();
   const alpha = fg.a + bg.a * (1 - fg.a);
-
   return tinycolor({
     r: (fg.r * fg.a + bg.r * bg.a * (1 - fg.a)) / alpha,
     g: (fg.g * fg.a + bg.g * bg.a * (1 - fg.a)) / alpha,
@@ -391,13 +342,11 @@ export const onBackground = (
     a: alpha,
   });
 };
-
 interface DecomposeColor {
   type: string;
   values: any;
   colorSpace?: string;
 }
-
 export const colorManipulator = {
   clamp,
   hexToRgb,

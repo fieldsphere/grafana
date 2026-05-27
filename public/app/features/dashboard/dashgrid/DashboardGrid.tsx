@@ -1,26 +1,22 @@
+import { structLog } from '@grafana/data';
 import classNames from 'classnames';
 import { PureComponent, type CSSProperties } from 'react';
 import * as React from 'react';
 import ReactGridLayout, { type ItemCallback } from 'react-grid-layout';
 import { Subscription } from 'rxjs';
-
 import { config } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { GRID_CELL_HEIGHT, GRID_CELL_VMARGIN, GRID_COLUMN_COUNT } from 'app/core/constants';
 import { contextSrv } from 'app/core/services/context_srv';
 import { VariablesChanged } from 'app/features/variables/types';
 import { DashboardPanelsChangedEvent } from 'app/types/events';
-
 import { AddLibraryPanelWidget } from '../components/AddLibraryPanelWidget/AddLibraryPanelWidget';
 import { DashboardRow } from '../components/DashboardRow/DashboardRow';
 import { type DashboardModel } from '../state/DashboardModel';
 import { type GridPos, type PanelModel } from '../state/PanelModel';
-
 import DashboardEmpty from './DashboardEmpty/DashboardEmpty';
 import { DashboardPanel } from './DashboardPanel';
-
 export const PANEL_FILTER_VARIABLE = 'systemPanelFilterVar';
-
 export interface Props {
   dashboard: DashboardModel;
   isEditable: boolean;
@@ -28,14 +24,14 @@ export interface Props {
   viewPanel: PanelModel | null;
   hidePanelMenus?: boolean;
 }
-
 interface State {
   panelFilter?: RegExp;
   width: number;
 }
-
 export class DashboardGrid extends PureComponent<Props, State> {
-  private panelMap: { [key: string]: PanelModel } = {};
+  private panelMap: {
+    [key: string]: PanelModel;
+  } = {};
   private eventSubs = new Subscription();
   private windowHeight = 1200;
   private windowWidth = 1920;
@@ -43,7 +39,6 @@ export class DashboardGrid extends PureComponent<Props, State> {
   /** Used to keep track of mobile panel layout position */
   private lastPanelBottom = 0;
   private isLayoutInitialized = false;
-
   constructor(props: Props) {
     super(props);
     this.state = {
@@ -51,10 +46,8 @@ export class DashboardGrid extends PureComponent<Props, State> {
       width: document.body.clientWidth, // initial very rough estimate
     };
   }
-
   componentDidMount() {
     const { dashboard } = this.props;
-
     if (config.featureToggles.panelFilterVariable) {
       // If panel filter variable is set on load then
       // update state to filter panels
@@ -66,7 +59,6 @@ export class DashboardGrid extends PureComponent<Props, State> {
           break;
         }
       }
-
       this.eventSubs.add(
         appEvents.subscribe(VariablesChanged, (e) => {
           if (e.payload.variable?.id === PANEL_FILTER_VARIABLE) {
@@ -80,14 +72,11 @@ export class DashboardGrid extends PureComponent<Props, State> {
         })
       );
     }
-
     this.eventSubs.add(dashboard.events.subscribe(DashboardPanelsChangedEvent, this.triggerForceUpdate));
   }
-
   componentWillUnmount() {
     this.eventSubs.unsubscribe();
   }
-
   setPanelFilter(regex: string) {
     // Only set the panels filter if the systemPanelFilterVar variable
     // is a non-empty string
@@ -95,17 +84,14 @@ export class DashboardGrid extends PureComponent<Props, State> {
     if (regex.length > 0) {
       panelFilter = new RegExp(regex, 'i');
     }
-
     this.setState({
       panelFilter: panelFilter,
     });
   }
-
   buildLayout() {
     const layout: ReactGridLayout.Layout[] = [];
     this.panelMap = {};
     const { panelFilter } = this.state;
-
     let count = 0;
     for (const panel of this.props.dashboard.panels) {
       if (!panel.key) {
@@ -113,12 +99,10 @@ export class DashboardGrid extends PureComponent<Props, State> {
       }
       panel.title = panel.title?.substring(0, 5000);
       this.panelMap[panel.key] = panel;
-
       if (!panel.gridPos) {
-        console.log('panel without gridpos');
+        structLog('log', 'panel without gridpos');
         continue;
       }
-
       const panelPos: ReactGridLayout.Layout = {
         i: panel.key,
         x: panel.gridPos.x,
@@ -126,14 +110,12 @@ export class DashboardGrid extends PureComponent<Props, State> {
         w: panel.gridPos.w,
         h: panel.gridPos.h,
       };
-
       if (panel.type === 'row') {
         panelPos.w = GRID_COLUMN_COUNT;
         panelPos.h = 1;
         panelPos.isResizable = false;
         panelPos.isDraggable = panel.collapsed;
       }
-
       if (!panelFilter) {
         layout.push(panelPos);
       } else {
@@ -147,10 +129,8 @@ export class DashboardGrid extends PureComponent<Props, State> {
         }
       }
     }
-
     return layout;
   }
-
   onLayoutChange = (newLayout: ReactGridLayout.Layout[]) => {
     if (this.state.panelFilter) {
       return;
@@ -158,39 +138,36 @@ export class DashboardGrid extends PureComponent<Props, State> {
     for (const newPos of newLayout) {
       this.panelMap[newPos.i!].updateGridPos(newPos, this.isLayoutInitialized);
     }
-
     if (this.isLayoutInitialized) {
       this.isLayoutInitialized = true;
     }
-
     this.props.dashboard.sortPanelsByGridPos();
     this.forceUpdate();
   };
-
   triggerForceUpdate = () => {
     this.forceUpdate();
   };
-
   updateGridPos = (item: ReactGridLayout.Layout, layout: ReactGridLayout.Layout[]) => {
     this.panelMap[item.i!].updateGridPos(item);
   };
-
   onResize: ItemCallback = (layout, oldItem, newItem) => {
     const panel = this.panelMap[newItem.i!];
     panel.updateGridPos(newItem);
   };
-
   onResizeStop: ItemCallback = (layout, oldItem, newItem) => {
     this.updateGridPos(newItem, layout);
   };
-
   onDragStop: ItemCallback = (layout, oldItem, newItem) => {
     this.updateGridPos(newItem, layout);
   };
-
-  getPanelScreenPos(panel: PanelModel, gridWidth: number): { top: number; bottom: number } {
+  getPanelScreenPos(
+    panel: PanelModel,
+    gridWidth: number
+  ): {
+    top: number;
+    bottom: number;
+  } {
     let top = 0;
-
     // mobile layout
     if (gridWidth < config.theme2.breakpoints.values.md) {
       // In mobile layout panels are stacked so we just add the panel vertical margin to the last panel bottom position
@@ -199,19 +176,14 @@ export class DashboardGrid extends PureComponent<Props, State> {
       // For top position we need to add back the vertical margin removed by translateGridHeightToScreenHeight
       top = translateGridHeightToScreenHeight(panel.gridPos.y) + GRID_CELL_VMARGIN;
     }
-
     this.lastPanelBottom = top + translateGridHeightToScreenHeight(panel.gridPos.h);
-
     return { top, bottom: this.lastPanelBottom };
   }
-
   renderPanels(gridWidth: number, isDashboardDraggable: boolean) {
     const { panelFilter } = this.state;
     const panelElements = [];
-
     // Reset last panel bottom
     this.lastPanelBottom = 0;
-
     // This is to avoid layout re-flows, accessing window.innerHeight can trigger re-flow
     // We assume here that if width change height might have changed as well
     if (this.gridWidth !== gridWidth) {
@@ -219,10 +191,8 @@ export class DashboardGrid extends PureComponent<Props, State> {
       this.windowWidth = window.innerWidth;
       this.gridWidth = gridWidth;
     }
-
     for (const panel of this.props.dashboard.panels) {
       const panelClasses = classNames({ 'react-grid-item--fullscreen': panel.isViewing });
-
       const p = (
         <GrafanaGridItem
           key={panel.key}
@@ -239,7 +209,6 @@ export class DashboardGrid extends PureComponent<Props, State> {
           }}
         </GrafanaGridItem>
       );
-
       if (!panelFilter) {
         panelElements.push(p);
       } else {
@@ -248,19 +217,15 @@ export class DashboardGrid extends PureComponent<Props, State> {
         }
       }
     }
-
     return panelElements;
   }
-
   renderPanel(panel: PanelModel, width: number, height: number, isDraggable: boolean) {
     if (panel.type === 'row') {
       return <DashboardRow key={panel.key} panel={panel} dashboard={this.props.dashboard} />;
     }
-
     if (panel.type === 'add-library-panel') {
       return <AddLibraryPanelWidget key={panel.key} panel={panel} dashboard={this.props.dashboard} />;
     }
-
     return (
       <DashboardPanel
         key={panel.key}
@@ -276,7 +241,6 @@ export class DashboardGrid extends PureComponent<Props, State> {
       />
     );
   }
-
   /**
    * Without this hack the move animations are triggered on initial load and all panels fly into position.
    * This can be quite distracting and make the dashboard appear to less snappy.
@@ -288,7 +252,6 @@ export class DashboardGrid extends PureComponent<Props, State> {
       }, 50);
     }
   };
-
   private resizeObserver?: ResizeObserver;
   private rootEl: HTMLDivElement | null = null;
   onMeasureRef = (rootEl: HTMLDivElement | null) => {
@@ -298,27 +261,21 @@ export class DashboardGrid extends PureComponent<Props, State> {
       }
       return;
     }
-
     this.rootEl = rootEl;
     this.resizeObserver = new ResizeObserver((entries) => {
       entries.forEach((entry) => {
         this.setState({ width: entry.contentRect.width });
       });
     });
-
     this.resizeObserver.observe(rootEl);
   };
-
   render() {
     const { isEditable, dashboard } = this.props;
     const { width } = this.state;
-
     if (dashboard.panels.length === 0) {
       return <DashboardEmpty dashboard={dashboard} canCreate={isEditable} />;
     }
-
     const draggable = width <= config.theme2.breakpoints.values.md ? false : isEditable;
-
     // pos: rel + z-index is required to create a new stacking context to contain
     // the escalating z-indexes of the panels
     return (
@@ -356,7 +313,6 @@ export class DashboardGrid extends PureComponent<Props, State> {
     );
   }
 }
-
 interface GrafanaGridItemProps extends React.HTMLAttributes<HTMLDivElement> {
   gridWidth?: number;
   gridPos?: GridPos;
@@ -365,7 +321,6 @@ interface GrafanaGridItemProps extends React.HTMLAttributes<HTMLDivElement> {
   windowWidth: number;
   children: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
-
 /**
  * A hacky way to intercept the react-layout-grid item dimensions and pass them to DashboardPanel
  */
@@ -373,10 +328,8 @@ const GrafanaGridItem = React.forwardRef<HTMLDivElement, GrafanaGridItemProps>((
   const theme = config.theme2;
   let width = 100;
   let height = 100;
-
   const { gridWidth, gridPos, isViewing, windowHeight, windowWidth, ...divProps } = props;
   const style: CSSProperties = props.style ?? {};
-
   if (isViewing) {
     // In fullscreen view mode a single panel take up full width & 85% height
     width = gridWidth!;
@@ -401,7 +354,6 @@ const GrafanaGridItem = React.forwardRef<HTMLDivElement, GrafanaGridItemProps>((
       }
     }
   }
-
   // props.children[0] is our main children. RGL adds the drag handle at props.children[1]
   return (
     <div {...divProps} style={{ ...divProps.style }} ref={ref}>
@@ -410,12 +362,10 @@ const GrafanaGridItem = React.forwardRef<HTMLDivElement, GrafanaGridItemProps>((
     </div>
   );
 });
-
 /**
  * This translates grid height dimensions to real pixels
  */
 function translateGridHeightToScreenHeight(gridHeight: number): number {
   return gridHeight * (GRID_CELL_HEIGHT + GRID_CELL_VMARGIN) - GRID_CELL_VMARGIN;
 }
-
 GrafanaGridItem.displayName = 'GridItemWithDimensions';

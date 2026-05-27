@@ -1,7 +1,7 @@
+import { structLog } from '@grafana/data';
 import { cloneDeep } from 'lodash';
 import { from, type Observable, ReplaySubject, type Unsubscribable } from 'rxjs';
 import { first } from 'rxjs/operators';
-
 import {
   CoreApp,
   type DataQueryRequest,
@@ -17,24 +17,19 @@ import {
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
-
 import { getNextRequestId } from './PanelQueryRunner';
 import { setStructureRevision } from './processing/revision';
 import { runRequest } from './runRequest';
-
 export class QueryRunner implements QueryRunnerSrv {
   private subject: ReplaySubject<PanelData>;
   private subscription?: Unsubscribable;
   private lastResult?: PanelData;
-
   constructor() {
     this.subject = new ReplaySubject(1);
   }
-
   get(): Observable<PanelData> {
     return this.subject.asObservable();
   }
-
   run(options: QueryRunnerOptions): void {
     const {
       queries,
@@ -51,11 +46,9 @@ export class QueryRunner implements QueryRunnerSrv {
       scopedVars,
       minInterval,
     } = options;
-
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
-
     const request: DataQueryRequest = {
       app: app ?? CoreApp.Unknown,
       requestId: getNextRequestId(),
@@ -73,10 +66,8 @@ export class QueryRunner implements QueryRunnerSrv {
       queryCachingTTL,
       startTime: Date.now(),
     };
-
     // Add deprecated property
     request.rangeRaw = timeRange.raw;
-
     from(getDataSource(datasource, request.scopedVars))
       .pipe(first())
       .subscribe({
@@ -88,22 +79,18 @@ export class QueryRunner implements QueryRunnerSrv {
             }
             return query;
           });
-
           const lowerIntervalLimit = minInterval
             ? getTemplateSrv().replace(minInterval, request.scopedVars)
             : ds.interval;
           const norm = rangeUtil.calculateInterval(timeRange, maxDataPoints, lowerIntervalLimit);
-
           // make shallow copy of scoped vars,
           // and add built in variables interval and interval_ms
           request.scopedVars = Object.assign({}, request.scopedVars, {
             __interval: { text: norm.interval, value: norm.interval },
             __interval_ms: { text: norm.intervalMs.toString(), value: norm.intervalMs },
           });
-
           request.interval = norm.interval;
           request.intervalMs = norm.intervalMs;
-
           this.subscription = runRequest(ds, request).subscribe({
             next: (data) => {
               const results = preProcessPanelData(data, this.lastResult);
@@ -113,17 +100,14 @@ export class QueryRunner implements QueryRunnerSrv {
             },
           });
         },
-        error: (error) => console.error('PanelQueryRunner Error', error),
+        error: (error) => structLog('error', 'PanelQueryRunner Error', error),
       });
   }
-
   cancel(): void {
     if (!this.subscription) {
       return;
     }
-
     this.subscription.unsubscribe();
-
     // If we have an old result with loading state, send it with done state
     if (this.lastResult && this.lastResult.state === LoadingState.Loading) {
       this.subject.next({
@@ -132,19 +116,16 @@ export class QueryRunner implements QueryRunnerSrv {
       });
     }
   }
-
   destroy(): void {
     // Tell anyone listening that we are done
     if (this.subject) {
       this.subject.complete();
     }
-
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
   }
 }
-
 async function getDataSource(
   datasource: DataSourceRef | DataSourceApi | null,
   scopedVars: ScopedVars
@@ -152,6 +133,5 @@ async function getDataSource(
   if (datasource && 'query' in datasource) {
     return datasource;
   }
-
   return getDatasourceSrv().get(datasource, scopedVars);
 }

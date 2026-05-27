@@ -1,13 +1,11 @@
+import { structLog } from '../src/utils/structLogBase';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-
 import { NewThemeOptionsSchema } from '../src/themes/createTheme';
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const jsonOut = path.join(__dirname, '..', 'src', 'themes', 'schema.generated.json');
-
 fs.writeFileSync(
   jsonOut,
   JSON.stringify(
@@ -18,5 +16,4 @@ fs.writeFileSync(
     2
   )
 );
-
-console.log('Successfully generated theme schema');
+structLog('log', 'Successfully generated theme schema');

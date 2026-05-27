@@ -1,9 +1,9 @@
+import { structLog } from '@grafana/data';
 import { css, cx } from '@emotion/css';
 import { sortBy } from 'lodash';
 import { type ChangeEvent } from 'react';
 import * as React from 'react';
 import { FixedSizeList } from 'react-window';
-
 import { type CoreApp, type GrafanaTheme2, type TimeRange } from '@grafana/data';
 import { reportInteraction } from '@grafana/runtime';
 import {
@@ -17,17 +17,14 @@ import {
   fuzzyMatch,
   Stack,
 } from '@grafana/ui';
-
 import type LokiLanguageProvider from '../LanguageProvider';
 import { escapeLabelValueInExactSelector, escapeLabelValueInRegexSelector } from '../languageUtils';
-
 // Hard limit on labels to render
 const MAX_LABEL_COUNT = 1000;
 const MAX_VALUE_COUNT = 10000;
 const MAX_AUTO_SELECT = 4;
 const EMPTY_SELECTOR = '{}';
 const collator = new Intl.Collator('en', { sensitivity: 'accent' });
-
 export interface BrowserProps {
   languageProvider: LokiLanguageProvider;
   onChange: (selector: string) => void;
@@ -40,7 +37,6 @@ export interface BrowserProps {
   storeLastUsedLabels: (labels: string[]) => void;
   deleteLastUsedLabels: () => void;
 }
-
 interface BrowserState {
   labels: SelectableLabel[];
   searchTerm: string;
@@ -48,14 +44,12 @@ interface BrowserState {
   error: string;
   validationStatus: string;
 }
-
 interface FacettableValue {
   name: string;
   selected?: boolean;
   highlightParts?: HighlightPart[];
   order?: number;
 }
-
 export interface SelectableLabel {
   name: string;
   selected?: boolean;
@@ -64,7 +58,6 @@ export interface SelectableLabel {
   hidden?: boolean;
   facets?: number;
 }
-
 export function buildSelector(labels: SelectableLabel[]): string {
   const selectedLabels = [];
   for (const label of labels) {
@@ -82,7 +75,6 @@ export function buildSelector(labels: SelectableLabel[]): string {
   }
   return ['{', selectedLabels.join(','), '}'].join('');
 }
-
 export function facetLabels(
   labels: SelectableLabel[],
   possibleLabels: Record<string, string[]>,
@@ -111,12 +103,10 @@ export function facetLabels(
       }
       return { ...label, loading: false, values: existingValues, facets: existingValues.length };
     }
-
     // Label is facetted out, hide all values
     return { ...label, loading: false, hidden: !possibleValues, values: undefined, facets: 0 };
   });
 }
-
 const getStyles = (theme: GrafanaTheme2) => ({
   wrapper: css({
     backgroundColor: theme.colors.background.secondary,
@@ -136,7 +126,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     '& + &': {
       margin: theme.spacing(2, 0),
     },
-
     position: 'relative',
   }),
   footerSectionStyles: css({
@@ -197,7 +186,6 @@ const getStyles = (theme: GrafanaTheme2) => ({
     textOverflow: 'ellipsis',
   }),
 });
-
 export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, BrowserState> {
   state: BrowserState = {
     labels: [],
@@ -206,11 +194,9 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
     error: '',
     validationStatus: '',
   };
-
   onChangeSearch = (event: ChangeEvent<HTMLInputElement>) => {
     this.setState({ searchTerm: event.target.value });
   };
-
   onClickRunLogsQuery = () => {
     reportInteraction('grafana_loki_label_browser_closed', {
       app: this.props.app,
@@ -219,7 +205,6 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
     const selector = buildSelector(this.state.labels);
     this.props.onChange(selector);
   };
-
   onClickRunMetricsQuery = () => {
     reportInteraction('grafana_loki_label_browser_closed', {
       app: this.props.app,
@@ -229,7 +214,6 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
     const query = `rate(${selector}[$__auto])`;
     this.props.onChange(query);
   };
-
   onClickClear = () => {
     this.setState((state) => {
       const labels: SelectableLabel[] = state.labels.map((label) => ({
@@ -244,7 +228,6 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
     });
     this.props.deleteLastUsedLabels();
   };
-
   onClickLabel = (name: string, value: string | undefined, event: React.MouseEvent<HTMLElement>) => {
     const label = this.state.labels.find((l) => l.name === name);
     if (!label) {
@@ -262,7 +245,6 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
     this.setState({ searchTerm: '' });
     this.updateLabelState(name, nextValue, '', () => this.doFacettingForLabel(name));
   };
-
   onClickValue = (name: string, value: string | undefined, event: React.MouseEvent<HTMLElement>) => {
     const label = this.state.labels.find((l) => l.name === name);
     if (!label || !label.values) {
@@ -274,12 +256,10 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
     const values = label.values.map((v) => ({ ...v, selected: v.name === value ? !v.selected : v.selected }));
     this.updateLabelState(name, { values }, '', () => this.doFacetting(name));
   };
-
   onClickValidate = () => {
     const selector = buildSelector(this.state.labels);
     this.validateSelector(selector);
   };
-
   updateLabelState(name: string, updatedFields: Partial<SelectableLabel>, status = '', cb?: () => void) {
     this.setState((state) => {
       const labels: SelectableLabel[] = state.labels.map((label) => {
@@ -293,7 +273,6 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
       return { labels, status, error, validationStatus: '' };
     }, cb);
   }
-
   componentDidMount() {
     const { languageProvider, autoSelect = MAX_AUTO_SELECT, lastUsedLabels, timeRange } = this.props;
     if (languageProvider) {
@@ -322,7 +301,6 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
       });
     }
   }
-
   doFacettingForLabel(name: string) {
     const label = this.state.labels.find((l) => l.name === name);
     if (!label) {
@@ -340,7 +318,6 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
       this.doFacetting();
     }
   }
-
   doFacetting = (lastFacetted?: string) => {
     const selector = buildSelector(this.state.labels);
     if (selector === EMPTY_SELECTOR) {
@@ -357,7 +334,6 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
       this.fetchSeries(selector, lastFacetted);
     }
   };
-
   async fetchValues(name: string, selector: string) {
     const { languageProvider, timeRange } = this.props;
     this.updateLabelState(name, { loading: true }, `Fetching values for ${name}`);
@@ -376,10 +352,9 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
       const values: FacettableValue[] = rawValues.map((value) => ({ name: value }));
       this.updateLabelState(name, { values, loading: false });
     } catch (error) {
-      console.error(error);
+      structLog('error', error);
     }
   }
-
   async fetchSeries(selector: string, lastFacetted?: string) {
     const { languageProvider, timeRange } = this.props;
     if (lastFacetted) {
@@ -404,17 +379,15 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
         this.updateLabelState(lastFacetted, { loading: false });
       }
     } catch (error) {
-      console.error(error);
+      structLog('error', error);
     }
   }
-
   async validateSelector(selector: string) {
     const { languageProvider, timeRange } = this.props;
     this.setState({ validationStatus: `Validating selector ${selector}`, error: '' });
     const streams = await languageProvider.fetchSeries(selector, { timeRange });
     this.setState({ validationStatus: `Selector is valid (${streams.length} streams found)` });
   }
-
   render() {
     const { theme } = this.props;
     const { labels, searchTerm, status, error, validationStatus } = this.state;
@@ -424,7 +397,6 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
     const styles = getStyles(theme);
     const selector = buildSelector(this.state.labels);
     const empty = selector === EMPTY_SELECTOR;
-
     let selectedLabels = labels.filter((label) => label.selected && label.values);
     if (searchTerm) {
       selectedLabels = selectedLabels.map((label) => {
@@ -457,7 +429,6 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
           values: label?.values ? label.values.map((value) => ({ ...value, highlightParts: undefined })) : [],
         }));
     }
-
     return (
       <>
         <div className={styles.wrapper}>
@@ -575,5 +546,4 @@ export class UnthemedLokiLabelBrowser extends React.Component<BrowserProps, Brow
     );
   }
 }
-
 export const LokiLabelBrowser = withTheme2(UnthemedLokiLabelBrowser);

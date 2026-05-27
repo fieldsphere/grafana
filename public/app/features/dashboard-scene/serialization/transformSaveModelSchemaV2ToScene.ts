@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { uniqueId } from 'lodash';
-
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -64,7 +64,6 @@ import {
   getDashboardComponentInteractionCallback,
 } from 'app/features/dashboard/services/DashboardProfiler';
 import { type DashboardMeta } from 'app/types/dashboard';
-
 import { addPanelsOnLoadBehavior } from '../addToDashboard/addPanelsOnLoadBehavior';
 import { dashboardAnalyticsInitializer } from '../behaviors/DashboardAnalyticsInitializerBehavior';
 import { DefaultControlsBehavior } from '../behaviors/DefaultControlsBehavior';
@@ -78,7 +77,6 @@ import { DashboardReloadBehavior } from '../scene/DashboardReloadBehavior';
 import { DashboardScene } from '../scene/DashboardScene';
 import { type DashboardLayoutManager } from '../scene/types/DashboardLayoutManager';
 import { getIntervalsFromQueryString } from '../utils/utils';
-
 import { transformV2ToV1AnnotationQuery } from './annotations';
 import { SnapshotVariable } from './custom-variables/SnapshotVariable';
 import { migrateGroupByVariablesV2 } from './groupByMigration';
@@ -92,9 +90,7 @@ import {
   transformVariableRefreshToEnumV1,
 } from './transformToV1TypesUtils';
 import { LEGACY_STRING_VALUE_KEY } from './transformToV2TypesUtils';
-
 const DEFAULT_DATASOURCE = 'default';
-
 export type TypedVariableModelV2 =
   | QueryVariableKind
   | TextVariableKind
@@ -105,22 +101,18 @@ export type TypedVariableModelV2 =
   | GroupByVariableKind
   | AdhocVariableKind
   | SwitchVariableKind;
-
 export function transformSaveModelSchemaV2ToScene(
   dto: DashboardWithAccessInfo<DashboardV2Spec>,
   options?: LoadDashboardOptions
 ): DashboardScene {
   const { spec: dashboard, metadata, apiVersion } = dto;
-
   const annotations = dashboard.annotations ?? [];
   const found = annotations.some((item) => item.spec.builtIn);
   if (!found) {
     annotations.unshift(getGrafanaBuiltInAnnotation());
   }
-
   const annotationLayers = annotations.map((annotation) => {
     const annotationQuerySpec = transformV2ToV1AnnotationQuery(annotation);
-
     const layerState = {
       key: uniqueId('annotations-'),
       query: annotationQuerySpec,
@@ -129,10 +121,8 @@ export function transformSaveModelSchemaV2ToScene(
       isHidden: Boolean(annotation.spec.hide),
       placement: annotation.spec.placement,
     };
-
     return new DashboardAnnotationsDataLayer(layerState);
   });
-
   // Create alert states data layer if unified alerting is enabled
   let alertStatesLayer: AlertStatesDataLayer | undefined;
   if (config.unifiedAlertingEnabled) {
@@ -141,10 +131,8 @@ export function transformSaveModelSchemaV2ToScene(
       name: 'Alert States',
     });
   }
-
   const isDashboardEditable = Boolean(dashboard.editable);
   const canSave = dto.access.canSave !== false;
-
   const meta: DashboardMeta = {
     canShare: dto.access.canShare !== false,
     canSave,
@@ -163,7 +151,6 @@ export function transformSaveModelSchemaV2ToScene(
     isSnapshot: Boolean(metadata.annotations?.[AnnoKeyDashboardIsSnapshot]),
     isEmbedded: Boolean(metadata.annotations?.[AnnoKeyEmbedded]),
     publicDashboardEnabled: dto.access.isPublic,
-
     // UI-only metadata, ref: DashboardModel.initMeta
     showSettings: Boolean(dto.access.canEdit),
     canMakeEditable: canSave && !isDashboardEditable,
@@ -171,28 +158,23 @@ export function transformSaveModelSchemaV2ToScene(
     version: metadata.generation,
     k8s: metadata,
   };
-
   // Ref: DashboardModel.initMeta
   if (!isDashboardEditable) {
     meta.canEdit = false;
     meta.canDelete = false;
     meta.canSave = false;
   }
-
   const layoutManager: DashboardLayoutManager = layoutDeserializerRegistry
     .get(dashboard.layout.kind)
     .deserialize(dashboard.layout, dashboard.elements, dashboard.preload);
-
   let templateLayoutManager: DashboardLayoutManager | undefined = undefined;
   if (config.featureToggles.dashboardDefaultLayoutSelector && dashboard.preferences?.layout) {
     templateLayoutManager = layoutDeserializerRegistry
       .get(dashboard.preferences.layout.kind)
       .deserialize(dashboard.preferences.layout, {}, false);
   }
-
   // Create profiler once and reuse to avoid duplicate metadata setting
   const dashboardProfiler = getDashboardSceneProfilerWithMetadata(metadata.name, dashboard.title);
-
   const enableProfiling =
     config.dashboardPerformanceMetrics.findIndex((uid) => uid === '*' || uid === metadata.name) !== -1;
   const queryController = new behaviors.SceneQueryController(
@@ -201,7 +183,6 @@ export function transformSaveModelSchemaV2ToScene(
     },
     dashboardProfiler
   );
-
   const interactionTracker = new behaviors.SceneInteractionTracker(
     {
       enableInteractionTracking: enableProfiling,
@@ -209,7 +190,6 @@ export function transformSaveModelSchemaV2ToScene(
     },
     dashboardProfiler
   );
-
   const dashboardScene = new DashboardScene(
     {
       preferences: templateLayoutManager
@@ -276,31 +256,24 @@ export function transformSaveModelSchemaV2ToScene(
     },
     'v2'
   );
-
   dashboardScene.setInitialSaveModel(dto.spec, dto.metadata, apiVersion);
-
   // Enable panel profiling for this dashboard using the composed SceneRenderProfiler
   enablePanelProfilingForDashboard(dashboardScene, metadata.name);
-
   return dashboardScene;
 }
-
 function getVariables(
   dashboard: DashboardV2Spec,
   isSnapshot: boolean,
   defaultVariables?: VariableKind[]
 ): SceneVariableSet | undefined {
   let variables: SceneVariableSet | undefined;
-
   if (isSnapshot) {
     variables = createVariablesForSnapshot(dashboard);
   } else {
     variables = createVariablesForDashboard(dashboard, defaultVariables);
   }
-
   return variables;
 }
-
 function createVariablesForDashboard(dashboard: DashboardV2Spec, defaultVariables: VariableKind[] = []) {
   const isDefined = (v: SceneVariable | null): v is SceneVariable => Boolean(v);
   const variables = migrateGroupByVariablesV2(dashboard.variables ?? []);
@@ -309,35 +282,31 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec, defaultVariable
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structLog('error', err);
         return null;
       }
     })
     // TODO: Remove filter
     // Added temporarily to allow skipping non-compatible variables
     .filter(isDefined);
-
   const defaultVariableObjects = defaultVariables
     .map((v) => {
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structLog('error', err);
         return null;
       }
     })
     .filter(isDefined);
-
   // Explicitly disable scopes for public dashboards
   if (config.featureToggles.scopeFilters && !config.publicDashboardAccessToken) {
     variableObjects.push(new ScopesVariable({ enable: true }));
   }
-
   return new SceneVariableSet({
     variables: [...defaultVariableObjects, ...variableObjects],
   });
 }
-
 export function createSceneVariableFromVariableModel(variable: TypedVariableModelV2): SceneVariable {
   const commonProperties = {
     name: variable.spec.name,
@@ -353,12 +322,10 @@ export function createSceneVariableFromVariableModel(variable: TypedVariableMode
       },
       variable.group
     );
-
     // Separate filters by origin - filters with origin go to originFilters, others go to filters
     const originFilters: AdHocFilterWithLabels[] = [];
     const filters: AdHocFilterWithLabels[] = [];
     variable.spec.filters?.forEach((filter) => (filter.origin ? originFilters.push(filter) : filters.push(filter)));
-
     const adhocVariableState: AdHocFiltersVariable['state'] = {
       ...commonProperties,
       type: 'adhoc',
@@ -389,7 +356,6 @@ export function createSceneVariableFromVariableModel(variable: TypedVariableMode
     }
     return new AdHocFiltersVariable(adhocVariableState);
   }
-
   if (variable.kind === defaultCustomVariableKind().kind) {
     return new CustomVariable({
       ...commonProperties,
@@ -494,7 +460,6 @@ export function createSceneVariableFromVariableModel(variable: TypedVariableMode
         val = variable.spec.current.value[0];
       }
     }
-
     return new TextBoxVariable({
       ...commonProperties,
       value: val,
@@ -509,7 +474,6 @@ export function createSceneVariableFromVariableModel(variable: TypedVariableMode
       },
       variable.group
     );
-
     return new GroupByVariable({
       ...commonProperties,
       datasource: ds,
@@ -540,42 +504,34 @@ export function createSceneVariableFromVariableModel(variable: TypedVariableMode
     throw new Error(`Scenes: Unsupported variable type ${variable.kind}`);
   }
 }
-
 function getDataQueryForVariable(variable: QueryVariableKind) {
   return LEGACY_STRING_VALUE_KEY in variable.spec.query.spec
     ? (variable.spec.query.spec[LEGACY_STRING_VALUE_KEY] ?? '')
     : variable.spec.query.spec;
 }
-
 export function getCurrentValueForOldIntervalModel(variable: IntervalVariableKind, intervals: string[]): string {
   // Handle missing current object or value
   const currentValue = variable.spec.current?.value;
   const selectedInterval = Array.isArray(currentValue) ? currentValue[0] : currentValue;
-
   // If no intervals are available, return empty string (will use default from IntervalVariable)
   if (intervals.length === 0) {
     return '';
   }
-
   // If no selected interval, return the first valid interval
   if (!selectedInterval) {
     return intervals[0];
   }
-
   // If the interval is the old auto format, return the new auto interval from scenes.
   if (selectedInterval.startsWith('$__auto_interval_')) {
     return '$__auto';
   }
-
   // Check if the selected interval is valid.
   if (intervals.includes(selectedInterval)) {
     return selectedInterval;
   }
-
   // If the selected interval is not valid, return the first valid interval.
   return intervals[0];
 }
-
 export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVariableSet {
   const variableObjects = (dashboard.variables ?? [])
     .map((v) => {
@@ -589,7 +545,6 @@ export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVar
             },
             v.group
           );
-
           return new AdHocFiltersVariable({
             name: v.spec.name,
             label: v.spec.label,
@@ -616,23 +571,24 @@ export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVar
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        structLog('error', err);
         return null;
       }
     })
     // TODO: Remove filter
     // Added temporarily to allow skipping non-compatible variables
     .filter((v): v is SceneVariable => Boolean(v));
-
   return new SceneVariableSet({
     variables: variableObjects,
   });
 }
-
 /** Snapshots variables are read-only and should not be updated */
 export function createSnapshotVariable(variable: TypedVariableModelV2): SceneVariable {
   let snapshotVariable: SnapshotVariable;
-  let current: { value: string | string[]; text: string | string[] };
+  let current: {
+    value: string | string[];
+    text: string | string[];
+  };
   if (variable.kind === 'IntervalVariable') {
     const intervals = getIntervalsFromQueryString(variable.spec.query);
     const currentInterval = getCurrentValueForOldIntervalModel(variable, intervals);
@@ -646,7 +602,6 @@ export function createSnapshotVariable(variable: TypedVariableModelV2): SceneVar
     });
     return snapshotVariable;
   }
-
   if (variable.kind === 'ConstantVariable' || variable.kind === 'AdhocVariable') {
     current = {
       value: '',
@@ -663,7 +618,6 @@ export function createSnapshotVariable(variable: TypedVariableModelV2): SceneVar
       text: variable.spec.current?.text ?? '',
     };
   }
-
   snapshotVariable = new SnapshotVariable({
     name: variable.spec.name,
     label: variable.spec.label,
@@ -674,15 +628,12 @@ export function createSnapshotVariable(variable: TypedVariableModelV2): SceneVar
   });
   return snapshotVariable;
 }
-
 export function getPanelElement(dashboard: DashboardV2Spec, elementName: string): PanelKind | undefined {
   return dashboard.elements[elementName].kind === 'Panel' ? dashboard.elements[elementName] : undefined;
 }
-
 export function getLibraryPanelElement(dashboard: DashboardV2Spec, elementName: string): LibraryPanelKind | undefined {
   return dashboard.elements[elementName].kind === 'LibraryPanel' ? dashboard.elements[elementName] : undefined;
 }
-
 function getGrafanaBuiltInAnnotation(): AnnotationQueryKind {
   const grafanaBuiltAnnotation: AnnotationQueryKind = {
     kind: 'AnnotationQuery',
@@ -703,6 +654,5 @@ function getGrafanaBuiltInAnnotation(): AnnotationQueryKind {
       builtIn: true,
     },
   };
-
   return grafanaBuiltAnnotation;
 }

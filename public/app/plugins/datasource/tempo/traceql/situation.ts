@@ -1,5 +1,5 @@
+import { structLog } from '@grafana/data';
 import { type SyntaxNode, type Tree } from '@lezer/common';
-
 import {
   Aggregate,
   And,
@@ -22,12 +22,11 @@ import {
   String as StringNode,
   TraceQL,
 } from '@grafana/lezer-traceql';
-
 type Direction = 'parent' | 'firstChild' | 'lastChild' | 'nextSibling' | 'prevSibling';
 type NodeType = number;
-
-export type Situation = { query: string } & SituationType;
-
+export type Situation = {
+  query: string;
+} & SituationType;
 export type SituationType =
   | {
       type: 'UNKNOWN';
@@ -89,14 +88,11 @@ export type SituationType =
   | {
       type: 'QUERY_HINT_VALUE';
     };
-
 type Path = Array<[Direction, NodeType[]]>;
-
 type Resolver = {
   path: NodeType[];
   fun: (node: SyntaxNode, text: string, pos: number, originalPos: number) => SituationType | void;
 };
-
 function getErrorNode(tree: Tree, cursorPos: number): SyntaxNode | null {
   const cur = tree.cursorAt(cursorPos);
   do {
@@ -109,11 +105,9 @@ function getErrorNode(tree: Tree, cursorPos: number): SyntaxNode | null {
   } while (cur.next());
   return null;
 }
-
 function move(node: SyntaxNode, direction: Direction): SyntaxNode | null {
   return node[direction];
 }
-
 function walk(node: SyntaxNode, path: Path): SyntaxNode | null {
   let current: SyntaxNode | null = node;
   for (const [direction, expectedNodeIDs] of path) {
@@ -122,7 +116,6 @@ function walk(node: SyntaxNode, path: Path): SyntaxNode | null {
       // we could not move in the direction, we stop
       return null;
     }
-
     // note that the found value can be 0, which is acceptable
     if (expectedNodeIDs.find((id) => id === current?.type.id) === undefined) {
       // the reached node has wrong type, we stop
@@ -131,16 +124,13 @@ function walk(node: SyntaxNode, path: Path): SyntaxNode | null {
   }
   return current;
 }
-
 function getNodeText(node: SyntaxNode, text: string): string {
   // if the from and to are them same (e.g. for an error node) we can subtract 1 from the start/from index
   return text.slice(node.from === node.to ? node.from - 1 : node.from, node.to);
 }
-
 function isPathMatch(resolverPath: NodeType[], cursorPath: number[]): boolean {
   return resolverPath.every((item, index) => item === cursorPath[index]);
 }
-
 /**
  * Figure out where is the cursor and what kind of suggestions are appropriate.
  * @param text the user input
@@ -155,10 +145,8 @@ export function getSituation(text: string, offset: number): Situation | null {
       type: 'EMPTY',
     };
   }
-
   // Check for with clause hint situations first
   const textUpToOffset = text.substring(0, offset);
-
   // Check if we're inside with(...) waiting for parameter names
   if (/\bwith\s*\(\s*$/.test(textUpToOffset)) {
     return {
@@ -166,7 +154,6 @@ export function getSituation(text: string, offset: number): Situation | null {
       type: 'QUERY_HINT_NAME',
     };
   }
-
   // Check if we're after parameter= waiting for values
   if (/\bwith\s*\(\s*\w+\s*=\s*[\w]*$/.test(textUpToOffset)) {
     return {
@@ -174,9 +161,7 @@ export function getSituation(text: string, offset: number): Situation | null {
       type: 'QUERY_HINT_VALUE',
     };
   }
-
   const tree = parser.parse(text);
-
   // Whitespaces (especially when multiple) on the left of the text cursor can trick the Lezer parser,
   // causing a wrong tree cursor to be picked.
   // Example: `{ span.foo =    ↓ }`, with `↓` being the cursor, tricks the parser.
@@ -185,7 +170,6 @@ export function getSituation(text: string, offset: number): Situation | null {
   while (shiftedOffset - 1 >= 0 && text[shiftedOffset - 1] === ' ') {
     shiftedOffset -= 1;
   }
-
   // If the tree contains error, it's probable that our node is one of those error nodes.
   // If there are errors, the node lezer finds us might not be the best node.
   // So, first we check if there is an error node at the cursor position.
@@ -198,27 +182,21 @@ export function getSituation(text: string, offset: number): Situation | null {
     // Try again with the next character
     errorNode = getErrorNode(tree, shiftedOffset + 1);
   }
-
   const cur = errorNode != null ? errorNode.cursor() : tree.cursorAt(shiftedOffset);
-
   const currentNode = cur.node;
   const ids = [cur.type.id];
   while (cur.parent()) {
     ids.push(cur.type.id);
   }
-
   let situationType: SituationType | void = undefined;
   for (let resolver of RESOLVERS) {
     if (isPathMatch(resolver.path, ids)) {
       situationType = resolver.fun(currentNode, text, shiftedOffset, offset);
     }
   }
-
   return { query: text, ...(situationType ?? { type: 'UNKNOWN' }) };
 }
-
 const ERROR_NODE_ID = 0;
-
 const RESOLVERS: Resolver[] = [
   // Curson on error node cases
   {
@@ -279,7 +257,6 @@ const RESOLVERS: Resolver[] = [
     fun: resolveExpression,
   },
 ];
-
 const resolveAttributeCompletion = (node: SyntaxNode, text: string, pos: number): SituationType | void => {
   // The user is completing an expression. We can take advantage of the fact that the Monaco editor is smart
   // enough to automatically detect that there are some characters before the cursor and to take them into
@@ -290,12 +267,10 @@ const resolveAttributeCompletion = (node: SyntaxNode, text: string, pos: number)
     const indexOfDot = attributeFieldParentText.indexOf('.');
     return attributeFieldParentText.slice(0, indexOfDot);
   };
-
   // If there is a space, for sure the attribute is completed and no suggestions to complete it should be provided
   if (text[pos - 1] === ' ') {
     return;
   }
-
   const endOfPathNode = walk(node, [['firstChild', [FieldExpression]]]);
   if (endOfPathNode) {
     return {
@@ -303,7 +278,6 @@ const resolveAttributeCompletion = (node: SyntaxNode, text: string, pos: number)
       scope: getAttributeFieldUpToDot(endOfPathNode),
     };
   }
-
   const endOfPathNode2 = walk(node, [
     ['parent', [SpansetFilter]],
     ['firstChild', [FieldExpression]],
@@ -316,13 +290,11 @@ const resolveAttributeCompletion = (node: SyntaxNode, text: string, pos: number)
     };
   }
 };
-
 function resolveSpanset(node: SyntaxNode, text: string, _: number, originalPos: number): SituationType {
   const situation = resolveAttributeCompletion(node, text, originalPos);
   if (situation) {
     return situation;
   }
-
   let endOfPathNode = walk(node, [
     ['firstChild', [FieldExpression]],
     ['firstChild', [AttributeField]],
@@ -332,7 +304,6 @@ function resolveSpanset(node: SyntaxNode, text: string, _: number, originalPos: 
       type: 'SPANSET_EXPRESSION_OPERATORS',
     };
   }
-
   endOfPathNode = walk(node, [
     ['lastChild', [FieldExpression]],
     ['lastChild', [FieldExpression]],
@@ -343,32 +314,26 @@ function resolveSpanset(node: SyntaxNode, text: string, _: number, originalPos: 
       type: 'SPANFIELD_COMBINING_OPERATORS',
     };
   }
-
   endOfPathNode = walk(node, [['lastChild', [FieldExpression]]]);
   if (endOfPathNode) {
     return {
       type: 'SPANSET_EXPRESSION_OPERATORS',
     };
   }
-
   return {
     type: 'SPANSET_EMPTY',
   };
 }
-
 function resolveAttribute(node: SyntaxNode, text: string): SituationType {
   const attributeFieldParent = walk(node, [['parent', [AttributeField]]]);
   const attributeFieldParentText = attributeFieldParent ? getNodeText(attributeFieldParent, text) : '';
-
   if (attributeFieldParentText === '.') {
     return {
       type: 'SPANSET_ONLY_DOT',
     };
   }
-
   const indexOfDot = attributeFieldParentText.indexOf('.');
   const attributeFieldUpToDot = attributeFieldParentText.slice(0, indexOfDot);
-
   if (
     ['event', 'instrumentation', 'link', 'resource', 'span', 'parent'].find((item) => item === attributeFieldUpToDot)
   ) {
@@ -381,13 +346,11 @@ function resolveAttribute(node: SyntaxNode, text: string): SituationType {
     type: 'SPANSET_IN_NAME',
   };
 }
-
 function resolveExpression(node: SyntaxNode, text: string, _: number, originalPos: number): SituationType {
   const situation = resolveAttributeCompletion(node, text, originalPos);
   if (situation) {
     return situation;
   }
-
   if (
     walk(node, [
       ['parent', [Static]],
@@ -404,7 +367,6 @@ function resolveExpression(node: SyntaxNode, text: string, _: number, originalPo
       };
     }
   }
-
   if (node.prevSibling?.type.id === FieldOp) {
     let attributeField = node.prevSibling?.prevSibling;
     if (attributeField) {
@@ -415,18 +377,15 @@ function resolveExpression(node: SyntaxNode, text: string, _: number, originalPo
       };
     }
   }
-
   if (node.prevSibling?.type.name === 'And' || node.prevSibling?.type.name === 'Or') {
     return {
       type: 'SPANSET_EMPTY',
     };
   }
-
   return {
     type: 'SPANSET_IN_THE_MIDDLE',
   };
 }
-
 function resolveArithmeticOperator(node: SyntaxNode, _0: string, _1: number): SituationType | void {
   if (node.prevSibling?.type.id !== ComparisonOp) {
     return {
@@ -434,7 +393,6 @@ function resolveArithmeticOperator(node: SyntaxNode, _0: string, _1: number): Si
     };
   }
 }
-
 function resolveNewSpansetExpression(node: SyntaxNode, text: string, offset: number): SituationType {
   // Select the node immediately before the one pointed by the cursor
   let previousNode = node.firstChild;
@@ -444,20 +402,17 @@ function resolveNewSpansetExpression(node: SyntaxNode, text: string, offset: num
       previousNode = previousNode!.nextSibling;
     }
   } catch (error) {
-    console.error('Unexpected error while searching for previous node', error);
+    structLog('error', 'Unexpected error while searching for previous node', error);
   }
-
   if (previousNode?.type.id === And || previousNode?.type.id === Or) {
     return {
       type: 'NEW_SPANSET',
     };
   }
-
   return {
     type: 'SPANSET_COMBINING_OPERATORS',
   };
 }
-
 function resolveAttributeForFunction(node: SyntaxNode, _0: string, _1: number): SituationType | void {
   const parent = node?.parent;
   if (!!parent && [IntrinsicField, Aggregate, GroupOperation, SelectOperation, SelectArgs].includes(parent.type.id)) {
@@ -466,7 +421,6 @@ function resolveAttributeForFunction(node: SyntaxNode, _0: string, _1: number): 
     };
   }
 }
-
 function resolveSpansetPipeline(node: SyntaxNode, _1: string, _2: number): SituationType {
   if (node.prevSibling?.type.id === Pipe) {
     return {
@@ -477,13 +431,11 @@ function resolveSpansetPipeline(node: SyntaxNode, _1: string, _2: number): Situa
     type: 'NEW_SPANSET',
   };
 }
-
 function resolveSpansetWithNoClosedBrace(node: SyntaxNode, text: string, originalPos: number): SituationType {
   const situation = resolveAttributeCompletion(node, text, originalPos);
   if (situation) {
     return situation;
   }
-
   return {
     type: 'SPANSET_EXPRESSION_OPERATORS_WITH_MISSING_CLOSED_BRACE',
   };
