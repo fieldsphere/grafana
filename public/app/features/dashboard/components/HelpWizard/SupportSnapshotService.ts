@@ -12,6 +12,11 @@ import { DashboardModel } from '../../state/DashboardModel';
 import { type PanelModel } from '../../state/PanelModel';
 
 import { getDebugDashboard, getGithubMarkdown } from './utils';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger(
+  'public/app/features/dashboard/components/HelpWizard/SupportSnapshotService.ts'
+);
 
 interface SupportSnapshotState {
   currentTab: SnapshotTab;
@@ -88,7 +93,7 @@ export class SupportSnapshotService extends StateManagerBase<SupportSnapshotStat
       const dash = createDashboardSceneFromDashboardModel(oldModel, snapshot);
       scene = dash.state.body; // skip the wrappers
     } catch (ex) {
-      console.log('Error creating scene:', ex);
+      structuredLog.info('Error creating scene:', ex);
     }
 
     this.setState({ snapshot, snapshotText, markdownText, snapshotSize, snapshotUpdate: snapshotUpdate + 1, scene });

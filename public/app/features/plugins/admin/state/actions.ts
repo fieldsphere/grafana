@@ -29,6 +29,9 @@ import {
   type ProvisionedPlugin,
   PluginStatus,
 } from '../types';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger('public/app/features/plugins/admin/state/actions.ts');
 
 // Fetches
 export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, thunkApi) => {
@@ -121,7 +124,7 @@ export const fetchAll = createAsyncThunk(`${STATE_PREFIX}/fetchAll`, async (_, t
           }
         },
         (error) => {
-          console.log(error);
+          structuredLog.info(error);
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchLocal/rejected` });
           thunkApi.dispatch({ type: `${STATE_PREFIX}/fetchRemote/rejected` });
           return thunkApi.rejectWithValue('Unknown error.');

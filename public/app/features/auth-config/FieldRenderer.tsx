@@ -8,6 +8,9 @@ import { Checkbox, Field, Input, SecretInput, Select, Switch, useTheme2 } from '
 import { fieldMap } from './fields';
 import { type SSOProviderDTO, type SSOSettingsField } from './types';
 import { isSelectableValueArray } from './utils/guards';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger('public/app/features/auth-config/FieldRenderer.tsx');
 
 interface FieldRendererProps
   extends Pick<
@@ -78,7 +81,7 @@ export const FieldRenderer = ({
   }, [isDisabled, disabledWhen?.disabledValue, name, setValue]);
 
   if (!field) {
-    console.log('missing field:', name);
+    structuredLog.info('missing field:', name);
     return null;
   }
 

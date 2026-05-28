@@ -28,6 +28,9 @@ import {
 } from './ConnectionAnchors';
 import { ConnectionAnchors } from './ConnectionAnchors2';
 import { ConnectionSVG } from './ConnectionSVG2';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger('public/app/plugins/panel/canvas/components/connections/Connections2.tsx');
 
 export const CONNECTION_VERTEX_ID = 'vertex';
 export const CONNECTION_VERTEX_ADD_ID = 'vertexAdd';
@@ -126,7 +129,7 @@ export class Connections2 {
     let element: ElementState | undefined = this.findElementTarget(event.target);
 
     if (!element) {
-      console.log('no element');
+      structuredLog.info('no element');
       return;
     }
 
@@ -135,7 +138,7 @@ export class Connections2 {
     } else {
       this.connectionSource = element;
       if (!this.connectionSource) {
-        console.log('no connection source');
+        structuredLog.info('no connection source');
         return;
       }
     }

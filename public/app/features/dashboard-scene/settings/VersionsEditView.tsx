@@ -31,6 +31,9 @@ import { VersionsHistoryButtons } from './version-history/VersionHistoryButtons'
 import { VersionHistoryComparison } from './version-history/VersionHistoryComparison';
 import { VersionHistoryHeader } from './version-history/VersionHistoryHeader';
 import { VersionHistoryTable } from './version-history/VersionHistoryTable';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger('public/app/features/dashboard-scene/settings/VersionsEditView.tsx');
 
 export interface VersionsEditViewState extends DashboardEditViewState {
   versions?: DecoratedRevisionModel[];
@@ -118,7 +121,7 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => structuredLog.info(err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

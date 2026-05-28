@@ -9,6 +9,9 @@ import { forbiddenElements } from './constants';
 import { recursivePatchObjectAsLiveTarget } from './documentSandbox';
 import { type SandboxEnvironment, type SandboxPluginMeta } from './types';
 import { logWarning, unboxRegexesFromMembraneProxy } from './utils';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger('public/app/features/plugins/sandbox/distortions.ts');
 
 /**
  * Distortions are near-membrane mechanisms to altert JS instrics and DOM APIs.
@@ -140,7 +143,7 @@ function distortConsole(distortions: DistortionMap) {
       const pluginId = meta.id;
 
       function sandboxLog(...args: unknown[]) {
-        console.log(`[plugin ${pluginId}]`, ...args);
+        structuredLog.info(`[plugin ${pluginId}]`, ...args);
       }
       return {
         log: sandboxLog,
@@ -170,7 +173,7 @@ function distortAlert(distortions: DistortionMap) {
     });
 
     return function (...args: unknown[]) {
-      console.log(`[plugin ${pluginId}]`, ...args);
+      structuredLog.info(`[plugin ${pluginId}]`, ...args);
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, 'alert');

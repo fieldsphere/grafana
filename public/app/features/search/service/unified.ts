@@ -32,6 +32,9 @@ import {
   type SearchResultMeta,
 } from './types';
 import { appendFrame, filterSearchResults, replaceCurrentFolderQuery } from './utils';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger('public/app/features/search/service/unified.ts');
 
 // The backend returns an empty frame with a special name to indicate that the indexing engine is being rebuilt,
 // and that it can not serve any search requests. We are temporarily using the old SQL Search API as a fallback when that happens.
@@ -209,7 +212,7 @@ export class UnifiedSearcher implements GrafanaSearcher {
         const resp = await this.fetchResponse(nextPageUrl);
         const frame = toDashboardResults(resp, query.sort ?? '');
         if (!frame) {
-          console.log('no results', frame);
+          structuredLog.info('no results', frame);
           return;
         }
 

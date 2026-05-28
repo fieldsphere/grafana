@@ -1,4 +1,7 @@
 import { store } from '@grafana/data';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger('public/app/core/utils/debugLog.ts');
 
 /**
  * Creates a debug logger gated by a localStorage key.
@@ -11,7 +14,7 @@ export function createDebugLog(key: string, prefix: string) {
 
   return function debugLog(message: string, ...args: unknown[]) {
     if (store.get(storageKey) === 'true') {
-      console.log(`[${prefix}] ${message}`, ...args);
+      structuredLog.info(`[${prefix}] ${message}`, ...args);
     }
   };
 }

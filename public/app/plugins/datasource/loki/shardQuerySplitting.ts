@@ -16,6 +16,9 @@ import {
 } from './queryUtils';
 import { isRetriableError } from './responseUtils';
 import { type LokiQuery } from './types';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger('public/app/plugins/datasource/loki/shardQuerySplitting.ts');
 /**
  * Query splitting by stream shards.
  * Query splitting was introduced in Loki to optimize querying for long intervals and high volume of data,
@@ -375,5 +378,5 @@ function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  console.log(message);
+  structuredLog.info(message);
 }

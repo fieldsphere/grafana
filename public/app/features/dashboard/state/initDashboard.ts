@@ -39,6 +39,9 @@ import { DashboardModel } from './DashboardModel';
 import { type PanelModel } from './PanelModel';
 import { emitDashboardViewEvent } from './analyticsProcessor';
 import { dashboardInitCompleted, dashboardInitFailed, dashboardInitFetching, dashboardInitServices } from './reducers';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger('public/app/features/dashboard/state/initDashboard.ts');
 
 const INIT_DASHBOARD_MEASUREMENT = 'initDashboard';
 
@@ -109,7 +112,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            structuredLog.info('not correct url correcting', dashboardUrl, currentPath);
           }
         }
         return dashDTO;

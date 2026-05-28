@@ -52,6 +52,9 @@ import { FetchQueue } from './FetchQueue';
 import { FetchQueueWorker } from './FetchQueueWorker';
 import { ResponseQueue } from './ResponseQueue';
 import { type ContextSrv, contextSrv } from './context_srv';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger('public/app/core/services/backend_srv.ts');
 
 const CANCEL_ALL_REQUESTS_REQUEST_ID = 'cancel_all_requests_request_id';
 
@@ -241,7 +244,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            structuredLog.info(requestId, 'catch', e);
             observer.error(e);
           }); // from abort
       },

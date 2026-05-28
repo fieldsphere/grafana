@@ -14,6 +14,9 @@ import { ElementState } from './element';
 import { type RootElement } from './root';
 import { type Scene } from './scene';
 import { initMoveable } from './sceneAbleManagement';
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLog = createStructuredLogger('public/app/features/canvas/runtime/frame.tsx');
 
 const DEFAULT_OFFSET = 10;
 const HORIZONTAL_OFFSET = 50;
@@ -129,7 +132,7 @@ export class FrameState extends ElementState {
         break;
       case LayerActionID.Duplicate:
         if (element.item.id === 'frame') {
-          console.log('Can not duplicate frames (yet)', action, element);
+          structuredLog.info('Can not duplicate frames (yet)', action, element);
           return;
         }
         const opts = cloneDeep(element.options);
@@ -239,7 +242,7 @@ export class FrameState extends ElementState {
         break;
 
       default:
-        console.log('DO action', action, element);
+        structuredLog.info('DO action', action, element);
         return;
     }
   };
