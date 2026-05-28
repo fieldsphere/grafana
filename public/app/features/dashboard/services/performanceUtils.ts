@@ -1,5 +1,7 @@
-import { store } from '@grafana/data';
+import { createStructuredLogger, store } from '@grafana/data';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
+
+const structuredLog = createStructuredLogger('public/app/features/dashboard/services/performanceUtils.ts');
 
 /**
  * Utility function to register a performance observer with the global tracker
@@ -86,10 +88,10 @@ export function writePerformanceGroupLog(logger: string, message: string, data?:
   if (isPerformanceLoggingEnabled()) {
     if (data) {
       // eslint-disable-next-line no-console
-      console.log(message, data);
+      structuredLog.info(message, data);
     } else {
       // eslint-disable-next-line no-console
-      console.log(message);
+      structuredLog.info(message);
     }
   }
 }

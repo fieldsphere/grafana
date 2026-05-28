@@ -2,7 +2,7 @@ import { skipToken } from '@reduxjs/toolkit/query/react';
 import * as React from 'react';
 import { useMemo } from 'react';
 
-import { PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
+import { createStructuredLogger, PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { type SceneComponentProps, SceneObjectBase, sceneGraph } from '@grafana/scenes';
 import { Alert, Spinner, Stack } from '@grafana/ui';
@@ -31,6 +31,8 @@ import { VersionsHistoryButtons } from './version-history/VersionHistoryButtons'
 import { VersionHistoryComparison } from './version-history/VersionHistoryComparison';
 import { VersionHistoryHeader } from './version-history/VersionHistoryHeader';
 import { VersionHistoryTable } from './version-history/VersionHistoryTable';
+
+const structuredLog = createStructuredLogger('public/app/features/dashboard-scene/settings/VersionsEditView.tsx');
 
 export interface VersionsEditViewState extends DashboardEditViewState {
   versions?: DecoratedRevisionModel[];
@@ -118,7 +120,7 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => structuredLog.info(err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

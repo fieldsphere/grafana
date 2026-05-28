@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 
-import { type LiveChannelAddress, isValidLiveChannelAddress } from '@grafana/data';
+import { createStructuredLogger, type LiveChannelAddress, isValidLiveChannelAddress } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
 import { CodeEditor, Button } from '@grafana/ui';
 
 import { MessagePublishMode } from './types';
+
+const structuredLog = createStructuredLogger('public/app/plugins/panel/live/LivePublish.tsx');
 
 interface Props {
   height: number;
@@ -46,7 +48,7 @@ export function LivePublish({ height, mode, body, addr, onSave }: Props) {
     }
 
     const rsp = await getGrafanaLiveSrv().publish(addr, body);
-    console.log('onPublishClicked (response from publish)', rsp);
+    structuredLog.info('onPublishClicked (response from publish)', rsp);
   };
 
   return (

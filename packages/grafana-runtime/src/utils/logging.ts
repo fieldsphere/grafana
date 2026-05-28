@@ -1,3 +1,4 @@
+import { setStructuredLogSink } from '@grafana/data';
 import { faro, type LogContext, LogLevel } from '@grafana/faro-web-sdk';
 
 import { config } from '../config';
@@ -143,3 +144,50 @@ export function createMonitoringLogger(source: string, defaultContext?: LogConte
       logMeasurement(type, measurement, createFullContext(contexts)),
   };
 }
+
+function createLogContext(source: string, context?: Record<string, unknown>): LogContext {
+  const logContext: LogContext = { source };
+
+  for (const [key, value] of Object.entries(context ?? {})) {
+    logContext[key] = stringifyLogContextValue(value);
+  }
+
+  return logContext;
+}
+
+function stringifyLogContextValue(value: unknown): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  if (value instanceof Error) {
+    return value.message;
+  }
+
+  try {
+    return JSON.stringify(value);
+  } catch {
+    return String(value);
+  }
+}
+
+setStructuredLogSink(({ level, source, message, context }) => {
+  const logContext = createLogContext(source, context);
+
+  if (level === 'error') {
+    logError(new Error(message), logContext);
+    return;
+  }
+
+  if (level === 'warn') {
+    logWarning(message, logContext);
+    return;
+  }
+
+  if (level === 'debug') {
+    logDebug(message, logContext);
+    return;
+  }
+
+  logInfo(message, logContext);
+});

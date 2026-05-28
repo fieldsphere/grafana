@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { createStructuredLogger } from '@grafana/data';
 import {
   type EchoBackend,
   EchoEventType,
@@ -8,6 +9,10 @@ import {
   type PageviewEchoEvent,
 } from '@grafana/runtime';
 
+const structuredLog = createStructuredLogger(
+  'public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts'
+);
+
 export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unknown> {
   options = {};
   supportedEvents = [EchoEventType.Pageview, EchoEventType.Interaction, EchoEventType.ExperimentView];
@@ -16,12 +21,12 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
 
   addEvent = (e: PageviewEchoEvent) => {
     if (isPageviewEvent(e)) {
-      console.log('[EchoSrv:pageview]', e.payload.page);
+      structuredLog.info('[EchoSrv:pageview]', e.payload.page);
     }
 
     if (isInteractionEvent(e)) {
       const eventName = e.payload.interactionName;
-      console.log('[EchoSrv:event]', eventName, e.payload.properties);
+      structuredLog.info('[EchoSrv:event]', eventName, e.payload.properties);
 
       // Warn for non-scalar property values. We're not yet making this a hard a
       const invalidTypeProperties = Object.entries(e.payload.properties ?? {}).filter(([_, value]) => {
@@ -42,7 +47,7 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
     }
 
     if (isExperimentViewEvent(e)) {
-      console.log('[EchoSrv:experiment]', e.payload);
+      structuredLog.info('[EchoSrv:experiment]', e.payload);
     }
   };
 

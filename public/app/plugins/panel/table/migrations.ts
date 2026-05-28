@@ -1,6 +1,7 @@
 import { omitBy, isNil, isNumber, defaultTo, groupBy, omit } from 'lodash';
 
 import {
+  createStructuredLogger,
   type PanelModel,
   FieldMatcherID,
   type ConfigOverrideRule,
@@ -15,6 +16,8 @@ import { type ReduceTransformerOptions } from '@grafana/data/internal';
 
 import { type Options } from './panelcfg.gen';
 
+const structuredLog = createStructuredLogger('public/app/plugins/panel/table/migrations.ts');
+
 /**
  * At 7.0, the `table` panel was swapped from an angular implementation to a react one.
  * The models do not match, so this process will delegate to the old implementation when
@@ -23,7 +26,7 @@ import { type Options } from './panelcfg.gen';
 export const tableMigrationHandler = (panel: PanelModel<Options>): Partial<Options> => {
   // Table was saved as an angular table, lets just swap to the 'table-old' panel
   if (!panel.pluginVersion && 'columns' in panel) {
-    console.log('Was angular table', panel);
+    structuredLog.info('Was angular table', panel);
   }
 
   // ensure overrides array exists before applying rest of overrides

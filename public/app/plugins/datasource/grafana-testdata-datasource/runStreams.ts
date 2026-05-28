@@ -3,6 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  createStructuredLogger,
   type DataQueryRequest,
   type DataQueryResponse,
   FieldType,
@@ -22,6 +23,8 @@ import { getBackendSrv } from '@grafana/runtime';
 
 import { getRandomLine } from './LogIpsum';
 import { type TestDataDataQuery, type StreamingQuery } from './dataquery';
+
+const structuredLog = createStructuredLogger('public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts');
 
 export const defaultStreamQuery: StreamingQuery = {
   type: 'signal',
@@ -125,7 +128,7 @@ export function runSignalStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      structuredLog.info('unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });
@@ -171,7 +174,7 @@ export function runLogsStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      structuredLog.info('unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });
@@ -254,7 +257,7 @@ export function runWatchStream(
       });
 
     return () => {
-      console.log('unsubscribing to stream', streamId);
+      structuredLog.info('unsubscribing to stream', streamId);
       sub.unsubscribe();
     };
   });
@@ -314,7 +317,7 @@ export function runFetchStream(
       });
 
       if (value.done) {
-        console.log('Finished stream');
+        structuredLog.info('Finished stream');
         subscriber.complete(); // necessary?
         return;
       }
@@ -335,7 +338,7 @@ export function runFetchStream(
 
     return () => {
       // Cancel fetch?
-      console.log('unsubscribing to stream ' + streamId);
+      structuredLog.info('unsubscribing to stream ' + streamId);
     };
   });
 }
@@ -368,7 +371,7 @@ export function runTracesStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      structuredLog.info('unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });

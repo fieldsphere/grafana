@@ -2,6 +2,7 @@ import { css } from '@emotion/css';
 import { useEffect } from 'react';
 
 import {
+  createStructuredLogger,
   DataTransformerID,
   type GrafanaTheme2,
   type PanelOptionsEditorBuilder,
@@ -22,6 +23,8 @@ import lightImage from '../images/light/spatial.svg';
 import { SpatialCalculation, SpatialOperation, SpatialAction, type SpatialTransformOptions } from './models.gen';
 import { getDefaultOptions, getTransformerOptionPane } from './optionsHelper';
 import { isLineBuilderOption, getSpatialTransformer } from './spatialTransformer';
+
+const structuredLog = createStructuredLogger('public/app/features/transformers/spatial/SpatialTransformerEditor.tsx');
 
 // Nothing defined in state
 const supplier = (
@@ -137,7 +140,7 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     if (!props.options.source?.mode) {
       const opts = getDefaultOptions(supplier);
       props.onChange({ ...opts, ...props.options });
-      console.log('geometry useEffect', opts);
+      structuredLog.info('geometry useEffect', opts);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

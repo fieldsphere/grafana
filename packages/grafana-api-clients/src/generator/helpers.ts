@@ -3,6 +3,12 @@ import fs from 'fs';
 import { type OpenAPIV3 } from 'openapi-types';
 import path from 'path';
 
+const structuredLog = {
+  info: (...args: unknown[]) => {
+    process.stdout.write(JSON.stringify({ level: 'info', source: 'api-client-generator', args }) + '\n');
+  },
+};
+
 type PlopActionFunction = (
   answers: Record<string, unknown>,
   config?: Record<string, unknown>
@@ -71,7 +77,7 @@ export const runGenerateApis =
         command = 'yarn workspace @grafana/api-clients generate-apis';
       }
 
-      console.log(`⏳ Running ${command} to generate endpoints...`);
+      structuredLog.info(`⏳ Running ${command} to generate endpoints...`);
       execSync(command, { stdio: 'inherit', cwd: basePath });
       return '✅ API endpoints generated successfully!';
     } catch (error) {
@@ -94,7 +100,7 @@ export const formatFiles =
     try {
       const filesList = filesToFormat.map((file: string) => `"${file}"`).join(' ');
 
-      console.log('🧹 Running ESLint on generated/modified files...');
+      structuredLog.info('🧹 Running ESLint on generated/modified files...');
       try {
         execSync(`yarn eslint --fix ${filesList}`, { cwd: basePath });
       } catch (error) {
@@ -102,7 +108,7 @@ export const formatFiles =
         console.warn(`⚠️ Warning: ESLint encountered issues: ${errorMessage}`);
       }
 
-      console.log('🧹 Running Prettier on generated/modified files...');
+      structuredLog.info('🧹 Running Prettier on generated/modified files...');
       try {
         // '--ignore-path' is necessary so the gitignored files ('local/' folder) can still be formatted
         execSync(`yarn prettier --write ${filesList} --ignore-path=./.prettierignore`, { cwd: basePath });

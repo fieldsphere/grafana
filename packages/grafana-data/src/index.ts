@@ -243,6 +243,13 @@ export {
 } from './utils/datasource';
 export { deprecationWarning } from './utils/deprecationWarning';
 export {
+  createStructuredLogger,
+  setStructuredLogSink,
+  type StructuredLogger,
+  type StructuredLogRecord,
+  type StructuredLogSink,
+} from './utils/structuredLogger';
+export {
   CSVHeaderStyle,
   type CSVConfig,
   type CSVParseCallbacks,

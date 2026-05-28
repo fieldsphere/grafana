@@ -1,4 +1,11 @@
-import { type DataQuery, locationUtil, setWeekStart, DashboardLoadedEvent, store } from '@grafana/data';
+import {
+  createStructuredLogger,
+  type DataQuery,
+  locationUtil,
+  setWeekStart,
+  DashboardLoadedEvent,
+  store,
+} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, isFetchError, locationService } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
@@ -39,6 +46,8 @@ import { DashboardModel } from './DashboardModel';
 import { type PanelModel } from './PanelModel';
 import { emitDashboardViewEvent } from './analyticsProcessor';
 import { dashboardInitCompleted, dashboardInitFailed, dashboardInitFetching, dashboardInitServices } from './reducers';
+
+const structuredLog = createStructuredLogger('public/app/features/dashboard/state/initDashboard.ts');
 
 const INIT_DASHBOARD_MEASUREMENT = 'initDashboard';
 
@@ -109,7 +118,7 @@ async function fetchDashboard(
               ...locationService.getLocation(),
               pathname: dashboardUrl,
             });
-            console.log('not correct url correcting', dashboardUrl, currentPath);
+            structuredLog.info('not correct url correcting', dashboardUrl, currentPath);
           }
         }
         return dashDTO;

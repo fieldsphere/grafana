@@ -1,9 +1,12 @@
+import { createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 import { sandboxPluginDependencies } from '../sandbox/pluginDependencies';
 
 import { SHARED_DEPENDENCY_PREFIX } from './constants';
 import { SystemJS } from './systemjs';
+
+const structuredLog = createStructuredLogger('public/app/features/plugins/loader/utils.ts');
 
 export function buildImportMap(importMap: Record<string, System.Module>) {
   return Object.keys(importMap).reduce<Record<string, string>>((acc, key) => {
@@ -29,7 +32,7 @@ function addPreload(id: string, preload: (() => Promise<System.Module>) | System
   try {
     resolvedId = SystemJS.resolve(id);
   } catch (e) {
-    console.log(e);
+    structuredLog.info(e);
   }
 
   if (resolvedId && SystemJS.has(resolvedId)) {

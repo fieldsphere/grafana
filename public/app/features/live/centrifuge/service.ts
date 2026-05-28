@@ -10,6 +10,7 @@ import {
 import { BehaviorSubject, type Observable, share, startWith } from 'rxjs';
 
 import {
+  createStructuredLogger,
   type DataQueryError,
   type DataQueryResponse,
   type LiveChannelAddress,
@@ -33,6 +34,8 @@ import { type StreamingResponseData } from '../data/utils';
 
 import { LiveDataStream } from './LiveDataStream';
 import { CentrifugeLiveChannel } from './channel';
+
+const structuredLog = createStructuredLogger('public/app/features/live/centrifuge/service.ts');
 
 export type CentrifugeSrvDeps = {
   grafanaAuthToken: string | null;
@@ -126,7 +129,7 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.log('Publication from server-side channel', context);
+    structuredLog.info('Publication from server-side channel', context);
   };
 
   private onError = (context: ErrorContext) => {

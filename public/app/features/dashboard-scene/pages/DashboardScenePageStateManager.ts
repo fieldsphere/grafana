@@ -1,4 +1,4 @@
-import { locationUtil, type UrlQueryMap } from '@grafana/data';
+import { createStructuredLogger, locationUtil, type UrlQueryMap } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getBackendSrv, getDataSourceSrv, isFetchError, locationService } from '@grafana/runtime';
 import { UserStorage } from '@grafana/runtime/internal';
@@ -58,6 +58,10 @@ import {
 import { restoreDashboardStateFromLocalStorage } from '../utils/dashboardSessionState';
 
 import { processQueryParamsForDashboardLoad, updateNavModel } from './utils';
+
+const structuredLog = createStructuredLogger(
+  'public/app/features/dashboard-scene/pages/DashboardScenePageStateManager.ts'
+);
 
 /**
  * Initialize both performance services to ensure they're ready before profiling starts
@@ -797,7 +801,7 @@ export class DashboardScenePageStateManager extends DashboardScenePageStateManag
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          structuredLog.info('not correct url correcting', dashboardUrl, currentPath);
         }
       }
 
@@ -1017,7 +1021,7 @@ export class DashboardScenePageStateManagerV2 extends DashboardScenePageStateMan
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          structuredLog.info('not correct url correcting', dashboardUrl, currentPath);
         }
       }
       // Populate nav model in global store according to the folder

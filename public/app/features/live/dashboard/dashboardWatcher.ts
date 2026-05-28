@@ -2,6 +2,7 @@ import { type Unsubscribable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  createStructuredLogger,
   AppEvents,
   isLiveChannelMessageEvent,
   isLiveChannelStatusEvent,
@@ -19,6 +20,8 @@ import { getDashboardSrv } from '../../dashboard/services/DashboardSrv';
 
 import { DashboardChangedModal } from './DashboardChangedModal';
 import { type DashboardEvent, DashboardEventAction } from './types';
+
+const structuredLog = createStructuredLogger('public/app/features/live/dashboard/dashboardWatcher.ts');
 
 // sessionId is not a security-sensitive value.
 // It is used for filtering out dashboard edit events from the same browsing session
@@ -127,7 +130,7 @@ class DashboardWatcher {
 
             const dash = getDashboardSrv().getCurrent();
             if (dash?.uid !== event.message.uid) {
-              console.log('dashboard event for different dashboard?', event, dash);
+              structuredLog.info('dashboard event for different dashboard?', event, dash);
               return;
             }
 

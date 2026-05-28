@@ -2,6 +2,7 @@ import { cloneDeep, defaults as _defaults, filter, indexOf, isEqual, map, maxBy,
 import { Subscription } from 'rxjs';
 
 import {
+  createStructuredLogger,
   type AnnotationQuery,
   type AppEvent,
   type DashboardCursorSync,
@@ -51,6 +52,8 @@ import { DashboardMigrator } from './DashboardMigrator';
 import { PanelModel } from './PanelModel';
 import { type TimeModel } from './TimeModel';
 import { deleteScopeVars, isOnTheSameGridRow } from './utils';
+
+const structuredLog = createStructuredLogger('public/app/features/dashboard/state/DashboardModel.ts');
 
 export interface CloneOptions {
   saveVariables?: boolean;
@@ -1115,13 +1118,13 @@ export class DashboardModel implements TimeModel {
 
   /** @deprecated */
   on<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.on is deprecated use events.subscribe');
+    structuredLog.info('DashboardModel.on is deprecated use events.subscribe');
     this.events.on(event, callback);
   }
 
   /** @deprecated */
   off<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.off is deprecated');
+    structuredLog.info('DashboardModel.off is deprecated');
     this.events.off(event, callback);
   }
 
