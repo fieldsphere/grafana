@@ -182,13 +182,18 @@ const getWelcomeHeaderStyles = (theme: GrafanaTheme2) => ({
     justifyContent: 'space-between',
     flexWrap: 'wrap',
 
+    '&&': {
+      backgroundColor: theme.colors.success.transparent,
+      border: `1px solid ${theme.colors.success.borderTransparent}`,
+    },
+
     [theme.breakpoints.down('lg')]: {
       flexDirection: 'column',
     },
   }),
   separator: css({
     width: '1px',
-    backgroundColor: theme.colors.border.medium,
+    backgroundColor: theme.colors.success.borderTransparent,
 
     [theme.breakpoints.down('lg')]: {
       display: 'none',
@@ -245,6 +250,14 @@ const getWelcomeCTAButtonStyles = (theme: GrafanaTheme2) => ({
     gridColumn: '2 / span 3',
     gridRow: 3,
     maxWidth: '240px',
+
+    '& a': {
+      color: theme.colors.success.text,
+
+      '&:hover': {
+        color: theme.colors.success.main,
+      },
+    },
   }),
 });
 
