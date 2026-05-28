@@ -1,6 +1,5 @@
-import { store } from '@grafana/data';
+import { createStructuredLogger, store } from '@grafana/data';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/dashboard/services/performanceUtils.ts');
 

@@ -5,6 +5,7 @@ import { combineLatest, identity, type Observable, of, type SubscriptionLike, ty
 import { mergeMap, throttleTime } from 'rxjs/operators';
 
 import {
+  createStructuredLogger,
   type AbsoluteTimeRange,
   type DataFrame,
   DataQueryErrorType,
@@ -64,7 +65,6 @@ import { addHistoryItem, loadRichHistory } from './history';
 import { changeCorrelationEditorDetails } from './main';
 import { updateTime } from './time';
 import { createCacheKey, filterLogRowsByIndex, getCorrelationsData, getResultsFromCache } from './utils';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/explore/state/query.ts');
 

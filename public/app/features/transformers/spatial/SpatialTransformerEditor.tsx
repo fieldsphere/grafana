@@ -2,6 +2,7 @@ import { css } from '@emotion/css';
 import { useEffect } from 'react';
 
 import {
+  createStructuredLogger,
   DataTransformerID,
   type GrafanaTheme2,
   type PanelOptionsEditorBuilder,
@@ -22,7 +23,6 @@ import lightImage from '../images/light/spatial.svg';
 import { SpatialCalculation, SpatialOperation, SpatialAction, type SpatialTransformOptions } from './models.gen';
 import { getDefaultOptions, getTransformerOptionPane } from './optionsHelper';
 import { isLineBuilderOption, getSpatialTransformer } from './spatialTransformer';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/transformers/spatial/SpatialTransformerEditor.tsx');
 

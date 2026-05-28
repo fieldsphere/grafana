@@ -14,12 +14,13 @@
 
 import memoizeOne from 'memoize-one';
 
+import { createStructuredLogger } from '@grafana/data';
+
 import { type TraceSpan, type CriticalPathSection, type Trace } from '../types/trace';
 
 import findLastFinishingChildSpan from './utils/findLastFinishingChildSpan';
 import getChildOfSpans from './utils/getChildOfSpans';
 import sanitizeOverFlowingChildren from './utils/sanitizeOverFlowingChildren';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/explore/TraceView/components/CriticalPath/index.tsx');
 

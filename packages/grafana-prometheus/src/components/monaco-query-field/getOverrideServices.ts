@@ -1,6 +1,6 @@
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/components/monaco-query-field/getOverrideServices.ts
-import { type monacoTypes } from '@grafana/ui';
 import { createStructuredLogger } from '@grafana/data';
+import { type monacoTypes } from '@grafana/ui';
 
 const structuredLog = createStructuredLogger(
   'packages/grafana-prometheus/src/components/monaco-query-field/getOverrideServices.ts'

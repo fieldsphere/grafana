@@ -1,6 +1,12 @@
 import saveAs from 'file-saver';
 
-import { dateTimeFormat, formattedValueToString, getValueFormat, type SelectableValue } from '@grafana/data';
+import {
+  createStructuredLogger,
+  dateTimeFormat,
+  formattedValueToString,
+  getValueFormat,
+  type SelectableValue,
+} from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { sceneGraph, type SceneObject, type VizPanel } from '@grafana/scenes';
 import { StateManagerBase } from 'app/core/services/StateManagerBase';
@@ -9,7 +15,6 @@ import { transformSaveModelToScene } from '../../serialization/transformSaveMode
 
 import { type Randomize } from './randomizer';
 import { getDebugDashboard, getGithubMarkdown } from './utils';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger(
   'public/app/features/dashboard-scene/inspect/HelpWizard/SupportSnapshotService.ts'

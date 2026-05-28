@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 
-import { type LiveChannelAddress, isValidLiveChannelAddress } from '@grafana/data';
+import { createStructuredLogger, type LiveChannelAddress, isValidLiveChannelAddress } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
 import { CodeEditor, Button } from '@grafana/ui';
 
 import { MessagePublishMode } from './types';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/plugins/panel/live/LivePublish.tsx');
 

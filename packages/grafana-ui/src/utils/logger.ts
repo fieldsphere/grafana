@@ -1,9 +1,10 @@
 import { throttle } from 'lodash';
+
 import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('packages/grafana-ui/src/utils/logger.ts');
 
-type Args = Parameters<typeof structuredLog.info>;
+type Args = unknown[];
 
 /**
  * @internal
@@ -16,7 +17,7 @@ const throttledLog = throttle((...t: Args) => {
  * @internal
  */
 export interface Logger {
-  logger: (...t: Args) => void;
+  logger: (id: string, throttle?: unknown, ...t: Args) => void;
   enable: () => void;
   disable: () => void;
   isEnabled: () => boolean;

@@ -1,6 +1,7 @@
 import { map, Observable, ReplaySubject, type Subject, type Subscriber, type Subscription } from 'rxjs';
 
 import {
+  createStructuredLogger,
   type DataFrameJSON,
   type DataQueryError,
   type Field,
@@ -23,7 +24,6 @@ import {
 import { StreamingResponseDataType } from '../data/utils';
 
 import { type DataStreamSubscriptionKey, type StreamingDataQueryResponse } from './service';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/live/centrifuge/LiveDataStream.ts');
 

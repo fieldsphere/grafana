@@ -1,12 +1,11 @@
 import { isArray } from 'lodash';
 import { useState } from 'react';
 
-import { dataFrameToJSON, toDataFrame, toDataFrameDTO } from '@grafana/data';
+import { createStructuredLogger, dataFrameToJSON, toDataFrame, toDataFrameDTO } from '@grafana/data';
 import { toDataQueryResponse } from '@grafana/runtime';
 import { Alert, CodeEditor } from '@grafana/ui';
 
 import { type EditorProps } from '../QueryEditor';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger(
   'public/app/plugins/datasource/grafana-testdata-datasource/components/RawFrameEditor.tsx'

@@ -4,6 +4,7 @@ import { PureComponent } from 'react';
 import { type Unsubscribable, type PartialObserver } from 'rxjs';
 
 import {
+  createStructuredLogger,
   type GrafanaTheme2,
   type PanelProps,
   type LiveChannelStatusEvent,
@@ -26,7 +27,6 @@ import { TablePanel } from '../table/TablePanel';
 
 import { LivePublish } from './LivePublish';
 import { type LivePanelOptions, MessageDisplayMode, MessagePublishMode } from './types';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/plugins/panel/live/LivePanel.tsx');
 

@@ -1,6 +1,7 @@
 import { omitBy, pickBy, isNil, isNumber, isString } from 'lodash';
 
 import {
+  createStructuredLogger,
   type ConfigOverrideRule,
   type DynamicConfigValue,
   FieldColorModeId,
@@ -44,7 +45,6 @@ import { type GrafanaQuery, GrafanaQueryType } from 'app/plugins/datasource/graf
 
 import { defaultGraphConfig } from './config';
 import { type Options } from './panelcfg.gen';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/plugins/panel/timeseries/migrations.ts');
 

@@ -3,6 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  createStructuredLogger,
   type DataQueryRequest,
   type DataQueryResponse,
   FieldType,
@@ -22,7 +23,6 @@ import { getBackendSrv } from '@grafana/runtime';
 
 import { getRandomLine } from './LogIpsum';
 import { type TestDataDataQuery, type StreamingQuery } from './dataquery';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/plugins/datasource/grafana-testdata-datasource/runStreams.ts');
 

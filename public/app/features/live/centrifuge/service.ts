@@ -10,6 +10,7 @@ import {
 import { BehaviorSubject, type Observable, share, startWith } from 'rxjs';
 
 import {
+  createStructuredLogger,
   type DataQueryError,
   type DataQueryResponse,
   type LiveChannelAddress,
@@ -33,7 +34,6 @@ import { type StreamingResponseData } from '../data/utils';
 
 import { LiveDataStream } from './LiveDataStream';
 import { CentrifugeLiveChannel } from './channel';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/live/centrifuge/service.ts');
 

@@ -1,5 +1,5 @@
-import { type monacoTypes } from '@grafana/ui';
 import { createStructuredLogger } from '@grafana/data';
+import { type monacoTypes } from '@grafana/ui';
 
 const structuredLog = createStructuredLogger(
   'public/app/plugins/datasource/loki/components/monaco-query-field/getOverrideServices.ts'

@@ -1,7 +1,7 @@
 import { type Observable, Subject } from 'rxjs';
 
-import { type BackendSrvRequest } from '@grafana/runtime';
 import { createStructuredLogger } from '@grafana/data';
+import { type BackendSrvRequest } from '@grafana/runtime';
 
 const structuredLog = createStructuredLogger('public/app/core/services/FetchQueue.ts');
 

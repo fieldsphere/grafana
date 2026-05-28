@@ -2,7 +2,7 @@ import { skipToken } from '@reduxjs/toolkit/query/react';
 import * as React from 'react';
 import { useMemo } from 'react';
 
-import { PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
+import { createStructuredLogger, PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { type SceneComponentProps, SceneObjectBase, sceneGraph } from '@grafana/scenes';
 import { Alert, Spinner, Stack } from '@grafana/ui';
@@ -31,7 +31,6 @@ import { VersionsHistoryButtons } from './version-history/VersionHistoryButtons'
 import { VersionHistoryComparison } from './version-history/VersionHistoryComparison';
 import { VersionHistoryHeader } from './version-history/VersionHistoryHeader';
 import { VersionHistoryTable } from './version-history/VersionHistoryTable';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/dashboard-scene/settings/VersionsEditView.tsx');
 

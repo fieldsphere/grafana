@@ -1,8 +1,8 @@
+import { createStructuredLogger } from '@grafana/data';
 import { type VariableValue, type FormatVariable } from '@grafana/scenes';
 import { type VariableModel, type VariableType } from '@grafana/schema';
 
 import { ALL_VARIABLE_TEXT, ALL_VARIABLE_VALUE } from '../variables/constants';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/templating/LegacyVariableWrapper.ts');
 

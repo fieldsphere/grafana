@@ -3,6 +3,7 @@ import { PureComponent } from 'react';
 import { Subscription } from 'rxjs';
 
 import {
+  createStructuredLogger,
   type AbsoluteTimeRange,
   AnnotationChangeEvent,
   type AnnotationEventUIModel,
@@ -56,7 +57,6 @@ import { PanelLoadTimeMonitor } from './PanelLoadTimeMonitor';
 import { seriesVisibilityConfigFactory } from './SeriesVisibilityConfigFactory';
 import { liveTimer } from './liveTimer';
 import { PanelOptionsLogger } from './panelOptionsLogger';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/dashboard/dashgrid/PanelStateWrapper.tsx');
 

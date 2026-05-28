@@ -5,6 +5,7 @@ import { map, tap } from 'rxjs/operators';
 import { gte } from 'semver';
 
 import {
+  createStructuredLogger,
   type AbstractQuery,
   type AdHocVariableFilter,
   CoreApp,
@@ -70,7 +71,6 @@ import {
 } from './types';
 import { utf8Support, wrapUtf8Filters } from './utf8_support';
 import { PrometheusVariableSupport } from './variables';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('packages/grafana-prometheus/src/datasource.ts');
 

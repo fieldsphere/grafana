@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { BehaviorSubject } from 'rxjs';
 
+import { createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type CanvasConnection, type ConnectionCoordinates, ConnectionPath } from 'app/features/canvas/element';
 import { type ElementState } from 'app/features/canvas/runtime/element';
@@ -26,7 +27,6 @@ import {
   HALF_SIZE,
 } from './ConnectionAnchors';
 import { ConnectionSVG } from './ConnectionSVG';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/plugins/panel/canvas/components/connections/Connections.tsx');
 

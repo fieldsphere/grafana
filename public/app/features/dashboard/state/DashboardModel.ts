@@ -2,6 +2,7 @@ import { cloneDeep, defaults as _defaults, filter, indexOf, isEqual, map, maxBy,
 import { Subscription } from 'rxjs';
 
 import {
+  createStructuredLogger,
   type AnnotationQuery,
   type AppEvent,
   type DashboardCursorSync,
@@ -51,7 +52,6 @@ import { DashboardMigrator } from './DashboardMigrator';
 import { PanelModel } from './PanelModel';
 import { type TimeModel } from './TimeModel';
 import { deleteScopeVars, isOnTheSameGridRow } from './utils';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/dashboard/state/DashboardModel.ts');
 

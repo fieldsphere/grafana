@@ -1,4 +1,4 @@
-import { locationUtil, type UrlQueryMap } from '@grafana/data';
+import { createStructuredLogger, locationUtil, type UrlQueryMap } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getBackendSrv, getDataSourceSrv, isFetchError, locationService } from '@grafana/runtime';
 import { UserStorage } from '@grafana/runtime/internal';
@@ -58,7 +58,6 @@ import {
 import { restoreDashboardStateFromLocalStorage } from '../utils/dashboardSessionState';
 
 import { processQueryParamsForDashboardLoad, updateNavModel } from './utils';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger(
   'public/app/features/dashboard-scene/pages/DashboardScenePageStateManager.ts'

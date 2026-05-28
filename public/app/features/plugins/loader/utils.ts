@@ -1,10 +1,10 @@
+import { createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 import { sandboxPluginDependencies } from '../sandbox/pluginDependencies';
 
 import { SHARED_DEPENDENCY_PREFIX } from './constants';
 import { SystemJS } from './systemjs';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/plugins/loader/utils.ts');
 

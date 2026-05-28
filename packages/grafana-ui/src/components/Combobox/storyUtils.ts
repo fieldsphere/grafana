@@ -1,5 +1,6 @@
-import { type ComboboxOption } from './types';
 import { createStructuredLogger } from '@grafana/data';
+
+import { type ComboboxOption } from './types';
 
 const structuredLog = createStructuredLogger('packages/grafana-ui/src/components/Combobox/storyUtils.ts');
 

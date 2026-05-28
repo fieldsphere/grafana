@@ -4,12 +4,11 @@ import { css, cx } from '@emotion/css';
 import classnames from 'classnames';
 import React, { Profiler, type ProfilerOnRenderCallback, useState, type FC } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { createStructuredLogger, type GrafanaTheme2 } from '@grafana/data';
 
 import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
 import { Button } from '../Button/Button';
 import { Stack } from '../Layout/Stack/Stack';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('packages/grafana-ui/src/components/ThemeDemos/EmotionPerfTest.tsx');
 

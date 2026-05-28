@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+import { createStructuredLogger } from '@grafana/data';
 import {
   type EchoBackend,
   EchoEventType,
@@ -7,7 +8,6 @@ import {
   isPageviewEvent,
   type PageviewEchoEvent,
 } from '@grafana/runtime';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger(
   'public/app/core/services/echo/backends/analytics/BrowseConsoleBackend.ts'

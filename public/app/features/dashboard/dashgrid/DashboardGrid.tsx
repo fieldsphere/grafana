@@ -4,6 +4,7 @@ import * as React from 'react';
 import ReactGridLayout, { type ItemCallback } from 'react-grid-layout';
 import { Subscription } from 'rxjs';
 
+import { createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { GRID_CELL_HEIGHT, GRID_CELL_VMARGIN, GRID_COLUMN_COUNT } from 'app/core/constants';
@@ -18,7 +19,6 @@ import { type GridPos, type PanelModel } from '../state/PanelModel';
 
 import DashboardEmpty from './DashboardEmpty/DashboardEmpty';
 import { DashboardPanel } from './DashboardPanel';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/dashboard/dashgrid/DashboardGrid.tsx');
 

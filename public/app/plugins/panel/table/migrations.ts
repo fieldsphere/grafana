@@ -1,6 +1,7 @@
 import { omitBy, isNil, isNumber, defaultTo, groupBy, omit } from 'lodash';
 
 import {
+  createStructuredLogger,
   type PanelModel,
   FieldMatcherID,
   type ConfigOverrideRule,
@@ -14,7 +15,6 @@ import {
 import { type ReduceTransformerOptions } from '@grafana/data/internal';
 
 import { type Options } from './panelcfg.gen';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/plugins/panel/table/migrations.ts');
 

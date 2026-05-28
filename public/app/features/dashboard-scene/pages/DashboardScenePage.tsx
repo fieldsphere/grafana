@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { type Params, useParams } from 'react-router-dom-v5-compat';
 import { usePrevious } from 'react-use';
 
-import { PageLayoutType } from '@grafana/data';
+import { createStructuredLogger, PageLayoutType } from '@grafana/data';
 import { locationService } from '@grafana/runtime';
 import { UrlSyncContextProvider } from '@grafana/scenes';
 import { Box } from '@grafana/ui';
@@ -30,7 +30,6 @@ import { preserveDashboardSceneStateInLocalStorage } from '../utils/dashboardSes
 
 import { getDashboardScenePageStateManager } from './DashboardScenePageStateManager';
 import { shouldHideDashboardKioskFooter } from './utils';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/dashboard-scene/pages/DashboardScenePage.tsx');
 

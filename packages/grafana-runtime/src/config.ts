@@ -1,6 +1,7 @@
 import { merge } from 'lodash';
 
 import {
+  createStructuredLogger,
   type AppPluginConfig as AppPluginConfigGrafanaData,
   type AuthSettings,
   type AzureSettings as AzureSettingsGrafanaData,
@@ -27,7 +28,6 @@ import {
   type GrafanaConfig,
   type CurrentUserDTO,
 } from '@grafana/data';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('packages/grafana-runtime/src/config.ts');
 

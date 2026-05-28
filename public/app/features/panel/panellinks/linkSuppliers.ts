@@ -1,4 +1,5 @@
 import {
+  createStructuredLogger,
   type DataLink,
   type DisplayValue,
   type FieldDisplay,
@@ -17,7 +18,6 @@ import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { dashboardSceneGraph } from 'app/features/dashboard-scene/utils/dashboardSceneGraph';
 
 import { getLinkSrv } from './link_srv';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/panel/panellinks/linkSuppliers.ts');
 

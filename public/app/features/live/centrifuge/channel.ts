@@ -10,6 +10,7 @@ import {
 import { Subject, of, Observable } from 'rxjs';
 
 import {
+  createStructuredLogger,
   type LiveChannelStatusEvent,
   type LiveChannelEvent,
   LiveChannelEventType,
@@ -19,7 +20,6 @@ import {
   type DataFrameJSON,
   isValidLiveChannelAddress,
 } from '@grafana/data';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/live/centrifuge/channel.ts');
 

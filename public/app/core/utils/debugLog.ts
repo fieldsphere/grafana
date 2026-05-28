@@ -1,5 +1,4 @@
-import { store } from '@grafana/data';
-import { createStructuredLogger } from '@grafana/data';
+import { createStructuredLogger, store } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/core/utils/debugLog.ts');
 

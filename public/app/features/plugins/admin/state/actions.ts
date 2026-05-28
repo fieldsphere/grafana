@@ -1,7 +1,7 @@
 import { createAction, createAsyncThunk, type Update } from '@reduxjs/toolkit';
 import { from, forkJoin, timeout, lastValueFrom, catchError, of } from 'rxjs';
 
-import { type PanelPlugin, type PluginError } from '@grafana/data';
+import { createStructuredLogger, type PanelPlugin, type PluginError } from '@grafana/data';
 import { config, getBackendSrv, isFetchError } from '@grafana/runtime';
 import { refetchPanelPluginMetas } from '@grafana/runtime/internal';
 import { importPanelPlugin } from 'app/features/plugins/importPanelPlugin';
@@ -29,7 +29,6 @@ import {
   type ProvisionedPlugin,
   PluginStatus,
 } from '../types';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/plugins/admin/state/actions.ts');
 

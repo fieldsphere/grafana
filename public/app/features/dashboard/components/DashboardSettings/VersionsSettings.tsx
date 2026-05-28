@@ -1,6 +1,7 @@
 import { PureComponent } from 'react';
 import * as React from 'react';
 
+import { createStructuredLogger } from '@grafana/data';
 import { Spinner, Stack } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { type Resource } from 'app/features/apiserver/types';
@@ -17,7 +18,6 @@ import { VersionHistoryComparison } from '../VersionHistory/VersionHistoryCompar
 import { VersionHistoryTable } from '../VersionHistory/VersionHistoryTable';
 
 import { type SettingsPageProps } from './types';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger(
   'public/app/features/dashboard/components/DashboardSettings/VersionsSettings.tsx'

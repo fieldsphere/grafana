@@ -1,5 +1,6 @@
 import { cloneDeep } from 'lodash';
 
+import { createStructuredLogger } from '@grafana/data';
 import { notFoundItem } from 'app/features/canvas/elements/notFound';
 import { type DimensionContext } from 'app/features/dimensions/context';
 import { HorizontalConstraint, type Placement, VerticalConstraint } from 'app/plugins/panel/canvas/panelcfg.gen';
@@ -14,7 +15,6 @@ import { ElementState } from './element';
 import { type RootElement } from './root';
 import { type Scene } from './scene';
 import { initMoveable } from './sceneAbleManagement';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/canvas/runtime/frame.tsx');
 

@@ -7,6 +7,7 @@ import {
   type ManagedBy,
 } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
 import {
+  createStructuredLogger,
   arrayToDataFrame,
   type DataFrame,
   DataFrameView,
@@ -32,7 +33,6 @@ import {
   type SearchResultMeta,
 } from './types';
 import { appendFrame, filterSearchResults, replaceCurrentFolderQuery } from './utils';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/search/service/unified.ts');
 

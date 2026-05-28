@@ -2,7 +2,13 @@ import { groupBy, partition } from 'lodash';
 import { Observable, type Subscriber, type Subscription } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
-import { type DataQueryRequest, type DataQueryResponse, LoadingState, type QueryResultMetaStat } from '@grafana/data';
+import {
+  createStructuredLogger,
+  type DataQueryRequest,
+  type DataQueryResponse,
+  LoadingState,
+  type QueryResultMetaStat,
+} from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 import { type LokiDatasource } from './datasource';
@@ -16,7 +22,6 @@ import {
 } from './queryUtils';
 import { isRetriableError } from './responseUtils';
 import { type LokiQuery } from './types';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/plugins/datasource/loki/shardQuerySplitting.ts');
 /**

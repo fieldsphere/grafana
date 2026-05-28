@@ -26,7 +26,7 @@ import {
 } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 
-import { AppEvents, DataQueryErrorType, deprecationWarning } from '@grafana/data';
+import { createStructuredLogger, AppEvents, DataQueryErrorType, deprecationWarning } from '@grafana/data';
 import {
   type BackendSrv as BackendService,
   type BackendSrvRequest,
@@ -52,7 +52,6 @@ import { FetchQueue } from './FetchQueue';
 import { FetchQueueWorker } from './FetchQueueWorker';
 import { ResponseQueue } from './ResponseQueue';
 import { type ContextSrv, contextSrv } from './context_srv';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/core/services/backend_srv.ts');
 

@@ -2,6 +2,7 @@ import { type Unsubscribable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  createStructuredLogger,
   AppEvents,
   isLiveChannelMessageEvent,
   isLiveChannelStatusEvent,
@@ -19,7 +20,6 @@ import { getDashboardSrv } from '../../dashboard/services/DashboardSrv';
 
 import { DashboardChangedModal } from './DashboardChangedModal';
 import { type DashboardEvent, DashboardEventAction } from './types';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/live/dashboard/dashboardWatcher.ts');
 

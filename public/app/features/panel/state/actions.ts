@@ -1,4 +1,9 @@
-import { type DataTransformerConfig, type FieldConfigSource, getPanelOptionsWithDefaults } from '@grafana/data';
+import {
+  createStructuredLogger,
+  type DataTransformerConfig,
+  type FieldConfigSource,
+  getPanelOptionsWithDefaults,
+} from '@grafana/data';
 import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { getLibraryPanel } from 'app/features/library-panels/state/api';
 import { type LibraryElementDTO } from 'app/features/library-panels/types';
@@ -8,7 +13,6 @@ import { DashboardPanelsChangedEvent, PanelOptionsChangedEvent, PanelQueriesChan
 import { type ThunkResult } from 'app/types/store';
 
 import { changePanelKey, panelModelAndPluginReady, removePanel } from './reducers';
-import { createStructuredLogger } from '@grafana/data';
 
 const structuredLog = createStructuredLogger('public/app/features/panel/state/actions.ts');
 
