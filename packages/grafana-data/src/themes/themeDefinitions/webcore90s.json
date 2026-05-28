@@ -1,0 +1,77 @@
+{
+  "name": "Webcore 90s",
+  "id": "webcore90s",
+  "colors": {
+    "mode": "dark",
+    "border": {
+      "weak": "rgba(0, 255, 245, 0.18)",
+      "medium": "rgba(0, 255, 245, 0.3)",
+      "strong": "rgba(255, 61, 198, 0.5)"
+    },
+    "text": {
+      "primary": "#F7F2FF",
+      "secondary": "rgba(247, 242, 255, 0.78)",
+      "disabled": "rgba(247, 242, 255, 0.5)",
+      "link": "#00FFF5",
+      "maxContrast": "#FFFFFF"
+    },
+    "primary": {
+      "main": "#FF3DC6",
+      "text": "#FFD9F7",
+      "border": "#00FFF5"
+    },
+    "secondary": {
+      "main": "#221544",
+      "text": "#F7F2FF",
+      "border": "rgba(0, 255, 245, 0.28)"
+    },
+    "success": {
+      "main": "#7CFF00",
+      "text": "#C8FF8B"
+    },
+    "warning": {
+      "main": "#FFB000",
+      "text": "#FFE1A3"
+    },
+    "error": {
+      "main": "#FF5E7E",
+      "text": "#FFC3D1"
+    },
+    "info": {
+      "main": "#00FFF5",
+      "text": "#A6FFFB"
+    },
+    "background": {
+      "canvas": "#120A2A",
+      "primary": "#1A1038",
+      "secondary": "#261756",
+      "elevated": "#2D1C66"
+    },
+    "action": {
+      "hover": "rgba(0, 255, 245, 0.16)",
+      "selected": "rgba(255, 61, 198, 0.18)",
+      "selectedBorder": "#00FFF5",
+      "focus": "rgba(255, 61, 198, 0.18)",
+      "hoverOpacity": 0.1,
+      "disabledText": "rgba(247, 242, 255, 0.5)",
+      "disabledBackground": "rgba(0, 255, 245, 0.08)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(270deg, #FF3DC6 0%, #00FFF5 50%, #7CFF00 100%)",
+      "brandVertical": "linear-gradient(0deg, #FF3DC6 0%, #00FFF5 55%, #7CFF00 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.06,
+    "tonalOffset": 0.2
+  },
+  "shape": {
+    "borderRadius": 0
+  },
+  "typography": {
+    "fontFamily": "'Verdana', 'Tahoma', 'Arial', sans-serif",
+    "fontFamilyMonospace": "'Courier New', monospace",
+    "fontWeightMedium": 600,
+    "fontWeightBold": 700
+  }
+}
