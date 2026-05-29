@@ -60,4 +60,12 @@ describe('ProfileButton', () => {
     });
     expect(profileButton).toHaveFocus();
   });
+
+  it('shows the theme switcher when extra themes are selectable', async () => {
+    render(<ProfileButton {...defaultProps} />);
+
+    await user.click(screen.getByRole('button', { name: /profile/i }));
+
+    expect(await screen.findByRole('menuitem', { name: /change theme/i })).toBeInTheDocument();
+  });
 });
