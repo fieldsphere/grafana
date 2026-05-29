@@ -8,8 +8,8 @@ import { config } from '@grafana/runtime';
 import { Dropdown, Menu, MenuItem, ToolbarButton, useStyles2 } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 
-import { getSelectableThemes } from '../../ThemeSelector/getSelectableThemes';
 import { ThemeSelectorDrawer } from '../../ThemeSelector/ThemeSelectorDrawer';
+import { getSelectableThemes } from '../../ThemeSelector/getSelectableThemes';
 import { enrichWithInteractionTracking } from '../MegaMenu/utils';
 import { NewsContainer } from '../News/NewsDrawer';
 
