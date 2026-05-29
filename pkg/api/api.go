@@ -151,6 +151,7 @@ func (hs *HTTPServer) registerRoutes() {
 	}
 
 	r.Get("/styleguide", reqSignedIn, hs.Index)
+	r.Get("/labs", reqSignedInNoAnonymous, hs.Index)
 
 	r.Get("/live", reqGrafanaAdmin, hs.Index)
 	r.Get("/live/pipeline", reqGrafanaAdmin, hs.Index)
@@ -310,6 +311,8 @@ func (hs *HTTPServer) registerRoutes() {
 
 			userRoute.Get("/auth-tokens", requestmeta.SetOwner(requestmeta.TeamAuth), routing.Wrap(hs.GetUserAuthTokens))
 			userRoute.Post("/revoke-auth-token", requestmeta.SetOwner(requestmeta.TeamAuth), routing.Wrap(hs.RevokeUserAuthToken))
+
+			userRoute.Get("/feature-flags/registry", routing.Wrap(hs.GetFeatureFlagsRegistry))
 		}, reqSignedInNoAnonymous)
 
 		apiRoute.Group("/users", func(usersRoute routing.RouteRegister) {
