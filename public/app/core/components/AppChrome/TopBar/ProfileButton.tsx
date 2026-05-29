@@ -9,6 +9,7 @@ import { Dropdown, Menu, MenuItem, ToolbarButton, useStyles2 } from '@grafana/ui
 import { contextSrv } from 'app/core/services/context_srv';
 
 import { ThemeSelectorDrawer } from '../../ThemeSelector/ThemeSelectorDrawer';
+import { getSelectableThemes } from '../../ThemeSelector/getSelectableThemes';
 import { enrichWithInteractionTracking } from '../MegaMenu/utils';
 import { NewsContainer } from '../News/NewsDrawer';
 
@@ -24,6 +25,7 @@ export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
   const node = enrichWithInteractionTracking(cloneDeep(profileNode), false);
   const [showNewsDrawer, onToggleShowNewsDrawer] = useToggle(false);
   const [showThemeDrawer, onToggleThemeDrawer] = useToggle(false);
+  const hasExtraThemes = getSelectableThemes().some((theme) => theme.isExtra);
 
   if (!node) {
     return null;
@@ -32,7 +34,7 @@ export function ProfileButton({ profileNode, onToggleKioskMode }: Props) {
   const renderMenu = () => (
     <TopNavBarMenu node={profileNode}>
       <>
-        {config.featureToggles.grafanaconThemes && (
+        {hasExtraThemes && (
           <MenuItem icon="palette" onClick={onToggleThemeDrawer} label={t('profile.change-theme', 'Change theme')} />
         )}
         <Menu.Item
