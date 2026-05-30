@@ -38,6 +38,10 @@ const (
 	WeightHelp
 )
 
+// WeightLabs places the Labs section after Administration (WeightConfig) and before the user profile
+// (WeightProfile) in the sorted navigation.
+const WeightLabs = WeightConfig + 50
+
 const (
 	NavIDRoot                 = "root"
 	NavIDDashboards           = "dashboards/browse"
@@ -56,6 +60,7 @@ const (
 	NavIDCfgPlugins           = "cfg/plugins"
 	NavIDCfgAccess            = "cfg/access"
 	NavIDBookmarks            = "bookmarks"
+	NavIDLabs                 = "labs"
 )
 
 type NavLink struct {
