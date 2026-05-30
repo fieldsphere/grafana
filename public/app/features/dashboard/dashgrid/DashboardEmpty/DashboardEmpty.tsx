@@ -5,7 +5,7 @@ import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
-import { Button, useStyles2, Text, Box, Stack, TextLink, Icon, FilterPill, Tooltip } from '@grafana/ui';
+import { Button, useStyles2, Text, Box, Stack, TextLink, Icon, FilterPill, Tooltip, LinkButton } from '@grafana/ui';
 import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 import { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
 import { AutoGridLayoutManager } from 'app/features/dashboard-scene/scene/layout-auto-grid/AutoGridLayoutManager';
@@ -17,6 +17,7 @@ import {
   useOnAddVisualization,
   useOnAddLibraryPanel,
   useOnImportDashboard,
+  useOnOpenQuickStartExamples,
 } from './DashboardEmptyHooks';
 
 interface InternalProps {
@@ -24,6 +25,7 @@ interface InternalProps {
   onAddVisualization?: () => void;
   onAddLibraryPanel?: () => void;
   onImportDashboard?: () => void;
+  onOpenQuickStartExamples?: () => void;
 }
 
 const InternalDashboardEmpty = ({
@@ -31,6 +33,7 @@ const InternalDashboardEmpty = ({
   onAddVisualization,
   onAddLibraryPanel,
   onImportDashboard,
+  onOpenQuickStartExamples,
 }: InternalProps) => {
   const styles = useStyles2(getStyles);
 
@@ -45,6 +48,7 @@ const InternalDashboardEmpty = ({
               onAddVisualization={onAddVisualization}
               onAddLibraryPanel={onAddLibraryPanel}
               onImportDashboard={onImportDashboard}
+              onOpenQuickStartExamples={onOpenQuickStartExamples}
             />
           )}
         </div>
@@ -152,8 +156,14 @@ interface OldLayoutEmptyProps {
   onAddVisualization?: () => void;
   onAddLibraryPanel?: () => void;
   onImportDashboard?: () => void;
+  onOpenQuickStartExamples?: () => void;
 }
-const OldLayoutEmpty = ({ onAddVisualization, onAddLibraryPanel, onImportDashboard }: OldLayoutEmptyProps) => (
+const OldLayoutEmpty = ({
+  onAddVisualization,
+  onAddLibraryPanel,
+  onImportDashboard,
+  onOpenQuickStartExamples,
+}: OldLayoutEmptyProps) => (
   <Stack alignItems="stretch" justifyContent="center" gap={4} direction="column">
     <Box borderRadius="lg" borderColor="strong" borderStyle="dashed" padding={4}>
       <Stack direction="column" alignItems="center" gap={2}>
@@ -233,6 +243,30 @@ const OldLayoutEmpty = ({ onAddVisualization, onAddLibraryPanel, onImportDashboa
           </Button>
         </Stack>
       </Box>
+      <Box borderRadius="lg" borderColor="strong" borderStyle="dashed" padding={3} flex={1}>
+        <Stack direction="column" alignItems="center" gap={1}>
+          <Icon name="compass" size="xl" />
+          <Text element="h3" textAlignment="center" weight="medium">
+            <Trans i18nKey="dashboard.empty.quick-start-examples-header">Quick start with examples</Trans>
+          </Text>
+          <Box marginBottom={2}>
+            <Text element="p" textAlignment="center" color="secondary">
+              <Trans i18nKey="dashboard.empty.quick-start-examples-body">
+                Browse example dashboards to jump-start your first visualizations.
+              </Trans>
+            </Text>
+          </Box>
+          <LinkButton
+            icon="external-link-alt"
+            href="https://grafana.com/grafana/dashboards/"
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={onOpenQuickStartExamples}
+          >
+            <Trans i18nKey="dashboard.empty.quick-start-examples-button">Explore examples</Trans>
+          </LinkButton>
+        </Stack>
+      </Box>
     </Stack>
   </Stack>
 );
@@ -249,6 +283,7 @@ const DashboardEmpty = (props: Props) => {
   const onAddVisualization = useOnAddVisualization({ ...props, isReadOnlyRepo, isProvisioned });
   const onAddLibraryPanel = useOnAddLibraryPanel({ ...props, isReadOnlyRepo, isProvisioned });
   const onImportDashboard = useOnImportDashboard({ ...props, isReadOnlyRepo, isProvisioned });
+  const onOpenQuickStartExamples = useOnOpenQuickStartExamples();
 
   return (
     <DashboardEmptyExtensionPoint
@@ -259,9 +294,10 @@ const DashboardEmpty = (props: Props) => {
             onAddVisualization={onAddVisualization}
             onAddLibraryPanel={onAddLibraryPanel}
             onImportDashboard={onImportDashboard}
+            onOpenQuickStartExamples={onOpenQuickStartExamples}
           />
         ),
-        [onAddVisualization, onAddLibraryPanel, onImportDashboard, props.dashboard]
+        [onAddVisualization, onAddLibraryPanel, onImportDashboard, onOpenQuickStartExamples, props.dashboard]
       )}
       onAddVisualization={onAddVisualization}
       onAddLibraryPanel={onAddLibraryPanel}
