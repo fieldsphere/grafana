@@ -21,6 +21,7 @@ import {
   type ScopedVars,
   type TimeRange,
   toDataFrame,
+  createStructuredLogger,
 } from '@grafana/data';
 import {
   type BackendSrvRequest,
@@ -39,6 +40,8 @@ import gfunc, { type FuncDef, type FuncDefs, type FuncInstance } from './gfunc';
 import GraphiteQueryModel from './graphite_query';
 import { getRollupNotice, getRuntimeConsolidationNotice } from './meta';
 import { prepareAnnotation } from './migrations';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/graphite/datasource');
 // Types
 import {
   type GraphiteEvents,
@@ -555,7 +558,7 @@ export class GraphiteDatasource
       return this.events({ range: range, tags: tags }).then((results) => {
         const list = [];
         if (!isArray(results.data)) {
-          console.error(`Unable to get annotations.`);
+          structuredLogger.error(`Unable to get annotations.`);
           return [];
         }
         for (let i = 0; i < results.data.length; i++) {
@@ -1047,7 +1050,7 @@ export class GraphiteDatasource
         this.funcDefs = gfunc.parseFuncDefs(functions);
         return this.funcDefs;
       } catch (error) {
-        console.error('Fetching graphite functions error', error);
+        structuredLogger.error('Fetching graphite functions error', error);
         this.funcDefs = gfunc.getFuncDefs(this.graphiteVersion);
         return this.funcDefs;
       }
@@ -1066,7 +1069,7 @@ export class GraphiteDatasource
           return this.funcDefs;
         }),
         catchError((error) => {
-          console.error('Fetching graphite functions error', error);
+          structuredLogger.error('Fetching graphite functions error', error);
           this.funcDefs = gfunc.getFuncDefs(this.graphiteVersion);
           return of(this.funcDefs);
         })

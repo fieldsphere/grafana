@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { logWarning } from '@grafana/runtime';
 import { type Dashboard } from '@grafana/schema';
 import { type Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
@@ -25,6 +26,9 @@ import { getVizPanelKeyForPanelId } from '../utils/utils';
 import { transformSceneToSaveModel } from './transformSceneToSaveModel';
 import { transformSceneToSaveModelSchemaV2 } from './transformSceneToSaveModelSchemaV2';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard-scene/serialization/DashboardSceneSerializer'
+);
 /**
  * T is the type of the save model
  * M is the type of the metadata
@@ -353,7 +357,7 @@ export class V2DashboardSerializer
           }
         } else {
           const warningMsg = 'Dashboard serializer: Undefined variable found in dashboard save model, ignoring it';
-          console.warn(warningMsg);
+          structuredLogger.warn(warningMsg);
           logWarning(warningMsg);
         }
       }

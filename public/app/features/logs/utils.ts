@@ -30,6 +30,7 @@ import {
   type Field,
   type LogsMetaItem,
   store,
+  createStructuredLogger,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getConfig } from 'app/core/config';
@@ -42,6 +43,7 @@ import { getDataframeFields } from './components/logParser';
 import { type GetRowContextQueryFn } from './components/panel/LogLineMenu';
 import { DATAPLANE_LABELS_NAME, DATAPLANE_LABEL_TYPES_NAME, parseLogsFrame } from './logsFrame';
 
+const structuredLogger = createStructuredLogger('public/app/features/logs/utils');
 /**
  * Returns the log level of a log line.
  * Parse the line for level words. If no level is found, it returns `LogLevel.unknown`.
@@ -368,10 +370,10 @@ export function getLogLevelInfo(dataFrame: DataFrame, allDataFrames: DataFrame[]
   const valueField = fieldCache.getFirstFieldOfType(FieldType.number);
 
   if (!timeField) {
-    console.error('Time field missing in data frame');
+    structuredLogger.error('Time field missing in data frame');
   }
   if (!valueField) {
-    console.error('Value field missing in data frame');
+    structuredLogger.error('Value field missing in data frame');
   }
 
   const level = valueField ? getFieldDisplayName(valueField, dataFrame, allDataFrames) : 'logs';

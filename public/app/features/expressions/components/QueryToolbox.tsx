@@ -1,12 +1,13 @@
 import { css } from '@emotion/css';
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { IconButton, useStyles2, Stack, InlineToast, Tooltip, Icon } from '@grafana/ui';
 
 import { type SqlExpressionQuery } from '../types';
 
+const structuredLogger = createStructuredLogger('public/app/features/expressions/components/QueryToolbox');
 interface QueryToolboxProps {
   onFormatCode?: () => void;
   onExpand?: (isExpanded: boolean) => void;
@@ -39,7 +40,7 @@ export const QueryToolbox = ({ onFormatCode, onExpand, isExpanded, query }: Quer
       await navigator.clipboard.writeText(query.expression ?? '');
       setShowCopySuccess(true);
     } catch (e) {
-      console.error(e);
+      structuredLogger.error(e);
     }
   }, [query.expression]);
 

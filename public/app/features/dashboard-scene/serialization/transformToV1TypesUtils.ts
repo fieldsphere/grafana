@@ -1,4 +1,8 @@
-import { type FieldConfigSource as FieldConfigSourceV1, SpecialValueMatch as SpecialValueMatchV1 } from '@grafana/data';
+import {
+  type FieldConfigSource as FieldConfigSourceV1,
+  SpecialValueMatch as SpecialValueMatchV1,
+  createStructuredLogger,
+} from '@grafana/data';
 import {
   VariableHide as VariableHideV1,
   VariableRefresh as VariableRefreshV1,
@@ -17,6 +21,9 @@ import {
   type ThresholdsMode,
 } from '@grafana/schema/apis/dashboard.grafana.app/v2';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard-scene/serialization/transformToV1TypesUtils'
+);
 export function transformVariableRefreshToEnumV1(refresh?: VariableRefresh): VariableRefreshV1 {
   switch (refresh) {
     case 'never':
@@ -98,7 +105,7 @@ function transformSpecialValueMatchToV1(match: SpecialValueMatch): SpecialValueM
     case 'empty':
       return SpecialValueMatchV1.Empty;
     default:
-      console.warn(`Skipping special value mapping with unknown match type: "${match}"`);
+      structuredLogger.warn(`Skipping special value mapping with unknown match type: "${match}"`);
       return undefined;
   }
 }

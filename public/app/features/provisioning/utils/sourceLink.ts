@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { type DashboardLink } from '@grafana/schema';
@@ -16,6 +17,7 @@ import { isValidRepoType } from '../guards';
 
 import { getHasTokenInstructions, getRepoFileUrl } from './git';
 
+const structuredLogger = createStructuredLogger('public/app/features/provisioning/utils/sourceLink');
 /**
  * Find and remove existing source links from the links array.
  * A source link is identified by its tooltip matching the source link tooltip translation.
@@ -83,7 +85,7 @@ export async function buildSourceLink(annotations: ObjectMeta['annotations']): P
       keepTime: false,
     };
   } catch (e) {
-    console.warn('Failed to fetch repository info for source link:', e);
+    structuredLogger.warn('Failed to fetch repository info for source link:', e);
     return undefined;
   }
 }

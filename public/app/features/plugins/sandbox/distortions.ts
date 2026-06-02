@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { type ProxyTarget } from '@locker/near-membrane-shared';
 import DOMPurify from 'dompurify';
 import { cloneDeep, isFunction } from 'lodash';
@@ -10,6 +11,7 @@ import { recursivePatchObjectAsLiveTarget } from './documentSandbox';
 import { type SandboxEnvironment, type SandboxPluginMeta } from './types';
 import { logWarning, unboxRegexesFromMembraneProxy } from './utils';
 
+const structuredLogger = createStructuredLogger('public/app/features/plugins/sandbox/distortions');
 /**
  * Distortions are near-membrane mechanisms to altert JS instrics and DOM APIs.
  *
@@ -140,7 +142,7 @@ function distortConsole(distortions: DistortionMap) {
       const pluginId = meta.id;
 
       function sandboxLog(...args: unknown[]) {
-        console.log(`[plugin ${pluginId}]`, ...args);
+        structuredLogger.info(`[plugin ${pluginId}]`, ...args);
       }
       return {
         log: sandboxLog,
@@ -170,7 +172,7 @@ function distortAlert(distortions: DistortionMap) {
     });
 
     return function (...args: unknown[]) {
-      console.log(`[plugin ${pluginId}]`, ...args);
+      structuredLogger.info(`[plugin ${pluginId}]`, ...args);
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, 'alert');

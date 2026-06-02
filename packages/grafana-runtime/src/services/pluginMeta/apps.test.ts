@@ -107,9 +107,11 @@ describe('when useMTPlugins flag is enabled', () => {
           await func();
 
           expect(console.warn).toHaveBeenCalledTimes(1);
-          expect(console.warn).toHaveBeenCalledWith(
-            'PluginMeta: plugin meta yielded an empty result so Grafana is falling back to bootdata'
-          );
+          expect(console.warn).toHaveBeenCalledWith({
+            level: 'warn',
+            message: 'PluginMeta: plugin meta yielded an empty result so Grafana is falling back to bootdata',
+            source: 'packages/grafana-runtime/src/services/pluginMeta/logging',
+          });
           expect(logger.logWarning).toHaveBeenCalledTimes(1);
           expect(logger.logWarning).toHaveBeenCalledWith(
             'PluginMeta: plugin meta yielded an empty result so Grafana is falling back to bootdata',
@@ -124,9 +126,11 @@ describe('when useMTPlugins flag is enabled', () => {
           await func('');
 
           expect(console.warn).toHaveBeenCalledTimes(1);
-          expect(console.warn).toHaveBeenCalledWith(
-            'PluginMeta: plugin meta yielded an empty result so Grafana is falling back to bootdata'
-          );
+          expect(console.warn).toHaveBeenCalledWith({
+            level: 'warn',
+            message: 'PluginMeta: plugin meta yielded an empty result so Grafana is falling back to bootdata',
+            source: 'packages/grafana-runtime/src/services/pluginMeta/logging',
+          });
           expect(logger.logWarning).toHaveBeenCalledTimes(1);
           expect(logger.logWarning).toHaveBeenCalledWith(
             'PluginMeta: plugin meta yielded an empty result so Grafana is falling back to bootdata',

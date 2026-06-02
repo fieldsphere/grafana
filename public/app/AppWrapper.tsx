@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { OpenFeatureProvider } from '@openfeature/react-sdk';
 import { UNSAFE_PortalProvider } from '@react-aria/overlays';
 import { type Action, KBarProvider } from 'kbar';
@@ -24,6 +25,7 @@ import { type PluginExtensionRegistries } from './features/plugins/extensions/re
 import { ScopesContextProvider } from './features/scopes/ScopesContextProvider';
 import { RouterWrapper } from './routes/RoutesWrapper';
 
+const structuredLogger = createStructuredLogger('public/app/AppWrapper');
 interface AppWrapperProps {
   context: GrafanaContextType;
 }
@@ -77,7 +79,7 @@ export class AppWrapper extends Component<AppWrapperProps, AppWrapperState> {
     if (preloader) {
       preloader.remove();
     } else {
-      console.warn('Preloader element not found');
+      structuredLogger.warn('Preloader element not found');
     }
   }
 

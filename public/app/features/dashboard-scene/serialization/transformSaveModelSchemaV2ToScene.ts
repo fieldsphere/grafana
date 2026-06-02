@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { uniqueId } from 'lodash';
 
 import { config, getDataSourceSrv } from '@grafana/runtime';
@@ -93,6 +94,9 @@ import {
 } from './transformToV1TypesUtils';
 import { LEGACY_STRING_VALUE_KEY } from './transformToV2TypesUtils';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard-scene/serialization/transformSaveModelSchemaV2ToScene'
+);
 const DEFAULT_DATASOURCE = 'default';
 
 export type TypedVariableModelV2 =
@@ -309,7 +313,7 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec, defaultVariable
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })
@@ -322,7 +326,7 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec, defaultVariable
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })
@@ -616,7 +620,7 @@ export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVar
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })

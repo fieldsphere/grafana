@@ -1,4 +1,4 @@
-import { AppEvents, textUtil } from '@grafana/data';
+import { AppEvents, textUtil, createStructuredLogger } from '@grafana/data';
 import { type BackendSrvRequest, getBackendSrv, getTemplateSrv } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { createAbsoluteUrl, type RelativeUrl } from 'app/features/alerting/unified/utils/url';
@@ -8,6 +8,7 @@ import { HttpRequestMethod } from '../../panelcfg.gen';
 
 import { type APIEditorConfig } from './APIEditor';
 
+const structuredLogger = createStructuredLogger('public/app/plugins/panel/canvas/editor/element/utils');
 type IsLoadingCallback = (loading: boolean) => void;
 
 export const callApi = (api: APIEditorConfig, updateLoadingStateCallback?: IsLoadingCallback) => {
@@ -23,7 +24,7 @@ export const callApi = (api: APIEditorConfig, updateLoadingStateCallback?: IsLoa
     .subscribe({
       error: (error) => {
         appEvents.emit(AppEvents.alertError, ['An error has occurred. Check console output for more details.']);
-        console.error('API call error: ', error);
+        structuredLogger.error('API call error: ', error);
         updateLoadingStateCallback && updateLoadingStateCallback(false);
       },
       complete: () => {

@@ -8,7 +8,7 @@ import {
   useState,
 } from 'react';
 
-import { type TextBoxVariableModel, isEmptyObject } from '@grafana/data';
+import { type TextBoxVariableModel, isEmptyObject, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Input } from '@grafana/ui';
 import { useDispatch } from 'app/types/store';
@@ -20,6 +20,7 @@ import { toKeyedAction } from '../state/keyedVariablesReducer';
 import { changeVariableProp } from '../state/sharedReducer';
 import { toVariablePayload } from '../utils';
 
+const structuredLogger = createStructuredLogger('public/app/features/variables/textbox/TextBoxVariablePicker');
 export interface Props extends VariablePickerProps<TextBoxVariableModel> {}
 
 export function TextBoxVariablePicker({ variable, onVariableChange, readOnly }: Props): ReactElement {
@@ -31,7 +32,7 @@ export function TextBoxVariablePicker({ variable, onVariableChange, readOnly }: 
 
   const updateVariable = useCallback(() => {
     if (!variable.rootStateKey) {
-      console.error('Cannot update variable without rootStateKey');
+      structuredLogger.error('Cannot update variable without rootStateKey');
       return;
     }
 

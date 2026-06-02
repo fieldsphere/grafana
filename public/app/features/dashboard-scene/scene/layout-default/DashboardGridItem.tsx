@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { isEqual } from 'lodash';
 import React from 'react';
 import { type Unsubscribable } from 'rxjs';
@@ -28,6 +29,9 @@ import { DashboardGridItemRenderer } from './DashboardGridItemRenderer';
 import { DashboardGridItemVariableDependencyHandler } from './DashboardGridItemVariableDependencyHandler';
 import { RowRepeaterBehavior } from './RowRepeaterBehavior';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard-scene/scene/layout-default/DashboardGridItem'
+);
 export interface DashboardGridItemState extends SceneGridItemStateLike {
   body: VizPanel;
   repeatedPanels?: VizPanel[];
@@ -150,7 +154,7 @@ export class DashboardGridItem
       });
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('DashboardGridItem: Variable is not a MultiValueVariable');
+      structuredLogger.error('DashboardGridItem: Variable is not a MultiValueVariable');
       return;
     }
 

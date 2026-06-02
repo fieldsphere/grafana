@@ -1,7 +1,7 @@
 import { chain } from 'lodash';
 import { useCallback } from 'react';
 
-import { type DataSourceInstanceSettings } from '@grafana/data';
+import { type DataSourceInstanceSettings, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { type ComboboxOption } from '@grafana/ui';
@@ -10,6 +10,9 @@ import { type GrafanaPromRuleGroupDTO } from 'app/types/unified-alerting-dto';
 import { prometheusApi } from '../../../api/prometheusApi';
 import { getRulesDataSources } from '../../../utils/datasource';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/alerting/unified/components/rules/Filter/useRuleFilterAutocomplete'
+);
 // Module-scope utilities
 const collator = new Intl.Collator();
 function getExternalRuleDataSources() {
@@ -161,7 +164,7 @@ export function useNamespaceAndGroupOptions(): {
 
         return options;
       } catch (error) {
-        console.error('Error fetching groups:', error);
+        structuredLogger.error('Error fetching groups:', error);
         return [createInfoOption(t('alerting.rules-filter.group-search-error', 'Error searching groups'))];
       }
     },

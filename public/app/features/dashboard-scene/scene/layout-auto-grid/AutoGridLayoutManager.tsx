@@ -1,4 +1,4 @@
-import { AppEvents } from '@grafana/data';
+import { AppEvents, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getAppEvents } from '@grafana/runtime';
 import {
@@ -37,6 +37,9 @@ import { AutoGridItem } from './AutoGridItem';
 import { AutoGridLayout } from './AutoGridLayout';
 import { getEditOptions } from './AutoGridLayoutManagerEditor';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard-scene/scene/layout-auto-grid/AutoGridLayoutManager'
+);
 interface AutoGridLayoutManagerState extends SceneObjectState {
   layout: AutoGridLayout;
   maxColumnCount: number;
@@ -248,7 +251,7 @@ export class AutoGridLayoutManager
   public duplicatePanel(panel: VizPanel) {
     const gridItem = panel.parent;
     if (!(gridItem instanceof AutoGridItem)) {
-      console.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
+      structuredLogger.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
       return;
     }
 

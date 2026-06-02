@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { type PanelData, type TimeRange } from '@grafana/data';
+import { type PanelData, type TimeRange, createStructuredLogger } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { EditorFieldGroup, EditorRow, EditorRows } from '@grafana/plugin-ui';
 import { config, getTemplateSrv } from '@grafana/runtime';
@@ -26,6 +26,9 @@ import { onLoad, setBasicLogsQuery, setFormatAs, setKustoQuery } from './setQuer
 import useMigrations from './useMigrations';
 import { shouldShowBasicLogsToggle } from './utils';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/plugins/datasource/azuremonitor/components/LogsQueryEditor/LogsQueryEditor'
+);
 interface LogsQueryEditorProps {
   query: AzureMonitorQuery;
   datasource: Datasource;
@@ -193,11 +196,11 @@ const LogsQueryEditor = ({
           setDataIngestedWarning(null);
         }
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
       }
     };
 
-    getBasicLogsUsage(query).catch((err) => console.error(err));
+    getBasicLogsUsage(query).catch((err) => structuredLogger.error(err));
   }, [datasource.azureLogAnalyticsDatasource, query, showBasicLogsToggle, from, to]);
   let portalLinkButton = null;
 

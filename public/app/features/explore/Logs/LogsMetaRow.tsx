@@ -11,6 +11,7 @@ import {
   type Labels,
   store,
   shallowCompare,
+  createStructuredLogger,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
@@ -23,6 +24,7 @@ import { MetaInfoText, type MetaItemProps } from '../MetaInfoText';
 import { type LogsVisualisationType } from './constants';
 import { SETTINGS_KEYS } from './utils/logs';
 
+const structuredLogger = createStructuredLogger('public/app/features/explore/Logs/LogsMetaRow');
 const getStyles = () => ({
   metaContainer: css({
     flex: 1,
@@ -162,6 +164,6 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
   if (kind === LogsMetaKind.Error) {
     return <span className="logs-meta-item__error">{value.toString()}</span>;
   }
-  console.error(`Meta type ${typeof value} ${value} not recognized.`);
+  structuredLogger.error(`Meta type ${typeof value} ${value} not recognized.`);
   return <></>;
 }

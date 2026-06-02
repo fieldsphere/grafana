@@ -14,6 +14,7 @@ import {
   type PluginExtensionLink,
   PluginExtensionTypes,
   urlUtil,
+  createStructuredLogger,
 } from '@grafana/data';
 import { reportInteraction, config } from '@grafana/runtime';
 import { getAppPluginMetas } from '@grafana/runtime/internal';
@@ -43,13 +44,14 @@ import { type ExtensionsLog, log as baseLog } from './logs/log';
 import { type AddedLinkRegistryItem } from './registry/AddedLinksRegistry';
 import { assertIsNotPromise, assertStringProps, isPromise } from './validators';
 
+const structuredLogger = createStructuredLogger('public/app/features/plugins/extensions/utils');
 export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
   return (...args: unknown[]) => {
     try {
       return fn(...args);
     } catch (e) {
       if (e instanceof Error) {
-        console.warn(`${errorMessagePrefix}${e.message}`);
+        structuredLogger.warn(`${errorMessagePrefix}${e.message}`);
       }
     }
   };

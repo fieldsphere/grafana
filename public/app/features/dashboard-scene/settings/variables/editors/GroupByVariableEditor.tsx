@@ -7,6 +7,7 @@ import {
   type MetricFindValue,
   type SelectableValue,
   getDataSourceRef,
+  createStructuredLogger,
 } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { GroupByVariable, type SceneVariable } from '@grafana/scenes';
@@ -14,6 +15,9 @@ import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/Pan
 
 import { GroupByVariableForm } from '../components/GroupByVariableForm';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard-scene/settings/variables/editors/GroupByVariableEditor'
+);
 interface GroupByVariableEditorProps {
   variable: GroupByVariable;
   onRunQuery: () => void;
@@ -106,7 +110,7 @@ export function GroupByVariableEditor(props: GroupByVariableEditorProps) {
 
 export function getGroupByVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof GroupByVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    structuredLogger.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
 

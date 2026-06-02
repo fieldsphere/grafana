@@ -1,4 +1,4 @@
-import { getNextRefId } from '@grafana/data';
+import { getNextRefId, createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { getPanelPluginMetasMapSync, type PanelPluginMetas } from '@grafana/runtime/internal';
 import {
@@ -48,6 +48,9 @@ import { transformMappingsToV1 } from '../transformToV1TypesUtils';
 import { transformDataTopic } from '../transformToV2TypesUtils';
 import { normalizeTransformation } from '../transformationCompat';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard-scene/serialization/layoutSerializers/utils'
+);
 export function buildVizPanel(panel: PanelKind, id?: number): VizPanel {
   const titleItems: SceneObject[] = [];
 
@@ -372,7 +375,7 @@ export function getDataSourceForQuery(querySpecDS: DataSourceRef | undefined | n
     // In the datasource list from bootData "id" is the type and the uid could be uid or the name
     // in cases like grafana, dashboard or mixed datasource
 
-    console.warn(
+    structuredLogger.warn(
       `Could not find datasource for query kind ${queryKind}, defaulting to ${dsList[defaultDatasource].meta.id}`
     );
     return {

@@ -271,6 +271,12 @@ export { NodeGraphDataFrameFieldNames } from './utils/nodeGraph';
 export { toOption } from './utils/selectUtils';
 export * as arrayUtils from './utils/arrayUtils';
 export { store, Store } from './utils/store';
+export {
+  createStructuredLogger,
+  type StructuredLogger,
+  type StructuredLogEntry,
+  type StructuredLogLevel,
+} from './utils/logger';
 export { LocalStorageValueProvider } from './utils/LocalStorageValueProvider';
 export { throwIfAngular } from './utils/throwIfAngular';
 export { fuzzySearch } from './utils/fuzzySearch';

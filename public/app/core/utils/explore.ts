@@ -23,12 +23,14 @@ import {
   type TimeZone,
   toURLRange,
   urlUtil,
+  createStructuredLogger,
 } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { RefreshPicker } from '@grafana/ui';
 import { ExpressionDatasourceUID } from 'app/features/expressions/types';
 import { type QueryOptions, type QueryTransaction } from 'app/types/explore';
 
+const structuredLogger = createStructuredLogger('public/app/core/utils/explore');
 export const DEFAULT_UI_STATE = {
   dedupStrategy: LogsDedupStrategy.none,
 };
@@ -159,7 +161,7 @@ export const safeStringifyValue = (value: unknown, space?: number) => {
   try {
     return JSON.stringify(value, null, space);
   } catch (error) {
-    console.error(error);
+    structuredLogger.error(error);
   }
 
   return '';
@@ -232,7 +234,7 @@ export async function ensureQueries(
         try {
           await getDataSourceSrv().get(query.datasource.uid);
         } catch {
-          console.error(`One of the queries has a datasource that is no longer available and was removed.`);
+          structuredLogger.error(`One of the queries has a datasource that is no longer available and was removed.`);
           validDS = false;
         }
       }

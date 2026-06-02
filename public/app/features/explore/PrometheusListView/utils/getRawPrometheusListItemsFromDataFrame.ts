@@ -1,7 +1,10 @@
-import { type DataFrame, formattedValueToString } from '@grafana/data';
+import { type DataFrame, formattedValueToString, createStructuredLogger } from '@grafana/data';
 
 import { type instantQueryRawVirtualizedListData } from '../RawListContainer';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/explore/PrometheusListView/utils/getRawPrometheusListItemsFromDataFrame'
+);
 type instantQueryMetricList = { [index: string]: { [index: string]: instantQueryRawVirtualizedListData } };
 
 export const RawPrometheusListItemEmptyValue = ' ';
@@ -51,7 +54,7 @@ export const getRawPrometheusListItemsFromDataFrame = (dataFrame: DataFrame): in
             }
           }
         } else {
-          console.warn('Field display method is missing!');
+          structuredLogger.warn('Field display method is missing!');
         }
       }
     }

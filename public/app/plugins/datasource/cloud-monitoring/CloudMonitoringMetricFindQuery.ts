@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { isString } from 'lodash';
 
 import { ALIGNMENT_PERIODS, SELECTORS } from './constants';
@@ -12,6 +13,9 @@ import {
 } from './functions';
 import { type CloudMonitoringVariableQuery, type MetricDescriptor } from './types/types';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/plugins/datasource/cloud-monitoring/CloudMonitoringMetricFindQuery'
+);
 export default class CloudMonitoringMetricFindQuery {
   constructor(private datasource: CloudMonitoringDatasource) {}
 
@@ -50,7 +54,7 @@ export default class CloudMonitoringMetricFindQuery {
           return [];
       }
     } catch (error) {
-      console.error(`Could not run CloudMonitoringMetricFindQuery ${query}`, error);
+      structuredLogger.error(`Could not run CloudMonitoringMetricFindQuery ${query}`, error);
       return [];
     }
   }

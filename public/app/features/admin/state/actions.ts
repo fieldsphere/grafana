@@ -1,6 +1,6 @@
 import { debounce } from 'lodash';
 
-import { dateTimeFormatTimeAgo } from '@grafana/data';
+import { dateTimeFormatTimeAgo, createStructuredLogger } from '@grafana/data';
 import { featureEnabled, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
 import { type FetchDataArgs } from '@grafana/ui';
 import config from 'app/core/config';
@@ -36,6 +36,8 @@ import {
   anonPageChanged,
   anonQueryChanged,
 } from './reducers';
+
+const structuredLogger = createStructuredLogger('public/app/features/admin/state/actions');
 // UserAdminPage
 
 export function loadAdminUserPage(userUid: string): ThunkResult<void> {
@@ -50,7 +52,7 @@ export function loadAdminUserPage(userUid: string): ThunkResult<void> {
       }
       dispatch(userAdminPageLoadedAction(true));
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
 
       if (isFetchError(error)) {
         const userError = {
@@ -300,7 +302,7 @@ export function fetchUsers(): ThunkResult<void> {
       dispatch(usersFetched(result));
     } catch (error) {
       usersFetchEnd();
-      console.error(error);
+      structuredLogger.error(error);
     }
   };
 }
@@ -366,7 +368,7 @@ export function fetchUsersAnonymousDevices(): ThunkResult<void> {
       const result = await getBackendSrv().get(url);
       dispatch(usersAnonymousDevicesFetched(result));
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
     }
   };
 }

@@ -15,6 +15,7 @@ import {
   ReducerID,
   type Threshold,
   ThresholdsMode,
+  createStructuredLogger,
 } from '@grafana/data';
 import {
   LegendDisplayMode,
@@ -45,6 +46,7 @@ import { type GrafanaQuery, GrafanaQueryType } from 'app/plugins/datasource/graf
 import { defaultGraphConfig } from './config';
 import { type Options } from './panelcfg.gen';
 
+const structuredLogger = createStructuredLogger('public/app/plugins/panel/timeseries/migrations');
 let dashboardRefreshDebouncer: ReturnType<typeof setTimeout> | null = null;
 
 /**
@@ -283,7 +285,7 @@ export function graphToTimeseriesOptions(angular: any): {
             });
             break;
           default:
-            console.log('Ignore override migration:', seriesOverride.alias, p, v);
+            structuredLogger.info('Ignore override migration:', seriesOverride.alias, p, v);
         }
       }
       if (dashOverride) {

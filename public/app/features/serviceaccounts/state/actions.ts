@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { debounce } from 'lodash';
 
 import { getBackendSrv } from '@grafana/runtime';
@@ -21,6 +22,7 @@ import {
   stateFilterChanged,
 } from './reducers';
 
+const structuredLogger = createStructuredLogger('public/app/features/serviceaccounts/state/actions');
 const BASE_URL = `/api/serviceaccounts`;
 
 export function fetchACOptions(): ThunkResult<void> {
@@ -31,7 +33,7 @@ export function fetchACOptions(): ThunkResult<void> {
         dispatch(acOptionsLoaded(options));
       }
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
     }
   };
 }
@@ -76,7 +78,7 @@ export function fetchServiceAccounts(
         dispatch(serviceAccountsFetched(result));
       }
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
     } finally {
       dispatch(serviceAccountsFetchEnd());
     }

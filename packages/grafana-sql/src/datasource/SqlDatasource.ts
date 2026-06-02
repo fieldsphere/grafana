@@ -16,6 +16,7 @@ import {
   type LegacyMetricFindQueryOptions,
   type VariableWithMultiSupport,
   type TimeRange,
+  createStructuredLogger,
 } from '@grafana/data';
 import { EditorMode } from '@grafana/plugin-ui';
 import {
@@ -35,6 +36,7 @@ import { MACRO_NAMES } from '../constants';
 import { type DB, type SQLQuery, type SQLOptions, type SqlQueryModel, QueryFormat, type SQLDialect } from '../types';
 import migrateAnnotation from '../utils/migration';
 
+const structuredLogger = createStructuredLogger('packages/grafana-sql/src/datasource/SqlDatasource');
 export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLOptions> {
   uid: string;
   responseParser: ResponseParser;
@@ -215,7 +217,7 @@ export abstract class SqlDatasource extends DataSourceWithBackend<SQLQuery, SQLO
     try {
       response = await this.runMetaQuery(interpolatedQuery, range);
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
       throw new Error('error when executing the sql query');
     }
     return this.getResponseParser().transformMetricFindResponse(response);

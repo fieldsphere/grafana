@@ -1,7 +1,11 @@
 import { css } from '@emotion/css';
 import { firstValueFrom } from 'rxjs';
 
-import { onUpdateDatasourceJsonDataOptionSelect, onUpdateDatasourceOption } from '@grafana/data';
+import {
+  onUpdateDatasourceJsonDataOptionSelect,
+  onUpdateDatasourceOption,
+  createStructuredLogger,
+} from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import {
   Box,
@@ -31,6 +35,9 @@ import {
 import { type Props } from './types';
 import { INFLUXDB_VERSION_MAP, type InfluxDBProduct } from './versions';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/plugins/datasource/influxdb/components/editor/config-v2/UrlAndAuthenticationSection'
+);
 const getQueryLanguageOptions = (productName: string): Array<{ value: string }> => {
   const product = INFLUXDB_VERSION_MAP.find(({ name }) => name === productName);
   return product?.queryLanguages?.map(({ name }) => ({ value: name })) ?? [];
@@ -104,7 +111,7 @@ export const UrlAndAuthenticationSection = (props: Props) => {
         }
       }
     } catch (err) {
-      console.error('Failed to get InfluxDB version:', err);
+      structuredLogger.error('Failed to get InfluxDB version:', err);
     }
 
     return { product: undefined, version: undefined };

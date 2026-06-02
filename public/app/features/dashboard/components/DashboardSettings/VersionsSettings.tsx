@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { PureComponent } from 'react';
 import * as React from 'react';
 
@@ -18,6 +19,9 @@ import { VersionHistoryTable } from '../VersionHistory/VersionHistoryTable';
 
 import { type SettingsPageProps } from './types';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard/components/DashboardSettings/VersionsSettings'
+);
 interface Props extends SettingsPageProps {}
 
 type State = {
@@ -69,7 +73,7 @@ export class VersionsSettings extends PureComponent<Props, State> {
         // Update the continueToken for the next request, if available
         this.continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => structuredLogger.info(err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

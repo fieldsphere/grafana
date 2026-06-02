@@ -3,7 +3,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { NewThemeOptionsSchema } from '../src/themes/createTheme';
+import { createStructuredLogger } from '../src/utils/logger';
 
+const structuredLogger = createStructuredLogger('packages/grafana-data/scripts/generateSchema');
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const jsonOut = path.join(__dirname, '..', 'src', 'themes', 'schema.generated.json');
@@ -19,4 +21,4 @@ fs.writeFileSync(
   )
 );
 
-console.log('Successfully generated theme schema');
+structuredLogger.info('Successfully generated theme schema');

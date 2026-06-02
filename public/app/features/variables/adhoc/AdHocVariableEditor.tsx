@@ -1,6 +1,11 @@
 import { memo, useEffect } from 'react';
 
-import { type AdHocVariableModel, type DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
+import {
+  type AdHocVariableModel,
+  type DataSourceInstanceSettings,
+  getDataSourceRef,
+  createStructuredLogger,
+} from '@grafana/data';
 import { AdHocVariableForm } from 'app/features/dashboard-scene/settings/variables/components/AdHocVariableForm';
 import { type StoreState, useDispatch, useSelector } from 'app/types/store';
 
@@ -12,6 +17,7 @@ import { toKeyedVariableIdentifier } from '../utils';
 
 import { changeVariableDatasource } from './actions';
 
+const structuredLogger = createStructuredLogger('public/app/features/variables/adhoc/AdHocVariableEditor');
 interface Props extends VariableEditorProps<AdHocVariableModel> {}
 
 export const AdHocVariableEditor = memo(function AdHocVariableEditor({ variable }: Props) {
@@ -30,7 +36,7 @@ export const AdHocVariableEditor = memo(function AdHocVariableEditor({ variable 
 
   useEffect(() => {
     if (!variable.rootStateKey) {
-      console.error('AdHocVariableEditor: variable has no rootStateKey');
+      structuredLogger.error('AdHocVariableEditor: variable has no rootStateKey');
     }
   }, [variable.rootStateKey]);
 

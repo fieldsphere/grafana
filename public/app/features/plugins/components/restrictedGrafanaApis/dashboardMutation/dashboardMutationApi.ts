@@ -1,3 +1,8 @@
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/features/plugins/components/restrictedGrafanaApis/dashboardMutation/dashboardMutationApi'
+);
 /**
  * Dashboard Mutation API -- Restricted API wrapper with built-in store.
  *
@@ -26,7 +31,7 @@ provideMutationClientFactory((sceneObject) => {
   try {
     _client = new DashboardMutationClient(scene);
   } catch (error) {
-    console.error('Failed to register Dashboard Mutation API:', error);
+    structuredLogger.error('Failed to register Dashboard Mutation API:', error);
   }
 
   return () => {

@@ -1,7 +1,11 @@
+import { createStructuredLogger } from '@grafana/data';
 import { getAPINamespace } from '@grafana/api-clients';
 import { getBackendSrv } from '@grafana/runtime';
 import { type DashboardJson } from 'app/features/manage-dashboards/types';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard/dashgrid/DashboardLibrary/api/compatibilityApi'
+);
 /**
  * Represents a datasource mapping for compatibility checking.
  * Maps dashboard datasource references to actual datasource instances.
@@ -105,8 +109,8 @@ export interface CompatibilityCheckResult {
  *   [{ uid: "prometheus-uid", type: "prometheus" }]
  * );
  *
- * console.log(`Compatibility: ${result.compatibilityScore}%`);
- * console.log(`Missing metrics: ${result.datasourceResults[0].missingMetrics}`);
+ * structuredLogger.info(`Compatibility: ${result.compatibilityScore}%`);
+ * structuredLogger.info(`Missing metrics: ${result.datasourceResults[0].missingMetrics}`);
  * ```
  */
 export async function checkDashboardCompatibility(
@@ -138,7 +142,7 @@ export async function checkDashboardCompatibility(
     return response;
   } catch (error) {
     // Log error for debugging
-    console.error('Dashboard compatibility check failed:', error);
+    structuredLogger.error('Dashboard compatibility check failed:', error);
 
     // Re-throw original error for caller to handle
     throw error;

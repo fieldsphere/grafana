@@ -7,6 +7,7 @@ import {
   rangeUtil,
   type DataQueryRequest,
   type Field,
+  createStructuredLogger,
 } from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import {
@@ -28,6 +29,7 @@ import { defaultQuery, type GrafanaQuery, GrafanaQueryType } from '../types';
 
 import { RandomWalkEditor } from './RandomWalkEditor';
 
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/grafana/components/QueryEditor');
 interface Props extends QueryEditorProps<GrafanaDatasource, GrafanaQuery>, Themeable2 {}
 
 const labelWidth = 12;
@@ -148,7 +150,7 @@ export class UnthemedQueryEditor extends React.PureComponent<Props, State> {
         try {
           buffer = rangeUtil.intervalToSeconds(txt) * 1000;
         } catch (err) {
-          console.warn('ERROR', err);
+          structuredLogger.warn('ERROR', err);
         }
       }
       onChange({

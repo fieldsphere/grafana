@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { css } from '@emotion/css';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
@@ -39,6 +40,7 @@ import { EnterpriseAuthFeaturesCard } from '../admin/EnterpriseAuthFeaturesCard'
 import { TeamDeleteModal } from './TeamDeleteModal';
 import { useDeleteTeam, useGetTeams } from './hooks';
 
+const structuredLogger = createStructuredLogger('public/app/features/teams/TeamList');
 type Cell<T extends keyof TeamWithRoles = keyof TeamWithRoles> = CellProps<TeamWithRoles, TeamWithRoles[T]>;
 
 export interface State {
@@ -235,7 +237,7 @@ const TeamList = () => {
                     'Failed to check if the team owns folders. Please try again.'
                   )
                 );
-                console.error(error);
+                structuredLogger.error(error);
                 return;
               }
 

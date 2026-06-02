@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
 
@@ -7,6 +8,7 @@ import { AccessControlAction, type Role } from 'app/types/accessControl';
 
 import { RolePicker } from './RolePicker';
 
+const structuredLogger = createStructuredLogger('public/app/core/components/RolePicker/TeamRolePicker');
 export interface Props {
   teamId: number;
   orgId?: number;
@@ -79,7 +81,7 @@ export const TeamRolePicker = ({
           },
         }).unwrap();
       } catch (error) {
-        console.error('Error updating team roles', error);
+        structuredLogger.error('Error updating team roles', error);
       }
     } else if (onApplyRoles) {
       onApplyRoles(newRoles);

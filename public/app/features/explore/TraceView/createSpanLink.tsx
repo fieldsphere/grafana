@@ -12,6 +12,7 @@ import {
   type ScopedVars,
   type SplitOpen,
   type TimeRange,
+  createStructuredLogger,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
@@ -32,6 +33,7 @@ import { type ExploreFieldLinkModel, getFieldLinksForExplore, getVariableUsageIn
 import { type SpanLinkDef, type SpanLinkFunc, SpanLinkType } from './components/types/links';
 import { type Trace, type TraceSpan, type TraceSpanReference } from './components/types/trace';
 
+const structuredLogger = createStructuredLogger('public/app/features/explore/TraceView/createSpanLink');
 /**
  * This is a factory for the link creator. It returns the function mainly so it can return undefined in which case
  * the trace view won't create any links and to capture the datasource and split function making it easier to memoize
@@ -123,7 +125,7 @@ export function createSpanLinkFactory({
         spanLinks.push.apply(spanLinks, newSpanLinks);
       } catch (error) {
         // It's fairly easy to crash here for example if data source defines wrong interpolation in the data link
-        console.error(error);
+        structuredLogger.error(error);
         return spanLinks;
       }
     }

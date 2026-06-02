@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { isEqual } from 'lodash';
 import { BehaviorSubject, type Observable, combineLatest, type Subscription } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
@@ -8,6 +9,7 @@ import { type ScopesDashboardsService } from './dashboards/ScopesDashboardsServi
 import { deserializeFolderPath, serializeFolderPath } from './dashboards/scopeNavgiationUtils';
 import { type ScopesSelectorService } from './selector/ScopesSelectorService';
 
+const structuredLogger = createStructuredLogger('public/app/features/scopes/ScopesService');
 export interface State {
   enabled: boolean;
   readOnly: boolean;
@@ -93,7 +95,7 @@ export class ScopesService implements ScopesContextValue {
     const nodeToPreload = scopeNodeId;
     if (nodeToPreload) {
       this.selectorService.resolvePathToRoot(nodeToPreload, this.selectorService.state.tree!).catch((error) => {
-        console.error('Failed to pre-load node path', error);
+        structuredLogger.error('Failed to pre-load node path', error);
       });
     }
 

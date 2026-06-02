@@ -1,4 +1,9 @@
-import { type DataTransformerConfig, type FieldConfigSource, getPanelOptionsWithDefaults } from '@grafana/data';
+import {
+  type DataTransformerConfig,
+  type FieldConfigSource,
+  getPanelOptionsWithDefaults,
+  createStructuredLogger,
+} from '@grafana/data';
 import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { getLibraryPanel } from 'app/features/library-panels/state/api';
 import { type LibraryElementDTO } from 'app/features/library-panels/types';
@@ -9,6 +14,7 @@ import { type ThunkResult } from 'app/types/store';
 
 import { changePanelKey, panelModelAndPluginReady, removePanel } from './reducers';
 
+const structuredLogger = createStructuredLogger('public/app/features/panel/state/actions');
 export function initPanelState(panel: PanelModel): ThunkResult<Promise<void>> {
   return async (dispatch, getStore) => {
     if (panel.libraryPanel?.uid && !('model' in panel.libraryPanel)) {
@@ -165,7 +171,7 @@ export function loadLibraryPanelAndUpdate(panel: PanelModel): ThunkResult<void> 
 
       await dispatch(initPanelState(panel));
     } catch (ex) {
-      console.log('ERROR: ', ex);
+      structuredLogger.info('ERROR: ', ex);
       dispatch(
         panelModelAndPluginReady({
           key: panel.key,

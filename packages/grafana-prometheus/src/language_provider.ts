@@ -11,6 +11,7 @@ import {
   scopeFilterOperatorMap,
   type ScopeSpecFilter,
   type TimeRange,
+  createStructuredLogger,
 } from '@grafana/data';
 import { type BackendSrvRequest } from '@grafana/runtime';
 
@@ -22,6 +23,7 @@ import { buildVisualQueryFromString } from './querybuilder/parsing';
 import { LabelsApiClient, type ResourceApiClient, SeriesApiClient } from './resource_clients';
 import { type PromMetricsMetadata, type PromQuery } from './types';
 
+const structuredLogger = createStructuredLogger('packages/grafana-prometheus/src/language_provider');
 interface PrometheusBaseLanguageProvider {
   datasource: PrometheusDatasource;
 
@@ -132,7 +134,7 @@ export class PrometheusLanguageProvider implements PrometheusLanguageProviderInt
       return res.data.data;
     } catch (error) {
       if (!isCancelledError(error)) {
-        console.error(error);
+        structuredLogger.error(error);
       }
     }
 

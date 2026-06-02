@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { skipToken } from '@reduxjs/toolkit/query';
 
 import { t } from '@grafana/i18n';
@@ -14,6 +15,7 @@ import {
   shouldRenderUpgradeUserButton,
 } from './InviteUserButtonUtils';
 
+const structuredLogger = createStructuredLogger('public/app/core/components/AppChrome/TopBar/InviteUserButton');
 export function InviteUserButton() {
   const isLargeScreen = useMediaQueryMinWidth('lg');
   const shouldRender = shouldRenderInviteUserButton();
@@ -42,7 +44,7 @@ export function InviteUserButton() {
         performInviteUserClick('top_bar_right', 'invite-user-top-bar');
       }
     } catch (error) {
-      console.error('Failed to handle invite/upgrade user click:', error);
+      structuredLogger.error('Failed to handle invite/upgrade user click:', error);
     }
   };
 

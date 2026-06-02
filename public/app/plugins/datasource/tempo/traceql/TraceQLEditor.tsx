@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { useEffect, useRef, useState } from 'react';
 
-import { type GrafanaTheme2, type TimeRange } from '@grafana/data';
+import { type GrafanaTheme2, type TimeRange, createStructuredLogger } from '@grafana/data';
 import { TemporaryAlert } from '@grafana/o11y-ds-frontend';
 import { reportInteraction } from '@grafana/runtime';
 import { CodeEditor, type Monaco, type monacoTypes, useTheme2 } from '@grafana/ui';
@@ -14,6 +14,7 @@ import { CompletionProvider, type CompletionItemType } from './autocomplete';
 import { getErrorNodes, setMarkers } from './highlighting';
 import { languageDefinition } from './traceql';
 
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/tempo/traceql/TraceQLEditor');
 interface Props {
   placeholder: string;
   query: TempoQuery;
@@ -94,7 +95,7 @@ export function TraceQLEditor(props: Props) {
               const errorNodes = getErrorNodes(model.getValue());
               setMarkers(monaco, model, errorNodes);
             } catch (err) {
-              console.warn('TraceQL editor: failed to update syntax error markers', err);
+              structuredLogger.warn('TraceQL editor: failed to update syntax error markers', err);
             }
           }
 
@@ -127,11 +128,11 @@ export function TraceQLEditor(props: Props) {
                 try {
                   setMarkers(monaco, model, errorNodes);
                 } catch (err) {
-                  console.warn('TraceQL editor: failed to update syntax error markers', err);
+                  structuredLogger.warn('TraceQL editor: failed to update syntax error markers', err);
                 }
               }, 500);
             } catch (err) {
-              console.warn('TraceQL editor: failed to parse query for error highlighting', err);
+              structuredLogger.warn('TraceQL editor: failed to parse query for error highlighting', err);
             }
           });
         }}

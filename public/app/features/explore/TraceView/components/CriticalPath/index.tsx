@@ -1,3 +1,6 @@
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLogger = createStructuredLogger('public/app/features/explore/TraceView/components/CriticalPath/index');
 // Copyright (c) 2023 The Jaeger Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -104,7 +107,7 @@ function criticalPathForTrace(trace: Trace) {
       criticalPath = computeCriticalPath(sanitizedSpanMap, rootSpanId, criticalPath);
     } catch (error) {
       /* eslint-disable no-console */
-      console.log('error while computing critical path for a trace', error);
+      structuredLogger.info('error while computing critical path for a trace', error);
     }
   }
   return criticalPath;

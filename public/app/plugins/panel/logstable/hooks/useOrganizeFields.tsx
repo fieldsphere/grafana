@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import useMountedState from 'react-use/lib/useMountedState';
 import { lastValueFrom } from 'rxjs';
 
-import { type DataFrame, type FieldConfigSource, transformDataFrame } from '@grafana/data';
+import { type DataFrame, type FieldConfigSource, transformDataFrame, createStructuredLogger } from '@grafana/data';
 import { type CustomCellRendererProps, TableCellDisplayMode } from '@grafana/ui';
 import { type LogsFrame } from 'app/features/logs/logsFrame';
 
@@ -17,6 +17,7 @@ import type { Options as LogsTableOptions } from '../panelcfg.gen';
 import { organizeLogsFieldsTransform } from '../transforms/organizeLogsFieldsTransform';
 import { type BuildLinkToLogLine, isBuildLinkToLogLine } from '../types';
 
+const structuredLogger = createStructuredLogger('public/app/plugins/panel/logstable/hooks/useOrganizeFields');
 interface Props {
   extractedFrame: DataFrame | null;
   timeFieldName: string;
@@ -68,7 +69,7 @@ export function useOrganizeFields({
         }
       })
       .catch((err) => {
-        console.error('LogsTable: Organize fields transform error', err);
+        structuredLogger.error('LogsTable: Organize fields transform error', err);
       });
   }, [
     bodyFieldName,

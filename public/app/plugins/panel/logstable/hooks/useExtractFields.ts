@@ -9,6 +9,7 @@ import {
   type TimeZone,
   transformDataFrame,
   useDataLinksContext,
+  createStructuredLogger,
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { useTheme2 } from '@grafana/ui';
@@ -16,6 +17,7 @@ import { replaceVariables } from '@grafana-plugins/loki/querybuilder/parsingUtil
 
 import { extractLogsFieldsTransform } from '../transforms/extractLogsFieldsTransform';
 
+const structuredLogger = createStructuredLogger('public/app/plugins/panel/logstable/hooks/useExtractFields');
 interface Props {
   rawTableFrame: DataFrame | null;
   fieldConfig?: FieldConfigSource;
@@ -56,7 +58,7 @@ export function useExtractFields({ rawTableFrame, fieldConfig, timeZone }: Props
         }
       })
       .catch((err) => {
-        console.error('LogsTable: Extract fields transform error', err);
+        structuredLogger.error('LogsTable: Extract fields transform error', err);
       });
     // @todo hook re-renders unexpectedly when data frame isn't changing if we add `rawTableFrame` as dependency, so we check for changes in the timestamps instead
     // eslint-disable-next-line react-hooks/exhaustive-deps

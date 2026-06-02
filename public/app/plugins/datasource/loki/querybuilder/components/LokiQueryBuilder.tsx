@@ -9,6 +9,7 @@ import {
   type PanelData,
   type SelectableValue,
   type TimeRange,
+  createStructuredLogger,
 } from '@grafana/data';
 import {
   EditorRow,
@@ -37,6 +38,9 @@ import { LokiOperationId, type LokiVisualQuery } from '../types';
 import { EXPLAIN_LABEL_FILTER_CONTENT } from './LokiQueryBuilderExplained';
 import { NestedQueryList } from './NestedQueryList';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/plugins/datasource/loki/querybuilder/components/LokiQueryBuilder'
+);
 export const TIME_SPAN_TO_TRIGGER_SAMPLES = 5 * 60 * 1000;
 export interface Props {
   query: LokiVisualQuery;
@@ -134,7 +138,7 @@ export const LokiQueryBuilder = memo<Props>(({ datasource, query, onChange, onRu
         Math.abs(timeRange.from.valueOf() - prevTimeRange.from.valueOf()) > TIME_SPAN_TO_TRIGGER_SAMPLES);
     const updateBasedOnChangedQuery = !isEqual(prevQuery, query);
     if (updateBasedOnChangedTimeRange || updateBasedOnChangedQuery) {
-      onGetSampleData().catch(console.error);
+      onGetSampleData().catch(structuredLogger.error);
     }
   }, [datasource, query, timeRange, prevQuery, prevTimeRange]);
 

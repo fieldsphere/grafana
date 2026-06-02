@@ -7,6 +7,7 @@ import {
   type ThresholdsConfig,
   ThresholdsMode,
   isTimeSeriesFrames,
+  createStructuredLogger,
 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { GraphThresholdsStyleMode } from '@grafana/schema';
@@ -17,6 +18,7 @@ import { type AlertQuery } from 'app/types/unified-alerting-dto';
 
 import { createDagFromQueries, getOriginOfRefId } from './dag';
 
+const structuredLogger = createStructuredLogger('public/app/features/alerting/unified/components/rule-editor/util');
 export function queriesWithUpdatedReferences(
   queries: AlertQuery[],
   previousRefId: string,
@@ -210,7 +212,7 @@ export function getThresholdsForQueries(queries: AlertQuery[], condition: string
           }
         });
       } catch (err) {
-        console.error('Failed to parse thresholds', err);
+        structuredLogger.error('Failed to parse thresholds', err);
         return;
       }
     });

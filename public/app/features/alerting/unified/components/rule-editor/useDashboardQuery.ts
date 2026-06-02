@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import memoizeOne from 'memoize-one';
 import { useEffect, useState } from 'react';
 
@@ -9,6 +10,9 @@ import { type DashboardDTO } from 'app/types/dashboard';
 
 import { DashboardModel } from '../../../../dashboard/state/DashboardModel';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/alerting/unified/components/rule-editor/useDashboardQuery'
+);
 export type DashboardResponse = DashboardDTO | DashboardWithAccessInfo<DashboardV2Spec>;
 
 const ensureV1PanelsHaveIds = memoizeOne((dashboardDTO: DashboardDTO): DashboardResponse => {
@@ -36,11 +40,11 @@ export function useDashboardQuery(dashboardUid?: string) {
           } else if (isDashboardV2Resource(dashboardDTO)) {
             setDashboard(dashboardDTO);
           } else {
-            console.error('Something went wrong, unexpected dashboard format');
+            structuredLogger.error('Something went wrong, unexpected dashboard format');
           }
         })
         .catch((error) => {
-          console.error('Failed to fetch dashboard', error);
+          structuredLogger.error('Failed to fetch dashboard', error);
         })
         .finally(() => {
           setIsFetching(false);

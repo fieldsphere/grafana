@@ -10,6 +10,7 @@ import {
   stringToJsRegex,
   TransformerCategory,
   type SelectableValue,
+  createStructuredLogger,
 } from '@grafana/data';
 import { type FilterFieldsByNameTransformerOptions } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
@@ -19,6 +20,9 @@ import { Input, FilterPill, InlineFieldRow, InlineField, InlineSwitch, Select } 
 import darkImage from '../images/dark/filterFieldsByName.svg';
 import lightImage from '../images/light/filterFieldsByName.svg';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/transformers/editors/FilterByNameTransformerEditor'
+);
 interface FilterByNameTransformerEditorProps extends TransformerUIProps<FilterFieldsByNameTransformerOptions> {}
 
 interface FilterByNameTransformerEditorState {
@@ -101,7 +105,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        structuredLogger.error(error);
       }
     }
 

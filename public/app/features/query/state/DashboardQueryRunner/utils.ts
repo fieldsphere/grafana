@@ -7,6 +7,7 @@ import {
   type DataFrame,
   DataFrameView,
   type DataSourceApi,
+  createStructuredLogger,
 } from '@grafana/data';
 import { config, toDataQueryError } from '@grafana/runtime';
 import { dispatch } from 'app/store/store';
@@ -16,6 +17,7 @@ import { notifyApp } from '../../../../core/reducers/appNotification';
 
 import { type DashboardQueryRunnerWorkerResult } from './types';
 
+const structuredLogger = createStructuredLogger('public/app/features/query/state/DashboardQueryRunner/utils');
 export function handleAnnotationQueryRunnerError(err: any): Observable<AnnotationEvent[]> {
   if (err.cancelled) {
     return of([]);
@@ -44,7 +46,7 @@ export function handleDashboardQueryRunnerWorkerError(err: any): Observable<Dash
 
 function notifyWithError(title: string, err: any) {
   const error = toDataQueryError(err);
-  console.error('handleAnnotationQueryRunnerError', error);
+  structuredLogger.error('handleAnnotationQueryRunnerError', error);
   const notification = createErrorNotification(title, error.message);
   dispatch(notifyApp(notification));
 }

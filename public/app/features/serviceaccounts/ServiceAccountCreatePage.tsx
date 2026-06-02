@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type JSX } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { OrgRole } from '@grafana/data';
+import { OrgRole, createStructuredLogger } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, getBackendSrv, locationService } from '@grafana/runtime';
 import { Button, Input, Field, FieldSet } from '@grafana/ui';
@@ -16,6 +16,7 @@ import { type ServiceAccountDTO, type ServiceAccountCreateApiResponse } from 'ap
 
 import { OrgRolePicker } from '../admin/OrgRolePicker';
 
+const structuredLogger = createStructuredLogger('public/app/features/serviceaccounts/ServiceAccountCreatePage');
 export interface Props {}
 
 const createServiceAccount = async (sa: ServiceAccountDTO) => {
@@ -68,7 +69,7 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options', e); // TODO: handle error
+        structuredLogger.error('Error loading options', e); // TODO: handle error
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {
@@ -101,7 +102,7 @@ export const ServiceAccountCreatePage = ({}: Props): JSX.Element => {
           await updateUserRoles(pendingRoles, newAccount.id, newAccount.orgId);
         }
       } catch (e) {
-        console.error(e); // TODO: handle error
+        structuredLogger.error(e); // TODO: handle error
       }
       locationService.push(`/org/serviceaccounts/${response.uid}`);
     },

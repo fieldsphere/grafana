@@ -17,6 +17,7 @@ import {
   applyFieldOverrides,
   type LiveChannelAddress,
   StreamingDataFrame,
+  createStructuredLogger,
 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, getGrafanaLiveSrv } from '@grafana/runtime';
@@ -27,6 +28,7 @@ import { TablePanel } from '../table/TablePanel';
 import { LivePublish } from './LivePublish';
 import { type LivePanelOptions, MessageDisplayMode, MessagePublishMode } from './types';
 
+const structuredLogger = createStructuredLogger('public/app/plugins/panel/live/LivePanel');
 interface Props extends PanelProps<LivePanelOptions> {}
 
 interface State {
@@ -72,7 +74,7 @@ export class LivePanel extends PureComponent<Props, State> {
       } else if (isLiveChannelMessageEvent(event)) {
         this.setState({ message: event.message, changed: Date.now() });
       } else {
-        console.log('ignore', event);
+        structuredLogger.info('ignore', event);
       }
     },
   };
@@ -87,7 +89,7 @@ export class LivePanel extends PureComponent<Props, State> {
   async loadChannel() {
     const addr = this.props.options?.channel;
     if (!isValidLiveChannelAddress(addr)) {
-      console.log('INVALID', addr);
+      structuredLogger.info('INVALID', addr);
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -96,13 +98,13 @@ export class LivePanel extends PureComponent<Props, State> {
     }
 
     if (isEqual(addr, this.state.addr)) {
-      console.log('Same channel', this.state.addr);
+      structuredLogger.info('Same channel', this.state.addr);
       return;
     }
 
     const live = getGrafanaLiveSrv();
     if (!live) {
-      console.log('INVALID', addr);
+      structuredLogger.info('INVALID', addr);
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -111,7 +113,7 @@ export class LivePanel extends PureComponent<Props, State> {
     }
     this.unsubscribe();
 
-    console.log('LOAD', addr);
+    structuredLogger.info('LOAD', addr);
 
     // Subscribe to new events
     try {

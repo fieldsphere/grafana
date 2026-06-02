@@ -10,6 +10,7 @@ import {
   type TransformerRegistryItem,
   type TransformerUIProps,
   TransformerCategory,
+  createStructuredLogger,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { FrameGeometrySourceMode } from '@grafana/schema';
@@ -23,6 +24,7 @@ import { SpatialCalculation, SpatialOperation, SpatialAction, type SpatialTransf
 import { getDefaultOptions, getTransformerOptionPane } from './optionsHelper';
 import { isLineBuilderOption, getSpatialTransformer } from './spatialTransformer';
 
+const structuredLogger = createStructuredLogger('public/app/features/transformers/spatial/SpatialTransformerEditor');
 // Nothing defined in state
 const supplier = (
   builder: PanelOptionsEditorBuilder<SpatialTransformOptions>,
@@ -137,7 +139,7 @@ export const SetGeometryTransformerEditor = (props: Props) => {
     if (!props.options.source?.mode) {
       const opts = getDefaultOptions(supplier);
       props.onChange({ ...opts, ...props.options });
-      console.log('geometry useEffect', opts);
+      structuredLogger.info('geometry useEffect', opts);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

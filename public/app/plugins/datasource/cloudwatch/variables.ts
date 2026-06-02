@@ -7,6 +7,7 @@ import {
   type DataQueryResponse,
   type MetricFindValue,
   type SelectableValue,
+  createStructuredLogger,
 } from '@grafana/data';
 
 import { VariableQueryEditor } from './components/VariableQueryEditor/VariableQueryEditor';
@@ -18,6 +19,7 @@ import { type ResourcesAPI } from './resources/ResourcesAPI';
 import { standardStatistics } from './standardStatistics';
 import { type VariableQuery, VariableQueryType } from './types';
 
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/cloudwatch/variables');
 export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchDatasource, VariableQuery> {
   constructor(private readonly resources: ResourcesAPI) {
     super();
@@ -57,7 +59,7 @@ export class CloudWatchVariableSupport extends CustomVariableSupport<CloudWatchD
           return this.handleAccountsQuery(query);
       }
     } catch (error) {
-      console.error(`Could not run CloudWatchMetricFindQuery ${query}`, error);
+      structuredLogger.error(`Could not run CloudWatchMetricFindQuery ${query}`, error);
       return [];
     }
   }

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { type OrgRole } from '@grafana/data';
+import { type OrgRole, createStructuredLogger } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
@@ -31,6 +31,7 @@ import { type OrgUser } from 'app/types/user';
 
 import { OrgRolePicker } from '../OrgRolePicker';
 
+const structuredLogger = createStructuredLogger('public/app/features/admin/Users/OrgUsersTable');
 type Cell<T extends keyof OrgUser = keyof OrgUser> = CellProps<OrgUser, OrgUser[T]>;
 
 const disabledRoleMessage = `This user's role is not editable because it is synchronized from your auth provider.
@@ -79,7 +80,7 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        structuredLogger.error('Error loading options');
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {
