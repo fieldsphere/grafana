@@ -164,6 +164,11 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 		treeRoot.AddSection(connectionsSection)
 	}
 
+	if c.IsSignedIn && c.HasRole(org.RoleAdmin) &&
+		(s.cfg.Env == setting.Dev || s.features.IsEnabled(c.Req.Context(), featuremgmt.FlagLabFeatureTogglesUI)) {
+		treeRoot.AddSection(s.buildLabNavLink(c))
+	}
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {

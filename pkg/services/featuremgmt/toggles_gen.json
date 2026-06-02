@@ -3380,6 +3380,20 @@
     },
     {
       "metadata": {
+        "name": "labFeatureTogglesUI",
+        "resourceVersion": "1780433996332",
+        "creationTimestamp": "2026-06-02T20:59:56Z"
+      },
+      "spec": {
+        "description": "Enables the Lab nav section for browsing and overriding feature toggles in the UI",
+        "stage": "experimental",
+        "codeowner": "@grafana/grafana-frontend-platform",
+        "hideFromDocs": true,
+        "expression": "false"
+      }
+    },
+    {
+      "metadata": {
         "name": "liveAPIServer",
         "resourceVersion": "1771434338561",
         "creationTimestamp": "2026-02-18T17:05:38Z"

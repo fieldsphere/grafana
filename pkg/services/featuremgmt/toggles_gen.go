@@ -933,4 +933,8 @@ const (
 	// FlagCompiledBootScript
 	// Boots the frontend using the boot.js script built from TS instead of the embedded boot script
 	FlagCompiledBootScript = "compiledBootScript"
+
+	// FlagLabFeatureTogglesUI
+	// Enables the Lab nav section for browsing and overriding feature toggles in the UI
+	FlagLabFeatureTogglesUI = "labFeatureTogglesUI"
 )

@@ -1771,4 +1771,9 @@ export interface FeatureToggles {
   * @default false
   */
   compiledBootScript?: boolean;
+  /**
+  * Enables the Lab nav section for browsing and overriding feature toggles in the UI
+  * @default false
+  */
+  labFeatureTogglesUI?: boolean;
 }

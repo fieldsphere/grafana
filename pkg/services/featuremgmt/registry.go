@@ -2811,6 +2811,14 @@ var (
 			Expression:   "false",
 			HideFromDocs: true,
 		},
+		{
+			Name:         "labFeatureTogglesUI",
+			Description:  "Enables the Lab nav section for browsing and overriding feature toggles in the UI",
+			Stage:        FeatureStageExperimental,
+			Owner:        grafanaFrontendPlatformSquad,
+			HideFromDocs: true,
+			Expression:   "false",
+		},
 	}
 )
 
