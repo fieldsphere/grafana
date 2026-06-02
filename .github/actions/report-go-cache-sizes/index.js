@@ -1,3 +1,4 @@
+const { logInfo } = require('../../../scripts/utils/structuredLogger.js');
 const { execSync } = require("child_process");
 
 function size(dir) {
@@ -11,8 +12,8 @@ function size(dir) {
 try {
   const gomodcache = execSync("go env GOMODCACHE").toString().trim();
   const gocache = execSync("go env GOCACHE").toString().trim();
-  console.log(`GOMODCACHE: ${size(gomodcache)} (${gomodcache})`);
-  console.log(`GOCACHE:    ${size(gocache)} (${gocache})`);
+  logInfo(`GOMODCACHE: ${size(gomodcache)} (${gomodcache})`);
+  logInfo(`GOCACHE:    ${size(gocache)} (${gocache})`);
 } catch (e) {
-  console.log("Could not determine Go cache sizes:", e.message);
+  logInfo("Could not determine Go cache sizes:", e.message);
 }

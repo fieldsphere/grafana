@@ -2,6 +2,23 @@ import { readFileSync, appendFileSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import crypto from 'node:crypto';
 
+export function logInfo(message: unknown, ...args: unknown[]): void {
+  if (typeof message === 'string' && message.startsWith('::')) {
+    process.stdout.write(`${message}\n`);
+    return;
+  }
+
+  process.stdout.write(
+    `${JSON.stringify({
+      level: 'info',
+      message:
+        typeof message === 'string' ? message : (JSON.stringify(message) ?? String(message)),
+      timestamp: new Date().toISOString(),
+      context: args.length ? { args } : undefined,
+    })}\n`
+  );
+}
+
 // =============================================================================
 // TYPES
 // =============================================================================
@@ -108,11 +125,11 @@ export function requireEnv(name: string): string {
 // =============================================================================
 
 export const log = {
-  notice: (msg: string) => console.log(`::notice::${msg}`),
-  warning: (msg: string) => console.log(`::warning::${msg}`),
-  error: (msg: string) => console.log(`::error::${msg}`),
-  groupStart: (name: string) => console.log(`::group::${name}`),
-  groupEnd: () => console.log('::endgroup::'),
+  notice: (msg: string) => logInfo(`::notice::${msg}`),
+  warning: (msg: string) => logInfo(`::warning::${msg}`),
+  error: (msg: string) => logInfo(`::error::${msg}`),
+  groupStart: (name: string) => logInfo(`::group::${name}`),
+  groupEnd: () => logInfo('::endgroup::'),
 };
 
 // =============================================================================
@@ -124,7 +141,7 @@ export function setOutput(key: string, value: string): void {
   if (outputFile) {
     appendFileSync(outputFile, `${key}=${safeValue}\n`);
   }
-  console.log(`Output: ${key}=${safeValue}`);
+  logInfo(`Output: ${key}=${safeValue}`);
 }
 
 export function setOutputMultiline(key: string, value: string): void {
@@ -409,7 +426,7 @@ export async function sendSlackMessage(
     }
 
     log.warning(`Slack API error: ${(body.error as string) ?? 'unknown'} (HTTP ${response.status})`);
-    console.log(JSON.stringify(body, null, 2));
+    logInfo(JSON.stringify(body, null, 2));
     return false;
   } catch (err) {
     log.error(`Slack request failed: ${err instanceof Error ? err.message : String(err)}`);
@@ -458,7 +475,7 @@ export async function callOpenAI(
     requestBody.response_format = { type: 'json_object' };
   }
 
-  console.log(`OpenAI request: model=${model}, jsonMode=${jsonMode}, temperature=${temperature}`);
+  logInfo(`OpenAI request: model=${model}, jsonMode=${jsonMode}, temperature=${temperature}`);
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {

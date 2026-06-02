@@ -1,3 +1,4 @@
+const { logInfo } = require('../../../scripts/utils/structuredLogger.js');
 import {appendFileSync, writeFileSync} from 'fs';
 import {exec as execCallback} from 'node:child_process';
 import {promisify} from 'node:util';
@@ -8,7 +9,7 @@ import {findPreviousVersion, semverParse} from "./semver.js";
 // newlines and percent signs
 //
 const escapeData = (s) => s.replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
-const LOG = (msg) => console.log(`::notice::${escapeData(msg)}`);
+const LOG = (msg) => logInfo(`::notice::${escapeData(msg)}`);
 
 
 // Using `git tag -l` output find the tag (version) that goes semantically
@@ -198,7 +199,7 @@ const getChangeLogItems = async (name, owner, from, to) => {
 // ======================================================
 
 LOG(`Changelog action started`);
-console.log(process.argv);
+logInfo(process.argv);
 const ghtoken = process.env.GITHUB_TOKEN || process.env.INPUT_GITHUB_TOKEN;
 if (!ghtoken) {
   throw 'GITHUB_TOKEN is not set and "github_token" input is empty';

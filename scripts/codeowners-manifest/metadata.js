@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const { logInfo } = require('../utils/structuredLogger.js');
 
 const { execSync } = require('node:child_process');
 const { writeFile, mkdir, access } = require('node:fs/promises');
@@ -38,7 +39,7 @@ function generateCodeownersMetadata(codeownersFilePath, manifestDir, metadataFil
 if (require.main === module) {
   (async () => {
     try {
-      console.log('⚙️ Generating codeowners-manifest metadata ...');
+      logInfo('⚙️ Generating codeowners-manifest metadata ...');
 
       try {
         await access(CODEOWNERS_MANIFEST_DIR);
@@ -49,8 +50,8 @@ if (require.main === module) {
       const metadata = generateCodeownersMetadata(CODEOWNERS_FILE_PATH, CODEOWNERS_MANIFEST_DIR, METADATA_JSON_PATH);
 
       await writeFile(METADATA_JSON_PATH, JSON.stringify(metadata, null, 2), 'utf8');
-      console.log('✅ Metadata generated:');
-      console.log(`   • ${METADATA_JSON_PATH}`);
+      logInfo('✅ Metadata generated:');
+      logInfo(`   • ${METADATA_JSON_PATH}`);
     } catch (error) {
       console.error('❌ Error generating codeowners metadata:', error.message);
       process.exit(1);

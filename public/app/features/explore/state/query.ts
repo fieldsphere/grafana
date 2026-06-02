@@ -5,6 +5,7 @@ import { combineLatest, identity, type Observable, of, type SubscriptionLike, ty
 import { mergeMap, throttleTime } from 'rxjs/operators';
 
 import {
+  logInfo,
   type AbsoluteTimeRange,
   type DataFrame,
   DataQueryErrorType,
@@ -657,7 +658,7 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
 
           // Keep scanning for results if this was the last scanning transaction
           if (exploreState!.scanning) {
-            console.log(data.series);
+            logInfo(data.series);
             if (data.state === LoadingState.Done && data.series.length === 0) {
               const range = getShiftedTimeRange(-1, exploreState!.range);
               dispatch(updateTime({ exploreId, absoluteRange: range }));

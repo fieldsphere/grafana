@@ -1,6 +1,7 @@
 import { merge } from 'lodash';
 
 import {
+  logInfo,
   type AppPluginConfig as AppPluginConfigGrafanaData,
   type AuthSettings,
   type AzureSettings as AzureSettingsGrafanaData,
@@ -313,7 +314,7 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
       const toggleState = featureValue === 'true' || featureValue === '1';
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       featureToggles[featureName as keyof FeatureToggles] = toggleState;
-      console.log(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
+      logInfo(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
     }
   }
 }
@@ -339,9 +340,9 @@ function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
       if (toggleState !== featureToggles[key]) {
         if (isDevelopment || safeRuntimeFeatureFlags.has(featureName)) {
           featureToggles[featureName] = toggleState;
-          console.log(`Setting feature toggle ${featureName} = ${toggleState} via url`);
+          logInfo(`Setting feature toggle ${featureName} = ${toggleState} via url`);
         } else {
-          console.log(`Unable to change feature toggle ${featureName} via url in production.`);
+          logInfo(`Unable to change feature toggle ${featureName} via url in production.`);
         }
       }
     }

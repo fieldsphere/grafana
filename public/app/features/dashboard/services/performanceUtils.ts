@@ -1,4 +1,4 @@
-import { store } from '@grafana/data';
+import { logInfo, store } from '@grafana/data';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
 
 /**
@@ -86,10 +86,10 @@ export function writePerformanceGroupLog(logger: string, message: string, data?:
   if (isPerformanceLoggingEnabled()) {
     if (data) {
       // eslint-disable-next-line no-console
-      console.log(message, data);
+      logInfo(message, data);
     } else {
       // eslint-disable-next-line no-console
-      console.log(message);
+      logInfo(message);
     }
   }
 }

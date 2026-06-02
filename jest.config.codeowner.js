@@ -1,3 +1,4 @@
+const { logInfo } = require('./scripts/utils/structuredLogger.js');
 const fs = require('fs');
 const open = require('open').default;
 const path = require('path');
@@ -64,11 +65,11 @@ const testFiles = teamFiles.filter((file) => {
 });
 
 if (testFiles.length === 0) {
-  console.log(`No test files found for team ${codeownerName}`);
+  logInfo(`No test files found for team ${codeownerName}`);
   process.exit(0);
 }
 
-console.log(
+logInfo(
   `🧪 Collecting coverage for ${sourceFiles.length} testable files and running ${testFiles.length} test files of ${teamFiles.length} files owned by ${codeownerName}.`
 );
 
@@ -100,7 +101,7 @@ module.exports = {
         cleanCache: true,
         onEnd: (coverageResults) => {
           const reportURL = `file://${path.resolve(outputDir)}/index.html`;
-          console.log(`📄 Coverage report saved to ${reportURL}`);
+          logInfo(`📄 Coverage report saved to ${reportURL}`);
 
           if (process.env.SHOULD_OPEN_COVERAGE_REPORT === 'true') {
             openCoverageReport(reportURL);
@@ -160,7 +161,7 @@ function writeCoverageSummaryArtifact(coverageResults) {
 
   try {
     fs.writeFileSync(COVERAGE_SUMMARY_OUTPUT_PATH, JSON.stringify(summary, null, 2));
-    console.log(`📊 Coverage summary written to ${COVERAGE_SUMMARY_OUTPUT_PATH}`);
+    logInfo(`📊 Coverage summary written to ${COVERAGE_SUMMARY_OUTPUT_PATH}`);
   } catch (err) {
     console.error(`Failed to write coverage summary: ${err}`);
   }

@@ -1,6 +1,7 @@
 import { map, Observable, ReplaySubject, type Subject, type Subscriber, type Subscription } from 'rxjs';
 
 import {
+  logInfo,
   type DataFrameJSON,
   type DataQueryError,
   type Field,
@@ -154,7 +155,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onError = (err: unknown) => {
-    console.log('LiveQuery [error]', { err }, this.deps.channelId);
+    logInfo('LiveQuery [error]', { err }, this.deps.channelId);
     this.stream.next({
       type: InternalStreamMessageType.Error,
       error: toDataQueryError(err),
@@ -163,7 +164,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onComplete = () => {
-    console.log('LiveQuery [complete]', this.deps.channelId);
+    logInfo('LiveQuery [complete]', this.deps.channelId);
     this.shutdown();
   };
 

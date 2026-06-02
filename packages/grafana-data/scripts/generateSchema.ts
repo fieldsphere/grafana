@@ -3,6 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { NewThemeOptionsSchema } from '../src/themes/createTheme';
+import { logInfo } from '../src/utils/structuredLogging';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -19,4 +20,4 @@ fs.writeFileSync(
   )
 );
 
-console.log('Successfully generated theme schema');
+logInfo('Successfully generated theme schema');

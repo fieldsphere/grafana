@@ -1,3 +1,4 @@
+import { logInfo } from '@grafana/data';
 /* eslint-disable no-console */
 import {
   type EchoBackend,
@@ -16,12 +17,12 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
 
   addEvent = (e: PageviewEchoEvent) => {
     if (isPageviewEvent(e)) {
-      console.log('[EchoSrv:pageview]', e.payload.page);
+      logInfo('[EchoSrv:pageview]', e.payload.page);
     }
 
     if (isInteractionEvent(e)) {
       const eventName = e.payload.interactionName;
-      console.log('[EchoSrv:event]', eventName, e.payload.properties);
+      logInfo('[EchoSrv:event]', eventName, e.payload.properties);
 
       // Warn for non-scalar property values. We're not yet making this a hard a
       const invalidTypeProperties = Object.entries(e.payload.properties ?? {}).filter(([_, value]) => {
@@ -42,7 +43,7 @@ export class BrowserConsoleBackend implements EchoBackend<PageviewEchoEvent, unk
     }
 
     if (isExperimentViewEvent(e)) {
-      console.log('[EchoSrv:experiment]', e.payload);
+      logInfo('[EchoSrv:experiment]', e.payload);
     }
   };
 

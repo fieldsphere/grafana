@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const { logInfo } = require('./utils/structuredLogger.js');
 
 const fs = require('fs');
 
@@ -163,7 +164,7 @@ function compareCoverageByCodeowner(
 
   try {
     fs.writeFileSync(outputPath, markdown, 'utf8');
-    console.log(`✅ Coverage comparison written to ${outputPath}`);
+    logInfo(`✅ Coverage comparison written to ${outputPath}`);
   } catch (err) {
     console.error(`Error writing output file: ${err.message}`);
     process.exit(1);
@@ -178,7 +179,7 @@ if (require.main === module) {
     console.error('❌ Coverage check failed: One or more metrics decreased');
     process.exit(1);
   }
-  console.log('✅ Coverage check passed: All metrics maintained or improved');
+  logInfo('✅ Coverage check passed: All metrics maintained or improved');
 }
 
 module.exports = { compareCoverageByCodeowner, generateMarkdown, getOverallStatus };

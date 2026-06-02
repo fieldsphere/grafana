@@ -1,3 +1,4 @@
+import { logInfo } from './structuredLogging';
 import { useEffect, useState } from 'react';
 import * as React from 'react';
 
@@ -41,7 +42,7 @@ export const LocalStorageValueProvider = <T,>(props: Props<T>) => {
     try {
       store.delete(storageKey);
     } catch (error) {
-      console.log(error);
+      logInfo(error);
     }
     setState({ value: defaultValue });
   };

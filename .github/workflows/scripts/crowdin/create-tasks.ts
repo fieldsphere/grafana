@@ -1,4 +1,7 @@
 import crowdinImport from '@crowdin/crowdin-api-client';
+
+import { logInfo } from '../utils.mts';
+
 const TRANSLATED_CONNECTOR_DESCRIPTION = '{{tos_service_type: premium}}';
 const TRANSLATE_BY_VENDOR_WORKFLOW_TYPE = 'TranslateByVendor'
 
@@ -38,7 +41,7 @@ async function getLanguages(projectId: number) {
   try {
     const project = await projectsGroupsApi.getProject(projectId);
     const languages = project.data.targetLanguages;
-    console.log('Fetched languages successfully!');
+    logInfo('Fetched languages successfully!');
     return languages;
   } catch (error) {
     console.error('Failed to fetch languages: ', error.message);
@@ -54,7 +57,7 @@ async function getFileIds(projectId: number) {
     const response = await sourceFilesApi.listProjectFiles(projectId);
     const files = response.data;
     const fileIds = files.map(file => file.data.id);
-    console.log('Fetched file ids successfully!');
+    logInfo('Fetched file ids successfully!');
     return fileIds;
   } catch (error) {
     console.error('Failed to fetch file IDs: ', error.message);
@@ -73,7 +76,7 @@ async function getWorkflowStepId(projectId: number) {
     if (!workflowStepId) {
       throw new Error(`Workflow step with type "${TRANSLATE_BY_VENDOR_WORKFLOW_TYPE}" not found`);
     }
-    console.log('Fetched workflow step ID successfully!');
+    logInfo('Fetched workflow step ID successfully!');
     return workflowStepId;
   } catch (error) {
     console.error('Failed to fetch workflow step ID: ', error.message);
@@ -95,10 +98,10 @@ async function createTask(projectId: number, title: string, languageId: string, 
       fileIds,
     };
 
-    console.log(`Creating Crowdin task: "${title}" for language ${languageId}`);
+    logInfo(`Creating Crowdin task: "${title}" for language ${languageId}`);
 
     const response = await tasksApi.addTask(projectId, taskParams);
-    console.log(`Task created successfully! Task ID: ${response.data.id}`);
+    logInfo(`Task created successfully! Task ID: ${response.data.id}`);
     return response.data;
   } catch (error) {
     console.error('Failed to create Crowdin task: ', error.message);

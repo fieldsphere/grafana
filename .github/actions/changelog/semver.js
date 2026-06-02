@@ -1,3 +1,4 @@
+const { logInfo } = require('../../../scripts/utils/structuredLogger.js');
 //
 // Semver utils: parse, compare, sort etc (using official regexp)
 // https://regex101.com/r/Ly7O1x/3/
@@ -82,7 +83,7 @@ function test(version, expected) {
 
   const failureMessage = `FAIILED. Expected ${expected}, but was ${prev[5]}`;
 
-  console.log(`Test ${version}, ${prev[5] === expected ? 'PASSED' : failureMessage}`);
+  logInfo(`Test ${version}, ${prev[5] === expected ? 'PASSED' : failureMessage}`);
 }
 
 test("v11.5.4+security-01", "v11.5.4");

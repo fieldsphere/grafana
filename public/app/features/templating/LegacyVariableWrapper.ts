@@ -1,3 +1,4 @@
+import { logInfo } from '@grafana/data';
 import { type VariableValue, type FormatVariable } from '@grafana/scenes';
 import { type VariableModel, type VariableType } from '@grafana/schema';
 
@@ -31,7 +32,7 @@ export class LegacyVariableWrapper implements FormatVariable {
       return text.join(' + ');
     }
 
-    console.log('value', text);
+    logInfo('value', text);
     return String(text);
   }
 }

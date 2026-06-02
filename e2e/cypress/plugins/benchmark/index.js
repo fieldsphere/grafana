@@ -1,3 +1,4 @@
+const { logInfo } = require('../../../../scripts/utils/structuredLogger.js');
 const fs = require('fs');
 const { fromPairs } = require('lodash');
 
@@ -54,7 +55,7 @@ const initialize = (on, config) => {
 
   if (!fs.existsSync(resultsFolder)) {
     fs.mkdirSync(resultsFolder, { recursive: true });
-    console.log(`Created folder for benchmark results ${resultsFolder}`);
+    logInfo(`Created folder for benchmark results ${resultsFolder}`);
   }
 
   on('before:browser:launch', async (browser, options) => {
@@ -69,7 +70,7 @@ const initialize = (on, config) => {
 
     args.push('--start-fullscreen');
 
-    console.log(
+    logInfo(
       `initialized benchmarking plugin with ${collectors.length} collectors: ${collectors
         .map((col) => col.getName())
         .join(', ')}`

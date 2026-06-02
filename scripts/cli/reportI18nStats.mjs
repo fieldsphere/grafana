@@ -1,3 +1,6 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+const { logInfo } = require('../utils/structuredLogger.js');
 /// @ts-check
 
 import { readdir, stat, readFile } from 'fs/promises';
@@ -84,5 +87,5 @@ function eachMessage(value, callback) {
 function logStat(name, value) {
   // Note that this output format must match the parsing in ci-frontend-metrics.sh
   // which expects the two values to be separated by a space
-  console.log(`${name} ${value}`);
+  logInfo(`${name} ${value}`);
 }

@@ -1,4 +1,5 @@
 import {
+  logInfo,
   type DataLink,
   type DisplayValue,
   type FieldDisplay,
@@ -124,7 +125,7 @@ export const getFieldLinksSupplier = (value: FieldDisplay): LinkModelSupplier<Fi
           };
         }
       } else {
-        console.log('VALUE', value);
+        logInfo('VALUE', value);
       }
 
       const replace: InterpolateFunction = (value: string, vars: ScopedVars | undefined, fmt?: string | Function) => {

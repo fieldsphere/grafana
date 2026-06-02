@@ -10,6 +10,7 @@ import {
 import { BehaviorSubject, type Observable, share, startWith } from 'rxjs';
 
 import {
+  logInfo,
   type DataQueryError,
   type DataQueryResponse,
   type LiveChannelAddress,
@@ -126,7 +127,7 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.log('Publication from server-side channel', context);
+    logInfo('Publication from server-side channel', context);
   };
 
   private onError = (context: ErrorContext) => {

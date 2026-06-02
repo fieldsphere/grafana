@@ -1,3 +1,4 @@
+import { logInfo } from '@grafana/data';
 import { PureComponent } from 'react';
 import * as React from 'react';
 
@@ -69,7 +70,7 @@ export class VersionsSettings extends PureComponent<Props, State> {
         // Update the continueToken for the next request, if available
         this.continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => logInfo(err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

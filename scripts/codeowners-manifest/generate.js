@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const { logInfo } = require('../utils/structuredLogger.js');
 
 const fs = require('node:fs');
 const { stat, writeFile } = require('node:fs/promises');
@@ -79,17 +80,17 @@ async function generateCodeownersManifest(
 if (require.main === module) {
   (async () => {
     try {
-      console.log(`📋 Generating files ↔ teams manifests from ${RAW_AUDIT_JSONL_PATH} ...`);
+      logInfo(`📋 Generating files ↔ teams manifests from ${RAW_AUDIT_JSONL_PATH} ...`);
       await generateCodeownersManifest(
         RAW_AUDIT_JSONL_PATH,
         CODEOWNERS_JSON_PATH,
         CODEOWNERS_BY_FILENAME_JSON_PATH,
         FILENAMES_BY_CODEOWNER_JSON_PATH
       );
-      console.log('✅ Manifest files generated:');
-      console.log(`   • ${CODEOWNERS_JSON_PATH}`);
-      console.log(`   • ${CODEOWNERS_BY_FILENAME_JSON_PATH}`);
-      console.log(`   • ${FILENAMES_BY_CODEOWNER_JSON_PATH}`);
+      logInfo('✅ Manifest files generated:');
+      logInfo(`   • ${CODEOWNERS_JSON_PATH}`);
+      logInfo(`   • ${CODEOWNERS_BY_FILENAME_JSON_PATH}`);
+      logInfo(`   • ${FILENAMES_BY_CODEOWNER_JSON_PATH}`);
     } catch (e) {
       console.error(e);
       process.exit(1);

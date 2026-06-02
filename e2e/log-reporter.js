@@ -1,4 +1,5 @@
 'use strict';
+const { logInfo } = require('../scripts/utils/structuredLogger.js');
 
 const Mocha = require('mocha');
 const { EVENT_TEST_END, EVENT_RUN_END, EVENT_TEST_FAIL, EVENT_TEST_PASS } = Mocha.Runner.constants;
@@ -41,7 +42,7 @@ class LogReporter extends Mocha.reporters.Spec {
     // Example
     // CypressStats suites=1 tests=2 testPasses=1 pending=0 failures=1
     // start=1668783563731 end=1668783645198 duration=81467
-    console.log(`CypressStats ${objToLogAttributes(stats)}`);
+    logInfo(`CypressStats ${objToLogAttributes(stats)}`);
   }
 
   reportResults() {
@@ -50,7 +51,7 @@ class LogReporter extends Mocha.reporters.Spec {
       // CypressTestResult title="Login scenario, create test data source, dashboard, panel, and export scenario"
       // suite="Smoke tests" file=../../e2e/smoke-tests-suite/1-smoketests.spec.ts duration=68694
       // currentRetry=0 speed=undefined err=false
-      console.log(`CypressTestResult ${objToLogAttributes(test)}`);
+      logInfo(`CypressTestResult ${objToLogAttributes(test)}`);
     });
   }
 

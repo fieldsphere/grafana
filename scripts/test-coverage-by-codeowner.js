@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const { logInfo } = require('./utils/structuredLogger.js');
 
 const { AutoComplete } = require('enquirer');
 const cp = require('node:child_process');
@@ -76,7 +77,7 @@ if (require.main === module) {
 
       const noOpen = argv['open'] === false;
 
-      console.log(`🧪 Running test coverage for codeowner: ${codeownerName}`);
+      logInfo(`🧪 Running test coverage for codeowner: ${codeownerName}`);
       await runTestCoverageByCodeowner(codeownerName, noOpen);
     } catch (e) {
       console.error(e.message);

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+const { logInfo } = require('./utils/structuredLogger.js');
 
 const CODEOWNERS_MANIFEST_PATH = '../codeowners-manifest/filenames-by-team.json';
 
@@ -35,7 +36,7 @@ function checkCodeownerAffected(codeowner, changedFiles) {
 
   const filesArray = typeof changedFiles === 'string' ? changedFiles.split(/\s+/).filter(Boolean) : changedFiles;
   const isAffected = isCodeownerAffected(codeowner, filesArray);
-  console.log(isAffected ? 'true' : 'false');
+  logInfo(isAffected ? 'true' : 'false');
 }
 
 if (require.main === module) {

@@ -1,3 +1,4 @@
+import { logInfo } from '@grafana/data';
 // Core Grafana history https://github.com/grafana/grafana/blob/v11.0.0-preview/public/app/plugins/datasource/prometheus/components/monaco-query-field/getOverrideServices.ts
 import { type monacoTypes } from '@grafana/ui';
 
@@ -82,7 +83,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      logInfo('logStorage: not implemented');
     },
 
     migrate: (): Promise<void> => {

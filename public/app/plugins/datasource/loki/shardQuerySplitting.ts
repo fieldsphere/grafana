@@ -2,7 +2,13 @@ import { groupBy, partition } from 'lodash';
 import { Observable, type Subscriber, type Subscription } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
-import { type DataQueryRequest, type DataQueryResponse, LoadingState, type QueryResultMetaStat } from '@grafana/data';
+import {
+  logInfo,
+  type DataQueryRequest,
+  type DataQueryResponse,
+  LoadingState,
+  type QueryResultMetaStat,
+} from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 import { type LokiDatasource } from './datasource';
@@ -375,5 +381,5 @@ function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  console.log(message);
+  logInfo(message);
 }

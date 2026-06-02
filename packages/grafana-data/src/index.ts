@@ -274,6 +274,14 @@ export { store, Store } from './utils/store';
 export { LocalStorageValueProvider } from './utils/LocalStorageValueProvider';
 export { throwIfAngular } from './utils/throwIfAngular';
 export { fuzzySearch } from './utils/fuzzySearch';
+export {
+  emitStructuredLog,
+  logDebug,
+  logError,
+  logInfo,
+  logWarn,
+  type StructuredLogLevel,
+} from './utils/structuredLogging';
 
 // Transformations
 export { standardTransformers } from './transformations/transformers';

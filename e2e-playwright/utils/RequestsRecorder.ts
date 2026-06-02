@@ -62,7 +62,7 @@ export class RequestsRecorder {
         return Promise.resolve();
       }
 
-      console.log('waiting for', this.#requestsInFlight, 'requests to finish');
+      logInfo('waiting for', this.#requestsInFlight, 'requests to finish');
 
       return new Promise<void>((resolve) => {
         this.#resolve = resolve;

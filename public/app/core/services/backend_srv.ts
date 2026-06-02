@@ -26,7 +26,7 @@ import {
 } from 'rxjs/operators';
 import { v4 as uuidv4 } from 'uuid';
 
-import { AppEvents, DataQueryErrorType, deprecationWarning } from '@grafana/data';
+import { logInfo, AppEvents, DataQueryErrorType, deprecationWarning } from '@grafana/data';
 import {
   type BackendSrv as BackendService,
   type BackendSrvRequest,
@@ -241,7 +241,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            logInfo(requestId, 'catch', e);
             observer.error(e);
           }); // from abort
       },

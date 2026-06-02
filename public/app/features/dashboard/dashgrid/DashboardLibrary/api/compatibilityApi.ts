@@ -105,8 +105,8 @@ export interface CompatibilityCheckResult {
  *   [{ uid: "prometheus-uid", type: "prometheus" }]
  * );
  *
- * console.log(`Compatibility: ${result.compatibilityScore}%`);
- * console.log(`Missing metrics: ${result.datasourceResults[0].missingMetrics}`);
+ * logInfo(`Compatibility: ${result.compatibilityScore}%`);
+ * logInfo(`Missing metrics: ${result.datasourceResults[0].missingMetrics}`);
  * ```
  */
 export async function checkDashboardCompatibility(

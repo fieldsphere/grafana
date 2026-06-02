@@ -3,6 +3,7 @@ import { PureComponent } from 'react';
 import { Subscription } from 'rxjs';
 
 import {
+  logInfo,
   type AbsoluteTimeRange,
   AnnotationChangeEvent,
   type AnnotationEventUIModel,
@@ -257,7 +258,7 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
       const delta = liveTime.to.valueOf() - data.timeRange.to.valueOf();
       if (delta < 100) {
         // 10hz
-        console.log('Skip tick render', this.props.panel.title, delta);
+        logInfo('Skip tick render', this.props.panel.title, delta);
         return;
       }
     }

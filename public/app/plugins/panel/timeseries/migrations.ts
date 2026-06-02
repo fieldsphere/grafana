@@ -1,6 +1,7 @@
 import { omitBy, pickBy, isNil, isNumber, isString } from 'lodash';
 
 import {
+  logInfo,
   type ConfigOverrideRule,
   type DynamicConfigValue,
   FieldColorModeId,
@@ -283,7 +284,7 @@ export function graphToTimeseriesOptions(angular: any): {
             });
             break;
           default:
-            console.log('Ignore override migration:', seriesOverride.alias, p, v);
+            logInfo('Ignore override migration:', seriesOverride.alias, p, v);
         }
       }
       if (dashOverride) {

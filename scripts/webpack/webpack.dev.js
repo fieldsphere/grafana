@@ -1,4 +1,5 @@
 'use strict';
+const { logInfo } = require('../utils/structuredLogger.js');
 const { getPackagesSync } = require('@manypkg/get-packages');
 const browserslist = require('browserslist');
 const { resolveToEsbuildTarget } = require('esbuild-plugin-browserslist');
@@ -36,7 +37,7 @@ function scenesModule() {
   try {
     const status = fs.lstatSync(scenesPath);
     if (status.isSymbolicLink()) {
-      console.log(`scenes is linked to local scenes repo`);
+      logInfo(`scenes is linked to local scenes repo`);
       return path.resolve(scenesPath + '/src');
     }
   } catch (error) {

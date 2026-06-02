@@ -4,6 +4,7 @@ import { PureComponent } from 'react';
 import { type Unsubscribable, type PartialObserver } from 'rxjs';
 
 import {
+  logInfo,
   type GrafanaTheme2,
   type PanelProps,
   type LiveChannelStatusEvent,
@@ -72,7 +73,7 @@ export class LivePanel extends PureComponent<Props, State> {
       } else if (isLiveChannelMessageEvent(event)) {
         this.setState({ message: event.message, changed: Date.now() });
       } else {
-        console.log('ignore', event);
+        logInfo('ignore', event);
       }
     },
   };
@@ -87,7 +88,7 @@ export class LivePanel extends PureComponent<Props, State> {
   async loadChannel() {
     const addr = this.props.options?.channel;
     if (!isValidLiveChannelAddress(addr)) {
-      console.log('INVALID', addr);
+      logInfo('INVALID', addr);
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -96,13 +97,13 @@ export class LivePanel extends PureComponent<Props, State> {
     }
 
     if (isEqual(addr, this.state.addr)) {
-      console.log('Same channel', this.state.addr);
+      logInfo('Same channel', this.state.addr);
       return;
     }
 
     const live = getGrafanaLiveSrv();
     if (!live) {
-      console.log('INVALID', addr);
+      logInfo('INVALID', addr);
       this.unsubscribe();
       this.setState({
         addr: undefined,
@@ -111,7 +112,7 @@ export class LivePanel extends PureComponent<Props, State> {
     }
     this.unsubscribe();
 
-    console.log('LOAD', addr);
+    logInfo('LOAD', addr);
 
     // Subscribe to new events
     try {

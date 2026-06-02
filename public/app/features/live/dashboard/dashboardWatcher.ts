@@ -2,6 +2,7 @@ import { type Unsubscribable } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  logInfo,
   AppEvents,
   isLiveChannelMessageEvent,
   isLiveChannelStatusEvent,
@@ -127,7 +128,7 @@ class DashboardWatcher {
 
             const dash = getDashboardSrv().getCurrent();
             if (dash?.uid !== event.message.uid) {
-              console.log('dashboard event for different dashboard?', event, dash);
+              logInfo('dashboard event for different dashboard?', event, dash);
               return;
             }
 

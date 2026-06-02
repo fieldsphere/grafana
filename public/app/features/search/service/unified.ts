@@ -7,6 +7,7 @@ import {
   type ManagedBy,
 } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
 import {
+  logInfo,
   arrayToDataFrame,
   type DataFrame,
   DataFrameView,
@@ -209,7 +210,7 @@ export class UnifiedSearcher implements GrafanaSearcher {
         const resp = await this.fetchResponse(nextPageUrl);
         const frame = toDashboardResults(resp, query.sort ?? '');
         if (!frame) {
-          console.log('no results', frame);
+          logInfo('no results', frame);
           return;
         }
 

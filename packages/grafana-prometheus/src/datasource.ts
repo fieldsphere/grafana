@@ -5,6 +5,7 @@ import { map, tap } from 'rxjs/operators';
 import { gte } from 'semver';
 
 import {
+  logInfo,
   type AbstractQuery,
   type AdHocVariableFilter,
   CoreApp,
@@ -172,7 +173,7 @@ export class PrometheusDatasource
         this.ruleMappings = extractRuleMappingFromGroups(ruleGroups);
       }
     } catch (err) {
-      console.log('Rules API is experimental. Ignore next error.');
+      logInfo('Rules API is experimental. Ignore next error.');
       console.error(err);
     }
   }

@@ -3,6 +3,7 @@ import { Observable, throwError } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  logInfo,
   type DataQueryRequest,
   type DataQueryResponse,
   FieldType,
@@ -125,7 +126,7 @@ export function runSignalStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logInfo('unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });
@@ -171,7 +172,7 @@ export function runLogsStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logInfo('unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });
@@ -254,7 +255,7 @@ export function runWatchStream(
       });
 
     return () => {
-      console.log('unsubscribing to stream', streamId);
+      logInfo('unsubscribing to stream', streamId);
       sub.unsubscribe();
     };
   });
@@ -314,7 +315,7 @@ export function runFetchStream(
       });
 
       if (value.done) {
-        console.log('Finished stream');
+        logInfo('Finished stream');
         subscriber.complete(); // necessary?
         return;
       }
@@ -335,7 +336,7 @@ export function runFetchStream(
 
     return () => {
       // Cancel fetch?
-      console.log('unsubscribing to stream ' + streamId);
+      logInfo('unsubscribing to stream ' + streamId);
     };
   });
 }
@@ -368,7 +369,7 @@ export function runTracesStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logInfo('unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });

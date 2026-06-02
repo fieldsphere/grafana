@@ -1,4 +1,5 @@
 'use strict';
+const { logInfo } = require('../utils/structuredLogger.js');
 
 const browserslist = require('browserslist');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
@@ -113,7 +114,7 @@ module.exports = (env = {}) =>
       function () {
         this.hooks.done.tap('Done', function (stats) {
           if (stats.compilation.errors && stats.compilation.errors.length) {
-            console.log(stats.compilation.errors);
+            logInfo(stats.compilation.errors);
             process.exit(1);
           }
         });

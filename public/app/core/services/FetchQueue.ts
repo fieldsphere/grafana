@@ -1,3 +1,4 @@
+import { logInfo } from '@grafana/data';
 import { type Observable, Subject } from 'rxjs';
 
 import { type BackendSrvRequest } from '@grafana/runtime';
@@ -90,8 +91,8 @@ export class FetchQueue {
       []
     );
 
-    console.log('FetchQueue noOfStarted', update.noOfInProgress);
-    console.log('FetchQueue noOfNotStarted', update.noOfPending);
-    console.log('FetchQueue state', entriesWithoutOptions);
+    logInfo('FetchQueue noOfStarted', update.noOfInProgress);
+    logInfo('FetchQueue noOfNotStarted', update.noOfPending);
+    logInfo('FetchQueue state', entriesWithoutOptions);
   };
 }

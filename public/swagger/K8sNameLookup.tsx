@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { type SelectableValue } from '@grafana/data';
+import { logInfo, type SelectableValue } from '@grafana/data';
 import { Select } from '@grafana/ui';
 
 import { NamespaceContext, ResourceContext } from './plugins';
@@ -46,7 +46,7 @@ export function K8sNameLookup(props: Props) {
           return;
         }
         const table = await response.json();
-        console.log('LIST', url, table);
+        logInfo('LIST', url, table);
         const options: Array<SelectableValue<string>> = [];
         if (table.rows?.length) {
           for (const row of table.rows) {
