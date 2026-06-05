@@ -40,6 +40,9 @@ func (TimeIntervalTimeRange) OpenAPIModelName() string {
 
 // +k8s:openapi-gen=true
 type TimeIntervalSpec struct {
+	// This is referenced by alert rule notification settings.
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^.+$"
 	Name          string                 `json:"name"`
 	TimeIntervals []TimeIntervalInterval `json:"time_intervals"`
 }

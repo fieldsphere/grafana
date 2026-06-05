@@ -5,16 +5,22 @@ import "strings"
 NoDataState:  *"NoData" | "Ok" | "Alerting" | "KeepLast"
 ExecErrState: *"Error" | "Ok" | "Alerting" | "KeepLast"
 
-#TimeIntervalRef: string // TODO(@moustafab): validate regex for time interval ref
-
-// FIXME: the For and KeepFiringFor types should be using the AlertRulePromDuration type, but there seems to be an issue with the generator
+// TimeIntervalRef matches the non-empty TimeIntervalSpec.name validation from the notifications app.
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^.+$"
+#TimeIntervalRef: string & strings.MinRunes(1) & =~"^.+$"
 
 AlertRuleSpec: #RuleSpec & {
 	annotations?: {
 		[string]: TemplateString
 	}
-	"for"?:                       string & #PromDuration
-	keepFiringFor?:               string & #PromDuration
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
+	"for"?: #PromDuration
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
+	keepFiringFor?: #PromDuration
+	// +k8s:validation:minimum=0
 	missingSeriesEvalsToResolve?: int & >=0
 	noDataState:                  NoDataState
 	execErrState:                 ExecErrState
@@ -23,17 +29,31 @@ AlertRuleSpec: #RuleSpec & {
 }
 
 #PanelRef: {
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"
 	dashboardUID: string & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
-	panelID:      int & >0
+	// +k8s:validation:minimum=0
+	// +k8s:validation:exclusiveMinimum
+	panelID: int & >0
 }
 
-// TODO(@moustafab): this should be imported from the notifications package
 #NotificationSettings: {
-	receiver: string
+	// +k8s:validation:minLength=1
+	receiver: string & strings.MinRunes(1)
 	groupBy?: [...string]
-	groupWait?:      #PromDuration
-	groupInterval?:  #PromDuration
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
+	groupWait?: #PromDuration
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
+	groupInterval?: #PromDuration
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 	repeatInterval?: #PromDuration
+	// +k8s:validation:items:minLength=1
+	// +k8s:validation:items:pattern="^.+$"
 	muteTimeIntervals?: [...#TimeIntervalRef]
+	// +k8s:validation:items:minLength=1
+	// +k8s:validation:items:pattern="^.+$"
 	activeTimeIntervals?: [...#TimeIntervalRef]
 }

@@ -1,6 +1,12 @@
 // Code generated - EDITING IS FUTILE. DO NOT EDIT.
 
+export type Trigger = IntervalTrigger;
+
+export const defaultTrigger = (): Trigger => (defaultIntervalTrigger());
+
 export interface IntervalTrigger {
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 	interval: PromDuration;
 }
 
@@ -8,6 +14,8 @@ export const defaultIntervalTrigger = (): IntervalTrigger => ({
 	interval: defaultPromDuration(),
 });
 
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 export type PromDuration = string;
 
 export const defaultPromDuration = (): PromDuration => ("");
@@ -16,13 +24,15 @@ export type TemplateString = string;
 
 export const defaultTemplateString = (): TemplateString => ("");
 
-// TODO(@moustafab): validate regex for time interval ref
+// TimeIntervalRef matches the non-empty TimeIntervalSpec.name validation from the notifications app.
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^.+$"
 export type TimeIntervalRef = string;
 
 export const defaultTimeIntervalRef = (): TimeIntervalRef => ("");
 
-// TODO: validate that only one can specify source=true
-// & struct.MinFields(1) This doesn't work in Cue <v0.12.0 as per
+// Expressions must contain at least one entry. Admission validation enforces exactly one expression with source=true.
+// +k8s:validation:minProperties=1
 export type ExpressionMap = Record<string, Expression>;
 
 export const defaultExpressionMap = (): ExpressionMap => ({});
@@ -32,6 +42,8 @@ export interface Expression {
 	queryType?: string;
 	relativeTimeRange?: RelativeTimeRange;
 	// The UID of the datasource to run this expression against. If omitted, the expression will be run against the `__expr__` datasource
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"
 	datasourceUID?: DatasourceUID;
 	model: any;
 	// Used to mark the expression to be used as the final source for the rule evaluation
@@ -46,7 +58,11 @@ export const defaultExpression = (): Expression => ({
 });
 
 export interface RelativeTimeRange {
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
 	from: PromDurationWMillis;
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
 	to: PromDurationWMillis;
 }
 
@@ -55,44 +71,71 @@ export const defaultRelativeTimeRange = (): RelativeTimeRange => ({
 	to: defaultPromDurationWMillis(),
 });
 
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
 export type PromDurationWMillis = string;
 
 export const defaultPromDurationWMillis = (): PromDurationWMillis => ("");
 
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"
 export type DatasourceUID = string;
 
 export const defaultDatasourceUID = (): DatasourceUID => ("");
 
 export interface Spec {
+	// +k8s:validation:minLength=1
 	title: string;
 	paused?: boolean;
-	trigger: IntervalTrigger;
+	trigger: Trigger;
 	labels?: Record<string, TemplateString>;
 	annotations?: Record<string, TemplateString>;
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 	for?: string;
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 	keepFiringFor?: string;
+	// +k8s:validation:minimum=0
 	missingSeriesEvalsToResolve?: number;
 	noDataState: string;
 	execErrState: string;
 	notificationSettings?: {
+		// +k8s:validation:minLength=1
 		receiver: string;
 		groupBy?: string[];
+		// +k8s:validation:minLength=1
+		// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 		groupWait?: PromDuration;
+		// +k8s:validation:minLength=1
+		// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 		groupInterval?: PromDuration;
+		// +k8s:validation:minLength=1
+		// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 		repeatInterval?: PromDuration;
+		// +k8s:validation:items:minLength=1
+		// +k8s:validation:items:pattern="^.+$"
 		muteTimeIntervals?: TimeIntervalRef[];
+		// +k8s:validation:items:minLength=1
+		// +k8s:validation:items:pattern="^.+$"
 		activeTimeIntervals?: TimeIntervalRef[];
 	};
+	// Expressions must contain at least one entry. Admission validation enforces exactly one expression with source=true.
+	// +k8s:validation:minProperties=1
 	expressions: ExpressionMap;
 	panelRef?: {
+		// +k8s:validation:minLength=1
+		// +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"
 		dashboardUID: string;
+		// +k8s:validation:minimum=0
+		// +k8s:validation:exclusiveMinimum
 		panelID: number;
 	};
 }
 
 export const defaultSpec = (): Spec => ({
 	title: "",
-	trigger: defaultIntervalTrigger(),
+	trigger: defaultTrigger(),
 	noDataState: "NoData",
 	execErrState: "Error",
 	expressions: defaultExpressionMap(),

@@ -31,14 +31,23 @@ spec:
           required:
           - spec
         DatasourceUID:
+          description: '+k8s:validation:minLength=1
+
+            +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"'
+          minLength: 1
           type: string
+          pattern: ^[a-zA-Z0-9_-]+$
         Expression:
           additionalProperties: false
           properties:
             datasourceUID:
               $ref: '#/components/schemas/DatasourceUID'
-              description: The UID of the datasource to run this expression against.
-                If omitted, the expression will be run against the `__expr__` datasource
+              description: 'The UID of the datasource to run this expression against. If omitted, the expression will be run
+                against the `__expr__` datasource
+
+                +k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"'
             model:
               additionalProperties: {}
               type: object
@@ -48,11 +57,13 @@ spec:
             relativeTimeRange:
               $ref: '#/components/schemas/RelativeTimeRange'
             source:
-              description: |-
-                Used to mark the expression to be used as the final source for the rule evaluation
+              description: 'Used to mark the expression to be used as the final source for the rule evaluation
+
                 Only one expression in a rule can be marked as the source
+
                 For AlertRules, this is the expression that will be evaluated against the alerting condition
-                For RecordingRules, this is the expression that will be recorded
+
+                For RecordingRules, this is the expression that will be recorded'
               type: boolean
           required:
           - model
@@ -60,15 +71,20 @@ spec:
         ExpressionMap:
           additionalProperties:
             $ref: '#/components/schemas/Expression'
-          description: |-
-            TODO: validate that only one can specify source=true
-            & struct.MinFields(1) This doesn't work in Cue <v0.12.0 as per
+          description: 'Expressions must contain at least one entry. Admission validation enforces exactly one expression
+            with source=true.
+
+            +k8s:validation:minProperties=1'
           type: object
+          minProperties: 1
         IntervalTrigger:
           additionalProperties: false
           properties:
             interval:
               $ref: '#/components/schemas/PromDuration'
+              description: '+k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"'
           required:
           - interval
           type: object
@@ -76,8 +92,7 @@ spec:
           additionalProperties: false
           properties:
             descriptiveState:
-              description: descriptiveState is an optional more descriptive state
-                field which has no requirements on format
+              description: descriptiveState is an optional more descriptive state field which has no requirements on format
               type: string
             details:
               additionalProperties: true
@@ -87,9 +102,9 @@ spec:
               description: lastEvaluation is the ResourceVersion last evaluated
               type: string
             state:
-              description: |-
-                state describes the state of the lastEvaluation.
-                It is limited to three possible states for machine evaluation.
+              description: 'state describes the state of the lastEvaluation.
+
+                It is limited to three possible states for machine evaluation.'
               enum:
               - success
               - in_progress
@@ -100,16 +115,32 @@ spec:
           - state
           type: object
         PromDuration:
+          description: '+k8s:validation:minLength=1
+
+            +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"'
           type: string
+          minLength: 1
+          pattern: ^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$
         PromDurationWMillis:
+          description: '+k8s:validation:minLength=1
+
+            +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"'
           type: string
+          minLength: 1
+          pattern: ^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$
         RelativeTimeRange:
           additionalProperties: false
           properties:
             from:
               $ref: '#/components/schemas/PromDurationWMillis'
+              description: '+k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"'
             to:
               $ref: '#/components/schemas/PromDurationWMillis'
+              description: '+k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"'
           required:
           - from
           - to
@@ -117,8 +148,16 @@ spec:
         TemplateString:
           type: string
         TimeIntervalRef:
-          description: 'TODO(@moustafab): validate regex for time interval ref'
+          description: 'TimeIntervalRef matches the non-empty TimeIntervalSpec.name validation from the notifications app.
+
+            +k8s:validation:minLength=1
+
+            +k8s:validation:pattern="^.+$"'
+          minLength: 1
           type: string
+          pattern: ^.+$
+        Trigger:
+          $ref: '#/components/schemas/IntervalTrigger'
         spec:
           additionalProperties: false
           properties:
@@ -131,15 +170,31 @@ spec:
               type: string
             expressions:
               $ref: '#/components/schemas/ExpressionMap'
+              description: 'Expressions must contain at least one entry. Admission validation enforces exactly one expression
+                with source=true.
+
+                +k8s:validation:minProperties=1'
+              minProperties: 1
             for:
+              description: '+k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"'
               type: string
+              minLength: 1
+              pattern: ^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$
             keepFiringFor:
+              description: '+k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"'
               type: string
+              minLength: 1
+              pattern: ^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$
             labels:
               additionalProperties:
                 $ref: '#/components/schemas/TemplateString'
               type: object
             missingSeriesEvalsToResolve:
+              description: +k8s:validation:minimum=0
               minimum: 0
               type: integer
             noDataState:
@@ -149,6 +204,9 @@ spec:
               additionalProperties: false
               properties:
                 activeTimeIntervals:
+                  description: '+k8s:validation:items:minLength=1
+
+                    +k8s:validation:items:pattern="^.+$"'
                   items:
                     $ref: '#/components/schemas/TimeIntervalRef'
                   type: array
@@ -158,16 +216,30 @@ spec:
                   type: array
                 groupInterval:
                   $ref: '#/components/schemas/PromDuration'
+                  description: '+k8s:validation:minLength=1
+
+                    +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"'
                 groupWait:
                   $ref: '#/components/schemas/PromDuration'
+                  description: '+k8s:validation:minLength=1
+
+                    +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"'
                 muteTimeIntervals:
+                  description: '+k8s:validation:items:minLength=1
+
+                    +k8s:validation:items:pattern="^.+$"'
                   items:
                     $ref: '#/components/schemas/TimeIntervalRef'
                   type: array
                 receiver:
+                  description: +k8s:validation:minLength=1
+                  minLength: 1
                   type: string
                 repeatInterval:
                   $ref: '#/components/schemas/PromDuration'
+                  description: '+k8s:validation:minLength=1
+
+                    +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"'
               required:
               - receiver
               type: object
@@ -175,9 +247,16 @@ spec:
               additionalProperties: false
               properties:
                 dashboardUID:
+                  description: '+k8s:validation:minLength=1
+
+                    +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"'
                   minLength: 1
                   type: string
+                  pattern: ^[a-zA-Z0-9_-]+$
                 panelID:
+                  description: '+k8s:validation:minimum=0
+
+                    +k8s:validation:exclusiveMinimum'
                   exclusiveMinimum: true
                   minimum: 0
                   type: integer
@@ -188,9 +267,11 @@ spec:
             paused:
               type: boolean
             title:
+              description: +k8s:validation:minLength=1
+              minLength: 1
               type: string
             trigger:
-              $ref: '#/components/schemas/IntervalTrigger'
+              $ref: '#/components/schemas/Trigger'
           required:
           - title
           - trigger
@@ -208,9 +289,9 @@ spec:
             operatorStates:
               additionalProperties:
                 $ref: '#/components/schemas/OperatorState'
-              description: |-
-                operatorStates is a map of operator ID to operator state evaluations.
-                Any operator which consumes this kind SHOULD add its state evaluation information to this field.
+              description: 'operatorStates is a map of operator ID to operator state evaluations.
+
+                Any operator which consumes this kind SHOULD add its state evaluation information to this field.'
               type: object
           type: object
       scope: Namespaced
@@ -234,14 +315,23 @@ spec:
       plural: RecordingRules
       schemas:
         DatasourceUID:
+          description: '+k8s:validation:minLength=1
+
+            +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"'
+          minLength: 1
           type: string
+          pattern: ^[a-zA-Z0-9_-]+$
         Expression:
           additionalProperties: false
           properties:
             datasourceUID:
               $ref: '#/components/schemas/DatasourceUID'
-              description: The UID of the datasource to run this expression against.
-                If omitted, the expression will be run against the `__expr__` datasource
+              description: 'The UID of the datasource to run this expression against. If omitted, the expression will be run
+                against the `__expr__` datasource
+
+                +k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"'
             model:
               additionalProperties: {}
               type: object
@@ -251,11 +341,13 @@ spec:
             relativeTimeRange:
               $ref: '#/components/schemas/RelativeTimeRange'
             source:
-              description: |-
-                Used to mark the expression to be used as the final source for the rule evaluation
+              description: 'Used to mark the expression to be used as the final source for the rule evaluation
+
                 Only one expression in a rule can be marked as the source
+
                 For AlertRules, this is the expression that will be evaluated against the alerting condition
-                For RecordingRules, this is the expression that will be recorded
+
+                For RecordingRules, this is the expression that will be recorded'
               type: boolean
           required:
           - model
@@ -263,15 +355,20 @@ spec:
         ExpressionMap:
           additionalProperties:
             $ref: '#/components/schemas/Expression'
-          description: |-
-            TODO: validate that only one can specify source=true
-            & struct.MinFields(1) This doesn't work in Cue <v0.12.0 as per
+          description: 'Expressions must contain at least one entry. Admission validation enforces exactly one expression
+            with source=true.
+
+            +k8s:validation:minProperties=1'
           type: object
+          minProperties: 1
         IntervalTrigger:
           additionalProperties: false
           properties:
             interval:
               $ref: '#/components/schemas/PromDuration'
+              description: '+k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"'
           required:
           - interval
           type: object
@@ -279,8 +376,7 @@ spec:
           additionalProperties: false
           properties:
             descriptiveState:
-              description: descriptiveState is an optional more descriptive state
-                field which has no requirements on format
+              description: descriptiveState is an optional more descriptive state field which has no requirements on format
               type: string
             details:
               additionalProperties: true
@@ -290,9 +386,9 @@ spec:
               description: lastEvaluation is the ResourceVersion last evaluated
               type: string
             state:
-              description: |-
-                state describes the state of the lastEvaluation.
-                It is limited to three possible states for machine evaluation.
+              description: 'state describes the state of the lastEvaluation.
+
+                It is limited to three possible states for machine evaluation.'
               enum:
               - success
               - in_progress
@@ -303,9 +399,19 @@ spec:
           - state
           type: object
         PromDuration:
+          description: '+k8s:validation:minLength=1
+
+            +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"'
           type: string
+          minLength: 1
+          pattern: ^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$
         PromDurationWMillis:
+          description: '+k8s:validation:minLength=1
+
+            +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"'
           type: string
+          minLength: 1
+          pattern: ^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$
         RecordingRule:
           properties:
             spec:
@@ -319,33 +425,58 @@ spec:
           properties:
             from:
               $ref: '#/components/schemas/PromDurationWMillis'
+              description: '+k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"'
             to:
               $ref: '#/components/schemas/PromDurationWMillis'
+              description: '+k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"'
           required:
           - from
           - to
           type: object
         TemplateString:
           type: string
+        Trigger:
+          $ref: '#/components/schemas/IntervalTrigger'
         spec:
           additionalProperties: false
           properties:
             expressions:
               $ref: '#/components/schemas/ExpressionMap'
+              description: 'Expressions must contain at least one entry. Admission validation enforces exactly one expression
+                with source=true.
+
+                +k8s:validation:minProperties=1'
+              minProperties: 1
             labels:
               additionalProperties:
                 $ref: '#/components/schemas/TemplateString'
               type: object
             metric:
+              description: '+k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^[a-zA-Z_:][a-zA-Z0-9_:]*$"'
               type: string
+              minLength: 1
+              pattern: ^[a-zA-Z_:][a-zA-Z0-9_:]*$
             paused:
               type: boolean
             targetDatasourceUID:
+              description: '+k8s:validation:minLength=1
+
+                +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"'
               type: string
+              minLength: 1
+              pattern: ^[a-zA-Z0-9_-]+$
             title:
+              description: +k8s:validation:minLength=1
+              minLength: 1
               type: string
             trigger:
-              $ref: '#/components/schemas/IntervalTrigger'
+              $ref: '#/components/schemas/Trigger'
           required:
           - title
           - trigger
@@ -363,14 +494,16 @@ spec:
             operatorStates:
               additionalProperties:
                 $ref: '#/components/schemas/OperatorState'
-              description: |-
-                operatorStates is a map of operator ID to operator state evaluations.
-                Any operator which consumes this kind SHOULD add its state evaluation information to this field.
+              description: 'operatorStates is a map of operator ID to operator state evaluations.
+
+                Any operator which consumes this kind SHOULD add its state evaluation information to this field.'
               type: object
           type: object
       scope: Namespaced
       selectableFields:
       - spec.title
       - spec.paused
+      - spec.metric
+      - spec.targetDatasourceUID
     name: v0alpha1
     served: true

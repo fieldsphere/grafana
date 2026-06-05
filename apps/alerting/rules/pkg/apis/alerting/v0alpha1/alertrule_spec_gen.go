@@ -3,7 +3,17 @@
 package v0alpha1
 
 // +k8s:openapi-gen=true
+type AlertRuleTrigger = AlertRuleIntervalTrigger
+
+// NewAlertRuleTrigger creates a new AlertRuleTrigger object.
+func NewAlertRuleTrigger() *AlertRuleTrigger {
+	return NewAlertRuleIntervalTrigger()
+}
+
+// +k8s:openapi-gen=true
 type AlertRuleIntervalTrigger struct {
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 	Interval AlertRulePromDuration `json:"interval"`
 }
 
@@ -17,18 +27,22 @@ func (AlertRuleIntervalTrigger) OpenAPIModelName() string {
 	return "com.github.grafana.grafana.apps.alerting.rules.pkg.apis.alerting.v0alpha1.AlertRuleIntervalTrigger"
 }
 
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 // +k8s:openapi-gen=true
 type AlertRulePromDuration string
 
 // +k8s:openapi-gen=true
 type AlertRuleTemplateString string
 
-// TODO(@moustafab): validate regex for time interval ref
+// TimeIntervalRef matches the non-empty TimeIntervalSpec.name validation from the notifications app.
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^.+$"
 // +k8s:openapi-gen=true
 type AlertRuleTimeIntervalRef string
 
-// TODO: validate that only one can specify source=true
-// & struct.MinFields(1) This doesn't work in Cue <v0.12.0 as per
+// Expressions must contain at least one entry. Admission validation enforces exactly one expression with source=true.
+// +k8s:validation:minProperties=1
 // +k8s:openapi-gen=true
 type AlertRuleExpressionMap map[string]AlertRuleExpression
 
@@ -43,6 +57,8 @@ type AlertRuleExpression struct {
 	QueryType         *string                     `json:"queryType,omitempty"`
 	RelativeTimeRange *AlertRuleRelativeTimeRange `json:"relativeTimeRange,omitempty"`
 	// The UID of the datasource to run this expression against. If omitted, the expression will be run against the `__expr__` datasource
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"
 	DatasourceUID *AlertRuleDatasourceUID `json:"datasourceUID,omitempty"`
 	Model         interface{}             `json:"model"`
 	// Used to mark the expression to be used as the final source for the rule evaluation
@@ -64,8 +80,12 @@ func (AlertRuleExpression) OpenAPIModelName() string {
 
 // +k8s:openapi-gen=true
 type AlertRuleRelativeTimeRange struct {
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
 	From AlertRulePromDurationWMillis `json:"from"`
-	To   AlertRulePromDurationWMillis `json:"to"`
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
+	To AlertRulePromDurationWMillis `json:"to"`
 }
 
 // NewAlertRuleRelativeTimeRange creates a new AlertRuleRelativeTimeRange object.
@@ -78,33 +98,45 @@ func (AlertRuleRelativeTimeRange) OpenAPIModelName() string {
 	return "com.github.grafana.grafana.apps.alerting.rules.pkg.apis.alerting.v0alpha1.AlertRuleRelativeTimeRange"
 }
 
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
 // +k8s:openapi-gen=true
 type AlertRulePromDurationWMillis string
 
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"
 // +k8s:openapi-gen=true
 type AlertRuleDatasourceUID string
 
 // +k8s:openapi-gen=true
 type AlertRuleSpec struct {
-	Title                       string                                     `json:"title"`
-	Paused                      *bool                                      `json:"paused,omitempty"`
-	Trigger                     AlertRuleIntervalTrigger                   `json:"trigger"`
-	Labels                      map[string]AlertRuleTemplateString         `json:"labels,omitempty"`
-	Annotations                 map[string]AlertRuleTemplateString         `json:"annotations,omitempty"`
-	For                         *string                                    `json:"for,omitempty"`
-	KeepFiringFor               *string                                    `json:"keepFiringFor,omitempty"`
+	// +k8s:validation:minLength=1
+	Title       string                             `json:"title"`
+	Paused      *bool                              `json:"paused,omitempty"`
+	Trigger     AlertRuleTrigger                   `json:"trigger"`
+	Labels      map[string]AlertRuleTemplateString `json:"labels,omitempty"`
+	Annotations map[string]AlertRuleTemplateString `json:"annotations,omitempty"`
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
+	For *string `json:"for,omitempty"`
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
+	KeepFiringFor *string `json:"keepFiringFor,omitempty"`
+	// +k8s:validation:minimum=0
 	MissingSeriesEvalsToResolve *int64                                     `json:"missingSeriesEvalsToResolve,omitempty"`
 	NoDataState                 string                                     `json:"noDataState"`
 	ExecErrState                string                                     `json:"execErrState"`
 	NotificationSettings        *AlertRuleV0alpha1SpecNotificationSettings `json:"notificationSettings,omitempty"`
-	Expressions                 AlertRuleExpressionMap                     `json:"expressions"`
-	PanelRef                    *AlertRuleV0alpha1SpecPanelRef             `json:"panelRef,omitempty"`
+	// Expressions must contain at least one entry. Admission validation enforces exactly one expression with source=true.
+	// +k8s:validation:minProperties=1
+	Expressions AlertRuleExpressionMap         `json:"expressions"`
+	PanelRef    *AlertRuleV0alpha1SpecPanelRef `json:"panelRef,omitempty"`
 }
 
 // NewAlertRuleSpec creates a new AlertRuleSpec object.
 func NewAlertRuleSpec() *AlertRuleSpec {
 	return &AlertRuleSpec{
-		Trigger:      *NewAlertRuleIntervalTrigger(),
+		Trigger:      *NewAlertRuleTrigger(),
 		NoDataState:  "NoData",
 		ExecErrState: "Error",
 	}
@@ -117,12 +149,23 @@ func (AlertRuleSpec) OpenAPIModelName() string {
 
 // +k8s:openapi-gen=true
 type AlertRuleV0alpha1SpecNotificationSettings struct {
-	Receiver            string                     `json:"receiver"`
-	GroupBy             []string                   `json:"groupBy,omitempty"`
-	GroupWait           *AlertRulePromDuration     `json:"groupWait,omitempty"`
-	GroupInterval       *AlertRulePromDuration     `json:"groupInterval,omitempty"`
-	RepeatInterval      *AlertRulePromDuration     `json:"repeatInterval,omitempty"`
-	MuteTimeIntervals   []AlertRuleTimeIntervalRef `json:"muteTimeIntervals,omitempty"`
+	// +k8s:validation:minLength=1
+	Receiver string   `json:"receiver"`
+	GroupBy  []string `json:"groupBy,omitempty"`
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
+	GroupWait *AlertRulePromDuration `json:"groupWait,omitempty"`
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
+	GroupInterval *AlertRulePromDuration `json:"groupInterval,omitempty"`
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
+	RepeatInterval *AlertRulePromDuration `json:"repeatInterval,omitempty"`
+	// +k8s:validation:items:minLength=1
+	// +k8s:validation:items:pattern="^.+$"
+	MuteTimeIntervals []AlertRuleTimeIntervalRef `json:"muteTimeIntervals,omitempty"`
+	// +k8s:validation:items:minLength=1
+	// +k8s:validation:items:pattern="^.+$"
 	ActiveTimeIntervals []AlertRuleTimeIntervalRef `json:"activeTimeIntervals,omitempty"`
 }
 
@@ -138,8 +181,12 @@ func (AlertRuleV0alpha1SpecNotificationSettings) OpenAPIModelName() string {
 
 // +k8s:openapi-gen=true
 type AlertRuleV0alpha1SpecPanelRef struct {
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"
 	DashboardUID string `json:"dashboardUID"`
-	PanelID      int64  `json:"panelID"`
+	// +k8s:validation:minimum=0
+	// +k8s:validation:exclusiveMinimum
+	PanelID int64 `json:"panelID"`
 }
 
 // NewAlertRuleV0alpha1SpecPanelRef creates a new AlertRuleV0alpha1SpecPanelRef object.

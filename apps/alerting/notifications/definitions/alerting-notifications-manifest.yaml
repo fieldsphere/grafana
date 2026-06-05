@@ -403,6 +403,8 @@ spec:
           properties:
             name:
               type: string
+              minLength: 1
+              pattern: ^.+$
             time_intervals:
               items:
                 $ref: '#/components/schemas/Interval'
@@ -428,6 +430,8 @@ spec:
                 Any operator which consumes this kind SHOULD add its state evaluation information to this field.
               type: object
           type: object
+      selectableFields:
+      - spec.name
       scope: Namespaced
     name: v0alpha1
     served: true
@@ -827,6 +831,8 @@ spec:
           properties:
             name:
               type: string
+              minLength: 1
+              pattern: ^.+$
             time_intervals:
               items:
                 $ref: '#/components/schemas/Interval'
@@ -852,6 +858,8 @@ spec:
                 Any operator which consumes this kind SHOULD add its state evaluation information to this field.
               type: object
           type: object
+      selectableFields:
+      - spec.name
       scope: Namespaced
     name: v1beta1
     served: true

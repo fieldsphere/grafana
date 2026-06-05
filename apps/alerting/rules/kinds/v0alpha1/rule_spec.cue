@@ -1,48 +1,67 @@
-// TODO: many strings need to be validated as having the appropriate minimum length using strings.minRunes(n)
 package v0alpha1
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
 #PromDurationWMillis: time.Duration & =~"^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
 
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 #PromDuration: time.Duration & =~"^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$" & !~"hmuµn"
 
 TemplateString: string
-#DatasourceUID: string & =~"^[a-zA-Z0-9_-]+$"
+// +k8s:validation:minLength=1
+// +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"
+#DatasourceUID: string & strings.MinRunes(1) & =~"^[a-zA-Z0-9_-]+$"
 
 #RuleSpec: {
-	title:   string
+	// +k8s:validation:minLength=1
+	title: string & strings.MinRunes(1)
 	paused?: bool
-	trigger: #IntervalTrigger
+	trigger: #Trigger
 	labels?: {
 		[string]: TemplateString
 	}
+	// Expressions must contain at least one entry. Admission validation enforces exactly one expression with source=true.
+	// +k8s:validation:minProperties=1
 	expressions: #ExpressionMap
 	...
 }
 
-// TODO(@moustafab): when we support other trigger types ensure that none of the fields conflict
-// #TriggerType: #IntervalTrigger
+#Trigger: #IntervalTrigger
 
 #IntervalTrigger: {
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?|0)$"
 	interval: #PromDuration
 }
 
 #RelativeTimeRange: {
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
 	from: #PromDurationWMillis
-	to:   #PromDurationWMillis
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^((([0-9]+)y)?(([0-9]+)w)?(([0-9]+)d)?(([0-9]+)h)?(([0-9]+)m)?(([0-9]+)s)?(([0-9]+)ms)?|0)$"
+	to: #PromDurationWMillis
 }
 
-// TODO: validate that only one can specify source=true
+// Expressions must contain at least one entry. Admission validation enforces exactly one expression with source=true.
+// +k8s:validation:minProperties=1
 #ExpressionMap: {
 	[string]: #Expression
-} // & struct.MinFields(1) This doesn't work in Cue <v0.12.0 as per
+}
 
 #Expression: {
 	// The type of query if this is a query expression
 	queryType?:         string
 	relativeTimeRange?: #RelativeTimeRange
 	// The UID of the datasource to run this expression against. If omitted, the expression will be run against the `__expr__` datasource
+	// +k8s:validation:minLength=1
+	// +k8s:validation:pattern="^[a-zA-Z0-9_-]+$"
 	datasourceUID?: #DatasourceUID
 	model:          _
 	// Used to mark the expression to be used as the final source for the rule evaluation

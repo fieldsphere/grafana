@@ -33,7 +33,7 @@ var (
 	rawSchemaTemplateGroupv0alpha1      = []byte(`{"TemplateGroup":{"properties":{"spec":{"$ref":"#/components/schemas/spec"}},"required":["spec"]},"TemplateKind":{"enum":["grafana","mimir"],"type":"string"},"spec":{"additionalProperties":false,"properties":{"content":{"type":"string"},"kind":{"$ref":"#/components/schemas/TemplateKind","default":"grafana"},"title":{"type":"string"}},"required":["title","content","kind"],"type":"object"}}`)
 	versionSchemaTemplateGroupv0alpha1  app.VersionSchema
 	_                                   = json.Unmarshal(rawSchemaTemplateGroupv0alpha1, &versionSchemaTemplateGroupv0alpha1)
-	rawSchemaTimeIntervalv0alpha1       = []byte(`{"Interval":{"additionalProperties":false,"properties":{"days_of_month":{"items":{"type":"string"},"type":"array"},"location":{"type":"string"},"months":{"items":{"type":"string"},"type":"array"},"times":{"items":{"$ref":"#/components/schemas/TimeRange"},"type":"array"},"weekdays":{"items":{"type":"string"},"type":"array"},"years":{"items":{"type":"string"},"type":"array"}},"type":"object"},"TimeInterval":{"properties":{"spec":{"$ref":"#/components/schemas/spec"}},"required":["spec"]},"TimeRange":{"additionalProperties":false,"properties":{"end_time":{"type":"string"},"start_time":{"type":"string"}},"required":["start_time","end_time"],"type":"object"},"spec":{"additionalProperties":false,"properties":{"name":{"type":"string"},"time_intervals":{"items":{"$ref":"#/components/schemas/Interval"},"type":"array"}},"required":["name","time_intervals"],"type":"object"}}`)
+	rawSchemaTimeIntervalv0alpha1       = []byte(`{"Interval":{"additionalProperties":false,"properties":{"days_of_month":{"items":{"type":"string"},"type":"array"},"location":{"type":"string"},"months":{"items":{"type":"string"},"type":"array"},"times":{"items":{"$ref":"#/components/schemas/TimeRange"},"type":"array"},"weekdays":{"items":{"type":"string"},"type":"array"},"years":{"items":{"type":"string"},"type":"array"}},"type":"object"},"TimeInterval":{"properties":{"spec":{"$ref":"#/components/schemas/spec"}},"required":["spec"]},"TimeRange":{"additionalProperties":false,"properties":{"end_time":{"type":"string"},"start_time":{"type":"string"}},"required":["start_time","end_time"],"type":"object"},"spec":{"additionalProperties":false,"properties":{"name":{"description":"This is referenced by alert rule notification settings.\n+k8s:validation:minLength=1\n+k8s:validation:pattern=\"^.+$\"","minLength":1,"pattern":"^.+$","type":"string"},"time_intervals":{"items":{"$ref":"#/components/schemas/Interval"},"type":"array"}},"required":["name","time_intervals"],"type":"object"}}`)
 	versionSchemaTimeIntervalv0alpha1   app.VersionSchema
 	_                                   = json.Unmarshal(rawSchemaTimeIntervalv0alpha1, &versionSchemaTimeIntervalv0alpha1)
 	rawSchemaInhibitionRulev1beta1      = []byte(`{"InhibitionRule":{"properties":{"spec":{"$ref":"#/components/schemas/spec"}},"required":["spec"]},"Matcher":{"additionalProperties":false,"properties":{"label":{"type":"string"},"type":{"enum":["=","!=","=~","!~"],"type":"string"},"value":{"type":"string"}},"required":["type","label","value"],"type":"object"},"spec":{"additionalProperties":false,"properties":{"equal":{"description":"equal specifies which labels must have equal values between source and target alerts\nfor the inhibition to take effect","items":{"type":"string"},"type":"array"},"source_matchers":{"description":"source_matchers define the alerts that act as inhibitors (silencing other alerts)","items":{"$ref":"#/components/schemas/Matcher"},"type":"array"},"target_matchers":{"description":"target_matchers define the alerts that can be inhibited (silenced)","items":{"$ref":"#/components/schemas/Matcher"},"type":"array"}},"type":"object"}}`)
@@ -48,7 +48,7 @@ var (
 	rawSchemaTemplateGroupv1beta1       = []byte(`{"TemplateGroup":{"properties":{"spec":{"$ref":"#/components/schemas/spec"}},"required":["spec"]},"TemplateKind":{"enum":["grafana","mimir"],"type":"string"},"spec":{"additionalProperties":false,"properties":{"content":{"type":"string"},"kind":{"$ref":"#/components/schemas/TemplateKind","default":"grafana"},"title":{"type":"string"}},"required":["title","content","kind"],"type":"object"}}`)
 	versionSchemaTemplateGroupv1beta1   app.VersionSchema
 	_                                   = json.Unmarshal(rawSchemaTemplateGroupv1beta1, &versionSchemaTemplateGroupv1beta1)
-	rawSchemaTimeIntervalv1beta1        = []byte(`{"Interval":{"additionalProperties":false,"properties":{"days_of_month":{"items":{"type":"string"},"type":"array"},"location":{"type":"string"},"months":{"items":{"type":"string"},"type":"array"},"times":{"items":{"$ref":"#/components/schemas/TimeRange"},"type":"array"},"weekdays":{"items":{"type":"string"},"type":"array"},"years":{"items":{"type":"string"},"type":"array"}},"type":"object"},"TimeInterval":{"properties":{"spec":{"$ref":"#/components/schemas/spec"}},"required":["spec"]},"TimeRange":{"additionalProperties":false,"properties":{"end_time":{"type":"string"},"start_time":{"type":"string"}},"required":["start_time","end_time"],"type":"object"},"spec":{"additionalProperties":false,"properties":{"name":{"type":"string"},"time_intervals":{"items":{"$ref":"#/components/schemas/Interval"},"type":"array"}},"required":["name","time_intervals"],"type":"object"}}`)
+	rawSchemaTimeIntervalv1beta1        = []byte(`{"Interval":{"additionalProperties":false,"properties":{"days_of_month":{"items":{"type":"string"},"type":"array"},"location":{"type":"string"},"months":{"items":{"type":"string"},"type":"array"},"times":{"items":{"$ref":"#/components/schemas/TimeRange"},"type":"array"},"weekdays":{"items":{"type":"string"},"type":"array"},"years":{"items":{"type":"string"},"type":"array"}},"type":"object"},"TimeInterval":{"properties":{"spec":{"$ref":"#/components/schemas/spec"}},"required":["spec"]},"TimeRange":{"additionalProperties":false,"properties":{"end_time":{"type":"string"},"start_time":{"type":"string"}},"required":["start_time","end_time"],"type":"object"},"spec":{"additionalProperties":false,"properties":{"name":{"description":"This is referenced by notification policy and alert rule settings.\n+k8s:validation:minLength=1\n+k8s:validation:pattern=\"^.+$\"","minLength":1,"pattern":"^.+$","type":"string"},"time_intervals":{"items":{"$ref":"#/components/schemas/Interval"},"type":"array"}},"required":["name","time_intervals"],"type":"object"}}`)
 	versionSchemaTimeIntervalv1beta1    app.VersionSchema
 	_                                   = json.Unmarshal(rawSchemaTimeIntervalv1beta1, &versionSchemaTimeIntervalv1beta1)
 )
@@ -203,6 +203,9 @@ var appManifestData = app.ManifestData{
 					Scope:      "Namespaced",
 					Conversion: false,
 					Schema:     &versionSchemaTimeIntervalv0alpha1,
+					SelectableFields: []string{
+						"spec.name",
+					},
 				},
 			},
 			Routes: app.ManifestVersionRoutes{
@@ -701,6 +704,9 @@ var appManifestData = app.ManifestData{
 					Scope:      "Namespaced",
 					Conversion: false,
 					Schema:     &versionSchemaTimeIntervalv1beta1,
+					SelectableFields: []string{
+						"spec.name",
+					},
 				},
 			},
 			Routes: app.ManifestVersionRoutes{
