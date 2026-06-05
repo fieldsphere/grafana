@@ -3,6 +3,7 @@ import { EMPTY, from, merge, type Observable, of } from 'rxjs';
 import { catchError, concatMap, finalize, map, mergeMap, toArray } from 'rxjs/operators';
 
 import {
+  createStructuredLogger,
   CoreApp,
   type DataFrame,
   type DataFrameDTO,
@@ -63,6 +64,8 @@ import { doTempoMetricsStreaming, doTempoSearchStreaming } from './streaming';
 import { type TempoJsonData, type TempoQuery } from './types';
 import { getErrorMessage, mapErrorMessage, migrateFromSearchToTraceQLSearch } from './utils';
 import { TempoVariableSupport } from './variables';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/tempo/datasource.ts');
 
 export const DEFAULT_LIMIT = 20;
 export const DEFAULT_SPSS = 3; // spans per span set
@@ -295,7 +298,7 @@ export class TempoDatasource extends DataSourceWithBackend<TempoQuery, TempoJson
 
       return false;
     } catch (error) {
-      console.warn('Failed to check for native histograms:', error);
+      structuredLogger.warn('Failed to check for native histograms:', error);
       return false;
     }
   }

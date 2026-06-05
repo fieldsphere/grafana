@@ -1,10 +1,12 @@
+import { isDateTime } from '../datetime/moment_wrapper';
+import { createStructuredLogger } from '../logging/structuredLogger';
+import { type ExploreUrlState, type URLRange } from '../types/explore';
+import { type RawTimeRange } from '../types/time';
+
 /**
  * @preserve jquery-param (c) 2015 KNOWLEDGECODE | MIT
  */
-
-import { isDateTime } from '../datetime/moment_wrapper';
-import { type ExploreUrlState, type URLRange } from '../types/explore';
-import { type RawTimeRange } from '../types/time';
+const structuredLogger = createStructuredLogger('packages/grafana-data/src/utils/url.ts');
 
 /**
  * Type to represent the value of a single query variable.
@@ -226,7 +228,7 @@ export const urlUtil = {
  */
 export function serializeStateToUrlParam(urlState: Partial<ExploreUrlState>, compact?: boolean): string {
   if (compact !== undefined) {
-    console.warn('`compact` parameter is deprecated and will be removed in a future release');
+    structuredLogger.warn('`compact` parameter is deprecated and will be removed in a future release');
   }
   return JSON.stringify(urlState);
 }

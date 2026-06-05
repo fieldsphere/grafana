@@ -1,6 +1,7 @@
 import { extend } from 'lodash';
 
 import {
+  createStructuredLogger,
   type AnalyticsSettings,
   type OrgRole,
   rangeUtil,
@@ -15,6 +16,8 @@ import { type UserPermission, AccessControlAction } from 'app/types/accessContro
 import { type CurrentUserInternal } from 'app/types/config';
 
 import config from '../../core/config';
+
+const structuredLogger = createStructuredLogger('public/app/core/services/context_srv.ts');
 
 // When set to auto, the interval will be based on the query range
 // NOTE: this is defined here rather than TimeSrv so we avoid circular dependencies
@@ -112,7 +115,7 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      structuredLogger.error(e);
     }
   }
 
@@ -262,7 +265,7 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        structuredLogger.error(e);
       });
   }
 }

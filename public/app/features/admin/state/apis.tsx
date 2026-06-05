@@ -1,4 +1,7 @@
+import { createStructuredLogger } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
+
+const structuredLogger = createStructuredLogger('public/app/features/admin/state/apis.tsx');
 
 interface AnonServerStat {
   activeDevices?: number;
@@ -28,7 +31,7 @@ export const getServerStats = async (): Promise<ServerStat | null> => {
   return getBackendSrv()
     .get('api/admin/stats')
     .catch((err) => {
-      console.error(err);
+      structuredLogger.error(err);
       return null;
     });
 };

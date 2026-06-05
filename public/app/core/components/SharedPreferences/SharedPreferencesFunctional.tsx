@@ -2,7 +2,7 @@ import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { memo, useMemo, useState, useEffect } from 'react';
 
 import { type PreferencesSpec as UserPreferencesDTO } from '@grafana/api-clients/rtkq/preferences/v1alpha1';
-import { FeatureState } from '@grafana/data';
+import { createStructuredLogger, FeatureState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
@@ -38,6 +38,10 @@ import {
   type Props,
   type State,
 } from './utils';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/core/components/SharedPreferences/SharedPreferencesFunctional.tsx'
+);
 
 export const SharedPreferencesFunctional = memo((props: Props) => {
   const isAnalyticsFrameworkEnabled = useBooleanFlagValue('analyticsFramework', true);
@@ -89,7 +93,7 @@ export const SharedPreferencesFunctional = memo((props: Props) => {
           navbar: prefs.navbar ?? prev.navbar,
         }));
       } catch (err) {
-        console.error('Failed to load preferences', err);
+        structuredLogger.error('Failed to load preferences', err);
       } finally {
         setState((prev) => ({ ...prev, isLoading: false }));
       }

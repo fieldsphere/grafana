@@ -3,6 +3,7 @@ import { Observable, type Subscriber, type Subscription, tap } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 
 import {
+  createStructuredLogger,
   arrayToDataFrame,
   type DataQueryRequest,
   type DataQueryResponse,
@@ -30,6 +31,8 @@ import { addQueryLimitsContext, isLogsQuery, isQueryWithRangeVariable } from './
 import { isRetriableError } from './responseUtils';
 import { trackGroupedQueries } from './tracking';
 import { type LokiGroupedRequest, type LokiQuery } from './types';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/loki/querySplitting.ts');
 
 export function partitionTimeRange(
   isLogsQuery: boolean,
@@ -187,7 +190,7 @@ export function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        structuredLogger.error(e);
         shouldStop = true;
         return false;
       }

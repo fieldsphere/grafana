@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import * as React from 'react';
 import useAsyncFn from 'react-use/lib/useAsyncFn';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { createStructuredLogger, type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Text, Box, Button, useStyles2, LoadingPlaceholder } from '@grafana/ui';
 import { SlideDown } from 'app/core/components/Animations/SlideDown';
@@ -14,6 +14,8 @@ import { DescendantCount } from 'app/features/browse-dashboards/components/Brows
 import { AddPermission } from './AddPermission';
 import { PermissionList } from './PermissionList';
 import { PermissionTarget, type ResourcePermission, type SetPermission, type Description } from './types';
+
+const structuredLogger = createStructuredLogger('public/app/core/components/AccessControl/Permissions.tsx');
 
 const EMPTY_PERMISSION = '';
 
@@ -248,7 +250,7 @@ const getDescription = async (resource: string, queryParams?: Record<string, str
   try {
     return await getBackendSrv().get(`/api/access-control/${resource}/description`, queryParams);
   } catch (e) {
-    console.error('failed to load resource description: ', e);
+    structuredLogger.error('failed to load resource description: ', e);
     return INITIAL_DESCRIPTION;
   }
 };

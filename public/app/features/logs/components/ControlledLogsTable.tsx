@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { useMemo, useRef } from 'react';
 
-import { EventBusSrv, type GrafanaTheme2 } from '@grafana/data';
+import { createStructuredLogger, EventBusSrv, type GrafanaTheme2 } from '@grafana/data';
 import { useStyles2 } from '@grafana/ui';
 
 import { LogsTableWrap } from '../../explore/Logs/LogsTableWrap';
@@ -10,6 +10,8 @@ import { type LogRowsComponentProps } from './ControlledLogRows';
 import { useLogListContext } from './panel/LogListContext';
 import { CONTROLS_WIDTH_EXPANDED, LogListControls } from './panel/LogListControls';
 import { LOG_LIST_CONTROLS_WIDTH } from './panel/virtualization';
+
+const structuredLogger = createStructuredLogger('public/app/features/logs/components/ControlledLogsTable.tsx');
 
 export const ControlledLogsTable = ({
   loading,
@@ -38,7 +40,7 @@ export const ControlledLogsTable = ({
   const styles = useStyles2(getStyles);
 
   if (!splitOpen || !width || !updatePanelState) {
-    console.error('<ControlledLogsTable>: Missing required props.');
+    structuredLogger.error('<ControlledLogsTable>: Missing required props.');
     return;
   }
 

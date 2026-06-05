@@ -721,7 +721,7 @@ export function heatmapPathsPoints(opts: PointsBuilderOpts, exemplarColor: strin
         rect,
         arc
       ) => {
-        //console.time('heatmapPathsSparse');
+        //structuredLogger.time('heatmapPathsSparse');
 
         let points = new Path2D();
         let fillPaths = [points];
@@ -798,7 +798,7 @@ export function heatmapPathsSparse(opts: PathbuilderOpts) {
         rect,
         arc
       ) => {
-        //console.time('heatmapPathsSparse');
+        //structuredLogger.time('heatmapPathsSparse');
 
         let d = u.data[seriesIdx];
         const xMaxs = d[0] as unknown as number[]; // xMax, do we get interval?
@@ -879,7 +879,7 @@ export function heatmapPathsSparse(opts: PathbuilderOpts) {
         });
         u.ctx.restore();
 
-        //console.timeEnd('heatmapPathsSparse');
+        //structuredLogger.timeEnd('heatmapPathsSparse');
       }
     );
 

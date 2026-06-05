@@ -4,6 +4,7 @@ import { connect, type ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import {
+  createStructuredLogger,
   LoadingState,
   type VariableOption,
   type VariableWithMultiSupport,
@@ -29,6 +30,10 @@ import { type NavigationKey, type VariablePickerProps } from '../types';
 import { commitChangesToVariable, filterOrSearchOptions, navigateOptions, openOptions } from './actions';
 import { initialOptionPickerState, type OptionsPickerState, toggleAllOptions, toggleOption } from './reducer';
 
+const structuredLogger = createStructuredLogger(
+  'public/app/features/variables/pickers/OptionsPicker/OptionsPicker.tsx'
+);
+
 export const optionPickerFactory = <Model extends VariableWithOptions | VariableWithMultiSupport>(): ComponentType<
   VariablePickerProps<Model>
 > => {
@@ -52,7 +57,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
   const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
     const { rootStateKey } = ownProps.variable;
     if (!rootStateKey) {
-      console.error('OptionPickerFactory: variable has no rootStateKey');
+      structuredLogger.error('OptionPickerFactory: variable has no rootStateKey');
       return {
         picker: initialOptionPickerState,
       };
@@ -74,7 +79,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
       this.props.openOptions(toKeyedVariableIdentifier(this.props.variable), this.props.onVariableChange);
     onHideOptions = () => {
       if (!this.props.variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        structuredLogger.error('Variable has no rootStateKey');
         return;
       }
 
@@ -108,7 +113,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
 
     onNavigate = (key: NavigationKey, clearOthers: boolean) => {
       if (!this.props.variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        structuredLogger.error('Variable has no rootStateKey');
         return;
       }
 

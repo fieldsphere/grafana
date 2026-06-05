@@ -2,12 +2,14 @@ import { css } from '@emotion/css';
 import { useEffect, useState } from 'react';
 import { type UseFormReturn, Controller } from 'react-hook-form';
 
-import { type SelectableValue } from '@grafana/data';
+import { createStructuredLogger, type SelectableValue } from '@grafana/data';
 import { Checkbox, Field, Input, SecretInput, Select, Switch, useTheme2 } from '@grafana/ui';
 
 import { fieldMap } from './fields';
 import { type SSOProviderDTO, type SSOSettingsField } from './types';
 import { isSelectableValueArray } from './utils/guards';
+
+const structuredLogger = createStructuredLogger('public/app/features/auth-config/FieldRenderer.tsx');
 
 interface FieldRendererProps
   extends Pick<
@@ -78,7 +80,7 @@ export const FieldRenderer = ({
   }, [isDisabled, disabledWhen?.disabledValue, name, setValue]);
 
   if (!field) {
-    console.log('missing field:', name);
+    structuredLogger.log('missing field:', name);
     return null;
   }
 
@@ -190,7 +192,7 @@ export const FieldRenderer = ({
         </Field>
       );
     default:
-      console.error(`Unknown field type: ${fieldData.type}`);
+      structuredLogger.error(`Unknown field type: ${fieldData.type}`);
       return null;
   }
 };

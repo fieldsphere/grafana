@@ -4,6 +4,7 @@ import * as React from 'react';
 import { type Unsubscribable } from 'rxjs';
 
 import {
+  createStructuredLogger,
   CoreApp,
   type DataSourceApi,
   type DataSourceInstanceSettings,
@@ -35,6 +36,8 @@ import { updateQueries } from '../state/updateQueries';
 import { GroupActionComponents } from './QueryActionComponent';
 import { QueryEditorRows } from './QueryEditorRows';
 import { QueryGroupOptionsEditor } from './QueryGroupOptions';
+
+const structuredLogger = createStructuredLogger('public/app/features/query/components/QueryGroup.tsx');
 
 export interface Props {
   queryRunner: PanelQueryRunner;
@@ -123,7 +126,7 @@ export class QueryGroup extends PureComponent<Props, State> {
         defaultDataSource,
       });
     } catch (error) {
-      console.error('failed to load data source', error);
+      structuredLogger.error('failed to load data source', error);
     }
   }
 

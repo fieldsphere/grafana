@@ -1,6 +1,6 @@
 import { compact, each, findIndex, flatten, get, join, keyBy, last, map, reduce, without } from 'lodash';
 
-import { type ScopedVars } from '@grafana/data';
+import { createStructuredLogger, type ScopedVars } from '@grafana/data';
 import { type TemplateSrv } from '@grafana/runtime';
 
 import { type GraphiteDatasource } from './datasource';
@@ -8,6 +8,8 @@ import { type FuncInstance } from './gfunc';
 import { type AstNode, Parser } from './parser';
 import { type GraphiteSegment } from './types';
 import { arrayMove } from './utils';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/graphite/graphite_query.ts');
 
 export type GraphiteTagOperator = '=' | '=~' | '!=' | '!=~';
 
@@ -94,7 +96,7 @@ export default class GraphiteQuery {
       }
     } catch (err) {
       if (err instanceof Error) {
-        console.error('error parsing target:', err.message);
+        structuredLogger.error('error parsing target:', err.message);
         this.error = err.message;
       }
       this.target.textEditor = true;

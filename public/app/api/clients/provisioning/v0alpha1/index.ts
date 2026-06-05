@@ -9,6 +9,7 @@ import {
   type RepositoryStatus,
   type Status,
 } from '@grafana/api-clients/rtkq/provisioning/v0alpha1';
+import { createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { isFetchError } from '@grafana/runtime';
 import { clearFolders } from 'app/features/browse-dashboards/state/slice';
@@ -25,6 +26,8 @@ import { PAGE_SIZE } from '../../../../features/browse-dashboards/api/services';
 import { refetchChildren } from '../../../../features/browse-dashboards/state/actions';
 import { handleError } from '../../../utils';
 import { createOnCacheEntryAdded } from '../utils/createOnCacheEntryAdded';
+
+const structuredLogger = createStructuredLogger('public/app/api/clients/provisioning/v0alpha1/index.ts');
 
 const handleProvisioningFormError = (e: unknown, dispatch: ThunkDispatch, title: string) => {
   if (typeof e === 'object' && e && 'error' in e && isFetchError(e.error)) {
@@ -271,7 +274,7 @@ export const provisioningAPIv0alpha1 = generatedAPI.enhanceEndpoints({
             dispatch(clearFolders(childrenKeys));
           }
         } catch (e) {
-          console.error('Error in getRepositoryJobsWithPath:', e);
+          structuredLogger.error('Error in getRepositoryJobsWithPath:', e);
         }
       },
     },

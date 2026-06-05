@@ -2,12 +2,14 @@ import { Fill, RegularShape, Stroke, Circle, Style, Icon, Text } from 'ol/style'
 import type { FlatStyle } from 'ol/style/flat';
 import tinycolor from 'tinycolor2';
 
-import { Registry, type RegistryItem, textUtil } from '@grafana/data';
+import { createStructuredLogger, Registry, type RegistryItem, textUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { getPublicOrAbsoluteUrl } from 'app/features/dimensions/resource';
 
 import { defaultStyleConfig, DEFAULT_SIZE, type StyleConfigValues, type StyleMaker } from './types';
 import { getDisplacement } from './utils';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/panel/geomap/style/markers.ts');
 
 interface SymbolMaker extends RegistryItem {
   aliasIds: string[];
@@ -297,7 +299,7 @@ async function prepareSVG(url: string, size?: number, backgroundOpacity?: number
       return `data:image/svg+xml,${svgURI}`;
     })
     .catch((error) => {
-      console.error(error); // eslint-disable-line no-console
+      structuredLogger.error(error); // eslint-disable-line no-console
       return '';
     });
 }

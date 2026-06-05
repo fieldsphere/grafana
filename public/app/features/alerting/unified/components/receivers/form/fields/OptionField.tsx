@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { type FC } from 'react';
 import { Controller, type DeepMap, type FieldError, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
   Checkbox,
@@ -29,6 +29,10 @@ import { StringArrayInput } from './StringArrayInput';
 import { SubformArrayField } from './SubformArrayField';
 import { SubformField } from './SubformField';
 import { WrapWithTemplateSelection } from './TemplateSelector';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/features/alerting/unified/components/receivers/form/fields/OptionField.tsx'
+);
 
 interface Props {
   defaultValue: any;
@@ -318,7 +322,7 @@ const OptionInput: FC<Props & { id: string }> = ({
       );
 
     default:
-      console.error('Element not supported', option.element);
+      structuredLogger.error('Element not supported', option.element);
       return null;
   }
 };

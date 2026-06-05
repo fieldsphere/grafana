@@ -3,6 +3,7 @@ import { from, type Observable, ReplaySubject, type Unsubscribable } from 'rxjs'
 import { first } from 'rxjs/operators';
 
 import {
+  createStructuredLogger,
   CoreApp,
   type DataQueryRequest,
   type DataSourceApi,
@@ -21,6 +22,8 @@ import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 import { getNextRequestId } from './PanelQueryRunner';
 import { setStructureRevision } from './processing/revision';
 import { runRequest } from './runRequest';
+
+const structuredLogger = createStructuredLogger('public/app/features/query/state/QueryRunner.ts');
 
 export class QueryRunner implements QueryRunnerSrv {
   private subject: ReplaySubject<PanelData>;
@@ -113,7 +116,7 @@ export class QueryRunner implements QueryRunnerSrv {
             },
           });
         },
-        error: (error) => console.error('PanelQueryRunner Error', error),
+        error: (error) => structuredLogger.error('PanelQueryRunner Error', error),
       });
   }
 

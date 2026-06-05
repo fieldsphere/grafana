@@ -26,6 +26,7 @@ import {
   Without,
 } from '@prometheus-io/lezer-promql';
 
+import { createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
 import { binaryScalarOperatorToOperatorName } from './binaryScalarOperations';
@@ -43,6 +44,7 @@ import {
 } from './parsingUtils';
 import { type QueryBuilderLabelFilter, type QueryBuilderOperation } from './shared/types';
 import { type PromVisualQuery, type PromVisualQueryBinary } from './types';
+const structuredLogger = createStructuredLogger('packages/grafana-prometheus/src/querybuilder/parsing.ts');
 
 /**
  * Parses a PromQL query into a visual query model.
@@ -72,7 +74,7 @@ export function buildVisualQueryFromString(expr: string): Omit<Context, 'replace
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    structuredLogger.error(err);
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

@@ -922,6 +922,7 @@ export {
   isObject,
 } from './types/data';
 export { GAUGE_DEFAULT_MINIMUM, GAUGE_DEFAULT_MAXIMUM, DEFAULT_SAML_NAME } from './types/constants';
+export { createStructuredLogger, type StructuredLogger } from './logging/structuredLogger';
 
 // deprecated
 export { CircularVector } from './vector/CircularVector';

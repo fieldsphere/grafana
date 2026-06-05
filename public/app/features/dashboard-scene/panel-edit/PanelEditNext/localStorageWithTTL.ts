@@ -1,4 +1,8 @@
-import { store } from '@grafana/data';
+import { createStructuredLogger, store } from '@grafana/data';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/localStorageWithTTL.ts'
+);
 
 interface StoredValueWithTTL<T> {
   value: T;
@@ -20,7 +24,7 @@ export const setLocalStorageWithTTL = <T>(key: string, value: T) => {
   try {
     store.setObject(key, item);
   } catch (error) {
-    console.error('Failed to persist value with TTL', error);
+    structuredLogger.error('Failed to persist value with TTL', error);
   }
 };
 

@@ -1,4 +1,4 @@
-import { type PanelModel } from '@grafana/data';
+import { createStructuredLogger, type PanelModel } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getBackendSrv, locationService } from '@grafana/runtime';
 import { createErrorNotification } from 'app/core/copy/appNotification';
@@ -20,6 +20,10 @@ import { type GnetDashboard, type Link } from '../types';
 
 import { type InputMapping, tryAutoMapDatasources, parseConstantInputs, isDataSourceInput } from './autoMapDatasources';
 import type { AssistantSource } from './templateDashboardHelpers';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard/dashgrid/DashboardLibrary/utils/communityDashboardHelpers.ts'
+);
 
 export const SEARCH_DEBOUNCE_MS = 500;
 export const DEFAULT_SORT_ORDER = 'downloads';
@@ -165,7 +169,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
   try {
     panelJson = JSON.stringify(panelWithoutSanitizedFields);
   } catch (e) {
-    console.warn('Failed to stringify panel', e);
+    structuredLogger.warn('Failed to stringify panel', e);
     return true;
   }
 
@@ -196,7 +200,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousValue = valuePatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in value');
+      structuredLogger.warn('Panel contains JavaScript code in value');
       return true;
     }
     return false;
@@ -204,7 +208,7 @@ function canPanelContainJS(panel: PanelModel): boolean {
 
   const hasSuspiciousKey = keyPatterns.some((pattern) => {
     if (pattern.test(panelJson)) {
-      console.warn('Panel contains JavaScript code in key');
+      structuredLogger.warn('Panel contains JavaScript code in key');
       return true;
     }
     return false;
@@ -320,7 +324,7 @@ export async function onUseCommunityDashboard({
       }
     }
   } catch (err) {
-    console.error('Error loading community dashboard:', err);
+    structuredLogger.error('Error loading community dashboard:', err);
     dispatch(
       notifyApp(
         createErrorNotification(t('dashboard-library.community-error-title', 'Error loading community dashboard'))

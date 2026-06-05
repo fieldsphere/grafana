@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import {
   QueryModellerBase,
   type QueryBuilderLabelFilter,
@@ -13,6 +14,8 @@ import {
   LokiQueryPatternType,
   LokiVisualQueryOperationCategory,
 } from './types';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/loki/querybuilder/LokiQueryModeller.ts');
 
 export class LokiQueryModeller extends QueryModellerBase {
   constructor() {
@@ -35,7 +38,7 @@ export class LokiQueryModeller extends QueryModellerBase {
       }
       const def = this.operationsRegistry.getIfExists(operation.id);
       if (!def) {
-        console.error(`Could not find operation ${operation.id} in the registry`);
+        structuredLogger.error(`Could not find operation ${operation.id} in the registry`);
         continue;
       }
       queryString = def.renderer(operation, def, queryString);

@@ -1,6 +1,12 @@
 import { debounce, trim } from 'lodash';
 
-import { isEmptyObject, containsSearchFilter, type VariableWithOptions, type VariableOption } from '@grafana/data';
+import {
+  createStructuredLogger,
+  isEmptyObject,
+  containsSearchFilter,
+  type VariableWithOptions,
+  type VariableOption,
+} from '@grafana/data';
 import { type StoreState, type ThunkDispatch, type ThunkResult } from 'app/types/store';
 
 import { variableAdapters } from '../../adapters';
@@ -22,6 +28,8 @@ import {
   updateOptionsFromSearch,
   updateSearchQuery,
 } from './reducer';
+
+const structuredLogger = createStructuredLogger('public/app/features/variables/pickers/OptionsPicker/actions.ts');
 
 export const navigateOptions = (rootStateKey: string, key: NavigationKey, clearOthers: boolean): ThunkResult<void> => {
   return async (dispatch, getState) => {
@@ -180,7 +188,7 @@ const searchForOptions = async (
 
     dispatch(toKeyedAction(key, updateOptionsFromSearch(updated.options)));
   } catch (error) {
-    console.error(error);
+    structuredLogger.error(error);
   }
 };
 

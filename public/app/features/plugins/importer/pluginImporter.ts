@@ -1,4 +1,5 @@
 import {
+  createStructuredLogger,
   AppPlugin,
   type AppPluginMeta,
   type DataQuery,
@@ -21,6 +22,8 @@ import { pluginsLogger } from '../utils';
 
 import { importPluginModule } from './importPluginModule';
 import { type PluginImporter, type PostImportStrategy, type PreImportStrategy } from './types';
+
+const structuredLogger = createStructuredLogger('public/app/features/plugins/importer/pluginImporter.ts');
 
 const defaultPreImport: PreImportStrategy = (plugin) => {
   throwIfAngular(plugin);
@@ -54,7 +57,7 @@ const panelPluginPostImport: PostImportStrategy<PanelPlugin, PanelPluginMeta> = 
     throw new Error('missing export: plugin');
   } catch (error) {
     // TODO, maybe a different error plugin
-    console.warn('Error loading panel plugin: ' + meta.id, error);
+    structuredLogger.warn('Error loading panel plugin: ' + meta.id, error);
     return getPanelPluginLoadError(meta, error);
   }
 };

@@ -15,8 +15,13 @@
 import { uniq as _uniq } from 'lodash';
 import memoize from 'lru-memoize';
 
+import { createStructuredLogger } from '@grafana/data';
+
 import { type Trace } from '../types/trace';
 import { getConfigValue } from '../utils/config/get-config';
+const structuredLogger = createStructuredLogger(
+  'public/app/features/explore/TraceView/components/model/link-patterns.tsx'
+);
 
 const parameterRegExp = /#\{([^{}]*)\}/g;
 
@@ -112,7 +117,7 @@ export function processLinkPattern(pattern: any): ProcessedLinkPattern | null {
     };
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error(`Ignoring invalid link pattern: ${error}`, pattern);
+    structuredLogger.error(`Ignoring invalid link pattern: ${error}`, pattern);
     return null;
   }
 }

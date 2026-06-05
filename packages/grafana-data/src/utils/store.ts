@@ -1,3 +1,7 @@
+import { createStructuredLogger } from '../logging/structuredLogger';
+
+const structuredLogger = createStructuredLogger('packages/grafana-data/src/utils/store.ts');
+
 type StoreValue = string | number | boolean | null;
 type StoreSubscriber = () => void;
 
@@ -65,7 +69,7 @@ export class Store {
       try {
         ret = JSON.parse(json);
       } catch (error) {
-        console.error(`Error parsing store object: ${key}. Returning default: ${def}. [${error}]`);
+        structuredLogger.error(`Error parsing store object: ${key}. Returning default: ${def}. [${error}]`);
       }
     }
     return ret;

@@ -2,6 +2,7 @@ import { type FormEvent, useState } from 'react';
 import { useAsync } from 'react-use';
 
 import {
+  createStructuredLogger,
   type DataSourceInstanceSettings,
   getDataSourceRef,
   type SelectableValue,
@@ -29,6 +30,10 @@ import {
 import { QueryVariableEditorForm } from '../components/QueryVariableForm';
 import { VariableValuesPreview } from '../components/VariableValuesPreview';
 import { hasVariableOptions } from '../utils';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard-scene/settings/variables/editors/QueryVariableEditor.tsx'
+);
 
 interface QueryVariableEditorProps {
   variable: QueryVariable;
@@ -138,7 +143,7 @@ export function QueryVariableEditor({ variable, onRunQuery }: QueryVariableEdito
 
 export function getQueryVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof QueryVariable)) {
-    console.warn('getQueryVariableOptions: variable is not a QueryVariable');
+    structuredLogger.warn('getQueryVariableOptions: variable is not a QueryVariable');
     return [];
   }
 

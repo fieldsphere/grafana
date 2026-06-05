@@ -1,4 +1,9 @@
-import { type MetricFindValue, type TypedVariableModel, type AnnotationQuery } from '@grafana/data';
+import {
+  createStructuredLogger,
+  type MetricFindValue,
+  type TypedVariableModel,
+  type AnnotationQuery,
+} from '@grafana/data';
 import { config } from '@grafana/runtime';
 import {
   type DataQuery,
@@ -85,6 +90,8 @@ import { type DashboardDataDTO, type DashboardDTO } from 'app/types/dashboard';
 
 import { type DashboardWithAccessInfo } from './types';
 import { isDashboardResource, isDashboardV0Spec, isDashboardV2Resource, isDashboardV2Spec } from './utils';
+
+const structuredLogger = createStructuredLogger('public/app/features/dashboard/api/ResponseTransformers.ts');
 
 export function ensureV2Response(
   dto: DashboardDTO | DashboardWithAccessInfo<DashboardDataDTO> | DashboardWithAccessInfo<DashboardV2Spec>
@@ -712,7 +719,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         let query = v.query || {};
 
         if (typeof query === 'string') {
-          console.warn(
+          structuredLogger.warn(
             'Query variable query is a string which is deprecated in the schema v2. It should extend DataQuery'
           );
           query = {
@@ -925,7 +932,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v.type}`);
+        structuredLogger.error(`Variable transformation not implemented: ${v.type}`);
     }
   }
   return variables;
@@ -1138,7 +1145,7 @@ function getVariablesV1(vars: DashboardV2Spec['variables']): VariableModel[] {
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v}`);
+        structuredLogger.error(`Variable transformation not implemented: ${v}`);
     }
   }
   return variables;
@@ -1391,7 +1398,7 @@ function transformSpecialValueMatchToV1(match: SpecialValueMatch): SpecialValueM
     case 'empty':
       return SpecialValueMatchV1.Empty;
     default:
-      console.warn(`Skipping special value mapping with unknown match type: "${match}"`);
+      structuredLogger.warn(`Skipping special value mapping with unknown match type: "${match}"`);
       return undefined;
   }
 }

@@ -8,6 +8,7 @@ import {
   LoadingState,
   type PanelData,
   type TimeRange,
+  createStructuredLogger,
   dataFrameFromJSON,
   getDefaultTimeRange,
   preProcessPanelData,
@@ -24,6 +25,8 @@ import { type AlertQuery } from 'app/types/unified-alerting-dto';
 
 import { type LinkError, createDAGFromQueriesSafe, getDescendants } from '../components/rule-editor/dag';
 import { getTimeRangeForExpression } from '../utils/timeRange';
+
+const structuredLogger = createStructuredLogger('public/app/features/alerting/unified/state/AlertingQueryRunner.ts');
 
 export interface AlertingQueryResult {
   error?: string;
@@ -210,7 +213,7 @@ const getTimeRange = (query: AlertQuery, queries: AlertQuery[]): TimeRange => {
   }
 
   if (!query.relativeTimeRange) {
-    console.warn(`Query with refId: ${query.refId} did not have any relative time range, using default.`);
+    structuredLogger.warn(`Query with refId: ${query.refId} did not have any relative time range, using default.`);
     return getDefaultTimeRange();
   }
 

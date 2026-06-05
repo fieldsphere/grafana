@@ -3,6 +3,7 @@ import { type FormEvent, useCallback, useMemo, useState } from 'react';
 import { useAsync } from 'react-use';
 
 import {
+  createStructuredLogger,
   type DataSourceInstanceSettings,
   type MetricFindValue,
   type SelectableValue,
@@ -15,6 +16,10 @@ import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/Pan
 
 import { AdHocOriginFiltersController } from '../components/AdHocOriginFiltersController';
 import { AdHocVariableForm } from '../components/AdHocVariableForm';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard-scene/settings/variables/editors/AdHocFiltersVariableEditor.tsx'
+);
 
 interface AdHocFiltersVariableEditorProps {
   variable: AdHocFiltersVariable;
@@ -169,7 +174,7 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
 
 export function getAdHocFilterOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof AdHocFiltersVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    structuredLogger.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
 

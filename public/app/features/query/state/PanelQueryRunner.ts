@@ -3,6 +3,7 @@ import { forkJoin, type Observable, of, ReplaySubject, type Unsubscribable } fro
 import { map, mergeMap, catchError } from 'rxjs/operators';
 
 import {
+  createStructuredLogger,
   applyFieldOverrides,
   compareArrayValues,
   compareDataFrameStructures,
@@ -42,6 +43,8 @@ import { type PanelModel } from '../../dashboard/state/PanelModel';
 import { getDashboardQueryRunner } from './DashboardQueryRunner/DashboardQueryRunner';
 import { mergePanelAndDashData } from './mergePanelAndDashData';
 import { runRequest } from './runRequest';
+
+const structuredLogger = createStructuredLogger('public/app/features/query/state/PanelQueryRunner.ts');
 
 export interface QueryRunnerOptions<
   TQuery extends DataQuery = DataQuery,
@@ -257,7 +260,7 @@ export class PanelQueryRunner {
         return { ...data, series, annotations };
       }),
       catchError((err) => {
-        console.warn('Error running transformation:', err);
+        structuredLogger.warn('Error running transformation:', err);
         return of({
           ...data,
           state: LoadingState.Error,

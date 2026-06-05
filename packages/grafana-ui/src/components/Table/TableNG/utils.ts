@@ -8,6 +8,7 @@ import tinycolor from 'tinycolor2';
 import { type Count, varPreLine } from 'uwrap';
 
 import {
+  createStructuredLogger,
   FieldType,
   type Field,
   formattedValueToString,
@@ -46,6 +47,8 @@ import {
   type MeasureCellHeightEntry,
   type FilterType,
 } from './types';
+
+const structuredLogger = createStructuredLogger('packages/grafana-ui/src/components/Table/TableNG/utils.ts');
 
 /* ---------------------------- Cell calculations --------------------------- */
 export type CellNumLinesCalculator = (text: string, cellWidth: number) => number;
@@ -1184,7 +1187,7 @@ export function parseStyleJson(rawValue: unknown): CSSProperties | void {
       }
     } catch (e) {
       if (!warnedAboutStyleJsonSet.has(rawValue)) {
-        console.error(`encountered invalid cell style JSON: ${rawValue}`, e);
+        structuredLogger.error(`encountered invalid cell style JSON: ${rawValue}`, e);
         warnedAboutStyleJsonSet.add(rawValue);
       }
     }

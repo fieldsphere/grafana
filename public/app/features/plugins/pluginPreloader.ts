@@ -1,13 +1,16 @@
-import type {
-  AppPluginConfig,
-  PluginExtensionAddedLinkConfig,
-  PluginExtensionExposedComponentConfig,
-  PluginExtensionAddedComponentConfig,
+import {
+  createStructuredLogger,
+  type AppPluginConfig,
+  type PluginExtensionAddedLinkConfig,
+  type PluginExtensionExposedComponentConfig,
+  type PluginExtensionAddedComponentConfig,
 } from '@grafana/data';
 import { contextSrv } from 'app/core/services/context_srv';
 import { getPluginSettings } from 'app/features/plugins/pluginSettings';
 
 import { pluginImporter } from './importer/pluginImporter';
+
+const structuredLogger = createStructuredLogger('public/app/features/plugins/pluginPreloader.ts');
 
 export type PluginPreloadResult = {
   pluginId: string;
@@ -46,6 +49,6 @@ async function preload(config: AppPluginConfig): Promise<void> {
       return;
     }
 
-    console.error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
+    structuredLogger.error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
   }
 }

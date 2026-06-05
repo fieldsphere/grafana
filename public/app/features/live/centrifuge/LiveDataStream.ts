@@ -1,6 +1,7 @@
 import { map, Observable, ReplaySubject, type Subject, type Subscriber, type Subscription } from 'rxjs';
 
 import {
+  createStructuredLogger,
   type DataFrameJSON,
   type DataQueryError,
   type Field,
@@ -23,6 +24,8 @@ import {
 import { StreamingResponseDataType } from '../data/utils';
 
 import { type DataStreamSubscriptionKey, type StreamingDataQueryResponse } from './service';
+
+const structuredLogger = createStructuredLogger('public/app/features/live/centrifuge/LiveDataStream.ts');
 
 const bufferIfNot =
   (canEmitObservable: Observable<boolean>) =>
@@ -154,7 +157,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onError = (err: unknown) => {
-    console.log('LiveQuery [error]', { err }, this.deps.channelId);
+    structuredLogger.log('LiveQuery [error]', { err }, this.deps.channelId);
     this.stream.next({
       type: InternalStreamMessageType.Error,
       error: toDataQueryError(err),
@@ -163,7 +166,7 @@ export class LiveDataStream<T = unknown> {
   };
 
   private onComplete = () => {
-    console.log('LiveQuery [complete]', this.deps.channelId);
+    structuredLogger.log('LiveQuery [complete]', this.deps.channelId);
     this.shutdown();
   };
 
@@ -280,7 +283,7 @@ export class LiveDataStream<T = unknown> {
       }
 
       if (!messages.length) {
-        console.warn(`expected to find at least one non error message ${messages.map(({ type }) => type)}`);
+        structuredLogger.warn(`expected to find at least one non error message ${messages.map(({ type }) => type)}`);
         // send empty frame
         return {
           key: subKey,
@@ -358,7 +361,7 @@ export class LiveDataStream<T = unknown> {
 
         const newValueSameSchemaMessages = filterMessages(messages, InternalStreamMessageType.NewValuesSameSchema);
         if (newValueSameSchemaMessages.length !== messages.length) {
-          console.warn(`unsupported message type ${messages.map(({ type }) => type)}`);
+          structuredLogger.warn(`unsupported message type ${messages.map(({ type }) => type)}`);
         }
 
         return getNewValuesSameSchemaResponseData(newValueSameSchemaMessages);

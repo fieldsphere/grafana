@@ -1,6 +1,7 @@
 import { castArray, isEqual } from 'lodash';
 
 import {
+  createStructuredLogger,
   type DataQuery,
   getDataSourceRef,
   isDataSourceRef,
@@ -81,6 +82,8 @@ import {
 } from './transactionReducer';
 import { type KeyedVariableIdentifier } from './types';
 import { cleanVariables } from './variablesReducer';
+
+const structuredLogger = createStructuredLogger('public/app/features/variables/state/actions.ts');
 
 export const initDashboardTemplating = (key: string, dashboard: DashboardModel): ThunkResult<void> => {
   return (dispatch, getState) => {
@@ -779,7 +782,7 @@ export const onTimeRangeUpdated =
       await Promise.all(promises);
       dependencies.events.publish(new VariablesTimeRangeProcessDone({ variableIds }));
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
       dispatch(notifyApp(createVariableErrorNotification('Template variable service failed', error)));
     }
   };
@@ -933,7 +936,7 @@ export const initVariablesTransaction =
       dispatch(toKeyedAction(uid, variablesCompleteTransaction({ uid })));
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Templating init failed', err)));
-      console.error(err);
+      structuredLogger.error(err);
     }
   };
 
@@ -1004,7 +1007,7 @@ export const updateOptions =
       dispatch(toKeyedAction(rootStateKey, variableStateFailed(toVariablePayload(identifier, { error }))));
 
       if (!rethrow) {
-        console.error(error);
+        structuredLogger.error(error);
         dispatch(notifyApp(createVariableErrorNotification('Error updating options:', error, identifier)));
       }
 
@@ -1084,7 +1087,7 @@ export function upgradeLegacyQueries(
       );
     } catch (err) {
       dispatch(notifyApp(createVariableErrorNotification('Failed to upgrade legacy queries', err)));
-      console.error(err);
+      structuredLogger.error(err);
     }
   };
 }

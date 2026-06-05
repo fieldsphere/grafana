@@ -1,6 +1,8 @@
-import { isIconName, type SelectableValue } from '@grafana/data';
+import { createStructuredLogger, isIconName, type SelectableValue } from '@grafana/data';
 
 import { type ComboboxOption } from './types';
+
+const structuredLogger = createStructuredLogger('packages/grafana-ui/src/components/Combobox/utils.ts');
 
 export const isNewGroup = <T extends string | number>(option: ComboboxOption<T>, prevOption?: ComboboxOption<T>) => {
   const currentGroup = option.group;
@@ -25,11 +27,11 @@ export const selectableValueToComboboxOption = <T extends string | number>(
   v: SelectableValue<T>
 ): ComboboxOption<T> | undefined => {
   if (v == null || v.value == null) {
-    console.warn('selectableValueToComboboxOption: value is null or undefined', v);
+    structuredLogger.warn('selectableValueToComboboxOption: value is null or undefined', v);
     return undefined;
   }
   if (v.icon != null && !isIconName(v.icon)) {
-    console.warn('selectableValueToComboboxOption: icon is not a valid icon name', v.icon);
+    structuredLogger.warn('selectableValueToComboboxOption: icon is not a valid icon name', v.icon);
     return undefined;
   }
   return {

@@ -1,11 +1,13 @@
 import { nanoid } from 'nanoid';
 import { filter, Observable, scan, share, type Subscriber } from 'rxjs';
 
-import { type DataSourceApi } from '@grafana/data';
+import { createStructuredLogger, type DataSourceApi } from '@grafana/data';
 import { getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import { type SceneVariable } from '@grafana/scenes';
 import { type DashboardLink, type DataSourceRef } from '@grafana/schema';
 import { type VariableKind } from '@grafana/schema/apis/dashboard.grafana.app/v2';
+
+const structuredLogger = createStructuredLogger('public/app/features/dashboard-scene/utils/dashboardControls.ts');
 
 type LoadDefaultControlsPhase = 'default_variables' | 'default_links';
 type InvokeAndTrackOptions = { traceId: string; phase: LoadDefaultControlsPhase; datasourceType?: string };
@@ -85,7 +87,7 @@ async function loadControlsFromRef(ref: DataSourceRef, traceId: string, subscrib
   try {
     ds = await getDataSourceSrv().get(ref);
   } catch (e) {
-    console.warn('Failed to load datasource', ref, e);
+    structuredLogger.warn('Failed to load datasource', ref, e);
     return;
   }
 
@@ -119,7 +121,7 @@ async function emitDefaultVariables(ds: DataSourceApi, traceId: string, subscrib
       subscriber.next({ type: 'variables', data });
     }
   } catch (e) {
-    console.warn('Failed to load default variables from datasource', ds.type, e);
+    structuredLogger.warn('Failed to load default variables from datasource', ds.type, e);
   }
 }
 
@@ -145,7 +147,7 @@ async function emitDefaultLinks(ds: DataSourceApi, traceId: string, subscriber: 
       });
     }
   } catch (e) {
-    console.warn('Failed to load default links from datasource', ds.type, e);
+    structuredLogger.warn('Failed to load default links from datasource', ds.type, e);
   }
 }
 

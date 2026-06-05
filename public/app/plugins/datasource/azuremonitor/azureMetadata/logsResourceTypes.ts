@@ -29,7 +29,7 @@ That list is not complete so we should merge it with the one below. You can do w
   const u = require('lodash')
   const newList = [list from above]
   const logsResourceTypes = [this list]
-  console.dir(u.uniq(logsResourceTypes.concat(newList)).sort(), {'maxArrayLength': null})
+  process.stdout.write(JSON.stringify(u.uniq(logsResourceTypes.concat(newList)).sort(), null, 2))
  
  */
 

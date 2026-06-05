@@ -1,4 +1,9 @@
+import { createStructuredLogger } from '@grafana/data';
 import { type monacoTypes } from '@grafana/ui';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/plugins/datasource/loki/components/monaco-query-field/getOverrideServices.ts'
+);
 
 // this thing here is a workaround in a way.
 // what we want to achieve, is that when the autocomplete-window
@@ -81,7 +86,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      structuredLogger.log('logStorage: not implemented');
     },
 
     migrate: (): Promise<void> => {

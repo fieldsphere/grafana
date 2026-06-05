@@ -2,11 +2,14 @@ import { isEqual } from 'lodash';
 import { BehaviorSubject, type Observable, combineLatest, type Subscription } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
 
+import { createStructuredLogger } from '@grafana/data';
 import { type LocationService, type ScopesContextValue, type ScopesContextValueState } from '@grafana/runtime';
 
 import { type ScopesDashboardsService } from './dashboards/ScopesDashboardsService';
 import { deserializeFolderPath, serializeFolderPath } from './dashboards/scopeNavgiationUtils';
 import { type ScopesSelectorService } from './selector/ScopesSelectorService';
+
+const structuredLogger = createStructuredLogger('public/app/features/scopes/ScopesService.ts');
 
 export interface State {
   enabled: boolean;
@@ -93,7 +96,7 @@ export class ScopesService implements ScopesContextValue {
     const nodeToPreload = scopeNodeId;
     if (nodeToPreload) {
       this.selectorService.resolvePathToRoot(nodeToPreload, this.selectorService.state.tree!).catch((error) => {
-        console.error('Failed to pre-load node path', error);
+        structuredLogger.error('Failed to pre-load node path', error);
       });
     }
 

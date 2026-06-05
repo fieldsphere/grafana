@@ -1,11 +1,16 @@
 import { useCallback } from 'react';
 
+import { createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 import { ToolbarButton } from '@grafana/ui';
 
 import { useQueryLibraryContext } from './QueryLibraryContext';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/features/explore/QueryLibrary/OpenQueryLibraryExposedComponent.tsx'
+);
 
 interface Props {
   className?: string;
@@ -81,7 +86,7 @@ export const OpenQueryLibraryExposedComponent = ({
   }, [context, datasourceFilters, onSelectQuery, openDrawer, query]);
 
   if (!queryLibraryEnabled) {
-    console.warn(
+    structuredLogger.warn(
       '[OpenQueryLibraryExposedComponent]: Attempted to use unsupported exposed component. Query library is not enabled.'
     );
     return null;

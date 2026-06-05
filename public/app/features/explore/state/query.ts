@@ -5,6 +5,7 @@ import { combineLatest, identity, type Observable, of, type SubscriptionLike, ty
 import { mergeMap, throttleTime } from 'rxjs/operators';
 
 import {
+  createStructuredLogger,
   type AbsoluteTimeRange,
   type DataFrame,
   DataQueryErrorType,
@@ -64,6 +65,8 @@ import { addHistoryItem, loadRichHistory } from './history';
 import { changeCorrelationEditorDetails } from './main';
 import { updateTime } from './time';
 import { createCacheKey, filterLogRowsByIndex, getCorrelationsData, getResultsFromCache } from './utils';
+
+const structuredLogger = createStructuredLogger('public/app/features/explore/state/query.ts');
 
 /**
  * Derives from explore state if a given Explore pane is waiting for more data to be received
@@ -657,7 +660,7 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
 
           // Keep scanning for results if this was the last scanning transaction
           if (exploreState!.scanning) {
-            console.log(data.series);
+            structuredLogger.log(data.series);
             if (data.state === LoadingState.Done && data.series.length === 0) {
               const range = getShiftedTimeRange(-1, exploreState!.range);
               dispatch(updateTime({ exploreId, absoluteRange: range }));
@@ -671,7 +674,7 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
         error(error) {
           dispatch(notifyApp(createErrorNotification('Query processing error', error)));
           dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Error }));
-          console.error(error);
+          structuredLogger.error(error);
         },
         complete() {
           // In case we don't get any response at all but the observable completed, make sure we stop loading state.
@@ -793,7 +796,7 @@ export const runLoadMoreLogsQueries = createAsyncThunk<void, RunLoadMoreLogsQuer
       error(error) {
         dispatch(notifyApp(createErrorNotification('Query processing error', error)));
         dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Error }));
-        console.error(error);
+        structuredLogger.error(error);
       },
       complete() {
         dispatch(changeLoadingStateAction({ exploreId, loadingState: LoadingState.Done }));

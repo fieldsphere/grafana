@@ -1,8 +1,12 @@
 import { useAsync } from 'react-use';
 
-import { type DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
+import { createStructuredLogger, type DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/features/dashboard-scene/panel-edit/PanelEditNext/QueryEditor/hooks/useSelectedQueryDatasource.ts'
+);
 
 /**
  * Hook to load the datasource for the currently selected query.
@@ -41,14 +45,14 @@ export function useSelectedQueryDatasource(
 
       const queryDsSettings = getDataSourceSrv().getInstanceSettings(dsRef);
       if (!queryDsSettings) {
-        console.error('Datasource settings not found for', dsRef);
+        structuredLogger.error('Datasource settings not found for', dsRef);
         return undefined;
       }
 
       const queryDatasource = await getDataSourceSrv().get(dsRef);
       return { datasource: queryDatasource, dsSettings: queryDsSettings };
     } catch (err) {
-      console.error('Failed to load datasource for selected query:', err);
+      structuredLogger.error('Failed to load datasource for selected query:', err);
       return undefined;
     }
   }, [

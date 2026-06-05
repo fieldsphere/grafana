@@ -1,6 +1,6 @@
 import type { JSX } from 'react';
 
-import { type SelectableValue } from '@grafana/data';
+import { createStructuredLogger, type SelectableValue } from '@grafana/data';
 import { AccessoryButton } from '@grafana/plugin-ui';
 
 import { type InfluxQueryTag } from '../../../../../types';
@@ -9,6 +9,10 @@ import { toSelectableValue } from '../utils/toSelectableValue';
 
 import { AddButton } from './AddButton';
 import { Seg } from './Seg';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/plugins/datasource/influxdb/components/editor/query/influxql/visual/TagsSection.tsx'
+);
 
 type KnownOperator = '=' | '!=' | '<>' | '<' | '>' | '>=' | '<=' | '=~' | '!~' | 'Is' | 'Is Not';
 const knownOperators: KnownOperator[] = ['=', '!=', '<>', '<', '>', '>=', '<=', '=~', '!~', 'Is', 'Is Not'];
@@ -54,7 +58,7 @@ const Tag = ({ tag, isFirst, onRemove, onChange, getTagKeyOptions, getTagValueOp
         // to avoid it, we catch any potential errors coming from `getTagKeyOptions`,
         // log the error, and pretend that the list of options is an empty list.
         // this way the remove-item option can always be added to the list.
-        console.error(err);
+        structuredLogger.error(err);
         return [];
       })
       .then((tags) => tags.map(toSelectableValue));

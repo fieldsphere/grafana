@@ -2,6 +2,7 @@ import { flatten } from 'lodash';
 import { LRUCache } from 'lru-cache';
 
 import {
+  createStructuredLogger,
   type AbstractQuery,
   getDefaultTimeRange,
   type KeyValue,
@@ -22,6 +23,8 @@ import {
   extractUnwrapLabelKeysFromDataFrame,
 } from './responseUtils';
 import { type DetectedFieldsResult, LabelType, type LokiQuery, type ParserAndLabelKeysResult } from './types';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/loki/LanguageProvider.ts');
 
 const NS_IN_MS = 1000000;
 const EMPTY_SELECTOR = '{}';
@@ -63,7 +66,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
       if (throwError) {
         throw error;
       } else {
-        console.error(error);
+        structuredLogger.error(error);
       }
     }
 
@@ -293,7 +296,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         const data = await this.request(url, params, true, requestOptions);
         resolve(data);
       } catch (error) {
-        console.error('error', error);
+        structuredLogger.error('error', error);
         reject(error);
       }
     });
@@ -374,7 +377,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         if (queryOptions?.throwError) {
           reject(error);
         } else {
-          console.error(error);
+          structuredLogger.error(error);
           resolve([]);
         }
       }
@@ -444,7 +447,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
           resolve(labelValues);
         }
       } catch (error) {
-        console.error(error);
+        structuredLogger.error(error);
         resolve([]);
       }
     });

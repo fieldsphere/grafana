@@ -6,6 +6,7 @@ import { catchError, map, mapTo, mergeMap, share, takeUntil, tap } from 'rxjs/op
 // Utils & Services
 // Types
 import {
+  createStructuredLogger,
   CoreApp,
   type DataQueryError,
   type DataQueryRequest,
@@ -26,6 +27,7 @@ import { type ExpressionQuery } from 'app/features/expressions/types';
 
 import { cancelNetworkRequestsOnUnsubscribe } from './processing/canceler';
 import { emitDataRequestEvent } from './queryAnalytics';
+const structuredLogger = createStructuredLogger('public/app/features/query/state/runRequest.ts');
 
 type MapOfResponsePackets = { [str: string]: DataQueryResponse };
 
@@ -161,7 +163,7 @@ export function runRequest(
     }),
     // handle errors
     catchError((err) => {
-      console.error('runRequest.catchError', err);
+      structuredLogger.error('runRequest.catchError', err);
       return of({
         ...state.panelData,
         state: LoadingState.Error,

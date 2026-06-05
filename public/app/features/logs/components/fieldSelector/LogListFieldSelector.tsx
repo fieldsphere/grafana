@@ -2,7 +2,7 @@ import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 
-import { type DataFrame, store } from '@grafana/data';
+import { createStructuredLogger, type DataFrame, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { getDragStyles, IconButton, useStyles2 } from '@grafana/ui';
@@ -16,6 +16,10 @@ import { getFieldSelectorWidth } from './fieldSelectorUtils';
 import { getFieldsWithStats } from './getFieldsWithStats';
 import { logsFieldSelectorWrapperStyles } from './styles';
 import { getSuggestedFieldsFromLogList } from './suggestedFields';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/features/logs/components/fieldSelector/LogListFieldSelector.tsx'
+);
 
 /**
  * FieldSelector wrapper for the LogList visualization.
@@ -116,7 +120,7 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
   const fields = useMemo(() => getFieldsWithStats(dataFrames), [dataFrames]);
 
   if (!onClickShowField || !onClickHideField || !setDisplayedFields) {
-    console.warn(
+    structuredLogger.warn(
       'LogListFieldSelector: Missing required props: onClickShowField, onClickHideField, setDisplayedFields'
     );
     return null;

@@ -1,3 +1,10 @@
+import { createStructuredLogger, type DashboardMutationAPI } from '@grafana/data';
+import { ALL_COMMANDS } from 'app/features/dashboard-scene/mutation-api';
+import { DashboardMutationClient } from 'app/features/dashboard-scene/mutation-api/DashboardMutationClient';
+import type { MutationClient, MutationRequest } from 'app/features/dashboard-scene/mutation-api/types';
+import { provideMutationClientFactory } from 'app/features/dashboard-scene/scene/DashboardMutationClientSetter';
+import type { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
+
 /**
  * Dashboard Mutation API -- Restricted API wrapper with built-in store.
  *
@@ -9,13 +16,9 @@
  * Plugins access it through RestrictedGrafanaApis context -- they cannot
  * import this module directly because it lives inside the core bundle.
  */
-
-import type { DashboardMutationAPI } from '@grafana/data';
-import { ALL_COMMANDS } from 'app/features/dashboard-scene/mutation-api';
-import { DashboardMutationClient } from 'app/features/dashboard-scene/mutation-api/DashboardMutationClient';
-import type { MutationClient, MutationRequest } from 'app/features/dashboard-scene/mutation-api/types';
-import { provideMutationClientFactory } from 'app/features/dashboard-scene/scene/DashboardMutationClientSetter';
-import type { DashboardScene } from 'app/features/dashboard-scene/scene/DashboardScene';
+const structuredLogger = createStructuredLogger(
+  'public/app/features/plugins/components/restrictedGrafanaApis/dashboardMutation/dashboardMutationApi.ts'
+);
 
 let _client: MutationClient | null = null;
 
@@ -26,7 +29,7 @@ provideMutationClientFactory((sceneObject) => {
   try {
     _client = new DashboardMutationClient(scene);
   } catch (error) {
-    console.error('Failed to register Dashboard Mutation API:', error);
+    structuredLogger.error('Failed to register Dashboard Mutation API:', error);
   }
 
   return () => {

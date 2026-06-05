@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import {
+  createStructuredLogger,
   DataTransformerID,
   type KeyValue,
   standardTransformers,
@@ -18,6 +19,10 @@ import { Input, FilterPill, InlineFieldRow, InlineField, InlineSwitch, Select } 
 
 import darkImage from '../images/dark/filterFieldsByName.svg';
 import lightImage from '../images/light/filterFieldsByName.svg';
+
+const structuredLogger = createStructuredLogger(
+  'public/app/features/transformers/editors/FilterByNameTransformerEditor.tsx'
+);
 
 interface FilterByNameTransformerEditorProps extends TransformerUIProps<FilterFieldsByNameTransformerOptions> {}
 
@@ -101,7 +106,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        structuredLogger.error(error);
       }
     }
 

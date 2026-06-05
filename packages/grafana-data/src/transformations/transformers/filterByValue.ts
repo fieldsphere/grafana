@@ -1,12 +1,17 @@
 import { map } from 'rxjs/operators';
 
 import { getFieldDisplayName } from '../../field/fieldState';
+import { createStructuredLogger } from '../../logging/structuredLogger';
 import { type DataFrame, type Field } from '../../types/dataFrame';
 import { type DataTransformerInfo, type MatcherConfig } from '../../types/transformations';
 import { getValueMatcher } from '../matchers';
 
 import { DataTransformerID } from './ids';
 import { noopTransformer } from './noop';
+
+const structuredLogger = createStructuredLogger(
+  'packages/grafana-data/src/transformations/transformers/filterByValue.ts'
+);
 
 export enum FilterByValueType {
   exclude = 'exclude',
@@ -139,7 +144,7 @@ const createFilterValueMatchers = (
     const fieldIndex = fieldIndexByName[filter.fieldName] ?? -1;
 
     if (fieldIndex < 0) {
-      console.warn(`[FilterByValue] Could not find index for field name: ${filter.fieldName}`);
+      structuredLogger.warn(`[FilterByValue] Could not find index for field name: ${filter.fieldName}`);
       return noop;
     }
 

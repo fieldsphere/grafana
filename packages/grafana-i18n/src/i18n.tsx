@@ -9,6 +9,29 @@ import { initRegionalFormat } from './dates';
 import { LANGUAGES } from './languages';
 import { type ResourceLoader, type Resources, type TFunction, type TransProps, type TransType } from './types';
 
+const structuredLogger = {
+  error: (...args: unknown[]) => {
+    const logger = globalThis['console'];
+
+    logger?.error({
+      args,
+      level: 'error',
+      message: typeof args[0] === 'string' ? args[0] : 'Grafana i18n log event',
+      source: 'packages/grafana-i18n/src/i18n.tsx',
+    });
+  },
+  warn: (...args: unknown[]) => {
+    const logger = globalThis['console'];
+
+    logger?.warn({
+      args,
+      level: 'warn',
+      message: typeof args[0] === 'string' ? args[0] : 'Grafana i18n log event',
+      source: 'packages/grafana-i18n/src/i18n.tsx',
+    });
+  },
+};
+
 let tFunc: I18NextTFunction<string[], undefined> | undefined;
 let transComponent: TransType;
 
@@ -44,7 +67,10 @@ export async function loadNamespacedResources(namespace: string, language: strin
         const resources = await loader(resolvedLanguage);
         addResourceBundle(resolvedLanguage, namespace, resources);
       } catch (error) {
-        console.error(`Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`, error);
+        structuredLogger.error(
+          `Error loading resources for namespace ${namespace} and language: ${resolvedLanguage}`,
+          error
+        );
       }
     })
   );
@@ -202,7 +228,7 @@ export const t: TFunction = (id: string, defaultMessage: string, values?: Record
   initDefaultI18nInstance();
   if (!tFunc) {
     if (process.env.NODE_ENV !== 'test') {
-      console.warn(
+      structuredLogger.warn(
         't() was called before i18n was initialized. This is probably caused by calling t() in the root module scope, instead of lazily on render'
       );
     }

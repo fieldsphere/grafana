@@ -1,9 +1,11 @@
-import { type DataSourceApi, parseDuration } from '@grafana/data';
+import { createStructuredLogger, type DataSourceApi, parseDuration } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import { generateId } from './SearchTraceQLEditor/TagsInput';
 import { type TraceqlFilter, TraceqlSearchScope } from './dataquery.gen';
 import { type TempoQuery } from './types';
+
+const structuredLogger = createStructuredLogger('public/app/plugins/datasource/tempo/utils.ts');
 
 const LIMIT_MESSAGE = /.*range specified by start and end.*exceeds.*/;
 const LIMIT_MESSAGE_METRICS = /.*metrics query time range exceeds the maximum allowed duration of.*/;
@@ -32,7 +34,7 @@ export async function getDS(uid?: string): Promise<DataSourceApi | undefined> {
   try {
     return await dsSrv.get(uid);
   } catch (error) {
-    console.error('Failed to load data source', error);
+    structuredLogger.error('Failed to load data source', error);
     return undefined;
   }
 }

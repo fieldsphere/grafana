@@ -2,6 +2,7 @@
 import { flatten, forOwn, groupBy, partition } from 'lodash';
 
 import {
+  createStructuredLogger,
   CoreApp,
   type DataFrame,
   DataFrameType,
@@ -22,6 +23,8 @@ import {
 import { getDataSourceSrv } from '@grafana/runtime';
 
 import { type ExemplarTraceIdDestination, type PromMetric, type PromQuery, type PromValue } from './types';
+
+const structuredLogger = createStructuredLogger('packages/grafana-prometheus/src/result_transformer.ts');
 
 // handles case-insensitive Inf, +Inf, -Inf (with optional "inity" suffix)
 const INFINITY_SAMPLE_REGEX = /^[+-]?inf(?:inity)?$/i;
@@ -437,7 +440,7 @@ export function sortSeriesByLabel(s1: DataFrame, s2: DataFrame): number {
     le2 = parseSampleValue(s2.fields[1].state?.displayName ?? s2.name ?? s2.fields[1].name);
   } catch (err) {
     // fail if not integer. might happen with bad queries
-    console.error(err);
+    structuredLogger.error(err);
     return 0;
   }
 

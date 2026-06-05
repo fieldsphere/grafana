@@ -4,6 +4,7 @@ import Skeleton from 'react-loading-skeleton';
 import { type SortingRule } from 'react-table';
 
 import { type DashboardHit } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
+import { createStructuredLogger } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
 import {
@@ -38,6 +39,8 @@ import { EnterpriseAuthFeaturesCard } from '../admin/EnterpriseAuthFeaturesCard'
 
 import { TeamDeleteModal } from './TeamDeleteModal';
 import { useDeleteTeam, useGetTeams } from './hooks';
+
+const structuredLogger = createStructuredLogger('public/app/features/teams/TeamList.tsx');
 
 type Cell<T extends keyof TeamWithRoles = keyof TeamWithRoles> = CellProps<TeamWithRoles, TeamWithRoles[T]>;
 
@@ -235,7 +238,7 @@ const TeamList = () => {
                     'Failed to check if the team owns folders. Please try again.'
                   )
                 );
-                console.error(error);
+                structuredLogger.error(error);
                 return;
               }
 

@@ -2,6 +2,7 @@ import { type FormEvent, PureComponent } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 
 import {
+  createStructuredLogger,
   type DataSourceInstanceSettings,
   getDataSourceRef,
   type QueryVariableModel,
@@ -22,10 +23,12 @@ import { toKeyedVariableIdentifier } from '../utils';
 
 import { changeQueryVariableDataSource, changeQueryVariableQuery, initQueryVariableEditor } from './actions';
 
+const structuredLogger = createStructuredLogger('public/app/features/variables/query/QueryVariableEditor.tsx');
+
 const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
   const { rootStateKey } = ownProps.variable;
   if (!rootStateKey) {
-    console.error('QueryVariableEditor: variable has no rootStateKey');
+    structuredLogger.error('QueryVariableEditor: variable has no rootStateKey');
     return {
       extended: getQueryVariableEditorState(initialVariableEditorState),
     };
