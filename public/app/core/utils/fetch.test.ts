@@ -10,6 +10,19 @@ import {
   parseUrlFromOptions,
 } from './fetch';
 
+const mockLogWarning = jest.fn();
+
+jest.mock('@grafana/runtime', () => ({
+  ...jest.requireActual('@grafana/runtime'),
+  createMonitoringLogger: () => ({
+    logWarning: mockLogWarning,
+    logError: jest.fn(),
+    logInfo: jest.fn(),
+    logDebug: jest.fn(),
+    logMeasurement: jest.fn(),
+  }),
+}));
+
 jest.mock('@grafana/data', () => ({
   ...jest.requireActual('@grafana/data'),
   deprecationWarning: () => {},
@@ -179,7 +192,7 @@ describe('parseResponseBody', () => {
 
   it('returns an empty object {} when the response is empty but is declared as JSON type', async () => {
     rsp.headers.set('Content-Length', '0');
-    jest.spyOn(console, 'warn').mockImplementation();
+    mockLogWarning.mockClear();
 
     const json = jest.fn();
     const body = await parseResponseBody(
@@ -192,7 +205,11 @@ describe('parseResponseBody', () => {
 
     expect(body).toEqual({});
     expect(json).not.toHaveBeenCalled();
-    expect(console.warn).toHaveBeenCalledTimes(1);
+    expect(mockLogWarning).toHaveBeenCalledTimes(1);
+    expect(mockLogWarning).toHaveBeenCalledWith(
+      'Response declared JSON but body was empty',
+      expect.objectContaining({ url: rsp.url })
+    );
   });
 
   it('parses text', async () => {
