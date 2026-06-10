@@ -31,6 +31,23 @@ type FeatureToggles interface {
 	GetEnabled(ctx context.Context) map[string]bool
 }
 
+// RegisteredFeatureFlag describes a feature toggle for display in the Labs UI.
+type RegisteredFeatureFlag struct {
+	Name            string `json:"name"`
+	Description     string `json:"description"`
+	Stage           string `json:"stage"`
+	Enabled         bool   `json:"enabled"`
+	Expression      string `json:"expression,omitempty"`
+	RequiresDevMode bool   `json:"requiresDevMode,omitempty"`
+	FrontendOnly    bool   `json:"frontendOnly,omitempty"`
+	RequiresRestart bool   `json:"requiresRestart,omitempty"`
+}
+
+// RegisteredFeatureFlagsProvider exposes full registry metadata for the Labs page.
+type RegisteredFeatureFlagsProvider interface {
+	GetRegisteredFeatureFlags(ctx context.Context) []RegisteredFeatureFlag
+}
+
 func AnyEnabled(f FeatureToggles, flags ...string) bool {
 	for _, flag := range flags {
 		if f.IsEnabledGlobally(flag) {

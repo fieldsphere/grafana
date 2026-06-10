@@ -5,6 +5,7 @@ export function getSelectableThemes() {
   const allowedExtraThemes = ['deut_prot_dark', 'deut_prot_light', 'tritanopia_dark', 'tritanopia_light'];
 
   if (config.featureToggles.grafanaconThemes) {
+    allowedExtraThemes.push('amethyst');
     allowedExtraThemes.push('desertbloom');
     allowedExtraThemes.push('gildedgrove');
     allowedExtraThemes.push('sapphiredusk');
