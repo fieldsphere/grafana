@@ -72,9 +72,19 @@ func newAnnotation(text string, tags ...string) *unstructured.Unstructured {
 }
 
 func TestIntegrationAnnotationLegacyAPIRoundTrip(t *testing.T) {
-	helper, client := setupTest(t)
+	testutil.SkipIntegrationTestInShortMode(t)
+
+	helper := apis.NewK8sTestHelper(t, testinfra.GrafanaOpts{
+		DisableAnonymous:                  true,
+		EnableAnnotationAppPlatform:       true,
+		AnnotationAppPlatformStoreBackend: "legacy-sql",
+	})
+	client := helper.GetResourceClient(apis.ResourceClientArgs{
+		User: helper.Org1.Admin,
+		GVR:  gvr,
+	})
 	ctx := t.Context()
-	namespace := helper.Namespacer(helper.Org1.Admin.Identity.GetOrgID())
+	namespace := helper.Namespacer(helper.Org1.OrgID)
 
 	legacyCreateBody, err := json.Marshal(map[string]any{
 		"text": "from-legacy",
