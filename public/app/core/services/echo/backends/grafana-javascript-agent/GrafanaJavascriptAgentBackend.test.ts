@@ -1,21 +1,22 @@
-import { BuildInfo } from '@grafana/data';
+import { type BuildInfo } from '@grafana/data';
 import { GrafanaEdition } from '@grafana/data/internal';
-import { Faro, Instrumentation } from '@grafana/faro-core';
+import { type Faro, type Instrumentation } from '@grafana/faro-core';
 import * as faroWebSdkModule from '@grafana/faro-web-sdk';
 import {
-  BrowserConfig,
+  type BrowserConfig,
   FetchTransport,
   SessionInstrumentation,
   UserActionInstrumentation,
   ErrorsInstrumentation,
   WebVitalsInstrumentation,
   ViewInstrumentation,
+  NavigationInstrumentation,
 } from '@grafana/faro-web-sdk';
 import { TracingInstrumentation } from '@grafana/faro-web-tracing';
 
 import { EchoSrvTransport } from './EchoSrvTransport';
 import { GrafanaJavascriptAgentBackend, TRACKING_URLS } from './GrafanaJavascriptAgentBackend';
-import { GrafanaJavascriptAgentBackendOptions } from './types';
+import { type GrafanaJavascriptAgentBackendOptions } from './types';
 
 describe('GrafanaJavascriptAgentEchoBackend', () => {
   let mockedSetUser: jest.Mock;
@@ -75,7 +76,6 @@ describe('GrafanaJavascriptAgentEchoBackend', () => {
   const options: GrafanaJavascriptAgentBackendOptions = {
     customEndpoint: '/log-grafana-javascript-agent',
 
-    webVitalsAttribution: true,
     consoleInstrumentalizationEnabled: true,
     performanceInstrumentalizationEnabled: true,
     cspInstrumentalizationEnabled: true,
@@ -88,14 +88,10 @@ describe('GrafanaJavascriptAgentEchoBackend', () => {
   };
 
   it('will set up FetchTransport if customEndpoint is provided', () => {
-    // arrange
-    const constructorSpy = jest.spyOn(faroWebSdkModule, 'FetchTransport');
-
     //act
     new GrafanaJavascriptAgentBackend(options);
 
     //assert
-    expect(constructorSpy).toHaveBeenCalledTimes(1);
     expect(initializeFaroMock).toHaveBeenCalledTimes(1);
     expect(initializeFaroMock.mock.calls[0][0].transports?.length).toEqual(2);
     expect(initializeFaroMock.mock.calls[0][0].transports?.[0]).toBeInstanceOf(EchoSrvTransport);
@@ -106,6 +102,9 @@ describe('GrafanaJavascriptAgentEchoBackend', () => {
       /\/collect(?:\/[\w]*)?$/,
     ]);
     expect(initializeFaroMock.mock.calls[0][0].transports?.[1]).toBeInstanceOf(FetchTransport);
+    expect(initializeFaroMock.mock.calls[0][0].transports?.[1].getIgnoreUrls()).toEqual([
+      '/log-grafana-javascript-agent',
+    ]);
   });
 
   it('will initialize GrafanaJavascriptAgent and set user', async () => {
@@ -145,20 +144,6 @@ describe('GrafanaJavascriptAgentEchoBackend', () => {
     new GrafanaJavascriptAgentBackend(opts);
 
     let lastInstrumentations = initializeFaroMock.mock.calls.at(-1)?.[0].instrumentations;
-    expect(lastInstrumentations).toHaveLength(5);
-    expect(lastInstrumentations).toEqual(
-      expect.arrayContaining([
-        expect.any(SessionInstrumentation),
-        expect.any(UserActionInstrumentation),
-        expect.any(ErrorsInstrumentation),
-        expect.any(WebVitalsInstrumentation),
-        expect.any(ViewInstrumentation),
-      ])
-    );
-
-    opts.tracingInstrumentalizationEnabled = true;
-    new GrafanaJavascriptAgentBackend(opts);
-    lastInstrumentations = initializeFaroMock.mock.calls.at(-1)?.[0].instrumentations;
     expect(lastInstrumentations).toHaveLength(6);
     expect(lastInstrumentations).toEqual(
       expect.arrayContaining([
@@ -167,6 +152,22 @@ describe('GrafanaJavascriptAgentEchoBackend', () => {
         expect.any(ErrorsInstrumentation),
         expect.any(WebVitalsInstrumentation),
         expect.any(ViewInstrumentation),
+        expect.any(NavigationInstrumentation),
+      ])
+    );
+
+    opts.tracingInstrumentalizationEnabled = true;
+    new GrafanaJavascriptAgentBackend(opts);
+    lastInstrumentations = initializeFaroMock.mock.calls.at(-1)?.[0].instrumentations;
+    expect(lastInstrumentations).toHaveLength(7);
+    expect(lastInstrumentations).toEqual(
+      expect.arrayContaining([
+        expect.any(SessionInstrumentation),
+        expect.any(UserActionInstrumentation),
+        expect.any(ErrorsInstrumentation),
+        expect.any(WebVitalsInstrumentation),
+        expect.any(ViewInstrumentation),
+        expect.any(NavigationInstrumentation),
         expect.any(TracingInstrumentation),
       ])
     );

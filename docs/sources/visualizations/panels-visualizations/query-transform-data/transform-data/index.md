@@ -744,6 +744,15 @@ After choosing the field by which you want to group your data, you can add vario
 | server 2  | 88.6                   | <table><th><tr><td>Time</td><td>Server Status</td></tr></th><tbody><tr><td>2020-07-07 10:32:20</td><td>Overload</td></tr><tr><td>2020-07-07 09:30:05</td><td>OK</td></tr><tr><td>2020-07-07 09:25:05</td><td>OK</td></tr></tbody></table>  |
 | server 3  | 59.6                   | <table><th><tr><td>Time</td><td>Server Status</td></tr></th><tbody><tr><td>2020-07-07 11:34:20</td><td>OK</td></tr><tr><td>2020-07-07 10:31:22</td><td>OK</td></tr><tr><td>2020-07-07 09:30:57</td><td>Rebooting</td></tr></tbody></table> |
 
+#### Display options
+
+> **Note:** Display options are in public preview. To try out the new editor for this transformation, enable the `groupToNestedTableV2` feature toggle. To try out nested field overrides, enable `nestedFramesFieldOverrides`.
+
+| Option                            | Description                                                                                                                |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Show field names in nested tables | Show or hide the column headers inside each nested table. On by default                                                    |
+| Expand nested rows by default     | Expand all nested rows automatically when the panel loads, instead of starting with all columns collapsed. Off by default. |
+
 ### Create heatmap
 
 Use this transformation to prepare histogram data for visualizing trends over time. Similar to the heatmap visualization, this transformation converts histogram metrics into temporal buckets.
@@ -1465,8 +1474,6 @@ For each generated **Trend** field value, a calculation function can be selected
 
 {{< figure src="/static/img/docs/transformations/timeseries-table-select-stat.png" class="docs-image--no-shadow" max-width= "1100px" alt="A select box showing available statistics that can be calculated." >}}
 
-> **Note:** This transformation is available in Grafana 9.5+ as an opt-in beta feature. Modify the Grafana [configuration file][] to use it.
-
 ### Transpose
 
 Use this transformation to pivot the data frame, converting rows into columns and columns into rows. This transformation is particularly useful when you want to switch the orientation of your data to better suit your visualization needs.
@@ -1500,6 +1507,49 @@ There are two different models:
   {{< figure src="/static/img/docs/transformations/polynomial-regression.png" class="docs-image--no-shadow" max-width= "1100px" alt="A time series visualization with a curved line representing the polynomial function" >}}
 
 > **Note:** This transformation was previously called regression analysis.
+
+### Smoothing
+
+Use this transformation to reduce noise in time series data through adaptive smoothing. This transformation creates smoother, cleaner visualizations while preserving all original time points and important trends and patterns in your data.
+
+The smoothing transformation uses the ASAP (Automatic Smoothing for Attention Prioritization) algorithm internally to generate a smoothed curve, which is then interpolated back onto all original time points. This ensures your visualization maintains continuous lines without gaps while reducing noise.
+
+#### Available options
+
+- **Resolution** - Controls smoothing intensity (1-1000). Lower values create more aggressive smoothing, while higher values preserve more detail. The output preserves all original time points.
+
+#### When to use smoothing
+
+This transformation is useful for:
+
+- Noisy time series data that obscures underlying trends
+- Clearer trend analysis and pattern recognition
+
+#### Example
+
+Consider noisy sensor data with thousands of points:
+
+**Before smoothing:**
+
+| Time                 | Temperature |
+| -------------------- | ----------- |
+| 2020-07-07 10:00:00  | 23.1        |
+| 2020-07-07 10:00:01  | 23.3        |
+| 2020-07-07 10:00:02  | 22.9        |
+| 2020-07-07 10:00:03  | 23.2        |
+| ... (thousands more) | ...         |
+
+**After smoothing (Resolution: 100):**
+
+| Time                | Temperature (smoothed) |
+| ------------------- | ---------------------- |
+| 2020-07-07 10:00:00 | 23.1                   |
+| 2020-07-07 10:00:01 | 23.1                   |
+| 2020-07-07 10:00:02 | 23.0                   |
+| 2020-07-07 10:00:03 | 23.0                   |
+| ... (same count)    | ...                    |
+
+The transformation preserves all original time points while reducing noise, resulting in smoother curves that maintain continuous lines without gaps.
 
 [Table panel]: ref:table-panel
 [Calculation types]: ref:calculation-types

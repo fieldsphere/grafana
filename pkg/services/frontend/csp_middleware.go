@@ -5,20 +5,34 @@ import (
 
 	"github.com/grafana/grafana/pkg/middleware"
 	"github.com/grafana/grafana/pkg/services/contexthandler"
-	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
-func CSPMiddleware(cfg *setting.Cfg) web.Middleware {
+func CSPMiddleware() web.Middleware {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			reqCtx := contexthandler.FromContext(r.Context())
+			ctx := r.Context()
+			reqCtx := contexthandler.FromContext(ctx)
 			logger := reqCtx.Logger
 
-			logger.Debug("Applying CSP middleware", "enabled", cfg.CSPEnabled, "report_only_enabled", cfg.CSPReportOnlyEnabled)
+			requestConfig, err := FSRequestConfigFromContext(ctx)
+			if err != nil {
+				logger.Error("unable to get request config", "err", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
 
-			// Bail early if CSP is not enabled
-			if !cfg.CSPEnabled && !cfg.CSPReportOnlyEnabled {
+			hasFullCSP := requestConfig.CSPEnabled || requestConfig.CSPReportOnlyEnabled
+
+			logger.Debug("Applying CSP middleware",
+				"enabled", requestConfig.CSPEnabled,
+				"report_only_enabled", requestConfig.CSPReportOnlyEnabled,
+				"allow_embedding_hosts", requestConfig.AllowEmbeddingHosts,
+				"form_action_additional_hosts", requestConfig.FormActionAdditionalHosts,
+			)
+
+			// Bail early if CSP is not enabled for this tenant
+			if !hasFullCSP {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -29,19 +43,23 @@ func CSPMiddleware(cfg *setting.Cfg) web.Middleware {
 				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 				return
 			}
-
 			// Stored on the context so the index handler can put it in the HTML
 			reqCtx.RequestNonce = nonce
 
-			if cfg.CSPEnabled && cfg.CSPTemplate != "" {
+			hosts := middleware.CSPHostLists{
+				FrameAncestorHosts:        requestConfig.AllowEmbeddingHosts,
+				FormActionAdditionalHosts: requestConfig.FormActionAdditionalHosts,
+			}
+
+			if requestConfig.CSPEnabled && requestConfig.CSPTemplate != "" {
 				logger.Debug("Setting Content-Security-Policy header")
-				policy := middleware.ReplacePolicyVariables(cfg.CSPTemplate, cfg.AppURL, nonce)
+				policy := middleware.ReplacePolicyVariables(requestConfig.CSPTemplate, requestConfig.AppURL, hosts, nonce)
 				w.Header().Set("Content-Security-Policy", policy)
 			}
 
-			if cfg.CSPReportOnlyEnabled && cfg.CSPReportOnlyTemplate != "" {
+			if requestConfig.CSPReportOnlyEnabled && requestConfig.CSPReportOnlyTemplate != "" {
 				logger.Debug("Setting Content-Security-Policy-Report-Only header")
-				policy := middleware.ReplacePolicyVariables(cfg.CSPReportOnlyTemplate, cfg.AppURL, nonce)
+				policy := middleware.ReplacePolicyVariables(requestConfig.CSPReportOnlyTemplate, requestConfig.AppURL, hosts, nonce)
 				w.Header().Set("Content-Security-Policy-Report-Only", policy)
 			}
 

@@ -2,7 +2,7 @@ import { getBuiltInThemes } from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 export function getSelectableThemes() {
-  const allowedExtraThemes = [];
+  const allowedExtraThemes = ['deut_prot_dark', 'deut_prot_light', 'tritanopia_dark', 'tritanopia_light'];
 
   if (config.featureToggles.grafanaconThemes) {
     allowedExtraThemes.push('desertbloom');
@@ -11,6 +11,7 @@ export function getSelectableThemes() {
     allowedExtraThemes.push('tron');
     allowedExtraThemes.push('gloom');
     allowedExtraThemes.push('orange');
+    allowedExtraThemes.push('aubergine');
   }
 
   return getBuiltInThemes(allowedExtraThemes);

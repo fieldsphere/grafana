@@ -312,18 +312,34 @@ type ConvertPrometheusResponse struct {
 	Error     string `json:"error"`
 }
 
+type ConvertAlertmanagerResponse struct {
+	Status    string `json:"status"`
+	ErrorType string `json:"errorType"`
+	Error     string `json:"error"`
+	// RenameResources contains information about renamed resources during configuration merge
+	RenameResources *RenameResources `json:"rename_resources,omitempty"`
+}
+
+// RenameResources describes which resources were renamed to avoid conflicts
+type RenameResources struct {
+	// Receivers maps old receiver names to new receiver names
+	Receivers map[string]string `json:"receivers,omitempty"`
+	// TimeIntervals maps old time interval names to new time interval names
+	TimeIntervals map[string]string `json:"time_intervals,omitempty"`
+}
+
 // swagger:parameters RouteConvertPrometheusPostAlertmanagerConfig
 type RouteConvertPrometheusPostAlertmanagerConfigParams struct {
 	// Unique identifier for this Alertmanager configuration.
 	// This identifier is used to distinguish between different imported configurations.
 	// in: header
 	Identifier string `json:"x-grafana-alerting-config-identifier"`
-	// Comma-separated list of label matchers in 'key=value' format.
-	// These matchers determine which alerts this configuration should handle.
-	// For example: 'environment=production,team=backend' will only apply this
-	// configuration to alerts matching both environment=production AND team=backend.
+	// If true, the configuration will replace an existing configuration regardless of its identifier
 	// in: header
-	MergeMatchers string `json:"x-grafana-alerting-merge-matchers"`
+	Replace bool `json:"x-grafana-alerting-config-force-replace"`
+	// If true, validates the configuration without saving it
+	// in: header
+	DryRun bool `json:"x-grafana-alerting-dry-run"`
 	// Alertmanager configuration including routing rules, receivers, and template files
 	// in:body
 	Body AlertmanagerUserConfig

@@ -1,16 +1,15 @@
 import { css, cx } from '@emotion/css';
-import { CSSProperties, ReactElement, ReactNode, useId, useState } from 'react';
+import { type CSSProperties, type ReactElement, type ReactNode, useId, useState } from 'react';
 import * as React from 'react';
 import { useMeasure, useToggle } from 'react-use';
 
-import { GrafanaTheme2, LoadingState } from '@grafana/data';
+import { type GrafanaTheme2, LoadingState } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
 import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
 import { getFocusStyles } from '../../themes/mixins';
 import { DelayRender } from '../../utils/DelayRender';
-import { getFeatureToggle } from '../../utils/featureToggle';
 import { usePointerDistance } from '../../utils/usePointerDistance';
 import { useElementSelection } from '../ElementSelectionContext/ElementSelectionContext';
 import { Icon } from '../Icon/Icon';
@@ -222,7 +221,6 @@ export function PanelChrome({
       ) {
         return;
       }
-
       // setTimeout is needed here because onSelect stops the event propagation
       // By doing so, the event won't get to the document and drag will never be stopped
       setTimeout(() => onSelect?.(evt));
@@ -243,22 +241,27 @@ export function PanelChrome({
 
   const onContentPointerDown = React.useCallback(
     (evt: React.PointerEvent) => {
-      // Always ignore interactive controls so their clicks don't select the panel.
-      // This prevents legend item clicks from selecting the panel and opening the edit sidebar.
-      if (evt.target instanceof Element && evt.target.closest('button,a')) {
-        evt.stopPropagation();
-        return;
-      }
-
-      // When selected, ignore clicks inside canvas/svg to avoid selecting row config editor.
-      if (isSelected && evt.target instanceof Element && evt.target.closest('canvas,svg')) {
+      // Ignore clicks inside buttons, links, canvas and svg elments
+      // This does prevent a clicks inside a graphs from selecting panel as there is normal div above the canvas element that intercepts the click
+      // '[role="columnheader"]' targets table column headers (e.g. react-data-grid), preventing sort clicks
+      // and column resize drags from selecting the panel in edit mode.
+      // '.u-axis' targets uPlot axis elements, preventing axis interactions from selecting the panel.
+      if (
+        evt.target instanceof Element &&
+        (evt.target.closest(
+          'button,a,canvas,svg,[role="button"],[role="combobox"],#grafana-portal-container,[role="columnheader"]'
+        ) ||
+          evt.target.classList.contains('u-over') ||
+          evt.target.classList.contains('u-axis'))
+      ) {
+        // Stop propagation otherwise row config editor will get selected
         evt.stopPropagation();
         return;
       }
 
       onSelect?.(evt);
     },
-    [isSelected, onSelect]
+    [onSelect]
   );
 
   const headerContent = (
@@ -436,6 +439,7 @@ export function PanelChrome({
                   placement="bottom-end"
                   menuButtonClass={cx(styles.menuItem, dragClassCancel, showOnHoverClass)}
                   onOpenMenu={onOpenMenu}
+                  dragClassCancel={dragClassCancel}
                 />
               )}
             </div>
@@ -470,10 +474,6 @@ const itemsRenderer = (items: ReactNode[] | ReactNode, renderer: (items: ReactNo
 
 const getHeaderHeight = (theme: GrafanaTheme2, hasHeader: boolean) => {
   if (hasHeader) {
-    if (getFeatureToggle('newPanelPadding')) {
-      return theme.spacing.gridSize * 5;
-    }
-
     return theme.spacing.gridSize * theme.components.panel.headerHeight;
   }
 
@@ -517,7 +517,6 @@ const getContentStyle = (
 
 const getStyles = (theme: GrafanaTheme2) => {
   const { background, borderColor } = theme.components.panel;
-  const newPanelPadding = getFeatureToggle('newPanelPadding');
 
   return {
     container: css({
@@ -596,8 +595,7 @@ const getStyles = (theme: GrafanaTheme2) => {
       label: 'panel-header',
       display: 'flex',
       alignItems: 'center',
-      // remove logic after newPanelPadding feature toggle is removed
-      padding: newPanelPadding ? theme.spacing(0, 1, 0, 1.5) : theme.spacing(0, 0.5, 0, 1),
+      padding: theme.spacing(0, 1, 0, 1),
       gap: theme.spacing(1),
     }),
     subHeader: css({
@@ -605,7 +603,7 @@ const getStyles = (theme: GrafanaTheme2) => {
       display: 'flex',
       alignItems: 'center',
       maxHeight: theme.spacing.gridSize * theme.components.panel.headerHeight,
-      padding: newPanelPadding ? theme.spacing(0, 1, 0, 1.5) : theme.spacing(0, 0.5, 0, 1),
+      padding: theme.spacing(0, 1, 0, 1.5),
       overflow: 'hidden',
       gap: theme.spacing(1),
     }),
@@ -625,6 +623,7 @@ const getStyles = (theme: GrafanaTheme2) => {
       label: 'panel-title',
       display: 'flex',
       minWidth: 0,
+      paddingLeft: theme.spacing.x0_5,
       '& > h2': {
         minWidth: 0,
       },

@@ -2,12 +2,13 @@ import { useAsyncFn, useToggle } from 'react-use';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { config, reportInteraction } from '@grafana/runtime';
+import { reportInteraction } from '@grafana/runtime';
 import { Button, ConfirmModal, Modal, Space, Text, TextLink } from '@grafana/ui';
 import { DeleteProvisionedDashboardDrawer } from 'app/features/provisioning/components/Dashboards/DeleteProvisionedDashboardDrawer';
 
 import { useDeleteDashboardsMutation } from '../../browse-dashboards/api/browseDashboardsAPI';
-import { DashboardScene } from '../scene/DashboardScene';
+import { DeletedDashboardsInfo } from '../../browse-dashboards/components/DeletedDashboardsInfo';
+import { type DashboardScene } from '../scene/DashboardScene';
 
 interface ButtonProps {
   dashboard: DashboardScene;
@@ -34,7 +35,6 @@ export function DeleteDashboardButton({ dashboard }: ButtonProps) {
         dashboard: 1,
       },
       source: 'dashboard_scene_settings',
-      restore_enabled: Boolean(config.featureToggles.restoreDashboards),
     });
     toggleModal();
     if (dashboard.state.uid) {
@@ -76,18 +76,8 @@ export function DeleteDashboardModal({ dashboardTitle, onConfirm, onClose }: Del
       isOpen={true}
       body={
         <>
-          {config.featureToggles.restoreDashboards && (
-            <>
-              <Text element="p">
-                <Trans i18nKey="dashboard-settings.delete-modal-restore-dashboards-text">
-                  This action will delete the dashboard. Deleted dashboards will be kept in the history for up to 12
-                  months and can be restored by your organization administrator during that time. The history is limited
-                  to 1000 dashboards—older ones will be removed sooner if the limit is reached.
-                </Trans>
-              </Text>
-              <Space v={1} />
-            </>
-          )}
+          <DeletedDashboardsInfo target="dashboard" />
+          <Space v={1} />
           <Text element="p">
             <Trans i18nKey="dashboard-settings.delete-modal-text">Do you want to delete this dashboard?</Trans>
           </Text>
@@ -98,7 +88,6 @@ export function DeleteDashboardModal({ dashboardTitle, onConfirm, onClose }: Del
       onConfirm={onConfirm}
       onDismiss={onClose}
       title={t('dashboard-settings.delete-modal.title', 'Delete')}
-      icon="trash-alt"
       confirmText={t('dashboard-settings.delete-modal.delete-button', 'Delete')}
       confirmationText={t('dashboard-settings.delete-modal.confirmation-text', 'Delete')}
     />
@@ -113,7 +102,6 @@ function ProvisionedDeleteModal({ dashboardId, onClose }: ProvisionedDeleteModal
         'dashboard-scene.provisioned-delete-modal.title-cannot-delete-provisioned-dashboard',
         'Cannot delete provisioned dashboard'
       )}
-      icon="trash-alt"
       onDismiss={onClose}
     >
       <p>

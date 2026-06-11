@@ -1,19 +1,21 @@
 import { css, cx } from '@emotion/css';
-import { memo, cloneElement, FC, useMemo, useContext, ReactNode } from 'react';
+import { memo, cloneElement, type FC, useMemo, useContext, type ReactNode } from 'react';
 import * as React from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2 } from '@grafana/data';
+import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 
 import { useStyles2 } from '../../themes/ThemeContext';
 import { getFocusStyles } from '../../themes/mixins';
 
-import { CardContainer, CardContainerProps, getCardContainerStyles } from './CardContainer';
+import { CardContainer, type CardContainerProps, getCardContainerStyles } from './CardContainer';
 
 /**
  * @public
  */
-export interface Props extends Omit<CardContainerProps, 'disableEvents' | 'disableHover'> {
+export interface Props
+  extends Omit<CardContainerProps, 'disableEvents' | 'disableHover' | 'hasDescriptionComponent' | 'hasTagsComponent'> {
   /** Indicates if the card and all its actions can be interacted with */
   disabled?: boolean;
   /** Link to redirect to on card click. If provided, the Card inner content will be rendered inside `a` */
@@ -73,6 +75,10 @@ export const Card: CardInterface = ({
     () => React.Children.toArray(children).some((c) => React.isValidElement(c) && c.type === Description),
     [children]
   );
+  const hasTagsComponent = useMemo(
+    () => React.Children.toArray(children).some((c) => React.isValidElement(c) && c.type === Tags),
+    [children]
+  );
 
   const disableHover = disabled || (!onClick && !href);
   const onCardClick = onClick && !disabled ? onClick : undefined;
@@ -81,6 +87,7 @@ export const Card: CardInterface = ({
     disabled,
     disableHover,
     hasDescriptionComponent,
+    hasTagsComponent,
     isSelected,
     isCompact,
     noMargin
@@ -94,6 +101,7 @@ export const Card: CardInterface = ({
       className={cx(styles.container, className)}
       noMargin={noMargin}
       hasDescriptionComponent={hasDescriptionComponent}
+      hasTagsComponent={hasTagsComponent}
       {...htmlProps}
     >
       <CardContext.Provider value={{ href, onClick: onCardClick, disabled, isSelected }}>
@@ -124,7 +132,7 @@ const Heading = ({ children, className, 'aria-label': ariaLabel }: ChildProps & 
   const optionLabel = t('grafana-ui.card.option', 'option');
 
   return (
-    <h2 className={cx(styles.heading, className)}>
+    <div data-testid={selectors.components.Card.heading} className={cx(styles.heading, className)}>
       {href ? (
         <a href={href} className={styles.linkHack} aria-label={ariaLabel} onClick={onClick}>
           {children}
@@ -138,7 +146,7 @@ const Heading = ({ children, className, 'aria-label': ariaLabel }: ChildProps & 
       )}
       {/* Input must be readonly because we are providing a value for the checked prop with no onChange handler */}
       {isSelected !== undefined && <input aria-label={optionLabel} type="radio" checked={isSelected} readOnly />}
-    </h2>
+    </div>
   );
 };
 Heading.displayName = 'Heading';

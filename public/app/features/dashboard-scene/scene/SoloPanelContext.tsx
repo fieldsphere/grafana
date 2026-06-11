@@ -1,38 +1,55 @@
 import React, { useContext, useEffect, useState } from 'react';
 
 import { Trans } from '@grafana/i18n';
-import { LazyLoader, VizPanel } from '@grafana/scenes';
+import { LazyLoader, type VizPanel } from '@grafana/scenes';
 import { Box, Spinner } from '@grafana/ui';
 
-import { DashboardScene } from './DashboardScene';
+import { type DashboardScene } from './DashboardScene';
 
 export interface SoloPanelContextValue {
   matches: (VizPanel: VizPanel) => boolean;
   matchFound: boolean;
+  matchedPanels?: VizPanel[];
 }
 
 export class SoloPanelContextWithPathIdFilter implements SoloPanelContextValue {
   public matchFound = false;
+  public matchedPanels: VizPanel[] = [];
 
   public constructor(public keyPath: string) {}
 
   public matches(panel: VizPanel): boolean {
+    let found = false;
+
     // Check if keyPath is just an old legacy panel id
-    if (/^\d+$/.test(this.keyPath)) {
-      if (`panel-${this.keyPath}` === panel.state.key!) {
-        this.matchFound = true;
-        return true;
-      }
-
-      return false;
+    if (/^\d+$/.test(this.keyPath) && `panel-${this.keyPath}` === panel.state.key!) {
+      found = true;
+    } else if (this.keyPath === panel.getPathId()) {
+      found = true;
     }
 
-    if (this.keyPath === panel.getPathId()) {
+    if (found) {
       this.matchFound = true;
-      return true;
+      if (!this.matchedPanels.includes(panel)) {
+        this.matchedPanels.push(panel);
+      }
     }
 
-    return false;
+    return found;
+  }
+}
+
+export class SoloPanelContextForPanelEdit implements SoloPanelContextValue {
+  public matchFound = false;
+  public matchedPanels: VizPanel[] = [];
+
+  public constructor(panel: VizPanel) {
+    this.matchFound = true;
+    this.matchedPanels = [panel];
+  }
+
+  public matches(panel: VizPanel): boolean {
+    return this.matchedPanels[0] === panel;
   }
 }
 

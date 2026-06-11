@@ -1,10 +1,10 @@
-import { Path } from 'react-hook-form';
+import { type Path } from 'react-hook-form';
 
-import { ErrorDetails, StatusCause, Status } from 'app/api/clients/provisioning/v0alpha1';
+import { type ErrorDetails, type StatusCause, type Status } from 'app/api/clients/provisioning/v0alpha1';
 import { extractStatusCauses } from 'app/api/utils';
 
-import { WizardFormData } from '../Wizard/types';
-import { ConnectionFormData, RepositoryFormData } from '../types';
+import { type WizardFormData } from '../Wizard/types';
+import { type ConnectionFormData, type RepositoryFormData } from '../types';
 
 export type RepositoryField = keyof WizardFormData['repository'];
 export type RepositoryFormPath = `repository.${RepositoryField}` | 'repository.sync.intervalSeconds';
@@ -35,6 +35,11 @@ function hasErrorsArray(data: object): data is { errors: ErrorDetails[] } {
  * Returns errors in ErrorDetails[] format.
  */
 export function extractFormErrors(data: ErrorDetails[] | Status): ErrorDetails[] {
+  // If data is already an ErrorDetails array, return it directly
+  if (Array.isArray(data)) {
+    return data;
+  }
+
   const causes = extractStatusCauses<StatusCause>(data);
   if (causes.length > 0) {
     return causes.map(statusCauseToErrorDetails);
@@ -102,8 +107,10 @@ export const getFormErrors = (data: ErrorDetails[] | Status): FormErrors => {
     'secure.token': 'repository.token',
     'gitlab.branch': 'repository.branch',
     'gitlab.url': 'repository.url',
+    'gitlab.path': 'repository.path',
     'bitbucket.branch': 'repository.branch',
     'bitbucket.url': 'repository.url',
+    'bitbucket.path': 'repository.path',
     'git.branch': 'repository.branch',
     'git.url': 'repository.url',
     'sync.intervalSeconds': 'repository.sync.intervalSeconds',

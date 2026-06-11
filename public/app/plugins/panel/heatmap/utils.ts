@@ -1,29 +1,29 @@
-import { RefObject } from 'react';
-import uPlot, { Cursor } from 'uplot';
+import { type RefObject } from 'react';
+import uPlot, { type Cursor } from 'uplot';
 
 import {
   DataFrameType,
   formattedValueToString,
   getValueFormat,
-  GrafanaTheme2,
+  type GrafanaTheme2,
   incrRoundDn,
   incrRoundUp,
-  TimeRange,
+  type TimeRange,
   FieldType,
   getDisplayProcessor,
 } from '@grafana/data';
 import { AxisPlacement, ScaleDirection, ScaleDistribution, ScaleOrientation, HeatmapCellLayout } from '@grafana/schema';
-import { UPlotConfigBuilder, UPlotConfigPrepFn } from '@grafana/ui';
+import { UPlotConfigBuilder, type UPlotConfigPrepFn } from '@grafana/ui';
 import {
   calculateBucketFactor,
   isHeatmapCellsDense,
   readHeatmapRowsCustomMeta,
 } from 'app/features/transformers/calculateHeatmap/heatmap';
 
-import { pointWithin, Quadtree, Rect } from '../barchart/quadtree';
+import { pointWithin, Quadtree, type Rect } from '../barchart/quadtree';
 
-import { HeatmapData } from './fields';
-import { FieldConfig, HeatmapSelectionMode, YAxisConfig } from './types';
+import { type HeatmapData } from './fields';
+import { type FieldConfig, HeatmapSelectionMode, type YAxisConfig } from './panelcfg.gen';
 
 /** Validates and returns a safe log base (2 or 10), defaults to 2 if invalid */
 export function toLogBase(value: number | undefined): 2 | 10 {
@@ -243,17 +243,31 @@ export function prepConfig(opts: PrepConfigOpts) {
       // sparse already accounts for le/ge by explicit yMin & yMax cell bounds, so no need to expand y range
       isSparseHeatmap
         ? (u, dataMin, dataMax) => {
-            // ...but uPlot currently only auto-ranges from the yMin facet data, so we have to grow by 1 extra factor
-            // @ts-ignore
-            let bucketFactor = u.data[1][2][0] / u.data[1][1][0];
+            // Extract yMin and yMax arrays
+            const yMinData = u.data[1]?.[1];
+            const yMaxData = u.data[1]?.[2];
+            const yMinValues = Array.isArray(yMinData) ? yMinData : [];
+            const yMaxValues = Array.isArray(yMaxData) ? yMaxData : [];
 
+            // uPlot auto-ranges from the yMin facet data, so we grow by one bucket factor.
+            // When yMin values are all 0, multiplicative expansion stays 0; fall back to max(yMax).
+            const bucketFactor = calculateBucketExpansionFactor(yMinValues, yMaxValues);
             dataMax *= bucketFactor;
+            if (dataMax <= 0) {
+              dataMax = yMaxValues.reduce<number>((acc, v) => (typeof v === 'number' && v > acc ? v : acc), 1);
+            }
 
             let scaleMin: number | null, scaleMax: number | null;
 
             const isLogScale =
               scaleDistribution === ScaleDistribution.Log || scaleDistribution === ScaleDistribution.Symlog;
-            [scaleMin, scaleMax] = isLogScale ? uPlot.rangeLog(dataMin, dataMax, scaleLog, true) : [dataMin, dataMax];
+            if (isLogScale) {
+              // Guard against non-positive values — log(0) = -Infinity causes uPlot to crash in logAxisSplits.
+              const safeMin = dataMin > 0 ? dataMin : dataMax / Math.pow(scaleLog, 2);
+              [scaleMin, scaleMax] = uPlot.rangeLog(safeMin, dataMax, scaleLog, true);
+            } else {
+              [scaleMin, scaleMax] = [dataMin, dataMax];
+            }
 
             let { min: explicitMin, max: explicitMax } = yAxisConfig;
 
@@ -880,6 +894,32 @@ export function heatmapPathsSparse(opts: PathbuilderOpts) {
 
     return null;
   };
+}
+
+/**
+ * Calculates a bucket expansion factor from yMin/yMax data arrays.
+ * Used to expand the y-axis range for sparse heatmaps where uPlot only auto-ranges from yMin.
+ *
+ * @param yMinValues - Array of yMin bucket boundary values
+ * @param yMaxValues - Array of yMax bucket boundary values
+ * @returns A valid expansion factor, or 1 as fallback
+ */
+export function calculateBucketExpansionFactor(yMinValues: unknown[], yMaxValues: unknown[]): number {
+  // Guard against invalid bucket factors (e.g., division by zero when first bucket starts at 0)
+  for (let i = 0; i < yMinValues.length; i++) {
+    const yMin = yMinValues[i];
+    const yMax = yMaxValues[i];
+    if (typeof yMin !== 'number' || typeof yMax !== 'number') {
+      continue;
+    }
+    const factor = yMax / yMin;
+    // finite checks for divide-by-zero
+    if (Number.isFinite(factor) && factor > 0) {
+      return factor;
+    }
+  }
+
+  return 1;
 }
 
 export const boundedMinMax = (

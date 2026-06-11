@@ -1,20 +1,20 @@
 import { css } from '@emotion/css';
 import { autoUpdate, useFloating } from '@floating-ui/react';
-import { memo, CSSProperties, ReactElement } from 'react';
+import { memo, type CSSProperties, type ReactElement } from 'react';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 
 import { useStyles2 } from '../../themes/ThemeContext';
 import { getPositioningMiddleware } from '../../utils/floating';
 import { Icon } from '../Icon/Icon';
 
-import { MenuItemProps } from './MenuItem';
+import { type MenuItemProps } from './MenuItem';
 import { useMenuFocus } from './hooks';
 
 /** @internal */
 export interface SubMenuProps {
-  parentItemRef: React.RefObject<HTMLElement>;
+  parentItemRef: React.RefObject<HTMLElement | null>;
   /** List of menu items of the subMenu */
   items?: Array<ReactElement<MenuItemProps>>;
   /** Open */

@@ -20,6 +20,8 @@ import (
 	"github.com/grafana/authlib/types"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	sdkhttpclient "github.com/grafana/grafana-plugin-sdk-go/backend/httpclient"
+	"github.com/grafana/grafana/pkg/apimachinery/identity"
+	"github.com/grafana/grafana/pkg/apis/datasource/v0alpha1"
 	"github.com/grafana/grafana/pkg/components/simplejson"
 	"github.com/grafana/grafana/pkg/infra/db"
 	"github.com/grafana/grafana/pkg/infra/httpclient"
@@ -1298,7 +1300,7 @@ func TestIntegrationService_GetHttpTransport(t *testing.T) {
 
 		opts, err := dsService.httpClientOptions(context.Background(), &ds)
 		require.NoError(t, err)
-		require.Equal(t, ds.JsonData.MustMap()["grafanaData"], opts.CustomOptions["grafanaData"])
+		require.Equal(t, ds.JsonDataMap()["grafanaData"], opts.CustomOptions["grafanaData"])
 
 		// make sure we can still marshal the JsonData after httpClientOptions (avoid cycles)
 		_, err = ds.JsonData.MarshalJSON()
@@ -1531,6 +1533,330 @@ func TestIntegrationService_GetHttpTransport(t *testing.T) {
 		require.NotNil(t, configuredOpts)
 		require.NotNil(t, configuredOpts.SigV4)
 		require.Equal(t, "es", configuredOpts.SigV4.Service)
+	})
+}
+
+func TestIntegrationService_GetDataSourcesByType(t *testing.T) {
+	testutil.SkipIntegrationTestInShortMode(t)
+
+	sqlStore := db.InitTestDB(t)
+	secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+	secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
+	quotaService := quotatest.New(false, nil)
+	plgs := &pluginstore.FakePluginStore{
+		PluginList: []pluginstore.Plugin{
+			{JSONData: plugins.JSONData{
+				ID:       "test",
+				AliasIDs: []string{"grafana-testdata-datasource"},
+			}},
+		},
+	}
+	features := featuremgmt.WithFeatures()
+	dsRetriever := ProvideDataSourceRetriever(sqlStore, features)
+	dsService, err := ProvideService(sqlStore, secretsService, secretsStore, &setting.Cfg{}, features, acmock.New(), acmock.NewMockedPermissionsService(), quotaService, plgs, &pluginfakes.FakePluginClient{}, nil, dsRetriever)
+	require.NoError(t, err)
+
+	// Provision data sources using the privileged provisioning identity.
+	adminCtx, _, err := identity.WithProvisioningIdentity(context.Background(), "default")
+	require.NoError(t, err)
+	for _, uid := range []string{"aaa", "bbb", "ccc"} {
+		_, err = dsService.AddDataSource(adminCtx, &datasources.AddDataSourceCommand{
+			OrgID: 1,
+			Name:  "ds-" + uid,
+			UID:   uid,
+			Type:  "test",
+		})
+		require.NoError(t, err)
+	}
+
+	userWith := func(scopes ...string) context.Context {
+		return identity.WithRequester(context.Background(), &identity.StaticRequester{
+			OrgID: 1,
+			Permissions: map[int64]map[string][]string{
+				1: {datasources.ActionRead: scopes},
+			},
+		})
+	}
+
+	t.Run("returns all when user has wildcard read", func(t *testing.T) {
+		ctx := userWith(datasources.ScopeAll)
+		res, err := dsService.GetDataSourcesByType(ctx, &datasources.GetDataSourcesByTypeQuery{
+			OrgID: 1,
+			Type:  "test",
+		})
+		require.NoError(t, err)
+		ids := make([]string, 0, len(res))
+		for _, ds := range res {
+			ids = append(ids, ds.UID)
+		}
+		require.ElementsMatch(t, []string{"aaa", "bbb", "ccc"}, ids)
+	})
+
+	t.Run("filters to only data sources the user can read", func(t *testing.T) {
+		ctx := userWith(
+			datasources.ScopeProvider.GetResourceScopeUID("aaa"),
+			datasources.ScopeProvider.GetResourceScopeUID("ccc"),
+		)
+		res, err := dsService.GetDataSourcesByType(ctx, &datasources.GetDataSourcesByTypeQuery{
+			OrgID: 1,
+			Type:  "test",
+		})
+		require.NoError(t, err)
+		ids := make([]string, 0, len(res))
+		for _, ds := range res {
+			ids = append(ids, ds.UID)
+		}
+		require.ElementsMatch(t, []string{"aaa", "ccc"}, ids)
+	})
+
+	t.Run("returns empty when user has no read access", func(t *testing.T) {
+		ctx := userWith()
+		res, err := dsService.GetDataSourcesByType(ctx, &datasources.GetDataSourcesByTypeQuery{
+			OrgID: 1,
+			Type:  "test",
+		})
+		require.NoError(t, err)
+		require.Empty(t, res)
+	})
+
+	t.Run("returns all (unfiltered) when no requester is in context", func(t *testing.T) {
+		// System/background callers have no requester and must not be filtered.
+		res, err := dsService.GetDataSourcesByType(context.Background(), &datasources.GetDataSourcesByTypeQuery{
+			OrgID: 1,
+			Type:  "test",
+		})
+		require.NoError(t, err)
+		ids := make([]string, 0, len(res))
+		for _, ds := range res {
+			ids = append(ids, ds.UID)
+		}
+		require.ElementsMatch(t, []string{"aaa", "bbb", "ccc"}, ids)
+	})
+
+	t.Run("resolves AliasIDs from plugin store when not provided", func(t *testing.T) {
+		ctx := userWith(datasources.ScopeAll)
+		// Query by an alias type; AliasIDs are populated via the plugin store.
+		res, err := dsService.GetDataSourcesByType(ctx, &datasources.GetDataSourcesByTypeQuery{
+			OrgID: 1,
+			Type:  "test",
+		})
+		require.NoError(t, err)
+		require.Len(t, res, 3)
+	})
+
+	t.Run("returns error when plugin is unknown", func(t *testing.T) {
+		ctx := userWith(datasources.ScopeAll)
+		_, err := dsService.GetDataSourcesByType(ctx, &datasources.GetDataSourcesByTypeQuery{
+			OrgID: 1,
+			Type:  "not-installed",
+		})
+		require.Error(t, err)
+	})
+}
+
+func TestIntegrationService_getConnections(t *testing.T) {
+	testutil.SkipIntegrationTestInShortMode(t)
+
+	sqlStore := db.InitTestDB(t)
+	secretsService := secretsmng.SetupTestService(t, fakes.NewFakeSecretsStore())
+	secretsStore := secretskvs.NewSQLSecretsKVStore(sqlStore, secretsService, log.New("test.logger"))
+	quotaService := quotatest.New(false, nil)
+	plugins := &pluginstore.FakePluginStore{
+		PluginList: []pluginstore.Plugin{
+			{JSONData: plugins.JSONData{
+				ID:       "test",
+				AliasIDs: []string{"grafana-testdata-datasource"},
+			}},
+			{JSONData: plugins.JSONData{
+				ID: "graphite",
+			}},
+			{JSONData: plugins.JSONData{
+				ID: "another-datasource",
+			}},
+		},
+	}
+	features := featuremgmt.WithFeatures()
+	dsRetriever := ProvideDataSourceRetriever(sqlStore, features)
+	dsService, err := ProvideService(sqlStore, secretsService, secretsStore, &setting.Cfg{}, features, acmock.New(), acmock.NewMockedPermissionsService(), quotaService, plugins, &pluginfakes.FakePluginClient{}, nil, dsRetriever)
+	require.NoError(t, err)
+
+	ctx, _, err := identity.WithProvisioningIdentity(context.Background(), "default")
+	require.NoError(t, err)
+	_, err = dsService.AddDataSource(ctx, &datasources.AddDataSourceCommand{
+		OrgID: 1,
+		Name:  "AAA",
+		UID:   "aaa",
+		Type:  "graphite",
+	})
+	require.NoError(t, err)
+	_, err = dsService.AddDataSource(ctx, &datasources.AddDataSourceCommand{
+		OrgID: 1,
+		Name:  "BBB",
+		UID:   "bbb",
+		Type:  "another-datasource",
+	})
+	require.NoError(t, err)
+	_, err = dsService.AddDataSource(ctx, &datasources.AddDataSourceCommand{
+		OrgID: 1,
+		Name:  "CCC",
+		UID:   "ccc",
+		Type:  "test",
+	})
+	require.NoError(t, err)
+
+	t.Run("Should list all datasources", func(t *testing.T) {
+		res, err := dsService.GetAllDataSources(ctx, &datasources.GetAllDataSourcesQuery{})
+		require.NoError(t, err)
+		ids := make([]string, 0, len(res))
+		for _, ds := range res {
+			ids = append(ids, ds.UID)
+		}
+		require.ElementsMatch(t, []string{"aaa", "bbb", "ccc"}, ids)
+	})
+
+	t.Run("Should list all connections", func(t *testing.T) {
+		res, err := dsService.ListConnections(ctx, v0alpha1.DataSourceConnectionQuery{
+			Namespace: "default",
+		})
+		require.NoError(t, err)
+
+		jj, _ := json.MarshalIndent(res, "", "  ")
+		require.JSONEq(t, `{
+			"kind": "DataSourceConnectionList",
+			"apiVersion": "datasource.grafana.app/v0alpha1",
+			"items": [
+				{
+					"title": "AAA",
+					"name": "aaa",
+					"group": "graphite.datasource.grafana.app",
+					"version": "v0alpha1",
+					"plugin": "graphite"
+				},
+				{
+					"title": "BBB",
+					"name": "bbb",
+					"group": "another-datasource.datasource.grafana.app",
+					"version": "v0alpha1",
+					"plugin": "another-datasource"
+				},
+				{
+					"title": "CCC",
+					"name": "ccc",
+					"group": "test.datasource.grafana.app",
+					"version": "v0alpha1",
+					"plugin": "test"
+				}
+			]
+		}`, string(jj))
+	})
+
+	t.Run("Should find connection by UID alone", func(t *testing.T) {
+		res, err := dsService.ListConnections(ctx, v0alpha1.DataSourceConnectionQuery{
+			Namespace: "default",
+			Name:      "bbb",
+		})
+		require.NoError(t, err)
+
+		jj, _ := json.MarshalIndent(res, "", "  ")
+		require.JSONEq(t, `{
+			"kind": "DataSourceConnectionList",
+			"apiVersion": "datasource.grafana.app/v0alpha1",
+			"items": [
+				{
+					"title": "BBB",
+					"name": "bbb",
+					"group": "another-datasource.datasource.grafana.app",
+					"version": "v0alpha1",
+					"plugin": "another-datasource"
+				}
+			]
+		}`, string(jj))
+	})
+
+	t.Run("Should find connection by plugin alone", func(t *testing.T) {
+		res, err := dsService.ListConnections(ctx, v0alpha1.DataSourceConnectionQuery{
+			Namespace: "default",
+			Plugin:    "test",
+		})
+		require.NoError(t, err)
+
+		jj, _ := json.MarshalIndent(res, "", "  ")
+		require.JSONEq(t, `{
+			"kind": "DataSourceConnectionList",
+			"apiVersion": "datasource.grafana.app/v0alpha1",
+			"items": [
+				{
+					"title": "CCC",
+					"name": "ccc",
+					"group": "test.datasource.grafana.app",
+					"version": "v0alpha1",
+					"plugin": "test"
+				}
+			]
+		}`, string(jj))
+	})
+
+	t.Run("Should query with uid and plugin", func(t *testing.T) {
+		res, err := dsService.ListConnections(ctx, v0alpha1.DataSourceConnectionQuery{
+			Namespace: "default",
+			Name:      "ccc",
+			Plugin:    "grafana-testdata-datasource", // an alias
+		})
+		require.NoError(t, err)
+
+		jj, _ := json.MarshalIndent(res, "", "  ")
+		require.JSONEq(t, `{
+			"kind": "DataSourceConnectionList",
+			"apiVersion": "datasource.grafana.app/v0alpha1",
+			"items": [
+				{
+					"title": "CCC",
+					"name": "ccc",
+					"group": "test.datasource.grafana.app",
+					"version": "v0alpha1",
+					"plugin": "test"
+				}
+			]
+		}`, string(jj))
+	})
+
+	t.Run("Should return error when plugin is unknown", func(t *testing.T) {
+		_, err := dsService.ListConnections(ctx, v0alpha1.DataSourceConnectionQuery{
+			Namespace: "default",
+			Plugin:    "not-installed",
+		})
+		require.Error(t, err)
+	})
+
+	t.Run("Should filter connections by user permissions when querying by plugin", func(t *testing.T) {
+		// Provisioning identity has wildcard read. Swap in a user that can only see "aaa".
+		restrictedCtx := identity.WithRequester(context.Background(), &identity.StaticRequester{
+			OrgID: 1,
+			Permissions: map[int64]map[string][]string{
+				1: {datasources.ActionRead: {datasources.ScopeProvider.GetResourceScopeUID("aaa")}},
+			},
+		})
+		res, err := dsService.ListConnections(restrictedCtx, v0alpha1.DataSourceConnectionQuery{
+			Namespace: "default",
+			Plugin:    "graphite",
+		})
+		require.NoError(t, err)
+		require.Len(t, res.Items, 1)
+		require.Equal(t, "aaa", res.Items[0].Name)
+
+		// Same query, user without the matching scope, returns nothing.
+		emptyCtx := identity.WithRequester(context.Background(), &identity.StaticRequester{
+			OrgID: 1,
+			Permissions: map[int64]map[string][]string{
+				1: {datasources.ActionRead: {datasources.ScopeProvider.GetResourceScopeUID("ccc")}},
+			},
+		})
+		res, err = dsService.ListConnections(emptyCtx, v0alpha1.DataSourceConnectionQuery{
+			Namespace: "default",
+			Plugin:    "graphite",
+		})
+		require.NoError(t, err)
+		require.Empty(t, res.Items)
 	})
 }
 

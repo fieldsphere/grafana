@@ -7,6 +7,7 @@ import { AppEvents } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getAppEvents, isFetchError, reportInteraction } from '@grafana/runtime';
 import {
+  Alert,
   Button,
   Checkbox,
   Combobox,
@@ -19,7 +20,7 @@ import {
   Switch,
 } from '@grafana/ui';
 import {
-  Repository,
+  type Repository,
   useGetFrontendSettingsQuery,
   useGetRepositoryRefsQuery,
 } from 'app/api/clients/provisioning/v0alpha1';
@@ -31,12 +32,13 @@ import { getGitProviderFields, getLocalProviderFields } from '../Wizard/fields';
 import { PROVISIONING_URL } from '../constants';
 import { useConnectionOptions } from '../hooks/useConnectionOptions';
 import { useCreateOrUpdateRepository } from '../hooks/useCreateOrUpdateRepository';
-import { RepositoryFormData } from '../types';
+import { type RepositoryFormData } from '../types';
 import { dataToSpec } from '../utils/data';
-import { getConfigFormErrors } from '../utils/getFormErrors';
+import { extractFormErrors, getConfigFormErrors } from '../utils/getFormErrors';
 import { getHasTokenInstructions } from '../utils/git';
 import { getRepositoryTypeConfig, isGitProvider } from '../utils/repositoryTypes';
 
+import { CommitMessageTemplateField } from './CommitMessageTemplateField';
 import { ConfigFormGithubCollapse } from './ConfigFormGithubCollapse';
 import { EnablePushToConfiguredBranchOption } from './EnablePushToConfiguredBranchOption';
 import { getDefaultValues } from './defaults';
@@ -46,6 +48,7 @@ const getTargetOptions = (allowedTargets: string[]) => {
   const allOptions = [
     { value: 'instance', label: t('provisioning.config-form.option-entire-instance', 'Entire instance') },
     { value: 'folder', label: t('provisioning.config-form.option-managed-folder', 'Managed folder') },
+    { value: 'folderless', label: t('provisioning.config-form.option-folderless', 'Folderless') },
   ];
 
   return allOptions.filter((option) => allowedTargets.includes(option.value));
@@ -79,6 +82,7 @@ export function ConfigForm({ data }: ConfigFormProps) {
   const isEdit = Boolean(repositoryName);
   const [tokenConfigured, setTokenConfigured] = useState(isEdit);
   const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | undefined>();
   const [type, readOnly] = watch(['type', 'readOnly']);
   const targetOptions = useMemo(() => getTargetOptions(settings.data?.allowedTargets || ['folder']), [settings.data]);
   const isGitBased = isGitProvider(type);
@@ -130,22 +134,31 @@ export function ConfigForm({ data }: ConfigFormProps) {
 
   const onSubmit = async (form: RepositoryFormData) => {
     setIsLoading(true);
+    setSubmitError(undefined);
     try {
       const spec = dataToSpec(form);
       await submitData(spec, form.token);
     } catch (err) {
       if (isFetchError(err)) {
-        const errors = getConfigFormErrors(err.data);
+        const fieldErrors = getConfigFormErrors(err.data);
 
-        if (errors.length > 0) {
-          for (const [field, errorMessage] of errors) {
+        if (fieldErrors.length > 0) {
+          for (const [field, errorMessage] of fieldErrors) {
             setError(field, errorMessage);
           }
           return;
         }
+
+        // Show unmapped error details as a top-level form error
+        const allErrors = extractFormErrors(err.data);
+        const detail = allErrors.find((e) => e.detail)?.detail;
+        if (detail) {
+          setSubmitError(detail);
+          return;
+        }
       }
 
-      // fallback for non-fetch errors or unmapped fields
+      // fallback for non-fetch errors or errors without details
       defaultAlert();
     } finally {
       setIsLoading(false);
@@ -156,6 +169,14 @@ export function ConfigForm({ data }: ConfigFormProps) {
     <form onSubmit={handleSubmit(onSubmit)} style={{ maxWidth: 700 }}>
       <FormPrompt onDiscard={reset} confirmRedirect={isDirty} />
       <Stack direction="column" gap={2}>
+        {submitError && (
+          <Alert
+            severity="error"
+            title={t('provisioning.config-form.error-save-failed', 'Failed to save repository setting')}
+          >
+            {submitError}
+          </Alert>
+        )}
         <Field noMargin label={t('provisioning.config-form.label-repository-type', 'Repository type')}>
           <Input id="repository-type" value={getRepositoryTypeConfig(type)?.label || type} disabled />
         </Field>
@@ -173,6 +194,7 @@ export function ConfigForm({ data }: ConfigFormProps) {
             placeholder={t('provisioning.config-form.placeholder-my-config', 'My config')}
           />
         </Field>
+        <CommitMessageTemplateField register={register} />
         {gitFields && (
           <>
             {usesGitHubApp ? (
@@ -267,6 +289,7 @@ export function ConfigForm({ data }: ConfigFormProps) {
                 {...register('url', {
                   required: gitFields.urlConfig.validation?.required,
                   pattern: gitFields.urlConfig.validation?.pattern,
+                  validate: gitFields.urlConfig.validation?.validate,
                 })}
                 placeholder={gitFields.urlConfig.placeholder}
               />

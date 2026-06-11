@@ -20,6 +20,10 @@ type Connection struct {
 	Status ConnectionStatus `json:"status,omitempty"`
 }
 
+func (Connection) OpenAPIModelName() string {
+	return OpenAPIPrefix + "Connection"
+}
+
 type ConnectionSecure struct {
 	// PrivateKey is the reference to the private key used for GitHub App authentication.
 	// This value is stored securely and cannot be read back
@@ -35,6 +39,10 @@ type ConnectionSecure struct {
 	Token common.InlineSecureValue `json:"token,omitzero,omitempty"`
 }
 
+func (ConnectionSecure) OpenAPIModelName() string {
+	return OpenAPIPrefix + "ConnectionSecure"
+}
+
 func (v ConnectionSecure) IsZero() bool {
 	return v.PrivateKey.IsZero() && v.Token.IsZero() && v.ClientSecret.IsZero()
 }
@@ -47,9 +55,34 @@ type GitHubConnectionConfig struct {
 	InstallationID string `json:"installationID"`
 }
 
+func (GitHubConnectionConfig) OpenAPIModelName() string {
+	return OpenAPIPrefix + "GitHubConnectionConfig"
+}
+
+// GitHubEnterpriseConnectionConfig describes a GitHub App installation against a
+// self-managed GitHub Enterprise Server (GHES) instance.
+type GitHubEnterpriseConnectionConfig struct {
+	// GitHub App ID
+	AppID string `json:"appID"`
+
+	// GitHub App installation ID
+	InstallationID string `json:"installationID"`
+
+	// The GitHub Enterprise Server URL (e.g. `https://ghes.example.com`).
+	ServerURL string `json:"serverUrl"`
+}
+
+func (GitHubEnterpriseConnectionConfig) OpenAPIModelName() string {
+	return OpenAPIPrefix + "GitHubEnterpriseConnectionConfig"
+}
+
 type BitbucketConnectionConfig struct {
 	// App client ID
 	ClientID string `json:"clientID"`
+}
+
+func (BitbucketConnectionConfig) OpenAPIModelName() string {
+	return OpenAPIPrefix + "BitbucketConnectionConfig"
 }
 
 type GitlabConnectionConfig struct {
@@ -57,15 +90,24 @@ type GitlabConnectionConfig struct {
 	ClientID string `json:"clientID"`
 }
 
+func (GitlabConnectionConfig) OpenAPIModelName() string {
+	return OpenAPIPrefix + "GitlabConnectionConfig"
+}
+
 // ConnectionType defines the types of Connection providers
 // +enum
 type ConnectionType string
 
+func (ConnectionType) OpenAPIModelName() string {
+	return OpenAPIPrefix + "ConnectionType"
+}
+
 // ConnectionType values.
 const (
-	GithubConnectionType    ConnectionType = "github"
-	GitlabConnectionType    ConnectionType = "gitlab"
-	BitbucketConnectionType ConnectionType = "bitbucket"
+	GithubConnectionType           ConnectionType = "github"
+	GithubEnterpriseConnectionType ConnectionType = "githubEnterprise"
+	GitlabConnectionType           ConnectionType = "gitlab"
+	BitbucketConnectionType        ConnectionType = "bitbucket"
 )
 
 type ConnectionSpec struct {
@@ -81,12 +123,19 @@ type ConnectionSpec struct {
 	// GitHub connection configuration
 	// Only applicable when provider is "github"
 	GitHub *GitHubConnectionConfig `json:"github,omitempty"`
+	// GitHub Enterprise Server connection configuration
+	// Only applicable when provider is "githubEnterprise"
+	GitHubEnterprise *GitHubEnterpriseConnectionConfig `json:"githubEnterprise,omitempty"`
 	// Bitbucket connection configuration
 	// Only applicable when provider is "bitbucket"
 	Bitbucket *BitbucketConnectionConfig `json:"bitbucket,omitempty"`
 	// Gitlab connection configuration
 	// Only applicable when provider is "gitlab"
 	Gitlab *GitlabConnectionConfig `json:"gitlab,omitempty"`
+}
+
+func (ConnectionSpec) OpenAPIModelName() string {
+	return OpenAPIPrefix + "ConnectionSpec"
 }
 
 // The status of a Connection.
@@ -111,6 +160,10 @@ type ConnectionStatus struct {
 	Health HealthStatus `json:"health"`
 }
 
+func (ConnectionStatus) OpenAPIModelName() string {
+	return OpenAPIPrefix + "ConnectionStatus"
+}
+
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 type ConnectionList struct {
 	metav1.TypeMeta `json:",inline"`
@@ -118,6 +171,10 @@ type ConnectionList struct {
 
 	// +listType=atomic
 	Items []Connection `json:"items"`
+}
+
+func (ConnectionList) OpenAPIModelName() string {
+	return OpenAPIPrefix + "ConnectionList"
 }
 
 // ExternalRepositoryList lists repositories from an external git provider
@@ -128,6 +185,10 @@ type ExternalRepositoryList struct {
 
 	// +listType=atomic
 	Items []ExternalRepository `json:"items"`
+}
+
+func (ExternalRepositoryList) OpenAPIModelName() string {
+	return OpenAPIPrefix + "ExternalRepositoryList"
 }
 
 type ExternalRepository struct {
@@ -141,4 +202,8 @@ type ExternalRepository struct {
 	Owner string `json:"owner,omitempty"`
 	// URL of the repository
 	URL string `json:"url"`
+}
+
+func (ExternalRepository) OpenAPIModelName() string {
+	return OpenAPIPrefix + "ExternalRepository"
 }

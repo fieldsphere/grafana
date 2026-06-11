@@ -4,7 +4,6 @@
 process.env.TZ = 'Pacific/Easter'; // UTC-06:00 or UTC-05:00 depending on daylight savings
 
 const esModules = [
-  '@glideapps/glide-data-grid',
   '@wojtekmaj/date-utils',
   'ol',
   'd3',
@@ -27,7 +26,7 @@ const esModules = [
   'lodash-es',
   'vscode-languageserver-types',
   '@bsull/augurs',
-  'react-data-grid',
+  '@grafana/react-data-grid',
   '@grafana/llm',
   'pkce-challenge',
   'quickselect',
@@ -35,6 +34,7 @@ const esModules = [
   'earcut',
   'pbf',
   'geotiff',
+  'uuid',
 ].join('|');
 
 module.exports = {
@@ -69,12 +69,13 @@ module.exports = {
     '@kusto/monaco-kusto': '@kusto/monaco-kusto/release/esm/monaco.contribution.js',
     // near-membrane-dom won't work in a nodejs environment.
     '@locker/near-membrane-dom': '<rootDir>/public/test/mocks/nearMembraneDom.ts',
-    '^@grafana/schema/dist/esm/(.*)$': '<rootDir>/packages/grafana-schema/src/$1',
     // prevent systemjs amd extra from breaking tests.
     'systemjs/dist/extras/amd': '<rootDir>/public/test/mocks/systemjsAMDExtra.ts',
     '@bsull/augurs': '<rootDir>/public/test/mocks/augurs.ts',
     // Mock @grafana/assistant to prevent initialization errors in tests
     '^@grafana/assistant$': '<rootDir>/public/test/mocks/assistant.ts',
+    // Mock measureText to prevent invalid calculations with uPlot
+    '^@grafana/ui/src/utils/measureText$': '<rootDir>/packages/grafana-ui/src/utils/measureText.ts',
   },
   // Log the test results with dynamic Loki tags. Drone CI only
   reporters: ['default', ['<rootDir>/public/test/log-reporter.js', { enable: process.env.DRONE === 'true' }]],
@@ -84,16 +85,17 @@ module.exports = {
     // Decoupled plugins run their own tests so ignoring them here.
     '<rootDir>/public/app/plugins/datasource/azuremonitor',
     '<rootDir>/public/app/plugins/datasource/cloud-monitoring',
-    '<rootDir>/public/app/plugins/datasource/elasticsearch',
     '<rootDir>/public/app/plugins/datasource/grafana-postgresql-datasource',
     '<rootDir>/public/app/plugins/datasource/grafana-pyroscope-datasource',
     '<rootDir>/public/app/plugins/datasource/grafana-testdata-datasource',
+    '<rootDir>/public/app/plugins/datasource/influxdb',
+    '<rootDir>/public/app/plugins/datasource/graphite',
     '<rootDir>/public/app/plugins/datasource/jaeger',
     '<rootDir>/public/app/plugins/datasource/loki',
+    '<rootDir>/public/app/plugins/datasource/mssql',
     '<rootDir>/public/app/plugins/datasource/mysql',
+    '<rootDir>/public/app/plugins/datasource/opentsdb',
     '<rootDir>/public/app/plugins/datasource/parca',
     '<rootDir>/public/app/plugins/datasource/tempo',
-    '<rootDir>/public/app/plugins/datasource/zipkin',
   ],
-  projects: ['<rootDir>'],
 };

@@ -1,52 +1,60 @@
-import { FC, SyntheticEvent } from 'react';
-import { CellRendererProps, Column } from 'react-data-grid';
+import { type FC, type SyntheticEvent } from 'react';
 
 import {
-  DataFrame,
-  Field,
-  GrafanaTheme2,
-  KeyValue,
-  TimeRange,
-  FieldConfigSource,
-  ActionModel,
-  FieldType,
-  DataFrameWithValue,
-  SelectableValue,
-  FieldState,
+  type DataFrame,
+  type Field,
+  type GrafanaTheme2,
+  type KeyValue,
+  type TimeRange,
+  type FieldConfigSource,
+  type ActionModel,
+  type FieldType,
+  type DataFrameWithValue,
+  type SelectableValue,
+  type FieldState,
 } from '@grafana/data';
-import { TableCellHeight, TableFieldOptions } from '@grafana/schema';
+import { type CellRendererProps, type Column } from '@grafana/react-data-grid';
+import { type MatcherScope, type TableCellHeight } from '@grafana/schema';
 
-import { TableCellInspectorMode } from '../TableCellInspector';
-import { TableCellOptions } from '../types';
+import { type TableCellInspectorMode } from '../TableCellInspector';
+import { type TableCellOptions } from '../types';
 
-import { TextAlign } from './utils';
+import { type ApplyFilterResult, type TextAlign } from './utils';
 
 export const FILTER_FOR_OPERATOR = '=';
 export const FILTER_OUT_OPERATOR = '!=';
 
-export type AdHocFilterOperator = typeof FILTER_FOR_OPERATOR | typeof FILTER_OUT_OPERATOR;
+type AdHocFilterOperator = typeof FILTER_FOR_OPERATOR | typeof FILTER_OUT_OPERATOR;
 export type AdHocFilterItem = { key: string; value: string; operator: AdHocFilterOperator };
-export type TableFilterActionCallback = (item: AdHocFilterItem) => void;
-export type TableColumnResizeActionCallback = (fieldDisplayName: string, width: number) => void;
-export type TableSortByActionCallback = (state: TableSortByFieldState[]) => void;
-export type FooterItem = Array<KeyValue<string>> | string | undefined;
+type TableFilterActionCallback = (item: AdHocFilterItem) => void;
+type TableColumnResizeActionCallback = (fieldDisplayName: string, width: number, fieldScope?: MatcherScope) => void;
+type TableSortByActionCallback = (state: TableSortByFieldState[]) => void;
+type FooterItem = Array<KeyValue<string>> | string | undefined;
 
-export type GetActionsFunction = (frame: DataFrame, field: Field, rowIndex: number) => ActionModel[];
+type GetActionsFunction = (frame: DataFrame, field: Field, rowIndex: number) => ActionModel[];
 
-export type GetActionsFunctionLocal = (field: Field, rowIndex: number) => ActionModel[];
+type GetActionsFunctionLocal = (field: Field, rowIndex: number) => ActionModel[];
 
-export type TableFieldOptionsType = Omit<TableFieldOptions, 'cellOptions'> & {
-  cellOptions: TableCellOptions;
-  headerComponent?: React.ComponentType<CustomHeaderRendererProps>;
-};
+export enum FilterOperator {
+  CONTAINS = 'Contains',
+  EQUALS = '=',
+  NOT_EQUALS = '!=',
+  GREATER = '>',
+  GREATER_OR_EQUAL = '>=',
+  LESS = '<',
+  LESS_OR_EQUAL = '<=',
+  EXPRESSION = 'Expression',
+}
 
 export type FilterType = Record<
   string,
   {
     filteredSet: Set<string>;
+    displayName: string;
     filtered?: Array<SelectableValue<unknown>>;
     searchFilter?: string;
-    operator?: SelectableValue<string>;
+    operator?: SelectableValue<FilterOperator>;
+    parentIndex?: number;
   }
 >;
 
@@ -80,23 +88,10 @@ export interface TableRow {
   // Nested table properties
   data?: DataFrame;
   __expanded?: boolean; // For row expansion state
+  __parentIndex?: number; // For nested table parent tracking
 
   // Generic typing for column values
   [columnName: string]: TableCellValue;
-}
-
-export interface CustomCellRendererProps {
-  field: Field;
-  rowIndex: number;
-  frame: DataFrame;
-  // Would be great to have generic type for this but that would need having a generic DataFrame type where the field
-  // types could be propagated here.
-  value: unknown;
-}
-
-export interface CustomHeaderRendererProps {
-  field: Field;
-  defaultContent: React.ReactNode;
 }
 
 export interface TableSortByFieldState {
@@ -104,7 +99,14 @@ export interface TableSortByFieldState {
   desc?: boolean;
 }
 
-export interface BaseTableProps {
+/**
+ * Controls how the `sortBy` prop is applied.
+ * `initial` will only read from the options on initial render,
+ * while `managed` will update the sort order whenever the sortBy array is changed.
+ */
+export type SortByBehavior = 'initial' | 'managed';
+
+interface BaseTableProps {
   ariaLabel?: string;
   data: DataFrame;
   width: number;
@@ -115,7 +117,8 @@ export interface BaseTableProps {
   noHeader?: boolean;
   showTypeIcons?: boolean;
   resizable?: boolean;
-  initialSortBy?: TableSortByFieldState[];
+  sortBy?: TableSortByFieldState[];
+  sortByBehavior?: SortByBehavior;
   onColumnResize?: TableColumnResizeActionCallback;
   onSortByChange?: TableSortByActionCallback;
   onCellFilterAdded?: TableFilterActionCallback;
@@ -126,7 +129,9 @@ export interface BaseTableProps {
   maxRowHeight?: number;
   structureRev?: number;
   transparent?: boolean;
-  /** @alpha Used by SparklineCell when provided */
+  /* message to show when no rows are present */
+  noValue?: string;
+  /** used by SparklineCell when provided */
   timeRange?: TimeRange;
   enableSharedCrosshair?: boolean;
   // The index of the field value that the table will initialize scrolled to
@@ -185,6 +190,7 @@ export interface TableCellActionsProps {
 /* ------------------------- Specialized Cell Props ------------------------- */
 export interface RowExpanderNGProps {
   onCellExpand: (e: SyntheticEvent) => void;
+  rowId: string;
   isExpanded?: boolean;
 }
 
@@ -261,15 +267,16 @@ export type TableCellStyles = (theme: GrafanaTheme2, options: TableCellStyleOpti
 export type Comparator = (a: TableCellValue, b: TableCellValue) => number;
 
 // Type for converting a DataFrame into an array of TableRows
-export type FrameToRowsConverter = (frame: DataFrame, nestedFramesFieldName?: string) => TableRow[];
+export type FrameToRowsConverter = (frame: DataFrame, nestedRowIndex?: number) => TableRow[];
+
+export interface NestedRowEntry {
+  raw: TableRow[];
+  final: TableRow[];
+  filterResult: ApplyFilterResult;
+}
 
 // Type for mapping column names to their field types
 export type ColumnTypes = Record<string, FieldType>;
-
-export interface ScrollPosition {
-  x: number;
-  y: number;
-}
 
 export interface TypographyCtx {
   ctx: CanvasRenderingContext2D;

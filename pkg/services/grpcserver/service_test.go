@@ -2,6 +2,7 @@ package grpcserver
 
 import (
 	"context"
+	"net"
 	"testing"
 	"time"
 
@@ -301,6 +302,125 @@ func TestGetAddress(t *testing.T) {
 	})
 }
 
+func TestDelayShutdown(t *testing.T) {
+	t.Run("separateShutdown=false shuts down server when context is cancelled", func(t *testing.T) {
+		cfg := &setting.GRPCServerSettings{
+			Network:                 "tcp",
+			Address:                 "127.0.0.1:0",
+			GracefulShutdownTimeout: 5 * time.Second,
+		}
+
+		service := &gPRCServerService{
+			cfg:              *cfg,
+			logger:           log.NewNopLogger(),
+			enabled:          true,
+			startedChan:      make(chan struct{}),
+			server:           grpc.NewServer(),
+			separateShutdown: false, // Default behavior - shutdown in Run()
+		}
+
+		grpc_health_v1.RegisterHealthServer(service.server, &testHealthServer{})
+
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		serverDone := make(chan error, 1)
+		go func() {
+			serverDone <- service.Run(ctx)
+		}()
+
+		<-service.startedChan
+
+		// Verify server is running
+		conn, err := grpc.NewClient(
+			service.GetAddress(),
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		)
+		require.NoError(t, err)
+		defer func() { _ = conn.Close() }()
+
+		healthClient := grpc_health_v1.NewHealthClient(conn)
+		_, err = healthClient.Check(context.Background(), &grpc_health_v1.HealthCheckRequest{})
+		require.NoError(t, err)
+
+		// Cancel context to trigger shutdown
+		cancel()
+
+		// Wait for Run() to return
+		err = <-serverDone
+		assert.NoError(t, err)
+
+		// Server should be stopped - new connections should fail
+		checkCtx, checkCancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+		defer checkCancel()
+		_, err = healthClient.Check(checkCtx, &grpc_health_v1.HealthCheckRequest{})
+		assert.Error(t, err, "Server should be stopped after Run() returns with separateShutdown=false")
+	})
+
+	t.Run("separateShutdown=true keeps server running after context is cancelled", func(t *testing.T) {
+		cfg := &setting.GRPCServerSettings{
+			Network:                 "tcp",
+			Address:                 "127.0.0.1:0",
+			GracefulShutdownTimeout: 5 * time.Second,
+		}
+
+		service := &gPRCServerService{
+			cfg:              *cfg,
+			logger:           log.NewNopLogger(),
+			enabled:          true,
+			startedChan:      make(chan struct{}),
+			server:           grpc.NewServer(),
+			separateShutdown: true, // DSKit behavior - shutdown delayed
+		}
+
+		grpc_health_v1.RegisterHealthServer(service.server, &testHealthServer{})
+
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+
+		serverDone := make(chan error, 1)
+		go func() {
+			serverDone <- service.Run(ctx)
+		}()
+
+		<-service.startedChan
+
+		// Verify server is running
+		conn, err := grpc.NewClient(
+			service.GetAddress(),
+			grpc.WithTransportCredentials(insecure.NewCredentials()),
+		)
+		require.NoError(t, err)
+		defer func() { _ = conn.Close() }()
+
+		healthClient := grpc_health_v1.NewHealthClient(conn)
+		_, err = healthClient.Check(context.Background(), &grpc_health_v1.HealthCheckRequest{})
+		require.NoError(t, err)
+
+		// Cancel context
+		cancel()
+
+		// Wait for Run() to return
+		err = <-serverDone
+		assert.NoError(t, err)
+
+		// Server should STILL be running - connections should work
+		checkCtx, checkCancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+		defer checkCancel()
+		_, err = healthClient.Check(checkCtx, &grpc_health_v1.HealthCheckRequest{})
+		assert.NoError(t, err, "Server should still be running after Run() returns with separateShutdown=true")
+
+		// Now explicitly call shutdown
+		service.shutdown()
+
+		// Now server should be stopped
+		checkCtx2, checkCancel2 := context.WithTimeout(context.Background(), 500*time.Millisecond)
+		defer checkCancel2()
+		_, err = healthClient.Check(checkCtx2, &grpc_health_v1.HealthCheckRequest{})
+		assert.Error(t, err, "Server should be stopped after explicit shutdown() call")
+	})
+}
+
 func TestIsDisabled(t *testing.T) {
 	tests := []struct {
 		name    string
@@ -355,7 +475,7 @@ func (h *testHealthServer) Watch(req *grpc_health_v1.HealthCheckRequest, stream 
 
 // BenchmarkGracefulShutdown benchmarks the graceful shutdown process
 func BenchmarkGracefulShutdown(b *testing.B) {
-	for i := 0; i < b.N; i++ {
+	for range b.N {
 		cfg := &setting.GRPCServerSettings{
 			Network:                 "tcp",
 			Address:                 "127.0.0.1:0",
@@ -383,4 +503,49 @@ func BenchmarkGracefulShutdown(b *testing.B) {
 		cancel()
 		<-serverDone
 	}
+}
+
+func TestRunUsesProvidedListener(t *testing.T) {
+	// Reserve a port and hand the live listener to the server, mirroring how the
+	// integration test harness avoids a close/re-bind race on the reserved port.
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	reservedAddr := listener.Addr().String()
+
+	service := &gPRCServerService{
+		cfg: setting.GRPCServerSettings{
+			Network:                 "tcp",
+			Address:                 "127.0.0.1:0",
+			GracefulShutdownTimeout: 5 * time.Second,
+		},
+		logger:      log.NewNopLogger(),
+		enabled:     true,
+		startedChan: make(chan struct{}),
+		server:      grpc.NewServer(),
+		listener:    listener,
+	}
+	grpc_health_v1.RegisterHealthServer(service.server, &testHealthServer{})
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	serverDone := make(chan error, 1)
+	go func() {
+		serverDone <- service.Run(ctx)
+	}()
+
+	<-service.startedChan
+
+	// The server must serve on the reserved listener, not dial cfg.Address.
+	assert.Equal(t, reservedAddr, service.GetAddress())
+
+	conn, err := grpc.NewClient(reservedAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	require.NoError(t, err)
+	defer func() { _ = conn.Close() }()
+
+	_, err = grpc_health_v1.NewHealthClient(conn).Check(context.Background(), &grpc_health_v1.HealthCheckRequest{})
+	require.NoError(t, err)
+
+	cancel()
+	require.NoError(t, <-serverDone)
 }

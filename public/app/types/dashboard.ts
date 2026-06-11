@@ -1,8 +1,7 @@
-import { DataQuery } from '@grafana/data';
-import { Dashboard, DataSourceRef } from '@grafana/schema';
-import { ObjectMeta } from 'app/features/apiserver/types';
-import { DashboardModel } from 'app/features/dashboard/state/DashboardModel';
-import { ProvisioningPreview } from 'app/features/provisioning/types';
+import { type Dashboard, type DataSourceRef } from '@grafana/schema';
+import { type ObjectMeta } from 'app/features/apiserver/types';
+import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
+import { type ProvisioningPreview } from 'app/features/provisioning/types';
 
 export interface HomeDashboardRedirectDTO {
   redirectUri: string;
@@ -13,25 +12,7 @@ export interface DashboardDTO {
   meta: DashboardMeta;
 }
 
-export interface ImportDashboardResponseDTO {
-  uid: string;
-  pluginId: string;
-  title: string;
-  imported: boolean;
-  importedRevision?: number;
-  importedUri: string;
-  importedUrl: string;
-  slug: string;
-  dashboardId: number;
-  folderId: number;
-  folderUid: string;
-  description: string;
-  path: string;
-  removed: boolean;
-}
-
 export interface SaveDashboardResponseDTO {
-  id: number;
   slug: string;
   status: string;
   uid: string;
@@ -53,11 +34,11 @@ export interface DashboardMeta {
   canMakeEditable?: boolean;
   provisioned?: boolean;
   provisionedExternalId?: string;
-  isStarred?: boolean;
   showSettings?: boolean;
   expires?: string;
   isFolder?: boolean;
   isSnapshot?: boolean;
+  snapshotKey?: string;
   folderTitle?: string;
   folderUrl?: string;
   folderId?: number;
@@ -73,6 +54,11 @@ export interface DashboardMeta {
   isEmbedded?: boolean;
   isNew?: boolean;
   version?: number;
+
+  // Dashboard template edit flow. Set when a dashboard scene was hydrated from an DashboardTemplate
+  // via DashboardRoutes.Template with editTemplate=true.
+  isDashboardTemplate?: boolean;
+  dashboardTemplateUid?: string;
 
   // When loaded from kubernetes, we stick the raw metadata here
   // yes weird, but this means all the editor structures can exist unchanged
@@ -102,7 +88,6 @@ export interface AnnotationActions {
 
 export interface AnnotationsPermissions {
   dashboard: AnnotationActions;
-  organization: AnnotationActions;
 }
 
 export interface SnapshotSpec {
@@ -148,11 +133,6 @@ export enum KioskMode {
 
 export type GetMutableDashboardModelFn = () => DashboardModel | null;
 
-export interface QueriesToUpdateOnDashboardLoad {
-  panelId: number;
-  queries: DataQuery[];
-}
-
 export interface DashboardState {
   getModel: GetMutableDashboardModelFn;
   initPhase: DashboardInitPhase;
@@ -162,6 +142,8 @@ export interface DashboardState {
 
 export const DASHBOARD_FROM_LS_KEY = 'DASHBOARD_FROM_LS_KEY';
 
-export function isRedirectResponse(dto: DashboardDTO | HomeDashboardRedirectDTO): dto is HomeDashboardRedirectDTO {
+export function isRedirectResponse<T extends object>(
+  dto: T | HomeDashboardRedirectDTO
+): dto is HomeDashboardRedirectDTO {
   return 'redirectUri' in dto;
 }

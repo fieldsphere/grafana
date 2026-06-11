@@ -3,21 +3,19 @@ import { useMemo } from 'react';
 
 import { t } from '@grafana/i18n';
 import {
-  GetRepositoryFilesApiResponse,
-  GetResourceStatsApiResponse,
-  ManagerStats,
-  RepositoryView,
-  ResourceCount,
+  type GetRepositoryFilesApiResponse,
+  type GetResourceStatsApiResponse,
+  type ManagerStats,
+  type RepositoryView,
+  type ResourceCount,
   useGetRepositoryFilesQuery,
   useGetResourceStatsQuery,
 } from 'app/api/clients/provisioning/v0alpha1';
 import { ManagerKind } from 'app/features/apiserver/types';
 
-import { useRepositoryStatus } from './useRepositoryStatus';
-
 export type UseResourceStatsOptions = {
-  enableRepositoryStatus?: boolean;
-  isHealthy?: boolean;
+  isHealthy?: boolean; // true only when healthy AND reconciled
+  healthStatusNotReady?: boolean; // true when waiting for reconciliation
 };
 
 function getManagedCount(managed?: ManagerStats[]) {
@@ -47,11 +45,23 @@ function getResourceCount(stats?: ResourceCount[], managed?: ManagerStats[]) {
       case 'folders':
       case 'folder.grafana.app':
         resourceCount += stat.count;
-        counts.push(t('provisioning.bootstrap-step.folders-count', '{{count}} folder', { count: stat.count }));
+        counts.push(
+          t('provisioning.bootstrap-step.folders-count', '', {
+            count: stat.count,
+            defaultValue_one: '{{count}} folder',
+            defaultValue_other: '{{count}} folder',
+          })
+        );
         break;
       case 'dashboard.grafana.app':
         resourceCount += stat.count;
-        counts.push(t('provisioning.bootstrap-step.dashboards-count', '{{count}} dashboard', { count: stat.count }));
+        counts.push(
+          t('provisioning.bootstrap-step.dashboards-count', '', {
+            count: stat.count,
+            defaultValue_one: '{{count}} dashboard',
+            defaultValue_other: '{{count}} dashboard',
+          })
+        );
         break;
     }
   });
@@ -63,12 +73,22 @@ function getResourceCount(stats?: ResourceCount[], managed?: ManagerStats[]) {
           case 'folders':
           case 'folder.grafana.app':
             resourceCount += stat.count;
-            counts.push(t('provisioning.bootstrap-step.folders-count', '{{count}} folder', { count: stat.count }));
+            counts.push(
+              t('provisioning.bootstrap-step.folders-count', '', {
+                count: stat.count,
+                defaultValue_one: '{{count}} folder',
+                defaultValue_other: '{{count}} folder',
+              })
+            );
             break;
           case 'dashboard.grafana.app':
             resourceCount += stat.count;
             counts.push(
-              t('provisioning.bootstrap-step.dashboards-count', '{{count}} dashboard', { count: stat.count })
+              t('provisioning.bootstrap-step.dashboards-count', '', {
+                count: stat.count,
+                defaultValue_one: '{{count}} dashboard',
+                defaultValue_other: '{{count}} dashboard',
+              })
             );
             break;
         }
@@ -115,15 +135,15 @@ export function useResourceStats(
   migrateResources?: boolean,
   options?: UseResourceStatsOptions
 ) {
-  const enableRepositoryStatus = options?.enableRepositoryStatus ?? true; // provide option to skip repo status check
-  const { isHealthy: statusHealthy } = useRepositoryStatus(enableRepositoryStatus ? repoName : undefined);
-  const effectiveHealthy = enableRepositoryStatus ? statusHealthy : options?.isHealthy;
+  const { isHealthy, healthStatusNotReady } = options || {};
 
   const resourceStatsQuery = useGetResourceStatsQuery(repoName ? undefined : skipToken);
-  // files endpoint requires healthy repository
-  const filesQuery = useGetRepositoryFilesQuery(repoName && effectiveHealthy ? { name: repoName } : skipToken);
+  // isHealthy already includes reconciliation check - safe to fetch files
+  const filesQuery = useGetRepositoryFilesQuery(repoName && isHealthy ? { name: repoName } : skipToken, {
+    refetchOnMountOrArgChange: true,
+  });
 
-  const isLoading = resourceStatsQuery.isLoading || filesQuery.isLoading;
+  const isLoading = resourceStatsQuery.isFetching || filesQuery.isFetching || Boolean(healthStatusNotReady);
 
   const { resourceCount, resourceCountString, fileCount } = useMemo(
     () => getResourceStats(filesQuery.data, resourceStatsQuery.data),
@@ -142,16 +162,21 @@ export function useResourceStats(
 
   // Calculate requiresMigration based on sync target and user selection
   // For instance sync: migrate if there are resources (checkbox is disabled and always true)
-  // For folder sync: only migrate if user explicitly opts in via checkbox
+  // For folder and folderless sync: only migrate if user explicitly opts in via checkbox
   const requiresMigration = syncTarget === 'instance' ? resourceCount > 0 : (migrateResources ?? false);
-  const shouldSkipSync = (resourceCount === 0 || syncTarget === 'folder') && fileCount === 0;
+  const shouldSkipSync =
+    (resourceCount === 0 || syncTarget === 'folder' || syncTarget === 'folderless') && fileCount === 0;
 
   // Format display strings
   const resourceCountDisplay =
     resourceCount > 0 ? resourceCountString : t('provisioning.bootstrap-step.empty', 'Empty');
   const fileCountDisplay =
     fileCount > 0
-      ? t('provisioning.bootstrap-step.files-count', '{{count}} files', { count: fileCount })
+      ? t('provisioning.bootstrap-step.files-count', '', {
+          count: fileCount,
+          defaultValue_one: '{{count}} files',
+          defaultValue_other: '{{count}} files',
+        })
       : t('provisioning.bootstrap-step.empty', 'Empty');
 
   return {

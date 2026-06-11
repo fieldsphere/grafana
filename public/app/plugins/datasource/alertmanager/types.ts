@@ -1,9 +1,14 @@
 //DOCS: https://prometheus.io/docs/alerting/latest/configuration/
-import { DataSourceJsonData, WithAccessControlMetadata } from '@grafana/data';
-import { IoK8SApimachineryPkgApisMetaV1ObjectMeta } from 'app/features/alerting/unified/openapi/receiversApi.gen';
-import { ExtraConfiguration } from 'app/features/alerting/unified/utils/alertmanager/extraConfigs';
+import { type ObjectMeta } from '@grafana/api-clients/rtkq/notifications.alerting/v0alpha1';
+import { type DataSourceJsonData, type WithAccessControlMetadata } from '@grafana/data';
 
 export const ROUTES_META_SYMBOL = Symbol('routes_metadata');
+
+export interface ExtraConfiguration {
+  identifier: string;
+  source?: string;
+  createdAt?: string;
+}
 
 export type AlertManagerCortexConfig = {
   template_files: Record<string, string>;
@@ -107,7 +112,7 @@ export interface GrafanaManagedContactPoint {
   name: string;
   /** If parsed from k8s API, we'll have an ID property */
   id?: string;
-  metadata?: IoK8SApimachineryPkgApisMetaV1ObjectMeta;
+  metadata?: ObjectMeta;
   provenance?: string;
   grafana_managed_receiver_configs?: GrafanaManagedReceiverConfig[];
 }
@@ -127,6 +132,7 @@ export type Receiver = GrafanaManagedContactPoint | AlertmanagerReceiver;
 export type ObjectMatcher = [name: string, operator: MatcherOperator, value: string];
 
 export type Route = {
+  name?: string;
   receiver?: string | null;
   group_by?: string[];
   continue?: boolean;
@@ -151,6 +157,7 @@ export type Route = {
     provenance?: string;
     resourceVersion?: string;
     name?: string;
+    metadata?: ObjectMeta;
   };
 };
 
@@ -226,6 +233,18 @@ export enum MatcherOperator {
   notRegex = '!~',
 }
 
+/**
+ * Rule metadata on Grafana silence GET responses when `ruleMetadata=true`.
+ * The whole object is omitted when the silence has no `__alert_rule_uid__` matcher.
+ * When present, `rule_uid` is always set from that matcher; `rule_title` and `folder_uid`
+ * are only set when the rule exists and the caller can read its folder.
+ */
+export interface SilenceRuleMetadata {
+  rule_uid?: string;
+  rule_title?: string;
+  folder_uid?: string;
+}
+
 export interface Silence extends WithAccessControlMetadata {
   id: string;
   matchers?: Matcher[];
@@ -237,11 +256,7 @@ export interface Silence extends WithAccessControlMetadata {
   status: {
     state: SilenceState;
   };
-  metadata?: {
-    rule_uid?: string;
-    rule_title?: string;
-    folder_uid?: string;
-  };
+  metadata?: SilenceRuleMetadata;
 }
 
 export type SilenceCreatePayload = {
@@ -342,7 +357,12 @@ export enum AlertmanagerChoice {
 
 export interface GrafanaAlertingConfiguration {
   alertmanagersChoice: AlertmanagerChoice;
+  // Snake_case mirrors the wire format from /api/v1/ngalert/admin_config.
+  external_alertmanager_uid?: string;
 }
+
+// POST /api/v1/ngalert/admin_config accepts partial updates.
+export type PostableGrafanaAlertingConfiguration = Partial<GrafanaAlertingConfiguration>;
 
 export enum AlertManagerImplementation {
   cortex = 'cortex',

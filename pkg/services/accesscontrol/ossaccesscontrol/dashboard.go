@@ -9,7 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 
-	dashboardv1 "github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v1beta1"
+	dashboardv1 "github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v1"
 	"github.com/grafana/grafana/pkg/api/routing"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	"github.com/grafana/grafana/pkg/apimachinery/utils"
@@ -31,36 +31,15 @@ type DashboardPermissionsService struct {
 	*resourcepermissions.Service
 }
 
-var DashboardViewActions = []string{dashboards.ActionDashboardsRead}
-var DashboardEditActions = append(DashboardViewActions, []string{dashboards.ActionDashboardsWrite, dashboards.ActionDashboardsDelete}...)
+var DashboardViewActions = []string{dashboards.ActionDashboardsRead, accesscontrol.ActionAnnotationsRead}
+var DashboardEditActions = append(DashboardViewActions, []string{dashboards.ActionDashboardsWrite, dashboards.ActionDashboardsDelete, accesscontrol.ActionAnnotationsWrite, accesscontrol.ActionAnnotationsDelete, accesscontrol.ActionAnnotationsCreate}...)
 var DashboardAdminActions = append(DashboardEditActions, []string{dashboards.ActionDashboardsPermissionsRead, dashboards.ActionDashboardsPermissionsWrite}...)
 
-func getDashboardViewActions(features featuremgmt.FeatureToggles) []string {
-	//nolint:staticcheck // not yet migrated to OpenFeature
-	if features.IsEnabled(context.Background(), featuremgmt.FlagAnnotationPermissionUpdate) {
-		return append(DashboardViewActions, accesscontrol.ActionAnnotationsRead)
-	}
-	return DashboardViewActions
-}
-
-func getDashboardEditActions(features featuremgmt.FeatureToggles) []string {
-	//nolint:staticcheck // not yet migrated to OpenFeature
-	if features.IsEnabled(context.Background(), featuremgmt.FlagAnnotationPermissionUpdate) {
-		return append(DashboardEditActions, []string{accesscontrol.ActionAnnotationsRead, accesscontrol.ActionAnnotationsWrite, accesscontrol.ActionAnnotationsDelete, accesscontrol.ActionAnnotationsCreate}...)
-	}
-	return DashboardEditActions
-}
-
-func getDashboardAdminActions(features featuremgmt.FeatureToggles) []string {
-	//nolint:staticcheck // not yet migrated to OpenFeature
-	if features.IsEnabled(context.Background(), featuremgmt.FlagAnnotationPermissionUpdate) {
-		return append(DashboardAdminActions, []string{accesscontrol.ActionAnnotationsRead, accesscontrol.ActionAnnotationsWrite, accesscontrol.ActionAnnotationsDelete, accesscontrol.ActionAnnotationsCreate}...)
-	}
-	return DashboardAdminActions
-}
-
-func registerDashboardRoles(cfg *setting.Cfg, features featuremgmt.FeatureToggles, service accesscontrol.Service) error {
-	if !cfg.RBAC.PermissionsWildcardSeed("dashboard") {
+// DashboardFixedRoleRegistrations returns the wildcard seed role registrations
+// for dashboards. When wildcardSeed is false an empty slice is returned
+// (the feature is disabled for this instance).
+func DashboardFixedRoleRegistrations(wildcardSeed bool) []accesscontrol.RoleRegistration {
+	if !wildcardSeed {
 		return nil
 	}
 
@@ -70,7 +49,7 @@ func registerDashboardRoles(cfg *setting.Cfg, features featuremgmt.FeatureToggle
 			DisplayName: "Viewer",
 			Description: "View all dashboards",
 			Group:       "Dashboards",
-			Permissions: accesscontrol.PermissionsForActions(getDashboardViewActions(features), dashboards.ScopeDashboardsAll),
+			Permissions: accesscontrol.PermissionsForActions(DashboardViewActions, dashboards.ScopeDashboardsAll),
 			Hidden:      true,
 		},
 		Grants: []string{"Viewer"},
@@ -82,7 +61,7 @@ func registerDashboardRoles(cfg *setting.Cfg, features featuremgmt.FeatureToggle
 			DisplayName: "Editor",
 			Description: "Edit all dashboards.",
 			Group:       "Dashboards",
-			Permissions: accesscontrol.PermissionsForActions(getDashboardEditActions(features), dashboards.ScopeDashboardsAll),
+			Permissions: accesscontrol.PermissionsForActions(DashboardEditActions, dashboards.ScopeDashboardsAll),
 			Hidden:      true,
 		},
 		Grants: []string{"Editor"},
@@ -94,20 +73,39 @@ func registerDashboardRoles(cfg *setting.Cfg, features featuremgmt.FeatureToggle
 			DisplayName: "Admin",
 			Description: "Administer all dashboards.",
 			Group:       "Dashboards",
-			Permissions: accesscontrol.PermissionsForActions(getDashboardAdminActions(features), dashboards.ScopeDashboardsAll),
+			Permissions: accesscontrol.PermissionsForActions(DashboardAdminActions, dashboards.ScopeDashboardsAll),
 			Hidden:      true,
 		},
 		Grants: []string{"Admin"},
 	}
 
-	return service.DeclareFixedRoles(viewer, editor, admin)
+	return []accesscontrol.RoleRegistration{viewer, editor, admin}
+}
+
+func registerDashboardRoles(cfg *setting.Cfg, _ featuremgmt.FeatureToggles, service accesscontrol.Service) error {
+	return service.DeclareFixedRoles(DashboardFixedRoleRegistrations(cfg.RBAC.PermissionsWildcardSeed("dashboard"))...)
+}
+
+// DashboardPermissionsRoleRegistrations returns the templated reader/writer fixed
+// roles for dashboard resource permissions (fixed:dashboards.permissions:reader
+// and :writer). These mirror the roles declared by ProvideDashboardPermissions
+// through resourcepermissions.New; the identity fields below must match the
+// Options passed there.
+func DashboardPermissionsRoleRegistrations() []accesscontrol.RoleRegistration {
+	return resourcepermissions.FixedRoleRegistrations(resourcepermissions.Options{
+		Resource:       dashboardPermissionsResource,
+		APIGroup:       dashboardv1.APIGroup,
+		ReaderRoleName: permissionReaderRoleName,
+		WriterRoleName: permissionWriterRoleName,
+		RoleGroup:      dashboardPermissionsRoleGroup,
+	})
 }
 
 func ProvideDashboardPermissions(
 	cfg *setting.Cfg, features featuremgmt.FeatureToggles, router routing.RouteRegister, sql db.DB, ac accesscontrol.AccessControl,
 	license licensing.Licensing, dashboardService dashboards.DashboardService, folderService folder.Service, service accesscontrol.Service,
 	teamService team.Service, userService user.Service, actionSetService resourcepermissions.ActionSetService,
-	dashboardPermissionsRegistration dashboards.PermissionsRegistrationService, restConfigProvider apiserver.RestConfigProvider,
+	dashboardPermissionsRegistration dashboards.PermissionsRegistrationService, restConfigProvider apiserver.DirectRestConfigProvider,
 ) (*DashboardPermissionsService, error) {
 	getDashboard := func(ctx context.Context, orgID int64, resourceID string) (*dashboards.Dashboard, error) {
 		query := &dashboards.GetDashboardQuery{UID: resourceID, OrgID: orgID}
@@ -123,7 +121,7 @@ func ProvideDashboardPermissions(
 	}
 
 	options := resourcepermissions.Options{
-		Resource:          "dashboards",
+		Resource:          dashboardPermissionsResource,
 		ResourceAttribute: "uid",
 		APIGroup:          dashboardv1.APIGroup,
 		ResourceValidator: func(ctx context.Context, orgID int64, resourceID string) error {
@@ -149,20 +147,20 @@ func ProvideDashboardPermissions(
 				return nil, err
 			}
 
-			scopes := []string(accesscontrol.WildcardsFromPrefix(dashboards.ScopeFoldersPrefix))
+			scopes := []string(accesscontrol.WildcardsFromPrefix(folder.ScopeFoldersPrefix))
 			metrics.MFolderIDsServiceCount.WithLabelValues(metrics.AccessControl).Inc()
 			if dashboard.FolderUID != "" {
-				nestedScopes, err := dashboards.GetInheritedScopes(ctx, orgID, dashboard.FolderUID, folderService)
+				nestedScopes, err := folder.GetInheritedScopes(ctx, orgID, dashboard.FolderUID, folderService)
 				if err != nil {
 					return nil, err
 				}
 
-				scopes = append(scopes, dashboards.ScopeFoldersProvider.GetResourceScopeUID(dashboard.FolderUID))
+				scopes = append(scopes, folder.ScopeFoldersProvider.GetResourceScopeUID(dashboard.FolderUID))
 				scopes = append(scopes, nestedScopes...)
 				return scopes, nil
 			}
 
-			return append(scopes, dashboards.ScopeFoldersProvider.GetResourceScopeUID(folder.GeneralFolderUID)), nil
+			return append(scopes, folder.ScopeFoldersProvider.GetResourceScopeUID(folder.GeneralFolderUID)), nil
 		},
 		Assignments: resourcepermissions.Assignments{
 			Users:           true,
@@ -171,13 +169,13 @@ func ProvideDashboardPermissions(
 			ServiceAccounts: true,
 		},
 		PermissionsToActions: map[string][]string{
-			"View":  getDashboardViewActions(features),
-			"Edit":  getDashboardEditActions(features),
-			"Admin": getDashboardAdminActions(features),
+			"View":  DashboardViewActions,
+			"Edit":  DashboardEditActions,
+			"Admin": DashboardAdminActions,
 		},
-		ReaderRoleName: "Permission reader",
-		WriterRoleName: "Permission writer",
-		RoleGroup:      "Dashboards",
+		ReaderRoleName: permissionReaderRoleName,
+		WriterRoleName: permissionWriterRoleName,
+		RoleGroup:      dashboardPermissionsRoleGroup,
 		GetParentFolder: func(ctx context.Context, namespace string, dashboardUID string, dynamicClient dynamic.Interface) (string, error) {
 			dashboardsGVR := schema.GroupVersionResource{
 				Group:    dashboardv1.APIGroup,

@@ -6,6 +6,7 @@ package v0alpha1
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/grafana/grafana-app-sdk/resource"
 )
@@ -21,7 +22,7 @@ var (
 					return "", errors.New("provided object must be of type *TeamBinding")
 				}
 
-				return cast.Spec.TeamRef.Name, nil
+				return string(cast.Spec.TeamRef.Name), nil
 			},
 		},
 			{
@@ -32,7 +33,18 @@ var (
 						return "", errors.New("provided object must be of type *TeamBinding")
 					}
 
-					return cast.Spec.Subject.Name, nil
+					return string(cast.Spec.Subject.Name), nil
+				},
+			},
+			{
+				FieldSelector: "spec.external",
+				FieldValueFunc: func(o resource.Object) (string, error) {
+					cast, ok := o.(*TeamBinding)
+					if !ok {
+						return "", errors.New("provided object must be of type *TeamBinding")
+					}
+
+					return fmt.Sprintf("%v", cast.Spec.External), nil
 				},
 			},
 		}))

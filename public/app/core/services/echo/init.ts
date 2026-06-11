@@ -62,6 +62,12 @@ export async function initEchoSrv() {
   }
 
   try {
+    await initPostHogBackend();
+  } catch (error) {
+    console.error('Error initializing EchoSrv PostHog backend', error);
+  }
+
+  try {
     await initConsoleBackend();
   } catch (error) {
     console.error('Error initializing EchoSrv Console backend', error);
@@ -107,7 +113,6 @@ async function initFaroBackend() {
       performanceInstrumentalizationEnabled: config.grafanaJavascriptAgent.performanceInstrumentalizationEnabled,
       cspInstrumentalizationEnabled: config.grafanaJavascriptAgent.cspInstrumentalizationEnabled,
       tracingInstrumentalizationEnabled: config.grafanaJavascriptAgent.tracingInstrumentalizationEnabled,
-      webVitalsAttribution: config.grafanaJavascriptAgent.webVitalsAttribution,
       internalLoggerLevel: config.grafanaJavascriptAgent.internalLoggerLevel,
       botFilterEnabled: config.grafanaJavascriptAgent.botFilterEnabled,
     })
@@ -185,6 +190,21 @@ async function initAzureAppInsightsBackend() {
       connectionString: config.applicationInsightsConnectionString,
       endpointUrl: config.applicationInsightsEndpointUrl,
       autoRouteTracking: config.applicationInsightsAutoRouteTracking,
+    })
+  );
+}
+
+async function initPostHogBackend() {
+  if (!config.postHogToken) {
+    return;
+  }
+
+  const { PostHogBackend } = await import('./backends/analytics/PostHogBackend');
+  registerEchoBackend(
+    new PostHogBackend({
+      postHogToken: config.postHogToken,
+      postHogHost: config.postHogHost,
+      user: contextSrv.user,
     })
   );
 }

@@ -1,13 +1,11 @@
-import { validate as uuidValidate } from 'uuid';
-
-import { SelectableValue } from '@grafana/data';
+import { type SelectableValue, isUUID } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { TextLink } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 
 import { ServerDiscoveryField } from './components/ServerDiscoveryField';
-import { FieldData, SSOProvider, SSOSettingsField } from './types';
+import { type FieldData, type SSOProvider, type SSOSettingsField } from './types';
 import { isSelectableValue, isSelectableValueArray } from './utils/guards';
 import { isUrlValid, isValidDomain } from './utils/url';
 
@@ -121,6 +119,8 @@ export const getSectionFields = (): Section => {
           { name: 'teamIds', dependsOn: 'defineAllowedTeamsIds' },
           { name: 'teamsUrl', dependsOn: 'defineAllowedTeamsIds' },
           { name: 'teamIdsAttributePath', dependsOn: 'defineAllowedTeamsIds' },
+          'validateIdToken',
+          { name: 'jwkSetUrl', dependsOn: 'validateIdToken' },
           'usePkce',
           'useRefreshToken',
           'tlsSkipVerifyInsecure',
@@ -171,6 +171,8 @@ export const getSectionFields = (): Section => {
           'hostedDomain',
           'allowedDomains',
           'allowedGroups',
+          'validateIdToken',
+          { name: 'jwkSetUrl', dependsOn: 'validateIdToken' },
           'usePkce',
           'useRefreshToken',
           'tlsSkipVerifyInsecure',
@@ -254,6 +256,8 @@ export const getSectionFields = (): Section => {
         fields: [
           'allowedDomains',
           'allowedGroups',
+          'validateIdToken',
+          { name: 'jwkSetUrl', dependsOn: 'validateIdToken' },
           'usePkce',
           'useRefreshToken',
           'tlsSkipVerifyInsecure',
@@ -298,6 +302,8 @@ export const getSectionFields = (): Section => {
         fields: [
           'allowedDomains',
           'allowedGroups',
+          'validateIdToken',
+          { name: 'jwkSetUrl', dependsOn: 'validateIdToken' },
           'usePkce',
           'useRefreshToken',
           'tlsSkipVerifyInsecure',
@@ -527,10 +533,10 @@ export function fieldMap(provider: string): Record<string, FieldData> {
           ? {
               validate: (value) => {
                 if (typeof value === 'string') {
-                  return uuidValidate(value);
+                  return isUUID(value);
                 }
                 if (isSelectableValueArray(value)) {
-                  return value.every((v) => v?.value && uuidValidate(v.value));
+                  return value.every((v) => v?.value && isUUID(v.value));
                 }
                 return true;
               },
@@ -747,6 +753,36 @@ export function fieldMap(provider: string): Record<string, FieldData> {
               'If enabled, Grafana will fetch a new access token using the refresh token provided by the OAuth2 provider.'
             ),
       type: 'checkbox',
+    },
+    validateIdToken: {
+      label: t('auth-config.fields.validate-id-token-label', 'Validate ID token'),
+      description: t(
+        'auth-config.fields.validate-id-token-description',
+        'If enabled, Grafana will validate the JWT signature of ID tokens using the JWKS endpoint. This enhances security by ensuring tokens are authentic and have not been tampered with.'
+      ),
+      type: 'checkbox',
+    },
+    jwkSetUrl: {
+      label: t('auth-config.fields.jwk-set-url-label', 'JWK Set URL'),
+      description: t(
+        'auth-config.fields.jwk-set-url-description',
+        'URL of the JSON Web Key Set (JWKS) endpoint used to verify JWT ID token signatures. Required when ID token validation is enabled. Common locations include: .well-known/jwks.json for OIDC providers.'
+      ),
+      type: 'text',
+      validation: {
+        validate: (value, formValues) => {
+          if (formValues.validateIdToken && !value) {
+            return t(
+              'auth-config.fields.jwk-set-url-required',
+              'JWK Set URL is required when ID token validation is enabled.'
+            );
+          }
+          if (value && !isUrlValid(value)) {
+            return t('auth-config.fields.jwk-set-url-invalid', 'JWK Set URL must be a valid URL.');
+          }
+          return true;
+        },
+      },
     },
     tlsClientCa: {
       label: t('auth-config.fields.tls-client-ca-label', 'TLS client CA'),

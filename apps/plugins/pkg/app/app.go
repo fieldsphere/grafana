@@ -8,6 +8,7 @@ import (
 	"github.com/grafana/grafana-app-sdk/app"
 	"github.com/grafana/grafana-app-sdk/k8s"
 	appsdkapiserver "github.com/grafana/grafana-app-sdk/k8s/apiserver"
+	"github.com/grafana/grafana-app-sdk/logging"
 	"github.com/grafana/grafana-app-sdk/operator"
 	"github.com/grafana/grafana-app-sdk/simple"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -15,11 +16,9 @@ import (
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	restclient "k8s.io/client-go/rest"
-	"k8s.io/klog/v2"
 
 	pluginsappapis "github.com/grafana/grafana/apps/plugins/pkg/apis"
 	pluginsv0alpha1 "github.com/grafana/grafana/apps/plugins/pkg/apis/plugins/v0alpha1"
-	"github.com/grafana/grafana/apps/plugins/pkg/app/install"
 	"github.com/grafana/grafana/apps/plugins/pkg/app/meta"
 )
 
@@ -35,12 +34,7 @@ func New(cfg app.Config) (app.App, error) {
 	pluginKind := simple.AppManagedKind{
 		Kind: pluginsv0alpha1.PluginKind(),
 	}
-
-	if specificConfig.EnableChildReconciler {
-		clientGenerator := k8s.NewClientRegistry(cfg.KubeConfig, k8s.DefaultClientConfig())
-		registrar := install.NewInstallRegistrar(clientGenerator)
-		pluginKind.Reconciler = install.NewChildPluginReconciler(specificConfig.MetaProviderManager, registrar)
-	}
+	logger := logging.DefaultLogger.With("app", "plugins.app")
 
 	simpleConfig := simple.AppConfig{
 		Name:       "plugins",
@@ -48,7 +42,7 @@ func New(cfg app.Config) (app.App, error) {
 		InformerConfig: simple.AppInformerConfig{
 			InformerOptions: operator.InformerOptions{
 				ErrorHandler: func(ctx context.Context, err error) {
-					klog.ErrorS(err, "Informer processing error")
+					logger.Error("Child plugin informer failed", "error", err)
 				},
 			},
 		},
@@ -72,18 +66,16 @@ func New(cfg app.Config) (app.App, error) {
 }
 
 type PluginAppConfig struct {
-	MetaProviderManager   *meta.ProviderManager
-	EnableChildReconciler bool
+	MetaProviderManager *meta.ProviderManager
 }
 
-func ProvideAppInstaller(
+func NewPluginsAppInstaller(
+	logger logging.Logger,
 	authorizer authorizer.Authorizer,
 	metaProviderManager *meta.ProviderManager,
-	enableChildReconciler bool,
 ) (*PluginAppInstaller, error) {
 	specificConfig := &PluginAppConfig{
-		MetaProviderManager:   metaProviderManager,
-		EnableChildReconciler: enableChildReconciler,
+		MetaProviderManager: metaProviderManager,
 	}
 	provider := simple.NewAppProvider(pluginsappapis.LocalManifest(), specificConfig, New)
 	appConfig := app.Config{
@@ -100,6 +92,7 @@ func ProvideAppInstaller(
 		AppInstaller: defaultInstaller,
 		authorizer:   authorizer,
 		metaManager:  metaProviderManager,
+		logger:       logger,
 		ready:        make(chan struct{}),
 	}
 	return appInstaller, nil
@@ -109,6 +102,7 @@ type PluginAppInstaller struct {
 	appsdkapiserver.AppInstaller
 	metaManager *meta.ProviderManager
 	authorizer  authorizer.Authorizer
+	logger      logging.Logger
 
 	// restConfig is set during InitializeApp and used by the client factory
 	restConfig *restclient.Config
@@ -149,7 +143,7 @@ func (p *PluginAppInstaller) InstallAPIs(
 
 	pluginMetaGVR := pluginsv0alpha1.MetaKind().GroupVersionResource()
 	replacedStorage := map[schema.GroupVersionResource]rest.Storage{
-		pluginMetaGVR: NewMetaStorage(p.metaManager, clientFactory),
+		pluginMetaGVR: NewMetaStorage(p.logger, p.metaManager, clientFactory),
 	}
 	wrappedServer := &customStorageWrapper{
 		wrapped: server,

@@ -1,12 +1,12 @@
 import { getTimeField, sortDataFrame } from '../../dataframe/processDataFrame';
-import { DataFrame, Field, FieldType, TIME_SERIES_VALUE_FIELD_NAME } from '../../types/dataFrame';
-import { FieldMatcher } from '../../types/transformations';
+import { type DataFrame, type Field, FieldType, TIME_SERIES_VALUE_FIELD_NAME } from '../../types/dataFrame';
+import { type FieldMatcher } from '../../types/transformations';
 import { fieldMatchers } from '../matchers';
 import { FieldMatcherID } from '../matchers/ids';
 
-import { JoinMode } from './joinByField';
+import { JoinMode } from './joinShared';
 
-export function pickBestJoinField(data: DataFrame[]): FieldMatcher {
+function pickBestJoinField(data: DataFrame[]): FieldMatcher {
   const { timeField } = getTimeField(data[0]);
   if (timeField) {
     return fieldMatchers.get(FieldMatcherID.firstTimeField).get({});
@@ -244,6 +244,13 @@ export function joinDataFrames(options: JoinOptions): DataFrame | undefined {
 
   let joined: Array<Array<number | string | null | undefined>> = [];
 
+  if (allData.length === 0) {
+    return {
+      length: 0,
+      fields: originalFields,
+    };
+  }
+
   if (options.mode === JoinMode.outerTabular) {
     joined = joinTabular(allData, true);
   } else if (options.mode === JoinMode.inner) {
@@ -466,7 +473,7 @@ function joinTabular(tables: AlignedData[], outer = false) {
 //--------------------------------------------------------------------------------
 
 // Copied from uplot
-export type TypedArray =
+type TypedArray =
   | Int8Array
   | Uint8Array
   | Int16Array
@@ -507,8 +514,54 @@ function nullExpand(yVals: Array<number | null>, nullIdxs: number[], alignedLen:
   }
 }
 
+// test if we can do cheap join (all join fields same)
+function allHeadersSame(tables: AlignedData[]) {
+  let vals0 = tables[0][0];
+  let len0 = vals0.length;
+
+  for (let i = 1; i < tables.length; i++) {
+    let vals1 = tables[i][0];
+
+    if (vals1.length !== len0) {
+      return false;
+    }
+
+    if (vals1 !== vals0) {
+      for (let j = 0; j < len0; j++) {
+        if (vals1[j] !== vals0[j]) {
+          return false;
+        }
+      }
+    }
+  }
+
+  return true;
+}
+
 // nullModes is a tables-matched array indicating how to treat nulls in each series
 export function join(tables: AlignedData[], nullModes?: number[][], mode: JoinMode = JoinMode.outer) {
+  // cheap join
+  if (allHeadersSame(tables)) {
+    let table = tables[0].slice();
+
+    for (let i = 1; i < tables.length; i++) {
+      table.push(...tables[i].slice(1));
+    }
+
+    let tmpFrame: DataFrame = {
+      length: table[0].length,
+      fields: table.map((values) => ({
+        name: '',
+        type: FieldType.number,
+        config: {},
+        // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+        values: values as number[],
+      })),
+    };
+
+    return maybeSortFrame(tmpFrame, 0).fields.map((field) => field.values);
+  }
+
   let xVals: Set<number> = new Set();
 
   for (let ti = 0; ti < tables.length; ti++) {

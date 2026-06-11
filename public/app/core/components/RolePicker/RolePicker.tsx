@@ -1,8 +1,9 @@
-import { FormEvent, useCallback, useEffect, useRef, useState, useSyncExternalStore, type JSX } from 'react';
+import { type FormEvent, useCallback, useEffect, useRef, useState, useSyncExternalStore, type JSX, useId } from 'react';
 
-import { OrgRole } from '@grafana/data';
+import { type OrgRole } from '@grafana/data';
 import { ClickOutsideWrapper, Portal, useTheme2 } from '@grafana/ui';
-import { Role } from 'app/types/accessControl';
+import { pickerStateStore } from 'app/core/utils/roles';
+import type { Role } from 'app/types/accessControl';
 
 import { RolePickerInput } from './RolePickerInput';
 import { RolePickerMenu } from './RolePickerMenu';
@@ -12,7 +13,6 @@ import {
   ROLE_PICKER_MENU_MAX_WIDTH,
   ROLE_PICKER_WIDTH,
 } from './constants';
-import { pickerStateStore } from './utils';
 
 export interface Props {
   basicRole?: OrgRole;
@@ -54,8 +54,8 @@ export const RolePicker = ({
   pickerId,
 }: Props): JSX.Element | null => {
   // Generate stable picker ID if not provided
-  const stablePickerIdRef = useRef(pickerId || crypto.randomUUID());
-  const stablePickerId = stablePickerIdRef.current;
+  const generatedId = useId();
+  const stablePickerId = pickerId || generatedId;
 
   // Use external store for isOpen state so it survives remounts
   const isOpen = useSyncExternalStore(pickerStateStore.subscribe, () => pickerStateStore.getState(stablePickerId));

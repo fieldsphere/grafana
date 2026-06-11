@@ -1,32 +1,34 @@
 import { css } from '@emotion/css';
+import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { partition } from 'lodash';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
-  AbsoluteTimeRange,
+  type AbsoluteTimeRange,
   CoreApp,
-  DataQueryResponse,
-  DataSourceApi,
-  DataSourceWithLogsContextSupport,
+  type DataQueryResponse,
+  type DataSourceApi,
+  type DataSourceWithLogsContextSupport,
   dateTime,
   EventBusSrv,
   formattedValueToString,
   getValueFormat,
-  GrafanaTheme2,
+  type GrafanaTheme2,
   hasLogsContextSupport,
   LoadingState,
-  LogRowContextOptions,
+  type LogRowContextOptions,
   LogRowContextQueryDirection,
-  LogRowModel,
+  type LogRowModel,
   LogsDedupStrategy,
   LogsSortOrder,
+  shallowCompare,
   store,
-  TimeRange,
+  type TimeRange,
 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
-import { config, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
-import { DataQuery, TimeZone } from '@grafana/schema';
-import { Button, Collapse, Combobox, ComboboxOption, InlineLabel, Modal, Stack, useTheme2 } from '@grafana/ui';
+import { getDataSourceSrv, reportInteraction } from '@grafana/runtime';
+import { type DataQuery, type TimeZone } from '@grafana/schema';
+import { Button, Collapse, Combobox, type ComboboxOption, InlineLabel, Modal, Stack, useTheme2 } from '@grafana/ui';
 import { splitOpen } from 'app/features/explore/state/main';
 import { useDispatch } from 'app/types/store';
 
@@ -36,8 +38,8 @@ import { ScrollDirection } from '../InfiniteScroll';
 import { LoadingIndicator } from '../LoadingIndicator';
 
 import { LogLineDetailsLog } from './LogLineDetailsLog';
-import { LogLineMenuCustomItem } from './LogLineMenu';
-import { LogList } from './LogList';
+import { type LogLineMenuCustomItem } from './LogLineMenu';
+import { LogList, type LogListOptions } from './LogList';
 import { LogListModel } from './processing';
 import { ScrollToLogsEvent } from './virtualization';
 
@@ -100,12 +102,14 @@ export const LogLineContext = memo(
       : DEFAULT_TIME_WINDOW.toString();
     const [timeWindow, setTimeWindow] = useState(parseInt(defaultTimeWindow, 10));
     const [displayedFields, setDisplayedFields] = useState<string[]>(displayedFieldsProp);
+    const [defaultDisplayedFields, setDefaultDisplayedFields] = useState<string[]>([]);
 
     const eventBusRef = useRef(new EventBusSrv());
 
     const dispatch = useDispatch();
     const theme = useTheme2();
     const styles = getStyles(theme);
+    const otelLogsFormattingEnabled = useBooleanFlagValue('otelLogsFormatting', false);
 
     const timeRange = useMemo(() => {
       const fromMs =
@@ -325,10 +329,11 @@ export const LogLineContext = memo(
           ? log
           : new LogListModel(log, {
               escape: false,
+              otelLogsFormattingEnabled,
               timeZone,
               wrapLogMessage,
             }),
-      [log, timeZone, wrapLogMessage]
+      [log, otelLogsFormattingEnabled, timeZone, wrapLogMessage]
     );
 
     useEffect(() => {
@@ -343,6 +348,12 @@ export const LogLineContext = memo(
       }
     }, [log.datasourceUid]);
 
+    const onLogOptionsChange = useCallback((option: LogListOptions, value: string | string[] | boolean) => {
+      if (option === 'defaultDisplayedFields' && Array.isArray(value)) {
+        setDefaultDisplayedFields(value);
+      }
+    }, []);
+
     return (
       <Modal
         isOpen={open}
@@ -351,9 +362,7 @@ export const LogLineContext = memo(
         className={styles.modal}
         onDismiss={handleClose}
       >
-        {config.featureToggles.logsContextDatasourceUi && getLogRowContextUi && (
-          <div>{getLogRowContextUi(log, updateResults)}</div>
-        )}
+        {getLogRowContextUi && <div>{getLogRowContextUi(log, updateResults)}</div>}
         <Collapse
           isOpen={showLog}
           onToggle={() => setShowLog(!showLog)}
@@ -386,7 +395,8 @@ export const LogLineContext = memo(
                 />
               </Stack>
             )}
-            {displayedFields.length > 0 && (
+            {/** Show button to reset if there are displayed fields and they are different than the defaults */}
+            {displayedFields.length > 0 && shallowCompare(displayedFields, defaultDisplayedFields) === false && (
               <Button
                 variant="secondary"
                 onClick={resetFields}
@@ -444,6 +454,7 @@ export const LogLineContext = memo(
                 loading={aboveState === LoadingState.Loading || belowState === LoadingState.Loading}
                 permalinkedLogId={log.uid}
                 onPermalinkClick={onPermalinkClick}
+                onLogOptionsChange={onLogOptionsChange}
                 onClickHideField={hideField}
                 onClickShowField={showField}
                 setDisplayedFields={setDisplayedFields}

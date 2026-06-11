@@ -1,7 +1,11 @@
+import { useCallback } from 'react';
+
 import { t } from '@grafana/i18n';
 import { useCreateRepositoryJobsMutation } from 'app/api/clients/provisioning/v0alpha1';
+import { extractErrorMessage } from 'app/api/utils';
 
-import { StepStatusInfo } from '../types';
+import { withSavedByTrailer } from '../../utils/currentUser';
+import { type StepStatusInfo } from '../types';
 
 export interface UseCreateSyncJobParams {
   repoName: string;
@@ -11,51 +15,77 @@ export interface UseCreateSyncJobParams {
 export function useCreateSyncJob({ repoName, setStepStatusInfo }: UseCreateSyncJobParams) {
   const [createJob, { isLoading }] = useCreateRepositoryJobsMutation();
 
-  const createSyncJob = async (requiresMigration: boolean) => {
-    if (!repoName) {
-      setStepStatusInfo?.({
-        status: 'error',
-        error: t('provisioning.sync-job.error-no-repository-name', 'No repository name provided'),
-      });
-      return null;
-    }
+  const createSyncJob = useCallback(
+    async (requiresMigration: boolean, options?: { skipStatusUpdates?: boolean }) => {
+      const { skipStatusUpdates = false } = options || {};
 
-    try {
-      setStepStatusInfo?.({ status: 'running' });
-
-      const jobSpec = requiresMigration
-        ? {
-            migrate: {},
-          }
-        : {
-            pull: {
-              incremental: false,
-            },
-          };
-
-      const response = await createJob({
-        name: repoName,
-        jobSpec,
-      }).unwrap();
-
-      if (!response?.metadata?.name) {
-        setStepStatusInfo?.({
-          status: 'error',
-          error: t('provisioning.sync-job.error-no-job-id', 'Failed to start job'),
-        });
+      if (!repoName) {
+        if (!skipStatusUpdates) {
+          setStepStatusInfo?.({
+            status: 'error',
+            error: t('provisioning.sync-job.error-no-repository-name', 'No repository name provided'),
+          });
+        }
         return null;
       }
 
-      // Job status will be tracked by JobStatus component, keep status as 'running'
-      return response;
-    } catch (error) {
-      setStepStatusInfo?.({
-        status: 'error',
-        error: t('provisioning.sync-job.error-starting-job', 'Error starting job'),
-      });
-      return null;
-    }
-  };
+      try {
+        if (!skipStatusUpdates) {
+          setStepStatusInfo?.({ status: 'running' });
+        }
+
+        const jobSpec = requiresMigration
+          ? {
+              action: 'migrate' as const,
+              migrate: {
+                message: withSavedByTrailer(
+                  t('provisioning.sync-job.migrate-default-message', 'Migrate Grafana resources into repository')
+                ),
+              },
+            }
+          : {
+              action: 'pull' as const,
+              // TODO(grafana/git-ui-sync-project#1162): SyncJobOptions has no
+              // `message` field on the backend yet — when it gains one, append
+              // the Grafana-saved-by trailer here too.
+              pull: {
+                incremental: false,
+              },
+            };
+
+        const response = await createJob({
+          name: repoName,
+          jobSpec,
+        }).unwrap();
+
+        if (!response?.metadata?.name) {
+          if (!skipStatusUpdates) {
+            setStepStatusInfo?.({
+              status: 'error',
+              error: t('provisioning.sync-job.error-no-job-id', 'Failed to start job'),
+            });
+          }
+          return null;
+        }
+
+        // Job status will be tracked by JobStatus component, keep status as 'running'
+        return response;
+      } catch (error) {
+        if (!skipStatusUpdates) {
+          const errorMessage = extractErrorMessage(error);
+          setStepStatusInfo?.({
+            status: 'error',
+            error: {
+              title: t('provisioning.sync-job.error-starting-job', 'Error starting job'),
+              message: errorMessage,
+            },
+          });
+        }
+        return null;
+      }
+    },
+    [createJob, repoName, setStepStatusInfo]
+  );
 
   return {
     createSyncJob,

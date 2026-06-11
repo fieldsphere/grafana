@@ -3,6 +3,7 @@ package teambinding
 import (
 	"context"
 	"errors"
+	"fmt"
 	"math"
 	"testing"
 
@@ -135,7 +136,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 				},
 				Fields: []*resourcepb.Requirement{
 					{
-						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 						Values: []string{"user1"},
 					},
 				},
@@ -148,43 +149,11 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 		require.Contains(t, err.Error(), "invalid page number")
 	})
 
-	t.Run("should return error when page is less than 1", func(t *testing.T) {
-		mockStore := &mockLegacyStore{}
-		client := NewLegacyTeamBindingSearchClient(mockStore, tracing.NewNoopTracerService())
-
-		ctx := identity.WithRequester(context.Background(), &identity.StaticRequester{
-			Namespace: "test-namespace",
-			OrgID:     1,
-		})
-
-		req := &resourcepb.ResourceSearchRequest{
-			Page: 0,
-			Options: &resourcepb.ListOptions{
-				Key: &resourcepb.ResourceKey{
-					Namespace: "test-namespace",
-					Group:     "iam.grafana.app",
-					Resource:  "teambindings",
-				},
-				Fields: []*resourcepb.Requirement{
-					{
-						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
-						Values: []string{"user1"},
-					},
-				},
-			},
-		}
-
-		resp, err := client.Search(ctx, req)
-		require.Error(t, err)
-		require.Nil(t, resp)
-		require.Contains(t, err.Error(), "invalid page number")
-	})
-
-	t.Run("should cap limit at 100", func(t *testing.T) {
+	t.Run("should default page to 1 when less than 1", func(t *testing.T) {
 		mockStore := &mockLegacyStore{
 			listTeamBindingsFunc: func(ctx context.Context, ns claims.NamespaceInfo, query legacy.ListTeamBindingsQuery) (*legacy.ListTeamBindingsResult, error) {
-				require.Equal(t, int64(100), query.Pagination.Limit)
-				return &legacy.ListTeamBindingsResult{Bindings: []legacy.TeamMember{}, Continue: 0}, nil
+				require.Equal(t, int64(1), query.Pagination.Limit)
+				return &legacy.ListTeamBindingsResult{Bindings: []legacy.TeamMember{}}, nil
 			},
 		}
 		client := NewLegacyTeamBindingSearchClient(mockStore, tracing.NewNoopTracerService())
@@ -195,8 +164,8 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 		})
 
 		req := &resourcepb.ResourceSearchRequest{
-			Limit: 150,
-			Page:  1,
+			Page:  0,
+			Limit: 1,
 			Options: &resourcepb.ListOptions{
 				Key: &resourcepb.ResourceKey{
 					Namespace: "test-namespace",
@@ -205,7 +174,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 				},
 				Fields: []*resourcepb.Requirement{
 					{
-						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 						Values: []string{"user1"},
 					},
 				},
@@ -217,10 +186,43 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 		require.NotNil(t, resp)
 	})
 
-	t.Run("should default limit to 50 when limit is 0", func(t *testing.T) {
+	t.Run("should return error when limit exceeds common.MaxListLimit", func(t *testing.T) {
+		mockStore := &mockLegacyStore{}
+		client := NewLegacyTeamBindingSearchClient(mockStore, tracing.NewNoopTracerService())
+
+		ctx := identity.WithRequester(context.Background(), &identity.StaticRequester{
+			Namespace: "test-namespace",
+			OrgID:     1,
+		})
+
+		req := &resourcepb.ResourceSearchRequest{
+			Limit: common.MaxListLimit + 1,
+			Page:  1,
+			Options: &resourcepb.ListOptions{
+				Key: &resourcepb.ResourceKey{
+					Namespace: "test-namespace",
+					Group:     "iam.grafana.app",
+					Resource:  "teambindings",
+				},
+				Fields: []*resourcepb.Requirement{
+					{
+						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
+						Values: []string{"user1"},
+					},
+				},
+			},
+		}
+
+		resp, err := client.Search(ctx, req)
+		require.Error(t, err)
+		require.Nil(t, resp)
+		require.Contains(t, err.Error(), fmt.Sprintf("limit cannot be greater than %d", common.MaxListLimit))
+	})
+
+	t.Run("should default limit to common.DefaultListLimit when limit is 0", func(t *testing.T) {
 		mockStore := &mockLegacyStore{
 			listTeamBindingsFunc: func(ctx context.Context, ns claims.NamespaceInfo, query legacy.ListTeamBindingsQuery) (*legacy.ListTeamBindingsResult, error) {
-				require.Equal(t, int64(50), query.Pagination.Limit)
+				require.Equal(t, int64(common.DefaultListLimit), query.Pagination.Limit)
 				return &legacy.ListTeamBindingsResult{Bindings: []legacy.TeamMember{}, Continue: 0}, nil
 			},
 		}
@@ -242,7 +244,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 				},
 				Fields: []*resourcepb.Requirement{
 					{
-						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 						Values: []string{"user1"},
 					},
 				},
@@ -254,10 +256,10 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 		require.NotNil(t, resp)
 	})
 
-	t.Run("should default limit to 50 when limit is negative", func(t *testing.T) {
+	t.Run("should default limit to common.DefaultListLimit when limit is negative", func(t *testing.T) {
 		mockStore := &mockLegacyStore{
 			listTeamBindingsFunc: func(ctx context.Context, ns claims.NamespaceInfo, query legacy.ListTeamBindingsQuery) (*legacy.ListTeamBindingsResult, error) {
-				require.Equal(t, int64(50), query.Pagination.Limit)
+				require.Equal(t, int64(common.DefaultListLimit), query.Pagination.Limit)
 				return &legacy.ListTeamBindingsResult{Bindings: []legacy.TeamMember{}, Continue: 0}, nil
 			},
 		}
@@ -279,7 +281,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 				},
 				Fields: []*resourcepb.Requirement{
 					{
-						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 						Values: []string{"user1"},
 					},
 				},
@@ -321,7 +323,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 				},
 				Fields: []*resourcepb.Requirement{
 					{
-						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 						Values: []string{"user1"},
 					},
 				},
@@ -331,7 +333,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 		resp, err := client.Search(ctx, req)
 		require.NoError(t, err)
 		require.NotNil(t, resp)
-		require.Len(t, resp.Results.Columns, 3)
+		require.Len(t, resp.Results.Columns, 4)
 		require.Len(t, resp.Results.Rows, 1)
 	})
 
@@ -361,7 +363,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 			Limit: 10,
 			Page:  1,
 			Fields: []string{
-				resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_TEAM_REF,
+				resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_TEAM,
 				resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_PERMISSION,
 				resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_EXTERNAL,
 			},
@@ -373,7 +375,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 				},
 				Fields: []*resourcepb.Requirement{
 					{
-						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 						Values: []string{"user1"},
 					},
 				},
@@ -433,7 +435,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 			Limit: 10,
 			Page:  2,
 			Fields: []string{
-				resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_TEAM_REF,
+				resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_TEAM,
 			},
 			Options: &resourcepb.ListOptions{
 				Key: &resourcepb.ResourceKey{
@@ -443,7 +445,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 				},
 				Fields: []*resourcepb.Requirement{
 					{
-						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 						Values: []string{"user1"},
 					},
 				},
@@ -478,7 +480,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 			Limit: 10,
 			Page:  3, // Requesting page 3 but only 1 page available
 			Fields: []string{
-				resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_TEAM_REF,
+				resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_TEAM,
 			},
 			Options: &resourcepb.ListOptions{
 				Key: &resourcepb.ResourceKey{
@@ -488,7 +490,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 				},
 				Fields: []*resourcepb.Requirement{
 					{
-						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 						Values: []string{"user1"},
 					},
 				},
@@ -526,7 +528,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 				},
 				Fields: []*resourcepb.Requirement{
 					{
-						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 						Values: []string{"user1"},
 					},
 				},
@@ -539,7 +541,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 		require.Contains(t, err.Error(), "store error")
 	})
 
-	t.Run("should extract subject UID from fields.subject.name", func(t *testing.T) {
+	t.Run("should extract subject UID from fields.subject_name", func(t *testing.T) {
 		mockStore := &mockLegacyStore{
 			listTeamBindingsFunc: func(ctx context.Context, ns claims.NamespaceInfo, query legacy.ListTeamBindingsQuery) (*legacy.ListTeamBindingsResult, error) {
 				require.Equal(t, "user1", query.UserUID)
@@ -564,44 +566,7 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 				},
 				Fields: []*resourcepb.Requirement{
 					{
-						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
-						Values: []string{"user1"},
-					},
-				},
-			},
-		}
-
-		resp, err := client.Search(ctx, req)
-		require.NoError(t, err)
-		require.NotNil(t, resp)
-	})
-
-	t.Run("should extract subject UID from subject.name", func(t *testing.T) {
-		mockStore := &mockLegacyStore{
-			listTeamBindingsFunc: func(ctx context.Context, ns claims.NamespaceInfo, query legacy.ListTeamBindingsQuery) (*legacy.ListTeamBindingsResult, error) {
-				require.Equal(t, "user1", query.UserUID)
-				return &legacy.ListTeamBindingsResult{Bindings: []legacy.TeamMember{}, Continue: 0}, nil
-			},
-		}
-		client := NewLegacyTeamBindingSearchClient(mockStore, tracing.NewNoopTracerService())
-
-		ctx := identity.WithRequester(context.Background(), &identity.StaticRequester{
-			Namespace: "test-namespace",
-			OrgID:     1,
-		})
-
-		req := &resourcepb.ResourceSearchRequest{
-			Limit: 10,
-			Page:  1,
-			Options: &resourcepb.ListOptions{
-				Key: &resourcepb.ResourceKey{
-					Namespace: "test-namespace",
-					Group:     "iam.grafana.app",
-					Resource:  "teambindings",
-				},
-				Fields: []*resourcepb.Requirement{
-					{
-						Key:    builders.TEAM_BINDING_SUBJECT_NAME,
+						Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 						Values: []string{"user1"},
 					},
 				},
@@ -615,26 +580,15 @@ func TestLegacyTeamBindingSearchClient_Search(t *testing.T) {
 }
 
 func Test_subjectUIDFromRequirements(t *testing.T) {
-	t.Run("should extract subject UID from fields.subject.name", func(t *testing.T) {
+	t.Run("should extract subject UID from fields.subject_name", func(t *testing.T) {
 		reqs := []*resourcepb.Requirement{
 			{
-				Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+				Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 				Values: []string{"user1"},
 			},
 		}
 		result := subjectUIDFromRequirements(reqs)
 		require.Equal(t, "user1", result)
-	})
-
-	t.Run("should extract subject UID from subject.name", func(t *testing.T) {
-		reqs := []*resourcepb.Requirement{
-			{
-				Key:    builders.TEAM_BINDING_SUBJECT_NAME,
-				Values: []string{"user2"},
-			},
-		}
-		result := subjectUIDFromRequirements(reqs)
-		require.Equal(t, "user2", result)
 	})
 
 	t.Run("should return empty string when no matching requirement", func(t *testing.T) {
@@ -651,7 +605,7 @@ func Test_subjectUIDFromRequirements(t *testing.T) {
 	t.Run("should return empty string when requirement has no values", func(t *testing.T) {
 		reqs := []*resourcepb.Requirement{
 			{
-				Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+				Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 				Values: []string{},
 			},
 		}
@@ -663,7 +617,7 @@ func Test_subjectUIDFromRequirements(t *testing.T) {
 		reqs := []*resourcepb.Requirement{
 			nil,
 			{
-				Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT_NAME,
+				Key:    resource.SEARCH_FIELD_PREFIX + builders.TEAM_BINDING_SUBJECT,
 				Values: []string{"user1"},
 			},
 		}
@@ -701,6 +655,10 @@ func (m *mockLegacyStore) UpdateUser(ctx context.Context, ns claims.NamespaceInf
 	return nil, nil
 }
 
+func (m *mockLegacyStore) UpdateLastSeenAt(ctx context.Context, ns claims.NamespaceInfo, cmd legacy.UpdateUserLastSeenAtCommand) error {
+	return nil
+}
+
 func (m *mockLegacyStore) DeleteUser(ctx context.Context, ns claims.NamespaceInfo, cmd legacy.DeleteUserCommand) error {
 	return nil
 }
@@ -723,6 +681,18 @@ func (m *mockLegacyStore) DeleteServiceAccount(ctx context.Context, ns claims.Na
 
 func (m *mockLegacyStore) ListServiceAccountTokens(ctx context.Context, ns claims.NamespaceInfo, query legacy.ListServiceAccountTokenQuery) (*legacy.ListServiceAccountTokenResult, error) {
 	return nil, nil
+}
+
+func (m *mockLegacyStore) GetServiceAccountToken(ctx context.Context, ns claims.NamespaceInfo, query legacy.GetServiceAccountTokenQuery) (*legacy.ServiceAccountToken, error) {
+	return nil, nil
+}
+
+func (m *mockLegacyStore) DeleteServiceAccountToken(ctx context.Context, ns claims.NamespaceInfo, cmd legacy.DeleteServiceAccountTokenCommand) (int64, error) {
+	return 0, nil
+}
+
+func (m *mockLegacyStore) CreateServiceAccountTokenWithHash(ctx context.Context, ns claims.NamespaceInfo, cmd legacy.CreateServiceAccountTokenWithHashCommand) error {
+	return nil
 }
 
 func (m *mockLegacyStore) GetTeamInternalID(ctx context.Context, ns claims.NamespaceInfo, query legacy.GetTeamInternalIDQuery) (*legacy.GetTeamInternalIDResult, error) {
@@ -766,5 +736,17 @@ func (m *mockLegacyStore) ListTeamBindings(ctx context.Context, ns claims.Namesp
 }
 
 func (m *mockLegacyStore) ListTeamMembers(ctx context.Context, ns claims.NamespaceInfo, query legacy.ListTeamMembersQuery) (*legacy.ListTeamMembersResult, error) {
+	return nil, nil
+}
+
+func (m *mockLegacyStore) GetUserUIDByID(ctx context.Context, ns claims.NamespaceInfo, query legacy.GetUserUIDByIDQuery) (*legacy.GetUserUIDByIDResult, error) {
+	return nil, nil
+}
+
+func (m *mockLegacyStore) GetServiceAccountUIDByID(ctx context.Context, ns claims.NamespaceInfo, query legacy.GetUserUIDByIDQuery) (*legacy.GetUserUIDByIDResult, error) {
+	return nil, nil
+}
+
+func (m *mockLegacyStore) GetTeamUIDByID(ctx context.Context, ns claims.NamespaceInfo, query legacy.GetTeamUIDByIDQuery) (*legacy.GetTeamUIDByIDResult, error) {
 	return nil, nil
 }

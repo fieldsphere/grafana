@@ -3,6 +3,7 @@ import { uniqueId } from 'lodash';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
+  type AdHocFilterWithLabels,
   behaviors,
   ConstantVariable,
   CustomVariable,
@@ -13,18 +14,19 @@ import {
   SceneRefreshPicker,
   SceneTimePicker,
   SceneTimeRange,
-  SceneVariable,
+  type SceneVariable,
   SceneVariableSet,
   ScopesVariable,
   SwitchVariable,
   TextBoxVariable,
 } from '@grafana/scenes';
+import { VariableRefresh } from '@grafana/schema';
 import {
-  AdhocVariableKind,
-  ConstantVariableKind,
-  CustomVariableKind,
-  Spec as DashboardV2Spec,
-  DatasourceVariableKind,
+  type AdhocVariableKind,
+  type ConstantVariableKind,
+  type CustomVariableKind,
+  type Spec as DashboardV2Spec,
+  type DatasourceVariableKind,
   defaultAdhocVariableKind,
   defaultConstantVariableKind,
   defaultCustomVariableKind,
@@ -35,36 +37,40 @@ import {
   defaultTextVariableKind,
   defaultSwitchVariableKind,
   defaultTimeSettingsSpec,
-  GroupByVariableKind,
-  IntervalVariableKind,
-  LibraryPanelKind,
-  PanelKind,
-  QueryVariableKind,
-  SwitchVariableKind,
-  TextVariableKind,
+  type GroupByVariableKind,
+  type IntervalVariableKind,
+  type LibraryPanelKind,
+  type PanelKind,
+  type QueryVariableKind,
+  type SwitchVariableKind,
+  type TextVariableKind,
   defaultDataQueryKind,
-  AnnotationQueryKind,
-} from '@grafana/schema/dist/esm/schema/dashboard/v2';
+  type AnnotationQueryKind,
+  type VariableKind,
+} from '@grafana/schema/apis/dashboard.grafana.app/v2';
 import { DEFAULT_ANNOTATION_COLOR } from '@grafana/ui';
 import {
   AnnoKeyCreatedBy,
   AnnoKeyFolder,
+  AnnoKeyFolderTitle,
   AnnoKeyUpdatedBy,
   AnnoKeyUpdatedTimestamp,
   AnnoKeyDashboardIsSnapshot,
-  DeprecatedInternalId,
   AnnoKeyEmbedded,
+  AnnoReloadOnParamsChange,
 } from 'app/features/apiserver/types';
-import { DashboardWithAccessInfo } from 'app/features/dashboard/api/types';
+import { type DashboardWithAccessInfo } from 'app/features/dashboard/api/types';
 import {
   getDashboardSceneProfilerWithMetadata,
   enablePanelProfilingForDashboard,
   getDashboardComponentInteractionCallback,
 } from 'app/features/dashboard/services/DashboardProfiler';
-import { DashboardMeta } from 'app/types/dashboard';
+import { type DashboardMeta } from 'app/types/dashboard';
 
 import { addPanelsOnLoadBehavior } from '../addToDashboard/addPanelsOnLoadBehavior';
 import { dashboardAnalyticsInitializer } from '../behaviors/DashboardAnalyticsInitializerBehavior';
+import { DefaultControlsBehavior } from '../behaviors/DefaultControlsBehavior';
+import { type LoadDashboardOptions } from '../pages/DashboardScenePageStateManager';
 import { AlertStatesDataLayer } from '../scene/AlertStatesDataLayer';
 import { DashboardAnnotationsDataLayer } from '../scene/DashboardAnnotationsDataLayer';
 import { DashboardControls } from '../scene/DashboardControls';
@@ -72,11 +78,13 @@ import { DashboardDataLayerSet } from '../scene/DashboardDataLayerSet';
 import { registerDashboardMacro } from '../scene/DashboardMacro';
 import { DashboardReloadBehavior } from '../scene/DashboardReloadBehavior';
 import { DashboardScene } from '../scene/DashboardScene';
-import { DashboardLayoutManager } from '../scene/types/DashboardLayoutManager';
+import { ReportInteractionBehavior } from '../scene/ReportInteractionBehavior';
+import { type DashboardLayoutManager } from '../scene/types/DashboardLayoutManager';
 import { getIntervalsFromQueryString } from '../utils/utils';
 
 import { transformV2ToV1AnnotationQuery } from './annotations';
 import { SnapshotVariable } from './custom-variables/SnapshotVariable';
+import { migrateGroupByVariablesV2 } from './groupByMigration';
 import { layoutDeserializerRegistry } from './layoutSerializers/layoutSerializerRegistry';
 import { getDataSourceForQuery, getRuntimeVariableDataSource } from './layoutSerializers/utils';
 import { registerPanelInteractionsReporter } from './transformSaveModelToScene';
@@ -101,15 +109,19 @@ export type TypedVariableModelV2 =
   | AdhocVariableKind
   | SwitchVariableKind;
 
-export function transformSaveModelSchemaV2ToScene(dto: DashboardWithAccessInfo<DashboardV2Spec>): DashboardScene {
+export function transformSaveModelSchemaV2ToScene(
+  dto: DashboardWithAccessInfo<DashboardV2Spec>,
+  options?: LoadDashboardOptions
+): DashboardScene {
   const { spec: dashboard, metadata, apiVersion } = dto;
 
-  const found = dashboard.annotations.some((item) => item.spec.builtIn);
+  const annotations = dashboard.annotations ?? [];
+  const found = annotations.some((item) => item.spec.builtIn);
   if (!found) {
-    dashboard.annotations.unshift(getGrafanaBuiltInAnnotation());
+    annotations.unshift(getGrafanaBuiltInAnnotation());
   }
 
-  const annotationLayers = dashboard.annotations.map((annotation) => {
+  const annotationLayers = annotations.map((annotation) => {
     const annotationQuerySpec = transformV2ToV1AnnotationQuery(annotation);
 
     const layerState = {
@@ -135,11 +147,6 @@ export function transformSaveModelSchemaV2ToScene(dto: DashboardWithAccessInfo<D
 
   const isDashboardEditable = Boolean(dashboard.editable);
   const canSave = dto.access.canSave !== false;
-  let dashboardId: number | undefined = undefined;
-
-  if (metadata.labels?.[DeprecatedInternalId]) {
-    dashboardId = parseInt(metadata.labels[DeprecatedInternalId], 10);
-  }
 
   const meta: DashboardMeta = {
     canShare: dto.access.canShare !== false,
@@ -156,6 +163,7 @@ export function transformSaveModelSchemaV2ToScene(dto: DashboardWithAccessInfo<D
     updated: metadata.annotations?.[AnnoKeyUpdatedTimestamp],
     updatedBy: metadata.annotations?.[AnnoKeyUpdatedBy],
     folderUid: metadata.annotations?.[AnnoKeyFolder],
+    folderTitle: metadata.annotations?.[AnnoKeyFolderTitle],
     isSnapshot: Boolean(metadata.annotations?.[AnnoKeyDashboardIsSnapshot]),
     isEmbedded: Boolean(metadata.annotations?.[AnnoKeyEmbedded]),
     publicDashboardEnabled: dto.access.isPublic,
@@ -179,7 +187,12 @@ export function transformSaveModelSchemaV2ToScene(dto: DashboardWithAccessInfo<D
     .get(dashboard.layout.kind)
     .deserialize(dashboard.layout, dashboard.elements, dashboard.preload);
 
-  //createLayoutManager(dashboard);
+  let templateLayoutManager: DashboardLayoutManager | undefined = undefined;
+  if (config.featureToggles.dashboardDefaultLayoutSelector && dashboard.preferences?.layout) {
+    templateLayoutManager = layoutDeserializerRegistry
+      .get(dashboard.preferences.layout.kind)
+      .deserialize(dashboard.preferences.layout, {}, false);
+  }
 
   // Create profiler once and reuse to avoid duplicate metadata setting
   const dashboardProfiler = getDashboardSceneProfilerWithMetadata(metadata.name, dashboard.title);
@@ -203,12 +216,16 @@ export function transformSaveModelSchemaV2ToScene(dto: DashboardWithAccessInfo<D
 
   const dashboardScene = new DashboardScene(
     {
+      preferences: templateLayoutManager
+        ? {
+            defaultLayoutTemplate: templateLayoutManager,
+          }
+        : undefined,
       description: dashboard.description,
       editable: dashboard.editable,
       preload: dashboard.preload,
-      id: dashboardId,
       isDirty: false,
-      links: dashboard.links,
+      links: [...(options?.defaultLinks ?? []), ...dashboard.links],
       meta,
       tags: dashboard.tags,
       title: dashboard.title,
@@ -224,7 +241,7 @@ export function transformSaveModelSchemaV2ToScene(dto: DashboardWithAccessInfo<D
         weekStart: dashboard.timeSettings.weekStart,
         UNSAFE_nowDelay: dashboard.timeSettings.nowDelay,
       }),
-      $variables: getVariables(dashboard, meta.isSnapshot ?? false),
+      $variables: getVariables(dashboard, meta.isSnapshot ?? false, options?.defaultVariables),
       $behaviors: [
         new behaviors.CursorSync({
           sync: transformCursorSyncV2ToV1(dashboard.cursorSync),
@@ -236,10 +253,13 @@ export function transformSaveModelSchemaV2ToScene(dto: DashboardWithAccessInfo<D
         new behaviors.LiveNowTimer({ enabled: dashboard.liveNow }),
         addPanelsOnLoadBehavior,
         new DashboardReloadBehavior({
-          reloadOnParamsChange: config.featureToggles.reloadDashboardsOnParamsChange && false,
-          uid: dashboardId?.toString(),
+          reloadOnParamsChange:
+            config.featureToggles.reloadDashboardsOnParamsChange &&
+            Boolean(metadata.annotations?.[AnnoReloadOnParamsChange]),
+          uid: metadata.name,
         }),
         ...(enableProfiling ? [dashboardAnalyticsInitializer] : []),
+        new DefaultControlsBehavior(),
       ],
       $data: new DashboardDataLayerSet({
         annotationLayers,
@@ -269,20 +289,26 @@ export function transformSaveModelSchemaV2ToScene(dto: DashboardWithAccessInfo<D
   return dashboardScene;
 }
 
-function getVariables(dashboard: DashboardV2Spec, isSnapshot: boolean): SceneVariableSet | undefined {
+function getVariables(
+  dashboard: DashboardV2Spec,
+  isSnapshot: boolean,
+  defaultVariables?: VariableKind[]
+): SceneVariableSet | undefined {
   let variables: SceneVariableSet | undefined;
 
   if (isSnapshot) {
     variables = createVariablesForSnapshot(dashboard);
   } else {
-    variables = createVariablesForDashboard(dashboard);
+    variables = createVariablesForDashboard(dashboard, defaultVariables);
   }
 
   return variables;
 }
 
-function createVariablesForDashboard(dashboard: DashboardV2Spec) {
-  const variableObjects = dashboard.variables
+function createVariablesForDashboard(dashboard: DashboardV2Spec, defaultVariables: VariableKind[] = []) {
+  const isDefined = (v: SceneVariable | null): v is SceneVariable => Boolean(v);
+  const variables = migrateGroupByVariablesV2(dashboard.variables ?? []);
+  const variableObjects = variables
     .map((v) => {
       try {
         return createSceneVariableFromVariableModel(v);
@@ -293,7 +319,18 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec) {
     })
     // TODO: Remove filter
     // Added temporarily to allow skipping non-compatible variables
-    .filter((v): v is SceneVariable => Boolean(v));
+    .filter(isDefined);
+
+  const defaultVariableObjects = defaultVariables
+    .map((v) => {
+      try {
+        return createSceneVariableFromVariableModel(v);
+      } catch (err) {
+        console.error(err);
+        return null;
+      }
+    })
+    .filter(isDefined);
 
   // Explicitly disable scopes for public dashboards
   if (config.featureToggles.scopeFilters && !config.publicDashboardAccessToken) {
@@ -301,15 +338,16 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec) {
   }
 
   return new SceneVariableSet({
-    variables: variableObjects,
+    variables: [...defaultVariableObjects, ...variableObjects],
   });
 }
 
-function createSceneVariableFromVariableModel(variable: TypedVariableModelV2): SceneVariable {
+export function createSceneVariableFromVariableModel(variable: TypedVariableModelV2): SceneVariable {
   const commonProperties = {
     name: variable.spec.name,
     label: variable.spec.label,
     description: variable.spec.description,
+    origin: variable.spec.origin,
   };
   if (variable.kind === defaultAdhocVariableKind().kind) {
     const ds = getDataSourceForQuery(
@@ -319,6 +357,12 @@ function createSceneVariableFromVariableModel(variable: TypedVariableModelV2): S
       },
       variable.group
     );
+
+    // Separate filters by origin - filters with origin go to originFilters, others go to filters
+    const originFilters: AdHocFilterWithLabels[] = [];
+    const filters: AdHocFilterWithLabels[] = [];
+    variable.spec.filters?.forEach((filter) => (filter.origin ? originFilters.push(filter) : filters.push(filter)));
+
     const adhocVariableState: AdHocFiltersVariable['state'] = {
       ...commonProperties,
       type: 'adhoc',
@@ -327,16 +371,22 @@ function createSceneVariableFromVariableModel(variable: TypedVariableModelV2): S
       hide: transformVariableHideToEnumV1(variable.spec.hide),
       datasource: ds,
       applyMode: 'auto',
-      filters: variable.spec.filters ?? [],
+      filters,
+      originFilters,
       baseFilters: variable.spec.baseFilters ?? [],
       defaultKeys: variable.spec.defaultKeys.length ? variable.spec.defaultKeys : undefined,
       useQueriesAsFilterForOptions: true,
-      drilldownRecommendationsEnabled: config.featureToggles.drilldownRecommendations,
-      layout: config.featureToggles.newFiltersUI ? 'combobox' : undefined,
+      applicabilityEnabled: !!config.featureToggles.perPanelNonApplicableDrilldowns,
+      drilldownRecommendationsEnabled:
+        config.featureToggles.drilldownRecommendations || config.featureToggles.dashboardUnifiedDrilldownControls,
+      $behaviors: [new ReportInteractionBehavior({})],
       supportsMultiValueOperators: Boolean(
         getDataSourceSrv().getInstanceSettings({ type: ds?.type })?.meta.multiValueFilterOperators
       ),
-      collapsible: config.featureToggles.dashboardAdHocAndGroupByWrapper,
+      collapsible: config.featureToggles.dashboardUnifiedDrilldownControls,
+      enableGroupBy: config.featureToggles.dashboardUnifiedDrilldownControls
+        ? (variable.spec.enableGroupBy ?? false)
+        : false,
     };
     if (variable.spec.allowCustomValue !== undefined) {
       adhocVariableState.allowCustomValue = variable.spec.allowCustomValue;
@@ -360,6 +410,9 @@ function createSceneVariableFromVariableModel(variable: TypedVariableModelV2): S
       valuesFormat: variable.spec.valuesFormat || 'csv',
     });
   } else if (variable.kind === defaultQueryVariableKind().kind) {
+    const refresh = config.publicDashboardAccessToken
+      ? VariableRefresh.never
+      : transformVariableRefreshToEnumV1(variable.spec.refresh);
     return new QueryVariable({
       ...commonProperties,
       value: variable.spec.current?.value ?? '',
@@ -367,7 +420,7 @@ function createSceneVariableFromVariableModel(variable: TypedVariableModelV2): S
       query: getDataQueryForVariable(variable),
       datasource: getRuntimeVariableDataSource(variable),
       sort: transformSortVariableToEnumV1(variable.spec.sort),
-      refresh: transformVariableRefreshToEnumV1(variable.spec.refresh),
+      refresh,
       regex: variable.spec.regex,
       regexApplyTo: variable.spec.regexApplyTo,
       allValue: variable.spec.allValue || undefined,
@@ -383,6 +436,7 @@ function createSceneVariableFromVariableModel(variable: TypedVariableModelV2): S
             staticOptions: variable.spec.staticOptions.map((option) => ({
               label: String(option.text),
               value: String(option.value),
+              properties: option.properties,
             })),
           }
         : {}),
@@ -471,10 +525,14 @@ function createSceneVariableFromVariableModel(variable: TypedVariableModelV2): S
       skipUrlSync: variable.spec.skipUrlSync,
       isMulti: variable.spec.multi,
       hide: transformVariableHideToEnumV1(variable.spec.hide),
-      wideInput: config.featureToggles.dashboardAdHocAndGroupByWrapper,
-      drilldownRecommendationsEnabled: config.featureToggles.drilldownRecommendations,
+      applicabilityEnabled: !!config.featureToggles.perPanelNonApplicableDrilldowns,
+      drilldownRecommendationsEnabled:
+        config.featureToggles.drilldownRecommendations || config.featureToggles.dashboardUnifiedDrilldownControls,
       // @ts-expect-error
       defaultOptions: variable.options,
+      defaultValue: variable.spec.defaultValue
+        ? { value: variable.spec.defaultValue.value, text: variable.spec.defaultValue.text }
+        : undefined,
     });
   } else if (variable.kind === defaultSwitchVariableKind().kind) {
     return new SwitchVariable({
@@ -511,8 +569,8 @@ export function getCurrentValueForOldIntervalModel(variable: IntervalVariableKin
     return intervals[0];
   }
 
-  // If the interval is the old auto format, return the new auto interval from scenes.
-  if (selectedInterval.startsWith('$__auto_interval_')) {
+  // If auto is eanbled and value is $__auto or older format $__auto_interval_
+  if (variable.spec.auto && selectedInterval.startsWith('$__auto')) {
     return '$__auto';
   }
 
@@ -526,7 +584,7 @@ export function getCurrentValueForOldIntervalModel(variable: IntervalVariableKin
 }
 
 export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVariableSet {
-  const variableObjects = dashboard.variables
+  const variableObjects = (dashboard.variables ?? [])
     .map((v) => {
       try {
         // for adhoc we are using the AdHocFiltersVariable from scenes becuase of its complexity
@@ -552,10 +610,14 @@ export function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVar
             baseFilters: v.spec.baseFilters ?? [],
             defaultKeys: v.spec.defaultKeys?.length ? v.spec.defaultKeys : undefined,
             useQueriesAsFilterForOptions: true,
-            layout: config.featureToggles.newFiltersUI ? 'combobox' : undefined,
+            applicabilityEnabled: !!config.featureToggles.perPanelNonApplicableDrilldowns,
             supportsMultiValueOperators: Boolean(
               getDataSourceSrv().getInstanceSettings({ type: ds?.type })?.meta.multiValueFilterOperators
             ),
+            enableGroupBy: config.featureToggles.dashboardUnifiedDrilldownControls
+              ? (v.spec.enableGroupBy ?? false)
+              : false,
+            $behaviors: [new ReportInteractionBehavior({})],
           });
         }
         // for other variable types we are using the SnapshotVariable

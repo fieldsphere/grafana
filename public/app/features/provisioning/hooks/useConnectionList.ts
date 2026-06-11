@@ -1,7 +1,7 @@
-import { skipToken } from '@reduxjs/toolkit/query';
+import { type skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
 
-import { ListConnectionApiArg, useListConnectionQuery } from 'app/api/clients/provisioning/v0alpha1';
+import { type ListConnectionApiArg, useListConnectionQuery } from 'app/api/clients/provisioning/v0alpha1';
 
 // Sort connections alphabetically by name
 export function useConnectionList(options: ListConnectionApiArg | typeof skipToken = {}) {
@@ -16,5 +16,5 @@ export function useConnectionList(options: ListConnectionApiArg | typeof skipTok
     });
   }, [query.data?.items]);
 
-  return [sortedItems, query.isLoading, query.error] as const;
+  return [sortedItems, query.isLoading, query.error, query.refetch] as const;
 }

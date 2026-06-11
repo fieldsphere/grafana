@@ -185,18 +185,21 @@ func (m ResourceReferences) Less(i, j int) bool {
 	return strings.Compare(a, b) > 0
 }
 
-// Create a new indexable document based on a generic k8s resource
-func NewIndexableDocument(key *resourcepb.ResourceKey, rv int64, obj utils.GrafanaMetaAccessor) *IndexableDocument {
-	title := obj.FindTitle(key.Name)
-	if title == key.Name {
-		// TODO: something wrong with FindTitle
-		spec, err := obj.GetSpec()
-		if err == nil {
-			specValue, ok := spec.(map[string]any)
-			if ok {
-				specTitle, ok := specValue["title"].(string)
+// NewIndexableDocument creates a new indexable document based on a generic k8s resource
+// If title is empty, resolve it by calling obj.FindTitle and obj.GetSpec (in that order)
+func NewIndexableDocument(key *resourcepb.ResourceKey, rv int64, obj utils.GrafanaMetaAccessor, title string) *IndexableDocument {
+	if title == "" {
+		title = obj.FindTitle(key.Name)
+		if title == key.Name {
+			// TODO: something wrong with FindTitle
+			spec, err := obj.GetSpec()
+			if err == nil {
+				specValue, ok := spec.(map[string]any)
 				if ok {
-					title = specTitle
+					specTitle, ok := specValue["title"].(string)
+					if ok {
+						title = specTitle
+					}
 				}
 			}
 		}
@@ -258,7 +261,7 @@ func (s *standardDocumentBuilder) BuildDocument(ctx context.Context, key *resour
 		return nil, err
 	}
 
-	doc := NewIndexableDocument(key, rv, obj)
+	doc := NewIndexableDocument(key, rv, obj, "")
 
 	sfKey := strings.ToLower(key.GetGroup() + "/" + key.GetResource())
 	doc.SelectableFields = getSelectableFieldsFromObject(tmp, s.selectableFields[sfKey])
@@ -338,8 +341,9 @@ const (
 	SEARCH_FIELD_NAMESPACE          = "namespace"
 	SEARCH_FIELD_NAME               = "name"
 	SEARCH_FIELD_RV                 = "rv"
-	SEARCH_FIELD_TITLE              = "title"
-	SEARCH_FIELD_TITLE_PHRASE       = "title_phrase" // filtering/sorting on title by full phrase
+	SEARCH_FIELD_TITLE              = "title"        // standard-analyzed title for full-token search; indexed terms are lowercased by the analyzer
+	SEARCH_FIELD_TITLE_PHRASE       = "title_phrase" // keyword-analyzed title for exact matching/sorting; value is lowercased in UpdateCopyFields
+	SEARCH_FIELD_TITLE_NGRAM        = "title_ngram"  // ngram-analyzed title for partial matching; indexed terms are lowercased by the analyzer
 	SEARCH_FIELD_DESCRIPTION        = "description"
 	SEARCH_FIELD_TAGS               = "tags"
 	SEARCH_FIELD_LABELS             = "labels" // All labels, not a specific one
@@ -357,6 +361,7 @@ const (
 	SEARCH_FIELD_SOURCE_TIME        = "source.timestampMillis"
 	SEARCH_FIELD_SCORE              = "_score"            // the match score
 	SEARCH_FIELD_EXPLAIN            = "_explain"          // score explanation as JSON object
+	SEARCH_FIELD_ALL_FIELDS         = "_all_columns"      // sentinel: return all known columns in search results (deliberately distinct from bleve's "_all" composite field)
 	SEARCH_SELECTABLE_FIELDS_PREFIX = "selectableFields." // Prefix for searching selectable fields.
 )
 
@@ -437,6 +442,11 @@ func StandardSearchFields() SearchableDocumentFields {
 				Description: "created timestamp", // date?
 			},
 			{
+				Name:        SEARCH_FIELD_CREATED_BY,
+				Type:        resourcepb.ResourceTableColumnDefinition_STRING,
+				Description: "Who created the resource (format: user:<uid>)",
+			},
+			{
 				Name:        SEARCH_FIELD_EXPLAIN,
 				Type:        resourcepb.ResourceTableColumnDefinition_OBJECT,
 				Description: "Explain why this result matches (depends on the engine)",
@@ -472,6 +482,12 @@ func StandardSearchFields() SearchableDocumentFields {
 			{
 				Name: SEARCH_FIELD_SOURCE_CHECKSUM,
 				Type: resourcepb.ResourceTableColumnDefinition_STRING,
+			},
+			{
+				Name:        SEARCH_FIELD_OWNER_REFERENCES,
+				Type:        resourcepb.ResourceTableColumnDefinition_STRING,
+				IsArray:     true,
+				Description: "Owner references in format {Group}/{Kind}/{Name}",
 			},
 		})
 

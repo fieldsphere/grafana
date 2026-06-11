@@ -8,7 +8,7 @@
  *
  */
 
-import { Observable } from 'rxjs';
+import { type Observable } from 'rxjs';
 
 /** The object type and version */
 export interface TypeMeta<K = string> {
@@ -50,6 +50,8 @@ export enum ManagerKind {
   Terraform = 'terraform',
   Kubectl = 'kubectl',
   Plugin = 'plugin',
+  /** @deprecated shim/migration path for legacy file provisioning */
+  ClassicFP = 'classic-file-provisioning',
 }
 
 export const AnnoKeyManagerKind = 'grafana.app/managedBy';

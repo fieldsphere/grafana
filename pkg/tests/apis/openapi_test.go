@@ -10,9 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/version"
 	"k8s.io/client-go/kubernetes"
 
-	"github.com/grafana/grafana/pkg/apiserver/rest"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
-	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/tests/testinfra"
 	"github.com/grafana/grafana/pkg/tests/testsuite"
 	"github.com/grafana/grafana/pkg/util/testutil"
@@ -26,24 +24,31 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
 	h := NewK8sTestHelper(t, testinfra.GrafanaOpts{
-		AppModeProduction: false, // required for experimental APIs
+		AppModeProduction:                 false, // required for experimental APIs
+		RBACSingleOrganization:            true,  // required for the Users API
+		EnableAnnotationAppPlatform:       true,
+		AnnotationAppPlatformStoreBackend: "legacy-sql",
 		EnableFeatureToggles: []string{
 			featuremgmt.FlagQueryService, // Query Library
 			featuremgmt.FlagProvisioning,
 			featuremgmt.FlagGrafanaAdvisor,
-			featuremgmt.FlagKubernetesAlertingRules,
 			featuremgmt.FlagGrafanaAPIServerWithExperimentalAPIs, // library panels in v0
 			featuremgmt.FlagQueryServiceWithConnections,
+			featuremgmt.FlagDatasourceUseNewCRUDAPIs,
+			featuremgmt.FlagDatasourcesApiServerEnableResourceEndpoint,
+			// featuremgmt.FlagDatasourcesQueryTypes,
+			featuremgmt.FlagDatasourcesLoadOpenAPI,
 			featuremgmt.FlagKubernetesShortURLs,
 			featuremgmt.FlagKubernetesCorrelations,
-			featuremgmt.FlagKubernetesAnnotations,
+			"kubernetesAnnotations",
 			featuremgmt.FlagKubernetesAlertingHistorian,
 			featuremgmt.FlagKubernetesLogsDrilldown,
-		},
-		// Explicitly configure with mode 5 the resources supported by provisioning.
-		UnifiedStorageConfig: map[string]setting.UnifiedStorageConfig{
-			"dashboards.dashboard.grafana.app": {DualWriterMode: rest.Mode5},
-			"folders.folder.grafana.app":       {DualWriterMode: rest.Mode5},
+			featuremgmt.FlagKubernetesTeamsApi,
+			featuremgmt.FlagKubernetesUsersApi,
+			featuremgmt.FlagKubernetesServiceAccountsApi,
+			featuremgmt.FlagKubernetesServiceAccountTokensApi,
+			featuremgmt.FlagKubernetesExternalGroupMappingsApi,
+			featuremgmt.FlagDatasourcesApiServerEnableHealthEndpoint,
 		},
 	})
 
@@ -55,7 +60,7 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, runtime.Version(), info.GoVersion)
 		require.Equal(t, "1", info.Major)
-		require.Equal(t, "34", info.Minor)
+		require.Equal(t, "36", info.Minor)
 
 		// Make sure the gitVersion is parsable
 		v, err := version.Parse(info.GitVersion)
@@ -90,13 +95,25 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 		Group:   "dashboard.grafana.app",
 		Version: "v2beta1",
 	}, {
+		Group:   "dashboard.grafana.app",
+		Version: "v2",
+	}, {
 		Group:   "folder.grafana.app",
 		Version: "v1beta1",
+	}, {
+		Group:   "folder.grafana.app",
+		Version: "v1",
 	}, {
 		Group:   "provisioning.grafana.app",
 		Version: "v0alpha1",
 	}, {
+		Group:   "provisioning.grafana.app",
+		Version: "v1beta1",
+	}, {
 		Group:   "iam.grafana.app",
+		Version: "v0alpha1",
+	}, {
+		Group:   "query.grafana.app",
 		Version: "v0alpha1",
 	}, {
 		Group:   "advisor.grafana.app",
@@ -104,6 +121,9 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 	}, {
 		Group:   "playlist.grafana.app",
 		Version: "v0alpha1",
+	}, {
+		Group:   "playlist.grafana.app",
+		Version: "v1",
 	}, {
 		Group:   "preferences.grafana.app",
 		Version: "v1alpha1",
@@ -113,6 +133,9 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 	}, {
 		Group:   "notifications.alerting.grafana.app",
 		Version: "v0alpha1",
+	}, {
+		Group:   "notifications.alerting.grafana.app",
+		Version: "v1beta1",
 	}, {
 		Group:   "rules.alerting.grafana.app",
 		Version: "v0alpha1",
@@ -134,6 +157,9 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 	}, {
 		Group:   "logsdrilldown.grafana.app",
 		Version: "v1beta1",
+	}, {
+		Group:   "quotas.grafana.app",
+		Version: "v0alpha1",
 	}}
 	for _, gv := range groups {
 		VerifyOpenAPISnapshots(t, dir, gv, h)

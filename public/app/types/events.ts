@@ -1,5 +1,5 @@
-import { AnnotationQuery, BusEventBase, BusEventWithPayload, eventFactory } from '@grafana/data';
-import { IconName, ButtonVariant } from '@grafana/ui';
+import { type AnnotationQuery, BusEventBase, BusEventWithPayload, eventFactory } from '@grafana/data';
+import { type ButtonVariant } from '@grafana/ui';
 
 /**
  * Event Payloads
@@ -48,7 +48,6 @@ export interface ShowConfirmModalPayload {
   altActionText?: string;
   yesText?: string;
   noText?: string;
-  icon?: IconName;
   yesButtonVariant?: ButtonVariant;
 
   onDismiss?: () => void;
@@ -205,6 +204,10 @@ export class DashboardSavedEvent extends BusEventBase {
   static type = 'dashboard-saved';
 }
 
+export class DashboardDiscardedEvent extends BusEventBase {
+  static type = 'dashboard-discarded';
+}
+
 export class AnnotationQueryStarted extends BusEventWithPayload<AnnotationQuery> {
   static type = 'annotation-query-started';
 }
@@ -219,4 +222,8 @@ export class PanelEditEnteredEvent extends BusEventWithPayload<number> {
 
 export class PanelEditExitedEvent extends BusEventWithPayload<number> {
   static type = 'panel-edit-finished';
+}
+
+export class PanelEditNextFeedbackEvent extends BusEventBase {
+  static type = 'panel-edit-next-feedback';
 }

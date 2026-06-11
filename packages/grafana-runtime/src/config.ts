@@ -1,31 +1,31 @@
 import { merge } from 'lodash';
 
 import {
-  AppPluginConfig as AppPluginConfigGrafanaData,
-  AuthSettings,
-  AzureSettings as AzureSettingsGrafanaData,
-  BootData,
-  BuildInfo,
-  DataSourceInstanceSettings,
-  FeatureToggles,
-  GrafanaTheme,
-  GrafanaTheme2,
-  LicenseInfo,
-  MapLayerOptions,
-  OAuthSettings,
-  PanelPluginMeta,
-  PreinstalledPlugin as PreinstalledPluginGrafanaData,
+  type AppPluginConfig as AppPluginConfigGrafanaData,
+  type AuthSettings,
+  type AzureSettings as AzureSettingsGrafanaData,
+  type BootData,
+  type BuildInfo,
+  type DataSourceInstanceSettings,
+  type FeatureToggles,
+  type GrafanaTheme,
+  type GrafanaTheme2,
+  type LicenseInfo,
+  type MapLayerOptions,
+  type OAuthSettings,
+  type PanelPluginMeta,
+  type PreinstalledPlugin as PreinstalledPluginGrafanaData,
   systemDateFormats,
-  SystemDateFormatSettings,
+  type SystemDateFormatSettings,
   getThemeById,
-  AngularMeta,
-  PluginLoadingStrategy,
-  PluginDependencies,
-  PluginExtensions,
-  TimeOption,
-  UnifiedAlertingConfig,
-  GrafanaConfig,
-  CurrentUserDTO,
+  type AngularMeta,
+  type PluginLoadingStrategy,
+  type PluginDependencies,
+  type PluginExtensions,
+  type TimeOption,
+  type UnifiedAlertingConfig,
+  type GrafanaConfig,
+  type CurrentUserDTO,
 } from '@grafana/data';
 
 /**
@@ -85,6 +85,7 @@ export class GrafanaBootConfig {
   publicDashboardsEnabled = true;
   snapshotEnabled = true;
   datasources: { [str: string]: DataSourceInstanceSettings } = {};
+  /** @deprecated it will be removed in a future release, use isPanelPluginInstalled, getPanelPluginVersion or getListedPanelPluginIds instead */
   panels: { [key: string]: PanelPluginMeta } = {};
   /** @deprecated it will be removed in a future release, use isAppPluginInstalled or getAppPluginVersion instead */
   apps: Record<string, AppPluginConfigGrafanaData> = {};
@@ -137,6 +138,7 @@ export class GrafanaBootConfig {
   trustedTypesDefaultPolicyEnabled = false;
   cspReportOnlyEnabled = false;
   liveEnabled = true;
+  liveNamespaced = false; // orgId vs namespace
   liveMessageSizeLimit = 65536;
   /** @deprecated Use `theme2` instead. */
   theme: GrafanaTheme;
@@ -161,7 +163,6 @@ export class GrafanaBootConfig {
     performanceInstrumentalizationEnabled: false,
     cspInstrumentalizationEnabled: false,
     tracingInstrumentalizationEnabled: false,
-    webVitalsAttribution: false,
     internalLoggerLevel: 0,
     botFilterEnabled: false,
   };
@@ -176,6 +177,7 @@ export class GrafanaBootConfig {
   expressionsEnabled = false;
   awsAllowedAuthProviders: string[] = [];
   awsAssumeRoleEnabled = false;
+  awsPerDatasourceHTTPProxyEnabled = false;
   azure: AzureSettingsGrafanaData = {
     managedIdentityEnabled: false,
     workloadIdentityEnabled: false,
@@ -186,6 +188,7 @@ export class GrafanaBootConfig {
   caching = {
     enabled: false,
     cleanCacheEnabled: true,
+    defaultTTLMs: 300000,
   };
   geomapDefaultBaseLayerConfig?: MapLayerOptions;
   geomapDisableCustomBaseLayer?: boolean;
@@ -229,6 +232,8 @@ export class GrafanaBootConfig {
   rudderstackV3SdkUrl?: string;
   rudderstackConfigUrl?: string;
   rudderstackIntegrationsUrl?: string;
+  postHogToken?: string;
+  postHogHost?: string;
   analyticsConsoleReporting = false;
   dashboardPerformanceMetrics: string[] = [];
   panelSeriesLimit = 0;
@@ -260,11 +265,6 @@ export class GrafanaBootConfig {
    */
   language: string | undefined;
 
-  /**
-   * regionalFormat used in Grafana's UI. Default to 'es-US' in the backend and overwritten when the user select a different one in SharedPreferences.
-   * This is the regionalFormat that is used for date formatting and other locale-specific features.
-   */
-  regionalFormat: string;
   listDashboardScopesEndpoint = '';
   listScopesEndpoint = '';
 
@@ -292,7 +292,6 @@ export class GrafanaBootConfig {
     this.theme2 = getThemeById(this.bootData.user.theme);
     this.bootData.user.lightTheme = this.theme2.isLight;
     this.theme = this.theme2.v1;
-    this.regionalFormat = options.bootData.user.regionalFormat;
   }
 }
 
@@ -323,7 +322,7 @@ function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
 
   // Although most flags can not be changed from the URL in production,
   // some of them are safe (and useful!) to change dynamically from the browser URL
-  const safeRuntimeFeatureFlags = new Set(['queryServiceFromUI', 'dashboardSceneSolo']);
+  const safeRuntimeFeatureFlags = new Set(['queryServiceFromUI']);
 
   const params = new URLSearchParams(window.location.search);
   params.forEach((value, key) => {

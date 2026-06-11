@@ -6,7 +6,6 @@ import {
   AxisPlacement,
   BarAlignment,
   GraphDrawStyle,
-  LegendDisplayMode,
   StackingMode,
   TooltipDisplayMode,
   VisibilityMode,
@@ -16,6 +15,8 @@ import { Box } from '@grafana/ui';
 import { overrideToFixedColor } from '../../home/Insights';
 import { useWorkbenchContext } from '../WorkbenchContext';
 
+import { sortByAlertState } from './dataFrameUtils';
+
 /**
  * Viz config for the alert rule summary chart - used by the React component
  */
@@ -24,16 +25,15 @@ export const alertRuleSummaryVizConfig = VizConfigBuilders.timeseries()
   .setCustomFieldConfig('barWidthFactor', 1)
   .setCustomFieldConfig('barAlignment', BarAlignment.After)
   .setCustomFieldConfig('showPoints', VisibilityMode.Never)
-  .setCustomFieldConfig('fillOpacity', 60)
+  .setCustomFieldConfig('fillOpacity', 80)
   .setCustomFieldConfig('lineWidth', 0)
-  .setCustomFieldConfig('stacking', { mode: StackingMode.None })
+  .setCustomFieldConfig('stacking', { mode: StackingMode.Normal })
   .setCustomFieldConfig('axisPlacement', AxisPlacement.Hidden)
   .setCustomFieldConfig('axisGridShow', false)
   .setMin(0)
   .setOption('tooltip', { mode: TooltipDisplayMode.Multi })
   .setOption('legend', {
     showLegend: false,
-    displayMode: LegendDisplayMode.Hidden,
   })
   .setOverrides((builder) =>
     builder
@@ -52,10 +52,23 @@ export const alertRuleSummaryVizConfig = VizConfigBuilders.timeseries()
 function AlertRuleSummaryViz({ ruleUID }: { ruleUID: string }) {
   const { queryRunner } = useWorkbenchContext();
 
-  // Transform parent data to filter by this specific rule and partition by alert state
+  // Transform parent data to filter by this specific rule and partition by alert state.
+  // filterByRefId ensures we use only the range query (A) for charts, excluding the
+  // instant badge query (B).
   const transformedData = useDataTransformer({
     data: queryRunner,
     transformations: [
+      {
+        id: 'filterByRefId',
+        options: { include: 'A' },
+      },
+      {
+        id: 'renameByRegex',
+        options: {
+          regex: 'Value #A',
+          renamePattern: 'Value',
+        },
+      },
       {
         id: 'filterByValue',
         options: {
@@ -84,6 +97,7 @@ function AlertRuleSummaryViz({ ruleUID }: { ruleUID: string }) {
           },
         },
       },
+      sortByAlertState,
     ],
   });
 

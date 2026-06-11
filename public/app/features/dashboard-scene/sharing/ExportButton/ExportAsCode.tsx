@@ -3,19 +3,19 @@ import yaml from 'js-yaml';
 import { useAsync } from 'react-use';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
-import { GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
-import { config } from '@grafana/runtime';
-import { SceneComponentProps } from '@grafana/scenes';
-import { Button, ClipboardButton, CodeEditor, Label, Spinner, Stack, Switch, useStyles2 } from '@grafana/ui';
+import { type SceneComponentProps } from '@grafana/scenes';
+import { Button, ClipboardButton, CodeEditor, Spinner, Stack, useStyles2 } from '@grafana/ui';
 import { createSuccessNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
+import { ExportFormat } from 'app/features/dashboard/api/types';
 import { dispatch } from 'app/store/store';
 
 import { ShareExportTab } from '../ShareExportTab';
 
-import { ExportMode, ResourceExport } from './ResourceExport';
+import { ResourceExport } from './ResourceExport';
 
 const selector = e2eSelectors.pages.ExportDashboardDrawer.ExportAsJson;
 
@@ -33,13 +33,13 @@ export class ExportAsCode extends ShareExportTab {
 
 function ExportAsCodeRenderer({ model }: SceneComponentProps<ExportAsCode>) {
   const styles = useStyles2(getStyles);
-  const { isSharingExternally, isViewingYAML, exportMode } = model.useState();
+  const { isSharingExternally, isViewingYAML, exportFormat } = model.useState();
 
   const dashboardJson = useAsync(async () => {
     const json = await model.getExportableDashboardJson();
 
     return json;
-  }, [isSharingExternally, exportMode]);
+  }, [isSharingExternally, exportFormat]);
 
   const stringifiedDashboardJson = JSON.stringify(dashboardJson.value?.json, null, 2);
   const stringifiedDashboardYAML = yaml.dump(dashboardJson.value?.json, {
@@ -53,32 +53,17 @@ function ExportAsCodeRenderer({ model }: SceneComponentProps<ExportAsCode>) {
     dispatch(notifyApp(createSuccessNotification(message)));
   };
 
-  const switchExportLabel = t('export.json.export-externally-label', 'Export the dashboard to use in another instance');
-
   return (
     <div data-testid={selector.container} className={styles.container}>
-      {config.featureToggles.kubernetesDashboards ? (
-        <ResourceExport
-          dashboardJson={dashboardJson}
-          isSharingExternally={isSharingExternally ?? false}
-          exportMode={exportMode ?? ExportMode.Classic}
-          isViewingYAML={isViewingYAML ?? false}
-          onExportModeChange={model.onExportModeChange}
-          onShareExternallyChange={model.onShareExternallyChange}
-          onViewYAML={model.onViewYAML}
-        />
-      ) : (
-        <Stack gap={1} alignItems="start">
-          <Switch
-            label={switchExportLabel}
-            data-testid={selector.exportExternallyToggle}
-            id="export-externally-toggle"
-            value={Boolean(isSharingExternally)}
-            onChange={model.onShareExternallyChange}
-          />
-          <Label>{switchExportLabel}</Label>
-        </Stack>
-      )}
+      <ResourceExport
+        dashboardJson={dashboardJson}
+        isSharingExternally={isSharingExternally ?? false}
+        exportFormat={exportFormat ?? ExportFormat.Classic}
+        isViewingYAML={isViewingYAML ?? false}
+        onExportFormatChange={model.onExportFormatChange}
+        onShareExternallyChange={model.onShareExternallyChange}
+        onViewYAML={model.onViewYAML}
+      />
 
       <div className={styles.codeEditorBox}>
         <AutoSizer data-testid={selector.codeEditor} disableWidth>
