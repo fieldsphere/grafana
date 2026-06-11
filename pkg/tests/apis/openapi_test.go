@@ -24,8 +24,10 @@ func TestIntegrationOpenAPIs(t *testing.T) {
 	testutil.SkipIntegrationTestInShortMode(t)
 
 	h := NewK8sTestHelper(t, testinfra.GrafanaOpts{
-		AppModeProduction:      false, // required for experimental APIs
-		RBACSingleOrganization: true,  // required for the Users API
+		AppModeProduction:                 false, // required for experimental APIs
+		RBACSingleOrganization:            true,  // required for the Users API
+		EnableAnnotationAppPlatform:       true,
+		AnnotationAppPlatformStoreBackend: "legacy-sql",
 		EnableFeatureToggles: []string{
 			featuremgmt.FlagQueryService, // Query Library
 			featuremgmt.FlagProvisioning,

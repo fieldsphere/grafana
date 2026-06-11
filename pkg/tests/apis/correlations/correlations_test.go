@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/utils/ptr"
 
 	correlationsV0 "github.com/grafana/grafana/apps/correlations/pkg/apis/correlation/v0alpha1"
 	grafanarest "github.com/grafana/grafana/pkg/apiserver/rest"
@@ -70,7 +71,7 @@ func TestIntegrationCorrelations(t *testing.T) {
 				// Loaded from the request, not the payload
 				// SourceUID:   "test-A",
 				// OrgId:       correlationsClient.Args.User.Identity.GetOrgID(),
-				TargetUID:   new("test-B"),
+				TargetUID:   ptr.To("test-B"),
 				Label:       "hello",
 				Description: "test test test",
 				Type:        correlations.CorrelationType("query"),

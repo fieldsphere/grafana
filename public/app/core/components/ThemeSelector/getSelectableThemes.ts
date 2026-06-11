@@ -10,6 +10,8 @@ export function getSelectableThemes() {
     allowedExtraThemes.push('sapphiredusk');
     allowedExtraThemes.push('tron');
     allowedExtraThemes.push('gloom');
+    allowedExtraThemes.push('orange');
+    allowedExtraThemes.push('aubergine');
   }
 
   return getBuiltInThemes(allowedExtraThemes);
