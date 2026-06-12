@@ -8,7 +8,7 @@ import {
   type QueryResultMetaStat,
   generateUUID,
 } from '@grafana/data';
-import { config } from '@grafana/runtime';
+import { config, logStructuredDebug } from '@grafana/runtime';
 
 import { type LokiDatasource } from './datasource';
 import { combineResponses, replaceResponses } from './mergeResponses';
@@ -380,5 +380,5 @@ function debug(message: string) {
   if (!DEBUG_ENABLED) {
     return;
   }
-  console.log(message);
+  logStructuredDebug('plugins.datasource.loki', message);
 }

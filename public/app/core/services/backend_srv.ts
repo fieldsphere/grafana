@@ -27,9 +27,10 @@ import {
 
 import { AppEvents, DataQueryErrorType, deprecationWarning, generateUUID } from '@grafana/data';
 import {
+  config,
+  logStructuredDebug,
   type BackendSrv as BackendService,
   type BackendSrvRequest,
-  config,
   type FetchError,
   type FetchResponse,
 } from '@grafana/runtime';
@@ -240,7 +241,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            logStructuredDebug('core.services', requestId, 'catch', e);
             observer.error(e);
           }); // from abort
       },

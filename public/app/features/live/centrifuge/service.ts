@@ -18,15 +18,16 @@ import {
   toLiveChannelId,
 } from '@grafana/data';
 import {
+  getBackendSrv,
+  logStructuredDebug,
+  StreamingFrameAction,
+  type BackendDataSourceResponse,
   type FetchResponse,
   type GrafanaLiveSrv,
   type LiveDataStreamOptions,
   type LivePublishOptions,
   type LiveQueryDataOptions,
-  StreamingFrameAction,
   type StreamingFrameOptions,
-  type BackendDataSourceResponse,
-  getBackendSrv,
 } from '@grafana/runtime';
 
 import { type StreamingResponseData } from '../data/utils';
@@ -126,7 +127,7 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.log('Publication from server-side channel', context);
+    logStructuredDebug('features.live', 'Publication from server-side channel', context);
   };
 
   private onError = (context: ErrorContext) => {

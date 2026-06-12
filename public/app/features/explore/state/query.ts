@@ -20,7 +20,7 @@ import {
   type SupplementaryQueryType,
 } from '@grafana/data';
 import { combinePanelData } from '@grafana/o11y-ds-frontend';
-import { config, getDataSourceSrv } from '@grafana/runtime';
+import { config, getDataSourceSrv, logStructuredDebug } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import {
@@ -655,7 +655,7 @@ export const runQueries = createAsyncThunk<void, RunQueriesOptions>(
 
           // Keep scanning for results if this was the last scanning transaction
           if (exploreState!.scanning) {
-            console.log(data.series);
+            logStructuredDebug('features.explore', data.series);
             if (data.state === LoadingState.Done && data.series.length === 0) {
               const range = getShiftedTimeRange(-1, exploreState!.range);
               dispatch(updateTime({ exploreId, absoluteRange: range }));

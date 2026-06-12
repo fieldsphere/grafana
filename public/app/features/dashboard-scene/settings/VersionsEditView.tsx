@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 
 import { PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
+import { logStructuredDebug } from '@grafana/runtime';
 import { type SceneComponentProps, SceneObjectBase, sceneGraph } from '@grafana/scenes';
 import { Alert, Spinner, Stack } from '@grafana/ui';
 import { useGetDisplayMappingQuery } from 'app/api/clients/iam/v0alpha1';
@@ -128,7 +129,7 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => logStructuredDebug('features.dashboard-scene', err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

@@ -1,6 +1,7 @@
 import { PureComponent } from 'react';
 import * as React from 'react';
 
+import { logStructuredDebug } from '@grafana/runtime';
 import { Spinner, Stack } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { type Resource } from 'app/features/apiserver/types';
@@ -69,7 +70,7 @@ export class VersionsSettings extends PureComponent<Props, State> {
         // Update the continueToken for the next request, if available
         this.continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => logStructuredDebug('features.dashboard', err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

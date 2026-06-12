@@ -1,3 +1,4 @@
+import { logStructuredDebug } from '@grafana/runtime';
 import { type monacoTypes } from '@grafana/ui';
 
 // this thing here is a workaround in a way.
@@ -81,7 +82,7 @@ function makeStorageService() {
     },
 
     logStorage: (): void => {
-      console.log('logStorage: not implemented');
+      logStructuredDebug('plugins.datasource.loki', 'logStorage: not implemented');
     },
 
     migrate: (): Promise<void> => {

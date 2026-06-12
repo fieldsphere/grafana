@@ -23,7 +23,7 @@ import {
   toDataFrameDTO,
   toUtc,
 } from '@grafana/data';
-import { RefreshEvent, ScopesContext, type ScopesContextValue } from '@grafana/runtime';
+import { logStructuredDebug, RefreshEvent, ScopesContext, type ScopesContextValue } from '@grafana/runtime';
 import { type VizLegendOptions } from '@grafana/schema';
 import {
   ErrorBoundary,
@@ -262,7 +262,7 @@ export class PanelStateWrapper extends PureComponent<Props, State> {
       const delta = liveTime.to.valueOf() - data.timeRange.to.valueOf();
       if (delta < 100) {
         // 10hz
-        console.log('Skip tick render', this.props.panel.title, delta);
+        logStructuredDebug('features.dashboard', 'Skip tick render', this.props.panel.title, delta);
         return;
       }
     }

@@ -2,6 +2,7 @@ import { type ProxyTarget } from '@locker/near-membrane-shared';
 import DOMPurify from 'dompurify';
 import { cloneDeep, isFunction } from 'lodash';
 
+import { logStructuredDebug } from '@grafana/runtime';
 import { type Monaco } from '@grafana/ui';
 
 import { loadScriptIntoSandbox } from './codeLoader';
@@ -140,7 +141,7 @@ function distortConsole(distortions: DistortionMap) {
       const pluginId = meta.id;
 
       function sandboxLog(...args: unknown[]) {
-        console.log(`[plugin ${pluginId}]`, ...args);
+        logStructuredDebug('features.plugins', `[plugin ${pluginId}]`, ...args);
       }
       return {
         log: sandboxLog,
@@ -170,7 +171,7 @@ function distortAlert(distortions: DistortionMap) {
     });
 
     return function (...args: unknown[]) {
-      console.log(`[plugin ${pluginId}]`, ...args);
+      logStructuredDebug('features.plugins', `[plugin ${pluginId}]`, ...args);
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, 'alert');

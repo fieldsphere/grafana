@@ -1,6 +1,13 @@
 import { locationUtil, type UrlQueryMap } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { config, getBackendSrv, getDataSourceSrv, isFetchError, locationService } from '@grafana/runtime';
+import {
+  config,
+  getBackendSrv,
+  getDataSourceSrv,
+  isFetchError,
+  locationService,
+  logStructuredDebug,
+} from '@grafana/runtime';
 import { FlagKeys, getFeatureFlagClient, UserStorage } from '@grafana/runtime/internal';
 import { sceneGraph } from '@grafana/scenes';
 import {
@@ -874,7 +881,7 @@ export class DashboardScenePageStateManager extends DashboardScenePageStateManag
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          logStructuredDebug('features.dashboard-scene', 'not correct url correcting', dashboardUrl, currentPath);
         }
       }
 
@@ -1138,7 +1145,7 @@ export class DashboardScenePageStateManagerV2 extends DashboardScenePageStateMan
             ...locationService.getLocation(),
             pathname: dashboardUrl,
           });
-          console.log('not correct url correcting', dashboardUrl, currentPath);
+          logStructuredDebug('features.dashboard-scene', 'not correct url correcting', dashboardUrl, currentPath);
         }
       }
       // Populate nav model in global store according to the folder

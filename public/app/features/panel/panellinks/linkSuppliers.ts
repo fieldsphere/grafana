@@ -12,6 +12,7 @@ import {
   type ScopedVars,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { logStructuredDebug } from '@grafana/runtime';
 import { type VizPanel } from '@grafana/scenes';
 import { type PanelModel } from 'app/features/dashboard/state/PanelModel';
 import { dashboardSceneGraph } from 'app/features/dashboard-scene/utils/dashboardSceneGraph';
@@ -124,7 +125,7 @@ export const getFieldLinksSupplier = (value: FieldDisplay): LinkModelSupplier<Fi
           };
         }
       } else {
-        console.log('VALUE', value);
+        logStructuredDebug('features.panel', 'VALUE', value);
       }
 
       const replace: InterpolateFunction = (value: string, vars: ScopedVars | undefined, fmt?: string | Function) => {

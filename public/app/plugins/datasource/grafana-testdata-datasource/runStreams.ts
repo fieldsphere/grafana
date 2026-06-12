@@ -18,7 +18,7 @@ import {
   createTheme,
   generateUUID,
 } from '@grafana/data';
-import { getBackendSrv } from '@grafana/runtime';
+import { getBackendSrv, logStructuredDebug } from '@grafana/runtime';
 
 import { getRandomLine } from './LogIpsum';
 import { type TestDataDataQuery, type StreamingQuery } from './dataquery';
@@ -125,7 +125,7 @@ function runSignalStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logStructuredDebug('plugins.datasource.grafana-testdata-datasource', 'unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });
@@ -171,7 +171,7 @@ function runLogsStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logStructuredDebug('plugins.datasource.grafana-testdata-datasource', 'unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });
@@ -254,7 +254,7 @@ function runWatchStream(
       });
 
     return () => {
-      console.log('unsubscribing to stream', streamId);
+      logStructuredDebug('plugins.datasource.grafana-testdata-datasource', 'unsubscribing to stream', streamId);
       sub.unsubscribe();
     };
   });
@@ -314,7 +314,7 @@ function runFetchStream(
       });
 
       if (value.done) {
-        console.log('Finished stream');
+        logStructuredDebug('plugins.datasource.grafana-testdata-datasource', 'Finished stream');
         subscriber.complete(); // necessary?
         return;
       }
@@ -335,7 +335,7 @@ function runFetchStream(
 
     return () => {
       // Cancel fetch?
-      console.log('unsubscribing to stream ' + streamId);
+      logStructuredDebug('plugins.datasource.grafana-testdata-datasource', 'unsubscribing to stream ' + streamId);
     };
   });
 }
@@ -368,7 +368,7 @@ function runTracesStream(
     setTimeout(pushNextEvent, 5);
 
     return () => {
-      console.log('unsubscribing to stream ' + streamId);
+      logStructuredDebug('plugins.datasource.grafana-testdata-datasource', 'unsubscribing to stream ' + streamId);
       clearTimeout(timeoutId);
     };
   });

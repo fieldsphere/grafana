@@ -28,6 +28,8 @@ import {
   type CurrentUserDTO,
 } from '@grafana/data';
 
+import { logStructuredDebug } from './utils/structuredLogging';
+
 /**
  * @deprecated Use the type from `@grafana/data`
  */
@@ -309,7 +311,10 @@ function overrideFeatureTogglesFromLocalStorage(config: GrafanaBootConfig) {
       const toggleState = featureValue === 'true' || featureValue === '1';
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
       featureToggles[featureName as keyof FeatureToggles] = toggleState;
-      console.log(`Setting feature toggle ${featureName} = ${toggleState} via localstorage`);
+      logStructuredDebug('grafana/runtime.config', 'Setting feature toggle via localstorage', {
+        featureName,
+        toggleState,
+      });
     }
   }
 }
@@ -335,9 +340,11 @@ function overrideFeatureTogglesFromUrl(config: GrafanaBootConfig) {
       if (toggleState !== featureToggles[key]) {
         if (isDevelopment || safeRuntimeFeatureFlags.has(featureName)) {
           featureToggles[featureName] = toggleState;
-          console.log(`Setting feature toggle ${featureName} = ${toggleState} via url`);
+          logStructuredDebug('grafana/runtime.config', 'Setting feature toggle via url', { featureName, toggleState });
         } else {
-          console.log(`Unable to change feature toggle ${featureName} via url in production.`);
+          logStructuredDebug('grafana/runtime.config', 'Unable to change feature toggle via url in production', {
+            featureName,
+          });
         }
       }
     }

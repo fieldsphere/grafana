@@ -1,4 +1,4 @@
-import { config } from '@grafana/runtime';
+import { config, logStructuredDebug } from '@grafana/runtime';
 
 import { sandboxPluginDependencies } from '../sandbox/pluginDependencies';
 
@@ -29,7 +29,7 @@ function addPreload(id: string, preload: (() => Promise<System.Module>) | System
   try {
     resolvedId = SystemJS.resolve(id);
   } catch (e) {
-    console.log(e);
+    logStructuredDebug('features.plugins', e);
   }
 
   if (resolvedId && SystemJS.has(resolvedId)) {

@@ -25,6 +25,7 @@ export {
   logMeasurement,
   type MonitoringLogger,
 } from './utils/logging';
+export { logStructuredDebug } from './utils/structuredLogging';
 export {
   DataSourceWithBackend,
   HealthCheckError,
