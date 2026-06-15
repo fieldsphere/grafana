@@ -55,7 +55,7 @@ export function RedirectToRuleViewer(): JSX.Element | null {
     error,
     loading,
     rules = [],
-  } = useCloudCombinedRulesMatching(name, sourceName, { namespace, groupName: group });
+  } = useCloudCombinedRulesMatching(name ?? '', sourceName ?? '', { namespace, groupName: group });
 
   if (!name || !sourceName) {
     return <Navigate replace to="/notfound" />;

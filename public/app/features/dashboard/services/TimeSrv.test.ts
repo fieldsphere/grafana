@@ -1,4 +1,4 @@
-import type * as H from 'history';
+import { type Location } from '@remix-run/router';
 import { ContextSrvStub } from 'test/specs/helpers';
 
 import { dateTime, isDateTime } from '@grafana/data';
@@ -18,7 +18,7 @@ jest.mock('app/core/app_events', () => ({
 describe('timeSrv', () => {
   let timeSrv: TimeSrv;
   let _dashboard: TimeModel;
-  let locationUpdates: H.Location[] = [];
+  let locationUpdates: Location[] = [];
 
   beforeEach(() => {
     _dashboard = {
@@ -34,7 +34,7 @@ describe('timeSrv', () => {
 
     locationUpdates = [];
     const history = new HistoryWrapper();
-    history.getHistory().listen((x) => locationUpdates.push(x));
+    history.getHistory().listen(({ location }) => locationUpdates.push(location));
     setLocationService(history);
   });
 

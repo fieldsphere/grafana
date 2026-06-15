@@ -1,5 +1,5 @@
 import { act, waitFor, renderHook } from '@testing-library/react';
-import { createMemoryHistory } from 'history';
+import { createMemoryHistory, type MemoryHistory } from '@remix-run/router';
 import { stringify } from 'querystring';
 import { type ReactNode } from 'react';
 import { TestProvider } from 'test/helpers/TestProvider';
@@ -56,6 +56,10 @@ interface SetupParams {
   queryParams?: UrlQueryMap;
   datasourceGetter?: (datasources: Array<ReturnType<typeof makeDatasourceSetup>>) => DataSourceSrv['get'];
 }
+function getHistoryLength(history: ReturnType<HistoryWrapper['getHistory']>) {
+  return (history as MemoryHistory).index + 1;
+}
+
 function setup({ queryParams = {}, datasourceGetter = defaultDsGetter }: SetupParams) {
   const history = createMemoryHistory({
     initialEntries: [{ pathname: '/explore', search: stringify(queryParams) }],
@@ -125,10 +129,10 @@ describe('useStateSync', () => {
   it('does not push a new entry to history on first render', async () => {
     const { location } = setup({});
 
-    const initialHistoryLength = location.getHistory().length;
+    const initialHistoryLength = getHistoryLength(location.getHistory());
 
     await waitFor(() => {
-      expect(location.getHistory().length).toBe(initialHistoryLength);
+      expect(getHistoryLength(location.getHistory())).toBe(initialHistoryLength);
       const search = location.getSearchObject();
       expect(search.panes).toBeDefined();
     });
@@ -178,11 +182,11 @@ describe('useStateSync', () => {
       },
     });
 
-    const initialHistoryLength = location.getHistory().length;
+    const initialHistoryLength = getHistoryLength(location.getHistory());
 
     // await waitForNextUpdate();
     await waitFor(() => {
-      expect(location.getHistory().length).toBe(initialHistoryLength);
+      expect(getHistoryLength(location.getHistory())).toBe(initialHistoryLength);
 
       const panes = location.getSearch().get('panes');
       expect(panes).not.toBeNull();
@@ -213,10 +217,10 @@ describe('useStateSync', () => {
       },
     });
 
-    const initialHistoryLength = location.getHistory().length;
+    const initialHistoryLength = getHistoryLength(location.getHistory());
 
     await waitFor(() => {
-      expect(location.getHistory().length).toBe(initialHistoryLength);
+      expect(getHistoryLength(location.getHistory())).toBe(initialHistoryLength);
 
       const search = location.getSearchObject();
       expect(search.panes).toBeDefined();
@@ -243,10 +247,10 @@ describe('useStateSync', () => {
       },
     });
 
-    const initialHistoryLength = location.getHistory().length;
+    const initialHistoryLength = getHistoryLength(location.getHistory());
 
     await waitFor(() => {
-      expect(location.getHistory().length).toBe(initialHistoryLength);
+      expect(getHistoryLength(location.getHistory())).toBe(initialHistoryLength);
 
       const search = location.getSearchObject();
       expect(search.panes).toBeDefined();
@@ -275,10 +279,10 @@ describe('useStateSync', () => {
       },
     });
 
-    const initialHistoryLength = location.getHistory().length;
+    const initialHistoryLength = getHistoryLength(location.getHistory());
 
     await waitFor(() => {
-      expect(location.getHistory().length).toBe(initialHistoryLength);
+      expect(getHistoryLength(location.getHistory())).toBe(initialHistoryLength);
 
       const search = location.getSearchObject();
       expect(search.panes).toBeDefined();
@@ -541,7 +545,7 @@ describe('useStateSync', () => {
     });
 
     await waitFor(() => {
-      expect(location.getHistory().length).toBe(1);
+      expect(getHistoryLength(location.getHistory())).toBe(1);
 
       expect(store.getState().explore.panes['one']?.datasourceInstance?.uid).toBe('loki-uid');
     });
@@ -551,7 +555,7 @@ describe('useStateSync', () => {
     });
 
     await waitFor(() => {
-      expect(location.getHistory().length).toBe(2);
+      expect(getHistoryLength(location.getHistory())).toBe(2);
       expect(Object.keys(store.getState().explore.panes)).toHaveLength(2);
     });
 
@@ -560,7 +564,7 @@ describe('useStateSync', () => {
     });
 
     await waitFor(async () => {
-      expect(location.getHistory()).toHaveLength(3);
+      expect(getHistoryLength(location.getHistory())).toBe(3);
     });
   });
 

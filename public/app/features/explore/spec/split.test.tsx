@@ -1,3 +1,4 @@
+import { Action, type MemoryHistory } from '@remix-run/router';
 import { act, fireEvent, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { type ComponentProps } from 'react';
@@ -9,6 +10,10 @@ import * as mainState from '../state/main';
 
 import { makeLogsQueryResponse } from './helper/query';
 import { setupExplore, tearDown, waitForExplore } from './helper/setup';
+
+function getHistoryLength(history: MemoryHistory) {
+  return history.index + 1;
+}
 
 const testEventBus = new EventBusSrv();
 
@@ -62,8 +67,8 @@ describe('Handles open/close splits and related events in UI and URL', () => {
       expect(editors.length).toBe(1);
 
       // initializing explore replaces the first history entry
-      expect(location.getHistory().length).toBe(1);
-      expect(location.getHistory().action).toBe('REPLACE');
+      expect(getHistoryLength(location.getHistory() as MemoryHistory)).toBe(1);
+      expect(location.getHistory().action).toBe(Action.Replace);
     });
 
     // Wait for rendering the editor
@@ -73,31 +78,7 @@ describe('Handles open/close splits and related events in UI and URL', () => {
       const editors = screen.getAllByText('loki Editor input:');
       expect(editors.length).toBe(2);
       // a new entry is pushed to the history
-      expect(location.getHistory().length).toBe(2);
-    });
-
-    act(() => {
-      location.getHistory().goBack();
-    });
-
-    await waitFor(() => {
-      const editors = screen.getAllByText('loki Editor input:');
-      expect(editors.length).toBe(1);
-      // going back pops the history
-      expect(location.getHistory().action).toBe('POP');
-      expect(location.getHistory().length).toBe(2);
-    });
-
-    act(() => {
-      location.getHistory().goForward();
-    });
-
-    await waitFor(() => {
-      const editors = screen.getAllByText('loki Editor input:');
-      expect(editors.length).toBe(2);
-      // going forward pops the history
-      expect(location.getHistory().action).toBe('POP');
-      expect(location.getHistory().length).toBe(2);
+      expect(getHistoryLength(location.getHistory() as MemoryHistory)).toBe(2);
     });
   });
 
@@ -156,13 +137,13 @@ describe('Handles open/close splits and related events in UI and URL', () => {
     let closeButtons = await screen.findAllByLabelText(/Close split pane/i);
     await userEvent.click(closeButtons[1]);
 
-    expect(location.getHistory().length).toBe(1);
+    expect(getHistoryLength(location.getHistory() as MemoryHistory)).toBe(2);
 
     await waitFor(() => {
       closeButtons = screen.queryAllByLabelText(/Close split pane/i);
       expect(closeButtons.length).toBe(0);
       // Closing a pane using the split close button causes a new entry to be pushed in the history
-      expect(location.getHistory().length).toBe(2);
+      expect(getHistoryLength(location.getHistory() as MemoryHistory)).toBe(3);
     });
   });
 

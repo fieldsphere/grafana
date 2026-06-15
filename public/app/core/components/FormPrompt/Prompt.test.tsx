@@ -1,4 +1,4 @@
-import { type Location, createMemoryHistory } from 'history';
+import { type Location } from '@remix-run/router';
 import { Route, Routes } from 'react-router-dom';
 import { render } from 'test/test-utils';
 
@@ -6,7 +6,6 @@ import { Prompt } from './Prompt';
 
 describe('Prompt component with React Router', () => {
   const renderPrompt = (ui: React.ReactElement, initialPath = '/current') => {
-    const history = createMemoryHistory({ initialEntries: [initialPath] });
     return render(
       <Routes>
         <Route path="*" element={ui} />

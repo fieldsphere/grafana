@@ -4,10 +4,10 @@ import { type Store } from '@reduxjs/toolkit';
 import { render, type RenderOptions } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryHistory, type InitialEntry } from '@remix-run/router';
-import { Fragment, type PropsWithChildren, useMemo } from 'react';
+import { type PropsWithChildren, useMemo } from 'react';
 import * as React from 'react';
 import { Provider } from 'react-redux';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider, type RouteObject } from 'react-router-dom';
 import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';
 
 import { type FeatureToggles } from '@grafana/data';
@@ -54,7 +54,7 @@ function TestRouterProvider({
     () =>
       createRouter({
         history,
-        routes: [{ path: '*', element: <>{children}</> }],
+        routes: [{ path: '*', element: <>{children}</> }] as RouteObject[],
       }),
     [history, children]
   );

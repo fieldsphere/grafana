@@ -14,6 +14,7 @@ const mockLocation = {
   pathname: '',
   state: undefined,
   hash: '',
+  key: 'default',
 };
 function setup(overrides: Partial<Props>) {
   const props: Props = {

@@ -1,4 +1,3 @@
-import { type ComponentType, type ReactNode } from 'react';
 import { type RouteObject } from 'react-router-dom';
 
 import { type RouteDescriptor } from 'app/core/navigation/types';

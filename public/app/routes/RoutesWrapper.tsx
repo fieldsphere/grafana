@@ -1,6 +1,6 @@
 import { createRouter } from '@remix-run/router';
 import { useMemo, type ComponentType, type ReactNode } from 'react';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider, type RouteObject } from 'react-router-dom';
 
 import { config, locationService, LocationServiceProvider } from '@grafana/runtime';
 
@@ -36,7 +36,7 @@ export function RouterWrapper(props: RouterWrapperProps) {
           element: <AppChromeLayout {...shellProps} />,
           children: buildAppRouteObjects(getAppRoutes()),
         },
-      ],
+      ] as RouteObject[],
     });
   }, [props.routesReady, props.bodyRenderHooks, props.pageBanners, props.providers]);
 

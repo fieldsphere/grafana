@@ -1,11 +1,15 @@
-import { createBrowserHistory, createMemoryHistory, type History, type Location, type Path } from '@remix-run/router';
+import {
+  createBrowserHistory,
+  createMemoryHistory,
+  type History,
+  type Location,
+  type To,
+} from '@remix-run/router';
 import React, { useContext } from 'react';
 import { BehaviorSubject, type Observable } from 'rxjs';
 
 import { deprecationWarning, type UrlQueryMap, urlUtil } from '@grafana/data';
 import { attachDebugger, createLogger } from '@grafana/ui';
-
-import { config } from '../config';
 
 import { type LocationUpdate } from './LocationSrv';
 
@@ -15,8 +19,8 @@ import { type LocationUpdate } from './LocationSrv';
  */
 export interface LocationService {
   partial: (query: Record<string, any>, replace?: boolean) => void;
-  push: (location: Path | Partial<Location>) => void;
-  replace: (location: Path | Partial<Location>) => void;
+  push: (location: To | Partial<Location>) => void;
+  replace: (location: To | Partial<Location>) => void;
   reload: () => void;
   getLocation: () => Location;
   getHistory: () => History;
@@ -41,12 +45,12 @@ export class HistoryWrapper implements LocationService {
       history ||
       (process.env.NODE_ENV === 'test'
         ? createMemoryHistory({ initialEntries: ['/'] })
-        : createBrowserHistory({ basename: config.appSubUrl ?? '/' }));
+        : createBrowserHistory());
 
     this.locationObservable = new BehaviorSubject(this.history.location);
 
-    this.history.listen((location) => {
-      this.locationObservable.next(location);
+    this.history.listen((update) => {
+      this.locationObservable.next(update.location);
     });
 
     this.partial = this.partial.bind(this);
@@ -82,29 +86,59 @@ export class HistoryWrapper implements LocationService {
       }
     }
 
-    const updatedUrl = urlUtil.renderUrl(currentLocation.pathname, newQuery);
+    const updatedPath = urlUtil.renderUrl(currentLocation.pathname, newQuery);
+    const questionIndex = updatedPath.indexOf('?');
+    const nextLocation: Partial<Location> = {
+      pathname: questionIndex === -1 ? updatedPath : updatedPath.slice(0, questionIndex),
+      search: questionIndex === -1 ? '' : updatedPath.slice(questionIndex),
+      hash: currentLocation.hash,
+    };
+    const nextState = currentLocation.state;
 
     if (replace) {
-      this.history.replace(updatedUrl, this.history.location.state);
+      this.history.replace(nextLocation, nextState);
     } else {
-      this.history.push(updatedUrl, this.history.location.state);
+      this.history.push(nextLocation, nextState);
     }
   }
 
-  push(location: Path | Partial<Location>) {
+  push(location: To | Partial<Location>) {
+    if (typeof location === 'string') {
+      this.history.push(location);
+      return;
+    }
+
+    if ('state' in location && location.state !== undefined) {
+      const { state, ...path } = location;
+      this.history.push(path, state);
+      return;
+    }
+
     this.history.push(location);
   }
 
-  replace(location: Path | Partial<Location>) {
+  replace(location: To | Partial<Location>) {
+    if (typeof location === 'string') {
+      this.history.replace(location);
+      return;
+    }
+
+    if ('state' in location && location.state !== undefined) {
+      const { state, ...path } = location;
+      this.history.replace(path, state);
+      return;
+    }
+
     this.history.replace(location);
   }
 
   reload() {
-    const prevState = (this.history.location.state as any)?.routeReloadCounter;
-    this.history.replace({
-      ...this.history.location,
-      state: { routeReloadCounter: prevState ? prevState + 1 : 1 },
-    });
+    const { pathname, search, hash } = this.history.location;
+    const prevState = (this.history.location.state as { routeReloadCounter?: number } | null)?.routeReloadCounter;
+    this.history.replace(
+      { pathname, search, hash },
+      { routeReloadCounter: prevState ? prevState + 1 : 1 }
+    );
   }
 
   getLocation() {

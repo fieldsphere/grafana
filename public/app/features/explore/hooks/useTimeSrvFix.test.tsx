@@ -1,5 +1,5 @@
 import { renderHook, waitFor } from '@testing-library/react';
-import { createMemoryHistory } from 'history';
+import { createMemoryHistory } from '@remix-run/router';
 import { stringify } from 'querystring';
 import { TestProvider } from 'test/helpers/TestProvider';
 import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';

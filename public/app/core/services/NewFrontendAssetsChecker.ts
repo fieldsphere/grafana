@@ -1,4 +1,4 @@
-import { type Location } from 'history';
+import { type Location } from '@remix-run/router';
 import { isEqual } from 'lodash';
 
 import { getBackendSrv, getGrafanaLiveSrv, locationService, reportInteraction } from '@grafana/runtime';
@@ -29,7 +29,9 @@ export class NewFrontendAssetsChecker {
     }
 
     // Subscribe to location changes
-    locationService.getHistory().listen(this.locationUpdated.bind(this));
+    locationService.getHistory().listen(({ location }) => {
+      this.locationUpdated(location);
+    });
     this.prevLocationPath = locationService.getLocation().pathname;
   }
 

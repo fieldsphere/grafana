@@ -8,8 +8,7 @@ import { stringify } from 'querystring';
 import { type ComponentType, type ReactNode } from 'react';
 import { Provider } from 'react-redux';
 import { createRouter } from '@remix-run/router';
-import { type ComponentType, type ReactNode } from 'react';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider, type RouteObject } from 'react-router-dom';
 import { of } from 'rxjs';
 import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';
 
@@ -37,7 +36,7 @@ import { type DataSourceRef } from '@grafana/schema';
 import { getTestFeatureFlagClient, setTestFlags } from '@grafana/test-utils/unstable';
 import { AppChrome } from 'app/core/components/AppChrome/AppChrome';
 import { GrafanaContext } from 'app/core/context/GrafanaContext';
-import { GrafanaRoute } from 'app/core/navigation/GrafanaRoute';
+import { GrafanaRouteWrapper } from 'app/core/navigation/GrafanaRoute';
 import { Echo } from 'app/core/services/echo/Echo';
 import { setLastUsedDatasourceUID } from 'app/core/utils/explore';
 import { MIXED_DATASOURCE_NAME } from 'app/plugins/datasource/mixed/MixedDataSource';
@@ -198,6 +197,8 @@ export function setupExplore(options?: SetupOptions): {
       return children;
     });
 
+  const exploreRoute = { component: ExplorePage, path: '/explore' };
+
   const exploreRouter = createRouter({
     history,
     routes: [
@@ -209,17 +210,17 @@ export function setupExplore(options?: SetupOptions): {
               {options?.withAppChrome ? (
                 <KBarProvider>
                   <AppChrome>
-                    <GrafanaRoute route={{ component: ExplorePage, path: '/explore' }} />
+                    <GrafanaRouteWrapper route={exploreRoute} />
                   </AppChrome>
                 </KBarProvider>
               ) : (
-                <GrafanaRoute route={{ component: ExplorePage, path: '/explore' }} />
+                <GrafanaRouteWrapper route={exploreRoute} />
               )}
             </QueriesDrawerContextProvider>
           </FinalProvider>
         ),
       },
-    ],
+    ] as RouteObject[],
   });
 
   const contextMock = getGrafanaContextMock({ location });

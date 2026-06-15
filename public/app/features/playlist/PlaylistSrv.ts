@@ -1,4 +1,4 @@
-import { type Location } from 'history';
+import { type Location } from '@remix-run/router';
 import { pickBy } from 'lodash';
 
 import { locationUtil, urlUtil, rangeUtil } from '@grafana/data';
@@ -102,7 +102,9 @@ export class PlaylistSrv extends StateManagerBase<PlaylistSrvState> {
     this.setState({ isPlaying: true });
 
     // setup location tracking
-    this.locationListenerUnsub = locationService.getHistory().listen(this.locationUpdated);
+    this.locationListenerUnsub = locationService.getHistory().listen(({ location }) => {
+      this.locationUpdated(location);
+    });
     const urls: string[] = [];
 
     if (!playlist.spec?.items?.length) {

@@ -2,7 +2,7 @@ import { type Store } from '@reduxjs/toolkit';
 import { createRouter } from '@remix-run/router';
 import * as React from 'react';
 import { Provider } from 'react-redux';
-import { RouterProvider } from 'react-router-dom';
+import { RouterProvider, type RouteObject } from 'react-router-dom';
 import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';
 
 import { locationService } from '@grafana/runtime';
@@ -36,20 +36,26 @@ export function TestProvider(props: Props) {
     () =>
       createRouter({
         history: locationService.getHistory(),
-        routes: [{ path: '*', element: <>{children}</> }],
+        routes: [
+          {
+            path: '*',
+            element: (
+              <ModalsContextProvider>
+                <GrafanaContext.Provider value={context}>
+                  {children}
+                  <ModalRoot />
+                </GrafanaContext.Provider>
+              </ModalsContextProvider>
+            ),
+          },
+        ] as RouteObject[],
       }),
-    [children]
+    [children, context]
   );
 
   return (
     <Provider store={store}>
-      <RouterProvider router={router}>
-        <ModalsContextProvider>
-          <GrafanaContext.Provider value={context}>
-            <ModalRoot />
-          </GrafanaContext.Provider>
-        </ModalsContextProvider>
-      </RouterProvider>
+      <RouterProvider router={router} />
     </Provider>
   );
 }
