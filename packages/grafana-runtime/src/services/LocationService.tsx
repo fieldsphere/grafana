@@ -1,10 +1,4 @@
-import {
-  createBrowserHistory,
-  createMemoryHistory,
-  type History,
-  type Location,
-  type Path,
-} from '@remix-run/router';
+import { createBrowserHistory, createMemoryHistory, type History, type Location, type Path } from '@remix-run/router';
 import React, { useContext } from 'react';
 import { BehaviorSubject, type Observable } from 'rxjs';
 

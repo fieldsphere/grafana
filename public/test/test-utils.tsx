@@ -92,11 +92,7 @@ const getWrapper = ({
    * in mostly the same providers as a "real" hierarchy
    */
   return function Wrapper({ children }: PropsWithChildren) {
-    const content = renderWithRouter ? (
-      <TestRouterProvider history={history}>{children}</TestRouterProvider>
-    ) : (
-      children
-    );
+    const content = renderWithRouter ? <TestRouterProvider history={history}>{children}</TestRouterProvider> : children;
 
     return (
       <Provider store={reduxStore}>
