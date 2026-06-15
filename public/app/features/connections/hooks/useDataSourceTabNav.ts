@@ -1,4 +1,4 @@
-import { useLocation, useParams } from 'react-router-dom-v5-compat';
+import { useLocation, useParams } from 'react-router-dom';
 
 import { type NavModel, type NavModelItem } from '@grafana/data';
 import { t } from '@grafana/i18n';

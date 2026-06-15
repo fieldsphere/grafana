@@ -1,4 +1,3 @@
-import { useLocation } from 'react-use';
 import { render, screen } from 'test/test-utils';
 
 import { type DataSourceJsonData, type PluginMeta } from '@grafana/data';
@@ -12,20 +11,15 @@ import { getRulesSourceByName } from './utils/datasource';
 
 jest.mock('./hooks/useCombinedRule');
 jest.mock('./utils/datasource');
-jest.mock('react-router-dom-v5-compat', () => ({
-  ...jest.requireActual('react-router-dom-v5-compat'),
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   Navigate: jest.fn(({}) => `Redirected`),
 }));
 
-jest.mock('react-use', () => ({
-  ...jest.requireActual('react-use'),
-  useLocation: jest.fn(),
-}));
-
 const renderRedirectToRuleViewer = (pathname: string, search?: string) => {
-  jest.mocked(useLocation).mockReturnValue({ pathname, trigger: '', search });
+  const initialEntry = search ? `${pathname}${search.startsWith('?') ? search : `?${search}`}` : pathname;
 
-  return render(<RedirectToRuleViewer />, { historyOptions: { initialEntries: [pathname] } });
+  return render(<RedirectToRuleViewer />, { historyOptions: { initialEntries: [initialEntry] } });
 };
 
 const mockRuleSourceByName = () => {
@@ -75,9 +69,6 @@ describe('Redirect to Rule viewer', () => {
   });
 
   it('should properly decode rule name', () => {
-    // TODO: Fix console warning that happens once CompatRouter is wrapped around this component render
-    jest.spyOn(console, 'warn').mockImplementation();
-
     const rulesMatchingSpy = jest.spyOn(combinedRuleHooks, 'useCloudCombinedRulesMatching').mockReturnValue({
       rules: [mockedRules[0]],
       loading: false,
@@ -114,9 +105,6 @@ describe('Redirect to Rule viewer', () => {
   });
 
   it('should properly decode source name', () => {
-    // TODO: Fix console warning that happens once CompatRouter is wrapped around this component render
-    jest.spyOn(console, 'warn').mockImplementation();
-
     const rulesMatchingSpy = jest.spyOn(combinedRuleHooks, 'useCloudCombinedRulesMatching').mockReturnValue({
       rules: [mockedRules[0]],
       loading: false,

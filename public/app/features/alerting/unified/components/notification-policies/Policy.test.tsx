@@ -2,7 +2,7 @@ import { renderHook, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { first, noop } from 'lodash';
 import type { JSX } from 'react';
-import { Route, Routes } from 'react-router-dom-v5-compat';
+import { Route, Routes } from 'react-router-dom';
 import { render } from 'test/test-utils';
 
 import { contextSrv } from 'app/core/services/context_srv';

@@ -1,10 +1,10 @@
 import { css } from '@emotion/css';
 import { useId, useState } from 'react';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 
 import { type SelectableValue, type GrafanaTheme2, type PluginType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { locationSearchToObject } from '@grafana/runtime';
+import { locationSearchToObject, locationService } from '@grafana/runtime';
 import { Select, RadioButtonGroup, useStyles2, Tooltip, Field, TextLink } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
 import { getNavModel } from 'app/core/selectors/navModel';
@@ -19,7 +19,6 @@ import { SearchField } from '../components/SearchField';
 import UpdateAllButton from '../components/UpdateAllButton';
 import { UpdateAllModal } from '../components/UpdateAllModal';
 import { Sorters } from '../helpers';
-import { useHistory } from '../hooks/useHistory';
 import { useGetAll, useGetUpdatable, useIsRemotePluginsAvailable } from '../state/hooks';
 
 export default function Browse() {
@@ -28,7 +27,6 @@ export default function Browse() {
   const navModel = useSelector((state) => getNavModel(state.navIndex, 'plugins'));
   const styles = useStyles2(getStyles);
   const searchId = useId();
-  const history = useHistory();
   const remotePluginsAvailable = useIsRemotePluginsAvailable();
 
   const keyword = locationSearch.q?.toString() || '';
@@ -56,15 +54,15 @@ export default function Browse() {
   const disableUpdateAllButton = updatablePlugins.length <= 0 || areUpdatesLoading;
 
   const onFilterByChange = (value: string) => {
-    history.push({ query: { filterBy: value } });
+    locationService.partial({ filterBy: value });
   };
 
   const onFilterByTypeChange = (value: SelectableValue<string>) => {
-    history.push({ query: { filterByType: value.value } });
+    locationService.partial({ filterByType: value.value });
   };
 
   const onSearch = (q: string) => {
-    history.push({ query: { filterBy, filterByType, q } });
+    locationService.partial({ filterBy, filterByType, q });
   };
 
   const onUpdateAll = () => {

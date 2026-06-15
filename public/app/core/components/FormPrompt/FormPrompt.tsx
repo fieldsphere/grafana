@@ -1,9 +1,9 @@
 import { css } from '@emotion/css';
-import type history from 'history';
+import type { Location } from '@remix-run/router';
 import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom-v5-compat';
 
 import { Trans, t } from '@grafana/i18n';
+import { locationService } from '@grafana/runtime';
 import { Button, Modal } from '@grafana/ui';
 
 import { Prompt } from './Prompt';
@@ -14,7 +14,7 @@ export interface Props {
   /** Extra check to invoke when location changes.
    * Could be useful in multistep forms where each step has a separate URL
    */
-  onLocationChange?: (location: history.Location) => void;
+  onLocationChange?: (location: Location) => void;
 }
 
 /**
@@ -24,7 +24,7 @@ export interface Props {
  */
 export const FormPrompt = ({ confirmRedirect, onDiscard, onLocationChange }: Props) => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [blockedLocation, setBlockedLocation] = useState<history.Location | null>(null);
+  const [blockedLocation, setBlockedLocation] = useState<Location | null>(null);
   const [changesDiscarded, setChangesDiscarded] = useState(false);
 
   useEffect(() => {
@@ -41,7 +41,7 @@ export const FormPrompt = ({ confirmRedirect, onDiscard, onLocationChange }: Pro
   }, [confirmRedirect]);
 
   // Returning 'false' from this function will prevent navigation to the next URL
-  const handleRedirect = (location: history.Location) => {
+  const handleRedirect = (location: Location) => {
     // Do not show the unsaved changes modal if only the URL params have changed
     const currentPath = window.location.pathname;
     const nextPath = location.pathname;
@@ -78,12 +78,15 @@ export const FormPrompt = ({ confirmRedirect, onDiscard, onLocationChange }: Pro
     setModalIsOpen(false);
     setChangesDiscarded(true);
     onDiscard();
+
+    if (blockedLocation) {
+      setTimeout(() => locationService.replace(blockedLocation), 0);
+    }
   };
 
   return (
     <>
-      <Prompt when={true} message={handleRedirect} />
-      {blockedLocation && changesDiscarded && <Navigate replace to={blockedLocation} />}
+      <Prompt when={confirmRedirect} message={handleRedirect} />
       <UnsavedChangesModal isOpen={modalIsOpen} onDiscard={onDiscardChanges} onBackToForm={onBackToForm} />
     </>
   );

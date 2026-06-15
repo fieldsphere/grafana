@@ -1,6 +1,6 @@
 import { HttpResponse } from 'msw';
 import { type PropsWithChildren } from 'react';
-import { Route, Routes } from 'react-router-dom-v5-compat';
+import { Route, Routes } from 'react-router-dom';
 import { getWrapper, renderHook, waitFor } from 'test/test-utils';
 
 import { AlertState } from 'app/plugins/datasource/alertmanager/types';

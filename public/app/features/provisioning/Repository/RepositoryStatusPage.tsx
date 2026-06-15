@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
-import { useLocation } from 'react-router';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 
 import { type SelectableValue, urlUtil } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';

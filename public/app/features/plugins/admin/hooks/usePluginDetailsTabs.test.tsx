@@ -7,7 +7,7 @@ import { type CatalogPlugin } from '../types';
 
 import { usePluginDetailsTabs } from './usePluginDetailsTabs';
 
-jest.mock('react-router-dom-v5-compat', () => ({
+jest.mock('react-router-dom', () => ({
   useLocation: () => ({ pathname: '/plugins/test-plugin' }),
 }));
 

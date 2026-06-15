@@ -1,6 +1,6 @@
 import { css, cx } from '@emotion/css';
 import { type ReactElement, useState } from 'react';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 import { useMeasure } from 'react-use';
 
 import { AlertLabels } from '@grafana/alerting/unstable';

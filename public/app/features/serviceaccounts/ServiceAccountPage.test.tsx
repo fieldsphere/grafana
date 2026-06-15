@@ -17,8 +17,8 @@ jest.mock('app/core/services/context_srv', () => ({
   },
 }));
 
-jest.mock('react-router-dom-v5-compat', () => ({
-  ...jest.requireActual('react-router-dom-v5-compat'),
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useParams: () => ({ id: '1' }),
 }));
 

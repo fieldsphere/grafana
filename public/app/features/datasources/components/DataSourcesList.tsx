@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { type RefObject, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 
 import { type DataSourceSettings, type GrafanaTheme2 } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';

@@ -1,6 +1,6 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { memo, useRef } from 'react';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 
 import { featureEnabled } from '@grafana/runtime';
 import { Page } from 'app/core/components/Page/Page';

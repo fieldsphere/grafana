@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 
 import { type NavModelItem } from '@grafana/data';
 import { t } from '@grafana/i18n';

@@ -1,14 +1,15 @@
 import { OpenFeatureProvider } from '@openfeature/react-sdk';
 import { type ByRoleMatcher, waitFor, within } from '@testing-library/dom';
 import { render, screen } from '@testing-library/react';
-import { createMemoryHistory } from 'history';
+import { createMemoryHistory } from '@remix-run/router';
 import { KBarProvider } from 'kbar';
 import { fromPairs } from 'lodash';
 import { stringify } from 'querystring';
 import { type ComponentType, type ReactNode } from 'react';
 import { Provider } from 'react-redux';
-// eslint-disable-next-line no-restricted-imports
-import { Route, Router } from 'react-router-dom';
+import { createRouter } from '@remix-run/router';
+import { type ComponentType, type ReactNode } from 'react';
+import { RouterProvider } from 'react-router-dom';
 import { of } from 'rxjs';
 import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';
 
@@ -191,43 +192,43 @@ export function setupExplore(options?: SetupOptions): {
   const location = new HistoryWrapper(history);
   setLocationService(location);
 
-  const contextMock = getGrafanaContextMock({ location });
-
   const FinalProvider =
     options?.provider ||
-    (({ children }) => {
+    (({ children }: { children: ReactNode }) => {
       return children;
     });
+
+  const exploreRouter = createRouter({
+    history,
+    routes: [
+      {
+        path: '/explore',
+        element: (
+          <FinalProvider>
+            <QueriesDrawerContextProvider>
+              {options?.withAppChrome ? (
+                <KBarProvider>
+                  <AppChrome>
+                    <GrafanaRoute route={{ component: ExplorePage, path: '/explore' }} />
+                  </AppChrome>
+                </KBarProvider>
+              ) : (
+                <GrafanaRoute route={{ component: ExplorePage, path: '/explore' }} />
+              )}
+            </QueriesDrawerContextProvider>
+          </FinalProvider>
+        ),
+      },
+    ],
+  });
+
+  const contextMock = getGrafanaContextMock({ location });
 
   const { unmount, container } = render(
     <OpenFeatureProvider client={getTestFeatureFlagClient()}>
       <Provider store={storeState}>
         <GrafanaContext.Provider value={contextMock}>
-          <Router history={history}>
-            <QueriesDrawerContextProvider>
-              <FinalProvider>
-                {options?.withAppChrome ? (
-                  <KBarProvider>
-                    <AppChrome>
-                      <Route
-                        path="/explore"
-                        exact
-                        render={(props) => (
-                          <GrafanaRoute {...props} route={{ component: ExplorePage, path: '/explore' }} />
-                        )}
-                      />
-                    </AppChrome>
-                  </KBarProvider>
-                ) : (
-                  <Route
-                    path="/explore"
-                    exact
-                    render={(props) => <GrafanaRoute {...props} route={{ component: ExplorePage, path: '/explore' }} />}
-                  />
-                )}
-              </FinalProvider>
-            </QueriesDrawerContextProvider>
-          </Router>
+          <RouterProvider router={exploreRouter} />
         </GrafanaContext.Provider>
       </Provider>
     </OpenFeatureProvider>

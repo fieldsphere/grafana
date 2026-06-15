@@ -1,4 +1,4 @@
-import { MemoryRouter } from 'react-router-dom-v5-compat';
+import { MemoryRouter } from 'react-router-dom';
 import { renderHook } from 'test/test-utils';
 
 import { useReturnTo } from './useReturnTo';

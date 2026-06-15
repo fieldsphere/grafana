@@ -1,7 +1,7 @@
 // Libraries
 import { css } from '@emotion/css';
 import { type ReactNode, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 
 import { type GrafanaTheme2, type UrlQueryValue } from '@grafana/data';
 import { t } from '@grafana/i18n';

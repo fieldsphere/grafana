@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 
 import { type RuleFormValues } from '../types/rule-form';
 import { createPanelAlertRuleNavigation } from '../utils/navigation';

@@ -1,4 +1,4 @@
-import { useLocation, useParams } from 'react-router-dom-v5-compat';
+import { useLocation, useParams } from 'react-router-dom';
 
 import { AdvisorCheckProvider } from 'app/features/connections/hooks/useDatasourceAdvisorChecks';
 import DataSourceTabPage from 'app/features/datasources/components/DataSourceTabPage';

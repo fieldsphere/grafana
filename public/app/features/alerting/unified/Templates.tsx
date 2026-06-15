@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom-v5-compat';
+import { Route, Routes } from 'react-router-dom';
 
 import DuplicateMessageTemplate from './components/contact-points/DuplicateMessageTemplate';
 import EditMessageTemplate from './components/contact-points/EditMessageTemplate';

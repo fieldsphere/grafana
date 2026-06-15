@@ -1,14 +1,13 @@
 import { OpenFeatureProvider } from '@openfeature/react-sdk';
+import { createRouter } from '@remix-run/router';
 import { type Store } from '@reduxjs/toolkit';
 import { render, type RenderOptions } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { createMemoryHistory, type MemoryHistoryBuildOptions } from 'history';
-import { Fragment, type PropsWithChildren } from 'react';
+import { createMemoryHistory, type InitialEntry } from '@remix-run/router';
+import { Fragment, type PropsWithChildren, useMemo } from 'react';
 import * as React from 'react';
 import { Provider } from 'react-redux';
-// eslint-disable-next-line no-restricted-imports
-import { Router } from 'react-router-dom';
-import { CompatRouter } from 'react-router-dom-v5-compat';
+import { RouterProvider } from 'react-router-dom';
 import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';
 
 import { type FeatureToggles } from '@grafana/data';
@@ -44,7 +43,23 @@ interface ExtendedRenderOptions extends RenderOptions {
   /**
    * Props to pass to `createMemoryHistory`, if being used
    */
-  historyOptions?: MemoryHistoryBuildOptions;
+  historyOptions?: { initialEntries?: InitialEntry[] };
+}
+
+function TestRouterProvider({
+  history,
+  children,
+}: PropsWithChildren<{ history: ReturnType<typeof createMemoryHistory> }>) {
+  const router = useMemo(
+    () =>
+      createRouter({
+        history,
+        routes: [{ path: '*', element: <>{children}</> }],
+      }),
+    [history, children]
+  );
+
+  return <RouterProvider router={router} />;
 }
 
 /**
@@ -67,15 +82,6 @@ const getWrapper = ({
   const locationService = new HistoryWrapper(history);
   setLocationService(locationService);
 
-  /**
-   * Conditional router - either a MemoryRouter or just a Fragment
-   */
-  const PotentialRouter = renderWithRouter
-    ? ({ children }: PropsWithChildren) => <Router history={history}>{children}</Router>
-    : ({ children }: PropsWithChildren) => <Fragment>{children}</Fragment>;
-
-  const PotentialCompatRouter = renderWithRouter ? CompatRouter : Fragment;
-
   const context = {
     ...getGrafanaContextMock(),
     ...grafanaContext,
@@ -86,17 +92,19 @@ const getWrapper = ({
    * in mostly the same providers as a "real" hierarchy
    */
   return function Wrapper({ children }: PropsWithChildren) {
+    const content = renderWithRouter ? (
+      <TestRouterProvider history={history}>{children}</TestRouterProvider>
+    ) : (
+      children
+    );
+
     return (
       <Provider store={reduxStore}>
         <OpenFeatureProvider client={getTestFeatureFlagClient()}>
           <GrafanaContext.Provider value={context}>
-            <PotentialRouter>
-              <LocationServiceProvider service={locationService}>
-                <PotentialCompatRouter>
-                  <ModalsContextProvider>{children}</ModalsContextProvider>
-                </PotentialCompatRouter>
-              </LocationServiceProvider>
-            </PotentialRouter>
+            <LocationServiceProvider service={locationService}>
+              <ModalsContextProvider>{content}</ModalsContextProvider>
+            </LocationServiceProvider>
           </GrafanaContext.Provider>
         </OpenFeatureProvider>
       </Provider>

@@ -1,4 +1,10 @@
-import * as H from 'history';
+import {
+  createBrowserHistory,
+  createMemoryHistory,
+  type History,
+  type Location,
+  type Path,
+} from '@remix-run/router';
 import React, { useContext } from 'react';
 import { BehaviorSubject, type Observable } from 'rxjs';
 
@@ -15,14 +21,14 @@ import { type LocationUpdate } from './LocationSrv';
  */
 export interface LocationService {
   partial: (query: Record<string, any>, replace?: boolean) => void;
-  push: (location: H.Path | H.LocationDescriptor<any>) => void;
-  replace: (location: H.Path | H.LocationDescriptor<any>) => void;
+  push: (location: Path | Partial<Location>) => void;
+  replace: (location: Path | Partial<Location>) => void;
   reload: () => void;
-  getLocation: () => H.Location;
-  getHistory: () => H.History;
+  getLocation: () => Location;
+  getHistory: () => History;
   getSearch: () => URLSearchParams;
   getSearchObject: () => UrlQueryMap;
-  getLocationObservable: () => Observable<H.Location>;
+  getLocationObservable: () => Observable<Location>;
 
   /**
    * This is from the old LocationSrv interface
@@ -32,16 +38,16 @@ export interface LocationService {
 
 /** @internal */
 export class HistoryWrapper implements LocationService {
-  private readonly history: H.History;
-  private locationObservable: BehaviorSubject<H.Location>;
+  private readonly history: History;
+  private locationObservable: BehaviorSubject<Location>;
 
-  constructor(history?: H.History) {
+  constructor(history?: History) {
     // If no history passed create an in memory one if being called from test
     this.history =
       history ||
       (process.env.NODE_ENV === 'test'
-        ? H.createMemoryHistory({ initialEntries: ['/'] })
-        : H.createBrowserHistory({ basename: config.appSubUrl ?? '/' }));
+        ? createMemoryHistory({ initialEntries: ['/'] })
+        : createBrowserHistory({ basename: config.appSubUrl ?? '/' }));
 
     this.locationObservable = new BehaviorSubject(this.history.location);
 
@@ -91,11 +97,11 @@ export class HistoryWrapper implements LocationService {
     }
   }
 
-  push(location: H.Path | H.LocationDescriptor) {
+  push(location: Path | Partial<Location>) {
     this.history.push(location);
   }
 
-  replace(location: H.Path | H.LocationDescriptor) {
+  replace(location: Path | Partial<Location>) {
     this.history.replace(location);
   }
 
@@ -121,7 +127,7 @@ export class HistoryWrapper implements LocationService {
     if (options.partial && options.query) {
       this.partial(options.query, options.partial);
     } else {
-      const newLocation: H.LocationDescriptor = {
+      const newLocation: Partial<Location> = {
         pathname: options.path,
       };
       if (options.query) {

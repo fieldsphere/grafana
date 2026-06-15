@@ -1,6 +1,6 @@
 import { css, cx } from '@emotion/css';
 import { useMemo } from 'react';
-import { Link, useLocation } from 'react-router-dom-v5-compat';
+import { Link, useLocation } from 'react-router-dom';
 
 import { type GrafanaTheme2, type IconName, locationUtil, type UrlQueryMap, urlUtil } from '@grafana/data';
 import { locationService } from '@grafana/runtime';

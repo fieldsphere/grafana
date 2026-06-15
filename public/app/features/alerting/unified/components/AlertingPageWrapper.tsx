@@ -1,5 +1,5 @@
 import { type PropsWithChildren, type ReactNode, useMemo } from 'react';
-import { useLocation } from 'react-use';
+import { useLocation } from 'react-router-dom';
 
 import { Page } from 'app/core/components/Page/Page';
 import { type PageProps } from 'app/core/components/Page/types';

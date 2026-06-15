@@ -1,6 +1,6 @@
 import type * as H from 'history';
 import { useEffect, useMemo, useState } from 'react';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 
 import { locationUtil, type NavModel, type NavModelItem } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';

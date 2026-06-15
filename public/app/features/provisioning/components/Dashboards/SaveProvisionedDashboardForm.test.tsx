@@ -62,8 +62,8 @@ jest.mock('app/features/manage-dashboards/services/ValidationSrv', () => {
   };
 });
 
-jest.mock('react-router-dom-v5-compat', () => {
-  const actual = jest.requireActual('react-router-dom-v5-compat');
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual('react-router-dom');
   return {
     ...actual,
     useNavigate: () => jest.fn(),

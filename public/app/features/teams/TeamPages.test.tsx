@@ -1,4 +1,4 @@
-import { Route, Routes } from 'react-router-dom-v5-compat';
+import { Route, Routes } from 'react-router-dom';
 import { screen, render, testWithLicenseFeatures, waitFor } from 'test/test-utils';
 
 import { setBackendSrv } from '@grafana/runtime';

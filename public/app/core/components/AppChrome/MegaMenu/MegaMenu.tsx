@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { type DOMAttributes } from '@react-types/shared';
 import { memo, forwardRef, useCallback } from 'react';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 
 import { usePatchUserPreferencesMutation } from '@grafana/api-clients/internal/rtkq/legacy/preferences/user';
 import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';

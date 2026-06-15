@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom-v5-compat';
+import { useSearchParams } from 'react-router-dom';
 import { useAsync } from 'react-use';
 
 import { type GrafanaTheme2 } from '@grafana/data';

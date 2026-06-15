@@ -7,10 +7,10 @@ import { type CatalogPlugin } from '../types';
 
 import { PluginList } from './PluginList';
 
-jest.mock('react-router-dom-v5-compat', () => ({ useLocation: jest.fn(), useSearchParams: jest.fn() }));
+jest.mock('react-router-dom', () => ({ useLocation: jest.fn(), useSearchParams: jest.fn() }));
 
-const mockUseLocation = jest.requireMock('react-router-dom-v5-compat').useLocation;
-const mockUseSearchParams = jest.requireMock('react-router-dom-v5-compat').useSearchParams;
+const mockUseLocation = jest.requireMock('react-router-dom').useLocation;
+const mockUseSearchParams = jest.requireMock('react-router-dom').useSearchParams;
 
 const mockPlugin: CatalogPlugin = {
   description: 'Test plugin description',

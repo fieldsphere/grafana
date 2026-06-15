@@ -1,17 +1,16 @@
 import { css } from '@emotion/css';
 import { useId, useMemo, useState, type MouseEvent } from 'react';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 
 import { PluginType, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
-import { locationSearchToObject, reportInteraction } from '@grafana/runtime';
+import { locationSearchToObject, locationService, reportInteraction } from '@grafana/runtime';
 import { LoadingPlaceholder, EmptyState, Field, RadioButtonGroup, Tooltip, Combobox, useStyles2 } from '@grafana/ui';
 import { useQueryParams } from 'app/core/hooks/useQueryParams';
 import { contextSrv } from 'app/core/services/context_srv';
 import { HorizontalGroup } from 'app/features/plugins/admin/components/HorizontalGroup';
 import { SearchField } from 'app/features/plugins/admin/components/SearchField';
 import { Sorters } from 'app/features/plugins/admin/helpers';
-import { useHistory } from 'app/features/plugins/admin/hooks/useHistory';
 import { useGetAll, useIsRemotePluginsAvailable } from 'app/features/plugins/admin/state/hooks';
 import { AccessControlAction } from 'app/types/accessControl';
 
@@ -56,7 +55,6 @@ export function AddNewConnection() {
   const searchId = useId();
   const sortId = useId();
   const location = useLocation();
-  const history = useHistory();
   const locationSearch = locationSearchToObject(location.search);
   const sortBy = (locationSearch.sortBy as Sorters) || Sorters.nameAsc;
   const filterBy = locationSearch.filterBy?.toString() || 'all';
@@ -141,11 +139,11 @@ export function AddNewConnection() {
   );
 
   const onSortByChange = (value: SelectableValue<string>) => {
-    history.push({ query: { sortBy: value.value } });
+    locationService.partial({ sortBy: value.value });
   };
 
   const onFilterByChange = (value: string) => {
-    history.push({ query: { filterBy: value } });
+    locationService.partial({ filterBy: value });
   };
 
   const showNoResults = useMemo(

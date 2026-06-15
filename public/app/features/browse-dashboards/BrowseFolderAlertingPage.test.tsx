@@ -15,8 +15,8 @@ import * as permissions from './permissions';
 const folder = DEFAULT_FOLDERS[0];
 const { uid: folderUid, title: folderTitle } = folder;
 
-jest.mock('react-router-dom-v5-compat', () => ({
-  ...jest.requireActual('react-router-dom-v5-compat'),
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useParams: jest.fn(() => ({ uid: folderUid })),
 }));
 

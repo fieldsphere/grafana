@@ -1,7 +1,6 @@
 import { css } from '@emotion/css';
 import { type JSX, useMemo } from 'react';
-import { Navigate } from 'react-router-dom-v5-compat';
-import { useLocation } from 'react-use';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 
 import { AlertLabels } from '@grafana/alerting/unstable';
 import { type GrafanaTheme2 } from '@grafana/data';
@@ -20,18 +19,22 @@ const pageTitle = 'Find rule';
 const subUrl = config.appSubUrl;
 
 function useRuleFindParams() {
-  // DO NOT USE REACT-ROUTER HOOKS FOR THIS CODE
-  // React-router's useLocation/useParams/props.match are broken and don't preserve original param values when parsing location
-  // so, they cannot be used to parse name and sourceName path params
-  // React-router messes the pathname up resulting in a string that is neither encoded nor decoded
-  // Relevant issue: https://github.com/remix-run/history/issues/505#issuecomment-453175833
-  // It was probably fixed in React-Router v6
   const location = useLocation();
+  const { sourceName: sourceNameParam, name: nameParam } = useParams<{
+    sourceName?: string;
+    name?: string;
+  }>();
 
   return useMemo(() => {
-    const segments = location.pathname?.replace(subUrl, '').split('/') ?? []; // ["", "alerting", "{sourceName}", "{name}]
-    const name = unescapePathSeparators(decodeURIComponent(unescapePathSeparators(segments[3])));
-    const sourceName = decodeURIComponent(segments[2]);
+    const segments = location.pathname?.replace(subUrl, '').split('/') ?? [];
+    const nameFromPath = segments[3]
+      ? unescapePathSeparators(decodeURIComponent(unescapePathSeparators(segments[3])))
+      : undefined;
+    const sourceNameFromPath = segments[2] ? decodeURIComponent(segments[2]) : undefined;
+    const name = nameParam
+      ? unescapePathSeparators(decodeURIComponent(unescapePathSeparators(nameParam)))
+      : nameFromPath;
+    const sourceName = sourceNameParam ? decodeURIComponent(sourceNameParam) : sourceNameFromPath;
 
     const searchParams = new URLSearchParams(location.search);
 
@@ -41,7 +44,7 @@ function useRuleFindParams() {
       namespace: searchParams.get('namespace') ?? undefined,
       group: searchParams.get('group') ?? undefined,
     };
-  }, [location]);
+  }, [location, nameParam, sourceNameParam]);
 }
 
 export function RedirectToRuleViewer(): JSX.Element | null {

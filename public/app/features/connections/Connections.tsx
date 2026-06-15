@@ -1,4 +1,4 @@
-import { Navigate, Routes, Route, useLocation } from 'react-router-dom-v5-compat';
+import { Navigate, Routes, Route, useLocation } from 'react-router-dom';
 
 import { type StoreState, useSelector } from 'app/types/store';
 

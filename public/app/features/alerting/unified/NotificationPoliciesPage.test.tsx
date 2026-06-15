@@ -1,5 +1,5 @@
 import { produce } from 'immer';
-import { Route, Routes } from 'react-router-dom-v5-compat';
+import { Route, Routes } from 'react-router-dom';
 import { clickSelectOption } from 'test/helpers/selectOptionInTest';
 import { render, screen, testWithFeatureToggles, userEvent, within } from 'test/test-utils';
 import { byLabelText, byRole, byTestId } from 'testing-library-selector';

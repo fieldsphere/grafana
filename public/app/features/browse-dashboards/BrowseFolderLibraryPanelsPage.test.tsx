@@ -1,5 +1,5 @@
 import { http, HttpResponse } from 'msw';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 import { render, screen } from 'test/test-utils';
 
 import { config, setBackendSrv } from '@grafana/runtime';
@@ -15,8 +15,8 @@ import * as permissions from './permissions';
 setBackendSrv(backendSrv);
 setupMockServer();
 
-jest.mock('react-router-dom-v5-compat', () => ({
-  ...jest.requireActual('react-router-dom-v5-compat'),
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useParams: jest.fn(),
 }));
 

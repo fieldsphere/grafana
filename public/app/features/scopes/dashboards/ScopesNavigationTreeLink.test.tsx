@@ -1,14 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter, useLocation } from 'react-router-dom-v5-compat';
+import { MemoryRouter, useLocation } from 'react-router-dom';
 
 import { locationService } from '@grafana/runtime';
 
 import { ScopesNavigationTreeLink } from './ScopesNavigationTreeLink';
 
 // Mock react-router-dom's useLocation
-jest.mock('react-router-dom-v5-compat', () => ({
-  ...jest.requireActual('react-router-dom-v5-compat'),
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useLocation: jest.fn(),
 }));
 

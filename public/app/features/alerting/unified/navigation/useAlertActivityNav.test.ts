@@ -7,7 +7,7 @@ import { AccessControlAction } from 'app/types/accessControl';
 import { getAlertActivityNavId, useAlertActivityNav, useAlertGroupsNav, useAlertsNav } from './useAlertActivityNav';
 
 // Mock dependencies
-jest.mock('react-router-dom-v5-compat', () => ({
+jest.mock('react-router-dom', () => ({
   useLocation: jest.fn(() => ({ pathname: '/alerting/alerts' })),
 }));
 

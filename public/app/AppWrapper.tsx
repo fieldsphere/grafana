@@ -4,18 +4,14 @@ import { type Action, KBarProvider } from 'kbar';
 import { type ComponentType, Fragment, type ReactNode, useEffect, useState } from 'react';
 import CacheProvider from 'react-inlinesvg/provider';
 import { Provider } from 'react-redux';
-import { Route, Routes } from 'react-router-dom-v5-compat';
 
 import { config, navigationLogger, reportInteraction } from '@grafana/runtime';
 import { getFeatureFlagClient } from '@grafana/runtime/internal';
 import { ErrorBoundaryAlert, getPortalContainer, GlobalStyles, PortalContainer, TimeRangeProvider } from '@grafana/ui';
-import { getAppRoutes } from 'app/routes/routes';
 import { store } from 'app/store/store';
 
 import { ExtensionSidebarContextProvider } from './core/components/AppChrome/ExtensionSidebar/ExtensionSidebarProvider';
 import { GrafanaContext, type GrafanaContextType } from './core/context/GrafanaContext';
-import { GrafanaRouteWrapper } from './core/navigation/GrafanaRoute';
-import { type RouteDescriptor } from './core/navigation/types';
 import { contextSrv } from './core/services/context_srv';
 import { ThemeProvider } from './core/utils/ConfigProvider';
 import { LiveConnectionWarning } from './features/live/LiveConnectionWarning';
@@ -79,21 +75,6 @@ export function AppWrapper({ context }: AppWrapperProps) {
     }
   }
 
-  function renderRoute(route: RouteDescriptor) {
-    return (
-      <Route
-        caseSensitive={route.sensitive === undefined ? false : route.sensitive}
-        path={route.path}
-        key={route.path}
-        element={<GrafanaRouteWrapper route={route} />}
-      />
-    );
-  }
-
-  function renderRoutes() {
-    return <Routes>{getAppRoutes().map((r) => renderRoute(r))}</Routes>;
-  }
-
   navigationLogger('AppWrapper', false, 'rendering');
 
   const commandPaletteActionSelected = (action: Action) => {
@@ -104,7 +85,7 @@ export function AppWrapper({ context }: AppWrapperProps) {
   };
 
   const routerWrapperProps = {
-    routes: ready && renderRoutes(),
+    routesReady: ready,
     pageBanners,
     bodyRenderHooks,
     providers: enterpriseProviders,

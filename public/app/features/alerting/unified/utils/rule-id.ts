@@ -363,13 +363,9 @@ export function ruleIdentifierToRuleSourceName(identifier: RuleIdentifier): stri
   return isGrafanaRuleIdentifier(identifier) ? GRAFANA_RULES_SOURCE_NAME : identifier.ruleSourceName;
 }
 
-// DO NOT USE REACT-ROUTER HOOKS FOR THIS CODE
-// React-router's useLocation/useParams/props.match are broken and don't preserve original param values when parsing location
-// so, they cannot be used to parse name and sourceName path params
-// React-router messes the pathname up resulting in a string that is neither encoded nor decoded
-// Relevant issue: https://github.com/remix-run/history/issues/505#issuecomment-453175833
-// It was probably fixed in React-Router v6
 type PathWithOptionalID = { id?: string };
+
+// Prefer the raw pathname segment for encoded rule IDs; useParams may decode values differently in edge cases.
 export function getRuleIdFromPathname(params: PathWithOptionalID): string | undefined {
   const { pathname = '' } = locationService.getLocation();
   const { id } = params;

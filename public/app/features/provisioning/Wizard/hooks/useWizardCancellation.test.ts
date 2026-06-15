@@ -8,7 +8,7 @@ import { type RepoType, type WizardStep } from '../types';
 import { useWizardCancellation, type UseWizardCancellationParams } from './useWizardCancellation';
 
 const mockNavigate = jest.fn();
-jest.mock('react-router-dom-v5-compat', () => ({
+jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 

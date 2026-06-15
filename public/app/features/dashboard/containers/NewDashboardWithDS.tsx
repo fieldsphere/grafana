@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 
 import { Trans } from '@grafana/i18n';
 import { getDataSourceSrv, locationService } from '@grafana/runtime';

@@ -1,5 +1,5 @@
 import { forwardRef, useState } from 'react';
-import { Navigate, useLocation } from 'react-router-dom-v5-compat';
+import { Navigate, useLocation } from 'react-router-dom';
 
 import { Trans, t } from '@grafana/i18n';
 import { Button, ConfirmModal } from '@grafana/ui';
