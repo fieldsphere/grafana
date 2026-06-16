@@ -1,4 +1,5 @@
 import { createTheme } from './createTheme';
+import { getBuiltInThemes, getThemeById } from './registry';
 
 describe('createTheme', () => {
   it('create custom theme', () => {
@@ -22,5 +23,18 @@ describe('createTheme', () => {
   it('create default theme', () => {
     const theme = createTheme();
     expect(theme.colors.mode).toBe('dark');
+  });
+
+  it('creates the amethyst theme', () => {
+    const theme = getThemeById('amethyst');
+
+    expect(theme.name).toBe('Amethyst');
+    expect(theme.colors.mode).toBe('dark');
+    expect(theme.colors.primary.main).toBe('#A855F7');
+    expect(theme.colors.background.canvas).toBe('#140F1F');
+  });
+
+  it('includes amethyst in built-in selectable themes', () => {
+    expect(getBuiltInThemes([]).map((theme) => theme.id)).toEqual(['amethyst', 'dark', 'light', 'system']);
   });
 });

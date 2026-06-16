@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Amethyst theme switcher demo</title>
+    <style>
+      :root {
+        --canvas: #140f1f;
+        --primary-bg: #1d1530;
+        --secondary-bg: #2a1f42;
+        --accent: #a855f7;
+        --accent-soft: #c084fc;
+        --text: #f3e8ff;
+        --text-secondary: rgba(243, 232, 255, 0.72);
+        --border: rgba(216, 180, 254, 0.24);
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--canvas);
+        color: var(--text);
+        font-family: Inter, Arial, sans-serif;
+      }
+
+      main {
+        padding: 48px;
+      }
+
+      .header {
+        margin-bottom: 24px;
+      }
+
+      .eyebrow {
+        color: var(--accent-soft);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        font-size: 36px;
+        margin: 8px 0;
+      }
+
+      .subtitle {
+        color: var(--text-secondary);
+        font-size: 16px;
+      }
+
+      .switcher {
+        background: var(--primary-bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.35);
+        max-width: 960px;
+        padding: 24px;
+      }
+
+      .switcher-title {
+        align-items: center;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .card {
+        background: var(--secondary-bg);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        color: var(--text);
+        cursor: pointer;
+        overflow: hidden;
+        text-align: left;
+      }
+
+      .card.selected {
+        border-color: var(--accent-soft);
+        box-shadow: 0 0 0 2px rgba(192, 132, 252, 0.24);
+      }
+
+      .card-header {
+        align-items: center;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        gap: 8px;
+        padding: 12px;
+      }
+
+      .radio {
+        align-items: center;
+        appearance: none;
+        background: transparent;
+        border: 1px solid var(--accent-soft);
+        border-radius: 50%;
+        display: inline-flex;
+        height: 16px;
+        justify-content: center;
+        width: 16px;
+      }
+
+      .radio:checked::after {
+        background: var(--accent);
+        border-radius: 50%;
+        content: "";
+        display: block;
+        height: 8px;
+        width: 8px;
+      }
+
+      .preview {
+        background: var(--canvas);
+        padding: 16px;
+      }
+
+      .panel {
+        background: var(--primary-bg);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        min-height: 120px;
+      }
+
+      .panel-header {
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+        padding: 10px 12px;
+      }
+
+      .panel-body {
+        padding: 12px;
+      }
+
+      .input {
+        background: var(--secondary-bg);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        height: 28px;
+        margin-top: 8px;
+      }
+
+      .actions {
+        display: flex;
+        gap: 8px;
+        justify-content: flex-end;
+        padding: 12px;
+      }
+
+      .button {
+        background: var(--accent);
+        border-radius: 6px;
+        height: 24px;
+        width: 64px;
+      }
+
+      .button.secondary {
+        background: #3b2a5a;
+      }
+
+      .save-button {
+        background: var(--accent);
+        border: 0;
+        border-radius: 8px;
+        color: #ffffff;
+        cursor: pointer;
+        font-weight: 700;
+        padding: 10px 14px;
+      }
+
+      .note {
+        color: var(--text-secondary);
+        margin-top: 16px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="header">
+        <div class="eyebrow">Grafana theme switcher</div>
+        <h1>Amethyst theme</h1>
+        <div class="subtitle">New built-in purple/amethyst theme option, backed by theme id <strong>amethyst</strong>.</div>
+      </section>
+
+      <section class="switcher" aria-label="Change theme drawer">
+        <div class="switcher-title">
+          <h2>Change theme</h2>
+          <span>Selected: Amethyst</span>
+        </div>
+        <div class="grid" role="radiogroup" aria-label="Theme options">
+          <label class="card selected" aria-label="Amethyst selected">
+            <div class="card-header"><input class="radio" type="radio" name="theme" checked /><strong>Amethyst</strong></div>
+            <div class="preview">
+              <div class="panel">
+                <div class="panel-header">Panel</div>
+                <div class="panel-body">
+                  <div>Form label</div>
+                  <div class="input"></div>
+                </div>
+                <div class="actions">
+                  <div class="button secondary"></div>
+                  <div class="button"></div>
+                </div>
+              </div>
+            </div>
+          </label>
+        </div>
+        <button class="save-button" type="button">Save theme</button>
+        <p class="note">Uses the committed palette: canvas #140F1F, primary #A855F7, secondary #2A1F42.</p>
+      </section>
+    </main>
+  </body>
+</html>
