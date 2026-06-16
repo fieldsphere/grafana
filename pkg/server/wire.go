@@ -107,6 +107,8 @@ import (
 	"github.com/grafana/grafana/pkg/services/extsvcauth"
 	extsvcreg "github.com/grafana/grafana/pkg/services/extsvcauth/registry"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	featuremgmtpersist "github.com/grafana/grafana/pkg/services/featuremgmt/persist"
+	"github.com/grafana/grafana/pkg/services/featuretoggleadmin"
 	"github.com/grafana/grafana/pkg/services/folder"
 	"github.com/grafana/grafana/pkg/services/folder/folderimpl"
 	"github.com/grafana/grafana/pkg/services/grpcserver"
@@ -354,6 +356,8 @@ var wireBasicSet = wire.NewSet(
 	dsquerierclient.NewNullQSDatasourceClientBuilder,
 	expr.ProvideService,
 	featuremgmt.ProvideManagerService,
+	featuremgmtpersist.ProvideStore,
+	featuretoggleadmin.ProvideService,
 	featuremgmt.ProvideToggles,
 	dashboardservice.ProvideDashboardServiceImpl,
 	wire.Bind(new(dashboards.PermissionsRegistrationService), new(*dashboardservice.DashboardServiceImpl)),

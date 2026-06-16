@@ -110,6 +110,12 @@ type ToggleStatus struct {
 	// Can this flag be updated
 	Writeable bool `json:"writeable"`
 
+	// The flag requires a restart before changes take effect
+	RequiresRestart bool `json:"requiresRestart,omitempty"`
+
+	// Pending value saved but not yet effective until restart
+	PendingEnabled *bool `json:"pendingEnabled,omitempty"`
+
 	// Where was the value configured
 	// eg: startup | tenant|org | user | browser
 	// missing means default

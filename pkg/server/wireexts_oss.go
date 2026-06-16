@@ -46,6 +46,8 @@ import (
 	"github.com/grafana/grafana/pkg/services/encryption"
 	encryptionprovider "github.com/grafana/grafana/pkg/services/encryption/provider"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	featuremgmtpersist "github.com/grafana/grafana/pkg/services/featuremgmt/persist"
+	"github.com/grafana/grafana/pkg/services/featuretoggleadmin"
 	"github.com/grafana/grafana/pkg/services/hooks"
 	"github.com/grafana/grafana/pkg/services/kmsproviders"
 	"github.com/grafana/grafana/pkg/services/kmsproviders/osskmsproviders"
@@ -195,6 +197,8 @@ var wireExtsBaseCLISet = wire.NewSet(
 
 	metrics.WireSet,
 	featuremgmt.ProvideManagerService,
+	featuremgmtpersist.ProvideStore,
+	featuretoggleadmin.ProvideService,
 	featuremgmt.ProvideToggles,
 	hooks.ProvideService,
 	setting.ProvideProvider, wire.Bind(new(setting.Provider), new(*setting.OSSImpl)),

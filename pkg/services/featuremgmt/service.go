@@ -22,12 +22,14 @@ var (
 
 func ProvideManagerService(cfg *setting.Cfg) (*FeatureManager, error) {
 	mgmt := &FeatureManager{
-		isDevMod: cfg.Env != setting.Prod,
-		flags:    make(map[string]*FeatureFlag, 30),
-		enabled:  make(map[string]bool),
-		startup:  make(map[string]bool),
-		warnings: make(map[string]string),
-		log:      log.New("featuremgmt"),
+		isDevMod:         cfg.Env != setting.Prod,
+		flags:            make(map[string]*FeatureFlag, 30),
+		enabled:          make(map[string]bool),
+		startup:          make(map[string]bool),
+		overrides:        make(map[string]bool),
+		appliedOverrides: make(map[string]bool),
+		warnings:         make(map[string]string),
+		log:              log.New("featuremgmt"),
 	}
 
 	// Register the standard flags
@@ -53,8 +55,6 @@ func ProvideManagerService(cfg *setting.Cfg) (*FeatureManager, error) {
 
 	// update the values
 	mgmt.update()
-
-	// Log the enabled feature toggles at startup
 	enabled := slices.Sorted(maps.Keys(mgmt.enabled))
 	logctx := make([]any, len(enabled)*2)
 	for i, k := range enabled {

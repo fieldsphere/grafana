@@ -68,6 +68,7 @@ import (
 	"github.com/grafana/grafana/pkg/services/datasources/guardian"
 	"github.com/grafana/grafana/pkg/services/encryption"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/featuretoggleadmin"
 	"github.com/grafana/grafana/pkg/services/folder"
 	"github.com/grafana/grafana/pkg/services/hooks"
 	"github.com/grafana/grafana/pkg/services/libraryelements"
@@ -132,6 +133,7 @@ type HTTPServer struct {
 	RenderService                rendering.Service
 	Cfg                          *setting.Cfg
 	Features                     featuremgmt.FeatureToggles
+	FeatureToggleAdmin           *featuretoggleadmin.Service
 	SettingsProvider             setting.Provider
 	HooksService                 *hooks.HooksService
 	navTreeService               navtree.Service
@@ -253,6 +255,7 @@ func ProvideHTTPServer(opts ServerOptions, cfg *setting.Cfg, routeRegister routi
 	accessControl accesscontrol.AccessControl, dataSourceProxy *datasourceproxy.DataSourceProxyService, searchService *search.SearchService,
 	live *live.GrafanaLive, livePushGateway *pushhttp.Gateway, plugCtxProvider *plugincontext.Provider,
 	contextHandler *contexthandler.ContextHandler, loggerMiddleware loggermw.Logger, features featuremgmt.FeatureToggles,
+	featureToggleAdmin *featuretoggleadmin.Service,
 	alertNG *ngalert.AlertNG, libraryPanelService librarypanels.Service, libraryElementService libraryelements.Service,
 	quotaService quota.Service, socialService social.Service, tracer tracing.Tracer,
 	encryptionService encryption.Internal, grafanaUpdateChecker *updatemanager.GrafanaService,
@@ -314,6 +317,7 @@ func ProvideHTTPServer(opts ServerOptions, cfg *setting.Cfg, routeRegister routi
 		QueryHistoryService:          queryHistoryService,
 		CorrelationsService:          correlationsService,
 		Features:                     features, // a read only view of the managers state
+		FeatureToggleAdmin:           featureToggleAdmin,
 		RemoteCacheService:           remoteCache,
 		ProvisioningService:          provisioningService,
 		AccessControl:                accessControl,
