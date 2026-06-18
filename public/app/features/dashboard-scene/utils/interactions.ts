@@ -20,7 +20,7 @@ export const DashboardInteractions = {
   // Dashboard interactions:
   dashboardInitialized: (
     properties: {
-      theme: undefined;
+      theme?: string;
       duration: number | undefined;
       isScene: boolean;
       hasEditPermissions?: boolean;

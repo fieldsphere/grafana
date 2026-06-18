@@ -11,6 +11,7 @@ import { useSelector } from 'app/types/store';
 import { DashboardEditPaneSplitter } from '../edit-pane/DashboardEditPaneSplitter';
 
 import { type DashboardScene } from './DashboardScene';
+import { DashboardThemeProvider } from './DashboardThemeProvider';
 import { PanelSearchLayout } from './PanelSearchLayout';
 import { SoloPanelContextProvider, useDefineSoloPanelContext } from './SoloPanelContext';
 
@@ -26,6 +27,7 @@ export function DashboardSceneRenderer({ model }: SceneComponentProps<DashboardS
     panelsPerRow,
     isEditing,
     layoutOrchestrator,
+    style,
   } = model.useState();
 
   const scopesServices = useScopesServices();
@@ -80,10 +82,10 @@ export function DashboardSceneRenderer({ model }: SceneComponentProps<DashboardS
 
   if (editview) {
     return (
-      <>
+      <DashboardThemeProvider style={style}>
         <editview.Component model={editview} />
         {overlay && <overlay.Component model={overlay} />}
-      </>
+      </DashboardThemeProvider>
     );
   }
 
@@ -106,18 +108,20 @@ export function DashboardSceneRenderer({ model }: SceneComponentProps<DashboardS
   return (
     <>
       {layoutOrchestrator && <layoutOrchestrator.Component model={layoutOrchestrator} />}
-      <Page navModel={navModel} pageNav={pageNav} layout={PageLayoutType.Custom}>
-        {editPanel && <editPanel.Component model={editPanel} />}
-        {!editPanel && (
-          <DashboardEditPaneSplitter
-            dashboard={model}
-            isEditing={isEditing}
-            controls={controls && <controls.Component model={controls} />}
-            body={renderBody()}
-          />
-        )}
-        {overlay && <overlay.Component model={overlay} />}
-      </Page>
+      <DashboardThemeProvider style={style}>
+        <Page navModel={navModel} pageNav={pageNav} layout={PageLayoutType.Custom}>
+          {editPanel && <editPanel.Component model={editPanel} />}
+          {!editPanel && (
+            <DashboardEditPaneSplitter
+              dashboard={model}
+              isEditing={isEditing}
+              controls={controls && <controls.Component model={controls} />}
+              body={renderBody()}
+            />
+          )}
+          {overlay && <overlay.Component model={overlay} />}
+        </Page>
+      </DashboardThemeProvider>
     </>
   );
 }

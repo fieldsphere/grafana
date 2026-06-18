@@ -170,6 +170,11 @@ export function transformSceneToSaveModel(scene: DashboardScene, isSnapshot = fa
     scopeMeta: state.scopeMeta,
   };
 
+  if (state.style === 'light' || state.style === 'dark') {
+    // @ts-expect-error legacy dashboard theme field
+    dashboard.style = state.style;
+  }
+
   // Only add optional fields if they are explicitly set (not default values)
   if (timeRange.timeZone !== '') {
     dashboard.timezone = timeRange.timeZone;

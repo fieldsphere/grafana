@@ -119,7 +119,17 @@ import { getUpdatedHoverHeader } from './panel-timerange/utils';
 import { type DashboardLayoutManager } from './types/DashboardLayoutManager';
 import { type LayoutParent } from './types/LayoutParent';
 
-export const PERSISTED_PROPS = ['title', 'description', 'tags', 'editable', 'graphTooltip', 'links', 'meta', 'preload'];
+export const PERSISTED_PROPS = [
+  'title',
+  'description',
+  'tags',
+  'editable',
+  'graphTooltip',
+  'links',
+  'meta',
+  'preload',
+  'style',
+];
 const PANEL_SEARCH_VAR = 'systemPanelFilterVar';
 const PANELS_PER_ROW_VAR = 'systemDynamicRowSizeVar';
 
@@ -172,6 +182,8 @@ export interface DashboardSceneState extends SceneObjectState {
   links: DashboardLink[];
   /** Is editable */
   editable?: boolean;
+  /** Dashboard color theme. When unset, the user's global theme is used. */
+  style?: string;
   /** Allows disabling grid lazy loading */
   preload?: boolean;
   /** A uid when saved */

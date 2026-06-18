@@ -10,6 +10,7 @@ import { isLibraryPanel } from '../../utils/utils';
 import { type DashboardScene } from '../DashboardScene';
 
 import { BackToDashboardButton } from './actions/BackToDashboardButton';
+import { DashboardThemeToggle } from './actions/DashboardThemeToggle';
 import { DiscardLibraryPanelButton } from './actions/DiscardLibraryPanelButton';
 import { DiscardPanelButton } from './actions/DiscardPanelButton';
 import { MakeDashboardEditableButton } from './actions/MakeDashboardEditableButton';
@@ -100,6 +101,12 @@ export const Actions = ({ dashboard }: { dashboard: DashboardScene }) => {
             component: SaveDashboard,
             group: 'panel',
             condition: isEditingDashboard && !isEditingLibraryPanel && (canSave || canSaveInFolder),
+          },
+          {
+            key: 'dashboard-theme-toggle',
+            component: DashboardThemeToggle,
+            group: 'view',
+            condition: isShowingDashboard && !isEditingDashboard,
           },
           {
             key: 'make-dashboard-editable-button',

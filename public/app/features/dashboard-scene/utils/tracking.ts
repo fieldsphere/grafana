@@ -17,7 +17,7 @@ export function trackDashboardSceneLoaded(dashboard: DashboardScene, duration?: 
   const dynamicDashboardsTrackingInformation = dashboard.getDynamicDashboardsTrackingInformation();
 
   DashboardInteractions.dashboardInitialized({
-    theme: undefined,
+    theme: dashboard.state.style,
     duration,
     isScene: true,
     hasEditPermissions: dashboard.canEditDashboard(),
