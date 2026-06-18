@@ -1,9 +1,12 @@
 include ../../sdk.mk
+include ../metadata.mk
+
+ALERTING_APP := rules
 
 SPEC_GEN_FILE = pkg/apis/alerting/v0alpha1/alertrule_spec_gen.go
 
 .PHONY: generate
-generate: do-generate post-generate ## Run Grafana App SDK code generation
+generate: do-generate post-generate gen-common-metadata ## Run Grafana App SDK code generation
 
 .PHONY: do-generate
 do-generate: install-app-sdk update-app-sdk
