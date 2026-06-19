@@ -8,11 +8,14 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 
+	actest "github.com/grafana/grafana/pkg/services/accesscontrol/actest"
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	starapi "github.com/grafana/grafana/pkg/services/star/api"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -137,5 +140,44 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "A Dashboard", navLinks[0].Text)
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
+	})
+}
+
+func TestBuildLabsNavLink(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		SignedInUser: &user.SignedInUser{
+			UserID: 1,
+			OrgID:  1,
+		},
+		Context: &web.Context{Req: httpReq},
+	}
+
+	t.Run("should return labs section for feature management readers", func(t *testing.T) {
+		service := ServiceImpl{
+			cfg:           &setting.Cfg{AppSubURL: "/grafana"},
+			accessControl: actest.FakeAccessControl{ExpectedEvaluate: true},
+		}
+
+		labsNode := service.buildLabsNavLink(reqCtx)
+
+		require.NotNil(t, labsNode)
+		require.Equal(t, navtree.NavIDLabs, labsNode.Id)
+		require.Equal(t, "Labs", labsNode.Text)
+		require.Equal(t, "flask", labsNode.Icon)
+		require.True(t, labsNode.IsNew)
+		require.Equal(t, "/grafana/labs", labsNode.Url)
+		require.Len(t, labsNode.Children, 1)
+		require.Equal(t, navtree.NavIDLabsFeatureFlags, labsNode.Children[0].Id)
+		require.Equal(t, "/grafana/labs/feature-flags", labsNode.Children[0].Url)
+	})
+
+	t.Run("should hide labs section without feature management read access", func(t *testing.T) {
+		service := ServiceImpl{
+			cfg:           &setting.Cfg{},
+			accessControl: actest.FakeAccessControl{ExpectedEvaluate: false},
+		}
+
+		require.Nil(t, service.buildLabsNavLink(reqCtx))
 	})
 }
