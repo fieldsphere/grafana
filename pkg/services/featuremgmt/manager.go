@@ -4,8 +4,11 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"sort"
 
+	common "github.com/grafana/grafana/pkg/apimachinery/apis/common/v0alpha1"
 	"github.com/grafana/grafana/pkg/infra/log"
+	featuretoggleapi "github.com/grafana/grafana/pkg/services/featuremgmt/feature_toggle_api"
 )
 
 var (
@@ -116,6 +119,47 @@ func (fm *FeatureManager) GetEnabled(ctx context.Context) map[string]bool {
 		}
 	}
 	return enabled
+}
+
+func (fm *FeatureManager) GetResolvedState(ctx context.Context) featuretoggleapi.ResolvedToggleState {
+	flags := fm.GetFlags()
+	sort.Slice(flags, func(i, j int) bool {
+		return flags[i].Name < flags[j].Name
+	})
+
+	toggles := make([]featuretoggleapi.ToggleStatus, 0, len(flags))
+	for _, flag := range flags {
+		status := featuretoggleapi.ToggleStatus{
+			Name:        flag.Name,
+			Description: flag.Description,
+			Stage:       flag.Stage.String(),
+			Enabled:     fm.enabled[flag.Name],
+			Writeable:   false,
+			Warning:     fm.warnings[flag.Name],
+		}
+
+		if _, ok := fm.startup[flag.Name]; ok {
+			status.Source = &common.ObjectReference{
+				Kind:      "ConfigMap",
+				Name:      "grafana.ini",
+				FieldPath: "feature_toggles." + flag.Name,
+			}
+		} else {
+			status.Source = &common.ObjectReference{
+				Kind: "FeatureToggleDefault",
+				Name: "default",
+			}
+		}
+
+		toggles = append(toggles, status)
+	}
+
+	return featuretoggleapi.ResolvedToggleState{
+		AllowEditing:    false,
+		RestartRequired: false,
+		Enabled:         fm.GetEnabled(ctx),
+		Toggles:         toggles,
+	}
 }
 
 // GetFlags returns all flag definitions

@@ -183,6 +183,10 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.search-dashboards.title', 'Search dashboards');
     case 'connections':
       return t('nav.connections.title', 'Connections');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
+    case 'labs-feature-flags':
+      return t('nav.labs-feature-flags.title', 'Feature flags');
     case 'connections-add-new-connection':
       return t('nav.add-new-connections.title', 'Add new connection');
     case 'standalone-plugin-page-/connections/collector':
@@ -306,6 +310,10 @@ export function getNavSubTitle(navId: string | undefined) {
       return t('nav.infrastructure.subtitle', "Understand your infrastructure's health");
     case 'frontend':
       return t('nav.frontend.subtitle', 'Gain real user monitoring insights');
+    case 'labs':
+      return t('nav.labs.subtitle', 'Explore experimental Grafana controls and diagnostics');
+    case 'labs-feature-flags':
+      return t('nav.labs-feature-flags.subtitle', 'Review feature flag status and metadata');
     case 'alerts-and-incidents':
       return t('nav.alerts-and-incidents.subtitle', 'Alerting and incident management apps');
     case 'testing-and-synthetics':

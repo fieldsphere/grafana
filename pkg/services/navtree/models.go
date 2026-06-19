@@ -38,6 +38,8 @@ const (
 	WeightHelp
 )
 
+const WeightLabs = WeightDataConnections + 50
+
 const (
 	NavIDRoot                 = "root"
 	NavIDDashboards           = "dashboards/browse"
@@ -56,6 +58,8 @@ const (
 	NavIDCfgPlugins           = "cfg/plugins"
 	NavIDCfgAccess            = "cfg/access"
 	NavIDBookmarks            = "bookmarks"
+	NavIDLabs                 = "labs"
+	NavIDLabsFeatureFlags     = "labs-feature-flags"
 )
 
 type NavLink struct {

@@ -221,6 +221,16 @@ export function getAppRoutes(): RouteDescriptor[] {
       component: () => <NavLandingPage navId="frontend" />,
     },
     {
+      path: '/labs/feature-flags',
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "FeatureFlagsPage" */ 'app/features/labs/FeatureFlagsPage')
+      ),
+    },
+    {
+      path: '/labs',
+      component: () => <NavLandingPage navId="labs" />,
+    },
+    {
       path: '/admin/general',
       component: () => <NavLandingPage navId="cfg/general" />,
     },
