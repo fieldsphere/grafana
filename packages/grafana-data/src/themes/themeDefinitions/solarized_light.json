@@ -1,0 +1,78 @@
+{
+  "name": "Solarized Light",
+  "id": "solarized_light",
+  "colors": {
+    "mode": "light",
+    "background": {
+      "canvas": "#fdf6e3",
+      "primary": "#eee8d5",
+      "secondary": "#e4ddc8",
+      "elevated": "#fdf6e3"
+    },
+    "text": {
+      "primary": "#657b83",
+      "secondary": "#839496",
+      "disabled": "#93a1a1",
+      "link": "#268bd2",
+      "maxContrast": "#002b36"
+    },
+    "border": {
+      "weak": "rgba(101, 123, 131, 0.15)",
+      "medium": "rgba(101, 123, 131, 0.30)",
+      "strong": "rgba(101, 123, 131, 0.45)"
+    },
+    "primary": {
+      "main": "#268bd2",
+      "text": "#268bd2",
+      "border": "#268bd2",
+      "name": "primary",
+      "shade": "#1a6da8",
+      "transparent": "rgba(38, 139, 210, 0.15)",
+      "contrastText": "#fdf6e3",
+      "borderTransparent": "rgba(38, 139, 210, 0.25)"
+    },
+    "secondary": {
+      "main": "#eee8d5",
+      "text": "#657b83",
+      "border": "rgba(101, 123, 131, 0.30)",
+      "name": "secondary",
+      "shade": "#e4ddc8",
+      "transparent": "rgba(238, 232, 213, 0.50)",
+      "contrastText": "#073642",
+      "borderTransparent": "rgba(238, 232, 213, 0.40)"
+    },
+    "info": {
+      "main": "#2aa198",
+      "text": "#2aa198"
+    },
+    "success": {
+      "main": "#859900",
+      "text": "#859900"
+    },
+    "warning": {
+      "main": "#cb4b16",
+      "text": "#cb4b16"
+    },
+    "error": {
+      "main": "#dc322f",
+      "text": "#dc322f"
+    },
+    "action": {
+      "hover": "rgba(101, 123, 131, 0.12)",
+      "selected": "rgba(38, 139, 210, 0.16)",
+      "selectedBorder": "#268bd2",
+      "focus": "rgba(38, 139, 210, 0.20)",
+      "hoverOpacity": 0.08,
+      "disabledText": "rgba(101, 123, 131, 0.50)",
+      "disabledBackground": "rgba(101, 123, 131, 0.06)",
+      "disabledOpacity": 0.38
+    },
+    "gradients": {
+      "brandHorizontal": "linear-gradient(90deg, #268bd2 0%, #2aa198 100%)",
+      "brandVertical": "linear-gradient(0deg, #268bd2 0%, #2aa198 100%)"
+    },
+    "contrastThreshold": 3,
+    "hoverFactor": 0.03,
+    "tonalOffset": 0.15
+  }
+}

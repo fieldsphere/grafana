@@ -18,5 +18,8 @@ export function getSelectableThemes() {
     allowedExtraThemes.push('visual_refresh_dark', 'visual_refresh_light');
   }
 
+  allowedExtraThemes.push('solarized_light');
+  allowedExtraThemes.push('solarized_dark');
+
   return getBuiltInThemes(allowedExtraThemes);
 }
