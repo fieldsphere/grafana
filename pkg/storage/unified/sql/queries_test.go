@@ -113,6 +113,8 @@ func TestUnifiedStorageQueries(t *testing.T) {
 							Options: &resourcepb.ListOptions{
 								Key: &resourcepb.ResourceKey{
 									Namespace: "ns",
+									Group:     "group",
+									Resource:  "res",
 								},
 							},
 						},
@@ -126,10 +128,13 @@ func TestUnifiedStorageQueries(t *testing.T) {
 					Data: &sqlResourceHistoryListRequest{
 						SQLTemplate: mocks.NewTestingSQLTemplate(),
 						Request: &historyListRequest{
-							Limit: 10,
+							ResourceVersion: 1,
+							Limit:           10,
 							Options: &resourcepb.ListOptions{
 								Key: &resourcepb.ResourceKey{
 									Namespace: "ns",
+									Group:     "group",
+									Resource:  "res",
 								},
 							},
 						},
