@@ -149,7 +149,7 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 
 ### Prerequisites
 
-- **Node.js v24.x** (see `.nvmrc` for exact version). Use `nvm install` / `nvm use` to match.
+- **Node.js v24.x** (see `.nvmrc` for exact version). Use `nvm install` / `nvm use` to match. On Cursor Cloud VMs, `/exec-daemon/node` may appear earlier on `PATH` than nvm’s binary (wrong version for `node -v`); prepend nvm’s bin directory after `nvm use`, e.g. `export PATH="$NVM_DIR/versions/node/$(cat .nvmrc | tr -d v)/bin:$PATH"`.
 - **Go 1.25.7** (see `go.mod`). Pre-installed in the VM.
 - **Yarn 4.11.0** via corepack (bundled in `.yarn/releases/`). Run `corepack enable` if `yarn` is not found.
 - **GCC** required for CGo/SQLite compilation of the backend.
@@ -157,7 +157,8 @@ Build a specific plugin: `yarn workspace @grafana-plugins/<name> dev`
 ### Running services
 
 - **Backend**: `make run` — builds and starts Grafana backend with hot-reload (air) on `localhost:3000`. Default login: `admin`/`admin`. First build takes ~3 minutes due to debug symbols (`-gcflags all=-N -l`); subsequent hot-reload rebuilds are faster.
-- **Frontend**: `yarn start` — starts webpack dev server that watches for changes. The backend proxies to it. First compile takes ~45s.
+- **Frontend**: `yarn start` — webpack watch build into `public/build` (required for UI). First compile takes ~45s; wait for `Compiled successfully` before relying on the UI.
+- Run backend and frontend in separate long-lived terminals (e.g. tmux sessions `grafana-backend` / `grafana-frontend`).
 - No external databases required — Grafana uses embedded SQLite by default.
 
 ### Testing gotchas
