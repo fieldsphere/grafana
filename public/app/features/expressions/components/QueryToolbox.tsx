@@ -1,9 +1,11 @@
 import { css } from '@emotion/css';
 import { useCallback, useEffect, useRef, useState, type JSX } from 'react';
 
+
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { IconButton, useStyles2, Stack, InlineToast, Tooltip, Icon } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { type SqlExpressionQuery } from '../types';
 
@@ -39,7 +41,7 @@ export const QueryToolbox = ({ onFormatCode, onExpand, isExpanded, query }: Quer
       await navigator.clipboard.writeText(query.expression ?? '');
       setShowCopySuccess(true);
     } catch (e) {
-      console.error(e);
+      structuredLogger.error(e);
     }
   }, [query.expression]);
 

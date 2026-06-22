@@ -1,5 +1,6 @@
 import { type ChangeEvent } from 'react';
 
+
 import { PageLayoutType } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
@@ -19,6 +20,7 @@ import {
   type WeekStart,
 } from '@grafana/ui';
 import { Page } from 'app/core/components/Page/Page';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { TimePickerSettings } from 'app/features/dashboard/components/DashboardSettings/TimePickerSettings';
 import { GenAIDashDescriptionButton } from 'app/features/dashboard/components/GenAI/GenAIDashDescriptionButton';
 import { GenAIDashTitleButton } from 'app/features/dashboard/components/GenAI/GenAIDashTitleButton';
@@ -159,7 +161,7 @@ export class GeneralSettingsEditView
       const liveNow = this.getLiveNowTimer();
       enable ? liveNow.enable() : liveNow.disable();
     } catch (err) {
-      console.error(err);
+      structuredLogger.error(err);
     }
   };
 

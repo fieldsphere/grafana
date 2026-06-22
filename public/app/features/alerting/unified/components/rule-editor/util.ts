@@ -1,5 +1,6 @@
 import { xor } from 'lodash';
 
+
 import {
   type DataFrame,
   LoadingState,
@@ -10,6 +11,7 @@ import {
 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { GraphThresholdsStyleMode } from '@grafana/schema';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { EvalFunction } from 'app/features/alerting/state/alertDef';
 import { isExpressionQuery } from 'app/features/expressions/guards';
 import { type ClassicCondition, ExpressionQueryType } from 'app/features/expressions/types';
@@ -216,7 +218,7 @@ export function getThresholdsForQueries(queries: AlertQuery[], condition: string
           }
         });
       } catch (err) {
-        console.error('Failed to parse thresholds', err);
+        structuredLogger.error('Failed to parse thresholds', err);
         return;
       }
     });

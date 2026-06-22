@@ -1,9 +1,11 @@
 import { css } from '@emotion/css';
 import { memo } from 'react';
 
+
 import { LogsDedupStrategy, type LogsMetaItem, LogsMetaKind, type Labels, store, shallowCompare } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Button, useStyles2 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { LogLabels, LogLabelsList, type Props as LogLabelsProps } from '../../logs/components/LogLabels';
 import { MetaInfoText, type MetaItemProps } from '../MetaInfoText';
@@ -119,6 +121,6 @@ function renderMetaItem(value: string | number | Labels, kind: LogsMetaKind, log
   if (kind === LogsMetaKind.Error) {
     return <span className="logs-meta-item__error">{value.toString()}</span>;
   }
-  console.error(`Meta type ${typeof value} ${value} not recognized.`);
+  structuredLogger.error(`Meta type ${typeof value} ${value} not recognized.`);
   return <></>;
 }

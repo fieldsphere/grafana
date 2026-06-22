@@ -1,7 +1,9 @@
 import type { JSX } from 'react';
 
+
 import { type SelectableValue } from '@grafana/data';
 import { AccessoryButton } from '@grafana/plugin-ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { type InfluxQueryTag } from '../../../../../types';
 import { adjustOperatorIfNeeded, getCondition, getOperator } from '../utils/tagUtils';
@@ -54,7 +56,7 @@ const Tag = ({ tag, isFirst, onRemove, onChange, getTagKeyOptions, getTagValueOp
         // to avoid it, we catch any potential errors coming from `getTagKeyOptions`,
         // log the error, and pretend that the list of options is an empty list.
         // this way the remove-item option can always be added to the list.
-        console.error(err);
+        structuredLogger.error(err);
         return [];
       })
       .then((tags) => tags.map(toSelectableValue));

@@ -2,9 +2,11 @@ import { type Dispatch, type SetStateAction, useCallback, useEffect, useState } 
 import { useAsync } from 'react-use';
 import { type Subscription } from 'rxjs';
 
+
 import { llm } from '@grafana/llm';
 import { getLogger } from '@grafana/runtime/unstable';
 import { useAppNotification } from 'app/core/copy/appNotification';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { DEFAULT_LLM_MODEL, isLLMPluginEnabled } from './utils';
 
@@ -69,7 +71,7 @@ export function useLLMStream(options: Options = defaultOptions): UseLLMStreamRes
         'Failed to generate content using LLM',
         'Please try again or if the problem persists, contact your organization admin.'
       );
-      console.error(e);
+      structuredLogger.error(e);
       getLogger('features.dashboards.genai').logError(e, {
         messages: JSON.stringify(messages),
         model,

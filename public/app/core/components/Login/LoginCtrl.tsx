@@ -1,8 +1,10 @@
 import { memo, useState, useCallback, type JSX } from 'react';
 
+
 import { t } from '@grafana/i18n';
 import { type FetchError, getBackendSrv, isFetchError } from '@grafana/runtime';
 import config from 'app/core/config';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { type LoginDTO } from './types';
 
@@ -88,7 +90,7 @@ const LoginCtrl = memo(({ resetCode, children }: Props) => {
           .then(() => {
             toGrafana();
           })
-          .catch((err) => console.error(err));
+          .catch((err) => structuredLogger.error(err));
       }
     },
     [resetCode, toGrafana]

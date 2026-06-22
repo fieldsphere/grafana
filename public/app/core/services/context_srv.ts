@@ -1,5 +1,6 @@
 import { extend } from 'lodash';
 
+
 import {
   type AnalyticsSettings,
   type OrgRole,
@@ -11,6 +12,7 @@ import {
 } from '@grafana/data';
 import { featureEnabled, getBackendSrv } from '@grafana/runtime';
 import { getSessionExpiry } from 'app/core/utils/auth';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type UserPermission, AccessControlAction } from 'app/types/accessControl';
 import { type CurrentUserInternal } from 'app/types/config';
 
@@ -108,7 +110,7 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      structuredLogger.error(e);
     }
   }
 
@@ -258,7 +260,7 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        structuredLogger.error(e);
       });
   }
 }

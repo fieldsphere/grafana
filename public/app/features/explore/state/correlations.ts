@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 
+
 import {
   type CorrelationSpec,
   generatedAPI as correlationsAPIv0alpha1,
@@ -9,6 +10,7 @@ import { type CorrelationData, getDataSourceSrv, reportInteraction, config } fro
 import { createErrorNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { getMessageFromError } from 'app/core/utils/errors';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type CreateCorrelationParams } from 'app/features/correlations/types';
 import { createCorrelation, generateDefaultLabel, getCorrelationsFromStorage } from 'app/features/correlations/utils';
 import { store } from 'app/store/store';
@@ -116,7 +118,7 @@ export function saveCurrentCorrelation(
           dispatch(
             notifyApp(createErrorNotification('Error creating correlation', getMessageFromError(response.error)))
           );
-          console.error(response.error);
+          structuredLogger.error(response.error);
         }
       } else {
         const correlation: CreateCorrelationParams = {
@@ -144,7 +146,7 @@ export function saveCurrentCorrelation(
           })
           .catch((err) => {
             dispatch(notifyApp(createErrorNotification('Error creating correlation', err)));
-            console.error(err);
+            structuredLogger.error(err);
           });
       }
     }

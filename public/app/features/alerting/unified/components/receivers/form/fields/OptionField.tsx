@@ -2,6 +2,7 @@ import { css } from '@emotion/css';
 import { type FC } from 'react';
 import { Controller, type DeepMap, type FieldError, useFormContext } from 'react-hook-form';
 
+
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
@@ -18,6 +19,7 @@ import {
   Tooltip,
   useStyles2,
 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import {
   type NotificationChannelOption,
   type NotificationChannelSecureFields,
@@ -318,7 +320,7 @@ const OptionInput: FC<Props & { id: string }> = ({
       );
 
     default:
-      console.error('Element not supported', option.element);
+      structuredLogger.error('Element not supported', option.element);
       return null;
   }
 };

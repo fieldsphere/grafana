@@ -1,5 +1,6 @@
 import type React from 'react';
 
+
 import { store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, logWarning } from '@grafana/runtime';
@@ -17,6 +18,7 @@ import {
 import { type TabsLayoutTabKind } from '@grafana/schema/apis/dashboard.grafana.app/v2';
 import { appEvents } from 'app/core/app_events';
 import { LS_TAB_COPY_KEY } from 'app/core/constants';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { ShowConfirmModalEvent } from 'app/types/events';
 
 import { ConditionalRenderingGroup } from '../../conditional-rendering/group/ConditionalRenderingGroup';
@@ -258,7 +260,7 @@ export class TabItem
         layout.setState({ children: newChildren });
       } else {
         const warningMessage = 'Grid item has unexpected parent type';
-        console.warn(warningMessage);
+        structuredLogger.warn(warningMessage);
         logWarning(warningMessage);
       }
     }
@@ -280,13 +282,13 @@ export class TabItem
           rowLayout.addGridItem(gridItem);
         } else {
           const warningMessage = 'First row layout does not support addGridItem';
-          console.warn(warningMessage);
+          structuredLogger.warn(warningMessage);
           logWarning(warningMessage);
         }
       }
     } else {
       const warningMessage = 'Layout manager does not support addGridItem';
-      console.warn(warningMessage);
+      structuredLogger.warn(warningMessage);
       logWarning(warningMessage);
     }
     this.setIsDropTarget(false);

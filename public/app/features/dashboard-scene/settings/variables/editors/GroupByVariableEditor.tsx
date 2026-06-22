@@ -2,6 +2,7 @@ import { noop } from 'lodash';
 import { type FormEvent } from 'react';
 import { useAsync } from 'react-use';
 
+
 import {
   type DataSourceInstanceSettings,
   type MetricFindValue,
@@ -10,6 +11,7 @@ import {
 } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { GroupByVariable, type SceneVariable } from '@grafana/scenes';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
 import { GroupByVariableForm } from '../components/GroupByVariableForm';
@@ -106,7 +108,7 @@ export function GroupByVariableEditor(props: GroupByVariableEditorProps) {
 
 export function getGroupByVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof GroupByVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    structuredLogger.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
 

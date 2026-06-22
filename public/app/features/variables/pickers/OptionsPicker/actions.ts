@@ -1,6 +1,7 @@
 import { debounce, trim } from 'lodash';
 
 import { isEmptyObject, containsSearchFilter, type VariableWithOptions, type VariableOption } from '@grafana/data';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type StoreState, type ThunkDispatch, type ThunkResult } from 'app/types/store';
 
 import { variableAdapters } from '../../adapters';
@@ -180,7 +181,7 @@ const searchForOptions = async (
 
     dispatch(toKeyedAction(key, updateOptionsFromSearch(updated.options)));
   } catch (error) {
-    console.error(error);
+    structuredLogger.error(error);
   }
 };
 

@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 
+
 import { type PanelData, type TimeRange } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { EditorFieldGroup, EditorRow, EditorRows } from '@grafana/plugin-ui';
 import { config, getTemplateSrv } from '@grafana/runtime';
 import { Alert, LinkButton, Space, Text, TextLink } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { LogsEditorMode, ResultFormat } from '../../dataquery.gen';
 import type Datasource from '../../datasource';
@@ -193,11 +195,11 @@ const LogsQueryEditor = ({
           setDataIngestedWarning(null);
         }
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
       }
     };
 
-    getBasicLogsUsage(query).catch((err) => console.error(err));
+    getBasicLogsUsage(query).catch((err) => structuredLogger.error(err));
   }, [datasource.azureLogAnalyticsDatasource, query, showBasicLogsToggle, from, to]);
   let portalLinkButton = null;
 

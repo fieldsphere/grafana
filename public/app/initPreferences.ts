@@ -1,4 +1,5 @@
 import type { PreferencesSpec } from '@grafana/api-clients/rtkq/preferences/v1alpha1';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 export const initPreferences = async () => {
   const preferences = await fetchMergedPreferences();
@@ -38,7 +39,7 @@ export async function fetchMergedPreferences(): Promise<{ spec: PreferencesSpec 
     }
     return await resp.json();
   } catch (err) {
-    console.warn('Failed to fetch merged preferences', err);
+    structuredLogger.warn('Failed to fetch merged preferences', err);
     return undefined;
   }
 }

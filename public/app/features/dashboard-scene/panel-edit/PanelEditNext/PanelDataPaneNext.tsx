@@ -1,5 +1,6 @@
 import { throttle } from 'lodash';
 
+
 import {
   CoreApp,
   type DataSourceApi,
@@ -19,6 +20,7 @@ import {
 } from '@grafana/scenes';
 import { type DataQuery, type DataSourceRef } from '@grafana/schema';
 import { addQuery } from 'app/core/utils/query';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { getLastUsedDatasourceFromStorage } from 'app/features/dashboard/utils/dashboard';
 import { storeLastUsedDataSourceInLocalStorage } from 'app/features/datasources/components/picker/utils';
 import { MIXED_DATASOURCE_NAME } from 'app/plugins/datasource/mixed/MixedDataSource';
@@ -204,7 +206,7 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
       this.setState({ datasource, dsSettings, dsError: undefined });
       storeLastUsedDataSourceInLocalStorage(getDataSourceRef(dsSettings) || { default: true });
     } catch (err) {
-      console.error('Failed to load datasource:', err);
+      structuredLogger.error('Failed to load datasource:', err);
 
       // Fallback to default datasource (parity with PanelDataQueriesTab)
       try {
@@ -218,7 +220,7 @@ export class PanelDataPaneNext extends SceneObjectBase<PanelDataPaneNextState> {
           // resolveDatasourceRef() handles the stale-ref case on the next activation.
         }
       } catch (fallbackErr) {
-        console.error('Failed to load default datasource:', fallbackErr);
+        structuredLogger.error('Failed to load default datasource:', fallbackErr);
         this.setState({
           datasource: undefined,
           dsSettings: undefined,

@@ -1,6 +1,7 @@
 import { css } from '@emotion/css';
 import { useMemo, useRef, useState } from 'react';
 
+
 import { DashboardCursorSync, type PanelProps, type TimeRange } from '@grafana/data';
 import { PanelDataErrorView } from '@grafana/runtime';
 import { type ScaleDistributionConfig } from '@grafana/schema';
@@ -17,6 +18,7 @@ import {
 } from '@grafana/ui';
 import { type FacetedData, type TimeRange2, TooltipHoverMode } from '@grafana/ui/internal';
 import { ColorScale } from 'app/core/components/ColorScale/ColorScale';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { readHeatmapRowsCustomMeta } from 'app/features/transformers/calculateHeatmap/heatmap';
 
 import { getXAxisConfig } from '../../../core/components/TimeSeries/utils';
@@ -54,7 +56,7 @@ export const HeatmapPanel = (props: HeatmapPanelProps) => {
         timeRange,
       });
     } catch (ex) {
-      console.error(ex);
+      structuredLogger.error(ex);
       return { warning: `${ex}` };
     }
   }, [data.series, data.annotations, options, palette, theme, replaceVariables, timeRange]);

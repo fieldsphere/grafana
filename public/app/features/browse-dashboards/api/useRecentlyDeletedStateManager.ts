@@ -1,6 +1,7 @@
 import { type SelectableValue, store } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type TermCount } from 'app/core/components/TagFilter/TagFilter';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import {
   RECENTLY_DELETED_SORT_VALUES,
   SEARCH_SELECTED_LAYOUT_DELETED,
@@ -83,7 +84,7 @@ export class TrashStateManager extends SearchStateManager {
 
       return termCounts.sort((a, b) => b.count - a.count);
     } catch (error) {
-      console.error('Failed to get tags from deleted dashboards:', error);
+      structuredLogger.error('Failed to get tags from deleted dashboards:', error);
       return [];
     }
   };

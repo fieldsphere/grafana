@@ -1,6 +1,7 @@
 import { type ThunkDispatch, type UnknownAction } from '@reduxjs/toolkit';
 import { type Subscription } from 'rxjs';
 
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { ScopedResourceClient } from 'app/features/apiserver/client';
 import { type ListOptions, type GeneratedResourceList as ResourceList } from 'app/features/apiserver/types';
 
@@ -80,7 +81,7 @@ export function createOnCacheEntryAdded<Spec, Status>(
           },
         });
     } catch (error) {
-      console.error('Error in onCacheEntryAdded:', error);
+      structuredLogger.error('Error in onCacheEntryAdded:', error);
       return;
     }
 

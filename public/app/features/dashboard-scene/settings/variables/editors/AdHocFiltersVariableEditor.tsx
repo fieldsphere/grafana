@@ -2,6 +2,7 @@ import { noop } from 'lodash';
 import { type FormEvent, useCallback, useMemo, useState } from 'react';
 import { useAsync } from 'react-use';
 
+
 import {
   type DataSourceInstanceSettings,
   type MetricFindValue,
@@ -11,6 +12,7 @@ import {
 import { t } from '@grafana/i18n';
 import { config, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
 import { AdHocFiltersVariable, type AdHocFilterWithLabels, type SceneVariable } from '@grafana/scenes';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
 import { AdHocOriginFiltersController } from '../components/AdHocOriginFiltersController';
@@ -173,7 +175,7 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
 
 export function getAdHocFilterOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof AdHocFiltersVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    structuredLogger.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
 

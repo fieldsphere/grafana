@@ -2,6 +2,7 @@ import { isEqual } from 'lodash';
 import React from 'react';
 import { type Unsubscribable } from 'rxjs';
 
+
 import {
   type VizPanel,
   SceneObjectBase,
@@ -15,6 +16,7 @@ import {
   SceneGridRow,
 } from '@grafana/scenes';
 import { GRID_COLUMN_COUNT } from 'app/core/constants';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type OptionsPaneCategoryDescriptor } from 'app/features/dashboard/components/PanelEditor/OptionsPaneCategoryDescriptor';
 
 import { DashboardStateChangedEvent, RepeatsUpdatedEvent } from '../../edit-pane/shared';
@@ -150,7 +152,7 @@ export class DashboardGridItem
       });
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('DashboardGridItem: Variable is not a MultiValueVariable');
+      structuredLogger.error('DashboardGridItem: Variable is not a MultiValueVariable');
       return;
     }
 

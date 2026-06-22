@@ -16,6 +16,7 @@ import {
   type SpecialValueMatch,
   type ThresholdsMode,
 } from '@grafana/schema/apis/dashboard.grafana.app/v2';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 export function transformVariableRefreshToEnumV1(refresh?: VariableRefresh): VariableRefreshV1 {
   switch (refresh) {
@@ -98,7 +99,7 @@ function transformSpecialValueMatchToV1(match: SpecialValueMatch): SpecialValueM
     case 'empty':
       return SpecialValueMatchV1.Empty;
     default:
-      console.warn(`Skipping special value mapping with unknown match type: "${match}"`);
+      structuredLogger.warn(`Skipping special value mapping with unknown match type: "${match}"`);
       return undefined;
   }
 }

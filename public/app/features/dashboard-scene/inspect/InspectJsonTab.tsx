@@ -1,6 +1,7 @@
 import { isEqual } from 'lodash';
 import AutoSizer from 'react-virtualized-auto-sizer';
 
+
 import { type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
@@ -19,6 +20,7 @@ import {
 } from '@grafana/scenes';
 import { type LibraryPanel } from '@grafana/schema';
 import { Alert, Button, CodeEditor, Field, Select, useStyles2 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { isDashboardV2Spec } from 'app/features/dashboard/api/utils';
 import { getPanelDataFrames } from 'app/features/dashboard/components/HelpWizard/utils';
 import { PanelModel } from 'app/features/dashboard/state/PanelModel';
@@ -165,7 +167,7 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
     const gridItem = panel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Cannot update layout: panel parent is not a DashboardGridItem');
+      structuredLogger.error('Cannot update layout: panel parent is not a DashboardGridItem');
       return;
     }
 
@@ -259,7 +261,7 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
     const newState = sceneUtils.cloneSceneObjectState(gridItem.state);
 
     if (!(panel.parent instanceof DashboardGridItem)) {
-      console.error('Cannot update state of panel', panel, gridItem);
+      structuredLogger.error('Cannot update state of panel', panel, gridItem);
       return;
     }
 

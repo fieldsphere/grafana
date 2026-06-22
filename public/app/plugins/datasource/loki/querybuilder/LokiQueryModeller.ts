@@ -5,6 +5,7 @@ import {
   type QueryBuilderOperation,
   type VisualQueryBinary,
 } from '@grafana/plugin-ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { operationDefinitions } from './operations';
 import {
@@ -35,7 +36,7 @@ export class LokiQueryModeller extends QueryModellerBase {
       }
       const def = this.operationsRegistry.getIfExists(operation.id);
       if (!def) {
-        console.error(`Could not find operation ${operation.id} in the registry`);
+        structuredLogger.error(`Could not find operation ${operation.id} in the registry`);
         continue;
       }
       queryString = def.renderer(operation, def, queryString);

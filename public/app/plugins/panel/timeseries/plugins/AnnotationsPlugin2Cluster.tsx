@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import tinycolor from 'tinycolor2';
 import uPlot from 'uplot';
 
+
 import { colorManipulator, type DataFrame, type InterpolateFunction } from '@grafana/data';
 import { type TimeZone, type VizAnnotations } from '@grafana/schema';
 import {
@@ -14,6 +15,7 @@ import {
   useTheme2,
 } from '@grafana/ui';
 import { type TimeRange2 } from '@grafana/ui/internal';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { AnnotationMarker2 } from './annotations2-cluster/AnnotationMarker2';
 import { type AnnotationVals, type XYAnnoVals } from './annotations2-cluster/types';
@@ -197,7 +199,7 @@ export const AnnotationsPlugin2Cluster = ({
                   try {
                     ctx.fillStyle = colorManipulator.alpha(color, regionOpacity ?? 0.1);
                   } catch (e) {
-                    console.error(`Invalid color: ${color}.`, e);
+                    structuredLogger.error(`Invalid color: ${color}.`, e);
                     ctx.fillStyle = colorManipulator.alpha(DEFAULT_ANNOTATION_COLOR_HEX8, regionOpacity ?? 0.1);
                   }
 

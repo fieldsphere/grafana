@@ -1,5 +1,6 @@
 import { omitBy, pickBy, isNil, isNumber, isString } from 'lodash';
 
+
 import {
   type ConfigOverrideRule,
   type DynamicConfigValue,
@@ -34,6 +35,7 @@ import {
   type AnnotationQuery,
   ComparisonOperation,
 } from '@grafana/schema';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type TimeRegionConfig } from 'app/core/utils/timeRegions';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { getTimeSrv } from 'app/features/dashboard/services/TimeSrv';
@@ -283,7 +285,7 @@ function graphToTimeseriesOptions(angular: any): {
             });
             break;
           default:
-            console.log('Ignore override migration:', seriesOverride.alias, p, v);
+            structuredLogger.log('Ignore override migration:', seriesOverride.alias, p, v);
         }
       }
       if (dashOverride) {

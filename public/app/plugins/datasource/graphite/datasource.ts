@@ -4,6 +4,7 @@ import { lastValueFrom, merge, Observable, of, type OperatorFunction, pipe, thro
 import { catchError, map } from 'rxjs/operators';
 import { coerce, gte, SemVer, valid } from 'semver';
 
+
 import {
   type AbstractLabelMatcher,
   AbstractLabelOperator,
@@ -32,6 +33,7 @@ import {
   type TemplateSrv,
 } from '@grafana/runtime';
 import { type TimeZone } from '@grafana/schema';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { AnnotationEditor } from './components/AnnotationsEditor';
 import { convertToGraphiteQueryObject } from './components/helpers';
@@ -579,7 +581,7 @@ export class GraphiteDatasource
       return this.events({ range: range, tags: tags }).then((results) => {
         const list = [];
         if (!isArray(results.data)) {
-          console.error(`Unable to get annotations.`);
+          structuredLogger.error(`Unable to get annotations.`);
           return [];
         }
         for (let i = 0; i < results.data.length; i++) {
@@ -1071,7 +1073,7 @@ export class GraphiteDatasource
         this.funcDefs = gfunc.parseFuncDefs(functions);
         return this.funcDefs;
       } catch (error) {
-        console.error('Fetching graphite functions error', error);
+        structuredLogger.error('Fetching graphite functions error', error);
         this.funcDefs = gfunc.getFuncDefs(this.graphiteVersion);
         return this.funcDefs;
       }
@@ -1090,7 +1092,7 @@ export class GraphiteDatasource
           return this.funcDefs;
         }),
         catchError((error) => {
-          console.error('Fetching graphite functions error', error);
+          structuredLogger.error('Fetching graphite functions error', error);
           this.funcDefs = gfunc.getFuncDefs(this.graphiteVersion);
           return of(this.funcDefs);
         })

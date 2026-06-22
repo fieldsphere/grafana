@@ -3,6 +3,7 @@ import { type ComponentType, memo } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+
 import {
   LoadingState,
   type VariableOption,
@@ -11,6 +12,7 @@ import {
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { ClickOutsideWrapper } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type StoreState, type ThunkDispatch } from 'app/types/store';
 
 import { VARIABLE_PREFIX } from '../../constants';
@@ -59,7 +61,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
   const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
     const { rootStateKey } = ownProps.variable;
     if (!rootStateKey) {
-      console.error('OptionPickerFactory: variable has no rootStateKey');
+      structuredLogger.error('OptionPickerFactory: variable has no rootStateKey');
       return {
         picker: initialOptionPickerState,
       };
@@ -94,7 +96,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
 
     function onHideOptions() {
       if (!variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        structuredLogger.error('Variable has no rootStateKey');
         return;
       }
       commitChangesToVariable(variable.rootStateKey, onVariableChange);
@@ -124,7 +126,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
 
     function onNavigate(key: NavigationKey, clearOthers: boolean) {
       if (!variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        structuredLogger.error('Variable has no rootStateKey');
         return;
       }
       navigateOptions(variable.rootStateKey, key, clearOthers);

@@ -1,5 +1,6 @@
 import { type Unsubscribable } from 'rxjs';
 
+
 import {
   AppEvents,
   isLiveChannelMessageEvent,
@@ -13,6 +14,7 @@ import {
 import { getGrafanaLiveSrv, locationService } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import { contextSrv } from 'app/core/services/context_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { ShowModalReactEvent } from '../../../types/events';
 import { getDashboardSrv } from '../../dashboard/services/DashboardSrv';
@@ -137,7 +139,7 @@ class DashboardWatcher {
 
             const dash = getDashboardSrv().getCurrent();
             if (dash?.uid !== event.message.uid) {
-              console.log('dashboard event for different dashboard?', event, dash);
+              structuredLogger.log('dashboard event for different dashboard?', event, dash);
               return;
             }
 

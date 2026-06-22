@@ -1,7 +1,9 @@
 import { get as lodashGet } from 'lodash';
 
+
 import { type NestedPanelOptions, type NestedValueAccess } from '@grafana/data/internal';
 import { t } from '@grafana/i18n';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type CanvasElementOptions } from 'app/features/canvas/element';
 import {
   canvasElementRegistry,
@@ -45,7 +47,7 @@ export function getElementEditor(opts: CanvasEditorOptions): NestedPanelOptions<
         if (path === 'type' && value) {
           const layer = canvasElementRegistry.getIfExists(value);
           if (!layer) {
-            console.warn('layer does not exist', value);
+            structuredLogger.warn('layer does not exist', value);
             return;
           }
           options = {

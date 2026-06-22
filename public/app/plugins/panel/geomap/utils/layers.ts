@@ -5,8 +5,10 @@ import LayerGroup from 'ol/layer/Group';
 import WebGLPointsLayer from 'ol/layer/WebGLPoints';
 import { Subject } from 'rxjs';
 
+
 import { getFrameMatchers, type MapLayerHandler, type MapLayerOptions, type PanelData, textUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { type GeomapPanel } from '../GeomapPanel';
 import { MARKERS_LAYER_ID } from '../layers/data/markersLayer';
@@ -91,7 +93,7 @@ async function updateLayer(panel: GeomapPanel, uid: string, newOptions: MapLayer
     // initialize with new data
     applyLayerFilter(info.handler, newOptions, panel.props.data);
   } catch (err) {
-    console.warn('ERROR', err); // eslint-disable-line no-console
+    structuredLogger.warn('ERROR', err); // eslint-disable-line no-console
     return false;
   }
 

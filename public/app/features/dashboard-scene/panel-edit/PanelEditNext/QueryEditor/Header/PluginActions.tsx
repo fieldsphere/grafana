@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 
+
 import {
   type CoreApp,
   PluginExtensionPoints,
@@ -8,6 +9,7 @@ import {
 import { renderLimitedComponents, usePluginComponents } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 import { Stack } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type QueryActionComponent, RowActionComponents } from 'app/features/query/components/QueryActionComponent';
 
 import { QueryEditorType } from '../../constants';
@@ -94,7 +96,7 @@ function useAdaptiveTelemetryComponents(query: DataQuery | null) {
       pluginId: /grafana-adaptive.*/,
     });
   } catch (error) {
-    console.error('Failed to render adaptive telemetry components:', error);
+    structuredLogger.error('Failed to render adaptive telemetry components:', error);
     return null;
   }
 }

@@ -1,5 +1,6 @@
 import { css, cx } from '@emotion/css';
 
+
 import { AppEvents, type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
@@ -21,6 +22,7 @@ import {
 import { type Spec as DashboardV2Spec } from '@grafana/schema/apis/dashboard.grafana.app/v2';
 import { useStyles2 } from '@grafana/ui';
 import { GRID_COLUMN_COUNT } from 'app/core/constants';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import DashboardEmpty from 'app/features/dashboard/dashgrid/DashboardEmpty/DashboardEmpty';
 
 import {
@@ -264,7 +266,7 @@ export class DefaultGridLayoutManager
   public duplicatePanel(vizPanel: VizPanel) {
     const gridItem = vizPanel.parent;
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
+      structuredLogger.error('Trying to duplicate a panel that is not inside a DashboardGridItem');
       return;
     }
 

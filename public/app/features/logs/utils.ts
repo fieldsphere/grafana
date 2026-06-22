@@ -3,6 +3,7 @@ import { countBy, chain } from 'lodash';
 import { type MouseEvent } from 'react';
 import { lastValueFrom, map, type Observable } from 'rxjs';
 
+
 import {
   LogLevel,
   type LogRowModel,
@@ -34,6 +35,7 @@ import {
 import { t } from '@grafana/i18n';
 import { FlagKeys, getFeatureFlagClient } from '@grafana/runtime/internal';
 import { getConfig } from 'app/core/config';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { getLogsExtractFields } from '../explore/Logs/LogsTable';
 import { downloadDataFrameAsCsv, downloadLogsModelAsTxt } from '../inspector/utils/download';
@@ -400,10 +402,10 @@ export function getLogLevelInfo(dataFrame: DataFrame, allDataFrames: DataFrame[]
   const valueField = fieldCache.getFirstFieldOfType(FieldType.number);
 
   if (!timeField) {
-    console.error('Time field missing in data frame');
+    structuredLogger.error('Time field missing in data frame');
   }
   if (!valueField) {
-    console.error('Value field missing in data frame');
+    structuredLogger.error('Value field missing in data frame');
   }
 
   const level = valueField ? getFieldDisplayName(valueField, dataFrame, allDataFrames) : 'logs';

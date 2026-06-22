@@ -2,6 +2,7 @@ import { map as _map, cloneDeep, extend, has, isString, omit, pick, reduce } fro
 import { lastValueFrom, merge, Observable, of, throwError } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 
+
 import {
   type AdHocVariableFilter,
   type AnnotationEvent,
@@ -36,6 +37,7 @@ import {
   type TemplateSrv,
 } from '@grafana/runtime';
 import { QueryFormat, type SQLQuery } from '@grafana/sql';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { AnnotationEditor } from './components/editor/annotation/AnnotationEditor';
 import { FluxQueryEditor } from './components/editor/query/flux/FluxQueryEditor';
@@ -388,7 +390,7 @@ export default class InfluxDatasource extends DataSourceWithBackend<InfluxQuery,
         // then put inside parenthesis.
         return typeof value === 'string' ? escapeRegex(value) : `(${value.map((v) => escapeRegex(v)).join('|')})`;
       } catch (e) {
-        console.warn(`Supplied match is not valid regex: ${match}`);
+        structuredLogger.warn(`Supplied match is not valid regex: ${match}`);
       }
     }
 

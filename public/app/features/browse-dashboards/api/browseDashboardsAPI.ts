@@ -1,5 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 
+
 import { handleRequestError } from '@grafana/api-clients';
 import { generatedAPI as legacyUserAPI } from '@grafana/api-clients/internal/rtkq/legacy/user';
 import { createBaseQuery } from '@grafana/api-clients/rtkq';
@@ -16,6 +17,7 @@ import { createSuccessNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
 import { setStarred, updateDashboardName } from 'app/core/reducers/navBarTree';
 import { contextSrv } from 'app/core/services/context_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { AnnoKeyFolder, type Resource, type TableResponse } from 'app/features/apiserver/types';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
 import { isDashboardV2Resource, isV1DashboardCommand, isV2DashboardCommand } from 'app/features/dashboard/api/utils';
@@ -487,7 +489,7 @@ export const browseDashboardsAPI = createApi({
           try {
             await contextSrv.fetchUserPermissions();
           } catch (err) {
-            console.error('Failed to refresh user permissions after save', err);
+            structuredLogger.error('Failed to refresh user permissions after save', err);
           }
           dispatch(
             refetchChildren({

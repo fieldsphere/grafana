@@ -1,10 +1,12 @@
 import { isEmpty } from 'lodash';
 import { type ReactElement, useId, useMemo } from 'react';
 
+
 import { type DataFrame, type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type SceneDataProvider } from '@grafana/scenes';
 import { InlineField, InlineFieldRow, MultiSelect } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 export type LogFilter = {
   pluginIds?: Set<string>;
@@ -96,7 +98,7 @@ function useLogFilters(
 
   return useMemo(() => {
     if (data && data?.series.length > 1) {
-      console.warn('LogViewFilter does not support multiple series in query result.');
+      structuredLogger.warn('LogViewFilter does not support multiple series in query result.');
     }
 
     const frame = data?.series[0];

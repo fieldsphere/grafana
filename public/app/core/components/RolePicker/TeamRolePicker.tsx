@@ -1,8 +1,10 @@
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
 
+
 import { useListTeamRolesQuery, useSetTeamRolesMutation } from 'app/api/clients/roles';
 import { contextSrv } from 'app/core/services/context_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { AccessControlAction, type Role } from 'app/types/accessControl';
 
 import { RolePicker } from './RolePicker';
@@ -79,7 +81,7 @@ export const TeamRolePicker = ({
           },
         }).unwrap();
       } catch (error) {
-        console.error('Error updating team roles', error);
+        structuredLogger.error('Error updating team roles', error);
       }
     } else if (onApplyRoles) {
       onApplyRoles(newRoles);

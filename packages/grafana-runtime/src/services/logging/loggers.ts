@@ -15,6 +15,7 @@ export const Loggers = {
   'features.alerting': { context: { module: 'Alerting' } },
   'features.correlations': {},
   'features.dashboards.genai': {},
+  'frontend.console': {},
   'features.query-history.local-storage': {},
   'core.crash-detection': {},
   'extensions.auth-config.scim': { context: { module: 'SCIM' } },

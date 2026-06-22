@@ -1,5 +1,6 @@
 import { type ManagedBy } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
 import { type DataFrame, type DataFrameView, type IconName, fuzzySearch } from '@grafana/data';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type DashboardViewItemWithUIItems } from 'app/features/browse-dashboards/types';
 import { isSharedWithMe, isVirtualTeamFolder } from 'app/features/browse-dashboards/utils/dashboards';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
@@ -63,7 +64,7 @@ async function getCurrentFolderUID(): Promise<string | undefined> {
     }
     return Promise.resolve(dash?.meta?.folderUid);
   } catch (e) {
-    console.error(e);
+    structuredLogger.error(e);
   }
   return undefined;
 }

@@ -25,6 +25,7 @@ import {
   throwIfEmpty,
 } from 'rxjs/operators';
 
+
 import { AppEvents, DataQueryErrorType, deprecationWarning, generateUUID } from '@grafana/data';
 import {
   type BackendSrv as BackendService,
@@ -36,6 +37,7 @@ import {
 import { appEvents } from 'app/core/app_events';
 import { getConfig } from 'app/core/config';
 import { getSessionExpiry, hasSessionExpiry } from 'app/core/utils/auth';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { loadUrlToken } from 'app/core/utils/urlToken';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
 import { type DashboardSearchItem } from 'app/features/search/types';
@@ -115,7 +117,7 @@ export class BackendSrv implements BackendService {
       const result = await fp.get();
       this.deviceID = result.visitorId;
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
     }
   }
 
@@ -240,7 +242,7 @@ export class BackendSrv implements BackendService {
             observer.complete();
           }) // runs in background
           .catch((e) => {
-            console.log(requestId, 'catch', e);
+            structuredLogger.log(requestId, 'catch', e);
             observer.error(e);
           }); // from abort
       },

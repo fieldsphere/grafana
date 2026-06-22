@@ -1,5 +1,6 @@
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type LogListModel } from 'app/features/logs/components/panel/processing';
 
 export interface LogDetailsContextData {
@@ -82,7 +83,7 @@ export const LogDetailsContextProvider = ({ children, enableLogDetails, logs }: 
       }
       const log = typeof logRef === 'number' ? logs.at(logRef) : logRef;
       if (!log) {
-        console.error(`LogDetailsContext: undefined log with reference ${logRef}`);
+        structuredLogger.error(`LogDetailsContext: undefined log with reference ${logRef}`);
         return;
       }
       const found = showDetails.find((stateLog) => stateLog.uid === log.uid);

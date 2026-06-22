@@ -2,6 +2,7 @@ import { groupBy } from 'lodash';
 import { EMPTY, from, merge, type Observable, of } from 'rxjs';
 import { catchError, concatMap, finalize, map, mergeMap, toArray } from 'rxjs/operators';
 
+
 import {
   CoreApp,
   type DataFrame,
@@ -34,6 +35,7 @@ import {
   type TemplateSrv,
 } from '@grafana/runtime';
 import { BarGaugeDisplayMode, TableCellDisplayMode, VariableFormatID } from '@grafana/schema';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { interpolateFilters } from './SearchTraceQLEditor/utils';
 import { type TempoVariableQuery, TempoVariableQueryType } from './VariableQueryEditor';
@@ -295,7 +297,7 @@ export class TempoDatasource extends DataSourceWithBackend<TempoQuery, TempoJson
 
       return false;
     } catch (error) {
-      console.warn('Failed to check for native histograms:', error);
+      structuredLogger.warn('Failed to check for native histograms:', error);
       return false;
     }
   }

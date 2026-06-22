@@ -1,5 +1,6 @@
 import { type SyntaxNode } from '@lezer/common';
 
+
 import {
   And,
   BinOpExpr,
@@ -58,6 +59,7 @@ import {
   type QueryBuilderOperation,
   type QueryBuilderOperationParamValue,
 } from '@grafana/plugin-ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { binaryScalarDefs } from './binaryScalarOperations';
 import { checkParamsAreValid, getDefinitionById } from './operations';
@@ -109,7 +111,7 @@ export function buildVisualQueryFromString(expr: string): Context {
     handleExpression(replacedExpr, node, context);
   } catch (err) {
     // Not ideal to log it here, but otherwise we would lose the stack trace.
-    console.error(err);
+    structuredLogger.error(err);
     if (err instanceof Error) {
       context.errors.push({
         text: err.message,

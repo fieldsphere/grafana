@@ -1,11 +1,13 @@
 import { debounce } from 'lodash';
 
+
 import { dateTimeFormatTimeAgo } from '@grafana/data';
 import { featureEnabled, getBackendSrv, isFetchError, locationService } from '@grafana/runtime';
 import { type FetchDataArgs } from '@grafana/ui';
 import config from 'app/core/config';
 import { contextSrv } from 'app/core/services/context_srv';
 import { accessControlQueryParam } from 'app/core/utils/accessControl';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { AccessControlAction } from 'app/types/accessControl';
 import { type LdapUser } from 'app/types/ldap';
 import { type ThunkResult } from 'app/types/store';
@@ -50,7 +52,7 @@ export function loadAdminUserPage(userUid: string): ThunkResult<void> {
       }
       dispatch(userAdminPageLoadedAction(true));
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
 
       if (isFetchError(error)) {
         const userError = {
@@ -300,7 +302,7 @@ export function fetchUsers(): ThunkResult<void> {
       dispatch(usersFetched(result));
     } catch (error) {
       usersFetchEnd();
-      console.error(error);
+      structuredLogger.error(error);
     }
   };
 }
@@ -366,7 +368,7 @@ export function fetchUsersAnonymousDevices(): ThunkResult<void> {
       const result = await getBackendSrv().get(url);
       dispatch(usersAnonymousDevicesFetched(result));
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
     }
   };
 }
@@ -409,7 +411,7 @@ export function changeAnonPage(page: number): ThunkResult<void> {
 //       dispatch(usersAnonymousDevicesFetched({ devices: result }));
 //     } catch (error) {
 //       usersFetchEnd();
-//       console.error(error);
+//       structuredLogger.error(error);
 //     }
 //   };
 // }

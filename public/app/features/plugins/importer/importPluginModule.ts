@@ -2,6 +2,7 @@ import { DEFAULT_LANGUAGE } from '@grafana/i18n';
 import { getResolvedLanguage } from '@grafana/i18n/internal';
 import { config } from '@grafana/runtime';
 import { getLogger } from '@grafana/runtime/unstable';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import builtInPlugins, { isBuiltinPluginPath } from '../built_in_plugins';
 import { registerPluginInfoInCache } from '../loader/pluginInfoCache';
@@ -74,7 +75,7 @@ export async function importPluginModule({
       errorMessage = `Could not load plugin. Updating the "${pluginName}" plugin to the latest version may fix the problem.`;
     }
     let error = new Error(errorMessage, { cause: e });
-    console.error(error);
+    structuredLogger.error(error);
     getLogger('features.plugins').logError(error, {
       path,
       pluginId,

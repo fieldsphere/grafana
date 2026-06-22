@@ -3,6 +3,7 @@ import { omit } from 'lodash';
 import { useEffect, useState } from 'react';
 import { firstValueFrom } from 'rxjs';
 
+
 import { onUpdateDatasourceJsonDataOptionSelect, onUpdateDatasourceOption } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import {
@@ -19,6 +20,7 @@ import {
   Alert,
   useStyles2,
 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { InfluxVersion } from '../../../types';
 
@@ -137,7 +139,7 @@ export const UrlAndAuthenticationSection = (props: Props) => {
         }
       }
     } catch (err) {
-      console.error('Failed to get InfluxDB version:', err);
+      structuredLogger.error('Failed to get InfluxDB version:', err);
     }
 
     return { product: undefined, version: undefined };

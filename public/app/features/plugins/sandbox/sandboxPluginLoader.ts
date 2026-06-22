@@ -1,9 +1,11 @@
 import createVirtualEnvironment from '@locker/near-membrane-dom';
 import { type ProxyTarget } from '@locker/near-membrane-shared';
 
+
 import { type BootData } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { defaultTrustedTypesPolicy } from 'app/core/trustedTypePolicies';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { getPluginCode, getPluginLoadData, patchSandboxEnvironmentPrototype } from './codeLoader';
 import { getGeneralSandboxDistortionMap, distortLiveApis } from './distortions';
@@ -139,7 +141,7 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
               `Error in ${meta.id}: Plugins should not use window.grafanaBootData. Use "config" from "@grafana/runtime" instead.`
             );
           } else {
-            console.error(
+            structuredLogger.error(
               `${meta.id.toUpperCase()}: Plugins should not use window.grafanaBootData. Use "config" from "@grafana/runtime" instead.`
             );
           }

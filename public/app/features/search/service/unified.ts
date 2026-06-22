@@ -1,5 +1,6 @@
 import { isEmpty } from 'lodash';
 
+
 import { generatedAPI as legacyUserAPI } from '@grafana/api-clients/internal/rtkq/legacy/user';
 import {
   API_GROUP as DASHBOARD_API_GROUP,
@@ -20,6 +21,7 @@ import { getAPIBaseURL } from 'app/api/utils';
 import { type TermCount } from 'app/core/components/TagFilter/TagFilter';
 import { contextSrv } from 'app/core/services/context_srv';
 import kbn from 'app/core/utils/kbn';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { dispatch } from 'app/store/store';
 
 import { isRootFolderUID } from '../constants';
@@ -203,7 +205,7 @@ export class UnifiedSearcher implements GrafanaSearcher {
         const resp = await this.fetchResponse(nextPageUrl);
         const frame = toDashboardResults(resp, query.sort ?? '');
         if (!frame) {
-          console.log('no results', frame);
+          structuredLogger.log('no results', frame);
           return;
         }
 

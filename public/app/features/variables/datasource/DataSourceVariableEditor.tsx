@@ -1,6 +1,7 @@
 import { type FormEvent, memo, useEffect } from 'react';
 
 import { type DataSourceVariableModel, type SelectableValue, type VariableWithMultiSupport } from '@grafana/data';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { DataSourceVariableForm } from 'app/features/dashboard-scene/settings/variables/components/DataSourceVariableForm';
 import { type StoreState, useDispatch, useSelector } from 'app/types/store';
 
@@ -21,7 +22,7 @@ export const DataSourceVariableEditor = memo(function DataSourceVariableEditor({
   const extended = useSelector((state: StoreState) => {
     const { rootStateKey } = variable;
     if (!rootStateKey) {
-      console.error('DataSourceVariableEditor: variable has no rootStateKey');
+      structuredLogger.error('DataSourceVariableEditor: variable has no rootStateKey');
       return getDatasourceVariableEditorState(initialVariableEditorState);
     }
 
@@ -32,7 +33,7 @@ export const DataSourceVariableEditor = memo(function DataSourceVariableEditor({
   useEffect(() => {
     const { rootStateKey } = variable;
     if (!rootStateKey) {
-      console.error('DataSourceVariableEditor: variable has no rootStateKey');
+      structuredLogger.error('DataSourceVariableEditor: variable has no rootStateKey');
       return;
     }
 

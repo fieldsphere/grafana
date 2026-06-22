@@ -4,6 +4,7 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import * as React from 'react';
 import { isObservable, lastValueFrom } from 'rxjs';
 
+
 import {
   type AbsoluteTimeRange,
   CoreApp,
@@ -34,6 +35,7 @@ import {
 import { Trans } from '@grafana/i18n';
 import { config, getAppEvents } from '@grafana/runtime';
 import { ScrollContainer, usePanelContext, useStyles2 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { getDashboardSrv } from 'app/features/dashboard/services/DashboardSrv';
 import { getFieldLinksForExplore } from 'app/features/explore/utils/links';
 import { ControlledLogRows } from 'app/features/logs/components/ControlledLogRows';
@@ -490,7 +492,7 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
           newSeries = await lastValueFrom(transformDataFrame(panel?.transformations, newSeries));
         }
       } catch (e) {
-        console.error(e);
+        structuredLogger.error(e);
       } finally {
         setInfiniteScrolling(false);
         loadingRef.current = false;
@@ -862,7 +864,7 @@ async function requestMoreLogs(
   for (const uid in targetGroups) {
     const dataSource = dataSourcesMap.get(panelData.request.targets[0].refId);
     if (!dataSource) {
-      console.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
+      structuredLogger.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
       continue;
     }
     dataRequests.push(

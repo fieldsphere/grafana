@@ -1,6 +1,7 @@
 import { groupBy, partition } from 'lodash';
 import { Observable, type Subscriber, type Subscription, tap } from 'rxjs';
 
+
 import {
   arrayToDataFrame,
   type DataQueryRequest,
@@ -14,6 +15,7 @@ import {
   generateUUID,
 } from '@grafana/data';
 import { config } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { LokiQueryType, LokiQueryDirection } from './dataquery.gen';
 import { type LokiDatasource } from './datasource';
@@ -187,7 +189,7 @@ function runSplitGroupedQueries(
           return false;
         }
       } catch (e) {
-        console.error(e);
+        structuredLogger.error(e);
         shouldStop = true;
         return false;
       }

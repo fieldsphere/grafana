@@ -1,9 +1,11 @@
 import { css } from '@emotion/css';
 
+
 import { textUtil } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
 import { ConfirmModal, ToolbarButton } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { appEvents } from '../../../core/app_events';
 import { ShowModalReactEvent } from '../../../types/events';
@@ -59,6 +61,6 @@ export const onOpenSnapshotOriginalDashboard = (originalUrl: string) => {
       locationService.push(sanitizedRelativeURL);
     }
   } catch (err) {
-    console.error('Failed to open original dashboard', err);
+    structuredLogger.error('Failed to open original dashboard', err);
   }
 };

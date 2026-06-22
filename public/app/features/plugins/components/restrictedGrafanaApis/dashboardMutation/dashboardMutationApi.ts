@@ -11,6 +11,7 @@
  */
 
 import type { DashboardMutationAPI } from '@grafana/data';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { ALL_COMMANDS } from 'app/features/dashboard-scene/mutation-api';
 import { DashboardMutationClient } from 'app/features/dashboard-scene/mutation-api/DashboardMutationClient';
 import type { MutationClient, MutationRequest } from 'app/features/dashboard-scene/mutation-api/types';
@@ -26,7 +27,7 @@ provideMutationClientFactory((sceneObject) => {
   try {
     _client = new DashboardMutationClient(scene);
   } catch (error) {
-    console.error('Failed to register Dashboard Mutation API:', error);
+    structuredLogger.error('Failed to register Dashboard Mutation API:', error);
   }
 
   return () => {

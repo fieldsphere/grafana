@@ -1,5 +1,6 @@
 import { uniqueId } from 'lodash';
 
+
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -49,6 +50,7 @@ import {
   type VariableKind,
 } from '@grafana/schema/apis/dashboard.grafana.app/v2';
 import { DEFAULT_ANNOTATION_COLOR } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import {
   AnnoKeyCreatedBy,
   AnnoKeyFolder,
@@ -313,7 +315,7 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec, defaultVariable
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })
@@ -326,7 +328,7 @@ function createVariablesForDashboard(dashboard: DashboardV2Spec, defaultVariable
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })
@@ -623,7 +625,7 @@ function createVariablesForSnapshot(dashboard: DashboardV2Spec): SceneVariableSe
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })

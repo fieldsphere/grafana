@@ -1,10 +1,12 @@
 import { filter, Observable, scan, share, type Subscriber } from 'rxjs';
 
+
 import { type DataSourceApi } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { type SceneVariable } from '@grafana/scenes';
 import { type DashboardLink, type DataSourceRef } from '@grafana/schema';
 import { type VariableKind } from '@grafana/schema/apis/dashboard.grafana.app/v2';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 export type DefaultControlEvent =
   | { type: 'variables'; data: VariableKind[] }
@@ -68,7 +70,7 @@ async function loadControlsFromRef(ref: DataSourceRef, subscriber: Subscriber<De
   try {
     ds = await getDataSourceSrv().get(ref);
   } catch (e) {
-    console.warn('Failed to load datasource', ref, e);
+    structuredLogger.warn('Failed to load datasource', ref, e);
     return;
   }
 
@@ -98,7 +100,7 @@ async function emitDefaultVariables(ds: DataSourceApi, subscriber: Subscriber<De
       subscriber.next({ type: 'variables', data });
     }
   } catch (e) {
-    console.warn('Failed to load default variables from datasource', ds.type, e);
+    structuredLogger.warn('Failed to load default variables from datasource', ds.type, e);
   }
 }
 
@@ -120,7 +122,7 @@ async function emitDefaultLinks(ds: DataSourceApi, subscriber: Subscriber<Defaul
       });
     }
   } catch (e) {
-    console.warn('Failed to load default links from datasource', ds.type, e);
+    structuredLogger.warn('Failed to load default links from datasource', ds.type, e);
   }
 }
 

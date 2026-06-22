@@ -6,9 +6,11 @@ import CacheProvider from 'react-inlinesvg/provider';
 import { Provider } from 'react-redux';
 import { Route, Routes } from 'react-router-dom-v5-compat';
 
+
 import { config, navigationLogger, reportInteraction } from '@grafana/runtime';
 import { getFeatureFlagClient } from '@grafana/runtime/internal';
 import { ErrorBoundaryAlert, getPortalContainer, GlobalStyles, PortalContainer, TimeRangeProvider } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { getAppRoutes } from 'app/routes/routes';
 import { store } from 'app/store/store';
 
@@ -75,7 +77,7 @@ export function AppWrapper({ context }: AppWrapperProps) {
     if (preloader) {
       preloader.remove();
     } else {
-      console.warn('Preloader element not found');
+      structuredLogger.warn('Preloader element not found');
     }
   }
 

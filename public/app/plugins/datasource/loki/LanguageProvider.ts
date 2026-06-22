@@ -1,6 +1,7 @@
 import { flatten } from 'lodash';
 import { LRUCache } from 'lru-cache';
 
+
 import {
   type AbstractQuery,
   getDefaultTimeRange,
@@ -10,6 +11,7 @@ import {
   type TimeRange,
 } from '@grafana/data';
 import { type BackendSrvRequest, config } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { LokiQueryType } from './dataquery.gen';
 import { DEFAULT_MAX_LINES_SAMPLE, type LokiDatasource } from './datasource';
@@ -63,7 +65,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
       if (throwError) {
         throw error;
       } else {
-        console.error(error);
+        structuredLogger.error(error);
       }
     }
 
@@ -297,7 +299,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         const data = await this.request(url, params, true, requestOptions);
         resolve(data);
       } catch (error) {
-        console.error('error', error);
+        structuredLogger.error('error', error);
         reject(error);
       }
     });
@@ -382,7 +384,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
         if (queryOptions?.throwError) {
           reject(error);
         } else {
-          console.error(error);
+          structuredLogger.error(error);
           resolve([]);
         }
       }
@@ -455,7 +457,7 @@ export default class LokiLanguageProvider extends LanguageProvider {
           resolve([]);
         }
       } catch (error) {
-        console.error(error);
+        structuredLogger.error(error);
         resolve([]);
       }
     });

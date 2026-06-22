@@ -3,6 +3,7 @@ import { cloneDeep, isArray, isObject, isString } from 'lodash';
 import * as React from 'react';
 import { useAsync } from 'react-use';
 
+
 import {
   type AppPluginConfig,
   type PluginExtensionEventHelpers,
@@ -21,6 +22,7 @@ import { getPluginSettings } from '@grafana/runtime/unstable';
 import { Modal } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 import { isRecord } from 'app/core/utils/isRecord';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import {
   CloseExtensionSidebarEvent,
   OpenExtensionSidebarEvent,
@@ -49,7 +51,7 @@ export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
       return fn(...args);
     } catch (e) {
       if (e instanceof Error) {
-        console.warn(`${errorMessagePrefix}${e.message}`);
+        structuredLogger.warn(`${errorMessagePrefix}${e.message}`);
       }
     }
   };

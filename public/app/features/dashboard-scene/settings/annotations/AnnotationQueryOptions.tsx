@@ -1,11 +1,13 @@
 import { useCallback, useState } from 'react';
 import { useAsync } from 'react-use';
 
+
 import { AppEvents, type DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { getAppEvents, getDataSourceSrv } from '@grafana/runtime';
 import { type DataQuery } from '@grafana/schema';
 import { Box, Button, ButtonGroup, Field, Modal, Stack } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import StandardAnnotationQueryEditor from 'app/features/annotations/components/StandardAnnotationQueryEditor';
 import { updateAnnotationFromSavedQuery } from 'app/features/annotations/utils/savedQueryUtils';
 import { DataSourcePicker } from 'app/features/datasources/components/picker/DataSourcePicker';
@@ -79,7 +81,7 @@ function QueryLibraryButton({ layer, onQuerySelected }: { layer: AnnotationLayer
           layer.setState({ query: updatedQuery });
           layer.runLayer();
         } catch (error) {
-          console.error('Failed to replace annotation query!', error);
+          structuredLogger.error('Failed to replace annotation query!', error);
           getAppEvents().publish({
             type: AppEvents.alertError.name,
             payload: ['Failed to create annotation query!', error instanceof Error ? error.message : error],

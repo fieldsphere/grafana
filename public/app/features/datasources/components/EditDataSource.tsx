@@ -2,6 +2,7 @@ import { type AnyAction } from '@reduxjs/toolkit';
 import { useCallback, useMemo, useRef } from 'react';
 import * as React from 'react';
 
+
 import {
   DataSourcePluginContextProvider,
   type DataSourceConfigValidationAPI,
@@ -14,6 +15,7 @@ import {
 import { getDataSourceSrv, usePluginComponents, type UsePluginComponentsResult } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
 import PageLoader from 'app/core/components/PageLoader/PageLoader';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type DataSourceSettingsState } from 'app/types/datasources';
 import { useDispatch } from 'app/types/store';
 
@@ -194,7 +196,7 @@ export function EditDataSourceView({
         return;
       }
       retryAdvisorCheck(dataSource.uid).catch((error) => {
-        console.warn('Error retrying datasource advisor check', error);
+        structuredLogger.warn('Error retrying datasource advisor check', error);
       });
       onTest();
     },

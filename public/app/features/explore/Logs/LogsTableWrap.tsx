@@ -2,6 +2,7 @@ import { css } from '@emotion/css';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
+
 import {
   type AbsoluteTimeRange,
   type DataFrame,
@@ -18,6 +19,7 @@ import {
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { getDragStyles, InlineField, Select, useStyles2 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { FIELD_SELECTOR_MIN_WIDTH } from 'app/features/logs/components/fieldSelector/FieldSelector';
 import { LogsTableFieldSelector } from 'app/features/logs/components/fieldSelector/LogsTableFieldSelector';
 import { getFieldSelectorWidth } from 'app/features/logs/components/fieldSelector/fieldSelectorUtils';
@@ -385,7 +387,7 @@ export function LogsTableWrap(props: Props) {
   // Toggle a column on or off when the user interacts with an element in the multi-select sidebar
   const toggleColumn = (columnName: FieldName) => {
     if (!columnsWithMeta || !(columnName in columnsWithMeta)) {
-      console.warn('failed to get column', columnsWithMeta);
+      structuredLogger.warn('failed to get column', columnsWithMeta);
       return;
     }
 

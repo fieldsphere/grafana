@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 
+
 import { CoreApp, type DataSourceApi, type DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
@@ -19,6 +20,7 @@ import { type DataQuery, type DataSourceRef } from '@grafana/schema';
 import { Button, Stack, Tab } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { addQuery } from 'app/core/utils/query';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { getLastUsedDatasourceFromStorage } from 'app/features/dashboard/utils/dashboard';
 import { storeLastUsedDataSourceInLocalStorage } from 'app/features/datasources/components/picker/utils';
 import { dataSource as expressionDatasource } from 'app/features/expressions/ExpressionDatasource';
@@ -163,7 +165,7 @@ export class PanelDataQueriesTab extends SceneObjectBase<PanelDataQueriesTabStat
         });
       }
 
-      console.error(err);
+      structuredLogger.error(err);
     }
   }
 

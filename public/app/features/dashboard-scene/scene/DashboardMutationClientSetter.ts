@@ -1,3 +1,4 @@
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 /**
  * Bridge between DashboardScene and the mutation-api module.
  *
@@ -19,7 +20,7 @@ export function provideMutationClientFactory(create: CreateMutationClient): void
 
 export function createMutationClient(scene: unknown): () => void {
   if (!_create) {
-    console.warn(
+    structuredLogger.warn(
       'createMutationClient called before provideMutationClientFactory. Mutation API will not be available.'
     );
     return () => {};

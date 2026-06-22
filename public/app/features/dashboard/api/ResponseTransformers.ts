@@ -50,6 +50,7 @@ import {
   type DataTransformerConfig,
 } from '@grafana/schema/dist/esm/raw/dashboard/x/Dashboard_types.gen';
 import { isWeekStart, type WeekStart } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import {
   AnnoKeyCreatedBy,
   AnnoKeyDashboardGnetId,
@@ -712,7 +713,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         let query = v.query || {};
 
         if (typeof query === 'string') {
-          console.warn(
+          structuredLogger.warn(
             'Query variable query is a string which is deprecated in the schema v2. It should extend DataQuery'
           );
           query = {
@@ -925,7 +926,7 @@ function getVariables(vars: TypedVariableModel[]): DashboardV2Spec['variables'] 
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v.type}`);
+        structuredLogger.error(`Variable transformation not implemented: ${v.type}`);
     }
   }
   return variables;
@@ -1138,7 +1139,7 @@ function getVariablesV1(vars: DashboardV2Spec['variables']): VariableModel[] {
         break;
       default:
         // do not throw error, just log it
-        console.error(`Variable transformation not implemented: ${v}`);
+        structuredLogger.error(`Variable transformation not implemented: ${v}`);
     }
   }
   return variables;
@@ -1391,7 +1392,7 @@ function transformSpecialValueMatchToV1(match: SpecialValueMatch): SpecialValueM
     case 'empty':
       return SpecialValueMatchV1.Empty;
     default:
-      console.warn(`Skipping special value mapping with unknown match type: "${match}"`);
+      structuredLogger.warn(`Skipping special value mapping with unknown match type: "${match}"`);
       return undefined;
   }
 }

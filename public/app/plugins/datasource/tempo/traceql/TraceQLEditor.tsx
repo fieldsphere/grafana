@@ -1,10 +1,12 @@
 import { css } from '@emotion/css';
 import { useEffect, useRef, useState } from 'react';
 
+
 import { type GrafanaTheme2, type TimeRange } from '@grafana/data';
 import { TemporaryAlert } from '@grafana/o11y-ds-frontend';
 import { reportInteraction } from '@grafana/runtime';
 import { CodeEditor, type Monaco, type monacoTypes, useTheme2 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { DEFAULT_TIME_RANGE_FOR_TAGS } from '../configuration/TagsTimeRangeSettings';
 import { type TempoDatasource } from '../datasource';
@@ -94,7 +96,7 @@ export function TraceQLEditor(props: Props) {
               const errorNodes = getErrorNodes(model.getValue());
               setMarkers(monaco, model, errorNodes);
             } catch (err) {
-              console.warn('TraceQL editor: failed to update syntax error markers', err);
+              structuredLogger.warn('TraceQL editor: failed to update syntax error markers', err);
             }
           }
 
@@ -127,11 +129,11 @@ export function TraceQLEditor(props: Props) {
                 try {
                   setMarkers(monaco, model, errorNodes);
                 } catch (err) {
-                  console.warn('TraceQL editor: failed to update syntax error markers', err);
+                  structuredLogger.warn('TraceQL editor: failed to update syntax error markers', err);
                 }
               }, 500);
             } catch (err) {
-              console.warn('TraceQL editor: failed to parse query for error highlighting', err);
+              structuredLogger.warn('TraceQL editor: failed to parse query for error highlighting', err);
             }
           });
         }}

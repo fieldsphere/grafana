@@ -17,6 +17,7 @@ import {
   TextBoxVariable,
 } from '@grafana/scenes';
 import { type VariableKind } from '@grafana/schema/apis/dashboard.grafana.app/v2';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type DashboardModel } from 'app/features/dashboard/state/DashboardModel';
 
 import { ReportInteractionBehavior } from '../scene/ReportInteractionBehavior';
@@ -49,7 +50,7 @@ export function createVariablesForDashboard(oldModel: DashboardModel, defaultVar
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })
@@ -62,7 +63,7 @@ export function createVariablesForDashboard(oldModel: DashboardModel, defaultVar
       try {
         return createSceneVariableFromVariableModelV2(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })
@@ -108,7 +109,7 @@ export function createVariablesForSnapshot(oldModel: DashboardModel) {
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })

@@ -3,6 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { type SortingRule } from 'react-table';
 
+
 import { type DashboardHit } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
 import { Trans, t } from '@grafana/i18n';
 import { config, reportInteraction } from '@grafana/runtime';
@@ -28,6 +29,7 @@ import { Page } from 'app/core/components/Page/Page';
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { useAppNotification } from 'app/core/copy/appNotification';
 import { contextSrv } from 'app/core/services/context_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type Role, AccessControlAction } from 'app/types/accessControl';
 import { type TeamWithRoles } from 'app/types/teams';
 
@@ -235,7 +237,7 @@ const TeamList = () => {
                     'Failed to check if the team owns folders. Please try again.'
                   )
                 );
-                console.error(error);
+                structuredLogger.error(error);
                 return;
               }
 

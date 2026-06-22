@@ -22,6 +22,8 @@ import {
   String as StringNode,
   TraceQL,
 } from '@grafana/lezer-traceql';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
+
 
 type Direction = 'parent' | 'firstChild' | 'lastChild' | 'nextSibling' | 'prevSibling';
 type NodeType = number;
@@ -444,7 +446,7 @@ function resolveNewSpansetExpression(node: SyntaxNode, text: string, offset: num
       previousNode = previousNode!.nextSibling;
     }
   } catch (error) {
-    console.error('Unexpected error while searching for previous node', error);
+    structuredLogger.error('Unexpected error while searching for previous node', error);
   }
 
   if (previousNode?.type.id === And || previousNode?.type.id === Or) {

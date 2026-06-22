@@ -2,6 +2,7 @@ import { cloneDeep } from 'lodash';
 import { from, type Observable, ReplaySubject, type Unsubscribable } from 'rxjs';
 import { first } from 'rxjs/operators';
 
+
 import {
   CoreApp,
   type DataQueryRequest,
@@ -16,6 +17,7 @@ import {
   preProcessPanelData,
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 
 import { getNextRequestId } from './PanelQueryRunner';
@@ -113,7 +115,7 @@ export class QueryRunner implements QueryRunnerSrv {
             },
           });
         },
-        error: (error) => console.error('PanelQueryRunner Error', error),
+        error: (error) => structuredLogger.error('PanelQueryRunner Error', error),
       });
   }
 

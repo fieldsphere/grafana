@@ -2,12 +2,14 @@ import { skipToken } from '@reduxjs/toolkit/query/react';
 import * as React from 'react';
 import { useMemo } from 'react';
 
+
 import { PageLayoutType, dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
 import { Trans } from '@grafana/i18n';
 import { type SceneComponentProps, SceneObjectBase, sceneGraph } from '@grafana/scenes';
 import { Alert, Spinner, Stack } from '@grafana/ui';
 import { useGetDisplayMappingQuery } from 'app/api/clients/iam/v0alpha1';
 import { Page } from 'app/core/components/Page/Page';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import {
   AnnoKeyCreatedBy,
   AnnoKeyMessage,
@@ -128,7 +130,7 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => structuredLogger.log(err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

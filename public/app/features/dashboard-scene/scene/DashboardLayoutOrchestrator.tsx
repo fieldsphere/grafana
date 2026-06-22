@@ -2,6 +2,7 @@ import { css } from '@emotion/css';
 import { type PointerEvent as ReactPointerEvent } from 'react';
 import { createPortal } from 'react-dom';
 
+
 import { type GrafanaTheme2 } from '@grafana/data';
 import { logWarning } from '@grafana/runtime';
 import {
@@ -14,6 +15,7 @@ import {
   type SceneGridItemLike,
 } from '@grafana/scenes';
 import { useStyles2 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { getLayoutType } from 'app/features/dashboard/utils/tracking';
 
 import { dashboardEditActions, DashboardStateChangedEvent, ObjectsReorderedOnCanvasEvent } from '../edit-pane/shared';
@@ -241,7 +243,7 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
             }
           } else {
             const warningMessage = 'No grid item to drag';
-            console.warn(warningMessage);
+            structuredLogger.warn(warningMessage);
             logWarning(warningMessage);
           }
         });

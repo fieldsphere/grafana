@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 
+
 import { Trans } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { Button, Stack } from '@grafana/ui';
@@ -7,6 +8,7 @@ import { appEvents } from 'app/core/app_events';
 import { buildNotificationButton } from 'app/core/components/AppNotifications/NotificationButton';
 import { createSuccessNotification } from 'app/core/copy/appNotification';
 import { notifyApp } from 'app/core/reducers/appNotification';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { AnnoKeyFolder } from 'app/features/apiserver/types';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
 import { isRootFolderUID } from 'app/features/search/constants';
@@ -94,7 +96,7 @@ export function RecentlyDeletedActions() {
       const table = await deletedDashboardsCache.getAsTable();
       const row = table.rows.find((r) => r.object.metadata.name === uid);
       if (!row) {
-        console.warn(`Dashboard ${uid} not found in deleted items`);
+        structuredLogger.warn(`Dashboard ${uid} not found in deleted items`);
         return { uid, error: 'not_found' };
       }
 

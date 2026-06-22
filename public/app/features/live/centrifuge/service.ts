@@ -9,6 +9,7 @@ import {
 } from 'centrifuge';
 import { BehaviorSubject, type Observable, share, startWith } from 'rxjs';
 
+
 import {
   type DataQueryError,
   type DataQueryResponse,
@@ -28,6 +29,7 @@ import {
   type BackendDataSourceResponse,
   getBackendSrv,
 } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { type StreamingResponseData } from '../data/utils';
 
@@ -126,7 +128,7 @@ export class CentrifugeService implements CentrifugeSrv {
   };
 
   private onServerSideMessage = (context: ServerPublicationContext) => {
-    console.log('Publication from server-side channel', context);
+    structuredLogger.log('Publication from server-side channel', context);
   };
 
   private onError = (context: ErrorContext) => {

@@ -1,5 +1,6 @@
 import { createSelector, createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type AppNotification, AppNotificationSeverity, type AppNotificationsState } from 'app/types/appNotifications';
 
 const MAX_STORED_NOTIFICATIONS = 25;
@@ -120,7 +121,7 @@ function serializeNotifications(notifs: Record<string, StoredNotification>) {
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(reducedNotifs));
   } catch (err) {
-    console.error('Unable to persist notifications to local storage');
-    console.error(err);
+    structuredLogger.error('Unable to persist notifications to local storage');
+    structuredLogger.error(err);
   }
 }

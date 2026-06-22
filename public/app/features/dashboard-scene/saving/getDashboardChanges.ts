@@ -6,6 +6,7 @@ import {
   type Spec as DashboardV2Spec,
   type VariableKind,
 } from '@grafana/schema/apis/dashboard.grafana.app/v2';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { ResponseTransformers } from 'app/features/dashboard/api/ResponseTransformers';
 import { isDashboardV2Spec } from 'app/features/dashboard/api/utils';
 import { type DashboardDataDTO, type DashboardDTO } from 'app/types/dashboard';
@@ -133,12 +134,12 @@ function getHasTimeChanged(newRange: DefaultPersistedTimeValue = {}, previousRan
 
 export function adHocVariableFiltersEqual(filtersA?: AdHocFilterWithLabels[], filtersB?: AdHocFilterWithLabels[]) {
   if (filtersA === undefined && filtersB === undefined) {
-    console.warn('Adhoc variable filter property is undefined');
+    structuredLogger.warn('Adhoc variable filter property is undefined');
     return true;
   }
 
   if ((filtersA === undefined && filtersB !== undefined) || (filtersB === undefined && filtersA !== undefined)) {
-    console.warn('Adhoc variable filter property is undefined');
+    structuredLogger.warn('Adhoc variable filter property is undefined');
     return false;
   }
 

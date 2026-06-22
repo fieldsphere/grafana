@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
+
 import { type OrgRole } from '@grafana/data';
 import { selectors as e2eSelectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
@@ -26,6 +27,7 @@ import { fetchRoleOptions, updateUserRoles } from 'app/core/components/RolePicke
 import { RolePickerBadges } from 'app/core/components/RolePickerDrawer/RolePickerBadges';
 import { TagBadge } from 'app/core/components/TagFilter/TagBadge';
 import { contextSrv } from 'app/core/services/context_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { AccessControlAction, type Role } from 'app/types/accessControl';
 import { type OrgUser } from 'app/types/user';
 
@@ -79,7 +81,7 @@ export const OrgUsersTable = ({
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options');
+        structuredLogger.error('Error loading options');
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {

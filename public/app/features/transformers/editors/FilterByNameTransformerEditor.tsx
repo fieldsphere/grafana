@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+
 import {
   type KeyValue,
   type TransformerUIProps,
@@ -11,6 +12,7 @@ import { type FilterFieldsByNameTransformerOptions } from '@grafana/data/interna
 import { t } from '@grafana/i18n';
 import { getTemplateSrv } from '@grafana/runtime';
 import { Input, FilterPill, InlineFieldRow, InlineField, InlineSwitch, Select } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 interface FilterByNameTransformerEditorProps extends TransformerUIProps<FilterFieldsByNameTransformerOptions> {}
 
@@ -94,7 +96,7 @@ export class FilterByNameTransformerEditor extends React.PureComponent<
           }
         }
       } catch (error) {
-        console.error(error);
+        structuredLogger.error(error);
       }
     }
 

@@ -1,7 +1,9 @@
 import { Subscription } from 'rxjs';
 
+
 import { type DataSourceRef } from '@grafana/data';
 import { getDataSourceSrv, toDataQueryError } from '@grafana/runtime';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type ThunkResult } from 'app/types/store';
 
 import { getVariableQueryEditor } from '../editor/getVariableQueryEditor';
@@ -109,7 +111,7 @@ export const changeQueryVariableDataSource = (
         )
       );
     } catch (err) {
-      console.error(err);
+      structuredLogger.error(err);
     }
   };
 };

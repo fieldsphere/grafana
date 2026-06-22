@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom-v5-compat';
 import { useAsync } from 'react-use';
 
+
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { getBackendSrv, getDataSourceSrv, locationService } from '@grafana/runtime';
@@ -12,6 +13,7 @@ import {
   useFlagDashboardTemplatesAssistantButton,
 } from '@grafana/runtime/internal';
 import { Box, Grid, Modal, Text, useStyles2 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 
 import { DashboardCard } from './DashboardCard';
 import { NewTemplateDashboardInteractions } from './analytics/main';
@@ -99,7 +101,7 @@ export const TemplateDashboardModal = () => {
 
       return response.items;
     } catch (error) {
-      console.error('Error loading template dashboards ', error);
+      structuredLogger.error('Error loading template dashboards ', error);
       return [];
     }
   }, [isOpen]);

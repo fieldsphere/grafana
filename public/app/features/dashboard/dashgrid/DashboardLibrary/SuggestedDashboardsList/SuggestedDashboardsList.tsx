@@ -3,10 +3,12 @@ import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useAsyncFn, useDebounce } from 'react-use';
 
+
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getDataSourceSrv, isFetchError, locationService } from '@grafana/runtime';
 import { FilterInput, Grid, Pagination, Stack, useStyles2 } from '@grafana/ui';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { type PluginDashboard } from 'app/types/plugins';
 
 import { DASHBOARD_LIBRARY_ROUTES } from '../../types';
@@ -252,7 +254,7 @@ export const SuggestedDashboardsList = ({
           });
         }
       } catch (err) {
-        console.error('Error loading community dashboards', err);
+        structuredLogger.error('Error loading community dashboards', err);
       } finally {
         setIsCommunityLoading(false);
       }
@@ -422,7 +424,7 @@ export const SuggestedDashboardsList = ({
         sourceEntryPoint,
       });
     } catch (err) {
-      console.error('Error checking dashboard compatibility:', err);
+      structuredLogger.error('Error checking dashboard compatibility:', err);
 
       const errorMessage = isFetchError(err) ? err.data?.message : 'Failed to check compatibility';
       const errorCode = isFetchError(err) ? err.data?.code : undefined;

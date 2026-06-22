@@ -1,6 +1,7 @@
 import { css, cx } from '@emotion/css';
 import { memo, type ReactElement, useEffect, useRef, useState } from 'react';
 
+
 import { type GrafanaTheme2, OrgRole } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Button, ConfirmButton, Field, Icon, Modal, Tooltip, useStyles2, Stack, TextLink } from '@grafana/ui';
@@ -8,6 +9,7 @@ import { UserRolePicker } from 'app/core/components/RolePicker/UserRolePicker';
 import { fetchRoleOptions, updateUserRoles } from 'app/core/components/RolePicker/api';
 import { OrgPicker, type OrgSelectItem } from 'app/core/components/Select/OrgPicker';
 import { contextSrv } from 'app/core/services/context_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { AccessControlAction, type Role } from 'app/types/accessControl';
 import { type Organization } from 'app/types/organization';
 import { type UserOrg, type UserDTO } from 'app/types/user';
@@ -128,7 +130,7 @@ const OrgRow = memo(({ user, org, isExternalUser, onOrgRemove, onOrgRoleChange }
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.orgId)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) => structuredLogger.error(e));
       }
     }
   }, [org.orgId]);
@@ -266,7 +268,7 @@ const AddToOrgModal = memo(({ isOpen, user, userOrgs, onOrgAdd, onDismiss }: Add
       if (contextSrv.hasPermission(AccessControlAction.ActionRolesList)) {
         fetchRoleOptions(org.value?.id)
           .then((roles) => setRoleOptions(roles))
-          .catch((e) => console.error(e));
+          .catch((e) => structuredLogger.error(e));
       }
     }
   };

@@ -1,11 +1,13 @@
 import { css } from '@emotion/css';
 import { useEffect, useState, type JSX } from 'react';
 
+
 import { type GrafanaTheme2, type OrgRole, type TimeZone, dateTimeFormat } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { Label, TextLink, useStyles2 } from '@grafana/ui';
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { contextSrv } from 'app/core/services/context_srv';
+import { structuredLogger } from 'app/core/utils/structuredLogger';
 import { AccessControlAction, type Role } from 'app/types/accessControl';
 import { type ServiceAccountDTO } from 'app/types/serviceaccount';
 
@@ -39,7 +41,7 @@ export function ServiceAccountProfile({ serviceAccount, timeZone, onChange }: Pr
           setRoleOptions(options);
         }
       } catch (e) {
-        console.error('Error loading options for service account');
+        structuredLogger.error('Error loading options for service account');
       }
     }
     if (contextSrv.licensedAccessControlEnabled()) {
