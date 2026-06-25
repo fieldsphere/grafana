@@ -44,8 +44,6 @@ func NewSchedulerMetrics(r prometheus.Registerer) *Scheduler {
 			Name:      "scheduler_behind_seconds",
 			Help:      "The total number of seconds the scheduler is behind.",
 		}),
-		// TODO: once rule groups support multiple rules, consider partitioning
-		// on rule group as well as tenant, similar to loki|cortex.
 		EvalTotal: promauto.With(r).NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace: Namespace,
@@ -53,10 +51,8 @@ func NewSchedulerMetrics(r prometheus.Registerer) *Scheduler {
 				Name:      "rule_evaluations_total",
 				Help:      "The total number of rule evaluations.",
 			},
-			[]string{"org"},
+			[]string{"org", "rule_group"},
 		),
-		// TODO: once rule groups support multiple rules, consider partitioning
-		// on rule group as well as tenant, similar to loki|cortex.
 		EvalFailures: promauto.With(r).NewCounterVec(
 			prometheus.CounterOpts{
 				Namespace: Namespace,
@@ -64,7 +60,7 @@ func NewSchedulerMetrics(r prometheus.Registerer) *Scheduler {
 				Name:      "rule_evaluation_failures_total",
 				Help:      "The total number of rule evaluation failures.",
 			},
-			[]string{"org"},
+			[]string{"org", "rule_group"},
 		),
 		EvalDuration: promauto.With(r).NewHistogramVec(
 			prometheus.HistogramOpts{

@@ -1,6 +1,8 @@
 package metrics
 
 import (
+	dskitmetrics "github.com/grafana/dskit/metrics"
+	"github.com/grafana/grafana/pkg/infra/log"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -33,11 +35,12 @@ type NGAlert struct {
 
 // NewNGAlert manages the metrics of all the alerting components.
 func NewNGAlert(r prometheus.Registerer) *NGAlert {
+	tenantRegistries := dskitmetrics.NewTenantRegistries(log.New("ngalert.multiorg.alertmanager.metrics"))
 	return &NGAlert{
 		Registerer:                   r,
 		schedulerMetrics:             NewSchedulerMetrics(r),
 		stateMetrics:                 NewStateMetrics(r),
-		multiOrgAlertmanagerMetrics:  NewMultiOrgAlertmanagerMetrics(r),
+		multiOrgAlertmanagerMetrics:  NewMultiOrgAlertmanagerMetrics(r, tenantRegistries),
 		apiMetrics:                   NewAPIMetrics(r),
 		historianMetrics:             NewHistorianMetrics(r, Subsystem),
 		notificationHistorianMetrics: NewNotificationHistorianMetrics(r),

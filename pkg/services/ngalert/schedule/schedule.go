@@ -80,6 +80,10 @@ type schedule struct {
 	// message from stopApplied is handled.
 	stopAppliedFunc func(ngmodels.AlertRuleKey)
 
+	// processTickHook is only used for tests: test code can set it to a non-nil
+	// function that receives the result of processTick.
+	processTickHook func(processTickResult)
+
 	ruleStopReasonProvider AlertRuleStopReasonProvider
 
 	log log.Logger
@@ -280,9 +284,13 @@ type readyToRunItem struct {
 	Evaluation
 }
 
-// TODO refactor to accept a callback for tests that will be called with things that are returned currently, and return nothing.
-// Returns a slice of rules that were scheduled for evaluation, map of stopped rules, and a slice of updated rules
-func (sch *schedule) processTick(ctx context.Context, dispatcherGroup *errgroup.Group, tick time.Time) ([]readyToRunItem, map[ngmodels.AlertRuleKey]struct{}, []ngmodels.AlertRuleKeyWithVersion) {
+type processTickResult struct {
+	scheduled []readyToRunItem
+	stopped   map[ngmodels.AlertRuleKey]struct{}
+	updated   []ngmodels.AlertRuleKeyWithVersion
+}
+
+func (sch *schedule) processTick(ctx context.Context, dispatcherGroup *errgroup.Group, tick time.Time) {
 	tickNum := tick.Unix() / int64(sch.baseInterval.Seconds())
 
 	// update the local registry. If there was a difference between the previous state and the current new state, rulesDiff will contains keys of rules that were updated.
@@ -430,7 +438,13 @@ func (sch *schedule) processTick(ctx context.Context, dispatcherGroup *errgroup.
 	}
 	sch.deleteAlertRule(ctx, toDelete...)
 
-	return readyToRun, registeredDefinitions, updatedRules
+	if sch.processTickHook != nil {
+		sch.processTickHook(processTickResult{
+			scheduled: readyToRun,
+			stopped:   registeredDefinitions,
+			updated:   updatedRules,
+		})
+	}
 }
 
 // runJobFn sends the scheduled evaluation to the evaluation routine, optionally with a previous item to log the trigger source.

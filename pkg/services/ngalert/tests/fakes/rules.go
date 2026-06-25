@@ -2,6 +2,9 @@ package fakes
 
 import (
 	"context"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
 	"maps"
 	"math/rand"
 	"slices"
@@ -294,7 +297,58 @@ func (f *RuleStore) ListAlertRulesByGroup(_ context.Context, q *models.ListAlert
 	return outputRules, nextToken, nil
 }
 
-// TODO: implement pagination for this fake
+type ruleContinueCursor struct {
+	NamespaceUID string `json:"n"`
+	RuleGroup    string `json:"g"`
+	RuleGroupIdx int64  `json:"i"`
+	ID           int64  `json:"d"`
+}
+
+func encodeRuleContinueCursor(c ruleContinueCursor) string {
+	data, _ := json.Marshal(c)
+	return base64.URLEncoding.EncodeToString(data)
+}
+
+func decodeRuleContinueCursor(token string) (ruleContinueCursor, error) {
+	var c ruleContinueCursor
+	data, err := base64.URLEncoding.DecodeString(token)
+	if err != nil {
+		return c, fmt.Errorf("failed to decode token: %w", err)
+	}
+	if err := json.Unmarshal(data, &c); err != nil {
+		return c, fmt.Errorf("failed to unmarshal cursor: %w", err)
+	}
+	return c, nil
+}
+
+func compareRulesForPagination(a, b *models.AlertRule) int {
+	if ns := strings.Compare(a.NamespaceUID, b.NamespaceUID); ns != 0 {
+		return ns
+	}
+	if rg := strings.Compare(a.RuleGroup, b.RuleGroup); rg != 0 {
+		return rg
+	}
+	return models.RulesGroupComparer(a, b)
+}
+
+func ruleAfterCursor(r *models.AlertRule, c ruleContinueCursor) bool {
+	ruleGroup := c.RuleGroup
+	if models.IsNoGroupRuleGroup(ruleGroup) {
+		ruleGroup = ""
+	}
+
+	if ns := strings.Compare(r.NamespaceUID, c.NamespaceUID); ns != 0 {
+		return ns > 0
+	}
+	if rg := strings.Compare(r.RuleGroup, ruleGroup); rg != 0 {
+		return rg > 0
+	}
+	if int64(r.RuleGroupIndex) != c.RuleGroupIdx {
+		return int64(r.RuleGroupIndex) > c.RuleGroupIdx
+	}
+	return r.ID > c.ID
+}
+
 func (f *RuleStore) ListAlertRulesPaginated(_ context.Context, q *models.ListAlertRulesExtendedQuery) (models.RulesGroup, string, error) {
 	f.mtx.Lock()
 	defer f.mtx.Unlock()
@@ -308,10 +362,37 @@ func (f *RuleStore) ListAlertRulesPaginated(_ context.Context, q *models.ListAle
 		return nil, "", err
 	}
 
-	// Filter by PluginOriginFilter if specified
 	rules = applyPluginOriginFilter(rules, q.PluginOriginFilter)
 
-	return rules, "", nil
+	slices.SortFunc(rules, compareRulesForPagination)
+
+	if q.ContinueToken != "" {
+		cursor, err := decodeRuleContinueCursor(q.ContinueToken)
+		if err != nil {
+			return nil, "", fmt.Errorf("invalid continue token: %w", err)
+		}
+		filtered := make(models.RulesGroup, 0, len(rules))
+		for _, r := range rules {
+			if ruleAfterCursor(r, cursor) {
+				filtered = append(filtered, r)
+			}
+		}
+		rules = filtered
+	}
+
+	var nextToken string
+	if q.Limit > 0 && len(rules) > int(q.Limit) {
+		rules = rules[:q.Limit]
+		lastRule := rules[len(rules)-1]
+		nextToken = encodeRuleContinueCursor(ruleContinueCursor{
+			NamespaceUID: lastRule.NamespaceUID,
+			RuleGroup:    lastRule.RuleGroup,
+			RuleGroupIdx: int64(lastRule.RuleGroupIndex),
+			ID:           lastRule.ID,
+		})
+	}
+
+	return rules, nextToken, nil
 }
 
 func (f *RuleStore) ListAlertRules(_ context.Context, q *models.ListAlertRulesQuery) (models.RulesGroup, error) {

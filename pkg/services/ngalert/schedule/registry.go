@@ -334,22 +334,5 @@ func (r ruleWithFolder) Fingerprint() fingerprint {
 		writeBytes(tmp)
 	}
 
-	// fields that do not affect the state.
-	// TODO consider removing fields below from the fingerprint
-	writeInt(int64(rule.For))
-	if rule.DashboardUID != nil {
-		writeString(*rule.DashboardUID)
-	}
-	if rule.PanelID != nil {
-		writeInt(*rule.PanelID)
-	}
-	writeString(rule.RuleGroup)
-	writeString(string(rule.NoDataState))
-	writeString(string(rule.ExecErrState))
-	if rule.Record != nil {
-		binary.LittleEndian.PutUint64(tmp, uint64(rule.Record.Fingerprint()))
-		writeBytes(tmp)
-	}
-
 	return fingerprint(sum.Sum64())
 }

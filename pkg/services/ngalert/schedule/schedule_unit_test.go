@@ -40,6 +40,15 @@ type evalAppliedInfo struct {
 	now         time.Time
 }
 
+func callProcessTick(sched *schedule, ctx context.Context, g *errgroup.Group, tick time.Time) ([]readyToRunItem, map[models.AlertRuleKey]struct{}, []models.AlertRuleKeyWithVersion) {
+	var result processTickResult
+	sched.processTickHook = func(r processTickResult) {
+		result = r
+	}
+	sched.processTick(ctx, g, tick)
+	return result.scheduled, result.stopped, result.updated
+}
+
 func TestProcessTicks(t *testing.T) {
 	testTracer := tracing.InitializeTracerForTest()
 	reg := prometheus.NewPedanticRegistry()
@@ -143,7 +152,7 @@ func TestProcessTicks(t *testing.T) {
 	t.Run("on 1st tick alert rule should be evaluated", func(t *testing.T) {
 		tick = tick.Add(cfg.BaseInterval)
 
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 1)
 		require.Equal(t, alertRule1, scheduled[0].rule)
@@ -185,7 +194,7 @@ func TestProcessTicks(t *testing.T) {
 
 	t.Run("on 2nd tick first alert rule should be evaluated", func(t *testing.T) {
 		tick = tick.Add(cfg.BaseInterval)
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 1)
 		require.Equal(t, alertRule1, scheduled[0].rule)
@@ -209,7 +218,7 @@ func TestProcessTicks(t *testing.T) {
 
 	t.Run("on 3rd tick two alert rules should be evaluated", func(t *testing.T) {
 		tick = tick.Add(cfg.BaseInterval)
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 		require.Len(t, scheduled, 2)
 		keys := make([]models.AlertRuleKey, 0, len(scheduled))
 		for _, item := range scheduled {
@@ -236,7 +245,7 @@ func TestProcessTicks(t *testing.T) {
 
 	t.Run("on 4th tick only one alert rule should be evaluated", func(t *testing.T) {
 		tick = tick.Add(cfg.BaseInterval)
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 1)
 		require.Equal(t, alertRule1, scheduled[0].rule)
@@ -251,7 +260,7 @@ func TestProcessTicks(t *testing.T) {
 
 		alertRule1.IsPaused = true
 
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 1)
 		require.Equal(t, alertRule1, scheduled[0].rule)
@@ -288,7 +297,7 @@ func TestProcessTicks(t *testing.T) {
 
 		alertRule2.IsPaused = true
 
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 2)
 		keys := make([]models.AlertRuleKey, 0, len(scheduled))
@@ -322,7 +331,7 @@ func TestProcessTicks(t *testing.T) {
 		alertRule1.IsPaused = false
 		alertRule2.IsPaused = false
 
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 1)
 		require.Equal(t, alertRule1, scheduled[0].rule)
@@ -349,7 +358,7 @@ func TestProcessTicks(t *testing.T) {
 
 		ruleStore.DeleteRule(alertRule1)
 
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Empty(t, scheduled)
 		require.Len(t, stopped, 1)
@@ -379,7 +388,7 @@ func TestProcessTicks(t *testing.T) {
 	t.Run("on 9th tick one alert rule should be evaluated", func(t *testing.T) {
 		tick = tick.Add(cfg.BaseInterval)
 
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 1)
 		require.Equal(t, alertRule2, scheduled[0].rule)
@@ -396,7 +405,7 @@ func TestProcessTicks(t *testing.T) {
 	t.Run("on 10th tick a new alert rule should be evaluated", func(t *testing.T) {
 		tick = tick.Add(cfg.BaseInterval)
 
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 1)
 		require.Equal(t, alertRule3, scheduled[0].rule)
@@ -424,7 +433,7 @@ func TestProcessTicks(t *testing.T) {
 		ruleStore.PutRule(context.Background(), newRule2)
 
 		tick = tick.Add(cfg.BaseInterval)
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 1)
 		require.Equal(t, alertRule3, scheduled[0].rule)
@@ -443,7 +452,7 @@ func TestProcessTicks(t *testing.T) {
 	t.Run("on 12th tick recording rule and alert rules should be evaluated", func(t *testing.T) {
 		tick = tick.Add(cfg.BaseInterval)
 
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 3)
 		require.Emptyf(t, stopped, "No rules are expected to be stopped")
@@ -469,7 +478,7 @@ func TestProcessTicks(t *testing.T) {
 	t.Run("on 13th tick recording rule should be updated", func(t *testing.T) {
 		// It has 2 * base interval - so normally it would not have been scheduled for evaluation this tick.
 		tick = tick.Add(cfg.BaseInterval)
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 1)
 		require.Emptyf(t, stopped, "No rules are expected to be stopped")
@@ -481,7 +490,7 @@ func TestProcessTicks(t *testing.T) {
 	t.Run("on 14th tick both 1-tick alert rule and 2-tick recording rule should be evaluated", func(t *testing.T) {
 		tick = tick.Add(cfg.BaseInterval)
 
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 2)
 		require.Emptyf(t, stopped, "No rules are expected to be stopped")
@@ -501,7 +510,7 @@ func TestProcessTicks(t *testing.T) {
 
 	t.Run("on 15th tick converted rule and 3-tick alert rule should be evaluated", func(t *testing.T) {
 		tick = tick.Add(cfg.BaseInterval)
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 2)
 		require.Emptyf(t, stopped, "No rules are expected to be stopped")
@@ -516,7 +525,7 @@ func TestProcessTicks(t *testing.T) {
 
 	t.Run("on 16th tick converted rule and 2-tick recording rule should be evaluated", func(t *testing.T) {
 		tick = tick.Add(cfg.BaseInterval)
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Len(t, scheduled, 2)
 		require.Emptyf(t, stopped, "No rules are expected to be stopped")
@@ -532,7 +541,7 @@ func TestProcessTicks(t *testing.T) {
 		// Remove all rules from store.
 		ruleStore.rules = map[string]*models.AlertRule{}
 		tick = tick.Add(cfg.BaseInterval)
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 
 		require.Emptyf(t, scheduled, "None rules should be scheduled")
 
@@ -556,7 +565,7 @@ func TestProcessTicks(t *testing.T) {
 
 		tick = tick.Add(cfg.BaseInterval)
 
-		scheduled, stopped, updated := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, stopped, updated := callProcessTick(sched, ctx, dispatcherGroup, tick)
 		require.Emptyf(t, stopped, "None rules are expected to be stopped")
 		require.Emptyf(t, updated, "None rules are expected to be updated")
 		require.Len(t, scheduled, len(rules), "All rules should be scheduled in this tick")
@@ -597,7 +606,7 @@ func TestProcessTicks(t *testing.T) {
 		}()
 
 		tick = tick.Add(cfg.BaseInterval)
-		scheduled, _, _ := sched.processTick(ctx, dispatcherGroup, tick)
+		scheduled, _, _ := callProcessTick(sched, ctx, dispatcherGroup, tick)
 		require.NotEmpty(t, scheduled)
 
 		// Wait for all evaluations to complete

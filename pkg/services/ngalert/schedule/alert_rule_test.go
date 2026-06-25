@@ -647,10 +647,10 @@ func TestRuleRoutine(t *testing.T) {
         	            	grafana_alerting_rule_evaluation_duration_seconds_count{org="%[1]d"} 1
 							# HELP grafana_alerting_rule_evaluation_failures_total The total number of rule evaluation failures.
         	            	# TYPE grafana_alerting_rule_evaluation_failures_total counter
-        	            	grafana_alerting_rule_evaluation_failures_total{org="%[1]d"} 0
+        	            	grafana_alerting_rule_evaluation_failures_total{org="%[1]d",rule_group="%[2]s"} 0
         	            	# HELP grafana_alerting_rule_evaluations_total The total number of rule evaluations.
         	            	# TYPE grafana_alerting_rule_evaluations_total counter
-        	            	grafana_alerting_rule_evaluations_total{org="%[1]d"} 1
+        	            	grafana_alerting_rule_evaluations_total{org="%[1]d",rule_group="%[2]s"} 1
         	            	# HELP grafana_alerting_rule_evaluation_attempt_failures_total The total number of rule evaluation attempt failures.
         	            	# TYPE grafana_alerting_rule_evaluation_attempt_failures_total counter
         	            	grafana_alerting_rule_evaluation_attempt_failures_total{org="%[1]d"} 0
@@ -694,7 +694,7 @@ func TestRuleRoutine(t *testing.T) {
 							grafana_alerting_rule_send_alerts_duration_seconds_bucket{org="%[1]d",le="+Inf"} 1
 							grafana_alerting_rule_send_alerts_duration_seconds_sum{org="%[1]d"} 0
 							grafana_alerting_rule_send_alerts_duration_seconds_count{org="%[1]d"} 1
-				`, rule.OrgID)
+				`, rule.OrgID, rule.RuleGroup)
 
 				err := testutil.GatherAndCompare(reg, bytes.NewBufferString(expectedMetric),
 					"grafana_alerting_rule_evaluation_duration_seconds",
@@ -1100,10 +1100,10 @@ func TestRuleRoutine(t *testing.T) {
         	            grafana_alerting_rule_evaluation_duration_seconds_count{org="%[1]d"} 1
 						# HELP grafana_alerting_rule_evaluation_failures_total The total number of rule evaluation failures.
         	            # TYPE grafana_alerting_rule_evaluation_failures_total counter
-        	            grafana_alerting_rule_evaluation_failures_total{org="%[1]d"} 1
+        	            grafana_alerting_rule_evaluation_failures_total{org="%[1]d",rule_group="%[2]s"} 1
         	            # HELP grafana_alerting_rule_evaluations_total The total number of rule evaluations.
         	            # TYPE grafana_alerting_rule_evaluations_total counter
-        	            grafana_alerting_rule_evaluations_total{org="%[1]d"} 1
+        	            grafana_alerting_rule_evaluations_total{org="%[1]d",rule_group="%[2]s"} 1
         	            # HELP grafana_alerting_rule_evaluation_attempt_failures_total The total number of rule evaluation attempt failures.
         	            # TYPE grafana_alerting_rule_evaluation_attempt_failures_total counter
         	            grafana_alerting_rule_evaluation_attempt_failures_total{org="%[1]d"} 3
@@ -1146,7 +1146,7 @@ func TestRuleRoutine(t *testing.T) {
 						grafana_alerting_rule_send_alerts_duration_seconds_bucket{org="%[1]d",le="+Inf"} 1
 						grafana_alerting_rule_send_alerts_duration_seconds_sum{org="%[1]d"} 0
 						grafana_alerting_rule_send_alerts_duration_seconds_count{org="%[1]d"} 1
-				`, rule.OrgID)
+				`, rule.OrgID, rule.RuleGroup)
 
 			err := testutil.GatherAndCompare(reg, bytes.NewBufferString(expectedMetric),
 				"grafana_alerting_rule_evaluation_duration_seconds",
@@ -1325,6 +1325,7 @@ func TestAlertRuleRetry(t *testing.T) {
 	evalAppliedChan := make(chan time.Time)
 
 	rule := gen.With(withQueryForState(t, eval.Error)).GenerateRef()
+	rule.RuleGroup = "retry-test-group"
 	rule.ExecErrState = models.ErrorErrState
 
 	sender := NewSyncAlertsSenderMock()
@@ -1378,14 +1379,14 @@ func TestAlertRuleRetry(t *testing.T) {
 		expectedMetric := fmt.Sprintf(
 			`# HELP grafana_alerting_rule_evaluation_attempts_total The total number of rule evaluation attempts.
 			# TYPE grafana_alerting_rule_evaluation_attempts_total counter
-			grafana_alerting_rule_evaluation_attempts_total{org="%[1]d"} %[3]d
+			grafana_alerting_rule_evaluation_attempts_total{org="%d"} %d
 			# HELP grafana_alerting_rule_evaluation_attempt_failures_total The total number of rule evaluation attempt failures.
 			# TYPE grafana_alerting_rule_evaluation_attempt_failures_total counter
-			grafana_alerting_rule_evaluation_attempt_failures_total{org="%[1]d"} %[3]d
+			grafana_alerting_rule_evaluation_attempt_failures_total{org="%d"} %d
 			# HELP grafana_alerting_rule_evaluations_total The total number of rule evaluations.
 			# TYPE grafana_alerting_rule_evaluations_total counter
-			grafana_alerting_rule_evaluations_total{org="%[1]d"} %[2]d
-			`, rule.OrgID, evaluations, expectedFailures)
+			grafana_alerting_rule_evaluations_total{org="%d",rule_group="%s"} %d
+			`, rule.OrgID, expectedFailures, rule.OrgID, expectedFailures, rule.OrgID, rule.RuleGroup, evaluations)
 
 		err := testutil.GatherAndCompare(
 			reg,

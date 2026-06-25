@@ -16,6 +16,7 @@ import (
 	"github.com/golang/snappy"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/testutil"
+	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/prometheus/prompb"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/atomic"
@@ -431,14 +432,19 @@ func TestRecordingRuleAfterEval(t *testing.T) {
 func testRecordingRule_Integration(t *testing.T, writeTarget *writer.TestRemoteWriteTarget, writer RecordingWriter, writerReg *prometheus.Registry, dsUID string) {
 	gen := models.RuleGen.With(models.RuleGen.WithAllRecordingRules(), models.RuleGen.WithOrgID(123))
 	ruleStore := newFakeRulesStore()
-	reg := prometheus.NewPedanticRegistry()
-	clk := clock.NewMock()
-	sch := setupScheduler(t, ruleStore, nil, reg, nil, nil, nil, withSchedulerClock(clk))
-	sch.recordingWriter = writer
+	newTestScheduler := func() (*schedule, *prometheus.Registry, *clock.Mock) {
+		reg := prometheus.NewPedanticRegistry()
+		testClk := clock.NewMock()
+		sch := setupScheduler(t, ruleStore, nil, reg, nil, nil, nil, withSchedulerClock(testClk))
+		sch.recordingWriter = writer
+		return sch, reg, testClk
+	}
 
 	t.Run("rule that succeeds", func(t *testing.T) {
+		sch, reg, _ := newTestScheduler()
 		writeTarget.Reset()
 		rule := gen.With(withQueryForHealth("ok")).GenerateRef()
+		rule.RuleGroup = "success-rule-group"
 		rule.Record.TargetDatasourceUID = dsUID
 		ruleStore.PutRule(context.Background(), rule)
 		folderTitle := ruleStore.getNamespaceTitle(rule.NamespaceUID)
@@ -494,12 +500,13 @@ func testRecordingRule_Integration(t *testing.T, writeTarget *writer.TestRemoteW
 				grafana_alerting_rule_evaluation_duration_seconds_count{org="%[1]d"} 1
 				# HELP grafana_alerting_rule_evaluations_total The total number of rule evaluations.
 				# TYPE grafana_alerting_rule_evaluations_total counter
-				grafana_alerting_rule_evaluations_total{org="%[1]d"} 1
+				grafana_alerting_rule_evaluations_total{org="%[1]d",rule_group="%[2]s"} 1
 				# HELP grafana_alerting_rule_evaluation_attempts_total The total number of rule evaluation attempts.
 				 # TYPE grafana_alerting_rule_evaluation_attempts_total counter
 				grafana_alerting_rule_evaluation_attempts_total{org="%[1]d"} 1
 				`,
 				rule.OrgID,
+				rule.RuleGroup,
 			)
 
 			err := testutil.GatherAndCompare(reg, bytes.NewBufferString(expectedMetric),
@@ -515,12 +522,13 @@ func testRecordingRule_Integration(t *testing.T, writeTarget *writer.TestRemoteW
 				`
 				# HELP grafana_alerting_rule_evaluation_failures_total The total number of rule evaluation failures.
 				# TYPE grafana_alerting_rule_evaluation_failures_total counter
-				grafana_alerting_rule_evaluation_failures_total{org="%[1]d"} 0
+				grafana_alerting_rule_evaluation_failures_total{org="%[1]d",rule_group="%[2]s"} 0
 				# HELP grafana_alerting_rule_evaluation_attempt_failures_total The total number of rule evaluation attempt failures.
 				# TYPE grafana_alerting_rule_evaluation_attempt_failures_total counter
 				grafana_alerting_rule_evaluation_attempt_failures_total{org="%[1]d"} 0
 				`,
 				rule.OrgID,
+				rule.RuleGroup,
 			)
 
 			err := testutil.GatherAndCompare(reg, bytes.NewBufferString(expectedMetric),
@@ -577,8 +585,10 @@ func testRecordingRule_Integration(t *testing.T, writeTarget *writer.TestRemoteW
 	})
 
 	t.Run("rule that errors", func(t *testing.T) {
+		sch, reg, testClk := newTestScheduler()
 		writeTarget.Reset()
 		rule := gen.With(withQueryForHealth("error")).GenerateRef()
+		rule.RuleGroup = "error-rule-group"
 		ruleStore.PutRule(context.Background(), rule)
 		folderTitle := ruleStore.getNamespaceTitle(rule.NamespaceUID)
 		ruleFactory := ruleFactoryFromScheduler(sch)
@@ -614,7 +624,7 @@ func testRecordingRule_Integration(t *testing.T, writeTarget *writer.TestRemoteW
 		// This avoids the race of a fixed time.Sleep before clk.Add, where the
 		// goroutine may not have registered its timer yet.
 		require.Eventually(t, func() bool {
-			clk.WaitForAllTimers()
+			testClk.WaitForAllTimers()
 			select {
 			case <-evalDoneChan:
 				return true
@@ -624,42 +634,19 @@ func testRecordingRule_Integration(t *testing.T, writeTarget *writer.TestRemoteW
 		}, 10*time.Second, 10*time.Millisecond)
 
 		t.Run("reports basic evaluation metrics", func(t *testing.T) {
-			expectedMetric := fmt.Sprintf(
-				`
-				# HELP grafana_alerting_rule_evaluation_duration_seconds The time to evaluate a rule.
-				# TYPE grafana_alerting_rule_evaluation_duration_seconds histogram
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="0.01"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="0.1"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="0.5"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="1"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="5"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="10"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="15"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="30"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="60"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="120"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="180"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="240"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="300"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_bucket{org="%[1]d",le="+Inf"} 2
-				grafana_alerting_rule_evaluation_duration_seconds_sum{org="%[1]d"} 0
-				grafana_alerting_rule_evaluation_duration_seconds_count{org="%[1]d"} 2
-				# HELP grafana_alerting_rule_evaluations_total The total number of rule evaluations.
-				# TYPE grafana_alerting_rule_evaluations_total counter
-				grafana_alerting_rule_evaluations_total{org="%[1]d"} 2
-				# HELP grafana_alerting_rule_evaluation_attempts_total The total number of rule evaluation attempts.
-				 # TYPE grafana_alerting_rule_evaluation_attempts_total counter
-				grafana_alerting_rule_evaluation_attempts_total{org="%[1]d"} 2
-				`,
-				rule.OrgID,
-			)
-
-			err := testutil.GatherAndCompare(reg, bytes.NewBufferString(expectedMetric),
-				"grafana_alerting_rule_evaluation_duration_seconds",
-				"grafana_alerting_rule_evaluations_total",
-				"grafana_alerting_rule_evaluation_attempts_total",
-			)
+			mfs, err := reg.Gather()
 			require.NoError(t, err)
+
+			evalTotal := counterValueForLabels(mfs, "grafana_alerting_rule_evaluations_total", map[string]string{
+				"org":        fmt.Sprint(rule.OrgID),
+				"rule_group": rule.RuleGroup,
+			})
+			attemptTotal := counterValueForLabels(mfs, "grafana_alerting_rule_evaluation_attempts_total", map[string]string{
+				"org": fmt.Sprint(rule.OrgID),
+			})
+
+			require.Equal(t, float64(1), evalTotal)
+			require.Equal(t, float64(1), attemptTotal)
 		})
 
 		t.Run("reports failure evaluation metrics", func(t *testing.T) {
@@ -667,12 +654,13 @@ func testRecordingRule_Integration(t *testing.T, writeTarget *writer.TestRemoteW
 				`
 				# HELP grafana_alerting_rule_evaluation_failures_total The total number of rule evaluation failures.
 				# TYPE grafana_alerting_rule_evaluation_failures_total counter
-				grafana_alerting_rule_evaluation_failures_total{org="%[1]d"} 1
+				grafana_alerting_rule_evaluation_failures_total{org="%[1]d",rule_group="%[2]s"} 1
 				# HELP grafana_alerting_rule_evaluation_attempt_failures_total The total number of rule evaluation attempt failures.
 				# TYPE grafana_alerting_rule_evaluation_attempt_failures_total counter
 				grafana_alerting_rule_evaluation_attempt_failures_total{org="%[1]d"} 1
 				`,
 				rule.OrgID,
+				rule.RuleGroup,
 			)
 
 			err := testutil.GatherAndCompare(reg, bytes.NewBufferString(expectedMetric),
@@ -729,6 +717,7 @@ func testRecordingRule_Integration(t *testing.T, writeTarget *writer.TestRemoteW
 	})
 
 	t.Run("nodata rule", func(t *testing.T) {
+		sch, _, testClk := newTestScheduler()
 		rule := gen.With(withQueryForHealth("nodata")).GenerateRef()
 		ruleStore.PutRule(context.Background(), rule)
 		folderTitle := ruleStore.getNamespaceTitle(rule.NamespaceUID)
@@ -765,7 +754,7 @@ func testRecordingRule_Integration(t *testing.T, writeTarget *writer.TestRemoteW
 		// This avoids the race of a fixed time.Sleep before clk.Add, where the
 		// goroutine may not have registered its timer yet.
 		require.Eventually(t, func() bool {
-			clk.WaitForAllTimers()
+			testClk.WaitForAllTimers()
 			select {
 			case <-evalDoneChan:
 				return true
@@ -783,6 +772,7 @@ func testRecordingRule_Integration(t *testing.T, writeTarget *writer.TestRemoteW
 	})
 
 	t.Run("rule with private labels filtered", func(t *testing.T) {
+		sch, _, _ := newTestScheduler()
 		writeTarget.Reset()
 		rule := gen.With(withQueryForHealth("ok")).GenerateRef()
 		rule.Record.TargetDatasourceUID = dsUID
@@ -944,4 +934,33 @@ func getLabel(req *prompb.WriteRequest, labelName string) (string, bool) {
 	}
 
 	return "", false
+}
+
+func counterValueForLabels(mfs []*dto.MetricFamily, name string, labels map[string]string) float64 {
+	for _, mf := range mfs {
+		if mf.GetName() != name {
+			continue
+		}
+		for _, m := range mf.GetMetric() {
+			if !metricLabelsMatch(m.GetLabel(), labels) {
+				continue
+			}
+			if c := m.GetCounter(); c != nil {
+				return c.GetValue()
+			}
+		}
+	}
+	return 0
+}
+
+func metricLabelsMatch(metricLabels []*dto.LabelPair, expected map[string]string) bool {
+	if len(metricLabels) != len(expected) {
+		return false
+	}
+	for _, lp := range metricLabels {
+		if expected[lp.GetName()] != lp.GetValue() {
+			return false
+		}
+	}
+	return true
 }

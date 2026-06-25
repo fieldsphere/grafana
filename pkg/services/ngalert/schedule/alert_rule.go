@@ -289,8 +289,9 @@ func (a *alertRule) Run() error {
 
 			func() {
 				orgID := fmt.Sprint(a.key.OrgID)
+				ruleGroup := a.key.RuleGroup
 				evalDuration := a.metrics.EvalDuration.WithLabelValues(orgID)
-				evalTotal := a.metrics.EvalTotal.WithLabelValues(orgID)
+				evalTotal := a.metrics.EvalTotal.WithLabelValues(orgID, ruleGroup)
 
 				evalStart := a.clock.Now()
 				defer func() {
@@ -398,9 +399,10 @@ func (a *alertRule) Run() error {
 
 func (a *alertRule) evaluate(ctx context.Context, e *Evaluation, span trace.Span, retry bool, logger log.Logger) error {
 	orgID := fmt.Sprint(a.key.OrgID)
+	ruleGroup := a.key.RuleGroup
 	evalAttemptTotal := a.metrics.EvalAttemptTotal.WithLabelValues(orgID)
 	evalAttemptFailures := a.metrics.EvalAttemptFailures.WithLabelValues(orgID)
-	evalTotalFailures := a.metrics.EvalFailures.WithLabelValues(orgID)
+	evalTotalFailures := a.metrics.EvalFailures.WithLabelValues(orgID, ruleGroup)
 	processDuration := a.metrics.ProcessDuration.WithLabelValues(orgID)
 	sendDuration := a.metrics.SendDuration.WithLabelValues(orgID)
 
