@@ -84,7 +84,8 @@ func (api *API) authorize(method, path string) web.Handler {
 		// additional authorization is done in the request handler
 		eval = ac.EvalPermission(ac.ActionAlertingRuleRead)
 	// Grafana Rules Testing Paths
-	case http.MethodPost + "/api/v1/rule/backtest": // TODO (yuri) this should be protected by dedicated permission
+	case http.MethodPost + "/api/v1/rule/backtest":
+		// Backtest requires read access plus create or update permission until a dedicated action exists.
 		// additional authorization is done in the request handler
 		eval = ac.EvalAll(
 			ac.EvalPermission(ac.ActionAlertingRuleRead),

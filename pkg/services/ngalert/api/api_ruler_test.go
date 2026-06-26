@@ -1047,6 +1047,60 @@ func TestValidateQueries(t *testing.T) {
 		require.ErrorIs(t, err, models.ErrAlertRuleFailedValidation)
 		require.ErrorContains(t, err, delta.Update[0].New.UID)
 	})
+	t.Run("should not validate updated rules that will be paused", func(t *testing.T) {
+		pausedDelta := store.GroupDelta{
+			Update: []store.RuleDelta{
+				{
+					Existing: gen.With(gen.WithCondition("Existing")).GenerateRef(),
+					New: gen.With(
+						gen.WithCondition("Paused_Update"),
+						gen.WithIsPaused(true),
+					).GenerateRef(),
+					Diff: cmputil.DiffReport{
+						cmputil.Diff{Path: "Data"},
+					},
+				},
+			},
+		}
+		validator := &recordingConditionValidator{}
+		err := validateQueries(context.Background(), &pausedDelta, validator, nil)
+		require.NoError(t, err)
+		require.Empty(t, validator.recorded)
+	})
+}
+
+func TestShouldValidate(t *testing.T) {
+	gen := models.RuleGen
+
+	t.Run("returns false when rule will be paused", func(t *testing.T) {
+		delta := store.RuleDelta{
+			New: gen.With(gen.WithIsPaused(true)).GenerateRef(),
+			Diff: cmputil.DiffReport{
+				cmputil.Diff{Path: "Data"},
+			},
+		}
+		require.False(t, shouldValidate(delta))
+	})
+
+	t.Run("returns false when only ignored fields changed", func(t *testing.T) {
+		delta := store.RuleDelta{
+			New: gen.GenerateRef(),
+			Diff: cmputil.DiffReport{
+				cmputil.Diff{Path: "RuleGroupIndex"},
+			},
+		}
+		require.False(t, shouldValidate(delta))
+	})
+
+	t.Run("returns true when active rule query changed", func(t *testing.T) {
+		delta := store.RuleDelta{
+			New: gen.With(gen.WithIsPaused(false)).GenerateRef(),
+			Diff: cmputil.DiffReport{
+				cmputil.Diff{Path: "Data"},
+			},
+		}
+		require.True(t, shouldValidate(delta))
+	})
 }
 
 func createServiceWithProvenanceStore(store *fakes.RuleStore, provenanceStore provisioning.ProvisioningStore) *RulerSrv {

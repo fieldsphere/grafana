@@ -38,9 +38,11 @@ var allExecError = []apimodels.ExecutionErrorState{
 func config(t *testing.T) *setting.UnifiedAlertingSettings {
 	t.Helper()
 	baseInterval := time.Duration(rand.IntN(97)+3) * time.Second // Possible intervals: [3, 99].
+	minInterval := baseInterval * time.Duration(rand.IntN(3)+1)
 	result := &setting.UnifiedAlertingSettings{
 		BaseInterval:                  baseInterval,
 		DefaultRuleEvaluationInterval: baseInterval * time.Duration(rand.IntN(9)+1),
+		MinInterval:                   minInterval,
 	}
 	t.Logf("Config Base interval is [%v]", result.BaseInterval)
 	return result
@@ -344,6 +346,47 @@ func TestValidateRuleGroupFailures(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestValidateRuleGroupReturnsAllFailures(t *testing.T) {
+	orgId := rand.Int64()
+	folder := randFolder()
+	cfg := config(t)
+	limits := makeLimits(cfg)
+
+	r1 := validRule()
+	r1.GrafanaManagedAlert.NoDataState = apimodels.NoDataState("invalid-no-data")
+	r2 := validRule()
+	r2.GrafanaManagedAlert.ExecErrState = apimodels.ExecutionErrorState("invalid-exec")
+
+	g := validGroup(cfg, r1, r2)
+	_, err := ValidateRuleGroup(&g, orgId, folder.UID, limits)
+	require.Error(t, err)
+
+	unwrapped, ok := err.(interface{ Unwrap() []error })
+	require.True(t, ok)
+	require.Len(t, unwrapped.Unwrap(), 2)
+}
+
+func TestValidateGroupIntervalMinInterval(t *testing.T) {
+	orgId := rand.Int64()
+	folder := randFolder()
+	limits := RuleLimits{
+		DefaultRuleEvaluationInterval: 60 * time.Second,
+		BaseInterval:                  10 * time.Second,
+		MinInterval:                   30 * time.Second,
+	}
+
+	g := validGroup(&setting.UnifiedAlertingSettings{
+		BaseInterval:                  limits.BaseInterval,
+		DefaultRuleEvaluationInterval: limits.DefaultRuleEvaluationInterval,
+		MinInterval:                   limits.MinInterval,
+	})
+	g.Interval = model.Duration(20 * time.Second)
+
+	_, err := ValidateRuleGroup(&g, orgId, folder.UID, limits)
+	require.Error(t, err)
+	require.Contains(t, err.Error(), "minimum interval")
 }
 
 func TestValidateRuleNode_NoUID(t *testing.T) {

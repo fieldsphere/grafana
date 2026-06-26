@@ -275,3 +275,35 @@ func TestApiAlertRuleGroupFromAlertRuleGroup(t *testing.T) {
 		require.Equal(t, prommodel.Duration(0), apiGroup.Rules[0].KeepFiringFor)
 	})
 }
+
+func TestAlertRuleFromProvisionedAlertRuleValidation(t *testing.T) {
+	t.Run("rejects invalid no data state", func(t *testing.T) {
+		_, err := AlertRuleFromProvisionedAlertRule(definitions.ProvisionedAlertRule{
+			NoDataState: definitions.NoDataState("invalid"),
+		})
+		require.Error(t, err)
+		require.ErrorIs(t, err, models.ErrAlertRuleFailedValidation)
+	})
+
+	t.Run("rejects invalid exec err state", func(t *testing.T) {
+		_, err := AlertRuleFromProvisionedAlertRule(definitions.ProvisionedAlertRule{
+			ExecErrState: definitions.ExecutionErrorState("invalid"),
+		})
+		require.Error(t, err)
+		require.ErrorIs(t, err, models.ErrAlertRuleFailedValidation)
+	})
+
+	t.Run("skips alerting-only validation for recording rules", func(t *testing.T) {
+		rule, err := AlertRuleFromProvisionedAlertRule(definitions.ProvisionedAlertRule{
+			NoDataState:  definitions.NoDataState("invalid"),
+			ExecErrState: definitions.ExecutionErrorState("invalid"),
+			Record: &definitions.Record{
+				Metric: "metric",
+				From:   "A",
+			},
+		})
+		require.NoError(t, err)
+		require.Empty(t, rule.NoDataState)
+		require.Empty(t, rule.ExecErrState)
+	})
+}

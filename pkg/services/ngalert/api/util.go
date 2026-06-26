@@ -111,7 +111,7 @@ func (p *AlertingProxy) createProxyContext(ctx *contextmodel.ReqContext, request
 	// If RBAC is enabled, the actions are checked upstream and if the user gets here then it is allowed to do an action against a datasource.
 	// Some data sources require legacy Editor role in order to perform mutating operations. In this case, we elevate permissions for the context that we
 	// will provide downstream.
-	// TODO (yuri) remove this after RBAC for plugins is implemented
+	// Some data sources require legacy Editor role for mutating operations. Remove this elevation once datasource plugins support RBAC actions.
 	if !ctx.HasRole(org.RoleEditor) {
 		newUser := *ctx.SignedInUser
 		newUser.OrgRole = org.RoleEditor

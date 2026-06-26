@@ -3,6 +3,7 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	jsoniter "github.com/json-iterator/go"
@@ -24,8 +25,8 @@ func AlertRuleFromProvisionedAlertRule(a definitions.ProvisionedAlertRule) (mode
 		Condition:                   a.Condition,
 		Data:                        AlertQueriesFromApiAlertQueries(a.Data),
 		Updated:                     a.Updated,
-		NoDataState:                 models.NoDataState(a.NoDataState),          // TODO there must be a validation
-		ExecErrState:                models.ExecutionErrorState(a.ExecErrState), // TODO there must be a validation
+		NoDataState:                 models.NoDataState(a.NoDataState),
+		ExecErrState:                models.ExecutionErrorState(a.ExecErrState),
 		For:                         time.Duration(a.For),
 		KeepFiringFor:               time.Duration(a.KeepFiringFor),
 		Annotations:                 a.Annotations,
@@ -38,9 +39,33 @@ func AlertRuleFromProvisionedAlertRule(a definitions.ProvisionedAlertRule) (mode
 
 	if rule.Type() == models.RuleTypeRecording {
 		models.ClearRecordingRuleIgnoredFields(&rule)
+		return rule, nil
+	}
+
+	if err := validateProvisionedAlertRuleEnumFields(a); err != nil {
+		return models.AlertRule{}, err
 	}
 
 	return rule, nil
+}
+
+func validateProvisionedAlertRuleEnumFields(a definitions.ProvisionedAlertRule) error {
+	if a.NoDataState != "" {
+		if _, err := models.NoDataStateFromString(string(a.NoDataState)); err != nil {
+			return fmt.Errorf("%w: %s", models.ErrAlertRuleFailedValidation, err.Error())
+		}
+	}
+	if a.ExecErrState != "" {
+		if _, err := models.ErrStateFromString(string(a.ExecErrState)); err != nil {
+			return fmt.Errorf("%w: %s", models.ErrAlertRuleFailedValidation, err.Error())
+		}
+	}
+	if a.Provenance != "" {
+		if _, err := models.ProvenanceFromString(string(a.Provenance)); err != nil {
+			return fmt.Errorf("%w: %s", models.ErrAlertRuleFailedValidation, err.Error())
+		}
+	}
+	return nil
 }
 
 // ProvisionedAlertRuleFromAlertRule converts models.AlertRule to definitions.ProvisionedAlertRule and sets provided provenance status
@@ -57,11 +82,11 @@ func ProvisionedAlertRuleFromAlertRule(rule models.AlertRule, provenance models.
 		Condition:                   rule.Condition,
 		Data:                        ApiAlertQueriesFromAlertQueries(rule.Data),
 		Updated:                     rule.Updated,
-		NoDataState:                 definitions.NoDataState(rule.NoDataState),          // TODO there may be a validation
-		ExecErrState:                definitions.ExecutionErrorState(rule.ExecErrState), // TODO there may be a validation
+		NoDataState:                 definitions.NoDataState(rule.NoDataState),
+		ExecErrState:                definitions.ExecutionErrorState(rule.ExecErrState),
 		Annotations:                 rule.Annotations,
 		Labels:                      rule.Labels,
-		Provenance:                  definitions.Provenance(provenance), // TODO validate enum conversion?
+		Provenance:                  definitions.Provenance(provenance),
 		IsPaused:                    rule.IsPaused,
 		NotificationSettings:        AlertRuleNotificationSettingsFromNotificationSettings(rule.NotificationSettings),
 		Record:                      ApiRecordFromModelRecord(rule.Record),

@@ -163,8 +163,7 @@ func PrepareAlertStatuses(ctx context.Context, manager state.AlertInstanceManage
 			Labels:      apimodels.LabelsFromMap(alertState.GetLabels(labelOptions...)),
 			Annotations: apimodels.LabelsFromMap(alertState.Annotations),
 
-			// TODO: or should we make this two fields? Using one field lets the
-			// frontend use the same logic for parsing text on annotations and this.
+			// State combines evaluation state and reason so the frontend can reuse annotation parsing logic.
 			State:    state.FormatStateAndReason(alertState.State, alertState.StateReason),
 			ActiveAt: &startsAt,
 			Value:    valString,
@@ -479,8 +478,7 @@ func computeAlertStates(states []*state.State, source *ngmodels.AlertRule, toMut
 				Labels:      apimodels.LabelsFromMap(alertState.GetLabels(labelOptions...)),
 				Annotations: apimodels.LabelsFromMap(alertState.Annotations),
 
-				// TODO: or should we make this two fields? Using one field lets the
-				// frontend use the same logic for parsing text on annotations and this.
+				// State combines evaluation state and reason so the frontend can reuse annotation parsing logic.
 				State:    state.FormatStateAndReason(alertState.State, alertState.StateReason),
 				ActiveAt: &activeAt,
 				Value:    valString,
@@ -1338,7 +1336,6 @@ func toRuleGroup(ctx context.Context, log log.Logger, groupKey ngmodels.AlertRul
 		alertingRule.TotalsFiltered = totalsFiltered
 		newGroup.Rules = append(newGroup.Rules, alertingRule)
 		newGroup.Interval = float64(rule.IntervalSeconds)
-		// TODO yuri. Change that when scheduler will process alerts in groups
 		newGroup.EvaluationTime = alertingRule.EvaluationTime
 		newGroup.LastEvaluation = alertingRule.LastEvaluation
 	}

@@ -22,12 +22,15 @@ type RuleLimits struct {
 	DefaultRuleEvaluationInterval time.Duration
 	// All intervals must be an integer multiple of this duration.
 	BaseInterval time.Duration
+	// The minimum allowed evaluation interval.
+	MinInterval time.Duration
 }
 
 func RuleLimitsFromConfig(cfg *setting.UnifiedAlertingSettings, toggles featuremgmt.FeatureToggles) RuleLimits {
 	return RuleLimits{
 		DefaultRuleEvaluationInterval: cfg.DefaultRuleEvaluationInterval,
 		BaseInterval:                  cfg.BaseInterval,
+		MinInterval:                   cfg.MinInterval,
 	}
 }
 
@@ -255,7 +258,10 @@ func validateGroupInterval(incoming prommodels.Duration, limits RuleLimits) (tim
 		return 0, fmt.Errorf("rule evaluation interval (%d second) should be positive number that is multiple of the base interval of %d seconds", int64(interval.Seconds()), int64(limits.BaseInterval.Seconds()))
 	}
 
-	// TODO should we validate that interval is >= cfg.MinInterval? Currently, we allow to save but fix the specified interval if it is < cfg.MinInterval
+	if interval < limits.MinInterval {
+		return 0, fmt.Errorf("rule evaluation interval (%d seconds) must be greater than or equal to the minimum interval of %d seconds", int64(interval.Seconds()), int64(limits.MinInterval.Seconds()))
+	}
+
 	return interval, nil
 }
 
@@ -358,15 +364,17 @@ func ValidateRuleGroup(
 
 	result := make([]*ngmodels.AlertRuleWithOptionals, 0, len(ruleGroupConfig.Rules))
 	uids := make(map[string]int, cap(result))
+	var validationErrs []error
 	for idx := range ruleGroupConfig.Rules {
 		rule, err := ValidateRuleNode(&ruleGroupConfig.Rules[idx], ruleGroupConfig.Name, interval, orgId, namespaceUID, limits)
-		// TODO do not stop on the first failure but return all failures
 		if err != nil {
-			return nil, fmt.Errorf("invalid rule specification at index [%d]: %w", idx, err)
+			validationErrs = append(validationErrs, fmt.Errorf("invalid rule specification at index [%d]: %w", idx, err))
+			continue
 		}
 		if rule.UID != "" {
 			if existingIdx, ok := uids[rule.UID]; ok {
-				return nil, fmt.Errorf("rule [%d] has UID %s that is already assigned to another rule at index %d", idx, rule.UID, existingIdx)
+				validationErrs = append(validationErrs, fmt.Errorf("rule [%d] has UID %s that is already assigned to another rule at index %d", idx, rule.UID, existingIdx))
+				continue
 			}
 			uids[rule.UID] = idx
 		}
@@ -391,6 +399,9 @@ func ValidateRuleGroup(
 		ruleWithOptionals.HasEditorSettings = hasEditorSettings
 
 		result = append(result, &ruleWithOptionals)
+	}
+	if len(validationErrs) > 0 {
+		return nil, errors.Join(validationErrs...)
 	}
 	return result, nil
 }

@@ -512,8 +512,7 @@ func (srv *ProvisioningSrv) RoutePutAlertRuleGroup(c *contextmodel.ReqContext, a
 		ErrResp(http.StatusBadRequest, err, "")
 	}
 	provenance := determineProvenance(c)
-	// TODO: https://github.com/grafana/grafana/issues/114197
-	// Support passing change messages.
+	// Change messages are not yet supported; see https://github.com/grafana/grafana/issues/114197.
 	changeMessage := ""
 	err = srv.alertRules.ReplaceRuleGroup(c.Req.Context(), c.SignedInUser, groupModel, alerting_models.Provenance(provenance), changeMessage)
 	if errors.Is(err, alerting_models.ErrAlertRuleFailedValidation) {

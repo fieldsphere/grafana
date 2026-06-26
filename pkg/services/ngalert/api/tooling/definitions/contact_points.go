@@ -14,10 +14,10 @@ package definitions
 // 4. Sensitive fields have type Secret. Currently, this is done for information purpose and is not used anywhere.
 
 // A string that contain sensitive information.
-type Secret string // TODO implement masking fields when models are used
+type Secret string // Mask sensitive fields when these models are used outside HCL export.
 
 type AlertmanagerIntegration struct {
-	DisableResolveMessage *bool `json:"-" yaml:"-" hcl:"disable_resolve_message"` // TODO change when https://github.com/hashicorp/hcl/issues/290 is fixed
+	DisableResolveMessage *bool `json:"-" yaml:"-" hcl:"disable_resolve_message"` // Flattened until https://github.com/hashicorp/hcl/issues/290 supports nested composition.
 
 	URL      string  `json:"url" yaml:"url" hcl:"url"`
 	User     *string `json:"basicAuthUser,omitempty" yaml:"basicAuthUser,omitempty" hcl:"basic_auth_user"`

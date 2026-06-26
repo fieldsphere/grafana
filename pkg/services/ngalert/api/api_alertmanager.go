@@ -183,7 +183,7 @@ func (srv AlertmanagerSrv) RouteGetReceivers(c *contextmodel.ReqContext) respons
 		return ErrResp(http.StatusInternalServerError, err, "failed to retrieve receivers")
 	}
 	statuses := make([]ReceiverStatus, 0, len(rcvs))
-	for _, rcv := range rcvs { // TODO this is temporary so we can use authz filter logic.
+	for _, rcv := range rcvs {
 		statuses = append(statuses, ReceiverStatus(rcv))
 	}
 	statuses, err = srv.receiverAuthz.FilterRead(c.Req.Context(), c.SignedInUser, statuses...)
@@ -276,6 +276,7 @@ func (srv AlertmanagerSrv) AlertmanagerFor(orgID int64) (notifier.Alertmanager, 
 
 type ReceiverStatus alertingmodels.ReceiverStatus
 
+// GetUID implements models.Identified for receiver authorization until alertingmodels.ReceiverStatus exposes UID directly.
 func (rs ReceiverStatus) GetUID() string {
 	return legacy_storage.NameToUid(rs.Name)
 }

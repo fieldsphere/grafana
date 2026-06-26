@@ -772,13 +772,16 @@ func validateQueries(ctx context.Context, groupChanges *store.GroupDelta, valida
 
 // shouldValidate returns true if the rule is not paused and there are changes in the rule that are not ignored
 func shouldValidate(delta store.RuleDelta) bool {
+	if delta.New.IsPaused {
+		return false
+	}
+
 	for _, diff := range delta.Diff {
 		if !slices.Contains(ignoreFieldsForValidate[:], diff.Path) {
 			return true
 		}
 	}
 
-	// TODO: consider also checking if rule will be paused after the update
 	return false
 }
 

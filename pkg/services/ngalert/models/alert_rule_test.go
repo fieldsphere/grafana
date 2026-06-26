@@ -1489,6 +1489,32 @@ func TestWithoutPrivateLabels(t *testing.T) {
 	}
 }
 
+func TestCondition_IsValid(t *testing.T) {
+	t.Run("valid when condition refID exists in data", func(t *testing.T) {
+		condition := Condition{
+			Condition: "A",
+			Data: []AlertQuery{
+				{RefID: "A"},
+			},
+		}
+		require.True(t, condition.IsValid())
+	})
+
+	t.Run("invalid when condition refID is missing", func(t *testing.T) {
+		condition := Condition{
+			Condition: "B",
+			Data: []AlertQuery{
+				{RefID: "A"},
+			},
+		}
+		require.False(t, condition.IsValid())
+	})
+
+	t.Run("invalid when data is empty", func(t *testing.T) {
+		require.False(t, (Condition{Condition: "A"}).IsValid())
+	})
+}
+
 func TestAlertRuleGetEvalCondition_Origin(t *testing.T) {
 	const sloOrigin = PluginGrafanaSLOOrigin
 	const otherOrigin = "plugin/grafana-other-app"

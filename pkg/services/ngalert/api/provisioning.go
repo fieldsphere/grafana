@@ -29,13 +29,13 @@ const (
 
 	// replacementAlertRules lists the app-platform collection endpoints
 	// that replace the legacy provisioning list/create/group endpoints.
-	// TODO: update when the API moves to beta.
+	// Update these paths when the app-platform API graduates from v0alpha1.
 	replacementAlertRules = appPlatformBase + "/alertrules, " + appPlatformBase + "/recordingrules"
 
 	// replacementAlertRuleByUID lists the app-platform single-resource
 	// endpoints that replace the legacy provisioning get/update/delete
 	// endpoints.
-	// TODO: update when the API moves to beta.
+	// Update these paths when the app-platform API graduates from v0alpha1.
 	replacementAlertRuleByUID = appPlatformBase + "/alertrules/{name}, " + appPlatformBase + "/recordingrules/{name}"
 
 	notificationAppPlatformBase = "/apis/notifications.alerting.grafana.app/v1beta1/namespaces/{namespace}"

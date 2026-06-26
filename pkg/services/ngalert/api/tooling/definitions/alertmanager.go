@@ -710,8 +710,8 @@ type PostableUserConfig struct {
 	TemplateFiles          map[string]string         `yaml:"template_files" json:"template_files"`
 	AlertmanagerConfig     PostableApiAlertingConfig `yaml:"alertmanager_config" json:"alertmanager_config"`
 	ExtraConfigs           []ExtraConfiguration      `yaml:"extra_config,omitempty" json:"extra_config,omitempty"`
-	ManagedRoutes          ManagedRoutes             `yaml:"managed_routes,omitempty" json:"managed_routes,omitempty"`                     // TODO: Move to ConfigRevision?
-	ManagedInhibitionRules ManagedInhibitionRules    `yaml:"managed_inhibition_rules,omitempty" json:"managed_inhibition_rules,omitempty"` // TODO: Move to ConfigRevision?
+	ManagedRoutes          ManagedRoutes             `yaml:"managed_routes,omitempty" json:"managed_routes,omitempty"`                     // Move to ConfigRevision when revision-scoped routing is supported.
+	ManagedInhibitionRules ManagedInhibitionRules    `yaml:"managed_inhibition_rules,omitempty" json:"managed_inhibition_rules,omitempty"` // Move to ConfigRevision when revision-scoped routing is supported.
 }
 
 // GetMergedTemplateDefinitions converts the given PostableUserConfig's TemplateFiles to a slice of Templates.
