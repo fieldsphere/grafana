@@ -65,4 +65,51 @@ func TestFeatureManager(t *testing.T) {
 		require.False(t, ft.IsEnabledGlobally("b"))
 		require.False(t, ft.IsEnabledGlobally("c"))
 	})
+
+	t.Run("set startup state updates runtime values", func(t *testing.T) {
+		ft := WithManager("a", true, "b", false)
+
+		require.NoError(t, ft.SetStartupState("b", true))
+		require.True(t, ft.IsEnabledGlobally("b"))
+
+		require.NoError(t, ft.SetStartupState("a", false))
+		require.False(t, ft.IsEnabledGlobally("a"))
+
+		err := ft.SetStartupState("missing", true)
+		require.ErrorIs(t, err, ErrFeatureFlagNotFound)
+	})
+
+	t.Run("snapshot returns matching flags and enabled states", func(t *testing.T) {
+		ft := &FeatureManager{
+			flags: map[string]*FeatureFlag{
+				"a": {Name: "a", Expression: "true"},
+				"b": {Name: "b"},
+			},
+			startup: map[string]bool{
+				"a": false,
+				"b": true,
+			},
+			warnings: map[string]string{},
+		}
+		ft.update()
+
+		flags, enabled := ft.GetSnapshot()
+		require.Len(t, flags, 2)
+		require.Equal(t, map[string]bool{"b": true}, enabled)
+
+		names := make(map[string]bool, len(flags))
+		for _, flag := range flags {
+			names[flag.Name] = true
+		}
+
+		require.Equal(t, map[string]bool{"a": true, "b": true}, names)
+	})
+
+	t.Run("with manager keeps startup separate from enabled", func(t *testing.T) {
+		ft := WithManager("a", true)
+
+		ft.startup["a"] = false
+
+		require.True(t, ft.enabled["a"])
+	})
 }
