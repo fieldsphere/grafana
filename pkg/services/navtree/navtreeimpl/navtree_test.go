@@ -10,9 +10,11 @@ import (
 
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/dashboards"
+	"github.com/grafana/grafana/pkg/services/navtree"
 	"github.com/grafana/grafana/pkg/services/search/model"
 	starapi "github.com/grafana/grafana/pkg/services/star/api"
 	"github.com/grafana/grafana/pkg/services/user"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/web"
 )
 
@@ -138,4 +140,29 @@ func TestBuildStarredItemsNavLinks(t *testing.T) {
 		require.Equal(t, "B Dashboard", navLinks[1].Text)
 		require.Equal(t, "C Dashboard", navLinks[2].Text)
 	})
+}
+
+func TestBuildLabsNavLink(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		Context: &web.Context{Req: httpReq},
+	}
+
+	service := ServiceImpl{
+		cfg: setting.NewCfg(),
+	}
+	service.cfg.AppSubURL = ""
+
+	navLink := service.buildLabsNavLink(reqCtx)
+
+	require.Equal(t, "Labs", navLink.Text)
+	require.Equal(t, "flask", navLink.Icon)
+	require.Equal(t, "labs", navLink.Id)
+	require.Equal(t, "/labs", navLink.Url)
+	require.True(t, navLink.IsNew)
+	require.Equal(t, int64(navtree.WeightLabs), navLink.SortWeight)
+	require.Len(t, navLink.Children, 1)
+	require.Equal(t, "labs-feature-flags", navLink.Children[0].Id)
+	require.Equal(t, "Feature flags", navLink.Children[0].Text)
+	require.Equal(t, "/labs/feature-flags", navLink.Children[0].Url)
 }
