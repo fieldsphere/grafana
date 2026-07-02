@@ -174,6 +174,10 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 
 	treeRoot.AddSection(s.buildDataConnectionsNavLink(c))
 
+	if hasAccess(ac.EvalPermission(ac.ActionSettingsRead)) {
+		treeRoot.AddSection(s.buildLabsNavLink())
+	}
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {
@@ -663,5 +667,28 @@ func (s *ServiceImpl) buildDataConnectionsNavLink(c *contextmodel.ReqContext) *n
 		Url:        baseUrl,
 		Children:   children,
 		SortWeight: navtree.WeightDataConnections,
+	}
+}
+
+func (s *ServiceImpl) buildLabsNavLink() *navtree.NavLink {
+	baseURL := s.cfg.AppSubURL + "/labs"
+
+	return &navtree.NavLink{
+		Text:       "Labs",
+		Id:         navtree.NavIDLabs,
+		SubTitle:   "Try and manage experimental Grafana features",
+		Icon:       "flask",
+		SortWeight: navtree.WeightLabs,
+		Url:        baseURL,
+		IsNew:      true,
+		Children: []*navtree.NavLink{
+			{
+				Text:     "Feature flags",
+				Id:       navtree.NavIDLabsFeatureFlags,
+				SubTitle: "View enabled feature flags and manage local overrides",
+				Icon:     "toggle-on",
+				Url:      baseURL + "/feature-flags",
+			},
+		},
 	}
 }

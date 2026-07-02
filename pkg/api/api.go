@@ -115,6 +115,8 @@ func (hs *HTTPServer) registerRoutes() {
 	r.Get("/configuration", reqGrafanaAdmin, hs.Index)
 	r.Get("/admin", reqOrgAdmin, hs.Index)
 	r.Get("/admin/settings", authorize(ac.EvalPermission(ac.ActionSettingsRead, ac.ScopeSettingsAll)), hs.Index)
+	r.Get("/labs", authorize(ac.EvalPermission(ac.ActionSettingsRead)), hs.Index)
+	r.Get("/labs/feature-flags", authorize(ac.EvalPermission(ac.ActionSettingsRead)), hs.Index)
 	r.Get("/admin/users", authorize(ac.EvalAny(ac.EvalPermission(ac.ActionOrgUsersRead), ac.EvalPermission(ac.ActionUsersRead, ac.ScopeGlobalUsersAll))), hs.Index)
 	r.Get("/admin/users/create", authorize(ac.EvalPermission(ac.ActionUsersCreate)), hs.Index)
 	r.Get("/admin/users/edit/:id", authorize(ac.EvalPermission(ac.ActionUsersRead)), hs.Index)
