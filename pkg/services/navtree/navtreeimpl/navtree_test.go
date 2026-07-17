@@ -68,3 +68,28 @@ func TestBuildDashboardNavLinks(t *testing.T) {
 		require.False(t, hasPlaylistLink(navLinks), "expected unauthenticated user to not see the Playlists nav link")
 	})
 }
+
+func TestBuildLabsNavLink(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{
+		Context: &web.Context{Req: httpReq},
+	}
+
+	service := ServiceImpl{
+		cfg: setting.NewCfg(),
+	}
+	service.cfg.AppSubURL = ""
+
+	navLink := service.buildLabsNavLink(reqCtx)
+
+	require.Equal(t, "Labs", navLink.Text)
+	require.Equal(t, "flask", navLink.Icon)
+	require.Equal(t, "labs", navLink.Id)
+	require.Equal(t, "/labs", navLink.Url)
+	require.True(t, navLink.IsNew)
+	require.Equal(t, int64(navtree.WeightLabs), navLink.SortWeight)
+	require.Len(t, navLink.Children, 1)
+	require.Equal(t, "labs-feature-flags", navLink.Children[0].Id)
+	require.Equal(t, "Feature flags", navLink.Children[0].Text)
+	require.Equal(t, "/labs/feature-flags", navLink.Children[0].Url)
+}

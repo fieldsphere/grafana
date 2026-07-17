@@ -22,12 +22,15 @@ var (
 
 func ProvideManagerService(cfg *setting.Cfg) (*FeatureManager, error) {
 	mgmt := &FeatureManager{
-		isDevMod: cfg.Env != setting.Prod,
-		flags:    make(map[string]*FeatureFlag, 30),
-		enabled:  make(map[string]bool),
-		startup:  make(map[string]bool),
-		warnings: make(map[string]string),
-		log:      log.New("featuremgmt"),
+		isDevMod:       cfg.Env != setting.Prod,
+		flags:          make(map[string]*FeatureFlag, 30),
+		enabled:        make(map[string]bool),
+		startup:        make(map[string]bool),
+		configKeys:     make(map[string]bool),
+		dbOverrides:    make(map[string]bool),
+		pendingRestart: make(map[string]bool),
+		warnings:       make(map[string]string),
+		log:            log.New("featuremgmt"),
 	}
 
 	// Register the standard flags
@@ -48,6 +51,7 @@ func ProvideManagerService(cfg *setting.Cfg) (*FeatureManager, error) {
 			mgmt.warnings[key] = "unknown flag in config"
 		}
 
+		mgmt.configKeys[key] = true
 		mgmt.startup[key] = val.Variants[val.DefaultVariant] == true
 	}
 

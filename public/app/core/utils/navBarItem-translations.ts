@@ -183,6 +183,10 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.sign-out.title', 'Sign out');
     case 'search':
       return t('nav.search-dashboards.title', 'Search dashboards');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
+    case 'labs-feature-flags':
+      return t('nav.labs-feature-flags.title', 'Feature flags');
     case 'connections':
       return t('nav.connections.title', 'Connections');
     case 'connections-add-new-connection':

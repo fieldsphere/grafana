@@ -158,6 +158,8 @@ import (
 	"github.com/grafana/grafana/pkg/services/extsvcauth"
 	registry2 "github.com/grafana/grafana/pkg/services/extsvcauth/registry"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/featuretoggleadmin"
+	"github.com/grafana/grafana/pkg/services/featuretogglestore"
 	"github.com/grafana/grafana/pkg/services/folder"
 	"github.com/grafana/grafana/pkg/services/folder/cleaner"
 	"github.com/grafana/grafana/pkg/services/folder/folderimpl"
@@ -333,6 +335,13 @@ func Initialize(ctx context.Context, cfg *setting.Cfg, opts Options, apiOpts api
 	if err != nil {
 		return nil, err
 	}
+	featureToggleStore := featuretogglestore.ProvideStore(sqlStore)
+	featureManager, err = featuremgmt.InitializeFeatureOverrides(featureManager, featureToggleStore)
+	if err != nil {
+		return nil, err
+	}
+	featureToggles = featuremgmt.ProvideToggles(featureManager)
+	featureToggleAdmin := featuretoggleadmin.ProvideService(featureManager, featureToggleStore)
 	kvStore := kvstore.ProvideService(sqlStore)
 	accessControl := acimpl.ProvideAccessControl(featureToggles)
 	bundleregistryService := bundleregistry.ProvideService()
@@ -816,7 +825,7 @@ func Initialize(ctx context.Context, cfg *setting.Cfg, opts Options, apiOpts api
 	}
 	idimplService := idimpl.ProvideService(cfg, localSigner, remoteCache, authnService, registerer, tracer)
 	verifier := userimpl.ProvideVerifier(cfg, userimplService, tempuserService, notificationService, idimplService)
-	httpServer, err := api.ProvideHTTPServer(apiOpts, cfg, routeRegisterImpl, inProcBus, renderingService, ossLicensingService, hooksService, cacheService, sqlStore, ossDataSourceRequestValidator, pluginstoreService, service14, pluginstoreService, middlewareHandler, pluginerrsStore, pluginInstaller, ossImpl, cacheServiceImpl, userAuthTokenService, cleanUpService, shortURLService, queryHistoryService, correlationsService, remoteCache, provisioningServiceImpl, accessControl, dataSourceProxyService, searchService, grafanaLive, gateway, plugincontextProvider, contexthandlerContextHandler, logger, featureToggles, alertNG, libraryPanelService, libraryElementService, quotaService, socialService, tracingService, serviceService, grafanaService, pluginsService, ossService, service13, queryServiceImpl, filestoreService, serviceAccountsProxy, pluginassetsService, authinfoimplService, notificationService, dashboardService, dashboardProvisioningService, folderimplService, ossProvider, serviceImpl, service12, avatarCacheServer, prefService, k8sHandler, migrationProxy, folderPermissionsService, dashboardPermissionsService, dashverService, starService, csrfCSRF, managedpluginsNoop, apikeyService, kvStore, secretsMigrator, secretsService, secretMigrationProviderImpl, secretsKVStore, v6, userimplService, tempuserService, loginattemptimplService, orgService, deletionService, teamimplService, acimplService, navtreeService, repositoryImpl, tagimplService, oauthtokenService, statsService, authnService, pluginscdnService, gatherer, apiAPI, registerer, anonDeviceService, eventualRestConfigProvider, clientGenerator, verifier, preinstallImpl, v4)
+	httpServer, err := api.ProvideHTTPServer(apiOpts, cfg, routeRegisterImpl, inProcBus, renderingService, ossLicensingService, hooksService, cacheService, sqlStore, ossDataSourceRequestValidator, pluginstoreService, service14, pluginstoreService, middlewareHandler, pluginerrsStore, pluginInstaller, ossImpl, cacheServiceImpl, userAuthTokenService, cleanUpService, shortURLService, queryHistoryService, correlationsService, remoteCache, provisioningServiceImpl, accessControl, dataSourceProxyService, searchService, grafanaLive, gateway, plugincontextProvider, contexthandlerContextHandler, logger, featureToggles, featureToggleAdmin, alertNG, libraryPanelService, libraryElementService, quotaService, socialService, tracingService, serviceService, grafanaService, pluginsService, ossService, service13, queryServiceImpl, filestoreService, serviceAccountsProxy, pluginassetsService, authinfoimplService, notificationService, dashboardService, dashboardProvisioningService, folderimplService, ossProvider, serviceImpl, service12, avatarCacheServer, prefService, k8sHandler, migrationProxy, folderPermissionsService, dashboardPermissionsService, dashverService, starService, csrfCSRF, managedpluginsNoop, apikeyService, kvStore, secretsMigrator, secretsService, secretMigrationProviderImpl, secretsKVStore, v6, userimplService, tempuserService, loginattemptimplService, orgService, deletionService, teamimplService, acimplService, navtreeService, repositoryImpl, tagimplService, oauthtokenService, statsService, authnService, pluginscdnService, gatherer, apiAPI, registerer, anonDeviceService, eventualRestConfigProvider, clientGenerator, verifier, preinstallImpl, v4)
 	if err != nil {
 		return nil, err
 	}
@@ -1086,6 +1095,13 @@ func InitializeForTest(ctx context.Context, t sqlutil.ITestDB, testingT interfac
 	if err != nil {
 		return nil, err
 	}
+	featureToggleStore := featuretogglestore.ProvideStore(sqlStore)
+	featureManager, err = featuremgmt.InitializeFeatureOverrides(featureManager, featureToggleStore)
+	if err != nil {
+		return nil, err
+	}
+	featureToggles = featuremgmt.ProvideToggles(featureManager)
+	featureToggleAdmin := featuretoggleadmin.ProvideService(featureManager, featureToggleStore)
 	kvStore := kvstore.ProvideService(sqlStore)
 	accessControl := acimpl.ProvideAccessControl(featureToggles)
 	bundleregistryService := bundleregistry.ProvideService()
@@ -1568,7 +1584,7 @@ func InitializeForTest(ctx context.Context, t sqlutil.ITestDB, testingT interfac
 	}
 	idimplService := idimpl.ProvideService(cfg, localSigner, remoteCache, authnService, registerer, tracer)
 	verifier := userimpl.ProvideVerifier(cfg, userimplService, tempuserService, notificationServiceMock, idimplService)
-	httpServer, err := api.ProvideHTTPServer(apiOpts, cfg, routeRegisterImpl, inProcBus, renderingService, ossLicensingService, hooksService, cacheService, sqlStore, ossDataSourceRequestValidator, pluginstoreService, service14, pluginstoreService, middlewareHandler, pluginerrsStore, pluginInstaller, ossImpl, cacheServiceImpl, userAuthTokenService, cleanUpService, shortURLService, queryHistoryService, correlationsService, remoteCache, provisioningServiceImpl, accessControl, dataSourceProxyService, searchService, grafanaLive, gateway, plugincontextProvider, contexthandlerContextHandler, logger, featureToggles, alertNG, libraryPanelService, libraryElementService, quotaService, socialService, tracingService, serviceService, grafanaService, pluginsService, ossService, service13, queryServiceImpl, filestoreService, serviceAccountsProxy, pluginassetsService, authinfoimplService, notificationServiceMock, dashboardService, dashboardProvisioningService, folderimplService, ossProvider, serviceImpl, service12, avatarCacheServer, prefService, k8sHandler, migrationProxy, folderPermissionsService, dashboardPermissionsService, dashverService, starService, csrfCSRF, managedpluginsNoop, apikeyService, kvStore, secretsMigrator, secretsService, secretMigrationProviderImpl, secretsKVStore, v6, userimplService, tempuserService, loginattemptimplService, orgService, deletionService, teamimplService, acimplService, navtreeService, repositoryImpl, tagimplService, oauthtokentestService, statsService, authnService, pluginscdnService, gatherer, apiAPI, registerer, anonDeviceService, eventualRestConfigProvider, clientGenerator, verifier, preinstallImpl, v4)
+	httpServer, err := api.ProvideHTTPServer(apiOpts, cfg, routeRegisterImpl, inProcBus, renderingService, ossLicensingService, hooksService, cacheService, sqlStore, ossDataSourceRequestValidator, pluginstoreService, service14, pluginstoreService, middlewareHandler, pluginerrsStore, pluginInstaller, ossImpl, cacheServiceImpl, userAuthTokenService, cleanUpService, shortURLService, queryHistoryService, correlationsService, remoteCache, provisioningServiceImpl, accessControl, dataSourceProxyService, searchService, grafanaLive, gateway, plugincontextProvider, contexthandlerContextHandler, logger, featureToggles, featureToggleAdmin, alertNG, libraryPanelService, libraryElementService, quotaService, socialService, tracingService, serviceService, grafanaService, pluginsService, ossService, service13, queryServiceImpl, filestoreService, serviceAccountsProxy, pluginassetsService, authinfoimplService, notificationServiceMock, dashboardService, dashboardProvisioningService, folderimplService, ossProvider, serviceImpl, service12, avatarCacheServer, prefService, k8sHandler, migrationProxy, folderPermissionsService, dashboardPermissionsService, dashverService, starService, csrfCSRF, managedpluginsNoop, apikeyService, kvStore, secretsMigrator, secretsService, secretMigrationProviderImpl, secretsKVStore, v6, userimplService, tempuserService, loginattemptimplService, orgService, deletionService, teamimplService, acimplService, navtreeService, repositoryImpl, tagimplService, oauthtokentestService, statsService, authnService, pluginscdnService, gatherer, apiAPI, registerer, anonDeviceService, eventualRestConfigProvider, clientGenerator, verifier, preinstallImpl, v4)
 	if err != nil {
 		return nil, err
 	}

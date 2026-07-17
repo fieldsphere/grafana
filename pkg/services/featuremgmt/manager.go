@@ -1,9 +1,9 @@
 package featuremgmt
 
 import (
-	"context"
 	"fmt"
 	"reflect"
+	"sync"
 
 	"github.com/grafana/grafana/pkg/infra/log"
 )
@@ -13,13 +13,19 @@ var (
 )
 
 type FeatureManager struct {
+	mu sync.RWMutex
+
 	isDevMod bool
 
-	flags    map[string]*FeatureFlag
-	enabled  map[string]bool   // only the "on" values
-	startup  map[string]bool   // the explicit values registered at startup
-	warnings map[string]string // potential warnings about the flag
-	log      log.Logger
+	flags          map[string]*FeatureFlag
+	enabled        map[string]bool   // only the "on" values
+	startup        map[string]bool   // the explicit values registered at startup
+	configKeys     map[string]bool   // flags pinned by configuration
+	dbOverrides    map[string]bool   // flags overridden via the Labs store
+	pendingRestart map[string]bool   // desired values for restart-required flags
+	restartRequired bool
+	warnings       map[string]string // potential warnings about the flag
+	log            log.Logger
 }
 
 // This will merge the flags with the current configuration
@@ -73,6 +79,12 @@ func (fm *FeatureManager) meetsRequirements(ff *FeatureFlag) (bool, string) {
 
 // Update
 func (fm *FeatureManager) update() {
+	fm.mu.Lock()
+	defer fm.mu.Unlock()
+	fm.updateLocked()
+}
+
+func (fm *FeatureManager) updateLocked() {
 	enabled := make(map[string]bool)
 	for _, flag := range fm.flags {
 		// if grafana cannot run the feature, omit metrics around it
@@ -95,36 +107,6 @@ func (fm *FeatureManager) update() {
 		featureToggleInfo.WithLabelValues(flag.Name).Set(track)
 	}
 	fm.enabled = enabled
-}
-
-// IsEnabled checks if a feature is enabled
-func (fm *FeatureManager) IsEnabled(ctx context.Context, flag string) bool {
-	return fm.enabled[flag]
-}
-
-// IsEnabledGlobally checks if a feature is for all tenants
-func (fm *FeatureManager) IsEnabledGlobally(flag string) bool {
-	return fm.enabled[flag]
-}
-
-// GetEnabled returns a map containing only the features that are enabled
-func (fm *FeatureManager) GetEnabled(ctx context.Context) map[string]bool {
-	enabled := make(map[string]bool, len(fm.enabled))
-	for key, val := range fm.enabled {
-		if val {
-			enabled[key] = true
-		}
-	}
-	return enabled
-}
-
-// GetFlags returns all flag definitions
-func (fm *FeatureManager) GetFlags() []FeatureFlag {
-	v := make([]FeatureFlag, 0, len(fm.flags))
-	for _, value := range fm.flags {
-		v = append(v, *value)
-	}
-	return v
 }
 
 // ############# Test Functions #############

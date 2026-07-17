@@ -196,6 +196,9 @@ var wireExtsBaseCLISet = wire.NewSet(
 
 	metrics.WireSet,
 	featuremgmt.ProvideManagerService,
+	featuretogglestore.ProvideNoopStore,
+	featuremgmt.InitializeFeatureOverrides,
+	featuretoggleadmin.ProvideService,
 	featuremgmt.ProvideToggles,
 	hooks.ProvideService,
 	setting.ProvideProvider, wire.Bind(new(setting.Provider), new(*setting.OSSImpl)),

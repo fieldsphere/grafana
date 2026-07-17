@@ -197,6 +197,10 @@ export enum AccessControlAction {
   QueriesRead = 'queries:read',
   QueriesWrite = 'queries:write',
 
+  // Feature management (Labs)
+  FeatureManagementRead = 'featuremgmt.read',
+  FeatureManagementWrite = 'featuremgmt.write',
+
   // Provisioning
   ProvisioningRepositoriesRead = 'provisioning.repositories:read',
   ProvisioningRepositoriesWrite = 'provisioning.repositories:write',
