@@ -12463,7 +12463,12 @@
       "aria-label": "New",
       "new-template-dashboard-button": "Use template"
     },
-    "rss-button": "Latest from the blog"
+    "rss-button": "Latest from the blog",
+    "theme": {
+      "toggle-to-dark-aria-label": "Switch to dark theme",
+      "toggle-to-light-aria-label": "Switch to light theme",
+      "toggle-tooltip": "Switch to {{targetTheme}} theme (c t)"
+    }
   },
   "news": {
     "category-news": "News",

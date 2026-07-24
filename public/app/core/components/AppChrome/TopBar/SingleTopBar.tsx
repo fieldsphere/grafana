@@ -18,6 +18,7 @@ import { useSelector } from 'app/types/store';
 import { HomeLogo } from '../../Branding/Branding';
 import { Breadcrumbs } from '../../Breadcrumbs/Breadcrumbs';
 import { buildBreadcrumbs } from '../../Breadcrumbs/utils';
+import { ThemeToggleButton } from '../../ThemeToggle/ThemeToggleButton';
 import { ExtensionToolbarItem } from '../ExtensionSidebar/ExtensionToolbarItem';
 import { FeatureControlButton } from '../FeatureControl/FeatureControlButton';
 import { NavToolbarSeparator } from '../NavToolbar/NavToolbarSeparator';
@@ -100,6 +101,7 @@ export const SingleTopBar = memo(function SingleTopBar({
           {!isSmallScreen && <QuickAdd />}
           <FeatureControlButton />
           <HelpTopBarButton isSmallScreen={isSmallScreen} />
+          <ThemeToggleButton />
           <NavToolbarSeparator />
           {!isSmallScreen && <ExtensionToolbarItem compact={isSmallScreen} />}
           {!showToolbarLevel && actions}
