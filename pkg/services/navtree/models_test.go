@@ -44,4 +44,16 @@ func TestNavTreeRoot(t *testing.T) {
 		require.Equal(t, "2", treeRoot.FindByURL("/org").Id)
 		require.Equal(t, "3", treeRoot.FindByURL("/org/users").Id)
 	})
+
+	t.Run("Labs nav sorts after Administration when both use standard weights", func(t *testing.T) {
+		treeRoot := NavTreeRoot{
+			Children: []*NavLink{
+				{Id: NavIDLabs, SortWeight: WeightLabs},
+				{Id: NavIDCfg, SortWeight: WeightConfig},
+			},
+		}
+		treeRoot.Sort()
+		require.Equal(t, NavIDCfg, treeRoot.Children[0].Id)
+		require.Equal(t, NavIDLabs, treeRoot.Children[1].Id)
+	})
 }
