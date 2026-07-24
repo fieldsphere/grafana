@@ -231,8 +231,8 @@ const getStyles = (theme: GrafanaTheme2, isActive: Props['isActive']) => ({
     flex: 1,
     minWidth: 0,
 
-    '&:hover span, &:focus-visible span': {
-      color: theme.colors.text.primary,
+    '&:hover, &:focus-visible': {
+      color: theme.colors.text.link,
       textDecoration: 'underline',
     },
 

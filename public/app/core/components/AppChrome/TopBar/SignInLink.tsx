@@ -39,6 +39,7 @@ const getStyles = (theme: GrafanaTheme2) => {
       paddingRight: theme.spacing(1),
       whiteSpace: 'nowrap',
       '&:hover': {
+        color: theme.colors.text.link,
         textDecoration: 'underline',
       },
     }),

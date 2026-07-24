@@ -128,6 +128,7 @@ const getStyles = (theme: GrafanaTheme2) => {
       wordBreak: 'break-word',
 
       '&:hover, &:focus': css({
+        color: theme.colors.text.link,
         textDecoration: 'underline',
       }),
     }),
