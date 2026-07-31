@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useNavigate } from 'react-router-dom-v5-compat';
+import { useNavigate } from 'react-router-dom';
 
 import { reportInteraction } from '@grafana/runtime';
 import { useDeleteRepositoryMutation } from 'app/api/clients/provisioning/v0alpha1';

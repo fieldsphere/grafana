@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { memo, type ReactNode } from 'react';
 import { connect, type ConnectedProps } from 'react-redux';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 
 import { textUtil } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';

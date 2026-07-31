@@ -1,57 +1,99 @@
-import { type History, type Location, createMemoryHistory } from 'history';
-import { render } from 'test/test-utils';
-
-import { locationService } from '@grafana/runtime';
+import { type Location } from 'history';
+import { Link, Route, Routes } from 'react-router-dom';
+import { render, screen } from 'test/test-utils';
 
 import { Prompt } from './Prompt';
 
-jest.mock('@grafana/runtime', () => ({
-  ...jest.requireActual('@grafana/runtime'),
-  locationService: {
-    getLocation: jest.fn(),
-    getHistory: jest.fn(),
-  },
-}));
+interface SetupOptions {
+  when?: boolean;
+  message: string | ((location: Location) => string | boolean);
+}
 
-describe('Prompt component with React Router', () => {
-  let mockHistory: History & { block: jest.Mock };
+// Rendered through the real router/locationService rather than a mocked history, so these tests
+// actually prove that `history.block` still intercepts react-router navigation now that the app
+// runs on a native react-router v6 router (see the comment in Prompt.tsx).
+function setup({ when = true, message }: SetupOptions) {
+  return render(
+    <Routes>
+      <Route
+        path="/form"
+        element={
+          <>
+            <Prompt when={when} message={message} />
+            <Link to="/other">leave</Link>
+          </>
+        }
+      />
+      <Route path="/other" element={<div>other page</div>} />
+    </Routes>,
+    {
+      historyOptions: {
+        initialEntries: ['/form'],
+        // createBrowserHistory (what the app runs on) defaults to window.confirm; memory history
+        // has no default at all, so wire up the equivalent to exercise string prompt messages.
+        getUserConfirmation: (message, callback) => callback(window.confirm(message)),
+      },
+    }
+  );
+}
 
-  beforeEach(() => {
-    const historyInstance = createMemoryHistory({ initialEntries: ['/current'] });
-    mockHistory = {
-      ...historyInstance,
-      block: jest.fn(() => jest.fn()),
-    };
+describe('Prompt', () => {
+  it('blocks navigation when the message callback returns false', async () => {
+    const { user } = setup({ message: () => false });
 
-    (locationService.getLocation as jest.Mock).mockReturnValue({ pathname: '/current' } as Location);
-    (locationService.getHistory as jest.Mock).mockReturnValue(mockHistory);
+    await user.click(screen.getByRole('link', { name: 'leave' }));
+
+    expect(screen.queryByText('other page')).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'leave' })).toBeInTheDocument();
   });
 
-  afterEach(() => {
-    jest.clearAllMocks();
+  it('allows navigation when the message callback returns true', async () => {
+    const { user } = setup({ message: () => true });
+
+    await user.click(screen.getByRole('link', { name: 'leave' }));
+
+    expect(await screen.findByText('other page')).toBeInTheDocument();
   });
 
-  it('should call the block function when `when` is true', () => {
-    const { unmount } = render(<Prompt when={true} message="Are you sure you want to leave?" />);
+  it('does not block at all when `when` is false', async () => {
+    const { user } = setup({ when: false, message: () => false });
+
+    await user.click(screen.getByRole('link', { name: 'leave' }));
+
+    expect(await screen.findByText('other page')).toBeInTheDocument();
+  });
+
+  it('passes the attempted location to the message callback', async () => {
+    const message = jest.fn().mockReturnValue(false);
+    const { user } = setup({ message });
+
+    await user.click(screen.getByRole('link', { name: 'leave' }));
+
+    expect(message).toHaveBeenCalledWith(expect.objectContaining({ pathname: '/other' }), 'PUSH');
+  });
+
+  it('asks the user to confirm when the message is a string', async () => {
+    const confirmSpy = jest.spyOn(window, 'confirm').mockReturnValue(false);
+    const { user } = setup({ message: 'Are you sure you want to leave?' });
+
+    await user.click(screen.getByRole('link', { name: 'leave' }));
+
+    expect(confirmSpy).toHaveBeenCalledWith('Are you sure you want to leave?');
+    expect(screen.queryByText('other page')).not.toBeInTheDocument();
+
+    confirmSpy.mockRestore();
+  });
+
+  it('stops blocking once unmounted', async () => {
+    const { user, unmount } = setup({ message: () => false });
+
+    await user.click(screen.getByRole('link', { name: 'leave' }));
+    expect(screen.queryByText('other page')).not.toBeInTheDocument();
 
     unmount();
-    expect(mockHistory.block).toHaveBeenCalled();
-  });
 
-  it('should not call the block function when `when` is false', () => {
-    const { unmount } = render(<Prompt when={false} message="Are you sure you want to leave?" />);
-
-    unmount();
-    expect(mockHistory.block).not.toHaveBeenCalled();
-  });
-
-  it('should use the message function if provided', async () => {
-    const messageFn = jest.fn().mockReturnValue('Custom message');
-    render(<Prompt when={true} message={messageFn} />);
-
-    const callback = mockHistory.block.mock.calls[0][0];
-    callback({ pathname: '/new-path' } as Location);
-
-    expect(messageFn).toHaveBeenCalledWith(expect.objectContaining({ pathname: '/new-path' }));
+    const { user: nextUser } = setup({ when: false, message: () => false });
+    await nextUser.click(screen.getByRole('link', { name: 'leave' }));
+    expect(await screen.findByText('other page')).toBeInTheDocument();
   });
 });

@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { useMemo, useState } from 'react';
-import { useLocation, useParams } from 'react-router-dom-v5-compat';
+import { useLocation, useParams } from 'react-router-dom';
 
 import { type GrafanaTheme2, type NavModelItem } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';

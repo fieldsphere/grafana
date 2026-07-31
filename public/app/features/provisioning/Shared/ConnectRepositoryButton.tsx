@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom-v5-compat';
+import { useNavigate } from 'react-router-dom';
 
 import { t, Trans } from '@grafana/i18n';
 import { Button, Dropdown, Icon, Menu, Stack } from '@grafana/ui';

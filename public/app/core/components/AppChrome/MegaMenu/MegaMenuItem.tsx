@@ -3,7 +3,7 @@ import { type DraggableProvided } from '@hello-pangea/dnd';
 import { useEffect, useRef } from 'react';
 import * as React from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from 'react-use';
 
 import { FeatureState, type GrafanaTheme2, type NavModelItem, toIconName } from '@grafana/data';

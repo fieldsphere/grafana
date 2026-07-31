@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import type history from 'history';
 import { useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom-v5-compat';
+import { Navigate } from 'react-router-dom';
 
 import { Trans, t } from '@grafana/i18n';
 import { Button, Modal } from '@grafana/ui';

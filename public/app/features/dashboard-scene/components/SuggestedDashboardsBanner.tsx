@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 
 import { Trans, t } from '@grafana/i18n';
 import { Alert, TextLink } from '@grafana/ui';

@@ -1,4 +1,4 @@
-import { useLocation, useSearchParams } from 'react-router-dom-v5-compat';
+import { useLocation, useSearchParams } from 'react-router-dom';
 
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';

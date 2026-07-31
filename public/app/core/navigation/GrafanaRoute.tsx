@@ -1,5 +1,5 @@
 import { Suspense, useEffect, useLayoutEffect } from 'react';
-import { Navigate, useLocation, useParams } from 'react-router-dom-v5-compat';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 
 import { config, locationSearchToObject, navigationLogger, reportPageview } from '@grafana/runtime';
 import { ErrorBoundary, PageLoader } from '@grafana/ui';

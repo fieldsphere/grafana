@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 
 import { locationSearchToObject } from '@grafana/runtime';
 import { Sorters } from 'app/features/plugins/admin/helpers';

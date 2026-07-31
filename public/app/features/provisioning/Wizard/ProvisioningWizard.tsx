@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { memo, useCallback, useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router-dom-v5-compat';
+import { useNavigate } from 'react-router-dom';
 
 import { AppEvents, type GrafanaTheme2 } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';

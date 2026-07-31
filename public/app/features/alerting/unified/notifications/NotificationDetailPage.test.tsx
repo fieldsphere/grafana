@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { HttpResponse, http } from 'msw';
-import { Route, Routes } from 'react-router-dom-v5-compat';
+import { Route, Routes } from 'react-router-dom';
 import { render } from 'test/test-utils';
 
 import { type CreateNotificationqueryNotificationEntry } from '@grafana/api-clients/rtkq/historian.alerting/v0alpha1';

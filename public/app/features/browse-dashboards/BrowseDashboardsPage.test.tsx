@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { type ComponentProps } from 'react';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 import type AutoSizer from 'react-virtualized-auto-sizer';
 import { of } from 'rxjs';
 import { render as testRender, screen, waitFor, testWithFeatureToggles } from 'test/test-utils';
@@ -42,8 +42,8 @@ jest.mock('react-virtualized-auto-sizer', () => {
   };
 });
 
-jest.mock('react-router-dom-v5-compat', () => ({
-  ...jest.requireActual('react-router-dom-v5-compat'),
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useParams: jest.fn().mockReturnValue({}),
 }));
 

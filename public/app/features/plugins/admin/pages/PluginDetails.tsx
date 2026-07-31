@@ -1,5 +1,5 @@
 import type { JSX } from 'react';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 
 import { PluginDetailsPage } from '../components/PluginDetailsPage';
 

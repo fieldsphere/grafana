@@ -1,6 +1,6 @@
 import { act, screen } from '@testing-library/react';
 import { Component, useEffect } from 'react';
-import { Routes, Route, Link } from 'react-router-dom-v5-compat';
+import { Routes, Route, Link } from 'react-router-dom';
 import { render } from 'test/test-utils';
 
 import { AppPlugin, PluginType, type AppRootProps, type NavModelItem, PluginIncludeType, OrgRole } from '@grafana/data';

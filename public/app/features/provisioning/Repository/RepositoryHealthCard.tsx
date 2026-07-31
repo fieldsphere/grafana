@@ -1,5 +1,5 @@
 import { css } from '@emotion/css';
-import { Link } from 'react-router-dom-v5-compat';
+import { Link } from 'react-router-dom';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';

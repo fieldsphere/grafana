@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { useEffect } from 'react';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 
 import { type GrafanaTheme2, PageLayoutType } from '@grafana/data';
 import { t } from '@grafana/i18n';

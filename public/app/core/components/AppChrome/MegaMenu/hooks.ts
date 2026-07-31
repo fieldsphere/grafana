@@ -1,7 +1,7 @@
 import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { skipToken } from '@reduxjs/toolkit/query';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 import { useLocalStorage } from 'react-use';
 
 import {

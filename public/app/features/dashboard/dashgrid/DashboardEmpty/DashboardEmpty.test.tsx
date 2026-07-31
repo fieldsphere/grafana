@@ -52,7 +52,7 @@ const mockUseGetResourceRepositoryView = jest.mocked(
 );
 
 const mockSearchParams = new URLSearchParams();
-jest.spyOn(require('react-router-dom-v5-compat'), 'useSearchParams').mockReturnValue([mockSearchParams]);
+jest.spyOn(require('react-router-dom'), 'useSearchParams').mockReturnValue([mockSearchParams]);
 
 function setup(options?: Partial<Props>) {
   const props = {

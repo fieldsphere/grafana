@@ -1,6 +1,6 @@
 import { css } from '@emotion/css';
 import { useId, useMemo, useState, type MouseEvent } from 'react';
-import { useLocation } from 'react-router-dom-v5-compat';
+import { useLocation } from 'react-router-dom';
 
 import { PluginType, type GrafanaTheme2, type SelectableValue } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';

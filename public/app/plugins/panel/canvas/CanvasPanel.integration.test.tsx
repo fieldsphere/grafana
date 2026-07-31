@@ -30,8 +30,8 @@ import { HorizontalConstraint, type Options, VerticalConstraint } from 'app/plug
 
 const theme = createTheme();
 
-jest.mock('react-router-dom-v5-compat', () => ({
-  ...jest.requireActual('react-router-dom-v5-compat'),
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useLocation: () => ({
     pathname: '/',
     search: '',

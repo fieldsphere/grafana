@@ -1,4 +1,4 @@
-import { Navigate, useLocation, useParams } from 'react-router-dom-v5-compat';
+import { Navigate, useLocation, useParams } from 'react-router-dom';
 
 import { getRouteForAppPlugin } from 'app/features/plugins/routes';
 

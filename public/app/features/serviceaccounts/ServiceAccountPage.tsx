@@ -1,6 +1,6 @@
 import { useEffect, useState, type JSX } from 'react';
 import { type ConnectedProps, connect } from 'react-redux';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 
 import { type NavModelItem, getTimeZone } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useNavigate } from 'react-router-dom-v5-compat';
+import { useNavigate } from 'react-router-dom';
 
 import { AppEvents, isObject } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';

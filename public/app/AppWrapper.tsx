@@ -4,7 +4,7 @@ import { type Action, KBarProvider } from 'kbar';
 import { type ComponentType, Fragment, type ReactNode, useEffect, useState } from 'react';
 import CacheProvider from 'react-inlinesvg/provider';
 import { Provider } from 'react-redux';
-import { Route, Routes } from 'react-router-dom-v5-compat';
+import { Route, Routes } from 'react-router-dom';
 
 import { config, navigationLogger, reportInteraction } from '@grafana/runtime';
 import { getFeatureFlagClient } from '@grafana/runtime/internal';

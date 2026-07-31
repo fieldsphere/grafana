@@ -1,5 +1,5 @@
 import { screen, waitFor } from '@testing-library/react';
-import { Routes, Route } from 'react-router-dom-v5-compat';
+import { Routes, Route } from 'react-router-dom';
 import { of } from 'rxjs';
 import { render } from 'test/test-utils';
 
@@ -23,8 +23,8 @@ jest.mock('@grafana/runtime', () => ({
   }),
 }));
 
-jest.mock('react-router-dom-v5-compat', () => ({
-  ...jest.requireActual('react-router-dom-v5-compat'),
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useParams: () => ({ accessToken: 'an-access-token' }),
 }));
 

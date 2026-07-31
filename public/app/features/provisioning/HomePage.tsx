@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router-dom-v5-compat';
+import { useSearchParams } from 'react-router-dom';
 
 import { t, Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';

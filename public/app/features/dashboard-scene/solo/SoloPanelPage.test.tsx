@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 import { getWrapper } from 'test/test-utils';
 
 import { SceneTimeRange, VizPanel } from '@grafana/scenes';
@@ -11,7 +11,7 @@ import { DefaultGridLayoutManager } from '../scene/layout-default/DefaultGridLay
 import { SoloPanelPage, SoloPanelRenderer, type Props } from './SoloPanelPage';
 
 // Mock dependencies
-jest.mock('react-router-dom-v5-compat', () => ({
+jest.mock('react-router-dom', () => ({
   useParams: jest.fn(),
 }));
 

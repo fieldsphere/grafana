@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { type Params, useParams } from 'react-router-dom-v5-compat';
+import { type Params, useParams } from 'react-router-dom';
 import { usePrevious } from 'react-use';
 
 import { PageLayoutType } from '@grafana/data';

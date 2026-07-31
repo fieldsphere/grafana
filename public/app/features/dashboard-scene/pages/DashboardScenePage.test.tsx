@@ -2,7 +2,7 @@ import { OpenFeatureProvider } from '@openfeature/react-sdk';
 import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { cloneDeep } from 'lodash';
-import { useParams } from 'react-router-dom-v5-compat';
+import { useParams } from 'react-router-dom';
 import { of } from 'rxjs';
 import { TestProvider } from 'test/helpers/TestProvider';
 import { getGrafanaContextMock } from 'test/mocks/getGrafanaContextMock';
@@ -56,8 +56,8 @@ jest.mock('@grafana/runtime', () => ({
   }),
 }));
 
-jest.mock('react-router-dom-v5-compat', () => ({
-  ...jest.requireActual('react-router-dom-v5-compat'),
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
   useParams: jest.fn().mockReturnValue({ uid: 'my-dash-uid' }),
 }));
 
