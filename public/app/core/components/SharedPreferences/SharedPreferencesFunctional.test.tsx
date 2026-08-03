@@ -3,7 +3,7 @@ import { getSelectParent, selectOptionInTest } from 'test/helpers/selectOptionIn
 import { act, render, screen, userEvent, waitFor, within } from 'test/test-utils';
 
 import { setBackendSrv } from '@grafana/runtime';
-import { mockComboboxRect } from '@grafana/test-utils';
+import { mockBoundingClientRect } from '@grafana/test-utils';
 import { preferencesHandlers } from '@grafana/test-utils/handlers';
 import server, { setupMockServer } from '@grafana/test-utils/server';
 import { getFolderFixtures, setTestFlags } from '@grafana/test-utils/unstable';
@@ -62,7 +62,8 @@ afterEach(async () => {
 
 beforeAll(() => {
   jest.spyOn(window, 'location', 'get').mockReturnValue({ ...originalLocation, reload: mockReload });
-  mockComboboxRect();
+  // Tall enough for all theme options, including newly exposed experimental themes.
+  mockBoundingClientRect({ width: 400, height: 2000 });
 });
 
 afterAll(() => {
@@ -156,7 +157,7 @@ describe('SharedPreferencesFunctional', () => {
     const capture = captureRequests();
     const { user } = await setup();
 
-    await selectComboboxOptionInTest(await screen.findByRole('combobox', { name: /Interface theme/ }), 'Gilded grove');
+    await selectComboboxOptionInTest(await screen.findByRole('combobox', { name: /Interface theme/ }), 'Cursor');
 
     await user.click(screen.getByText('Save preferences'));
 
@@ -164,7 +165,7 @@ describe('SharedPreferencesFunctional', () => {
     const newPreferences = await getPrefsUpdateRequest(requests);
 
     expect(newPreferences).toMatchObject({
-      spec: { theme: 'gildedgrove' },
+      spec: { theme: 'cursor' },
     });
   });
 
