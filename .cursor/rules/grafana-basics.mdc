@@ -1,0 +1,13 @@
+---
+description: Core Grafana repo guidance for Cursor agents
+alwaysApply: true
+---
+
+# Grafana Basics
+
+- Read `AGENTS.md` before substantial work; it is the canonical repo guide.
+- Keep changes focused and follow the surrounding code style.
+- Prefer targeted tests over repo-wide commands unless the risk justifies broad verification.
+- Separate unrelated frontend (`public/app/`, `packages/`) and backend (`pkg/`, `apps/`) changes into separate PRs.
+- Do not stage local manifests, credentials, env files, or caches.
+- For GitHub work, target `fieldsphere/grafana` unless the user explicitly requests upstream.

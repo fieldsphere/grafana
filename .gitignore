@@ -77,8 +77,14 @@ public/css/*.min.css
 .cursor/
 !.cursor/
 .cursor/*
+!.cursor/hooks/
+!.cursor/hooks/**
+!.cursor/rules/
+!.cursor/rules/**
 !.cursor/skills/
 !.cursor/skills/**
+!.cursor/subagents/
+!.cursor/subagents/**
 .devcontainer/
 .claude/*
 
