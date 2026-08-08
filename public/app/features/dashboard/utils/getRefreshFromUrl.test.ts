@@ -36,6 +36,23 @@ describe('getRefreshFromUrl', () => {
 
         expect(actual).toBe('10s');
       });
+
+      it('when URL requests an interval removed from the dashboard, falls back to the fastest allowed interval (not the slowest)', () => {
+        const minRefreshInterval = '5s';
+        const isAllowedIntervalFn = () => true;
+        // e.g. shared link had &refresh=10s; admin later removed 10s from the dashboard list
+        const refreshIntervals = ['5s', '30s', '1m', '5m'];
+
+        const actual = getRefreshFromUrl({
+          urlRefresh: '10s',
+          currentRefresh: '',
+          minRefreshInterval,
+          isAllowedIntervalFn,
+          refreshIntervals,
+        });
+
+        expect(actual).toBe('5s');
+      });
     });
 
     it.each`
