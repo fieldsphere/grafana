@@ -60,7 +60,7 @@ export default function AdCard({ title, description, href, logoUrl, items, stora
         ))}
       </div>
       <Divider />
-      <Button fill="solid" variant="secondary" onClick={() => window.open(href, '_blank')} className={styles.button}>
+      <Button fill="solid" variant="success" onClick={() => window.open(href, '_blank')} className={styles.button}>
         <Trans i18nKey="alerting.ad.learn-more">Learn more</Trans>
         <Icon name="external-link-alt" className={styles.buttonIcon} />
       </Button>
