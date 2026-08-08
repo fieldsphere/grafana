@@ -2,6 +2,8 @@ import { isUndefined, omitBy } from 'lodash';
 
 import { type MuteTimeInterval, type TimeInterval, type TimeRange } from 'app/plugins/datasource/alertmanager/types';
 
+import { timeToMinutes } from '../components/mute-timings/util';
+
 import { type MuteTimingFields, type MuteTimingIntervalFields } from '../types/mute-timing-form';
 
 export const DAYS_OF_THE_WEEK = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'];
@@ -81,11 +83,24 @@ export const createMuteTiming = (fields: MuteTimingFields): MuteTimeInterval => 
  * @returns MuteTimingFields
  *
  */
+function splitOvernightTimeRange({ start_time, end_time }: TimeRange): TimeRange[] {
+  if (timeToMinutes(start_time) < timeToMinutes(end_time)) {
+    return [{ start_time, end_time }];
+  }
+
+  return [
+    { start_time, end_time: '24:00' },
+    { start_time: '00:00', end_time },
+  ];
+}
+
 function convertTimesToDto(times: TimeRange[] | undefined, disable: boolean) {
   if (disable) {
     return [];
   }
-  const timesToReturn = times?.filter(({ start_time, end_time }) => !!start_time && !!end_time);
+  const timesToReturn = times
+    ?.filter(({ start_time, end_time }) => !!start_time && !!end_time)
+    .flatMap(splitOvernightTimeRange);
   return timesToReturn?.length ? timesToReturn : undefined;
 }
 

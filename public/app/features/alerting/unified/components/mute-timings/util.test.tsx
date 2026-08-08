@@ -1,6 +1,30 @@
 import { type MuteTimeInterval } from 'app/plugins/datasource/alertmanager/types';
 
-import { renderTimeIntervals } from './util';
+import { isValidStartAndEndTime, renderTimeIntervals } from './util';
+
+describe('isValidStartAndEndTime', () => {
+  it('allows empty time ranges', () => {
+    expect(isValidStartAndEndTime()).toBe(true);
+    expect(isValidStartAndEndTime('', '')).toBe(true);
+  });
+
+  it('rejects partially filled time ranges', () => {
+    expect(isValidStartAndEndTime('22:00')).toBe(false);
+    expect(isValidStartAndEndTime(undefined, '06:00')).toBe(false);
+  });
+
+  it('allows same-day time ranges', () => {
+    expect(isValidStartAndEndTime('09:00', '17:00')).toBe(true);
+  });
+
+  it('allows overnight time ranges', () => {
+    expect(isValidStartAndEndTime('22:00', '06:00')).toBe(true);
+  });
+
+  it('rejects equal start and end times', () => {
+    expect(isValidStartAndEndTime('22:00', '22:00')).toBe(false);
+  });
+});
 
 describe('renderTimeIntervals', () => {
   it('should render empty time interval', () => {

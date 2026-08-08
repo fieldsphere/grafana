@@ -1,4 +1,3 @@
-import moment from 'moment';
 import { Fragment } from 'react';
 
 import { Stack } from '@grafana/ui';
@@ -26,6 +25,11 @@ export const mergeTimeIntervals = (alertManagerConfig: AlertmanagerConfig) => {
   return [...(alertManagerConfig.mute_time_intervals ?? []), ...(alertManagerConfig.time_intervals ?? [])];
 };
 
+export const timeToMinutes = (time: string): number => {
+  const [hours, minutes] = time.split(':').map(Number);
+  return hours * 60 + minutes;
+};
+
 export const isValidStartAndEndTime = (startTime?: string, endTime?: string): boolean => {
   // empty time range is perfactly valid for a mute timing
   if (!startTime && !endTime) {
@@ -36,21 +40,7 @@ export const isValidStartAndEndTime = (startTime?: string, endTime?: string): bo
     return false;
   }
 
-  const timeUnit = 'HH:mm';
-  // @ts-ignore typescript types here incorrect, sigh
-  const startDate = moment().startOf('day').add(startTime, timeUnit);
-  // @ts-ignore typescript types here incorrect, sigh
-  const endDate = moment().startOf('day').add(endTime, timeUnit);
-
-  if (startTime && endTime && startDate.isBefore(endDate)) {
-    return true;
-  }
-
-  if (startTime && endTime && endDate.isAfter(startDate)) {
-    return true;
-  }
-
-  return false;
+  return timeToMinutes(startTime!) !== timeToMinutes(endTime!);
 };
 
 export function renderTimeIntervals(muteTiming: MuteTimeInterval) {
