@@ -11291,6 +11291,21 @@
     }
   },
   "label-dropdown-info": "Can't find your label? Enter it manually",
+  "labs": {
+    "feature-flags": {
+      "columns": {
+        "name": "Feature flag"
+      },
+      "empty": {
+        "description": "Feature flags enabled for this Grafana instance will appear here.",
+        "message": "No feature flags are currently enabled"
+      },
+      "filter-empty": {
+        "message": "No feature flags match your search"
+      },
+      "filter-placeholder": "Search feature flags"
+    }
+  },
   "layers": {
     "layer-drag-drop-list": {
       "draggable-aria-label": "Drag and drop to reorder",
@@ -12414,6 +12429,10 @@
     },
     "kubernetes": {
       "title": "Kubernetes"
+    },
+    "labs": {
+      "subtitle": "Explore experimental features and enabled feature flags",
+      "title": "Labs"
     },
     "library-panels": {
       "subtitle": "Reusable panels that can be added to multiple dashboards",

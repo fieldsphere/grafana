@@ -163,6 +163,17 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 
 	treeRoot.AddSection(s.buildDataConnectionsNavLink(c))
 
+	treeRoot.AddSection(&navtree.NavLink{
+		Text:     "Labs",
+		Id:       navtree.NavIDLabs,
+		SubTitle: "Explore experimental features and enabled feature flags",
+		Icon:     "flask",
+		Url:      s.cfg.AppSubURL + "/labs",
+		// Place between plugin apps and Administration without shifting existing weights.
+		SortWeight: navtree.WeightConfig - 50,
+		IsNew:      true,
+	})
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {
