@@ -742,6 +742,39 @@ func TestBuildDataConnectionsNavLink(t *testing.T) {
 	})
 }
 
+func TestBuildLabsNavLink(t *testing.T) {
+	httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
+	reqCtx := &contextmodel.ReqContext{SignedInUser: &user.SignedInUser{}, Context: &web.Context{Req: httpReq}}
+
+	t.Run("section is returned for users with settings read access", func(t *testing.T) {
+		service := ServiceImpl{
+			cfg: setting.NewCfg(),
+			accessControl: accesscontrolmock.New().WithPermissions([]ac.Permission{
+				{Action: ac.ActionSettingsRead, Scope: "*"},
+			}),
+		}
+
+		section := service.buildLabsNavLink(reqCtx)
+		require.NotNil(t, section)
+		require.Equal(t, navtree.NavIDLabs, section.Id)
+		require.Equal(t, "Labs", section.Text)
+		require.Equal(t, "flask", section.Icon)
+		require.True(t, section.IsNew)
+		require.Len(t, section.Children, 1)
+		require.Equal(t, navtree.NavIDLabsFeatureFlags, section.Children[0].Id)
+		require.Equal(t, "/labs/feature-flags", section.Children[0].Url)
+	})
+
+	t.Run("section is hidden when user lacks settings read access", func(t *testing.T) {
+		service := ServiceImpl{
+			cfg:           setting.NewCfg(),
+			accessControl: accesscontrolmock.New().WithPermissions([]ac.Permission{}),
+		}
+
+		require.Nil(t, service.buildLabsNavLink(reqCtx))
+	})
+}
+
 func TestReadingNavigationSettings(t *testing.T) {
 	t.Run("Should include defaults", func(t *testing.T) {
 		service := ServiceImpl{

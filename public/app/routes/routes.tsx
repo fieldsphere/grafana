@@ -151,6 +151,18 @@ export function getAppRoutes(): RouteDescriptor[] {
       component: () => <Navigate replace to={CONNECTIONS_ROUTES.DataSourcesNew} />,
     },
     {
+      path: '/labs',
+      roles: () => contextSrv.evaluatePermission([AccessControlAction.SettingsRead]),
+      component: () => <Navigate replace to="/labs/feature-flags" />,
+    },
+    {
+      path: '/labs/feature-flags',
+      roles: () => contextSrv.evaluatePermission([AccessControlAction.SettingsRead]),
+      component: SafeDynamicImport(
+        () => import(/* webpackChunkName: "FeatureFlagsPage" */ 'app/features/labs/FeatureFlagsPage')
+      ),
+    },
+    {
       path: '/datasources/correlations',
       component: SafeDynamicImport(
         () =>

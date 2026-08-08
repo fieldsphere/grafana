@@ -163,6 +163,10 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 
 	treeRoot.AddSection(s.buildDataConnectionsNavLink(c))
 
+	if labsNode := s.buildLabsNavLink(c); labsNode != nil {
+		treeRoot.AddSection(labsNode)
+	}
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {
@@ -262,6 +266,33 @@ func (s *ServiceImpl) addHelpLinks(treeRoot *navtree.NavTreeRoot, c *contextmode
 
 			helpNode.Children = append(helpNode.Children, supportBundleNode)
 		}
+	}
+}
+
+func (s *ServiceImpl) buildLabsNavLink(c *contextmodel.ReqContext) *navtree.NavLink {
+	hasAccess := ac.HasAccess(s.accessControl, c)
+	if !hasAccess(ac.EvalPermission(ac.ActionSettingsRead)) {
+		return nil
+	}
+
+	baseUrl := s.cfg.AppSubURL + "/labs"
+
+	return &navtree.NavLink{
+		Text:       "Labs",
+		Icon:       "flask",
+		Id:         navtree.NavIDLabs,
+		Url:        baseUrl,
+		IsNew:      true,
+		SortWeight: navtree.WeightLabs,
+		Children: []*navtree.NavLink{
+			{
+				Text:     "Feature flags",
+				Id:       navtree.NavIDLabsFeatureFlags,
+				SubTitle: "View and control enabled feature flags",
+				Icon:     "toggle-on",
+				Url:      baseUrl + "/feature-flags",
+			},
+		},
 	}
 }
 

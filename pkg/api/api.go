@@ -171,6 +171,9 @@ func (hs *HTTPServer) registerRoutes() {
 	r.Get("/connections/datasources/:id", middleware.CanAdminPlugins(hs.Cfg, hs.AccessControl), hs.Index)
 	r.Get("/connections/datasources/:id/page/:page", middleware.CanAdminPlugins(hs.Cfg, hs.AccessControl), hs.Index)
 
+	r.Get("/labs", authorize(ac.EvalPermission(ac.ActionSettingsRead)), hs.Index)
+	r.Get("/labs/feature-flags", authorize(ac.EvalPermission(ac.ActionSettingsRead)), hs.Index)
+
 	// App Root Page
 	appPluginIDScope := pluginaccesscontrol.ScopeProvider.GetResourceScope(ac.Parameter(":id"))
 	r.Get("/a/:id/*", authorize(ac.EvalPermission(pluginaccesscontrol.ActionAppAccess, appPluginIDScope)), reqSignedIn, reqRoleForAppRoute, hs.Index)
