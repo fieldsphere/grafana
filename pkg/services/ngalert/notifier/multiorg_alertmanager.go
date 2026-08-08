@@ -28,19 +28,14 @@ import (
 	apimodels "github.com/grafana/grafana/pkg/services/ngalert/api/tooling/definitions"
 	"github.com/grafana/grafana/pkg/services/ngalert/metrics"
 	"github.com/grafana/grafana/pkg/services/ngalert/models"
+	"github.com/grafana/grafana/pkg/services/ngalert/notifier/legacy_storage"
 	"github.com/grafana/grafana/pkg/services/ngalert/store"
 	"github.com/grafana/grafana/pkg/services/notifications"
 	"github.com/grafana/grafana/pkg/services/secrets"
 	"github.com/grafana/grafana/pkg/setting"
 )
 
-var (
-	ErrNoAlertmanagerForOrg = fmt.Errorf("Alertmanager does not exist for this organization")
-	ErrAlertmanagerNotReady = fmt.Errorf("Alertmanager is not ready yet")
-)
-
 // errutil-based errors.
-// TODO: Should completely replace the fmt.Errorf-based errors.
 var (
 	ErrAlertmanagerNotFound = errutil.NotFound("alerting.notifications.alertmanager.notFound")
 	ErrAlertmanagerConflict = errutil.Conflict("alerting.notifications.alertmanager.conflict")
@@ -508,7 +503,14 @@ func (moa *MultiOrgAlertmanager) SyncAlertmanagersForOrgs(ctx context.Context, o
 			if err := moa.routesResourcePermissions.SetDefaultPermissions(ctx, orgID, nil, models.DefaultRoutingTreeName); err != nil {
 				moa.logger.Error("Failed to set default permissions for the basic roles", "org", orgID, "error", err)
 			}
-			// TODO here we need to do the same for the default receiver.
+			defaultReceiverNames, err := extractReceiverNames(moa.settings.UnifiedAlerting.DefaultConfiguration)
+			if err != nil {
+				moa.logger.Error("Failed to extract default receiver names from default configuration", "org", orgID, "error", err)
+			} else {
+				for receiverName := range defaultReceiverNames {
+					moa.receiverResourcePermissions.SetDefaultPermissions(ctx, orgID, nil, legacy_storage.NameToUid(receiverName))
+				}
+			}
 			moa.alertmanagers[orgID] = alertmanager
 			continue
 		}
@@ -609,36 +611,25 @@ func (moa *MultiOrgAlertmanager) IsExternalAMSyncConfiguredForOrg(ctx context.Co
 }
 
 // AlertmanagerFor returns the Alertmanager instance for the organization provided.
-// When the organization does not have an active Alertmanager, it returns a ErrNoAlertmanagerForOrg.
-// When the Alertmanager of the organization is not ready, it returns a ErrAlertmanagerNotReady.
+// When the organization does not have an active Alertmanager, it returns ErrAlertmanagerNotFound.
+// When the Alertmanager of the organization is not ready, it returns ErrAlertmanagerConflict.
 func (moa *MultiOrgAlertmanager) AlertmanagerFor(orgID int64) (Alertmanager, error) {
 	moa.alertmanagersMtx.RLock()
 	defer moa.alertmanagersMtx.RUnlock()
 
-	orgAM, existing := moa.alertmanagers[orgID]
-	if !existing {
-		return nil, ErrNoAlertmanagerForOrg
-	}
-
-	if !orgAM.Ready() {
-		return orgAM, ErrAlertmanagerNotReady
-	}
-
-	return orgAM, nil
+	return moa.alertmanagerForOrg(orgID)
 }
 
 // alertmanagerForOrg returns the Alertmanager instance for the organization provided. Should only be called when the
 // caller has already locked the alertmanagersMtx.
-// TODO: This should eventually replace AlertmanagerFor once the API layer has been refactored to not access the alertmanagers directly
-// and AM route error handling has been fully moved to errorutil.
 func (moa *MultiOrgAlertmanager) alertmanagerForOrg(orgID int64) (Alertmanager, error) {
 	orgAM, existing := moa.alertmanagers[orgID]
 	if !existing {
-		return nil, WithPublicError(ErrAlertmanagerNotFound.Errorf("Alertmanager does not exist for org %d", orgID))
+		return nil, WithPublicError(ErrAlertmanagerNotFound.Errorf("Alertmanager does not exist for organization %d", orgID))
 	}
 
 	if !orgAM.Ready() {
-		return nil, WithPublicError(ErrAlertmanagerConflict.Errorf("Alertmanager is not ready for org %d", orgID))
+		return orgAM, WithPublicError(ErrAlertmanagerConflict.Errorf("Alertmanager is not ready yet for organization %d", orgID))
 	}
 
 	return orgAM, nil
