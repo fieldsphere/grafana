@@ -25,6 +25,10 @@ cards:
       height: 24
       href: ./api-reference/
       description: Read the API reference guides available in Grafana.
+    - title: Runbooks
+      height: 24
+      href: ./runbooks/
+      description: Use operational runbooks to triage Grafana service signals and decide which follow-up action is required.
 ---
 
 # Developer resources
