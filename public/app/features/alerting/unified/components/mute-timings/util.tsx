@@ -1,8 +1,11 @@
-import moment from 'moment';
 import { Fragment } from 'react';
 
 import { Stack } from '@grafana/ui';
-import { type AlertmanagerConfig, type MuteTimeInterval } from 'app/plugins/datasource/alertmanager/types';
+import {
+  type AlertmanagerConfig,
+  type MuteTimeInterval,
+  type TimeRange,
+} from 'app/plugins/datasource/alertmanager/types';
 
 import {
   getDaysOfMonthString,
@@ -26,8 +29,13 @@ export const mergeTimeIntervals = (alertManagerConfig: AlertmanagerConfig) => {
   return [...(alertManagerConfig.mute_time_intervals ?? []), ...(alertManagerConfig.time_intervals ?? [])];
 };
 
+const parseTimeToMinutes = (time: string): number => {
+  const [hours, minutes] = time.split(':').map((value) => parseInt(value, 10));
+  return hours * 60 + minutes;
+};
+
 export const isValidStartAndEndTime = (startTime?: string, endTime?: string): boolean => {
-  // empty time range is perfactly valid for a mute timing
+  // empty time range is perfectly valid for a mute timing
   if (!startTime && !endTime) {
     return true;
   }
@@ -36,21 +44,70 @@ export const isValidStartAndEndTime = (startTime?: string, endTime?: string): bo
     return false;
   }
 
-  const timeUnit = 'HH:mm';
-  // @ts-ignore typescript types here incorrect, sigh
-  const startDate = moment().startOf('day').add(startTime, timeUnit);
-  // @ts-ignore typescript types here incorrect, sigh
-  const endDate = moment().startOf('day').add(endTime, timeUnit);
+  // Same-day (start < end) and overnight (start > end) are valid. Equal times are not.
+  return parseTimeToMinutes(startTime!) !== parseTimeToMinutes(endTime!);
+};
 
-  if (startTime && endTime && startDate.isBefore(endDate)) {
-    return true;
+/**
+ * Alertmanager requires start < end within a single time range. Overnight ranges (e.g. 22:00–06:00)
+ * are expanded into two same-day ranges.
+ */
+export const expandTimeRangesForAlertmanager = (times: TimeRange[]): TimeRange[] => {
+  const expanded: TimeRange[] = [];
+
+  for (const { start_time, end_time } of times) {
+    if (!start_time || !end_time) {
+      continue;
+    }
+
+    const start = parseTimeToMinutes(start_time);
+    const end = parseTimeToMinutes(end_time);
+
+    if (start === end) {
+      continue;
+    }
+
+    if (start < end) {
+      expanded.push({ start_time, end_time });
+      continue;
+    }
+
+    expanded.push({ start_time, end_time: '24:00' });
+    expanded.push({ start_time: '00:00', end_time });
   }
 
-  if (startTime && endTime && endDate.isAfter(startDate)) {
-    return true;
+  return expanded;
+};
+
+/**
+ * Collapse adjacent 24:00 / 00:00 ranges back into a single overnight range for the form.
+ */
+export const collapseTimeRangesForForm = (times?: TimeRange[]): TimeRange[] | undefined => {
+  if (!times?.length) {
+    return times;
   }
 
-  return false;
+  const collapsed: TimeRange[] = [];
+
+  for (let i = 0; i < times.length; i++) {
+    const current = times[i];
+    const next = times[i + 1];
+
+    if (
+      next &&
+      current.end_time === '24:00' &&
+      next.start_time === '00:00' &&
+      parseTimeToMinutes(current.start_time) > parseTimeToMinutes(next.end_time)
+    ) {
+      collapsed.push({ start_time: current.start_time, end_time: next.end_time });
+      i++;
+      continue;
+    }
+
+    collapsed.push(current);
+  }
+
+  return collapsed;
 };
 
 export function renderTimeIntervals(muteTiming: MuteTimeInterval) {

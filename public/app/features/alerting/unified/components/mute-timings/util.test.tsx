@@ -1,6 +1,61 @@
 import { type MuteTimeInterval } from 'app/plugins/datasource/alertmanager/types';
 
-import { renderTimeIntervals } from './util';
+import {
+  collapseTimeRangesForForm,
+  expandTimeRangesForAlertmanager,
+  isValidStartAndEndTime,
+  renderTimeIntervals,
+} from './util';
+
+describe('isValidStartAndEndTime', () => {
+  it('allows empty ranges', () => {
+    expect(isValidStartAndEndTime()).toBe(true);
+    expect(isValidStartAndEndTime('', '')).toBe(true);
+  });
+
+  it('rejects partially filled ranges', () => {
+    expect(isValidStartAndEndTime('22:00')).toBe(false);
+    expect(isValidStartAndEndTime(undefined, '06:00')).toBe(false);
+  });
+
+  it('allows same-day ranges', () => {
+    expect(isValidStartAndEndTime('09:00', '17:00')).toBe(true);
+  });
+
+  it('allows overnight ranges', () => {
+    expect(isValidStartAndEndTime('22:00', '06:00')).toBe(true);
+  });
+
+  it('rejects equal start and end times', () => {
+    expect(isValidStartAndEndTime('22:00', '22:00')).toBe(false);
+  });
+});
+
+describe('expandTimeRangesForAlertmanager', () => {
+  it('splits overnight ranges for alertmanager', () => {
+    expect(expandTimeRangesForAlertmanager([{ start_time: '22:00', end_time: '06:00' }])).toEqual([
+      { start_time: '22:00', end_time: '24:00' },
+      { start_time: '00:00', end_time: '06:00' },
+    ]);
+  });
+
+  it('keeps same-day ranges unchanged', () => {
+    expect(expandTimeRangesForAlertmanager([{ start_time: '09:00', end_time: '17:00' }])).toEqual([
+      { start_time: '09:00', end_time: '17:00' },
+    ]);
+  });
+});
+
+describe('collapseTimeRangesForForm', () => {
+  it('merges alertmanager overnight ranges for the form', () => {
+    expect(
+      collapseTimeRangesForForm([
+        { start_time: '22:00', end_time: '24:00' },
+        { start_time: '00:00', end_time: '06:00' },
+      ])
+    ).toEqual([{ start_time: '22:00', end_time: '06:00' }]);
+  });
+});
 
 describe('renderTimeIntervals', () => {
   it('should render empty time interval', () => {
