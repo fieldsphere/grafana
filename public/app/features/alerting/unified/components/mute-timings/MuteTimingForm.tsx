@@ -21,6 +21,7 @@ import { ALERTING_PATHS } from '../../utils/navigation';
 import { ImportedTimeIntervalAlert, ProvisionedResource, ProvisioningAlert } from '../Provisioning';
 
 import { MuteTimingTimeInterval } from './MuteTimingTimeInterval';
+import { collapseOvernightTimeRanges } from './util';
 
 interface Props {
   muteTiming?: MuteTiming;
@@ -43,7 +44,7 @@ const useDefaultValues = (muteTiming?: MuteTiming): MuteTimingFields => {
   }
 
   const intervals = muteTiming.time_intervals.map((interval) => ({
-    times: interval.times,
+    times: collapseOvernightTimeRanges(interval.times),
     weekdays: interval.weekdays?.join(', '),
     days_of_month: interval.days_of_month?.join(', '),
     months: interval.months?.join(', '),

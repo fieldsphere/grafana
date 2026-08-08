@@ -81,7 +81,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
                           if (isValidStartAndEndTime(startTime, endTime)) {
                             return;
                           } else {
-                            return 'Start time must be before end time';
+                            return 'Start and end time must be different';
                           }
                         },
                       })}
@@ -113,7 +113,7 @@ export const MuteTimingTimeRange = ({ intervalIndex }: Props) => {
                           if (isValidStartAndEndTime(startTime, endTime)) {
                             return;
                           } else {
-                            return 'End time must be after start time';
+                            return 'Start and end time must be different';
                           }
                         },
                       })}
