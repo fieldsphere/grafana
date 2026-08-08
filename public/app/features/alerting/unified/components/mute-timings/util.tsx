@@ -36,21 +36,28 @@ export const isValidStartAndEndTime = (startTime?: string, endTime?: string): bo
     return false;
   }
 
+  // Alertmanager rejects zero-length intervals; overnight ranges (e.g. 22:00-06:00) are valid.
+  return startTime !== endTime;
+};
+
+export const splitOvernightTimeRange = (startTime: string, endTime: string) => {
   const timeUnit = 'HH:mm';
   // @ts-ignore typescript types here incorrect, sigh
   const startDate = moment().startOf('day').add(startTime, timeUnit);
   // @ts-ignore typescript types here incorrect, sigh
   const endDate = moment().startOf('day').add(endTime, timeUnit);
 
-  if (startTime && endTime && startDate.isBefore(endDate)) {
-    return true;
+  if (startDate.isBefore(endDate)) {
+    return [{ start_time: startTime, end_time: endTime }];
   }
 
-  if (startTime && endTime && endDate.isAfter(startDate)) {
-    return true;
+  const ranges = [{ start_time: startTime, end_time: '24:00' }];
+
+  if (endTime !== '00:00') {
+    ranges.push({ start_time: '00:00', end_time: endTime });
   }
 
-  return false;
+  return ranges;
 };
 
 export function renderTimeIntervals(muteTiming: MuteTimeInterval) {

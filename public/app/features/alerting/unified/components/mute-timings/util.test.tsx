@@ -1,6 +1,45 @@
 import { type MuteTimeInterval } from 'app/plugins/datasource/alertmanager/types';
 
-import { renderTimeIntervals } from './util';
+import { isValidStartAndEndTime, renderTimeIntervals, splitOvernightTimeRange } from './util';
+
+describe('isValidStartAndEndTime', () => {
+  it('allows empty time ranges', () => {
+    expect(isValidStartAndEndTime()).toBe(true);
+    expect(isValidStartAndEndTime('', '')).toBe(true);
+  });
+
+  it('rejects partially filled time ranges', () => {
+    expect(isValidStartAndEndTime('22:00')).toBe(false);
+    expect(isValidStartAndEndTime(undefined, '06:00')).toBe(false);
+  });
+
+  it('rejects equal start and end times', () => {
+    expect(isValidStartAndEndTime('22:00', '22:00')).toBe(false);
+  });
+
+  it('allows same-day and overnight ranges', () => {
+    expect(isValidStartAndEndTime('09:00', '17:00')).toBe(true);
+    expect(isValidStartAndEndTime('22:00', '06:00')).toBe(true);
+    expect(isValidStartAndEndTime('22:00', '00:00')).toBe(true);
+  });
+});
+
+describe('splitOvernightTimeRange', () => {
+  it('keeps same-day ranges unchanged', () => {
+    expect(splitOvernightTimeRange('09:00', '17:00')).toEqual([{ start_time: '09:00', end_time: '17:00' }]);
+  });
+
+  it('splits overnight ranges that cross midnight', () => {
+    expect(splitOvernightTimeRange('22:00', '06:00')).toEqual([
+      { start_time: '22:00', end_time: '24:00' },
+      { start_time: '00:00', end_time: '06:00' },
+    ]);
+  });
+
+  it('splits overnight ranges ending at midnight into a single range', () => {
+    expect(splitOvernightTimeRange('22:00', '00:00')).toEqual([{ start_time: '22:00', end_time: '24:00' }]);
+  });
+});
 
 describe('renderTimeIntervals', () => {
   it('should render empty time interval', () => {

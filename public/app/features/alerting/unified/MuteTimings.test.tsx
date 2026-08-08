@@ -199,6 +199,33 @@ describe('Mute timings', () => {
     expect(lastAdded?.name).toEqual('maintenance period');
   });
 
+  it('creates a mute timing with an overnight time range', async () => {
+    const capture = captureRequests();
+    renderMuteTimings({ pathname: '/alerting/routes/new', search: `?alertmanager=${dataSources.am.name}` });
+
+    await screen.findByText(/new time interval/i);
+
+    await fillOutForm({
+      name: 'overnight maintenance',
+      startsAt: '22:00',
+      endsAt: '06:00',
+    });
+
+    await saveMuteTiming();
+
+    await expectToHaveRedirectedToRoutesRoute();
+
+    const requests = await capture;
+    const alertmanagerUpdate = await getAlertmanagerConfigUpdate(requests);
+    const lastAdded = last(alertmanagerUpdate.alertmanager_config.time_intervals);
+
+    expect(lastAdded?.name).toEqual('overnight maintenance');
+    expect(lastAdded?.time_intervals[0].times).toEqual([
+      { start_time: '22:00', end_time: '24:00' },
+      { start_time: '00:00', end_time: '06:00' },
+    ]);
+  });
+
   it('creates a new mute timing, with time_intervals in config', async () => {
     const capture = captureRequests();
     setAlertmanagerConfig(dataSources.am.uid, defaultConfigWithNewTimeIntervalsField);
