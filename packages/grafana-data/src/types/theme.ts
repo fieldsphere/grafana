@@ -40,7 +40,7 @@ export interface GrafanaThemeCommons {
       md: number; // 4/3
       lg: number; // 1.5
     };
-    // TODO: Refactor to use size instead of custom defs
+    /** @deprecated Use theme.typography.h1 through h6 (v2 theme) instead. Will be removed in the next major version. */
     heading: {
       h1: string;
       h2: string;
