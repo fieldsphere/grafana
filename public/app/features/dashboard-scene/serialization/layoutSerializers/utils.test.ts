@@ -512,4 +512,38 @@ describe('buildVizPanel', () => {
       expect(viz.state.hoverHeader).toBe(false);
     });
   });
+
+  it('strips __angularMigration from runtime options and attaches migration handler', () => {
+    const panel: PanelKind = {
+      kind: 'Panel',
+      spec: {
+        ...defaultPanelSpec(),
+        title: 'Stat panel',
+        vizConfig: {
+          kind: 'VizConfig',
+          group: 'stat',
+          version: '11.0.0',
+          spec: {
+            fieldConfig: { defaults: {}, overrides: [] },
+            options: {
+              reduceOptions: { calcs: ['lastNotNull'] },
+              __angularMigration: {
+                autoMigrateFrom: 'singlestat',
+                originalOptions: {
+                  format: 'short',
+                  valueName: 'avg',
+                },
+              },
+            },
+          },
+        },
+      },
+    };
+
+    const viz = buildVizPanel(panel);
+
+    expect(viz.state.options).toEqual({ reduceOptions: { calcs: ['lastNotNull'] } });
+    expect(viz.state.options).not.toHaveProperty('__angularMigration');
+    expect(viz.state._UNSAFE_customMigrationHandler).toBeDefined();
+  });
 });
