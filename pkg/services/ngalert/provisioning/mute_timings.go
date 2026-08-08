@@ -247,7 +247,13 @@ func (svc *MuteTimingService) UpdateMuteTiming(ctx context.Context, mt definitio
 		return definitions.MuteTimeInterval{}, err
 	}
 
-	// TODO add diff and noop detection
+	updatedInterval := v1.MuteTimeInterval(mt.MuteTimeInterval)
+	if existingInterval.Name == mt.Name &&
+		calculateMuteTimeIntervalFingerprint(existingInterval) == calculateMuteTimeIntervalFingerprint(updatedInterval) &&
+		models.Provenance(existing.Provenance) == models.Provenance(mt.Provenance) {
+		return existing, nil
+	}
+
 	err = svc.xact.InTransaction(ctx, func(ctx context.Context) error {
 		// if the name of the time interval changed
 		if existingInterval.Name != mt.Name {

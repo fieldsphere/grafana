@@ -165,9 +165,13 @@ func (ecp *ContactPointService) getContactPointDecrypted(ctx context.Context, or
 		if receiver.UID != uid {
 			continue
 		}
+		provenance, err := ecp.provenanceStore.GetProvenance(ctx, &apimodels.EmbeddedContactPoint{UID: uid}, orgID)
+		if err != nil {
+			return apimodels.EmbeddedContactPoint{}, err
+		}
 		embeddedContactPoint, err := PostableGrafanaReceiverToEmbeddedContactPoint(
 			new(definition.PostableGrafanaReceiver(*receiver)),
-			models.ProvenanceNone, // TODO should be correct provenance?
+			provenance,
 			ecp.decryptValueOrRedacted(true, receiver.UID),
 		)
 		if err != nil {

@@ -609,6 +609,29 @@ func TestUpdateMuteTimings(t *testing.T) {
 		require.Truef(t, ErrTimeIntervalInvalid.Base.Is(err), "expected ErrTimeIntervalInvalid but got %s", err)
 	})
 
+	t.Run("skips save when update is a noop", func(t *testing.T) {
+		sut, store, prov := createMuteTimingSvcSut()
+		store.GetFn = func(ctx context.Context, orgID int64) (*legacy_storage.ConfigRevision, error) {
+			return &legacy_storage.ConfigRevision{Config: initialConfig()}, nil
+		}
+
+		noopTiming := definitions.MuteTimeInterval{
+			MuteTimeInterval: definitions.AmMuteTimeInterval(original),
+			Version:          originalVersion,
+			Provenance:       definitions.Provenance(expectedProvenance),
+		}
+
+		prov.EXPECT().GetProvenance(mock.Anything, mock.Anything, mock.Anything).Return(expectedProvenance, nil)
+
+		result, err := sut.UpdateMuteTiming(context.Background(), noopTiming, orgID)
+		require.NoError(t, err)
+		require.EqualValues(t, original, result.MuteTimeInterval)
+		require.EqualValues(t, expectedProvenance, result.Provenance)
+		require.Equal(t, originalVersion, result.Version)
+		require.Len(t, store.Calls, 1)
+		prov.AssertNotCalled(t, "SetProvenance", mock.Anything, mock.Anything, mock.Anything, mock.Anything)
+	})
+
 	t.Run("rejects mute timings if provenance is not right", func(t *testing.T) {
 		sut, store, prov := createMuteTimingSvcSut()
 		store.GetFn = func(ctx context.Context, orgID int64) (*legacy_storage.ConfigRevision, error) {

@@ -15,7 +15,7 @@ func TestAlertRuleVersion_EqualSpec(t *testing.T) {
 		Condition:                   "cond",
 		Data:                        "data",
 		IntervalSeconds:             60,
-		Record:                      "record",
+		Record:                      new("record"),
 		NoDataState:                 "state1",
 		ExecErrState:                "state2",
 		For:                         time.Minute,
