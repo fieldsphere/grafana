@@ -5,6 +5,12 @@ description: Start Grafana development servers with hot reloading for both backe
 
 # Development Server with Hot Reloading
 
+## When to use
+
+- User wants to run the dev server with hot reload
+- User wants to start development with live reloading
+- User asks to build/run the app with automatic refresh on code changes
+
 ## Quick Start
 
 Start both backend and frontend development servers with hot reloading:

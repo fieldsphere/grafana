@@ -1,0 +1,21 @@
+{
+  "name": "grafana-dev-tools",
+  "version": "1.0.0",
+  "description": "Development tools and workflows for the Grafana monorepo, including local dev setup, hot reloading, and GitHub fork management for fieldsphere/grafana",
+  "author": {
+    "name": "fieldsphere"
+  },
+  "homepage": "https://github.com/fieldsphere/grafana",
+  "repository": "https://github.com/fieldsphere/grafana",
+  "license": "AGPL-3.0",
+  "keywords": [
+    "grafana",
+    "development",
+    "hot-reload",
+    "github",
+    "fork-management",
+    "monorepo"
+  ],
+  "skills": ".cursor/skills",
+  "hooks": ".cursor/hooks.json"
+}

@@ -5,6 +5,13 @@ description: Run initial local development setup commands for this Grafana repo,
 
 # Initial setup
 
+## When to use
+
+- User asks about local dev setup or initial setup
+- User wants to build or run Grafana locally
+- User asks about frontend or backend build steps
+- First-time repository setup
+
 ## Instructions
 When the user asks how to set up or run the repo locally, run the commands below using the Shell tool. Do not ask the user to run them. Start the frontend and backend in separate terminals.
 

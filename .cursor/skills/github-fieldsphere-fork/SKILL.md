@@ -5,6 +5,13 @@ description: Ensure GitHub context, issues, and pull request work targets the fi
 
 # GitHub fork targeting: fieldsphere/grafana
 
+## When to use
+
+- Any GitHub-related task (issues, PRs, commits, searches)
+- Creating or updating pull requests
+- Running `gh` CLI commands
+- Using GitHub MCP tools
+
 ## Instructions
 
 - Always use `fieldsphere/grafana` for GitHub queries and operations (issues, PRs, commits, code search, and repo context).
