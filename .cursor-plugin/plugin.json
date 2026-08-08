@@ -1,0 +1,13 @@
+{
+  "name": "grafana-dev",
+  "version": "1.0.0",
+  "description": "Grafana development environment setup, skills, and hooks for the fieldsphere/grafana fork",
+  "author": {
+    "name": "fieldsphere"
+  },
+  "keywords": ["grafana", "development", "devtools", "fieldsphere"],
+  "repository": "https://github.com/fieldsphere/grafana",
+  "license": "Apache-2.0",
+  "skills": ".cursor/skills",
+  "hooks": ".cursor/hooks.json"
+}
