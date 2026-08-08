@@ -49,6 +49,7 @@ export enum LineStyle {
   Solid = 'solid',
   Dashed = 'dashed',
   Dotted = 'dotted',
+  Double = 'double',
 }
 
 export enum StrokeDasharray {

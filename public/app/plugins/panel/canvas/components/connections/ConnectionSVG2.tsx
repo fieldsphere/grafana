@@ -16,6 +16,7 @@ import {
   getConnectionStyles,
 } from '../../utils';
 
+import { ConnectionLineStroke, ConnectionPathStroke } from './ConnectionStroke';
 import { CONNECTION_VERTEX_ADD_ID, CONNECTION_VERTEX_ID } from './Connections';
 
 type Props = {
@@ -154,7 +155,7 @@ export const ConnectionSVG = ({ setLineRef, setVertexPathRef, setVertexRef, setC
           const xDist = xEnd - xStart;
           const yDist = yEnd - yStart;
 
-          const { strokeColor, strokeWidth, strokeRadius, arrowDirection, lineStyle, shouldAnimate } =
+          const { strokeColor, strokeWidth, strokeRadius, arrowDirection, lineStyle, lineStyleType, shouldAnimate } =
             getConnectionStyles(
               info,
               scene,
@@ -411,27 +412,17 @@ export const ConnectionSVG = ({ setLineRef, setVertexPathRef, setVertexRef, setC
                     style={isSelected ? selectedStyles : {}}
                   />
                   {/* real line */}
-                  <path
-                    d={pathString}
+                  <ConnectionPathStroke
+                    pathD={pathString}
                     stroke={strokeColor}
                     strokeWidth={strokeWidth}
+                    lineStyleType={lineStyleType}
                     strokeDasharray={lineStyle}
-                    strokeDashoffset={1}
-                    fill={'none'}
+                    shouldAnimate={shouldAnimate}
+                    getAnimationDirection={getAnimationDirection}
                     markerEnd={markerEnd}
                     markerStart={markerStart}
-                  >
-                    {shouldAnimate && (
-                      <animate
-                        attributeName="stroke-dashoffset"
-                        values={getAnimationDirection()}
-                        dur="5s"
-                        calcMode="linear"
-                        repeatCount="indefinite"
-                        fill={'freeze'}
-                      />
-                    )}
-                  </path>
+                  />
                   {isSelected && (
                     <g>
                       {/* vertices */}
@@ -489,32 +480,23 @@ export const ConnectionSVG = ({ setLineRef, setVertexPathRef, setVertexRef, setC
                     y2={y2}
                   />
                   {/* real line */}
-                  <line
+                  <ConnectionLineStroke
                     id={CONNECTION_LINE_ID}
                     stroke={strokeColor}
                     pointerEvents="auto"
                     strokeWidth={strokeWidth}
                     markerEnd={markerEnd}
                     markerStart={markerStart}
+                    lineStyleType={lineStyleType}
                     strokeDasharray={lineStyle}
-                    strokeDashoffset={1}
+                    shouldAnimate={shouldAnimate}
+                    getAnimationDirection={getAnimationDirection}
                     x1={x1}
                     y1={y1}
                     x2={x2}
                     y2={y2}
                     cursor={connectionCursorStyle}
-                  >
-                    {shouldAnimate && (
-                      <animate
-                        attributeName="stroke-dashoffset"
-                        values={getAnimationDirection()}
-                        dur="5s"
-                        calcMode="linear"
-                        repeatCount="indefinite"
-                        fill={'freeze'}
-                      />
-                    )}
-                  </line>
+                  />
                   {/* initial midpoint */}
                   {isSelected && (
                     <circle
