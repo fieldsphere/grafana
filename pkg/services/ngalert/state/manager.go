@@ -480,8 +480,7 @@ func (st *Manager) setNextStateForRule(ctx context.Context, alertRule *ngModels.
 		}
 	}
 	if results.IsError() && (alertRule.ExecErrState == ngModels.AlertingErrState || alertRule.ExecErrState == ngModels.OkErrState || alertRule.ExecErrState == ngModels.KeepLastErrState) {
-		// TODO squash all errors into one, and provide as annotation
-		transitions := st.setNextStateForAll(alertRule, results[0], logger, nil, takeImageFn)
+		transitions := st.setNextStateForAll(alertRule, results[0], logger, aggregateErrorAnnotations(results), takeImageFn)
 		if len(transitions) > 0 {
 			return transitions // if there are no current states for the rule. Create ones for each result
 		}
@@ -501,6 +500,55 @@ func (st *Manager) setNextStateForRule(ctx context.Context, alertRule *ngModels.
 		transitions = append(transitions, s)
 	}
 	return transitions
+}
+
+func aggregateErrorAnnotations(results eval.Results) data.Labels {
+	var refIds strings.Builder
+	var datasourceUIDs strings.Builder
+	refIDSet := make(map[string]struct{})
+	dsUIDSet := make(map[string]struct{})
+	errorMsgSet := make(map[string]struct{})
+	var errorMsgs []string
+
+	for _, result := range results {
+		if refID, ok := result.Instance["ref_id"]; ok {
+			if _, exists := refIDSet[refID]; !exists {
+				if refIds.Len() > 0 {
+					refIds.WriteString(",")
+				}
+				refIds.WriteString(refID)
+				refIDSet[refID] = struct{}{}
+			}
+		}
+		if dsUID, ok := result.Instance["datasource_uid"]; ok {
+			if _, exists := dsUIDSet[dsUID]; !exists {
+				if datasourceUIDs.Len() > 0 {
+					datasourceUIDs.WriteString(",")
+				}
+				datasourceUIDs.WriteString(dsUID)
+				dsUIDSet[dsUID] = struct{}{}
+			}
+		}
+		if result.Error != nil {
+			msg := result.Error.Error()
+			if _, exists := errorMsgSet[msg]; !exists {
+				errorMsgSet[msg] = struct{}{}
+				errorMsgs = append(errorMsgs, msg)
+			}
+		}
+	}
+
+	annotations := data.Labels{}
+	if refIds.Len() > 0 {
+		annotations["ref_id"] = refIds.String()
+	}
+	if datasourceUIDs.Len() > 0 {
+		annotations["datasource_uid"] = datasourceUIDs.String()
+	}
+	if len(errorMsgs) > 0 {
+		annotations["Error"] = strings.Join(errorMsgs, "; ")
+	}
+	return annotations
 }
 
 func (st *Manager) setNextStateForAll(alertRule *ngModels.AlertRule, result eval.Result, logger log.Logger, extraAnnotations data.Labels, takeImageFn takeImageFn) []StateTransition {

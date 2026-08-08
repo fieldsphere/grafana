@@ -505,13 +505,10 @@ func resultError(state *State, rule *models.AlertRule, result eval.Result, logge
 				state.SetError(result.Error, result.EvaluatedAt, nextEndsAt)
 			}
 		}
-		// TODO: always add annotations
-		if result.Error != nil {
-			state.Annotations["Error"] = result.Error.Error()
-		}
+		state.addErrorInfoToAnnotations(result.Error, rule)
 	case models.OkErrState:
 		logger.Debug("Execution error state is Normal", "handler", "resultNormal", "previous_handler", handlerStr)
-		resultNormal(state, rule, result, logger, "") // TODO: Should we add a reason?
+		resultNormal(state, rule, result, logger, models.StateReasonError)
 		state.addErrorInfoToAnnotations(result.Error, rule)
 	case models.KeepLastErrState:
 		logger := logger.New("previous_handler", handlerStr)

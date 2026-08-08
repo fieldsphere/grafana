@@ -778,8 +778,8 @@ func testRecordingRule_Integration(t *testing.T, writeTarget *writer.TestRemoteW
 		t.Run("status shows evaluation", func(t *testing.T) {
 			status := process.(*recordingRule).Status()
 
-			// TODO: assert "error" to fix test, update to "nodata" in the future
-			require.Equal(t, "error", status.Health)
+			require.Equal(t, "nodata", status.Health)
+			require.Nil(t, status.LastError)
 		})
 	})
 
