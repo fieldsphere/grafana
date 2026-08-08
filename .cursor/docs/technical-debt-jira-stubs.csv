@@ -1,0 +1,16 @@
+Summary,Component,Paths (repo-relative),Suggested label
+Dual-write and legacy SQL migration,Backend,pkg/storage/legacysql/dualwrite/;pkg/registry/apis/,tech-debt
+Legacy HTTP API to resource API migration,Backend,contribute/architecture/k8s-inspired-backend-arch.md;pkg/registry/apis/,tech-debt
+IAM and Kubernetes team service stubs,Backend,pkg/services/team/teamimpl/team.go;pkg/registry/apis/iam/,tech-debt
+Org service CRUD refactor TODOs,Backend,pkg/services/org/orgimpl/org.go,tech-debt
+ngalert state and notifier debt,Backend,pkg/services/ngalert/,tech-debt
+Flaky Go tests (ngalert redis channel),Backend,pkg/services/ngalert/notifier/redis_channel_test.go,tech-debt;flaky-test
+Flaky API integration tests,Backend,pkg/tests/apis/folder/;pkg/tests/apis/shorturl/;pkg/tests/apis/iam/,tech-debt;flaky-test
+Dashboard migrator complexity,Frontend,public/app/features/dashboard/state/DashboardMigrator.ts;DashboardMigrator.test.ts,tech-debt
+Dashboard scenes serialization,Frontend,public/app/features/dashboard-scene/,tech-debt
+TraceView lint and types,Frontend,public/app/features/explore/TraceView/,tech-debt
+Unified alerting FE debt,Frontend,public/app/features/alerting/unified/;public/app/features/alerting/unified/TODO.md,tech-debt
+Angular SASS removal,Frontend,public/sass/_angular.scss,tech-debt;angular-removal
+Graveyard UI removal,Frontend,packages/grafana-ui/src/graveyard/,tech-debt
+go.mod replace and fork upgrades,Tooling,go.mod,tech-debt;dependencies
+package.json resolutions cleanup,Tooling,package.json,tech-debt;dependencies
