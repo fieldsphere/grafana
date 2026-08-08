@@ -9,6 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/apiserver/pkg/util/dryrun"
 
 	model "github.com/grafana/grafana/apps/alerting/notifications/pkg/apis/alertingnotifications/v1beta1"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
@@ -261,7 +262,10 @@ func (s *legacyStorage) Delete(
 	if err != nil {
 		return nil, false, errors.NewBadRequest(err.Error())
 	}
-	err = s.service.DeleteManagedRoute(ctx, info.OrgID, name, prov, version, user) // TODO add support for dry-run option
+	if options != nil && dryrun.IsDryRun(options.DryRun) {
+		return old, false, nil
+	}
+	err = s.service.DeleteManagedRoute(ctx, info.OrgID, name, prov, version, user)
 	return old, false, err
 }
 

@@ -311,7 +311,7 @@ func (s *legacyStorage) Update(ctx context.Context, name string, objInfo rest.Up
 		return nil, false, err
 	}
 
-	return rule, true, nil
+	return rule, false, nil
 }
 
 func (s *legacyStorage) Delete(ctx context.Context, name string, deleteValidation rest.ValidateObjectFunc, opts *metav1.DeleteOptions) (runtime.Object, bool, error) {
@@ -356,6 +356,5 @@ func (s *legacyStorage) Delete(ctx context.Context, name string, deleteValidatio
 }
 
 func (s *legacyStorage) DeleteCollection(_ context.Context, _ rest.ValidateObjectFunc, _ *metav1.DeleteOptions, _ *internalversion.ListOptions) (runtime.Object, error) {
-	// TODO: support this once a pattern is established for bulk delete operations
-	return nil, k8serrors.NewMethodNotSupported(ResourceInfo.GroupResource(), "delete")
+	return nil, k8serrors.NewMethodNotSupported(ResourceInfo.GroupResource(), "deleteCollection")
 }

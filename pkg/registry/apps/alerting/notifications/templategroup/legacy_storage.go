@@ -9,6 +9,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/apiserver/pkg/util/dryrun"
 
 	"github.com/grafana/alerting/templates"
 
@@ -210,8 +211,11 @@ func (s *legacyStorage) Delete(ctx context.Context, name string, deleteValidatio
 	if err != nil {
 		return nil, false, errors.NewBadRequest(err.Error())
 	}
-	err = s.service.DeleteTemplate(ctx, info.OrgID, name, prov, version) // TODO add support for dry-run option
-	return old, false, err                                               // false - will be deleted async
+	if options != nil && dryrun.IsDryRun(options.DryRun) {
+		return old, false, nil
+	}
+	err = s.service.DeleteTemplate(ctx, info.OrgID, name, prov, version)
+	return old, false, err // false - will be deleted async
 }
 
 func (s *legacyStorage) defaultTemplate() (v1.TemplateGroup, error) {

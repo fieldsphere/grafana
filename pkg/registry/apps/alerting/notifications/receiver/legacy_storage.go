@@ -10,6 +10,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/apiserver/pkg/util/dryrun"
 
 	model "github.com/grafana/grafana/apps/alerting/notifications/pkg/apis/alertingnotifications/v1beta1"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
@@ -269,8 +270,11 @@ func (s *legacyStorage) Delete(ctx context.Context, uid string, deleteValidation
 	if err != nil {
 		return nil, false, apierrors.NewBadRequest(err.Error())
 	}
-	err = s.service.DeleteReceiver(ctx, uid, prov, version, info.OrgID, user) // TODO add support for dry-run option
-	return old, false, err                                                    // false - will be deleted async
+	if options != nil && dryrun.IsDryRun(options.DryRun) {
+		return old, false, nil
+	}
+	err = s.service.DeleteReceiver(ctx, uid, prov, version, info.OrgID, user)
+	return old, false, err // false - will be deleted async
 }
 
 func (s *legacyStorage) DeleteCollection(ctx context.Context, deleteValidation rest.ValidateObjectFunc, options *metav1.DeleteOptions, listOptions *internalversion.ListOptions) (runtime.Object, error) {
