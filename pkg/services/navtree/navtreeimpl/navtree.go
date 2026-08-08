@@ -163,6 +163,10 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 
 	treeRoot.AddSection(s.buildDataConnectionsNavLink(c))
 
+	if c.IsSignedIn {
+		treeRoot.AddSection(s.buildLabsNavLink(c))
+	}
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {
@@ -604,5 +608,17 @@ func (s *ServiceImpl) buildDataConnectionsNavLink(c *contextmodel.ReqContext) *n
 		Url:        baseUrl,
 		Children:   children,
 		SortWeight: navtree.WeightDataConnections,
+	}
+}
+
+func (s *ServiceImpl) buildLabsNavLink(c *contextmodel.ReqContext) *navtree.NavLink {
+	return &navtree.NavLink{
+		Text:       "Labs",
+		SubTitle:   "View and control enabled feature flags",
+		Icon:       "flask",
+		Id:         navtree.NavIDLabs,
+		Url:        s.cfg.AppSubURL + "/labs",
+		SortWeight: navtree.WeightLabs,
+		IsNew:      true,
 	}
 }
