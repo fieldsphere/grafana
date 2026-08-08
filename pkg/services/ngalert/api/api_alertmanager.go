@@ -159,10 +159,10 @@ func (srv AlertmanagerSrv) RoutePostGrafanaAlertingConfigHistoryActivate(c *cont
 		if errors.Is(err, store.ErrNoAlertmanagerConfiguration) {
 			return response.Error(http.StatusNotFound, err.Error(), err)
 		}
-		if errors.Is(err, notifier.ErrNoAlertmanagerForOrg) {
+		if errors.Is(err, notifier.ErrAlertmanagerNotFound) {
 			return response.Error(http.StatusNotFound, err.Error(), err)
 		}
-		if errors.Is(err, notifier.ErrAlertmanagerNotReady) {
+		if errors.Is(err, notifier.ErrAlertmanagerConflict) {
 			return response.Error(http.StatusConflict, err.Error(), err)
 		}
 
@@ -263,10 +263,10 @@ func (srv AlertmanagerSrv) AlertmanagerFor(orgID int64) (notifier.Alertmanager, 
 		return am, nil
 	}
 
-	if errors.Is(err, notifier.ErrNoAlertmanagerForOrg) {
+	if errors.Is(err, notifier.ErrAlertmanagerNotFound) {
 		return nil, response.Error(http.StatusNotFound, err.Error(), err)
 	}
-	if errors.Is(err, notifier.ErrAlertmanagerNotReady) {
+	if errors.Is(err, notifier.ErrAlertmanagerConflict) {
 		return am, response.Error(http.StatusConflict, err.Error(), err)
 	}
 

@@ -696,7 +696,7 @@ func (f *FakeAlertmanagerProvider) AlertmanagerFor(orgID int64) (Alertmanager, e
 	if f.AlertmanagerForFunc != nil {
 		return f.AlertmanagerForFunc(orgID)
 	}
-	return nil, ErrNoAlertmanagerForOrg
+	return nil, WithPublicError(ErrAlertmanagerNotFound.Errorf("Alertmanager does not exist for organization"))
 }
 
 type FakeReceiverService struct {

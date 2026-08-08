@@ -387,7 +387,7 @@ func (d *AlertsRouter) Send(ctx context.Context, key models.AlertRuleKey, alerts
 				d.multiOrgNotifier.BroadcastAlerts(key.OrgID, alerts)
 			}
 		} else {
-			if errors.Is(err, notifier.ErrNoAlertmanagerForOrg) {
+			if errors.Is(err, notifier.ErrAlertmanagerNotFound) {
 				logger.Debug("Local notifier was not found")
 			} else {
 				logger.Error("Local notifier is not available", "error", err)
