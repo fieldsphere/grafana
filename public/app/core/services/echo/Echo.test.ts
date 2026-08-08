@@ -1,4 +1,5 @@
 import { EchoEventType, MAX_PAGE_URL_LENGTH, TRUNCATION_MARKER } from '@grafana/runtime';
+import { clearLoggerRegistry, setLogger } from '@grafana/runtime/unstable';
 
 import { Echo } from './Echo';
 
@@ -143,7 +144,7 @@ describe('Echo onInteraction', () => {
     expect(callback).toHaveBeenCalledWith({});
   });
 
-  it('should not throw when subscriber throws', () => {
+  it('should not throw and reports the error to the structured logger when subscriber throws', () => {
     const errorCallback = jest.fn(() => {
       throw new Error('subscriber error');
     });
@@ -152,7 +153,14 @@ describe('Echo onInteraction', () => {
     echo.onInteraction('test_interaction', errorCallback);
     echo.onInteraction('test_interaction', goodCallback);
 
-    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    const logError = jest.fn();
+    setLogger('core.echo', {
+      logDebug: jest.fn(),
+      logInfo: jest.fn(),
+      logWarning: jest.fn(),
+      logError,
+      logMeasurement: jest.fn(),
+    });
 
     echo.addEvent({
       type: EchoEventType.Interaction,
@@ -161,9 +169,12 @@ describe('Echo onInteraction', () => {
 
     expect(errorCallback).toHaveBeenCalledTimes(1);
     expect(goodCallback).toHaveBeenCalledTimes(1);
-    expect(consoleSpy).toHaveBeenCalled();
+    expect(logError).toHaveBeenCalledTimes(1);
+    const reportedError = logError.mock.calls[0][0];
+    expect(reportedError).toBeInstanceOf(Error);
+    expect(reportedError.message).toContain('test_interaction');
 
-    consoleSpy.mockRestore();
+    clearLoggerRegistry();
   });
 
   it('should still dispatch to backends alongside subscriber dispatch', () => {

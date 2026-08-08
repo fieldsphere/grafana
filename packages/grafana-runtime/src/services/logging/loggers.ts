@@ -18,6 +18,10 @@ export const Loggers = {
   'features.dashboards.genai': {},
   'features.query-history.local-storage': {},
   'core.crash-detection': {},
+  'core.backend-srv': {},
+  'core.context-srv': {},
+  'core.echo': {},
+  'core.meticulous': {},
   'extensions.auth-config.scim': { context: { module: 'SCIM' } },
 } satisfies Record<string, LoggerDefaults>;
 
