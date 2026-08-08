@@ -80,6 +80,17 @@ it('renders page with correct title for an empty dashboard', () => {
   expect(screen.getByText('your new dashboard', { exact: false })).toBeInTheDocument();
 });
 
+it('renders quick start with examples card and CTA link', () => {
+  setup();
+
+  expect(screen.getByText('Quick start with examples')).toBeInTheDocument();
+  expect(screen.getByText('Browse example dashboards to jump-start your first visualizations.')).toBeInTheDocument();
+
+  const quickStartLink = screen.getByRole('link', { name: 'Explore examples' });
+  expect(quickStartLink).toHaveAttribute('href', 'https://grafana.com/grafana/dashboards/');
+  expect(quickStartLink).toHaveAttribute('target', '_blank');
+});
+
 it('renders with all buttons enabled when canCreate is true', () => {
   setup();
 
@@ -139,6 +150,19 @@ it('adds a library panel when clicked Add library panel', () => {
   });
   expect(locationService.partial).not.toHaveBeenCalled();
   expect(onAddLibraryPanel).toHaveBeenCalled();
+});
+
+it('tracks interaction when quick start examples CTA is clicked', () => {
+  setup();
+
+  act(() => {
+    fireEvent.click(screen.getByRole('link', { name: 'Explore examples' }));
+  });
+
+  expect(reportInteraction).toHaveBeenCalledWith('dashboards_emptydashboard_clicked', {
+    item: 'quick_start_examples',
+    isDynamicDashboard: false,
+  });
 });
 
 it('renders page without Add Widget button when feature flag is disabled', () => {
