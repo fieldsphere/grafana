@@ -43,4 +43,18 @@ export const testIds = {
     container: 'data-testid pg-added-links-container',
     section1: 'use-plugin-links',
   },
+  tickerWorkspace: {
+    container: 'ticker-workspace-container',
+    searchInput: 'ticker-search-input',
+    addButton: 'ticker-add-button',
+    comparisonHint: 'ticker-comparison-hint',
+    comparisonGrid: 'ticker-comparison-grid',
+    watchlistItemPrefix: 'watchlist-item-',
+    favoriteButtonPrefix: 'favorite-button-',
+    compareCheckboxPrefix: 'compare-checkbox-',
+    removeButtonPrefix: 'remove-button-',
+    recentSearchButtonPrefix: 'recent-search-',
+    favoriteQuickButtonPrefix: 'favorite-quick-',
+    comparisonCardPrefix: 'comparison-card-',
+  },
 };

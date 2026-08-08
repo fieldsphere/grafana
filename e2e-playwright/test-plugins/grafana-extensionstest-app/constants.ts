@@ -9,4 +9,5 @@ export enum ROUTES {
   AddedComponents = 'added-components',
   AddedLinks = 'added-links',
   Config = 'config',
+  TickerWorkspace = 'ticker-workspace',
 }
