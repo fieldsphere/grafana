@@ -3,6 +3,7 @@ import { omit } from 'lodash';
 import { type AnnotationQuery, getDataSourceRef, isEmptyObject, type TimeRange } from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { ExpressionDatasourceRef } from '@grafana/runtime/internal';
+import { getLogger } from '@grafana/runtime/unstable';
 import {
   behaviors,
   dataLayers,
@@ -179,8 +180,11 @@ export function transformSceneToSaveModelSchemaV2(scene: DashboardScene, isSnaps
     // should never reach this point, validation should throw an error
     throw new Error('Error we could transform the dashboard to schema v2: ' + dashboardSchemaV2);
   } catch (reason) {
-    console.error('Error transforming dashboard to schema v2: ' + reason, dashboardSchemaV2);
-    throw new Error('Error transforming dashboard to schema v2: ' + reason);
+    const error = new Error(`Error transforming dashboard to schema v2: ${String(reason)}`, { cause: reason });
+    getLogger('features.dashboard-scene').logError(error, {
+      dashboardSchemaV2: String(dashboardSchemaV2),
+    });
+    throw error;
   }
 }
 
@@ -687,10 +691,11 @@ function getAnnotations(state: DashboardSceneState, dsReferencesMapping?: DSRefe
       // for layers created for v2 schema. See transform transformSaveModelSchemaV2ToScene.ts.
       // In this case we will resolve default data source
       layerDs = getDefaultDataSourceRef();
-      console.error(
-        'Misconfigured AnnotationsDataLayer: Data source is required for annotations. Resolving default data source',
-        layer,
-        layerDs
+      getLogger('features.dashboard-scene').logError(
+        new Error(
+          'Misconfigured AnnotationsDataLayer: Data source is required for annotations. Resolving default data source'
+        ),
+        { layer: String(layer), layerDs: String(layerDs) }
       );
     }
 
