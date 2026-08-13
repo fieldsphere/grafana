@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 
+import { logStructured as structuredLog } from '@grafana/runtime';
+
 import { type SqlFunctionSignature } from '../SqlEditor/signatureHelp';
 
 /**
@@ -23,7 +25,12 @@ export function useFunctionSignatures(enabled: boolean): SqlFunctionSignature[] 
         }
       })
       .catch((error) => {
-        console.warn('Failed to load SQL function signatures for signature help', error);
+        structuredLog(
+          'grafana/frontend.features.expressions.components.SqlExpressions.hooks.useFunctionSignatures',
+          'warn',
+          'Failed to load SQL function signatures for signature help',
+          error
+        );
       });
 
     return () => {

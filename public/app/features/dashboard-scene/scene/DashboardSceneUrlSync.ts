@@ -1,3 +1,4 @@
+import { logStructured as structuredLog } from '@grafana/runtime';
 import { type SceneObjectUrlSyncHandler, type SceneObjectUrlValues, type VizPanel } from '@grafana/scenes';
 
 import { buildPanelEditScene } from '../panel-edit/PanelEditor';
@@ -71,7 +72,11 @@ export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
       const panel = findEditPanel(this._scene, values.editPanel);
 
       if (!panel) {
-        console.warn(`Panel ${values.editPanel} not found`);
+        structuredLog(
+          'grafana/frontend.features.dashboard-scene.scene.DashboardSceneUrlSync',
+          'warn',
+          `Panel ${values.editPanel} not found`
+        );
         return;
       }
 

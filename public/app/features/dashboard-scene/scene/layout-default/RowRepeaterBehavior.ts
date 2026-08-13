@@ -1,5 +1,6 @@
 import { isEqual } from 'lodash';
 
+import { logStructured as structuredLog } from '@grafana/runtime';
 import {
   MultiValueVariable,
   sceneGraph,
@@ -97,12 +98,20 @@ export class RowRepeaterBehavior extends SceneObjectBase<RowRepeaterBehaviorStat
     const variable = sceneGraph.lookupVariable(this.state.variableName, this.parent?.parent!);
 
     if (!variable) {
-      console.error('RepeatedRowBehavior: Variable not found');
+      structuredLog(
+        'grafana/frontend.features.dashboard-scene.scene.layout-default.RowRepeaterBehavior',
+        'error',
+        'RepeatedRowBehavior: Variable not found'
+      );
       return;
     }
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('RepeatedRowBehavior: Variable is not a MultiValueVariable');
+      structuredLog(
+        'grafana/frontend.features.dashboard-scene.scene.layout-default.RowRepeaterBehavior',
+        'error',
+        'RepeatedRowBehavior: Variable is not a MultiValueVariable'
+      );
       return;
     }
 

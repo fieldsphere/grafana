@@ -4,6 +4,7 @@ import AutoSizer from 'react-virtualized-auto-sizer';
 import { type SelectableValue } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
+import { logStructured as structuredLog } from '@grafana/runtime';
 import {
   type SceneComponentProps,
   SceneDataTransformer,
@@ -165,7 +166,11 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
     const gridItem = panel.parent;
 
     if (!(gridItem instanceof DashboardGridItem)) {
-      console.error('Cannot update layout: panel parent is not a DashboardGridItem');
+      structuredLog(
+        'grafana/frontend.features.dashboard-scene.inspect.InspectJsonTab',
+        'error',
+        'Cannot update layout: panel parent is not a DashboardGridItem'
+      );
       return;
     }
 
@@ -259,7 +264,13 @@ export class InspectJsonTab extends SceneObjectBase<InspectJsonTabState> {
     const newState = sceneUtils.cloneSceneObjectState(gridItem.state);
 
     if (!(panel.parent instanceof DashboardGridItem)) {
-      console.error('Cannot update state of panel', panel, gridItem);
+      structuredLog(
+        'grafana/frontend.features.dashboard-scene.inspect.InspectJsonTab',
+        'error',
+        'Cannot update state of panel',
+        panel,
+        gridItem
+      );
       return;
     }
 

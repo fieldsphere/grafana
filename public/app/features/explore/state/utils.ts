@@ -21,6 +21,7 @@ import {
   type URLRange,
   type URLRangeValue,
 } from '@grafana/data';
+import { logStructured as structuredLog } from '@grafana/runtime';
 import { getDataSourceInstance } from '@grafana/runtime/unstable';
 import { type DataQuery, type DataSourceJsonData, type DataSourceRef, type TimeZone } from '@grafana/schema';
 import { getLocalRichHistoryStorage } from 'app/core/history/richHistoryStorageProvider';
@@ -117,7 +118,7 @@ export async function loadAndInitDatasource(
       instance.init();
     } catch (err) {
       // TODO: should probably be handled better
-      console.error(err);
+      structuredLog('grafana/frontend.features.explore.state.utils', 'error', err);
     }
   }
 

@@ -2,6 +2,7 @@ import { skipToken } from '@reduxjs/toolkit/query';
 import { useMemo } from 'react';
 
 import { type OrgRole } from '@grafana/data';
+import { logStructured as structuredLog } from '@grafana/runtime';
 import { useListUserRolesQuery, useSetUserRolesMutation } from 'app/api/clients/roles';
 import { contextSrv } from 'app/core/services/context_srv';
 import { AccessControlAction, type Role } from 'app/types/accessControl';
@@ -90,7 +91,12 @@ export const UserRolePicker = ({
           },
         }).unwrap();
       } catch (error) {
-        console.error('Error updating user roles', error);
+        structuredLog(
+          'grafana/frontend.core.components.RolePicker.UserRolePicker',
+          'error',
+          'Error updating user roles',
+          error
+        );
       }
     } else if (onApplyRoles) {
       onApplyRoles(newRoles, userId, orgId);

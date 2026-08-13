@@ -1,3 +1,7 @@
+import memoizeOne from 'memoize-one';
+
+import { logStructured as structuredLog } from '@grafana/runtime';
+
 // Copyright (c) 2023 The Jaeger Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,8 +15,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-import memoizeOne from 'memoize-one';
 
 import { type TraceSpan, type CriticalPathSection, type Trace } from '../types/trace';
 
@@ -104,7 +106,12 @@ function criticalPathForTrace(trace: Trace) {
       criticalPath = computeCriticalPath(sanitizedSpanMap, rootSpanId, criticalPath);
     } catch (error) {
       /* eslint-disable no-console */
-      console.log('error while computing critical path for a trace', error);
+      structuredLog(
+        'grafana/frontend.features.explore.TraceView.components.CriticalPath.index',
+        'info',
+        'error while computing critical path for a trace',
+        error
+      );
     }
   }
   return criticalPath;

@@ -1,3 +1,7 @@
+import * as React from 'react';
+
+import { logStructured as structuredLog } from '@grafana/runtime';
+
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -11,8 +15,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-import * as React from 'react';
 
 import type TNil from '../../types/TNil';
 
@@ -388,7 +390,11 @@ export default class ListView extends React.Component<TListViewProps> {
         const itemKey = node.getAttribute('data-item-key');
         if (!itemKey) {
           // eslint-disable-next-line no-console
-          console.warn('itemKey not found');
+          structuredLog(
+            'grafana/frontend.features.explore.TraceView.components.TraceTimelineViewer.ListView.index',
+            'warn',
+            'itemKey not found'
+          );
           continue;
         }
         // measure the first child, if it's available, otherwise the node itself

@@ -5,6 +5,7 @@ import { Controller, type DeepMap, type FieldError, useFormContext } from 'react
 import { type GrafanaTheme2 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
+import { logStructured as structuredLog } from '@grafana/runtime';
 import {
   Checkbox,
   Field,
@@ -319,7 +320,12 @@ const OptionInput: FC<Props & { id: string }> = ({
       );
 
     default:
-      console.error('Element not supported', option.element);
+      structuredLog(
+        'grafana/frontend.features.alerting.unified.components.receivers.form.fields.OptionField',
+        'error',
+        'Element not supported',
+        option.element
+      );
       return null;
   }
 };

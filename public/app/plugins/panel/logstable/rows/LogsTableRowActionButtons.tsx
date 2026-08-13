@@ -3,6 +3,7 @@ import { useCallback } from 'react';
 
 import { type GrafanaTheme2 } from '@grafana/data';
 import { t } from '@grafana/i18n';
+import { logStructured as structuredLog } from '@grafana/runtime';
 import { ClipboardButton, type CustomCellRendererProps, IconButton, useTheme2 } from '@grafana/ui';
 import { type LogsFrame } from 'app/features/logs/logsFrame';
 
@@ -64,7 +65,11 @@ export function LogsTableRowActionButtons(props: Props) {
                 if (logId) {
                   return buildLinkToLog(logId) ?? '';
                 } else {
-                  console.error('failed to copy log line link!');
+                  structuredLog(
+                    'grafana/frontend.plugins.panel.logstable.rows.LogsTableRowActionButtons',
+                    'error',
+                    'failed to copy log line link!'
+                  );
                 }
                 return '';
               }}

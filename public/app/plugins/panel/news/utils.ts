@@ -1,4 +1,5 @@
 import { FieldType, type DataFrame, dateTime } from '@grafana/data';
+import { logStructured as structuredLog } from '@grafana/runtime';
 
 import { type Feed } from './types';
 
@@ -23,7 +24,7 @@ export function feedToDataFrame(feed: Feed): DataFrame {
         content.push(body);
       }
     } catch (err) {
-      console.warn('Error reading news item:', err, item);
+      structuredLog('grafana/frontend.plugins.panel.news.utils', 'warn', 'Error reading news item:', err, item);
     }
   }
 

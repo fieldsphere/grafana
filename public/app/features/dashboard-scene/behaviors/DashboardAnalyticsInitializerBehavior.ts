@@ -1,3 +1,4 @@
+import { logStructured as structuredLog } from '@grafana/runtime';
 import { writePerformanceLog } from '@grafana/scenes';
 
 import { getDashboardAnalyticsAggregator } from '../../dashboard/services/DashboardAnalyticsAggregator';
@@ -15,7 +16,11 @@ export function dashboardAnalyticsInitializer(dashboard: DashboardScene) {
   const { uid, title } = dashboard.state;
 
   if (!uid) {
-    console.warn('dashboardAnalyticsInitializer: Dashboard UID is missing');
+    structuredLog(
+      'grafana/frontend.features.dashboard-scene.behaviors.DashboardAnalyticsInitializerBehavior',
+      'warn',
+      'dashboardAnalyticsInitializer: Dashboard UID is missing'
+    );
     return;
   }
 

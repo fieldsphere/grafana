@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import { createAssistantContextItem, type ChatContextItem, useProvidePageContext } from '@grafana/assistant';
 import { type DataSourceApi } from '@grafana/data';
+import { logStructured as structuredLog } from '@grafana/runtime';
 import { getDataSourceInstanceSettings } from '@grafana/runtime/unstable';
 import { type DataQuery } from '@grafana/schema';
 import { type ExploreItemState } from 'app/types/explore';
@@ -118,7 +119,7 @@ function getDisplayText(query: DataQuery, ds?: DataSourceApi): string | undefine
   try {
     return ds?.getQueryDisplayText?.(query);
   } catch (error) {
-    console.error(error);
+    structuredLog('grafana/frontend.features.explore.hooks.useExplorePageContext', 'error', error);
     return undefined;
   }
 }

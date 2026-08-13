@@ -1,6 +1,8 @@
 import { useRegisterActions } from 'kbar';
 import { useEffect, useMemo, useState } from 'react';
 
+import { logStructured as structuredLog } from '@grafana/runtime';
+
 import { type CommandPaletteAction } from '../types';
 
 import { getRecentDashboardActions } from './dashboardActions';
@@ -27,7 +29,12 @@ export function useRegisterRecentDashboardsActions() {
     getRecentDashboardActions()
       .then((recentDashboardActions) => setRecentDashboardActions(recentDashboardActions))
       .catch((err) => {
-        console.error('Error loading recent dashboard actions', err);
+        structuredLog(
+          'grafana/frontend.features.commandPalette.actions.useActions',
+          'error',
+          'Error loading recent dashboard actions',
+          err
+        );
       });
   }, []);
 
