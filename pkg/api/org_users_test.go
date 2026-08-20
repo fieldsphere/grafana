@@ -1221,7 +1221,20 @@ func TestRemoveOrgUserForCurrentOrg_KubernetesUsersRedirect(t *testing.T) {
 		setupOpenFeatureFlag(t, featuremgmt.FlagKubernetesUsersRedirect, false)
 
 		d := &deps{}
-		statusCode := sendDelete(t, setup(t, d))
+		server := SetupAPITestServer(t, func(hs *HTTPServer) {
+			hs.Cfg = setting.NewCfg()
+			hs.userService = &usertest.FakeUserService{
+				DeleteFn: func(_ context.Context, cmd *user.DeleteUserCommand) error {
+					d.deleteCmd = cmd
+					return nil
+				},
+			}
+			hs.orgService = &orgtest.FakeOrgService{
+				ExpectedOrgListResponse: orgtest.OrgListResponse{{Response: nil}},
+			}
+			hs.accesscontrolService = &actest.FakeService{ExpectedPermissions: permissions}
+		})
+		statusCode := sendDelete(t, server)
 
 		assert.Equal(t, http.StatusOK, statusCode)
 		assert.Nil(t, d.deleteCmd)
