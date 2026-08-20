@@ -4,6 +4,23 @@ import { config } from '@grafana/runtime';
 
 import LabsPage from './LabsPage';
 
+const labsNav = {
+  id: 'labs',
+  text: 'Labs',
+  subTitle: 'Explore experimental features enabled in your Grafana instance',
+  url: '/labs',
+};
+
+function renderLabsPage() {
+  return render(<LabsPage />, {
+    preloadedState: {
+      navIndex: {
+        labs: labsNav,
+      },
+    },
+  });
+}
+
 describe('LabsPage', () => {
   const originalFeatureToggles = config.featureToggles;
 
@@ -19,9 +36,9 @@ describe('LabsPage', () => {
       awsAsyncQueryCaching: true,
     };
 
-    render(<LabsPage />);
+    renderLabsPage();
 
-    expect(screen.getByText('Labs')).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { name: 'Labs' })).toHaveLength(1);
     expect(screen.getByText('alertingTriage')).toBeInTheDocument();
     expect(screen.getByText('awsAsyncQueryCaching')).toBeInTheDocument();
     expect(screen.queryByText('featureHighlights')).not.toBeInTheDocument();
@@ -32,7 +49,7 @@ describe('LabsPage', () => {
       Object.keys(originalFeatureToggles).map((key) => [key, false])
     ) as typeof config.featureToggles;
 
-    render(<LabsPage />);
+    renderLabsPage();
 
     expect(screen.getByText('No feature flags are currently enabled.')).toBeInTheDocument();
   });

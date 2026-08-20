@@ -42,7 +42,7 @@ func TestBuildLabsNavLink(t *testing.T) {
 		require.Equal(t, navtree.WeightLabs, link.SortWeight)
 	})
 
-	t.Run("Should not return Labs nav link for signed out users", func(t *testing.T) {
+	t.Run("Should return Labs nav link for anonymous users", func(t *testing.T) {
 		httpReq, _ := http.NewRequest(http.MethodGet, "", nil)
 		reqCtx := &contextmodel.ReqContext{
 			SignedInUser: &user.SignedInUser{
@@ -54,6 +54,8 @@ func TestBuildLabsNavLink(t *testing.T) {
 
 		link := service.buildLabsNavLink(reqCtx)
 
-		require.Nil(t, link)
+		require.NotNil(t, link)
+		require.Equal(t, navtree.NavIDLabs, link.Id)
+		require.Equal(t, "Labs", link.Text)
 	})
 }

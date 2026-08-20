@@ -38,14 +38,6 @@ function LabsPage() {
     <Page navId="labs">
       <Page.Contents>
         <div className={styles.header}>
-          <Text element="h1">
-            <Trans i18nKey="labs.page.title">Labs</Trans>
-          </Text>
-          <Text color="secondary">
-            <Trans i18nKey="labs.page.description">
-              Experimental features currently enabled in your Grafana instance.
-            </Trans>
-          </Text>
           <Text color="secondary">
             <Trans i18nKey="labs.page.count" values={{ count: enabledFlags.length }}>
               {'{{count}} feature flags enabled'}
