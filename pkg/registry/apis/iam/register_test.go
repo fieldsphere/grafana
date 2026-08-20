@@ -111,6 +111,9 @@ var commonMultiVersionTypes = func() map[reflect.Type]bool {
 		// go through StorageOptsRegister with Scheme == nil.
 		&legacyiamv0.SSOSetting{}, &legacyiamv0.SSOSettingList{}, &legacyiamv0.UserTeamList{},
 		&legacyiamv0.DisplayList{}, &legacyiamv0.TeamMemberList{},
+		&legacyiamv0.UserOrgList{}, &legacyiamv0.UserAuthTokenList{},
+		&legacyiamv0.UserAuthTokenRevokeStatus{}, &legacyiamv0.UserUsingStatus{},
+		&legacyiamv0.UserPasswordStatus{},
 	} {
 		m[reflect.TypeOf(o).Elem()] = true
 	}

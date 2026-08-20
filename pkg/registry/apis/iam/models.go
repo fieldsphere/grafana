@@ -23,9 +23,12 @@ import (
 	"github.com/grafana/grafana/pkg/registry/apis/iam/user"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/apiserver/builder"
+	"github.com/grafana/grafana/pkg/services/auth"
 	"github.com/grafana/grafana/pkg/services/authz/zanzana"
+	"github.com/grafana/grafana/pkg/services/org"
 	settingsvc "github.com/grafana/grafana/pkg/services/setting"
 	"github.com/grafana/grafana/pkg/services/ssosettings"
+	legacyuser "github.com/grafana/grafana/pkg/services/user"
 	"github.com/grafana/grafana/pkg/storage/legacysql/dualwrite"
 	"github.com/grafana/grafana/pkg/storage/unified/resource"
 	"github.com/grafana/grafana/pkg/storage/unified/resourcepb"
@@ -116,6 +119,13 @@ type IdentityAccessManagementAPIBuilder struct {
 	// writes to setting.grafana.app). Built in RegisterAPIService when the
 	// kind's storage mode engages MT-Settings.
 	ssoSettingsClient settingsvc.Service
+
+	// Signed-in user subresources (orgs/using/tokens/password) need these when
+	// kubernetesUsersApi is enabled. Nil in multi-tenant NewAPIService paths that
+	// do not register those connecters.
+	orgService       org.Service
+	userService      legacyuser.Service
+	authTokenService auth.UserTokenService
 
 	// ofClient evaluates the feature flags gating the IAM APIs. The default
 	// client resolves the globally-registered provider at evaluation time.

@@ -30,6 +30,36 @@ manifest: {
 							}
 						}
 					}
+					"/ws": {
+						"GET": {
+							name: "getWs"
+							response: {
+								status: string
+							}
+						}
+					}
+					"/list": {
+						"GET": {
+							name: "getList"
+							response: {
+								channels: [...]
+							}
+						}
+					}
+					"/push/{streamId}": {
+						"GET": {
+							name: "getPush"
+							response: {
+								status: string
+							}
+						}
+						"POST": {
+							name: "createPush"
+							response: {
+								status: string
+							}
+						}
+					}
 				}
 			}
 		}

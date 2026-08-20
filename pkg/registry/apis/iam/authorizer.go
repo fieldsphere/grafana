@@ -187,27 +187,49 @@ func allowSelfAuthorizer(base authorizer.Authorizer) authorizer.Authorizer {
 	})
 }
 
-// newUserAuthorizer creates an authorizer for users that handles the "teams" and "status" subresources.
-// "teams" is read-only (Connecter/GET), so it checks user get.
-// "status" supports both GET and PUT, so the check verb mirrors the request verb.
+// newUserAuthorizer creates an authorizer for users that handles the "teams", "status",
+// "orgs", "using", "tokens", and "password" subresources.
+// Read-only connecters check user get; write connecters check user update.
 func newUserAuthorizer(accessClient authlib.AccessClient) authorizer.Authorizer {
+	userGetCheck := func(ctx context.Context, ident authlib.AuthInfo, attr authorizer.Attributes) (authorizer.Decision, string, error) {
+		res, err := accessClient.Check(ctx, ident, authlib.CheckRequest{
+			Verb:      utils.VerbGet,
+			Group:     attr.GetAPIGroup(),
+			Resource:  attr.GetResource(),
+			Namespace: attr.GetNamespace(),
+			Name:      attr.GetName(),
+		}, "")
+		if err != nil {
+			return authorizer.DecisionDeny, "", err
+		}
+		if !res.Allowed {
+			return authorizer.DecisionDeny, "requires user get", nil
+		}
+		return authorizer.DecisionAllow, "", nil
+	}
+	userUpdateCheck := func(ctx context.Context, ident authlib.AuthInfo, attr authorizer.Attributes) (authorizer.Decision, string, error) {
+		res, err := accessClient.Check(ctx, ident, authlib.CheckRequest{
+			Verb:      utils.VerbUpdate,
+			Group:     attr.GetAPIGroup(),
+			Resource:  attr.GetResource(),
+			Namespace: attr.GetNamespace(),
+			Name:      attr.GetName(),
+		}, "")
+		if err != nil {
+			return authorizer.DecisionDeny, "", err
+		}
+		if !res.Allowed {
+			return authorizer.DecisionDeny, "requires user update", nil
+		}
+		return authorizer.DecisionAllow, "", nil
+	}
+
 	base := gfauthorizer.NewResourceAuthorizerWithSubresourceHandlers(accessClient, map[string]gfauthorizer.SubresourceCheck{
-		"teams": func(ctx context.Context, ident authlib.AuthInfo, attr authorizer.Attributes) (authorizer.Decision, string, error) {
-			res, err := accessClient.Check(ctx, ident, authlib.CheckRequest{
-				Verb:      utils.VerbGet,
-				Group:     attr.GetAPIGroup(),
-				Resource:  attr.GetResource(),
-				Namespace: attr.GetNamespace(),
-				Name:      attr.GetName(),
-			}, "")
-			if err != nil {
-				return authorizer.DecisionDeny, "", err
-			}
-			if !res.Allowed {
-				return authorizer.DecisionDeny, "requires user get", nil
-			}
-			return authorizer.DecisionAllow, "", nil
-		},
+		"teams":    userGetCheck,
+		"orgs":     userGetCheck,
+		"tokens":   userGetCheck,
+		"using":    userUpdateCheck,
+		"password": userUpdateCheck,
 		"status": func(ctx context.Context, ident authlib.AuthInfo, attr authorizer.Attributes) (authorizer.Decision, string, error) {
 			verb := utils.VerbGet
 			if attr.GetVerb() == utils.VerbUpdate || attr.GetVerb() == utils.VerbPatch {

@@ -1,58 +1,66 @@
 package app
 
 import (
-	"k8s.io/apimachinery/pkg/runtime/schema"
+	"context"
 
 	"github.com/grafana/grafana-app-sdk/app"
 	"github.com/grafana/grafana-app-sdk/resource"
 	"github.com/grafana/grafana-app-sdk/simple"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+
 	liveV1 "github.com/grafana/grafana/apps/live/pkg/apis/live/v1alpha1"
 )
 
+type liveRouteHandler func(ctx context.Context, writer app.CustomRouteResponseWriter, request *app.CustomRouteRequest) error
+
+// LiveConfig holds optional custom-route handlers injected by the registry layer.
+// Channel CRUD is always available when the live app is installed; transport
+// routes (ws/list/push) are only wired when handlers are provided.
 type LiveConfig struct {
 	Enable bool
+
+	WebSocketHandler liveRouteHandler
+	ListHandler      liveRouteHandler
+	PushGetHandler   liveRouteHandler
+	PushPostHandler  liveRouteHandler
 }
 
 func New(cfg app.Config) (app.App, error) {
-	// APIPath needs to be set to `/apis`, as it defaults to empty
 	cfg.KubeConfig.APIPath = "/apis"
-	// // We create a client to work with our Example kind in our reconciler
-	// client, err := k8s.NewClientRegistry(cfg.KubeConfig, k8s.DefaultClientConfig()).ClientFor(liveV1.ChannelKind())
-	// if err != nil {
-	// 	return nil, fmt.Errorf("unable to create example client: %w", err)
-	// }
-	// exampleConfig, ok := cfg.SpecificConfig.(*LiveConfig)
-	// if ok {
-	// 	fmt.Printf("CONFIG: %+v. // %v\n", exampleConfig, client)
-	// }
 
-	// This is the configuration for our App.
+	routes := simple.AppVersionRouteHandlers{
+		{
+			Namespaced: true,
+			Path:       "something",
+			Method:     "GET",
+		}: GetSomethingHandler,
+	}
+
+	if liveConfig, ok := cfg.SpecificConfig.(*LiveConfig); ok && liveConfig != nil {
+		if liveConfig.WebSocketHandler != nil {
+			routes[simple.AppVersionRoute{Namespaced: true, Path: "ws", Method: "GET"}] = simple.AppCustomRouteHandler(liveConfig.WebSocketHandler)
+		}
+		if liveConfig.ListHandler != nil {
+			routes[simple.AppVersionRoute{Namespaced: true, Path: "list", Method: "GET"}] = simple.AppCustomRouteHandler(liveConfig.ListHandler)
+		}
+		if liveConfig.PushGetHandler != nil {
+			routes[simple.AppVersionRoute{Namespaced: true, Path: "push/{streamId}", Method: "GET"}] = simple.AppCustomRouteHandler(liveConfig.PushGetHandler)
+		}
+		if liveConfig.PushPostHandler != nil {
+			routes[simple.AppVersionRoute{Namespaced: true, Path: "push/{streamId}", Method: "POST"}] = simple.AppCustomRouteHandler(liveConfig.PushPostHandler)
+		}
+	}
+
 	simpleConfig := simple.AppConfig{
 		Name:       "live",
 		KubeConfig: cfg.KubeConfig,
-		// ManagedKinds is the list of all kinds our app manages (the kinds owned by our app).
-		// Here, a Kind is defined as a distinct Group, Version, and Kind combination,
-		// so for each version of our Example kind, we need to add it to this list.
-		// Each kind can also have admission control attached to it--different versions can have different admission control attached.
-		// Handlers for custom routes defined in the manifest for the kind go here--this is where they actuall get routed,
-		// they are only defined in the manifest.
-		// Reconcilers and/or Watchers are also attached here, though they should only be attached to a single version per kind.
 		ManagedKinds: []simple.AppManagedKind{
 			{
 				Kind: liveV1.ChannelKind(),
 			},
 		},
-		// VersionedCustomRoutes are the custom route handlers for routes defined at the version level of the manifest
-		// instead of for a specific kind. This are sometimes referred to as "resource routes"
-		// (as opposed to "subresource routes" which are attached to kinds).
 		VersionedCustomRoutes: map[string]simple.AppVersionRouteHandlers{
-			"v1alpha1": {
-				{
-					Namespaced: true,
-					Path:       "something",
-					Method:     "GET",
-				}: GetSomethingHandler,
-			},
+			"v1alpha1": routes,
 		},
 	}
 
@@ -61,9 +69,6 @@ func New(cfg app.Config) (app.App, error) {
 		return nil, err
 	}
 
-	// This makes it easier to catch problems at startup, rather than when something doesn't behave as expected.
-	// ValidateManifest will ensure that the capabilities you define in your simple.AppConfig
-	// match the capabilities described in the AppManifest.
 	err = a.ValidateManifest(cfg.ManifestData)
 	if err != nil {
 		return nil, err

@@ -1067,3 +1067,176 @@ func TestUpdateOrgUserForCurrentOrg_KubernetesUsersRedirect(t *testing.T) {
 		assert.Nil(t, d.updateCmd, "user service update should not be called on the legacy path")
 	})
 }
+
+func TestAddOrgUserToCurrentOrg_KubernetesUsersRedirect(t *testing.T) {
+	permissions := []accesscontrol.Permission{
+		{Action: accesscontrol.ActionOrgUsersAdd, Scope: "users:*"},
+	}
+
+	type deps struct {
+		updateCmd   *user.UpdateUserCommand
+		legacyError error
+		updateError error
+		searchUsers user.SearchUserQueryResult
+	}
+
+	setup := func(t *testing.T, d *deps) *webtest.Server {
+		return SetupAPITestServer(t, func(hs *HTTPServer) {
+			hs.Cfg = setting.NewCfg()
+			hs.userService = &usertest.FakeUserService{
+				ExpectedUser:        &user.User{ID: 42, Login: "jdoe", Email: "jdoe@example.com"},
+				ExpectedSearchUsers: d.searchUsers,
+				UpdateFn: func(_ context.Context, cmd *user.UpdateUserCommand) error {
+					d.updateCmd = cmd
+					return d.updateError
+				},
+			}
+			hs.orgService = &orgtest.FakeOrgService{ExpectedError: d.legacyError}
+			hs.accesscontrolService = &actest.FakeService{ExpectedPermissions: permissions}
+		})
+	}
+
+	sendPost := func(t *testing.T, server *webtest.Server, body string) int {
+		signedInUser := userWithPermissions(1, permissions)
+		signedInUser.OrgRole = identity.RoleAdmin
+		req := server.NewRequest(http.MethodPost, "/api/org/users", strings.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		res, err := server.Send(webtest.RequestWithSignedInUser(req, signedInUser))
+		require.NoError(t, err)
+		require.NoError(t, res.Body.Close())
+		return res.StatusCode
+	}
+
+	t.Run("routes add through user service Update when the flag is enabled", func(t *testing.T) {
+		setupOpenFeatureFlag(t, featuremgmt.FlagKubernetesUsersRedirect, true)
+
+		d := &deps{legacyError: errors.New("legacy path must not be called")}
+		statusCode := sendPost(t, setup(t, d), `{"loginOrEmail":"jdoe","role":"Editor"}`)
+
+		assert.Equal(t, http.StatusOK, statusCode)
+		require.NotNil(t, d.updateCmd)
+		assert.Equal(t, int64(42), d.updateCmd.UserID)
+		require.NotNil(t, d.updateCmd.OrgRole)
+		assert.Equal(t, "Editor", *d.updateCmd.OrgRole)
+	})
+
+	t.Run("returns 409 when the user is already a member", func(t *testing.T) {
+		setupOpenFeatureFlag(t, featuremgmt.FlagKubernetesUsersRedirect, true)
+
+		d := &deps{searchUsers: user.SearchUserQueryResult{
+			TotalCount: 1,
+			Users:      []*user.UserSearchHitDTO{{ID: 42, Login: "jdoe", Role: "Viewer"}},
+		}}
+		statusCode := sendPost(t, setup(t, d), `{"loginOrEmail":"jdoe","role":"Editor"}`)
+
+		assert.Equal(t, http.StatusConflict, statusCode)
+		assert.Nil(t, d.updateCmd)
+	})
+
+	t.Run("keeps using the legacy org service when the flag is disabled", func(t *testing.T) {
+		setupOpenFeatureFlag(t, featuremgmt.FlagKubernetesUsersRedirect, false)
+
+		d := &deps{}
+		statusCode := sendPost(t, setup(t, d), `{"loginOrEmail":"jdoe","role":"Editor"}`)
+
+		assert.Equal(t, http.StatusOK, statusCode)
+		assert.Nil(t, d.updateCmd)
+	})
+}
+
+func TestRemoveOrgUserForCurrentOrg_KubernetesUsersRedirect(t *testing.T) {
+	permissions := []accesscontrol.Permission{
+		{Action: accesscontrol.ActionOrgUsersRemove, Scope: "users:*"},
+		{Action: accesscontrol.ActionOrgUsersRead, Scope: "users:*"},
+	}
+
+	orgUsersWithTwoAdmins := user.SearchUserQueryResult{
+		TotalCount: 2,
+		Users: []*user.UserSearchHitDTO{
+			{ID: 1, Login: "target", Role: string(identity.RoleAdmin)},
+			{ID: 2, Login: "other", Role: string(identity.RoleAdmin)},
+		},
+	}
+
+	type deps struct {
+		deleteCmd   *user.DeleteUserCommand
+		legacyError error
+		deleteError error
+		searchUsers user.SearchUserQueryResult
+	}
+
+	setup := func(t *testing.T, d *deps) *webtest.Server {
+		return SetupAPITestServer(t, func(hs *HTTPServer) {
+			hs.Cfg = setting.NewCfg()
+			hs.userService = &usertest.FakeUserService{
+				ExpectedSearchUsers: d.searchUsers,
+				DeleteFn: func(_ context.Context, cmd *user.DeleteUserCommand) error {
+					d.deleteCmd = cmd
+					return d.deleteError
+				},
+			}
+			hs.orgService = &orgtest.FakeOrgService{ExpectedError: d.legacyError}
+			hs.accesscontrolService = &actest.FakeService{ExpectedPermissions: permissions}
+		})
+	}
+
+	sendDelete := func(t *testing.T, server *webtest.Server) int {
+		signedInUser := userWithPermissions(1, permissions)
+		signedInUser.OrgRole = identity.RoleAdmin
+		req := server.NewRequest(http.MethodDelete, "/api/org/users/1", nil)
+		res, err := server.Send(webtest.RequestWithSignedInUser(req, signedInUser))
+		require.NoError(t, err)
+		require.NoError(t, res.Body.Close())
+		return res.StatusCode
+	}
+
+	t.Run("routes remove through user service Delete when the flag is enabled", func(t *testing.T) {
+		setupOpenFeatureFlag(t, featuremgmt.FlagKubernetesUsersRedirect, true)
+
+		d := &deps{legacyError: errors.New("legacy path must not be called"), searchUsers: orgUsersWithTwoAdmins}
+		statusCode := sendDelete(t, setup(t, d))
+
+		assert.Equal(t, http.StatusOK, statusCode)
+		require.NotNil(t, d.deleteCmd)
+		assert.Equal(t, int64(1), d.deleteCmd.UserID)
+	})
+
+	t.Run("blocks removing the last org admin", func(t *testing.T) {
+		setupOpenFeatureFlag(t, featuremgmt.FlagKubernetesUsersRedirect, true)
+
+		d := &deps{searchUsers: user.SearchUserQueryResult{
+			TotalCount: 2,
+			Users: []*user.UserSearchHitDTO{
+				{ID: 1, Login: "target", Role: string(identity.RoleAdmin)},
+				{ID: 2, Login: "other", Role: string(identity.RoleViewer)},
+			},
+		}}
+		statusCode := sendDelete(t, setup(t, d))
+
+		assert.Equal(t, http.StatusBadRequest, statusCode)
+		assert.Nil(t, d.deleteCmd)
+	})
+
+	t.Run("keeps using the legacy org service when the flag is disabled", func(t *testing.T) {
+		setupOpenFeatureFlag(t, featuremgmt.FlagKubernetesUsersRedirect, false)
+
+		d := &deps{}
+		server := SetupAPITestServer(t, func(hs *HTTPServer) {
+			hs.Cfg = setting.NewCfg()
+			hs.userService = &usertest.FakeUserService{
+				DeleteFn: func(_ context.Context, cmd *user.DeleteUserCommand) error {
+					d.deleteCmd = cmd
+					return nil
+				},
+			}
+			hs.orgService = &orgtest.FakeOrgService{
+				ExpectedOrgListResponse: orgtest.OrgListResponse{{Response: nil}},
+			}
+			hs.accesscontrolService = &actest.FakeService{ExpectedPermissions: permissions}
+		})
+		statusCode := sendDelete(t, server)
+
+		assert.Equal(t, http.StatusOK, statusCode)
+		assert.Nil(t, d.deleteCmd)
+	})
+}

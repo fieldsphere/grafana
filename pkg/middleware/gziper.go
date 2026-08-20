@@ -49,8 +49,9 @@ var gzipIgnoredPaths = []matcher{
 	prefix("/api/plugin-proxy/"),
 	prefix("/api/gnet/"), // Already gzipped by grafana.com.
 	prefix("/metrics"),
-	prefix("/api/live/ws"),   // WebSocket does not support gzip compression.
-	prefix("/api/live/push"), // WebSocket does not support gzip compression.
+	prefix("/api/live/ws"),                     // WebSocket does not support gzip compression.
+	prefix("/api/live/push"),                   // WebSocket does not support gzip compression.
+	prefix("/apis/live.grafana.app/"),          // Live /apis transport (ws/push) must not be gzipped.
 	substr("/resources"),
 }
 
