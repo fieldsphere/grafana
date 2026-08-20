@@ -26,6 +26,7 @@ import { TimeSeries } from 'app/core/components/TimeSeries/TimeSeries';
 import { getFilterByGroupedLabels } from 'app/features/panel/filters/adhoc';
 
 import { TimeSeriesTooltip } from './TimeSeriesTooltip';
+import { applyTimeSeriesOverlays } from './overlays';
 import { type Options } from './panelcfg.gen';
 import { AnnotationsPlugin } from './plugins/AnnotationsPlugin';
 import { ExemplarsPlugin, getVisibleLabels } from './plugins/ExemplarsPlugin';
@@ -70,19 +71,12 @@ export const TimeSeriesPanel = ({
   const { frames, compareDiffMs } = useMemo(() => {
     let frames = prepareGraphableFields(data.series, theme, timeRange);
     if (frames != null) {
-      let compareDiffMs: number[] = [0];
       // Held separately from `frames` below: TS won't retain the null-check narrowing of `frames`
       // inside the .map callback once `frames` itself gets reassigned in this scope.
       const originalFrames = frames;
 
       frames = originalFrames.map((frame: DataFrame) => {
         const diffMs = frame.meta?.timeCompare?.diffMs ?? 0;
-
-        frame.fields.forEach((field) => {
-          if (field.type !== FieldType.time) {
-            compareDiffMs.push(diffMs);
-          }
-        });
 
         if (diffMs !== 0) {
           // Check if the compared frame needs time alignment
@@ -97,11 +91,24 @@ export const TimeSeriesPanel = ({
         return frame;
       });
 
+      frames = applyTimeSeriesOverlays(frames, options.overlay, theme);
+
+      // Index 0 is reserved for the time field in the aligned tooltip frame.
+      const compareDiffMs: number[] = [0];
+      for (const frame of frames) {
+        const diffMs = frame.meta?.timeCompare?.diffMs ?? 0;
+        for (const field of frame.fields) {
+          if (field.type !== FieldType.time) {
+            compareDiffMs.push(diffMs);
+          }
+        }
+      }
+
       return { frames, compareDiffMs };
     }
 
     return { frames };
-  }, [data.series, timeRange, theme]);
+  }, [data.series, timeRange, theme, options.overlay]);
 
   const timezones = useMemo(() => getTimezones(options.timezone, timeZone), [options.timezone, timeZone]);
   const suggestions = useMemo(() => {
