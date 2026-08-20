@@ -1,5 +1,7 @@
-import { getBackendSrv } from '@grafana/runtime';
+import { config, getBackendSrv } from '@grafana/runtime';
 import { updateConfigurationSubtitle } from 'app/core/reducers/navModel';
+import { contextSrv } from 'app/core/services/context_srv';
+import { isKubernetesUsersApiEnabled } from 'app/features/profile/api';
 import { type ThunkResult } from 'app/types/store';
 import { type UserOrg } from 'app/types/user';
 
@@ -36,7 +38,10 @@ export function setUserOrganization(
   dependencies: OrganizationDependencies = { getBackendSrv: getBackendSrv }
 ): ThunkResult<void> {
   return async (dispatch) => {
-    const organizationResponse = await dependencies.getBackendSrv().post('/api/user/using/' + orgId);
+    const url = isKubernetesUsersApiEnabled()
+      ? `/apis/iam.grafana.app/v0alpha1/namespaces/${config.namespace}/users/${contextSrv.user.uid}/using/${orgId}`
+      : '/api/user/using/' + orgId;
+    const organizationResponse = await dependencies.getBackendSrv().post(url);
 
     dispatch(updateConfigurationSubtitle(organizationResponse.name));
   };

@@ -63,7 +63,7 @@ var authorizerScenarios = []authorizerScenario{
 		group:            iamv0.UserResourceInfo.GroupResource().Group,
 		resource:         iamv0.UserResourceInfo.GroupResource().Resource,
 		resourceName:     "user-xyz",
-		subResources:     []string{"teams", "status"},
+		subResources:     []string{"teams", "status", "orgs", "tokens"},
 		deniedReason:     "requires user get",
 		checkRequestVerb: "get", // shared tests use verb "get"; update verb tested separately
 	},

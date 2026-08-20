@@ -138,11 +138,38 @@ func (s *Service) GetByEmail(ctx context.Context, cmd *user.GetUserByEmailQuery)
 }
 
 func (s *Service) Update(ctx context.Context, cmd *user.UpdateUserCommand) error {
+	// Active-org switch and password changes are SQL-only; IAM User.spec has neither field.
+	if isLegacyOnlyUserUpdate(cmd) {
+		return s.legacyService.Update(ctx, cmd)
+	}
+
 	if s.isKubernetesUserServiceEnabled(ctx) && !s.shouldFallbackToLegacy(ctx) {
 		return s.k8sService.Update(s.k8sCtxWithIdentity(ctx), cmd)
 	}
 
 	return s.legacyService.Update(ctx, cmd)
+}
+
+// isLegacyOnlyUserUpdate reports updates that cannot be represented on IAM User.spec.
+func isLegacyOnlyUserUpdate(cmd *user.UpdateUserCommand) bool {
+	if cmd == nil {
+		return false
+	}
+	hasOrg := cmd.OrgID != nil
+	hasPassword := cmd.Password != nil || cmd.OldPassword != nil
+	if !hasOrg && !hasPassword {
+		return false
+	}
+	// Theme is also legacy-only but often paired with profile fields; keep profile on k8s
+	// and only force legacy when the mutation is exclusively org/password.
+	if cmd.Name != "" || cmd.Email != "" || cmd.Login != "" {
+		return false
+	}
+	if cmd.IsDisabled != nil || cmd.EmailVerified != nil || cmd.IsGrafanaAdmin != nil ||
+		cmd.IsProvisioned != nil || cmd.OrgRole != nil || len(cmd.ExternalAuthInfo) > 0 {
+		return false
+	}
+	return true
 }
 
 func (s *Service) UpdateLastSeenAt(ctx context.Context, cmd *user.UpdateUserLastSeenAtCommand) error {
