@@ -17529,8 +17529,15 @@
   "xychart": {
     "category-xychart": "XY Chart",
     "errors": {
+      "could-not-create-series": "Could not create series from the selected fields",
+      "frame-required": "Frame must be selected",
+      "missing-x-field": "X field not found",
+      "missing-y-field": "Y field not found",
       "nodata": "No data",
-      "unknown": "Unknown error"
+      "unknown": "Unknown error",
+      "x-field-required": "X field must be mapped",
+      "xy-fields-required": "X and Y fields must be mapped",
+      "y-field-required": "Y field must be mapped"
     },
     "name-fill-opacity": "Fill opacity",
     "name-line-style": "Line style",
