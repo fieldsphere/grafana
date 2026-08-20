@@ -89,13 +89,53 @@ func (hs *HTTPServer) addOrgUserHelper(c *contextmodel.ReqContext, cmd org.AddOr
 
 	cmd.UserID = userToAdd.ID
 
-	if err := hs.orgService.AddOrgUser(c.Req.Context(), &cmd); err != nil {
+	ctx := c.Req.Context()
+	if hs.isKubernetesUsersRedirect(ctx) {
+		return hs.addOrgUserUsingK8s(c, cmd)
+	}
+
+	if err := hs.orgService.AddOrgUser(ctx, &cmd); err != nil {
 		if errors.Is(err, org.ErrOrgUserAlreadyAdded) {
 			return response.JSON(http.StatusConflict, util.DynMap{
 				"message": "User is already member of this organization",
 				"userId":  cmd.UserID,
 			})
 		}
+		return response.Error(http.StatusInternalServerError, "Could not add user to organization", err)
+	}
+
+	return response.JSON(http.StatusOK, util.DynMap{
+		"message": "User added to organization",
+		"userId":  cmd.UserID,
+	})
+}
+
+// addOrgUserUsingK8s assigns org membership via the IAM User role field when
+// kubernetesUsersRedirect is on (Cloud single-org). Membership is User.spec.role;
+// there is no separate OrgUser resource.
+func (hs *HTTPServer) addOrgUserUsingK8s(c *contextmodel.ReqContext, cmd org.AddOrgUserCommand) response.Response {
+	existing, err := hs.searchOrgUsersUsingK8s(c, &org.SearchOrgUsersQuery{
+		OrgID:  cmd.OrgID,
+		User:   c.SignedInUser,
+		UserID: cmd.UserID,
+		Limit:  1,
+		Page:   1,
+	})
+	if err != nil {
+		return response.Error(http.StatusInternalServerError, "Could not add user to organization", err)
+	}
+	if len(existing.OrgUsers) > 0 {
+		return response.JSON(http.StatusConflict, util.DynMap{
+			"message": "User is already member of this organization",
+			"userId":  cmd.UserID,
+		})
+	}
+
+	role := string(cmd.Role)
+	if err := hs.userService.Update(c.Req.Context(), &user.UpdateUserCommand{
+		UserID:  cmd.UserID,
+		OrgRole: &role,
+	}); err != nil {
 		return response.Error(http.StatusInternalServerError, "Could not add user to organization", err)
 	}
 
@@ -129,7 +169,7 @@ func (hs *HTTPServer) GetOrgUsersForCurrentOrg(c *contextmodel.ReqContext) respo
 	ctx := c.Req.Context()
 	var result *org.SearchOrgUsersQueryResult
 	var err error
-	if ofClient.Boolean(ctx, featuremgmt.FlagKubernetesUsersRedirect, false, openfeature.TransactionContext(ctx)) {
+	if hs.isKubernetesUsersRedirect(ctx) {
 		result, err = hs.searchOrgUsersUsingK8s(c, query)
 	} else {
 		result, err = hs.searchOrgUsersHelper(c, query)
@@ -157,50 +197,29 @@ func (hs *HTTPServer) GetOrgUsersForCurrentOrg(c *contextmodel.ReqContext) respo
 // 500: internalServerError
 
 func (hs *HTTPServer) GetOrgUsersForCurrentOrgLookup(c *contextmodel.ReqContext) response.Response {
-	ctx := c.Req.Context()
-	// Single-org with users in unified storage: the legacy org_user/user join is
-	// empty, so read the shared users via the k8s-redirected user search instead.
-	if hs.Cfg.RBAC.SingleOrganization && ofClient.Boolean(ctx, featuremgmt.FlagKubernetesUsersRedirect, false, openfeature.TransactionContext(ctx)) {
-		searchResult, err := hs.userService.Search(ctx, &user.SearchUsersQuery{
-			SignedInUser: c.SignedInUser,
-			OrgID:        c.GetOrgID(),
-			Query:        c.Query("query"),
-			Limit:        c.QueryInt("limit"),
-		})
-		if err != nil {
-			return response.Error(http.StatusInternalServerError, "Failed to get users for current organization", err)
-		}
-
-		result := make([]*dtos.UserLookupDTO, 0, len(searchResult.Users))
-		for _, u := range searchResult.Users {
-			avatarURL := u.AvatarURL
-			if avatarURL == "" {
-				avatarURL = dtos.GetGravatarUrl(hs.Cfg, u.Email)
-			}
-			result = append(result, &dtos.UserLookupDTO{
-				UID:       u.UID,
-				UserID:    u.ID,
-				Login:     u.Login,
-				AvatarURL: avatarURL,
-			})
-		}
-		return response.JSON(http.StatusOK, result)
-	}
-
-	orgUsersResult, err := hs.searchOrgUsersHelper(c, &org.SearchOrgUsersQuery{
+	query := &org.SearchOrgUsersQuery{
 		OrgID:                    c.GetOrgID(),
 		Query:                    c.Query("query"),
 		Limit:                    c.QueryInt("limit"),
 		User:                     c.SignedInUser,
 		DontEnforceAccessControl: !hs.License.FeatureEnabled("accesscontrol.enforcement"),
-	})
+	}
 
+	ctx := c.Req.Context()
+	var orgUsersResult *org.SearchOrgUsersQueryResult
+	var err error
+	// When kubernetesUsersRedirect is on (typically Cloud single-org), the legacy
+	// org_user/user join is empty — read via IAM user search instead.
+	if hs.isKubernetesUsersRedirect(ctx) {
+		orgUsersResult, err = hs.searchOrgUsersUsingK8s(c, query)
+	} else {
+		orgUsersResult, err = hs.searchOrgUsersHelper(c, query)
+	}
 	if err != nil {
 		return response.Error(http.StatusInternalServerError, "Failed to get users for current organization", err)
 	}
 
-	result := make([]*dtos.UserLookupDTO, 0)
-
+	result := make([]*dtos.UserLookupDTO, 0, len(orgUsersResult.OrgUsers))
 	for _, u := range orgUsersResult.OrgUsers {
 		result = append(result, &dtos.UserLookupDTO{
 			UID:       u.UID,
@@ -234,13 +253,20 @@ func (hs *HTTPServer) GetOrgUsers(c *contextmodel.ReqContext) response.Response 
 		return response.Error(http.StatusBadRequest, "orgId is invalid", err)
 	}
 
-	result, err := hs.searchOrgUsersHelper(c, &org.SearchOrgUsersQuery{
+	query := &org.SearchOrgUsersQuery{
 		OrgID: orgId,
 		Query: "",
 		Limit: 0,
 		User:  c.SignedInUser,
-	})
+	}
 
+	ctx := c.Req.Context()
+	var result *org.SearchOrgUsersQueryResult
+	if hs.isKubernetesUsersRedirect(ctx) {
+		result, err = hs.searchOrgUsersUsingK8s(c, query)
+	} else {
+		result, err = hs.searchOrgUsersHelper(c, query)
+	}
 	if err != nil {
 		return response.Error(http.StatusInternalServerError, "Failed to get users for organization", err)
 	}
@@ -284,15 +310,22 @@ func (hs *HTTPServer) SearchOrgUsers(c *contextmodel.ReqContext) response.Respon
 		return response.Err(err)
 	}
 
-	result, err := hs.searchOrgUsersHelper(c, &org.SearchOrgUsersQuery{
+	query := &org.SearchOrgUsersQuery{
 		OrgID:    orgID,
 		Query:    c.Query("query"),
 		Page:     page,
 		Limit:    perPage,
 		User:     c.SignedInUser,
 		SortOpts: sortOpts,
-	})
+	}
 
+	ctx := c.Req.Context()
+	var result *org.SearchOrgUsersQueryResult
+	if hs.isKubernetesUsersRedirect(ctx) {
+		result, err = hs.searchOrgUsersUsingK8s(c, query)
+	} else {
+		result, err = hs.searchOrgUsersHelper(c, query)
+	}
 	if err != nil {
 		return response.Error(http.StatusInternalServerError, "Failed to get users for organization", err)
 	}
@@ -328,10 +361,8 @@ func (hs *HTTPServer) SearchOrgUsersWithPaging(c *contextmodel.ReqContext) respo
 	}
 
 	ctx := c.Req.Context()
-	kubernetesUsersRedirect := openfeature.NewDefaultClient().Boolean(ctx, featuremgmt.FlagKubernetesUsersRedirect, false, openfeature.TransactionContext(ctx))
-
 	var result *org.SearchOrgUsersQueryResult
-	if kubernetesUsersRedirect {
+	if hs.isKubernetesUsersRedirect(ctx) {
 		result, err = hs.searchOrgUsersUsingK8s(c, query)
 	} else {
 		result, err = hs.searchOrgUsersHelper(c, query)
@@ -341,6 +372,10 @@ func (hs *HTTPServer) SearchOrgUsersWithPaging(c *contextmodel.ReqContext) respo
 	}
 
 	return response.JSON(http.StatusOK, result)
+}
+
+func (hs *HTTPServer) isKubernetesUsersRedirect(ctx context.Context) bool {
+	return ofClient.Boolean(ctx, featuremgmt.FlagKubernetesUsersRedirect, false, openfeature.TransactionContext(ctx))
 }
 
 func (hs *HTTPServer) searchOrgUsersHelper(c *contextmodel.ReqContext, query *org.SearchOrgUsersQuery) (*org.SearchOrgUsersQueryResult, error) {
@@ -570,8 +605,7 @@ func (hs *HTTPServer) updateOrgUserHelper(c *contextmodel.ReqContext, cmd org.Up
 	}
 
 	ctx := c.Req.Context()
-	if cmd.OrgID == c.GetOrgID() &&
-		ofClient.Boolean(ctx, featuremgmt.FlagKubernetesUsersRedirect, false, openfeature.TransactionContext(ctx)) {
+	if hs.isKubernetesUsersRedirect(ctx) {
 		if cmd.Role != org.RoleAdmin {
 			hasOtherAdmin, err := hs.orgHasOtherAdmin(c, cmd.OrgID, cmd.UserID)
 			if err != nil {
@@ -647,7 +681,7 @@ func (hs *HTTPServer) RemoveOrgUserForCurrentOrg(c *contextmodel.ReqContext) res
 		return response.Error(http.StatusBadRequest, "userId is invalid", err)
 	}
 
-	return hs.removeOrgUserHelper(c.Req.Context(), &org.RemoveOrgUserCommand{
+	return hs.removeOrgUserHelper(c, &org.RemoveOrgUserCommand{
 		UserID:                   userId,
 		OrgID:                    c.GetOrgID(),
 		ShouldDeleteOrphanedUser: true,
@@ -676,13 +710,18 @@ func (hs *HTTPServer) RemoveOrgUser(c *contextmodel.ReqContext) response.Respons
 	if err != nil {
 		return response.Error(http.StatusBadRequest, "orgId is invalid", err)
 	}
-	return hs.removeOrgUserHelper(c.Req.Context(), &org.RemoveOrgUserCommand{
+	return hs.removeOrgUserHelper(c, &org.RemoveOrgUserCommand{
 		UserID: userId,
 		OrgID:  orgId,
 	})
 }
 
-func (hs *HTTPServer) removeOrgUserHelper(ctx context.Context, cmd *org.RemoveOrgUserCommand) response.Response {
+func (hs *HTTPServer) removeOrgUserHelper(c *contextmodel.ReqContext, cmd *org.RemoveOrgUserCommand) response.Response {
+	ctx := c.Req.Context()
+	if hs.isKubernetesUsersRedirect(ctx) {
+		return hs.removeOrgUserUsingK8s(c, cmd)
+	}
+
 	if err := hs.orgService.RemoveOrgUser(ctx, cmd); err != nil {
 		if errors.Is(err, org.ErrLastOrgAdmin) {
 			return response.Error(http.StatusBadRequest, "Cannot remove last organization admin", nil)
@@ -703,6 +742,35 @@ func (hs *HTTPServer) removeOrgUserHelper(ctx context.Context, cmd *org.RemoveOr
 		hs.log.Warn("failed to delete permissions for user", "userID", cmd.UserID, "orgID", cmd.OrgID, "err", err)
 	}
 
+	return response.Success("User removed from organization")
+}
+
+// removeOrgUserUsingK8s deletes the IAM User when kubernetesUsersRedirect is on
+// (Cloud single-org: org membership is the User resource itself).
+func (hs *HTTPServer) removeOrgUserUsingK8s(c *contextmodel.ReqContext, cmd *org.RemoveOrgUserCommand) response.Response {
+	hasOtherAdmin, err := hs.orgHasOtherAdmin(c, cmd.OrgID, cmd.UserID)
+	if err != nil {
+		return response.Error(http.StatusInternalServerError, "Failed to remove user from organization", err)
+	}
+	if !hasOtherAdmin {
+		return response.Error(http.StatusBadRequest, "Cannot remove last organization admin", nil)
+	}
+
+	ctx := c.Req.Context()
+	if err := hs.userService.Delete(ctx, &user.DeleteUserCommand{UserID: cmd.UserID}); err != nil {
+		return response.Error(http.StatusInternalServerError, "Failed to remove user from organization", err)
+	}
+
+	if err := hs.accesscontrolService.DeleteUserPermissions(ctx, accesscontrol.GlobalOrgID, cmd.UserID); err != nil {
+		hs.log.Warn("failed to delete permissions for user", "userID", cmd.UserID, "orgID", accesscontrol.GlobalOrgID, "err", err)
+	}
+	if err := hs.accesscontrolService.DeleteUserPermissions(ctx, cmd.OrgID, cmd.UserID); err != nil {
+		hs.log.Warn("failed to delete permissions for user", "userID", cmd.UserID, "orgID", cmd.OrgID, "err", err)
+	}
+
+	if cmd.ShouldDeleteOrphanedUser {
+		return response.Success("User deleted")
+	}
 	return response.Success("User removed from organization")
 }
 

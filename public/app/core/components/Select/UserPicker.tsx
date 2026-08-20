@@ -4,9 +4,10 @@ import { useMemo, useState } from 'react';
 
 import { type SelectableValue } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import { getBackendSrv } from '@grafana/runtime';
 import { AsyncSelect } from '@grafana/ui';
 import { type OrgUser } from 'app/types/user';
+
+import { lookupOrgUsers } from 'app/features/users/api';
 
 export interface Props {
   onSelected: (user: SelectableValue<OrgUser>) => void;
@@ -27,13 +28,12 @@ export const UserPicker = ({ className, onSelected, inputId }: Props) => {
             query = '';
           }
 
-          return getBackendSrv()
-            .get(`/api/org/users/lookup?query=${query}&limit=100`)
-            .then((result: OrgUser[]) => {
+          return lookupOrgUsers(query, 100)
+            .then((result) => {
               return result.map((user) => ({
                 id: user.userId,
                 uid: user.uid,
-                value: user,
+                value: user as OrgUser,
                 label: user.login,
                 imgUrl: user.avatarUrl,
                 login: user.login,
