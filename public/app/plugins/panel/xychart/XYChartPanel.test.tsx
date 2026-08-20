@@ -32,7 +32,7 @@ jest.mock('./scatter', () => ({
 }));
 
 jest.mock('./utils', () => ({
-  prepSeries: jest.fn(() => []),
+  prepSeries: jest.fn(() => ({ series: [], warn: null })),
 }));
 
 const prepConfigMock = prepConfig as jest.Mock;
@@ -155,7 +155,7 @@ const defaultOptions: Options = {
 };
 
 function renderPanel(optionOverrides?: Partial<Options>, seriesOverride?: XYSeries[]) {
-  prepSeriesMock.mockReturnValue(seriesOverride ?? [makeSeries()]);
+  prepSeriesMock.mockReturnValue({ series: seriesOverride ?? [makeSeries()], warn: null });
 
   const props = getPanelProps<Options>({ ...defaultOptions, ...optionOverrides });
 
@@ -178,6 +178,18 @@ describe('XYChartPanel2', () => {
     renderPanel();
     expect(screen.getByTestId('error-view')).toBeVisible();
     expect(screen.getByText('No data')).toBeVisible();
+  });
+
+  it('renders mapping error instead of a blank chart when X/Y fields are unmapped', () => {
+    prepSeriesMock.mockReturnValue({ series: [], warn: 'X and Y fields must be mapped' });
+    prepConfigMock.mockReturnValue({ builder: null, prepData: () => [], warn: 'No data' });
+
+    const props = getPanelProps<Options>({ ...defaultOptions, mapping: SeriesMapping.Manual, series: [{}] });
+    render(<XYChartPanel2 {...props} />);
+
+    expect(screen.getByTestId('error-view')).toBeVisible();
+    expect(screen.getByText('X and Y fields must be mapped')).toBeVisible();
+    expect(screen.queryByTestId('uplot-chart')).toBeNull();
   });
 
   it('renders error view when builder is null', () => {
