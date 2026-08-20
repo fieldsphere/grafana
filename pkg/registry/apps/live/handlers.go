@@ -11,6 +11,8 @@ import (
 
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	"github.com/grafana/grafana/pkg/infra/log"
+	"github.com/grafana/grafana/pkg/services/accesscontrol"
+	"github.com/grafana/grafana/pkg/services/contexthandler"
 	grafanalive "github.com/grafana/grafana/pkg/services/live"
 	"github.com/grafana/grafana/pkg/services/live/convert"
 	"github.com/grafana/grafana/pkg/services/live/pushurl"
@@ -34,6 +36,16 @@ func newListHandler(gl *grafanalive.GrafanaLive) func(context.Context, app.Custo
 
 func newPushGetHandler(gl *grafanalive.GrafanaLive) func(context.Context, app.CustomRouteResponseWriter, *app.CustomRouteRequest) error {
 	return func(ctx context.Context, writer app.CustomRouteResponseWriter, request *app.CustomRouteRequest) error {
+		user, err := identity.GetRequester(ctx)
+		if err != nil {
+			http.Error(writer, "unauthorized", http.StatusUnauthorized)
+			return nil
+		}
+		if !isOrgAdmin(user) {
+			http.Error(writer, "forbidden", http.StatusForbidden)
+			return nil
+		}
+
 		streamID := streamIDFromRequest(request)
 		gl.ServePushWebSocket(writer, httpRequestFromCustom(ctx, request), streamID)
 		return nil
@@ -46,6 +58,10 @@ func newPushPostHandler(gl *grafanalive.GrafanaLive) func(context.Context, app.C
 		user, err := identity.GetRequester(ctx)
 		if err != nil {
 			http.Error(writer, "unauthorized", http.StatusUnauthorized)
+			return nil
+		}
+		if !hasLivePushPermission(user) {
+			http.Error(writer, "forbidden", http.StatusForbidden)
 			return nil
 		}
 
@@ -95,8 +111,40 @@ func httpRequestFromCustom(ctx context.Context, request *app.CustomRouteRequest)
 		URL:    request.URL,
 		Header: request.Headers,
 		Body:   request.Body,
+		Host:   hostFromCustom(ctx, request),
 	}
 	return req.WithContext(ctx)
+}
+
+func isOrgAdmin(user identity.Requester) bool {
+	return user != nil && user.GetOrgRole() == identity.RoleAdmin
+}
+
+func hasLivePushPermission(user identity.Requester) bool {
+	if user == nil {
+		return false
+	}
+	return accesscontrol.EvalPermission(accesscontrol.ActionLivePush).Evaluate(user.GetPermissions())
+}
+
+// hostFromCustom recovers the request host for origin checks.
+// Incoming Go requests store the host on Request.Host and strip it from Header,
+// and CustomRouteRequest does not include Host, so the Grafana ReqContext
+// (the original /apis request) is the source of truth.
+func hostFromCustom(ctx context.Context, request *app.CustomRouteRequest) string {
+	if rc := contexthandler.FromContext(ctx); rc != nil && rc.Req != nil && rc.Req.Host != "" {
+		return rc.Req.Host
+	}
+	if request == nil {
+		return ""
+	}
+	if request.URL != nil && request.URL.Host != "" {
+		return request.URL.Host
+	}
+	if request.Headers != nil {
+		return request.Headers.Get("Host")
+	}
+	return ""
 }
 
 func streamIDFromRequest(request *app.CustomRouteRequest) string {
