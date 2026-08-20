@@ -366,6 +366,9 @@ func ProvideService(cfg *setting.Cfg, routeRegister routing.RouteRegister, plugC
 		CheckOrigin:     checkOrigin,
 	})
 
+	g.centrifugeWSHandler = wsHandler
+	g.pushWSHandler = pushWSHandler
+
 	g.websocketHandler = func(ctx *contextmodel.ReqContext) {
 		user := ctx.SignedInUser
 		id, _ := user.GetInternalID()
@@ -509,6 +512,10 @@ type GrafanaLive struct {
 	websocketHandler             interface{}
 	pushWebsocketHandler         interface{}
 	pushPipelineWebsocketHandler interface{}
+
+	// Raw handlers for /apis live custom routes (same engines as legacy /api/live/*).
+	centrifugeWSHandler http.Handler
+	pushWSHandler       http.Handler
 
 	// Full channel handler
 	channels   map[string]model.ChannelHandler
@@ -1188,6 +1195,63 @@ func (g *GrafanaLive) HandleListHTTP(c *contextmodel.ReqContext) response.Respon
 		Channels: channels,
 	}
 	return response.JSONStreaming(http.StatusOK, info)
+}
+
+// ServeWebSocket upgrades a connection using the same Centrifuge handler as /api/live/ws.
+// Identity must already be present on r.Context() (apiserver auth).
+func (g *GrafanaLive) ServeWebSocket(w http.ResponseWriter, r *http.Request) {
+	if g.centrifugeWSHandler == nil {
+		http.Error(w, "live websocket not initialized", http.StatusServiceUnavailable)
+		return
+	}
+	user, err := identity.GetRequester(r.Context())
+	if err != nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	id, _ := user.GetInternalID()
+	cred := &centrifuge.Credentials{UserID: strconv.FormatInt(id, 10)}
+	ctx := centrifuge.SetCredentials(r.Context(), cred)
+	ctx = identity.WithRequester(ctx, user)
+	g.centrifugeWSHandler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// ServePushWebSocket upgrades a push websocket using the same handler as /api/live/push/:streamId.
+func (g *GrafanaLive) ServePushWebSocket(w http.ResponseWriter, r *http.Request, streamID string) {
+	if g.pushWSHandler == nil {
+		http.Error(w, "live push websocket not initialized", http.StatusServiceUnavailable)
+		return
+	}
+	user, err := identity.GetRequester(r.Context())
+	if err != nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	ctx := identity.WithRequester(r.Context(), user)
+	ctx = livecontext.SetContextStreamID(ctx, streamID)
+	g.pushWSHandler.ServeHTTP(w, r.WithContext(ctx))
+}
+
+// WriteChannelList writes the managed-stream channel list for the caller's namespace.
+func (g *GrafanaLive) WriteChannelList(w http.ResponseWriter, r *http.Request) {
+	user, err := identity.GetRequester(r.Context())
+	if err != nil {
+		http.Error(w, "unauthorized", http.StatusUnauthorized)
+		return
+	}
+	ns := user.GetNamespace()
+	var channels []*managedstream.ManagedChannel
+	if g.IsHA() {
+		channels, err = g.surveyCaller.CallManagedStreams(ns)
+	} else {
+		channels, err = g.ManagedStreamRunner.GetManagedChannels(ns)
+	}
+	if err != nil {
+		http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(streamChannelListResponse{Channels: channels})
 }
 
 // HandleInfoHTTP special http response for

@@ -12,6 +12,7 @@ import (
 	apis "github.com/grafana/grafana/apps/live/pkg/apis/manifestdata"
 	liveapp "github.com/grafana/grafana/apps/live/pkg/app"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	grafanalive "github.com/grafana/grafana/pkg/services/live"
 	"github.com/grafana/grafana/pkg/setting"
 )
 
@@ -27,6 +28,7 @@ type AppInstaller struct {
 func RegisterAppInstaller(
 	cfg *setting.Cfg,
 	features featuremgmt.FeatureToggles,
+	gl *grafanalive.GrafanaLive,
 ) (*AppInstaller, error) {
 	installer := &AppInstaller{
 		cfg: cfg,
@@ -38,8 +40,11 @@ func RegisterAppInstaller(
 		KubeConfig:   restclient.Config{},
 		ManifestData: *apis.LocalManifest().ManifestData,
 		SpecificConfig: &liveapp.LiveConfig{
-			Enable: true,
-			//	TagHandler: tagHandler,
+			Enable:           true,
+			WebSocketHandler: newWebSocketHandler(gl),
+			ListHandler:      newListHandler(gl),
+			PushGetHandler:   newPushGetHandler(gl),
+			PushPostHandler:  newPushPostHandler(gl),
 		},
 	}
 	i, err := appsdkapiserver.NewDefaultAppInstaller(provider, appConfig, apis.NewGoTypeAssociator())

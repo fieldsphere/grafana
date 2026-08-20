@@ -26,6 +26,7 @@ import {
   StreamingFrameAction,
   type StreamingFrameOptions,
   type BackendDataSourceResponse,
+  config,
   getBackendSrv,
 } from '@grafana/runtime';
 
@@ -80,6 +81,11 @@ export class CentrifugeService implements CentrifugeSrv {
     this.dataStreamSubscriberReadiness = deps.dataStreamSubscriberReadiness.pipe(share(), startWith(true));
 
     let liveUrl = `${deps.appUrl.replace(/^http/, 'ws')}/api/live/ws`;
+    // Optional /apis transport when live.runAPIServer is on (dev-only experimental).
+    // Default remains /api/live/ws.
+    if (config.featureToggles?.['live.runAPIServer']) {
+      liveUrl = `${deps.appUrl.replace(/^http/, 'ws')}/apis/live.grafana.app/v1alpha1/namespaces/${deps.namespace}/ws`;
+    }
 
     const token = deps.grafanaAuthToken;
     if (token !== null && token !== '') {

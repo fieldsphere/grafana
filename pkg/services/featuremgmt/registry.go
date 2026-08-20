@@ -107,7 +107,7 @@ var (
 			Owner:           grafanaAppPlatformSquad,
 			RequiresRestart: true,
 			Expression:      "false",
-			Generate:        Generate{Go: true},
+			Generate:        Generate{Go: true, LegacyFrontend: true},
 		},
 		{
 			Name:            "live.keepHAPrefixInCloud",

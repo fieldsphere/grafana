@@ -42,6 +42,9 @@ jest.mock('centrifuge', () => ({
 
 jest.mock('@grafana/runtime', () => ({
   ...jest.requireActual('@grafana/runtime'),
+  config: {
+    featureToggles: {},
+  },
   getBackendSrv: jest.fn(() => ({ get: jest.fn() })),
 }));
 
@@ -150,5 +153,26 @@ describe('CentrifugeService', () => {
       'default/plugin/grafana-llm-app/stream/chat-completions',
       expect.anything()
     );
+  });
+
+  it('uses legacy /api/live/ws by default', () => {
+    const { Centrifuge } = jest.requireMock('centrifuge');
+    new CentrifugeService(makeDeps());
+    expect(Centrifuge).toHaveBeenCalledWith('ws://localhost:3000/api/live/ws', expect.anything());
+  });
+
+  it('uses /apis live ws when live.runAPIServer is on', () => {
+    const runtime = jest.requireMock('@grafana/runtime');
+    runtime.config.featureToggles = { 'live.runAPIServer': true };
+    const { Centrifuge } = jest.requireMock('centrifuge');
+    Centrifuge.mockClear();
+
+    new CentrifugeService(makeDeps({ namespace: 'stacks-1' }));
+    expect(Centrifuge).toHaveBeenCalledWith(
+      'ws://localhost:3000/apis/live.grafana.app/v1alpha1/namespaces/stacks-1/ws',
+      expect.anything()
+    );
+
+    runtime.config.featureToggles = {};
   });
 });

@@ -69,6 +69,11 @@ export interface FeatureToggles {
   */
   lokiQuerySplitting?: boolean;
   /**
+  * Registers a live apiserver
+  * @default false
+  */
+  ['live.runAPIServer']?: boolean;
+  /**
   * populate star status from apiserver
   * @default false
   */
