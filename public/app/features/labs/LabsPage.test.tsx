@@ -21,7 +21,7 @@ describe('LabsPage', () => {
 
     render(<LabsPage />);
 
-    expect(screen.getByText('Labs')).toBeInTheDocument();
+    expect(screen.getByText('2 feature flags enabled')).toBeInTheDocument();
     expect(screen.getByText('alertingTriage')).toBeInTheDocument();
     expect(screen.getByText('awsAsyncQueryCaching')).toBeInTheDocument();
     expect(screen.queryByText('featureHighlights')).not.toBeInTheDocument();
