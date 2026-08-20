@@ -25,13 +25,18 @@ type UserAuthTokenList struct {
 }
 
 type UserAuthToken struct {
-	ID        int64  `json:"id"`
-	CreatedAt string `json:"createdAt,omitempty"`
-	SeenAt    string `json:"seenAt,omitempty"`
-	ClientIP  string `json:"clientIp,omitempty"`
-	UserAgent string `json:"userAgent,omitempty"`
-	AuthModule string `json:"authModule,omitempty"`
-	IsActive  bool   `json:"isActive"`
+	ID             int64  `json:"id"`
+	CreatedAt      string `json:"createdAt,omitempty"`
+	SeenAt         string `json:"seenAt,omitempty"`
+	ClientIP       string `json:"clientIp,omitempty"`
+	UserAgent      string `json:"userAgent,omitempty"`
+	AuthModule     string `json:"authModule,omitempty"`
+	IsActive       bool   `json:"isActive"`
+	Browser        string `json:"browser,omitempty"`
+	BrowserVersion string `json:"browserVersion,omitempty"`
+	OS             string `json:"os,omitempty"`
+	OSVersion      string `json:"osVersion,omitempty"`
+	Device         string `json:"device,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

@@ -7,10 +7,12 @@ import (
 	"strconv"
 	"strings"
 
+	claims "github.com/grafana/authlib/types"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/rest"
 
+	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	legacyiamv0 "github.com/grafana/grafana/pkg/apis/iam/v0alpha1"
 	"github.com/grafana/grafana/pkg/services/org"
 	legacyuser "github.com/grafana/grafana/pkg/services/user"
@@ -59,6 +61,12 @@ func (s *UserUsingREST) Connect(ctx context.Context, name string, _ runtime.Obje
 			return
 		}
 
+		requester, err := identity.GetRequester(r.Context())
+		if err != nil || !claims.IsIdentityType(requester.GetIdentityType(), claims.TypeUser) {
+			responder.Error(apierrors.NewForbidden(legacyiamv0.Resource("users"), name, errors.New("entity not allowed to change active organization")))
+			return
+		}
+
 		orgID, err := parseUsingOrgID(r.URL.Path)
 		if err != nil {
 			responder.Error(apierrors.NewBadRequest(err.Error()))
@@ -68,6 +76,12 @@ func (s *UserUsingREST) Connect(ctx context.Context, name string, _ runtime.Obje
 		userID, err := resolveUserInternalID(r.Context(), s.userGetter, name)
 		if err != nil {
 			responder.Error(err)
+			return
+		}
+
+		callerID, err := requester.GetInternalID()
+		if err != nil || callerID != userID {
+			responder.Error(apierrors.NewForbidden(legacyiamv0.Resource("users"), name, errors.New("can only change own active organization")))
 			return
 		}
 

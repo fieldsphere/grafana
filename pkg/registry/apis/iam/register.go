@@ -56,6 +56,7 @@ import (
 	"github.com/grafana/grafana/pkg/services/auth"
 	"github.com/grafana/grafana/pkg/services/authz/zanzana"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
+	"github.com/grafana/grafana/pkg/services/login"
 	"github.com/grafana/grafana/pkg/services/org"
 	settingsvc "github.com/grafana/grafana/pkg/services/setting"
 	"github.com/grafana/grafana/pkg/services/ssosettings"
@@ -94,6 +95,7 @@ func RegisterAPIService(
 	userService legacyuser.Service,
 	teamService teamservice.Service,
 	authTokenService auth.UserTokenService,
+	authInfoService login.AuthInfoService,
 	restConfig apiserver.RestConfigProvider,
 	mappers *resourcepermission.MappersRegistry,
 ) (*IdentityAccessManagementAPIBuilder, error) {
@@ -186,6 +188,7 @@ func RegisterAPIService(
 		orgService:       orgService,
 		userService:      userService,
 		authTokenService: authTokenService,
+		authInfoService:  authInfoService,
 		display: display.NewDisplayHandler(
 			display.NewLegacyDisplayProvider(store),   // Do legacy first
 			display.NewSearchDisplayProvider(unified), // then use search index
@@ -679,7 +682,7 @@ func (b *IdentityAccessManagementAPIBuilder) UpdateUsersAPIGroup(opts builder.AP
 		}
 		if b.orgService != nil && b.userService != nil {
 			storage[userResource.StoragePath("using")] = user.NewUserUsingREST(b.userGetter, b.orgService, b.userService)
-			storage[userResource.StoragePath("password")] = user.NewUserPasswordREST(b.userGetter, b.userService)
+			storage[userResource.StoragePath("password")] = user.NewUserPasswordREST(b.userGetter, b.userService, b.authInfoService)
 		}
 		if b.authTokenService != nil {
 			storage[userResource.StoragePath("tokens")] = user.NewUserTokenREST(b.userGetter, b.authTokenService)

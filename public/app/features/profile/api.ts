@@ -51,6 +51,11 @@ interface IamUserTokenList {
     userAgent?: string;
     authModule?: string;
     isActive?: boolean;
+    browser?: string;
+    browserVersion?: string;
+    os?: string;
+    osVersion?: string;
+    device?: string;
   }>;
 }
 
@@ -137,11 +142,11 @@ async function loadSessions(): Promise<UserSession[]> {
       authModule: item.authModule,
       isActive: Boolean(item.isActive),
       seenAt: item.seenAt || '',
-      browser: '',
-      browserVersion: '',
-      os: '',
-      osVersion: '',
-      device: '',
+      browser: item.browser || '',
+      browserVersion: item.browserVersion || '',
+      os: item.os || '',
+      osVersion: item.osVersion || '',
+      device: item.device || '',
     })) as UserSession[];
   }
   return getBackendSrv().get('/api/user/auth-tokens');

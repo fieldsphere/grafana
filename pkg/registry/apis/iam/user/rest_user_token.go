@@ -16,6 +16,7 @@ import (
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	legacyiamv0 "github.com/grafana/grafana/pkg/apis/iam/v0alpha1"
 	"github.com/grafana/grafana/pkg/services/auth"
+	"github.com/grafana/grafana/pkg/services/contexthandler"
 	"github.com/grafana/grafana/pkg/services/login"
 )
 
@@ -94,6 +95,7 @@ func (s *UserTokenREST) listTokens(r *http.Request, userID int64, responder rest
 	}
 
 	parser := uaparser.NewFromSaved()
+	currentTokenID := currentSessionTokenID(r.Context())
 	items := make([]legacyiamv0.UserAuthToken, 0, len(tokens))
 	for _, token := range tokens {
 		createdAt := time.Unix(token.CreatedAt, 0).Format(time.RFC3339)
@@ -110,13 +112,35 @@ func (s *UserTokenREST) listTokens(r *http.Request, userID int64, responder rest
 			}
 		}
 
+		osVersion := ""
+		if client.Os.Major != "" {
+			osVersion = client.Os.Major
+			if client.Os.Minor != "" {
+				osVersion = osVersion + "." + client.Os.Minor
+			}
+		}
+
+		browserVersion := ""
+		if client.UserAgent.Major != "" {
+			browserVersion = client.UserAgent.Major
+			if client.UserAgent.Minor != "" {
+				browserVersion = browserVersion + "." + client.UserAgent.Minor
+			}
+		}
+
 		items = append(items, legacyiamv0.UserAuthToken{
-			ID:         token.Id,
-			CreatedAt:  createdAt,
-			SeenAt:     seenAt,
-			ClientIP:   token.ClientIp,
-			UserAgent:  client.UserAgent.Family + " on " + client.Os.Family,
-			AuthModule: authModule,
+			ID:             token.Id,
+			CreatedAt:      createdAt,
+			SeenAt:         seenAt,
+			ClientIP:       token.ClientIp,
+			UserAgent:      client.UserAgent.Family + " on " + client.Os.Family,
+			AuthModule:     authModule,
+			IsActive:       currentTokenID != 0 && currentTokenID == token.Id,
+			Browser:        client.UserAgent.Family,
+			BrowserVersion: browserVersion,
+			OS:             client.Os.Family,
+			OSVersion:      osVersion,
+			Device:         client.Device.ToString(),
 		})
 	}
 
@@ -146,6 +170,14 @@ func (s *UserTokenREST) revokeToken(r *http.Request, userID int64, responder res
 	}
 
 	responder.Object(http.StatusOK, &legacyiamv0.UserAuthTokenRevokeStatus{Message: "User auth token revoked"})
+}
+
+func currentSessionTokenID(ctx context.Context) int64 {
+	reqCtx := contexthandler.FromContext(ctx)
+	if reqCtx == nil || reqCtx.UserToken == nil {
+		return 0
+	}
+	return reqCtx.UserToken.Id
 }
 
 func (s *UserTokenREST) NewConnectOptions() (runtime.Object, bool, string) {

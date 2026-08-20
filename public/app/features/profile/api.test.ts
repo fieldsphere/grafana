@@ -77,11 +77,43 @@ describe('profile api dual-path', () => {
       '/apis/iam.grafana.app/v0alpha1/namespaces/default/users/u-test/teams'
     );
 
-    get.mockResolvedValueOnce({ items: [{ id: 9 }] });
-    await api.loadSessions();
+    get.mockResolvedValueOnce({
+      items: [
+        {
+          id: 9,
+          createdAt: '2026-01-01T00:00:00Z',
+          seenAt: '2026-01-02T00:00:00Z',
+          clientIp: '1.2.3.4',
+          userAgent: 'Chrome on Mac OS X',
+          isActive: true,
+          browser: 'Chrome',
+          browserVersion: '120.0',
+          os: 'Mac OS X',
+          osVersion: '10.15',
+          device: 'Mac',
+        },
+      ],
+    });
+    const sessions = await api.loadSessions();
     expect(get).toHaveBeenCalledWith(
       '/apis/iam.grafana.app/v0alpha1/namespaces/default/users/u-test/tokens'
     );
+    expect(sessions).toEqual([
+      {
+        id: 9,
+        createdAt: '2026-01-01T00:00:00Z',
+        clientIp: '1.2.3.4',
+        userAgent: 'Chrome on Mac OS X',
+        authModule: undefined,
+        isActive: true,
+        seenAt: '2026-01-02T00:00:00Z',
+        browser: 'Chrome',
+        browserVersion: '120.0',
+        os: 'Mac OS X',
+        osVersion: '10.15',
+        device: 'Mac',
+      },
+    ]);
 
     post.mockResolvedValueOnce({});
     await api.setUserOrg({ orgId: 2, name: 'Other', role: 'Viewer' });

@@ -25,6 +25,7 @@ import (
 	"github.com/grafana/grafana/pkg/services/apiserver/builder"
 	"github.com/grafana/grafana/pkg/services/auth"
 	"github.com/grafana/grafana/pkg/services/authz/zanzana"
+	"github.com/grafana/grafana/pkg/services/login"
 	"github.com/grafana/grafana/pkg/services/org"
 	settingsvc "github.com/grafana/grafana/pkg/services/setting"
 	"github.com/grafana/grafana/pkg/services/ssosettings"
@@ -126,6 +127,7 @@ type IdentityAccessManagementAPIBuilder struct {
 	orgService       org.Service
 	userService      legacyuser.Service
 	authTokenService auth.UserTokenService
+	authInfoService  login.AuthInfoService
 
 	// ofClient evaluates the feature flags gating the IAM APIs. The default
 	// client resolves the globally-registered provider at evaluation time.

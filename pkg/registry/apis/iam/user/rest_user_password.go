@@ -13,6 +13,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	legacyiamv0 "github.com/grafana/grafana/pkg/apis/iam/v0alpha1"
+	"github.com/grafana/grafana/pkg/services/login"
 	legacyuser "github.com/grafana/grafana/pkg/services/user"
 )
 
@@ -29,12 +30,13 @@ type changePasswordBody struct {
 
 // UserPasswordREST serves POST users/{name}/password. Password hashes stay in legacy SQL.
 type UserPasswordREST struct {
-	userGetter  rest.Getter
-	userService legacyuser.Service
+	userGetter      rest.Getter
+	userService     legacyuser.Service
+	authInfoService login.AuthInfoService
 }
 
-func NewUserPasswordREST(userGetter rest.Getter, userService legacyuser.Service) *UserPasswordREST {
-	return &UserPasswordREST{userGetter: userGetter, userService: userService}
+func NewUserPasswordREST(userGetter rest.Getter, userService legacyuser.Service, authInfoService login.AuthInfoService) *UserPasswordREST {
+	return &UserPasswordREST{userGetter: userGetter, userService: userService, authInfoService: authInfoService}
 }
 
 func (s *UserPasswordREST) New() runtime.Object {
@@ -76,6 +78,11 @@ func (s *UserPasswordREST) Connect(ctx context.Context, name string, _ runtime.O
 			return
 		}
 
+		if err := s.errOnExternalUser(r.Context(), name, userID); err != nil {
+			responder.Error(err)
+			return
+		}
+
 		var body changePasswordBody
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			responder.Error(apierrors.NewBadRequest("bad request data"))
@@ -99,6 +106,23 @@ func (s *UserPasswordREST) Connect(ctx context.Context, name string, _ runtime.O
 
 		responder.Object(http.StatusOK, &legacyiamv0.UserPasswordStatus{Message: "User password changed"})
 	}), nil
+}
+
+func (s *UserPasswordREST) errOnExternalUser(ctx context.Context, name string, userID int64) error {
+	if s.authInfoService == nil {
+		return nil
+	}
+	info, err := s.authInfoService.GetAuthInfo(ctx, &login.GetAuthInfoQuery{UserId: userID})
+	if errors.Is(err, legacyuser.ErrUserNotFound) {
+		return nil
+	}
+	if err != nil {
+		return apierrors.NewInternalError(err)
+	}
+	if info == nil || info.AuthModule == "" || info.AuthModule == login.PasswordAuthModule {
+		return nil
+	}
+	return apierrors.NewForbidden(legacyiamv0.Resource("users"), name, errors.New("Cannot update external User"))
 }
 
 func (s *UserPasswordREST) NewConnectOptions() (runtime.Object, bool, string) {
