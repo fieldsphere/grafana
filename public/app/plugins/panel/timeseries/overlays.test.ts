@@ -1,4 +1,5 @@
 import { createDataFrame, createTheme, FieldType } from '@grafana/data';
+import { GraphThresholdsStyleMode } from '@grafana/schema';
 
 import { applyTimeSeriesOverlays, linearRegressionValues, trailingMovingAverage } from './overlays';
 import { TimeSeriesOverlayMode } from './panelcfg.gen';
@@ -78,6 +79,36 @@ describe('applyTimeSeriesOverlays', () => {
 
     expect(out.fields[2].values).toEqual([1, 1.5, 2, 3, 4]);
     expect(out.fields[2].config.displayName).toBe('cpu (moving average)');
+  });
+
+  it('does not inherit source fill-below, fill color, or threshold overlay styles', () => {
+    const frame = createDataFrame({
+      fields: [
+        { name: 'time', type: FieldType.time, values: [1000, 2000, 3000] },
+        {
+          name: 'value',
+          type: FieldType.number,
+          values: [10, 20, 30],
+          config: {
+            custom: {
+              fillBelowTo: 'min',
+              fillColor: 'red',
+              fillOpacity: 40,
+              thresholdsStyle: { mode: GraphThresholdsStyleMode.Line },
+            },
+          },
+        },
+      ],
+    });
+
+    const [out] = applyTimeSeriesOverlays([frame], { mode: TimeSeriesOverlayMode.LinearRegression }, theme);
+    const overlayCustom = out.fields[2].config.custom;
+
+    expect(overlayCustom?.fillBelowTo).toBeUndefined();
+    expect(overlayCustom?.fillColor).toBeUndefined();
+    expect(overlayCustom?.fillOpacity).toBe(0);
+    expect(overlayCustom?.thresholdsStyle).toBeUndefined();
+    expect(overlayCustom?.lineStyle).toEqual({ fill: 'dash', dash: [10, 10] });
   });
 
   it('does not overlay hidden or boolean series', () => {

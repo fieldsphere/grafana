@@ -169,9 +169,12 @@ function createOverlayField(
     lineWidth: Math.max(source.config.custom?.lineWidth ?? 1, 2),
     lineStyle: overlayLineStyle,
     fillOpacity: 0,
+    fillBelowTo: undefined,
+    fillColor: undefined,
     showPoints: VisibilityMode.Never,
     gradientMode: undefined,
     stacking: { mode: StackingMode.None, group: 'A' },
+    thresholdsStyle: undefined,
   };
 
   const overlayField: Field = {
