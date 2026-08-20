@@ -114,10 +114,13 @@ func (hs *HTTPServer) addOrgUserHelper(c *contextmodel.ReqContext, cmd org.AddOr
 // kubernetesUsersRedirect is on (Cloud single-org). Membership is User.spec.role;
 // there is no separate OrgUser resource.
 func (hs *HTTPServer) addOrgUserUsingK8s(c *contextmodel.ReqContext, cmd org.AddOrgUserCommand) response.Response {
+	// Search does not accept UserID; Query is required so the target is on the
+	// result page instead of an arbitrary first row that is then filtered in memory.
 	existing, err := hs.searchOrgUsersUsingK8s(c, &org.SearchOrgUsersQuery{
 		OrgID:  cmd.OrgID,
 		User:   c.SignedInUser,
 		UserID: cmd.UserID,
+		Query:  cmd.LoginOrEmail,
 		Limit:  1,
 		Page:   1,
 	})

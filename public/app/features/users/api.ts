@@ -106,9 +106,11 @@ export async function searchOrgUsers(params: {
  */
 export async function updateOrgUserRole(user: OrgUser): Promise<void> {
   if (isKubernetesUsersApiEnabled() && user.uid) {
-    await getBackendSrv().patch(`${iamBaseURL()}/users/${user.uid}`, {
-      spec: { role: user.role },
-    });
+    await getBackendSrv().patch(
+      `${iamBaseURL()}/users/${user.uid}`,
+      { spec: { role: user.role } },
+      { headers: { 'Content-Type': 'application/merge-patch+json' } }
+    );
     return;
   }
   await getBackendSrv().patch(`/api/org/users/${user.userId}`, { role: user.role });

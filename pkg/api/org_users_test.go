@@ -780,6 +780,36 @@ func (s *pagedUserService) Search(context.Context, *user.SearchUsersQuery) (*use
 	return &r, nil
 }
 
+// queryAwareUserService applies Query and Limit like a real user search so tests
+// can catch membership checks that only inspect an arbitrary first page row.
+type queryAwareUserService struct {
+	*usertest.FakeUserService
+	lastQuery *user.SearchUsersQuery
+}
+
+func (s *queryAwareUserService) Search(_ context.Context, q *user.SearchUsersQuery) (*user.SearchUserQueryResult, error) {
+	s.lastQuery = q
+	users := s.ExpectedSearchUsers.Users
+	if q.Query != "" {
+		filtered := make([]*user.UserSearchHitDTO, 0, len(users))
+		for _, u := range users {
+			if strings.Contains(u.Login, q.Query) || strings.Contains(u.Email, q.Query) {
+				filtered = append(filtered, u)
+			}
+		}
+		users = filtered
+	}
+	if q.Limit > 0 && len(users) > q.Limit {
+		users = users[:q.Limit]
+	}
+	return &user.SearchUserQueryResult{
+		Users:      users,
+		TotalCount: int64(len(users)),
+		Page:       q.Page,
+		PerPage:    q.Limit,
+	}, nil
+}
+
 func searchHits(n int, startID int64) []*user.UserSearchHitDTO {
 	out := make([]*user.UserSearchHitDTO, n)
 	for i := range out {
@@ -1131,6 +1161,41 @@ func TestAddOrgUserToCurrentOrg_KubernetesUsersRedirect(t *testing.T) {
 
 		assert.Equal(t, http.StatusConflict, statusCode)
 		assert.Nil(t, d.updateCmd)
+	})
+
+	t.Run("returns 409 when an existing member is not the first unfiltered search hit", func(t *testing.T) {
+		setupOpenFeatureFlag(t, featuremgmt.FlagKubernetesUsersRedirect, true)
+
+		d := &deps{}
+		svc := &queryAwareUserService{
+			FakeUserService: &usertest.FakeUserService{
+				ExpectedUser: &user.User{ID: 42, Login: "jdoe", Email: "jdoe@example.com"},
+				ExpectedSearchUsers: user.SearchUserQueryResult{
+					TotalCount: 2,
+					Users: []*user.UserSearchHitDTO{
+						{ID: 1, Login: "admin", Role: "Admin"},
+						{ID: 42, Login: "jdoe", Role: "Viewer"},
+					},
+				},
+				UpdateFn: func(_ context.Context, cmd *user.UpdateUserCommand) error {
+					d.updateCmd = cmd
+					return nil
+				},
+			},
+		}
+		server := SetupAPITestServer(t, func(hs *HTTPServer) {
+			hs.Cfg = setting.NewCfg()
+			hs.userService = svc
+			hs.orgService = &orgtest.FakeOrgService{ExpectedError: errors.New("legacy path must not be called")}
+			hs.accesscontrolService = &actest.FakeService{ExpectedPermissions: permissions}
+		})
+
+		statusCode := sendPost(t, server, `{"loginOrEmail":"jdoe","role":"Editor"}`)
+
+		assert.Equal(t, http.StatusConflict, statusCode)
+		assert.Nil(t, d.updateCmd)
+		require.NotNil(t, svc.lastQuery)
+		assert.Equal(t, "jdoe", svc.lastQuery.Query)
 	})
 
 	t.Run("keeps using the legacy org service when the flag is disabled", func(t *testing.T) {

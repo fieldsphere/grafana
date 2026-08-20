@@ -1,12 +1,6 @@
 import { config, getBackendSrv } from '@grafana/runtime';
 
-import {
-  isKubernetesUsersApiEnabled,
-  lookupOrgUsers,
-  removeOrgUser,
-  searchOrgUsers,
-  updateOrgUserRole,
-} from './api';
+import { isKubernetesUsersApiEnabled, lookupOrgUsers, removeOrgUser, searchOrgUsers, updateOrgUserRole } from './api';
 
 jest.mock('@grafana/runtime', () => ({
   config: {
@@ -108,9 +102,11 @@ describe('users/api dual-path', () => {
     it('updateOrgUserRole patches IAM User by uid', async () => {
       patch.mockResolvedValue(undefined);
       await updateOrgUserRole({ userId: 7, uid: 'u7', role: 'Editor' } as never);
-      expect(patch).toHaveBeenCalledWith('/apis/iam.grafana.app/v0alpha1/namespaces/default/users/u7', {
-        spec: { role: 'Editor' },
-      });
+      expect(patch).toHaveBeenCalledWith(
+        '/apis/iam.grafana.app/v0alpha1/namespaces/default/users/u7',
+        { spec: { role: 'Editor' } },
+        { headers: { 'Content-Type': 'application/merge-patch+json' } }
+      );
     });
 
     it('removeOrgUser deletes IAM User by uid', async () => {
