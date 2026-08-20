@@ -292,16 +292,27 @@ func (l *LibraryElementService) patchHandler(c *contextmodel.ReqContext) respons
 // 500: internalServerError
 func (l *LibraryElementService) getConnectionsHandler(c *contextmodel.ReqContext) response.Response {
 	libraryPanelUID := web.Params(c.Req)[":uid"]
+	ctx := c.Req.Context()
+
+	shouldUseKubeApi := openfeature.NewDefaultClient().Boolean(ctx, featuremgmt.FlagLibraryelementsKubernetesLibraryPanels, false, openfeature.TransactionContext(ctx))
+	if shouldUseKubeApi {
+		return l.k8sHandler.getK8sLibraryElementConnections(c, l, libraryPanelUID)
+	}
 
 	// make sure the library element exists
-	element, err := l.getLibraryElementByUid(c.Req.Context(), c.SignedInUser, model.GetLibraryElementCommand{
+	element, err := l.getLibraryElementByUid(ctx, c.SignedInUser, model.GetLibraryElementCommand{
 		UID: libraryPanelUID,
 	}, nil)
 	if err != nil {
 		return l.toLibraryElementError(err, "Failed to get library element")
 	}
 
-	// now get all dashboards connected to this library element
+	return l.buildConnectionsResponse(c, element, libraryPanelUID)
+}
+
+// buildConnectionsResponse resolves connected dashboards via unified search and
+// returns the legacy connections DTO shape.
+func (l *LibraryElementService) buildConnectionsResponse(c *contextmodel.ReqContext, element model.LibraryElementDTO, libraryPanelUID string) response.Response {
 	dashboards, err := l.dashboardsService.GetDashboardsByLibraryPanelUID(c.Req.Context(), libraryPanelUID, c.GetOrgID())
 	if err != nil {
 		return l.toLibraryElementError(err, "Failed to get dashboards")
@@ -609,6 +620,30 @@ func (lk8s *libraryElementsK8sHandler) getK8sLibraryElement(c *contextmodel.ReqC
 		return
 	}
 	c.JSON(http.StatusOK, model.LibraryElementResponse{Result: *dto})
+}
+
+// getK8sLibraryElementConnections verifies the library panel via /apis then
+// reuses the search-backed connections builder (same as the legacy path).
+func (lk8s *libraryElementsK8sHandler) getK8sLibraryElementConnections(c *contextmodel.ReqContext, l *LibraryElementService, uid string) response.Response {
+	client, ok := lk8s.getClient(c)
+	if !ok {
+		return response.Error(http.StatusInternalServerError, "failed to get k8s client", nil)
+	}
+	out, err := client.Get(c.Req.Context(), uid, v1.GetOptions{})
+	if err != nil {
+		statusError, isStatus := err.(*k8serrors.StatusError)
+		if isStatus {
+			return response.Error(int(statusError.Status().Code), statusError.Status().Message, err)
+		}
+		return response.Error(http.StatusInternalServerError, "Failed to get library element", err)
+	}
+
+	dto, err := lk8s.unstructuredToLegacyLibraryPanelDTO(c, *out)
+	if err != nil {
+		return response.Error(http.StatusInternalServerError, "conversion error", err)
+	}
+
+	return l.buildConnectionsResponse(c, *dto, uid)
 }
 
 func (lk8s *libraryElementsK8sHandler) unstructuredToLegacyLibraryPanelDTO(c *contextmodel.ReqContext, item unstructured.Unstructured) (*model.LibraryElementDTO, error) {
