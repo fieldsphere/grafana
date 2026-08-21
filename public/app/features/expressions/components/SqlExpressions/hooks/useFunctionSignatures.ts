@@ -6,6 +6,10 @@ import { type SqlFunctionSignature } from '../SqlEditor/signatureHelp';
  * Lazily loads the SQL function signature metadata, keeping the large table out
  * of the chunk unless the CodeMirror editor is active.
  */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.expressions');
+
 export function useFunctionSignatures(enabled: boolean): SqlFunctionSignature[] | undefined {
   const [functionSignatures, setFunctionSignatures] = useState<SqlFunctionSignature[]>();
 
@@ -23,7 +27,7 @@ export function useFunctionSignatures(enabled: boolean): SqlFunctionSignature[] 
         }
       })
       .catch((error) => {
-        console.warn('Failed to load SQL function signatures for signature help', error);
+        logger.warn('Failed to load SQL function signatures for signature help', error);
       });
 
     return () => {

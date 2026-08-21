@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { createStructuredLogger } from '@grafana/data';
+
 import type TNil from './types/TNil';
 import { type TraceSpan, type TraceSpanReference, type Trace } from './types/trace';
 
@@ -25,6 +27,8 @@ import { type TraceSpan, type TraceSpanReference, type Trace } from './types/tra
  * allows that state info to be accessed in a loosely coupled fashion on an
  * as-needed basis.
  */
+const logger = createStructuredLogger('features.explore');
+
 export type Accessors = {
   getViewRange: () => [number, number];
   getSearchedSpanIDs: () => Set<string> | TNil;
@@ -105,8 +109,7 @@ export default class ScrollManager {
     const isUp = direction < 0;
     const position = xrs.getRowPosition(rowIndex);
     if (!position) {
-      // eslint-disable-next-line no-console
-      console.warn('Invalid row index');
+      logger.warn('Invalid row index');
       return;
     }
     let { y } = position;

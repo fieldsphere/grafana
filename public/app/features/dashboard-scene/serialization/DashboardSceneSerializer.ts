@@ -31,6 +31,10 @@ import { transformSceneToSaveModelSchemaV2 } from './transformSceneToSaveModelSc
  * M is the type of the metadata
  * I is the type of the initial save model. By default it's the same as T.
  */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.dashboard-scene');
+
 export interface DashboardSceneSerializerLike<T, M, I = T, E = T | { error: unknown }> {
   /**
    * The save model which the dashboard scene was originally created from
@@ -368,7 +372,7 @@ export class V2DashboardSerializer
           }
         } else {
           const warningMsg = 'Dashboard serializer: Undefined variable found in dashboard save model, ignoring it';
-          console.warn(warningMsg);
+          logger.warn(warningMsg);
           logWarning(warningMsg);
         }
       }

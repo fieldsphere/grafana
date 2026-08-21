@@ -5,6 +5,10 @@ import { type FrameMatcherInfo } from '../../types/transformations';
 import { FrameMatcherID } from './ids';
 
 // General Field matcher
+import { createStructuredLogger } from '../../utils/logger';
+
+const logger = createStructuredLogger('grafana/data');
+
 const refIdMatcher: FrameMatcherInfo<string> = {
   id: FrameMatcherID.byRefId,
   name: 'Query refId',
@@ -19,7 +23,7 @@ const refIdMatcher: FrameMatcherInfo<string> = {
         regex = stringToJsRegex(pattern);
       } catch (error) {
         if (error instanceof Error) {
-          console.warn(error.message);
+          logger.warn(error.message);
         }
       }
     }

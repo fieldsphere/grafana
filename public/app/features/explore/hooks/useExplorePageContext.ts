@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import { createAssistantContextItem, type ChatContextItem, useProvidePageContext } from '@grafana/assistant';
-import { type DataSourceApi } from '@grafana/data';
+import { type DataSourceApi, createStructuredLogger } from '@grafana/data';
 import { getDataSourceInstanceSettings } from '@grafana/runtime/unstable';
 import { type DataQuery } from '@grafana/schema';
 import { type ExploreItemState } from 'app/types/explore';
+
+const logger = createStructuredLogger('features.explore');
 
 export function useExplorePageContext(panes: Array<[string, ExploreItemState]>): void {
   const [items, setItems] = useState<ChatContextItem[]>([]);
@@ -118,7 +120,7 @@ function getDisplayText(query: DataQuery, ds?: DataSourceApi): string | undefine
   try {
     return ds?.getQueryDisplayText?.(query);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return undefined;
   }
 }

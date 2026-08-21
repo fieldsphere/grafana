@@ -158,13 +158,20 @@ describe('DashboardAPIVersionResolver', () => {
       it('should log resolved versions', async () => {
         mockDiscoveryResponse(['v2', 'v1']);
         await dashboardAPIVersionResolver.resolve();
-        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('Version negotiation'));
+        expect(console.log).toHaveBeenCalledWith(
+          expect.stringContaining('Version negotiation'),
+          expect.objectContaining({ source: 'features.core' })
+        );
       });
 
       it('should log on discovery failure', async () => {
         mockDiscoveryFailure();
         await dashboardAPIVersionResolver.resolve();
-        expect(console.log).toHaveBeenCalledWith(expect.stringContaining('discovery failed'), expect.any(Error));
+        expect(console.log).toHaveBeenCalledWith(
+          expect.stringContaining('discovery failed'),
+          expect.objectContaining({ source: 'features.core' }),
+          expect.any(Error)
+        );
       });
     });
 

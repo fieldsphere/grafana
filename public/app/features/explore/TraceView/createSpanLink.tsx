@@ -12,6 +12,7 @@ import {
   type ScopedVars,
   type SplitOpen,
   type TimeRange,
+  createStructuredLogger,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import {
@@ -39,6 +40,8 @@ import { type Trace, type TraceSpan, type TraceSpanReference } from './component
  * Linked datasource settings must be resolved by the caller (e.g. via {@link useDataSourceInstanceSettings})
  * because the datasource APIs are async.
  */
+const logger = createStructuredLogger('features.explore');
+
 export function createSpanLinkFactory({
   splitOpenFn,
   traceToLogsOptions,
@@ -129,7 +132,7 @@ export function createSpanLinkFactory({
         spanLinks.push.apply(spanLinks, newSpanLinks);
       } catch (error) {
         // It's fairly easy to crash here for example if data source defines wrong interpolation in the data link
-        console.error(error);
+        logger.error(error);
         return spanLinks;
       }
     }

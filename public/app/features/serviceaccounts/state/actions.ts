@@ -21,6 +21,9 @@ import {
   stateFilterChanged,
 } from './reducers';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.serviceaccounts');
+
 const BASE_URL = `/api/serviceaccounts`;
 
 export function fetchACOptions(): ThunkResult<void> {
@@ -31,7 +34,7 @@ export function fetchACOptions(): ThunkResult<void> {
         dispatch(acOptionsLoaded(options));
       }
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     }
   };
 }
@@ -76,7 +79,7 @@ export function fetchServiceAccounts(
         dispatch(serviceAccountsFetched(result));
       }
     } catch (error) {
-      console.error(error);
+      logger.error(error);
     } finally {
       dispatch(serviceAccountsFetchEnd());
     }

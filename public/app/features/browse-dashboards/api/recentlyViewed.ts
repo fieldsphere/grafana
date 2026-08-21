@@ -5,6 +5,10 @@ import { type DashboardQueryResult } from 'app/features/search/service/types';
 /**
  * Returns dashboard search results ordered the same way the user opened them.
  */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.browse-dashboards');
+
 export async function getRecentlyViewedDashboards(maxItems = 5): Promise<DashboardQueryResult[]> {
   try {
     const recentlyOpened = (await impressionSrv.getDashboardOpened()).slice(0, maxItems);
@@ -30,7 +34,7 @@ export async function getRecentlyViewedDashboards(maxItems = 5): Promise<Dashboa
     dashboards.sort((a, b) => order(a.uid) - order(b.uid));
     return dashboards;
   } catch (error) {
-    console.error('Failed to load recently viewed dashboards', error);
+    logger.error('Failed to load recently viewed dashboards', error);
     return [];
   }
 }

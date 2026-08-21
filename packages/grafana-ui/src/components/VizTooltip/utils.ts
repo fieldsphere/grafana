@@ -5,10 +5,13 @@ import {
   formattedValueToString,
   getFieldColorModeForField,
   type LinkModel,
+  createStructuredLogger,
 } from '@grafana/data';
 import { SortOrder, TooltipDisplayMode } from '@grafana/schema';
 
 /** @alpha */
+const logger = createStructuredLogger('grafana/ui');
+
 export interface TooltipScrollableOptions {
   mode: TooltipDisplayMode;
   maxHeight?: number;
@@ -100,7 +103,7 @@ const stringifyValue = (value: unknown): string => {
     return JSON.stringify(value);
   } catch (error) {
     // This path shouldn't be hittable
-    console.warn('Cannot render tooltip value', { error, value });
+    logger.warn('Cannot render tooltip value', { error, value });
     return String(value);
   }
 };

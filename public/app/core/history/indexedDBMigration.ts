@@ -1,6 +1,6 @@
 import { lastValueFrom } from 'rxjs';
 
-import { type DataQuery, generateUUID, store } from '@grafana/data';
+import { type DataQuery, generateUUID, store, createStructuredLogger } from '@grafana/data';
 import { config, getBackendSrv, reportInteraction } from '@grafana/runtime';
 import { getDataSourceInstanceSettings } from '@grafana/runtime/unstable';
 import { DEFAULT_RICH_HISTORY_SETTINGS } from 'app/core/utils/richHistoryTypes';
@@ -8,6 +8,8 @@ import { DEFAULT_RICH_HISTORY_SETTINGS } from 'app/core/utils/richHistoryTypes';
 import type { IndexedDBMigrationAccess } from './RichHistoryIndexedDBStorage';
 import { RICH_HISTORY_KEY, type RichHistoryLocalStorageDTO } from './RichHistoryLocalStorage';
 import { RICH_HISTORY_SETTING_KEYS } from './richHistoryLocalStorageUtils';
+
+const logger = createStructuredLogger('features.core');
 
 const METADATA_MIGRATION_COMPLETE = 'migrationComplete';
 const METADATA_MIGRATION_ATTEMPTS = 'migrationAttempts';
@@ -136,7 +138,7 @@ async function runMigration(indexedDBStorage: IndexedDBMigrationAccess): Promise
 
   if (currentAttempts >= MAX_MIGRATION_ATTEMPTS) {
     reportInteraction('grafana_query_history_migration_abandoned', { attempts: currentAttempts });
-    console.warn(
+    logger.warn(
       `Query history migration to IndexedDB did not succeed after ${MAX_MIGRATION_ATTEMPTS} attempts. ` +
         `Existing query history remains in localStorage and/or the remote API. ` +
         `Set localStorage key '${RESET_MIGRATION_KEY}' to true and reload to retry the migration.`

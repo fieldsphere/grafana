@@ -1,7 +1,7 @@
 import { type MutableRefObject, useEffect } from 'react';
 import { useAsync } from 'react-use';
 
-import { type DataSourceInstanceListItem } from '@grafana/data';
+import { type DataSourceInstanceListItem, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { getBackendSrv, locationService } from '@grafana/runtime';
 import {
@@ -23,6 +23,8 @@ import {
 import { TemplateDashboardInteractions } from './interactions';
 import { type GnetDashboard, type GnetDashboardsResponse, type Link } from './types';
 import { getTemplateDashboardUrl } from './utils/templateDashboardHelpers';
+
+const logger = createStructuredLogger('features.dashboards');
 
 interface GrafanaTemplatesTabProps {
   /** Raw `source` search param value, mapped to a known entry point when fired. */
@@ -60,7 +62,7 @@ export const GrafanaTemplatesTab = ({
 
       return response.items;
     } catch (error) {
-      console.error('Error loading template dashboards ', error);
+      logger.error('Error loading template dashboards ', error);
       return [];
     }
   }, []);

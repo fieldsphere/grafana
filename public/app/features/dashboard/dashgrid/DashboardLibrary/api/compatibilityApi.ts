@@ -6,6 +6,10 @@ import { type DashboardJson } from 'app/features/manage-dashboards/types';
  * Represents a datasource mapping for compatibility checking.
  * Maps dashboard datasource references to actual datasource instances.
  */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.dashboards');
+
 export interface DatasourceMapping {
   /** Unique identifier of the datasource */
   uid: string;
@@ -138,7 +142,7 @@ export async function checkDashboardCompatibility(
     return response;
   } catch (error) {
     // Log error for debugging
-    console.error('Dashboard compatibility check failed:', error);
+    logger.error('Dashboard compatibility check failed:', error);
 
     // Re-throw original error for caller to handle
     throw error;

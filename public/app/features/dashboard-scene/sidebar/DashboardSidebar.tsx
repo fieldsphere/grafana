@@ -30,6 +30,9 @@ import {
 import { DashboardOutline } from './outline/DashboardOutline';
 import { type DashboardSidebarPane, type DashboardSidebarLike, type DashboardSidebarState } from './types';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.dashboard-scene');
+
 export class DashboardSidebar extends SceneObjectBase<DashboardSidebarState> implements DashboardSidebarLike {
   public constructor(state?: Partial<DashboardSidebarState>) {
     super({
@@ -232,7 +235,7 @@ export class DashboardSidebar extends SceneObjectBase<DashboardSidebarState> imp
   private selectElement(element: ElementSelectionContextItem, options: ElementSelectionOnSelectOptions) {
     let obj = sceneGraph.findByKey(this, element.id);
     if (!obj) {
-      console.warn('Cannot find element by key="%s"!', element.id);
+      logger.warn('Cannot find element by key="%s"!', element.id);
       return;
     }
 
@@ -240,7 +243,7 @@ export class DashboardSidebar extends SceneObjectBase<DashboardSidebarState> imp
     if (sourceKey) {
       obj = sceneGraph.findByKey(this, sourceKey);
       if (!obj) {
-        console.warn('Cannot find element by source key="%s"!', sourceKey);
+        logger.warn('Cannot find element by source key="%s"!', sourceKey);
         return;
       }
     }

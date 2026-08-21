@@ -22,6 +22,7 @@ import {
   type ScopedVars,
   type TimeRange,
   toDataFrame,
+  createStructuredLogger,
 } from '@grafana/data';
 import {
   type BackendSrvRequest,
@@ -55,6 +56,8 @@ import {
 } from './types';
 import { reduceError } from './utils';
 import { DEFAULT_GRAPHITE_VERSION } from './versions';
+
+const logger = createStructuredLogger('plugins.datasources');
 
 const GRAPHITE_TAG_COMPARATORS = {
   '=': AbstractLabelOperator.Equal,
@@ -583,7 +586,7 @@ export class GraphiteDatasource
       return this.events({ range: range, tags: tags }).then((results) => {
         const list = [];
         if (!isArray(results.data)) {
-          console.error(`Unable to get annotations.`);
+          logger.error(`Unable to get annotations.`);
           return [];
         }
         for (let i = 0; i < results.data.length; i++) {
@@ -1075,7 +1078,7 @@ export class GraphiteDatasource
         this.funcDefs = gfunc.parseFuncDefs(functions);
         return this.funcDefs;
       } catch (error) {
-        console.error('Fetching graphite functions error', error);
+        logger.error('Fetching graphite functions error', error);
         this.funcDefs = gfunc.getFuncDefs(this.graphiteVersion);
         return this.funcDefs;
       }
@@ -1094,7 +1097,7 @@ export class GraphiteDatasource
           return this.funcDefs;
         }),
         catchError((error) => {
-          console.error('Fetching graphite functions error', error);
+          logger.error('Fetching graphite functions error', error);
           this.funcDefs = gfunc.getFuncDefs(this.graphiteVersion);
           return of(this.funcDefs);
         })

@@ -1,4 +1,6 @@
-import { type DataSourceInstanceSettings, type DataSourceJsonData } from '@grafana/data';
+import { type DataSourceInstanceSettings, type DataSourceJsonData, createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('grafana/runtime');
 
 interface JsonData extends DataSourceJsonData {
   oauthPassThru?: unknown; // we do not assume boolean, to be more robust
@@ -48,11 +50,11 @@ function parseAllowedTypes(data: unknown): AllowedTypes {
     if (types.every((x) => typeof x === 'string')) {
       return { types };
     } else {
-      console.error('qscheck.parseFlags: non-string item in allowed');
+      logger.error('qscheck.parseFlags: non-string item in allowed');
       return { types: [] };
     }
   } else {
-    console.error('qscheck.parseFlags: invalid data');
+    logger.error('qscheck.parseFlags: invalid data');
     return { types: [] };
   }
 }

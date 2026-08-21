@@ -1,10 +1,12 @@
-import { store } from '@grafana/data';
+import { store, createStructuredLogger } from '@grafana/data';
 import { performanceUtils, writePerformanceLog } from '@grafana/scenes';
 
 /**
  * Utility function to register a performance observer with the global tracker
  * Reduces duplication between ScenePerformanceLogger and DashboardAnalyticsAggregator
  */
+const perfLog = createStructuredLogger('features.dashboards');
+
 export function registerPerformanceObserver(
   observer: performanceUtils.ScenePerformanceObserver,
   loggerName: string
@@ -85,11 +87,9 @@ export function writePerformanceGroupStart(logger: string, message: string): voi
 export function writePerformanceGroupLog(logger: string, message: string, data?: unknown): void {
   if (isPerformanceLoggingEnabled()) {
     if (data) {
-      // eslint-disable-next-line no-console
-      console.log(message, data);
+      perfLog.info(message, data);
     } else {
-      // eslint-disable-next-line no-console
-      console.log(message);
+      perfLog.info(message);
     }
   }
 }
@@ -117,7 +117,7 @@ export function createPerformanceMark(name: string, timestamp?: number): void {
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
+    perfLog.error(`❌ Failed to create performance mark: ${name}`, { timestamp, error });
   }
 }
 
@@ -134,6 +134,6 @@ export function createPerformanceMeasure(name: string, startMark: string, endMar
       }
     }
   } catch (error) {
-    console.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
+    perfLog.error(`❌ Failed to create performance measure: ${name}`, { startMark, endMark, error });
   }
 }

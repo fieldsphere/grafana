@@ -1,4 +1,4 @@
-import { locationUtil, type UrlQueryMap } from '@grafana/data';
+import { locationUtil, type UrlQueryMap, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getBackendSrv, getDataSourceSrv, isFetchError, locationService } from '@grafana/runtime';
 import { FlagKeys, getFeatureFlagClient, UserStorage } from '@grafana/runtime/internal';
@@ -85,6 +85,8 @@ import { processQueryParamsForDashboardLoad, updateNavModel } from './utils';
 /**
  * Initialize both performance services to ensure they're ready before profiling starts
  */
+const logger = createStructuredLogger('features.dashboard-scene');
+
 function initializeDashboardPerformanceServices(): void {
   initializeScenePerformanceLogger();
   initializeDashboardAnalyticsAggregator();
@@ -511,7 +513,7 @@ abstract class DashboardScenePageStateManagerBase<T>
       });
 
       if (!isFetchError(err)) {
-        console.error('Error loading dashboard:', err);
+        logger.error('Error loading dashboard:', err);
       }
 
       // If the error is a DashboardVersionError, we want to throw it so that the error boundary is triggered

@@ -343,7 +343,10 @@ describe('JourneyRegistryImpl', () => {
     registry.warnUnregistered();
 
     expect(warnSpy).toHaveBeenCalledTimes(1);
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('"another_journey" has no triggers registered'));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('"another_journey" has no triggers registered'),
+      expect.objectContaining({ source: 'features.core' })
+    );
 
     warnSpy.mockRestore();
   });

@@ -30,6 +30,7 @@ import {
   type Field,
   type LogsMetaItem,
   store,
+  createStructuredLogger,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { FlagKeys, getFeatureFlagClient } from '@grafana/runtime/internal';
@@ -50,6 +51,8 @@ import { DATAPLANE_LABELS_NAME, DATAPLANE_LABEL_TYPES_NAME, parseLogsFrame } fro
  * Example: `getLogLevel('WARN 1999-12-31 this is great') // LogLevel.warn`
  * @deprecated
  */
+const logger = createStructuredLogger('features.logs');
+
 export function getLogLevel(line: string): LogLevel {
   const enabled = getFeatureFlagClient().getBooleanValue(FlagKeys.GrafanaLogLevelInference, false);
   if (!enabled) {
@@ -400,10 +403,10 @@ export function getLogLevelInfo(dataFrame: DataFrame, allDataFrames: DataFrame[]
   const valueField = fieldCache.getFirstFieldOfType(FieldType.number);
 
   if (!timeField) {
-    console.error('Time field missing in data frame');
+    logger.error('Time field missing in data frame');
   }
   if (!valueField) {
-    console.error('Value field missing in data frame');
+    logger.error('Value field missing in data frame');
   }
 
   const level = valueField ? getFieldDisplayName(valueField, dataFrame, allDataFrames) : 'logs';

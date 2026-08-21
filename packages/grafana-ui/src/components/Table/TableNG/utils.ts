@@ -19,6 +19,7 @@ import {
   ReducerID,
   type FieldSparkline,
   type DecimalCount,
+  createStructuredLogger,
 } from '@grafana/data';
 import { type ColumnWidth, type ColumnWidths, type SortColumn } from '@grafana/react-data-grid';
 import {
@@ -52,6 +53,8 @@ import {
 // inferPills lives here rather than in PillCell.tsx to avoid a circular dependency:
 // styles.ts → utils.tsx → renderers.tsx → PillCell.tsx → styles.ts
 /* ---------------------------- Pill inference ----------------------------- */
+const logger = createStructuredLogger('grafana/ui');
+
 const SPLIT_RE = /\s*,\s*/;
 
 function inferPillsImpl(rawValue: unknown): unknown[] {
@@ -1778,7 +1781,7 @@ export function parseStyleJson(rawValue: unknown): CSSProperties | void {
       }
     } catch (e) {
       if (!warnedAboutStyleJsonSet.has(rawValue)) {
-        console.error(`encountered invalid cell style JSON: ${rawValue}`, e);
+        logger.error(`encountered invalid cell style JSON: ${rawValue}`, e);
         warnedAboutStyleJsonSet.add(rawValue);
       }
     }

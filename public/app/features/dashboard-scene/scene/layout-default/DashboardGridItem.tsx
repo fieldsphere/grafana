@@ -28,6 +28,9 @@ import { DashboardGridItemRenderer } from './DashboardGridItemRenderer';
 import { DashboardGridItemVariableDependencyHandler } from './DashboardGridItemVariableDependencyHandler';
 import { RowRepeaterBehavior } from './RowRepeaterBehavior';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.dashboard-scene');
+
 export interface DashboardGridItemState extends SceneGridItemStateLike {
   body: VizPanel;
   repeatedPanels?: VizPanel[];
@@ -150,7 +153,7 @@ export class DashboardGridItem
       });
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('DashboardGridItem: Variable is not a MultiValueVariable');
+      logger.error('DashboardGridItem: Variable is not a MultiValueVariable');
       return;
     }
 

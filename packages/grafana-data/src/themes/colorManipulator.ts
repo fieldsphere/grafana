@@ -12,10 +12,14 @@ import tinycolor from 'tinycolor2';
  * @returns A number in the range [min, max]
  * @beta
  */
+import { createStructuredLogger } from '../utils/logger';
+
+const logger = createStructuredLogger('grafana/data');
+
 function clamp(value: number, min = 0, max = 1) {
   if (process.env.NODE_ENV !== 'production') {
     if (value < min || value > max) {
-      console.error(`The value provided ${value} is out of range [${min}, ${max}].`);
+      logger.error(`The value provided ${value} is out of range [${min}, ${max}].`);
     }
   }
 

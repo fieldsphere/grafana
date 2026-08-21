@@ -243,7 +243,8 @@ describe('getV2AngularMigrationHandler', () => {
 
       // Verify deprecation warning was logged
       expect(warnSpy).toHaveBeenCalledWith(
-        'Accessing the targets property when migrating a panel plugin is deprecated. Changes to this property will be ignored.'
+        'Accessing the targets property when migrating a panel plugin is deprecated. Changes to this property will be ignored.',
+        expect.objectContaining({ source: 'features.dashboard-scene' })
       );
 
       warnSpy.mockRestore();

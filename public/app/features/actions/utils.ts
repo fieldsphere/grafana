@@ -15,6 +15,7 @@ import {
   type ScopedVars,
   textUtil,
   type ValueLinkConfig,
+  createStructuredLogger,
 } from '@grafana/data';
 import { type BackendSrvRequest, config as grafanaConfig, getBackendSrv } from '@grafana/runtime';
 import { appEvents } from 'app/core/app_events';
@@ -27,6 +28,8 @@ import { getNextRequestId } from '../query/state/PanelQueryRunner';
 import { reportActionTrigger } from './analytics';
 
 /** @internal */
+const logger = createStructuredLogger('features.actions');
+
 export const isInfinityActionWithAuth = (action: Action): boolean => {
   return (grafanaConfig.featureToggles.vizActionsAuth ?? false) && action.type === ActionType.Infinity;
 };
@@ -120,7 +123,7 @@ export const getActions = (
                   appEvents.emit(AppEvents.alertError, [
                     'An error has occurred. Check console output for more details.',
                   ]);
-                  console.error(error);
+                  logger.error(error);
                 },
                 complete: () => {
                   appEvents.emit(AppEvents.alertSuccess, ['API call was successful']);
@@ -128,7 +131,7 @@ export const getActions = (
               });
           } catch (error) {
             appEvents.emit(AppEvents.alertError, ['An error has occurred. Check console output for more details.']);
-            console.error(error);
+            logger.error(error);
             return;
           }
         },

@@ -10,6 +10,10 @@ import { initPreferences } from './initPreferences';
 import { patchFetchForLegacyAPIMode } from './legacyAPIHandling';
 
 // Check if we are hosting files on cdn and set webpack public path
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.app');
+
 if (window.public_cdn_path) {
   __webpack_public_path__ = window.public_cdn_path;
 }
@@ -49,7 +53,7 @@ bootstrapWindowData().catch((error) => {
   const isRedirect = error && error.redirect && typeof error.redirect === 'string';
   // If a redirect was thrown, just ignore this. The index.html will handle the redirect
   if (!isRedirect) {
-    console.error('Error bootstrapping Grafana', error);
+    logger.error('Error bootstrapping Grafana', error);
     window.__grafana_load_failed(error);
   }
 });

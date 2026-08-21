@@ -2,7 +2,7 @@ import { useBooleanFlagValue } from '@openfeature/react-sdk';
 import { Resizable, type ResizeCallback } from 're-resizable';
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 
-import { type DataFrame, store } from '@grafana/data';
+import { type DataFrame, store, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { getDragStyles, IconButton, useStyles2 } from '@grafana/ui';
@@ -20,6 +20,8 @@ import { getSuggestedFieldsFromLogList } from './suggestedFields';
 /**
  * FieldSelector wrapper for the LogList visualization.
  */
+const logger = createStructuredLogger('features.logs');
+
 interface LogListFieldSelectorProps {
   containerElement: HTMLDivElement;
   logs: LogListModel[];
@@ -116,9 +118,7 @@ export const LogListFieldSelector = ({ containerElement, dataFrames, logs }: Log
   const fields = useMemo(() => getFieldsWithStats(dataFrames), [dataFrames]);
 
   if (!onClickShowField || !onClickHideField || !setDisplayedFields) {
-    console.warn(
-      'LogListFieldSelector: Missing required props: onClickShowField, onClickHideField, setDisplayedFields'
-    );
+    logger.warn('LogListFieldSelector: Missing required props: onClickShowField, onClickHideField, setDisplayedFields');
     return null;
   }
   if (sidebarHeight === 0) {

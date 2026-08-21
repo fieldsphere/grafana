@@ -41,7 +41,10 @@ describe('transformToV1TypesUtils', () => {
       const result = transformMappingsToV1(makeFieldConfig([makeSpecialMapping('unknown_value' as SpecialValueMatch)]));
 
       expect(result.defaults.mappings).toHaveLength(0);
-      expect(warnSpy).toHaveBeenCalledWith('Skipping special value mapping with unknown match type: "unknown_value"');
+      expect(warnSpy).toHaveBeenCalledWith(
+        'Skipping special value mapping with unknown match type: "unknown_value"',
+        expect.objectContaining({ source: 'features.dashboard-scene' })
+      );
       warnSpy.mockRestore();
     });
   });

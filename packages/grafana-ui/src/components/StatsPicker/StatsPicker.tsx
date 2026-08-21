@@ -1,7 +1,7 @@
 import { difference } from 'lodash';
 import { memo, useEffect } from 'react';
 
-import { fieldReducers, type FieldReducerInfo } from '@grafana/data';
+import { fieldReducers, type FieldReducerInfo, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 
 import { Combobox, type ComboboxProps } from '../Combobox/Combobox';
@@ -12,6 +12,8 @@ import { selectableValueToComboboxOption } from '../Combobox/utils';
 import { pickComboboxLayout } from './pickComboboxLayout';
 
 /** Props managed by StatsPicker — forwarded combobox props must not replace these. */
+const logger = createStructuredLogger('grafana/ui');
+
 type ComboboxManagedProps = 'value' | 'options' | 'onChange' | 'isClearable' | 'width' | 'minWidth' | 'maxWidth';
 
 /** Forwarded props (managed keys + layout are applied after the spread). */
@@ -53,13 +55,13 @@ export const StatsPicker = memo<StatsPickerProps>(
       if (current.length !== stats.length) {
         const found = current.map((v) => v.id);
         const notFound = difference(stats, found);
-        console.warn('Unknown stats', notFound, stats);
+        logger.warn('Unknown stats', notFound, stats);
         onChange(current.map((stat) => stat.id));
       }
 
       // Make sure there is only one
       if (!allowMultiple && stats.length > 1) {
-        console.warn('Removing extra stat', stats);
+        logger.warn('Removing extra stat', stats);
         onChange([stats[0]]);
       }
 

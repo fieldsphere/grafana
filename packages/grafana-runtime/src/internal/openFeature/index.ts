@@ -8,6 +8,9 @@ import { logError } from '../../utils/logging';
 // Ensure the module augmentation is pulled in
 import './openfeature-types.gen.d.ts';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('grafana/runtime');
+
 function checkDefaultProvider(event?: EventDetails) {
   if (event?.domain) {
     return;
@@ -20,7 +23,7 @@ function checkDefaultProvider(event?: EventDetails) {
       'OpenFeature default domain provider has been unexpectedly changed. This may be caused by a plugin that is incorrectly using the default domain.',
       { cause: OpenFeature.getProvider() }
     );
-    console.error(err);
+    logger.error(err);
     logError(err);
   }
 }

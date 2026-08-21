@@ -15,7 +15,7 @@ import { Component, type ReactNode } from 'react';
 import * as React from 'react';
 import { Subscription } from 'rxjs';
 
-import { DataHoverEvent, type PanelData, type PanelProps } from '@grafana/data';
+import { DataHoverEvent, type PanelData, type PanelProps, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, locationService } from '@grafana/runtime';
 import { type PanelContext, PanelContextRoot } from '@grafana/ui';
@@ -49,6 +49,8 @@ import {
 import { centerPointRegistry, MapCenterID } from './view';
 
 // Allows multiple panels to share the same view instance
+const logger = createStructuredLogger('plugins.panels');
+
 let sharedView: View | undefined = undefined;
 
 type Props = PanelProps<Options>;
@@ -327,7 +329,7 @@ export class GeomapPanel extends Component<Props, State> {
         layers.push(await initLayer(this, map, lyr, false));
       }
     } catch (ex) {
-      console.error('error loading layers', ex);
+      logger.error('error loading layers', ex);
     }
 
     for (const lyr of layers) {

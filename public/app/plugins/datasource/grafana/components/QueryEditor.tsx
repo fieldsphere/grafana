@@ -7,6 +7,7 @@ import {
   rangeUtil,
   type DataQueryRequest,
   type Field,
+  createStructuredLogger,
 } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { InlineField, Select, Alert, Input, InlineFieldRow, Stack, InlineLabel } from '@grafana/ui';
@@ -16,6 +17,8 @@ import { type GrafanaDatasource } from '../datasource';
 import { defaultQuery, type GrafanaQuery, GrafanaQueryType } from '../types';
 
 import { RandomWalkEditor } from './RandomWalkEditor';
+
+const logger = createStructuredLogger('plugins.datasources');
 
 interface Props extends QueryEditorProps<GrafanaDatasource, GrafanaQuery> {}
 
@@ -138,7 +141,7 @@ export const QueryEditor = memo(function QueryEditor(props: Props) {
         try {
           buffer = rangeUtil.intervalToSeconds(txt) * 1000;
         } catch (err) {
-          console.warn('ERROR', err);
+          logger.warn('ERROR', err);
         }
       }
       onChange({

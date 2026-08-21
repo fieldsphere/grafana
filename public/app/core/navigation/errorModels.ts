@@ -1,7 +1,9 @@
-import { type NavModel, type NavModelItem } from '@grafana/data';
+import { type NavModel, type NavModelItem, createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.core');
 
 export function getExceptionNav(error: unknown): NavModel {
-  console.error(error);
+  logger.error(error);
   return getWarningNav('Exception thrown', 'See console for details');
 }
 

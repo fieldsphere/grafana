@@ -29,6 +29,7 @@ import {
   type ApplyFieldOverrideOptions,
   type StreamingDataFrame,
   DataTopic,
+  createStructuredLogger,
 } from '@grafana/data';
 import { toDataQueryError } from '@grafana/runtime';
 import { ExpressionDatasourceRef } from '@grafana/runtime/internal';
@@ -42,6 +43,8 @@ import { type PanelModel } from '../../dashboard/state/PanelModel';
 import { getDashboardQueryRunner } from './DashboardQueryRunner/DashboardQueryRunner';
 import { mergePanelAndDashData } from './mergePanelAndDashData';
 import { runRequest } from './runRequest';
+
+const logger = createStructuredLogger('features.query');
 
 export interface QueryRunnerOptions<
   TQuery extends DataQuery = DataQuery,
@@ -257,7 +260,7 @@ export class PanelQueryRunner {
         return { ...data, series, annotations };
       }),
       catchError((err) => {
-        console.warn('Error running transformation:', err);
+        logger.warn('Error running transformation:', err);
         return of({
           ...data,
           state: LoadingState.Error,

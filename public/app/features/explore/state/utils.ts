@@ -20,6 +20,7 @@ import {
   toUtc,
   type URLRange,
   type URLRangeValue,
+  createStructuredLogger,
 } from '@grafana/data';
 import { getDataSourceInstance } from '@grafana/runtime/unstable';
 import { type DataQuery, type DataSourceJsonData, type DataSourceRef, type TimeZone } from '@grafana/schema';
@@ -33,6 +34,8 @@ import { setLastUsedDatasourceUID } from '../../../core/utils/explore';
 import { loadSupplementaryQueries } from '../utils/supplementaryQueries';
 
 import { DEFAULT_RANGE } from './constants';
+
+const logger = createStructuredLogger('features.explore');
 
 export const MAX_HISTORY_AUTOCOMPLETE_ITEMS = 100;
 
@@ -117,7 +120,7 @@ export async function loadAndInitDatasource(
       instance.init();
     } catch (err) {
       // TODO: should probably be handled better
-      console.error(err);
+      logger.error(err);
     }
   }
 

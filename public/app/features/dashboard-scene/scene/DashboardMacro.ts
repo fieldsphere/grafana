@@ -5,6 +5,10 @@ import { getDashboardSceneFor } from '../utils/utils';
 /**
  * Handles expressions like ${__dashboard.uid}
  */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.dashboard-scene');
+
 class DashboardMacro implements FormatVariable {
   public state: { name: string; type: string };
 
@@ -39,7 +43,7 @@ export function registerDashboardMacro() {
 
     return () => unregister();
   } catch (e) {
-    console.error('Error registering dashboard macro', e);
+    logger.error('Error registering dashboard macro', e);
     return () => {};
   }
 }

@@ -1,5 +1,9 @@
 // Controlled by the `grafana.frontendLegacyAPIHandling` feature flag, monkey-patches
 // fetch to log or block calls to legacy /api/ endpoints
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.app');
+
 export function patchFetchForLegacyAPIMode() {
   const mode = window.__grafanaLegacyAPIMode;
   if (mode !== 'log' && mode !== 'block') {
@@ -21,7 +25,7 @@ export function patchFetchForLegacyAPIMode() {
       return Promise.reject(new Error(`Request to legacy api ${url.pathname} blocked`));
     }
 
-    console.warn(`Request made to legacy api ${url.pathname}`);
+    logger.warn(`Request made to legacy api ${url.pathname}`);
     return originalFetch(input, init);
   };
 }

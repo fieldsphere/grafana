@@ -42,6 +42,9 @@ import { getDisplayProcessor, getRawDisplayProcessor } from './displayProcessor'
 import { getMinMaxAndDelta } from './scale';
 import { standardFieldConfigEditorRegistry } from './standardFieldConfigEditorRegistry';
 
+import { createStructuredLogger } from '../utils/logger';
+const logger = createStructuredLogger('grafana/data');
+
 interface OverrideProps {
   match: FieldMatcher;
   properties: DynamicConfigValue[];
@@ -125,7 +128,7 @@ export function applyFieldOverrides(
       const info = fieldMatchers.getIfExists(rule.matcher.id);
 
       if (!info) {
-        console.warn(`Unknown field matcher id: "${rule.matcher.id}", skipping override rule`);
+        logger.warn(`Unknown field matcher id: "${rule.matcher.id}", skipping override rule`);
         continue;
       }
 

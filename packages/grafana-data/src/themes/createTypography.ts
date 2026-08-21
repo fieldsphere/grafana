@@ -6,6 +6,10 @@ import * as z from 'zod';
 import { type ThemeColors } from './createColors';
 
 /** @beta */
+import { createStructuredLogger } from '../utils/logger';
+
+const logger = createStructuredLogger('grafana/data');
+
 export interface ThemeTypography extends ThemeTypographyVariantTypes {
   fontFamily: string;
   fontFamilyMonospace: string;
@@ -76,11 +80,11 @@ export function createTypography(colors: ThemeColors, typographyInput: ThemeTypo
 
   if (process.env.NODE_ENV !== 'production') {
     if (typeof fontSize !== 'number') {
-      console.error('Grafana-UI: `fontSize` is required to be a number.');
+      logger.error('Grafana-UI: `fontSize` is required to be a number.');
     }
 
     if (typeof htmlFontSize !== 'number') {
-      console.error('Grafana-UI: `htmlFontSize` is required to be a number.');
+      logger.error('Grafana-UI: `htmlFontSize` is required to be a number.');
     }
   }
 

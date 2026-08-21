@@ -16,6 +16,10 @@ import {
  * @public
  * The app container that is loading another plugin (panel or query editor)
  * */
+import { createStructuredLogger } from '../utils/logger';
+
+const logger = createStructuredLogger('grafana/data');
+
 export enum CoreApp {
   CloudAlerting = 'cloud-alerting',
   UnifiedAlerting = 'unified-alerting',
@@ -94,7 +98,7 @@ export class AppPlugin<T extends KeyValue = KeyValue> extends GrafanaPlugin<AppP
           const exp = pluginExports[include.component];
 
           if (!exp) {
-            console.warn('App Page uses unknown component: ', include.component, this.meta);
+            logger.warn('App Page uses unknown component: ', include.component, this.meta);
             continue;
           }
         }

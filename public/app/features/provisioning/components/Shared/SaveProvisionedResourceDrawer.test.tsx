@@ -396,7 +396,10 @@ describe('SaveProvisionedResourceDrawer', () => {
     });
 
     expect(screen.queryByRole('heading', { name: /provisioned/i })).not.toBeInTheDocument();
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('unknown.example.com/v1'));
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('unknown.example.com/v1'),
+      expect.objectContaining({ source: 'features.provisioning' })
+    );
     warnSpy.mockRestore();
   });
 });

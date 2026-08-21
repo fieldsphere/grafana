@@ -24,6 +24,10 @@ import { DELETED_BY_REMOVED, DELETED_BY_UNKNOWN } from './utils';
  * over the cached `TableResponse` + Map lookups, no network. This lets
  * `DELETED_BY_UNKNOWN` entries self-heal across calls when IAM retries succeed.
  */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.search');
+
 class DeletedDashboardsCache {
   private tableCache: TableResponse | null = null;
   private tablePromise: Promise<TableResponse> | null = null;
@@ -123,7 +127,7 @@ class DeletedDashboardsCache {
         rows: Array.from(deduped.values()),
       };
     } catch (error) {
-      console.error('Failed to fetch deleted dashboards:', error);
+      logger.error('Failed to fetch deleted dashboards:', error);
       return EMPTY_TABLE_RESPONSE;
     }
   }
@@ -220,7 +224,7 @@ export async function resolveDeletedByDisplayMap(
   } catch (error) {
     // `Promise.allSettled` cannot reject; this catches synchronous throws from `dispatch()`
     // itself. Mark every UID unknown so callers render placeholders, not raw UIDs.
-    console.error('Failed to resolve deleted dashboard user displays:', getMessageFromError(error));
+    logger.error('Failed to resolve deleted dashboard user displays:', getMessageFromError(error));
     for (const uid of toFetch) {
       result.set(uid, DELETED_BY_UNKNOWN);
     }
@@ -233,12 +237,12 @@ function extractDisplayData(
   settled: PromiseSettledResult<{ data?: DisplayList; error?: unknown }>
 ): DisplayList | undefined {
   if (settled.status === 'rejected') {
-    console.error('Failed to resolve deleted dashboard user displays:', getMessageFromError(settled.reason));
+    logger.error('Failed to resolve deleted dashboard user displays:', getMessageFromError(settled.reason));
     return undefined;
   }
   // RTK Query query thunks resolve (do not reject) on request errors — surface them explicitly.
   if (settled.value.error) {
-    console.error('Failed to resolve deleted dashboard user displays:', getMessageFromError(settled.value.error));
+    logger.error('Failed to resolve deleted dashboard user displays:', getMessageFromError(settled.value.error));
     return undefined;
   }
   return settled.value.data;

@@ -12,6 +12,7 @@ import {
   getDefaultTimeRange,
   LoadingState,
   type PanelData,
+  createStructuredLogger,
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
@@ -35,6 +36,8 @@ import { updateQueries } from '../state/updateQueries';
 import { GroupActionComponents } from './QueryActionComponent';
 import { QueryEditorRows } from './QueryEditorRows';
 import { QueryGroupOptionsEditor } from './QueryGroupOptions';
+
+const logger = createStructuredLogger('features.query');
 
 export interface Props {
   queryRunner: PanelQueryRunner;
@@ -123,7 +126,7 @@ export class QueryGroup extends PureComponent<Props, State> {
         defaultDataSource,
       });
     } catch (error) {
-      console.error('failed to load data source', error);
+      logger.error('failed to load data source', error);
     }
   }
 

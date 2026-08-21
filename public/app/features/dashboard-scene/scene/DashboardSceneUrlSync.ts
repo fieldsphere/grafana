@@ -13,6 +13,9 @@ import { UNCONFIGURED_PANEL_PLUGIN_ID } from './UnconfiguredPanel';
 import { DefaultGridLayoutManager } from './layout-default/DefaultGridLayoutManager';
 import { type DashboardSceneState } from './types/dashboard';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.dashboard-scene');
+
 export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
   /**
    * Panel id of an editor that is open as far as the URL is concerned but has no pane yet: the id
@@ -99,7 +102,7 @@ export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
       const panel = findEditPanel(this._scene, values.editPanel);
 
       if (!panel) {
-        console.warn(`Panel ${values.editPanel} not found`);
+        logger.warn(`Panel ${values.editPanel} not found`);
         // A rebuild that dropped the panel: release the hold and force the state change that
         // writes `?editPanel=` out, or the URL keeps naming a panel the tree does not have.
         const wasHeld = this._heldEditPanelId !== undefined;

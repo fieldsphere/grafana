@@ -4,6 +4,9 @@ import { addResourceBundle } from '@grafana/i18n/internal';
 import { SystemJS } from '../loader/systemjs';
 import { resolveModulePath } from '../loader/utils';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.plugins');
+
 interface AddTranslationsToI18nOptions {
   resolvedLanguage: string;
   fallbackLanguage: string;
@@ -26,14 +29,14 @@ export async function addTranslationsToI18n({
   const path = resolvedPath ?? fallbackPath;
 
   if (!path) {
-    console.warn(`Could not find any translation for plugin ${pluginId}`, { resolvedLanguage, fallbackLanguage });
+    logger.warn(`Could not find any translation for plugin ${pluginId}`, { resolvedLanguage, fallbackLanguage });
     return;
   }
 
   try {
     const module = await SystemJS.import(resolveModulePath(path));
     if (!module.default) {
-      console.warn(`Could not find default export for plugin ${pluginId}`, {
+      logger.warn(`Could not find default export for plugin ${pluginId}`, {
         resolvedLanguage,
         fallbackLanguage,
         path,
@@ -44,7 +47,7 @@ export async function addTranslationsToI18n({
     const language = resolvedPath ? resolvedLanguage : fallbackLanguage;
     addResourceBundle(language, pluginId, module.default);
   } catch (error) {
-    console.warn(`Could not load translation for plugin ${pluginId}`, {
+    logger.warn(`Could not load translation for plugin ${pluginId}`, {
       resolvedLanguage,
       fallbackLanguage,
       error,

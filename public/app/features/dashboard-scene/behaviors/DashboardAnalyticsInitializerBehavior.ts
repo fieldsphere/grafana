@@ -11,11 +11,15 @@ import { type DashboardScene } from '../scene/DashboardScene';
  * initialized globally to avoid timing issues. This behavior only sets
  * dashboard-specific context.
  */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.dashboard-scene');
+
 export function dashboardAnalyticsInitializer(dashboard: DashboardScene) {
   const { uid, title } = dashboard.state;
 
   if (!uid) {
-    console.warn('dashboardAnalyticsInitializer: Dashboard UID is missing');
+    logger.warn('dashboardAnalyticsInitializer: Dashboard UID is missing');
     return;
   }
 

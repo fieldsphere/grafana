@@ -6,6 +6,7 @@ import {
   dateTimeFormat,
   type DateTimeInput,
   EventBusSrv,
+  createStructuredLogger,
 } from '@grafana/data';
 import { TimeRangeUpdatedEvent } from '@grafana/runtime';
 import { behaviors, sceneGraph, type SceneObject, VizPanel } from '@grafana/scenes';
@@ -20,6 +21,8 @@ import { findVizPanelByKey, getVizPanelKeyForPanelId } from './utils';
 /**
  * Will move this to make it the main way we remain somewhat compatible with getDashboardSrv().getCurrent
  */
+const logger = createStructuredLogger('features.dashboard-scene');
+
 export class DashboardModelCompatibilityWrapper {
   public events = new EventBusSrv();
   private _subs = new Subscription();
@@ -157,7 +160,7 @@ export class DashboardModelCompatibilityWrapper {
   public removePanel(panel: PanelModelCompatibilityWrapper) {
     const vizPanel = findVizPanelByKey(this._scene, getVizPanelKeyForPanelId(panel.id));
     if (!vizPanel) {
-      console.error('Trying to remove a panel that was not found in scene', panel);
+      logger.error('Trying to remove a panel that was not found in scene', panel);
       return;
     }
 

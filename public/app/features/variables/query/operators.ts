@@ -9,6 +9,7 @@ import {
   type MetricFindValue,
   type PanelData,
   type QueryVariableModel,
+  createStructuredLogger,
 } from '@grafana/data';
 import { type ThunkDispatch } from 'app/types/store';
 
@@ -17,6 +18,8 @@ import { toKeyedAction } from '../state/keyedVariablesReducer';
 import { type getTemplatedRegex, toKeyedVariableIdentifier, toVariablePayload } from '../utils';
 
 import { updateVariableOptions } from './reducer';
+
+const logger = createStructuredLogger('features.variables');
 
 export function toMetricFindValuesOperator(): OperatorFunction<PanelData, MetricFindValue[]> {
   return (source) => source.pipe(map(toMetricFindValues));
@@ -110,7 +113,7 @@ export function updateOptionsState(args: {
       map((results) => {
         const { variable, dispatch, getTemplatedRegexFunc } = args;
         if (!variable.rootStateKey) {
-          console.error('updateOptionsState: variable.rootStateKey is not defined');
+          logger.error('updateOptionsState: variable.rootStateKey is not defined');
           return;
         }
         const templatedRegex = getTemplatedRegexFunc(variable);

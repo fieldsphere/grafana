@@ -1,12 +1,14 @@
 import { hash } from 'immutable';
 import { LRUCache } from 'lru-cache';
 
-import { generateUUID } from '@grafana/data';
+import { generateUUID, createStructuredLogger } from '@grafana/data';
 import { type LogContext } from '@grafana/faro-web-sdk';
 
 import { getLogger } from '../services/logging/registry';
 
 import { TracedError } from './TracedError';
+
+const logger = createStructuredLogger('grafana/runtime');
 
 // 500 is our best guestimate right now. If a session
 // goes past 500 entries, the LRU evicts the oldest one, at worst a refetch,
@@ -168,7 +170,7 @@ function logError({ error, key }: LogErrorArgs): void {
     const contexts = { ...additional, key, originMessage, originStack };
     logger.logDebug(traced.message, contexts);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
   }
 }
 

@@ -1,12 +1,15 @@
 import { type ComponentProps, useMemo } from 'react';
 
 import { type RoutingTree } from '@grafana/api-clients/rtkq/notifications.alerting/v1beta1';
+import { createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { Alert, Combobox, type ComboboxOption, MultiCombobox } from '@grafana/ui';
 
 import { type CustomComboBoxProps } from '../../../common/ComboBox.types';
 import { useListRoutingTrees } from '../../hooks/useRoutingTrees';
 import { isDefaultRoutingTreeName } from '../../routingTrees';
+
+const logger = createStructuredLogger('grafana/alerting');
 
 const collator = new Intl.Collator('en', { sensitivity: 'accent' });
 
@@ -126,7 +129,7 @@ function RoutingTreeSelector(props: RoutingTreeSelectorProps) {
     if (selectedOption) {
       const tree = treeLookup.get(selectedOption.value);
       if (!tree) {
-        console.warn(`RoutingTreeSelector: could not find routing tree for value "${selectedOption.value}"`);
+        logger.warn(`RoutingTreeSelector: could not find routing tree for value "${selectedOption.value}"`);
         return;
       }
 

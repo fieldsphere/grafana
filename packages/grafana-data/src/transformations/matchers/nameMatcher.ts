@@ -5,6 +5,9 @@ import { type FieldMatcher, type FieldMatcherInfo, type FrameMatcherInfo } from 
 
 import { FieldMatcherID, FrameMatcherID } from './ids';
 
+import { createStructuredLogger } from '../../utils/logger';
+const logger = createStructuredLogger('grafana/data');
+
 export interface RegexpOrNamesMatcherOptions {
   pattern?: string;
   names?: string[];
@@ -201,7 +204,7 @@ const patternToRegex = (pattern?: string): RegExp | undefined => {
   try {
     return stringToJsRegex(pattern);
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     return undefined;
   }
 };

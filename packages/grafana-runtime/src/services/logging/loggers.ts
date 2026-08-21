@@ -8,6 +8,8 @@ export const Loggers = {
   'grafana/runtime.plugins.settings': { logToConsole: true },
   'grafana/runtime.plugins.datasource': { logToConsole: true },
   'grafana/runtime.utils.getCachedPromise': {},
+  /* catch-all for createStructuredLogger records forwarded to Faro */
+  'grafana.frontend': {},
 
   /* existing loggers that keep their existing source name */
   sandbox: {},

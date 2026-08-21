@@ -10,6 +10,10 @@ import { DEFAULT_LLM_MODEL, isLLMPluginEnabled } from './utils';
 
 // Declared instead of imported from utils to make this hook modular
 // Ideally we will want to move the hook itself to a different scope later.
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.dashboards');
+
 type Message = llm.Message;
 
 export enum StreamStatus {
@@ -69,7 +73,7 @@ export function useLLMStream(options: Options = defaultOptions): UseLLMStreamRes
         'Failed to generate content using LLM',
         'Please try again or if the problem persists, contact your organization admin.'
       );
-      console.error(e);
+      logger.error(e);
       getLogger('features.dashboards.genai').logError(e, {
         messages: JSON.stringify(messages),
         model,

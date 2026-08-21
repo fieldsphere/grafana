@@ -8,7 +8,7 @@ import {
 } from '@grafana/api-clients/internal/rtkq/legacy/user';
 import { API_GROUP as DASHBOARD_API_GROUP } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
 import { API_GROUP as FOLDER_API_GROUP } from '@grafana/api-clients/rtkq/folder/v1beta1';
-import { type IconName, locationUtil } from '@grafana/data';
+import { type IconName, locationUtil, createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { useAddStarMutation, useRemoveStarMutation, useListStarsQuery } from 'app/api/clients/collections/v1alpha1';
 import { setStarred, setStarredItems, type StarredNavItem } from 'app/core/reducers/navBarTree';
@@ -19,6 +19,8 @@ import { getIconForKind } from 'app/features/search/service/utils';
 import { dispatch } from 'app/store/store';
 
 import { findStarredNames, userStarsFieldSelector } from './utils';
+
+const logger = createStructuredLogger('features.stars');
 
 type StarItemArgs = {
   id: string;
@@ -238,7 +240,7 @@ export const useSyncStarredItemsInNav = () => {
         setSearchFailed(false);
       })
       .catch((err) => {
-        console.error('Failed to sync starred items to nav', err);
+        logger.error('Failed to sync starred items to nav', err);
         // Resolve the loading state rather than showing it forever
         setHasSynced(true);
         setSearchFailed(true);

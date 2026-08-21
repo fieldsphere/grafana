@@ -14,6 +14,7 @@ import {
   LoadingState,
   type DataSourceRef,
   preProcessPanelData,
+  createStructuredLogger,
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
@@ -21,6 +22,8 @@ import { getDatasourceSrv } from 'app/features/plugins/datasource_srv';
 import { getNextRequestId } from './PanelQueryRunner';
 import { setStructureRevision } from './processing/revision';
 import { runRequest } from './runRequest';
+
+const logger = createStructuredLogger('features.query');
 
 export class QueryRunner implements QueryRunnerSrv {
   private subject: ReplaySubject<PanelData>;
@@ -113,7 +116,7 @@ export class QueryRunner implements QueryRunnerSrv {
             },
           });
         },
-        error: (error) => console.error('PanelQueryRunner Error', error),
+        error: (error) => logger.error('PanelQueryRunner Error', error),
       });
   }
 

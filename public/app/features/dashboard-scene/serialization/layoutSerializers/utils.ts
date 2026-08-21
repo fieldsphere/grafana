@@ -1,4 +1,4 @@
-import { getNextRefId } from '@grafana/data';
+import { getNextRefId, createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { getPanelPluginMetasMapSync, type PanelPluginMetas } from '@grafana/runtime/internal';
 import {
@@ -54,6 +54,8 @@ import { normalizeTransformation } from '../transformationCompat';
  * buildVizPanel layers the dashboard-only chrome on top (menu, header actions, sub header, panel
  * context — all of which reach the root via getDashboardSceneFor and would throw elsewhere).
  */
+const logger = createStructuredLogger('features.dashboard-scene');
+
 export function buildVizPanelState(panel: PanelKind, id?: number): VizPanelState {
   const titleItems: SceneObject[] = [];
 
@@ -405,7 +407,7 @@ export function getDataSourceForQuery(querySpecDS: DataSourceRef | undefined | n
     // In the datasource list from bootData "id" is the type and the uid could be uid or the name
     // in cases like grafana, dashboard or mixed datasource
 
-    console.warn(
+    logger.warn(
       `Could not find datasource for query kind ${queryKind}, defaulting to ${dsList[defaultDatasource].meta.id}`
     );
     return {

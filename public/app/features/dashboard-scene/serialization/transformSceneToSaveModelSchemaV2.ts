@@ -1,6 +1,12 @@
 import { omit } from 'lodash';
 
-import { type AnnotationQuery, getDataSourceRef, isEmptyObject, type TimeRange } from '@grafana/data';
+import {
+  type AnnotationQuery,
+  getDataSourceRef,
+  isEmptyObject,
+  type TimeRange,
+  createStructuredLogger,
+} from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import { ExpressionDatasourceRef } from '@grafana/runtime/internal';
 import {
@@ -71,6 +77,8 @@ import { sceneVariablesSetToSchemaV2Variables } from './sceneVariablesSetToVaria
 import { buildTimeSettingsSpec } from './shared/timeSettings';
 import { colorIdEnumToColorIdV2, transformCursorSynctoEnum } from './transformToV2TypesUtils';
 // FIXME: This is temporary to avoid creating partial types for all the new schema, it has some performance implications, but it's fine for now
+const logger = createStructuredLogger('features.dashboard-scene');
+
 type DeepPartial<T> = T extends object
   ? {
       [P in keyof T]?: DeepPartial<T[P]>;
@@ -167,7 +175,7 @@ export function transformSceneToSaveModelSchemaV2(scene: DashboardScene, isSnaps
     // should never reach this point, validation should throw an error
     throw new Error('Error we could transform the dashboard to schema v2: ' + dashboardSchemaV2);
   } catch (reason) {
-    console.error('Error transforming dashboard to schema v2: ' + reason, dashboardSchemaV2);
+    logger.error('Error transforming dashboard to schema v2: ' + reason, dashboardSchemaV2);
     throw new Error('Error transforming dashboard to schema v2: ' + reason);
   }
 }
@@ -675,7 +683,7 @@ function getAnnotations(state: DashboardSceneState, dsReferencesMapping?: DSRefe
       // for layers created for v2 schema. See transform transformSaveModelSchemaV2ToScene.ts.
       // In this case we will resolve default data source
       layerDs = getDefaultDataSourceRef();
-      console.error(
+      logger.error(
         'Misconfigured AnnotationsDataLayer: Data source is required for annotations. Resolving default data source',
         layer,
         layerDs

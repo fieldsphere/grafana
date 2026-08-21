@@ -11,6 +11,10 @@ import { type RawTimeRange } from '../types/time';
  *
  * @public
  */
+import { createStructuredLogger } from './logger';
+
+const logger = createStructuredLogger('grafana/data');
+
 export type UrlQueryValue = string | number | boolean | string[] | number[] | boolean[] | undefined | null;
 
 /**
@@ -226,7 +230,7 @@ export const urlUtil = {
  */
 export function serializeStateToUrlParam(urlState: Partial<ExploreUrlState>, compact?: boolean): string {
   if (compact !== undefined) {
-    console.warn('`compact` parameter is deprecated and will be removed in a future release');
+    logger.warn('`compact` parameter is deprecated and will be removed in a future release');
   }
   return JSON.stringify(urlState);
 }

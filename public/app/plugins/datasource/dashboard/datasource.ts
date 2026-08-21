@@ -20,6 +20,7 @@ import {
   ValueMatcherID,
   type DataSourceGetDrilldownsApplicabilityOptions,
   type DrilldownsApplicability,
+  createStructuredLogger,
 } from '@grafana/data';
 import {
   isSceneObject,
@@ -37,6 +38,8 @@ import {
 import { MIXED_REQUEST_PREFIX } from '../mixed/MixedDataSource';
 
 import { type DashboardQuery } from './types';
+
+const logger = createStructuredLogger('plugins.datasources');
 
 function isSameRange(a: TimeRange | undefined, b: TimeRange | undefined): boolean {
   if (!a?.from || !a?.to || !b?.from || !b?.to) {
@@ -313,7 +316,7 @@ export class DashboardDatasource extends DataSourceApi<DashboardQuery> {
         options: { value: filter.value },
       });
     } catch (error) {
-      console.warn('Failed to create value matcher for filter:', filter, error);
+      logger.warn('Failed to create value matcher for filter:', filter, error);
       return null;
     }
   }

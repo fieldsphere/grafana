@@ -558,7 +558,10 @@ describe('utils', () => {
       const result = getTooltipDisplayValue(value, mockField);
       expect(result.text).toBe('[object Object]');
       expect(result.numeric).toBeNaN();
-      expect(warn).toHaveBeenCalledWith('Cannot render tooltip value', expect.objectContaining({ value }));
+      expect(warn).toHaveBeenCalledWith(
+        'Cannot render tooltip value',
+        expect.objectContaining({ source: 'grafana/ui' })
+      );
 
       warn.mockRestore();
     });

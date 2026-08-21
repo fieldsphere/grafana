@@ -1,6 +1,12 @@
 import { useCallback, useMemo } from 'react';
 
-import { CoreApp, type DataSourceApi, type DataSourceInstanceSettings, getDataSourceRef } from '@grafana/data';
+import {
+  CoreApp,
+  type DataSourceApi,
+  type DataSourceInstanceSettings,
+  getDataSourceRef,
+  createStructuredLogger,
+} from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t, Trans } from '@grafana/i18n';
 import { config, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
@@ -45,6 +51,8 @@ import { trackAddQuery } from '../PanelEditNext/tracking';
 
 import { type PanelDataPaneTab, type PanelDataTabHeaderProps, TabId } from './types';
 import { hasBackendDatasource } from './utils';
+
+const logger = createStructuredLogger('features.dashboard-scene');
 
 interface PanelDataQueriesTabState extends SceneObjectState {
   datasource?: DataSourceApi;
@@ -165,7 +173,7 @@ export class PanelDataQueriesTab extends SceneObjectBase<PanelDataQueriesTabStat
         });
       }
 
-      console.error(err);
+      logger.error(err);
     }
   }
 

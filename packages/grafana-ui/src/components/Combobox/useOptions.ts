@@ -10,6 +10,9 @@ import { fuzzyFind, itemToString } from './filter';
 import { type ComboboxOption } from './types';
 import { StaleResultError, useLatestAsyncCall } from './useLatestAsyncCall';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('grafana/ui');
+
 type AsyncOptions<T extends string | number> =
   | Array<ComboboxOption<T>>
   | ((inputValue: string) => Promise<Array<ComboboxOption<T>>>);
@@ -62,7 +65,7 @@ export function useOptions<T extends string | number>(
               setAsyncLoading(false);
 
               if (error) {
-                console.error('Error loading async options for Combobox', error);
+                logger.error('Error loading async options for Combobox', error);
               }
             }
           });

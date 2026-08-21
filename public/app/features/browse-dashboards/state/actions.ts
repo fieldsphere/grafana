@@ -9,11 +9,14 @@ import { reapplyVirtualFolderPrefix, stripVirtualFolderPrefix } from '../utils/d
 
 import { findItem } from './utils';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.browse-dashboards');
+
 async function listSafe(label: string, load: () => Promise<DashboardViewItem[]>): Promise<DashboardViewItem[]> {
   try {
     return await load();
   } catch (error) {
-    console.error(`Failed to load ${label}`, error);
+    logger.error(`Failed to load ${label}`, error);
     return [];
   }
 }
@@ -173,7 +176,7 @@ export const fetchNextChildrenPage = createAsyncThunk(
       fetchKind = 'folder';
     } else if (collection.lastFetchedKind === 'dashboard' && !collection.lastKindHasMoreItems) {
       // There's nothing to load at all
-      console.warn(`fetchNextChildrenPage called for ${uid} but that collection is fully loaded`);
+      logger.warn(`fetchNextChildrenPage called for ${uid} but that collection is fully loaded`);
       // return;
     } else if (collection.lastFetchedKind === 'folder' && collection.lastKindHasMoreItems) {
       // Load additional pages of folders
