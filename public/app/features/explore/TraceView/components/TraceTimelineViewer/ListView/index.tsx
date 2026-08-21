@@ -18,6 +18,9 @@ import type TNil from '../../types/TNil';
 
 import Positions from './Positions';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.explore');
+
 type TWrapperProps = {
   style: React.CSSProperties;
   ref: (elm: HTMLDivElement) => void;
@@ -387,8 +390,7 @@ export default class ListView extends React.Component<TListViewProps> {
         // use `.getAttribute(...)` instead of `.dataset` for jest / JSDOM
         const itemKey = node.getAttribute('data-item-key');
         if (!itemKey) {
-          // eslint-disable-next-line no-console
-          console.warn('itemKey not found');
+          logger.warn('itemKey not found');
           continue;
         }
         // measure the first child, if it's available, otherwise the node itself

@@ -1,5 +1,13 @@
 import { type Display } from '@grafana/api-clients/rtkq/iam/v0alpha1';
-import { type OrgRole, type CurrentUserDTO, type GrafanaConfig, type NavLinkDTO } from '@grafana/data';
+import {
+  type OrgRole,
+  type CurrentUserDTO,
+  type GrafanaConfig,
+  type NavLinkDTO,
+  createStructuredLogger,
+} from '@grafana/data';
+
+const logger = createStructuredLogger('boot');
 
 const publicDashboardAccessToken = window.__grafanaPublicDashboardAccessToken;
 // Grafana can only fail to load once
@@ -11,7 +19,7 @@ window.__grafana_load_failed = function (err: unknown) {
     return;
   }
   hasFailedToBoot = true;
-  console.error('Failed to load Grafana', err);
+  logger.error('Failed to load Grafana', err);
   document.querySelector('.fs-variant-loader')?.classList.add('fs-hidden');
   document.querySelector('.fs-variant-error')?.classList.remove('fs-hidden');
 
@@ -23,7 +31,7 @@ window.__grafana_load_failed = function (err: unknown) {
     method: 'GET',
     cache: 'no-store',
   }).catch((err) => {
-    console.error('Failed to report boot error to backend: ', err);
+    logger.error('Failed to report boot error to backend: ', err);
   });
 };
 
@@ -98,7 +106,7 @@ async function rotateExpiredSession() {
     }
     // Just ignore any errors in session rotation. The user can just log in again.
   } catch (error) {
-    console.warn('Failed to rotate session', error);
+    logger.warn('Failed to rotate session', error);
   }
 }
 
@@ -340,6 +348,6 @@ window.__grafana_boot_data_promise.catch((err) => {
     return;
   }
 
-  console.error('__grafana_boot_data_promise rejected', err);
+  logger.error('__grafana_boot_data_promise rejected', err);
   window.__grafana_load_failed(err);
 });

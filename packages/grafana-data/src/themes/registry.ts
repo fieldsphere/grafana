@@ -21,6 +21,9 @@ import visual_refresh_light from './themeDefinitions/visual_refresh_light.json';
 import zen from './themeDefinitions/zen.json';
 import { type GrafanaTheme2 } from './types';
 
+import { createStructuredLogger } from '../utils/logger';
+const logger = createStructuredLogger('grafana/data');
+
 export interface ThemeRegistryItem extends RegistryItem {
   isExtra?: boolean;
   build: () => GrafanaTheme2;
@@ -93,7 +96,7 @@ const themeRegistry = new Registry<ThemeRegistryItem>(() => {
 for (const [name, json] of Object.entries(extraThemes)) {
   const result = NewThemeOptionsSchema.safeParse(json);
   if (!result.success) {
-    console.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
+    logger.error(`Invalid theme definition for theme ${name}: ${result.error.message}`);
   } else {
     const theme = result.data;
     themeRegistry.register({

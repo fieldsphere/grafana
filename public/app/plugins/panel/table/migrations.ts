@@ -10,6 +10,7 @@ import {
   type DataFrame,
   FieldType,
   ByNamesMatcherMode,
+  createStructuredLogger,
 } from '@grafana/data';
 import { type ReduceTransformerOptions } from '@grafana/data/internal';
 
@@ -20,10 +21,12 @@ import { type Options } from './panelcfg.gen';
  * The models do not match, so this process will delegate to the old implementation when
  * a saved table configuration exists.
  */
+const logger = createStructuredLogger('plugins.panels');
+
 export const tableMigrationHandler = (panel: PanelModel<Options>): Partial<Options> => {
   // Table was saved as an angular table, lets just swap to the 'table-old' panel
   if (!panel.pluginVersion && 'columns' in panel) {
-    console.log('Was angular table', panel);
+    logger.info('Was angular table', panel);
   }
 
   // ensure overrides array exists before applying rest of overrides

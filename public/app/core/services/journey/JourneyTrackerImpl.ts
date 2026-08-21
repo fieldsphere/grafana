@@ -11,6 +11,9 @@ import {
 import { type JourneyStartOptions } from '@grafana/runtime/internal';
 import { createDebugLog } from 'app/core/utils/debugLog';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.core');
+
 const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 const ABANDONED_TAB_HIDDEN_MS = 60 * 1000; // 60 seconds
 
@@ -422,7 +425,7 @@ class JourneyHandleImpl implements JourneyHandle {
       try {
         cb();
       } catch (err) {
-        console.error(`[JourneyTracker] onEnd callback error for "${this.journeyType}":`, err);
+        logger.error(`[JourneyTracker] onEnd callback error for "${this.journeyType}":`, err);
       }
     }
   }

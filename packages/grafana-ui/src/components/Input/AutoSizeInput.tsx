@@ -6,6 +6,9 @@ import { measureText } from '../../utils/measureText';
 import { AutoSizeInputContext } from './AutoSizeInputContext';
 import { Input, type Props as InputProps } from './Input';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('grafana/ui');
+
 export interface Props extends InputProps {
   /** Sets the min-width to a multiple of 8px. Default value is 10*/
   minWidth?: number;
@@ -119,7 +122,7 @@ function useControlledState<T>(controlledValue: T, onChange: Function | undefine
 
   const hasLoggedControlledWarning = useRef(false);
   if (isControlledNow !== isControlledRef.current && !hasLoggedControlledWarning.current) {
-    console.warn(
+    logger.warn(
       'An AutoSizeInput is changing from an uncontrolled to a controlled input. If you want to control the input, the empty value should be an empty string.'
     );
     hasLoggedControlledWarning.current = true;

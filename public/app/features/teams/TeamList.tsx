@@ -39,6 +39,9 @@ import { EnterpriseAuthFeaturesCard } from '../admin/EnterpriseAuthFeaturesCard'
 import { TeamDeleteModal } from './TeamDeleteModal';
 import { useDeleteTeam, useGetTeams } from './hooks';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.teams');
+
 type Cell<T extends keyof TeamWithRoles = keyof TeamWithRoles> = CellProps<TeamWithRoles, TeamWithRoles[T]>;
 
 export interface State {
@@ -234,7 +237,7 @@ const TeamList = () => {
                   'Failed to check if the team owns folders. Please try again.'
                 )
               );
-              console.error(error);
+              logger.error(error);
               return;
             }
 

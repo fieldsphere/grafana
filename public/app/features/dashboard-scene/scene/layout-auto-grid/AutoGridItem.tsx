@@ -24,6 +24,9 @@ import { getOptions } from './AutoGridItemEditor';
 import { AutoGridItemRenderer } from './AutoGridItemRenderer';
 import { AutoGridLayout } from './AutoGridLayout';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.dashboard-scene');
+
 export interface AutoGridItemState extends SceneObjectState {
   body: VizPanel;
   hideWhenNoData?: boolean;
@@ -91,7 +94,7 @@ export class AutoGridItem extends SceneObjectBase<AutoGridItemState> implements 
       });
 
     if (!(variable instanceof MultiValueVariable)) {
-      console.error('DashboardGridItem: Variable is not a MultiValueVariable');
+      logger.error('DashboardGridItem: Variable is not a MultiValueVariable');
       return;
     }
 

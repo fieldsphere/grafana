@@ -1,4 +1,4 @@
-import { type SelectableValue, store } from '@grafana/data';
+import { type SelectableValue, store, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type TermCount } from 'app/core/components/TagFilter/TagFilter';
 import {
@@ -14,6 +14,8 @@ import { initialState, SearchStateManager } from '../../search/state/SearchState
 // Subclass SearchStateManager to customize the setStateAndDoSearch behavior.
 // We want to clear the search results when the user clears any search input
 // to trigger the skeleton state.
+const logger = createStructuredLogger('features.browse-dashboards');
+
 export class TrashStateManager extends SearchStateManager {
   protected sortStorageKey = SEARCH_SELECTED_SORT_DELETED;
   protected layoutStorageKey = SEARCH_SELECTED_LAYOUT_DELETED;
@@ -83,7 +85,7 @@ export class TrashStateManager extends SearchStateManager {
 
       return termCounts.sort((a, b) => b.count - a.count);
     } catch (error) {
-      console.error('Failed to get tags from deleted dashboards:', error);
+      logger.error('Failed to get tags from deleted dashboards:', error);
       return [];
     }
   };

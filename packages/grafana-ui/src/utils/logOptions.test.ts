@@ -21,6 +21,7 @@ describe('logOptions', () => {
     logOptions(15, RECOMMENDED_AMOUNT, 'test-id', 'test-aria');
 
     expect(console.warn).toHaveBeenCalledWith('[Combobox] Items exceed the recommended amount 10.', {
+      source: 'grafana/ui',
       itemsCount: '15',
       recommendedAmount: '10',
       'aria-labelledby': 'test-aria',

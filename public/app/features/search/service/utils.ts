@@ -1,5 +1,5 @@
 import { type ManagedBy } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
-import { type DataFrame, type DataFrameView, type IconName, fuzzySearch } from '@grafana/data';
+import { type DataFrame, type DataFrameView, type IconName, fuzzySearch, createStructuredLogger } from '@grafana/data';
 import { type DashboardViewItemWithUIItems } from 'app/features/browse-dashboards/types';
 import {
   isSharedWithMe,
@@ -21,6 +21,8 @@ import { type SearchHit } from './unified';
  * display entry — typically because the account (user, service account, API key, ...) was
  * deleted. Chosen with NUL delimiters so it cannot collide with any real display name.
  */
+const logger = createStructuredLogger('features.search');
+
 export const DELETED_BY_REMOVED = '\u0000__grafana_deleted_account__\u0000';
 
 /**
@@ -67,7 +69,7 @@ async function getCurrentFolderUID(): Promise<string | undefined> {
     }
     return Promise.resolve(dash?.meta?.folderUid);
   } catch (e) {
-    console.error(e);
+    logger.error(e);
   }
   return undefined;
 }

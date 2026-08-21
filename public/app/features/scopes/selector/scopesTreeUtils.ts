@@ -1,10 +1,12 @@
-import { type ScopeNode } from '@grafana/data';
+import { type ScopeNode, createStructuredLogger } from '@grafana/data';
 
 import { type NodesMap, type TreeNode } from './types';
 
 /**
  * Creates a deep copy of the node tree with expanded prop set to false.
  */
+const logger = createStructuredLogger('features.scopes');
+
 export function closeNodes(tree: TreeNode): TreeNode {
   const node = { ...tree };
   node.expanded = false;
@@ -125,7 +127,7 @@ export const insertPathNodesIntoTree = (tree: TreeNode, path: ScopeNode[]) => {
     newTree = modifyTreeNodeAtPath(newTree, pathSlice, (treeNode) => {
       treeNode.children = { ...treeNode.children };
       if (!childNodeName) {
-        console.warn('Failed to insert full path into tree. Did not find child to' + stringPath[index]);
+        logger.warn('Failed to insert full path into tree. Did not find child to' + stringPath[index]);
         treeNode.childrenLoaded = treeNode.childrenLoaded ?? false;
         return;
       }

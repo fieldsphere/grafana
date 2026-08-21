@@ -4,6 +4,10 @@ import { type KeyValue } from './data';
 import { type IconName } from './icon';
 
 /** Describes plugins life cycle status */
+import { createStructuredLogger } from '../utils/logger';
+
+const logger = createStructuredLogger('grafana/data');
+
 export enum PluginState {
   alpha = 'alpha', // Only included if `enable_alpha` config option is true
   beta = 'beta', // Will show a warning banner
@@ -268,7 +272,7 @@ export class GrafanaPlugin<T extends PluginMeta = PluginMeta> {
    * @deprecated -- this is no longer necessary and will be removed
    */
   setChannelSupport() {
-    console.warn('[deprecation] plugin is using ignored option: setChannelSupport', this.meta);
+    logger.warn('[deprecation] plugin is using ignored option: setChannelSupport', this.meta);
     return this;
   }
 

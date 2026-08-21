@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { useEffect, useRef } from 'react';
 import { useAsyncFn } from 'react-use';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2, createStructuredLogger } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { isFetchError, logError } from '@grafana/runtime';
 import {
@@ -28,6 +28,8 @@ import { interpolateDiagnosticsQueries } from 'app/features/query/diagnostics/in
 import { type DashboardScene } from '../scene/DashboardScene';
 
 import { type SceneShareTabState, type ShareView } from './types';
+
+const logger = createStructuredLogger('features.dashboard-scene');
 
 export interface DownloadDiagnosticsState extends SceneShareTabState {
   // The panel this diagnostics bundle is scoped to.
@@ -195,7 +197,7 @@ function DownloadDiagnosticsRenderer({ model }: SceneComponentProps<DownloadDiag
       dashboardModel = dashboard?.getSaveModel();
       panelModel = dashboard ? findPanelSaveModel(dashboardModel, panel, dashboard) : undefined;
     } catch (error) {
-      console.warn(SAVE_MODEL_FAILURE_MESSAGE, error);
+      logger.warn(SAVE_MODEL_FAILURE_MESSAGE, error);
       logError(error instanceof Error ? error : new Error(SAVE_MODEL_FAILURE_MESSAGE), {
         panelKey: panel.state.key ?? '',
         dashboardUid: dashboard?.state.uid ?? '',
@@ -219,7 +221,7 @@ function DownloadDiagnosticsRenderer({ model }: SceneComponentProps<DownloadDiag
       JSON.stringify(captured);
       panelData = captured;
     } catch (error) {
-      console.warn(PANEL_DATA_FAILURE_MESSAGE, error);
+      logger.warn(PANEL_DATA_FAILURE_MESSAGE, error);
       logError(error instanceof Error ? error : new Error(PANEL_DATA_FAILURE_MESSAGE), {
         panelKey: panel.state.key ?? '',
       });

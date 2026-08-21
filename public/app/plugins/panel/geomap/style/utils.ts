@@ -14,6 +14,10 @@ import {
 } from './types';
 
 /** Indicate if the style wants to show text values */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('plugins.panels');
+
 export function styleUsesText(config: StyleConfig): boolean {
   const text = config?.text;
   if (!text) {
@@ -106,7 +110,7 @@ export function getRGBValues(colorString: string): ColorValue | null {
 
   // Handle other color formats if needed
   else {
-    console.warn(`Unsupported color format: ${colorString}`);
+    logger.warn(`Unsupported color format: ${colorString}`);
   }
   return null;
 }
@@ -142,10 +146,10 @@ function getRGBFromRGBString(rgbString: string): ColorValue | null {
         a: parseFloat(matches[3]), // Using parseFloat for alpha as it can be decimal (0-1)
       };
     } else {
-      console.warn(`Unsupported color format: ${rgbString}`);
+      logger.warn(`Unsupported color format: ${rgbString}`);
     }
   } else {
-    console.warn(`Unsupported color format: ${rgbString}`);
+    logger.warn(`Unsupported color format: ${rgbString}`);
   }
   return null;
 }

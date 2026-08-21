@@ -13,6 +13,9 @@ import { getVariableKind, getVariableSpecName } from 'app/features/variables-man
  * persisted dashboard spec and out of the editable variables list.
  */
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.dashboard-scene');
+
 interface GlobalControlSourceRef {
   type: 'global';
 }
@@ -99,7 +102,7 @@ export async function fetchPredefinedVariables(folderUid?: string): Promise<Vari
     cache.set(cacheKey, { ts: Date.now(), variables });
     return variables;
   } catch (err) {
-    console.warn('Failed to load predefined dashboard variables', err);
+    logger.warn('Failed to load predefined dashboard variables', err);
     return null;
   }
 }

@@ -6,7 +6,7 @@ import { useRef, useState } from 'react';
 import Skeleton from 'react-loading-skeleton';
 
 import { createAssistantContextItem, useAssistant } from '@grafana/assistant';
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2, createStructuredLogger } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import {
@@ -33,6 +33,8 @@ import { NewTemplateDashboardInteractions } from './analytics/main';
 import { CONTENT_KINDS } from './constants';
 import { type GnetDashboard } from './types';
 import { buildAssistantPrompt, buildTemplateContextData, buildTemplateContextTitle } from './utils/assistantHelpers';
+
+const logger = createStructuredLogger('features.dashboards');
 
 interface Details {
   id: string;
@@ -234,7 +236,7 @@ function DashboardCardComponent({
               kind === 'suggested_dashboard' ? styles.thumbnailCoverImage : styles.thumbnailContainImage
             )}
             onError={(e) => {
-              console.error('Failed to load image for:', title, 'URL:', imageUrl);
+              logger.error('Failed to load image for:', title, 'URL:', imageUrl);
               e.currentTarget.style.display = 'none';
             }}
           />

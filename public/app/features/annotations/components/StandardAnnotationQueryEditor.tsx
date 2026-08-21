@@ -8,6 +8,7 @@ import {
   type DataSourceInstanceSettings,
   DataSourcePluginContextProvider,
   LoadingState,
+  createStructuredLogger,
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
@@ -24,6 +25,8 @@ import { updateAnnotationFromSavedQuery } from '../utils/savedQueryUtils';
 
 import { AnnotationQueryEditorActionsWrapper } from './AnnotationQueryEditorActionsWrapper';
 import { AnnotationFieldMapper } from './AnnotationResultMapper';
+
+const logger = createStructuredLogger('features.annotations');
 
 export interface Props {
   datasource: DataSourceApi;
@@ -211,7 +214,7 @@ export default memo(function StandardAnnotationQueryEditor({
       skipNextVerificationRef.current = true;
       onChange(preparedAnnotation);
     } catch (error) {
-      console.error('Failed to replace annotation query:', error);
+      logger.error('Failed to replace annotation query:', error);
       // On error, reset the replacing state but don't change the annotation
     }
   };

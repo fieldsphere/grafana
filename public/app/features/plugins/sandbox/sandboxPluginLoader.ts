@@ -1,7 +1,7 @@
 import createVirtualEnvironment from '@locker/near-membrane-dom';
 import { type ProxyTarget } from '@locker/near-membrane-shared';
 
-import { type BootData } from '@grafana/data';
+import { type BootData, createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { defaultTrustedTypesPolicy } from 'app/core/trustedTypePolicies';
 
@@ -26,6 +26,8 @@ import {
 import { logError, logInfo } from './utils';
 
 // Loads near membrane custom formatter for near membrane proxy objects.
+const logger = createStructuredLogger('features.plugins');
+
 if (process.env.NODE_ENV !== 'production') {
   require('@locker/near-membrane-dom/custom-devtools-formatter');
 }
@@ -139,7 +141,7 @@ async function doImportPluginModuleInSandbox(meta: SandboxPluginMeta): Promise<S
               `Error in ${meta.id}: Plugins should not use window.grafanaBootData. Use "config" from "@grafana/runtime" instead.`
             );
           } else {
-            console.error(
+            logger.error(
               `${meta.id.toUpperCase()}: Plugins should not use window.grafanaBootData. Use "config" from "@grafana/runtime" instead.`
             );
           }

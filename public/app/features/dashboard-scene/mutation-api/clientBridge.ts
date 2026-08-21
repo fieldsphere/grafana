@@ -8,6 +8,10 @@
  */
 
 /** Which document is mounted, and therefore which commands its client is built with. */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.dashboard-scene');
+
 export type MutationResource = 'dashboard' | 'notebook';
 
 type CreateMutationClient = (scene: unknown, resource: MutationResource) => () => void;
@@ -24,9 +28,7 @@ export function provideMutationClientFactory(create: CreateMutationClient): void
  */
 export function createMutationClient(scene: unknown, resource: MutationResource): () => void {
   if (!_create) {
-    console.warn(
-      'createMutationClient called before provideMutationClientFactory. Mutation API will not be available.'
-    );
+    logger.warn('createMutationClient called before provideMutationClientFactory. Mutation API will not be available.');
     return () => {};
   }
   const teardown = _create(scene, resource);

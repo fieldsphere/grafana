@@ -41,6 +41,10 @@ import { slugifyForFilename } from '../utils/path';
 import { ResourceEditFormSharedFields } from './ResourceEditFormSharedFields';
 
 /** Commit action handled by this drawer. */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.provisioning');
+
 type ProvisionedResourceAction = 'create' | 'update' | 'delete';
 
 /**
@@ -298,7 +302,7 @@ export function SaveProvisionedResourceDrawer(props: SaveProvisionedResourceDraw
     // new kind wired into a page before its registry entry exists. Warn in dev so it's a visible signal
     // rather than a silent no-op where the user clicks save/delete and nothing happens.
     if (process.env.NODE_ENV !== 'production') {
-      console.warn(
+      logger.warn(
         `SaveProvisionedResourceDrawer: no registered provisioning kind for "${props.resource.apiVersion}"/"${props.resource.kind}"; the drawer will not render.`
       );
     }

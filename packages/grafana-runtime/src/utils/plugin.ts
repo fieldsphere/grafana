@@ -1,4 +1,4 @@
-import { type PanelPlugin } from '@grafana/data';
+import { type PanelPlugin, createStructuredLogger } from '@grafana/data';
 
 import { config } from '../config';
 
@@ -8,6 +8,8 @@ import { config } from '../config';
  *
  * @public
  */
+const logger = createStructuredLogger('grafana/runtime');
+
 export interface PluginCssOptions {
   light: string;
   dark: string;
@@ -25,7 +27,7 @@ export async function loadPluginCss(options: PluginCssOptions): Promise<System.M
     const cssPath = config.bootData.user.theme === 'light' ? options.light : options.dark;
     return window.System.import(cssPath);
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 }
 

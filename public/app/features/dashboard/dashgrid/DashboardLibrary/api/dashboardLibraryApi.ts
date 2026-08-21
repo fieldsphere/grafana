@@ -8,6 +8,10 @@ import { type GnetDashboard, type GnetDashboardsResponse, type Link } from '../t
  * Panel types that are known to allow JavaScript code execution.
  * These panels are filtered out due to security concerns.
  */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.dashboards');
+
 const UNSAFE_PANEL_TYPE_SLUGS = [
   'aceiot-svg-panel',
   'ae3e-plotly-panel',
@@ -102,7 +106,7 @@ export async function fetchCommunityDashboards(
   }
 
   // Fallback for unexpected response format
-  console.warn('Unexpected API response format from Grafana.com:', result);
+  logger.warn('Unexpected API response format from Grafana.com:', result);
   return {
     page: params.page,
     pages: 1,
@@ -127,7 +131,7 @@ export async function fetchProvisionedDashboards(datasourceType: string): Promis
     });
     return Array.isArray(dashboards) ? dashboards.filter((dashboard) => !dashboard.removed) : [];
   } catch (error) {
-    console.error('Error loading provisioned dashboards', error);
+    logger.error('Error loading provisioned dashboards', error);
     return [];
   }
 }
@@ -144,7 +148,7 @@ const filterNonSafeDashboards = (dashboards: GnetDashboard[], dataSourceType?: s
     if (unsafePanelTypes.length > 0) {
       unsafeDashboardsCount++;
 
-      console.warn(
+      logger.warn(
         `Community dashboard ${item.id} ${item.name} filtered out due to panel types ${item.panelTypeSlugs?.join(', ')} that can embed JavaScript`
       );
 

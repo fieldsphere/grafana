@@ -4,6 +4,9 @@ import { type Subscription } from 'rxjs';
 import { ScopedResourceClient } from 'app/features/apiserver/client';
 import { type ListOptions, type GeneratedResourceList as ResourceList } from 'app/features/apiserver/types';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.provisioning');
+
 interface OnCacheEntryAddedOptions<List = unknown> {
   onError?: (
     error: unknown,
@@ -108,7 +111,7 @@ export function createOnCacheEntryAdded<Spec, Status>(
           },
         });
     } catch (error) {
-      console.error('Error in onCacheEntryAdded:', error);
+      logger.error('Error in onCacheEntryAdded:', error);
       return;
     }
 

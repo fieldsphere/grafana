@@ -8,6 +8,7 @@ import {
   userHasPermission,
   userHasPermissionInMetadata,
   userHasAnyPermission,
+  createStructuredLogger,
 } from '@grafana/data';
 import { featureEnabled, getBackendSrv } from '@grafana/runtime';
 import { canRotateSessionToken, getSessionExpiry } from 'app/core/utils/auth';
@@ -18,6 +19,8 @@ import config from '../../core/config';
 
 // When set to auto, the interval will be based on the query range
 // NOTE: this is defined here rather than TimeSrv so we avoid circular dependencies
+const logger = createStructuredLogger('features.core');
+
 export const AutoRefreshInterval = 'auto';
 export const RedirectToUrlKey = 'redirectTo';
 
@@ -108,7 +111,7 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      logger.error(e);
     }
   }
 
@@ -263,7 +266,7 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        logger.error(e);
       });
   }
 }

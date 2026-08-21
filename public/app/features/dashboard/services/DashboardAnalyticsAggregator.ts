@@ -14,6 +14,10 @@ import {
 /**
  * Panel metrics structure for analytics
  */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.dashboards');
+
 interface PanelAnalyticsMetrics {
   panelId: string;
   panelKey: string;
@@ -109,7 +113,7 @@ export class DashboardAnalyticsAggregator implements performanceUtils.ScenePerfo
     // Aggregate panel metrics without verbose logging (handled by ScenePerformanceLogger)
     const panel = this.panelMetrics.get(data.panelKey);
     if (!panel) {
-      console.warn('Panel not found for operation completion:', data.panelKey);
+      logger.warn('Panel not found for operation completion:', data.panelKey);
       return;
     }
 

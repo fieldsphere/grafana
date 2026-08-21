@@ -17,6 +17,7 @@ import {
   LoadingState,
   type PanelData,
   type TimeRange,
+  createStructuredLogger,
 } from '@grafana/data';
 import { config, isMigrationHandler, migrateRequest, toDataQueryError, isExpressionReference } from '@grafana/runtime';
 import { backendSrv } from 'app/core/services/backend_srv';
@@ -26,6 +27,8 @@ import { type ExpressionQuery } from 'app/features/expressions/types';
 
 import { cancelNetworkRequestsOnUnsubscribe } from './processing/canceler';
 import { emitDataRequestEvent } from './queryAnalytics';
+
+const logger = createStructuredLogger('features.query');
 
 type MapOfResponsePackets = { [str: string]: DataQueryResponse };
 
@@ -161,7 +164,7 @@ export function runRequest(
     }),
     // handle errors
     catchError((err) => {
-      console.error('runRequest.catchError', err);
+      logger.error('runRequest.catchError', err);
       return of({
         ...state.panelData,
         state: LoadingState.Error,

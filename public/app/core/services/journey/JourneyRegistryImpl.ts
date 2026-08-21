@@ -10,6 +10,9 @@ import {
 import { type JourneyStartOptions } from '@grafana/runtime/internal';
 import { createDebugLog } from 'app/core/utils/debugLog';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.core');
+
 const debugLog = createDebugLog('journeyTracker', 'JourneyRegistry');
 
 const JOURNEY_TYPE_PATTERN = /^[a-z][a-z0-9_]*$/;
@@ -150,7 +153,7 @@ export class JourneyRegistryImpl implements JourneyRegistry {
     }
     for (const [type] of this.metadata) {
       if (!this.registeredTriggers.has(type)) {
-        console.warn(
+        logger.warn(
           `[JourneyRegistry] Registry entry "${type}" has no triggers registered. ` +
             `Did you forget to import its wiring module?`
         );

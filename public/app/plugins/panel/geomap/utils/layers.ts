@@ -3,7 +3,14 @@ import type BaseLayer from 'ol/layer/Base';
 import LayerGroup from 'ol/layer/Group';
 import WebGLPointsLayer from 'ol/layer/WebGLPoints';
 
-import { getFrameMatchers, type MapLayerHandler, type MapLayerOptions, type PanelData, textUtil } from '@grafana/data';
+import {
+  getFrameMatchers,
+  type MapLayerHandler,
+  type MapLayerOptions,
+  type PanelData,
+  textUtil,
+  createStructuredLogger,
+} from '@grafana/data';
 import { config } from '@grafana/runtime';
 
 import { type GeomapPanel } from '../GeomapPanel';
@@ -13,6 +20,8 @@ import { type MapLayerState } from '../types';
 
 import { captureLayerAttribution, updateAttributionVisibility } from './attribution';
 import { getNextLayerName } from './utils';
+
+const logger = createStructuredLogger('plugins.panels');
 
 const layerStateMap = new WeakMap<BaseLayer, MapLayerState>();
 
@@ -90,7 +99,7 @@ async function updateLayer(panel: GeomapPanel, uid: string, newOptions: MapLayer
     // initialize with new data
     applyLayerFilter(info.handler, newOptions, panel.props.data);
   } catch (err) {
-    console.warn('ERROR', err); // eslint-disable-line no-console
+    logger.warn('ERROR', err);
     return false;
   }
 

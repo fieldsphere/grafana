@@ -1,7 +1,7 @@
 import { css } from '@emotion/css';
 import { useMemo, useRef, useState } from 'react';
 
-import { DashboardCursorSync, type PanelProps, type TimeRange } from '@grafana/data';
+import { DashboardCursorSync, type PanelProps, type TimeRange, createStructuredLogger } from '@grafana/data';
 import { PanelDataErrorView } from '@grafana/runtime';
 import { type LegendPlacement, type ScaleDistributionConfig } from '@grafana/schema';
 import {
@@ -30,6 +30,8 @@ import { quantizeScheme } from './palettes';
 import { type Options } from './panelcfg.gen';
 import { calculateYSizeDivisor, prepConfig } from './utils';
 
+const logger = createStructuredLogger('plugins.panels');
+
 interface HeatmapPanelProps extends PanelProps<Options> {}
 
 type HeatmapDataForViz = Required<Pick<HeatmapData, 'heatmap'>> & Omit<HeatmapData, 'warning' | 'heatmap'>;
@@ -54,7 +56,7 @@ export const HeatmapPanel = (props: HeatmapPanelProps) => {
         timeRange,
       });
     } catch (ex) {
-      console.error(ex);
+      logger.error(ex);
       return { warning: `${ex}` };
     }
   }, [data.series, data.annotations, options, palette, theme, replaceVariables, timeRange]);

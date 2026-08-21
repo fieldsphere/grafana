@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { useId, useState } from 'react';
 import { useLocation } from 'react-router-dom-v5-compat';
 
-import { type SelectableValue, type GrafanaTheme2, type PluginType } from '@grafana/data';
+import { type SelectableValue, type GrafanaTheme2, type PluginType, createStructuredLogger } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { locationSearchToObject } from '@grafana/runtime';
 import { Select, RadioButtonGroup, useStyles2, Tooltip, Field, TextLink } from '@grafana/ui';
@@ -20,6 +20,8 @@ import { UpdateAllModal } from '../components/UpdateAllModal';
 import { Sorters } from '../helpers';
 import { useHistory } from '../hooks/useHistory';
 import { useGetAll, useGetUpdatable, useIsRemotePluginsAvailable } from '../state/hooks';
+
+const logger = createStructuredLogger('features.plugins');
 
 export default function Browse() {
   const location = useLocation();
@@ -72,7 +74,7 @@ export default function Browse() {
 
   // How should we handle errors?
   if (error) {
-    console.error(error.message);
+    logger.error(error.message);
     return null;
   }
 

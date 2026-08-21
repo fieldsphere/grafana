@@ -10,6 +10,10 @@ import useExtensionActions from './useExtensionActions';
 /**
  * Register navigation actions to different parts of grafana or some preferences stuff like themes.
  */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.commandPalette');
+
 export function useRegisterStaticActions() {
   const extensionActions = useExtensionActions();
   const staticActions = useStaticActions();
@@ -27,7 +31,7 @@ export function useRegisterRecentDashboardsActions() {
     getRecentDashboardActions()
       .then((recentDashboardActions) => setRecentDashboardActions(recentDashboardActions))
       .catch((err) => {
-        console.error('Error loading recent dashboard actions', err);
+        logger.error('Error loading recent dashboard actions', err);
       });
   }, []);
 

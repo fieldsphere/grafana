@@ -8,6 +8,9 @@ import { getValueMatcher } from '../matchers';
 import { DataTransformerID } from './ids';
 import { noopTransformer } from './noop';
 
+import { createStructuredLogger } from '../../utils/logger';
+const logger = createStructuredLogger('grafana/data');
+
 export enum FilterByValueType {
   exclude = 'exclude',
   include = 'include',
@@ -139,7 +142,7 @@ const createFilterValueMatchers = (
     const fieldIndex = fieldIndexByName[filter.fieldName] ?? -1;
 
     if (fieldIndex < 0) {
-      console.warn(`[FilterByValue] Could not find index for field name: ${filter.fieldName}`);
+      logger.warn(`[FilterByValue] Could not find index for field name: ${filter.fieldName}`);
       return noop;
     }
 

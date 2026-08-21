@@ -1,6 +1,6 @@
 import { defaults, each, sortBy } from 'lodash';
 
-import { type DataSourceRef, type VariableOption, VariableRefresh } from '@grafana/data';
+import { type DataSourceRef, type VariableOption, VariableRefresh, createStructuredLogger } from '@grafana/data';
 import { getDataSourceSrv } from '@grafana/runtime';
 import { getPanelPluginMeta } from '@grafana/runtime/internal';
 import { type Panel } from '@grafana/schema';
@@ -31,6 +31,8 @@ import { isConstant } from '../../../variables/guard';
 
 // This label is used to store the export label for a datasource when exporting a V2 dashboard for external sharing.
 // E.g. if a dashboard has two datasources with the same type, the export label will be used to distinguish them.
+const logger = createStructuredLogger('features.dashboard-scene');
+
 export const ExportLabel = 'grafana.app/export-label';
 
 // This label is used to store the original datasource display name when exporting a V2 dashboard.
@@ -357,7 +359,7 @@ export async function makeExportableV1(dashboard: DashboardModel) {
 
     return newObj;
   } catch (err) {
-    console.error('Export failed:', err);
+    logger.error('Export failed:', err);
     return {
       error: err,
     };
@@ -379,7 +381,7 @@ async function convertLibraryPanelToInlinePanel(libraryPanelElement: LibraryPane
     inlinePanel.spec.id = id;
     return inlinePanel;
   } catch (error) {
-    console.error(`Failed to load library panel ${libraryPanel.uid}:`, error);
+    logger.error(`Failed to load library panel ${libraryPanel.uid}:`, error);
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     dispatch(
@@ -600,7 +602,7 @@ export async function makeExportableV2(dashboard: DashboardV2Spec, isSharingExte
 
     return dashboard;
   } catch (err) {
-    console.error('Export failed:', err);
+    logger.error('Export failed:', err);
     return {
       error: err,
     };

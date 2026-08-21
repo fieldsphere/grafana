@@ -21,6 +21,9 @@ import type { NotebookScene } from 'app/features/notebook/scene/NotebookScene';
 
 import { allMutationCommands } from './commandRegistry';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.plugins');
+
 let _client: MutationClient | null = null;
 
 provideMutationClientFactory((sceneObject, resource) => {
@@ -33,7 +36,7 @@ provideMutationClientFactory((sceneObject, resource) => {
       _client = new DashboardMutationClient(sceneObject as DashboardScene);
     }
   } catch (error) {
-    console.error('Failed to register Dashboard Mutation API:', error);
+    logger.error('Failed to register Dashboard Mutation API:', error);
   }
 
   return () => {

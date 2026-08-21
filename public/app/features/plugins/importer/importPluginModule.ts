@@ -12,6 +12,9 @@ import { shouldLoadPluginInFrontendSandbox } from '../sandbox/sandboxPluginLoade
 import { addTranslationsToI18n } from './addTranslationsToI18n';
 import { type PluginImportInfo } from './types';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.plugins');
+
 export async function importPluginModule({
   path,
   pluginId,
@@ -78,7 +81,7 @@ export async function importPluginModule({
       errorMessage = `Could not load plugin. Updating the "${pluginName}" plugin to the latest version may fix the problem.`;
     }
     let error = new Error(errorMessage, { cause: e });
-    console.error(error);
+    logger.error(error);
     getLogger('features.plugins').logError(error, {
       path,
       pluginId,

@@ -40,6 +40,10 @@ import sanitizeOverFlowingChildren from './utils/sanitizeOverFlowingChildren';
  * At this point, it uses returningChildStartTime (startTime of spanC) to select another child that finished
  * immediately before the LFC's start.
  */
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.explore');
+
 const computeCriticalPath = (
   spanMap: Map<string, TraceSpan>,
   spanId: string,
@@ -104,7 +108,7 @@ function criticalPathForTrace(trace: Trace) {
       criticalPath = computeCriticalPath(sanitizedSpanMap, rootSpanId, criticalPath);
     } catch (error) {
       /* eslint-disable no-console */
-      console.log('error while computing critical path for a trace', error);
+      logger.info('error while computing critical path for a trace', error);
     }
   }
   return criticalPath;

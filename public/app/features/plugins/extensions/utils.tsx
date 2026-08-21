@@ -15,6 +15,7 @@ import {
   PluginExtensionTypes,
   type PluginMeta,
   urlUtil,
+  createStructuredLogger,
 } from '@grafana/data';
 import { reportInteraction, config } from '@grafana/runtime';
 import { getAppPluginMetas } from '@grafana/runtime/internal';
@@ -44,13 +45,15 @@ import { type ExtensionsLog, log as baseLog } from './logs/log';
 import { type AddedLinkRegistryItem } from './registry/AddedLinksRegistry';
 import { assertIsNotPromise, assertStringProps, isPromise } from './validators';
 
+const logger = createStructuredLogger('features.plugins');
+
 export function handleErrorsInFn(fn: Function, errorMessagePrefix = '') {
   return (...args: unknown[]) => {
     try {
       return fn(...args);
     } catch (e) {
       if (e instanceof Error) {
-        console.warn(`${errorMessagePrefix}${e.message}`);
+        logger.warn(`${errorMessagePrefix}${e.message}`);
       }
     }
   };
@@ -117,7 +120,7 @@ export const wrapWithPluginContext = <T,>({
     }
 
     if (error) {
-      log.error(`Could not fetch plugin meta information for "${pluginId}", aborting. (${error.message})`, {
+      logger.error(`Could not fetch plugin meta information for "${pluginId}", aborting. (${error.message})`, {
         stack: error.stack ?? '',
         message: error.message,
       });
@@ -125,7 +128,7 @@ export const wrapWithPluginContext = <T,>({
     }
 
     if (!fetchedPluginMeta) {
-      log.error(`Fetched plugin meta information is empty for "${pluginId}", aborting.`);
+      logger.error(`Fetched plugin meta information is empty for "${pluginId}", aborting.`);
       return null;
     }
 
@@ -309,7 +312,7 @@ export function getMutationObserverProxy<T extends object>(obj: T, options?: Pro
     defineProperty(target, prop, descriptor) {
       // because immer (used by RTK) calls Object.isFrozen and Object.freeze we know that defineProperty will be called
       // behind the scenes as well so we only log message with debug level to minimize the noise and false positives
-      log.debug(
+      logger.debug(
         `Attempted to define object property "${String(prop)}" from ${source} with id ${pluginId} and version ${pluginVersion}`,
         {
           stack: new Error().stack ?? '',
@@ -465,7 +468,7 @@ export function getLinkExtensionOverrides(
     };
   } catch (error) {
     if (error instanceof Error) {
-      log.error(`Failed to configure link with title "${config.title}"`, {
+      logger.error(`Failed to configure link with title "${config.title}"`, {
         stack: error.stack ?? '',
         message: error.message,
       });
@@ -526,13 +529,13 @@ function getLinkExtensionOnClick(
         },
       };
 
-      log.debug(`onClick '${config.title}' at '${extensionPointId}'`);
+      logger.debug(`onClick '${config.title}' at '${extensionPointId}'`);
       const result = onClick(event, helpers);
 
       if (isPromise(result)) {
         result.catch((error) => {
           if (error instanceof Error) {
-            log.error(error.message, {
+            logger.error(error.message, {
               message: error.message,
               stack: error.stack ?? '',
             });
@@ -541,7 +544,7 @@ function getLinkExtensionOnClick(
       }
     } catch (error) {
       if (error instanceof Error) {
-        log.error(error.message, {
+        logger.error(error.message, {
           message: error.message,
           stack: error.stack ?? '',
         });

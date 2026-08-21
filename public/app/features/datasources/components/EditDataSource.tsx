@@ -10,6 +10,7 @@ import {
   PluginExtensionPoints,
   type PluginExtensionDataSourceConfigContext,
   DataSourceUpdatedSuccessfully,
+  createStructuredLogger,
 } from '@grafana/data';
 import { usePluginComponents, type UsePluginComponentsResult } from '@grafana/runtime';
 import { useDataSourceInstanceSettings } from '@grafana/runtime/unstable';
@@ -44,6 +45,8 @@ import { DataSourcePluginSettings } from './DataSourcePluginSettings';
 import { DataSourcePluginState } from './DataSourcePluginState';
 import { DataSourceReadOnlyMessage } from './DataSourceReadOnlyMessage';
 import { DataSourceTestingStatus } from './DataSourceTestingStatus';
+
+const logger = createStructuredLogger('features.datasources');
 
 export type Props = {
   // The ID of the data source
@@ -196,7 +199,7 @@ export function EditDataSourceView({
         return;
       }
       retryAdvisorCheck(dataSource.uid).catch((error) => {
-        console.warn('Error retrying datasource advisor check', error);
+        logger.warn('Error retrying datasource advisor check', error);
       });
       onTest();
     },

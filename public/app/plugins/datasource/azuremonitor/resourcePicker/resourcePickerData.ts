@@ -26,6 +26,9 @@ import {
   type ResourceGraphFilters,
 } from '../types/types';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('plugins.datasources');
+
 const logsSupportedResourceTypesKusto = logsResourceTypes.map((v) => `"${v}"`).join(',');
 
 export type ResourcePickerQueryType = 'logs' | 'metrics' | 'traces';
@@ -355,7 +358,7 @@ export default class ResourcePickerData extends DataSourceWithBackend<
           }
         }
       } catch (e) {
-        console.warn(`Failed to fetch metric namespaces for region ${region}, falling back to predefined list:`, e);
+        logger.warn(`Failed to fetch metric namespaces for region ${region}, falling back to predefined list:`, e);
       }
     };
 

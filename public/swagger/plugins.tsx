@@ -5,6 +5,10 @@ import { CodeEditor, type Monaco } from '@grafana/ui';
 import { K8sNameLookup } from './K8sNameLookup';
 
 // swagger does not have types
+import { createStructuredLogger } from '@grafana/data';
+
+const logger = createStructuredLogger('features.app');
+
 interface UntypedProps {
   [k: string]: any;
 }
@@ -63,7 +67,7 @@ export const WrappedPlugins = function () {
           if (mime) {
             v = mime.get('schema').toJS();
           }
-          console.log('RequestBody', v, mime, props);
+          logger.info('RequestBody', v, mime, props);
         }
         // console.log('RequestBody PROPS', props);
         return (
@@ -75,7 +79,7 @@ export const WrappedPlugins = function () {
 
       modelExample: (Original: React.ElementType) => (props: UntypedProps) => {
         if (props.isExecute && props.schema) {
-          console.log('modelExample PROPS', props);
+          logger.info('modelExample PROPS', props);
           return (
             <SchemaContext.Provider value={props.schema.toJS()}>
               <Original {...props} />
@@ -128,7 +132,7 @@ export const WrappedPlugins = function () {
                     },
                   });
                 };
-                console.log('CodeEditor', schema);
+                logger.info('CodeEditor', schema);
 
                 return (
                   <CodeEditor

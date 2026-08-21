@@ -10,12 +10,15 @@ import {
   type LinkModelSupplier,
   type ScopedVar,
   type ScopedVars,
+  createStructuredLogger,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type VizPanel } from '@grafana/scenes';
 import { dashboardSceneGraph } from 'app/features/dashboard-scene/utils/dashboardSceneGraph';
 
 import { getLinkSrv } from './link_srv';
+
+const logger = createStructuredLogger('features.panel');
 
 interface SeriesVars {
   name?: string;
@@ -123,7 +126,7 @@ export const getFieldLinksSupplier = (value: FieldDisplay): LinkModelSupplier<Fi
           };
         }
       } else {
-        console.log('VALUE', value);
+        logger.info('VALUE', value);
       }
 
       const replace: InterpolateFunction = (value: string, vars: ScopedVars | undefined, fmt?: string | Function) => {

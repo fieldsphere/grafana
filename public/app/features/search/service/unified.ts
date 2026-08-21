@@ -12,6 +12,7 @@ import {
   DataFrameView,
   getDisplayProcessor,
   type SelectableValue,
+  createStructuredLogger,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getBackendSrv } from '@grafana/runtime';
@@ -34,6 +35,8 @@ import {
   type SearchResultMeta,
 } from './types';
 import { appendFrame, filterSearchResults, replaceCurrentFolderQuery } from './utils';
+
+const logger = createStructuredLogger('features.search');
 
 const searchURI = `${v0alphaBaseURL}/search`;
 
@@ -204,7 +207,7 @@ export class UnifiedSearcher implements GrafanaSearcher {
         const resp = await this.fetchResponse(nextPageUrl);
         const frame = toDashboardResults(resp, query.sort ?? '');
         if (!frame) {
-          console.log('no results', frame);
+          logger.info('no results', frame);
           return;
         }
 

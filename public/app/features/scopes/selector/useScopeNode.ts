@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 
-import { type ScopeNode } from '@grafana/data';
+import { type ScopeNode, createStructuredLogger } from '@grafana/data';
 
 import { useScopesServices } from '../ScopesContextProvider';
 
 // Light wrapper around the scopesSelectorService.getScopeNode to make it easier to use in the UI.
+const logger = createStructuredLogger('features.scopes');
+
 export function useScopeNode(scopeNodeId?: string) {
   const [node, setNode] = useState<ScopeNode | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +23,7 @@ export function useScopeNode(scopeNodeId?: string) {
         const node = await scopesSelectorService.getScopeNode(scopeNodeId);
         setNode(node);
       } catch (error) {
-        console.error('Failed to load node', error);
+        logger.error('Failed to load node', error);
       } finally {
         setIsLoading(false);
       }

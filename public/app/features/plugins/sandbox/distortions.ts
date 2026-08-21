@@ -61,6 +61,9 @@ import { logWarning, unboxRegexesFromMembraneProxy } from './utils';
  * The code in this file defines that generalDistortionMap.
  */
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('features.plugins');
+
 type DistortionMap = Map<
   unknown,
   (originalAttrOrMethod: unknown, pluginMeta: SandboxPluginMeta, sandboxEnv?: SandboxEnvironment) => unknown
@@ -140,7 +143,7 @@ function distortConsole(distortions: DistortionMap) {
       const pluginId = meta.id;
 
       function sandboxLog(...args: unknown[]) {
-        console.log(`[plugin ${pluginId}]`, ...args);
+        logger.info(`[plugin ${pluginId}]`, ...args);
       }
       return {
         log: sandboxLog,
@@ -170,7 +173,7 @@ function distortAlert(distortions: DistortionMap) {
     });
 
     return function (...args: unknown[]) {
-      console.log(`[plugin ${pluginId}]`, ...args);
+      logger.info(`[plugin ${pluginId}]`, ...args);
     };
   }
   const descriptor = Object.getOwnPropertyDescriptor(window, 'alert');

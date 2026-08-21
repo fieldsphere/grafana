@@ -7,6 +7,7 @@ import {
   type MetricFindValue,
   type SelectableValue,
   getDataSourceRef,
+  createStructuredLogger,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getDataSourceSrv, reportInteraction } from '@grafana/runtime';
@@ -15,6 +16,8 @@ import { OptionsPaneItemDescriptor } from 'app/features/dashboard/components/Pan
 
 import { AdHocOriginFiltersController } from '../components/AdHocOriginFiltersController';
 import { AdHocVariableForm } from '../components/AdHocVariableForm';
+
+const logger = createStructuredLogger('features.dashboard-scene');
 
 interface AdHocFiltersVariableEditorProps {
   variable: AdHocFiltersVariable;
@@ -173,7 +176,7 @@ export function AdHocFiltersVariableEditor(props: AdHocFiltersVariableEditorProp
 
 export function getAdHocFilterOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof AdHocFiltersVariable)) {
-    console.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
+    logger.warn('getAdHocFilterOptions: variable is not an AdHocFiltersVariable');
     return [];
   }
 

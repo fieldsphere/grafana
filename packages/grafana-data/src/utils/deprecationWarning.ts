@@ -1,5 +1,9 @@
 import { type KeyValue } from '../types/data';
 
+import { createStructuredLogger } from './logger';
+
+const logger = createStructuredLogger('grafana/data');
+
 // Avoid writing the warning message more than once every 10s
 const history: KeyValue<number> = {};
 
@@ -11,7 +15,7 @@ export const deprecationWarning = (file: string, oldName: string, newName?: stri
   const now = Date.now();
   const last = history[message];
   if (!last || now - last > 10000) {
-    console.warn(message);
+    logger.warn(message);
     history[message] = now;
   }
 };

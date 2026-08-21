@@ -10,7 +10,10 @@ import {
   type QueryResultMetaNotice,
   type QueryResultMetaStat,
   shallowCompare,
+  createStructuredLogger,
 } from '@grafana/data';
+
+const logger = createStructuredLogger('features.loki-helpers');
 
 function getFrameKey(frame: DataFrame): string | undefined {
   // Metric range query data
@@ -100,7 +103,7 @@ function mergeFrames(dest: DataFrame, source: DataFrame) {
   const sourceIdField = source.fields.find((field) => field.type === FieldType.string && field.name === 'id');
 
   if (!destTimeField || !sourceTimeField) {
-    console.error(new Error(`Time fields not found in the data frames`));
+    logger.error(new Error(`Time fields not found in the data frames`));
     return;
   }
 

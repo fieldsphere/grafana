@@ -1,4 +1,4 @@
-import { type AdHocVariableFilter, type TypedVariableModel } from '@grafana/data';
+import { type AdHocVariableFilter, type TypedVariableModel, createStructuredLogger } from '@grafana/data';
 import { config, getDataSourceSrv } from '@grafana/runtime';
 import {
   AdHocFiltersVariable,
@@ -25,6 +25,8 @@ import { migrateGroupByVariablesV1 } from '../serialization/groupByMigration';
 import { createSceneVariableFromVariableModel as createSceneVariableFromVariableModelV2 } from '../serialization/transformSaveModelSchemaV2ToScene';
 
 import { getCurrentValueForOldIntervalModel, getIntervalsFromQueryString } from './utils';
+
+const logger = createStructuredLogger('features.dashboard-scene');
 
 const DEFAULT_DATASOURCE = 'default';
 
@@ -80,7 +82,7 @@ export function createVariablesForDashboard(oldModel: DashboardModel, defaultVar
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        logger.error(err);
         return null;
       }
     })
@@ -93,7 +95,7 @@ export function createVariablesForDashboard(oldModel: DashboardModel, defaultVar
       try {
         return createSceneVariableFromVariableModelV2(v);
       } catch (err) {
-        console.error(err);
+        logger.error(err);
         return null;
       }
     })
@@ -139,7 +141,7 @@ export function createVariablesForSnapshot(oldModel: DashboardModel) {
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        logger.error(err);
         return null;
       }
     })

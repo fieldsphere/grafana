@@ -1,13 +1,15 @@
 import { css } from '@emotion/css';
 import { useCallback } from 'react';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { ClipboardButton, type CustomCellRendererProps, IconButton, useTheme2 } from '@grafana/ui';
 import { type LogsFrame } from 'app/features/logs/logsFrame';
 
 import { useLogDetailsContext } from '../LogDetailsContext';
 import { type BuildLinkToLogLine } from '../types';
+
+const logger = createStructuredLogger('plugins.panels');
 
 interface Props extends CustomCellRendererProps {
   buildLinkToLog?: BuildLinkToLogLine;
@@ -64,7 +66,7 @@ export function LogsTableRowActionButtons(props: Props) {
                 if (logId) {
                   return buildLinkToLog(logId) ?? '';
                 } else {
-                  console.error('failed to copy log line link!');
+                  logger.error('failed to copy log line link!');
                 }
                 return '';
               }}

@@ -33,6 +33,9 @@ import {
   updateConnectionsAfterGroupMove as sharedUpdateGroup,
 } from './connectionMovementUtils';
 
+import { createStructuredLogger } from '@grafana/data';
+const logger = createStructuredLogger('plugins.panels');
+
 const CONNECTION_VERTEX_ORTHO_TOLERANCE = 0.05; // Cartesian ratio against vertical or horizontal tolerance
 const CONNECTION_VERTEX_SNAP_TOLERANCE = (5 / 180) * Math.PI; // Multi-segment snapping angle in radians to trigger vertex removal
 
@@ -128,7 +131,7 @@ export class Connections2 {
     let element: ElementState | undefined = this.findElementTarget(event.target);
 
     if (!element) {
-      console.log('no element');
+      logger.info('no element');
       return;
     }
 
@@ -137,7 +140,7 @@ export class Connections2 {
     } else {
       this.connectionSource = element;
       if (!this.connectionSource) {
-        console.log('no connection source');
+        logger.info('no connection source');
         return;
       }
     }

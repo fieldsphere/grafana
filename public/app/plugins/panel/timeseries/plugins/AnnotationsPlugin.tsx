@@ -4,7 +4,7 @@ import { createPortal } from 'react-dom';
 import tinycolor from 'tinycolor2';
 import uPlot from 'uplot';
 
-import { colorManipulator, type DataFrame, type InterpolateFunction } from '@grafana/data';
+import { colorManipulator, type DataFrame, type InterpolateFunction, createStructuredLogger } from '@grafana/data';
 import { type TimeZone, type VizAnnotations } from '@grafana/schema';
 import {
   DEFAULT_ANNOTATION_COLOR,
@@ -28,6 +28,8 @@ import {
   shouldRenderAnnotationLine,
   shouldRenderAnnotationRegion,
 } from './utils';
+
+const logger = createStructuredLogger('plugins.panels');
 
 interface AnnotationsPluginProps {
   config: UPlotConfigBuilder;
@@ -200,7 +202,7 @@ export const AnnotationsPlugin = ({
                   try {
                     ctx.fillStyle = colorManipulator.alpha(color, regionOpacity ?? 0.1);
                   } catch (e) {
-                    console.error(`Invalid color: ${color}.`, e);
+                    logger.error(`Invalid color: ${color}.`, e);
                     ctx.fillStyle = colorManipulator.alpha(DEFAULT_ANNOTATION_COLOR_HEX8, regionOpacity ?? 0.1);
                   }
 
