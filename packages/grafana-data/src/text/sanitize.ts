@@ -2,9 +2,6 @@ import { sanitizeUrl as braintreeSanitizeUrl } from '@braintree/sanitize-url';
 import DOMPurify from 'dompurify';
 import * as xss from 'xss';
 
-import { createStructuredLogger } from '../utils/logger';
-const logger = createStructuredLogger('grafana/data');
-
 const XSSWL = Object.keys(xss.whiteList).reduce<xss.IWhiteList>((acc, element) => {
   acc[element] = xss.whiteList[element]?.concat(['class', 'style']);
   return acc;
@@ -75,7 +72,8 @@ export function sanitize(unsanitizedString: string): string {
       ADD_ATTR: ['target'],
     });
   } catch (error) {
-    logger.error('String could not be sanitized', unsanitizedString);
+    // Unsanitized input can contain user HTML/PII; keep it local, not Faro.
+    console.error('String could not be sanitized', unsanitizedString);
     return escapeHtml(unsanitizedString);
   } finally {
     DOMPurify.removeHook('afterSanitizeAttributes');
@@ -106,7 +104,8 @@ export function sanitizeTextPanelContent(unsanitizedString: string): string {
   try {
     return sanitizeTextPanelWhitelist.process(unsanitizedString);
   } catch (error) {
-    logger.error('String could not be sanitized', unsanitizedString);
+    // Unsanitized input can contain user HTML/PII; keep it local, not Faro.
+    console.error('String could not be sanitized', unsanitizedString);
     return 'Text string could not be sanitized';
   }
 }

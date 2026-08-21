@@ -18,13 +18,10 @@ import {
 import { type DataQueryResponseData } from '../types/datasource';
 import { type GraphSeriesXY, type GraphSeriesValue } from '../types/graph';
 import { type PanelData } from '../types/panel';
-import { createStructuredLogger } from '../utils/logger';
 
 import { arrayToDataFrame } from './ArrayDataFrame';
 import { dataFrameFromJSON } from './DataFrameJSON';
 import { guessFieldTypeForField, guessFieldTypes } from './guessFieldType';
-
-const logger = createStructuredLogger('grafana/data');
 
 function convertTableToDataFrame(table: TableData): DataFrame {
   const fields = table.columns.map((c) => {
@@ -217,7 +214,8 @@ export function toDataFrame(data: any): DataFrame {
     return arrayToDataFrame(data);
   }
 
-  logger.warn('Can not convert', data);
+  // `data` may be large or user-supplied; keep it local, not Faro.
+  console.warn('Can not convert', data);
   throw new Error('Unsupported data format');
 }
 

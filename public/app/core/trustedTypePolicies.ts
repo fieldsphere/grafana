@@ -1,7 +1,5 @@
-import { textUtil, createStructuredLogger } from '@grafana/data';
+import { textUtil } from '@grafana/data';
 import { config } from '@grafana/runtime';
-
-const logger = createStructuredLogger('features.core');
 
 const CSP_REPORT_ONLY_ENABLED = config.cspReportOnlyEnabled;
 
@@ -10,7 +8,9 @@ export const defaultTrustedTypesPolicy = {
     if (!CSP_REPORT_ONLY_ENABLED) {
       return string.replace(/<script/gi, '&lt;script');
     }
-    logger.error('[HTML not sanitized with Trusted Types]', string, source, sink);
+    // Keep this on console: report-only Trusted Types fires per HTML assignment
+    // and the raw string must not be forwarded to Faro.
+    console.error('[HTML not sanitized with Trusted Types]', string, source, sink);
     return string;
   },
   createScript: (string: string) => string,
@@ -18,7 +18,8 @@ export const defaultTrustedTypesPolicy = {
     if (!CSP_REPORT_ONLY_ENABLED) {
       return textUtil.sanitizeUrl(string);
     }
-    logger.error('[ScriptURL not sanitized with Trusted Types]', string, source, sink);
+    // Same as createHTML: local diagnostic only, never a remote Faro payload.
+    console.error('[ScriptURL not sanitized with Trusted Types]', string, source, sink);
     return string;
   },
 };
