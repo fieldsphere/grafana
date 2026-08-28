@@ -20,7 +20,8 @@ import {
 import { DashboardCursorSync } from '@grafana/schema';
 import { useStyles2 } from '@grafana/ui';
 import { createMutationClient } from 'app/features/dashboard-scene/mutation-api/clientBridge';
-import { getClosestVizPanel, getPanelIdForVizPanel } from 'app/features/dashboard-scene/utils/utils';
+import { getClosestVizPanel } from 'app/features/dashboard-scene/utils/utils';
+import { getPanelIdForVizPanel } from 'app/features/dashboard-scene/utils/utils-panels';
 
 import { canEditNotebooks } from '../permissions';
 
@@ -113,6 +114,12 @@ export class NotebookScene extends SceneObjectBase<NotebookSceneState> implement
         if (newState.body !== prevState.body || newState.isEditing !== prevState.isEditing) {
           newState.body.editModeChanged?.(Boolean(newState.isEditing));
         }
+        // `tags` is mirrored for the same reason and kept true the same way: this scene is what the
+        // save model reads, the layout manager is what the header renders. Pushing from here rather
+        // than from onTagsChange means an APPLY_NOTEBOOK_SPEC swap reaches the header too.
+        if (newState.body !== prevState.body || newState.tags !== prevState.tags) {
+          newState.body.setTags?.(newState.tags);
+        }
         // Every undo step puts a cell back into the body that recorded it. That body is gone now, so
         // the steps cannot run any more.
         if (newState.body !== prevState.body) {
@@ -166,12 +173,20 @@ export class NotebookScene extends SceneObjectBase<NotebookSceneState> implement
   };
 
   public onExitEditMode = () => {
-    this.state.body.commitContentEdits();
+    this.state.body.commitPendingEdits();
     this.setState({ isEditing: false });
     this.state.body.editModeChanged?.(false);
     // Leaving edit mode is a natural save point, and it is where changes stop counting. Without this, a
     // save still waiting on the debounce would sit there until the page unmounts.
     this.autosave.flush();
+  };
+
+  /**
+   * The scene stays the single writer for tags — it is what transformNotebookSceneToSaveModel reads.
+   * The layout manager's copy is refreshed by the subscription above, so the two cannot drift.
+   */
+  public onTagsChange = (tags: string[]) => {
+    this.setState({ tags });
   };
 
   public showModal(modal: SceneObject) {
