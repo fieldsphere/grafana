@@ -58,7 +58,11 @@ const (
 	NavIDCfgPlugins           = "cfg/plugins"
 	NavIDCfgAccess            = "cfg/access"
 	NavIDBookmarks            = "bookmarks"
+	NavIDLabs                 = "labs"
 )
+
+// WeightLabs is placed between Connections and Administration in the nav tree.
+const WeightLabs int64 = -1950
 
 type NavLink struct {
 	Id             string     `json:"id,omitempty"`
