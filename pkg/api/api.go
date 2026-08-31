@@ -534,6 +534,12 @@ func (hs *HTTPServer) registerRoutes() {
 
 		apiRoute.Post("/frontend-metrics", routing.Wrap(hs.PostFrontendMetrics))
 
+		// Feature Lab
+		apiRoute.Group("/featuremgmt", func(featureRoute routing.RouteRegister) {
+			featureRoute.Get("/features", authorize(ac.EvalPermission(ac.ActionFeatureManagementRead)), routing.Wrap(hs.GetFeatureToggles))
+			featureRoute.Put("/features/:name", authorize(ac.EvalPermission(ac.ActionFeatureManagementWrite)), routing.Wrap(hs.UpdateFeatureToggle))
+		})
+
 		apiRoute.Group("/live", func(liveRoute routing.RouteRegister) {
 			// Note: push and publish do not use the same auth.
 			// Publish is channel-based and uses per-channel PublishAuth from pipeline rules,

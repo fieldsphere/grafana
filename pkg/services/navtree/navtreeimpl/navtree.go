@@ -167,6 +167,10 @@ func (s *ServiceImpl) GetNavTree(c *contextmodel.ReqContext, prefs *pref.Prefere
 
 	treeRoot.AddSection(s.buildDataConnectionsNavLink(c))
 
+	if featureLabSection := s.buildFeatureLabNavLink(c); featureLabSection != nil {
+		treeRoot.AddSection(featureLabSection)
+	}
+
 	orgAdminNode, err := s.getAdminNode(c)
 
 	if orgAdminNode != nil && len(orgAdminNode.Children) > 0 {
@@ -638,5 +642,22 @@ func (s *ServiceImpl) buildDataConnectionsNavLink(c *contextmodel.ReqContext) *n
 		Url:        baseUrl,
 		Children:   children,
 		SortWeight: navtree.WeightDataConnections,
+	}
+}
+
+func (s *ServiceImpl) buildFeatureLabNavLink(c *contextmodel.ReqContext) *navtree.NavLink {
+	hasAccess := ac.HasAccess(s.accessControl, c)
+	if !hasAccess(ac.EvalPermission(ac.ActionFeatureManagementRead)) {
+		return nil
+	}
+
+	return &navtree.NavLink{
+		Text:       "Feature Lab",
+		SubTitle:   "View and manage feature flags",
+		Id:         navtree.NavIDFeatureLab,
+		Icon:       "flask",
+		Url:        s.cfg.AppSubURL + "/feature-lab",
+		SortWeight: navtree.WeightFeatureLab,
+		IsNew:      true,
 	}
 }

@@ -127,6 +127,19 @@ func (fm *FeatureManager) GetFlags() []FeatureFlag {
 	return v
 }
 
+// SetEnabled toggles a feature flag at runtime (in-memory only, resets on restart)
+func (fm *FeatureManager) SetEnabled(name string, enabled bool) error {
+	if _, ok := fm.flags[name]; !ok {
+		return fmt.Errorf("unknown feature flag: %s", name)
+	}
+	if enabled {
+		fm.enabled[name] = true
+	} else {
+		delete(fm.enabled, name)
+	}
+	return nil
+}
+
 // ############# Test Functions #############
 
 func WithFeatures(spec ...any) FeatureToggles {
