@@ -39,8 +39,10 @@ import { getSessionExpiry, hasRotatableSession } from 'app/core/utils/auth';
 import { loadUrlToken } from 'app/core/utils/urlToken';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
 import {
+  applyStarredFilter,
   type ApisSearchResponse,
   buildApisSearchUrl,
+  type LegacySearchQuery,
   hitsFromApisResponse,
   mapApisHitToLegacyItem,
 } from 'app/features/search/api/legacySearchAdapter';
@@ -672,11 +674,22 @@ export class BackendSrv implements BackendService {
    */
   async search(query: Parameters<typeof this.get>[1]): Promise<DashboardSearchItem[]> {
     deprecationWarning('backend_srv', 'search(query)', 'getGrafanaSearcher().search(query)');
-    const url = buildApisSearchUrl(query ?? {});
-    const rsp = await this.get<ApisSearchResponse | ApisSearchResponse['hits'] | { items?: ApisSearchResponse['hits'] }>(
-      url
-    );
-    return hitsFromApisResponse(rsp).map(mapApisHitToLegacyItem);
+    let starredUIDs: string[] = [];
+    try {
+      starredUIDs = (await this.get<string[]>('/api/user/stars')) ?? [];
+    } catch {
+      starredUIDs = [];
+    }
+    const filtered = applyStarredFilter((query ?? {}) as LegacySearchQuery, starredUIDs);
+    if (filtered === null) {
+      return [];
+    }
+    const url = buildApisSearchUrl(filtered);
+    const rsp = await this.get<
+      ApisSearchResponse | ApisSearchResponse['hits'] | { items?: ApisSearchResponse['hits'] }
+    >(url);
+    const starred = new Set(starredUIDs);
+    return hitsFromApisResponse(rsp).map((hit) => mapApisHitToLegacyItem(hit, starred));
   }
 
   /** @deprecated */

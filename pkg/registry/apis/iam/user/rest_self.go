@@ -5,14 +5,20 @@ import (
 	"encoding/json"
 	"net/http"
 	"strconv"
+	"time"
 
+	"github.com/ua-parser/uap-go/uaparser"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/rest"
 
 	iamv0 "github.com/grafana/grafana/apps/iam/pkg/apis/iam/v0alpha1"
+	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	"github.com/grafana/grafana/pkg/services/auth"
+	"github.com/grafana/grafana/pkg/services/authn"
+	"github.com/grafana/grafana/pkg/services/login"
+	"github.com/grafana/grafana/pkg/services/org"
 	"github.com/grafana/grafana/pkg/services/user"
 )
 
@@ -60,19 +66,26 @@ func (l *UserSessionList) DeepCopyObject() runtime.Object {
 }
 
 type UserSession struct {
-	ID        int64  `json:"id"`
-	CreatedAt int64  `json:"createdAt"`
-	SeenAt    int64  `json:"seenAt"`
-	ClientIP  string `json:"clientIp,omitempty"`
-	UserAgent string `json:"userAgent,omitempty"`
+	ID                     int64     `json:"id"`
+	IsActive               bool      `json:"isActive"`
+	ClientIP               string    `json:"clientIp"`
+	Device                 string    `json:"device"`
+	OperatingSystem        string    `json:"os"`
+	OperatingSystemVersion string    `json:"osVersion"`
+	Browser                string    `json:"browser"`
+	BrowserVersion         string    `json:"browserVersion"`
+	AuthModule             string    `json:"authModule,omitempty"`
+	CreatedAt              time.Time `json:"createdAt"`
+	SeenAt                 time.Time `json:"seenAt"`
 }
 
 type UserContextREST struct {
 	users user.Service
+	orgs  org.Service
 }
 
-func NewUserContextREST(users user.Service) *UserContextREST {
-	return &UserContextREST{users: users}
+func NewUserContextREST(users user.Service, orgs org.Service) *UserContextREST {
+	return &UserContextREST{users: users, orgs: orgs}
 }
 
 var (
@@ -106,6 +119,10 @@ func (s *UserContextREST) Connect(ctx context.Context, name string, _ runtime.Ob
 		}
 		if body.OrgID == 0 {
 			responder.Error(apierrors.NewBadRequest("orgId is required"))
+			return
+		}
+		if !userBelongsToOrg(req.Context(), s.orgs, u.ID, body.OrgID) {
+			responder.Error(apierrors.NewUnauthorized("Not a valid organization"))
 			return
 		}
 		if err := s.users.Update(req.Context(), &user.UpdateUserCommand{UserID: u.ID, OrgID: &body.OrgID}); err != nil {
@@ -216,18 +233,13 @@ func (s *UserSessionsREST) Connect(ctx context.Context, name string, _ runtime.O
 				responder.Error(err)
 				return
 			}
+			activeID := currentSessionID(req.Context())
 			items := make([]UserSession, 0, len(tokens))
 			for _, tok := range tokens {
 				if tok == nil {
 					continue
 				}
-				items = append(items, UserSession{
-					ID:        tok.Id,
-					CreatedAt: tok.CreatedAt,
-					SeenAt:    tok.SeenAt,
-					ClientIP:  tok.ClientIp,
-					UserAgent: tok.UserAgent,
-				})
+				items = append(items, mapUserSession(req.Context(), s.tokens, tok, activeID))
 			}
 			responder.Object(http.StatusOK, &UserSessionList{
 				TypeMeta: metav1.TypeMeta{Kind: "UserSessionList", APIVersion: iamv0.APIVERSION},
@@ -267,4 +279,79 @@ func mapUserError(name string, err error) error {
 		return apierrors.NewNotFound(iamv0.UserResourceInfo.GroupResource(), name)
 	}
 	return err
+}
+
+func userBelongsToOrg(ctx context.Context, orgs org.Service, userID, orgID int64) bool {
+	if orgs == nil {
+		return false
+	}
+	result, err := orgs.GetUserOrgList(ctx, &org.GetUserOrgListQuery{UserID: userID})
+	if err != nil {
+		return false
+	}
+	for _, other := range result {
+		if other.OrgID == orgID {
+			return true
+		}
+	}
+	return false
+}
+
+func currentSessionID(ctx context.Context) int64 {
+	u, err := identity.GetRequester(ctx)
+	if err != nil {
+		return 0
+	}
+	id, ok := u.(*authn.Identity)
+	if !ok || id.SessionToken == nil {
+		return 0
+	}
+	return id.SessionToken.Id
+}
+
+func mapUserSession(ctx context.Context, tokens auth.UserTokenService, tok *auth.UserToken, activeID int64) UserSession {
+	parser := uaparser.NewFromSaved()
+	client := parser.Parse(tok.UserAgent)
+
+	osVersion := ""
+	if client.Os.Major != "" {
+		osVersion = client.Os.Major
+		if client.Os.Minor != "" {
+			osVersion = osVersion + "." + client.Os.Minor
+		}
+	}
+	browserVersion := ""
+	if client.UserAgent.Major != "" {
+		browserVersion = client.UserAgent.Major
+		if client.UserAgent.Minor != "" {
+			browserVersion = browserVersion + "." + client.UserAgent.Minor
+		}
+	}
+
+	createdAt := time.Unix(tok.CreatedAt, 0)
+	seenAt := time.Unix(tok.SeenAt, 0)
+	if tok.SeenAt == 0 {
+		seenAt = createdAt
+	}
+
+	authModule := ""
+	if tokens != nil && tok.ExternalSessionId != 0 {
+		if externalSession, err := tokens.GetExternalSession(ctx, tok.ExternalSessionId); err == nil {
+			authModule = login.GetAuthProviderLabel(externalSession.AuthModule)
+		}
+	}
+
+	return UserSession{
+		ID:                     tok.Id,
+		IsActive:               activeID != 0 && tok.Id == activeID,
+		ClientIP:               tok.ClientIp,
+		Device:                 client.Device.ToString(),
+		OperatingSystem:        client.Os.Family,
+		OperatingSystemVersion: osVersion,
+		Browser:                client.UserAgent.Family,
+		BrowserVersion:         browserVersion,
+		AuthModule:             authModule,
+		CreatedAt:              createdAt,
+		SeenAt:                 seenAt,
+	}
 }

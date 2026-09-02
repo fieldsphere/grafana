@@ -743,7 +743,7 @@ func (b *IdentityAccessManagementAPIBuilder) UpdateUsersAPIGroup(opts builder.AP
 	}
 
 	if b.userService != nil {
-		storage[userResource.StoragePath("context")] = user.NewUserContextREST(b.userService)
+		storage[userResource.StoragePath("context")] = user.NewUserContextREST(b.userService, b.orgService)
 		storage[userResource.StoragePath("password")] = user.NewUserPasswordREST(b.userService)
 	}
 	if b.userService != nil && b.tokenService != nil {

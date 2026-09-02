@@ -1,6 +1,7 @@
 import { DashboardSearchItemType } from '../types';
 
 import {
+  applyStarredFilter,
   buildApisSearchUrl,
   hitsFromApisResponse,
   mapApisHitToLegacyItem,
@@ -70,6 +71,29 @@ describe('legacySearchAdapter', () => {
       tags: ['prod'],
       isStarred: false,
       folderUid: 'ops',
+    });
+  });
+
+  it('marks hits as starred when the uid is in the starred set', () => {
+    const item = mapApisHitToLegacyItem(
+      {
+        resource: 'dashboards',
+        name: 'abc',
+        title: 'CPU',
+      },
+      ['abc']
+    );
+    expect(item.isStarred).toBe(true);
+  });
+
+  it('resolves starred=true onto name filters and returns null when nothing is starred', () => {
+    expect(applyStarredFilter({ starred: true, query: 'cpu' }, [])).toBeNull();
+    expect(applyStarredFilter({ starred: true, query: 'cpu' }, ['dash-1', 'dash-2'])).toEqual({
+      query: 'cpu',
+      dashboardUIDs: ['dash-1', 'dash-2'],
+    });
+    expect(applyStarredFilter({ starred: true, dashboardUIDs: ['dash-1', 'other'] }, ['dash-1'])).toEqual({
+      dashboardUIDs: ['dash-1'],
     });
   });
 

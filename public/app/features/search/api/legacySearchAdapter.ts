@@ -60,7 +60,7 @@ export function mapLegacySearchQuery(query: LegacySearchQuery = {}): URLSearchPa
     params.append('folder', folder);
   }
 
-  for (const name of [...toArray(query.dashboardUIDs), ...toArray(query.dashboardUID)]) {
+  for (const name of resolveSearchNames(query)) {
     params.append('name', name);
   }
 
@@ -105,9 +105,10 @@ export function mapLegacySort(sort?: string): string | undefined {
   return sort.replace('_sort', '').replace('name', 'title');
 }
 
-export function mapApisHitToLegacyItem(hit: ApisSearchHit): DashboardSearchItem {
+export function mapApisHitToLegacyItem(hit: ApisSearchHit, starredUIDs?: Iterable<string>): DashboardSearchItem {
   const isFolder = hit.resource === 'folders' || hit.resource === 'folder';
   const url = hit.url || (isFolder ? `/dashboards/f/${hit.name}` : `/d/${hit.name}`);
+  const starred = starredUIDs instanceof Set ? starredUIDs : new Set(starredUIDs ?? []);
   return {
     uid: hit.name,
     title: hit.title,
@@ -115,9 +116,30 @@ export function mapApisHitToLegacyItem(hit: ApisSearchHit): DashboardSearchItem 
     url,
     type: isFolder ? DashboardSearchItemType.DashFolder : DashboardSearchItemType.DashDB,
     tags: hit.tags ?? [],
-    isStarred: false,
+    isStarred: starred.has(hit.name),
     folderUid: hit.folder || undefined,
   };
+}
+
+/** Returns null when a starred search has no matching UIDs and should yield an empty result. */
+export function applyStarredFilter(query: LegacySearchQuery, starredUIDs: string[]): LegacySearchQuery | null {
+  if (!isTruthy(query.starred)) {
+    return query;
+  }
+  const starred = new Set(starredUIDs);
+  const existing = resolveSearchNames({ ...query, starred: false });
+  const names = existing.length ? existing.filter((uid) => starred.has(uid)) : [...starred];
+  if (names.length === 0) {
+    return null;
+  }
+  const next: LegacySearchQuery = { ...query, dashboardUIDs: names };
+  delete next.starred;
+  delete next.dashboardUID;
+  return next;
+}
+
+function resolveSearchNames(query: LegacySearchQuery): string[] {
+  return [...toArray(query.dashboardUIDs), ...toArray(query.dashboardUID)];
 }
 
 type TrashListItem = {

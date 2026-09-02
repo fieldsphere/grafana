@@ -110,6 +110,7 @@ func schemaOrgMembershipSpec() common.OpenAPIDefinition {
 				"orgRef":  {SchemaProps: spec.SchemaProps{Type: []string{"string"}}},
 				"userRef": {SchemaProps: spec.SchemaProps{Type: []string{"string"}}},
 				"role":    {SchemaProps: spec.SchemaProps{Type: []string{"string"}}},
+				"orgName": {SchemaProps: spec.SchemaProps{Type: []string{"string"}}},
 			},
 			Required: []string{"orgRef", "userRef", "role"},
 		}},

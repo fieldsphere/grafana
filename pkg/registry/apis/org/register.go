@@ -13,7 +13,9 @@ import (
 	"k8s.io/kube-openapi/pkg/common"
 
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
+	"github.com/grafana/grafana/pkg/apimachinery/utils"
 	orgv0 "github.com/grafana/grafana/pkg/apis/org/v0alpha1"
+	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/apiserver/builder"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/org"
@@ -95,27 +97,67 @@ func (b *OrgAPIBuilder) GetAuthorizer() authorizer.Authorizer {
 			return authorizer.DecisionDeny, "global org is grafana-admin only", nil
 		}
 
-		if u.GetOrgRole() != identity.RoleAdmin {
-			return authorizer.DecisionDeny, "organization admin required", nil
-		}
-
 		switch attr.GetResource() {
 		case "organizations":
-			if attr.GetName() == "" || attr.GetName() == strconv.FormatInt(u.GetOrgID(), 10) {
-				return authorizer.DecisionAllow, "", nil
-			}
-			return authorizer.DecisionDeny, "cannot access another organization", nil
+			return authorizeOrganization(u, attr)
 		case "orgmemberships":
-			orgID, _, parseErr := parseMembershipName(attr.GetName())
-			if parseErr != nil && attr.GetVerb() != "list" && attr.GetVerb() != "create" {
-				return authorizer.DecisionDeny, "invalid membership name", nil
-			}
-			if parseErr == nil && orgID != u.GetOrgID() {
-				return authorizer.DecisionDeny, "cannot manage another organization's membership", nil
-			}
-			return authorizer.DecisionAllow, "", nil
+			return authorizeOrgMembership(u, attr)
 		default:
 			return authorizer.DecisionDeny, "forbidden", nil
 		}
 	})
+}
+
+func authorizeOrganization(u identity.Requester, attr authorizer.Attributes) (authorizer.Decision, string, error) {
+	switch attr.GetVerb() {
+	case utils.VerbList:
+		if hasGlobalAction(u, accesscontrol.ActionOrgsRead) {
+			return authorizer.DecisionAllow, "", nil
+		}
+		return authorizer.DecisionDeny, "orgs:read required to list organizations", nil
+	case utils.VerbCreate:
+		if hasAction(u, accesscontrol.ActionOrgsCreate) {
+			return authorizer.DecisionAllow, "", nil
+		}
+		return authorizer.DecisionDeny, "orgs:create required to create organizations", nil
+	default:
+		if attr.GetName() == "" {
+			return authorizer.DecisionDeny, "organization name required", nil
+		}
+		if attr.GetName() != strconv.FormatInt(u.GetOrgID(), 10) {
+			return authorizer.DecisionDeny, "cannot access another organization", nil
+		}
+		if u.GetOrgRole() != identity.RoleAdmin {
+			return authorizer.DecisionDeny, "organization admin required", nil
+		}
+		return authorizer.DecisionAllow, "", nil
+	}
+}
+
+func authorizeOrgMembership(u identity.Requester, attr authorizer.Attributes) (authorizer.Decision, string, error) {
+	switch attr.GetVerb() {
+	case utils.VerbList:
+		// Storage scopes list-by-user to the caller and list-by-org to the caller's org.
+		return authorizer.DecisionAllow, "", nil
+	case utils.VerbCreate:
+		if u.GetOrgRole() != identity.RoleAdmin {
+			return authorizer.DecisionDeny, "organization admin required", nil
+		}
+		return authorizer.DecisionAllow, "", nil
+	default:
+		orgID, userRef, parseErr := parseMembershipName(attr.GetName())
+		if parseErr != nil {
+			return authorizer.DecisionDeny, "invalid membership name", nil
+		}
+		if attr.GetVerb() == utils.VerbGet && isSelfUser(u, userRef) {
+			return authorizer.DecisionAllow, "", nil
+		}
+		if orgID != u.GetOrgID() {
+			return authorizer.DecisionDeny, "cannot manage another organization's membership", nil
+		}
+		if u.GetOrgRole() != identity.RoleAdmin {
+			return authorizer.DecisionDeny, "organization admin required", nil
+		}
+		return authorizer.DecisionAllow, "", nil
+	}
 }

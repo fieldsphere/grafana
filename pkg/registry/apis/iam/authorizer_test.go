@@ -12,6 +12,7 @@ import (
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 
 	iamv0 "github.com/grafana/grafana/apps/iam/pkg/apis/iam/v0alpha1"
+	"github.com/grafana/grafana/pkg/apimachinery/identity"
 )
 
 // fakeAccessClient is a mock implementation of types.AccessClient for testing.
@@ -109,6 +110,30 @@ func TestAllowSelfAuthorizerAllowsCurrentUserPermissions(t *testing.T) {
 	require.Equal(t, authorizer.DecisionAllow, decision)
 }
 
+func TestAllowSelfAuthorizerAllowsSelfServiceSubresources(t *testing.T) {
+	base := authorizer.AuthorizerFunc(func(context.Context, authorizer.Attributes) (authorizer.Decision, string, error) {
+		return authorizer.DecisionDeny, "base authorizer", nil
+	})
+	authz := allowSelfAuthorizer(base)
+	ctx := identity.WithRequester(context.Background(), &identity.StaticRequester{
+		Type:    types.TypeUser,
+		UserUID: "u5",
+		UserID:  5,
+	})
+
+	for _, attr := range []authorizer.AttributesRecord{
+		{ResourceRequest: true, Verb: "update", Resource: iamv0.UserResourceInfo.GetName(), Subresource: "password", Name: "u5"},
+		{ResourceRequest: true, Verb: "create", Resource: iamv0.UserResourceInfo.GetName(), Subresource: "context", Name: "u5"},
+		{ResourceRequest: true, Verb: "get", Resource: iamv0.UserResourceInfo.GetName(), Subresource: "sessions", Name: "u5"},
+		{ResourceRequest: true, Verb: "delete", Resource: iamv0.UserResourceInfo.GetName(), Subresource: "sessions", Name: "u5"},
+		{ResourceRequest: true, Verb: "get", Resource: iamv0.UserResourceInfo.GetName(), Subresource: "teams", Name: "u5"},
+	} {
+		decision, _, err := authz.Authorize(ctx, attr)
+		require.NoError(t, err)
+		require.Equal(t, authorizer.DecisionAllow, decision, attr.GetSubresource())
+	}
+}
+
 func TestAllowSelfAuthorizerDelegatesOtherRequests(t *testing.T) {
 	base := authorizer.AuthorizerFunc(func(context.Context, authorizer.Attributes) (authorizer.Decision, string, error) {
 		return authorizer.DecisionDeny, "base authorizer", nil
@@ -120,6 +145,7 @@ func TestAllowSelfAuthorizerDelegatesOtherRequests(t *testing.T) {
 		{ResourceRequest: true, Verb: "update", Resource: "users", Subresource: "permissions", Name: "~"},
 		{ResourceRequest: true, Verb: "get", Resource: "users", Subresource: "permissions", Name: "u1"},
 		{ResourceRequest: true, Verb: "get", Resource: "users", Subresource: "other", Name: "~"},
+		{ResourceRequest: true, Verb: "update", Resource: "users", Subresource: "password", Name: "other"},
 	} {
 		decision, reason, err := authz.Authorize(ctx, attr)
 		require.NoError(t, err)

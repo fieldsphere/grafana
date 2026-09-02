@@ -36,12 +36,12 @@ function loadTeams(): Promise<Team[]> {
 async function loadOrgs(): Promise<UserOrg[]> {
   if (isOrgsApiEnabled()) {
     const uid = contextSrv.user.uid;
-    const list = await getBackendSrv().get<{ items?: Array<{ spec?: { orgRef?: string; role?: string } }> }>(
-      `${orgMembershipUrl()}?fieldSelector=spec.userRef=${uid}`
-    );
+    const list = await getBackendSrv().get<{
+      items?: Array<{ spec?: { orgRef?: string; orgName?: string; role?: string } }>;
+    }>(`${orgMembershipUrl()}?fieldSelector=spec.userRef=${uid}`);
     return (list.items ?? []).map((item) => ({
       orgId: Number(item.spec?.orgRef),
-      name: item.spec?.orgRef ?? '',
+      name: item.spec?.orgName || item.spec?.orgRef || '',
       role: item.spec?.role ?? '',
     })) as UserOrg[];
   }

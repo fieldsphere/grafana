@@ -66,6 +66,9 @@ type OrgMembershipSpec struct {
 	UserRef string `json:"userRef"`
 	// Role is None, Viewer, Editor, or Admin.
 	Role string `json:"role"`
+	// OrgName is the organization display name. Set on list-by-user so clients
+	// can render the org switcher without a second organizations lookup.
+	OrgName string `json:"orgName,omitempty"`
 }
 
 func (OrgMembershipSpec) OpenAPIModelName() string {

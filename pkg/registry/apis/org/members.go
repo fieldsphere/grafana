@@ -13,6 +13,7 @@ import (
 	"k8s.io/apimachinery/pkg/selection"
 	"k8s.io/apiserver/pkg/registry/rest"
 
+	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	orgv0 "github.com/grafana/grafana/pkg/apis/org/v0alpha1"
 	"github.com/grafana/grafana/pkg/services/org"
 	"github.com/grafana/grafana/pkg/services/user"
@@ -69,12 +70,19 @@ func (s *membershipStorage) Get(ctx context.Context, name string, _ *metav1.GetO
 }
 
 func (s *membershipStorage) List(ctx context.Context, options *metainternalversion.ListOptions) (runtime.Object, error) {
+	requester, err := identity.GetRequester(ctx)
+	if err != nil {
+		return nil, apierrors.NewUnauthorized("valid user is required")
+	}
 	orgID, userRef := selectorsFromList(options)
 	list := &orgv0.OrgMembershipList{
 		TypeMeta: metav1.TypeMeta{Kind: "OrgMembershipList", APIVersion: orgv0.APIVERSION},
 	}
 
 	if orgID == 0 && userRef != "" {
+		if !requester.GetIsGrafanaAdmin() && !isSelfUser(requester, userRef) {
+			return nil, apierrors.NewForbidden(orgv0.OrgMembershipResourceInfo.GroupResource(), "", fmt.Errorf("cannot list another user's memberships"))
+		}
 		u, err := s.resolveUser(ctx, userRef)
 		if err != nil {
 			return nil, err
@@ -91,6 +99,7 @@ func (s *membershipStorage) List(ctx context.Context, options *metainternalversi
 					OrgRef:  strconv.FormatInt(o.OrgID, 10),
 					UserRef: userRef,
 					Role:    string(o.Role),
+					OrgName: o.Name,
 				},
 			})
 		}
@@ -101,11 +110,19 @@ func (s *membershipStorage) List(ctx context.Context, options *metainternalversi
 		return nil, apierrors.NewBadRequest("list orgmemberships requires fieldSelector spec.orgRef=<id> or spec.userRef=<uid>")
 	}
 
+	if !requester.GetIsGrafanaAdmin() && orgID != requester.GetOrgID() {
+		return nil, apierrors.NewForbidden(orgv0.OrgMembershipResourceInfo.GroupResource(), "", fmt.Errorf("cannot list another organization's membership"))
+	}
+	if !requester.GetIsGrafanaAdmin() && requester.GetOrgRole() != identity.RoleAdmin {
+		return nil, apierrors.NewForbidden(orgv0.OrgMembershipResourceInfo.GroupResource(), "", fmt.Errorf("organization admin required"))
+	}
+
 	result, err := s.orgs.SearchOrgUsers(ctx, &org.SearchOrgUsersQuery{
 		OrgID: orgID,
 		Query: userRef,
 		Limit: 1000,
 		Page:  1,
+		User:  requester,
 	})
 	if err != nil {
 		return nil, err
@@ -135,6 +152,18 @@ func (s *membershipStorage) Create(ctx context.Context, obj runtime.Object, _ re
 	orgID, err := parseOrgID(m.Spec.OrgRef)
 	if err != nil {
 		return nil, apierrors.NewBadRequest(err.Error())
+	}
+	requester, err := identity.GetRequester(ctx)
+	if err != nil {
+		return nil, apierrors.NewUnauthorized("valid user is required")
+	}
+	if !requester.GetIsGrafanaAdmin() {
+		if requester.GetOrgRole() != identity.RoleAdmin {
+			return nil, apierrors.NewForbidden(orgv0.OrgMembershipResourceInfo.GroupResource(), m.Name, fmt.Errorf("organization admin required"))
+		}
+		if orgID != requester.GetOrgID() {
+			return nil, apierrors.NewForbidden(orgv0.OrgMembershipResourceInfo.GroupResource(), m.Name, fmt.Errorf("cannot add members to another organization"))
+		}
 	}
 	u, err := s.resolveUser(ctx, m.Spec.UserRef)
 	if err != nil {
@@ -209,12 +238,16 @@ func (s *membershipStorage) lookupMember(ctx context.Context, orgID int64, userR
 	if err != nil {
 		return nil, err
 	}
-	result, err := s.orgs.SearchOrgUsers(ctx, &org.SearchOrgUsersQuery{
+	query := &org.SearchOrgUsersQuery{
 		OrgID:  orgID,
 		UserID: u.ID,
 		Limit:  1,
 		Page:   1,
-	})
+	}
+	if requester, reqErr := identity.GetRequester(ctx); reqErr == nil {
+		query.User = requester
+	}
+	result, err := s.orgs.SearchOrgUsers(ctx, query)
 	if err != nil {
 		return nil, err
 	}

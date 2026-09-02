@@ -13,6 +13,7 @@ import (
 
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	orgv0 "github.com/grafana/grafana/pkg/apis/org/v0alpha1"
+	"github.com/grafana/grafana/pkg/services/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/org"
 )
 
@@ -74,7 +75,12 @@ func (s *orgStorage) List(ctx context.Context, options *metainternalversion.List
 	if options != nil && options.Limit > 0 {
 		limit = int(options.Limit)
 	}
-	orgs, err := s.service.Search(ctx, &org.SearchOrgsQuery{Limit: limit})
+	query := &org.SearchOrgsQuery{Limit: limit}
+	if requester, err := identity.GetRequester(ctx); err == nil && requester != nil &&
+		!requester.GetIsGrafanaAdmin() && !hasGlobalAction(requester, accesscontrol.ActionOrgsRead) {
+		query.IDs = []int64{requester.GetOrgID()}
+	}
+	orgs, err := s.service.Search(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -102,6 +108,9 @@ func (s *orgStorage) Create(ctx context.Context, obj runtime.Object, _ rest.Vali
 	requester, err := identity.GetRequester(ctx)
 	if err != nil {
 		return nil, apierrors.NewUnauthorized("valid user is required")
+	}
+	if !requester.GetIsGrafanaAdmin() && !hasAction(requester, accesscontrol.ActionOrgsCreate) {
+		return nil, apierrors.NewForbidden(orgv0.OrganizationResourceInfo.GroupResource(), o.Name, fmt.Errorf("orgs:create required to create organizations"))
 	}
 	userID, err := identity.UserIdentifier(requester.GetID())
 	if err != nil {

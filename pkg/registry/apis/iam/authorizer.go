@@ -202,49 +202,75 @@ func newTeamAuthorizer(accessClient authlib.AccessClient) authorizer.Authorizer 
 	return allowListAuthorizer(base)
 }
 
-// allowSelfAuthorizer allows any authenticated identity to GET the current-user
-// endpoints (users/~ and users/~/permissions). Those handlers only return data
-// for the caller derived from context, so they need no users:read permission.
+// allowSelfAuthorizer allows any authenticated identity to reach current-user
+// endpoints that only act on the caller. users/~ and users/~/permissions are
+// GET-only. password/context/sessions/teams are allowed when the name is the
+// requester's UID (or ~).
 func allowSelfAuthorizer(base authorizer.Authorizer) authorizer.Authorizer {
 	return authorizer.AuthorizerFunc(func(ctx context.Context, attr authorizer.Attributes) (authorizer.Decision, string, error) {
-		if attr.IsResourceRequest() && attr.GetResource() == iamv0.UserResourceInfo.GetName() &&
-			(attr.GetSubresource() == "" || attr.GetSubresource() == "permissions") && attr.GetName() == display.CurrentUserName &&
-			attr.GetVerb() == utils.VerbGet {
-			if _, ok := authlib.AuthInfoFrom(ctx); ok {
-				return authorizer.DecisionAllow, "", nil
+		if !attr.IsResourceRequest() || attr.GetResource() != iamv0.UserResourceInfo.GetName() {
+			return base.Authorize(ctx, attr)
+		}
+		ident, ok := authlib.AuthInfoFrom(ctx)
+		if !ok {
+			if attr.GetName() == display.CurrentUserName &&
+				(attr.GetSubresource() == "" || attr.GetSubresource() == "permissions") &&
+				attr.GetVerb() == utils.VerbGet {
+				return authorizer.DecisionDeny, "cannot read current user without an identity", nil
 			}
-			return authorizer.DecisionDeny, "cannot read current user without an identity", nil
+			return base.Authorize(ctx, attr)
+		}
+
+		name := attr.GetName()
+		sub := attr.GetSubresource()
+		verb := attr.GetVerb()
+
+		if name == display.CurrentUserName && (sub == "" || sub == "permissions") && verb == utils.VerbGet {
+			return authorizer.DecisionAllow, "", nil
+		}
+		if isSelfResourceName(ident, name) && isAllowedSelfService(sub, verb) {
+			return authorizer.DecisionAllow, "", nil
 		}
 		return base.Authorize(ctx, attr)
 	})
 }
 
-// newUserAuthorizer creates an authorizer for users that handles the "teams" and "status" subresources.
+func isSelfResourceName(ident authlib.AuthInfo, name string) bool {
+	if name == "" {
+		return false
+	}
+	if name == display.CurrentUserName {
+		return true
+	}
+	_, uid, err := authlib.ParseTypeID(ident.GetUID())
+	if err != nil {
+		return name == ident.GetUID()
+	}
+	return name == uid
+}
+
+func isAllowedSelfService(sub, verb string) bool {
+	switch sub {
+	case "teams":
+		return verb == utils.VerbGet
+	case "password":
+		return verb == utils.VerbUpdate
+	case "context":
+		return verb == utils.VerbCreate
+	case "sessions":
+		return verb == utils.VerbGet || verb == utils.VerbDelete
+	default:
+		return false
+	}
+}
+
+// newUserAuthorizer creates an authorizer for users that handles the "teams",
+// "status", and self-service (password/context/sessions) subresources.
 // "teams" is read-only (Connecter/GET), so it checks user get.
 // "status" supports both GET and PUT, so the check verb mirrors the request verb.
 func newUserAuthorizer(accessClient authlib.AccessClient) authorizer.Authorizer {
-	base := gfauthorizer.NewResourceAuthorizerWithSubresourceHandlers(accessClient, map[string]gfauthorizer.SubresourceCheck{
-		"teams": func(ctx context.Context, ident authlib.AuthInfo, attr authorizer.Attributes) (authorizer.Decision, string, error) {
-			res, err := accessClient.Check(ctx, ident, authlib.CheckRequest{
-				Verb:      utils.VerbGet,
-				Group:     attr.GetAPIGroup(),
-				Resource:  attr.GetResource(),
-				Namespace: attr.GetNamespace(),
-				Name:      attr.GetName(),
-			}, "")
-			if err != nil {
-				return authorizer.DecisionDeny, "", err
-			}
-			if !res.Allowed {
-				return authorizer.DecisionDeny, "requires user get", nil
-			}
-			return authorizer.DecisionAllow, "", nil
-		},
-		"status": func(ctx context.Context, ident authlib.AuthInfo, attr authorizer.Attributes) (authorizer.Decision, string, error) {
-			verb := utils.VerbGet
-			if attr.GetVerb() == utils.VerbUpdate || attr.GetVerb() == utils.VerbPatch {
-				verb = utils.VerbUpdate
-			}
+	checkUser := func(verb string, denyReason string) gfauthorizer.SubresourceCheck {
+		return func(ctx context.Context, ident authlib.AuthInfo, attr authorizer.Attributes) (authorizer.Decision, string, error) {
 			res, err := accessClient.Check(ctx, ident, authlib.CheckRequest{
 				Verb:      verb,
 				Group:     attr.GetAPIGroup(),
@@ -256,9 +282,30 @@ func newUserAuthorizer(accessClient authlib.AccessClient) authorizer.Authorizer 
 				return authorizer.DecisionDeny, "", err
 			}
 			if !res.Allowed {
-				return authorizer.DecisionDeny, fmt.Sprintf("requires user %s", verb), nil
+				return authorizer.DecisionDeny, denyReason, nil
 			}
 			return authorizer.DecisionAllow, "", nil
+		}
+	}
+	getUser := checkUser(utils.VerbGet, "requires user get")
+	updateUser := checkUser(utils.VerbUpdate, "requires user update")
+
+	base := gfauthorizer.NewResourceAuthorizerWithSubresourceHandlers(accessClient, map[string]gfauthorizer.SubresourceCheck{
+		"teams":    getUser,
+		"password": updateUser,
+		"context":  updateUser,
+		"sessions": func(ctx context.Context, ident authlib.AuthInfo, attr authorizer.Attributes) (authorizer.Decision, string, error) {
+			if attr.GetVerb() == utils.VerbDelete {
+				return updateUser(ctx, ident, attr)
+			}
+			return getUser(ctx, ident, attr)
+		},
+		"status": func(ctx context.Context, ident authlib.AuthInfo, attr authorizer.Attributes) (authorizer.Decision, string, error) {
+			verb := utils.VerbGet
+			if attr.GetVerb() == utils.VerbUpdate || attr.GetVerb() == utils.VerbPatch {
+				verb = utils.VerbUpdate
+			}
+			return checkUser(verb, fmt.Sprintf("requires user %s", verb))(ctx, ident, attr)
 		},
 	})
 
