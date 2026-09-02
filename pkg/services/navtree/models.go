@@ -58,7 +58,13 @@ const (
 	NavIDCfgPlugins           = "cfg/plugins"
 	NavIDCfgAccess            = "cfg/access"
 	NavIDBookmarks            = "bookmarks"
+	NavIDLabs                 = "labs"
 )
+
+// WeightLabs is placed between Connections and Administration in the nav tree.
+// It is a standalone constant so inserting it into the iota list does not shift
+// WeightProfile / WeightHelp (extensions rely on those values).
+const WeightLabs int64 = -1950
 
 type NavLink struct {
 	Id             string     `json:"id,omitempty"`
