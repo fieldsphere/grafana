@@ -30,6 +30,22 @@ manifest: {
 							}
 						}
 					}
+					"/publish": {
+						"POST": {
+							name: "publish"
+							request: {
+								body: {
+									channel: string
+									data?:   _
+								}
+							}
+							response: {
+								channel:   string
+								accepted:  bool
+								transport: string
+							}
+						}
+					}
 				}
 			}
 		}

@@ -45,6 +45,62 @@ var appManifestData = app.ManifestData{
 			},
 			Routes: app.ManifestVersionRoutes{
 				Namespaced: map[string]spec3.PathProps{
+					"/publish": {
+						Post: &spec3.Operation{
+							OperationProps: spec3.OperationProps{
+								OperationId: "publish",
+								RequestBody: &spec3.RequestBody{
+									RequestBodyProps: spec3.RequestBodyProps{
+										Required: true,
+										Content: map[string]*spec3.MediaType{
+											"application/json": {
+												MediaTypeProps: spec3.MediaTypeProps{
+													Schema: &spec.Schema{
+														SchemaProps: spec.SchemaProps{
+															Type: []string{"object"},
+															Properties: map[string]spec.Schema{
+																"channel": {SchemaProps: spec.SchemaProps{Type: []string{"string"}}},
+																"data":    {SchemaProps: spec.SchemaProps{}},
+															},
+															Required: []string{"channel"},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+								Responses: &spec3.Responses{
+									ResponsesProps: spec3.ResponsesProps{
+										Default: &spec3.Response{
+											ResponseProps: spec3.ResponseProps{
+												Description: "Default OK response",
+												Content: map[string]*spec3.MediaType{
+													"application/json": {
+														MediaTypeProps: spec3.MediaTypeProps{
+															Schema: &spec.Schema{
+																SchemaProps: spec.SchemaProps{
+																	Type: []string{"object"},
+																	Properties: map[string]spec.Schema{
+																		"apiVersion": {SchemaProps: spec.SchemaProps{Type: []string{"string"}}},
+																		"kind":       {SchemaProps: spec.SchemaProps{Type: []string{"string"}}},
+																		"channel":    {SchemaProps: spec.SchemaProps{Type: []string{"string"}}},
+																		"accepted":   {SchemaProps: spec.SchemaProps{Type: []string{"boolean"}}},
+																		"transport":  {SchemaProps: spec.SchemaProps{Type: []string{"string"}}},
+																	},
+																	Required: []string{"channel", "accepted", "transport", "apiVersion", "kind"},
+																},
+															},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+					},
 					"/something": {
 						Get: &spec3.Operation{
 							OperationProps: spec3.OperationProps{
@@ -144,7 +200,8 @@ func ManifestGoTypeAssociator(kind, version string) (goType resource.Kind, exist
 }
 
 var customRouteToGoResponseType = map[string]any{
-	"v1alpha1||<namespace>/something|GET": v1alpha1.GetSomethingResponse{},
+	"v1alpha1||<namespace>/something|GET":  v1alpha1.GetSomethingResponse{},
+	"v1alpha1||<namespace>/publish|POST":   v1alpha1.PublishResponse{},
 }
 
 // ManifestCustomRouteResponsesAssociator returns the associated response go type for a given kind, version, custom route path, and method, if one exists.
@@ -169,7 +226,9 @@ func ManifestCustomRouteQueryAssociator(kind, version, path, verb string) (goTyp
 	return goType, exists
 }
 
-var customRouteToGoRequestBodyType = map[string]any{}
+var customRouteToGoRequestBodyType = map[string]any{
+	"v1alpha1||<namespace>/publish|POST": v1alpha1.PublishBody{},
+}
 
 func ManifestCustomRouteRequestBodyAssociator(kind, version, path, verb string) (goType any, exists bool) {
 	if len(path) > 0 && path[0] == '/' {

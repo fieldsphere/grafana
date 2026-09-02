@@ -32,6 +32,8 @@ func RegisterAppInstaller(
 		cfg: cfg,
 	}
 
+	// Channel is the config/metadata surface for Grafana Live.
+	// Bidirectional transport stays on /api/live/ws — do not move Centrifuge onto /apis.
 	provider := simple.NewAppProvider(apis.LocalManifest(), nil, liveapp.New)
 
 	appConfig := app.Config{
