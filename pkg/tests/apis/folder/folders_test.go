@@ -1611,10 +1611,6 @@ func TestIntegrationFolderDeletionBlockedByConnectedLibraryPanels(t *testing.T) 
 		t.Skip("test only on sqlite for now")
 	}
 
-	t.Skip("re-enable when we migrate /api to /apis for library connections")
-
-	// TODO: re-enable when we migrate /api to /apis for library connections, and begin to
-	// use search to return the connections, rather than the connections table.
 	helper := apis.NewK8sTestHelper(t, testinfra.GrafanaOpts{
 		AppModeProduction:    true,
 		DisableAnonymous:     true,

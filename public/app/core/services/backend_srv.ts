@@ -38,6 +38,12 @@ import { getConfig } from 'app/core/config';
 import { getSessionExpiry, hasRotatableSession } from 'app/core/utils/auth';
 import { loadUrlToken } from 'app/core/utils/urlToken';
 import { getDashboardAPI } from 'app/features/dashboard/api/dashboard_api';
+import {
+  type ApisSearchResponse,
+  buildApisSearchUrl,
+  hitsFromApisResponse,
+  mapApisHitToLegacyItem,
+} from 'app/features/search/api/legacySearchAdapter';
 import { type DashboardSearchItem } from 'app/features/search/types';
 import { TokenRevokedModal } from 'app/features/users/TokenRevokedModal';
 import { type DashboardDTO } from 'app/types/dashboard';
@@ -659,9 +665,18 @@ export class BackendSrv implements BackendService {
     return this._loginPingInProgress;
   }
 
-  /** @deprecated */
-  search(query: Parameters<typeof this.get>[1]): Promise<DashboardSearchItem[]> {
-    return this.get('/api/search', query);
+  /**
+   * @deprecated Use getGrafanaSearcher() from app/features/search/service/searcher.
+   * This adapter calls `/apis/dashboard.grafana.app/.../search` and returns the
+   * legacy Hit[] shape so leftover internal callers stop hitting `/api/search`.
+   */
+  async search(query: Parameters<typeof this.get>[1]): Promise<DashboardSearchItem[]> {
+    deprecationWarning('backend_srv', 'search(query)', 'getGrafanaSearcher().search(query)');
+    const url = buildApisSearchUrl(query ?? {});
+    const rsp = await this.get<ApisSearchResponse | ApisSearchResponse['hits'] | { items?: ApisSearchResponse['hits'] }>(
+      url
+    );
+    return hitsFromApisResponse(rsp).map(mapApisHitToLegacyItem);
   }
 
   /** @deprecated */

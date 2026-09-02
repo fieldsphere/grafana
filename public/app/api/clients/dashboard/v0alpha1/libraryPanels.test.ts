@@ -452,6 +452,25 @@ describe('libraryPanelsK8sClient request options', () => {
     expect(fetch).toHaveBeenCalledTimes(3);
   });
 
+  it('lists connected dashboards from the librarypanels connections subresource', async () => {
+    get.mockResolvedValue({
+      hits: [
+        { name: 'dash-1', folder: 'ops' },
+        { name: 'dash-2', folder: 'infra' },
+      ],
+    });
+
+    const hits = await libraryPanelsK8sClient.getConnections('panel-uid');
+
+    expect(hits).toEqual([
+      { name: 'dash-1', folder: 'ops' },
+      { name: 'dash-2', folder: 'infra' },
+    ]);
+    expect(get).toHaveBeenCalledWith(
+      expect.stringMatching(/\/librarypanels\/panel-uid\/connections$/)
+    );
+  });
+
   it('rejects an update when the legacy version is stale', async () => {
     const resource = makeResource({
       metadata: {
