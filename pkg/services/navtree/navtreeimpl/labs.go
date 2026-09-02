@@ -5,11 +5,7 @@ import (
 	"github.com/grafana/grafana/pkg/services/navtree"
 )
 
-func (s *ServiceImpl) buildLabsNavLink(c *contextmodel.ReqContext) *navtree.NavLink {
-	if !c.IsSignedIn {
-		return nil
-	}
-
+func (s *ServiceImpl) buildLabsNavLink(_ *contextmodel.ReqContext) *navtree.NavLink {
 	return &navtree.NavLink{
 		Text:       "Labs",
 		SubTitle:   "Explore experimental features enabled in your Grafana instance",
