@@ -11504,6 +11504,15 @@
     }
   },
   "label-dropdown-info": "Can't find your label? Enter it manually",
+  "labs": {
+    "page": {
+      "count": "{{count}} feature flags enabled",
+      "description": "Experimental features currently enabled in your Grafana instance.",
+      "empty": "No feature flags are currently enabled.",
+      "table-header": "Feature flag",
+      "title": "Labs"
+    }
+  },
   "layers": {
     "layer-drag-drop-list": {
       "draggable-aria-label": "Drag and drop to reorder",
@@ -12634,6 +12643,10 @@
     },
     "kubernetes": {
       "title": "Kubernetes"
+    },
+    "labs": {
+      "subtitle": "Explore experimental features enabled in your Grafana instance",
+      "title": "Labs"
     },
     "library-panels": {
       "subtitle": "Reusable panels that can be added to multiple dashboards",
