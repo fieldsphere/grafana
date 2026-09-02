@@ -7,6 +7,7 @@ import (
 	"github.com/grafana/grafana/pkg/registry/apis/datasource"
 	"github.com/grafana/grafana/pkg/registry/apis/folders"
 	"github.com/grafana/grafana/pkg/registry/apis/iam"
+	orgapi "github.com/grafana/grafana/pkg/registry/apis/org"
 	"github.com/grafana/grafana/pkg/registry/apis/preferences"
 	"github.com/grafana/grafana/pkg/registry/apis/provisioning"
 	"github.com/grafana/grafana/pkg/registry/apis/query"
@@ -23,6 +24,7 @@ func ProvideRegistryServiceSink(
 	_ *datasource.DataSourceAPIBuilder,
 	_ *folders.FolderAPIBuilder,
 	_ *iam.IdentityAccessManagementAPIBuilder,
+	_ *orgapi.OrgAPIBuilder,
 	_ *query.QueryAPIBuilder,
 	_ *userstorage.UserStorageAPIBuilder,
 	_ *preferences.APIBuilder,

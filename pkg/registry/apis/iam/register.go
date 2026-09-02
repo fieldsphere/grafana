@@ -55,6 +55,7 @@ import (
 	"github.com/grafana/grafana/pkg/services/apiserver/auth/authorizer/storewrapper"
 	"github.com/grafana/grafana/pkg/services/apiserver/builder"
 	"github.com/grafana/grafana/pkg/services/apiserver/versionpolicy"
+	"github.com/grafana/grafana/pkg/services/auth"
 	"github.com/grafana/grafana/pkg/services/authz/zanzana"
 	"github.com/grafana/grafana/pkg/services/featuremgmt"
 	"github.com/grafana/grafana/pkg/services/org"
@@ -94,6 +95,7 @@ func RegisterAPIService(
 	unified resource.ResourceClient,
 	orgService org.Service,
 	userService legacyuser.Service,
+	tokenService auth.UserTokenService,
 	teamService teamservice.Service,
 	restConfig apiserver.RestConfigProvider,
 	mappers *resourcepermission.MappersRegistry,
@@ -181,6 +183,9 @@ func RegisterAPIService(
 		resourcePermissionsSearchHandler: newResourcePermissionsSearchHandler(resourcePermsSearchBackend, resourcePermsSearchAuthorizer),
 		tracing:                          tracing,
 		cfgProvider:                      cfgProvider,
+		orgService:                       orgService,
+		userService:                      userService,
+		tokenService:                     tokenService,
 		apiConfig: Config{
 			SingleOrganization: cfg.RBAC.SingleOrganization,
 		},
@@ -402,7 +407,7 @@ func (b *IdentityAccessManagementAPIBuilder) UpdateAPIGroupInfo(apiGroupInfo *ge
 	enableGlobalRolesApi := client.Boolean(ctx, featuremgmt.FlagKubernetesAuthzGlobalRolesApi, false, openfeature.TransactionContext(ctx))
 	enableTeamLBACRuleApi := client.Boolean(ctx, featuremgmt.FlagKubernetesAuthzTeamLBACRuleApi, false, openfeature.TransactionContext(ctx))
 	enableTeamsApi := client.Boolean(ctx, featuremgmt.FlagKubernetesTeamsApi, false, openfeature.TransactionContext(ctx))
-	enableUserApi := b.isSingleOrgSetup() && client.Boolean(ctx, featuremgmt.FlagKubernetesUsersApi, false, openfeature.TransactionContext(ctx))
+	enableUserApi := client.Boolean(ctx, featuremgmt.FlagKubernetesUsersApi, false, openfeature.TransactionContext(ctx))
 	enableServiceAccountsApi := client.Boolean(ctx, featuremgmt.FlagKubernetesServiceAccountsApi, false, openfeature.TransactionContext(ctx))
 	enableServiceAccountTokensApi := client.Boolean(ctx, featuremgmt.FlagKubernetesServiceAccountTokensApi, false, openfeature.TransactionContext(ctx))
 	enableSsoSettingsApi := client.Boolean(ctx, featuremgmt.FlagKubernetesSsoSettingsApi, false, openfeature.TransactionContext(ctx))
@@ -737,6 +742,14 @@ func (b *IdentityAccessManagementAPIBuilder) UpdateUsersAPIGroup(opts builder.AP
 		storage[userResource.StoragePath("teams")] = user.NewUserTeamREST(teamSearchClient, b.teamGetter, b.tracing)
 	}
 
+	if b.userService != nil {
+		storage[userResource.StoragePath("context")] = user.NewUserContextREST(b.userService)
+		storage[userResource.StoragePath("password")] = user.NewUserPasswordREST(b.userService)
+	}
+	if b.userService != nil && b.tokenService != nil {
+		storage[userResource.StoragePath("sessions")] = user.NewUserSessionsREST(b.userService, b.tokenService)
+	}
+
 	return nil
 }
 
@@ -1024,7 +1037,7 @@ func (b *IdentityAccessManagementAPIBuilder) GetAPIRoutes(gv schema.GroupVersion
 	defer cancelFn()
 
 	enableTeamsApi := client.Boolean(ctx, featuremgmt.FlagKubernetesTeamsApi, false, openfeature.TransactionContext(ctx))
-	enableUserApi := b.isSingleOrgSetup() && client.Boolean(ctx, featuremgmt.FlagKubernetesUsersApi, false, openfeature.TransactionContext(ctx))
+	enableUserApi := client.Boolean(ctx, featuremgmt.FlagKubernetesUsersApi, false, openfeature.TransactionContext(ctx))
 	enableResourcePermissionsApi := client.Boolean(ctx, featuremgmt.FlagKubernetesAuthzResourcePermissionApis, false, openfeature.TransactionContext(ctx))
 	enableUserPermissionsApi := client.Boolean(ctx, featuremgmt.FlagAuthzUserPermissions, false, openfeature.TransactionContext(ctx))
 

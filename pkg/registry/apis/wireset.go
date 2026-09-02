@@ -15,6 +15,7 @@ import (
 	"github.com/grafana/grafana/pkg/registry/apis/iam/legacy"
 	"github.com/grafana/grafana/pkg/registry/apis/iam/noopstorage"
 	"github.com/grafana/grafana/pkg/registry/apis/iam/resourcepermission"
+	orgapi "github.com/grafana/grafana/pkg/registry/apis/org"
 	"github.com/grafana/grafana/pkg/registry/apis/preferences"
 	"github.com/grafana/grafana/pkg/registry/apis/provisioning"
 	"github.com/grafana/grafana/pkg/registry/apis/provisioning/extras"
@@ -82,6 +83,7 @@ var WireSet = wire.NewSet(
 	wire.Bind(new(folders.FolderContentsDeleter), new(*cleaner.ContentsCleaner)),
 	folders.RegisterAPIService,
 	iam.RegisterAPIService,
+	orgapi.RegisterAPIService,
 	provisioning.RegisterAPIService,
 	service.RegisterAPIService,
 	query.RegisterAPIService,

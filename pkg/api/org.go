@@ -16,6 +16,10 @@ import (
 	"github.com/grafana/grafana/pkg/web"
 )
 
+// Organizations are moving to cluster-scoped GET/PUT /apis/org.grafana.app/v0alpha1/organizations.
+// These /api/orgs handlers stay as the external-compat shim (flag kubernetesOrgsApi).
+// Global org (ID 0) remains a grafana-admin-only authz path and does not map to a namespace.
+
 // swagger:route GET /org org getCurrentOrg
 //
 // Get current Organization.

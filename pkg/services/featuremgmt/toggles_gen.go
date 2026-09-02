@@ -766,6 +766,10 @@ const (
 	// Enables user APIs in the app platform
 	FlagKubernetesUsersApi = "kubernetesUsersApi"
 
+	// FlagKubernetesOrgsApi
+	// Enables cluster-scoped org.grafana.app Organization and OrgMembership APIs
+	FlagKubernetesOrgsApi = "kubernetesOrgsApi"
+
 	// FlagKubernetesServiceAccountsApi
 	// Enables service account APIs in the app platform
 	FlagKubernetesServiceAccountsApi = "kubernetesServiceAccountsApi"

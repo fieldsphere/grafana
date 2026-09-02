@@ -4,6 +4,7 @@ import { getBackendSrv } from '@grafana/runtime';
 import { type FetchDataArgs } from '@grafana/ui';
 import { contextSrv } from 'app/core/services/context_srv';
 import { accessControlQueryParam } from 'app/core/utils/accessControl';
+import { isOrgsApiEnabled, membershipName, orgMembershipUrl } from 'app/features/search/api/orgApis';
 import { AccessControlAction } from 'app/types/accessControl';
 import { type ThunkResult } from 'app/types/store';
 import { type OrgUser } from 'app/types/user';
@@ -56,14 +57,26 @@ const fetchUsersWithDebounce = debounce((dispatch) => dispatch(loadUsers()), 300
 
 export function updateUser(user: OrgUser): ThunkResult<void> {
   return async (dispatch) => {
-    await getBackendSrv().patch(`/api/org/users/${user.userId}`, { role: user.role });
+    if (isOrgsApiEnabled() && user.uid) {
+      const name = membershipName(user.orgId || contextSrv.user.orgId, user.uid);
+      await getBackendSrv().put(orgMembershipUrl(name), {
+        spec: { orgRef: String(user.orgId || contextSrv.user.orgId), userRef: user.uid, role: user.role },
+      });
+    } else {
+      await getBackendSrv().patch(`/api/org/users/${user.userId}`, { role: user.role });
+    }
     dispatch(loadUsers());
   };
 }
 
-export function removeUser(userId: number): ThunkResult<void> {
+export function removeUser(userId: number, uid?: string): ThunkResult<void> {
   return async (dispatch) => {
-    await getBackendSrv().delete(`/api/org/users/${userId}`);
+    if (isOrgsApiEnabled() && uid) {
+      const name = membershipName(contextSrv.user.orgId, uid);
+      await getBackendSrv().delete(orgMembershipUrl(name));
+    } else {
+      await getBackendSrv().delete(`/api/org/users/${userId}`);
+    }
     dispatch(loadUsers());
   };
 }
