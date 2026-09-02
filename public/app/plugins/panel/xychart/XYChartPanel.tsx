@@ -35,7 +35,7 @@ export const XYChartPanel2 = (props: Props2) => {
   let { mapping, series: mappedSeries } = props.options;
 
   // regenerate series schema when mappings or data changes
-  let series = useMemo(
+  const { series, warn: seriesWarn } = useMemo(
     () => prepSeries(mapping, mappedSeries, props.data.series, props.fieldConfig),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [mapping, mappedSeries, props.data.series, props.fieldConfig]
@@ -101,13 +101,13 @@ export const XYChartPanel2 = (props: Props2) => {
     );
   };
 
-  if (warn || !builder || !data) {
+  if (seriesWarn || warn || !builder || !data) {
     return (
       <PanelDataErrorView
         panelId={props.id}
         fieldConfig={props.fieldConfig}
         data={props.data}
-        message={warn ?? t('xychart.errors.unknown', 'Unknown error')}
+        message={seriesWarn ?? warn ?? t('xychart.errors.unknown', 'Unknown error')}
       />
     );
   }
