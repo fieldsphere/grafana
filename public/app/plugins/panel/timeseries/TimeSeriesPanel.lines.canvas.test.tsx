@@ -7,6 +7,15 @@ import {
   setupCanvasCapture,
   withFieldConfig,
 } from './TimeSeriesPanel.canvasTestUtils';
+import { TimeSeriesOverlayMode } from './panelcfg.gen';
+
+import {
+  type CanvasCase,
+  fixedBlue,
+  renderCanvasCase,
+  setupCanvasCapture,
+  withFieldConfig,
+} from './TimeSeriesPanel.canvasTestUtils';
 
 jest.mock('@grafana/ui/src/utils/measureText', () =>
   require('@grafana/test-utils/canvas').createGrafanaUiMeasureTextJestMock(() =>
@@ -51,5 +60,13 @@ describe('TimeSeriesPanel (canvas) — line rendering', () => {
     })),
     // orientation is a panel option, not field config; Vertical puts time on the Y axis.
     { name: 'orientation: vertical', options: { orientation: VizOrientation.Vertical } },
+    {
+      name: 'overlay: linearRegression',
+      options: { overlay: { mode: TimeSeriesOverlayMode.LinearRegression } },
+    },
+    {
+      name: 'overlay: movingAverage',
+      options: { overlay: { mode: TimeSeriesOverlayMode.MovingAverage, windowSize: 3 } },
+    },
   ])('$name', (testCase) => renderCanvasCase(testCase));
 });
