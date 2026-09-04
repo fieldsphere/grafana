@@ -1192,6 +1192,11 @@ export interface FeatureToggles {
   */
   kubernetesUsersApi?: boolean;
   /**
+  * Enables cluster-scoped org.grafana.app Organization and OrgMembership APIs
+  * @default false
+  */
+  kubernetesOrgsApi?: boolean;
+  /**
   * Enables service account APIs in the app platform
   * @default false
   */

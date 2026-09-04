@@ -509,6 +509,12 @@ export const libraryPanelsK8sClient = {
     return enrichLibraryPanel(item);
   },
 
+  async getConnections(uid: string): Promise<Array<{ name: string; folder?: string }>> {
+    const url = `${getAPIBaseURL(DASHBOARD_API_GROUP, DASHBOARD_API_VERSION)}/librarypanels/${uid}/connections`;
+    const rsp = await getBackendSrv().get<{ hits?: Array<{ name: string; folder?: string }> }>(url);
+    return rsp?.hits ?? [];
+  },
+
   async getByName(name: string): Promise<LibraryPanel[]> {
     const items = await listAll();
     return items.filter((item) => item.spec.title === name).map((item) => k8sResourceToLegacyDTO(item));

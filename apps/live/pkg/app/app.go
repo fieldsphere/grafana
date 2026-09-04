@@ -40,6 +40,10 @@ func New(cfg app.Config) (app.App, error) {
 		ManagedKinds: []simple.AppManagedKind{
 			{
 				Kind: liveV1.ChannelKind(),
+				// Channel is the config/metadata surface (path, rate limits).
+				// Do not attach a watch-based reconciler here — empty kubeconfig
+				// at installer construction would fail startup. Apply Channel
+				// specs through NewChannelReconciler when the live engine is wired.
 			},
 		},
 		// VersionedCustomRoutes are the custom route handlers for routes defined at the version level of the manifest
@@ -52,6 +56,11 @@ func New(cfg app.Config) (app.App, error) {
 					Path:       "something",
 					Method:     "GET",
 				}: GetSomethingHandler,
+				{
+					Namespaced: true,
+					Path:       "publish",
+					Method:     "POST",
+				}: PublishHandler,
 			},
 		},
 	}

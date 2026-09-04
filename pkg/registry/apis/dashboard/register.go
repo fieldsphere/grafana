@@ -1218,6 +1218,7 @@ func (b *DashboardsAPIBuilder) storageForVersion(
 				b.validateLibraryPanelDelete,
 				b.validateLibraryPanelFolder,
 			)
+			storage[libraryPanels.StoragePath("connections")] = NewConnectionsConnector(b.dashboardService)
 		}
 
 		return nil
@@ -1262,6 +1263,7 @@ func (b *DashboardsAPIBuilder) storageForVersion(
 		if err != nil {
 			return err
 		}
+		storage[libraryPanels.StoragePath("connections")] = NewConnectionsConnector(b.dashboardService)
 	}
 
 	// Snapshots - only v0alpha1

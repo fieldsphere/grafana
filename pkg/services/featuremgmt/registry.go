@@ -2367,6 +2367,15 @@ var (
 			Generate:     Generate{LegacyGo: true, LegacyFrontend: true},
 		},
 		{
+			Name:         "kubernetesOrgsApi",
+			Description:  "Enables cluster-scoped org.grafana.app Organization and OrgMembership APIs",
+			Stage:        FeatureStageExperimental,
+			Owner:        identityAccessTeam,
+			HideFromDocs: true,
+			Expression:   "false",
+			Generate:     Generate{LegacyGo: true, LegacyFrontend: true},
+		},
+		{
 			Name:         "kubernetesServiceAccountsApi",
 			Description:  "Enables service account APIs in the app platform",
 			Stage:        FeatureStageExperimental,

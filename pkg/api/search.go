@@ -17,6 +17,10 @@ import (
 
 // swagger:route GET /search search search
 //
+// Legacy search compatibility shim. Grafana UI uses
+// GET /apis/dashboard.grafana.app/v0alpha1/namespaces/{namespace}/search.
+// This handler still returns the legacy Hit[] shape for external clients.
+//
 // Responses:
 // 200: searchResponse
 // 401: unauthorisedError

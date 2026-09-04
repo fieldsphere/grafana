@@ -180,6 +180,19 @@ export async function deleteLibraryPanel(uid: string): Promise<{ message: string
 export async function getLibraryPanelConnectedDashboards(
   libraryPanelUid: string
 ): Promise<LibraryElementConnectionDTO[]> {
+  if (await isK8sLibraryPanelsClientEnabled()) {
+    const hits = await libraryPanelsK8sClient.getConnections(libraryPanelUid);
+    return hits.map((hit) => ({
+      id: 0,
+      kind: 1 as LibraryElementConnectionDTO['kind'],
+      elementId: 0,
+      connectionId: 0,
+      connectionUid: hit.name,
+      created: '',
+      createdBy: { id: 0, name: '', avatarUrl: '' },
+    }));
+  }
+
   const { result } = await getBackendSrv().get<{ result: LibraryElementConnectionDTO[] }>(
     `/api/library-elements/${libraryPanelUid}/connections`
   );

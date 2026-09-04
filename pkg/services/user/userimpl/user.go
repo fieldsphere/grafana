@@ -138,11 +138,22 @@ func (s *Service) GetByEmail(ctx context.Context, cmd *user.GetUserByEmailQuery)
 }
 
 func (s *Service) Update(ctx context.Context, cmd *user.UpdateUserCommand) error {
+	// K8s User.Update does not persist Password or OrgID. Those stay on the
+	// legacy store (and on the users/{uid}/password and users/{uid}/context
+	// subresources) until the spec can represent them without putting hashes
+	// into User.spec.
+	if mustUseLegacyUserUpdate(cmd) {
+		return s.legacyService.Update(ctx, cmd)
+	}
 	if s.isKubernetesUserServiceEnabled(ctx) && !s.shouldFallbackToLegacy(ctx) {
 		return s.k8sService.Update(s.k8sCtxWithIdentity(ctx), cmd)
 	}
 
 	return s.legacyService.Update(ctx, cmd)
+}
+
+func mustUseLegacyUserUpdate(cmd *user.UpdateUserCommand) bool {
+	return cmd != nil && (cmd.Password != nil || cmd.OrgID != nil)
 }
 
 func (s *Service) UpdateLastSeenAt(ctx context.Context, cmd *user.UpdateUserLastSeenAtCommand) error {

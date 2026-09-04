@@ -74,7 +74,7 @@ export const UsersListPageUnconnected = ({
     updateUser({ ...user, role: role });
   };
 
-  const onRemoveUser = (user: OrgUser) => removeUser(user.userId);
+  const onRemoveUser = (user: OrgUser) => removeUser(user.userId, user.uid);
 
   const onShowInvites = () => {
     setShowInvites(!showInvites);

@@ -22,6 +22,9 @@ import (
 	"github.com/grafana/grafana/pkg/web"
 )
 
+// Org users are moving to cluster-scoped /apis/org.grafana.app/v0alpha1/orgmemberships.
+// Invites stay on /api/org/invites until a later Invitation kind.
+
 // swagger:route POST /org/users org addOrgUserToCurrentOrg
 //
 // Add a new user to the current organization.
