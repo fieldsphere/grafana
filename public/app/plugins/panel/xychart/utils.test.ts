@@ -94,7 +94,8 @@ describe('getCommonPrefixSuffix', () => {
 describe('prepSeries', () => {
   it('returns empty array when no frames provided', () => {
     const result = prepSeries(SeriesMapping.Auto, [], [], fieldConfig);
-    expect(result).toEqual([]);
+    expect(result.series).toEqual([]);
+    expect(result.warn).toBeNull();
   });
 
   it('creates series from auto-mapped number fields', () => {
@@ -104,7 +105,7 @@ describe('prepSeries', () => {
       { name: 'y2', values: [40, 50, 60] },
     ]);
 
-    const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig);
+    const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig).series;
 
     expect(result).toHaveLength(2);
     expect(result[0].x.field.name).toBe('x');
@@ -132,7 +133,7 @@ describe('prepSeries', () => {
         ],
         [frame],
         fieldConfig
-      );
+      ).series;
 
       expect(result).toHaveLength(1);
       expect(result[0].y.field.name).toBe('y');
@@ -146,7 +147,97 @@ describe('prepSeries', () => {
 
       const result = prepSeries(SeriesMapping.Manual, [{}], [frame], fieldConfig);
 
-      expect(result).toEqual([]);
+      expect(result.series).toEqual([]);
+      expect(result.warn).toBe('X and Y fields must be mapped');
+    });
+  });
+
+  describe('mapping warnings', () => {
+    const frame = makeFrame([
+      { name: 'x', values: [1, 2] },
+      { name: 'y', values: [10, 20] },
+    ]);
+
+    it('warns when manual mapping has no X or Y field selected', () => {
+      const result = prepSeries(
+        SeriesMapping.Manual,
+        [{ frame: { matcher: { id: 'byIndex', options: 0 } } }],
+        [frame],
+        fieldConfig
+      );
+
+      expect(result.series).toEqual([]);
+      expect(result.warn).toBe('X and Y fields must be mapped');
+    });
+
+    it('warns when only the X field is unmapped in manual mode', () => {
+      const result = prepSeries(
+        SeriesMapping.Manual,
+        [
+          {
+            frame: { matcher: { id: 'byIndex', options: 0 } },
+            y: { matcher: { id: 'byName', options: 'y' } },
+          },
+        ],
+        [frame],
+        fieldConfig
+      );
+
+      expect(result.series).toEqual([]);
+      expect(result.warn).toBe('X field must be mapped');
+    });
+
+    it('warns when only the Y field is unmapped in manual mode', () => {
+      const result = prepSeries(
+        SeriesMapping.Manual,
+        [
+          {
+            frame: { matcher: { id: 'byIndex', options: 0 } },
+            x: { matcher: { id: 'byName', options: 'x' } },
+          },
+        ],
+        [frame],
+        fieldConfig
+      );
+
+      expect(result.series).toEqual([]);
+      expect(result.warn).toBe('Y field must be mapped');
+    });
+
+    it('warns when the mapped X field is not in the frame', () => {
+      const result = prepSeries(
+        SeriesMapping.Manual,
+        [
+          {
+            frame: { matcher: { id: 'byIndex', options: 0 } },
+            x: { matcher: { id: 'byName', options: 'missing-x' } },
+            y: { matcher: { id: 'byName', options: 'y' } },
+          },
+        ],
+        [frame],
+        fieldConfig
+      );
+
+      expect(result.series).toEqual([]);
+      expect(result.warn).toBe('X field not found');
+    });
+
+    it('warns when the mapped Y field is not in the frame', () => {
+      const result = prepSeries(
+        SeriesMapping.Manual,
+        [
+          {
+            frame: { matcher: { id: 'byIndex', options: 0 } },
+            x: { matcher: { id: 'byName', options: 'x' } },
+            y: { matcher: { id: 'byName', options: 'missing-y' } },
+          },
+        ],
+        [frame],
+        fieldConfig
+      );
+
+      expect(result.series).toEqual([]);
+      expect(result.warn).toBe('Y field not found');
     });
   });
 
@@ -157,7 +248,7 @@ describe('prepSeries', () => {
         { name: 'y', values: [10, 20] },
       ]);
 
-      const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig);
+      const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig).series;
 
       expect(result).toHaveLength(1);
       const expectedColor = theme.visualization.getColorByName(theme.visualization.palette[0]);
@@ -176,7 +267,7 @@ describe('prepSeries', () => {
         },
       ]);
 
-      const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig);
+      const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig).series;
 
       expect(result).toHaveLength(1);
       const expectedColor = theme.visualization.getColorByName('red');
@@ -203,7 +294,7 @@ describe('prepSeries', () => {
         [{ size: { matcher: { id: 'byName', options: 'sizeField' } } }],
         [frame],
         fieldConfig
-      );
+      ).series;
 
       expect(result).toHaveLength(1);
       expect(result[0].size.field!.name).toBe('sizeField');
@@ -223,7 +314,7 @@ describe('prepSeries', () => {
         },
       ]);
 
-      const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig);
+      const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig).series;
 
       expect(result).toHaveLength(1);
       expect(result[0].size.field).toBeUndefined();
@@ -238,7 +329,7 @@ describe('prepSeries', () => {
       { name: 'host', type: FieldType.string, values: ['serverA', 'serverB'] },
     ]);
 
-    const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig);
+    const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig).series;
 
     expect(result).toHaveLength(1);
     expect(result[0]._rest.some((f) => f.name === 'host')).toBe(true);
@@ -251,7 +342,7 @@ describe('prepSeries', () => {
       { name: 'server mem', values: [30, 40] },
     ]);
 
-    const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig);
+    const result = prepSeries(SeriesMapping.Auto, [], [frame], fieldConfig).series;
 
     expect(result).toHaveLength(2);
     expect(result[0].name.value).toBe('cpu');
