@@ -211,6 +211,15 @@ The tooltip also provides the following options:
 
 For more information, refer to the [Configure legend documentation](https://grafana.com/docs/grafana/<GRAFANA_VERSION>/visualizations/panels-visualizations/configure-legend/#series-visibility).
 
+### Overlay options
+
+Overlay options draw a calculated line on top of each series without adding a transformation.
+
+- **Mode**: Choose **Off**, **Linear regression**, or **Moving average**.
+- **Window size**: When mode is **Moving average**, the number of points in the trailing window. Grafana includes the current point and ignores nulls.
+
+Linear regression fits a least-squares line to each numeric series over the visible time range. Moving average plots the trailing mean of the last N samples. Overlay series appear in the legend so you can hide them independently of the source series.
+
 ### Axis options
 
 {{< docs/shared lookup="visualizations/axis-options-1.md" source="grafana" version="<GRAFANA_VERSION>" leveloffset="+1" >}}

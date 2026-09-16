@@ -9,7 +9,7 @@ import { PanelContextProvider } from '@grafana/ui';
 import { getPanelProps } from '../test-utils';
 
 import { TimeSeriesPanel } from './TimeSeriesPanel';
-import { type Options } from './panelcfg.gen';
+import { TimeSeriesOverlayMode, type Options } from './panelcfg.gen';
 
 const defaultOptions: Options = {
   legend: {
@@ -146,6 +146,21 @@ describe('TimeSeriesPanel', () => {
     renderPanel({ legend: { ...defaultOptions.legend, showLegend: false } });
 
     expect(screen.queryByTestId(selectors.components.VizLayout.legend)).not.toBeInTheDocument();
+  });
+
+  it('lists overlay series in the legend when linear regression is enabled', () => {
+    renderPanel({ overlay: { mode: TimeSeriesOverlayMode.LinearRegression } });
+
+    expect(screen.getByTestId(selectors.components.VizLegend.seriesName('value'))).toBeInTheDocument();
+    expect(
+      screen.getByTestId(selectors.components.VizLegend.seriesName('value (linear regression)'))
+    ).toBeInTheDocument();
+  });
+
+  it('lists overlay series in the legend when moving average is enabled', () => {
+    renderPanel({ overlay: { mode: TimeSeriesOverlayMode.MovingAverage, windowSize: 2 } });
+
+    expect(screen.getByTestId(selectors.components.VizLegend.seriesName('value (moving average)'))).toBeInTheDocument();
   });
 
   describe('faceted filter pin-to-sidebar persistence', () => {
