@@ -1,5 +1,11 @@
+import {
+  type CanvasCase,
+  fixedBlue,
+  renderCanvasCase,
+  setupCanvasCapture,
+  withFieldConfig,
+} from './TimeSeriesPanel.canvasTestUtils';
 import { TimeSeriesOverlayType } from './panelcfg.gen';
-import { type CanvasCase, fixedBlue, renderCanvasCase, setupCanvasCapture, withFieldConfig } from './TimeSeriesPanel.canvasTestUtils';
 
 jest.mock('@grafana/ui/src/utils/measureText', () =>
   require('@grafana/test-utils/canvas').createGrafanaUiMeasureTextJestMock(() =>

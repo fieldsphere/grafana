@@ -12,11 +12,7 @@ import {
 import { t } from '@grafana/i18n';
 import { GraphDrawStyle, GraphGradientMode, LineInterpolation, StackingMode, VisibilityMode } from '@grafana/schema';
 
-import {
-  defaultTimeSeriesOverlayOptions,
-  type TimeSeriesOverlayOptions,
-  TimeSeriesOverlayType,
-} from './panelcfg.gen';
+import { defaultTimeSeriesOverlayOptions, type TimeSeriesOverlayOptions, TimeSeriesOverlayType } from './panelcfg.gen';
 
 export const MIN_OVERLAY_WINDOW_SIZE = 2;
 

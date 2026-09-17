@@ -9,12 +9,7 @@ import { TimezonesEditor } from './TimezonesEditor';
 import { defaultGraphConfig, getGraphFieldConfig } from './config';
 import { graphPanelChangedHandler } from './migrations';
 import { MIN_OVERLAY_WINDOW_SIZE } from './overlays';
-import {
-  defaultTimeSeriesOverlayOptions,
-  type FieldConfig,
-  type Options,
-  TimeSeriesOverlayType,
-} from './panelcfg.gen';
+import { defaultTimeSeriesOverlayOptions, type FieldConfig, type Options, TimeSeriesOverlayType } from './panelcfg.gen';
 import { timeseriesPresetsSupplier } from './presets';
 import { timeseriesSuggestionsSupplier } from './suggestions';
 

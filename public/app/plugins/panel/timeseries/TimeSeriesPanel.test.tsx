@@ -163,7 +163,9 @@ describe('TimeSeriesPanel', () => {
       });
 
       expect(screen.getByTestId(selectors.components.VizLegend.seriesName('value'))).toBeInTheDocument();
-      expect(screen.getByTestId(selectors.components.VizLegend.seriesName('value (Moving average)'))).toBeInTheDocument();
+      expect(
+        screen.getByTestId(selectors.components.VizLegend.seriesName('value (Moving average)'))
+      ).toBeInTheDocument();
     });
 
     it('shows a linear-regression series in the legend when enabled', () => {
