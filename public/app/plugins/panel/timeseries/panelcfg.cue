@@ -27,6 +27,17 @@ composableKinds: PanelCfg: lineage: {
 				enableFacetedFilter?: bool | *false
 				facetedFilterPinned?: bool | *false
 			} @cuetsy(kind="interface")
+			// Overlay drawn on top of each numeric series
+			TimeSeriesOverlayType: "movingAverage" | "linearRegression" @cuetsy(kind="enum")
+			// Panel-level overlay (moving average or linear regression)
+			TimeSeriesOverlayOptions: {
+				// When false, no overlay series are computed
+				enabled: bool | *false
+				// Overlay algorithm. Defaults to a trailing moving average
+				type?: TimeSeriesOverlayType | *"movingAverage"
+				// Trailing window length in points for movingAverage. Minimum 2
+				windowSize?: int32 & >=2 | *10
+			} @cuetsy(kind="interface")
 			Options: {
 				common.OptionsWithTimezones
 				common.OptionsWithAnnotations
@@ -37,6 +48,8 @@ composableKinds: PanelCfg: lineage: {
 				orientation?:           common.VizOrientation
 				annotations?:           common.VizAnnotations
 				disableKeyboardEvents?: bool
+				// Derived overlay series drawn on top of each numeric time series
+				overlay?: TimeSeriesOverlayOptions
 			} @cuetsy(kind="interface")
 
 			FieldConfig: common.GraphFieldConfig & {} @cuetsy(kind="interface")

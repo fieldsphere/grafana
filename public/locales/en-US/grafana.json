@@ -16835,6 +16835,18 @@
       "data-outside-time-range": "Data outside time range",
       "zoom-to-data": "Zoom to data"
     },
+    "overlay": {
+      "category": "Overlay",
+      "description-enabled": "Draw a derived line on top of each numeric series. Overlay series appear in the graph and legend and are not configured separately.",
+      "description-window-size": "Trailing window length in data points. Minimum 2.",
+      "legend-linear-regression": "{{name}} (Linear regression)",
+      "legend-moving-average": "{{name}} (Moving average)",
+      "name-enabled": "Show overlay",
+      "name-type": "Type",
+      "name-window-size": "Window",
+      "type-linear-regression": "Linear regression",
+      "type-moving-average": "Moving average"
+    },
     "presets": {
       "multi-many-points": "Lines with points",
       "multi-many-points-stacked": "Stacked lines",
