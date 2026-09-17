@@ -10,14 +10,7 @@ import {
   type TimeRange,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
-import {
-  GraphDrawStyle,
-  GraphGradientMode,
-  type GraphFieldConfig,
-  LineInterpolation,
-  StackingMode,
-  VisibilityMode,
-} from '@grafana/schema';
+import { GraphDrawStyle, GraphGradientMode, LineInterpolation, StackingMode, VisibilityMode } from '@grafana/schema';
 
 import {
   defaultTimeSeriesOverlayOptions,
@@ -26,10 +19,6 @@ import {
 } from './panelcfg.gen';
 
 export const MIN_OVERLAY_WINDOW_SIZE = 2;
-
-type OverlayGraphFieldConfig = GraphFieldConfig & {
-  timeseriesOverlay?: TimeSeriesOverlayType;
-};
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -156,7 +145,7 @@ function shouldOverlayField(field: Field): boolean {
   if (field.config.unit === 'bool') {
     return false;
   }
-  if ((field.config.custom as OverlayGraphFieldConfig | undefined)?.timeseriesOverlay) {
+  if (field.config.custom?.timeseriesOverlay) {
     return false;
   }
   if (field.config.custom?.hideFrom?.viz) {
@@ -177,9 +166,9 @@ function createOverlayField(
   const sourceName = getFieldDisplayName(source, frame, frames);
   const displayName = overlayDisplayName(sourceName, type);
   const sourceColor = getFieldSeriesColor(source, theme).color;
-  const sourceCustom = (source.config.custom ?? {}) as GraphFieldConfig;
+  const sourceCustom = source.config.custom ?? {};
 
-  const custom: OverlayGraphFieldConfig = {
+  const custom = {
     drawStyle: GraphDrawStyle.Line,
     lineInterpolation: LineInterpolation.Linear,
     lineWidth: sourceCustom.lineWidth ?? 1,
