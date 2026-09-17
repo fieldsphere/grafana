@@ -1,4 +1,5 @@
 import { createDataFrame, createTheme, dateTime, FieldType, type TimeRange } from '@grafana/data';
+import { StackingMode } from '@grafana/schema';
 
 import {
   applySeriesOverlays,
@@ -122,5 +123,52 @@ describe('applySeriesOverlays', () => {
 
     const [result] = applySeriesOverlays([mixed], { enabled: true }, undefined, theme);
     expect(result.fields).toHaveLength(3);
+  });
+
+  it('does not overlay stacked series so raw-unit fits cannot share a stacked or percent scale', () => {
+    const stacked = createDataFrame({
+      fields: [
+        { name: 'time', type: FieldType.time, values: [1, 2] },
+        {
+          name: 'cpu',
+          type: FieldType.number,
+          values: [10, 20],
+          config: { custom: { stacking: { mode: StackingMode.Normal, group: 'A' } } },
+        },
+        {
+          name: 'mem',
+          type: FieldType.number,
+          values: [5, 10],
+          config: { custom: { stacking: { mode: StackingMode.Percent, group: 'A' } } },
+        },
+        {
+          name: 'disk',
+          type: FieldType.number,
+          values: [1, 2],
+          config: { custom: { stacking: { mode: StackingMode.None, group: 'A' } } },
+        },
+      ],
+    });
+
+    const [result] = applySeriesOverlays([stacked], { enabled: true }, undefined, theme);
+    expect(result.fields.map((field) => field.name)).toEqual(['time', 'cpu', 'mem', 'disk', 'disk (Moving average)']);
+  });
+
+  it('copies source labels onto the overlay so faceted filters keep it with its series', () => {
+    const labeled = createDataFrame({
+      fields: [
+        { name: 'time', type: FieldType.time, values: [1, 2] },
+        {
+          name: 'cpu',
+          type: FieldType.number,
+          values: [10, 20],
+          labels: { host: 'a', job: 'node' },
+          config: { custom: {} },
+        },
+      ],
+    });
+
+    const [result] = applySeriesOverlays([labeled], { enabled: true }, undefined, theme);
+    expect(result.fields[2].labels).toEqual({ host: 'a', job: 'node' });
   });
 });

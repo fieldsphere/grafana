@@ -147,6 +147,12 @@ function shouldOverlayField(field: Field): boolean {
   if (field.config.custom?.hideFrom?.viz) {
     return false;
   }
+  // Overlays are raw-unit fits. Stacked series are drawn on a stacked (or 0–1 percent)
+  // baseline that those values do not share; joining the same scale distorts the axis.
+  const stackingMode = field.config.custom?.stacking?.mode;
+  if (stackingMode === StackingMode.Normal || stackingMode === StackingMode.Percent) {
+    return false;
+  }
   return true;
 }
 
@@ -188,6 +194,7 @@ function createOverlayField(
     name: displayName,
     type: FieldType.number,
     values,
+    labels: source.labels,
     config: {
       displayName,
       unit: source.config.unit,
