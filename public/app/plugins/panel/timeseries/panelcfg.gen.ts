@@ -22,10 +22,46 @@ export const defaultTimeSeriesLegendOptions: Partial<TimeSeriesLegendOptions> = 
   facetedFilterPinned: false,
 };
 
+/**
+ * Overlay drawn on top of each numeric series
+ */
+export enum TimeSeriesOverlayType {
+  LinearRegression = 'linearRegression',
+  MovingAverage = 'movingAverage',
+}
+
+/**
+ * Panel-level overlay (moving average or linear regression)
+ */
+export interface TimeSeriesOverlayOptions {
+  /**
+   * When false, no overlay series are computed
+   */
+  enabled: boolean;
+  /**
+   * Overlay algorithm. Defaults to a trailing moving average
+   */
+  type?: TimeSeriesOverlayType;
+  /**
+   * Trailing window length in points for movingAverage. Minimum 2
+   */
+  windowSize?: number;
+}
+
+export const defaultTimeSeriesOverlayOptions: Partial<TimeSeriesOverlayOptions> = {
+  enabled: false,
+  type: TimeSeriesOverlayType.MovingAverage,
+  windowSize: 10,
+};
+
 export interface Options extends common.OptionsWithTimezones, common.OptionsWithAnnotations {
   disableKeyboardEvents?: boolean;
   legend: TimeSeriesLegendOptions;
   orientation?: common.VizOrientation;
+  /**
+   * Derived overlay series drawn on top of each numeric time series
+   */
+  overlay?: TimeSeriesOverlayOptions;
   timeCompare?: common.TimeCompareOptions;
   tooltip: common.VizTooltipOptions;
 }

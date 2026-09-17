@@ -9,7 +9,7 @@ import { PanelContextProvider } from '@grafana/ui';
 import { getPanelProps } from '../test-utils';
 
 import { TimeSeriesPanel } from './TimeSeriesPanel';
-import { type Options } from './panelcfg.gen';
+import { type Options, TimeSeriesOverlayType } from './panelcfg.gen';
 
 const defaultOptions: Options = {
   legend: {
@@ -146,6 +146,47 @@ describe('TimeSeriesPanel', () => {
     renderPanel({ legend: { ...defaultOptions.legend, showLegend: false } });
 
     expect(screen.queryByTestId(selectors.components.VizLayout.legend)).not.toBeInTheDocument();
+  });
+
+  describe('series overlay', () => {
+    it('does not add overlay legend items when the overlay is disabled', () => {
+      renderPanel();
+
+      expect(screen.getByTestId(selectors.components.VizLegend.seriesName('value'))).toBeInTheDocument();
+      expect(screen.queryByTestId(selectors.components.VizLegend.seriesName('value (Moving average)'))).toBeNull();
+      expect(screen.queryByTestId(selectors.components.VizLegend.seriesName('value (Linear regression)'))).toBeNull();
+    });
+
+    it('shows a moving-average series in the legend when enabled', () => {
+      renderPanel({
+        overlay: { enabled: true, type: TimeSeriesOverlayType.MovingAverage, windowSize: 2 },
+      });
+
+      expect(screen.getByTestId(selectors.components.VizLegend.seriesName('value'))).toBeInTheDocument();
+      expect(screen.getByTestId(selectors.components.VizLegend.seriesName('value (Moving average)'))).toBeInTheDocument();
+    });
+
+    it('shows a linear-regression series in the legend when enabled', () => {
+      renderPanel({
+        overlay: { enabled: true, type: TimeSeriesOverlayType.LinearRegression },
+      });
+
+      expect(
+        screen.getByTestId(selectors.components.VizLegend.seriesName('value (Linear regression)'))
+      ).toBeInTheDocument();
+    });
+
+    it('draws overlay legend icons as dashed lines', () => {
+      renderPanel({
+        overlay: { enabled: true, type: TimeSeriesOverlayType.MovingAverage, windowSize: 2 },
+      });
+
+      const overlayIcon = within(
+        screen.getByTestId(selectors.components.VizLegend.seriesName('value (Moving average)'))
+      ).getByTestId('series-icon');
+
+      expect(overlayIcon.style.backgroundSize).toBe('6px 4px');
+    });
   });
 
   describe('faceted filter pin-to-sidebar persistence', () => {
