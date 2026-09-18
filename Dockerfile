@@ -69,7 +69,6 @@ ARG WIRE_TAGS="oss"
 
 RUN if grep -i -q alpine /etc/issue; then \
   apk add --no-cache \
-  bash \
   # Install build dependencies
   make git; \
   fi
@@ -227,7 +226,7 @@ ENV PATH="/usr/share/grafana/bin:$PATH" \
 
 WORKDIR $GF_PATHS_HOME
 
-RUN apk add --no-cache ca-certificates bash bubblewrap curl tzdata musl-utils && \
+RUN apk add --no-cache ca-certificates bubblewrap curl tzdata musl-utils && \
   apk info -vv | sort
 
 # glibc support for alpine x86_64 only
