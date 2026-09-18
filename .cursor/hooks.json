@@ -5,6 +5,18 @@
       {
         "command": ".cursor/hooks/enforce-fieldsphere-gh.sh",
         "matcher": "(^|\\s)gh(\\s|$)"
+      },
+      {
+        "command": ".cursor/hooks/guard-git-push.sh",
+        "matcher": "(^|\\s)git\\s+push(\\s|$)"
+      },
+      {
+        "command": ".cursor/hooks/advise-jest-no-watch.sh",
+        "matcher": "(^|\\s)(yarn|npm|pnpm|npx)(\\s|$).*\\b(jest|test)\\b"
+      },
+      {
+        "command": ".cursor/hooks/protect-local-artifacts.sh",
+        "matcher": "(^|\\s)git\\s+(add|commit)(\\s|$)"
       }
     ]
   }

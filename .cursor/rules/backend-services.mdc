@@ -1,0 +1,14 @@
+---
+description: Grafana backend service conventions
+globs: pkg/**/*.go,apps/**/*.go
+alwaysApply: false
+---
+
+# Backend Services
+
+- Put business logic in `pkg/services/<domain>/`; keep API handlers thin.
+- Enforce authorization and validation server-side, not only in UI checks.
+- Use existing service interfaces, SQL store helpers, and logging patterns.
+- After Wire/provider changes, run `make gen-go`.
+- After feature toggle registry changes, run `make gen-feature-toggles`.
+- Verify with focused package tests such as `go test -run TestName ./pkg/services/domain/`.

@@ -1,0 +1,14 @@
+---
+description: Grafana frontend React and TypeScript conventions
+globs: public/app/**/*.{ts,tsx},packages/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend React
+
+- Use function components with hooks and existing Grafana UI primitives.
+- Use Emotion styles through `useStyles2`; avoid introducing unrelated styling systems.
+- Prefer Redux Toolkit slices and RTK Query over legacy Redux patterns.
+- Keep feature code in the owning `public/app/features/<domain>/` tree.
+- Run focused frontend tests with `yarn jest --no-watch path/to/file.test.tsx`.
+- For alerting files, read `public/app/features/alerting/unified/AGENTS.md` first.
