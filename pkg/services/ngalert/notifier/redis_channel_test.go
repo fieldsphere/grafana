@@ -3,6 +3,7 @@ package notifier
 import (
 	"context"
 	"testing"
+	"time"
 
 	"github.com/alicebob/miniredis/v2"
 	"github.com/prometheus/alertmanager/cluster/clusterpb"
@@ -38,8 +39,6 @@ func TestNewRedisChannel(t *testing.T) {
 }
 
 func TestBroadcastAndHandleMessages(t *testing.T) {
-	t.Skip() // TODO fix the flaky test https://github.com/grafana/grafana/issues/94037
-
 	const channelName = "testChannel"
 
 	mr, err := miniredis.Run()
@@ -58,13 +57,30 @@ func TestBroadcastAndHandleMessages(t *testing.T) {
 
 	channel := newRedisChannel(p, "testKey", channelName, "testType", 0).(*RedisChannel)
 
-	pubSub := rdb.Subscribe(context.Background(), channelName)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	pubSub := rdb.Subscribe(ctx, channelName)
+	defer pubSub.Close()
+
+	// Wait for the subscription to be active before broadcasting.
+	_, err = pubSub.Receive(ctx)
+	require.NoError(t, err)
+
 	msgs := pubSub.Channel()
 
 	msg := []byte("test message")
 	channel.Broadcast(msg)
 
-	receivedMsg := <-msgs
+	var receivedMsg *redis.Message
+	require.Eventually(t, func() bool {
+		select {
+		case receivedMsg = <-msgs:
+			return true
+		default:
+			return false
+		}
+	}, time.Second, 10*time.Millisecond)
 
 	var part clusterpb.Part
 	err = part.Unmarshal([]byte(receivedMsg.Payload))
