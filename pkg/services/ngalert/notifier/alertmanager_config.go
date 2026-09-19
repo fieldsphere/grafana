@@ -159,7 +159,7 @@ func (moa *MultiOrgAlertmanager) ApplyConfig(ctx context.Context, orgId int64, d
 	am, err := moa.AlertmanagerFor(orgId)
 	if err != nil {
 		// It's okay if the alertmanager isn't ready yet, we're changing its config anyway.
-		if !errors.Is(err, ErrAlertmanagerNotReady) {
+		if !errors.Is(err, ErrAlertmanagerConflict) {
 			return false, err
 		}
 	}
@@ -198,7 +198,7 @@ func (moa *MultiOrgAlertmanager) ActivateHistoricalConfiguration(ctx context.Con
 	am, err := moa.AlertmanagerFor(orgId)
 	if err != nil {
 		// It's okay if the alertmanager isn't ready yet, we're changing its config anyway.
-		if !errors.Is(err, ErrAlertmanagerNotReady) {
+		if !errors.Is(err, ErrAlertmanagerConflict) {
 			return err
 		}
 	}
@@ -434,7 +434,7 @@ func (moa *MultiOrgAlertmanager) modifyAndApplyExtraConfiguration(
 	am, err := moa.AlertmanagerFor(org)
 	if err != nil {
 		// It's okay if the alertmanager isn't ready yet, we're changing its config anyway.
-		if !errors.Is(err, ErrAlertmanagerNotReady) {
+		if !errors.Is(err, ErrAlertmanagerConflict) {
 			return merge.MergeResult{}, err
 		}
 	}
