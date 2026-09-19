@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library App</title>
+  <style>
+    :root {
+      --bg: #f7f7f4;
+      --fg: #26251e;
+      --accent: #f54e00;
+      --card: #f2f1ed;
+      --muted: rgba(38, 37, 30, 0.6);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+    }
+
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    h1 {
+      margin: 0 0 0.5rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0 0 2rem;
+    }
+
+    section {
+      margin-bottom: 2.5rem;
+    }
+
+    h2 {
+      margin: 0 0 1rem;
+      border-bottom: 2px solid var(--accent);
+      display: inline-block;
+      padding-bottom: 0.25rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+
+    .card h3 {
+      margin: 0 0 0.5rem;
+      font-size: 1rem;
+    }
+
+    .card p {
+      margin: 0.25rem 0;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .error {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Library App</h1>
+    <p class="subtitle">Browse books and library items from the FastAPI backend.</p>
+
+    <section>
+      <h2>Books</h2>
+      <div id="books" class="grid"></div>
+    </section>
+
+    <section>
+      <h2>Items</h2>
+      <div id="items" class="grid"></div>
+    </section>
+  </main>
+
+  <script>
+    function renderCards(containerId, items, renderFn) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = items.map(renderFn).join("");
+    }
+
+    function showError(containerId, message) {
+      document.getElementById(containerId).innerHTML =
+        `<p class="error">${message}</p>`;
+    }
+
+    fetch("/api/books")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load books");
+        return res.json();
+      })
+      .then((books) => {
+        renderCards("books", books, (book) => `
+          <article class="card">
+            <h3>${book.title}</h3>
+            <p>${book.author}</p>
+            <p>${book.year} · ${book.genre}</p>
+          </article>
+        `);
+      })
+      .catch(() => showError("books", "Could not load books."));
+
+    fetch("/api/items")
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load items");
+        return res.json();
+      })
+      .then((items) => {
+        renderCards("items", items, (item) => `
+          <article class="card">
+            <h3>${item.name}</h3>
+            <p>ID: ${item.id}</p>
+          </article>
+        `);
+      })
+      .catch(() => showError("items", "Could not load items."));
+  </script>
+</body>
+</html>
