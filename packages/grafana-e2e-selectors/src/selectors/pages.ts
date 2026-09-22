@@ -209,6 +209,19 @@ export const versionedPages = {
       },
     },
   },
+  Labs: {
+    url: {
+      '13.3.0': '/labs',
+    },
+    container: {
+      '13.3.0': 'data-testid Labs page',
+    },
+    table: {
+      row: {
+        '13.3.0': (name: string) => `data-testid Labs feature-flag-row ${name}`,
+      },
+    },
+  },
   ConfirmModal: {
     delete: {
       '10.0.0': 'data-testid Confirm Modal Danger Button',
