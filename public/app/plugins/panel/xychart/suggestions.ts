@@ -13,7 +13,7 @@ export const xychartSuggestionsSupplier: VisualizationSuggestionsSupplier<Option
 
   const fieldConfig = { defaults: {}, overrides: [] };
   // check if an Auto mapping would yield valid x/y series
-  const series = prepSeries(SeriesMapping.Auto, [], ds.rawFrames, fieldConfig);
+  const { series } = prepSeries(SeriesMapping.Auto, [], ds.rawFrames, fieldConfig);
   const { builder, prepData } = prepConfig(series, config.theme2);
   const data = prepData(series);
   if (builder == null || data.length === 0) {
