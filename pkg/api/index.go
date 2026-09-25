@@ -46,9 +46,15 @@ func getURLPrefs(c *contextmodel.ReqContext) URLPrefs {
 }
 
 // isSlimIndexBootdata is true only for unauthenticated login visitors.
-// Anonymous-org and public-dashboard viewers still need full bootdata.
+// Snapshot, anonymous-org, and public-dashboard viewers still need full bootdata
+// (panel catalog, nav tree, permissions). /bootdata and /api/frontend/settings
+// share this helper and must not inherit the login-only slim.
 func isSlimIndexBootdata(c *contextmodel.ReqContext) bool {
-	return !c.IsSignedIn && !c.AllowAnonymous && !c.IsPublicDashboardView()
+	if c.IsSignedIn || c.AllowAnonymous || c.IsPublicDashboardView() {
+		return false
+	}
+	path := strings.TrimSuffix(c.Req.URL.Path, "/")
+	return strings.HasSuffix(path, "/login")
 }
 
 func (hs *HTTPServer) setIndexViewData(c *contextmodel.ReqContext) (*dtos.IndexViewData, error) {

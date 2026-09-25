@@ -146,6 +146,45 @@ func TestIntegrationSetIndexViewData_clientNavTree(t *testing.T) {
 	}
 }
 
+func TestIsSlimIndexBootdata(t *testing.T) {
+	newCtx := func(path string, signedIn, allowAnonymous bool, publicDashToken string) *contextmodel.ReqContext {
+		return &contextmodel.ReqContext{
+			Context:                    &web.Context{Req: httptest.NewRequest(http.MethodGet, path, nil)},
+			SignedInUser:               &user.SignedInUser{OrgID: 1},
+			IsSignedIn:                 signedIn,
+			AllowAnonymous:             allowAnonymous,
+			PublicDashboardAccessToken: publicDashToken,
+		}
+	}
+
+	tests := []struct {
+		name           string
+		path           string
+		signedIn       bool
+		allowAnonymous bool
+		publicToken    string
+		want           bool
+	}{
+		{name: "unauthenticated login", path: "/login", want: true},
+		{name: "unauthenticated login trailing slash", path: "/login/", want: true},
+		{name: "unauthenticated login under subpath", path: "/grafana/login", want: true},
+		{name: "snapshot view", path: "/dashboard/snapshot/abc", want: false},
+		{name: "solo snapshot view", path: "/dashboard-solo/snapshot/abc", want: false},
+		{name: "frontend settings API", path: "/api/frontend/settings/", want: false},
+		{name: "bootdata API", path: "/bootdata", want: false},
+		{name: "signed-in login", path: "/login", signedIn: true, want: false},
+		{name: "anonymous-org login", path: "/login", allowAnonymous: true, want: false},
+		{name: "public dashboard", path: "/public-dashboards/abc", publicToken: "abc", want: false},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			got := isSlimIndexBootdata(newCtx(test.path, test.signedIn, test.allowAnonymous, test.publicToken))
+			assert.Equal(t, test.want, got)
+		})
+	}
+}
+
 func TestSetIndexViewData_skipsPermissionsForUnauthenticatedLogin(t *testing.T) {
 	setNavTreeFlags(t, false, false)
 
@@ -211,5 +250,30 @@ func TestSetIndexViewData_skipsPermissionsForUnauthenticatedLogin(t *testing.T) 
 		require.NoError(t, err)
 		assert.Len(t, acMock.Calls.GetUserPermissions, 1)
 		require.NotNil(t, data.User.Permissions)
+	})
+
+	t.Run("snapshot viewers still load permissions and catalogs", func(t *testing.T) {
+		for _, path := range []string{"/dashboard/snapshot/abc", "/dashboard-solo/snapshot/abc"} {
+			acMock.Calls.GetUserPermissions = nil
+			navService.called = false
+			data, err := hs.setIndexViewData(newCtx(path, false, false, ""))
+			require.NoError(t, err, path)
+			assert.Len(t, acMock.Calls.GetUserPermissions, 1, path)
+			assert.True(t, navService.called, "snapshot first-load should build the nav tree (%s)", path)
+			require.NotNil(t, data.User.Permissions)
+			require.NotNil(t, data.Settings)
+		}
+	})
+
+	t.Run("frontend settings and bootdata stay full for unauthenticated callers", func(t *testing.T) {
+		for _, path := range []string{"/api/frontend/settings/", "/bootdata"} {
+			acMock.Calls.GetUserPermissions = nil
+			navService.called = false
+			data, err := hs.setIndexViewData(newCtx(path, false, false, ""))
+			require.NoError(t, err, path)
+			assert.Len(t, acMock.Calls.GetUserPermissions, 1, path)
+			assert.True(t, navService.called, "non-login first-load should build the nav tree (%s)", path)
+			require.NotNil(t, data.Settings)
+		}
 	})
 }
