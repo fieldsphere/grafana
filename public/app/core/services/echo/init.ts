@@ -37,6 +37,29 @@ export async function initEchoSrv() {
     console.error('Error initializing EchoSrv Faro backend', error);
   }
 
+  // GA / Rudderstack / App Insights / PostHog / console reporting are not needed
+  // to paint login. Schedule them after first paint so frontend_app_init is not
+  // waiting on those dynamic imports.
+  scheduleAfterFirstPaint(() => {
+    void initNonCriticalEchoBackends();
+  });
+}
+
+export function scheduleAfterFirstPaint(run: () => void) {
+  if (typeof requestIdleCallback === 'function') {
+    requestIdleCallback(() => run());
+    return;
+  }
+
+  if (document.readyState === 'complete') {
+    run();
+    return;
+  }
+
+  window.addEventListener('load', run, { once: true });
+}
+
+async function initNonCriticalEchoBackends() {
   try {
     await initGoogleAnalyticsBackend();
   } catch (error) {
