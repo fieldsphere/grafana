@@ -22,7 +22,7 @@
       [[if $.ESModuleAssetsEnabled]]
       <link rel="modulepreload" href="[[$asset.FilePath]]" />
       [[else]]
-      <link rel="preload" as="script" href="[[$asset.FilePath]]" />
+      <link rel="preload" as="script" href="[[$asset.FilePath]]" crossorigin="anonymous" />
       [[end]]
     [[end]]
 

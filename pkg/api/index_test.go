@@ -166,6 +166,7 @@ func TestSetIndexViewData_skipsPermissionsForAnonymous(t *testing.T) {
 	hs.accesscontrolService = acMock
 
 	t.Run("anonymous login skips the permissions lookup", func(t *testing.T) {
+		acMock.Calls.GetUserPermissions = nil
 		c := &contextmodel.ReqContext{
 			Context:      &web.Context{Req: httptest.NewRequest(http.MethodGet, "/login", nil)},
 			SignedInUser: &user.SignedInUser{OrgID: 1},
@@ -180,7 +181,39 @@ func TestSetIndexViewData_skipsPermissionsForAnonymous(t *testing.T) {
 		assert.Empty(t, data.User.Permissions)
 	})
 
+	t.Run("anonymous-org users still load permissions", func(t *testing.T) {
+		acMock.Calls.GetUserPermissions = nil
+		c := &contextmodel.ReqContext{
+			Context:      &web.Context{Req: httptest.NewRequest(http.MethodGet, "/", nil)},
+			SignedInUser: &user.SignedInUser{OrgID: 1, IsAnonymous: true},
+			IsSignedIn:   false,
+			Logger:       log.New("index-test"),
+		}
+
+		data, err := hs.setIndexViewData(c)
+		require.NoError(t, err)
+		assert.Len(t, acMock.Calls.GetUserPermissions, 1)
+		require.NotNil(t, data.User.Permissions)
+	})
+
+	t.Run("public dashboard viewers still load permissions", func(t *testing.T) {
+		acMock.Calls.GetUserPermissions = nil
+		c := &contextmodel.ReqContext{
+			Context:                    &web.Context{Req: httptest.NewRequest(http.MethodGet, "/public-dashboards/token", nil)},
+			SignedInUser:               &user.SignedInUser{OrgID: 1},
+			IsSignedIn:                 false,
+			PublicDashboardAccessToken: "token",
+			Logger:                     log.New("index-test"),
+		}
+
+		data, err := hs.setIndexViewData(c)
+		require.NoError(t, err)
+		assert.Len(t, acMock.Calls.GetUserPermissions, 1)
+		require.NotNil(t, data.User.Permissions)
+	})
+
 	t.Run("signed-in users still load permissions", func(t *testing.T) {
+		acMock.Calls.GetUserPermissions = nil
 		c := &contextmodel.ReqContext{
 			Context:      &web.Context{Req: httptest.NewRequest(http.MethodGet, "/", nil)},
 			SignedInUser: &user.SignedInUser{OrgID: 1},
