@@ -182,6 +182,11 @@ func TestSetIndexViewData_skipsPermissionsForUnauthenticatedLogin(t *testing.T) 
 		assert.Empty(t, acMock.Calls.GetUserPermissions)
 		require.NotNil(t, data.User.Permissions)
 		assert.Empty(t, data.User.Permissions)
+		assert.False(t, navService.called, "login first-load should not build the nav tree")
+		require.NotNil(t, data.Settings)
+		assert.Empty(t, data.Settings.Apps)
+		assert.Empty(t, data.Settings.Datasources)
+		assert.Empty(t, data.Settings.Panels)
 	})
 
 	t.Run("anonymous-org viewers still load permissions", func(t *testing.T) {

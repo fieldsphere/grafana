@@ -129,29 +129,37 @@ func (hs *HTTPServer) getFrontendSettings(c *contextmodel.ReqContext) (*dtos.Fro
 		return nil, err
 	}
 
-	availablePlugins, err := hs.availablePlugins(c.Req.Context(), c.GetOrgID())
-	if err != nil {
-		return nil, err
-	}
+	if isSlimIndexBootdata(c) {
+		// Login first-load does not use plugins, datasources, or panels. Skip the
+		// catalog walk so the HTML bootdata payload is not parser-bound on it.
+		frontendSettings.Apps = map[string]*plugins.AppDTO{}
+		frontendSettings.Datasources = map[string]plugins.DataSourceDTO{}
+		frontendSettings.Panels = map[string]plugins.PanelDTO{}
+	} else {
+		availablePlugins, err := hs.availablePlugins(c.Req.Context(), c.GetOrgID())
+		if err != nil {
+			return nil, err
+		}
 
-	apps := hs.getFSApps(c, availablePlugins[plugins.TypeApp])
+		apps := hs.getFSApps(c, availablePlugins[plugins.TypeApp])
 
-	dataSources, err := hs.getFSDataSources(c, availablePlugins)
-	if err != nil {
-		return nil, err
-	}
+		dataSources, err := hs.getFSDataSources(c, availablePlugins)
+		if err != nil {
+			return nil, err
+		}
 
-	panels := hs.getFSPanels(c, availablePlugins[plugins.TypePanel])
+		panels := hs.getFSPanels(c, availablePlugins[plugins.TypePanel])
 
-	frontendSettings.Apps = apps
-	frontendSettings.Datasources = dataSources
-	frontendSettings.Panels = panels
+		frontendSettings.Apps = apps
+		frontendSettings.Datasources = dataSources
+		frontendSettings.Panels = panels
 
-	frontendSettings.PluginCatalogManagedPlugins = hs.managedPluginsService.ManagedPlugins(c.Req.Context())
+		frontendSettings.PluginCatalogManagedPlugins = hs.managedPluginsService.ManagedPlugins(c.Req.Context())
 
-	for n, ds := range dataSources {
-		if ds.IsDefault {
-			frontendSettings.DefaultDatasource = n
+		for n, ds := range dataSources {
+			if ds.IsDefault {
+				frontendSettings.DefaultDatasource = n
+			}
 		}
 	}
 
