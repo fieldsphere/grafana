@@ -145,3 +145,52 @@ func TestIntegrationSetIndexViewData_clientNavTree(t *testing.T) {
 		})
 	}
 }
+
+func TestSetIndexViewData_skipsPermissionsForAnonymous(t *testing.T) {
+	setNavTreeFlags(t, false, false)
+
+	cfg := setting.NewCfg()
+	cfg.Env = setting.Dev
+	cfg.StaticRootPath = "webassets/testdata"
+	cfg.DefaultTheme = "dark"
+
+	_, hs := setupTestEnvironment(t, cfg, featuremgmt.WithFeatures(), nil, nil, nil)
+	navService := &fakeNavTreeService{}
+	hs.navTreeService = navService
+	prefClient := prefapi.NewMockK8sClient(t)
+	prefClient.EXPECT().GetMerged(mock.Anything).Return(&preferences.PreferencesSpec{}, nil)
+	hs.preferenceK8sHandler = prefapi.NewK8sHandler(prefClient, dashboards.NewFakeDashboardService(t), preferences.PreferencesSpec{})
+	hs.HooksService = hooks.ProvideService()
+	hs.orgService = &orgtest.FakeOrgService{}
+	acMock := accesscontrolmock.New()
+	hs.accesscontrolService = acMock
+
+	t.Run("anonymous login skips the permissions lookup", func(t *testing.T) {
+		c := &contextmodel.ReqContext{
+			Context:      &web.Context{Req: httptest.NewRequest(http.MethodGet, "/login", nil)},
+			SignedInUser: &user.SignedInUser{OrgID: 1},
+			IsSignedIn:   false,
+			Logger:       log.New("index-test"),
+		}
+
+		data, err := hs.setIndexViewData(c)
+		require.NoError(t, err)
+		assert.Empty(t, acMock.Calls.GetUserPermissions)
+		require.NotNil(t, data.User.Permissions)
+		assert.Empty(t, data.User.Permissions)
+	})
+
+	t.Run("signed-in users still load permissions", func(t *testing.T) {
+		c := &contextmodel.ReqContext{
+			Context:      &web.Context{Req: httptest.NewRequest(http.MethodGet, "/", nil)},
+			SignedInUser: &user.SignedInUser{OrgID: 1},
+			IsSignedIn:   true,
+			Logger:       log.New("index-test"),
+		}
+
+		data, err := hs.setIndexViewData(c)
+		require.NoError(t, err)
+		assert.Len(t, acMock.Calls.GetUserPermissions, 1)
+		require.NotNil(t, data.User.Permissions)
+	})
+}

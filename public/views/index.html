@@ -17,6 +17,14 @@
     <link rel="icon" type="image/png" href="[[.FavIcon]]" />
     <link rel="apple-touch-icon" sizes="180x180" href="[[.AppleTouchIcon]]" />
     <link rel="mask-icon" href="[[.Assets.ContentDeliveryURL]]public/img/grafana_mask_icon.svg" color="#F05A28" />
+    <link rel="preload" as="image" href="[[.LoadingLogo]]" />
+    [[range $asset := .Assets.JSFiles]]
+      [[if $.ESModuleAssetsEnabled]]
+      <link rel="modulepreload" href="[[$asset.FilePath]]" />
+      [[else]]
+      <link rel="preload" as="script" href="[[$asset.FilePath]]" />
+      [[end]]
+    [[end]]
 
     [[range $asset := .Assets.CSSFiles]]
       <link rel="stylesheet" href="[[$asset.FilePath]]" />
@@ -71,12 +79,8 @@
         }
 
         .preloader__enter {
-          opacity: 0;
-          animation-name: preloader-fade-in;
-          animation-iteration-count: 1;
-          animation-duration: 0.9s;
-          animation-delay: 0.5s;
-          animation-fill-mode: forwards;
+          /* Paint immediately. The old 500ms fade-in delay blocked first contentful paint. */
+          opacity: 1;
         }
 
         .preloader__bounce {
@@ -103,11 +107,7 @@
           font-weight: 500;
           font-size: 14px;
           font-family: Sans-serif;
-          opacity: 0;
-          animation-name: preloader-fade-in;
-          animation-duration: 0.9s;
-          animation-delay: 0.5s;
-          animation-fill-mode: forwards;
+          opacity: 1;
         }
 
         .theme-light .preloader__text {
