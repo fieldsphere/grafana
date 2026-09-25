@@ -45,6 +45,12 @@ func getURLPrefs(c *contextmodel.ReqContext) URLPrefs {
 	}
 }
 
+// isSlimIndexBootdata is true only for unauthenticated login visitors.
+// Anonymous-org and public-dashboard viewers still need full bootdata.
+func isSlimIndexBootdata(c *contextmodel.ReqContext) bool {
+	return !c.IsSignedIn && !c.AllowAnonymous && !c.IsPublicDashboardView()
+}
+
 func (hs *HTTPServer) setIndexViewData(c *contextmodel.ReqContext) (*dtos.IndexViewData, error) {
 	c, span := hs.injectSpan(c, "api.setIndexViewData")
 	defer span.End()
@@ -115,7 +121,7 @@ func (hs *HTTPServer) setIndexViewData(c *contextmodel.ReqContext) (*dtos.IndexV
 	// Children must be non-nil so bootdata serves an empty array rather than
 	// null: frontends that read bootData.navTree directly crash on null.
 	navTree := &navtree.NavTreeRoot{Children: []*navtree.NavLink{}}
-	if !clientNavTree {
+	if !clientNavTree && !isSlimIndexBootdata(c) {
 		var err error
 		navTree, err = hs.navTreeService.GetNavTree(c, prefs)
 		if err != nil {
@@ -203,12 +209,18 @@ func (hs *HTTPServer) setIndexViewData(c *contextmodel.ReqContext) (*dtos.IndexV
 		hosts := middleware.CSPHostLists{FormActionAdditionalHosts: hs.Cfg.FormActionAdditionalHosts}
 		data.CSPContent = middleware.ReplacePolicyVariables(hs.Cfg.CSPTemplate, appURL, hosts, c.RequestNonce)
 	}
-	userPermissions, err := hs.accesscontrolService.GetUserPermissions(c.Req.Context(), c.SignedInUser, ac.Options{ReloadCache: false})
-	if err != nil {
-		return nil, err
+	// Skip RBAC only for unauthenticated login visitors. Anonymous-org and
+	// public-dashboard viewers also have IsSignedIn=false but still need
+	// permissions on Index/GetBootdata.
+	if !isSlimIndexBootdata(c) {
+		userPermissions, err := hs.accesscontrolService.GetUserPermissions(c.Req.Context(), c.SignedInUser, ac.Options{ReloadCache: false})
+		if err != nil {
+			return nil, err
+		}
+		data.User.Permissions = ac.BuildPermissionsMap(userPermissions)
+	} else {
+		data.User.Permissions = map[string]bool{}
 	}
-
-	data.User.Permissions = ac.BuildPermissionsMap(userPermissions)
 
 	if hs.Cfg.DisableGravatar {
 		data.User.GravatarUrl = hs.Cfg.AppSubURL + "/public/img/user_profile.png"
