@@ -20,9 +20,9 @@
     <link rel="preload" as="image" href="[[.LoadingLogo]]" />
     [[range $asset := .Assets.JSFiles]]
       [[if $.ESModuleAssetsEnabled]]
-      <link rel="modulepreload" href="[[$asset.FilePath]]" />
+      <link rel="modulepreload" href="[[$asset.FilePath]]" crossorigin="anonymous" />
       [[else]]
-      <link rel="preload" as="script" href="[[$asset.FilePath]]" />
+      <link rel="preload" as="script" href="[[$asset.FilePath]]" crossorigin="anonymous" />
       [[end]]
     [[end]]
 

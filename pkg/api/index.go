@@ -203,9 +203,10 @@ func (hs *HTTPServer) setIndexViewData(c *contextmodel.ReqContext) (*dtos.IndexV
 		hosts := middleware.CSPHostLists{FormActionAdditionalHosts: hs.Cfg.FormActionAdditionalHosts}
 		data.CSPContent = middleware.ReplacePolicyVariables(hs.Cfg.CSPTemplate, appURL, hosts, c.RequestNonce)
 	}
-	// Anonymous first-load (login) does not need a permissions lookup; skip it so TTFB
-	// is not paying for RBAC on a page that cannot use those permissions yet.
-	if c.IsSignedIn {
+	// Skip RBAC only for unauthenticated login visitors. Anonymous-org and
+	// public-dashboard viewers also have IsSignedIn=false but still need
+	// permissions on Index/GetBootdata.
+	if c.IsSignedIn || c.AllowAnonymous || c.IsPublicDashboardView() {
 		userPermissions, err := hs.accesscontrolService.GetUserPermissions(c.Req.Context(), c.SignedInUser, ac.Options{ReloadCache: false})
 		if err != nil {
 			return nil, err

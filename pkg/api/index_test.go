@@ -146,7 +146,7 @@ func TestIntegrationSetIndexViewData_clientNavTree(t *testing.T) {
 	}
 }
 
-func TestSetIndexViewData_skipsPermissionsForAnonymous(t *testing.T) {
+func TestSetIndexViewData_skipsPermissionsForUnauthenticatedLogin(t *testing.T) {
 	setNavTreeFlags(t, false, false)
 
 	cfg := setting.NewCfg()
@@ -165,30 +165,44 @@ func TestSetIndexViewData_skipsPermissionsForAnonymous(t *testing.T) {
 	acMock := accesscontrolmock.New()
 	hs.accesscontrolService = acMock
 
-	t.Run("anonymous login skips the permissions lookup", func(t *testing.T) {
-		c := &contextmodel.ReqContext{
-			Context:      &web.Context{Req: httptest.NewRequest(http.MethodGet, "/login", nil)},
-			SignedInUser: &user.SignedInUser{OrgID: 1},
-			IsSignedIn:   false,
-			Logger:       log.New("index-test"),
+	newCtx := func(path string, signedIn, allowAnonymous bool, publicDashToken string) *contextmodel.ReqContext {
+		return &contextmodel.ReqContext{
+			Context:                    &web.Context{Req: httptest.NewRequest(http.MethodGet, path, nil)},
+			SignedInUser:               &user.SignedInUser{OrgID: 1},
+			IsSignedIn:                 signedIn,
+			AllowAnonymous:             allowAnonymous,
+			PublicDashboardAccessToken: publicDashToken,
+			Logger:                     log.New("index-test"),
 		}
+	}
 
-		data, err := hs.setIndexViewData(c)
+	t.Run("unauthenticated login skips the permissions lookup", func(t *testing.T) {
+		data, err := hs.setIndexViewData(newCtx("/login", false, false, ""))
 		require.NoError(t, err)
 		assert.Empty(t, acMock.Calls.GetUserPermissions)
 		require.NotNil(t, data.User.Permissions)
 		assert.Empty(t, data.User.Permissions)
 	})
 
-	t.Run("signed-in users still load permissions", func(t *testing.T) {
-		c := &contextmodel.ReqContext{
-			Context:      &web.Context{Req: httptest.NewRequest(http.MethodGet, "/", nil)},
-			SignedInUser: &user.SignedInUser{OrgID: 1},
-			IsSignedIn:   true,
-			Logger:       log.New("index-test"),
-		}
+	t.Run("anonymous-org viewers still load permissions", func(t *testing.T) {
+		acMock.Calls.GetUserPermissions = nil
+		data, err := hs.setIndexViewData(newCtx("/", false, true, ""))
+		require.NoError(t, err)
+		assert.Len(t, acMock.Calls.GetUserPermissions, 1)
+		require.NotNil(t, data.User.Permissions)
+	})
 
-		data, err := hs.setIndexViewData(c)
+	t.Run("public-dashboard viewers still load permissions", func(t *testing.T) {
+		acMock.Calls.GetUserPermissions = nil
+		data, err := hs.setIndexViewData(newCtx("/public-dashboards/abc", false, false, "abc"))
+		require.NoError(t, err)
+		assert.Len(t, acMock.Calls.GetUserPermissions, 1)
+		require.NotNil(t, data.User.Permissions)
+	})
+
+	t.Run("signed-in users still load permissions", func(t *testing.T) {
+		acMock.Calls.GetUserPermissions = nil
+		data, err := hs.setIndexViewData(newCtx("/", true, false, ""))
 		require.NoError(t, err)
 		assert.Len(t, acMock.Calls.GetUserPermissions, 1)
 		require.NotNil(t, data.User.Permissions)
