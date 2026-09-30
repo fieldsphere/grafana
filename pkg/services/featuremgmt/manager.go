@@ -1,15 +1,18 @@
 package featuremgmt
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"reflect"
+	"slices"
 
 	"github.com/grafana/grafana/pkg/infra/log"
 )
 
 var (
-	_ FeatureToggles = (*FeatureManager)(nil)
+	_ FeatureToggles                 = (*FeatureManager)(nil)
+	_ RegisteredFeatureFlagsProvider = (*FeatureManager)(nil)
 )
 
 type FeatureManager struct {
@@ -116,6 +119,27 @@ func (fm *FeatureManager) GetEnabled(ctx context.Context) map[string]bool {
 		}
 	}
 	return enabled
+}
+
+// GetRegisteredFeatureFlags returns every registered flag with its current enabled state.
+func (fm *FeatureManager) GetRegisteredFeatureFlags(ctx context.Context) []RegisteredFeatureFlag {
+	defs := fm.GetFlags()
+	slices.SortFunc(defs, func(a, b FeatureFlag) int {
+		return cmp.Compare(a.Name, b.Name)
+	})
+	out := make([]RegisteredFeatureFlag, 0, len(defs))
+	for _, f := range defs {
+		out = append(out, RegisteredFeatureFlag{
+			Name:            f.Name,
+			Description:     f.Description,
+			Stage:           f.Stage.String(),
+			Enabled:         fm.IsEnabled(ctx, f.Name),
+			Expression:      f.Expression,
+			RequiresDevMode: f.RequiresDevMode,
+			FrontendOnly:    f.FrontendOnly,
+		})
+	}
+	return out
 }
 
 // GetFlags returns all flag definitions
