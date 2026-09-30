@@ -33,20 +33,8 @@ import (
 //
 // Optional access control metadata is still fetched from the legacy accesscontrol service for now.
 func (hs *HTTPServer) getK8sDataSourceByUIDHandler() web.Handler {
-	//nolint:staticcheck // not yet migrated to OpenFeature
-	if !hs.Features.IsEnabledGlobally(featuremgmt.FlagDatasourcesRerouteLegacyCRUDAPIs) {
+	if !hs.shouldRerouteDataSourceByUID() {
 		return routing.Wrap(hs.GetDataSourceByUID)
-	}
-
-	// datasourcesRerouteLegacyCRUDAPIs requires these flags to be enabled
-	//nolint:staticcheck // not yet migrated to OpenFeature
-	if !hs.Features.IsEnabledGlobally(featuremgmt.FlagQueryService) ||
-		!hs.Features.IsEnabledGlobally(featuremgmt.FlagDatasourceUseNewCRUDAPIs) {
-		return routing.Wrap(func(c *contextmodel.ReqContext) response.Response {
-			return response.Error(http.StatusInternalServerError,
-				"datasourcesRerouteLegacyCRUDAPIs requires queryService and queryServiceWithConnections feature flags",
-				nil)
-		})
 	}
 
 	return routing.Wrap(func(c *contextmodel.ReqContext) response.Response {
@@ -90,6 +78,16 @@ func (hs *HTTPServer) getK8sDataSourceByUIDHandler() web.Handler {
 
 		return response.JSON(http.StatusOK, &dto)
 	})
+}
+
+// shouldRerouteDataSourceByUID is true only when the GET-UID rewrite and both
+// sibling flags it depends on are enabled. A partial set used to 500; fall back
+// to the legacy UID GET instead so a bad flag combo does not take the endpoint down.
+func (hs *HTTPServer) shouldRerouteDataSourceByUID() bool {
+	//nolint:staticcheck // not yet migrated to OpenFeature
+	return hs.Features.IsEnabledGlobally(featuremgmt.FlagDatasourcesRerouteLegacyCRUDAPIs) &&
+		hs.Features.IsEnabledGlobally(featuremgmt.FlagQueryService) &&
+		hs.Features.IsEnabledGlobally(featuremgmt.FlagDatasourceUseNewCRUDAPIs)
 }
 
 // getK8sDataSource fetches a datasource config from the new API
