@@ -1,5 +1,8 @@
 import { VizPanel } from '@grafana/scenes';
-import { isK8sLibraryPanelsClientEnabled, libraryPanelsK8sClient } from 'app/api/clients/dashboard/v0alpha1/libraryPanels';
+import {
+  isK8sLibraryPanelsClientEnabled,
+  libraryPanelsK8sClient,
+} from 'app/api/clients/dashboard/v0alpha1/libraryPanels';
 import { LibraryPanelBehavior } from 'app/features/dashboard-scene/scene/LibraryPanelBehavior';
 import { AutoGridItem } from 'app/features/dashboard-scene/scene/layout-auto-grid/AutoGridItem';
 import { vizPanelToPanel } from 'app/features/dashboard-scene/serialization/transformSceneToSaveModel';
@@ -71,7 +74,9 @@ describe('addLibraryPanel', () => {
   describe('when the librarypanels resource is served', () => {
     beforeEach(() => {
       mockIsK8sLibraryPanelsClientEnabled.mockResolvedValue(true);
-      mockK8sCreate.mockResolvedValue({ uid: 'created-uid' } as Awaited<ReturnType<typeof libraryPanelsK8sClient.create>>);
+      mockK8sCreate.mockResolvedValue({ uid: 'created-uid' } as Awaited<
+        ReturnType<typeof libraryPanelsK8sClient.create>
+      >);
     });
 
     it('creates through the /apis client and forwards the uid', async () => {

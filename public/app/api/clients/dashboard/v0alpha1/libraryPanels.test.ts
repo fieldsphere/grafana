@@ -77,7 +77,9 @@ function discoveryList(resources: GroupDiscoveryResource[]): APIGroupDiscoveryLi
   };
 }
 
-function libraryPanelsResource(verbs: string[] = ['get', 'list', 'create', 'update', 'delete']): GroupDiscoveryResource {
+function libraryPanelsResource(
+  verbs: string[] = ['get', 'list', 'create', 'update', 'delete']
+): GroupDiscoveryResource {
   return {
     resource: 'librarypanels',
     singularResource: 'librarypanel',
