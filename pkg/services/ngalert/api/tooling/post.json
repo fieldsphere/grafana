@@ -2081,9 +2081,6 @@
    },
    "type": "object"
   },
-  "Gone": {
-   "type": "object"
-  },
   "HTTPClientConfig": {
    "properties": {
     "authorization": {
@@ -6051,25 +6048,6 @@
       "$ref": "#/responses/receiversResponse"
      }
     },
-    "tags": [
-     "alertmanager"
-    ]
-   }
-  },
-  "/alertmanager/grafana/config/api/v1/receivers/test": {
-   "post": {
-    "deprecated": true,
-    "description": "This endpoint has been removed. Please use `/apis/notifications.alerting.grafana.app/v1beta1/namespaces/{namespace}/receivers/{uid}/test` instead.",
-    "operationId": "RoutePostTestGrafanaReceivers",
-    "responses": {
-     "410": {
-      "description": "Gone",
-      "schema": {
-       "$ref": "#/definitions/Gone"
-      }
-     }
-    },
-    "summary": "Test Grafana managed receivers without saving them.",
     "tags": [
      "alertmanager"
     ]

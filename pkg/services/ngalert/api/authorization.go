@@ -9,7 +9,6 @@ import (
 	contextmodel "github.com/grafana/grafana/pkg/services/contexthandler/model"
 	"github.com/grafana/grafana/pkg/services/datasources"
 	"github.com/grafana/grafana/pkg/services/folder"
-	"github.com/grafana/grafana/pkg/services/ngalert/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/ngalert/models"
 	"github.com/grafana/grafana/pkg/web"
 )
@@ -292,11 +291,6 @@ func (api *API) authorize(method, path string) web.Handler {
 			ac.EvalPermission(ac.ActionAlertingNotificationsRead),
 			ac.EvalPermission(ac.ActionAlertingReceiversRead),
 			ac.EvalPermission(ac.ActionAlertingReceiversReadSecrets),
-		)
-	case http.MethodPost + "/api/alertmanager/grafana/config/api/v1/receivers/test":
-		eval = ac.EvalAny(
-			accesscontrol.TestReceiversPreconditionEval,
-			accesscontrol.TestReceiverNew,
 		)
 	case http.MethodPost + "/api/alertmanager/grafana/config/api/v1/templates/test":
 		eval = ac.EvalAny(

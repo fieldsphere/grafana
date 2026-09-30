@@ -336,25 +336,6 @@
         }
       }
     },
-    "/alertmanager/grafana/config/api/v1/receivers/test": {
-      "post": {
-        "description": "This endpoint has been removed. Please use `/apis/notifications.alerting.grafana.app/v1beta1/namespaces/{namespace}/receivers/{uid}/test` instead.",
-        "tags": [
-          "alertmanager"
-        ],
-        "summary": "Test Grafana managed receivers without saving them.",
-        "operationId": "RoutePostTestGrafanaReceivers",
-        "deprecated": true,
-        "responses": {
-          "410": {
-            "description": "Gone",
-            "schema": {
-              "$ref": "#/definitions/Gone"
-            }
-          }
-        }
-      }
-    },
     "/alertmanager/grafana/config/api/v1/templates/test": {
       "post": {
         "produces": [
@@ -6723,9 +6704,6 @@
           "$ref": "#/definitions/URL"
         }
       }
-    },
-    "Gone": {
-      "type": "object"
     },
     "HTTPClientConfig": {
       "type": "object",

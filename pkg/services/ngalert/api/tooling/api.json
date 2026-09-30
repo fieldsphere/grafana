@@ -2081,9 +2081,6 @@
    },
    "type": "object"
   },
-  "Gone": {
-   "type": "object"
-  },
   "HTTPClientConfig": {
    "properties": {
     "authorization": {

@@ -41,7 +41,8 @@ func TestAuthorize(t *testing.T) {
 		}
 		paths[p] = methods
 	}
-	require.Len(t, paths, 65)
+	require.Len(t, paths, 64)
+	require.NotContains(t, paths, "/alertmanager/grafana/config/api/v1/receivers/test")
 
 	ac := acmock.New()
 	api := &API{AccessControl: ac, FeatureManager: featuremgmt.WithFeatures()}
@@ -60,6 +61,12 @@ func TestAuthorize(t *testing.T) {
 	t.Run("should panic if route is unknown", func(t *testing.T) {
 		require.Panics(t, func() {
 			api.authorize("test", "test")
+		})
+	})
+
+	t.Run("should panic for removed receivers test route", func(t *testing.T) {
+		require.Panics(t, func() {
+			api.authorize(http.MethodPost, "/api/alertmanager/grafana/config/api/v1/receivers/test")
 		})
 	})
 }
