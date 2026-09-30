@@ -88,6 +88,7 @@ Most [generally available](https://grafana.com/docs/release-life-cycle/#general-
 | `provisioning.gitConventions`      | Enable configurable commit message, branch name, and pull request title conventions for Git Sync                               |
 | `provisioning.userAttribution`     | Author Git Sync commits as the acting Grafana user                                                                             |
 | `externalServiceAccounts`          | Automatic service account and token setup for plugins                                                                          |
+| `snapshots.kubernetesSnapshots`    | Routes snapshot requests from /api to the /apis endpoint                                                                       |
 | `feedbackButton`                   | Enables the feedback button in the dashboard edit sidebar                                                                      |
 | `pdfTables`                        | Enables generating table data as PDF in reporting                                                                              |
 | `canvasPanelPanZoom`               | Allow pan and zoom in canvas panel                                                                                             |

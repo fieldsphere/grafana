@@ -1403,10 +1403,10 @@ export const useFlagSecretsManagementAppPlatformUI = (options?: ReactFlagEvaluat
  *
  * **Details:**
  * - flag key: `snapshots.kubernetesSnapshots`
- * - default value: `false`
+ * - default value: `true`
  */
 export const useFlagSnapshotsKubernetesSnapshots = (options?: ReactFlagEvaluationOptions): boolean => {
-  return useFlag("snapshots.kubernetesSnapshots", false, options).value;
+  return useFlag("snapshots.kubernetesSnapshots", true, options).value;
 };
 
 /**

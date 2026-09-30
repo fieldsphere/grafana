@@ -383,9 +383,9 @@ var (
 		{
 			Name:        "snapshots.kubernetesSnapshots",
 			Description: "Routes snapshot requests from /api to the /apis endpoint",
-			Stage:       FeatureStageExperimental,
+			Stage:       FeatureStagePublicPreview,
 			Owner:       grafanaSharingSquad,
-			Expression:  "false",
+			Expression:  "true",
 			Generate:    Generate{Go: true, React: true},
 		},
 		{

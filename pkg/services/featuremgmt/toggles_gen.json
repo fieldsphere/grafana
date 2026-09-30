@@ -5093,9 +5093,9 @@
       },
       "spec": {
         "description": "Routes snapshot requests from /api to the /apis endpoint",
-        "stage": "experimental",
+        "stage": "preview",
         "codeowner": "@grafana/sharing-squad",
-        "expression": "false"
+        "expression": "true"
       }
     },
     {
