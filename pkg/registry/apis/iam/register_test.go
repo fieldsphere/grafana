@@ -26,6 +26,7 @@ import (
 	grafanaregistry "github.com/grafana/grafana/pkg/apiserver/registry/generic"
 	"github.com/grafana/grafana/pkg/infra/tracing"
 	"github.com/grafana/grafana/pkg/registry/apis/iam/display"
+	"github.com/grafana/grafana/pkg/registry/apis/iam/externalgroupmapping"
 	"github.com/grafana/grafana/pkg/registry/apis/iam/noopstorage"
 	"github.com/grafana/grafana/pkg/registry/apis/iam/resourcepermission"
 	"github.com/grafana/grafana/pkg/registry/apis/iam/userpermissions"
@@ -46,6 +47,45 @@ func (noopUserPermissionsClient) GetUserPermissions(context.Context, authlib.Aut
 
 func (noopUserPermissionsClient) InvalidateUserPermissions(context.Context, authlib.AuthInfo, authlib.GetUserPermissionsRequest) error {
 	return nil
+}
+
+func TestGetAPIRoutes_ExternalGroupMappingsSearchGate(t *testing.T) {
+	for _, tt := range []struct {
+		name    string
+		enabled bool
+		want    bool
+	}{
+		{name: "route absent when disabled", enabled: false, want: false},
+		{name: "route registered when enabled", enabled: true, want: true},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			b := &IdentityAccessManagementAPIBuilder{
+				features:                          Features{ExternalGroupMappingsAPI: tt.enabled},
+				display:                           display.NewDisplayHandler(),
+				externalGroupMappingSearchHandler: externalgroupmapping.ProvideNoopSearchREST(),
+			}
+			routes := b.GetAPIRoutes(legacyiamv0.SchemeGroupVersion)
+			found := false
+			for _, route := range routes.Namespace {
+				if route.Path == "searchExternalGroupMappings" {
+					found = true
+				}
+			}
+			require.Equal(t, tt.want, found)
+		})
+	}
+
+	t.Run("teams API does not register the search route", func(t *testing.T) {
+		b := &IdentityAccessManagementAPIBuilder{
+			features:                          Features{TeamsAPI: true},
+			display:                           display.NewDisplayHandler(),
+			externalGroupMappingSearchHandler: externalgroupmapping.ProvideNoopSearchREST(),
+		}
+		routes := b.GetAPIRoutes(legacyiamv0.SchemeGroupVersion)
+		for _, route := range routes.Namespace {
+			require.NotEqual(t, "searchExternalGroupMappings", route.Path)
+		}
+	})
 }
 
 func TestGetAPIRoutes_UserPermissionsGate(t *testing.T) {

@@ -26,6 +26,11 @@ func TestParseAPIs(t *testing.T) {
 			want:   []API{APIRoles, APITeams},
 		},
 		{
+			name:   "parses external group mappings",
+			values: []string{"externalgroupmappings"},
+			want:   []API{APIExternalGroupMappings},
+		},
+		{
 			name:   "none disables every API",
 			values: []string{"none"},
 		},
@@ -60,9 +65,10 @@ func TestParseAPIs(t *testing.T) {
 
 func TestFeaturesSetAPIsReplacesAPISurface(t *testing.T) {
 	features := Features{
-		RolesAPI:       true,
-		GlobalRolesAPI: true,
-		ZanzanaSync:    true,
+		RolesAPI:                 true,
+		GlobalRolesAPI:           true,
+		ExternalGroupMappingsAPI: true,
+		ZanzanaSync:              true,
 	}
 
 	features.SetAPIs([]API{APITeams, APIUsers})
@@ -122,7 +128,7 @@ func TestProvideFeatures(t *testing.T) {
 		{
 			name: "explicit configuration replaces legacy flags",
 			values: map[string]string{
-				"api":                  "roles, rolebindings, resourcepermissions",
+				"api":                  "roles, rolebindings, resourcepermissions, externalgroupmappings",
 				"zanzana_sync_enabled": "false",
 				"service_account_resource_permissions_enabled": "true",
 			},
@@ -130,6 +136,7 @@ func TestProvideFeatures(t *testing.T) {
 				RolesAPI:                          true,
 				RoleBindingsAPI:                   true,
 				ResourcePermissionsAPI:            true,
+				ExternalGroupMappingsAPI:          true,
 				ServiceAccountResourcePermissions: true,
 			},
 		},
@@ -217,6 +224,7 @@ func TestFeaturesFromFlags(t *testing.T) {
 		{name: "SSO settings", flag: featuremgmt.FlagKubernetesSsoSettingsApi, want: Features{SSOSettingsAPI: true}},
 		{name: "auth info", flag: featuremgmt.FlagKubernetesAuthInfoApi, want: Features{AuthInfoAPI: true}},
 		{name: "user permissions", flag: featuremgmt.FlagAuthzUserPermissions, want: Features{UserPermissionsAPI: true}},
+		{name: "external group mappings", flag: featuremgmt.FlagKubernetesExternalGroupMappingsApi, want: Features{ExternalGroupMappingsAPI: true}},
 		{name: "service account resource permissions", flag: featuremgmt.FlagKubernetesAuthzServiceAccountResourcePermissions, want: Features{ServiceAccountResourcePermissions: true}},
 		{name: "Zanzana sync", flag: featuremgmt.FlagKubernetesAuthzZanzanaSync, want: Features{ZanzanaSync: true}},
 	}
@@ -261,6 +269,7 @@ func TestFeaturesFromFlagsExcludesRuntimeFlags(t *testing.T) {
 	flags := map[string]memprovider.InMemoryFlag{}
 	for _, flag := range []string{
 		featuremgmt.FlagKubernetesTeamsRedirect,
+		featuremgmt.FlagKubernetesExternalGroupMappingsRedirect,
 		featuremgmt.FlagTeamHttpHeadersTempo,
 	} {
 		flags[flag] = memprovider.InMemoryFlag{

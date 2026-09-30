@@ -17,19 +17,20 @@ import (
 type API string
 
 const (
-	APIRoles                API = "roles"
-	APIRoleBindings         API = "rolebindings"
-	APIGlobalRoles          API = "globalroles"
-	APIResourcePermissions  API = "resourcepermissions"
-	APITeamLBACRules        API = "teamlbacrules"
-	APITeams                API = "teams"
-	APIUsers                API = "users"
-	APIServiceAccounts      API = "serviceaccounts"
-	APIServiceAccountTokens API = "serviceaccounttokens"
-	APISSOSettings          API = "ssosettings"
-	APIAuthInfo             API = "authinfo"
-	APIUserPermissions      API = "userpermissions"
-	apiNone                 API = "none"
+	APIRoles                 API = "roles"
+	APIRoleBindings          API = "rolebindings"
+	APIGlobalRoles           API = "globalroles"
+	APIResourcePermissions   API = "resourcepermissions"
+	APITeamLBACRules         API = "teamlbacrules"
+	APITeams                 API = "teams"
+	APIUsers                 API = "users"
+	APIServiceAccounts       API = "serviceaccounts"
+	APIServiceAccountTokens  API = "serviceaccounttokens"
+	APISSOSettings           API = "ssosettings"
+	APIAuthInfo              API = "authinfo"
+	APIUserPermissions       API = "userpermissions"
+	APIExternalGroupMappings API = "externalgroupmappings"
+	apiNone                  API = "none"
 )
 
 var supportedAPIs = []API{
@@ -45,6 +46,7 @@ var supportedAPIs = []API{
 	APISSOSettings,
 	APIAuthInfo,
 	APIUserPermissions,
+	APIExternalGroupMappings,
 }
 
 type Features struct {
@@ -60,6 +62,7 @@ type Features struct {
 	SSOSettingsAPI                    bool
 	AuthInfoAPI                       bool
 	UserPermissionsAPI                bool
+	ExternalGroupMappingsAPI          bool
 	ServiceAccountResourcePermissions bool
 	ZanzanaSync                       bool
 }
@@ -161,6 +164,7 @@ func FeaturesFromFlags(ctx context.Context, client openfeature.IClient) Features
 		SSOSettingsAPI:                    flag(featuremgmt.FlagKubernetesSsoSettingsApi),
 		AuthInfoAPI:                       flag(featuremgmt.FlagKubernetesAuthInfoApi),
 		UserPermissionsAPI:                flag(featuremgmt.FlagAuthzUserPermissions),
+		ExternalGroupMappingsAPI:          flag(featuremgmt.FlagKubernetesExternalGroupMappingsApi),
 		ServiceAccountResourcePermissions: flag(featuremgmt.FlagKubernetesAuthzServiceAccountResourcePermissions),
 		ZanzanaSync:                       flag(featuremgmt.FlagKubernetesAuthzZanzanaSync),
 	}
@@ -205,6 +209,7 @@ func (f *Features) SetAPIs(apis []API) {
 	f.SSOSettingsAPI = slices.Contains(apis, APISSOSettings)
 	f.AuthInfoAPI = slices.Contains(apis, APIAuthInfo)
 	f.UserPermissionsAPI = slices.Contains(apis, APIUserPermissions)
+	f.ExternalGroupMappingsAPI = slices.Contains(apis, APIExternalGroupMappings)
 }
 
 func (f Features) EnabledAPIs() []API {
@@ -243,6 +248,8 @@ func featureForAPI(f Features, api API) bool {
 		return f.AuthInfoAPI
 	case APIUserPermissions:
 		return f.UserPermissionsAPI
+	case APIExternalGroupMappings:
+		return f.ExternalGroupMappingsAPI
 	default:
 		return false
 	}
