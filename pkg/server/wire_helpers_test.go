@@ -58,8 +58,13 @@ func TestProvideMigrationRegistryRegistersLibraryPanels(t *testing.T) {
 	s := stubMigrator{}
 	registry := ProvideMigrationRegistry(s, s, s, s, s, s, s, s)
 
-	def, ok := registry.Get(migrations.FoldersDashboardsMigrationID)
+	foldersDashboards, ok := registry.Get(migrations.FoldersDashboardsMigrationID)
 	require.True(t, ok)
-	require.Contains(t, def.ConfigResources(), setting.LibraryPanelResource)
+	require.NotContains(t, foldersDashboards.ConfigResources(), setting.LibraryPanelResource)
+
+	def, ok := registry.Get(migrations.LibraryPanelsMigrationID)
+	require.True(t, ok)
+	require.Equal(t, []string{setting.LibraryPanelResource}, def.ConfigResources())
+	require.Equal(t, migrations.LibraryPanelsMigrationLogID, def.MigrationID)
 	require.NotNil(t, registry.GetMigratorFunc(dashV0.LibraryPanelResourceInfo.GroupResource()))
 }

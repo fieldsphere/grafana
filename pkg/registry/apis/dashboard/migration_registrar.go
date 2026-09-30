@@ -14,7 +14,6 @@ import (
 func FoldersDashboardsMigration(migrator migrator.FoldersDashboardsMigrator) migrations.MigrationDefinition {
 	folderGR := schema.GroupResource{Group: folders.GROUP, Resource: folders.RESOURCE}
 	dashboardGR := schema.GroupResource{Group: v1.GROUP, Resource: v1.DASHBOARD_RESOURCE}
-	libraryPanelGR := schema.GroupResource{Group: v1.GROUP, Resource: v1.LIBRARY_PANEL_RESOURCE}
 
 	return migrations.MigrationDefinition{
 		ID:          migrations.FoldersDashboardsMigrationID,
@@ -31,16 +30,10 @@ func FoldersDashboardsMigration(migrator migrator.FoldersDashboardsMigrator) mig
 				LockTables:    []string{"dashboard", "dashboard_version", "dashboard_provisioning"},
 				FloorVersion:  dashV0.VERSION,
 			},
-			{
-				GroupResource: libraryPanelGR,
-				LockTables:    []string{"library_element"},
-				FloorVersion:  dashV0.VERSION,
-			},
 		},
 		Migrators: map[schema.GroupResource]migrations.MigratorFunc{
-			folderGR:       migrator.MigrateFolders,
-			dashboardGR:    migrator.MigrateDashboards,
-			libraryPanelGR: migrator.MigrateLibraryPanels,
+			folderGR:    migrator.MigrateFolders,
+			dashboardGR: migrator.MigrateDashboards,
 		},
 		Validators: []migrations.ValidatorFactory{
 			migrations.CountValidation(folderGR, migrations.CountValidationOptions{
@@ -51,13 +44,39 @@ func FoldersDashboardsMigration(migrator migrator.FoldersDashboardsMigrator) mig
 				Table: "dashboard",
 				Where: "org_id = ? AND is_folder = false AND deleted IS NULL",
 			}),
+			migrations.FolderTreeValidation(folderGR),
+		},
+		// Folder and Dashboard tables are still being used
+		RenameTables: []string{},
+	}
+}
+
+// LibraryPanelsMigration copies library panels from SQL. It has its own log id so
+// stacks that already completed "folders and dashboards migration" still backfill
+// panels instead of being treated as already on unified storage.
+func LibraryPanelsMigration(migrator migrator.FoldersDashboardsMigrator) migrations.MigrationDefinition {
+	libraryPanelGR := schema.GroupResource{Group: v1.GROUP, Resource: v1.LIBRARY_PANEL_RESOURCE}
+
+	return migrations.MigrationDefinition{
+		ID:          migrations.LibraryPanelsMigrationID,
+		MigrationID: migrations.LibraryPanelsMigrationLogID,
+		Resources: []migrations.ResourceInfo{
+			{
+				GroupResource: libraryPanelGR,
+				LockTables:    []string{"library_element"},
+				FloorVersion:  dashV0.VERSION,
+			},
+		},
+		Migrators: map[schema.GroupResource]migrations.MigratorFunc{
+			libraryPanelGR: migrator.MigrateLibraryPanels,
+		},
+		Validators: []migrations.ValidatorFactory{
 			migrations.CountValidation(libraryPanelGR, migrations.CountValidationOptions{
 				Table: "library_element",
 				Where: "org_id = ?",
 			}),
-			migrations.FolderTreeValidation(folderGR),
 		},
-		// Folder, dashboard, and library_element tables are still being used
+		// library_element is still being used
 		RenameTables: []string{},
 	}
 }

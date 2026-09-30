@@ -350,6 +350,7 @@ const (
 
 	playlistsID            = "playlists migration"
 	foldersAndDashboardsID = "folders and dashboards migration"
+	libraryPanelsID        = migrations.LibraryPanelsMigrationLogID
 	shorturlsID            = "shorturls migration"
 	starsID                = "stars migration"
 	preferencesID          = "preferences migration"
@@ -366,6 +367,7 @@ var fastRebuildBackoff = backoff.Config{
 var migrationIDsToDefault = map[string]bool{
 	playlistsID:            true,
 	foldersAndDashboardsID: true, // Auto-migrated when resource count is below threshold
+	libraryPanelsID:        true,
 	shorturlsID:            true,
 	datasourceID:           false,
 	starsID:                false,

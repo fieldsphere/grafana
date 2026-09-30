@@ -29,7 +29,7 @@ const (
 
 // LegacyCountedResources is guarded by a test: once one of these gets a migration
 // registered, legacyTableIsStale has to read the migration status instead of config.
-var LegacyCountedResources = []string{alertRuleResource, recordingRuleResource, libraryPanelResource}
+var LegacyCountedResources = []string{alertRuleResource, recordingRuleResource}
 
 // Read stats from legacy SQL
 type LegacyStatsGetter struct {

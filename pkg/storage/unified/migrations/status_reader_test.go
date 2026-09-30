@@ -197,6 +197,44 @@ func TestMigrationStatusReader_GetStorageMode_ConfigResolution(t *testing.T) {
 	}
 }
 
+func TestMigrationStatusReader_GetStorageMode_LibraryPanelsDoNotInheritFoldersDashboardsLog(t *testing.T) {
+	sqlStore, cfg := infraDB.InitTestDBWithCfg(t) //nolint:staticcheck // legacy shared-DB test setup; migrate to NewTestStore
+	folderGR := schema.GroupResource{Resource: "folders", Group: "folder.grafana.app"}
+	dashboardGR := schema.GroupResource{Resource: "dashboards", Group: "dashboard.grafana.app"}
+	libraryPanelGR := schema.GroupResource{Resource: "librarypanels", Group: "dashboard.grafana.app"}
+
+	registry := NewMigrationRegistry()
+	registry.Register(MigrationDefinition{
+		ID:          FoldersDashboardsMigrationID,
+		MigrationID: "folders and dashboards migration",
+		Resources: []ResourceInfo{
+			{GroupResource: folderGR},
+			{GroupResource: dashboardGR},
+		},
+	})
+	registry.Register(MigrationDefinition{
+		ID:          LibraryPanelsMigrationID,
+		MigrationID: LibraryPanelsMigrationLogID,
+		Resources: []ResourceInfo{
+			{GroupResource: libraryPanelGR},
+		},
+	})
+
+	require.NoError(t, EnsureMigrationLogTable(context.Background(), sqlStore, cfg))
+	require.NoError(t, insertMigrationLogRow(sqlStore, "folders and dashboards migration", true, ""))
+
+	reader, err := ProvideMigrationStatusReader(sqlStore, cfg, registry, prometheus.NewRegistry())
+	require.NoError(t, err)
+
+	mode, err := reader.GetStorageMode(context.Background(), dashboardGR)
+	require.NoError(t, err)
+	require.Equal(t, contract.StorageModeUnified, mode)
+
+	mode, err = reader.GetStorageMode(context.Background(), libraryPanelGR)
+	require.NoError(t, err)
+	require.Equal(t, contract.StorageModeLegacy, mode, "completed folders/dashboards log must not mark library panels unified")
+}
+
 func TestMigrationStatusReader_GetStorageMode_MigrationLogOverridesConfig(t *testing.T) {
 	sqlStore, cfg := infraDB.InitTestDBWithCfg(t) //nolint:staticcheck // legacy shared-DB test setup; migrate to NewTestStore
 	playlistGR := schema.GroupResource{Resource: "playlists", Group: "playlist.grafana.app"}

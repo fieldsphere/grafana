@@ -366,6 +366,14 @@ const dualwriteKVNamespace = "unified.dualwrite"
 // It is the only migration whose legacy dualwrite state we need to verify.
 const FoldersDashboardsMigrationID = "folders-dashboards"
 
+// LibraryPanelsMigrationID is the definition ID of the library panels migration.
+// It is separate from FoldersDashboardsMigrationID so existing stacks that already
+// recorded "folders and dashboards migration" still run the panel backfill.
+const LibraryPanelsMigrationID = "librarypanels"
+
+// LibraryPanelsMigrationLogID is the unifiedstorage_migration_log id for library panels.
+const LibraryPanelsMigrationLogID = "library panels migration"
+
 // dualwriteFileName is the name of the file used by G12.0.0 to persist dualwrite state
 // in the data directory. It contains a JSON-encoded map of resource keys
 // (e.g. "dashboards.dashboard.grafana.app") to dualwriteStorageStatus.
@@ -414,9 +422,9 @@ func (r *MigrationRunner) isAlreadyOnUnifiedStorage(sess *xorm.Session) (bool, e
 	checked := 0
 	for _, key := range configResources {
 		// G12 dualwrite markers were only ever written for folders and dashboards.
-		// Resources added to this definition later (library panels) were never
-		// recorded there; requiring them would disable the skip and re-run the
-		// migration, wiping unified folders/dashboards.
+		// Resources added to this definition later were never recorded there;
+		// requiring them would disable the skip and re-run the migration, wiping
+		// unified folders/dashboards.
 		if !isG12DualwriteResource(key) {
 			continue
 		}

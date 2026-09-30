@@ -14,7 +14,7 @@ import (
 	"github.com/grafana/grafana/pkg/storage/unified/migrations"
 )
 
-func TestFoldersDashboardsMigrationRegistersLibraryPanels(t *testing.T) {
+func TestFoldersDashboardsMigrationDoesNotRegisterLibraryPanels(t *testing.T) {
 	def := FoldersDashboardsMigration(dashboardmigrator.ProvideFoldersDashboardsMigrator(nil))
 
 	folderGR := schema.GroupResource{Group: folders.GROUP, Resource: folders.RESOURCE}
@@ -22,27 +22,27 @@ func TestFoldersDashboardsMigrationRegistersLibraryPanels(t *testing.T) {
 	libraryPanelGR := schema.GroupResource{Group: v1.GROUP, Resource: v1.LIBRARY_PANEL_RESOURCE}
 
 	require.Equal(t, migrations.FoldersDashboardsMigrationID, def.ID)
-	require.ElementsMatch(t, []schema.GroupResource{folderGR, dashboardGR, libraryPanelGR}, def.GetGroupResources())
+	require.ElementsMatch(t, []schema.GroupResource{folderGR, dashboardGR}, def.GetGroupResources())
 	require.ElementsMatch(t, []string{
 		setting.FolderResource,
 		setting.DashboardResource,
-		setting.LibraryPanelResource,
 	}, def.ConfigResources())
+	require.Nil(t, def.GetMigratorFunc(libraryPanelGR), "library panels must use LibraryPanelsMigration")
+	require.NotContains(t, def.GetLockTables(), "library_element")
+}
 
+func TestLibraryPanelsMigrationRegistersLibraryPanels(t *testing.T) {
+	def := LibraryPanelsMigration(dashboardmigrator.ProvideFoldersDashboardsMigrator(nil))
+
+	libraryPanelGR := schema.GroupResource{Group: v1.GROUP, Resource: v1.LIBRARY_PANEL_RESOURCE}
+
+	require.Equal(t, migrations.LibraryPanelsMigrationID, def.ID)
+	require.Equal(t, migrations.LibraryPanelsMigrationLogID, def.MigrationID)
+	require.ElementsMatch(t, []schema.GroupResource{libraryPanelGR}, def.GetGroupResources())
+	require.Equal(t, []string{setting.LibraryPanelResource}, def.ConfigResources())
 	require.NotNil(t, def.GetMigratorFunc(libraryPanelGR), "MigrateLibraryPanels must be registered")
-	require.NotNil(t, def.GetMigratorFunc(folderGR))
-	require.NotNil(t, def.GetMigratorFunc(dashboardGR))
-
-	var libraryPanelInfo *migrations.ResourceInfo
-	for i := range def.Resources {
-		if def.Resources[i].GroupResource == libraryPanelGR {
-			libraryPanelInfo = &def.Resources[i]
-			break
-		}
-	}
-	require.NotNil(t, libraryPanelInfo)
-	require.Equal(t, []string{"library_element"}, libraryPanelInfo.LockTables)
-	require.Equal(t, dashV0.VERSION, libraryPanelInfo.FloorVersion)
-	require.Contains(t, def.GetLockTables(), "library_element")
-	require.Len(t, def.Validators, 4)
+	require.Equal(t, []string{"library_element"}, def.Resources[0].LockTables)
+	require.Equal(t, dashV0.VERSION, def.Resources[0].FloorVersion)
+	require.Equal(t, []string{"library_element"}, def.GetLockTables())
+	require.Len(t, def.Validators, 1)
 }
