@@ -1,19 +1,31 @@
 import { of } from 'rxjs';
 
 import { type BackendSrv, setBackendSrv } from '@grafana/runtime';
+import {
+  type APIGroupDiscoveryList,
+  type GroupDiscoveryResource,
+  getAPIGroupDiscoveryList,
+} from 'app/features/apiserver/discovery';
 import { ManagerKind } from 'app/features/apiserver/types';
 
 import {
+  isK8sLibraryPanelsClientEnabled,
   k8sResourceToLegacyDTO,
   k8sResourceToLegacyModel,
   legacyModelToSpecAndStatus,
   libraryPanelsK8sClient,
+  resetK8sLibraryPanelsDiscoveryCache,
   type LibraryPanelResource,
 } from './libraryPanels';
 
 jest.mock('app/api/utils', () => ({
   getAPIBaseURL: (group: string, version: string) => `/apis/${group}/${version}`,
   getAPINamespace: () => 'default',
+}));
+
+jest.mock('app/features/apiserver/discovery', () => ({
+  ...jest.requireActual('app/features/apiserver/discovery'),
+  getAPIGroupDiscoveryList: jest.fn(),
 }));
 
 function makeResource(overrides: Partial<LibraryPanelResource> = {}): LibraryPanelResource {
@@ -44,6 +56,79 @@ function makeResource(overrides: Partial<LibraryPanelResource> = {}): LibraryPan
     ...overrides,
   };
 }
+
+const mockGetAPIGroupDiscoveryList = jest.mocked(getAPIGroupDiscoveryList);
+
+function discoveryList(resources: GroupDiscoveryResource[]): APIGroupDiscoveryList {
+  return {
+    metadata: { resourceVersion: '1' },
+    items: [
+      {
+        metadata: { name: 'dashboard.grafana.app' },
+        versions: [
+          {
+            version: 'v0alpha1',
+            freshness: 'Current',
+            resources,
+          },
+        ],
+      },
+    ],
+  };
+}
+
+function libraryPanelsResource(
+  verbs: string[] = ['get', 'list', 'create', 'update', 'delete']
+): GroupDiscoveryResource {
+  return {
+    resource: 'librarypanels',
+    singularResource: 'librarypanel',
+    scope: 'Namespaced',
+    verbs,
+    responseKind: { group: 'dashboard.grafana.app', version: 'v0alpha1', kind: 'LibraryPanel' },
+  };
+}
+
+describe('isK8sLibraryPanelsClientEnabled', () => {
+  beforeEach(() => {
+    resetK8sLibraryPanelsDiscoveryCache();
+    mockGetAPIGroupDiscoveryList.mockReset();
+  });
+
+  it('defaults onto /apis when discovery lists a writable librarypanels resource', async () => {
+    mockGetAPIGroupDiscoveryList.mockResolvedValue(discoveryList([libraryPanelsResource()]));
+
+    await expect(isK8sLibraryPanelsClientEnabled()).resolves.toBe(true);
+  });
+
+  it('stays on /api when librarypanels is not in discovery', async () => {
+    mockGetAPIGroupDiscoveryList.mockResolvedValue(discoveryList([]));
+
+    await expect(isK8sLibraryPanelsClientEnabled()).resolves.toBe(false);
+  });
+
+  it('stays on /api when librarypanels is missing a write verb', async () => {
+    mockGetAPIGroupDiscoveryList.mockResolvedValue(discoveryList([libraryPanelsResource(['get', 'list'])]));
+
+    await expect(isK8sLibraryPanelsClientEnabled()).resolves.toBe(false);
+  });
+
+  it('stays on /api when discovery fails', async () => {
+    mockGetAPIGroupDiscoveryList.mockRejectedValue(new Error('discovery unavailable'));
+
+    await expect(isK8sLibraryPanelsClientEnabled()).resolves.toBe(false);
+  });
+
+  it('retries discovery after a failure', async () => {
+    mockGetAPIGroupDiscoveryList
+      .mockRejectedValueOnce(new Error('discovery unavailable'))
+      .mockResolvedValueOnce(discoveryList([libraryPanelsResource()]));
+
+    await expect(isK8sLibraryPanelsClientEnabled()).resolves.toBe(false);
+    await expect(isK8sLibraryPanelsClientEnabled()).resolves.toBe(true);
+    expect(mockGetAPIGroupDiscoveryList).toHaveBeenCalledTimes(2);
+  });
+});
 
 describe('legacyModelToSpecAndStatus', () => {
   it('maps the model title to panelTitle and the name to title', () => {
