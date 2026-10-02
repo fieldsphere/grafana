@@ -12,6 +12,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
 	authlib "github.com/grafana/authlib/types"
+	dashV0 "github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v0alpha1"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
 	"github.com/grafana/grafana/pkg/components/simplejson"
 	"github.com/grafana/grafana/pkg/services/accesscontrol"
@@ -68,6 +69,7 @@ func (tc *foldersAndDashboardsTestCase) Resources() []schema.GroupVersionResourc
 			Version:  "v1beta1",
 			Resource: "dashboards",
 		},
+		dashV0.LibraryPanelResourceInfo.GroupVersionResource(),
 	}
 }
 
@@ -153,6 +155,20 @@ func (tc *foldersAndDashboardsTestCase) Verify(t *testing.T, helper *apis.K8sTes
 	verifyResourceCount(t, dashboardCli, expectedDashboardCount)
 	for _, uid := range dashboardUIDs {
 		verifyResource(t, dashboardCli, uid, shouldExist)
+	}
+
+	expectedLibraryPanelCount := 0
+	if shouldExist {
+		expectedLibraryPanelCount = 1
+	}
+	libraryPanelCli := helper.GetResourceClient(apis.ResourceClientArgs{
+		User:      helper.Org1.Admin,
+		Namespace: namespace,
+		GVR:       dashV0.LibraryPanelResourceInfo.GroupVersionResource(),
+	})
+	verifyResourceCount(t, libraryPanelCli, expectedLibraryPanelCount)
+	if tc.libPanelUID != "" {
+		verifyResource(t, libraryPanelCli, tc.libPanelUID, shouldExist)
 	}
 }
 

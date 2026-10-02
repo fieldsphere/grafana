@@ -411,7 +411,16 @@ func (r *MigrationRunner) isAlreadyOnUnifiedStorage(sess *xorm.Session) (bool, e
 		return false, fmt.Errorf("failed to read dualwrite state file: %w", err)
 	}
 
+	checked := 0
 	for _, key := range configResources {
+		// G12 dualwrite markers were only ever written for folders and dashboards.
+		// Resources added to this definition later (library panels) were never
+		// recorded there; requiring them would disable the skip and re-run the
+		// migration, wiping unified folders/dashboards.
+		if !isG12DualwriteResource(key) {
+			continue
+		}
+		checked++
 		if status, ok := fileStatuses[key]; ok {
 			if !status.migratedToUnified() {
 				return false, nil
@@ -428,7 +437,11 @@ func (r *MigrationRunner) isAlreadyOnUnifiedStorage(sess *xorm.Session) (bool, e
 		}
 	}
 
-	return true, nil
+	return checked > 0, nil
+}
+
+func isG12DualwriteResource(key string) bool {
+	return key == setting.FolderResource || key == setting.DashboardResource
 }
 
 // readDualwriteKVState loads dualwrite state for the given resource key from kv_store.

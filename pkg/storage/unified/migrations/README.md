@@ -9,6 +9,7 @@ once at startup, per organization, and are validated before being recorded as co
 |---|---|---|---|
 | Folders | `folder.grafana.app` | `dashboard`, `dashboard_version`, `dashboard_provisioning` | yes |
 | Dashboards | `dashboard.grafana.app` | `dashboard`, `dashboard_version`, `dashboard_provisioning` | yes |
+| Library panels | `dashboard.grafana.app` | `library_element` | yes |
 | Playlists | `playlist.grafana.app` | `playlist`, `playlist_item` | yes |
 | Snapshots | `dashboard.grafana.app` | `dashboard_snapshot` | no |
 | Short URLs | `shorturl.grafana.app` | `short_url` | no |
@@ -325,7 +326,7 @@ type ResourceMigratorTestCase interface {
 
 | Test case | File | Coverage |
 |---|---|---|
-| `NewFoldersAndDashboardsTestCase` | [folders_dashboards.go](testcases/folders_dashboards.go) | Nested folders, dashboards with library panels |
+| `NewFoldersAndDashboardsTestCase` | [folders_dashboards.go](testcases/folders_dashboards.go) | Nested folders, dashboards, and library panels |
 | `NewPlaylistsTestCase` | [playlists.go](testcases/playlists.go) | Dashboard UID, tag, and mixed items |
 | `NewSnapshotsTestCase` | [snapshots.go](testcases/snapshots.go) | Dashboard snapshots |
 | `NewShortURLsTestCase` | [shorturls.go](testcases/shorturls.go) | Short URL entries |
