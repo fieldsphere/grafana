@@ -1082,6 +1082,7 @@ func (b *IdentityAccessManagementAPIBuilder) GetAPIRoutes(gv schema.GroupVersion
 	enableResourcePermissionsApi := b.features.ResourcePermissionsAPI
 	enableUserPermissionsApi := b.features.UserPermissionsAPI
 	enableSsoSettingsApi := b.features.SSOSettingsAPI
+	enableExternalGroupMappingsApi := b.features.ExternalGroupMappingsAPI
 
 	searchRoutes := make([]*builder.APIRoutes, 0, 4)
 	if enableUserApi && b.userSearchHandler != nil {
@@ -1096,7 +1097,7 @@ func (b *IdentityAccessManagementAPIBuilder) GetAPIRoutes(gv schema.GroupVersion
 		searchRoutes = append(searchRoutes, b.resourcePermissionsSearchHandler.GetAPIRoutes(defs))
 	}
 
-	if enableTeamsApi && b.externalGroupMappingSearchHandler != nil {
+	if enableExternalGroupMappingsApi && b.externalGroupMappingSearchHandler != nil {
 		searchRoutes = append(searchRoutes, b.externalGroupMappingSearchHandler.GetAPIRoutes(defs))
 	}
 
