@@ -143,17 +143,6 @@ import (
 //     Responses:
 //       200: receiversResponse
 
-// swagger:route POST /alertmanager/grafana/config/api/v1/receivers/test alertmanager RoutePostTestGrafanaReceivers
-//
-// Test Grafana managed receivers without saving them.
-// This endpoint has been removed. Please use `/apis/notifications.alerting.grafana.app/v1beta1/namespaces/{namespace}/receivers/{uid}/test` instead.
-//
-// Deprecated: true
-//
-//     Responses:
-//
-//       410: Gone
-
 // swagger:route POST /alertmanager/grafana/config/api/v1/templates/test alertmanager RoutePostTestGrafanaTemplates
 //
 // Test Grafana managed templates without saving them.

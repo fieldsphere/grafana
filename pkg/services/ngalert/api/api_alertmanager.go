@@ -179,15 +179,6 @@ func (srv AlertmanagerSrv) RouteGetReceivers(c *contextmodel.ReqContext) respons
 	return response.JSON(http.StatusOK, statuses)
 }
 
-func (srv AlertmanagerSrv) RoutePostTestReceivers(_ *contextmodel.ReqContext) response.Response {
-	// Respond with a 410 Gone status code
-	return response.Error(
-		http.StatusGone,
-		"This endpoint has been removed. Please use `/apis/notifications.alerting.grafana.app/v1beta1/namespaces/{namespace}/receivers/{uid}/test` instead.",
-		nil,
-	)
-}
-
 func (srv AlertmanagerSrv) RoutePostTestTemplates(c *contextmodel.ReqContext, body apimodels.TestTemplatesConfigBodyParams) response.Response {
 	am, errResp := srv.AlertmanagerFor(c.GetOrgID())
 	if errResp != nil {
