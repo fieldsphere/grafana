@@ -42,7 +42,7 @@ Created,Name,Stage,Owner,requiresDevMode,RequiresRestart,FrontendOnly
 2023-09-28,externalServiceAccounts,preview,@grafana/identity-access-team,false,false,false
 2026-09-16,externalSnapshotsK8SAPIPush,experimental,@grafana/sharing-squad,false,true,false
 2026-09-16,externalSnapshotsSupportLegacyAPI,experimental,@grafana/sharing-squad,false,true,false
-2026-09-16,snapshots.kubernetesSnapshots,experimental,@grafana/sharing-squad,false,false,false
+2026-09-16,snapshots.kubernetesSnapshots,preview,@grafana/sharing-squad,false,false,false
 2026-09-16,libraryelements.kubernetesLibraryPanels,experimental,@grafana/grafana-app-platform-squad,false,false,false
 2026-09-16,kubernetesFolderCascadeDelete,experimental,@grafana/search-and-storage,false,false,false
 2026-09-16,kubernetesFolderCountsLegacyStorage,experimental,@grafana/search-and-storage,false,true,false
