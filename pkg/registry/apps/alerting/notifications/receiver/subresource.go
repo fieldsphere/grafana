@@ -5,16 +5,18 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	"github.com/grafana/grafana-app-sdk/app"
 
 	"github.com/grafana/grafana/apps/alerting/notifications/pkg/apis/alertingnotifications/v1beta1"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
+	"github.com/grafana/grafana/pkg/registry/apps/alerting/customroute"
 	"github.com/grafana/grafana/pkg/services/ngalert/models"
 	"github.com/grafana/grafana/pkg/services/ngalert/notifier"
-	"github.com/grafana/grafana/pkg/util/errhttp"
 )
 
 const newReceiverNamePlaceholder = "-"
@@ -35,20 +37,32 @@ func New(svc testingService) *RequestHandler {
 }
 
 func (p *RequestHandler) HandleReceiverTestingRequest(ctx context.Context, w app.CustomRouteResponseWriter, r *app.CustomRouteRequest) error {
+	return customroute.WithAPIStatusErrorResponse(p.handleReceiverTestingRequest)(ctx, w, r)
+}
+
+func (p *RequestHandler) handleReceiverTestingRequest(ctx context.Context, w app.CustomRouteResponseWriter, r *app.CustomRouteRequest) error {
 	user, err := identity.GetRequester(ctx)
 	if err != nil {
-		return err
+		return &apierrors.StatusError{
+			ErrStatus: metav1.Status{
+				Status:  metav1.StatusFailure,
+				Code:    http.StatusUnauthorized,
+				Message: "authentication required",
+			},
+		}
+	}
+	if r.Body == nil {
+		return apierrors.NewBadRequest("request body is required")
 	}
 	var req v1beta1.CreateReceiverIntegrationTestRequestBody
 	err = json.NewDecoder(r.Body).Decode(&req)
 	if err != nil {
-		return err
+		return apierrors.NewBadRequest(err.Error())
 	}
 
 	result, err := p.TestReceiver(ctx, user, r.ResourceIdentifier.Name, req)
 	if err != nil {
-		errhttp.Write(ctx, err, w)
-		return nil
+		return err
 	}
 
 	responseBody := v1beta1.CreateReceiverIntegrationTestBody{
