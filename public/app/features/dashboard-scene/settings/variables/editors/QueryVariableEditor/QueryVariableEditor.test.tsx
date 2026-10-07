@@ -465,7 +465,10 @@ describe('QueryVariableEditor', () => {
     const variable = new TextBoxVariable({ name: 'test', value: 'test value' });
     const result = getQueryVariableOptions(variable);
     expect(result).toEqual([]);
-    expect(consoleWarnSpy).toHaveBeenCalledWith('getQueryVariableOptions: variable is not a QueryVariable');
+    expect(consoleWarnSpy).toHaveBeenCalledWith(
+      'getQueryVariableOptions: variable is not a QueryVariable',
+      expect.objectContaining({ source: 'features.dashboard-scene' })
+    );
     consoleWarnSpy.mockRestore();
   });
 

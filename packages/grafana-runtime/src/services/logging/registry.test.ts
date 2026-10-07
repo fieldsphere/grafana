@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { LogLevel } from '@grafana/faro-web-sdk';
 
 import { type MonitoringLogger, logWarning } from '../../utils/logging';
@@ -84,7 +85,8 @@ describe('logging registry', () => {
       addLogger('grafana/runtime.plugins.meta', { context: { env: 'dev' }, logToConsole: true });
 
       expect(warnSpy).toHaveBeenCalledWith(
-        'LoggerRegistry: a logger with the source:grafana/runtime.plugins.meta already exists, keeping existing entry.'
+        'LoggerRegistry: a logger with the source:grafana/runtime.plugins.meta already exists, keeping existing entry.',
+        expect.objectContaining({ source: 'grafana/runtime' })
       );
     });
 
@@ -147,7 +149,8 @@ describe('logging registry', () => {
         if (warns) {
           expect(warnSpy).toHaveBeenCalledTimes(1);
           expect(warnSpy).toHaveBeenCalledWith(
-            `LoggerRegistry: no logger 'grafana/runtime.plugins.meta' exists, are you calling getLogger before initializeLoggersRegistry function was called?`
+            `LoggerRegistry: no logger 'grafana/runtime.plugins.meta' exists, are you calling getLogger before initializeLoggersRegistry function was called?`,
+            expect.objectContaining({ source: 'grafana/runtime' })
           );
         }
       });
@@ -179,7 +182,8 @@ describe('logging registry', () => {
         if (warns) {
           expect(warnSpy).toHaveBeenCalledTimes(2);
           expect(warnSpy).toHaveBeenCalledWith(
-            `LoggerRegistry: no logger 'grafana/runtime.plugins.meta' exists, are you calling getLogger before initializeLoggersRegistry function was called?`
+            `LoggerRegistry: no logger 'grafana/runtime.plugins.meta' exists, are you calling getLogger before initializeLoggersRegistry function was called?`,
+            expect.objectContaining({ source: 'grafana/runtime' })
           );
         }
       });
@@ -238,6 +242,40 @@ describe('logging registry', () => {
       expect(jest.isMockFunction(logger.logWarning)).toBe(true);
       expect(jest.isMockFunction(logger.logError)).toBe(true);
       expect(jest.isMockFunction(logger.logMeasurement)).toBe(true);
+    });
+  });
+
+  describe('structured logger forwarding', () => {
+    it('forwards remote records to the grafana.frontend Faro logger', () => {
+      initializeLoggersRegistry();
+
+      createStructuredLogger('features.core').warn('panel failed', { panelId: '7' });
+
+      expect(mockPushLog).toHaveBeenCalledWith(
+        ['panel failed'],
+        expect.objectContaining({
+          level: LogLevel.WARN,
+          context: expect.objectContaining({
+            source: 'grafana.frontend',
+            loggerSource: 'features.core',
+            panelId: '7',
+          }),
+        })
+      );
+      expect(warnSpy).toHaveBeenCalledWith(
+        'panel failed',
+        expect.objectContaining({ source: 'features.core', panelId: '7' })
+      );
+    });
+
+    it('keeps local-only records off Faro', () => {
+      initializeLoggersRegistry();
+      mockPushLog.mockClear();
+
+      createStructuredLogger('grafana/data', { remote: false }).warn('Can not convert');
+
+      expect(mockPushLog).not.toHaveBeenCalled();
+      expect(warnSpy).toHaveBeenCalledWith('Can not convert', { source: 'grafana/data' });
     });
   });
 });

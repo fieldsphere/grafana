@@ -3,7 +3,7 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { handleRequestError } from '@grafana/api-clients';
 import { createBaseQuery } from '@grafana/api-clients/rtkq';
 import { invalidateQuotaUsage } from '@grafana/api-clients/rtkq/quotas/v0alpha1';
-import { AppEvents, locationUtil } from '@grafana/data';
+import { AppEvents, locationUtil, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config, getBackendSrv } from '@grafana/runtime';
 import { type Dashboard } from '@grafana/schema';
@@ -41,6 +41,7 @@ import { getFolderURL } from '../utils/dashboards';
 import { PAGE_SIZE } from './constants';
 import { isProvisionedDashboard } from './isProvisioned';
 
+const structuredLogger = createStructuredLogger('features.browse-dashboards');
 async function refreshTeamFolders() {
   dispatch(refetchChildren({ parentUID: TEAM_FOLDERS_UID, pageSize: PAGE_SIZE }));
 }
@@ -512,7 +513,7 @@ export const browseDashboardsAPI = createApi({
           try {
             await contextSrv.fetchUserPermissions();
           } catch (err) {
-            console.error('Failed to refresh user permissions after save', err);
+            structuredLogger.error('Failed to refresh user permissions after save', err);
           }
           dispatch(
             refetchChildren({

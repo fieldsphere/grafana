@@ -1,3 +1,5 @@
+import { createStructuredLogger } from '@grafana/data';
+
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,6 +17,7 @@
 import type TNil from './types/TNil';
 import { type TraceSpan, type TraceSpanReference, type Trace } from './types/trace';
 
+const structuredLogger = createStructuredLogger('features.explore');
 /**
  * `Accessors` is necessary because `ScrollManager` needs to be created by
  * `TracePage` so it can be passed into the keyboard shortcut manager. But,
@@ -105,8 +108,7 @@ export default class ScrollManager {
     const isUp = direction < 0;
     const position = xrs.getRowPosition(rowIndex);
     if (!position) {
-      // eslint-disable-next-line no-console
-      console.warn('Invalid row index');
+      structuredLogger.warn('Invalid row index');
       return;
     }
     let { y } = position;

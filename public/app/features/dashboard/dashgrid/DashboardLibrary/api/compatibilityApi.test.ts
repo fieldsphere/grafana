@@ -232,7 +232,10 @@ describe('compatibilityApi', () => {
       await expect(checkDashboardCompatibility(dashboard, mappings)).rejects.toEqual(error404);
 
       // Verify error was logged
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Dashboard compatibility check failed:', error404);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Dashboard compatibility check failed:',
+        expect.objectContaining({ ...error404, source: 'features.dashboard' })
+      );
     });
 
     it('should handle HTTP 401 error (authentication failure)', async () => {

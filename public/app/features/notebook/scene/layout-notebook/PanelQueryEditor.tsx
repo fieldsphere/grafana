@@ -2,7 +2,7 @@ import { isEqual } from 'lodash';
 import { useRef } from 'react';
 import { useAsyncFn } from 'react-use';
 
-import { LoadingState } from '@grafana/data';
+import { LoadingState, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { sceneGraph, type VizPanel } from '@grafana/scenes';
 import { type DataQuery } from '@grafana/schema';
@@ -16,6 +16,7 @@ import { PanelQueryEditorRow } from './PanelQueryEditorRow';
 import { applyQueries } from './applyQueries';
 import { NotebookCellTimeRangeControl } from './edit/NotebookCellTimeRangeControl';
 
+const structuredLogger = createStructuredLogger('features.notebook');
 interface Props {
   panel: VizPanel;
   cell?: NotebookCellItem;
@@ -49,7 +50,7 @@ export function PanelQueryEditor({ panel, cell, autoFocus }: Props) {
           await panel.changePluginType(suggestion.pluginId, suggestion.options, suggestion.fieldConfig);
         }
       } catch {
-        console.error('Failed to get viz suggestion for query', queries[0]);
+        structuredLogger.error('Failed to get viz suggestion for query', queries[0]);
       }
     }
     queryRunner.runQueries();

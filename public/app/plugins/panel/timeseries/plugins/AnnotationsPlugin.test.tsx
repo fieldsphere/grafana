@@ -928,7 +928,11 @@ describe('AnnotationsPlugin', () => {
         const ctx = mockU.ctx as jest.Mocked<CanvasRenderingContext2D>;
         invokeDrawHook(hooks, mockU);
         expect(ctx.fillRect).toHaveBeenCalled();
-        expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid color:'), expect.any(Error));
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          expect.stringContaining('Invalid color:'),
+          expect.objectContaining({ source: 'plugins.panels' }),
+          expect.any(Error)
+        );
 
         alphaSpy.mockRestore();
         consoleErrorSpy.mockRestore();

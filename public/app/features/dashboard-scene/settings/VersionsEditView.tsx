@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { lazy, Suspense } from 'react';
 
-import { dateTimeFormat, dateTimeFormatTimeAgo } from '@grafana/data';
+import { dateTimeFormat, dateTimeFormatTimeAgo, createStructuredLogger } from '@grafana/data';
 import { type SceneComponentProps, SceneObjectBase, sceneGraph } from '@grafana/scenes';
 import { Spinner } from '@grafana/ui';
 import {
@@ -25,6 +25,7 @@ import { getDashboardSceneFor } from '../utils/utils';
 import { getDashboardTemplateExtension } from './enterprise-components/DashboardTemplateExtension';
 import { type DashboardEditView, type DashboardEditViewState } from './utils';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 const VersionsEditViewRenderer = lazy(() =>
   import('./SettingsRenderers').then((m) => ({ default: m.VersionsEditViewRenderer }))
 );
@@ -136,7 +137,7 @@ export class VersionsEditView extends SceneObjectBase<VersionsEditViewState> imp
         // Update the continueToken for the next request, if available
         this._continueToken = result.metadata.continue ?? '';
       })
-      .catch((err) => console.log(err))
+      .catch((err) => structuredLogger.info(err))
       .finally(() => this.setState({ isAppending: false }));
   };
 

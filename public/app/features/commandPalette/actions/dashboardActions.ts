@@ -1,6 +1,7 @@
 import debounce from 'debounce-promise';
 import { useEffect, useRef, useState } from 'react';
 
+import { createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { useFlagGrafanaCmdkHybridSearch, useFlagDashboardVectorSearch } from '@grafana/runtime/internal';
@@ -22,6 +23,7 @@ import {
   SEARCH_RESULTS_PRIORITY,
 } from '../values';
 
+const structuredLogger = createStructuredLogger('features.commandPalette');
 const MAX_SEARCH_RESULTS = 100;
 // Hybrid search is a top-k API tuned for relevance, not exhaustive listing,
 // so keep the dashboard list short
@@ -124,7 +126,7 @@ async function getHybridDashboardActions(searchQuery: string): Promise<CommandPa
   try {
     hits = await searchDashboardsHybrid(searchQuery, { limit: MAX_HYBRID_SEARCH_RESULTS });
   } catch (error) {
-    console.error('Hybrid dashboard search failed, falling back to the classic search.', error);
+    structuredLogger.error('Hybrid dashboard search failed, falling back to the classic search.', error);
     return getClassicSearchResultActions(searchQuery, ['dashboard']);
   }
 
@@ -135,7 +137,7 @@ async function getHybridDashboardActions(searchQuery: string): Promise<CommandPa
   try {
     locationInfo = await getGrafanaSearcher().getLocationInfo();
   } catch (error) {
-    console.error('Failed to load folder info for hybrid search results.', error);
+    structuredLogger.error('Failed to load folder info for hybrid search results.', error);
   }
 
   return hits.map((hit) => {

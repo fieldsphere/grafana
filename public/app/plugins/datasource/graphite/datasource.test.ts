@@ -483,7 +483,10 @@ describe('graphiteDatasource', () => {
         results = data;
       });
       expect(results).toEqual([]);
-      expect(console.error).toHaveBeenCalledWith(expect.stringMatching(/Unable to get annotations/));
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringMatching(/Unable to get annotations/),
+        expect.objectContaining({ source: 'plugins.datasources' })
+      );
     });
   });
 
@@ -597,7 +600,10 @@ describe('graphiteDatasource', () => {
         results = data;
       });
       expect(results).toEqual([]);
-      expect(console.error).toHaveBeenCalledWith(expect.stringMatching(/Unable to get annotations/));
+      expect(console.error).toHaveBeenCalledWith(
+        expect.stringMatching(/Unable to get annotations/),
+        expect.objectContaining({ source: 'plugins.datasources' })
+      );
     });
   });
 

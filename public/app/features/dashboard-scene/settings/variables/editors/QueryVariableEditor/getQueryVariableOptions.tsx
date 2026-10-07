@@ -1,12 +1,14 @@
+import { createStructuredLogger } from '@grafana/data';
 import { QueryVariable, type SceneVariable } from '@grafana/scenes';
 
 import { OptionsPaneItemDescriptor } from '../../../../../dashboard/components/PanelEditor/OptionsPaneItemDescriptor';
 
 import { PaneItem } from './PaneItem';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 export function getQueryVariableOptions(variable: SceneVariable): OptionsPaneItemDescriptor[] {
   if (!(variable instanceof QueryVariable)) {
-    console.warn('getQueryVariableOptions: variable is not a QueryVariable');
+    structuredLogger.warn('getQueryVariableOptions: variable is not a QueryVariable');
     return [];
   }
 

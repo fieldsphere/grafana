@@ -1,7 +1,9 @@
 import { getAPINamespace } from '@grafana/api-clients';
+import { createStructuredLogger } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import { type DashboardJson } from 'app/features/manage-dashboards/types';
 
+const structuredLogger = createStructuredLogger('features.dashboard');
 /**
  * Represents a datasource mapping for compatibility checking.
  * Maps dashboard datasource references to actual datasource instances.
@@ -138,7 +140,7 @@ export async function checkDashboardCompatibility(
     return response;
   } catch (error) {
     // Log error for debugging
-    console.error('Dashboard compatibility check failed:', error);
+    structuredLogger.error('Dashboard compatibility check failed:', error);
 
     // Re-throw original error for caller to handle
     throw error;

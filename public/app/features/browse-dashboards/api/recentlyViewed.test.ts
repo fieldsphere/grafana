@@ -86,7 +86,11 @@ describe('getRecentlyViewedDashboards', () => {
     getGrafanaSearcherMock.mockReturnValue({ search } as unknown as ReturnType<typeof getGrafanaSearcher>);
 
     expect(await getRecentlyViewedDashboards(5)).toEqual([]);
-    expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to load recently viewed dashboards', expect.anything());
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Failed to load recently viewed dashboards',
+      expect.objectContaining({ source: 'features.browse-dashboards' }),
+      expect.any(Error)
+    );
     consoleErrorSpy.mockRestore();
   });
 });

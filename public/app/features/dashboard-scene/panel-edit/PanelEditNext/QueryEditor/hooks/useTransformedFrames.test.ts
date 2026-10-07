@@ -164,7 +164,11 @@ describe('useTransformedFrames', () => {
 
     expect(mockTransformDataFrame).toHaveBeenLastCalledWith(withVariable, frames, expect.any(Object));
     expect(consoleError).toHaveBeenCalledTimes(1);
-    expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('filterByValue'), expect.any(Error));
+    expect(consoleError).toHaveBeenCalledWith(
+      expect.stringContaining('filterByValue'),
+      expect.objectContaining({ source: 'features.dashboard-scene' }),
+      expect.any(Error)
+    );
 
     consoleError.mockRestore();
   });
@@ -290,7 +294,11 @@ describe('useTransformedFrames', () => {
       const { result } = renderHook(() => useTransformedFrames(configs, frames));
 
       expect(result.current).toBe(frames);
-      expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('Failed to replay'), failure);
+      expect(consoleError).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to replay'),
+        expect.objectContaining({ source: 'features.dashboard-scene' }),
+        failure
+      );
     });
 
     it('falls back when a custom operator throws as its pipeline is built', () => {
@@ -304,7 +312,11 @@ describe('useTransformedFrames', () => {
       const { result } = renderHook(() => useTransformedFrames(configs, frames));
 
       expect(result.current).toBe(frames);
-      expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('Failed to replay'), failure);
+      expect(consoleError).toHaveBeenCalledWith(
+        expect.stringContaining('Failed to replay'),
+        expect.objectContaining({ source: 'features.dashboard-scene' }),
+        failure
+      );
     });
 
     it('settles on the failure instead of leaving every later render looking unresolved', () => {

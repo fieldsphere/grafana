@@ -1902,7 +1902,10 @@ describe('ScopesSelectorService', () => {
       expect(result).toBeDefined();
       // When circular reference is detected, it returns partial path (up to the circular point)
       expect(result.path.length).toBeGreaterThan(0);
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Circular reference detected in node path', expect.any(String));
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Circular reference detected in node path',
+        expect.objectContaining({ source: 'features.scopes', args: expect.any(String) })
+      );
       consoleErrorSpy.mockRestore();
     });
 

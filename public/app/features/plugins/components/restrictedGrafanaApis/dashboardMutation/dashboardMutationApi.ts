@@ -12,7 +12,7 @@
  * import this module directly because it lives inside the core bundle.
  */
 
-import type { DashboardMutationAPI } from '@grafana/data';
+import { type DashboardMutationAPI, createStructuredLogger } from '@grafana/data';
 import { DashboardMutationClient } from 'app/features/dashboard-scene/mutation-api/DashboardMutationClient';
 import { provideMutationClientFactory } from 'app/features/dashboard-scene/mutation-api/clientBridge';
 import type { MutationClient, MutationRequest } from 'app/features/dashboard-scene/mutation-api/types';
@@ -23,6 +23,7 @@ import type { NotebookScene } from 'app/features/notebook/scene/NotebookScene';
 import { DashboardPlanPreview } from './DashboardPlanPreview';
 import { allMutationCommands } from './commandRegistry';
 
+const structuredLogger = createStructuredLogger('features.plugins');
 /**
  * Mounted documents, most recently activated last. A stack rather than a single slot because
  * unmounting one must hand the API back to whichever document is still on screen: clearing it
@@ -45,7 +46,7 @@ provideMutationClientFactory((sceneObject, resource) => {
       client = new DashboardMutationClient(sceneObject as DashboardScene);
     }
   } catch (error) {
-    console.error('Failed to register Dashboard Mutation API:', error);
+    structuredLogger.error('Failed to register Dashboard Mutation API:', error);
     return () => {};
   }
 

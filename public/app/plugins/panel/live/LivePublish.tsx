@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 
-import { type LiveChannelAddress, isValidLiveChannelAddress } from '@grafana/data';
+import { type LiveChannelAddress, isValidLiveChannelAddress, createStructuredLogger } from '@grafana/data';
 import { Trans, t } from '@grafana/i18n';
 import { getBackendSrv, getGrafanaLiveSrv } from '@grafana/runtime';
 import { Button } from '@grafana/ui';
@@ -8,6 +8,7 @@ import { CodeMirrorEditor } from '@grafana/ui/unstable';
 
 import { MessagePublishMode } from './types';
 
+const structuredLogger = createStructuredLogger('plugins.panels');
 interface Props {
   height: number;
   addr?: LiveChannelAddress;
@@ -50,7 +51,7 @@ export function LivePublish({ height, mode, body, addr, onSave }: Props) {
     }
 
     const rsp = await getGrafanaLiveSrv().publish(addr, body);
-    console.log('onPublishClicked (response from publish)', rsp);
+    structuredLogger.info('onPublishClicked (response from publish)', rsp);
   };
 
   return (

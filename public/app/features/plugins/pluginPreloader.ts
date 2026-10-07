@@ -1,9 +1,10 @@
-import type { AppPluginConfig } from '@grafana/data';
+import { type AppPluginConfig, createStructuredLogger } from '@grafana/data';
 import { getPluginSettings } from '@grafana/runtime/unstable';
 import { contextSrv } from 'app/core/services/context_srv';
 
 import { pluginImporter } from './importer/pluginImporter';
 
+const structuredLogger = createStructuredLogger('features.plugins');
 const preloadPromises = new Map<string, Promise<void>>();
 
 export const clearPreloadedPluginsCache = () => {
@@ -33,6 +34,6 @@ async function preload(config: AppPluginConfig): Promise<void> {
       return;
     }
 
-    console.error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
+    structuredLogger.error(`[Plugins] Failed to preload plugin: ${config.path} (version: ${config.version})`, error);
   }
 }

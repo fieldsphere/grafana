@@ -1,6 +1,7 @@
 import { uniq } from 'lodash';
 
 import { AzureCloud, getDefaultAzureCloud } from '@grafana/azure-sdk';
+import { createStructuredLogger } from '@grafana/data';
 import { DataSourceWithBackend, reportInteraction } from '@grafana/runtime';
 
 import { logsResourceTypes } from '../azureMetadata/logsResourceTypes';
@@ -26,6 +27,7 @@ import {
   type ResourceGraphFilters,
 } from '../types/types';
 
+const structuredLogger = createStructuredLogger('plugins.datasources');
 const logsSupportedResourceTypesKusto = logsResourceTypes.map((v) => `"${v}"`).join(',');
 
 export type ResourcePickerQueryType = 'logs' | 'metrics' | 'traces';
@@ -355,7 +357,10 @@ export default class ResourcePickerData extends DataSourceWithBackend<
           }
         }
       } catch (e) {
-        console.warn(`Failed to fetch metric namespaces for region ${region}, falling back to predefined list:`, e);
+        structuredLogger.warn(
+          `Failed to fetch metric namespaces for region ${region}, falling back to predefined list:`,
+          e
+        );
       }
     };
 

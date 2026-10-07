@@ -29,6 +29,7 @@ import {
   rangeUtil,
   transformDataFrame,
   store,
+  createStructuredLogger,
 } from '@grafana/data';
 import { getAppEvents } from '@grafana/runtime';
 import { usePanelContext, useStyles2 } from '@grafana/ui';
@@ -64,6 +65,7 @@ import {
 } from './types';
 import { useDatasourcesFromTargets } from './useDatasourcesFromTargets';
 
+const structuredLogger = createStructuredLogger('plugins.panels');
 interface LogsPanelProps extends PanelProps<Options> {
   /**
    * Adds a key => value filter to the query referenced by the provided DataFrame refId. Used by Log details and Logs table.
@@ -417,7 +419,7 @@ export const LogsPanel = ({ data, timeZone, fieldConfig, options, onOptionsChang
         }
       } catch (e) {
         errored = true;
-        console.error(e);
+        structuredLogger.error(e);
       } finally {
         setLoadMoreState(errored ? LoadingState.Error : LoadingState.Done);
         loadingRef.current = false;
@@ -615,7 +617,7 @@ async function requestMoreLogs(
   for (const uid in targetGroups) {
     const dataSource = dataSourcesMap.get(panelData.request.targets[0].refId);
     if (!dataSource) {
-      console.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
+      structuredLogger.warn(`Could not resolve data source for target ${panelData.request.targets[0].refId}`);
       continue;
     }
     dataRequests.push(

@@ -259,7 +259,11 @@ describe('useTransformationDebugData', () => {
     );
 
     expect(result.current.input.map(({ name }) => name)).toEqual(['keep', 'drop']);
-    expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('filter'), expect.any(Error));
+    expect(consoleError).toHaveBeenCalledWith(
+      expect.stringContaining('filter'),
+      expect.objectContaining({ source: 'features.dashboard-scene' }),
+      expect.any(Error)
+    );
 
     consoleError.mockRestore();
   });

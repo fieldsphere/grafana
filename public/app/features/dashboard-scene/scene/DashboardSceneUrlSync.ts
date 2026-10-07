@@ -1,5 +1,6 @@
 import { type Unsubscribable } from 'rxjs';
 
+import { createStructuredLogger } from '@grafana/data';
 import { type SceneObjectUrlSyncHandler, type SceneObjectUrlValues, type VizPanel } from '@grafana/scenes';
 
 import { openPanelEditor } from '../panel-edit/openPanelEditor';
@@ -14,6 +15,7 @@ import { DefaultGridLayoutManager } from './layout-default/DefaultGridLayoutMana
 import { refuseWhilePlanning } from './refuseWhilePlanning';
 import { type DashboardSceneState } from './types/dashboard';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
   /**
    * Panel id of an editor that is open as far as the URL is concerned but has no pane yet: the id
@@ -112,7 +114,7 @@ export class DashboardSceneUrlSync implements SceneObjectUrlSyncHandler {
       const panel = findEditPanel(this._scene, values.editPanel);
 
       if (!panel) {
-        console.warn(`Panel ${values.editPanel} not found`);
+        structuredLogger.warn(`Panel ${values.editPanel} not found`);
         // A rebuild that dropped the panel: release the hold and force the state change that
         // writes `?editPanel=` out, or the URL keeps naming a panel the tree does not have.
         const wasHeld = this._heldEditPanelId !== undefined;

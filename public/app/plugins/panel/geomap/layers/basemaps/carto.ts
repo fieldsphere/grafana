@@ -5,8 +5,9 @@ import VectorTileLayer from 'ol/layer/VectorTile';
 import VectorSource from 'ol/source/Vector';
 import { apply } from 'ol-mapbox-style';
 
-import { type MapLayerRegistryItem } from '@grafana/data';
+import { type MapLayerRegistryItem, createStructuredLogger } from '@grafana/data';
 
+const structuredLogger = createStructuredLogger('plugins.panels');
 // https://docs.carto.com/faqs/carto-basemaps
 
 const ATTRIBUTION = `<a href="https://carto.com/attribution/">©CARTO</a> <a href="https://www.openstreetmap.org/copyright">©OpenStreetMap</a> contributors`;
@@ -81,7 +82,7 @@ export const carto: MapLayerRegistryItem<CartoConfig> = {
             }
           })
         )
-        .catch((error) => console.warn('Failed to load CARTO basemap style:', error));
+        .catch((error) => structuredLogger.warn('Failed to load CARTO basemap style:', error));
 
       return layer;
     },

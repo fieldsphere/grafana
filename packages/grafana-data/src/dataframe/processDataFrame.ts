@@ -18,11 +18,13 @@ import {
 import { type DataQueryResponseData } from '../types/datasource';
 import { type GraphSeriesXY, type GraphSeriesValue } from '../types/graph';
 import { type PanelData } from '../types/panel';
+import { createStructuredLogger } from '../utils/logger';
 
 import { arrayToDataFrame } from './ArrayDataFrame';
 import { dataFrameFromJSON } from './DataFrameJSON';
 import { guessFieldTypeForField, guessFieldTypes } from './guessFieldType';
 
+const structuredLogger = createStructuredLogger('grafana/data', { remote: false });
 type LegacyColumn = Column & { type?: FieldType };
 
 function convertTableToDataFrame(table: TableData): DataFrame {
@@ -216,7 +218,7 @@ export function toDataFrame(data: any): DataFrame {
     return arrayToDataFrame(data);
   }
 
-  console.warn('Can not convert', data);
+  structuredLogger.warn('Can not convert', data);
   throw new Error('Unsupported data format');
 }
 

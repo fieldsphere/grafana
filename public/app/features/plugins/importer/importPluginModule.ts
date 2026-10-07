@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { DEFAULT_LANGUAGE } from '@grafana/i18n';
 import { getResolvedLanguage } from '@grafana/i18n/internal';
 import { config } from '@grafana/runtime';
@@ -12,6 +13,7 @@ import { shouldLoadPluginInFrontendSandbox } from '../sandbox/sandboxPluginLoade
 import { addTranslationsToI18n } from './addTranslationsToI18n';
 import { type PluginImportInfo } from './types';
 
+const structuredLogger = createStructuredLogger('features.plugins');
 export async function importPluginModule({
   path,
   pluginId,
@@ -78,7 +80,7 @@ export async function importPluginModule({
       errorMessage = `Could not load plugin. Updating the "${pluginName}" plugin to the latest version may fix the problem.`;
     }
     let error = new Error(errorMessage, { cause: e });
-    console.error(error);
+    structuredLogger.error(error);
     getLogger('features.plugins').logError(error, {
       path,
       pluginId,

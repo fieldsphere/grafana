@@ -1,5 +1,7 @@
+import { createStructuredLogger } from '@grafana/data';
 import { type JourneyHandle, locationService } from '@grafana/runtime';
 
+const structuredLogger = createStructuredLogger('features.core');
 /**
  * Collects cleanup functions so journey wiring doesn't need
  * manual unsub1/unsub2/unsub3 bookkeeping.
@@ -54,7 +56,7 @@ function warnUnsupported(kind: string): void {
     return;
   }
   warnedTypes.add(kind);
-  console.warn(
+  structuredLogger.warn(
     `[CUJ] str() received unsupported value of type "${kind}"; coerced to ''. ` +
       `Pass primitives (string/number/boolean) to reportInteraction so journey attributes stay queryable in Tempo.`
   );

@@ -11,12 +11,14 @@ import {
   type FrameMatcher,
   getFrameMatchers,
   transformDataFrame,
+  createStructuredLogger,
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { DataTopic } from '@grafana/schema';
 
 import { type Transformation } from '../types';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 export type TransformationConfigs = Array<DataTransformerConfig | CustomTransformOperator>;
 
 /** Stable identity for "nothing to run", so passing it does not re-run a caller's memo or effect. */
@@ -67,7 +69,10 @@ function interpolateConfigs(configs: TransformationConfigs): TransformationConfi
       // on the literal `$var`, which is indistinguishable from the editor simply being wrong.
       if (!reportedUnresolvable.has(config)) {
         reportedUnresolvable.add(config);
-        console.error(`Failed to resolve variables in the "${config.id}" transformation for the panel editor`, err);
+        structuredLogger.error(
+          `Failed to resolve variables in the "${config.id}" transformation for the panel editor`,
+          err
+        );
       }
 
       return config;
@@ -105,7 +110,7 @@ export function frameMatcherFor(config: TransformationConfigs[number] | undefine
   try {
     return getFrameMatchers(config.filter);
   } catch (err) {
-    console.error('Failed to build a transformation filter for the panel editor', err);
+    structuredLogger.error('Failed to build a transformation filter for the panel editor', err);
     return undefined;
   }
 }
@@ -265,7 +270,7 @@ interface TransformedFrames {
 function logTransformationFailure(err: unknown) {
   // The panel itself surfaces this as panel data error, because the pipeline wraps the same call in
   // `catchError`. The editors have nowhere to render it, so it is logged rather than dropped.
-  console.error('Failed to replay transformations for the panel editor', err);
+  structuredLogger.error('Failed to replay transformations for the panel editor', err);
 }
 
 /**

@@ -95,10 +95,11 @@ describe('PluginErrorBoundary', () => {
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Plugin "my-test-plugin" failed to load:',
-      expect.objectContaining({ message: 'Test error message' }),
       expect.objectContaining({
+        source: 'features.plugins',
         componentStack: expect.any(String),
-      })
+      }),
+      expect.objectContaining({ message: 'Test error message' })
     );
   });
 
@@ -111,10 +112,11 @@ describe('PluginErrorBoundary', () => {
 
     expect(consoleErrorSpy).toHaveBeenCalledWith(
       'Plugin "undefined" failed to load:',
-      expect.objectContaining({ message: 'Test error message' }),
       expect.objectContaining({
+        source: 'features.plugins',
         componentStack: expect.any(String),
-      })
+      }),
+      expect.objectContaining({ message: 'Test error message' })
     );
   });
 

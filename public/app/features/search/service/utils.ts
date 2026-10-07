@@ -1,5 +1,5 @@
 import { type ManagedBy } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
-import { type DataFrame, type DataFrameView, type IconName, fuzzySearch } from '@grafana/data';
+import { type DataFrame, type DataFrameView, type IconName, fuzzySearch, createStructuredLogger } from '@grafana/data';
 import { type DashboardViewItemWithUIItems } from 'app/features/browse-dashboards/types';
 import {
   isSharedWithMe,
@@ -14,6 +14,7 @@ import { type DashboardViewItem, type DashboardViewItemKind } from '../types';
 import { type DashboardQueryResult, type SearchQuery, type SearchResultMeta } from './types';
 import { type SearchHit } from './unified';
 
+const structuredLogger = createStructuredLogger('features.search');
 /**
  * Marker stored in `field.deletedBy` when IAM lookup succeeded but the deleter UID had no
  * display entry — typically because the account (user, service account, API key, ...) was
@@ -65,7 +66,7 @@ async function getCurrentFolderUID(): Promise<string | undefined> {
     }
     return Promise.resolve(dash?.meta?.folderUid);
   } catch (e) {
-    console.error(e);
+    structuredLogger.error(e);
   }
   return undefined;
 }

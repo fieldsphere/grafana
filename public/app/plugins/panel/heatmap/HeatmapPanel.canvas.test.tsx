@@ -432,7 +432,10 @@ describe('HeatmapPanel (canvas)', () => {
         it('throws with invalid frame', () => {
           const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
           renderHeatmapPanel({ series: [createDenseHeatmapFrameWithOrdinalY()] }, { calculate: true });
-          expect(consoleError).toHaveBeenCalledWith('no heatmap fields found');
+          expect(consoleError).toHaveBeenCalledWith(
+            'no heatmap fields found',
+            expect.objectContaining({ source: 'plugins.panels' })
+          );
           consoleError.mockRestore();
         });
 
@@ -442,7 +445,10 @@ describe('HeatmapPanel (canvas)', () => {
             { series: [LinearBucketData] },
             { calculate: true, calculation: { xBuckets: { scale: { type: ScaleDistribution.Log } } } }
           );
-          expect(consoleError).toHaveBeenCalledWith('X axis only supports linear buckets');
+          expect(consoleError).toHaveBeenCalledWith(
+            'X axis only supports linear buckets',
+            expect.objectContaining({ source: 'plugins.panels' })
+          );
           consoleError.mockRestore();
         });
 

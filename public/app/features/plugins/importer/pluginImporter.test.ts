@@ -135,6 +135,7 @@ describe('pluginImporter', () => {
 
       expect(consoleSpy).toHaveBeenCalledWith(
         'Error loading panel plugin: test-plugin',
+        expect.objectContaining({ source: 'features.plugins' }),
         new Error('missing export: plugin')
       );
 

@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import {
   type EchoBackend,
   type EchoMeta,
@@ -13,6 +14,7 @@ import { contextSrv } from '../context_srv';
 
 import { echoLog } from './utils';
 
+const structuredLogger = createStructuredLogger('features.core');
 interface EchoConfig {
   // How often should metrics be reported
   flushInterval: number;
@@ -76,7 +78,7 @@ export class Echo implements EchoSrv {
             try {
               cb(payload.properties ?? {});
             } catch (err) {
-              console.error(`[Echo] onInteraction subscriber error for "${payload.interactionName}":`, err);
+              structuredLogger.error(`[Echo] onInteraction subscriber error for "${payload.interactionName}":`, err);
             }
           }
         }

@@ -1131,7 +1131,11 @@ describe('dashboard exporter v2', () => {
     expect((placeholderPanel as PanelKind).spec.vizConfig.group).toBe('text');
 
     // Verify console.error was called
-    expect(consoleSpy).toHaveBeenCalledWith('Failed to load library panel invalid-uid:', expect.any(Error));
+    expect(consoleSpy).toHaveBeenCalledWith(
+      'Failed to load library panel invalid-uid:',
+      expect.objectContaining({ source: 'features.dashboard-scene' }),
+      expect.any(Error)
+    );
 
     // Restore console.error
     consoleSpy.mockRestore();

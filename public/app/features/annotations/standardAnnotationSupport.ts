@@ -17,10 +17,12 @@ import {
   getFieldDisplayName,
   type KeyValue,
   standardTransformersRegistry,
+  createStructuredLogger,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 
+const structuredLogger = createStructuredLogger('features.annotations');
 export const standardAnnotationSupport: AnnotationSupport = {
   /**
    * Assume the stored value is standard model.
@@ -232,7 +234,7 @@ export function getAnnotationsFromData(
       }
 
       if (!hasTime || !hasText) {
-        console.error('Cannot process annotation fields. No time or text present.');
+        structuredLogger.error('Cannot process annotation fields. No time or text present.');
         return [];
       }
 

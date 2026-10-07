@@ -1,3 +1,6 @@
+import memoizeOne from 'memoize-one';
+
+import { createStructuredLogger } from '@grafana/data';
 // Copyright (c) 2023 The Jaeger Authors
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,7 +15,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import memoizeOne from 'memoize-one';
 
 import { type TraceSpan, type CriticalPathSection, type Trace } from '../types/trace';
 
@@ -20,6 +22,7 @@ import findLastFinishingChildSpan from './utils/findLastFinishingChildSpan';
 import getChildOfSpans from './utils/getChildOfSpans';
 import sanitizeOverFlowingChildren from './utils/sanitizeOverFlowingChildren';
 
+const structuredLogger = createStructuredLogger('features.explore');
 /**
  * Computes the critical path sections of a Jaeger trace.
  * The algorithm begins with the top-level span and iterates through the last finishing children (LFCs).
@@ -103,8 +106,7 @@ function criticalPathForTrace(trace: Trace) {
       const sanitizedSpanMap = sanitizeOverFlowingChildren(refinedSpanMap);
       criticalPath = computeCriticalPath(sanitizedSpanMap, rootSpanId, criticalPath);
     } catch (error) {
-      /* eslint-disable no-console */
-      console.log('error while computing critical path for a trace', error);
+      structuredLogger.info('error while computing critical path for a trace', error);
     }
   }
   return criticalPath;

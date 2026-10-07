@@ -306,7 +306,7 @@ describe('pluginPreloader', () => {
 
       expect(consoleSpy).toHaveBeenCalledWith(
         `[Plugins] Failed to preload plugin: /path/to/plugin (version: 1.0.0)`,
-        error
+        expect.objectContaining({ source: 'features.plugins', ...error })
       );
     });
 

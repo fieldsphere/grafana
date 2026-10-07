@@ -88,7 +88,11 @@ describe('localStorageWithTTL', () => {
 
       setLocalStorageWithTTL(TEST_KEY, 'value');
 
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to persist value with TTL', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to persist value with TTL',
+        expect.objectContaining({ source: 'features.dashboard-scene' }),
+        expect.any(Error)
+      );
       consoleSpy.mockRestore();
     });
   });

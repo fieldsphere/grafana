@@ -8,6 +8,7 @@ import {
   userHasPermission,
   userHasPermissionInMetadata,
   userHasAnyPermission,
+  createStructuredLogger,
 } from '@grafana/data';
 import { featureEnabled, getBackendSrv } from '@grafana/runtime';
 import { FlagKeys, getFeatureFlagClient } from '@grafana/runtime/internal';
@@ -19,6 +20,7 @@ import config from '../../core/config';
 
 import { loadUserPermissions } from './userPermissions';
 
+const structuredLogger = createStructuredLogger('features.core');
 // When set to auto, the interval will be based on the query range
 // NOTE: this is defined here rather than TimeSrv so we avoid circular dependencies
 export const AutoRefreshInterval = 'auto';
@@ -121,7 +123,7 @@ export class ContextSrv {
         reloadcache: true,
       });
     } catch (e) {
-      console.error(e);
+      structuredLogger.error(e);
     }
   }
 
@@ -276,7 +278,7 @@ export class ContextSrv {
         }
       })
       .catch((e) => {
-        console.error(e);
+        structuredLogger.error(e);
       });
   }
 }

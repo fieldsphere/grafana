@@ -1,5 +1,6 @@
 import { type Span, type Tracer, context, trace, SpanStatusCode, type Link } from '@opentelemetry/api';
 
+import { createStructuredLogger } from '@grafana/data';
 import {
   type JourneyHandle,
   type JourneyOutcome,
@@ -11,6 +12,7 @@ import {
 import { type JourneyStartOptions } from '@grafana/runtime/internal';
 import { createDebugLog } from 'app/core/utils/debugLog';
 
+const structuredLogger = createStructuredLogger('features.core');
 const DEFAULT_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes
 const ABANDONED_TAB_HIDDEN_MS = 60 * 1000; // 60 seconds
 
@@ -422,7 +424,7 @@ class JourneyHandleImpl implements JourneyHandle {
       try {
         cb();
       } catch (err) {
-        console.error(`[JourneyTracker] onEnd callback error for "${this.journeyType}":`, err);
+        structuredLogger.error(`[JourneyTracker] onEnd callback error for "${this.journeyType}":`, err);
       }
     }
   }

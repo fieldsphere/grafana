@@ -13,6 +13,7 @@ import {
   OrgRole,
   PluginType,
   PluginContextProvider,
+  createStructuredLogger,
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { Trans, t } from '@grafana/i18n';
@@ -44,6 +45,7 @@ import { buildPluginPageContext, PluginPageContext } from './PluginPageContext';
 import { pluginNavFallbacks } from './pluginNavFallbacks';
 import { RestrictedGrafanaApisProvider } from './restrictedGrafanaApis/RestrictedGrafanaApisProvider';
 
+const structuredLogger = createStructuredLogger('features.plugins');
 interface Props {
   // The ID of the plugin we would like to load and display
   pluginId?: string;
@@ -274,7 +276,7 @@ async function loadAppPlugin(pluginId: string, dispatch: React.Dispatch<AnyActio
     );
     const error = err instanceof Error ? err : new Error(getMessageFromError(err));
     getLogger('features.plugins').logError(error);
-    console.error(error);
+    structuredLogger.error(error);
   }
 }
 

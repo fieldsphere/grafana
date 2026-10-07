@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { type PointerEvent as ReactPointerEvent } from 'react';
 import { createPortal } from 'react-dom';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2, createStructuredLogger } from '@grafana/data';
 import { logWarning } from '@grafana/runtime';
 import {
   sceneGraph,
@@ -39,6 +39,7 @@ import {
   isDashboardDropTarget,
 } from './types/DashboardDropTarget';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 const TAB_ACTIVATION_DELAY_MS = 600;
 
 interface DashboardLayoutOrchestratorState extends SceneObjectState {
@@ -222,7 +223,7 @@ export class DashboardLayoutOrchestrator extends SceneObjectBase<DashboardLayout
       });
     } else if (!gridItem) {
       const warningMessage = 'No grid item to drag';
-      console.warn(warningMessage);
+      structuredLogger.warn(warningMessage);
       logWarning(warningMessage);
     } else if (sourceDropTarget) {
       this._clearDropPosition();

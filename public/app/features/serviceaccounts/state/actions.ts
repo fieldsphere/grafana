@@ -1,5 +1,6 @@
 import { debounce } from 'lodash';
 
+import { createStructuredLogger } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import { fetchRoleOptions } from 'app/core/components/RolePicker/api';
 import { contextSrv } from 'app/core/services/context_srv';
@@ -21,6 +22,7 @@ import {
   stateFilterChanged,
 } from './reducers';
 
+const structuredLogger = createStructuredLogger('features.serviceaccounts');
 const BASE_URL = `/api/serviceaccounts`;
 
 export function fetchACOptions(): ThunkResult<void> {
@@ -31,7 +33,7 @@ export function fetchACOptions(): ThunkResult<void> {
         dispatch(acOptionsLoaded(options));
       }
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
     }
   };
 }
@@ -76,7 +78,7 @@ export function fetchServiceAccounts(
         dispatch(serviceAccountsFetched(result));
       }
     } catch (error) {
-      console.error(error);
+      structuredLogger.error(error);
     } finally {
       dispatch(serviceAccountsFetchEnd());
     }

@@ -1,10 +1,11 @@
 import { useContext, useEffect, useState } from 'react';
 
-import { type SelectableValue } from '@grafana/data';
+import { type SelectableValue, createStructuredLogger } from '@grafana/data';
 import { Select } from '@grafana/ui';
 
 import { NamespaceContext, ResourceContext } from './contexts';
 
+const structuredLogger = createStructuredLogger('features.app');
 type Props = {
   value?: string;
   onChange: (v?: string) => void;
@@ -66,7 +67,7 @@ export function K8sNameLookup(props: Props) {
         }
       } catch (error) {
         if (!controller.signal.aborted) {
-          console.warn('Error loading names', error);
+          structuredLogger.warn('Error loading names', error);
         }
       } finally {
         if (!controller.signal.aborted) {
