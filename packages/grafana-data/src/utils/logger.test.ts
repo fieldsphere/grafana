@@ -40,6 +40,78 @@ describe('createStructuredLogger', () => {
     expect(records[0].rawContext).toEqual({ id: 'n1', count: 2 });
   });
 
+  it('keeps fetch error request bodies and response payloads out of remote context', () => {
+    const records: LogRecord[] = [];
+    setLogSink((record) => records.push(record));
+
+    const fetchError = {
+      status: 400,
+      statusText: 'Bad Request',
+      data: { message: 'invalid password', sessionToken: 'response-secret' },
+      config: {
+        url: '/api/user/password?access_token=query-secret',
+        method: 'PUT',
+        headers: { Authorization: 'Bearer header-secret' },
+        data: { oldPassword: 'admin', newPassword: 'hunter2' },
+        params: { token: 'param-secret' },
+      },
+      traceId: 'trace-1',
+    };
+    const absoluteFetchError = {
+      ...fetchError,
+      config: {
+        ...fetchError.config,
+        url: 'https://user:pass@example.com/api/user/password?access_token=query-secret',
+      },
+    };
+
+    createStructuredLogger('features.core').error(fetchError);
+    createStructuredLogger('features.actions').error('API call error', fetchError);
+    createStructuredLogger('features.actions').error('API call error', fetchError, { requestId: 'req-1' });
+    createStructuredLogger('features.core').error(absoluteFetchError);
+
+    const remoteText = JSON.stringify(records.map((record) => ({ message: record.message, context: record.context })));
+    expect(remoteText).not.toContain('hunter2');
+    expect(remoteText).not.toContain('admin');
+    expect(remoteText).not.toContain('header-secret');
+    expect(remoteText).not.toContain('query-secret');
+    expect(remoteText).not.toContain('param-secret');
+    expect(remoteText).not.toContain('response-secret');
+    expect(remoteText).not.toContain('pass@');
+
+    expect(records[0].message).toBe(
+      '{"status":400,"statusText":"Bad Request","traceId":"trace-1","config":{"url":"/api/user/password","method":"PUT"}}'
+    );
+    expect(records[0].context).toEqual({
+      status: '400',
+      statusText: 'Bad Request',
+      traceId: 'trace-1',
+      config: '{"url":"/api/user/password","method":"PUT"}',
+    });
+    expect(records[0].rawContext).toBe(fetchError);
+    expect(records[0].remote).toBe(true);
+
+    expect(records[1].message).toBe('API call error');
+    expect(records[1].context).toEqual({
+      status: '400',
+      statusText: 'Bad Request',
+      traceId: 'trace-1',
+      config: '{"url":"/api/user/password","method":"PUT"}',
+    });
+
+    expect(records[2].message).toBe('API call error');
+    expect(records[2].context).toEqual({
+      args: '{"status":400,"statusText":"Bad Request","traceId":"trace-1","config":{"url":"/api/user/password","method":"PUT"}} {"requestId":"req-1"}',
+    });
+
+    expect(records[3].context).toEqual({
+      status: '400',
+      statusText: 'Bad Request',
+      traceId: 'trace-1',
+      config: '{"url":"https://example.com/api/user/password","method":"PUT"}',
+    });
+  });
+
   it('serializes circular context values instead of throwing', () => {
     const records: LogRecord[] = [];
     setLogSink((record) => records.push(record));

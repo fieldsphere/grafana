@@ -30,6 +30,84 @@ export interface StructuredLoggerOptions {
   remote?: boolean;
 }
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Error);
+}
+
+/** BackendSrv rejects with a plain FetchError, not an Error instance. */
+function isFetchErrorLike(value: Record<string, unknown>): boolean {
+  return 'status' in value && 'data' in value && isPlainObject(value.config) && typeof value.config.url === 'string';
+}
+
+function isRequestLike(value: Record<string, unknown>): boolean {
+  return (
+    typeof value.url === 'string' &&
+    ('method' in value || 'data' in value || 'body' in value || 'headers' in value || 'params' in value)
+  );
+}
+
+/** Query strings and userinfo are request data and can carry tokens. */
+function stripUrlSecrets(url: string): string {
+  try {
+    const parsed = new URL(url, 'http://grafana.invalid');
+    parsed.username = '';
+    parsed.password = '';
+    parsed.search = '';
+    parsed.hash = '';
+    if (!/^[a-z][a-z\d+.-]*:/i.test(url)) {
+      return parsed.pathname;
+    }
+    return parsed.toString();
+  } catch {
+    const cut = url.search(/[?#]/);
+    return cut === -1 ? url : url.slice(0, cut);
+  }
+}
+
+/**
+ * Faro context is serialized and shipped remotely. FetchError embeds the request
+ * body, headers, and the response payload, so those fields must not be forwarded.
+ */
+function redactForRemote(value: unknown): unknown {
+  if (!isPlainObject(value)) {
+    return value;
+  }
+
+  if (isFetchErrorLike(value)) {
+    const redacted: Record<string, unknown> = {};
+    if ('status' in value) {
+      redacted.status = value.status;
+    }
+    if (typeof value.statusText === 'string') {
+      redacted.statusText = value.statusText;
+    }
+    if (typeof value.message === 'string') {
+      redacted.message = value.message;
+    }
+    if ('cancelled' in value) {
+      redacted.cancelled = value.cancelled;
+    }
+    if (typeof value.traceId === 'string') {
+      redacted.traceId = value.traceId;
+    }
+    redacted.config = value.config;
+    return redacted;
+  }
+
+  if (isRequestLike(value)) {
+    const redacted: Record<string, unknown> = {};
+    for (const [key, nested] of Object.entries(value)) {
+      if (key === 'data' || key === 'body' || key === 'headers' || key === 'params') {
+        continue;
+      }
+      redacted[key] = key === 'url' && typeof nested === 'string' ? stripUrlSecrets(nested) : nested;
+    }
+    return redacted;
+  }
+
+  return value;
+}
+
 function serialize(value: unknown): string {
   if (value === undefined) {
     return 'undefined';
@@ -47,7 +125,7 @@ function serialize(value: unknown): string {
     return value.stack ?? value.message;
   }
   try {
-    const json = JSON.stringify(value);
+    const json = JSON.stringify(value, (_key, nested) => redactForRemote(nested));
     if (typeof json === 'string') {
       return json;
     }
@@ -55,10 +133,6 @@ function serialize(value: unknown): string {
     // Circular structures and other non-JSON values fall through to String().
   }
   return String(value);
-}
-
-function isPlainObject(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value) && !(value instanceof Error);
 }
 
 function normalizeArgs(args: unknown[]): {
@@ -85,8 +159,10 @@ function normalizeArgs(args: unknown[]): {
 
   if (extra.length === 1 && isPlainObject(extra[0])) {
     const rawContext = extra[0];
+    const remoteContext = redactForRemote(rawContext);
+    const contextSource = isPlainObject(remoteContext) ? remoteContext : rawContext;
     const context: StructuredLogContext = {};
-    for (const [key, value] of Object.entries(rawContext)) {
+    for (const [key, value] of Object.entries(contextSource)) {
       context[key] = serialize(value);
     }
     return {
