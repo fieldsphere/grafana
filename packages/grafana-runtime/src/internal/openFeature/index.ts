@@ -2,12 +2,15 @@ import { LocalStorageProvider } from '@openfeature/localstorage-provider';
 import { OFREPWebProvider } from '@openfeature/ofrep-web-provider';
 import { OpenFeature, ProviderEvents, NOOP_PROVIDER, type EventDetails, MultiProvider } from '@openfeature/react-sdk';
 
+import { createStructuredLogger } from '@grafana/data';
+
 import { config } from '../../config';
 import { logError } from '../../utils/logging';
 
 // Ensure the module augmentation is pulled in
 import './openfeature-types.gen.d.ts';
 
+const structuredLogger = createStructuredLogger('grafana/runtime');
 function checkDefaultProvider(event?: EventDetails) {
   if (event?.domain) {
     return;
@@ -20,7 +23,7 @@ function checkDefaultProvider(event?: EventDetails) {
       'OpenFeature default domain provider has been unexpectedly changed. This may be caused by a plugin that is incorrectly using the default domain.',
       { cause: OpenFeature.getProvider() }
     );
-    console.error(err);
+    structuredLogger.error(err);
     logError(err);
   }
 }

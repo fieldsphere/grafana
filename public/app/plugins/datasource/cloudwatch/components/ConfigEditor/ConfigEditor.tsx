@@ -11,6 +11,7 @@ import {
   DataSourceTestSucceeded,
   DataSourceTestFailed,
   type GrafanaTheme2,
+  createStructuredLogger,
 } from '@grafana/data';
 import { ConfigSection, DataSourceDescription } from '@grafana/plugin-ui';
 import { getAppEvents, usePluginInteractionReporter, config } from '@grafana/runtime';
@@ -25,6 +26,7 @@ import { LogGroupsFieldWrapper } from '../shared/LogGroups/LogGroupsField';
 import { SecureSocksProxySettingsNewStyling } from './SecureSocksProxySettingsNewStyling';
 import { XrayLinkConfig } from './XrayLinkConfig';
 
+const structuredLogger = createStructuredLogger('plugins.datasources');
 export type Props = DataSourcePluginOptionsEditorProps<CloudWatchJsonData, CloudWatchSecureJsonData>;
 
 type LogGroupFieldState = Pick<FieldProps, 'invalid'> & { error?: string | null };
@@ -220,7 +222,7 @@ function useDatasource(props: Props) {
           setDatasource(ds);
         }
       })
-      .catch((err) => console.error('Could not load CloudWatch data source instance', err));
+      .catch((err) => structuredLogger.error('Could not load CloudWatch data source instance', err));
 
     return () => {
       cancelled = true;

@@ -2,7 +2,7 @@ import { css } from '@emotion/css';
 import { type FC } from 'react';
 import { Controller, type DeepMap, type FieldError, useFormContext } from 'react-hook-form';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2, createStructuredLogger } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { t } from '@grafana/i18n';
 import {
@@ -31,6 +31,7 @@ import { SubformArrayField } from './SubformArrayField';
 import { SubformField } from './SubformField';
 import { WrapWithTemplateSelection } from './TemplateSelector';
 
+const structuredLogger = createStructuredLogger('features.alerting');
 interface Props {
   defaultValue: any;
   option: NotificationChannelOption;
@@ -319,7 +320,7 @@ const OptionInput: FC<Props & { id: string }> = ({
       );
 
     default:
-      console.error('Element not supported', option.element);
+      structuredLogger.error('Element not supported', option.element);
       return null;
   }
 };

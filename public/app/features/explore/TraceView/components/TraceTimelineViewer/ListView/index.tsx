@@ -1,3 +1,6 @@
+import * as React from 'react';
+
+import { createStructuredLogger } from '@grafana/data';
 // Copyright (c) 2017 Uber Technologies, Inc.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,12 +15,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import * as React from 'react';
 
 import type TNil from '../../types/TNil';
 
 import Positions from './Positions';
 
+const structuredLogger = createStructuredLogger('features.explore');
 type TWrapperProps = {
   style: React.CSSProperties;
   ref: (elm: HTMLDivElement) => void;
@@ -387,8 +390,7 @@ export default class ListView extends React.Component<TListViewProps> {
         // use `.getAttribute(...)` instead of `.dataset` for jest / JSDOM
         const itemKey = node.getAttribute('data-item-key');
         if (!itemKey) {
-          // eslint-disable-next-line no-console
-          console.warn('itemKey not found');
+          structuredLogger.warn('itemKey not found');
           continue;
         }
         // measure the first child, if it's available, otherwise the node itself

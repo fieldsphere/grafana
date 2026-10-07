@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { BehaviorSubject } from 'rxjs';
 
+import { createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { type CanvasConnection, type ConnectionCoordinates, ConnectionPath } from 'app/features/canvas/element';
 import { type ElementState } from 'app/features/canvas/runtime/element';
@@ -31,6 +32,7 @@ import {
   updateConnectionsAfterGroupMove as sharedUpdateGroup,
 } from './connectionMovementUtils';
 
+const structuredLogger = createStructuredLogger('plugins.panels');
 export const CONNECTION_VERTEX_ID = 'vertex';
 export const CONNECTION_VERTEX_ADD_ID = 'vertexAdd';
 const CONNECTION_VERTEX_ORTHO_TOLERANCE = 0.05; // Cartesian ratio against vertical or horizontal tolerance
@@ -135,7 +137,7 @@ export class Connections {
     let element: ElementState | undefined = this.findElementTarget(event.target);
 
     if (!element) {
-      console.log('no element');
+      structuredLogger.info('no element');
       return;
     }
 
@@ -144,7 +146,7 @@ export class Connections {
     } else {
       this.connectionSource = element;
       if (!this.connectionSource) {
-        console.log('no connection source');
+        structuredLogger.info('no connection source');
         return;
       }
     }

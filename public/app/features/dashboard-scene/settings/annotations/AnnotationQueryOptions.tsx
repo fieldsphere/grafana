@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 
-import { AppEvents } from '@grafana/data';
+import { AppEvents, createStructuredLogger } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { getAppEvents } from '@grafana/runtime';
 import { useDataSourceInstance } from '@grafana/runtime/unstable';
@@ -12,6 +12,7 @@ import { useQueryLibraryContext } from 'app/features/explore/QueryLibrary/QueryL
 import { type AnnotationLayer } from './AnnotationEditableElement';
 import { AnnotationQueryEditorModal } from './AnnotationQueryEditorModal';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 export function AnnotationQueryEditorButton({ layer }: { layer: AnnotationLayer }) {
   const { queryLibraryEnabled } = useQueryLibraryContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -56,7 +57,7 @@ function QueryLibraryButton({ layer, onQuerySelected }: { layer: AnnotationLayer
           layer.setState({ query: updatedQuery });
           layer.runLayer();
         } catch (error) {
-          console.error('Failed to replace annotation query!', error);
+          structuredLogger.error('Failed to replace annotation query!', error);
           getAppEvents().publish({
             type: AppEvents.alertError.name,
             payload: ['Failed to create annotation query!', error instanceof Error ? error.message : error],

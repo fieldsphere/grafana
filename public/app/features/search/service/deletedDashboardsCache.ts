@@ -1,3 +1,4 @@
+import { createStructuredLogger } from '@grafana/data';
 import { FlagKeys, getFeatureFlagClient } from '@grafana/runtime/internal';
 import { iamAPIv0alpha1, type DisplayList } from 'app/api/clients/iam/v0alpha1';
 import {
@@ -28,6 +29,7 @@ import {
 import { type SearchHit } from './unified';
 import { DELETED_BY_REMOVED, DELETED_BY_UNKNOWN, filterSearchResults } from './utils';
 
+const structuredLogger = createStructuredLogger('features.search');
 /**
  * The query the Recently deleted page can express, whichever backend serves it.
  *
@@ -344,7 +346,7 @@ class DeletedDashboardsCache {
       // 503 is the one failure the server distinguishes for us: trash is on, but this index
       // has not been rebuilt to hold deleted documents. Anything else, including a server
       // that does not serve the endpoint at all, reads as an empty list.
-      console.error('Failed to fetch deleted dashboards from the trash endpoint:', error);
+      structuredLogger.error('Failed to fetch deleted dashboards from the trash endpoint:', error);
       return { failed: true, unavailable: getStatusFromError(error) === 503 };
     }
   }
@@ -394,7 +396,7 @@ class DeletedDashboardsCache {
         rows: Array.from(deduped.values()),
       };
     } catch (error) {
-      console.error('Failed to fetch deleted dashboards:', error);
+      structuredLogger.error('Failed to fetch deleted dashboards:', error);
       return EMPTY_TABLE_RESPONSE;
     }
   }
@@ -491,7 +493,7 @@ export async function resolveDeletedByDisplayMap(
   } catch (error) {
     // `Promise.allSettled` cannot reject; this catches synchronous throws from `dispatch()`
     // itself. Mark every UID unknown so callers render placeholders, not raw UIDs.
-    console.error('Failed to resolve deleted dashboard user displays:', getMessageFromError(error));
+    structuredLogger.error('Failed to resolve deleted dashboard user displays:', getMessageFromError(error));
     for (const uid of toFetch) {
       result.set(uid, DELETED_BY_UNKNOWN);
     }
@@ -504,12 +506,15 @@ function extractDisplayData(
   settled: PromiseSettledResult<{ data?: DisplayList; error?: unknown }>
 ): DisplayList | undefined {
   if (settled.status === 'rejected') {
-    console.error('Failed to resolve deleted dashboard user displays:', getMessageFromError(settled.reason));
+    structuredLogger.error('Failed to resolve deleted dashboard user displays:', getMessageFromError(settled.reason));
     return undefined;
   }
   // RTK Query query thunks resolve (do not reject) on request errors — surface them explicitly.
   if (settled.value.error) {
-    console.error('Failed to resolve deleted dashboard user displays:', getMessageFromError(settled.value.error));
+    structuredLogger.error(
+      'Failed to resolve deleted dashboard user displays:',
+      getMessageFromError(settled.value.error)
+    );
     return undefined;
   }
   return settled.value.data;

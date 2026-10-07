@@ -1,4 +1,4 @@
-import { PluginLoadingStrategy } from '@grafana/data';
+import { PluginLoadingStrategy, createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { getLogger } from '@grafana/runtime/unstable';
 
@@ -13,6 +13,7 @@ import { sharedDependenciesMap } from './sharedDependencies';
 import { type SystemJSRegistration, type SystemJSWithLoaderHooks } from './types';
 import { buildImportMap, isHostedOnCDN } from './utils';
 
+const structuredLogger = createStructuredLogger('features.plugins');
 const ignoredInteropExports: Record<string, true> = {
   __esModule: true,
   __useDefault: true,
@@ -194,7 +195,7 @@ export function decorateSystemJSResolve(
       const url = originalResolve.apply(this, [resolvedUrl, parentUrl]);
       return resolvePluginUrlWithCache(url);
     }
-    console.warn(`SystemJS: failed to resolve '${id}'`);
+    structuredLogger.warn(`SystemJS: failed to resolve '${id}'`);
     return id;
   }
 }

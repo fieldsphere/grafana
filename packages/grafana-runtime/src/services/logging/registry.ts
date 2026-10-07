@@ -1,8 +1,48 @@
+import { createStructuredLogger, defaultLogSink, resetLogSink, setLogSink, type LogRecord } from '@grafana/data';
+
 import { createMonitoringLogger, logWarning, type MonitoringLogger } from '../../utils/logging';
 
 import { Loggers, type LoggerDefaults, type LoggerSource } from './loggers';
 
 let loggersRegistry: Partial<Record<LoggerSource, MonitoringLogger>> = {};
+
+const structuredLogger = createStructuredLogger('grafana/runtime', { remote: false });
+
+function faroContext(record: LogRecord) {
+  return {
+    loggerSource: record.source,
+    ...record.context,
+  };
+}
+
+function forwardStructuredLogToFaro(record: LogRecord) {
+  defaultLogSink(record);
+
+  if (!record.remote) {
+    return;
+  }
+
+  const logger = loggersRegistry['grafana.frontend'];
+  if (!logger) {
+    return;
+  }
+
+  const context = faroContext(record);
+  switch (record.level) {
+    case 'debug':
+      logger.logDebug(record.message, context);
+      return;
+    case 'info':
+      logger.logInfo(record.message, context);
+      return;
+    case 'warn':
+      logger.logWarning(record.message, context);
+      return;
+    case 'error':
+      logger.logError(record.error ?? new Error(record.message), context);
+      return;
+  }
+}
 
 export function initializeLoggersRegistry() {
   // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
@@ -10,11 +50,13 @@ export function initializeLoggersRegistry() {
   for (const [source, defaults] of entries) {
     addLogger(source, defaults);
   }
+
+  setLogSink(forwardStructuredLogToFaro);
 }
 
 export function addLogger(source: LoggerSource, defaults?: LoggerDefaults): void {
   if (loggersRegistry[source]) {
-    console.warn(`LoggerRegistry: a logger with the source:${source} already exists, keeping existing entry.`);
+    structuredLogger.warn(`LoggerRegistry: a logger with the source:${source} already exists, keeping existing entry.`);
     return;
   }
 
@@ -27,7 +69,7 @@ export function getLogger(source: LoggerSource): MonitoringLogger {
 
     // avoid having to mock logger in tests because of the warning message
     if (process.env.NODE_ENV !== 'test') {
-      console.warn(message);
+      structuredLogger.warn(message);
       logWarning(message, { source: 'grafana/runtime.logging.registry', logger: source });
     }
 
@@ -55,4 +97,5 @@ export function clearLoggerRegistry() {
   }
 
   loggersRegistry = {};
+  resetLogSink();
 }

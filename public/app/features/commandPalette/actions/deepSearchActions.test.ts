@@ -308,7 +308,10 @@ describe('useDeepSearchResults', () => {
       { timeout: 3000 }
     );
     expect(result.current.deepSearchResults).toEqual([]);
-    expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('Deep search failed'), expect.anything());
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Deep search failed'),
+      expect.objectContaining({ source: 'features.commandPalette', status: 500 })
+    );
     consoleErrorSpy.mockRestore();
   });
 });

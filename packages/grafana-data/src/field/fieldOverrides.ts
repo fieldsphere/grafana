@@ -36,12 +36,14 @@ import { type TimeZone } from '../types/time';
 import { type FieldMatcher } from '../types/transformations';
 import { mapInternalLinkToExplore } from '../utils/dataLinks';
 import { locationUtil } from '../utils/location';
+import { createStructuredLogger } from '../utils/logger';
 
 import { type FieldConfigOptionsRegistry } from './FieldConfigOptionsRegistry';
 import { getDisplayProcessor, getRawDisplayProcessor } from './displayProcessor';
 import { getMinMaxAndDelta } from './scale';
 import { standardFieldConfigEditorRegistry } from './standardFieldConfigEditorRegistry';
 
+const structuredLogger = createStructuredLogger('grafana/data');
 interface OverrideProps {
   match: FieldMatcher;
   properties: DynamicConfigValue[];
@@ -125,7 +127,7 @@ export function applyFieldOverrides(
       const info = fieldMatchers.getIfExists(rule.matcher.id);
 
       if (!info) {
-        console.warn(`Unknown field matcher id: "${rule.matcher.id}", skipping override rule`);
+        structuredLogger.warn(`Unknown field matcher id: "${rule.matcher.id}", skipping override rule`);
         continue;
       }
 

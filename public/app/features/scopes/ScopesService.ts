@@ -2,6 +2,7 @@ import { isEqual } from 'lodash';
 import { BehaviorSubject, type Observable, combineLatest, type Subscription } from 'rxjs';
 import { map, distinctUntilChanged } from 'rxjs/operators';
 
+import { createStructuredLogger } from '@grafana/data';
 import { type LocationService, type ScopesContextValue, type ScopesContextValueState } from '@grafana/runtime';
 
 import { type ScopesApiClient } from './ScopesApiClient';
@@ -10,6 +11,7 @@ import { deserializeFolderPath, serializeFolderPath } from './dashboards/scopeNa
 import { type ScopesSelectorService } from './selector/ScopesSelectorService';
 import { type ScopesMap, type SelectedScope } from './selector/types';
 
+const structuredLogger = createStructuredLogger('features.scopes');
 export interface State {
   enabled: boolean;
   readOnly: boolean;
@@ -102,7 +104,7 @@ export class ScopesService implements ScopesContextValue {
           const tree = this.selectorService.state.tree;
           if (derivedNodeId && tree) {
             this.selectorService.resolvePathToRoot(derivedNodeId, tree, firstApplied.scopeId).catch((error) => {
-              console.error('Failed to pre-load node path from defaultPath', error);
+              structuredLogger.error('Failed to pre-load node path from defaultPath', error);
             });
           }
         }
@@ -112,7 +114,7 @@ export class ScopesService implements ScopesContextValue {
     // Preload scope node (which loads parent too)
     if (scopeNodeId) {
       this.selectorService.resolvePathToRoot(scopeNodeId, this.selectorService.state.tree!).catch((error) => {
-        console.error('Failed to pre-load node path', error);
+        structuredLogger.error('Failed to pre-load node path', error);
       });
     }
 
@@ -294,7 +296,7 @@ export class ScopesService implements ScopesContextValue {
               // calls elsewhere in this file so a rejection from either
               // fetchDefaultScope or the changeScopes chain above is logged
               // instead of surfacing as an unhandled rejection.
-              console.error('Failed to apply default scope:', err);
+              structuredLogger.error('Failed to apply default scope:', err);
             });
         }
         // Defer the URL write when scope metadata has not loaded yet.

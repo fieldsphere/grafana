@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { useAsync } from 'react-use';
 import SwaggerUI from 'swagger-ui-react';
 
-import { createTheme, ThemeContext, type SelectableValue } from '@grafana/data';
+import { createTheme, ThemeContext, type SelectableValue, createStructuredLogger } from '@grafana/data';
 import { t, Trans } from '@grafana/i18n';
 import { Alert, Button, Icon, Select, Stack, UserIcon, type UserView } from '@grafana/ui';
 
 import { NamespaceContext } from './contexts';
 import { WrappedPlugins } from './plugins';
 
+const structuredLogger = createStructuredLogger('features.app');
 export const Page = () => {
   const theme = createTheme({ colors: { mode: 'light' } });
   const [url, setURL] = useState<SelectableValue<string>>();
@@ -51,7 +52,7 @@ export const Page = () => {
   const namespace = useAsync(async () => {
     const response = await fetch('api/frontend/settings');
     if (!response.ok) {
-      console.warn('No settings found');
+      structuredLogger.warn('No settings found');
       return;
     }
     const val = await response.json();
@@ -61,7 +62,7 @@ export const Page = () => {
   useAsync(async () => {
     const response = await fetch('api/user');
     if (!response.ok) {
-      console.warn('No user found, show login button');
+      structuredLogger.warn('No user found, show login button');
       return;
     }
     const val = await response.json();

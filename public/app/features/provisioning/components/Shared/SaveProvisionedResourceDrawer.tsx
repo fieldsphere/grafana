@@ -3,6 +3,7 @@ import { customAlphabet } from 'nanoid';
 import { useMemo, useState } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 
+import { createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { reportInteraction } from '@grafana/runtime';
 import { Button, Drawer, Stack, Text } from '@grafana/ui';
@@ -40,6 +41,7 @@ import { slugifyForFilename } from '../utils/path';
 
 import { ResourceEditFormSharedFields } from './ResourceEditFormSharedFields';
 
+const structuredLogger = createStructuredLogger('features.provisioning');
 /** Commit action handled by this drawer. */
 type ProvisionedResourceAction = 'create' | 'update' | 'delete';
 
@@ -298,7 +300,7 @@ export function SaveProvisionedResourceDrawer(props: SaveProvisionedResourceDraw
     // new kind wired into a page before its registry entry exists. Warn in dev so it's a visible signal
     // rather than a silent no-op where the user clicks save/delete and nothing happens.
     if (process.env.NODE_ENV !== 'production') {
-      console.warn(
+      structuredLogger.warn(
         `SaveProvisionedResourceDrawer: no registered provisioning kind for "${props.resource.apiVersion}"/"${props.resource.kind}"; the drawer will not render.`
       );
     }

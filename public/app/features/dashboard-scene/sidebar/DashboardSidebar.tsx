@@ -1,5 +1,6 @@
 import { isEqual } from 'lodash';
 
+import { createStructuredLogger } from '@grafana/data';
 import { reportInteraction } from '@grafana/runtime';
 import {
   NewSceneObjectAddedEvent,
@@ -36,6 +37,7 @@ import {
 import { DashboardOutline } from './outline/DashboardOutline';
 import { type DashboardSidebarPane, type DashboardSidebarLike, type DashboardSidebarState } from './types';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 export class DashboardSidebar extends SceneObjectBase<DashboardSidebarState> implements DashboardSidebarLike {
   public constructor(state?: Partial<DashboardSidebarState>) {
     super({
@@ -372,7 +374,7 @@ export class DashboardSidebar extends SceneObjectBase<DashboardSidebarState> imp
   private selectElement(element: ElementSelectionContextItem, options: ElementSelectionOnSelectOptions) {
     let obj = sceneGraph.findByKey(this, element.id);
     if (!obj) {
-      console.warn('Cannot find element by key="%s"!', element.id);
+      structuredLogger.warn('Cannot find element by key="%s"!', element.id);
       return;
     }
 
@@ -380,7 +382,7 @@ export class DashboardSidebar extends SceneObjectBase<DashboardSidebarState> imp
     if (sourceKey) {
       obj = sceneGraph.findByKey(this, sourceKey);
       if (!obj) {
-        console.warn('Cannot find element by source key="%s"!', sourceKey);
+        structuredLogger.warn('Cannot find element by source key="%s"!', sourceKey);
         return;
       }
     }

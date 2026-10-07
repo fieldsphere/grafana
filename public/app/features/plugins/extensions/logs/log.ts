@@ -2,10 +2,11 @@ import { isString } from 'lodash';
 import { nanoid } from 'nanoid';
 import { type Observable, ReplaySubject } from 'rxjs';
 
-import { type Labels, LogLevel } from '@grafana/data';
+import { type Labels, LogLevel, createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { getLogger } from '@grafana/runtime/unstable';
 
+const structuredLogger = createStructuredLogger('features.plugins', { remote: false });
 export type ExtensionsLogItem = {
   level: LogLevel;
   timestamp: number;
@@ -41,15 +42,14 @@ export class ExtensionsLog {
 
   warning(message: string, labels?: Labels): void {
     getLogger('ui-extension-logs').logWarning(message, { ...this.baseLabels, ...labels });
-    config.buildInfo.env === 'development' && console.warn(message, { ...this.baseLabels, ...labels });
+    config.buildInfo.env === 'development' && structuredLogger.warn(message, { ...this.baseLabels, ...labels });
     this.log(LogLevel.warning, message, labels);
   }
 
   error(message: string, labels?: Labels): void {
-    // TODO: If Faro has console instrumentation, then the following will track the same error message twice
-    // (first: `monitoringLogger.logError()`, second: `console.error()` which gets picked up by Faro)
     getLogger('ui-extension-logs').logError(new Error(message), { ...this.baseLabels, ...labels });
-    console.error(message, { ...this.baseLabels, ...labels });
+    // Local only. getLogger already reports this to Faro, so a remote structured log would duplicate it.
+    structuredLogger.error(message, { ...this.baseLabels, ...labels });
     this.log(LogLevel.error, message, labels);
   }
 

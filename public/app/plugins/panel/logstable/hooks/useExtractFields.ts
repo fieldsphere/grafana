@@ -11,6 +11,7 @@ import {
   type TimeZone,
   transformDataFrame,
   useDataLinksContext,
+  createStructuredLogger,
 } from '@grafana/data';
 import { getTemplateSrv } from '@grafana/runtime';
 import { useTheme2 } from '@grafana/ui';
@@ -18,6 +19,7 @@ import { useTheme2 } from '@grafana/ui';
 import { getLogsTableFieldConfigRegistry } from '../logsTableFieldConfig';
 import { extractLogsFieldsTransform } from '../transforms/extractLogsFieldsTransform';
 
+const structuredLogger = createStructuredLogger('plugins.panels');
 interface Props {
   rawTableFrame: DataFrame | null;
   fieldConfig?: FieldConfigSource;
@@ -61,7 +63,7 @@ export function useExtractFields({ rawTableFrame, fieldConfig, timeZone, replace
         }
       })
       .catch((err) => {
-        console.error('LogsTable: Extract fields transform error', err);
+        structuredLogger.error('LogsTable: Extract fields transform error', err);
       });
   }, [dataLinkPostProcessor, fieldConfig, isMounted, loadingState, rawTableFrame, replaceVariables, theme, timeZone]);
 

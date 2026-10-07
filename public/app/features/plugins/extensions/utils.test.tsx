@@ -239,7 +239,10 @@ describe('Plugin Extensions / Utils', () => {
         fn('TEST');
 
         // Logs the errors
-        expect(console.warn).toHaveBeenCalledWith('Error: TEST');
+        expect(console.warn).toHaveBeenCalledWith(
+          'Error: TEST',
+          expect.objectContaining({ source: 'features.plugins' })
+        );
       }).not.toThrow();
     });
   });

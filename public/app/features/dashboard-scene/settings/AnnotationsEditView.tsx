@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react';
 
-import { type AnnotationQuery, getDataSourceRef } from '@grafana/data';
+import { type AnnotationQuery, getDataSourceRef, createStructuredLogger } from '@grafana/data';
 import { getDataSourceInstanceSettings } from '@grafana/runtime/unstable';
 import { type SceneComponentProps, SceneObjectBase, dataLayers } from '@grafana/scenes';
 import { Spinner } from '@grafana/ui';
@@ -15,6 +15,7 @@ import { EditListViewSceneUrlSync } from './EditListViewSceneUrlSync';
 import { type MoveDirection } from './annotations/MoveDirection';
 import { type DashboardEditView, type DashboardEditViewState } from './utils';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 const AnnotationsEditViewRenderer = lazy(() =>
   import('./SettingsRenderers').then((m) => ({ default: m.AnnotationsEditViewRenderer }))
 );
@@ -69,7 +70,7 @@ export class AnnotationsEditView extends SceneObjectBase<AnnotationsEditViewStat
     const defaultInstanceDS = await getDataSourceInstanceSettings(null);
     // check for an annotation flag in the plugin json to see if it supports annotations
     if (!defaultInstanceDS || !defaultInstanceDS.meta.annotations) {
-      console.error('Default datasource does not support annotations');
+      structuredLogger.error('Default datasource does not support annotations');
       return undefined;
     }
     return getDataSourceRef(defaultInstanceDS);

@@ -14,6 +14,7 @@ import {
   type TimeZone,
   type TypedVariableModel,
   type UrlQueryValue,
+  createStructuredLogger,
 } from '@grafana/data';
 import { type PromQuery } from '@grafana/prometheus';
 import { RefreshEvent, TimeRangeUpdatedEvent } from '@grafana/runtime';
@@ -49,6 +50,7 @@ import { PanelModel } from './PanelModel';
 import { type TimeModel } from './TimeModel';
 import { deleteScopeVars, isOnTheSameGridRow } from './utils';
 
+const structuredLogger = createStructuredLogger('features.dashboard');
 export interface CloneOptions {
   saveVariables?: boolean;
   saveTimerange?: boolean;
@@ -1053,13 +1055,13 @@ export class DashboardModel implements TimeModel {
 
   /** @deprecated */
   on<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.on is deprecated use events.subscribe');
+    structuredLogger.info('DashboardModel.on is deprecated use events.subscribe');
     this.events.on(event, callback);
   }
 
   /** @deprecated */
   off<T>(event: AppEvent<T>, callback: (payload?: T) => void) {
-    console.log('DashboardModel.off is deprecated');
+    structuredLogger.info('DashboardModel.off is deprecated');
     this.events.off(event, callback);
   }
 

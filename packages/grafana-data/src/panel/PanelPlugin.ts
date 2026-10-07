@@ -37,10 +37,12 @@ import {
 } from '../types/transformations';
 import { type FieldConfigEditorBuilder, PanelOptionsEditorBuilder } from '../utils/OptionsUIBuilders';
 import { deprecationWarning } from '../utils/deprecationWarning';
+import { createStructuredLogger } from '../utils/logger';
 
 import { createFieldConfigRegistry } from './registryFactories';
 import { type PanelDataSummary } from './suggestions/getPanelDataSummary';
 
+const structuredLogger = createStructuredLogger('grafana/data');
 /** @beta */
 export type StandardOptionConfig<TContextOptions = unknown> = {
   defaultValue?: any;
@@ -486,7 +488,7 @@ export class PanelPlugin<
       // every data update and every render.
       if (!this.systemTransformationsSupplierFailed) {
         this.systemTransformationsSupplierFailed = true;
-        console.error(`Panel plugin "${this.meta?.id}" threw from its setSystemTransformations supplier`, err);
+        structuredLogger.error(`Panel plugin "${this.meta?.id}" threw from its setSystemTransformations supplier`, err);
       }
 
       return { prepend: [], append: [] };

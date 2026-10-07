@@ -192,7 +192,11 @@ describe('ScopesService', () => {
 
       await Promise.resolve();
 
-      expect(consoleError).toHaveBeenCalledWith('Failed to pre-load node path', expect.any(Error));
+      expect(consoleError).toHaveBeenCalledWith(
+        'Failed to pre-load node path',
+        expect.objectContaining({ source: 'features.scopes' }),
+        expect.any(Error)
+      );
       consoleError.mockRestore();
     });
 
@@ -234,7 +238,11 @@ describe('ScopesService', () => {
       rejectPathToRoot(new Error('fetch failed'));
       await Promise.resolve();
 
-      expect(consoleError).toHaveBeenCalledWith('Failed to pre-load node path from defaultPath', expect.any(Error));
+      expect(consoleError).toHaveBeenCalledWith(
+        'Failed to pre-load node path from defaultPath',
+        expect.objectContaining({ source: 'features.scopes' }),
+        expect.any(Error)
+      );
       consoleError.mockRestore();
     });
 
@@ -1170,7 +1178,11 @@ describe('ScopesService', () => {
         await new Promise((resolve) => setTimeout(resolve, 0));
         await new Promise((resolve) => setTimeout(resolve, 0));
 
-        expect(errorSpy).toHaveBeenCalledWith('Failed to apply default scope:', expect.any(Error));
+        expect(errorSpy).toHaveBeenCalledWith(
+          'Failed to apply default scope:',
+          expect.objectContaining({ source: 'features.scopes' }),
+          expect.any(Error)
+        );
         errorSpy.mockRestore();
       });
 

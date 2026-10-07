@@ -3,7 +3,7 @@ import { type HTMLAttributes } from 'react';
 import * as React from 'react';
 import Skeleton from 'react-loading-skeleton';
 
-import { type GrafanaTheme2 } from '@grafana/data';
+import { type GrafanaTheme2, createStructuredLogger } from '@grafana/data';
 
 import { useStyles2, useTheme2 } from '../../themes/ThemeContext';
 import { type IconName } from '../../types/icon';
@@ -13,6 +13,7 @@ import { TruncatedText } from '../Text/TruncatedText';
 import { Tooltip } from '../Tooltip/Tooltip';
 import { type PopoverContent } from '../Tooltip/types';
 
+const structuredLogger = createStructuredLogger('grafana/ui');
 export type BadgeColor = keyof GrafanaTheme2['components']['badge'];
 
 export interface BadgeProps extends HTMLAttributes<HTMLDivElement> {
@@ -106,7 +107,7 @@ const getStyles = (theme: GrafanaTheme2, color: BadgeColor) => {
   // the color prop is typed, but callers ignoring the typings would otherwise crash the whole tree
   if (!badgeColor) {
     const message = `Badge: unknown color '${color}', falling back to 'darkgrey'`;
-    console.warn(message);
+    structuredLogger.warn(message);
 
     if (process.env.NODE_ENV === 'development') {
       throw new Error(message);

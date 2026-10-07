@@ -103,6 +103,7 @@ describe('addTranslationsToI18n', () => {
     });
 
     expect(consoleSpy).toHaveBeenCalledWith('Could not find any translation for plugin test-panel', {
+      source: 'features.plugins',
       resolvedLanguage: 'sv-SE',
       fallbackLanguage: 'sv-SE',
     });
@@ -124,6 +125,7 @@ describe('addTranslationsToI18n', () => {
     });
 
     expect(consoleSpy).toHaveBeenCalledWith('Could not find default export for plugin test-panel', {
+      source: 'features.plugins',
       resolvedLanguage: 'pt-BR',
       fallbackLanguage: 'en-US',
       path: '/public/plugins/test-panel/locales/pt-BR/no-default-export.json',
@@ -146,6 +148,7 @@ describe('addTranslationsToI18n', () => {
     });
 
     expect(consoleSpy).toHaveBeenCalledWith('Could not load translation for plugin test-panel', {
+      source: 'features.plugins',
       resolvedLanguage: 'pt-BR',
       fallbackLanguage: 'en-US',
       error: new TypeError('Failed to fetch'),

@@ -1,4 +1,4 @@
-import { type PluginError, renderMarkdown } from '@grafana/data';
+import { type PluginError, renderMarkdown, createStructuredLogger } from '@grafana/data';
 import { getBackendSrv, isFetchError } from '@grafana/runtime';
 import { installPluginMeta, logPluginMetaError, uninstallPluginMeta } from '@grafana/runtime/internal';
 import { accessControlQueryParam } from 'app/core/utils/accessControl';
@@ -17,6 +17,7 @@ import {
   type ProvisionedPlugin,
 } from './types';
 
+const structuredLogger = createStructuredLogger('features.plugins');
 export async function getPluginDetails(id: string): Promise<CatalogPluginDetails> {
   const remote = await getRemotePlugin(id);
   const isPublished = Boolean(remote);
@@ -92,7 +93,7 @@ export async function getRemotePlugins(): Promise<RemotePlugin[]> {
     if (isFetchError(error)) {
       // It can happen that GCOM is not available, in that case we show a limited set of information to the user.
       error.isHandled = true;
-      console.error('Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
+      structuredLogger.error('Failed to fetch plugins from catalog (default https://grafana.com/api/plugins)');
       return [];
     }
 
@@ -272,9 +273,9 @@ export async function getPluginEntitlement(id: string): Promise<boolean> {
       if (error.status === 401 || error.status === 403 || error.status === 404) {
         return false;
       }
-      console.warn(`Failed to fetch entitlement for plugin "${id}" (status ${error.status})`);
+      structuredLogger.warn(`Failed to fetch entitlement for plugin "${id}" (status ${error.status})`);
     } else {
-      console.warn(`Failed to fetch entitlement for plugin "${id}": unexpected error`);
+      structuredLogger.warn(`Failed to fetch entitlement for plugin "${id}": unexpected error`);
     }
     return false;
   }

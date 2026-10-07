@@ -234,7 +234,10 @@ describe('dashboardLibraryApi', () => {
 
       const result = await fetchCommunityDashboards(defaultFetchParams);
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith('Unexpected API response format from Grafana.com:', mockResponse);
+      expect(consoleWarnSpy).toHaveBeenCalledWith(
+        'Unexpected API response format from Grafana.com:',
+        expect.objectContaining({ ...mockResponse, source: 'features.dashboard' })
+      );
       expect(result).toEqual({
         page: 1,
         pages: 1,
@@ -337,7 +340,11 @@ describe('dashboardLibraryApi', () => {
 
       const result = await fetchProvisionedDashboards('prometheus');
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading provisioned dashboards', error);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        'Error loading provisioned dashboards',
+        expect.objectContaining({ source: 'features.dashboard' }),
+        error
+      );
       expect(result).toEqual([]);
     });
 

@@ -106,7 +106,11 @@ describe('getWebGLStyle', () => {
     expect(result['icon-src']).toBe(''); // Empty SVG
 
     // Verify console.error was called with the expected error
-    expect(consoleErrorSpy).toHaveBeenCalledWith(new Error('Fetch failed'));
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      'Fetch failed',
+      expect.objectContaining({ source: 'plugins.panels' }),
+      expect.any(Error)
+    );
 
     // Clean up the spy
     consoleErrorSpy.mockRestore();

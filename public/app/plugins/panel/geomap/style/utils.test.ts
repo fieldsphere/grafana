@@ -189,12 +189,18 @@ describe('style utils', () => {
 
     it('returns null and warns for 5+ value rgba inputs', () => {
       expect(getRGBValues('rgba(1, 2, 3, 4, 5)')).toBeNull();
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Unsupported color format'));
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Unsupported color format'),
+        expect.objectContaining({ source: 'plugins.panels' })
+      );
     });
 
     it('returns null and warns for non-hex / non-rgb color strings', () => {
       expect(getRGBValues('hsl(0, 100%, 50%)')).toBeNull();
-      expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Unsupported color format'));
+      expect(warnSpy).toHaveBeenCalledWith(
+        expect.stringContaining('Unsupported color format'),
+        expect.objectContaining({ source: 'plugins.panels' })
+      );
     });
   });
 });

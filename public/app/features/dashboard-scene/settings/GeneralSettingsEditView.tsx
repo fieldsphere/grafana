@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 
+import { createStructuredLogger } from '@grafana/data';
 import { type SceneComponentProps, SceneObjectBase, behaviors, sceneGraph } from '@grafana/scenes';
 import { type TimeZone } from '@grafana/schema';
 import { Spinner, type WeekStart } from '@grafana/ui';
@@ -13,6 +14,7 @@ import { getDashboardSceneFor } from '../utils/utils';
 
 import { type DashboardEditView, type DashboardEditViewState } from './utils';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 const GeneralSettingsEditViewRenderer = lazy(() =>
   import('./SettingsRenderers').then((m) => ({ default: m.GeneralSettingsEditViewRenderer }))
 );
@@ -148,7 +150,7 @@ export class GeneralSettingsEditView
       const liveNow = this.getLiveNowTimer();
       enable ? liveNow.enable() : liveNow.disable();
     } catch (err) {
-      console.error(err);
+      structuredLogger.error(err);
     }
   };
 

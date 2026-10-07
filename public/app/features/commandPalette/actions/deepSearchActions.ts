@@ -1,10 +1,12 @@
 import debounce from 'debounce-promise';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { createStructuredLogger } from '@grafana/data';
 import { getGrafanaSearcher } from 'app/features/search/service/searcher';
 
 import { type DeepSearchPanelResult, searchDashboardVector } from '../api/deepSearch';
 
+const structuredLogger = createStructuredLogger('features.commandPalette');
 // Results are panel-level, so fetch well past the per-dashboard display count
 // to give grouping enough hits to rank dashboards by match count
 const DEEP_SEARCH_FETCH_LIMIT = 50;
@@ -253,7 +255,7 @@ export function useDeepSearchResults({ searchQuery, show, enabled }: UseDeepSear
         // The vector backend may be unconfigured (501) or the feature toggle
         // off (404) — callers gate on the toggle via the enabled flag, so
         // degrade to an empty column but log for anyone calling without the gate
-        console.error('Deep search failed. The vector search backend may be unavailable.', error);
+        structuredLogger.error('Deep search failed. The vector search backend may be unavailable.', error);
       }
 
       // Skip state updates when the effect has been cleaned up, and only keep

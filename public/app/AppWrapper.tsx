@@ -6,6 +6,7 @@ import CacheProvider from 'react-inlinesvg/provider';
 import { Provider } from 'react-redux';
 import { Route, Routes } from 'react-router-dom-v5-compat';
 
+import { createStructuredLogger } from '@grafana/data';
 import { config, navigationLogger, reportInteraction } from '@grafana/runtime';
 import { getFeatureFlagClient } from '@grafana/runtime/internal';
 import { ErrorBoundaryAlert, getPortalContainer, GlobalStyles, PortalContainer, TimeRangeProvider } from '@grafana/ui';
@@ -29,6 +30,7 @@ import { type PluginExtensionRegistries } from './features/plugins/extensions/re
 import { ScopesContextProvider } from './features/scopes/ScopesContextProvider';
 import { RouterWrapper } from './routes/RoutesWrapper';
 
+const structuredLogger = createStructuredLogger('features.app');
 interface AppWrapperProps {
   context: GrafanaContextType;
 }
@@ -89,7 +91,7 @@ export function AppWrapper({ context }: AppWrapperProps) {
     if (preloader) {
       preloader.remove();
     } else {
-      console.warn('Preloader element not found');
+      structuredLogger.warn('Preloader element not found');
     }
   }
 

@@ -1,9 +1,10 @@
 import { type Grammar } from 'prismjs';
 
-import { escapeRegex, type LogRowModel, parseFlags } from '@grafana/data';
+import { escapeRegex, type LogRowModel, parseFlags, createStructuredLogger } from '@grafana/data';
 
 import { type LogListModel } from './processing';
 
+const structuredLogger = createStructuredLogger('features.logs');
 // The Logs grammar is used for highlight in the logs panel
 const logsGrammar: Grammar = {
   'log-token-key': /\b[\w_]+(?=\s*=)/gi,
@@ -64,7 +65,10 @@ export const generateTextMatchGrammar = (highlightWords: string[] | undefined = 
       try {
         return new RegExp(`(?:${cleaned})`, flags);
       } catch (e) {
-        console.error(`generateTextMatchGrammar: cannot generate regular expression from /${cleaned}/${flags}`, e);
+        structuredLogger.error(
+          `generateTextMatchGrammar: cannot generate regular expression from /${cleaned}/${flags}`,
+          e
+        );
       }
       return undefined;
     })
@@ -74,7 +78,7 @@ export const generateTextMatchGrammar = (highlightWords: string[] | undefined = 
     try {
       expressions.push(new RegExp(escapeRegex(search), 'gi'));
     } catch (e) {
-      console.error(`generateTextMatchGrammar: cannot generate regular expression from /${search}/gi`, e);
+      structuredLogger.error(`generateTextMatchGrammar: cannot generate regular expression from /${search}/gi`, e);
     }
   }
   if (!expressions.length) {

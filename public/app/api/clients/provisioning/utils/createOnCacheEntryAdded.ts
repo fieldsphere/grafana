@@ -1,9 +1,11 @@
 import { type ThunkDispatch, type UnknownAction } from '@reduxjs/toolkit';
 import { type Subscription } from 'rxjs';
 
+import { createStructuredLogger } from '@grafana/data';
 import { ScopedResourceClient } from 'app/features/apiserver/client';
 import { type ListOptions, type GeneratedResourceList as ResourceList } from 'app/features/apiserver/types';
 
+const structuredLogger = createStructuredLogger('features.provisioning');
 interface OnCacheEntryAddedOptions<List = unknown> {
   onError?: (
     error: unknown,
@@ -108,7 +110,7 @@ export function createOnCacheEntryAdded<Spec, Status>(
           },
         });
     } catch (error) {
-      console.error('Error in onCacheEntryAdded:', error);
+      structuredLogger.error('Error in onCacheEntryAdded:', error);
       return;
     }
 

@@ -199,7 +199,11 @@ describe('NavRightButton', () => {
       // Should not crash when URL generation fails
       await user.click(screen.getByRole('button', { name: /invite user/i }));
 
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to handle invite/upgrade user click:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to handle invite/upgrade user click:',
+        expect.objectContaining({ source: 'features.core' }),
+        expect.any(Error)
+      );
 
       consoleSpy.mockRestore();
     });
@@ -217,7 +221,11 @@ describe('NavRightButton', () => {
       // Should not crash when popup is blocked
       await user.click(screen.getByRole('button', { name: /invite user/i }));
 
-      expect(consoleSpy).toHaveBeenCalledWith('Failed to handle invite/upgrade user click:', expect.any(Error));
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to handle invite/upgrade user click:',
+        expect.objectContaining({ source: 'features.core' }),
+        expect.any(Error)
+      );
 
       consoleSpy.mockRestore();
     });

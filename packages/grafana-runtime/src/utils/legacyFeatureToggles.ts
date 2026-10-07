@@ -1,7 +1,8 @@
-import { AppEvents, type FeatureToggles } from '@grafana/data';
+import { AppEvents, type FeatureToggles, createStructuredLogger } from '@grafana/data';
 
 import { getAppEvents } from '../services/appEvents';
 
+const structuredLogger = createStructuredLogger('grafana/runtime');
 /**
  * Possible values of the `grafana.frontendLegacyFeatureToggleHandling` feature flag.
  *
@@ -56,7 +57,7 @@ export function reportOrBlockLegacyFeatureToggles(
 
         // The stack makes the call site findable.
         const resolution = blocking ? 'and now resolves to undefined' : 'and will stop resolving';
-        console.warn(
+        structuredLogger.warn(
           `[Deprecation warning] Reading "${property}" from config.featureToggles is deprecated ${resolution}. ${MIGRATION_GUIDANCE}`,
           new Error().stack
         );

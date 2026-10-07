@@ -5,6 +5,7 @@ import {
   formattedValueToString,
   getFieldColorModeForField,
   type LinkModel,
+  createStructuredLogger,
 } from '@grafana/data';
 import { SortOrder, type TimeCompareColorMode, TooltipDisplayMode } from '@grafana/schema';
 
@@ -17,6 +18,7 @@ export interface TooltipScrollableOptions {
 import { type ColorIndicatorStyles } from './VizTooltipColorIndicator';
 import { VizTooltipColorIndicator, VizTooltipColorPlacement, type VizTooltipDelta, type VizTooltipItem } from './types';
 
+const structuredLogger = createStructuredLogger('grafana/ui');
 export const calculateTooltipPosition = (
   xPos = 0,
   yPos = 0,
@@ -100,7 +102,7 @@ const stringifyValue = (value: unknown): string => {
     return JSON.stringify(value);
   } catch (error) {
     // This path shouldn't be hittable
-    console.warn('Cannot render tooltip value', { error, value });
+    structuredLogger.warn('Cannot render tooltip value', { error, value });
     return String(value);
   }
 };

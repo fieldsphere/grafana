@@ -1,6 +1,6 @@
 import { defaults, each, sortBy } from 'lodash';
 
-import { type DataSourceRef, type VariableOption, VariableRefresh } from '@grafana/data';
+import { type DataSourceRef, type VariableOption, VariableRefresh, createStructuredLogger } from '@grafana/data';
 import { getPanelPluginMeta } from '@grafana/runtime/internal';
 import { getDataSourceInstance, getDataSourceInstanceSettings } from '@grafana/runtime/unstable';
 import { type Panel } from '@grafana/schema';
@@ -30,6 +30,7 @@ import { LibraryElementKind } from '../../../library-panels/types';
 import { type DashboardJson } from '../../../manage-dashboards/types';
 import { isConstant } from '../../../variables/guard';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 // This label is used to store the export label for a datasource when exporting a V2 dashboard for external sharing.
 // E.g. if a dashboard has two datasources with the same type, the export label will be used to distinguish them.
 export const ExportLabel = 'grafana.app/export-label';
@@ -356,7 +357,7 @@ export async function makeExportableV1(dashboard: DashboardModel) {
 
     return newObj;
   } catch (err) {
-    console.error('Export failed:', err);
+    structuredLogger.error('Export failed:', err);
     return toExportableError(err);
   }
 }
@@ -376,7 +377,7 @@ async function convertLibraryPanelToInlinePanel(libraryPanelElement: LibraryPane
     inlinePanel.spec.id = id;
     return inlinePanel;
   } catch (error) {
-    console.error(`Failed to load library panel ${libraryPanel.uid}:`, error);
+    structuredLogger.error(`Failed to load library panel ${libraryPanel.uid}:`, error);
 
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     dispatch(
@@ -604,7 +605,7 @@ export async function makeExportableV2(dashboard: DashboardV2Spec, isSharingExte
 
     return dashboard;
   } catch (err) {
-    console.error('Export failed:', err);
+    structuredLogger.error('Export failed:', err);
     return toExportableError(err);
   }
 }

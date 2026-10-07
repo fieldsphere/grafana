@@ -1,9 +1,10 @@
-import { type NavModelItem, userHasAnyPermission } from '@grafana/data';
+import { type NavModelItem, userHasAnyPermission, createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { contextSrv } from 'app/core/services/context_srv';
 
 import { NavID, type NavId } from './constants';
 
+const structuredLogger = createStructuredLogger('features.core');
 export const hasAny = (...actions: string[]) => userHasAnyPermission(actions, contextSrv.user);
 export const isSignedIn = () => contextSrv.isSignedIn;
 export const anonymousOrSignedIn = () => isSignedIn() || config.anonymousEnabled;
@@ -30,7 +31,7 @@ export const buildEntries = (entries: NavEntryBuilder[]): NavModelItem[] =>
       try {
         return (entry.when?.() ?? true) ? entry.build() : undefined;
       } catch (error) {
-        console.error('[navtree] nav entry failed to build', error);
+        structuredLogger.error('[navtree] nav entry failed to build', error);
         return undefined;
       }
     })

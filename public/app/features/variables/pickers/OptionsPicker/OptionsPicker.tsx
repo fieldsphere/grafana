@@ -8,6 +8,7 @@ import {
   type VariableOption,
   type VariableWithMultiSupport,
   type VariableWithOptions,
+  createStructuredLogger,
 } from '@grafana/data';
 import { selectors } from '@grafana/e2e-selectors';
 import { ClickOutsideWrapper } from '@grafana/ui';
@@ -29,6 +30,7 @@ import { type NavigationKey, type VariablePickerProps } from '../types';
 import { commitChangesToVariable, filterOrSearchOptions, navigateOptions, openOptions } from './actions';
 import { initialOptionPickerState, type OptionsPickerState, toggleAllOptions, toggleOption } from './reducer';
 
+const structuredLogger = createStructuredLogger('features.variables');
 const styles = {
   variableLinkWrapper: css({
     display: 'inline-block',
@@ -59,7 +61,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
   const mapStateToProps = (state: StoreState, ownProps: OwnProps) => {
     const { rootStateKey } = ownProps.variable;
     if (!rootStateKey) {
-      console.error('OptionPickerFactory: variable has no rootStateKey');
+      structuredLogger.error('OptionPickerFactory: variable has no rootStateKey');
       return {
         picker: initialOptionPickerState,
       };
@@ -94,7 +96,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
 
     function onHideOptions() {
       if (!variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        structuredLogger.error('Variable has no rootStateKey');
         return;
       }
       commitChangesToVariable(variable.rootStateKey, onVariableChange);
@@ -124,7 +126,7 @@ export const optionPickerFactory = <Model extends VariableWithOptions | Variable
 
     function onNavigate(key: NavigationKey, clearOthers: boolean) {
       if (!variable.rootStateKey) {
-        console.error('Variable has no rootStateKey');
+        structuredLogger.error('Variable has no rootStateKey');
         return;
       }
       navigateOptions(variable.rootStateKey, key, clearOthers);

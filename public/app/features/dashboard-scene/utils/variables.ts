@@ -1,4 +1,4 @@
-import { type AdHocVariableFilter, type TypedVariableModel } from '@grafana/data';
+import { type AdHocVariableFilter, type TypedVariableModel, createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { getDataSourceInstanceSettings } from '@grafana/runtime/unstable';
 import {
@@ -27,6 +27,7 @@ import { createSceneVariableFromVariableModel as createSceneVariableFromVariable
 
 import { getCurrentValueForOldIntervalModel, getIntervalsFromQueryString } from './utils';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 const DEFAULT_DATASOURCE = 'default';
 
 // Keep dashboard-load construction synchronous while the instance-settings lookup is async.
@@ -38,7 +39,7 @@ function applySupportsMultiValueOperators(variable: AdHocFiltersVariable, dataso
         variable.setState({ supportsMultiValueOperators: supports });
       }
     })
-    .catch((e) => console.warn('Failed to resolve multi-value operator support', datasourceType, e));
+    .catch((e) => structuredLogger.warn('Failed to resolve multi-value operator support', datasourceType, e));
 }
 
 export const keepOnlyUserDefinedVariables = (v: SceneVariable) => !v.UNSAFE_renderAsHidden;
@@ -93,7 +94,7 @@ export function createVariablesForDashboard(oldModel: DashboardModel, defaultVar
       try {
         return createSceneVariableFromVariableModel(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })
@@ -106,7 +107,7 @@ export function createVariablesForDashboard(oldModel: DashboardModel, defaultVar
       try {
         return createSceneVariableFromVariableModelV2(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })
@@ -152,7 +153,7 @@ export function createVariablesForSnapshot(oldModel: DashboardModel) {
         // for other variable types we are using the SnapshotVariable
         return createSnapshotVariable(v);
       } catch (err) {
-        console.error(err);
+        structuredLogger.error(err);
         return null;
       }
     })

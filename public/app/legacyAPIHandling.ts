@@ -1,3 +1,6 @@
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLogger = createStructuredLogger('features.app');
 // Controlled by the `grafana.frontendLegacyAPIHandling` feature flag, monkey-patches
 // fetch to log or block calls to legacy /api/ endpoints
 export function patchFetchForLegacyAPIMode() {
@@ -21,7 +24,7 @@ export function patchFetchForLegacyAPIMode() {
       return Promise.reject(new Error(`Request to legacy api ${url.pathname} blocked`));
     }
 
-    console.warn(`Request made to legacy api ${url.pathname}`);
+    structuredLogger.warn(`Request made to legacy api ${url.pathname}`);
     return originalFetch(input, init);
   };
 }

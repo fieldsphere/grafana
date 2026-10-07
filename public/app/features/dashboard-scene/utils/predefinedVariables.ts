@@ -1,4 +1,5 @@
 import { BASE_URL } from '@grafana/api-clients/rtkq/dashboard/v2beta1';
+import { createStructuredLogger } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
 import { FlagKeys, getFeatureFlagClient } from '@grafana/runtime/internal';
 import { type ControlSourceRef, type VariableKind } from '@grafana/schema/apis/dashboard.grafana.app/v2';
@@ -6,6 +7,7 @@ import { type Variable, type VariableList } from 'app/api/clients/dashboard/v2be
 import { AnnoKeyFolder } from 'app/features/apiserver/types';
 import { getVariableKind, getVariableSpecName } from 'app/features/variables-management/utils';
 
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 /**
  * Predefined variables are org-wide (global) and folder-scoped Variable resources
  * (`dashboard.grafana.app/v2beta1`) that are injected into every V2 dashboard at load
@@ -99,7 +101,7 @@ export async function fetchPredefinedVariables(folderUid?: string): Promise<Vari
     cache.set(cacheKey, { ts: Date.now(), variables });
     return variables;
   } catch (err) {
-    console.warn('Failed to load predefined dashboard variables', err);
+    structuredLogger.warn('Failed to load predefined dashboard variables', err);
     return null;
   }
 }

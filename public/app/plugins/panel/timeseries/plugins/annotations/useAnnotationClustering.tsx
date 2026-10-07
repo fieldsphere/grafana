@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
 import uPlot from 'uplot';
 
-import { type DataFrame, FieldType } from '@grafana/data';
+import { type DataFrame, FieldType, createStructuredLogger } from '@grafana/data';
 import { maybeSortFrame } from '@grafana/data/internal';
 import { type TimeRange2 } from '@grafana/ui/internal';
 
 import { DEFAULT_CLUSTERING_ANNOTATION_SPACING } from './constants';
 
+const structuredLogger = createStructuredLogger('plugins.panels');
 interface Props {
   annotations: DataFrame[];
   clusteringMode: ClusteringMode | null;
@@ -120,7 +121,7 @@ export const useAnnotationClustering = ({ annotations, clusteringMode, plotWidth
       }
     } else if (clusteringMode === ClusteringMode.Hover) {
       // Have the tooltip be clustered, but not the annotations: https://github.com/grafana/grafana/issues/119436
-      console.warn('Hover mode not implemented');
+      structuredLogger.warn('Hover mode not implemented');
     }
 
     // Sort clustered frames

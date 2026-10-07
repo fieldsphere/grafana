@@ -1,6 +1,6 @@
 import { get as lodashGet } from 'lodash';
 
-import { type NestedPanelOptions, type NestedValueAccess } from '@grafana/data';
+import { type NestedPanelOptions, type NestedValueAccess, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type ElementState } from 'app/features/canvas/runtime/element';
 import { FrameState } from 'app/features/canvas/runtime/frame';
@@ -13,6 +13,7 @@ import { optionBuilder } from '../options';
 
 import { TreeNavigationEditor } from './TreeNavigationEditor';
 
+const structuredLogger = createStructuredLogger('plugins.panels');
 export interface LayerEditorProps {
   scene: Scene;
   layer: FrameState;
@@ -53,7 +54,7 @@ export function getLayerEditor(opts: InstanceState): NestedPanelOptions<LayerEdi
       },
       onChange: (path, value) => {
         if (path === 'type' && value) {
-          console.warn('unable to change layer type');
+          structuredLogger.warn('unable to change layer type');
           return;
         }
         const c = setOptionImmutably(options, path, value);

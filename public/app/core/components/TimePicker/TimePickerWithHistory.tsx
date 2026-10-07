@@ -7,11 +7,13 @@ import {
   type TimeRange,
   isDateTime,
   rangeUtil,
+  createStructuredLogger,
 } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { type TimeRangePickerProps, TimeRangePicker } from '@grafana/ui';
 import { appEvents } from 'app/core/app_events';
 
+const structuredLogger = createStructuredLogger('features.core');
 const LOCAL_STORAGE_KEY = 'grafana.dashboard.timepicker.history';
 const MAX_HISTORY_ITEMS = 4;
 
@@ -136,7 +138,7 @@ function convertToISOString(value: DateTime | string): string {
   }
 
   if (!value?.toISOString) {
-    throw console.error('Invalid DateTime object passed to convertToISOString');
+    throw structuredLogger.error('Invalid DateTime object passed to convertToISOString');
   }
 
   return value.toISOString();

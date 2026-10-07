@@ -43,7 +43,8 @@ describe('OpenQueryLibraryExposedComponent', () => {
     const { container } = render(<OpenQueryLibraryExposedComponent />);
     expect(container.firstChild).toBeNull();
     expect(consoleWarnSpy).toHaveBeenCalledWith(
-      '[OpenQueryLibraryExposedComponent]: Attempted to use unsupported exposed component. Query library is not enabled.'
+      '[OpenQueryLibraryExposedComponent]: Attempted to use unsupported exposed component. Query library is not enabled.',
+      expect.objectContaining({ source: 'features.explore' })
     );
 
     consoleWarnSpy.mockRestore();

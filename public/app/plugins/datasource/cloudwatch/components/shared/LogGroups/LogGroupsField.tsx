@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 
+import { createStructuredLogger } from '@grafana/data';
 import { EditorField, EditorRow } from '@grafana/plugin-ui';
 import { config } from '@grafana/runtime';
 import { Box, Stack } from '@grafana/ui';
@@ -18,6 +19,7 @@ import { LogGroupQueryScopeSelector } from './LogGroupQueryScopeSelector';
 import { LogGroupsSelector } from './LogGroupsSelector';
 import { SelectedLogGroups } from './SelectedLogGroups';
 
+const structuredLogger = createStructuredLogger('plugins.datasources');
 type Props = {
   datasource: CloudWatchDatasource;
   onChange: (logGroups: LogGroup[]) => void;
@@ -92,7 +94,7 @@ export const LogGroupsField = ({
           onChange([...logGroups, ...variables.map((v) => ({ name: v, arn: v }))]);
         })
         .catch((err) => {
-          console.error(err);
+          structuredLogger.error(err);
         });
     }
   }, [datasource, legacyLogGroupNames, logGroups, onChange, region, loadingLogGroupsStarted]);

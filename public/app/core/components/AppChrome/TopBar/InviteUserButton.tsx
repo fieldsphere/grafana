@@ -1,6 +1,6 @@
 import { skipToken } from '@reduxjs/toolkit/query';
 
-import { PluginExtensionPoints } from '@grafana/data';
+import { PluginExtensionPoints, createStructuredLogger } from '@grafana/data';
 import { t } from '@grafana/i18n';
 import { renderLimitedComponents } from '@grafana/runtime';
 import { ToolbarButton } from '@grafana/ui';
@@ -18,6 +18,7 @@ import {
   shouldRenderUpgradeUserButton,
 } from './InviteUserButtonUtils';
 
+const structuredLogger = createStructuredLogger('features.core');
 export function NavRightButton() {
   const { components } = usePluginComponents({
     extensionPointId: PluginExtensionPoints.NavRightButton,
@@ -61,7 +62,7 @@ function InviteUserButton() {
         performInviteUserClick('top_bar_right', 'invite-user-top-bar');
       }
     } catch (error) {
-      console.error('Failed to handle invite/upgrade user click:', error);
+      structuredLogger.error('Failed to handle invite/upgrade user click:', error);
     }
   };
 

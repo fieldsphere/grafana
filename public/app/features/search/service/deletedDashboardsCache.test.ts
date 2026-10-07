@@ -164,7 +164,7 @@ describe('resolveDeletedByDisplayMap', () => {
     expect(map.get('user:alice')).toBe(DELETED_BY_UNKNOWN);
     expect(consoleError).toHaveBeenCalledWith(
       'Failed to resolve deleted dashboard user displays:',
-      expect.stringContaining('500')
+      expect.objectContaining({ source: 'features.search', args: expect.stringContaining('500') })
     );
     consoleError.mockRestore();
   });

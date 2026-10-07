@@ -1,9 +1,11 @@
+import { createStructuredLogger } from '@grafana/data';
 import { getBackendSrv, logInfo, logWarning } from '@grafana/runtime';
 import { type DashboardJson } from 'app/features/manage-dashboards/types';
 import { type PluginDashboard } from 'app/types/plugins';
 
 import { type GnetDashboard, type GnetDashboardsResponse, type Link } from '../types';
 
+const structuredLogger = createStructuredLogger('features.dashboard');
 /**
  * Panel types that are known to allow JavaScript code execution.
  * These panels are filtered out due to security concerns.
@@ -102,7 +104,7 @@ export async function fetchCommunityDashboards(
   }
 
   // Fallback for unexpected response format
-  console.warn('Unexpected API response format from Grafana.com:', result);
+  structuredLogger.warn('Unexpected API response format from Grafana.com:', result);
   return {
     page: params.page,
     pages: 1,
@@ -127,7 +129,7 @@ export async function fetchProvisionedDashboards(datasourceType: string): Promis
     });
     return Array.isArray(dashboards) ? dashboards.filter((dashboard) => !dashboard.removed) : [];
   } catch (error) {
-    console.error('Error loading provisioned dashboards', error);
+    structuredLogger.error('Error loading provisioned dashboards', error);
     return [];
   }
 }
@@ -144,7 +146,7 @@ const filterNonSafeDashboards = (dashboards: GnetDashboard[], dataSourceType?: s
     if (unsafePanelTypes.length > 0) {
       unsafeDashboardsCount++;
 
-      console.warn(
+      structuredLogger.warn(
         `Community dashboard ${item.id} ${item.name} filtered out due to panel types ${item.panelTypeSlugs?.join(', ')} that can embed JavaScript`
       );
 

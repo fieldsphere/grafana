@@ -1,6 +1,6 @@
 import { cloneDeep } from 'lodash';
 
-import { type NavModelItem } from '@grafana/data';
+import { type NavModelItem, createStructuredLogger } from '@grafana/data';
 import { config } from '@grafana/runtime';
 import { FlagKeys, getFeatureFlagClient } from '@grafana/runtime/internal';
 import { alertingNavEntry } from 'app/features/alerting/unified/navigation/alerting.navEntry';
@@ -24,6 +24,7 @@ import {
   sortNavTree,
 } from './utils';
 
+const structuredLogger = createStructuredLogger('features.core');
 /**
  * Whether to build the nav tree client-side. Gated on grafana.multiTenantNavTree
  * alone: this builds only the static sections, which need no plugin data. App
@@ -111,7 +112,7 @@ function applyRegisteredNavEntries(tree: NavModelItem[]): NavModelItem[] {
     if (!next) {
       // A registered item naming a section that isn't there is a bug in the
       // registering bundle, so say so rather than dropping it silently
-      console.warn('[navtree] registered nav entry parent not found', parentId);
+      structuredLogger.warn('[navtree] registered nav entry parent not found', parentId);
       return current;
     }
     return next;

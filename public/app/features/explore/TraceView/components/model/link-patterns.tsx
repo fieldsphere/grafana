@@ -1,3 +1,6 @@
+import { uniq as _uniq } from 'lodash';
+
+import { createStructuredLogger } from '@grafana/data';
 // Copyright (c) 2017 The Jaeger Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,10 +15,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { uniq as _uniq } from 'lodash';
 
 import { type Trace } from '../types/trace';
 
+const structuredLogger = createStructuredLogger('features.explore');
 const parameterRegExp = /#\{([^{}]*)\}/g;
 
 type ProcessedTemplate = {
@@ -109,8 +112,7 @@ export function processLinkPattern(pattern: any): ProcessedLinkPattern | null {
       parameters: _uniq(url.parameters.concat(text.parameters)),
     };
   } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(`Ignoring invalid link pattern: ${error}`, pattern);
+    structuredLogger.error(`Ignoring invalid link pattern: ${error}`, pattern);
     return null;
   }
 }

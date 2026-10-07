@@ -1,3 +1,6 @@
+import { createStructuredLogger } from '@grafana/data';
+
+const structuredLogger = createStructuredLogger('features.dashboard-scene');
 /**
  * Bridge between a document's scene root and the mutation client that serves it.
  *
@@ -24,7 +27,7 @@ export function provideMutationClientFactory(create: CreateMutationClient): void
  */
 export function createMutationClient(scene: unknown, resource: MutationResource): () => void {
   if (!_create) {
-    console.warn(
+    structuredLogger.warn(
       'createMutationClient called before provideMutationClientFactory. Mutation API will not be available.'
     );
     return () => {};
