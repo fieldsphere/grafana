@@ -15,6 +15,7 @@ import (
 	historianApp "github.com/grafana/alerting/apps/historian/pkg/app"
 	historianAppConfig "github.com/grafana/alerting/apps/historian/pkg/app/config"
 	"github.com/grafana/grafana/pkg/infra/log"
+	"github.com/grafana/grafana/pkg/registry/apps/alerting/customroute"
 	"github.com/grafana/grafana/pkg/services/ngalert"
 	"github.com/grafana/grafana/pkg/services/ngalert/lokiconfig"
 	"github.com/grafana/grafana/pkg/setting"
@@ -80,7 +81,7 @@ func RegisterAppInstaller(
 		handlers := &handlers{
 			historian: ng.Api.Historian,
 		}
-		appSpecificConfig.GetAlertStateHistoryHandler = handlers.GetAlertStateHistoryHandler
+		appSpecificConfig.GetAlertStateHistoryHandler = customroute.WithAPIStatusErrorResponse(handlers.GetAlertStateHistoryHandler)
 	}
 
 	return NewAppInstaller(appSpecificConfig)
