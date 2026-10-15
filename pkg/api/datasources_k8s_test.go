@@ -215,6 +215,126 @@ func TestGetK8sDataSourceByUIDHandler(t *testing.T) {
 	}
 }
 
+func TestShouldRerouteDataSourceByUID(t *testing.T) {
+	tests := []struct {
+		name     string
+		features []any
+		want     bool
+	}{
+		{name: "no flags", want: false},
+		{
+			name:     "reroute only",
+			features: []any{featuremgmt.FlagDatasourcesRerouteLegacyCRUDAPIs},
+			want:     false,
+		},
+		{
+			name:     "reroute + queryService",
+			features: []any{featuremgmt.FlagDatasourcesRerouteLegacyCRUDAPIs, featuremgmt.FlagQueryService},
+			want:     false,
+		},
+		{
+			name:     "reroute + datasourceUseNewCRUDAPIs",
+			features: []any{featuremgmt.FlagDatasourcesRerouteLegacyCRUDAPIs, featuremgmt.FlagDatasourceUseNewCRUDAPIs},
+			want:     false,
+		},
+		{
+			name: "reroute + queryServiceWithConnections is not enough",
+			features: []any{
+				featuremgmt.FlagDatasourcesRerouteLegacyCRUDAPIs,
+				featuremgmt.FlagQueryServiceWithConnections,
+			},
+			want: false,
+		},
+		{
+			name: "all three required flags",
+			features: []any{
+				featuremgmt.FlagDatasourcesRerouteLegacyCRUDAPIs,
+				featuremgmt.FlagQueryService,
+				featuremgmt.FlagDatasourceUseNewCRUDAPIs,
+			},
+			want: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hs := &HTTPServer{Features: featuremgmt.WithFeatures(tt.features...)}
+			assert.Equal(t, tt.want, hs.shouldRerouteDataSourceByUID())
+		})
+	}
+}
+
+func TestGetK8sDataSourceByUIDHandler_IncompleteFlagsFallBackToLegacy(t *testing.T) {
+	legacyDS := &datasources.DataSource{
+		ID:    42,
+		UID:   "test-uid",
+		Name:  "Legacy Prometheus",
+		Type:  "prometheus",
+		OrgID: 1,
+		URL:   "http://localhost:9090",
+	}
+
+	tests := []struct {
+		name     string
+		features []any
+	}{
+		{name: "no flags"},
+		{
+			name:     "reroute only",
+			features: []any{featuremgmt.FlagDatasourcesRerouteLegacyCRUDAPIs},
+		},
+		{
+			name:     "reroute + queryService",
+			features: []any{featuremgmt.FlagDatasourcesRerouteLegacyCRUDAPIs, featuremgmt.FlagQueryService},
+		},
+		{
+			name:     "reroute + datasourceUseNewCRUDAPIs",
+			features: []any{featuremgmt.FlagDatasourcesRerouteLegacyCRUDAPIs, featuremgmt.FlagDatasourceUseNewCRUDAPIs},
+		},
+		{
+			name: "reroute + queryServiceWithConnections",
+			features: []any{
+				featuremgmt.FlagDatasourcesRerouteLegacyCRUDAPIs,
+				featuremgmt.FlagQueryServiceWithConnections,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			hs := &HTTPServer{
+				Cfg:      setting.NewCfg(),
+				Features: featuremgmt.WithFeatures(tt.features...),
+				dsConnectionClient: &mockConnectionClient{
+					err: errors.New("k8s path must not run when sibling flags are missing"),
+				},
+				clientConfigProvider: &mockDirectRestConfigProvider{},
+				namespacer:           func(int64) string { return "default" },
+				DataSourcesService:   &dataSourcesServiceMock{expectedDatasource: legacyDS},
+			}
+			hs.promRegister, hs.dsConfigHandlerRequestsDuration, hs.dsEndpointRedirects = setupDsConfigHandlerMetrics()
+
+			sc := setupScenarioContext(t, "/api/datasources/uid/test-uid")
+			handler := hs.getK8sDataSourceByUIDHandler()
+			sc.m.Get("/api/datasources/uid/:uid", func(c *contextmodel.ReqContext) {
+				c.Req = web.SetURLParams(c.Req, map[string]string{":uid": "test-uid"})
+				c.SignedInUser = &user.SignedInUser{OrgID: 1}
+				handler.(func(*contextmodel.ReqContext))(c)
+			})
+			sc.fakeReqWithParams("GET", sc.url, map[string]string{}).exec()
+
+			require.Equal(t, http.StatusOK, sc.resp.Code, "incomplete flag sets must not 500")
+			assert.NotContains(t, sc.resp.Body.String(), "queryServiceWithConnections")
+
+			var body map[string]any
+			require.NoError(t, json.Unmarshal(sc.resp.Body.Bytes(), &body))
+			assert.Equal(t, "test-uid", body["uid"])
+			assert.Equal(t, "Legacy Prometheus", body["name"])
+			assert.Equal(t, "prometheus", body["type"])
+		})
+	}
+}
+
 func newTestContext(t *testing.T, method, urlPath string, params map[string]string) (*contextmodel.ReqContext, *httptest.ResponseRecorder) {
 	t.Helper()
 	req, err := http.NewRequest(method, urlPath, nil)
