@@ -5,6 +5,7 @@ import (
 
 	"github.com/stretchr/testify/require"
 
+	dashV0 "github.com/grafana/grafana/apps/dashboard/pkg/apis/dashboard/v0alpha1"
 	legacystars "github.com/grafana/grafana/pkg/registry/apis/collections/legacy"
 	dashboardmigrator "github.com/grafana/grafana/pkg/registry/apis/dashboard/migrator"
 	snapshotmigrator "github.com/grafana/grafana/pkg/registry/apis/dashboard/snapshot/migrator"
@@ -13,7 +14,9 @@ import (
 	playlistmigrator "github.com/grafana/grafana/pkg/registry/apps/playlist/migrator"
 	querycachingmigrator "github.com/grafana/grafana/pkg/registry/apps/querycaching/migrator"
 	shorturlmigrator "github.com/grafana/grafana/pkg/registry/apps/shorturl/migrator"
+	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/storage/unified/federated"
+	"github.com/grafana/grafana/pkg/storage/unified/migrations"
 )
 
 // stubMigrator satisfies every migrator interface the registry needs. Registering a
@@ -49,4 +52,14 @@ func TestLegacyCountedResourcesHaveNoMigration(t *testing.T) {
 			"%s now has a migration registered, so federated.legacyTableIsStale must read the migration status instead of the configured mode",
 			resource)
 	}
+}
+
+func TestProvideMigrationRegistryRegistersLibraryPanels(t *testing.T) {
+	s := stubMigrator{}
+	registry := ProvideMigrationRegistry(s, s, s, s, s, s, s, s)
+
+	def, ok := registry.Get(migrations.FoldersDashboardsMigrationID)
+	require.True(t, ok)
+	require.Contains(t, def.ConfigResources(), setting.LibraryPanelResource)
+	require.NotNil(t, registry.GetMigratorFunc(dashV0.LibraryPanelResourceInfo.GroupResource()))
 }
