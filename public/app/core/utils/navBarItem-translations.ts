@@ -102,6 +102,8 @@ export function getNavTitle(navId: string | undefined) {
       return t('nav.alerting-admin.title', 'Settings');
     case 'alerts/recently-deleted':
       return t('nav.alerts-recently-deleted.title', 'Recently deleted');
+    case 'labs':
+      return t('nav.labs.title', 'Labs');
     case 'cfg':
       return t('nav.config.title', 'Administration');
     case 'cfg/general':
@@ -332,6 +334,8 @@ export function getNavSubTitle(navId: string | undefined) {
         'nav.admin.subtitle',
         'Manage server-wide settings and access to resources such as organizations, users, and licenses'
       );
+    case 'labs':
+      return t('nav.labs.subtitle', 'Experimental features and feature flags');
     case 'cfg/general':
       return t('nav.config-general.subtitle', 'Manage default preferences and settings across Grafana');
     case 'cfg/plugins':

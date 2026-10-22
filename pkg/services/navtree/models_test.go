@@ -6,6 +6,11 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestWeightLabsOrdering(t *testing.T) {
+	require.Greater(t, WeightLabs, WeightConfig)
+	require.Less(t, WeightLabs, WeightProfile)
+}
+
 func TestNavTreeRoot(t *testing.T) {
 	t.Run("Sorting by index", func(t *testing.T) {
 		treeRoot := NavTreeRoot{
