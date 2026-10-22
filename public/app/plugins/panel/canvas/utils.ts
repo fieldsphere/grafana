@@ -359,13 +359,14 @@ export const getConnectionStyles = (
   const arrowDirection = info.direction
     ? scene.context.getDirection(info.direction).get(lastRowIndex)
     : defaultArrowDirection;
-  const lineStyle = getLineStyle(info.lineStyle?.style);
+  const lineStyleType = info.lineStyle?.style ?? LineStyle.Solid;
+  const lineStyle = getStrokeDasharray(lineStyleType);
   const shouldAnimate = info.lineStyle?.animate;
 
-  return { strokeColor, strokeWidth, strokeRadius, arrowDirection, lineStyle, shouldAnimate };
+  return { strokeColor, strokeWidth, strokeRadius, arrowDirection, lineStyle, lineStyleType, shouldAnimate };
 };
 
-const getLineStyle = (lineStyle?: LineStyle) => {
+export const getStrokeDasharray = (lineStyle?: LineStyle) => {
   switch (lineStyle) {
     case LineStyle.Dashed:
       return StrokeDasharray.Dashed;

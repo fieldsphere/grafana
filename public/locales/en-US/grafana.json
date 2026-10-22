@@ -4928,6 +4928,9 @@
       "label-animate": "Animate"
     },
     "line-style-options": {
+      "label-dashed": "Dashed",
+      "label-dotted": "Dotted",
+      "label-double": "Double",
       "label-solid": "Solid"
     },
     "metric-value-item": {
