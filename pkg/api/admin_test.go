@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"io"
 	"net/http"
 	"testing"
@@ -99,6 +100,52 @@ func TestAPI_AdminGetSettings(t *testing.T) {
 	}
 }
 
+func TestAPI_AdminGetFeatureFlags(t *testing.T) {
+	cfg := setting.NewCfg()
+	_, err := cfg.Raw.Section("feature_toggles").NewKey("featureHighlights", "true")
+	require.NoError(t, err)
+
+	server := SetupAPITestServer(t, func(hs *HTTPServer) {
+		hs.Cfg = cfg
+	})
+
+	res, err := server.Send(webtest.RequestWithSignedInUser(
+		server.NewGetRequest("/api/admin/labs/feature-flags"),
+		userWithPermissions(1, []accesscontrol.Permission{{Action: accesscontrol.ActionSettingsRead}}),
+	))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, res.StatusCode)
+	defer func() {
+		require.NoError(t, res.Body.Close())
+	}()
+
+	var body LabsFeatureFlagsResponse
+	require.NoError(t, json.NewDecoder(res.Body).Decode(&body))
+	require.False(t, body.RuntimeTogglingSupported)
+	require.NotEmpty(t, body.Message)
+	require.NotEmpty(t, body.Flags)
+
+	// Response should be stable and deterministic for the UI.
+	for i := 1; i < len(body.Flags); i++ {
+		require.LessOrEqual(t, body.Flags[i-1].Name, body.Flags[i].Name)
+	}
+
+	var featureHighlights LabsFeatureFlag
+	foundFeatureHighlights := false
+	for _, flag := range body.Flags {
+		if flag.Name != "featureHighlights" {
+			continue
+		}
+		foundFeatureHighlights = true
+		featureHighlights = flag
+		break
+	}
+
+	require.True(t, foundFeatureHighlights)
+	require.Equal(t, "configured", featureHighlights.Source)
+	require.True(t, featureHighlights.Configured)
+}
+
 func TestAdmin_AccessControl(t *testing.T) {
 	type testCase struct {
 		desc         string
@@ -142,6 +189,26 @@ func TestAdmin_AccessControl(t *testing.T) {
 			expectedCode: http.StatusForbidden,
 			desc:         "AdminGetSettings should return 403 for user without required permissions",
 			url:          "/api/admin/settings",
+			permissions: []accesscontrol.Permission{
+				{
+					Action: "wrong",
+				},
+			},
+		},
+		{
+			expectedCode: http.StatusOK,
+			desc:         "AdminGetFeatureFlags should return 200 for user with correct permissions",
+			url:          "/api/admin/labs/feature-flags",
+			permissions: []accesscontrol.Permission{
+				{
+					Action: accesscontrol.ActionSettingsRead,
+				},
+			},
+		},
+		{
+			expectedCode: http.StatusForbidden,
+			desc:         "AdminGetFeatureFlags should return 403 for user without required permissions",
+			url:          "/api/admin/labs/feature-flags",
 			permissions: []accesscontrol.Permission{
 				{
 					Action: "wrong",
