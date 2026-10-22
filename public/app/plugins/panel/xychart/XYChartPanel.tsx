@@ -35,20 +35,22 @@ export const XYChartPanel2 = (props: Props2) => {
   let { mapping, series: mappedSeries } = props.options;
 
   // regenerate series schema when mappings or data changes
-  let series = useMemo(
+  const { series, warn: seriesWarn } = useMemo(
     () => prepSeries(mapping, mappedSeries, props.data.series, props.fieldConfig),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [mapping, mappedSeries, props.data.series, props.fieldConfig]
   );
 
   // if series changed due to mappings or data structure, re-init config & renderers
-  const { builder, warn, prepData } = useMemo(
+  const { builder, warn: configWarn, prepData } = useMemo(
     () => {
       return prepConfig(series, theme);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [mapping, mappedSeries, props.data.structureRev, props.fieldConfig, props.options.tooltip, theme]
   );
+
+  const warn = seriesWarn ?? configWarn;
 
   // generate data struct for uPlot mode: 2
   const data = useMemo(

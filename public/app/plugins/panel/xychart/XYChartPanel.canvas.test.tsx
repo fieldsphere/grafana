@@ -319,6 +319,12 @@ describe('XYChartPanel2', () => {
     expect(screen.getByText('Unable to render data: No data.'));
   });
 
+  it('renders an error when manual X/Y mapping is not configured', async () => {
+    setUp({ options: { mapping: SeriesMapping.Manual, series: [{}] } }, [defaultFrame]);
+    expect(screen.getByText('Unable to render data: X and Y fields must be mapped.')).toBeVisible();
+    expect(screen.queryByTestId(selectors.components.VizLayout.container)).toBeNull();
+  });
+
   describe('Axes: x, y, z', () => {
     beforeAll(() => {
       clearAxisEvents = false;
