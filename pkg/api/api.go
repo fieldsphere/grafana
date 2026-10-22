@@ -152,6 +152,7 @@ func (hs *HTTPServer) registerRoutes() {
 	}
 
 	r.Get("/styleguide", reqSignedIn, hs.Index)
+	r.Get("/labs", reqSignedIn, hs.Index)
 
 	r.Get("/live", reqGrafanaAdmin, hs.Index)
 	r.Get("/live/pipeline", reqGrafanaAdmin, hs.Index)
@@ -260,6 +261,7 @@ func (hs *HTTPServer) registerRoutes() {
 
 	// api renew session based on cookie
 	r.Get("/api/login/ping", quota(string(auth.QuotaTargetSrv)), routing.Wrap(hs.LoginAPIPing))
+	r.Get("/api/labs/feature-toggles", reqSignedIn, routing.Wrap(hs.GetLabsFeatureToggles))
 
 	// expose plugin file system assets
 	r.Get("/public/plugins/:pluginId/*", hs.getPluginAssets)
