@@ -2,10 +2,12 @@ package schedule
 
 import (
 	context "context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/benbjohnson/clock"
+	"github.com/grafana/dataplane/sdata/numeric"
 	"github.com/grafana/grafana-plugin-sdk-go/backend"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 	"go.opentelemetry.io/otel/attribute"
@@ -21,6 +23,8 @@ import (
 	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/util"
 )
+
+var errRecordingRuleNoData = errors.New("recording rule evaluation returned no data")
 
 type RuleStatus struct {
 	Health              string
@@ -153,8 +157,8 @@ func (r *recordingRule) Run() error {
 				r.logger.Warn("Recording rule scheduled but subsystem is not enabled. Skipping")
 				return nil
 			}
-			// TODO: Skipping the "evalRunning" guard that the alert rule routine does, because it seems to be dead code and impossible to hit.
-			// TODO: Either implement me or remove from alert rules once investigated.
+			// Recording rules intentionally omit the alert rule evalRunning guard. Evaluations
+			// are serialized on this goroutine via evalCh, so overlapping runs cannot occur.
 
 			r.doEvaluate(ctx, eval)
 			// Call afterEval callback if it exists
@@ -224,7 +228,7 @@ func (r *recordingRule) doEvaluate(ctx context.Context, ev *Evaluation) {
 		evalAttemptTotal.Inc()
 		err := r.tryEvaluation(ctx, ev, logger)
 		latestError = err
-		if err == nil {
+		if err == nil || errors.Is(err, errRecordingRuleNoData) {
 			break
 		}
 
@@ -253,6 +257,13 @@ func (r *recordingRule) doEvaluate(ctx context.Context, ev *Evaluation) {
 	}
 
 	if latestError != nil {
+		if errors.Is(latestError, errRecordingRuleNoData) {
+			logger.Debug("Recording rule evaluation returned no data")
+			span.AddEvent("rule evaluated with no data")
+			r.lastError.Store(nil)
+			r.health.Store("nodata")
+			return
+		}
 		evalTotalFailures.Inc()
 		span.SetStatus(codes.Error, "rule evaluation failed")
 		span.RecordError(latestError)
@@ -279,7 +290,12 @@ func (r *recordingRule) tryEvaluation(ctx context.Context, ev *Evaluation, logge
 	if err := eval.FindConditionError(result, ev.rule.Record.From); err != nil {
 		return fmt.Errorf("the query failed with an error: %w", err)
 	}
-	// TODO: This is missing dedicated logic for NoData. If NoData we can skip the write.
+	if isNoDataResponse(ev.rule.Record.From, result) {
+		span := trace.SpanFromContext(ctx)
+		span.AddEvent("query returned no data, nothing to write")
+		logger.Debug("Query returned no data, skipping write")
+		return errRecordingRuleNoData
+	}
 
 	logger.Debug("Recording rule query completed", "resultCount", len(result.Responses), "duration", evalDur)
 	span := trace.SpanFromContext(ctx)
@@ -289,12 +305,14 @@ func (r *recordingRule) tryEvaluation(ctx context.Context, ev *Evaluation, logge
 
 	frames, err := r.frameRef(ev.rule.Record.From, result)
 	if err != nil {
-		span.AddEvent("query returned no data, nothing to write", trace.WithAttributes(
-			attribute.String("reason", err.Error()),
-		))
-		logger.Debug("Query returned no data", "reason", err)
-		r.health.Store("nodata")
-		return nil
+		if errors.Is(err, errRecordingRuleNoData) {
+			span.AddEvent("query returned no data, nothing to write", trace.WithAttributes(
+				attribute.String("reason", err.Error()),
+			))
+			logger.Debug("Query returned no data", "reason", err)
+			return errRecordingRuleNoData
+		}
+		return err
 	}
 
 	filteredLabels := ngmodels.WithoutPrivateLabels(ev.rule.Labels)
@@ -349,11 +367,52 @@ func (r *recordingRule) frameRef(refID string, resp *backend.QueryDataResponse) 
 		return nil, fmt.Errorf("no response with refID %s found in rule evaluation", refID)
 	}
 
-	if eval.IsNoData(targetNode) {
-		return nil, fmt.Errorf("response with refID %s has no data", refID)
+	if isNoDataResponse(refID, resp) {
+		return nil, fmt.Errorf("%w: response with refID %s has no data", errRecordingRuleNoData, refID)
 	}
 
 	return targetNode.Frames, nil
+}
+
+func isNoDataResponse(refID string, resp *backend.QueryDataResponse) bool {
+	if resp == nil || len(resp.Responses) == 0 {
+		return false
+	}
+
+	targetNode, ok := resp.Responses[refID]
+	if !ok {
+		return false
+	}
+
+	return eval.IsNoData(targetNode) || framesHaveNoWritableValues(targetNode.Frames)
+}
+
+func framesHaveNoWritableValues(frames data.Frames) bool {
+	if len(frames) == 0 {
+		return true
+	}
+
+	cr, err := numeric.CollectionReaderFromFrames(frames)
+	if err != nil {
+		return true
+	}
+
+	col, err := cr.GetCollection(false)
+	if err != nil || len(col.Refs) == 0 {
+		return true
+	}
+
+	for _, ref := range col.Refs {
+		value, empty, err := ref.NullableFloat64Value()
+		if err != nil {
+			continue
+		}
+		if !empty && value != nil {
+			return false
+		}
+	}
+
+	return true
 }
 
 // stopApplied is only used on tests.

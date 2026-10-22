@@ -3628,9 +3628,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									EndsAt:             t1.Add(ResendDelay * 4),
 									LastEvaluationTime: t1,
 									LastSentAt:         &t1,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 						},
@@ -3810,9 +3808,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									StartsAt:           t2,
 									EndsAt:             t2.Add(ResendDelay * 4),
 									LastEvaluationTime: t2,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 						},
@@ -3918,9 +3914,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									StartsAt:           t2,
 									EndsAt:             t2.Add(ResendDelay * 4),
 									LastEvaluationTime: t2,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 						},
@@ -3953,9 +3947,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									StartsAt:           t2,
 									EndsAt:             t3,
 									LastEvaluationTime: t3,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 						},
@@ -4112,9 +4104,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									EndsAt:             t2.Add(ResendDelay * 4),
 									LastEvaluationTime: t2,
 									LastSentAt:         &t2,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 						},
@@ -4333,9 +4323,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									LastEvaluationTime: t2,
 									LastSentAt:         &t2,
 									ResolvedAt:         &t2,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 							{
@@ -4544,9 +4532,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									EndsAt:             t2.Add(ResendDelay * 4),
 									LastEvaluationTime: t2,
 									LastSentAt:         &t2,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 						},
@@ -4564,9 +4550,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									LastEvaluationTime: t3,
 									LastSentAt:         &t3,
 									ResolvedAt:         &t3,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 							{
@@ -4604,9 +4588,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									StartsAt:           t4,
 									EndsAt:             t4.Add(ResendDelay * 4),
 									LastEvaluationTime: t4,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 						},
@@ -4797,9 +4779,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									EndsAt:             t2.Add(ResendDelay * 4),
 									LastEvaluationTime: t2,
 									LastSentAt:         &t2,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 						},
@@ -4909,9 +4889,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									StartsAt:           t2,
 									EndsAt:             t2.Add(ResendDelay * 4),
 									LastEvaluationTime: t2,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 						},
@@ -5013,9 +4991,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									StartsAt:           t2,
 									EndsAt:             t2.Add(ResendDelay * 4),
 									LastEvaluationTime: t2,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 						},
@@ -5032,9 +5008,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									StartsAt:           t2,
 									EndsAt:             t3,
 									LastEvaluationTime: t3,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 							{
@@ -5178,9 +5152,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									LastSentAt:         &t2,
 									ResolvedAt:         &t2,
 									Error:              datasourceError,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 							{
@@ -5274,9 +5246,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									EndsAt:             t1.Add(ResendDelay * 4),
 									LastEvaluationTime: t1,
 									LastSentAt:         &t1,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 						},
@@ -5294,9 +5264,7 @@ func TestProcessEvalResults_StateTransitions(t *testing.T) {
 									LastEvaluationTime: t2,
 									LastSentAt:         &t2,
 									ResolvedAt:         &t2,
-									Annotations: mergeLabels(baseRule.Annotations, data.Labels{
-										"Error": datasourceError.Error(),
-									}),
+									Annotations:        datasourceErrorAnnotations,
 								},
 							},
 							{
