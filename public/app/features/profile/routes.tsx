@@ -29,6 +29,10 @@ const profileRoutes: RouteDescriptor[] = [
       () => import(/* webpackChunkName: "NotificationsPage"*/ 'app/features/notifications/NotificationsPage')
     ),
   },
+  {
+    path: '/profile/labs',
+    component: SafeDynamicImport(() => import(/* webpackChunkName: "LabsPage"*/ 'app/features/labs/LabsPage')),
+  },
 ];
 
 export function getProfileRoutes(cfg = config): RouteDescriptor[] {
