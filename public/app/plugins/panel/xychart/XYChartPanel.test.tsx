@@ -32,7 +32,7 @@ jest.mock('./scatter', () => ({
 }));
 
 jest.mock('./utils', () => ({
-  prepSeries: jest.fn(() => []),
+  prepSeries: jest.fn(() => ({ series: [], warn: null })),
 }));
 
 const prepConfigMock = prepConfig as jest.Mock;
@@ -154,8 +154,8 @@ const defaultOptions: Options = {
   },
 };
 
-function renderPanel(optionOverrides?: Partial<Options>, seriesOverride?: XYSeries[]) {
-  prepSeriesMock.mockReturnValue(seriesOverride ?? [makeSeries()]);
+function renderPanel(optionOverrides?: Partial<Options>, seriesOverride?: XYSeries[], seriesWarn: string | null = null) {
+  prepSeriesMock.mockReturnValue({ series: seriesOverride ?? [makeSeries()], warn: seriesWarn });
 
   const props = getPanelProps<Options>({ ...defaultOptions, ...optionOverrides });
 
@@ -178,6 +178,16 @@ describe('XYChartPanel2', () => {
     renderPanel();
     expect(screen.getByTestId('error-view')).toBeVisible();
     expect(screen.getByText('No data')).toBeVisible();
+  });
+
+  it('prefers prepSeries mapping warn over prepConfig No data', () => {
+    prepConfigMock.mockReturnValue({ builder: null, prepData: () => [], warn: 'No data' });
+
+    renderPanel({ mapping: SeriesMapping.Manual }, [], 'X and Y fields must be mapped');
+
+    expect(screen.getByTestId('error-view')).toBeVisible();
+    expect(screen.getByText('X and Y fields must be mapped')).toBeVisible();
+    expect(screen.queryByText('No data')).toBeNull();
   });
 
   it('renders error view when builder is null', () => {

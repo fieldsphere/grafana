@@ -13,11 +13,29 @@ import {
   type FieldConfigSource,
 } from '@grafana/data';
 import { decoupleHideFromState } from '@grafana/data/internal';
+import { t } from '@grafana/i18n';
 import { config } from '@grafana/runtime';
 import { VisibilityMode } from '@grafana/schema';
 
 import { XYShowMode, SeriesMapping, type XYSeriesConfig } from './panelcfg.gen';
 import { type XYSeries } from './types2';
+
+function manualMappingWarn(seriesCfg: XYSeriesConfig): string | null {
+  const missingX = seriesCfg.x?.matcher == null;
+  const missingY = seriesCfg.y?.matcher == null;
+
+  if (missingX && missingY) {
+    return t('xychart.errors.xy-must-be-mapped', 'X and Y fields must be mapped');
+  }
+  if (missingX) {
+    return t('xychart.errors.x-must-be-mapped', 'X field must be mapped');
+  }
+  if (missingY) {
+    return t('xychart.errors.y-must-be-mapped', 'Y field must be mapped');
+  }
+
+  return null;
+}
 
 export function fmt(field: Field, val: number): string {
   if (field.display) {
@@ -41,11 +59,13 @@ export function prepSeries(
   mappedSeries: XYSeriesConfig[],
   frames: DataFrame[],
   fieldConfig: FieldConfigSource
-) {
+): { series: XYSeries[]; warn: string | null } {
   cacheFieldDisplayNames(frames);
   decoupleHideFromState(frames, fieldConfig);
 
   let series: XYSeries[] = [];
+  let mappingWarn: string | null = null;
+  let missingFieldWarn: string | null = null;
 
   if (mappedSeries.length === 0) {
     mappedSeries = [{}];
@@ -56,6 +76,10 @@ export function prepSeries(
   mappedSeries.forEach((seriesCfg, seriesIdx) => {
     if (mapping === SeriesMapping.Manual) {
       if (seriesCfg.frame?.matcher == null || seriesCfg.x?.matcher == null || seriesCfg.y?.matcher == null) {
+        // Keep warn null when there is no data so prepConfig still reports "No data".
+        if (frames.length > 0 && mappingWarn == null) {
+          mappingWarn = manualMappingWarn(seriesCfg);
+        }
         return;
       }
     }
@@ -77,12 +101,18 @@ export function prepSeries(
     // let frameMatcher = seriesCfg.frame ? getFrameMatchers(seriesCfg.frame) : null;
     let frameMatcher = seriesCfg.frame ? getFrameMatcher2(seriesCfg.frame.matcher) : null;
 
+    let sawMatchingFrame = false;
+    let sawX = false;
+    const seriesCountBefore = series.length;
+
     // loop over all frames and fields, adding a new series for each y dim
     frames.forEach((frame, frameIdx) => {
       // must match frame in manual mode
       if (frameMatcher != null && !frameMatcher(frame, frameIdx)) {
         return;
       }
+
+      sawMatchingFrame = true;
 
       // shared across each series in this frame
       let restFields: Field[] = [];
@@ -104,6 +134,7 @@ export function prepSeries(
 
       // x field is required
       if (x != null) {
+        sawX = true;
         // match y fields and create series
         onlyNumFields.forEach((field) => {
           if (field === x) {
@@ -166,10 +197,6 @@ export function prepSeries(
           }
         });
 
-        if (frameSeries.length === 0) {
-          // TODO: could not create series, skip & show error?
-        }
-
         // populate rest fields
         frame.fields.forEach((field) => {
           let isUsedField = frameSeries.some(
@@ -183,15 +210,22 @@ export function prepSeries(
         });
 
         series.push(...frameSeries);
-      } else {
-        // x is missing in this frame!
       }
     });
+
+    if (
+      mapping === SeriesMapping.Manual &&
+      sawMatchingFrame &&
+      missingFieldWarn == null &&
+      series.length === seriesCountBefore
+    ) {
+      missingFieldWarn = sawX
+        ? t('xychart.errors.y-field-not-found', 'Y field not found')
+        : t('xychart.errors.x-field-not-found', 'X field not found');
+    }
   });
 
-  if (series.length === 0) {
-    // TODO: could not create series, skip & show error?
-  } else {
+  if (series.length > 0) {
     // assign classic palette colors by index, as fallbacks for all series
 
     let paletteIdx = 0;
@@ -230,7 +264,10 @@ export function prepSeries(
     // y.display = getDisplayProcessor({ field, theme });
   }
 
-  return series;
+  return {
+    series,
+    warn: series.length === 0 ? (mappingWarn ?? missingFieldWarn) : null,
+  };
 }
 
 // strip common prefixes and suffixes from y field names
