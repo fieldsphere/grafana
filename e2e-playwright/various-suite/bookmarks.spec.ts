@@ -29,7 +29,7 @@ test.describe(
       await expect(bookmarksItem).toContainText('Bookmarks');
 
       // Check if the Administration section is visible
-      const adminItem = navList.locator('li').last();
+      const adminItem = navList.locator('li').filter({ hasText: 'Administration' }).first();
       await expect(adminItem).toBeVisible();
       await expect(adminItem).toContainText('Administration');
 
