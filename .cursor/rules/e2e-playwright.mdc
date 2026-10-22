@@ -1,0 +1,13 @@
+---
+description: Grafana Playwright E2E conventions
+globs: e2e-playwright/**/*.ts
+alwaysApply: false
+---
+
+# E2E Playwright
+
+- Read the nearest `AGENTS.md` before editing an E2E suite.
+- Prefer page objects for repeated interactions and keep selectors stable.
+- Use isolated test data with realistic names and cleanup when the suite expects it.
+- For alerting E2E, run the authentication setup project before targeted specs.
+- Prefer `--grep` or a specific spec path for focused verification.

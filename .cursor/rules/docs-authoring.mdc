@@ -1,0 +1,13 @@
+---
+description: Grafana documentation authoring conventions
+globs: docs/**/*.md
+alwaysApply: false
+---
+
+# Docs Authoring
+
+- Read `docs/AGENTS.md` before editing documentation.
+- Preserve Hugo front matter and docs-specific markers.
+- Use clear, user-facing language and sentence case headings.
+- Keep examples accurate for Grafana OSS unless the page is explicitly enterprise-only.
+- For docs-only changes, avoid running unrelated code test suites.
