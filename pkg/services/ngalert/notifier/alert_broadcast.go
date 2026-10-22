@@ -48,7 +48,7 @@ func (s *alertBroadcast) Merge(b []byte) error {
 
 	am, err := s.moa.AlertmanagerFor(payload.OrgID)
 	if err != nil {
-		if errors.Is(err, ErrNoAlertmanagerForOrg) || errors.Is(err, ErrAlertmanagerNotReady) {
+		if errors.Is(err, ErrAlertmanagerNotFound) || errors.Is(err, ErrAlertmanagerConflict) {
 			s.logger.Debug("Skipping receiving of broadcasted alerts, alertmanager unavailable", "orgID", payload.OrgID, "error", err)
 			return nil
 		}
