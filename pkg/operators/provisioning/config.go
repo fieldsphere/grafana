@@ -21,6 +21,7 @@ import (
 	"github.com/grafana/grafana/pkg/configprovider"
 	"github.com/grafana/grafana/pkg/infra/nats"
 	"github.com/grafana/grafana/pkg/infra/tracing"
+	"github.com/grafana/grafana/pkg/infra/tracingsetting"
 	"github.com/grafana/grafana/pkg/services/apiserver"
 	"github.com/grafana/grafana/pkg/setting"
 	"github.com/grafana/grafana/pkg/storage/unified"
@@ -70,6 +71,7 @@ type ControllerConfig struct {
 	decryptService        decrypt.DecryptService
 	registry              prometheus.Registerer
 	relistProjection      *informer.RelistProjectionMetrics
+	freshness             *informer.FreshnessMetrics
 	repositoryFactory     repository.Factory
 	repositoryExtras      []repository.Extra
 	RepositoryExtrasFunc  func() ([]repository.Extra, error)
@@ -458,6 +460,16 @@ func (c *ControllerConfig) RelistProjectionMetrics() *informer.RelistProjectionM
 	return c.relistProjection
 }
 
+// FreshnessMetrics returns the process's reconcile read-freshness metrics.
+// Memoized for the same reason as RelistProjectionMetrics.
+func (c *ControllerConfig) FreshnessMetrics() *informer.FreshnessMetrics {
+	if c.freshness == nil {
+		c.freshness = informer.NewFreshnessMetrics(c.Registry())
+	}
+
+	return c.freshness
+}
+
 // ProvisioningKeysLister returns a keys lister for one kind when [provisioning]
 // keys_only_relist is set, and nil otherwise, which keeps the full-object
 // re-list.
@@ -485,7 +497,7 @@ func (c *ControllerConfig) Tracer() (tracing.Tracer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to provide config: %w", err)
 	}
-	tracingConfig, err := tracing.ProvideTracingConfig(cfgProvider)
+	tracingConfig, err := tracingsetting.ProvideTracingConfig(cfgProvider)
 	if err != nil {
 		return nil, fmt.Errorf("failed to provide tracing config: %w", err)
 	}
