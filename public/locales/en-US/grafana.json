@@ -5185,6 +5185,8 @@
     "tooltip": "Close"
   },
   "cloud-enterprise-feature-badge": "Cloud & Enterprise",
+  "cloud-environment-badge": "Environment: Cloud",
+  "cloud-environment-badge-title": "This product is running in the Cloud environment",
   "cloud-feature-badge": "Cloud",
   "combobox": {
     "async": {
