@@ -17,6 +17,14 @@
     <link rel="icon" type="image/png" href="[[.FavIcon]]" />
     <link rel="apple-touch-icon" sizes="180x180" href="[[.AppleTouchIcon]]" />
     <link rel="mask-icon" href="[[.Assets.ContentDeliveryURL]]public/img/grafana_mask_icon.svg" color="#F05A28" />
+    <link rel="preload" as="image" href="[[.LoadingLogo]]" />
+    [[range $asset := .Assets.JSFiles]]
+      [[if $.ESModuleAssetsEnabled]]
+      <link rel="modulepreload" href="[[$asset.FilePath]]" crossorigin="anonymous" />
+      [[else]]
+      <link rel="preload" as="script" href="[[$asset.FilePath]]" crossorigin="anonymous" />
+      [[end]]
+    [[end]]
 
     [[range $asset := .Assets.CSSFiles]]
       <link rel="stylesheet" href="[[$asset.FilePath]]" />
@@ -71,12 +79,8 @@
         }
 
         .preloader__enter {
-          opacity: 0;
-          animation-name: preloader-fade-in;
-          animation-iteration-count: 1;
-          animation-duration: 0.9s;
-          animation-delay: 0.5s;
-          animation-fill-mode: forwards;
+          /* Paint immediately. The old 500ms fade-in delay blocked first contentful paint. */
+          opacity: 1;
         }
 
         .preloader__bounce {
@@ -93,9 +97,22 @@
           animation-iteration-count: infinite;
           width: 60px;
           height: 60px;
-          background-repeat: no-repeat;
-          background-size: contain;
-          background-image: url('[[.LoadingLogo]]');
+          object-fit: contain;
+        }
+
+        .preloader__status {
+          margin-top: 16px;
+          font-weight: 500;
+          font-size: 14px;
+          font-family: Sans-serif;
+        }
+
+        .theme-light .preloader__status {
+          color: #52545c;
+        }
+
+        .theme-dark .preloader__status {
+          color: #d8d9da;
         }
 
         .preloader__text {
@@ -103,11 +120,7 @@
           font-weight: 500;
           font-size: 14px;
           font-family: Sans-serif;
-          opacity: 0;
-          animation-name: preloader-fade-in;
-          animation-duration: 0.9s;
-          animation-delay: 0.5s;
-          animation-fill-mode: forwards;
+          opacity: 1;
         }
 
         .theme-light .preloader__text {
@@ -171,7 +184,8 @@
 
         /* stop logo animation */
         .preloader--done .preloader__bounce,
-        .preloader--done .preloader__logo {
+        .preloader--done .preloader__logo,
+        .preloader--done .preloader__status {
           animation-name: none;
           display: none;
         }
@@ -216,8 +230,9 @@
       </style>
       <div class="preloader__enter">
         <div class="preloader__bounce">
-          <div class="preloader__logo" aria-live="polite" role="status" aria-label="Loading Grafana"></div>
+          <img class="preloader__logo" src="[[.LoadingLogo]]" width="60" height="60" alt="" />
         </div>
+        <p class="preloader__status" aria-live="polite" role="status">Loading Grafana</p>
       </div>
       <div class="preloader__text preloader__text--fail">
         <main>
