@@ -14,6 +14,7 @@ import (
 func FoldersDashboardsMigration(migrator migrator.FoldersDashboardsMigrator) migrations.MigrationDefinition {
 	folderGR := schema.GroupResource{Group: folders.GROUP, Resource: folders.RESOURCE}
 	dashboardGR := schema.GroupResource{Group: v1.GROUP, Resource: v1.DASHBOARD_RESOURCE}
+	libraryPanelGR := schema.GroupResource{Group: v1.GROUP, Resource: v1.LIBRARY_PANEL_RESOURCE}
 
 	return migrations.MigrationDefinition{
 		ID:          migrations.FoldersDashboardsMigrationID,
@@ -30,10 +31,16 @@ func FoldersDashboardsMigration(migrator migrator.FoldersDashboardsMigrator) mig
 				LockTables:    []string{"dashboard", "dashboard_version", "dashboard_provisioning"},
 				FloorVersion:  dashV0.VERSION,
 			},
+			{
+				GroupResource: libraryPanelGR,
+				LockTables:    []string{"library_element"},
+				FloorVersion:  dashV0.VERSION,
+			},
 		},
 		Migrators: map[schema.GroupResource]migrations.MigratorFunc{
-			folderGR:    migrator.MigrateFolders,
-			dashboardGR: migrator.MigrateDashboards,
+			folderGR:       migrator.MigrateFolders,
+			dashboardGR:    migrator.MigrateDashboards,
+			libraryPanelGR: migrator.MigrateLibraryPanels,
 		},
 		Validators: []migrations.ValidatorFactory{
 			migrations.CountValidation(folderGR, migrations.CountValidationOptions{
@@ -44,9 +51,13 @@ func FoldersDashboardsMigration(migrator migrator.FoldersDashboardsMigrator) mig
 				Table: "dashboard",
 				Where: "org_id = ? AND is_folder = false AND deleted IS NULL",
 			}),
+			migrations.CountValidation(libraryPanelGR, migrations.CountValidationOptions{
+				Table: "library_element",
+				Where: "org_id = ?",
+			}),
 			migrations.FolderTreeValidation(folderGR),
 		},
-		// Folder and Dashboard tables are still being used
+		// Folder, dashboard, and library_element tables are still being used
 		RenameTables: []string{},
 	}
 }

@@ -1137,4 +1137,26 @@ func TestIntegrationIsAlreadyOnUnifiedStorage(t *testing.T) {
 		runMigration(t, env.engine, runner2, migrator.SQLite)
 		require.Equal(t, 1, fake.migrateCalled, "Migrate should be called when not on unified storage")
 	})
+
+	t.Run("ignores library panels when checking G12 dualwrite markers", func(t *testing.T) {
+		libraryPanelGR := schema.GroupResource{Group: "dashboard.grafana.app", Resource: "librarypanels"}
+		extendedDef := MigrationDefinition{
+			ID: FoldersDashboardsMigrationID, MigrationID: "folders and dashboards migration",
+			Resources: []ResourceInfo{
+				{GroupResource: gr},
+				{GroupResource: libraryPanelGR},
+			},
+			Migrators: map[schema.GroupResource]MigratorFunc{
+				gr:             func(context.Context, int64, MigrateOptions, resourcepb.BulkStore_BulkProcessClient) error { return nil },
+				libraryPanelGR: func(context.Context, int64, MigrateOptions, resourcepb.BulkStore_BulkProcessClient) error { return nil },
+			},
+		}
+		insertKVState(t, configKey, migratedStatus)
+		extendedRunner, _ := newRunner(t, noopLocker(), &transactionalTableRenamer{log: logger}, extendedDef)
+		sess := newSession()
+		defer sess.Close()
+		got, err := extendedRunner.isAlreadyOnUnifiedStorage(sess)
+		require.NoError(t, err)
+		require.True(t, got, "library panels must not invalidate the G12 dualwrite skip")
+	})
 }

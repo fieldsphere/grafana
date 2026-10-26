@@ -22,6 +22,7 @@ const (
 	PlaylistResource         = "playlists.playlist.grafana.app"
 	FolderResource           = "folders.folder.grafana.app"
 	DashboardResource        = "dashboards.dashboard.grafana.app"
+	LibraryPanelResource     = "librarypanels.dashboard.grafana.app"
 	ShortURLResource         = "shorturls.shorturl.grafana.app"
 	SnapshotResource         = "snapshots.dashboard.grafana.app"
 	LibraryPanelResource     = "librarypanels.dashboard.grafana.app"
@@ -35,10 +36,11 @@ const (
 
 // MigratedUnifiedResources maps resources to a boolean indicating if migration is enabled by default
 var MigratedUnifiedResources = map[string]bool{
-	PlaylistResource:         true,  // Only Mode5!
-	FolderResource:           true,  // Only Mode5!
-	DashboardResource:        true,  // Only Mode5!
-	ShortURLResource:         true,  // Only Mode5!
+	PlaylistResource:         true, // Only Mode5!
+	FolderResource:           true, // Only Mode5!
+	DashboardResource:        true, // Only Mode5!
+	LibraryPanelResource:     true, // Same FoldersDashboardsMigration as folders/dashboards; enablement parity requires Mode5
+	ShortURLResource:         true, // Only Mode5!
 	SnapshotResource:         false, // Requires kubernetesSnapshots to be enabled by default
 	LibraryPanelResource:     false, // Explicit migration opt-in; legacy storage remains the default
 	StarsResource:            false,
