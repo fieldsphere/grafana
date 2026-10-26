@@ -2,7 +2,6 @@ import { lastValueFrom } from 'rxjs';
 
 import { type LibraryPanelSpec, type LibraryPanelStatus } from '@grafana/api-clients/rtkq/dashboard/v0alpha1';
 import { type FetchError, getBackendSrv } from '@grafana/runtime';
-import { FlagKeys, getFeatureFlagClient } from '@grafana/runtime/internal';
 import { type LibraryElementDTOMetaUser, type LibraryPanel } from '@grafana/schema';
 import { getAPIBaseURL } from 'app/api/utils';
 import { ScopedResourceClient } from 'app/features/apiserver/client';
@@ -82,16 +81,21 @@ function isLibraryPanelApiAvailable(): Promise<boolean> {
 }
 
 /**
- * The k8s library panels client is gated by the FE feature flag
- * (`libraryelements.kubernetesLibraryPanels`) and discovery of the writable
- * `dashboard.grafana.app/v0alpha1/librarypanels` resource, so we never call an
- * endpoint an older backend does not serve.
+ * Prefer the k8s library panels client whenever discovery shows a writable
+ * `dashboard.grafana.app/v0alpha1/librarypanels` resource. Older backends that
+ * do not serve the resource stay on `/api/library-elements`.
+ *
+ * `libraryelements.kubernetesLibraryPanels` still gates the backend `/api`
+ * facade rewrite; the frontend no longer waits on that flag, so the dual
+ * client defaults onto `/apis` when the resource is served.
  */
 export function isK8sLibraryPanelsClientEnabled(): Promise<boolean> {
-  if (!getFeatureFlagClient().getBooleanValue(FlagKeys.LibraryelementsKubernetesLibraryPanels, false)) {
-    return Promise.resolve(false);
-  }
   return isLibraryPanelApiAvailable();
+}
+
+/** Clears the per-page-load discovery cache. Test-only. */
+export function resetK8sLibraryPanelsDiscoveryCache() {
+  apiAvailable = undefined;
 }
 
 // legacy model properties that map to typed fields on LibraryPanelSpec; everything
