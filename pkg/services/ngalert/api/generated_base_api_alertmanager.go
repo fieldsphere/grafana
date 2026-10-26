@@ -42,7 +42,6 @@ type AlertmanagerApi interface {
 	RoutePostAMAlerts(*contextmodel.ReqContext) response.Response
 	RoutePostAlertingConfig(*contextmodel.ReqContext) response.Response
 	RoutePostGrafanaAlertingConfigHistoryActivate(*contextmodel.ReqContext) response.Response
-	RoutePostTestGrafanaReceivers(*contextmodel.ReqContext) response.Response
 	RoutePostTestGrafanaTemplates(*contextmodel.ReqContext) response.Response
 }
 
@@ -161,9 +160,6 @@ func (f *AlertmanagerApiHandler) RoutePostGrafanaAlertingConfigHistoryActivate(c
 	// Parse Path Parameters
 	idParam := web.Params(ctx.Req)[":id"]
 	return f.handleRoutePostGrafanaAlertingConfigHistoryActivate(ctx, idParam)
-}
-func (f *AlertmanagerApiHandler) RoutePostTestGrafanaReceivers(ctx *contextmodel.ReqContext) response.Response {
-	return f.handleRoutePostTestGrafanaReceivers(ctx)
 }
 func (f *AlertmanagerApiHandler) RoutePostTestGrafanaTemplates(ctx *contextmodel.ReqContext) response.Response {
 	// Parse Request Body
@@ -437,18 +433,6 @@ func (api *API) RegisterAlertmanagerApiEndpoints(srv AlertmanagerApi, m *metrics
 				http.MethodPost,
 				"/api/alertmanager/grafana/config/history/{id}/_activate",
 				api.Hooks.Wrap(srv.RoutePostGrafanaAlertingConfigHistoryActivate),
-				m,
-			),
-		)
-		group.Post(
-			toMacaronPath("/api/alertmanager/grafana/config/api/v1/receivers/test"),
-			requestmeta.SetOwner(requestmeta.TeamAlerting),
-			requestmeta.SetSLOGroup(requestmeta.SLOGroupHighSlow),
-			api.authorize(http.MethodPost, "/api/alertmanager/grafana/config/api/v1/receivers/test"),
-			metrics.Instrument(
-				http.MethodPost,
-				"/api/alertmanager/grafana/config/api/v1/receivers/test",
-				api.Hooks.Wrap(srv.RoutePostTestGrafanaReceivers),
 				m,
 			),
 		)
