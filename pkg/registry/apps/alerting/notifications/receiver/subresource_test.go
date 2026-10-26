@@ -2,10 +2,17 @@ package receiver
 
 import (
 	"context"
+	"io"
+	"net/http"
+	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"github.com/grafana/grafana-app-sdk/app"
+	"github.com/grafana/grafana-app-sdk/resource"
 
 	"github.com/grafana/grafana/apps/alerting/notifications/pkg/apis/alertingnotifications/v1beta1"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
@@ -270,4 +277,46 @@ func (f *fakeTestingService) PatchIntegrationAndTest(_ context.Context, _ identi
 		alert:          alert,
 	})
 	return notifier.IntegrationTestResult{}, nil
+}
+
+func TestHandleReceiverTestingRequest_clientErrorsKeepStatus(t *testing.T) {
+	handler := New(&fakeTestingService{})
+
+	t.Run("unauthorized when no user in context", func(t *testing.T) {
+		rec := httptest.NewRecorder()
+		err := handler.HandleReceiverTestingRequest(context.Background(), rec, &app.CustomRouteRequest{
+			ResourceIdentifier: resource.FullIdentifier{Name: newReceiverNamePlaceholder},
+			Body:               io.NopCloser(strings.NewReader(`{}`)),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, http.StatusUnauthorized, rec.Code)
+		assert.Contains(t, rec.Body.String(), `"code":401`)
+		assert.Contains(t, rec.Body.String(), "authentication required")
+	})
+
+	t.Run("bad request for invalid json", func(t *testing.T) {
+		ctx := identity.WithRequester(context.Background(), &identity.StaticRequester{OrgID: 1})
+		rec := httptest.NewRecorder()
+		err := handler.HandleReceiverTestingRequest(ctx, rec, &app.CustomRouteRequest{
+			ResourceIdentifier: resource.FullIdentifier{Name: newReceiverNamePlaceholder},
+			Body:               io.NopCloser(strings.NewReader(`{`)),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+		assert.Contains(t, rec.Body.String(), `"code":400`)
+	})
+
+	t.Run("bad request for invalid integration", func(t *testing.T) {
+		ctx := identity.WithRequester(context.Background(), &identity.StaticRequester{OrgID: 1})
+		rec := httptest.NewRecorder()
+		body := `{"integration":{"uid":"integration-uid","type":"slack","settings":{}},"alert":{"labels":{"alertname":"test"}}}`
+		err := handler.HandleReceiverTestingRequest(ctx, rec, &app.CustomRouteRequest{
+			ResourceIdentifier: resource.FullIdentifier{Name: newReceiverNamePlaceholder},
+			Body:               io.NopCloser(strings.NewReader(body)),
+		})
+		require.NoError(t, err)
+		assert.Equal(t, http.StatusBadRequest, rec.Code)
+		assert.Contains(t, rec.Body.String(), `"code":400`)
+		assert.Contains(t, rec.Body.String(), "integration UID must be empty")
+	})
 }

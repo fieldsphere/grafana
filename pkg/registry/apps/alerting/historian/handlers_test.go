@@ -16,6 +16,7 @@ import (
 	"github.com/grafana/grafana-app-sdk/app"
 	"github.com/grafana/grafana-plugin-sdk-go/data"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
+	"github.com/grafana/grafana/pkg/registry/apps/alerting/customroute"
 	"github.com/grafana/grafana/pkg/services/ngalert/models"
 )
 
@@ -193,6 +194,52 @@ func TestGetAlertStateHistoryHandler(t *testing.T) {
 		err := h.GetAlertStateHistoryHandler(ctx, writer, req)
 
 		require.Error(t, err)
+		assert.Contains(t, err.Error(), "database connection failed")
+	})
+
+	t.Run("wrapped client errors keep their status instead of becoming 500", func(t *testing.T) {
+		h := handlers{historian: &mockHistorian{}}
+
+		t.Run("unauthorized", func(t *testing.T) {
+			rec := httptest.NewRecorder()
+			err := customroute.WithAPIStatusErrorResponse(h.GetAlertStateHistoryHandler)(context.Background(), rec, &app.CustomRouteRequest{
+				URL: &url.URL{},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, http.StatusUnauthorized, rec.Code)
+			assert.Contains(t, rec.Body.String(), `"code":401`)
+			assert.Contains(t, rec.Body.String(), "authentication required")
+		})
+
+		t.Run("bad request", func(t *testing.T) {
+			ctx := identity.WithRequester(context.Background(), &identity.StaticRequester{OrgID: 1})
+			params := url.Values{}
+			params.Set("previous", "not-a-state")
+			rec := httptest.NewRecorder()
+			err := customroute.WithAPIStatusErrorResponse(h.GetAlertStateHistoryHandler)(ctx, rec, &app.CustomRouteRequest{
+				URL: &url.URL{RawQuery: params.Encode()},
+			})
+			require.NoError(t, err)
+			assert.Equal(t, http.StatusBadRequest, rec.Code)
+			assert.Contains(t, rec.Body.String(), `"code":400`)
+			assert.Contains(t, rec.Body.String(), "invalid previous state filter")
+		})
+	})
+
+	t.Run("wrapped server errors stay returned", func(t *testing.T) {
+		mock := &mockHistorian{
+			queryFunc: func(ctx context.Context, query models.HistoryQuery) (*data.Frame, error) {
+				return nil, errors.New("database connection failed")
+			},
+		}
+		h := handlers{historian: mock}
+		ctx := identity.WithRequester(context.Background(), &identity.StaticRequester{OrgID: 1})
+		rec := httptest.NewRecorder()
+		err := customroute.WithAPIStatusErrorResponse(h.GetAlertStateHistoryHandler)(ctx, rec, &app.CustomRouteRequest{
+			URL: &url.URL{},
+		})
+		require.Error(t, err)
+		assert.Equal(t, http.StatusOK, rec.Code, "nothing should be written")
 		assert.Contains(t, err.Error(), "database connection failed")
 	})
 

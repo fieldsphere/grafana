@@ -18,6 +18,7 @@ import (
 	"github.com/grafana/grafana/apps/alerting/notifications/pkg/apis/alertingnotifications/v1beta1"
 	"github.com/grafana/grafana/pkg/apimachinery/errutil"
 	"github.com/grafana/grafana/pkg/apimachinery/identity"
+	"github.com/grafana/grafana/pkg/registry/apps/alerting/customroute"
 	"github.com/grafana/grafana/pkg/services/ngalert/accesscontrol"
 	"github.com/grafana/grafana/pkg/services/ngalert/notifier"
 )
@@ -42,7 +43,10 @@ func New(ac AccessControlService, allowedIntegrations map[schema.IntegrationType
 // HandleGetSchemas handles GET requests for receiver integration schemas
 // Returns schemas wrapped in K8s-style metadata for migration compatibility
 func (h *Handler) HandleGetSchemas(ctx context.Context, writer app.CustomRouteResponseWriter, req *app.CustomRouteRequest) error {
-	// Verify user is authenticated
+	return customroute.WithAPIStatusErrorResponse(h.handleGetSchemas)(ctx, writer, req)
+}
+
+func (h *Handler) handleGetSchemas(ctx context.Context, writer app.CustomRouteResponseWriter, req *app.CustomRouteRequest) error {
 	user, err := identity.GetRequester(ctx)
 	if err != nil {
 		return &apierrors.StatusError{
