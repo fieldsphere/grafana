@@ -123,6 +123,7 @@ func (hs *HTTPServer) registerRoutes() {
 	r.Get("/admin/stats", authorize(ac.EvalPermission(ac.ActionServerStatsRead)), hs.Index)
 	r.Get("/admin/provisioning", reqOrgAdmin, hs.Index)
 	r.Get("/admin/provisioning/*", middleware.ProvisioningAuth(reqOrgAdmin), hs.Index)
+	r.Get("/labs", reqSignedIn, hs.Index)
 
 	if hs.Cfg.CloudMigration.Enabled {
 		r.Get("/admin/migrate-to-cloud", authorize(cloudmigration.MigrationAssistantAccess), hs.Index)
@@ -551,6 +552,8 @@ func (hs *HTTPServer) registerRoutes() {
 			// Some channels may have info
 			liveRoute.Get("/info/*", routing.Wrap(hs.Live.HandleInfoHTTP))
 		}, requestmeta.SetSLOGroup(requestmeta.SLOGroupNone))
+
+		apiRoute.Get("/labs/feature-toggles", routing.Wrap(hs.GetLabsFeatureToggles))
 	}, reqSignedIn)
 
 	// admin api
